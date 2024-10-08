@@ -129,6 +129,73 @@ impl<'src> Display for Attribute<'src> {
   }
 }
 
+#[derive(Default, Debug, Clone, PartialEq)]
+pub(crate) struct AttributeSet<'src> {
+  inner: BTreeSet<Attribute<'src>>,
+}
+
+impl<'src> Serialize for AttributeSet<'src> {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: Serializer,
+  {
+    self.inner.serialize(serializer)
+  }
+}
+
+impl<'src> AttributeSet<'src> {
+  pub(crate) fn from_iter(iter: impl IntoIterator<Item = Attribute<'src>>) -> Self {
+    Self {
+      inner: iter.into_iter().collect(),
+    }
+  }
+
+  pub(crate) fn count(&self) -> usize {
+    self.inner.len()
+  }
+
+  pub(crate) fn contains(&self, target: AttributeDiscriminant) -> bool {
+    self.inner.iter().any(|attr| {
+      let discriminant: AttributeDiscriminant = attr.into();
+      discriminant == target
+    })
+  }
+
+  pub(crate) fn get(&self, discriminant: AttributeDiscriminant) -> Option<&Attribute<'src>> {
+    self.inner.iter().find(|attr| {
+      let item_discriminant: AttributeDiscriminant = (*attr).into();
+      discriminant == item_discriminant
+    })
+  }
+
+  pub(crate) fn iter(&self) -> impl Iterator<Item = &Attribute<'src>> {
+    self.inner.iter()
+  }
+
+  pub(crate) fn private(&self) -> bool {
+    self.inner.contains(&Attribute::Private)
+  }
+
+  pub(crate) fn ensure_valid_attributes(
+    &self,
+    item_kind: &'static str,
+    item_token: Token<'src>,
+    valid: &[AttributeDiscriminant],
+  ) -> Result<(), CompileError<'src>> {
+    for attribute in &self.inner {
+      let discriminant: AttributeDiscriminant = attribute.into();
+      if !valid.contains(&discriminant) {
+        return Err(item_token.error(CompileErrorKind::InvalidAttribute {
+          item_kind,
+          item_name: item_token.lexeme(),
+          attribute: attribute.clone(),
+        }));
+      }
+    }
+    Ok(())
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;

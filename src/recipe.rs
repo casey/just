@@ -19,7 +19,7 @@ fn error_from_signal(recipe: &str, line_number: Option<usize>, exit_status: Exit
 /// A recipe, e.g. `foo: bar baz`
 #[derive(PartialEq, Debug, Clone, Serialize)]
 pub(crate) struct Recipe<'src, D = Dependency<'src>> {
-  pub(crate) attributes: BTreeSet<Attribute<'src>>,
+  pub(crate) attributes: AttributeSet<'src>,
   pub(crate) body: Vec<Line<'src>>,
   pub(crate) dependencies: Vec<D>,
   pub(crate) doc: Option<&'src str>,
@@ -66,20 +66,20 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn confirm(&self) -> RunResult<'src, bool> {
-    for attribute in &self.attributes {
-      if let Attribute::Confirm(prompt) = attribute {
-        if let Some(prompt) = prompt {
-          eprint!("{} ", prompt.cooked);
-        } else {
-          eprint!("Run recipe `{}`? ", self.name);
-        }
-        let mut line = String::new();
-        std::io::stdin()
-          .read_line(&mut line)
-          .map_err(|io_error| Error::GetConfirmation { io_error })?;
-        let line = line.trim().to_lowercase();
-        return Ok(line == "y" || line == "yes");
+    if let Some(Attribute::Confirm(ref prompt)) =
+      self.attributes.get(AttributeDiscriminant::Confirm)
+    {
+      if let Some(prompt) = prompt {
+        eprint!("{} ", prompt.cooked);
+      } else {
+        eprint!("Run recipe `{}`? ", self.name);
       }
+      let mut line = String::new();
+      std::io::stdin()
+        .read_line(&mut line)
+        .map_err(|io_error| Error::GetConfirmation { io_error })?;
+      let line = line.trim().to_lowercase();
+      return Ok(line == "y" || line == "yes");
     }
     Ok(true)
   }
@@ -97,7 +97,7 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn is_public(&self) -> bool {
-    !self.private && !self.attributes.contains(&Attribute::Private)
+    !self.private && !self.attributes.private()
   }
 
   pub(crate) fn is_script(&self) -> bool {
@@ -105,18 +105,21 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn takes_positional_arguments(&self, settings: &Settings) -> bool {
-    settings.positional_arguments || self.attributes.contains(&Attribute::PositionalArguments)
+    settings.positional_arguments
+      || self
+        .attributes
+        .contains(AttributeDiscriminant::PositionalArguments)
   }
 
   pub(crate) fn change_directory(&self) -> bool {
-    !self.attributes.contains(&Attribute::NoCd)
+    !self.attributes.contains(AttributeDiscriminant::NoCd)
   }
 
   pub(crate) fn enabled(&self) -> bool {
-    let windows = self.attributes.contains(&Attribute::Windows);
-    let linux = self.attributes.contains(&Attribute::Linux);
-    let macos = self.attributes.contains(&Attribute::Macos);
-    let unix = self.attributes.contains(&Attribute::Unix);
+    let windows = self.attributes.contains(AttributeDiscriminant::Windows);
+    let linux = self.attributes.contains(AttributeDiscriminant::Linux);
+    let macos = self.attributes.contains(AttributeDiscriminant::Macos);
+    let unix = self.attributes.contains(AttributeDiscriminant::Unix);
 
     (!windows && !linux && !macos && !unix)
       || (cfg!(target_os = "windows") && windows)
@@ -127,7 +130,9 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   fn print_exit_message(&self) -> bool {
-    !self.attributes.contains(&Attribute::NoExitMessage)
+    !self
+      .attributes
+      .contains(AttributeDiscriminant::NoExitMessage)
   }
 
   fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
@@ -139,7 +144,7 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   fn no_quiet(&self) -> bool {
-    self.attributes.contains(&Attribute::NoQuiet)
+    self.attributes.contains(AttributeDiscriminant::NoQuiet)
   }
 
   pub(crate) fn run<'run>(
@@ -341,10 +346,8 @@ impl<'src, D> Recipe<'src, D> {
       return Ok(());
     }
 
-    let executor = if let Some(Attribute::Script(interpreter)) = self
-      .attributes
-      .iter()
-      .find(|attribute| matches!(attribute, Attribute::Script(_)))
+    let executor = if let Some(Attribute::Script(interpreter)) =
+      self.attributes.get(AttributeDiscriminant::Script)
     {
       Executor::Command(
         interpreter
@@ -386,13 +389,16 @@ impl<'src, D> Recipe<'src, D> {
     })?;
     let mut path = tempdir.path().to_path_buf();
 
-    let extension = self.attributes.iter().find_map(|attribute| {
-      if let Attribute::Extension(extension) = attribute {
-        Some(extension.cooked.as_str())
-      } else {
-        None
-      }
-    });
+    let extension = self
+      .attributes
+      .get(AttributeDiscriminant::Extension)
+      .and_then(|attribute| {
+        if let Attribute::Extension(extension) = attribute {
+          Some(extension.cooked.as_str())
+        } else {
+          None
+        }
+      });
 
     path.push(executor.script_filename(self.name(), extension));
 
@@ -460,10 +466,8 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn doc(&self) -> Option<&str> {
-    for attribute in &self.attributes {
-      if let Attribute::Doc(doc) = attribute {
-        return doc.as_ref().map(|s| s.cooked.as_ref());
-      }
+    if let Some(Attribute::Doc(doc)) = self.attributes.get(AttributeDiscriminant::Doc) {
+      return doc.as_ref().map(|s| s.cooked.as_ref());
     }
     self.doc
   }
@@ -479,7 +483,7 @@ impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
       writeln!(f, "# {doc}")?;
     }
 
-    for attribute in &self.attributes {
+    for attribute in self.attributes.iter() {
       writeln!(f, "[{attribute}]")?;
     }
 

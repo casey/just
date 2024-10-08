@@ -72,17 +72,17 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           } => {
             let mut doc_attr: Option<&str> = None;
             let mut groups = Vec::new();
-            for attribute in attributes {
+            attributes.ensure_valid_attributes(
+              "Module",
+              **name,
+              &[AttributeDiscriminant::Doc, AttributeDiscriminant::Group],
+            )?;
+
+            for attribute in attributes.iter() {
               if let Attribute::Doc(ref doc) = attribute {
                 doc_attr = Some(doc.as_ref().map(|s| s.cooked.as_ref()).unwrap_or_default());
               } else if let Attribute::Group(ref group) = attribute {
                 groups.push(group.cooked.clone());
-              } else {
-                return Err(name.token.error(InvalidAttribute {
-                  item_kind: "Module",
-                  item_name: name.lexeme(),
-                  attribute: attribute.clone(),
-                }));
               }
             }
 
@@ -170,11 +170,9 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     }
 
     for recipe in recipes.values() {
-      for attribute in &recipe.attributes {
-        if let Attribute::Script(_) = attribute {
-          unstable_features.insert(UnstableFeature::ScriptAttribute);
-          break;
-        }
+      if recipe.attributes.contains(AttributeDiscriminant::Script) {
+        unstable_features.insert(UnstableFeature::ScriptAttribute);
+        break;
       }
     }
 
@@ -284,11 +282,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     }
 
     if !recipe.is_script() {
-      if let Some(attribute) = recipe
-        .attributes
-        .iter()
-        .find(|attribute| matches!(attribute, Attribute::Extension(_)))
-      {
+      if let Some(attribute) = recipe.attributes.get(AttributeDiscriminant::Extension) {
         return Err(recipe.name.error(InvalidAttribute {
           item_kind: "Recipe",
           item_name: recipe.name.lexeme(),
@@ -301,16 +295,11 @@ impl<'run, 'src> Analyzer<'run, 'src> {
   }
 
   fn analyze_alias(alias: &Alias<'src, Name<'src>>) -> CompileResult<'src> {
-    for attribute in &alias.attributes {
-      if *attribute != Attribute::Private {
-        return Err(alias.name.token.error(InvalidAttribute {
-          item_kind: "Alias",
-          item_name: alias.name.lexeme(),
-          attribute: attribute.clone(),
-        }));
-      }
-    }
-
+    alias.attributes.ensure_valid_attributes(
+      "Alias",
+      *alias.name,
+      &[AttributeDiscriminant::Private],
+    )?;
     Ok(())
   }
 
