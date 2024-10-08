@@ -36,6 +36,7 @@ fn default<T: Default>() -> T {
 #[macro_use]
 mod test;
 
+mod alias_style;
 mod allow_duplicate_recipes;
 mod allow_duplicate_variables;
 mod allow_missing;
@@ -89,7 +90,6 @@ mod no_aliases;
 mod no_cd;
 mod no_dependencies;
 mod no_exit_message;
-mod no_inline_aliases;
 mod os_attributes;
 mod parameters;
 mod parser;

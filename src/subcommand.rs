@@ -442,7 +442,7 @@ impl Subcommand {
     ) {
       let doc = doc.unwrap_or_default();
       let print_doc = !doc.is_empty() && doc.lines().count() <= 1;
-      let print_aliases = !config.no_inline_aliases && !aliases.is_empty();
+      let print_aliases = config.alias_style != AliasStyle::Recipe && !aliases.is_empty();
       let color = config.color.stdout();
 
       if print_doc || print_aliases {
@@ -484,7 +484,7 @@ impl Subcommand {
           .paint(&format!("[aliases: {}]", aliases.join(", ")))
       ));
 
-      let (left, right) = if config.inline_aliases_left {
+      let (left, right) = if config.alias_style == AliasStyle::InlineLeft {
         (aliases, doc)
       } else {
         (doc, aliases)
@@ -622,7 +622,7 @@ impl Subcommand {
 
       if let Some(recipes) = recipe_groups.get(&group) {
         for recipe in recipes {
-          let recipe_alias_entries = if config.no_inline_aliases {
+          let recipe_alias_entries = if config.alias_style == AliasStyle::Recipe {
             aliases.get(recipe.name())
           } else {
             None

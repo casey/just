@@ -474,22 +474,3 @@ fn unclosed_backticks() {
       ")
     .run();
 }
-
-fn inline_aliases_left_flag() {
-  Test::new()
-    .justfile(
-      "
-      alias t := test1
-
-      # I'm a recipe
-      test1:
-        @echo 'test1'
-
-      test2:
-        @echo 'test2'
-      ",
-    )
-    .args(["--inline-aliases-left", "--list"])
-    .stdout("Available recipes:\n    test1 # [aliases: t] I'm a recipe\n    test2\n")
-    .run();
-}

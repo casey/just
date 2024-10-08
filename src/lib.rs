@@ -7,6 +7,7 @@
 pub(crate) use {
   crate::{
     alias::Alias,
+    alias_style::AliasStyle,
     analyzer::Analyzer,
     argument_parser::ArgumentParser,
     assignment::Assignment,
@@ -179,6 +180,7 @@ pub mod summary;
 pub mod request;
 
 mod alias;
+mod alias_style;
 mod analyzer;
 mod argument_parser;
 mod assignment;
