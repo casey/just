@@ -10,43 +10,43 @@ defaults:
     shell: bash
 
 jobs:
-  checksums:
-    runs-on: ubuntu-latest
+  # checksums:
+  #   runs-on: ubuntu-latest
 
-    needs:
-    - package
+  #   needs:
+  #   - package
 
-    - name: Prerelease Check
-      id: prerelease
-      run: |
-        if [[ ${{ github.ref_name }} =~ ^[0-9]+[.][0-9]+[.][0-9]+$ ]]; then
-            echo value=false >> $GITHUB_OUTPUT
-        else
-            echo value=true >> $GITHUB_OUTPUT
-        fi
+  #   - name: Prerelease Check
+  #     id: prerelease
+  #     run: |
+  #       if [[ ${{ github.ref_name }} =~ ^[0-9]+[.][0-9]+[.][0-9]+$ ]]; then
+  #           echo value=false >> $GITHUB_OUTPUT
+  #       else
+  #           echo value=true >> $GITHUB_OUTPUT
+  #       fi
 
-    - name: Download Release Archives
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: >-
-        gh release download
-        --repo casey/just
-        --pattern '*'
-        --dir release"
+  #   - name: Download Release Archives
+  #     env:
+  #       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #     run: >-
+  #       gh release download
+  #       --repo casey/just
+  #       --pattern '*'
+  #       --dir release"
 
-    - name: Create Checksums
-      run: |
-        cd release
-        shasum -a 256 * > ../SHA256SUMS"
+  #   - name: Create Checksums
+  #     run: |
+  #       cd release
+  #       shasum -a 256 * > ../SHA256SUMS"
 
-    - name: Publish Checksums
-      uses: softprops/action-gh-release@v2.0.8
-      with:
-        draft: false
-        files: SHA256SUMS
-        prerelease: ${{ steps.prerelease.outputs.value }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #   - name: Publish Checksums
+  #     uses: softprops/action-gh-release@v2.0.8
+  #     with:
+  #       draft: false
+  #       files: SHA256SUMS
+  #       prerelease: ${{ steps.prerelease.outputs.value }}
+  #     env:
+  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   package:
     strategy:
