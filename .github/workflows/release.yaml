@@ -10,7 +10,7 @@ defaults:
     shell: bash
 
 jobs:
-  checksums:
+  checksum:
     runs-on: ubuntu-latest
 
     needs:
@@ -33,7 +33,7 @@ jobs:
         gh release download
         --repo casey/just
         --pattern '*'
-        --dir release"
+        --dir release
 
     - name: Create Checksums
       run: |
