@@ -297,7 +297,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
   }
 
   fn analyze_alias(alias: &Alias<'src, Name<'src>>) -> CompileResult<'src> {
-    for attribute in &alias.attributes {
+    for attribute in &alias.attributes.inner {
       if *attribute != Attribute::Private {
         return Err(alias.name.token.error(InvalidAttribute {
           item_kind: "Alias",
