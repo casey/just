@@ -384,8 +384,8 @@ circumstances, pass a specific tag to install with `--tag`.
 [Releases](https://github.com/casey/just/releases) include a `SHA256SUM` file
 which can be used to verify the integrity of pre-built binary archives.
 
-To verify a release, download the pre-built binary archive, along with the
-`SHA256SUM` file, and run:
+To verify a release, download the pre-built binary archive along with the
+`SHA256SUM` file and run:
 
 ```sh
 shasum --algorithm 256 --ignore-missing --check SHA256SUMS
