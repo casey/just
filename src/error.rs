@@ -175,6 +175,9 @@ pub(crate) enum Error<'src> {
   UnknownSubmodule {
     path: String,
   },
+  UnknownSubmoduleGroup {
+    path: String,
+  },
   UnknownOverrides {
     overrides: Vec<String>,
   },
@@ -461,6 +464,9 @@ impl<'src> ColorDisplay for Error<'src> {
       }
       UnknownSubmodule { path } => {
         write!(f, "Justfile does not contain submodule `{path}`")?;
+      }
+      UnknownSubmoduleGroup { path } => {
+        write!(f, "Justfile does not contain submodule nor group `{path}`")?;
       }
       UnknownOverrides { overrides } => {
         let count = Count("Variable", overrides.len());

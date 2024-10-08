@@ -389,13 +389,26 @@ impl Subcommand {
   }
 
   fn list(config: &Config, mut module: &Justfile, path: &ModulePath) -> RunResult<'static> {
+    let mut result = Ok(());
     for name in &path.path {
-      module = module
+      let submodule = module
         .modules
         .get(name)
         .ok_or_else(|| Error::UnknownSubmodule {
           path: path.to_string(),
-        })?;
+        });
+      match submodule {
+        Ok(submodule) => module = submodule,
+        Err(err) => {
+          result = Err(err);
+          break;
+        }
+      }
+    }
+
+    // default is to check submodules, otherwise we check groups
+    if result.is_err() {
+      return Self::list_group_recursive(config, module, path, 0, config.list_prefix.as_str());
     }
 
     Self::list_module(config, module, 0);
@@ -403,97 +416,159 @@ impl Subcommand {
     Ok(())
   }
 
-  fn list_module(config: &Config, module: &Justfile, depth: usize) {
-    fn format_doc(
-      config: &Config,
-      name: &str,
-      doc: Option<&str>,
-      max_signature_width: usize,
-      signature_widths: &BTreeMap<&str, usize>,
-    ) {
-      if let Some(doc) = doc {
-        if !doc.is_empty() && doc.lines().count() <= 1 {
-          print!(
-            "{:padding$}{} {}",
-            "",
-            config.color.stdout().doc().paint("#"),
-            config.color.stdout().doc().paint(doc),
-            padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
-          );
+  fn format_entries<'src>(
+    config: &Config,
+    entries: &Vec<ListEntry<'src, '_>>,
+    signature_widths: &SignatureWidths<'src>,
+    list_prefix: &str,
+    include_prefix: bool,
+  ) {
+    for entry in entries {
+      for (i, name) in iter::once(entry.recipe.name())
+        .chain(entry.aliases.iter().copied())
+        .enumerate()
+      {
+        let doc = if i == 0 {
+          entry.recipe.doc().map(Cow::Borrowed)
+        } else {
+          Some(Cow::Owned(format!("alias for `{}`", entry.recipe.name)))
+        };
+
+        if let Some(doc) = &doc {
+          if doc.lines().count() > 1 {
+            for line in doc.lines() {
+              println!(
+                "{list_prefix}{} {}",
+                config.color.stdout().doc().paint("#"),
+                config.color.stdout().doc().paint(line),
+              );
+            }
+          }
         }
+
+        print!(
+          "{list_prefix}{}{}",
+          {
+            if include_prefix {
+              &entry.prefix
+            } else {
+              ""
+            }
+          },
+          RecipeSignature {
+            name,
+            recipe: entry.recipe
+          }
+          .color_display(config.color.stdout())
+        );
+
+        Self::format_doc(config, name, doc.as_deref(), signature_widths);
       }
-      println!();
+    }
+  }
+
+  fn list_group_recursive(
+    config: &Config,
+    module: &Justfile,
+    path: &ModulePath,
+    depth: usize,
+    prefix: &str,
+  ) -> RunResult<'static> {
+    let mut entries = Vec::new();
+    let mut signature_widths = SignatureWidths::empty();
+    let mut queue = Vec::new();
+    queue.push((String::new(), module));
+    while let Some((prefix, module)) = queue.pop() {
+      if config.list_submodules {
+        let name = module.name();
+        queue.append(
+          &mut iter::repeat(if name.is_empty() {
+            String::new()
+          } else {
+            format!("{prefix}{name}::")
+          })
+          .zip(module.modules(config).into_iter())
+          .collect(),
+        );
+      }
+      let target_name = path.path.first().unwrap().to_string();
+      let group = module.find_public_group(&target_name, config);
+      let aliases = module.aliases(config);
+      for recipe in &group {
+        let name = module.name();
+        let entry = ListEntry::from_recipe(
+          recipe,
+          if name.is_empty() {
+            String::new()
+          } else {
+            format!("{prefix}{}::", module.name())
+          },
+          aliases.get(recipe.name()).unwrap_or(&Vec::new()).clone(),
+        );
+        signature_widths.add_entry(&entry);
+        entries.push(entry);
+      }
     }
 
-    let aliases = if config.no_aliases {
-      BTreeMap::new()
-    } else {
-      let mut aliases = BTreeMap::<&str, Vec<&str>>::new();
-      for alias in module.aliases.values().filter(|alias| !alias.is_private()) {
-        aliases
-          .entry(alias.target.name.lexeme())
-          .or_default()
-          .push(alias.name.lexeme());
+    if entries.is_empty() {
+      return Err(Error::UnknownSubmoduleGroup {
+        path: path.to_string(),
+      });
+    }
+
+    let list_prefix = prefix;
+
+    if depth == 0 {
+      print!("{}", config.list_heading);
+    }
+
+    Self::format_entries(config, &entries, &signature_widths, list_prefix, true);
+
+    Ok(())
+  }
+
+  fn format_doc(
+    config: &Config,
+    name: &str,
+    doc: Option<&str>,
+    signature_widths: &SignatureWidths,
+  ) {
+    if let Some(doc) = doc {
+      if !doc.is_empty() && doc.lines().count() <= 1 {
+        print!(
+          "{:padding$}{} {}",
+          "",
+          config.color.stdout().doc().paint("#"),
+          config.color.stdout().doc().paint(doc),
+          padding = signature_widths
+            .max_width
+            .saturating_sub(signature_widths.widths[name])
+            + 1,
+        );
       }
-      aliases
-    };
+    }
+    println!();
+  }
 
-    let signature_widths = {
-      let mut signature_widths: BTreeMap<&str, usize> = BTreeMap::new();
+  fn list_module(config: &Config, module: &Justfile, depth: usize) {
+    let mut signature_widths = SignatureWidths::empty();
+    let recipe_groups = module.public_group_map(config);
 
-      for (name, recipe) in &module.recipes {
-        if !recipe.is_public() {
-          continue;
-        }
-
-        for name in iter::once(name).chain(aliases.get(name).unwrap_or(&Vec::new())) {
-          signature_widths.insert(
-            name,
-            UnicodeWidthStr::width(
-              RecipeSignature { name, recipe }
-                .color_display(Color::never())
-                .to_string()
-                .as_str(),
-            ),
-          );
-        }
-      }
-      if !config.list_submodules {
-        for (name, _) in &module.modules {
-          signature_widths.insert(name, UnicodeWidthStr::width(format!("{name} ...").as_str()));
-        }
-      }
-
-      signature_widths
-    };
-
-    let max_signature_width = signature_widths
+    recipe_groups
       .values()
-      .copied()
-      .filter(|width| *width <= 50)
-      .max()
-      .unwrap_or(0);
+      .for_each(|entries| signature_widths.add_entries(entries));
+    if !config.list_submodules {
+      for (name, _) in &module.modules {
+        signature_widths
+          .add_string_custom_width(name, UnicodeWidthStr::width(format!("{name} ...").as_str()));
+      }
+    }
 
     let list_prefix = config.list_prefix.repeat(depth + 1);
 
     if depth == 0 {
       print!("{}", config.list_heading);
     }
-
-    let recipe_groups = {
-      let mut groups = BTreeMap::<Option<String>, Vec<&Recipe>>::new();
-      for recipe in module.public_recipes(config) {
-        let recipe_groups = recipe.groups();
-        if recipe_groups.is_empty() {
-          groups.entry(None).or_default().push(recipe);
-        } else {
-          for group in recipe_groups {
-            groups.entry(Some(group)).or_default().push(recipe);
-          }
-        }
-      }
-      groups
-    };
 
     let submodule_groups = {
       let mut groups = BTreeMap::<Option<String>, Vec<&Justfile>>::new();
@@ -543,44 +618,8 @@ impl Subcommand {
         }
       }
 
-      if let Some(recipes) = recipe_groups.get(&group) {
-        for recipe in recipes {
-          for (i, name) in iter::once(&recipe.name())
-            .chain(aliases.get(recipe.name()).unwrap_or(&Vec::new()))
-            .enumerate()
-          {
-            let doc = if i == 0 {
-              recipe.doc().map(Cow::Borrowed)
-            } else {
-              Some(Cow::Owned(format!("alias for `{}`", recipe.name)))
-            };
-
-            if let Some(doc) = &doc {
-              if doc.lines().count() > 1 {
-                for line in doc.lines() {
-                  println!(
-                    "{list_prefix}{} {}",
-                    config.color.stdout().doc().paint("#"),
-                    config.color.stdout().doc().paint(line),
-                  );
-                }
-              }
-            }
-
-            print!(
-              "{list_prefix}{}",
-              RecipeSignature { name, recipe }.color_display(config.color.stdout())
-            );
-
-            format_doc(
-              config,
-              name,
-              doc.as_deref(),
-              max_signature_width,
-              &signature_widths,
-            );
-          }
-        }
+      if let Some(entries) = recipe_groups.get(&group) {
+        Self::format_entries(config, entries, &signature_widths, &list_prefix, false);
       }
 
       if let Some(submodules) = submodule_groups.get(&group) {
@@ -594,11 +633,10 @@ impl Subcommand {
             Self::list_module(config, submodule, depth + 1);
           } else {
             print!("{list_prefix}{} ...", submodule.name());
-            format_doc(
+            Self::format_doc(
               config,
               submodule.name(),
               submodule.doc.as_deref(),
-              max_signature_width,
               &signature_widths,
             );
           }
