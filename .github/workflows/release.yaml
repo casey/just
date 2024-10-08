@@ -137,8 +137,8 @@ jobs:
     runs-on: ubuntu-latest
 
     needs:
-    - prerelease
     - package
+    - prerelease
 
     steps:
     - name: Download Release Archives
