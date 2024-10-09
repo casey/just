@@ -414,12 +414,28 @@ impl Subcommand {
       if let Some(doc) = doc {
         if !doc.is_empty() && doc.lines().count() <= 1 {
           print!(
-            "{:padding$}{} {}",
+            "{:padding$}{} ",
             "",
             config.color.stdout().doc().paint("#"),
-            config.color.stdout().doc().paint(doc),
             padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
           );
+
+          let mut within_backticks = false;
+          for chunk in doc.split('`') {
+            if within_backticks {
+              let color = config.color.stdout().doc_backtick();
+              print!(
+                "{}{}{}",
+                color.paint("`"),
+                color.paint(chunk),
+                color.paint("`")
+              );
+            } else {
+              let color = config.color.stdout().doc();
+              print!("{}", color.paint(chunk));
+            }
+            within_backticks = !within_backticks;
+          }
         }
       }
       println!();
