@@ -421,18 +421,13 @@ impl Subcommand {
           );
 
           let mut within_backticks = false;
-          for chunk in doc.split('`') {
+          for chunk in doc.split_inclusive('`') {
             if within_backticks {
               let color = config.color.stdout().doc_backtick();
-              print!(
-                "{}{}{}",
-                color.paint("`"),
-                color.paint(chunk),
-                color.paint("`")
-              );
+              print!("{}{}", color.paint("`"), color.paint(chunk),);
             } else {
               let color = config.color.stdout().doc();
-              print!("{}", color.paint(chunk));
+              print!("{}", color.paint(chunk.split('`').next().unwrap()));
             }
             within_backticks = !within_backticks;
           }
