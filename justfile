@@ -12,7 +12,7 @@ export JUST_LOG := log
 watch +args='test':
   cargo watch --clear --exec '{{ args }}'
 
-[group: 'test']
+[group('test')]
 test:
   cargo test --all
 
@@ -34,6 +34,7 @@ run:
 filter PATTERN:
   cargo test {{PATTERN}}
 
+[group: 'misc']
 [group: 'misc']
 build:
   cargo build
