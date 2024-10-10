@@ -11,3 +11,15 @@ fn dont_run_duplicate_recipes() {
     )
     .run();
 }
+
+#[test]
+fn check_match() {
+  Test::new()
+    .justfile(
+      r#"
+      val := "yep"
+      computed := match val { _ => test }
+      "#,
+    )
+    .run();
+}
