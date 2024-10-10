@@ -19,6 +19,114 @@ impl<'src> CompileError<'src> {
   }
 }
 
+pub(crate) fn render_compile_error(error: &CompileError) {
+  use ariadne::{Label, Report, ReportKind, Source};
+
+  let token = error.token;
+  let source = Source::from(token.src);
+
+  let start = token.offset;
+  let end = token.offset + token.length;
+
+  let path = format!("{}", token.path.display());
+  let label = Label::new((&path, start..end));
+
+  let report = Report::build(ReportKind::Error, &path, start);
+
+  let report = match &*error.kind {
+    CompileErrorKind::AttributeArgumentCountMismatch {
+      attribute,
+      found,
+      min,
+      max,
+    } => {
+      let label_msg = format!("Found {found} {}", Count("argument", *found));
+
+      let note = if min == max {
+        format!("`{attribute}` takes {min} {}", Count("argument", *min))
+      } else {
+        format!("`{attribute}` takes between {min} and {max} arguments")
+      };
+
+      report
+        .with_code("E01")
+        .with_message("Attribute argument count mismatch")
+        .with_label(label.with_message(label_msg))
+        .with_note(note)
+        .finish()
+    }
+    /*
+    CompileErrorKind::BacktickShebang => todo!(),
+    CompileErrorKind::CircularRecipeDependency { recipe, circle } => todo!(),
+    CompileErrorKind::CircularVariableDependency { variable, circle } => todo!(),
+    CompileErrorKind::DependencyArgumentCountMismatch { dependency, found, min, max } => todo!(),
+    CompileErrorKind::Redefinition { first, first_type, name, second_type } => todo!(),
+    */
+    CompileErrorKind::DuplicateAttribute { attribute, first } => {
+      let original_label = source
+        .line(*first)
+        .map(|line| Label::new((&path, line.span())).with_message("original"));
+
+      let mut report = report
+        .with_code("E02")
+        .with_message(format!("Duplicate attribute `{attribute}`"));
+      if let Some(original) = original_label {
+        report = report.with_label(original);
+      }
+      report.with_label(label.with_message("duplicate")).finish()
+    }
+    _ => {
+      let message = format!("{error}");
+      report.with_message(message).with_label(label).finish()
+    } /*
+      CompileErrorKind::DuplicateParameter { recipe, parameter } => todo!(),
+      CompileErrorKind::DuplicateSet { setting, first } => todo!(),
+      CompileErrorKind::DuplicateVariable { variable } => todo!(),
+      CompileErrorKind::DuplicateUnexport { variable } => todo!(),
+      CompileErrorKind::ExpectedKeyword { expected, found } => todo!(),
+      CompileErrorKind::ExportUnexported { variable } => todo!(),
+      CompileErrorKind::ExtraLeadingWhitespace => todo!(),
+      CompileErrorKind::ExtraneousAttributes { count } => todo!(),
+      CompileErrorKind::FunctionArgumentCountMismatch { function, found, expected } => todo!(),
+      CompileErrorKind::Include => todo!(),
+      CompileErrorKind::InconsistentLeadingWhitespace { expected, found } => todo!(),
+      CompileErrorKind::Internal { message } => todo!(),
+      CompileErrorKind::InvalidAttribute { item_kind, item_name, attribute } => todo!(),
+      CompileErrorKind::InvalidEscapeSequence { character } => todo!(),
+      CompileErrorKind::MismatchedClosingDelimiter { close, open, open_line } => todo!(),
+      CompileErrorKind::MixedLeadingWhitespace { whitespace } => todo!(),
+      CompileErrorKind::ParameterFollowsVariadicParameter { parameter } => todo!(),
+      CompileErrorKind::ParsingRecursionDepthExceeded => todo!(),
+      CompileErrorKind::RequiredParameterFollowsDefaultParameter { parameter } => todo!(),
+      CompileErrorKind::ShebangAndScriptAttribute { recipe } => todo!(),
+      CompileErrorKind::ShellExpansion { err } => todo!(),
+      CompileErrorKind::UndefinedVariable { variable } => todo!(),
+      CompileErrorKind::UnexpectedCharacter { expected } => todo!(),
+      CompileErrorKind::UnexpectedClosingDelimiter { close } => todo!(),
+      CompileErrorKind::UnexpectedEndOfToken { expected } => todo!(),
+      CompileErrorKind::UnexpectedToken { expected, found } => todo!(),
+      CompileErrorKind::UnicodeEscapeCharacter { character } => todo!(),
+      CompileErrorKind::UnicodeEscapeDelimiter { character } => todo!(),
+      CompileErrorKind::UnicodeEscapeEmpty => todo!(),
+      CompileErrorKind::UnicodeEscapeLength { hex } => todo!(),
+      CompileErrorKind::UnicodeEscapeRange { hex } => todo!(),
+      CompileErrorKind::UnicodeEscapeUnterminated => todo!(),
+      CompileErrorKind::UnknownAliasTarget { alias, target } => todo!(),
+      CompileErrorKind::UnknownAttribute { attribute } => todo!(),
+      CompileErrorKind::UnknownDependency { recipe, unknown } => todo!(),
+      CompileErrorKind::UnknownFunction { function } => todo!(),
+      CompileErrorKind::UnknownSetting { setting } => todo!(),
+      CompileErrorKind::UnknownStartOfToken => todo!(),
+      CompileErrorKind::UnpairedCarriageReturn => todo!(),
+      CompileErrorKind::UnterminatedBacktick => todo!(),
+      CompileErrorKind::UnterminatedInterpolation => todo!(),
+      CompileErrorKind::UnterminatedString => todo!(),
+      */
+  };
+
+  report.eprint((&path, source)).unwrap();
+}
+
 fn capitalize(s: &str) -> String {
   let mut chars = s.chars();
   match chars.next() {
