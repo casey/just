@@ -960,6 +960,7 @@ mod tests {
       Eol => "\n",
       Equals => "=",
       EqualsEquals => "==",
+      EqualsGreaterThan => "=>",
       EqualsTilde => "=~",
       Indent => "  ",
       InterpolationEnd => "}}",
