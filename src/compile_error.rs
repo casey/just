@@ -20,7 +20,7 @@ impl<'src> CompileError<'src> {
 }
 
 pub(crate) fn render_compile_error(error: &CompileError) {
-  use ariadne::{Label, Report, ReportKind, Source};
+  use ariadne::{Color, Fmt, Label, Report, ReportKind, Source};
 
   let token = error.token;
   let source = Source::from(token.src);
@@ -31,7 +31,7 @@ pub(crate) fn render_compile_error(error: &CompileError) {
   let path = format!("{}", token.path.display());
   let label = Label::new((&path, start..end));
 
-  let report = Report::build(ReportKind::Error, &path, start);
+  let report = Report::build(ReportKind::Custom("error", Color::Red), &path, start);
 
   let report = match &*error.kind {
     CompileErrorKind::AttributeArgumentCountMismatch {
@@ -49,7 +49,6 @@ pub(crate) fn render_compile_error(error: &CompileError) {
       };
 
       report
-        .with_code("E01")
         .with_message("Attribute argument count mismatch")
         .with_label(label.with_message(label_msg))
         .with_note(note)
@@ -67,13 +66,17 @@ pub(crate) fn render_compile_error(error: &CompileError) {
         .line(*first)
         .map(|line| Label::new((&path, line.span())).with_message("original"));
 
-      let mut report = report
-        .with_code("E02")
-        .with_message(format!("Duplicate attribute `{attribute}`"));
+      let mut report = report.with_message(format!("Duplicate attribute `{attribute}`"));
       if let Some(original) = original_label {
         report = report.with_label(original);
       }
-      report.with_label(label.with_message("duplicate")).finish()
+      report
+        .with_label(
+          label
+            .with_message("duplicate".fg(Color::Red))
+            .with_color(Color::Red),
+        )
+        .finish()
     }
     _ => {
       let message = format!("{error}");
