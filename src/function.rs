@@ -397,12 +397,14 @@ fn justfile(context: Context) -> FunctionResult {
     .context
     .search
     .justfile
+    .as_ref()
+    .ok_or(String::from("Justfile is not a file"))?
     .to_str()
     .map(str::to_owned)
     .ok_or_else(|| {
       format!(
-        "Justfile path is not valid unicode: {}",
-        context.evaluator.context.search.justfile.display()
+        "Justfile path is not valid unicode: {:?}",
+        context.evaluator.context.search.justfile
       )
     })
 }
@@ -413,11 +415,13 @@ fn justfile_directory(context: Context) -> FunctionResult {
     .context
     .search
     .justfile
+    .as_ref()
+    .ok_or(String::from("Justfile is not a file"))?
     .parent()
     .ok_or_else(|| {
       format!(
-        "Could not resolve justfile directory. Justfile `{}` had no parent.",
-        context.evaluator.context.search.justfile.display()
+        "Could not resolve justfile directory. Justfile `{:?}` had no parent.",
+        context.evaluator.context.search.justfile
       )
     })?;
 
@@ -450,6 +454,8 @@ fn module_directory(context: Context) -> FunctionResult {
     .context
     .search
     .justfile
+    .as_ref()
+    .ok_or(String::from("Module is not a file"))?
     .parent()
     .unwrap()
     .join(&context.evaluator.context.module.source)
@@ -478,6 +484,8 @@ fn module_file(context: Context) -> FunctionResult {
     .context
     .search
     .justfile
+    .as_ref()
+    .ok_or(String::from("Module is not a file"))?
     .parent()
     .unwrap()
     .join(&context.evaluator.context.module.source)
@@ -589,6 +597,8 @@ fn source_directory(context: Context) -> FunctionResult {
     .context
     .search
     .justfile
+    .as_ref()
+    .ok_or(String::from("Source is not a file"))?
     .parent()
     .unwrap()
     .join(context.name.token.path)
@@ -610,6 +620,8 @@ fn source_file(context: Context) -> FunctionResult {
     .context
     .search
     .justfile
+    .as_ref()
+    .ok_or(String::from("Source is not a file"))?
     .parent()
     .unwrap()
     .join(context.name.token.path)

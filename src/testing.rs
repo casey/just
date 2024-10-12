@@ -20,7 +20,7 @@ pub(crate) fn search(config: &Config) -> Search {
   let justfile = working_directory.join("justfile");
 
   Search {
-    justfile,
+    justfile: Some(justfile),
     working_directory,
   }
 }
