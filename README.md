@@ -2034,6 +2034,8 @@ Use `just --groups --unsorted` to print groups in their justfile order.
 
 ### Command Evaluation Using Backticks
 
+Backticks are an older feature that have largely been obsoleted by the `shell` function (see [External Commands](#external-commands).); we recommend that you use `shell` in new justfiles.
+
 Backticks can be used to store the result of commands:
 
 ```just
