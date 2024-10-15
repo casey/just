@@ -1292,19 +1292,19 @@ Available recipes:
 
 ### Variables and Substitution
 
-Variables, strings, concatenation, path joining, and substitution using `{{…}}`
-are supported:
+Variables, strings, concatenation, path joining, substitution using `{{…}}`, and function calls are supported:
 
 ```just
 tmpdir  := `mktemp -d`
 version := "0.2.7"
 tardir  := tmpdir / "awesomesauce-" + version
 tarball := tardir + ".tar.gz"
+config  := quote(config_dir() / ".project-config")
 
 publish:
   rm -f {{tarball}}
   mkdir {{tardir}}
-  cp README.md *.c {{tardir}}
+  cp README.md *.c {{ config }} {{tardir}}
   tar zcvf {{tarball}} {{tardir}}
   scp {{tarball}} me@server.com:release/
   rm -rf {{tarball}} {{tardir}}
@@ -1498,7 +1498,7 @@ Done!
 ### Functions
 
 `just` provides a few built-in functions that might be useful when writing
-recipes.
+recipes or assigning variables.
 
 All functions ending in `_directory` can be abbreviated to `_dir`. So
 `home_directory()` can also be written as `home_dir()`. In addition,
