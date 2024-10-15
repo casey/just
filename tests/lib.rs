@@ -31,6 +31,7 @@ pub(crate) use {
 #[macro_use]
 mod test;
 
+mod alias_style;
 mod allow_duplicate_recipes;
 mod allow_duplicate_variables;
 mod assert_stdout;
