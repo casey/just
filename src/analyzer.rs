@@ -141,6 +141,15 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     let mut deduplicated_recipes = Table::<'src, UnresolvedRecipe<'src>>::default();
     for recipe in self.recipes {
+      // compare name tokens, which include file path and source location, so
+      // will only return true for the same recipe imported from the same file
+      if deduplicated_recipes
+        .values()
+        .any(|previous| recipe.name == previous.name)
+      {
+        continue;
+      }
+
       Self::define(
         &mut definitions,
         recipe.name,

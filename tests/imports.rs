@@ -360,3 +360,34 @@ fn reused_import_are_allowed() {
     })
     .run();
 }
+
+#[test]
+fn multiply_imported_recipes_do_not_conflict() {
+  Test::new()
+    .justfile(
+      "
+      import 'a.just'
+      import 'a.just'
+      foo: bar
+    ",
+    )
+    .write("a.just", "bar:")
+    .run();
+}
+
+#[test]
+fn multiply_imported_recipes_in_nested_imports_do_not_conflict() {
+  Test::new()
+    .justfile(
+      "
+      import 'a.just'
+      import 'b.just'
+      foo: bar
+    ",
+    )
+    .write("a.just", "import 'c.just'")
+    .write("b.just", "import 'c.just'")
+    .write("c.just", "@bar:\n echo 'hello'")
+    .stdout("hello\n")
+    .run();
+}
