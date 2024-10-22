@@ -40,6 +40,8 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let ast = asts.get(root).unwrap();
     stack.push(ast);
 
+    let mut imported = HashSet::new();
+
     while let Some(ast) = stack.pop() {
       for item in &ast.items {
         match item {
@@ -54,7 +56,9 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           Item::Comment(_) => (),
           Item::Import { absolute, .. } => {
             if let Some(absolute) = absolute {
-              stack.push(asts.get(absolute).unwrap());
+              if imported.insert(absolute) {
+                stack.push(asts.get(absolute).unwrap());
+              }
             }
           }
           Item::Module {
@@ -141,15 +145,6 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     let mut deduplicated_recipes = Table::<'src, UnresolvedRecipe<'src>>::default();
     for recipe in self.recipes {
-      // compare name tokens, which include file path and source location, so
-      // will only return true for the same recipe imported from the same file
-      if deduplicated_recipes
-        .values()
-        .any(|previous| recipe.name == previous.name)
-      {
-        continue;
-      }
-
       Self::define(
         &mut definitions,
         recipe.name,

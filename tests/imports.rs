@@ -362,7 +362,7 @@ fn reused_import_are_allowed() {
 }
 
 #[test]
-fn multiply_imported_recipes_do_not_conflict() {
+fn multiply_imported_items_do_not_conflict() {
   Test::new()
     .justfile(
       "
@@ -371,12 +371,21 @@ fn multiply_imported_recipes_do_not_conflict() {
       foo: bar
     ",
     )
-    .write("a.just", "bar:")
+    .write(
+      "a.just",
+      "
+x := 'y'
+
+@bar:
+  echo hello
+",
+    )
+    .stdout("hello\n")
     .run();
 }
 
 #[test]
-fn multiply_imported_recipes_in_nested_imports_do_not_conflict() {
+fn nested_multiply_imported_items_do_not_conflict() {
   Test::new()
     .justfile(
       "
@@ -387,7 +396,15 @@ fn multiply_imported_recipes_in_nested_imports_do_not_conflict() {
     )
     .write("a.just", "import 'c.just'")
     .write("b.just", "import 'c.just'")
-    .write("c.just", "@bar:\n echo 'hello'")
+    .write(
+      "c.just",
+      "
+x := 'y'
+
+@bar:
+  echo hello
+",
+    )
     .stdout("hello\n")
     .run();
 }
