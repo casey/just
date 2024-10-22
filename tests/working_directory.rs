@@ -331,3 +331,70 @@ file := shell('cat file.txt')
     .stdout("FILE\n")
     .run();
 }
+
+#[test]
+fn attribute() {
+  Test::new()
+    .justfile(
+      r#"
+      [working-directory('bar')]
+      print1:
+        echo "$(basename "$PWD")"
+
+      [working-directory('bar')]
+      [working-directory('baz')]
+      print2:
+        echo "$(basename "$PWD")"
+
+      [working-directory('bar')]
+      [no-cd]
+      print3:
+        echo "$(basename "$PWD")"
+    "#,
+    )
+    .current_dir("foo")
+    .tree(tree! {
+      foo: {},
+      bar: {},
+      baz: {},
+    })
+    .args(["print1", "print2", "print3"])
+    .stderr(
+      r#"echo "$(basename "$PWD")"
+echo "$(basename "$PWD")"
+echo "$(basename "$PWD")"
+"#,
+    )
+    .stdout("bar\nbaz\nfoo\n")
+    .run();
+}
+
+#[test]
+fn setting_and_attribute() {
+  Test::new()
+    .justfile(
+      r#"
+      set working-directory := 'bar'
+
+      [working-directory('baz')]
+      print1:
+        echo "$(basename "$PWD")"
+        echo "$(basename "$(dirname "$PWD")")"
+    "#,
+    )
+    .current_dir("foo")
+    .tree(tree! {
+      foo: {},
+      bar: {
+        baz: {},
+      },
+    })
+    .args(["print1"])
+    .stderr(
+      r#"echo "$(basename "$PWD")"
+echo "$(basename "$(dirname "$PWD")")"
+"#,
+    )
+    .stdout("baz\nbar\n")
+    .run();
+}

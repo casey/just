@@ -133,11 +133,24 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
-    if self.change_directory() {
-      Some(context.working_directory())
-    } else {
-      None
+    if !self.change_directory() {
+      return None;
     }
+
+    let working_dir = self
+      .attributes
+      .iter()
+      .filter_map(|attribute| match attribute {
+        Attribute::WorkingDirectory(dir) => Some(dir),
+        _ => None,
+      })
+      .last();
+
+    Some(
+      working_dir
+        .map(|dir| context.working_directory().join(dir.raw))
+        .unwrap_or(context.working_directory()),
+    )
   }
 
   fn no_quiet(&self) -> bool {

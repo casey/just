@@ -1875,6 +1875,7 @@ Recipes, `mod` statements, and aliases may be annotated with attributes that cha
 | `[script(COMMAND)]`<sup>1.32.0</sup> | recipe | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
 | `[unix]`<sup>1.8.0</sup> | recipe | Enable recipe on Unixes. (Includes MacOS). |
 | `[windows]`<sup>1.8.0</sup> | recipe | Enable recipe on Windows. |
+| `[working-directory('bar')]`<sup>1.37.0</sup> | recipe | Set the working directory for the recipe, relative to the default working directory. |
 
 A recipe can have multiple attributes, either on multiple lines:
 
@@ -1937,6 +1938,23 @@ commit file:
 Can be used with paths that are relative to the current directory, because
 `[no-cd]` prevents `just` from changing the current directory when executing
 `commit`.
+
+#### Changing Working Directory<sup>1.37.0</sup>
+
+`just` normally executes recipes with the current directory set to the directory
+that contains the `justfile`. The execution directory can be changed with the
+`[working-directory('dir')]` attribute. This can be used to create recipes which
+are executed in a directory relative to the default directory.
+
+For example, this `example` recipe:
+
+```just
+[working-directory('dir')]
+example:
+  echo "$(pwd)"
+```
+
+Which will run in the `dir` directory.
 
 #### Requiring Confirmation for Recipes<sup>1.17.0</sup>
 
