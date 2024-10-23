@@ -1816,13 +1816,10 @@ for details.
   `requirement`, e.g., `">=0.1.0"`, returning `"true"` if so and `"false"`
   otherwise.
 
-##### XDG Directories<sup>1.23.0</sup>
+##### Directories<sup>1.23.0</sup>
 
-These functions return paths to user-specific directories for things like
-configuration, data, caches, executables, and the user's home directory. These
-functions follow the
-[XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html),
-and are implemented with the
+These functions return paths to standard operating system directories for things like
+configuration, data, caches, executables, and the user's home directory. These are implemented with the
 [`dirs`](https://docs.rs/dirs/latest/dirs/index.html) crate.
 
 - `cache_directory()` - The user-specific cache directory.
@@ -1832,6 +1829,23 @@ and are implemented with the
 - `data_local_directory()` - The local user-specific data directory.
 - `executable_directory()` - The user-specific executable directory.
 - `home_directory()` - The user's home directory.
+
+##### XDG Directories
+
+These functions return paths to XDG directories for things like
+configuration, data, caches, executables, and the user's home directory. These
+functions follow the
+[XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html) and fall back to the operating system standard directories,
+and are implemented with the
+[`etcetera`](https://docs.rs/etcetera/latest/etcetera/index.html) crate.
+
+- `xdg_cache_directory()` - The XDG cache directory.
+- `xdg_config_directory()` - The XDG configuration directory.
+- `xdg_data_directory()` - The XDG data directory.
+- `xdg_home_directory()` - The user's home directory.
+- `xdg_runtime_directory()` - The local XDG runtime directory.
+- `xdg_state_directory()` - The XDG state directory.
+
 
 ### Constants
 
