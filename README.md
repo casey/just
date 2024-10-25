@@ -1597,6 +1597,22 @@ $ just
   name `key`, returning `default` if it is not present.
 - `env(key)`<sup>1.15.0</sup> — Alias for `env_var(key)`.
 - `env(key, default)`<sup>1.15.0</sup> — Alias for `env_var_or_default(key, default)`.
+- `which(exe)`<sup>1.37.0</sup> — Retrieves the full path of `exe` according
+  to the `PATH`. Returns an empty string if no executable named `exe` exists.
+
+```just
+bash := which("bash")
+nexist := which("does-not-exist")
+
+@test:
+    echo "bash: '{{bash}}'"
+    echo "nexist: '{{nexist}}'"
+```
+
+```console
+bash: '/bin/bash'
+nexist: ''
+```
 
 #### Invocation Information
 

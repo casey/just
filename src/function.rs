@@ -110,6 +110,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "uppercase" => Unary(uppercase),
     "uuid" => Nullary(uuid),
     "without_extension" => Unary(without_extension),
+    "which" => Unary(which_exec),
     _ => return None,
   };
   Some(function)
@@ -665,6 +666,16 @@ fn uppercase(_context: Context, s: &str) -> FunctionResult {
 
 fn uuid(_context: Context) -> FunctionResult {
   Ok(uuid::Uuid::new_v4().to_string())
+}
+
+fn which_exec(_context: Context, s: &str) -> FunctionResult {
+  let path = which::which(s).unwrap_or_default();
+  path.to_str().map(str::to_string).ok_or_else(|| {
+    format!(
+      "unable to convert which executable path to string: {}",
+      path.display()
+    )
+  })
 }
 
 fn without_extension(_context: Context, path: &str) -> FunctionResult {

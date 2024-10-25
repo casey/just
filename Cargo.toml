@@ -51,6 +51,7 @@ tempfile = "3.0.0"
 typed-arena = "2.0.1"
 unicode-width = "0.2.0"
 uuid = { version = "1.0.0", features = ["v4"] }
+which = "6.0.0"
 
 [dev-dependencies]
 executable-path = "1.0.0"

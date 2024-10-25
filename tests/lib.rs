@@ -110,6 +110,7 @@ mod timestamps;
 mod undefined_variables;
 mod unexport;
 mod unstable;
+mod which_exec;
 #[cfg(windows)]
 mod windows;
 #[cfg(target_family = "windows")]
