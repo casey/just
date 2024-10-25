@@ -3321,6 +3321,8 @@ import? 'foo/bar.just'
 
 Missing source files for optional imports do not produce an error.
 
+Importing the same source file multiple times is not an error.
+
 ### Modules<sup>1.19.0</sup>
 
 A `justfile` can declare modules using `mod` statements.
