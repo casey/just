@@ -161,7 +161,7 @@ most Windows users.)
     </tr>
     <tr>
       <td><a href=https://nixos.org/nix/>Nix</a></td>
-      <td><a href=https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix>just</a></td>
+      <td><a href=https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/ju/just/package.nix>just</a></td>
       <td><code>nix-env -iA nixpkgs.just</code></td>
     </tr>
     <tr>
@@ -268,7 +268,7 @@ most Windows users.)
     <tr>
       <td><a href=https://nixos.org/nixos/>NixOS</a></td>
       <td><a href=https://nixos.org/nix/>Nix</a></td>
-      <td><a href=https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix>just</a></td>
+      <td><a href=https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/ju/just/package.nix>just</a></td>
       <td><code>nix-env -iA nixos.just</code></td>
     </tr>
     <tr>
