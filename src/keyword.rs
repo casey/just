@@ -18,6 +18,7 @@ pub(crate) enum Keyword {
   If,
   IgnoreComments,
   Import,
+  Match,
   Mod,
   PositionalArguments,
   Quiet,

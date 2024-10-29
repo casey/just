@@ -205,6 +205,10 @@ pub enum Expression {
     otherwise: Box<Expression>,
     operator: ConditionalOperator,
   },
+  Match {
+    expr: Box<Expression>,
+    branches: Vec<(Expression, Expression)>,
+  },
   Join {
     lhs: Option<Box<Expression>>,
     rhs: Box<Expression>,
@@ -330,6 +334,13 @@ impl Expression {
         name: name.lexeme().to_owned(),
       },
       Group { contents } => Self::new(contents),
+      Match { expr, branches } => Self::Match {
+        expr: Self::new(expr).into(),
+        branches: branches
+          .iter()
+          .map(|(check, branch)| (Self::new(check).into(), Self::new(branch).into()))
+          .collect(),
+      },
     }
   }
 }

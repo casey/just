@@ -522,6 +522,8 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let expression = if self.accepted_keyword(Keyword::If)? {
       self.parse_conditional()?
+    } else if self.accepted_keyword(Keyword::Match)? {
+      self.parse_match()?
     } else if self.accepted(Slash)? {
       let lhs = None;
       let rhs = self.parse_expression()?.into();
@@ -590,6 +592,33 @@ impl<'run, 'src> Parser<'run, 'src> {
       lhs: lhs.into(),
       rhs: rhs.into(),
       operator,
+    })
+  }
+
+  /// Parse a match statement
+  ///
+  /// e.g. `match a == b { true => "foo", _ => "bar" }`
+  fn parse_match(&mut self) -> CompileResult<'src, Expression<'src>> {
+    let expr = self.parse_expression()?;
+    let mut branches = Vec::new();
+    eprintln!("before EXPECT");
+    self.expect(BraceL)?;
+
+    // Parse as many values that lead to branches as we can
+    eprintln!("before parsing value");
+    while let Ok(value) = self.parse_value() {
+      eprintln!("value? [{value}]");
+      self.expect(EqualsGreaterThan)?;
+      let then = self.parse_expression()?;
+      let _ = self.expect(Comma);
+      branches.push((value, then));
+    }
+
+    self.expect(BraceR)?;
+
+    Ok(Expression::Match {
+      expr: expr.into(),
+      branches,
     })
   }
 
@@ -2251,6 +2280,12 @@ mod tests {
     name: conditional,
     text: "a := if b == c { d } else { e }",
     tree: (justfile (assignment a (if b == c d e))),
+  }
+
+  test! {
+    name: _match,
+    text: "a := match b == c { true => d, false => e }",
+    tree: (justfile (assignment a (match a == b true d false e))),
   }
 
   test! {
