@@ -1,4 +1,4 @@
-use {super::*, pretty_assertions::assert_eq};
+use {super::*, fs::Permissions, pretty_assertions::assert_eq};
 
 macro_rules! test {
   {
@@ -96,6 +96,12 @@ impl Test {
 
   pub(crate) fn create_dir(self, path: impl AsRef<Path>) -> Self {
     fs::create_dir_all(self.tempdir.path().join(path.as_ref())).unwrap();
+    self
+  }
+
+  #[cfg(unix)]
+  pub(crate) fn chmod(self, path: impl AsRef<Path>, perm: Permissions) -> Self {
+    fs::set_permissions(self.tempdir.path().join(path.as_ref()), perm).unwrap();
     self
   }
 
