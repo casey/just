@@ -1143,17 +1143,17 @@ Available recipes:
     test
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="variables-and-substitution"><a class="header" href="#variables-and-substitution">Variables and Substitution</a></h3>
-<p>Variables, strings, concatenation, path joining, and substitution using <code>{{…}}</code>
-are supported:</p>
+<p>Variables, strings, concatenation, path joining, substitution using <code>{{…}}</code>, and function calls are supported:</p>
 <pre><code class="language-just">tmpdir  := `mktemp -d`
 version := "0.2.7"
 tardir  := tmpdir / "awesomesauce-" + version
 tarball := tardir + ".tar.gz"
+config  := quote(config_dir() / ".project-config")
 
 publish:
   rm -f {{tarball}}
   mkdir {{tardir}}
-  cp README.md *.c {{tardir}}
+  cp README.md *.c {{ config }} {{tardir}}
   tar zcvf {{tarball}} {{tardir}}
   scp {{tarball}} me@server.com:release/
   rm -rf {{tarball}} {{tardir}}
@@ -1287,8 +1287,8 @@ echo 'Done!'
 Done!
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="functions"><a class="header" href="#functions">Functions</a></h3>
-<p><code>just</code> provides a few built-in functions that might be useful when writing
-recipes.</p>
+<p><code>just</code> provides many built-in functions for use in expressions, including
+recipe body <code>{{…}}</code> substitutions, assignments, and default parameter values.</p>
 <p>All functions ending in <code>_directory</code> can be abbreviated to <code>_dir</code>. So
 <code>home_directory()</code> can also be written as <code>home_dir()</code>. In addition,
 <code>invocation_directory_native()</code> can be abbreviated to

@@ -177,17 +177,17 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="variables-and-substitution"><a class="header" href="#variables-and-substitution">Variables and Substitution</a></h3>
-<p>Variables, strings, concatenation, path joining, and substitution using <code>{{…}}</code>
-are supported:</p>
+<p>Variables, strings, concatenation, path joining, substitution using <code>{{…}}</code>, and function calls are supported:</p>
 <pre><code class="language-just">tmpdir  := `mktemp -d`
 version := "0.2.7"
 tardir  := tmpdir / "awesomesauce-" + version
 tarball := tardir + ".tar.gz"
+config  := quote(config_dir() / ".project-config")
 
 publish:
   rm -f {{tarball}}
   mkdir {{tardir}}
-  cp README.md *.c {{tardir}}
+  cp README.md *.c {{ config }} {{tardir}}
   tar zcvf {{tarball}} {{tardir}}
   scp {{tarball}} me@server.com:release/
   rm -rf {{tarball}} {{tardir}}
