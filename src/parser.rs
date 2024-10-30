@@ -26,7 +26,6 @@ use {super::*, TokenKind::*};
 pub(crate) struct Parser<'run, 'src> {
   expected_tokens: BTreeSet<TokenKind>,
   file_depth: u32,
-  file_path: &'run Path,
   import_offsets: Vec<usize>,
   module_namepath: &'run Namepath<'src>,
   next_token: usize,
@@ -39,7 +38,6 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// Parse `tokens` into an `Ast`
   pub(crate) fn parse(
     file_depth: u32,
-    file_path: &'run Path,
     import_offsets: &[usize],
     module_namepath: &'run Namepath<'src>,
     tokens: &'run [Token<'src>],
@@ -48,7 +46,6 @@ impl<'run, 'src> Parser<'run, 'src> {
     Self {
       expected_tokens: BTreeSet::new(),
       file_depth,
-      file_path,
       import_offsets: import_offsets.to_vec(),
       module_namepath,
       next_token: 0,
@@ -910,7 +907,6 @@ impl<'run, 'src> Parser<'run, 'src> {
       dependencies,
       doc,
       file_depth: self.file_depth,
-      file_path: self.file_path.into(),
       import_offsets: self.import_offsets.clone(),
       name,
       namepath: self.module_namepath.join(name),
@@ -1162,15 +1158,8 @@ mod tests {
   fn test(text: &str, want: Tree) {
     let unindented = unindent(text);
     let tokens = Lexer::test_lex(&unindented).expect("lexing failed");
-    let justfile = Parser::parse(
-      0,
-      &PathBuf::new(),
-      &[],
-      &Namepath::default(),
-      &tokens,
-      &PathBuf::new(),
-    )
-    .expect("parsing failed");
+    let justfile = Parser::parse(0, &[], &Namepath::default(), &tokens, &PathBuf::new())
+      .expect("parsing failed");
     let have = justfile.tree();
     if have != want {
       println!("parsed text: {unindented}");
@@ -1208,14 +1197,7 @@ mod tests {
   ) {
     let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
 
-    match Parser::parse(
-      0,
-      &PathBuf::new(),
-      &[],
-      &Namepath::default(),
-      &tokens,
-      &PathBuf::new(),
-    ) {
+    match Parser::parse(0, &[], &Namepath::default(), &tokens, &PathBuf::new()) {
       Ok(_) => panic!("Parsing unexpectedly succeeded"),
       Err(have) => {
         let want = CompileError {
