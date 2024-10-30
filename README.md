@@ -1497,8 +1497,8 @@ Done!
 
 ### Functions
 
-`just` provides a few built-in functions that might be useful when writing
-recipes or assigning variables.
+`just` provides many built-in functions for use in expressions, including
+recipe body `{{…}}` substitutions, assignments, and default parameter values.
 
 All functions ending in `_directory` can be abbreviated to `_dir`. So
 `home_directory()` can also be written as `home_dir()`. In addition,
