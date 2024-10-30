@@ -3324,19 +3324,19 @@ This allows importing multiple justfiles, for example `foo.just` and
 `bar.just`, which both import a third justfile containing shared recipes, for
 example `baz.just`, without the duplicate import of `baz.just` being an error:
 
-```just
+```mf
 # justfile
 import 'foo.just'
 import 'bar.just'
 ```
 
-```just
+```mf
 # foo.just
 import 'baz.just'
 foo: baz
 ```
 
-```just
+```mf
 # bar.just
 import 'baz.just'
 bar: baz
