@@ -1,4 +1,7 @@
-use {super::*, pretty_assertions::assert_eq};
+use {
+  super::*,
+  pretty_assertions::{assert_eq, StrComparison},
+};
 
 macro_rules! test {
   {
@@ -205,6 +208,14 @@ impl Test {
       equal
     }
 
+    fn compare_string(name: &str, have: &str, want: &str) -> bool {
+      let equal = have == want;
+      if !equal {
+        eprintln!("Bad {name}: {}", StrComparison::new(&have, &want));
+      }
+      equal
+    }
+
     if let Some(justfile) = &self.justfile {
       let justfile = unindent(justfile);
       fs::write(self.justfile_path(), justfile).unwrap();
@@ -266,8 +277,8 @@ impl Test {
     }
 
     if !compare("status", output.status.code(), Some(self.status))
-      | (self.stdout_regex.is_none() && !compare("stdout", output_stdout, &stdout))
-      | (self.stderr_regex.is_none() && !compare("stderr", output_stderr, &stderr))
+      | (self.stdout_regex.is_none() && !compare_string("stdout", output_stdout, &stdout))
+      | (self.stderr_regex.is_none() && !compare_string("stderr", output_stderr, &stderr))
     {
       panic!("Output mismatch.");
     }
