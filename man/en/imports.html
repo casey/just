@@ -208,7 +208,25 @@ set, variables in parent modules override variables in imports.</p>
 <p>Imports may be made optional by putting a <code>?</code> after the <code>import</code> keyword:</p>
 <pre><code class="language-mf">import? 'foo/bar.just'
 </code></pre>
-<p>Missing source files for optional imports do not produce an error.</p>
+<p>Importing the same source file multiple times is not an error<sup>master</sup>.
+This allows importing multiple justfiles, for example <code>foo.just</code> and
+<code>bar.just</code>, which both import a third justfile containing shared recipes, for
+example <code>baz.just</code>, without the duplicate import of <code>baz.just</code> being an error:</p>
+<pre><code class="language-mf"># justfile
+import 'foo.just'
+import 'bar.just'
+</code></pre>
+<pre><code class="language-mf"># foo.just
+import 'baz.just'
+foo: baz
+</code></pre>
+<pre><code class="language-mf"># bar.just
+import 'baz.just'
+bar: baz
+</code></pre>
+<pre><code class="language-just"># baz
+baz:
+</code></pre>
 
                     </main>
 
