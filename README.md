@@ -161,7 +161,7 @@ most Windows users.)
     </tr>
     <tr>
       <td><a href=https://nixos.org/nix/>Nix</a></td>
-      <td><a href=https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix>just</a></td>
+      <td><a href=https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/ju/just/package.nix>just</a></td>
       <td><code>nix-env -iA nixpkgs.just</code></td>
     </tr>
     <tr>
@@ -268,7 +268,7 @@ most Windows users.)
     <tr>
       <td><a href=https://nixos.org/nixos/>NixOS</a></td>
       <td><a href=https://nixos.org/nix/>Nix</a></td>
-      <td><a href=https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix>just</a></td>
+      <td><a href=https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/ju/just/package.nix>just</a></td>
       <td><code>nix-env -iA nixos.just</code></td>
     </tr>
     <tr>
@@ -2059,6 +2059,10 @@ See the [Strings](#strings) section for details on unindenting.
 Backticks may not start with `#!`. This syntax is reserved for a future
 upgrade.
 
+The [`shell(…)` function](#external-commands) provides a more general mechanism
+to invoke external commands, including the ability to execute the contents of a
+variable as a command, and to pass arguments to a command.
+
 ### Conditional Expressions
 
 `if`/`else` expressions evaluate different branches depending on if two
@@ -3319,7 +3323,33 @@ Imports may be made optional by putting a `?` after the `import` keyword:
 import? 'foo/bar.just'
 ```
 
-Missing source files for optional imports do not produce an error.
+Importing the same source file multiple times is not an error<sup>master</sup>.
+This allows importing multiple justfiles, for example `foo.just` and
+`bar.just`, which both import a third justfile containing shared recipes, for
+example `baz.just`, without the duplicate import of `baz.just` being an error:
+
+```mf
+# justfile
+import 'foo.just'
+import 'bar.just'
+```
+
+```mf
+# foo.just
+import 'baz.just'
+foo: baz
+```
+
+```mf
+# bar.just
+import 'baz.just'
+bar: baz
+```
+
+```just
+# baz
+baz:
+```
 
 ### Modules<sup>1.19.0</sup>
 

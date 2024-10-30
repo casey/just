@@ -360,3 +360,51 @@ fn reused_import_are_allowed() {
     })
     .run();
 }
+
+#[test]
+fn multiply_imported_items_do_not_conflict() {
+  Test::new()
+    .justfile(
+      "
+      import 'a.just'
+      import 'a.just'
+      foo: bar
+    ",
+    )
+    .write(
+      "a.just",
+      "
+x := 'y'
+
+@bar:
+  echo hello
+",
+    )
+    .stdout("hello\n")
+    .run();
+}
+
+#[test]
+fn nested_multiply_imported_items_do_not_conflict() {
+  Test::new()
+    .justfile(
+      "
+      import 'a.just'
+      import 'b.just'
+      foo: bar
+    ",
+    )
+    .write("a.just", "import 'c.just'")
+    .write("b.just", "import 'c.just'")
+    .write(
+      "c.just",
+      "
+x := 'y'
+
+@bar:
+  echo hello
+",
+    )
+    .stdout("hello\n")
+    .run();
+}
