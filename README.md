@@ -2059,7 +2059,9 @@ See the [Strings](#strings) section for details on unindenting.
 Backticks may not start with `#!`. This syntax is reserved for a future
 upgrade.
 
-More flexible and powerful command invocations can be acheived with the `shell` function (see [External Commands](#external-commands)).
+The [`shell(…)` function](#external-commands) provides a more general mechanism
+to invoke external commands, including the ability to execute a variable as a
+command, and to pass arguments.
 
 ### Conditional Expressions
 
