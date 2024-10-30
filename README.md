@@ -3319,9 +3319,33 @@ Imports may be made optional by putting a `?` after the `import` keyword:
 import? 'foo/bar.just'
 ```
 
-Missing source files for optional imports do not produce an error.
+Importing the same source file multiple times is not an error<sup>master</sup>.
+This allows importing multiple justfiles, for example `foo.just` and
+`bar.just`, which both import a third justfile containing shared recipes, for
+example `baz.just`, without the duplicate import of `baz.just` being an error:
 
-Importing the same source file multiple times is not an error.
+```just
+# justfile
+import 'foo.just'
+import 'bar.just'
+```
+
+```just
+# foo.just
+import 'baz.just'
+foo: baz
+```
+
+```just
+# bar.just
+import 'baz.just'
+bar: baz
+```
+
+```just
+# baz
+baz:
+```
 
 ### Modules<sup>1.19.0</sup>
 
