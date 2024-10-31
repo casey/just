@@ -3922,10 +3922,11 @@ interpolated into the format string.
 This can be combined with indented, triple quoted strings to emulate shell
 heredocs.
 
-Substitution into recipe bodies with `{…}` can also lead to trouble as,
-depending on the presence of whitespace and quotes, it may be split by the
-shell into multiple arguments, so exporting complex strings and referring to
-them with `"$NAME"` can also help.
+Substitution complex strings into recipe bodies with `{…}` can also lead to
+trouble as it may be split by the shell into multiple arguments depending on
+the presence of whitespace and quotes. Exporting complex strings as environment
+variables and referring to them with `"$NAME"`, note the double quotes, can
+also help.
 
 Putting all this together, to print a string verbatim to standard output, with
 all its various escape sequences and quotes undisturbed:
@@ -3933,7 +3934,7 @@ all its various escape sequences and quotes undisturbed:
 ```just
 export FOO := '''
   a complicated string with
-  various dis\tur\bi\ng escape sequences
+  some dis\tur\bi\ng escape sequences
   and "quotes" of 'different' kinds
 '''
 
