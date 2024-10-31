@@ -26,8 +26,6 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   #[serde(skip)]
   pub(crate) file_depth: u32,
   #[serde(skip)]
-  pub(crate) file_path: PathBuf,
-  #[serde(skip)]
   pub(crate) import_offsets: Vec<usize>,
   pub(crate) name: Name<'src>,
   pub(crate) namepath: Namepath<'src>,

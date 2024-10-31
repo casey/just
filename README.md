@@ -1292,19 +1292,19 @@ Available recipes:
 
 ### Variables and Substitution
 
-Variables, strings, concatenation, path joining, and substitution using `{{…}}`
-are supported:
+Variables, strings, concatenation, path joining, substitution using `{{…}}`, and function calls are supported:
 
 ```just
 tmpdir  := `mktemp -d`
 version := "0.2.7"
 tardir  := tmpdir / "awesomesauce-" + version
 tarball := tardir + ".tar.gz"
+config  := quote(config_dir() / ".project-config")
 
 publish:
   rm -f {{tarball}}
   mkdir {{tardir}}
-  cp README.md *.c {{tardir}}
+  cp README.md *.c {{ config }} {{tardir}}
   tar zcvf {{tarball}} {{tardir}}
   scp {{tarball}} me@server.com:release/
   rm -rf {{tarball}} {{tardir}}
@@ -1497,8 +1497,8 @@ Done!
 
 ### Functions
 
-`just` provides a few built-in functions that might be useful when writing
-recipes.
+`just` provides many built-in functions for use in expressions, including
+recipe body `{{…}}` substitutions, assignments, and default parameter values.
 
 All functions ending in `_directory` can be abbreviated to `_dir`. So
 `home_directory()` can also be written as `home_dir()`. In addition,
@@ -2076,6 +2076,10 @@ See the [Strings](#strings) section for details on unindenting.
 
 Backticks may not start with `#!`. This syntax is reserved for a future
 upgrade.
+
+The [`shell(…)` function](#external-commands) provides a more general mechanism
+to invoke external commands, including the ability to execute the contents of a
+variable as a command, and to pass arguments to a command.
 
 ### Conditional Expressions
 
@@ -3337,7 +3341,33 @@ Imports may be made optional by putting a `?` after the `import` keyword:
 import? 'foo/bar.just'
 ```
 
-Missing source files for optional imports do not produce an error.
+Importing the same source file multiple times is not an error<sup>master</sup>.
+This allows importing multiple justfiles, for example `foo.just` and
+`bar.just`, which both import a third justfile containing shared recipes, for
+example `baz.just`, without the duplicate import of `baz.just` being an error:
+
+```mf
+# justfile
+import 'foo.just'
+import 'bar.just'
+```
+
+```mf
+# foo.just
+import 'baz.just'
+foo: baz
+```
+
+```mf
+# bar.just
+import 'baz.just'
+bar: baz
+```
+
+```just
+# baz
+baz:
+```
 
 ### Modules<sup>1.19.0</sup>
 

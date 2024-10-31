@@ -35,6 +35,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     root: &Path,
   ) -> CompileResult<'src, Justfile<'src>> {
     let mut definitions = HashMap::new();
+    let mut imports = HashSet::new();
 
     let mut stack = Vec::new();
     let ast = asts.get(root).unwrap();
@@ -54,7 +55,9 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           Item::Comment(_) => (),
           Item::Import { absolute, .. } => {
             if let Some(absolute) = absolute {
-              stack.push(asts.get(absolute).unwrap());
+              if imports.insert(absolute) {
+                stack.push(asts.get(absolute).unwrap());
+              }
             }
           }
           Item::Module {
