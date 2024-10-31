@@ -3922,7 +3922,7 @@ interpolated into the format string.
 This can be combined with indented, triple quoted strings to emulate shell
 heredocs.
 
-Substitution into recipe bodies with `{…}` can also lead to trouble, as,
+Substitution into recipe bodies with `{…}` can also lead to trouble as,
 depending on the presence of whitespace and quotes, it may be split by the
 shell into multiple arguments, so exporting complex strings and referring to
 them with `"$NAME"` can also help.
