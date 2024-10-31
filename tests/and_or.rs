@@ -9,6 +9,8 @@ use super::*;
 // `is_dependency`
 // `path_exists`
 // `semver_matches`
+// test that this works:
+// foo := path_exists(foo_path) && foo_path || '/fallback'
 
 #[track_caller]
 fn evaluate(expression: &str, expected: &str) {
