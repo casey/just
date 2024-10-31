@@ -135,20 +135,15 @@ impl<'src, D> Recipe<'src, D> {
       return None;
     }
 
-    let working_dir = self
-      .attributes
-      .iter()
-      .filter_map(|attribute| match attribute {
-        Attribute::WorkingDirectory(dir) => Some(dir),
-        _ => None,
-      })
-      .last();
+    let working_directory = context.working_directory();
 
-    Some(
-      working_dir
-        .map(|dir| context.working_directory().join(dir.raw))
-        .unwrap_or(context.working_directory()),
-    )
+    for attribute in &self.attributes {
+      if let Attribute::WorkingDirectory(dir) = attribute {
+        return Some(working_directory.join(&dir.cooked));
+      }
+    }
+
+    Some(working_directory)
   }
 
   fn no_quiet(&self) -> bool {

@@ -333,22 +333,13 @@ file := shell('cat file.txt')
 }
 
 #[test]
-fn attribute() {
+fn attribute_duplicate() {
   Test::new()
     .justfile(
       r#"
       [working-directory('bar')]
-      print1:
-        echo "$(basename "$PWD")"
-
-      [working-directory('bar')]
       [working-directory('baz')]
-      print2:
-        echo "$(basename "$PWD")"
-
-      [working-directory('bar')]
-      [no-cd]
-      print3:
+      print:
         echo "$(basename "$PWD")"
     "#,
     )
@@ -358,14 +349,48 @@ fn attribute() {
       bar: {},
       baz: {},
     })
-    .args(["print1", "print2", "print3"])
+    .args(["print"])
+    .stderr(
+      r#"error: Recipe attribute `working-directory` first used on line 1 is duplicated on line 2
+ ——▶ justfile:2:2
+  │
+2 │ [working-directory('baz')]
+  │  ^^^^^^^^^^^^^^^^^
+"#,
+    )
+    .stdout("")
+    .status(1)
+    .run();
+}
+
+#[test]
+fn attribute() {
+  Test::new()
+    .justfile(
+      r#"
+      [working-directory('bar')]
+      print1:
+        echo "$(basename "$PWD")"
+
+      [working-directory('baz')]
+      [no-cd]
+      print2:
+        echo "$(basename "$PWD")"
+    "#,
+    )
+    .current_dir("foo")
+    .tree(tree! {
+      foo: {},
+      bar: {},
+      baz: {},
+    })
+    .args(["print1", "print2"])
     .stderr(
       r#"echo "$(basename "$PWD")"
 echo "$(basename "$PWD")"
-echo "$(basename "$PWD")"
 "#,
     )
-    .stdout("bar\nbaz\nfoo\n")
+    .stdout("bar\nfoo\n")
     .run();
 }
 
