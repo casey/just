@@ -1,5 +1,15 @@
 use super::*;
 
+// todo:
+// - what is truthy and what is falsy?
+// - set empty-false := true and require setting to use `&&` or `||`
+// - land as unstable?
+// - deprecate functions?
+//
+// `is_dependency`
+// `path_exists`
+// `semver_matches`
+
 #[track_caller]
 fn evaluate(expression: &str, expected: &str) {
   Test::new()
