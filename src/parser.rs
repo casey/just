@@ -439,7 +439,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
       if let Some((token, attributes)) = attributes {
         return Err(token.error(CompileErrorKind::ExtraneousAttributes {
-          count: attributes.count(),
+          count: attributes.len(),
         }));
       }
     }
@@ -487,7 +487,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let value = self.parse_expression()?;
     self.expect_eol()?;
 
-    let private = attributes.private();
+    let private = attributes.contains(AttributeDiscriminant::Private);
     attributes.ensure_valid_attributes("Assignment", *name, &[AttributeDiscriminant::Private])?;
 
     Ok(Assignment {
@@ -922,7 +922,8 @@ impl<'run, 'src> Parser<'run, 'src> {
       }));
     }
 
-    let private = name.lexeme().starts_with('_') || attributes.private();
+    let private =
+      name.lexeme().starts_with('_') || attributes.contains(AttributeDiscriminant::Private);
 
     Ok(Recipe {
       shebang: shebang || script,

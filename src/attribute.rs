@@ -96,6 +96,10 @@ impl<'src> Attribute<'src> {
     })
   }
 
+  pub(crate) fn discriminant(&self) -> AttributeDiscriminant {
+    self.into()
+  }
+
   pub(crate) fn name(&self) -> &'static str {
     self.into()
   }
@@ -129,51 +133,34 @@ impl<'src> Display for Attribute<'src> {
   }
 }
 
-#[derive(Default, Debug, Clone, PartialEq)]
-pub(crate) struct AttributeSet<'src> {
-  inner: BTreeSet<Attribute<'src>>,
-}
-
-impl<'src> Serialize for AttributeSet<'src> {
-  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-  where
-    S: Serializer,
-  {
-    self.inner.serialize(serializer)
-  }
-}
+#[derive(Default, Debug, Clone, PartialEq, Serialize)]
+pub(crate) struct AttributeSet<'src>(BTreeSet<Attribute<'src>>);
 
 impl<'src> AttributeSet<'src> {
   pub(crate) fn from_iter(iter: impl IntoIterator<Item = Attribute<'src>>) -> Self {
-    Self {
-      inner: iter.into_iter().collect(),
-    }
+    Self(iter.into_iter().collect())
   }
 
-  pub(crate) fn count(&self) -> usize {
-    self.inner.len()
+  pub(crate) fn len(&self) -> usize {
+    self.0.len()
   }
 
   pub(crate) fn contains(&self, target: AttributeDiscriminant) -> bool {
-    self.inner.iter().any(|attr| {
+    self.0.iter().any(|attr| {
       let discriminant: AttributeDiscriminant = attr.into();
       discriminant == target
     })
   }
 
   pub(crate) fn get(&self, discriminant: AttributeDiscriminant) -> Option<&Attribute<'src>> {
-    self.inner.iter().find(|attr| {
-      let item_discriminant: AttributeDiscriminant = (*attr).into();
-      discriminant == item_discriminant
-    })
+    self
+      .0
+      .iter()
+      .find(|attr| discriminant == attr.discriminant())
   }
 
   pub(crate) fn iter(&self) -> impl Iterator<Item = &Attribute<'src>> {
-    self.inner.iter()
-  }
-
-  pub(crate) fn private(&self) -> bool {
-    self.inner.contains(&Attribute::Private)
+    self.0.iter()
   }
 
   pub(crate) fn ensure_valid_attributes(
@@ -182,8 +169,8 @@ impl<'src> AttributeSet<'src> {
     item_token: Token<'src>,
     valid: &[AttributeDiscriminant],
   ) -> Result<(), CompileError<'src>> {
-    for attribute in &self.inner {
-      let discriminant: AttributeDiscriminant = attribute.into();
+    for attribute in &self.0 {
+      let discriminant = attribute.discriminant();
       if !valid.contains(&discriminant) {
         return Err(item_token.error(CompileErrorKind::InvalidAttribute {
           item_kind,

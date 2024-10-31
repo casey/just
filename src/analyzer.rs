@@ -79,10 +79,14 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             )?;
 
             for attribute in attributes.iter() {
-              if let Attribute::Doc(ref doc) = attribute {
-                doc_attr = Some(doc.as_ref().map(|s| s.cooked.as_ref()).unwrap_or_default());
-              } else if let Attribute::Group(ref group) = attribute {
-                groups.push(group.cooked.clone());
+              match attribute {
+                Attribute::Doc(ref doc) => {
+                  doc_attr = Some(doc.as_ref().map(|s| s.cooked.as_ref()).unwrap_or_default());
+                }
+                Attribute::Group(ref group) => {
+                  groups.push(group.cooked.clone());
+                }
+                _ => unreachable!(),
               }
             }
 

@@ -97,7 +97,7 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn is_public(&self) -> bool {
-    !self.private && !self.attributes.private()
+    !self.private && !self.attributes.contains(AttributeDiscriminant::Private)
   }
 
   pub(crate) fn is_script(&self) -> bool {

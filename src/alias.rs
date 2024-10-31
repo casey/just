@@ -26,7 +26,7 @@ impl<'src> Alias<'src, Name<'src>> {
 
 impl Alias<'_> {
   pub(crate) fn is_private(&self) -> bool {
-    self.name.lexeme().starts_with('_') || self.attributes.private()
+    self.name.lexeme().starts_with('_') || self.attributes.contains(AttributeDiscriminant::Private)
   }
 }
 
