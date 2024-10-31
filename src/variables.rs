@@ -20,7 +20,20 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
           self.stack.push(lhs);
           self.stack.push(rhs);
         }
-        Expression::StringLiteral { .. } | Expression::Backtick { .. } => {}
+        Expression::Assert {
+          condition:
+            Condition {
+              lhs,
+              rhs,
+              operator: _,
+            },
+          error,
+        } => {
+          self.stack.push(error);
+          self.stack.push(rhs);
+          self.stack.push(lhs);
+        }
+        Expression::Backtick { .. } | Expression::StringLiteral { .. } => {}
         Expression::Call { thunk } => match thunk {
           Thunk::Nullary { .. } => {}
           Thunk::Unary { arg, .. } => self.stack.push(arg),
@@ -60,6 +73,10 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
             }
           }
         },
+        Expression::Concatenation { lhs, rhs } => {
+          self.stack.push(rhs);
+          self.stack.push(lhs);
+        }
         Expression::Conditional {
           condition:
             Condition {
@@ -75,10 +92,8 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
           self.stack.push(rhs);
           self.stack.push(lhs);
         }
-        Expression::Variable { name, .. } => return Some(name.token),
-        Expression::Concatenation { lhs, rhs } => {
-          self.stack.push(rhs);
-          self.stack.push(lhs);
+        Expression::Group { contents } => {
+          self.stack.push(contents);
         }
         Expression::Join { lhs, rhs } => {
           self.stack.push(rhs);
@@ -86,22 +101,7 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
             self.stack.push(lhs);
           }
         }
-        Expression::Group { contents } => {
-          self.stack.push(contents);
-        }
-        Expression::Assert {
-          condition:
-            Condition {
-              lhs,
-              rhs,
-              operator: _,
-            },
-          error,
-        } => {
-          self.stack.push(error);
-          self.stack.push(rhs);
-          self.stack.push(lhs);
-        }
+        Expression::Variable { name, .. } => return Some(name.token),
       }
     }
   }
