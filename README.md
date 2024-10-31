@@ -1290,9 +1290,11 @@ Available recipes:
     test
 ```
 
-### Variables and Substitution
+### Expressions and Substitutions
 
-Variables, strings, concatenation, path joining, substitution using `{{…}}`, and function calls are supported:
+Various operators and function calls are supported in expressions, which may be
+used in assignments, default recipe arguments, and inside `{{…}}` substitutions
+inside recipe bodies:
 
 ```just
 tmpdir  := `mktemp -d`
@@ -1308,6 +1310,33 @@ publish:
   tar zcvf {{tarball}} {{tardir}}
   scp {{tarball}} me@server.com:release/
   rm -rf {{tarball}} {{tardir}}
+```
+
+#### Concatenation
+
+The `+` operator returns the left-hand argument concatenated with the
+right-hand argument:
+
+```just
+foobar := 'foo' + 'bar'
+```
+
+#### `&&` and/or `||`
+
+The `&&` operator returns the empty string if the left-hand argument is the
+empty string, otherwise it returns the right hand argument:
+
+```just
+foo := '' && 'goodbye'      # ''
+bar := 'hello' && 'goodbye' # 'goodbye'
+```
+
+The `||` operator returns the left-hand argument if it is non-empty, otherwise
+it returns the right-hand argument:
+
+```just
+foo := '' || 'goodbye'      # 'goodbye'
+bar := 'hello' || 'goodbye' # 'hello'
 ```
 
 #### Joining Paths
@@ -2367,8 +2396,8 @@ Testing server:unit…
 ./test --tests unit server
 ```
 
-Default values may be arbitrary expressions, but concatenations or path joins
-must be parenthesized:
+Default values may be arbitrary expressions, but expressions containing the
+`+`, `&&`, or `/` operators must be parenthesized:
 
 ```just
 arch := "wasm"

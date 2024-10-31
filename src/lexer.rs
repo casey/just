@@ -496,6 +496,7 @@ impl<'src> Lexer<'src> {
       ']' => self.lex_delimiter(BracketR),
       '`' | '"' | '\'' => self.lex_string(),
       '{' => self.lex_delimiter(BraceL),
+      '|' => self.lex_digraph('|', '|', BarBar),
       '}' => self.lex_delimiter(BraceR),
       _ if Self::is_identifier_start(start) => self.lex_identifier(),
       _ => {
@@ -948,6 +949,7 @@ mod tests {
       Asterisk => "*",
       At => "@",
       BangEquals => "!=",
+      BarBar => "||",
       BraceL => "{",
       BraceR => "}",
       BracketL => "[",

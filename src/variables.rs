@@ -16,6 +16,10 @@ impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
   fn next(&mut self) -> Option<Token<'src>> {
     loop {
       match self.stack.pop()? {
+        Expression::And { lhs, rhs } | Expression::Or { lhs, rhs } => {
+          self.stack.push(lhs);
+          self.stack.push(rhs);
+        }
         Expression::StringLiteral { .. } | Expression::Backtick { .. } => {}
         Expression::Call { thunk } => match thunk {
           Thunk::Nullary { .. } => {}

@@ -33,6 +33,7 @@ mod test;
 
 mod allow_duplicate_recipes;
 mod allow_duplicate_variables;
+mod and_or;
 mod assert_stdout;
 mod assert_success;
 mod assertions;

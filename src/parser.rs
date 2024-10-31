@@ -517,31 +517,57 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     self.recursion_depth += 1;
 
-    let expression = if self.accepted_keyword(Keyword::If)? {
-      self.parse_conditional()?
-    } else if self.accepted(Slash)? {
-      let lhs = None;
-      let rhs = self.parse_expression()?.into();
-      Expression::Join { lhs, rhs }
-    } else {
-      let value = self.parse_value()?;
+    let disjunct = self.parse_disjunct()?;
 
-      if self.accepted(Slash)? {
-        let lhs = Some(Box::new(value));
-        let rhs = self.parse_expression()?.into();
-        Expression::Join { lhs, rhs }
-      } else if self.accepted(Plus)? {
-        let lhs = value.into();
-        let rhs = self.parse_expression()?.into();
-        Expression::Concatenation { lhs, rhs }
-      } else {
-        value
-      }
+    let expression = if self.accepted(BarBar)? {
+      let lhs = disjunct.into();
+      let rhs = self.parse_expression()?.into();
+      Expression::Or { lhs, rhs }
+    } else {
+      disjunct
     };
 
     self.recursion_depth -= 1;
 
     Ok(expression)
+  }
+
+  fn parse_disjunct(&mut self) -> CompileResult<'src, Expression<'src>> {
+    let conjunct = self.parse_conjunct()?;
+
+    let disjunct = if self.accepted(AmpersandAmpersand)? {
+      let lhs = conjunct.into();
+      let rhs = self.parse_disjunct()?.into();
+      Expression::And { lhs, rhs }
+    } else {
+      conjunct
+    };
+
+    Ok(disjunct)
+  }
+
+  fn parse_conjunct(&mut self) -> CompileResult<'src, Expression<'src>> {
+    if self.accepted_keyword(Keyword::If)? {
+      self.parse_conditional()
+    } else if self.accepted(Slash)? {
+      let lhs = None;
+      let rhs = self.parse_conjunct()?.into();
+      Ok(Expression::Join { lhs, rhs })
+    } else {
+      let value = self.parse_value()?;
+
+      if self.accepted(Slash)? {
+        let lhs = Some(Box::new(value));
+        let rhs = self.parse_conjunct()?.into();
+        Ok(Expression::Join { lhs, rhs })
+      } else if self.accepted(Plus)? {
+        let lhs = value.into();
+        let rhs = self.parse_conjunct()?.into();
+        Ok(Expression::Concatenation { lhs, rhs })
+      } else {
+        Ok(value)
+      }
+    }
   }
 
   /// Parse a conditional, e.g. `if a == b { "foo" } else { "bar" }`
