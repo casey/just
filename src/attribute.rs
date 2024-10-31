@@ -136,6 +136,16 @@ impl<'src> Display for Attribute<'src> {
 #[derive(Default, Debug, Clone, PartialEq, Serialize)]
 pub(crate) struct AttributeSet<'src>(BTreeSet<Attribute<'src>>);
 
+impl<'src> IntoIterator for &AttributeSet<'src> {
+    type Item = &'src Attribute<'src>;
+
+    type IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        todo!()
+    }
+}
+
 impl<'src> AttributeSet<'src> {
   pub(crate) fn from_iter(iter: impl IntoIterator<Item = Attribute<'src>>) -> Self {
     Self(iter.into_iter().collect())
