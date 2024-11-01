@@ -1293,8 +1293,8 @@ Available recipes:
 ### Expressions and Substitutions
 
 Various operators and function calls are supported in expressions, which may be
-used in assignments, default recipe arguments, and inside `{{…}}` substitutions
-inside recipe bodies:
+used in assignments, default recipe arguments, and inside recipe body `{{…}}`
+substitutions.
 
 ```just
 tmpdir  := `mktemp -d`
