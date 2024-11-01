@@ -1,3 +1,5 @@
+use std::collections::{self};
+
 use super::*;
 
 #[derive(
@@ -136,14 +138,14 @@ impl<'src> Display for Attribute<'src> {
 #[derive(Default, Debug, Clone, PartialEq, Serialize)]
 pub(crate) struct AttributeSet<'src>(BTreeSet<Attribute<'src>>);
 
-impl<'src> IntoIterator for &AttributeSet<'src> {
-    type Item = &'src Attribute<'src>;
+impl<'src, 'a> IntoIterator for &'a AttributeSet<'src> {
+  type Item = &'a Attribute<'src>;
 
-    type IntoIter;
+  type IntoIter = collections::btree_set::Iter<'a, Attribute<'src>>;
 
-    fn into_iter(self) -> Self::IntoIter {
-        todo!()
-    }
+  fn into_iter(self) -> Self::IntoIter {
+    self.0.iter()
+  }
 }
 
 impl<'src> AttributeSet<'src> {

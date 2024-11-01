@@ -483,7 +483,7 @@ impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
       writeln!(f, "# {doc}")?;
     }
 
-    for attribute in self.attributes.iter() {
+    for attribute in &self.attributes {
       writeln!(f, "[{attribute}]")?;
     }
 
