@@ -179,7 +179,7 @@
                         <h3 id="imports"><a class="header" href="#imports">Imports</a></h3>
 <p>One <code>justfile</code> can include the contents of another using <code>import</code> statements.</p>
 <p>If you have the following <code>justfile</code>:</p>
-<pre><code class="language-mf">import 'foo/bar.just'
+<pre><code class="language-justfile">import 'foo/bar.just'
 
 a: b
   @echo A
@@ -206,21 +206,21 @@ recursively.</p>
 recipes in imports. In a similar manner, when <code>allow-duplicate-variables</code> is
 set, variables in parent modules override variables in imports.</p>
 <p>Imports may be made optional by putting a <code>?</code> after the <code>import</code> keyword:</p>
-<pre><code class="language-mf">import? 'foo/bar.just'
+<pre><code class="language-just">import? 'foo/bar.just'
 </code></pre>
 <p>Importing the same source file multiple times is not an error<sup>master</sup>.
 This allows importing multiple justfiles, for example <code>foo.just</code> and
 <code>bar.just</code>, which both import a third justfile containing shared recipes, for
 example <code>baz.just</code>, without the duplicate import of <code>baz.just</code> being an error:</p>
-<pre><code class="language-mf"># justfile
+<pre><code class="language-justfile"># justfile
 import 'foo.just'
 import 'bar.just'
 </code></pre>
-<pre><code class="language-mf"># foo.just
+<pre><code class="language-justfile"># foo.just
 import 'baz.just'
 foo: baz
 </code></pre>
-<pre><code class="language-mf"># bar.just
+<pre><code class="language-justfile"># bar.just
 import 'baz.just'
 bar: baz
 </code></pre>

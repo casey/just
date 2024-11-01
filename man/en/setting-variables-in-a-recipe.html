@@ -179,7 +179,7 @@
                         <h3 id="setting-variables-in-a-recipe"><a class="header" href="#setting-variables-in-a-recipe">Setting Variables in a Recipe</a></h3>
 <p>Recipe lines are interpreted by the shell, not <code>just</code>, so it’s not possible to
 set <code>just</code> variables in the middle of a recipe:</p>
-<pre><code class="language-mf">foo:
+<pre><code class="language-justfile">foo:
   x := "hello" # This doesn't work!
   echo {{x}}
 </code></pre>

@@ -182,7 +182,7 @@
 versions, you’ll need to use the <code>--unstable</code> flag, <code>set unstable</code>, or set the
 <code>JUST_UNSTABLE</code> environment variable to use them.</p>
 <p>If you have the following <code>justfile</code>:</p>
-<pre><code class="language-mf">mod bar
+<pre><code class="language-justfile">mod bar
 
 a:
   @echo A
@@ -206,7 +206,7 @@ B
 <code>foo/mod.just</code>, <code>foo/justfile</code>, and <code>foo/.justfile</code>. In the latter two cases,
 the module file may have any capitalization.</p>
 <p>Module statements may be of the form:</p>
-<pre><code class="language-mf">mod foo 'PATH'
+<pre><code class="language-justfile">mod foo 'PATH'
 </code></pre>
 <p>Which loads the module’s source file from <code>PATH</code>, instead of from the usual
 locations. A leading <code>~/</code> in <code>PATH</code> is replaced with the current user’s home
@@ -223,18 +223,18 @@ directory set to the directory containing the submodule source file.</p>
 justfile and the directory that contains it, even when called from submodule
 recipes.</p>
 <p>Modules may be made optional by putting a <code>?</code> after the <code>mod</code> keyword:</p>
-<pre><code class="language-mf">mod? foo
+<pre><code class="language-just">mod? foo
 </code></pre>
 <p>Missing source files for optional modules do not produce an error.</p>
 <p>Optional modules with no source file do not conflict, so you can have multiple
 mod statements with the same name, but with different source file paths, as
 long as at most one source file exists:</p>
-<pre><code class="language-mf">mod? foo 'bar.just'
+<pre><code class="language-just">mod? foo 'bar.just'
 mod? foo 'baz.just'
 </code></pre>
 <p>Modules may be given doc comments which appear in <code>--list</code>
 output<sup>1.30.0</sup>:</p>
-<pre><code class="language-mf"># foo is a great module!
+<pre><code class="language-justfile"># foo is a great module!
 mod foo
 </code></pre>
 <pre><code class="language-console">$ just --list

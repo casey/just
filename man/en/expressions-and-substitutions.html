@@ -206,12 +206,12 @@ consider the empty string <code>''</code> to be false, and all other strings to 
 <p>These operators are currently unstable.</p>
 <p>The <code>&amp;&amp;</code> operator returns the empty string if the left-hand argument is the
 empty string, otherwise it returns the right-hand argument:</p>
-<pre><code class="language-mf">foo := '' &amp;&amp; 'goodbye'      # ''
+<pre><code class="language-justfile">foo := '' &amp;&amp; 'goodbye'      # ''
 bar := 'hello' &amp;&amp; 'goodbye' # 'goodbye'
 </code></pre>
 <p>The <code>||</code> operator returns the left-hand argument if it is non-empty, otherwise
 it returns the right-hand argument:</p>
-<pre><code class="language-mf">foo := '' || 'goodbye'      # 'goodbye'
+<pre><code class="language-justfile">foo := '' || 'goodbye'      # 'goodbye'
 bar := 'hello' || 'goodbye' # 'hello'
 </code></pre>
 <h4 id="joining-paths"><a class="header" href="#joining-paths">Joining Paths</a></h4>

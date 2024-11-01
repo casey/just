@@ -1172,12 +1172,12 @@ consider the empty string <code>''</code> to be false, and all other strings to 
 <p>These operators are currently unstable.</p>
 <p>The <code>&amp;&amp;</code> operator returns the empty string if the left-hand argument is the
 empty string, otherwise it returns the right-hand argument:</p>
-<pre><code class="language-mf">foo := '' &amp;&amp; 'goodbye'      # ''
+<pre><code class="language-justfile">foo := '' &amp;&amp; 'goodbye'      # ''
 bar := 'hello' &amp;&amp; 'goodbye' # 'goodbye'
 </code></pre>
 <p>The <code>||</code> operator returns the left-hand argument if it is non-empty, otherwise
 it returns the right-hand argument:</p>
-<pre><code class="language-mf">foo := '' || 'goodbye'      # 'goodbye'
+<pre><code class="language-justfile">foo := '' || 'goodbye'      # 'goodbye'
 bar := 'hello' || 'goodbye' # 'hello'
 </code></pre>
 <h4 id="joining-paths"><a class="header" href="#joining-paths">Joining Paths</a></h4>
@@ -2265,7 +2265,7 @@ pass a Windows-style path to the interpreter.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="setting-variables-in-a-recipe"><a class="header" href="#setting-variables-in-a-recipe">Setting Variables in a Recipe</a></h3>
 <p>Recipe lines are interpreted by the shell, not <code>just</code>, so it’s not possible to
 set <code>just</code> variables in the middle of a recipe:</p>
-<pre><code class="language-mf">foo:
+<pre><code class="language-justfile">foo:
   x := "hello" # This doesn't work!
   echo {{x}}
 </code></pre>
@@ -2362,7 +2362,7 @@ Downloads
 <p>Recipes without an initial shebang are evaluated and run line-by-line, which
 means that multi-line constructs probably won’t do what you want.</p>
 <p>For example, with the following <code>justfile</code>:</p>
-<pre><code class="language-mf">conditional:
+<pre><code class="language-justfile">conditional:
   if true; then
     echo 'True!'
   fi
@@ -2656,7 +2656,7 @@ $ (cd foo &amp;&amp; just a b)
 <div style="break-before: page; page-break-before: always;"></div><h3 id="imports"><a class="header" href="#imports">Imports</a></h3>
 <p>One <code>justfile</code> can include the contents of another using <code>import</code> statements.</p>
 <p>If you have the following <code>justfile</code>:</p>
-<pre><code class="language-mf">import 'foo/bar.just'
+<pre><code class="language-justfile">import 'foo/bar.just'
 
 a: b
   @echo A
@@ -2683,21 +2683,21 @@ recursively.</p>
 recipes in imports. In a similar manner, when <code>allow-duplicate-variables</code> is
 set, variables in parent modules override variables in imports.</p>
 <p>Imports may be made optional by putting a <code>?</code> after the <code>import</code> keyword:</p>
-<pre><code class="language-mf">import? 'foo/bar.just'
+<pre><code class="language-just">import? 'foo/bar.just'
 </code></pre>
 <p>Importing the same source file multiple times is not an error<sup>master</sup>.
 This allows importing multiple justfiles, for example <code>foo.just</code> and
 <code>bar.just</code>, which both import a third justfile containing shared recipes, for
 example <code>baz.just</code>, without the duplicate import of <code>baz.just</code> being an error:</p>
-<pre><code class="language-mf"># justfile
+<pre><code class="language-justfile"># justfile
 import 'foo.just'
 import 'bar.just'
 </code></pre>
-<pre><code class="language-mf"># foo.just
+<pre><code class="language-justfile"># foo.just
 import 'baz.just'
 foo: baz
 </code></pre>
-<pre><code class="language-mf"># bar.just
+<pre><code class="language-justfile"># bar.just
 import 'baz.just'
 bar: baz
 </code></pre>
@@ -2710,7 +2710,7 @@ baz:
 versions, you’ll need to use the <code>--unstable</code> flag, <code>set unstable</code>, or set the
 <code>JUST_UNSTABLE</code> environment variable to use them.</p>
 <p>If you have the following <code>justfile</code>:</p>
-<pre><code class="language-mf">mod bar
+<pre><code class="language-justfile">mod bar
 
 a:
   @echo A
@@ -2734,7 +2734,7 @@ B
 <code>foo/mod.just</code>, <code>foo/justfile</code>, and <code>foo/.justfile</code>. In the latter two cases,
 the module file may have any capitalization.</p>
 <p>Module statements may be of the form:</p>
-<pre><code class="language-mf">mod foo 'PATH'
+<pre><code class="language-justfile">mod foo 'PATH'
 </code></pre>
 <p>Which loads the module’s source file from <code>PATH</code>, instead of from the usual
 locations. A leading <code>~/</code> in <code>PATH</code> is replaced with the current user’s home
@@ -2751,18 +2751,18 @@ directory set to the directory containing the submodule source file.</p>
 justfile and the directory that contains it, even when called from submodule
 recipes.</p>
 <p>Modules may be made optional by putting a <code>?</code> after the <code>mod</code> keyword:</p>
-<pre><code class="language-mf">mod? foo
+<pre><code class="language-just">mod? foo
 </code></pre>
 <p>Missing source files for optional modules do not produce an error.</p>
 <p>Optional modules with no source file do not conflict, so you can have multiple
 mod statements with the same name, but with different source file paths, as
 long as at most one source file exists:</p>
-<pre><code class="language-mf">mod? foo 'bar.just'
+<pre><code class="language-just">mod? foo 'bar.just'
 mod? foo 'baz.just'
 </code></pre>
 <p>Modules may be given doc comments which appear in <code>--list</code>
 output<sup>1.30.0</sup>:</p>
-<pre><code class="language-mf"># foo is a great module!
+<pre><code class="language-justfile"># foo is a great module!
 mod foo
 </code></pre>
 <pre><code class="language-console">$ just --list
