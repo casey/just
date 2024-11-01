@@ -90,7 +90,13 @@ import        : 'import' '?'? string? eol
 
 module        : 'mod' '?'? NAME string? eol
 
-expression    : 'if' condition '{' expression '}' 'else' '{' expression '}'
+expression    : disjunct || expression
+              | disjunct
+
+disjunct      : conjunct && disjunct
+              | conjunct
+
+conjunct      : 'if' condition '{' expression '}' 'else' '{' expression '}'
               | 'assert' '(' condition ',' expression ')'
               | '/' expression
               | value '/' expression

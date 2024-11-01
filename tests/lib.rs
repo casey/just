@@ -73,6 +73,7 @@ mod invocation_directory;
 mod json;
 mod line_prefixes;
 mod list;
+mod logical_operators;
 mod man;
 mod misc;
 mod modules;

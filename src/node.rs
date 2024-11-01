@@ -88,6 +88,7 @@ impl<'src> Node<'src> for Assignment<'src> {
 impl<'src> Node<'src> for Expression<'src> {
   fn tree(&self) -> Tree<'src> {
     match self {
+      Self::And { lhs, rhs } => Tree::atom("&&").push(lhs.tree()).push(rhs.tree()),
       Self::Assert {
         condition: Condition { lhs, rhs, operator },
         error,
@@ -96,25 +97,10 @@ impl<'src> Node<'src> for Expression<'src> {
         .push(operator.to_string())
         .push(rhs.tree())
         .push(error.tree()),
-      Self::Concatenation { lhs, rhs } => Tree::atom("+").push(lhs.tree()).push(rhs.tree()),
-      Self::Conditional {
-        condition: Condition { lhs, rhs, operator },
-        then,
-        otherwise,
-      } => {
-        let mut tree = Tree::atom(Keyword::If.lexeme());
-        tree.push_mut(lhs.tree());
-        tree.push_mut(operator.to_string());
-        tree.push_mut(rhs.tree());
-        tree.push_mut(then.tree());
-        tree.push_mut(otherwise.tree());
-        tree
-      }
+      Self::Backtick { contents, .. } => Tree::atom("backtick").push(Tree::string(contents)),
       Self::Call { thunk } => {
         use Thunk::*;
-
         let mut tree = Tree::atom("call");
-
         match thunk {
           Nullary { name, .. } => tree.push_mut(name.lexeme()),
           Unary { name, arg, .. } => {
@@ -171,20 +157,33 @@ impl<'src> Node<'src> for Expression<'src> {
             tree.push_mut(c.tree());
           }
         }
-
         tree
       }
-      Self::Variable { name } => Tree::atom(name.lexeme()),
-      Self::StringLiteral {
-        string_literal: StringLiteral { cooked, .. },
-      } => Tree::string(cooked),
-      Self::Backtick { contents, .. } => Tree::atom("backtick").push(Tree::string(contents)),
+      Self::Concatenation { lhs, rhs } => Tree::atom("+").push(lhs.tree()).push(rhs.tree()),
+      Self::Conditional {
+        condition: Condition { lhs, rhs, operator },
+        then,
+        otherwise,
+      } => {
+        let mut tree = Tree::atom(Keyword::If.lexeme());
+        tree.push_mut(lhs.tree());
+        tree.push_mut(operator.to_string());
+        tree.push_mut(rhs.tree());
+        tree.push_mut(then.tree());
+        tree.push_mut(otherwise.tree());
+        tree
+      }
       Self::Group { contents } => Tree::List(vec![contents.tree()]),
       Self::Join { lhs: None, rhs } => Tree::atom("/").push(rhs.tree()),
       Self::Join {
         lhs: Some(lhs),
         rhs,
       } => Tree::atom("/").push(lhs.tree()).push(rhs.tree()),
+      Self::Or { lhs, rhs } => Tree::atom("||").push(lhs.tree()).push(rhs.tree()),
+      Self::StringLiteral {
+        string_literal: StringLiteral { cooked, .. },
+      } => Tree::string(cooked),
+      Self::Variable { name } => Tree::atom(name.lexeme()),
     }
   }
 }
