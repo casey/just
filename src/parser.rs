@@ -31,6 +31,7 @@ pub(crate) struct Parser<'run, 'src> {
   next_token: usize,
   recursion_depth: usize,
   tokens: &'run [Token<'src>],
+  unstable_features: BTreeSet<UnstableFeature>,
   working_directory: &'run Path,
 }
 
@@ -51,6 +52,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       next_token: 0,
       recursion_depth: 0,
       tokens,
+      unstable_features: BTreeSet::new(),
       working_directory,
     }
     .parse_ast()
@@ -442,18 +444,19 @@ impl<'run, 'src> Parser<'run, 'src> {
       }
     }
 
-    if self.next_token == self.tokens.len() {
-      Ok(Ast {
-        items,
-        warnings: Vec::new(),
-        working_directory: self.working_directory.into(),
-      })
-    } else {
-      Err(self.internal_error(format!(
+    if self.next_token != self.tokens.len() {
+      return Err(self.internal_error(format!(
         "Parse completed with {} unparsed tokens",
         self.tokens.len() - self.next_token,
-      ))?)
+      ))?);
     }
+
+    Ok(Ast {
+      items,
+      unstable_features: self.unstable_features,
+      warnings: Vec::new(),
+      working_directory: self.working_directory.into(),
+    })
   }
 
   /// Parse an alias, e.g `alias name := target`
@@ -520,6 +523,9 @@ impl<'run, 'src> Parser<'run, 'src> {
     let disjunct = self.parse_disjunct()?;
 
     let expression = if self.accepted(BarBar)? {
+      self
+        .unstable_features
+        .insert(UnstableFeature::LogicalOperators);
       let lhs = disjunct.into();
       let rhs = self.parse_expression()?.into();
       Expression::Or { lhs, rhs }
@@ -536,6 +542,9 @@ impl<'run, 'src> Parser<'run, 'src> {
     let conjunct = self.parse_conjunct()?;
 
     let disjunct = if self.accepted(AmpersandAmpersand)? {
+      self
+        .unstable_features
+        .insert(UnstableFeature::LogicalOperators);
       let lhs = conjunct.into();
       let rhs = self.parse_disjunct()?.into();
       Expression::And { lhs, rhs }

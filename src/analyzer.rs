@@ -36,12 +36,15 @@ impl<'run, 'src> Analyzer<'run, 'src> {
   ) -> CompileResult<'src, Justfile<'src>> {
     let mut definitions = HashMap::new();
     let mut imports = HashSet::new();
+    let mut unstable_features = BTreeSet::new();
 
     let mut stack = Vec::new();
     let ast = asts.get(root).unwrap();
     stack.push(ast);
 
     while let Some(ast) = stack.pop() {
+      unstable_features.extend(&ast.unstable_features);
+
       for item in &ast.items {
         match item {
           Item::Alias(alias) => {
@@ -165,8 +168,6 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     while let Some(alias) = self.aliases.pop() {
       aliases.insert(Self::resolve_alias(&recipes, alias)?);
     }
-
-    let mut unstable_features = BTreeSet::new();
 
     for recipe in recipes.values() {
       for attribute in &recipe.attributes {

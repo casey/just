@@ -33,7 +33,6 @@ mod test;
 
 mod allow_duplicate_recipes;
 mod allow_duplicate_variables;
-mod and_or;
 mod assert_stdout;
 mod assert_success;
 mod assertions;
@@ -74,6 +73,7 @@ mod invocation_directory;
 mod json;
 mod line_prefixes;
 mod list;
+mod logical_operators;
 mod man;
 mod misc;
 mod modules;

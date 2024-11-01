@@ -1,23 +1,29 @@
 use super::*;
 
-// todo:
-// - what is truthy and what is falsy?
-// - set empty-false := true and require setting to use `&&` or `||`
-// - land as unstable?
-// - deprecate functions?
-//
-// `is_dependency`
-// `path_exists`
-// `semver_matches`
-// test that this works:
-// foo := path_exists(foo_path) && foo_path || '/fallback'
-
 #[track_caller]
 fn evaluate(expression: &str, expected: &str) {
   Test::new()
     .justfile(format!("x := {expression}"))
+    .env("JUST_UNSTABLE", "1")
     .args(["--evaluate", "x"])
     .stdout(expected)
+    .run();
+}
+
+#[test]
+fn logical_operators_are_unstable() {
+  Test::new()
+    .justfile("x := 'foo' && 'bar'")
+    .args(["--evaluate", "x"])
+    .stderr_regex(r"error: The logical operators `&&` and `\|\|` are currently unstable. .*")
+    .status(EXIT_FAILURE)
+    .run();
+
+  Test::new()
+    .justfile("x := 'foo' || 'bar'")
+    .args(["--evaluate", "x"])
+    .stderr_regex(r"error: The logical operators `&&` and `\|\|` are currently unstable. .*")
+    .status(EXIT_FAILURE)
     .run();
 }
 
@@ -67,6 +73,7 @@ fn or_has_lower_precedence_than_plus() {
 fn and_has_higher_precedence_than_or() {
   evaluate("('' && 'foo') || 'bar'", "bar");
   evaluate("'' && 'foo' || 'bar'", "bar");
+  evaluate("'a' && 'b' || 'c'", "b");
 }
 
 #[test]
