@@ -1332,7 +1332,7 @@ These operators are currently unstable.
 The `&&` operator returns the empty string if the left-hand argument is the
 empty string, otherwise it returns the right-hand argument:
 
-```just
+```mf
 foo := '' && 'goodbye'      # ''
 bar := 'hello' && 'goodbye' # 'goodbye'
 ```
@@ -1340,7 +1340,7 @@ bar := 'hello' && 'goodbye' # 'goodbye'
 The `||` operator returns the left-hand argument if it is non-empty, otherwise
 it returns the right-hand argument:
 
-```just
+```mf
 foo := '' || 'goodbye'      # 'goodbye'
 bar := 'hello' || 'goodbye' # 'hello'
 ```
