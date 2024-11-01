@@ -2403,7 +2403,7 @@ Testing server:unit…
 ```
 
 Default values may be arbitrary expressions, but expressions containing the
-`+`, `&&`, or `/` operators must be parenthesized:
+`+`, `&&`, `||`, or `/` operators must be parenthesized:
 
 ```just
 arch := "wasm"
