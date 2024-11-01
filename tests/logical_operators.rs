@@ -77,7 +77,7 @@ fn and_has_higher_precedence_than_or() {
 }
 
 #[test]
-fn misc() {
+fn nesting() {
   evaluate("'' || '' || '' || '' || 'foo'", "foo");
   evaluate("'foo' && 'foo' && 'foo' && 'foo' && 'bar'", "bar");
 }
