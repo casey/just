@@ -1321,10 +1321,16 @@ right-hand argument:
 foobar := 'foo' + 'bar'
 ```
 
-#### `&&` and/or `||`
+#### Logical Operators
+
+The logical operators `&&` and `||` can be used to coalesce string
+values<sup>master</sup>, similar to Python's `and` and `or`. These operators
+consider the empty string `''` to be false, and all other strings to be true.
+
+These operators are currently unstable.
 
 The `&&` operator returns the empty string if the left-hand argument is the
-empty string, otherwise it returns the right hand argument:
+empty string, otherwise it returns the right-hand argument:
 
 ```just
 foo := '' && 'goodbye'      # ''
