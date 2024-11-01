@@ -1332,7 +1332,7 @@ These operators are currently unstable.
 The `&&` operator returns the empty string if the left-hand argument is the
 empty string, otherwise it returns the right-hand argument:
 
-```mf
+```justfile
 foo := '' && 'goodbye'      # ''
 bar := 'hello' && 'goodbye' # 'goodbye'
 ```
@@ -1340,7 +1340,7 @@ bar := 'hello' && 'goodbye' # 'goodbye'
 The `||` operator returns the left-hand argument if it is non-empty, otherwise
 it returns the right-hand argument:
 
-```mf
+```justfile
 foo := '' || 'goodbye'      # 'goodbye'
 bar := 'hello' || 'goodbye' # 'hello'
 ```
@@ -2775,7 +2775,7 @@ pass a Windows-style path to the interpreter.
 Recipe lines are interpreted by the shell, not `just`, so it's not possible to
 set `just` variables in the middle of a recipe:
 
-```mf
+```justfile
 foo:
   x := "hello" # This doesn't work!
   echo {{x}}
@@ -2907,7 +2907,7 @@ means that multi-line constructs probably won't do what you want.
 
 For example, with the following `justfile`:
 
-```mf
+```justfile
 conditional:
   if true; then
     echo 'True!'
@@ -3314,7 +3314,7 @@ One `justfile` can include the contents of another using `import` statements.
 
 If you have the following `justfile`:
 
-```mf
+```justfile
 import 'foo/bar.just'
 
 a: b
@@ -3354,7 +3354,7 @@ set, variables in parent modules override variables in imports.
 
 Imports may be made optional by putting a `?` after the `import` keyword:
 
-```mf
+```just
 import? 'foo/bar.just'
 ```
 
@@ -3363,19 +3363,19 @@ This allows importing multiple justfiles, for example `foo.just` and
 `bar.just`, which both import a third justfile containing shared recipes, for
 example `baz.just`, without the duplicate import of `baz.just` being an error:
 
-```mf
+```justfile
 # justfile
 import 'foo.just'
 import 'bar.just'
 ```
 
-```mf
+```justfile
 # foo.just
 import 'baz.just'
 foo: baz
 ```
 
-```mf
+```justfile
 # bar.just
 import 'baz.just'
 bar: baz
@@ -3396,7 +3396,7 @@ versions, you'll need to use the `--unstable` flag, `set unstable`, or set the
 
 If you have the following `justfile`:
 
-```mf
+```justfile
 mod bar
 
 a:
@@ -3434,7 +3434,7 @@ the module file may have any capitalization.
 
 Module statements may be of the form:
 
-```mf
+```justfile
 mod foo 'PATH'
 ```
 
@@ -3458,7 +3458,7 @@ recipes.
 
 Modules may be made optional by putting a `?` after the `mod` keyword:
 
-```mf
+```just
 mod? foo
 ```
 
@@ -3468,7 +3468,7 @@ Optional modules with no source file do not conflict, so you can have multiple
 mod statements with the same name, but with different source file paths, as
 long as at most one source file exists:
 
-```mf
+```just
 mod? foo 'bar.just'
 mod? foo 'baz.just'
 ```
@@ -3476,7 +3476,7 @@ mod? foo 'baz.just'
 Modules may be given doc comments which appear in `--list`
 output<sup>1.30.0</sup>:
 
-```mf
+```justfile
 # foo is a great module!
 mod foo
 ```
