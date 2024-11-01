@@ -87,7 +87,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       Expression::And { lhs, rhs } => {
         let lhs = self.evaluate_expression(lhs)?;
         if lhs.is_empty() {
-          return Ok(lhs);
+          return Ok(String::new());
         }
         self.evaluate_expression(rhs)
       }
