@@ -39,7 +39,7 @@ impl CommandExt for Command {
     }
 
     for binding in scope.bindings() {
-      if settings.export || binding.export {
+      if binding.export || (settings.export && !binding.constant) {
         self.env(binding.name.lexeme(), &binding.value);
       }
     }

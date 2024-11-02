@@ -43,3 +43,19 @@ fn constants_can_be_redefined() {
     .stdout("foo")
     .run();
 }
+
+#[test]
+fn constants_are_not_exported() {
+  Test::new()
+    .justfile(
+      "
+        set export
+
+        foo:
+          echo $HEXUPPER
+      ",
+    )
+    .stderr_regex(".*HEXUPPER: unbound variable.*")
+    .status(127)
+    .run();
+}
