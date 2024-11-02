@@ -389,16 +389,13 @@ impl<'src, D> Recipe<'src, D> {
     })?;
     let mut path = tempdir.path().to_path_buf();
 
-    let extension = self
-      .attributes
-      .get(AttributeDiscriminant::Extension)
-      .and_then(|attribute| {
-        if let Attribute::Extension(extension) = attribute {
-          Some(extension.cooked.as_str())
-        } else {
-          None
-        }
-      });
+    let extension = self.attributes.iter().find_map(|attribute| {
+      if let Attribute::Extension(extension) = attribute {
+        Some(extension.cooked.as_str())
+      } else {
+        None
+      }
+    });
 
     path.push(executor.script_filename(self.name(), extension));
 
