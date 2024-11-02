@@ -463,8 +463,10 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn doc(&self) -> Option<&str> {
-    if let Some(Attribute::Doc(doc)) = self.attributes.get(AttributeDiscriminant::Doc) {
-      return doc.as_ref().map(|s| s.cooked.as_ref());
+    for attribute in &self.attributes {
+      if let Attribute::Doc(doc) = attribute {
+        return doc.as_ref().map(|s| s.cooked.as_ref());
+      }
     }
     self.doc
   }
