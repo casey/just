@@ -158,10 +158,7 @@ impl<'src> AttributeSet<'src> {
   }
 
   pub(crate) fn contains(&self, target: AttributeDiscriminant) -> bool {
-    self.0.iter().any(|attr| {
-      let discriminant: AttributeDiscriminant = attr.into();
-      discriminant == target
-    })
+    self.0.iter().any(|attr| attr.discriminant() == target)
   }
 
   pub(crate) fn get(&self, discriminant: AttributeDiscriminant) -> Option<&Attribute<'src>> {
