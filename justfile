@@ -6,6 +6,8 @@ alias t := test
 
 log := "warn"
 
+bingus := which("bash")
+
 export JUST_LOG := log
 
 [group: 'dev']

@@ -30,7 +30,9 @@ derivative = "2.0.0"
 dirs = "5.0.1"
 dotenvy = "0.15"
 edit-distance = "2.0.0"
+either = "1.13.0"
 heck = "0.5.0"
+is_executable = "1.0.4"
 lexiclean = "0.0.1"
 libc = "0.2.0"
 num_cpus = "1.15.0"
@@ -51,7 +53,6 @@ tempfile = "3.0.0"
 typed-arena = "2.0.1"
 unicode-width = "0.2.0"
 uuid = { version = "1.0.0", features = ["v4"] }
-which = "6.0.0"
 
 [dev-dependencies]
 executable-path = "1.0.0"

@@ -1,5 +1,6 @@
 use {
   super::*,
+  either::Either,
   heck::{
     ToKebabCase, ToLowerCamelCase, ToShoutyKebabCase, ToShoutySnakeCase, ToSnakeCase, ToTitleCase,
     ToUpperCamelCase,
@@ -110,7 +111,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "uppercase" => Unary(uppercase),
     "uuid" => Nullary(uuid),
     "without_extension" => Unary(without_extension),
-    "which" => Unary(which_exec),
+    "which" => Unary(which),
     _ => return None,
   };
   Some(function)
@@ -668,14 +669,59 @@ fn uuid(_context: Context) -> FunctionResult {
   Ok(uuid::Uuid::new_v4().to_string())
 }
 
-fn which_exec(_context: Context, s: &str) -> FunctionResult {
-  let path = which::which(s).unwrap_or_default();
-  path.to_str().map(str::to_string).ok_or_else(|| {
-    format!(
-      "unable to convert which executable path to string: {}",
-      path.display()
-    )
-  })
+fn which(context: Context, s: &str) -> FunctionResult {
+  use is_executable::IsExecutable;
+
+  let cmd = PathBuf::from(s);
+
+  let path_var;
+  let candidates = match cmd.components().count() {
+    0 => Err("empty command string".to_string())?,
+    1 => {
+      // cmd is a regular command
+      path_var = env::var_os("PATH").ok_or("Environment variable `PATH` is not set")?;
+      Either::Left(env::split_paths(&path_var).map(|path| path.join(cmd.clone())))
+    }
+    _ => {
+      // cmd contains a path separator, treat it as a path
+      Either::Right(iter::once(cmd))
+    }
+  };
+
+  for mut candidate in candidates.into_iter() {
+    if candidate.is_relative() {
+      // This candidate is a relative path, either because the user invoked `which("./rel/path")`,
+      // or because there was a relative path in `PATH`. Resolve it to an absolute path.
+      let cwd = context
+        .evaluator
+        .context
+        .search
+        .justfile
+        .parent()
+        .ok_or_else(|| {
+          format!(
+            "Could not resolve absolute path from `{}` relative to the justfile directory. Justfile `{}` had no parent.",
+            candidate.display(),
+            context.evaluator.context.search.justfile.display()
+          )
+        })?;
+      let mut cwd = PathBuf::from(cwd);
+      cwd.push(candidate);
+      candidate = cwd;
+    }
+
+    if candidate.is_executable() {
+      return candidate.to_str().map(str::to_string).ok_or_else(|| {
+        format!(
+          "Executable path is not valid unicode: {}",
+          candidate.display()
+        )
+      });
+    }
+  }
+
+  // No viable candidates; return an empty string
+  Ok(String::new())
 }
 
 fn without_extension(_context: Context, path: &str) -> FunctionResult {
