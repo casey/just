@@ -491,11 +491,12 @@ impl<'run, 'src> Parser<'run, 'src> {
     attributes.ensure_valid_attributes("Assignment", *name, &[AttributeDiscriminant::Private])?;
 
     Ok(Assignment {
-      file_depth: self.file_depth,
+      constant: false,
       export,
+      file_depth: self.file_depth,
       name,
-      value,
       private: private || name.lexeme().starts_with('_'),
+      value,
     })
   }
 
