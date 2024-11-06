@@ -408,20 +408,49 @@ impl Subcommand {
       config: &Config,
       name: &str,
       doc: Option<&str>,
+      aliases: &[&str],
       max_signature_width: usize,
       signature_widths: &BTreeMap<&str, usize>,
     ) {
-      if let Some(doc) = doc {
-        if !doc.is_empty() && doc.lines().count() <= 1 {
-          print!(
-            "{:padding$}{} {}",
-            "",
-            config.color.stdout().doc().paint("#"),
-            config.color.stdout().doc().paint(doc),
-            padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
-          );
-        }
+      let doc = doc.unwrap_or_default();
+      let print_doc = !doc.is_empty() && doc.lines().count() <= 1;
+      let print_aliases = config.alias_style != AliasStyle::Recipe && !aliases.is_empty();
+
+      if print_doc || print_aliases {
+        print!(
+          "{:padding$}{}",
+          "",
+          config.color.stdout().doc().paint("#"),
+          padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
+        );
       }
+
+      let doc = print_doc.then_some(format!("{}", config.color.stdout().doc().paint(doc)));
+      let aliases = print_aliases.then_some(format!(
+        "{}",
+        config
+          .color
+          .stdout()
+          .alias()
+          .paint(&format!("[aliases: {}]", aliases.join(", ")))
+      ));
+
+      let (left, right) = if config.alias_style == AliasStyle::InlineLeft {
+        (aliases, doc)
+      } else {
+        (doc, aliases)
+      };
+
+      if print_doc || print_aliases {
+        print!(
+          " {}",
+          [left, right]
+            .map(Option::unwrap_or_default)
+            .join(" ")
+            .trim()
+        );
+      }
+
       println!();
     }
 
@@ -545,8 +574,14 @@ impl Subcommand {
 
       if let Some(recipes) = recipe_groups.get(&group) {
         for recipe in recipes {
+          let recipe_alias_entries = if config.alias_style == AliasStyle::Recipe {
+            aliases.get(recipe.name())
+          } else {
+            None
+          };
+
           for (i, name) in iter::once(&recipe.name())
-            .chain(aliases.get(recipe.name()).unwrap_or(&Vec::new()))
+            .chain(recipe_alias_entries.unwrap_or(&Vec::new()))
             .enumerate()
           {
             let doc = if i == 0 {
@@ -576,6 +611,7 @@ impl Subcommand {
               config,
               name,
               doc.as_deref(),
+              aliases.get(recipe.name()).unwrap_or(&Vec::new()),
               max_signature_width,
               &signature_widths,
             );
@@ -598,6 +634,7 @@ impl Subcommand {
               config,
               submodule.name(),
               submodule.doc.as_deref(),
+              &Vec::new(),
               max_signature_width,
               &signature_widths,
             );

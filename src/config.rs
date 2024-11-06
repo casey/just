@@ -9,6 +9,7 @@ use {
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Config {
+  pub(crate) alias_style: AliasStyle,
   pub(crate) check: bool,
   pub(crate) color: Color,
   pub(crate) command_color: Option<ansi_term::Color>,
@@ -80,6 +81,7 @@ mod cmd {
 }
 
 mod arg {
+  pub(crate) const ALIAS_STYLE: &str = "ALIAS_STYLE";
   pub(crate) const ARGUMENTS: &str = "ARGUMENTS";
   pub(crate) const CHECK: &str = "CHECK";
   pub(crate) const CHOOSER: &str = "CHOOSER";
@@ -134,6 +136,16 @@ impl Config {
           .literal(AnsiColor::Green.on_default())
           .placeholder(AnsiColor::Green.on_default())
           .usage(AnsiColor::Yellow.on_default()),
+      )
+      .arg(
+        Arg::new(arg::ALIAS_STYLE)
+          .long("alias-style")
+          .env("JUST_ALIAS_STYLE")
+          .action(ArgAction::Set)
+          .value_parser(clap::value_parser!(AliasStyle))
+          .default_value("inline")
+          .help("Set the style that the list command will display aliases")
+          .conflicts_with(arg::NO_ALIASES),
       )
       .arg(
         Arg::new(arg::CHECK)
@@ -706,6 +718,10 @@ impl Config {
     let explain = matches.get_flag(arg::EXPLAIN);
 
     Ok(Self {
+      alias_style: matches
+        .get_one::<AliasStyle>(arg::ALIAS_STYLE)
+        .unwrap()
+        .clone(),
       check: matches.get_flag(arg::CHECK),
       color: (*matches.get_one::<UseColor>(arg::COLOR).unwrap()).into(),
       command_color: matches
