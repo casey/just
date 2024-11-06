@@ -401,7 +401,7 @@ Using package managers pre-installed on GitHub Actions runners on MacOS with
 With [extractions/setup-just](https://github.com/extractions/setup-just):
 
 ```yaml
-- uses: extractions/setup-just@v1
+- uses: extractions/setup-just@v2
   with:
     just-version: 1.5.0  # optional semver specification, otherwise latest
 ```
