@@ -1347,9 +1347,9 @@ file.</p>
 interpret <code>command</code> is the same shell that is used to evaluate recipe lines,
 and can be changed with <code>set shell := […]</code>.</p>
 <p><code>command</code> is passed as the first argument, so if the command is <code>'echo $@'</code>,
-the full command line, with the default shell command <code>shell -cu</code> and <code>args</code>
+the full command line, with the default shell command <code>sh -cu</code> and <code>args</code>
 <code>'foo'</code> and <code>'bar'</code> will be:</p>
-<pre><code>'shell' '-cu' 'echo $@' 'echo $@' 'foo' 'bar'
+<pre><code>'sh' '-cu' 'echo $@' 'echo $@' 'foo' 'bar'
 </code></pre>
 <p>This is so that <code>$@</code> works as expected, and <code>$1</code> refers to the first
 argument. <code>$@</code> does not include the first positional argument, which is
