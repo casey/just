@@ -1578,11 +1578,11 @@ file.
   and can be changed with `set shell := […]`.
 
   `command` is passed as the first argument, so if the command is `'echo $@'`,
-  the full command line, with the default shell command `shell -cu` and `args`
+  the full command line, with the default shell command `sh -cu` and `args`
   `'foo'` and `'bar'` will be:
 
   ```
-  'shell' '-cu' 'echo $@' 'echo $@' 'foo' 'bar'
+  'sh' '-cu' 'echo $@' 'echo $@' 'foo' 'bar'
   ```
 
   This is so that `$@` works as expected, and `$1` refers to the first
