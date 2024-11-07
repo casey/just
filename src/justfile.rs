@@ -395,6 +395,38 @@ impl<'src> Justfile<'src> {
   pub(crate) fn groups(&self) -> &[String] {
     &self.groups
   }
+  pub(crate) fn public_group_map(
+    &self,
+    config: &Config,
+  ) -> BTreeMap<Option<String>, Vec<ListEntry>> {
+    let mut groups = BTreeMap::<Option<String>, Vec<ListEntry>>::new();
+    let aliases = self.aliases(config);
+    for recipe in self.public_recipes(config) {
+      let recipe_groups = recipe.groups();
+      let entry = ListEntry::from_recipe(
+        recipe,
+        self.name().to_string(),
+        aliases.get(recipe.name()).unwrap_or(&Vec::new()).clone(),
+      );
+      if recipe_groups.is_empty() {
+        groups.entry(None).or_default().push(entry);
+      } else {
+        for group in recipe_groups {
+          groups.entry(Some(group)).or_default().push(entry.clone());
+        }
+      }
+    }
+    groups
+  }
+
+  pub(crate) fn find_public_group(&self, group: &str, config: &Config) -> Vec<&Recipe> {
+    self
+      .public_recipes(config)
+      .iter()
+      .filter(|recipe| recipe.groups().contains(group))
+      .copied()
+      .collect()
+  }
 
   pub(crate) fn public_groups(&self, config: &Config) -> Vec<String> {
     let mut groups = Vec::new();
@@ -424,6 +456,20 @@ impl<'src> Justfile<'src> {
     groups.retain(|(_, _, group)| seen.insert(group.clone()));
 
     groups.into_iter().map(|(_, _, group)| group).collect()
+  }
+
+  pub(crate) fn aliases(&self, config: &Config) -> BTreeMap<&str, Vec<&str>> {
+    if config.no_aliases {
+      return BTreeMap::new();
+    }
+    let mut aliases = BTreeMap::<&str, Vec<&str>>::new();
+    for alias in self.aliases.values().filter(|alias| !alias.is_private()) {
+      aliases
+        .entry(alias.target.name.lexeme())
+        .or_default()
+        .push(alias.name.lexeme());
+    }
+    aliases
   }
 }
 
