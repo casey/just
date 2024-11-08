@@ -161,7 +161,7 @@ most Windows users.)
     </tr>
     <tr>
       <td><a href=https://nixos.org/nix/>Nix</a></td>
-      <td><a href=https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix>just</a></td>
+      <td><a href=https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/ju/just/package.nix>just</a></td>
       <td><code>nix-env -iA nixpkgs.just</code></td>
     </tr>
     <tr>
@@ -268,7 +268,7 @@ most Windows users.)
     <tr>
       <td><a href=https://nixos.org/nixos/>NixOS</a></td>
       <td><a href=https://nixos.org/nix/>Nix</a></td>
-      <td><a href=https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix>just</a></td>
+      <td><a href=https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/ju/just/package.nix>just</a></td>
       <td><code>nix-env -iA nixos.just</code></td>
     </tr>
     <tr>
@@ -401,7 +401,7 @@ Using package managers pre-installed on GitHub Actions runners on MacOS with
 With [extractions/setup-just](https://github.com/extractions/setup-just):
 
 ```yaml
-- uses: extractions/setup-just@v1
+- uses: extractions/setup-just@v2
   with:
     just-version: 1.5.0  # optional semver specification, otherwise latest
 ```
@@ -1290,24 +1290,59 @@ Available recipes:
     test
 ```
 
-### Variables and Substitution
+### Expressions and Substitutions
 
-Variables, strings, concatenation, path joining, and substitution using `{{…}}`
-are supported:
+Various operators and function calls are supported in expressions, which may be
+used in assignments, default recipe arguments, and inside recipe body `{{…}}`
+substitutions.
 
 ```just
 tmpdir  := `mktemp -d`
 version := "0.2.7"
 tardir  := tmpdir / "awesomesauce-" + version
 tarball := tardir + ".tar.gz"
+config  := quote(config_dir() / ".project-config")
 
 publish:
   rm -f {{tarball}}
   mkdir {{tardir}}
-  cp README.md *.c {{tardir}}
+  cp README.md *.c {{ config }} {{tardir}}
   tar zcvf {{tarball}} {{tardir}}
   scp {{tarball}} me@server.com:release/
   rm -rf {{tarball}} {{tardir}}
+```
+
+#### Concatenation
+
+The `+` operator returns the left-hand argument concatenated with the
+right-hand argument:
+
+```just
+foobar := 'foo' + 'bar'
+```
+
+#### Logical Operators
+
+The logical operators `&&` and `||` can be used to coalesce string
+values<sup>master</sup>, similar to Python's `and` and `or`. These operators
+consider the empty string `''` to be false, and all other strings to be true.
+
+These operators are currently unstable.
+
+The `&&` operator returns the empty string if the left-hand argument is the
+empty string, otherwise it returns the right-hand argument:
+
+```justfile
+foo := '' && 'goodbye'      # ''
+bar := 'hello' && 'goodbye' # 'goodbye'
+```
+
+The `||` operator returns the left-hand argument if it is non-empty, otherwise
+it returns the right-hand argument:
+
+```justfile
+foo := '' || 'goodbye'      # 'goodbye'
+bar := 'hello' || 'goodbye' # 'hello'
 ```
 
 #### Joining Paths
@@ -1497,8 +1532,8 @@ Done!
 
 ### Functions
 
-`just` provides a few built-in functions that might be useful when writing
-recipes.
+`just` provides many built-in functions for use in expressions, including
+recipe body `{{…}}` substitutions, assignments, and default parameter values.
 
 All functions ending in `_directory` can be abbreviated to `_dir`. So
 `home_directory()` can also be written as `home_dir()`. In addition,
@@ -1543,11 +1578,11 @@ file.
   and can be changed with `set shell := […]`.
 
   `command` is passed as the first argument, so if the command is `'echo $@'`,
-  the full command line, with the default shell command `shell -cu` and `args`
+  the full command line, with the default shell command `sh -cu` and `args`
   `'foo'` and `'bar'` will be:
 
   ```
-  'shell' '-cu' 'echo $@' 'echo $@' 'foo' 'bar'
+  'sh' '-cu' 'echo $@' 'echo $@' 'foo' 'bar'
   ```
 
   This is so that `$@` works as expected, and `$1` refers to the first
@@ -2059,6 +2094,10 @@ See the [Strings](#strings) section for details on unindenting.
 Backticks may not start with `#!`. This syntax is reserved for a future
 upgrade.
 
+The [`shell(…)` function](#external-commands) provides a more general mechanism
+to invoke external commands, including the ability to execute the contents of a
+variable as a command, and to pass arguments to a command.
+
 ### Conditional Expressions
 
 `if`/`else` expressions evaluate different branches depending on if two
@@ -2363,8 +2402,8 @@ Testing server:unit…
 ./test --tests unit server
 ```
 
-Default values may be arbitrary expressions, but concatenations or path joins
-must be parenthesized:
+Default values may be arbitrary expressions, but expressions containing the
+`+`, `&&`, `||`, or `/` operators must be parenthesized:
 
 ```just
 arch := "wasm"
@@ -2736,7 +2775,7 @@ pass a Windows-style path to the interpreter.
 Recipe lines are interpreted by the shell, not `just`, so it's not possible to
 set `just` variables in the middle of a recipe:
 
-```mf
+```justfile
 foo:
   x := "hello" # This doesn't work!
   echo {{x}}
@@ -2868,7 +2907,7 @@ means that multi-line constructs probably won't do what you want.
 
 For example, with the following `justfile`:
 
-```mf
+```justfile
 conditional:
   if true; then
     echo 'True!'
@@ -3275,7 +3314,7 @@ One `justfile` can include the contents of another using `import` statements.
 
 If you have the following `justfile`:
 
-```mf
+```justfile
 import 'foo/bar.just'
 
 a: b
@@ -3315,11 +3354,37 @@ set, variables in parent modules override variables in imports.
 
 Imports may be made optional by putting a `?` after the `import` keyword:
 
-```mf
+```just
 import? 'foo/bar.just'
 ```
 
-Missing source files for optional imports do not produce an error.
+Importing the same source file multiple times is not an error<sup>master</sup>.
+This allows importing multiple justfiles, for example `foo.just` and
+`bar.just`, which both import a third justfile containing shared recipes, for
+example `baz.just`, without the duplicate import of `baz.just` being an error:
+
+```justfile
+# justfile
+import 'foo.just'
+import 'bar.just'
+```
+
+```justfile
+# foo.just
+import 'baz.just'
+foo: baz
+```
+
+```justfile
+# bar.just
+import 'baz.just'
+bar: baz
+```
+
+```just
+# baz
+baz:
+```
 
 ### Modules<sup>1.19.0</sup>
 
@@ -3331,7 +3396,7 @@ versions, you'll need to use the `--unstable` flag, `set unstable`, or set the
 
 If you have the following `justfile`:
 
-```mf
+```justfile
 mod bar
 
 a:
@@ -3369,7 +3434,7 @@ the module file may have any capitalization.
 
 Module statements may be of the form:
 
-```mf
+```justfile
 mod foo 'PATH'
 ```
 
@@ -3393,7 +3458,7 @@ recipes.
 
 Modules may be made optional by putting a `?` after the `mod` keyword:
 
-```mf
+```just
 mod? foo
 ```
 
@@ -3403,7 +3468,7 @@ Optional modules with no source file do not conflict, so you can have multiple
 mod statements with the same name, but with different source file paths, as
 long as at most one source file exists:
 
-```mf
+```just
 mod? foo 'bar.just'
 mod? foo 'baz.just'
 ```
@@ -3411,7 +3476,7 @@ mod? foo 'baz.just'
 Modules may be given doc comments which appear in `--list`
 output<sup>1.30.0</sup>:
 
-```mf
+```justfile
 # foo is a great module!
 mod foo
 ```
@@ -3553,9 +3618,9 @@ The following command will create two files, `some` and `argument.txt`:
 $ just foo "some argument.txt"
 ```
 
-The users shell will parse `"some argument.txt"` as a single argument, but when
-`just` replaces `touch {{argument}}` with `touch some argument.txt`, the quotes
-are not preserved, and `touch` will receive two arguments.
+The user's shell will parse `"some argument.txt"` as a single argument, but
+when `just` replaces `touch {{argument}}` with `touch some argument.txt`, the
+quotes are not preserved, and `touch` will receive two arguments.
 
 There are a few ways to avoid this: quoting, positional arguments, and exported
 arguments.
@@ -3879,6 +3944,38 @@ fetch:
 
 Given the above `justfile`, after running `just fetch`, the recipes in
 `foo.just` will be available.
+
+### Printing Complex Strings
+
+`echo` can be used to print strings, but because it processes escape sequences,
+like `\n`, and different implementations of `echo` recognize different escape
+sequences, using `printf` is often a better choice.
+
+`printf` takes a C-style format string and any number of arguments, which are
+interpolated into the format string.
+
+This can be combined with indented, triple quoted strings to emulate shell
+heredocs.
+
+Substitution complex strings into recipe bodies with `{…}` can also lead to
+trouble as it may be split by the shell into multiple arguments depending on
+the presence of whitespace and quotes. Exporting complex strings as environment
+variables and referring to them with `"$NAME"`, note the double quotes, can
+also help.
+
+Putting all this together, to print a string verbatim to standard output, with
+all its various escape sequences and quotes undisturbed:
+
+```just
+export FOO := '''
+  a complicated string with
+  some dis\tur\bi\ng escape sequences
+  and "quotes" of 'different' kinds
+'''
+
+bar:
+  printf %s "$FOO"
+```
 
 ### Alternatives and Prior Art
 
