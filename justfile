@@ -29,7 +29,7 @@ fuzz:
 run:
   cargo run
 
-# only run tests matching PATTERN
+# only run tests matching `PATTERN`
 [group: 'test']
 filter PATTERN:
   cargo test {{PATTERN}}

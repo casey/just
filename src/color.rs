@@ -66,6 +66,10 @@ impl Color {
     self.restyle(Style::new().fg(Blue))
   }
 
+  pub(crate) fn doc_backtick(self) -> Self {
+    self.restyle(Style::new().fg(White).on(Black))
+  }
+
   pub(crate) fn error(self) -> Self {
     self.restyle(Style::new().fg(Red).bold())
   }
