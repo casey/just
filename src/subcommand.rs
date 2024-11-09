@@ -2,6 +2,8 @@ use {super::*, clap_mangen::Man};
 
 const INIT_JUSTFILE: &str = "default:\n    echo 'Hello, world!'\n";
 
+static BACKTICK_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new("(`.*?`)|(`[^`]*$)").unwrap());
+
 #[derive(PartialEq, Clone, Debug)]
 pub(crate) enum Subcommand {
   Changelog,
@@ -413,26 +415,31 @@ impl Subcommand {
     ) {
       if let Some(doc) = doc {
         if !doc.is_empty() && doc.lines().count() <= 1 {
+          let color = config.color.stdout();
           print!(
             "{:padding$}{} ",
             "",
-            config.color.stdout().doc().paint("#"),
+            color.doc().paint("#"),
             padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
           );
 
-          let mut within_backticks = false;
-          for chunk in doc.split_inclusive('`') {
-            if within_backticks {
-              let color = config.color.stdout().doc_backtick();
-              print!("{}{}", color.paint("`"), color.paint(chunk),);
-            } else {
-              let color = config.color.stdout().doc();
-              print!("{}", color.paint(chunk.split('`').next().unwrap()));
+          let mut end = 0;
+          for backtick in BACKTICK_RE.find_iter(doc) {
+            let prefix = &doc[end..backtick.start()];
+            if !prefix.is_empty() {
+              print!("{}", color.doc().paint(prefix));
             }
-            within_backticks = !within_backticks;
+            print!("{}", color.doc_backtick().paint(backtick.as_str()));
+            end = backtick.end();
+          }
+
+          let suffix = &doc[end..];
+          if !suffix.is_empty() {
+            print!("{}", color.doc().paint(suffix));
           }
         }
       }
+
       println!();
     }
 

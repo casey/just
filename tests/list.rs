@@ -449,7 +449,11 @@ fn backticks_highlighted() {
       ",
     )
     .args(["--list", "--color=always"])
-    .stdout("Available recipes:\n    recipe \u{1b}[34m#\u{1b}[0m \u{1b}[34mComment \u{1b}[0m\u{1b}[40;37m`\u{1b}[0m\u{1b}[40;37m`\u{1b}[0m\u{1b}[34m \u{1b}[0m\u{1b}[40;37m`\u{1b}[0m\u{1b}[40;37mwith backticks`\u{1b}[0m\n")
+    .stdout(
+      "
+        Available recipes:
+            recipe \u{1b}[34m#\u{1b}[0m \u{1b}[34mComment \u{1b}[0m\u{1b}[40;37m``\u{1b}[0m\u{1b}[34m \u{1b}[0m\u{1b}[40;37m`with backticks`\u{1b}[0m
+      ")
     .run();
 }
 
@@ -463,6 +467,10 @@ fn unclosed_backticks() {
       ",
     )
     .args(["--list", "--color=always"])
-    .stdout("Available recipes:\n    recipe \u{1b}[34m#\u{1b}[0m \u{1b}[34mComment \u{1b}[0m\u{1b}[40;37m`\u{1b}[0m\u{1b}[40;37mwith unclosed backick\u{1b}[0m\n")
+    .stdout(
+      "
+        Available recipes:
+            recipe \u{1b}[34m#\u{1b}[0m \u{1b}[34mComment \u{1b}[0m\u{1b}[40;37m`with unclosed backick\u{1b}[0m
+      ")
     .run();
 }
