@@ -2,7 +2,10 @@ use {super::*, clap_mangen::Man};
 
 const INIT_JUSTFILE: &str = "default:\n    echo 'Hello, world!'\n";
 
-static BACKTICK_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new("(`.*?`)|(`[^`]*$)").unwrap());
+fn backtick_re() -> &'static Regex {
+  static BACKTICK_RE: OnceLock<Regex> = OnceLock::new();
+  BACKTICK_RE.get_or_init(|| Regex::new("(`.*?`)|(`[^`]*$)").unwrap())
+}
 
 #[derive(PartialEq, Clone, Debug)]
 pub(crate) enum Subcommand {
@@ -424,7 +427,7 @@ impl Subcommand {
           );
 
           let mut end = 0;
-          for backtick in BACKTICK_RE.find_iter(doc) {
+          for backtick in backtick_re().find_iter(doc) {
             let prefix = &doc[end..backtick.start()];
             if !prefix.is_empty() {
               print!("{}", color.doc().paint(prefix));

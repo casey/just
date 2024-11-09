@@ -62,7 +62,7 @@ pub(crate) use {
     process::{self, Command, ExitStatus, Stdio},
     rc::Rc,
     str::{self, Chars},
-    sync::{LazyLock, Mutex, MutexGuard, OnceLock},
+    sync::{Mutex, MutexGuard, OnceLock},
     vec,
   },
   strum::{Display, EnumDiscriminants, EnumString, IntoStaticStr},
