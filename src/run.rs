@@ -28,6 +28,13 @@ pub fn run(args: impl Iterator<Item = impl Into<OsString> + Clone>) -> Result<()
       config.subcommand.execute(&config, &loader)
     })
     .map_err(|error| {
+      if verbosity.recipe_quiet() {
+        match error {
+          Error::UnknownRecipe { .. } => return 0,
+          _ => {}
+        };
+      }
+
       if !verbosity.quiet() && error.print_message() {
         eprintln!("{}", error.color_display(color.stderr()));
       }

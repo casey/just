@@ -1,6 +1,7 @@
 #[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
 pub(crate) enum Verbosity {
   Quiet,
+  RecipeQuiet,
   Taciturn,
   Loquacious,
   Grandiloquent,
@@ -17,6 +18,10 @@ impl Verbosity {
 
   pub(crate) fn quiet(self) -> bool {
     self == Self::Quiet
+  }
+
+  pub(crate) fn recipe_quiet(self) -> bool {
+    self == Self::RecipeQuiet
   }
 
   pub(crate) fn loud(self) -> bool {
