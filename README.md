@@ -1919,16 +1919,16 @@ Constants starting with `\e` are
 form `\e[Nm`, where `N` is an integer, and set terminal display attributes.
 
 Terminal display attribute escape sequences can be combined, for example text
-weight `BOLD`, text style `STRIKE`, foreground color `CYAN`, and background
-color `BG_YELLOW`. They should be followed by `NORMAL`, to reset the terminal
-back to normal.
+weight `BOLD`, text style `STRIKETHROUGH`, foreground color `CYAN`, and
+background color `BG_YELLOW`. They should be followed by `NORMAL`, to reset the
+terminal back to normal.
 
 Escape sequences should be quoted, since `[` is treated as a special character
 by some shells.
 
 ```just
 @foo:
-  echo '{{BOLD + STRIKE + CYAN + BG_BLUE}}Hi!{{NORMAL}}'
+  echo '{{BOLD + STRIKETHROUGH + CYAN + BG_BLUE}}Hi!{{NORMAL}}'
 ```
 
 ### Attributes
