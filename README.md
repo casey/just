@@ -1884,7 +1884,7 @@ A number of constants are predefined:
 | `UNDERLINE`<sup>master</sup> | `"\e[4m"` |
 | `INVERT`<sup>master</sup> | `"\e[7m"` |
 | `HIDE`<sup>master</sup> | `"\e[8m"` |
-| `STRIKE`<sup>master</sup> | `"\e[9m"` |
+| `STRIKETHROUGH`<sup>master</sup> | `"\e[9m"` |
 | `BLACK`<sup>master</sup> | `"\e[30m"` |
 | `RED`<sup>master</sup> | `"\e[31m"` |
 | `GREEN`<sup>master</sup> | `"\e[32m"` |

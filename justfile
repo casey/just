@@ -169,6 +169,10 @@ build-book:
   mdbook build book/en
   mdbook build book/zh
 
+[group: 'dev']
+print-readme-constants-table:
+  cargo test constants::tests::readme_table -- --nocapture
+
 # run all polyglot recipes
 [group: 'demo']
 polyglot: _python _js _perl _sh _ruby

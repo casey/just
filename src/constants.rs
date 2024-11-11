@@ -11,7 +11,7 @@ const CONSTANTS: [(&str, &str, &str); 27] = [
   ("UNDERLINE", "\x1b[4m", "master"),
   ("INVERT", "\x1b[7m", "master"),
   ("HIDE", "\x1b[8m", "master"),
-  ("STRIKE", "\x1b[9m", "master"),
+  ("STRIKETHROUGH", "\x1b[9m", "master"),
   ("BLACK", "\x1b[30m", "master"),
   ("RED", "\x1b[31m", "master"),
   ("GREEN", "\x1b[32m", "master"),
