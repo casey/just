@@ -44,9 +44,6 @@ pub(crate) fn constants() -> &'static HashMap<&'static str, &'static str> {
 mod tests {
   use super::*;
 
-  // Run the following command to print the table:
-  //
-  //     cargo test constants::tests::readme_table -- --nocapture
   #[test]
   fn readme_table() {
     println!("| Name | Value |");
