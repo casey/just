@@ -64,6 +64,7 @@ mod functions;
 #[cfg(unix)]
 mod global;
 mod groups;
+mod if_present;
 mod ignore_comments;
 mod imports;
 mod init;
@@ -91,7 +92,6 @@ mod private;
 mod quiet;
 mod quote;
 mod readme;
-mod recipe_exists;
 mod recursion_limit;
 mod regexes;
 mod run;

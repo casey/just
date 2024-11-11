@@ -103,7 +103,7 @@ mod arg {
   pub(crate) const NO_HIGHLIGHT: &str = "NO-HIGHLIGHT";
   pub(crate) const ONE: &str = "ONE";
   pub(crate) const QUIET: &str = "QUIET";
-  pub(crate) const RECIPE_EXISTS: &str = "RECIPE-EXISTS";
+  pub(crate) const IF_PRESENT: &str = "IF-PRESENT";
   pub(crate) const SET: &str = "SET";
   pub(crate) const SHELL: &str = "SHELL";
   pub(crate) const SHELL_ARG: &str = "SHELL-ARG";
@@ -317,9 +317,9 @@ impl Config {
           .conflicts_with(arg::DRY_RUN),
       )
       .arg(
-        Arg::new(arg::RECIPE_EXISTS)
-          .long("recipe-exists")
-          .env("JUST_RECIPE_EXISTS")
+        Arg::new(arg::IF_PRESENT)
+          .long("if-present")
+          .env("JUST_IF_PRESENT")
           .action(ArgAction::SetTrue)
           .help("Suppress error code"),
       )
@@ -759,7 +759,7 @@ impl Config {
       unstable,
       verbosity: if matches.get_flag(arg::QUIET) {
         Verbosity::Quiet
-      } else if matches.get_flag(arg::RECIPE_EXISTS) {
+      } else if matches.get_flag(arg::IF_PRESENT) {
         Verbosity::RecipeQuiet
       } else {
         Verbosity::from_flag_occurrences(matches.get_count(arg::VERBOSE))

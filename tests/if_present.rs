@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn without_recipe_exists() {
+fn without_if_present() {
   Test::new()
     .arg("execute")
     .justfile(
@@ -19,7 +19,7 @@ fn without_recipe_exists() {
 #[test]
 fn ignore_unknown_recipe() {
   Test::new()
-    .args(["--recipe-exists", "execute"])
+    .args(["--if-present", "execute"])
     .justfile(
       "
         build:
