@@ -1923,8 +1923,8 @@ weight `BOLD`, text style `STRIKE`, foreground color `CYAN`, and background
 color `BG_YELLOW`. They should be followed by `NORMAL`, to reset the terminal
 back to normal.
 
-Escape sequences should be quoted, since they contain `[`, which is treated as
-a special character by some shells.
+Escape sequences should be quoted, since `[` is treated as a special character
+by some shells.
 
 ```just
 @foo:
