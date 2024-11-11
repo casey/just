@@ -148,11 +148,13 @@ impl<'src, 'a> IntoIterator for &'a AttributeSet<'src> {
   }
 }
 
-impl<'src> AttributeSet<'src> {
-  pub(crate) fn from_iter(iter: impl IntoIterator<Item = Attribute<'src>>) -> Self {
+impl<'src, 'a> FromIterator<Attribute<'src>> for AttributeSet<'src> {
+  fn from_iter<T: IntoIterator<Item = attribute::Attribute<'src>>>(iter: T) -> Self {
     Self(iter.into_iter().collect())
   }
+}
 
+impl<'src> AttributeSet<'src> {
   pub(crate) fn len(&self) -> usize {
     self.0.len()
   }

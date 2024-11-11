@@ -1152,8 +1152,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     if attributes.is_empty() {
       Ok(None)
     } else {
-      let attribute_set = AttributeSet::from_iter(attributes.into_keys());
-      Ok(Some((token.unwrap(), attribute_set)))
+      Ok(Some((token.unwrap(), attributes.into_keys().collect())))
     }
   }
 }
