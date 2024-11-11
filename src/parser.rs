@@ -488,6 +488,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.expect_eol()?;
 
     let private = attributes.contains(AttributeDiscriminant::Private);
+
     attributes.ensure_valid_attributes("Assignment", *name, &[AttributeDiscriminant::Private])?;
 
     Ok(Assignment {
