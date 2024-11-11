@@ -2,6 +2,11 @@ use {super::*, clap_mangen::Man};
 
 const INIT_JUSTFILE: &str = "default:\n    echo 'Hello, world!'\n";
 
+fn backtick_re() -> &'static Regex {
+  static BACKTICK_RE: OnceLock<Regex> = OnceLock::new();
+  BACKTICK_RE.get_or_init(|| Regex::new("(`.*?`)|(`[^`]*$)").unwrap())
+}
+
 #[derive(PartialEq, Clone, Debug)]
 pub(crate) enum Subcommand {
   Changelog,
@@ -413,15 +418,31 @@ impl Subcommand {
     ) {
       if let Some(doc) = doc {
         if !doc.is_empty() && doc.lines().count() <= 1 {
+          let color = config.color.stdout();
           print!(
-            "{:padding$}{} {}",
+            "{:padding$}{} ",
             "",
-            config.color.stdout().doc().paint("#"),
-            config.color.stdout().doc().paint(doc),
+            color.doc().paint("#"),
             padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
           );
+
+          let mut end = 0;
+          for backtick in backtick_re().find_iter(doc) {
+            let prefix = &doc[end..backtick.start()];
+            if !prefix.is_empty() {
+              print!("{}", color.doc().paint(prefix));
+            }
+            print!("{}", color.doc_backtick().paint(backtick.as_str()));
+            end = backtick.end();
+          }
+
+          let suffix = &doc[end..];
+          if !suffix.is_empty() {
+            print!("{}", color.doc().paint(suffix));
+          }
         }
       }
+
       println!();
     }
 
