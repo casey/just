@@ -1594,6 +1594,30 @@ and are implemented with the
 <tr><td><code>HEX</code><sup>1.27.0</sup></td><td><code>"0123456789abcdef"</code></td></tr>
 <tr><td><code>HEXLOWER</code><sup>1.27.0</sup></td><td><code>"0123456789abcdef"</code></td></tr>
 <tr><td><code>HEXUPPER</code><sup>1.27.0</sup></td><td><code>"0123456789ABCDEF"</code></td></tr>
+<tr><td><code>CLEAR</code><sup>master</sup></td><td><code>"\ec"</code></td></tr>
+<tr><td><code>NORMAL</code><sup>master</sup></td><td><code>"\e[0m"</code></td></tr>
+<tr><td><code>BOLD</code><sup>master</sup></td><td><code>"\e[1m"</code></td></tr>
+<tr><td><code>ITALIC</code><sup>master</sup></td><td><code>"\e[3m"</code></td></tr>
+<tr><td><code>UNDERLINE</code><sup>master</sup></td><td><code>"\e[4m"</code></td></tr>
+<tr><td><code>INVERT</code><sup>master</sup></td><td><code>"\e[7m"</code></td></tr>
+<tr><td><code>HIDE</code><sup>master</sup></td><td><code>"\e[8m"</code></td></tr>
+<tr><td><code>STRIKETHROUGH</code><sup>master</sup></td><td><code>"\e[9m"</code></td></tr>
+<tr><td><code>BLACK</code><sup>master</sup></td><td><code>"\e[30m"</code></td></tr>
+<tr><td><code>RED</code><sup>master</sup></td><td><code>"\e[31m"</code></td></tr>
+<tr><td><code>GREEN</code><sup>master</sup></td><td><code>"\e[32m"</code></td></tr>
+<tr><td><code>YELLOW</code><sup>master</sup></td><td><code>"\e[33m"</code></td></tr>
+<tr><td><code>BLUE</code><sup>master</sup></td><td><code>"\e[34m"</code></td></tr>
+<tr><td><code>MAGENTA</code><sup>master</sup></td><td><code>"\e[35m"</code></td></tr>
+<tr><td><code>CYAN</code><sup>master</sup></td><td><code>"\e[36m"</code></td></tr>
+<tr><td><code>WHITE</code><sup>master</sup></td><td><code>"\e[37m"</code></td></tr>
+<tr><td><code>BG_BLACK</code><sup>master</sup></td><td><code>"\e[40m"</code></td></tr>
+<tr><td><code>BG_RED</code><sup>master</sup></td><td><code>"\e[41m"</code></td></tr>
+<tr><td><code>BG_GREEN</code><sup>master</sup></td><td><code>"\e[42m"</code></td></tr>
+<tr><td><code>BG_YELLOW</code><sup>master</sup></td><td><code>"\e[43m"</code></td></tr>
+<tr><td><code>BG_BLUE</code><sup>master</sup></td><td><code>"\e[44m"</code></td></tr>
+<tr><td><code>BG_MAGENTA</code><sup>master</sup></td><td><code>"\e[45m"</code></td></tr>
+<tr><td><code>BG_CYAN</code><sup>master</sup></td><td><code>"\e[46m"</code></td></tr>
+<tr><td><code>BG_WHITE</code><sup>master</sup></td><td><code>"\e[47m"</code></td></tr>
 </tbody></table>
 </div>
 <pre><code class="language-just">@foo:
@@ -1602,8 +1626,22 @@ and are implemented with the
 <pre><code class="language-console">$ just foo
 0123456789abcdef
 </code></pre>
+<p>Constants starting with <code>\e</code> are
+<a href="https://en.wikipedia.org/wiki/ANSI_escape_code">ANSI escape sequences</a>.</p>
+<p><code>CLEAR</code> clears the screen, similar to the <code>clear</code> command. The rest are of the
+form <code>\e[Nm</code>, where <code>N</code> is an integer, and set terminal display attributes.</p>
+<p>Terminal display attribute escape sequences can be combined, for example text
+weight <code>BOLD</code>, text style <code>STRIKETHROUGH</code>, foreground color <code>CYAN</code>, and
+background color <code>BG_BLUE</code>. They should be followed by <code>NORMAL</code>, to reset the
+terminal back to normal.</p>
+<p>Escape sequences should be quoted, since <code>[</code> is treated as a special character
+by some shells.</p>
+<pre><code class="language-just">@foo:
+  echo '{{BOLD + STRIKETHROUGH + CYAN + BG_BLUE}}Hi!{{NORMAL}}'
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="attributes"><a class="header" href="#attributes">Attributes</a></h3>
-<p>Recipes, <code>mod</code> statements, and aliases may be annotated with attributes that change their behavior.</p>
+<p>Recipes, <code>mod</code> statements, and aliases may be annotated with attributes that
+change their behavior.</p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>[confirm]</code><sup>1.17.0</sup></td><td>recipe</td><td>Require confirmation prior to executing recipe.</td></tr>
 <tr><td><code>[confirm('PROMPT')]</code><sup>1.23.0</sup></td><td>recipe</td><td>Require confirmation prior to executing recipe with a custom prompt.</td></tr>
