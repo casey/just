@@ -12,7 +12,8 @@ pub(crate) use {
     assignment::Assignment,
     assignment_resolver::AssignmentResolver,
     ast::Ast,
-    attribute::{Attribute, AttributeDiscriminant, AttributeSet},
+    attribute::{Attribute, AttributeDiscriminant},
+    attribute_set::AttributeSet,
     binding::Binding,
     color::Color,
     color_display::ColorDisplay,
@@ -177,6 +178,7 @@ mod assignment;
 mod assignment_resolver;
 mod ast;
 mod attribute;
+mod attribute_set;
 mod binding;
 mod color;
 mod color_display;
