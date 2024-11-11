@@ -1,6 +1,4 @@
-use std::collections::{self};
-
-use super::*;
+use {super::*, std::collections};
 
 #[derive(
   EnumDiscriminants, PartialEq, Debug, Clone, Serialize, Ord, PartialOrd, Eq, IntoStaticStr,
