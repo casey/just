@@ -35,7 +35,6 @@ impl Color {
     Self::default()
   }
 
-  #[cfg(test)]
   pub(crate) fn always() -> Self {
     Self {
       use_color: UseColor::Always,
