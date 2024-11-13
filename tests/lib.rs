@@ -103,6 +103,7 @@ mod shell;
 mod shell_expansion;
 mod show;
 mod slash_operator;
+mod stdin;
 mod string;
 mod subsequents;
 mod summary;

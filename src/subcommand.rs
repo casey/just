@@ -109,7 +109,8 @@ impl Subcommand {
     arguments: &[String],
     overrides: &BTreeMap<String, String>,
   ) -> RunResult<'src> {
-    let starting_parent = search.justfile.parent().as_ref().unwrap().lexiclean();
+    let justfile = search.justfile.as_ref().ok_or(Error::JustfileIsNotAFile)?;
+    let starting_parent = justfile.parent().as_ref().unwrap().lexiclean();
 
     loop {
       let justfile = &compilation.justfile;
@@ -124,17 +125,18 @@ impl Subcommand {
       if fallback {
         if let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result {
           search = search.search_parent_directory().map_err(|_| err)?;
+          let justfile = search.justfile.as_ref().ok_or(Error::JustfileIsNotAFile)?;
 
           if config.verbosity.loquacious() {
             eprintln!(
               "Trying {}",
               starting_parent
-                .strip_prefix(search.justfile.parent().unwrap())
+                .strip_prefix(justfile.parent().unwrap())
                 .unwrap()
                 .components()
                 .map(|_| path::Component::ParentDir)
                 .collect::<PathBuf>()
-                .join(search.justfile.file_name().unwrap())
+                .join(justfile.file_name().unwrap())
                 .display()
             );
           }
@@ -154,7 +156,9 @@ impl Subcommand {
     loader: &'src Loader,
     search: &Search,
   ) -> RunResult<'src, Compilation<'src>> {
-    let compilation = Compiler::compile(loader, &search.justfile)?;
+    let justfile = search.justfile.as_ref().ok_or(Error::JustfileIsNotAFile)?;
+
+    let compilation = Compiler::compile(loader, justfile)?;
 
     compilation.justfile.check_unstable(config)?;
 
@@ -197,9 +201,10 @@ impl Subcommand {
     let chooser = if let Some(chooser) = chooser {
       OsString::from(chooser)
     } else {
+      let justfile = search.justfile.as_ref().ok_or(Error::JustfileIsNotAFile)?;
       let mut chooser = OsString::new();
       chooser.push("fzf --multi --preview 'just --unstable --color always --justfile \"");
-      chooser.push(&search.justfile);
+      chooser.push(justfile);
       chooser.push("\" --show {}'");
       chooser
     };
@@ -284,9 +289,10 @@ impl Subcommand {
       .or_else(|| env::var_os("EDITOR"))
       .unwrap_or_else(|| "vim".into());
 
+    let justfile = search.justfile.as_ref().ok_or(Error::JustfileIsNotAFile)?;
     let error = Command::new(&editor)
       .current_dir(&search.working_directory)
-      .arg(&search.justfile)
+      .arg(&justfile)
       .status();
 
     let status = match error {
@@ -338,36 +344,38 @@ impl Subcommand {
       };
     }
 
-    fs::write(&search.justfile, formatted).map_err(|io_error| Error::WriteJustfile {
-      justfile: search.justfile.clone(),
+    let justfile = search.justfile.as_ref().ok_or(Error::JustfileIsNotAFile)?;
+
+    fs::write(justfile, formatted).map_err(|io_error| Error::WriteJustfile {
+      justfile: justfile.clone(),
       io_error,
     })?;
 
     if config.verbosity.loud() {
-      eprintln!("Wrote justfile to `{}`", search.justfile.display());
+      eprintln!("Wrote justfile to `{}`", justfile.display());
     }
 
     Ok(())
   }
 
   fn init(config: &Config) -> RunResult<'static> {
-    let search = Search::init(&config.search_config, &config.invocation_directory)?;
+    let justfile = Search::init(&config.search_config, &config.invocation_directory)?;
 
-    if search.justfile.is_file() {
+    if justfile.is_file() {
       return Err(Error::InitExists {
-        justfile: search.justfile,
+        justfile: justfile.clone(),
       });
     }
 
-    if let Err(io_error) = fs::write(&search.justfile, INIT_JUSTFILE) {
+    if let Err(io_error) = fs::write(&justfile, INIT_JUSTFILE) {
       return Err(Error::WriteJustfile {
-        justfile: search.justfile,
+        justfile: justfile.clone(),
         io_error,
       });
     }
 
     if config.verbosity.loud() {
-      eprintln!("Wrote justfile to `{}`", search.justfile.display());
+      eprintln!("Wrote justfile to `{}`", justfile.display());
     }
 
     Ok(())
