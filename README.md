@@ -2757,6 +2757,7 @@ recipes, such as the use of `cygpath` on Windows, the need to use
 
 Recipes with an empty `[script]` attribute are executed with the value of
 `set script-interpreter := […]`<sup>1.33.0</sup>, defaulting to `sh -eu`.
+Note that the `set shell` value is *not* used for `[script]` recipes.
 
 The body of the recipe is evaluated, written to disk in the temporary
 directory, and run by passing its path as an argument to `COMMAND`.
