@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive_where::derive_where(Debug, PartialEq)]
+#[derive_where(Debug, PartialEq)]
 #[derive(Clone)]
 pub(crate) enum Thunk<'src> {
   Nullary {

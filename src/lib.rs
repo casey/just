@@ -34,6 +34,7 @@ pub(crate) use {
   },
   camino::Utf8Path,
   clap::ValueEnum,
+  derive_where::derive_where,
   edit_distance::edit_distance,
   lexiclean::Lexiclean,
   libc::EXIT_FAILURE,
