@@ -1,22 +1,30 @@
 use super::*;
 
-fn case(justfile: &str, value: Value) {
+fn case<F: Fn(&Path) -> Value>(justfile: &str, value: F) {
   Test::new()
     .justfile(justfile)
     .args(["--dump", "--dump-format", "json"])
-    .stdout(format!("{}\n", serde_json::to_string(&value).unwrap()))
+    .stdout_with_tempdir(|dir| format!("{}\n", serde_json::to_string(&value(dir.path())).unwrap()))
     .run();
 }
 
 #[test]
 fn alias() {
-  case(
+  let test = Test::new().justfile(
     "
       alias f := foo
 
       foo:
     ",
-    json!({
+  );
+  let source = test
+    .tempdir
+    .path()
+    .join("justfile")
+    .to_str()
+    .unwrap()
+    .to_owned();
+  let json = json!({
       "first": "foo",
       "doc": null,
       "aliases": {
@@ -66,14 +74,18 @@ fn alias() {
       },
       "unexports": [],
       "warnings": [],
-    }),
-  );
+      "source": source,
+  });
+  test
+    .args(["--dump", "--dump-format", "json"])
+    .stdout(format!("{}\n", serde_json::to_string(&json).unwrap()))
+    .run();
 }
 
 #[test]
 fn assignment() {
-  case(
-    "foo := 'bar'",
+  case("foo := 'bar'", |dir| {
+    let source = dir.join("justfile").to_str().unwrap().to_owned();
     json!({
       "aliases": {},
       "assignments": {
@@ -110,8 +122,9 @@ fn assignment() {
       },
       "unexports": [],
       "warnings": [],
-    }),
-  );
+      "source":  source,
+    })
+  });
 }
 
 #[test]
@@ -122,49 +135,53 @@ fn private_assignment() {
       [private]
       bar := 'bar'
     ",
-    json!({
-      "aliases": {},
-      "assignments": {
-        "_foo": {
-          "export": false,
-          "name": "_foo",
-          "value": "foo",
-          "private": true,
+    |dir| {
+      let source = dir.join("justfile").to_str().unwrap().to_owned();
+      json!({
+        "aliases": {},
+        "assignments": {
+          "_foo": {
+            "export": false,
+            "name": "_foo",
+            "value": "foo",
+            "private": true,
+          },
+          "bar": {
+            "export": false,
+            "name": "bar",
+            "value": "bar",
+            "private": true,
+          },
         },
-        "bar": {
+        "first": null,
+        "doc": null,
+        "groups": [],
+        "modules": {},
+        "recipes": {},
+        "settings": {
+          "allow_duplicate_recipes": false,
+          "allow_duplicate_variables": false,
+          "dotenv_filename": null,
+          "dotenv_load": false,
+          "dotenv_path": null,
+          "dotenv_required": false,
           "export": false,
-          "name": "bar",
-          "value": "bar",
-          "private": true,
+          "fallback": false,
+          "ignore_comments": false,
+          "positional_arguments": false,
+          "quiet": false,
+          "shell": null,
+          "tempdir" : null,
+          "unstable": false,
+          "windows_powershell": false,
+          "windows_shell": null,
+          "working_directory" : null,
         },
-      },
-      "first": null,
-      "doc": null,
-      "groups": [],
-      "modules": {},
-      "recipes": {},
-      "settings": {
-        "allow_duplicate_recipes": false,
-        "allow_duplicate_variables": false,
-        "dotenv_filename": null,
-        "dotenv_load": false,
-        "dotenv_path": null,
-        "dotenv_required": false,
-        "export": false,
-        "fallback": false,
-        "ignore_comments": false,
-        "positional_arguments": false,
-        "quiet": false,
-        "shell": null,
-        "tempdir" : null,
-        "unstable": false,
-        "windows_powershell": false,
-        "windows_shell": null,
-        "working_directory" : null,
-      },
-      "unexports": [],
-      "warnings": [],
-    }),
+        "unexports": [],
+        "warnings": [],
+        "source": source,
+      })
+    },
   );
 }
 
@@ -176,53 +193,57 @@ fn body() {
         bar
         abc{{ 'xyz' }}def
     ",
-    json!({
-      "aliases": {},
-      "assignments": {},
-      "first": "foo",
-      "doc": null,
-      "groups": [],
-      "modules": {},
-      "recipes": {
-        "foo": {
-          "attributes": [],
-          "body": [
-            ["bar"],
-            ["abc", ["xyz"], "def"],
-          ],
-          "dependencies": [],
-          "doc": null,
-          "name": "foo",
-          "namepath": "foo",
-          "parameters": [],
-          "priors": 0,
-          "private": false,
+    |dir| {
+      let source = dir.join("justfile").to_str().unwrap().to_owned();
+      json!({
+        "aliases": {},
+        "assignments": {},
+        "first": "foo",
+        "doc": null,
+        "groups": [],
+        "modules": {},
+        "recipes": {
+          "foo": {
+            "attributes": [],
+            "body": [
+              ["bar"],
+              ["abc", ["xyz"], "def"],
+            ],
+            "dependencies": [],
+            "doc": null,
+            "name": "foo",
+            "namepath": "foo",
+            "parameters": [],
+            "priors": 0,
+            "private": false,
+            "quiet": false,
+            "shebang": false,
+          }
+        },
+        "settings": {
+          "allow_duplicate_recipes": false,
+          "allow_duplicate_variables": false,
+          "dotenv_filename": null,
+          "dotenv_load": false,
+          "dotenv_path": null,
+          "dotenv_required": false,
+          "export": false,
+          "fallback": false,
+          "ignore_comments": false,
+          "positional_arguments": false,
           "quiet": false,
-          "shebang": false,
-        }
-      },
-      "settings": {
-        "allow_duplicate_recipes": false,
-        "allow_duplicate_variables": false,
-        "dotenv_filename": null,
-        "dotenv_load": false,
-        "dotenv_path": null,
-        "dotenv_required": false,
-        "export": false,
-        "fallback": false,
-        "ignore_comments": false,
-        "positional_arguments": false,
-        "quiet": false,
-        "shell": null,
-        "tempdir" : null,
-        "unstable": false,
-        "windows_powershell": false,
-        "windows_shell": null,
-        "working_directory" : null,
-      },
-      "unexports": [],
-      "warnings": [],
-    }),
+          "shell": null,
+          "tempdir" : null,
+          "unstable": false,
+          "windows_powershell": false,
+          "windows_shell": null,
+          "working_directory" : null,
+        },
+        "unexports": [],
+        "warnings": [],
+        "source": source,
+      })
+    },
   );
 }
 
@@ -233,66 +254,70 @@ fn dependencies() {
       foo:
       bar: foo
     ",
-    json!({
-      "aliases": {},
-      "assignments": {},
-      "first": "foo",
-      "doc": null,
-      "groups": [],
-      "modules": {},
-      "recipes": {
-        "bar": {
-          "attributes": [],
-          "doc": null,
-          "name": "bar",
-          "namepath": "bar",
-          "body": [],
-          "dependencies": [{
-            "arguments": [],
-            "recipe": "foo"
-          }],
-          "parameters": [],
-          "priors": 1,
-          "private": false,
-          "quiet": false,
-          "shebang": false,
+    |dir| {
+      let source = dir.join("justfile").to_str().unwrap().to_owned();
+      json!({
+        "aliases": {},
+        "assignments": {},
+        "first": "foo",
+        "doc": null,
+        "groups": [],
+        "modules": {},
+        "recipes": {
+          "bar": {
+            "attributes": [],
+            "doc": null,
+            "name": "bar",
+            "namepath": "bar",
+            "body": [],
+            "dependencies": [{
+              "arguments": [],
+              "recipe": "foo"
+            }],
+            "parameters": [],
+            "priors": 1,
+            "private": false,
+            "quiet": false,
+            "shebang": false,
+          },
+          "foo": {
+            "body": [],
+            "dependencies": [],
+            "doc": null,
+            "name": "foo",
+            "namepath": "foo",
+            "parameters": [],
+            "priors": 0,
+            "private": false,
+            "quiet": false,
+            "shebang": false,
+            "attributes": [],
+          }
         },
-        "foo": {
-          "body": [],
-          "dependencies": [],
-          "doc": null,
-          "name": "foo",
-          "namepath": "foo",
-          "parameters": [],
-          "priors": 0,
-          "private": false,
+        "settings": {
+          "allow_duplicate_recipes": false,
+          "allow_duplicate_variables": false,
+          "dotenv_filename": null,
+          "dotenv_load": false,
+          "dotenv_path": null,
+          "dotenv_required": false,
+          "export": false,
+          "fallback": false,
+          "ignore_comments": false,
+          "positional_arguments": false,
           "quiet": false,
-          "shebang": false,
-          "attributes": [],
-        }
-      },
-      "settings": {
-        "allow_duplicate_recipes": false,
-        "allow_duplicate_variables": false,
-        "dotenv_filename": null,
-        "dotenv_load": false,
-        "dotenv_path": null,
-        "dotenv_required": false,
-        "export": false,
-        "fallback": false,
-        "ignore_comments": false,
-        "positional_arguments": false,
-        "quiet": false,
-        "shell": null,
-        "tempdir" : null,
-        "unstable": false,
-        "windows_powershell": false,
-        "windows_shell": null,
-        "working_directory" : null,
-      },
-      "unexports": [],
-      "warnings": [],
-    }),
+          "shell": null,
+          "tempdir" : null,
+          "unstable": false,
+          "windows_powershell": false,
+          "windows_shell": null,
+          "working_directory" : null,
+        },
+        "unexports": [],
+        "warnings": [],
+        "source": source,
+      })
+    },
   );
 }
 
@@ -316,91 +341,95 @@ fn dependency_argument() {
         replace('a', 'b', 'c')
       )
     ",
-    json!({
-      "aliases": {},
-      "first": "foo",
-      "doc": null,
-      "assignments": {
-        "x": {
-          "export": false,
-          "name": "x",
-          "value": "foo",
-          "private": false,
+    |dir| {
+      let source = dir.join("justfile").to_str().unwrap().to_owned();
+      json!({
+        "aliases": {},
+        "first": "foo",
+        "doc": null,
+        "assignments": {
+          "x": {
+            "export": false,
+            "name": "x",
+            "value": "foo",
+            "private": false,
+          },
         },
-      },
-      "groups": [],
-      "modules": {},
-      "recipes": {
-        "bar": {
-          "doc": null,
-          "name": "bar",
-          "namepath": "bar",
-          "body": [],
-          "dependencies": [{
-            "arguments": [
-              "baz",
-              "baz",
-              ["concatenate", "a", "b"],
-              ["evaluate", "echo"],
-              ["variable", "x"],
-              ["if", ["==", "a", "b"], "c", "d"],
-              ["call", "arch"],
-              ["call", "env_var", "foo"],
-              ["call", "join", "a", "b"],
-              ["call", "replace", "a", "b", "c"],
+        "groups": [],
+        "modules": {},
+        "recipes": {
+          "bar": {
+            "doc": null,
+            "name": "bar",
+            "namepath": "bar",
+            "body": [],
+            "dependencies": [{
+              "arguments": [
+                "baz",
+                "baz",
+                ["concatenate", "a", "b"],
+                ["evaluate", "echo"],
+                ["variable", "x"],
+                ["if", ["==", "a", "b"], "c", "d"],
+                ["call", "arch"],
+                ["call", "env_var", "foo"],
+                ["call", "join", "a", "b"],
+                ["call", "replace", "a", "b", "c"],
+              ],
+              "recipe": "foo"
+            }],
+            "parameters": [],
+            "priors": 1,
+            "private": false,
+            "quiet": false,
+            "shebang": false,
+            "attributes": [],
+          },
+          "foo": {
+            "body": [],
+            "dependencies": [],
+            "doc": null,
+            "name": "foo",
+            "namepath": "foo",
+            "parameters": [
+              {
+                "name": "args",
+                "export": false,
+                "default": null,
+                "kind": "star",
+              }
             ],
-            "recipe": "foo"
-          }],
-          "parameters": [],
-          "priors": 1,
-          "private": false,
-          "quiet": false,
-          "shebang": false,
-          "attributes": [],
+            "priors": 0,
+            "private": false,
+            "quiet": false,
+            "shebang": false,
+            "attributes": [],
+          }
         },
-        "foo": {
-          "body": [],
-          "dependencies": [],
-          "doc": null,
-          "name": "foo",
-          "namepath": "foo",
-          "parameters": [
-            {
-              "name": "args",
-              "export": false,
-              "default": null,
-              "kind": "star",
-            }
-          ],
-          "priors": 0,
-          "private": false,
+        "settings": {
+          "allow_duplicate_recipes": false,
+          "allow_duplicate_variables": false,
+          "dotenv_filename": null,
+          "dotenv_load": false,
+          "dotenv_path": null,
+          "dotenv_required": false,
+          "export": false,
+          "fallback": false,
+          "ignore_comments": false,
+          "positional_arguments": false,
           "quiet": false,
-          "shebang": false,
-          "attributes": [],
-        }
-      },
-      "settings": {
-        "allow_duplicate_recipes": false,
-        "allow_duplicate_variables": false,
-        "dotenv_filename": null,
-        "dotenv_load": false,
-        "dotenv_path": null,
-        "dotenv_required": false,
-        "export": false,
-        "fallback": false,
-        "ignore_comments": false,
-        "positional_arguments": false,
-        "quiet": false,
-        "shell": null,
-        "tempdir" : null,
-        "unstable": false,
-        "windows_powershell": false,
-        "windows_shell": null,
-        "working_directory" : null,
-      },
-      "unexports": [],
-      "warnings": [],
-    }),
+          "shell": null,
+          "tempdir" : null,
+          "unstable": false,
+          "windows_powershell": false,
+          "windows_shell": null,
+          "working_directory" : null,
+        },
+        "unexports": [],
+        "warnings": [],
+        "source": source,
+      })
+    },
   );
 }
 
@@ -414,63 +443,67 @@ fn duplicate_recipes() {
       foo:
       foo bar:
     ",
-    json!({
-      "first": "foo",
-      "doc": null,
-      "aliases": {
-        "f": {
-          "attributes": [],
-          "name": "f",
-          "target": "foo",
-        }
-      },
-      "assignments": {},
-      "groups": [],
-      "modules": {},
-      "recipes": {
-        "foo": {
-          "body": [],
-          "dependencies": [],
-          "doc": null,
-          "name": "foo",
-          "namepath": "foo",
-          "parameters": [
-            {
-              "name": "bar",
-              "export": false,
-              "default": null,
-              "kind": "singular",
-            },
-          ],
-          "priors": 0,
-          "private": false,
+    |dir| {
+      let source = dir.join("justfile").to_str().unwrap().to_owned();
+      json!({
+        "first": "foo",
+        "doc": null,
+        "aliases": {
+          "f": {
+            "attributes": [],
+            "name": "f",
+            "target": "foo",
+          }
+        },
+        "assignments": {},
+        "groups": [],
+        "modules": {},
+        "recipes": {
+          "foo": {
+            "body": [],
+            "dependencies": [],
+            "doc": null,
+            "name": "foo",
+            "namepath": "foo",
+            "parameters": [
+              {
+                "name": "bar",
+                "export": false,
+                "default": null,
+                "kind": "singular",
+              },
+            ],
+            "priors": 0,
+            "private": false,
+            "quiet": false,
+            "shebang": false,
+            "attributes": [],
+          }
+        },
+        "settings": {
+          "allow_duplicate_recipes": true,
+          "allow_duplicate_variables": false,
+          "dotenv_filename": null,
+          "dotenv_load": false,
+          "dotenv_path": null,
+          "dotenv_required": false,
+          "export": false,
+          "fallback": false,
+          "ignore_comments": false,
+          "positional_arguments": false,
           "quiet": false,
-          "shebang": false,
-          "attributes": [],
-        }
-      },
-      "settings": {
-        "allow_duplicate_recipes": true,
-        "allow_duplicate_variables": false,
-        "dotenv_filename": null,
-        "dotenv_load": false,
-        "dotenv_path": null,
-        "dotenv_required": false,
-        "export": false,
-        "fallback": false,
-        "ignore_comments": false,
-        "positional_arguments": false,
-        "quiet": false,
-        "shell": null,
-        "tempdir" : null,
-        "unstable": false,
-        "windows_powershell": false,
-        "windows_shell": null,
-        "working_directory" : null,
-      },
-      "unexports": [],
-      "warnings": [],
-    }),
+          "shell": null,
+          "tempdir" : null,
+          "unstable": false,
+          "windows_powershell": false,
+          "windows_shell": null,
+          "working_directory" : null,
+        },
+        "unexports": [],
+        "warnings": [],
+        "source": source,
+      })
+    },
   );
 }
 
@@ -482,50 +515,54 @@ fn duplicate_variables() {
       x := 'foo'
       x := 'bar'
     ",
-    json!({
-      "aliases": {},
-      "assignments": {
-        "x": {
+    |dir| {
+      let source = dir.join("justfile").to_str().unwrap().to_owned();
+      json!({
+        "aliases": {},
+        "assignments": {
+          "x": {
+            "export": false,
+            "name": "x",
+            "value": "bar",
+            "private": false,
+          }
+        },
+        "first": null,
+        "doc": null,
+        "groups": [],
+        "modules": {},
+        "recipes": {},
+        "settings": {
+          "allow_duplicate_recipes": false,
+          "allow_duplicate_variables": true,
+          "dotenv_filename": null,
+          "dotenv_load": false,
+          "dotenv_path": null,
+          "dotenv_required": false,
           "export": false,
-          "name": "x",
-          "value": "bar",
-          "private": false,
-        }
-      },
-      "first": null,
-      "doc": null,
-      "groups": [],
-      "modules": {},
-      "recipes": {},
-      "settings": {
-        "allow_duplicate_recipes": false,
-        "allow_duplicate_variables": true,
-        "dotenv_filename": null,
-        "dotenv_load": false,
-        "dotenv_path": null,
-        "dotenv_required": false,
-        "export": false,
-        "fallback": false,
-        "ignore_comments": false,
-        "positional_arguments": false,
-        "quiet": false,
-        "shell": null,
-        "tempdir" : null,
-        "unstable": false,
-        "windows_powershell": false,
-        "windows_shell": null,
-        "working_directory" : null,
-      },
-      "unexports": [],
-      "warnings": [],
-    }),
+          "fallback": false,
+          "ignore_comments": false,
+          "positional_arguments": false,
+          "quiet": false,
+          "shell": null,
+          "tempdir" : null,
+          "unstable": false,
+          "windows_powershell": false,
+          "windows_shell": null,
+          "working_directory" : null,
+        },
+        "unexports": [],
+        "warnings": [],
+        "source": source,
+      })
+    },
   );
 }
 
 #[test]
 fn doc_comment() {
-  case(
-    "# hello\nfoo:",
+  case("# hello\nfoo:", |dir| {
+    let source = dir.join("justfile").to_str().unwrap().to_owned();
     json!({
       "aliases": {},
       "first": "foo",
@@ -569,14 +606,15 @@ fn doc_comment() {
       },
       "unexports": [],
       "warnings": [],
-    }),
-  );
+      "source": source,
+    })
+  });
 }
 
 #[test]
 fn empty_justfile() {
-  case(
-    "",
+  case("", |dir| {
+    let source = dir.join("justfile").to_str().unwrap().to_owned();
     json!({
       "aliases": {},
       "assignments": {},
@@ -606,8 +644,9 @@ fn empty_justfile() {
       },
       "unexports": [],
       "warnings": [],
-    }),
-  );
+      "source": source,
+    })
+  });
 }
 
 #[test]
@@ -621,150 +660,154 @@ fn parameters() {
       e *x:
       f $x:
     ",
-    json!({
-      "aliases": {},
-      "first": "a",
-      "doc": null,
-      "assignments": {},
-      "groups": [],
-      "modules": {},
-      "recipes": {
-        "a": {
-          "attributes": [],
-          "body": [],
-          "dependencies": [],
-          "doc": null,
-          "name": "a",
-          "namepath": "a",
-          "parameters": [],
-          "priors": 0,
-          "private": false,
-          "quiet": false,
-          "shebang": false,
+    |dir| {
+      let source = dir.join("justfile").to_str().unwrap().to_owned();
+      json!({
+        "aliases": {},
+        "first": "a",
+        "doc": null,
+        "assignments": {},
+        "groups": [],
+        "modules": {},
+        "recipes": {
+          "a": {
+            "attributes": [],
+            "body": [],
+            "dependencies": [],
+            "doc": null,
+            "name": "a",
+            "namepath": "a",
+            "parameters": [],
+            "priors": 0,
+            "private": false,
+            "quiet": false,
+            "shebang": false,
+          },
+          "b": {
+            "body": [],
+            "dependencies": [],
+            "doc": null,
+            "name": "b",
+            "namepath": "b",
+            "parameters": [
+              {
+                "name": "x",
+                "export": false,
+                "default": null,
+                "kind": "singular",
+              },
+            ],
+            "priors": 0,
+            "private": false,
+            "quiet": false,
+            "shebang": false,
+            "attributes": [],
+          },
+          "c": {
+            "body": [],
+            "dependencies": [],
+            "doc": null,
+            "name": "c",
+            "namepath": "c",
+            "parameters": [
+              {
+                "name": "x",
+                "export": false,
+                "default": "y",
+                "kind": "singular",
+              }
+            ],
+            "priors": 0,
+            "private": false,
+            "quiet": false,
+            "shebang": false,
+            "attributes": [],
+          },
+          "d": {
+            "body": [],
+            "dependencies": [],
+            "doc": null,
+            "name": "d",
+            "namepath": "d",
+            "parameters": [
+              {
+                "name": "x",
+                "export": false,
+                "default": null,
+                "kind": "plus",
+              }
+            ],
+            "priors": 0,
+            "private": false,
+            "quiet": false,
+            "shebang": false,
+            "attributes": [],
+          },
+          "e": {
+            "body": [],
+            "dependencies": [],
+            "doc": null,
+            "name": "e",
+            "namepath": "e",
+            "parameters": [
+              {
+                "name": "x",
+                "export": false,
+                "default": null,
+                "kind": "star",
+              }
+            ],
+            "priors": 0,
+            "private": false,
+            "quiet": false,
+            "shebang": false,
+            "attributes": [],
+          },
+          "f": {
+            "body": [],
+            "dependencies": [],
+            "doc": null,
+            "name": "f",
+            "namepath": "f",
+            "parameters": [
+              {
+                "name": "x",
+                "export": true,
+                "default": null,
+                "kind": "singular",
+              }
+            ],
+            "priors": 0,
+            "private": false,
+            "quiet": false,
+            "shebang": false,
+            "attributes": [],
+          },
         },
-        "b": {
-          "body": [],
-          "dependencies": [],
-          "doc": null,
-          "name": "b",
-          "namepath": "b",
-          "parameters": [
-            {
-              "name": "x",
-              "export": false,
-              "default": null,
-              "kind": "singular",
-            },
-          ],
-          "priors": 0,
-          "private": false,
+        "settings": {
+          "allow_duplicate_recipes": false,
+          "allow_duplicate_variables": false,
+          "dotenv_filename": null,
+          "dotenv_load": false,
+          "dotenv_path": null,
+          "dotenv_required": false,
+          "export": false,
+          "fallback": false,
+          "ignore_comments": false,
+          "positional_arguments": false,
           "quiet": false,
-          "shebang": false,
-          "attributes": [],
+          "shell": null,
+          "tempdir" : null,
+          "unstable": false,
+          "windows_powershell": false,
+          "windows_shell": null,
+          "working_directory" : null,
         },
-        "c": {
-          "body": [],
-          "dependencies": [],
-          "doc": null,
-          "name": "c",
-          "namepath": "c",
-          "parameters": [
-            {
-              "name": "x",
-              "export": false,
-              "default": "y",
-              "kind": "singular",
-            }
-          ],
-          "priors": 0,
-          "private": false,
-          "quiet": false,
-          "shebang": false,
-          "attributes": [],
-        },
-        "d": {
-          "body": [],
-          "dependencies": [],
-          "doc": null,
-          "name": "d",
-          "namepath": "d",
-          "parameters": [
-            {
-              "name": "x",
-              "export": false,
-              "default": null,
-              "kind": "plus",
-            }
-          ],
-          "priors": 0,
-          "private": false,
-          "quiet": false,
-          "shebang": false,
-          "attributes": [],
-        },
-        "e": {
-          "body": [],
-          "dependencies": [],
-          "doc": null,
-          "name": "e",
-          "namepath": "e",
-          "parameters": [
-            {
-              "name": "x",
-              "export": false,
-              "default": null,
-              "kind": "star",
-            }
-          ],
-          "priors": 0,
-          "private": false,
-          "quiet": false,
-          "shebang": false,
-          "attributes": [],
-        },
-        "f": {
-          "body": [],
-          "dependencies": [],
-          "doc": null,
-          "name": "f",
-          "namepath": "f",
-          "parameters": [
-            {
-              "name": "x",
-              "export": true,
-              "default": null,
-              "kind": "singular",
-            }
-          ],
-          "priors": 0,
-          "private": false,
-          "quiet": false,
-          "shebang": false,
-          "attributes": [],
-        },
-      },
-      "settings": {
-        "allow_duplicate_recipes": false,
-        "allow_duplicate_variables": false,
-        "dotenv_filename": null,
-        "dotenv_load": false,
-        "dotenv_path": null,
-        "dotenv_required": false,
-        "export": false,
-        "fallback": false,
-        "ignore_comments": false,
-        "positional_arguments": false,
-        "quiet": false,
-        "shell": null,
-        "tempdir" : null,
-        "unstable": false,
-        "windows_powershell": false,
-        "windows_shell": null,
-        "working_directory" : null,
-      },
-      "unexports": [],
-      "warnings": [],
-    }),
+        "unexports": [],
+        "warnings": [],
+        "source": source,
+      })
+    },
   );
 }
 
@@ -776,93 +819,97 @@ fn priors() {
       b: a && c
       c:
     ",
-    json!({
-      "aliases": {},
-      "assignments": {},
-      "first": "a",
-      "doc": null,
-      "groups": [],
-      "modules": {},
-      "recipes": {
-        "a": {
-          "body": [],
-          "dependencies": [],
-          "doc": null,
-          "name": "a",
-          "namepath": "a",
-          "parameters": [],
-          "priors": 0,
-          "private": false,
-          "quiet": false,
-          "shebang": false,
-          "attributes": [],
+    |dir| {
+      let source = dir.join("justfile").to_str().unwrap().to_owned();
+      json!({
+        "aliases": {},
+        "assignments": {},
+        "first": "a",
+        "doc": null,
+        "groups": [],
+        "modules": {},
+        "recipes": {
+          "a": {
+            "body": [],
+            "dependencies": [],
+            "doc": null,
+            "name": "a",
+            "namepath": "a",
+            "parameters": [],
+            "priors": 0,
+            "private": false,
+            "quiet": false,
+            "shebang": false,
+            "attributes": [],
+          },
+          "b": {
+            "body": [],
+            "dependencies": [
+              {
+                "arguments": [],
+                "recipe": "a",
+              },
+              {
+                "arguments": [],
+                "recipe": "c",
+              }
+            ],
+            "doc": null,
+            "name": "b",
+            "namepath": "b",
+            "private": false,
+            "quiet": false,
+            "shebang": false,
+            "attributes": [],
+            "parameters": [],
+            "priors": 1,
+          },
+          "c": {
+            "body": [],
+            "dependencies": [],
+            "doc": null,
+            "name": "c",
+            "namepath": "c",
+            "parameters": [],
+            "private": false,
+            "quiet": false,
+            "shebang": false,
+            "attributes": [],
+            "parameters": [],
+            "priors": 0,
+          },
         },
-        "b": {
-          "body": [],
-          "dependencies": [
-            {
-              "arguments": [],
-              "recipe": "a",
-            },
-            {
-              "arguments": [],
-              "recipe": "c",
-            }
-          ],
-          "doc": null,
-          "name": "b",
-          "namepath": "b",
-          "private": false,
+        "settings": {
+          "allow_duplicate_recipes": false,
+          "allow_duplicate_variables": false,
+          "dotenv_filename": null,
+          "dotenv_load": false,
+          "dotenv_path": null,
+          "dotenv_required": false,
+          "export": false,
+          "fallback": false,
+          "ignore_comments": false,
+          "positional_arguments": false,
           "quiet": false,
-          "shebang": false,
-          "attributes": [],
-          "parameters": [],
-          "priors": 1,
+          "shell": null,
+          "tempdir" : null,
+          "unstable": false,
+          "windows_powershell": false,
+          "windows_shell": null,
+          "working_directory" : null,
         },
-        "c": {
-          "body": [],
-          "dependencies": [],
-          "doc": null,
-          "name": "c",
-          "namepath": "c",
-          "parameters": [],
-          "private": false,
-          "quiet": false,
-          "shebang": false,
-          "attributes": [],
-          "parameters": [],
-          "priors": 0,
-        },
-      },
-      "settings": {
-        "allow_duplicate_recipes": false,
-        "allow_duplicate_variables": false,
-        "dotenv_filename": null,
-        "dotenv_load": false,
-        "dotenv_path": null,
-        "dotenv_required": false,
-        "export": false,
-        "fallback": false,
-        "ignore_comments": false,
-        "positional_arguments": false,
-        "quiet": false,
-        "shell": null,
-        "tempdir" : null,
-        "unstable": false,
-        "windows_powershell": false,
-        "windows_shell": null,
-        "working_directory" : null,
-      },
-      "unexports": [],
-      "warnings": [],
-    }),
+        "unexports": [],
+        "warnings": [],
+        "source": source,
+      })
+    },
   );
 }
 
 #[test]
 fn private() {
-  case(
-    "_foo:",
+  case("_foo:", |dir| {
+    let source = dir.join("justfile").to_str().unwrap().to_owned();
     json!({
       "aliases": {},
       "assignments": {},
@@ -906,14 +953,15 @@ fn private() {
       },
       "unexports": [],
       "warnings": [],
-    }),
-  );
+      "source": source,
+    })
+  });
 }
 
 #[test]
 fn quiet() {
-  case(
-    "@foo:",
+  case("@foo:", |dir| {
+    let source = dir.join("justfile").to_str().unwrap().to_owned();
     json!({
       "aliases": {},
       "assignments": {},
@@ -957,8 +1005,9 @@ fn quiet() {
       },
       "unexports": [],
       "warnings": [],
-    }),
-  );
+      "source": source,
+    })
+  });
 }
 
 #[test]
@@ -977,53 +1026,57 @@ fn settings() {
       foo:
         #!bar
     ",
-    json!({
-      "aliases": {},
-      "assignments": {},
-      "first": "foo",
-      "doc": null,
-      "groups": [],
-      "modules": {},
-      "recipes": {
-        "foo": {
-          "body": [["#!bar"]],
-          "dependencies": [],
-          "doc": null,
-          "name": "foo",
-          "namepath": "foo",
-          "parameters": [],
-          "priors": 0,
-          "private": false,
-          "quiet": false,
-          "shebang": true,
-          "attributes": [],
-        }
-      },
-      "settings": {
-        "allow_duplicate_recipes": false,
-        "allow_duplicate_variables": false,
-        "dotenv_filename": "filename",
-        "dotenv_load": true,
-        "dotenv_path": "path",
-        "dotenv_required": false,
-        "export": true,
-        "fallback": true,
-        "ignore_comments": true,
-        "positional_arguments": true,
-        "quiet": true,
-        "shell": {
-          "arguments": ["b", "c"],
-          "command": "a",
+    |dir| {
+      let source = dir.join("justfile").to_str().unwrap().to_owned();
+      json!({
+        "aliases": {},
+        "assignments": {},
+        "first": "foo",
+        "doc": null,
+        "groups": [],
+        "modules": {},
+        "recipes": {
+          "foo": {
+            "body": [["#!bar"]],
+            "dependencies": [],
+            "doc": null,
+            "name": "foo",
+            "namepath": "foo",
+            "parameters": [],
+            "priors": 0,
+            "private": false,
+            "quiet": false,
+            "shebang": true,
+            "attributes": [],
+          }
         },
-        "tempdir": null,
-        "unstable": false,
-        "windows_powershell": false,
-        "windows_shell": null,
-        "working_directory" : null,
-      },
-      "unexports": [],
-      "warnings": [],
-    }),
+        "settings": {
+          "allow_duplicate_recipes": false,
+          "allow_duplicate_variables": false,
+          "dotenv_filename": "filename",
+          "dotenv_load": true,
+          "dotenv_path": "path",
+          "dotenv_required": false,
+          "export": true,
+          "fallback": true,
+          "ignore_comments": true,
+          "positional_arguments": true,
+          "quiet": true,
+          "shell": {
+            "arguments": ["b", "c"],
+            "command": "a",
+          },
+          "tempdir": null,
+          "unstable": false,
+          "windows_powershell": false,
+          "windows_shell": null,
+          "working_directory" : null,
+        },
+        "unexports": [],
+        "warnings": [],
+        "source": source,
+      })
+    },
   );
 }
 
@@ -1034,57 +1087,61 @@ fn shebang() {
       foo:
         #!bar
     ",
-    json!({
-      "aliases": {},
-      "assignments": {},
-      "first": "foo",
-      "doc": null,
-      "groups": [],
-      "modules": {},
-      "recipes": {
-        "foo": {
-          "body": [["#!bar"]],
-          "dependencies": [],
-          "doc": null,
-          "name": "foo",
-          "namepath": "foo",
-          "parameters": [],
-          "priors": 0,
-          "private": false,
+    |dir| {
+      let source = dir.join("justfile").to_str().unwrap().to_owned();
+      json!({
+        "aliases": {},
+        "assignments": {},
+        "first": "foo",
+        "doc": null,
+        "groups": [],
+        "modules": {},
+        "recipes": {
+          "foo": {
+            "body": [["#!bar"]],
+            "dependencies": [],
+            "doc": null,
+            "name": "foo",
+            "namepath": "foo",
+            "parameters": [],
+            "priors": 0,
+            "private": false,
+            "quiet": false,
+            "shebang": true,
+            "attributes": [],
+          }
+        },
+        "settings": {
+          "allow_duplicate_recipes": false,
+          "allow_duplicate_variables": false,
+          "dotenv_filename": null,
+          "dotenv_load": false,
+          "dotenv_path": null,
+          "dotenv_required": false,
+          "export": false,
+          "fallback": false,
+          "ignore_comments": false,
+          "positional_arguments": false,
           "quiet": false,
-          "shebang": true,
-          "attributes": [],
-        }
-      },
-      "settings": {
-        "allow_duplicate_recipes": false,
-        "allow_duplicate_variables": false,
-        "dotenv_filename": null,
-        "dotenv_load": false,
-        "dotenv_path": null,
-        "dotenv_required": false,
-        "export": false,
-        "fallback": false,
-        "ignore_comments": false,
-        "positional_arguments": false,
-        "quiet": false,
-        "shell": null,
-        "tempdir": null,
-        "unstable": false,
-        "windows_powershell": false,
-        "windows_shell": null,
-        "working_directory" : null,
-      },
-      "unexports": [],
-      "warnings": [],
-    }),
+          "shell": null,
+          "tempdir": null,
+          "unstable": false,
+          "windows_powershell": false,
+          "windows_shell": null,
+          "working_directory" : null,
+        },
+        "unexports": [],
+        "warnings": [],
+        "source": source,
+      })
+    },
   );
 }
 
 #[test]
 fn simple() {
-  case(
-    "foo:",
+  case("foo:", |dir| {
+    let source = dir.join("justfile").to_str().unwrap().to_owned();
     json!({
       "aliases": {},
       "assignments": {},
@@ -1128,8 +1185,9 @@ fn simple() {
       },
       "unexports": [],
       "warnings": [],
-    }),
-  );
+      "source": source,
+    })
+  });
 }
 
 #[test]
@@ -1139,50 +1197,54 @@ fn attribute() {
       [no-exit-message]
       foo:
     ",
-    json!({
-      "aliases": {},
-      "assignments": {},
-      "first": "foo",
-      "doc": null,
-      "groups": [],
-      "modules": {},
-      "recipes": {
-        "foo": {
-          "attributes": ["no-exit-message"],
-          "body": [],
-          "dependencies": [],
-          "doc": null,
-          "name": "foo",
-          "namepath": "foo",
-          "parameters": [],
-          "priors": 0,
-          "private": false,
+    |dir| {
+      let source = dir.join("justfile").to_str().unwrap().to_owned();
+      json!({
+        "aliases": {},
+        "assignments": {},
+        "first": "foo",
+        "doc": null,
+        "groups": [],
+        "modules": {},
+        "recipes": {
+          "foo": {
+            "attributes": ["no-exit-message"],
+            "body": [],
+            "dependencies": [],
+            "doc": null,
+            "name": "foo",
+            "namepath": "foo",
+            "parameters": [],
+            "priors": 0,
+            "private": false,
+            "quiet": false,
+            "shebang": false,
+          }
+        },
+        "settings": {
+          "allow_duplicate_recipes": false,
+          "allow_duplicate_variables": false,
+          "dotenv_filename": null,
+          "dotenv_load": false,
+          "dotenv_path": null,
+          "dotenv_required": false,
+          "export": false,
+          "fallback": false,
+          "positional_arguments": false,
           "quiet": false,
-          "shebang": false,
-        }
-      },
-      "settings": {
-        "allow_duplicate_recipes": false,
-        "allow_duplicate_variables": false,
-        "dotenv_filename": null,
-        "dotenv_load": false,
-        "dotenv_path": null,
-        "dotenv_required": false,
-        "export": false,
-        "fallback": false,
-        "positional_arguments": false,
-        "quiet": false,
-        "shell": null,
-        "tempdir" : null,
-        "unstable": false,
-        "ignore_comments": false,
-        "windows_powershell": false,
-        "windows_shell": null,
-        "working_directory" : null,
-      },
-      "unexports": [],
-      "warnings": [],
-    }),
+          "shell": null,
+          "tempdir" : null,
+          "unstable": false,
+          "ignore_comments": false,
+          "windows_powershell": false,
+          "windows_shell": null,
+          "working_directory" : null,
+        },
+        "unexports": [],
+        "warnings": [],
+        "source": source,
+      })
+    },
   );
 }
 
@@ -1199,85 +1261,91 @@ fn module() {
       "foo.just": "bar:",
     })
     .args(["--dump", "--dump-format", "json"])
-    .stdout(format!(
-      "{}\n",
-      serde_json::to_string(&json!({
-        "aliases": {},
-        "assignments": {},
-        "first": null,
-        "doc": null,
-        "groups": [],
-        "modules": {
-          "foo": {
-            "aliases": {},
-            "assignments": {},
-            "first": "bar",
-            "doc": "hello",
-            "groups": [],
-            "modules": {},
-            "recipes": {
-              "bar": {
-                "attributes": [],
-                "body": [],
-                "dependencies": [],
-                "doc": null,
-                "name": "bar",
-                "namepath": "foo::bar",
-                "parameters": [],
-                "priors": 0,
-                "private": false,
+    .stdout_with_tempdir(|dir| {
+      let source = dir.path().join("justfile").to_str().unwrap().to_owned();
+      let foo_just = dir.path().join("foo.just").to_str().unwrap().to_owned();
+      format!(
+        "{}\n",
+        serde_json::to_string(&json!({
+          "aliases": {},
+          "assignments": {},
+          "first": null,
+          "doc": null,
+          "groups": [],
+          "modules": {
+            "foo": {
+              "aliases": {},
+              "assignments": {},
+              "first": "bar",
+              "doc": "hello",
+              "groups": [],
+              "modules": {},
+              "recipes": {
+                "bar": {
+                  "attributes": [],
+                  "body": [],
+                  "dependencies": [],
+                  "doc": null,
+                  "name": "bar",
+                  "namepath": "foo::bar",
+                  "parameters": [],
+                  "priors": 0,
+                  "private": false,
+                  "quiet": false,
+                  "shebang": false,
+                }
+              },
+              "settings": {
+                "allow_duplicate_recipes": false,
+                "allow_duplicate_variables": false,
+                "dotenv_filename": null,
+                "dotenv_load": false,
+                "dotenv_path": null,
+                "dotenv_required": false,
+                "export": false,
+                "fallback": false,
+                "positional_arguments": false,
                 "quiet": false,
-                "shebang": false,
-              }
+                "shell": null,
+                "tempdir" : null,
+                "unstable": false,
+                "ignore_comments": false,
+                "windows_powershell": false,
+                "windows_shell": null,
+                "working_directory" : null,
+              },
+              "unexports": [],
+              "warnings": [],
+              "source": foo_just
             },
-            "settings": {
-              "allow_duplicate_recipes": false,
-              "allow_duplicate_variables": false,
-              "dotenv_filename": null,
-              "dotenv_load": false,
-              "dotenv_path": null,
-              "dotenv_required": false,
-              "export": false,
-              "fallback": false,
-              "positional_arguments": false,
-              "quiet": false,
-              "shell": null,
-              "tempdir" : null,
-              "unstable": false,
-              "ignore_comments": false,
-              "windows_powershell": false,
-              "windows_shell": null,
-              "working_directory" : null,
-            },
-            "unexports": [],
-            "warnings": [],
           },
-        },
-        "recipes": {},
-        "settings": {
-          "allow_duplicate_recipes": false,
-          "allow_duplicate_variables": false,
-          "dotenv_filename": null,
-          "dotenv_load": false,
-          "dotenv_path": null,
-          "dotenv_required": false,
-          "export": false,
-          "fallback": false,
-          "positional_arguments": false,
-          "quiet": false,
-          "shell": null,
-          "tempdir" : null,
-          "unstable": false,
-          "ignore_comments": false,
-          "windows_powershell": false,
-          "windows_shell": null,
-          "working_directory" : null,
-        },
-        "unexports": [],
-        "warnings": [],
-      }))
-      .unwrap()
-    ))
+          "recipes": {},
+          "settings": {
+            "allow_duplicate_recipes": false,
+            "allow_duplicate_variables": false,
+            "dotenv_filename": null,
+            "dotenv_load": false,
+            "dotenv_path": null,
+            "dotenv_required": false,
+            "export": false,
+            "fallback": false,
+            "positional_arguments": false,
+            "quiet": false,
+            "shell": null,
+            "tempdir" : null,
+            "unstable": false,
+            "ignore_comments": false,
+            "windows_powershell": false,
+            "windows_shell": null,
+            "working_directory" : null,
+          },
+          "unexports": [],
+          "warnings": [],
+          "source": source
+        }))
+        .unwrap()
+      )
+    })
     .run();
 }
 
@@ -1294,85 +1362,91 @@ fn module_group() {
       "foo.just": "bar:",
     })
     .args(["--dump", "--dump-format", "json"])
-    .stdout(format!(
-      "{}\n",
-      serde_json::to_string(&json!({
-        "aliases": {},
-        "assignments": {},
-        "first": null,
-        "doc": null,
-        "groups": [],
-        "modules": {
-          "foo": {
-            "aliases": {},
-            "assignments": {},
-            "first": "bar",
-            "doc": null,
-            "groups": ["alpha"],
-            "modules": {},
-            "recipes": {
-              "bar": {
-                "attributes": [],
-                "body": [],
-                "dependencies": [],
-                "doc": null,
-                "name": "bar",
-                "namepath": "foo::bar",
-                "parameters": [],
-                "priors": 0,
-                "private": false,
+    .stdout_with_tempdir(|dir| {
+      let source = dir.path().join("justfile").to_str().unwrap().to_owned();
+      let foo_just = dir.path().join("foo.just").to_str().unwrap().to_owned();
+      format!(
+        "{}\n",
+        serde_json::to_string(&json!({
+          "aliases": {},
+          "assignments": {},
+          "first": null,
+          "doc": null,
+          "groups": [],
+          "modules": {
+            "foo": {
+              "aliases": {},
+              "assignments": {},
+              "first": "bar",
+              "doc": null,
+              "groups": ["alpha"],
+              "modules": {},
+              "recipes": {
+                "bar": {
+                  "attributes": [],
+                  "body": [],
+                  "dependencies": [],
+                  "doc": null,
+                  "name": "bar",
+                  "namepath": "foo::bar",
+                  "parameters": [],
+                  "priors": 0,
+                  "private": false,
+                  "quiet": false,
+                  "shebang": false,
+                }
+              },
+              "settings": {
+                "allow_duplicate_recipes": false,
+                "allow_duplicate_variables": false,
+                "dotenv_filename": null,
+                "dotenv_load": false,
+                "dotenv_path": null,
+                "dotenv_required": false,
+                "export": false,
+                "fallback": false,
+                "positional_arguments": false,
                 "quiet": false,
-                "shebang": false,
-              }
+                "shell": null,
+                "tempdir" : null,
+                "unstable": false,
+                "ignore_comments": false,
+                "windows_powershell": false,
+                "windows_shell": null,
+                "working_directory" : null,
+              },
+              "unexports": [],
+              "warnings": [],
+              "source": foo_just,
             },
-            "settings": {
-              "allow_duplicate_recipes": false,
-              "allow_duplicate_variables": false,
-              "dotenv_filename": null,
-              "dotenv_load": false,
-              "dotenv_path": null,
-              "dotenv_required": false,
-              "export": false,
-              "fallback": false,
-              "positional_arguments": false,
-              "quiet": false,
-              "shell": null,
-              "tempdir" : null,
-              "unstable": false,
-              "ignore_comments": false,
-              "windows_powershell": false,
-              "windows_shell": null,
-              "working_directory" : null,
-            },
-            "unexports": [],
-            "warnings": [],
           },
-        },
-        "recipes": {},
-        "settings": {
-          "allow_duplicate_recipes": false,
-          "allow_duplicate_variables": false,
-          "dotenv_filename": null,
-          "dotenv_load": false,
-          "dotenv_path": null,
-          "dotenv_required": false,
-          "export": false,
-          "fallback": false,
-          "positional_arguments": false,
-          "quiet": false,
-          "shell": null,
-          "tempdir" : null,
-          "unstable": false,
-          "ignore_comments": false,
-          "windows_powershell": false,
-          "windows_shell": null,
-          "working_directory" : null,
-        },
-        "unexports": [],
-        "warnings": [],
-      }))
-      .unwrap()
-    ))
+          "recipes": {},
+          "settings": {
+            "allow_duplicate_recipes": false,
+            "allow_duplicate_variables": false,
+            "dotenv_filename": null,
+            "dotenv_load": false,
+            "dotenv_path": null,
+            "dotenv_required": false,
+            "export": false,
+            "fallback": false,
+            "positional_arguments": false,
+            "quiet": false,
+            "shell": null,
+            "tempdir" : null,
+            "unstable": false,
+            "ignore_comments": false,
+            "windows_powershell": false,
+            "windows_shell": null,
+            "working_directory" : null,
+          },
+          "unexports": [],
+          "warnings": [],
+          "source": source,
+        }))
+        .unwrap()
+      )
+    })
     .run();
 }
 
@@ -1383,50 +1457,113 @@ fn recipes_with_private_attribute_are_private() {
       [private]
       foo:
     ",
-    json!({
-      "aliases": {},
-      "assignments": {},
-      "first": "foo",
-      "doc": null,
-      "groups": [],
-      "modules": {},
-      "recipes": {
-        "foo": {
-          "attributes": ["private"],
-          "body": [],
-          "dependencies": [],
-          "doc": null,
-          "name": "foo",
-          "namepath": "foo",
-          "parameters": [],
-          "priors": 0,
-          "private": true,
+    |dir| {
+      let source = dir.join("justfile").to_str().unwrap().to_owned();
+      json!({
+        "aliases": {},
+        "assignments": {},
+        "first": "foo",
+        "doc": null,
+        "groups": [],
+        "modules": {},
+        "recipes": {
+          "foo": {
+            "attributes": ["private"],
+            "body": [],
+            "dependencies": [],
+            "doc": null,
+            "name": "foo",
+            "namepath": "foo",
+            "parameters": [],
+            "priors": 0,
+            "private": true,
+            "quiet": false,
+            "shebang": false,
+          }
+        },
+        "settings": {
+          "allow_duplicate_recipes": false,
+          "allow_duplicate_variables": false,
+          "dotenv_filename": null,
+          "dotenv_load": false,
+          "dotenv_path": null,
+          "dotenv_required": false,
+          "export": false,
+          "fallback": false,
+          "ignore_comments": false,
+          "positional_arguments": false,
           "quiet": false,
-          "shebang": false,
-        }
-      },
-      "settings": {
-        "allow_duplicate_recipes": false,
-        "allow_duplicate_variables": false,
-        "dotenv_filename": null,
-        "dotenv_load": false,
-        "dotenv_path": null,
-        "dotenv_required": false,
-        "export": false,
-        "fallback": false,
-        "ignore_comments": false,
-        "positional_arguments": false,
-        "quiet": false,
-        "shell": null,
-        "tempdir" : null,
-        "unstable": false,
-        "windows_powershell": false,
-        "windows_shell": null,
-        "working_directory" : null,
-      },
-      "unexports": [],
-      "warnings": [],
-    }),
+          "shell": null,
+          "tempdir" : null,
+          "unstable": false,
+          "windows_powershell": false,
+          "windows_shell": null,
+          "working_directory" : null,
+        },
+        "unexports": [],
+        "warnings": [],
+        "source": source,
+      })
+    },
+  );
+}
+
+#[test]
+fn doc_attribute_overrides_comment() {
+  case(
+    "
+      # COMMENT
+      [doc('ATTRIBUTE')]
+      foo:
+    ",
+    |dir| {
+      let source = dir.join("justfile").to_str().unwrap().to_owned();
+      json!({
+        "aliases": {},
+        "assignments": {},
+        "first": "foo",
+        "doc": null,
+        "groups": [],
+        "modules": {},
+        "recipes": {
+          "foo": {
+            "attributes": [{"doc": "ATTRIBUTE"}],
+            "body": [],
+            "dependencies": [],
+            "doc": "ATTRIBUTE",
+            "name": "foo",
+            "namepath": "foo",
+            "parameters": [],
+            "priors": 0,
+            "private": false,
+            "quiet": false,
+            "shebang": false,
+          }
+        },
+        "settings": {
+          "allow_duplicate_recipes": false,
+          "allow_duplicate_variables": false,
+          "dotenv_filename": null,
+          "dotenv_load": false,
+          "dotenv_path": null,
+          "dotenv_required": false,
+          "export": false,
+          "fallback": false,
+          "ignore_comments": false,
+          "positional_arguments": false,
+          "quiet": false,
+          "shell": null,
+          "tempdir" : null,
+          "unstable": false,
+          "windows_powershell": false,
+          "windows_shell": null,
+          "working_directory" : null,
+        },
+        "unexports": [],
+        "warnings": [],
+        "source": source
+      })
+    },
   );
 }
 

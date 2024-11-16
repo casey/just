@@ -167,6 +167,11 @@ impl Test {
     self
   }
 
+  pub(crate) fn stdout_with_tempdir(mut self, stdout_fn: impl Fn(&TempDir) -> String) -> Self {
+    self.stdout = stdout_fn(&self.tempdir);
+    self
+  }
+
   pub(crate) fn stdout_regex(mut self, stdout_regex: impl AsRef<str>) -> Self {
     self.stdout_regex = Some(Regex::new(&format!("^{}$", stdout_regex.as_ref())).unwrap());
     self
