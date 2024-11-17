@@ -33,6 +33,7 @@ mod test;
 
 mod allow_duplicate_recipes;
 mod allow_duplicate_variables;
+mod allow_missing;
 mod assert_stdout;
 mod assert_success;
 mod assertions;
@@ -64,7 +65,6 @@ mod functions;
 #[cfg(unix)]
 mod global;
 mod groups;
-mod if_present;
 mod ignore_comments;
 mod imports;
 mod init;

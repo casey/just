@@ -15,9 +15,9 @@ pub fn run(args: impl Iterator<Item = impl Into<OsString> + Clone>) -> Result<()
 
   let config = Config::from_matches(&matches).map_err(Error::from);
 
-  let (color, verbosity) = config
+  let (color, verbosity, allow_missing) = config
     .as_ref()
-    .map(|config| (config.color, config.verbosity))
+    .map(|config| (config.color, config.verbosity, config.allow_missing))
     .unwrap_or_default();
 
   let loader = Loader::new();
@@ -28,11 +28,10 @@ pub fn run(args: impl Iterator<Item = impl Into<OsString> + Clone>) -> Result<()
       config.subcommand.execute(&config, &loader)
     })
     .map_err(|error| {
-      if verbosity.recipe_quiet() {
-        match error {
-          Error::UnknownRecipe { .. } => return 0,
-          _ => {}
-        };
+      if allow_missing {
+        if let Error::UnknownRecipe { .. } = error {
+          return 0;
+        }
       }
 
       if !verbosity.quiet() && error.print_message() {
