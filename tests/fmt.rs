@@ -1096,3 +1096,27 @@ fn multi_argument_attribute() {
     )
     .run();
 }
+
+#[test]
+fn doc_attribute_suppresses_comment() {
+  Test::new()
+    .justfile(
+      "
+        set unstable
+
+        # COMMENT
+        [doc('ATTRIBUTE')]
+        foo:
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        set unstable := true
+
+        [doc('ATTRIBUTE')]
+        foo:
+      ",
+    )
+    .run();
+}

@@ -1429,3 +1429,58 @@ fn recipes_with_private_attribute_are_private() {
     }),
   );
 }
+
+#[test]
+fn doc_attribute_overrides_comment() {
+  case(
+    "
+      # COMMENT
+      [doc('ATTRIBUTE')]
+      foo:
+    ",
+    json!({
+      "aliases": {},
+      "assignments": {},
+      "first": "foo",
+      "doc": null,
+      "groups": [],
+      "modules": {},
+      "recipes": {
+        "foo": {
+          "attributes": [{"doc": "ATTRIBUTE"}],
+          "body": [],
+          "dependencies": [],
+          "doc": "ATTRIBUTE",
+          "name": "foo",
+          "namepath": "foo",
+          "parameters": [],
+          "priors": 0,
+          "private": false,
+          "quiet": false,
+          "shebang": false,
+        }
+      },
+      "settings": {
+        "allow_duplicate_recipes": false,
+        "allow_duplicate_variables": false,
+        "dotenv_filename": null,
+        "dotenv_load": false,
+        "dotenv_path": null,
+        "dotenv_required": false,
+        "export": false,
+        "fallback": false,
+        "ignore_comments": false,
+        "positional_arguments": false,
+        "quiet": false,
+        "shell": null,
+        "tempdir" : null,
+        "unstable": false,
+        "windows_powershell": false,
+        "windows_shell": null,
+        "working_directory" : null,
+      },
+      "unexports": [],
+      "warnings": [],
+    }),
+  );
+}

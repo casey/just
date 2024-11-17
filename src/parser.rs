@@ -936,6 +936,14 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let private = name.lexeme().starts_with('_') || attributes.contains(&Attribute::Private);
 
+    let mut doc = doc.map(ToOwned::to_owned);
+
+    for attribute in &attributes {
+      if let Attribute::Doc(attribute_doc) = attribute {
+        doc = attribute_doc.as_ref().map(|doc| doc.cooked.clone());
+      }
+    }
+
     Ok(Recipe {
       shebang: shebang || script,
       attributes,
