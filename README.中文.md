@@ -225,7 +225,7 @@ list:
     <td><a href="https://pypi.org">PyPI</a></td>
     <td><a href="https://pypi.org/project/rust-just">rust-just</a></td>
     <td>
-      <code>pip install rust-just</code><br>
+      <code>pipx install rust-just</code><br>
     </td>
   </tr>
   <tr>

@@ -172,7 +172,7 @@ most Windows users.)
     <tr>
       <td><a href=https://pypi.org/>PyPI</a></td>
       <td><a href=https://pypi.org/project/rust-just/>rust-just</a></td>
-      <td><code>pip install rust-just</code></td>
+      <td><code>pipx install rust-just</code></td>
     </tr>
   </tbody>
 </table>
