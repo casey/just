@@ -1236,3 +1236,25 @@ fn style_warning() {
     .stdout("\x1b[1;33mfoo\x1b[0m\n")
     .run();
 }
+
+#[test]
+fn style_unknown() {
+  Test::new()
+    .justfile(
+      r#"
+        foo:
+          @echo '{{ style("hippo") }}foo{{NORMAL}}'
+      "#,
+    )
+    .stderr(
+      r#"
+        error: Call to function `style` failed: unknown style: `hippo`
+         ——▶ justfile:2:13
+          │
+        2 │   @echo '{{ style("hippo") }}foo{{NORMAL}}'
+          │             ^^^^^
+      "#,
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}

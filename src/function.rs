@@ -634,7 +634,7 @@ fn style(context: Context, s: &str) -> FunctionResult {
     ),
     "error" => Ok(Color::always().error().prefix().to_string()),
     "warning" => Ok(Color::always().warning().prefix().to_string()),
-    _ => Err(format!("Unknown style: `{s}`")),
+    _ => Err(format!("unknown style: `{s}`")),
   }
 }
 
