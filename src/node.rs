@@ -197,7 +197,7 @@ impl<'src> Node<'src> for UnresolvedRecipe<'src> {
       t.push_mut("quiet");
     }
 
-    if let Some(doc) = self.doc {
+    if let Some(doc) = &self.doc {
       t.push_mut(Tree::string(doc));
     }
 

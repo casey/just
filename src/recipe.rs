@@ -22,7 +22,7 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) attributes: BTreeSet<Attribute<'src>>,
   pub(crate) body: Vec<Line<'src>>,
   pub(crate) dependencies: Vec<D>,
-  pub(crate) doc: Option<&'src str>,
+  pub(crate) doc: Option<String>,
   #[serde(skip)]
   pub(crate) file_depth: u32,
   #[serde(skip)]
@@ -465,7 +465,8 @@ impl<'src, D> Recipe<'src, D> {
         return doc.as_ref().map(|s| s.cooked.as_ref());
       }
     }
-    self.doc
+
+    self.doc.as_deref()
   }
 
   pub(crate) fn subsequents(&self) -> impl Iterator<Item = &D> {
@@ -475,8 +476,15 @@ impl<'src, D> Recipe<'src, D> {
 
 impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
-    if let Some(doc) = self.doc {
-      writeln!(f, "# {doc}")?;
+    if self
+      .attributes
+      .iter()
+      .find(|attribute| matches!(attribute, Attribute::Doc(_)))
+      .is_none()
+    {
+      if let Some(doc) = &self.doc {
+        writeln!(f, "# {doc}")?;
+      }
     }
 
     for attribute in &self.attributes {
