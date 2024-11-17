@@ -1,5 +1,6 @@
 use {
   super::*,
+  etcetera::{choose_base_strategy, BaseStrategy},
   heck::{
     ToKebabCase, ToLowerCamelCase, ToShoutyKebabCase, ToShoutySnakeCase, ToSnakeCase, ToTitleCase,
     ToUpperCamelCase,
@@ -46,15 +47,15 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "arch" => Nullary(arch),
     "blake3" => Unary(blake3),
     "blake3_file" => Unary(blake3_file),
-    "cache_directory" => Nullary(|_| dir("cache", dirs::cache_dir)),
+    "cache_directory" => Nullary(|_| dir("cache", dirs::cache_dir())),
     "canonicalize" => Unary(canonicalize),
     "capitalize" => Unary(capitalize),
     "choose" => Binary(choose),
     "clean" => Unary(clean),
-    "config_directory" => Nullary(|_| dir("config", dirs::config_dir)),
-    "config_local_directory" => Nullary(|_| dir("local config", dirs::config_local_dir)),
-    "data_directory" => Nullary(|_| dir("data", dirs::data_dir)),
-    "data_local_directory" => Nullary(|_| dir("local data", dirs::data_local_dir)),
+    "config_directory" => Nullary(|_| dir("config", dirs::config_dir())),
+    "config_local_directory" => Nullary(|_| dir("local config", dirs::config_local_dir())),
+    "data_directory" => Nullary(|_| dir("data", dirs::data_dir())),
+    "data_local_directory" => Nullary(|_| dir("local data", dirs::data_local_dir())),
     "datetime" => Unary(datetime),
     "datetime_utc" => Unary(datetime_utc),
     "encode_uri_component" => Unary(encode_uri_component),
@@ -62,11 +63,11 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "env_var" => Unary(env_var),
     "env_var_or_default" => Binary(env_var_or_default),
     "error" => Unary(error),
-    "executable_directory" => Nullary(|_| dir("executable", dirs::executable_dir)),
+    "executable_directory" => Nullary(|_| dir("executable", dirs::executable_dir())),
     "extension" => Unary(extension),
     "file_name" => Unary(file_name),
     "file_stem" => Unary(file_stem),
-    "home_directory" => Nullary(|_| dir("home", dirs::home_dir)),
+    "home_directory" => Nullary(|_| dir("home", dirs::home_dir())),
     "invocation_directory" => Nullary(invocation_directory),
     "invocation_directory_native" => Nullary(invocation_directory_native),
     "is_dependency" => Nullary(is_dependency),
@@ -110,6 +111,25 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "uppercase" => Unary(uppercase),
     "uuid" => Nullary(uuid),
     "without_extension" => Unary(without_extension),
+    "xdg_cache_directory" => {
+      Nullary(|_| dir("cache", Some(choose_base_strategy().unwrap().cache_dir())))
+    }
+    "xdg_config_directory" => {
+      Nullary(|_| dir("config", Some(choose_base_strategy().unwrap().config_dir())))
+    }
+    "xdg_data_directory" => {
+      Nullary(|_| dir("data", Some(choose_base_strategy().unwrap().data_dir())))
+    }
+    "xdg_home_directory" => Nullary(|_| {
+      dir(
+        "home",
+        Some(choose_base_strategy().unwrap().home_dir().to_path_buf()),
+      )
+    }),
+    "xdg_runtime_directory" => {
+      Nullary(|_| dir("runtime", choose_base_strategy().unwrap().runtime_dir()))
+    }
+    "xdg_state_directory" => Nullary(|_| dir("state", choose_base_strategy().unwrap().state_dir())),
     _ => return None,
   };
   Some(function)
@@ -223,8 +243,8 @@ fn clean(_context: Context, path: &str) -> FunctionResult {
   Ok(Path::new(path).lexiclean().to_str().unwrap().to_owned())
 }
 
-fn dir(name: &'static str, f: fn() -> Option<PathBuf>) -> FunctionResult {
-  match f() {
+fn dir(name: &'static str, path: Option<PathBuf>) -> FunctionResult {
+  match path {
     Some(path) => path
       .as_os_str()
       .to_str()
@@ -701,7 +721,7 @@ mod tests {
 
   #[test]
   fn dir_not_found() {
-    assert_eq!(dir("foo", || None).unwrap_err(), "foo directory not found");
+    assert_eq!(dir("foo", None).unwrap_err(), "foo directory not found");
   }
 
   #[cfg(unix)]
@@ -709,9 +729,10 @@ mod tests {
   fn dir_not_unicode() {
     use std::os::unix::ffi::OsStrExt;
     assert_eq!(
-      dir("foo", || Some(
-        std::ffi::OsStr::from_bytes(b"\xe0\x80\x80").into()
-      ))
+      dir(
+        "foo",
+        Some(std::ffi::OsStr::from_bytes(b"\xe0\x80\x80").into())
+      )
       .unwrap_err(),
       "unable to convert foo directory path to string: ���",
     );
