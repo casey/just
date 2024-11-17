@@ -1862,6 +1862,13 @@ for details.
   Recognized values for `name` are `'command'`, for echoed recipe lines,
   `error`, for errors, and `warning`, for warnings.
 
+  For example, to style an error message:
+
+  ```just
+  scary:
+    echo '{{ style("error") }}OH NO{{ NORMAL }}'
+  ```
+
 ##### XDG Directories<sup>1.23.0</sup>
 
 These functions return paths to user-specific directories for things like
