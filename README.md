@@ -1866,7 +1866,7 @@ for details.
 
   ```just
   scary:
-    echo '{{ style("error") }}OH NO{{ NORMAL }}'
+    @echo '{{ style("error") }}OH NO{{ NORMAL }}'
   ```
 
 ##### XDG Directories<sup>1.23.0</sup>
