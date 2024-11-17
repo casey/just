@@ -1572,6 +1572,22 @@ for details.</p>
 <code>requirement</code>, e.g., <code>"&gt;=0.1.0"</code>, returning <code>"true"</code> if so and <code>"false"</code>
 otherwise.</li>
 </ul>
+<h4 id="style"><a class="header" href="#style">Style</a></h4>
+<ul>
+<li>
+<p><code>style(name)</code><sup>master</sup> - Return a named terminal display attribute
+escape sequence used by <code>just</code>. Unlike terminal display attribute escape
+sequence constants, which contain standard colors and styles, <code>style(name)</code>
+returns an escape sequence used by <code>just</code> itself, and can be used to make
+recipe output match <code>just</code>’s own output.</p>
+<p>Recognized values for <code>name</code> are <code>'command'</code>, for echoed recipe lines,
+<code>error</code>, and <code>warning</code>.</p>
+<p>For example, to style an error message:</p>
+<pre><code class="language-just">scary:
+  @echo '{{ style("error") }}OH NO{{ NORMAL }}'
+</code></pre>
+</li>
+</ul>
 <h5 id="xdg-directories1230"><a class="header" href="#xdg-directories1230">XDG Directories<sup>1.23.0</sup></a></h5>
 <p>These functions return paths to user-specific directories for things like
 configuration, data, caches, executables, and the user’s home directory. These
