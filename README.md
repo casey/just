@@ -1860,7 +1860,7 @@ for details.
   recipe output match `just`'s own output.
 
   Recognized values for `name` are `'command'`, for echoed recipe lines,
-  `error`, for errors, and `warning`, for warnings.
+  `error`, and `warning`.
 
   For example, to style an error message:
 
