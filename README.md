@@ -167,7 +167,7 @@ most Windows users.)
     <tr>
       <td><a href=https://www.npmjs.com/>npm</a></td>
       <td><a href=https://www.npmjs.com/package/rust-just>rust-just</a></td>
-      <td><code>npm install rust-just</code></td>
+      <td><code>npm install -g rust-just</code></td>
     </tr>
     <tr>
       <td><a href=https://pypi.org/>PyPI</a></td>
