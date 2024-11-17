@@ -98,6 +98,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "snakecase" => Unary(snakecase),
     "source_directory" => Nullary(source_directory),
     "source_file" => Nullary(source_file),
+    "style" => Unary(style),
     "titlecase" => Unary(titlecase),
     "trim" => Unary(trim),
     "trim_end" => Unary(trim_end),
@@ -621,6 +622,20 @@ fn source_file(context: Context) -> FunctionResult {
         context.name.token.path.display(),
       )
     })
+}
+
+fn style(context: Context, s: &str) -> FunctionResult {
+  match s {
+    "command" => Ok(
+      Color::always()
+        .command(context.evaluator.context.config.command_color)
+        .prefix()
+        .to_string(),
+    ),
+    "error" => Ok(Color::always().error().prefix().to_string()),
+    "warning" => Ok(Color::always().warning().prefix().to_string()),
+    _ => Err(format!("unknown style: `{s}`")),
+  }
 }
 
 fn titlecase(_context: Context, s: &str) -> FunctionResult {

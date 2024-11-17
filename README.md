@@ -1851,6 +1851,24 @@ for details.
   `requirement`, e.g., `">=0.1.0"`, returning `"true"` if so and `"false"`
   otherwise.
 
+#### Style
+
+- `style(name)`<sup>master</sup> - Return a named terminal display attribute
+  escape sequence used by `just`. Unlike terminal display attribute escape
+  sequence constants, which contain standard colors and styles, `style(name)`
+  returns an escape sequence used by `just` itself, and can be used to make
+  recipe output match `just`'s own output.
+
+  Recognized values for `name` are `'command'`, for echoed recipe lines,
+  `error`, and `warning`.
+
+  For example, to style an error message:
+
+  ```just
+  scary:
+    @echo '{{ style("error") }}OH NO{{ NORMAL }}'
+  ```
+
 ##### XDG Directories<sup>1.23.0</sup>
 
 These functions return paths to user-specific directories for things like
