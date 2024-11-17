@@ -167,7 +167,7 @@ most Windows users.)
     <tr>
       <td><a href=https://www.npmjs.com/>npm</a></td>
       <td><a href=https://www.npmjs.com/package/rust-just>rust-just</a></td>
-      <td><code>npm install rust-just</code></td>
+      <td><code>npm install -g rust-just</code></td>
     </tr>
     <tr>
       <td><a href=https://pypi.org/>PyPI</a></td>
@@ -1851,6 +1851,24 @@ for details.
   `requirement`, e.g., `">=0.1.0"`, returning `"true"` if so and `"false"`
   otherwise.
 
+#### Style
+
+- `style(name)`<sup>master</sup> - Return a named terminal display attribute
+  escape sequence used by `just`. Unlike terminal display attribute escape
+  sequence constants, which contain standard colors and styles, `style(name)`
+  returns an escape sequence used by `just` itself, and can be used to make
+  recipe output match `just`'s own output.
+
+  Recognized values for `name` are `'command'`, for echoed recipe lines,
+  `error`, and `warning`.
+
+  For example, to style an error message:
+
+  ```just
+  scary:
+    @echo '{{ style("error") }}OH NO{{ NORMAL }}'
+  ```
+
 ##### XDG Directories<sup>1.23.0</sup>
 
 These functions return paths to user-specific directories for things like
@@ -1877,6 +1895,30 @@ A number of constants are predefined:
 | `HEX`<sup>1.27.0</sup> | `"0123456789abcdef"` |
 | `HEXLOWER`<sup>1.27.0</sup> | `"0123456789abcdef"` |
 | `HEXUPPER`<sup>1.27.0</sup> | `"0123456789ABCDEF"` |
+| `CLEAR`<sup>master</sup> | `"\ec"` |
+| `NORMAL`<sup>master</sup> | `"\e[0m"` |
+| `BOLD`<sup>master</sup> | `"\e[1m"` |
+| `ITALIC`<sup>master</sup> | `"\e[3m"` |
+| `UNDERLINE`<sup>master</sup> | `"\e[4m"` |
+| `INVERT`<sup>master</sup> | `"\e[7m"` |
+| `HIDE`<sup>master</sup> | `"\e[8m"` |
+| `STRIKETHROUGH`<sup>master</sup> | `"\e[9m"` |
+| `BLACK`<sup>master</sup> | `"\e[30m"` |
+| `RED`<sup>master</sup> | `"\e[31m"` |
+| `GREEN`<sup>master</sup> | `"\e[32m"` |
+| `YELLOW`<sup>master</sup> | `"\e[33m"` |
+| `BLUE`<sup>master</sup> | `"\e[34m"` |
+| `MAGENTA`<sup>master</sup> | `"\e[35m"` |
+| `CYAN`<sup>master</sup> | `"\e[36m"` |
+| `WHITE`<sup>master</sup> | `"\e[37m"` |
+| `BG_BLACK`<sup>master</sup> | `"\e[40m"` |
+| `BG_RED`<sup>master</sup> | `"\e[41m"` |
+| `BG_GREEN`<sup>master</sup> | `"\e[42m"` |
+| `BG_YELLOW`<sup>master</sup> | `"\e[43m"` |
+| `BG_BLUE`<sup>master</sup> | `"\e[44m"` |
+| `BG_MAGENTA`<sup>master</sup> | `"\e[45m"` |
+| `BG_CYAN`<sup>master</sup> | `"\e[46m"` |
+| `BG_WHITE`<sup>master</sup> | `"\e[47m"` |
 
 ```just
 @foo:
@@ -1888,9 +1930,29 @@ $ just foo
 0123456789abcdef
 ```
 
+Constants starting with `\e` are
+[ANSI escape sequences](https://en.wikipedia.org/wiki/ANSI_escape_code).
+
+`CLEAR` clears the screen, similar to the `clear` command. The rest are of the
+form `\e[Nm`, where `N` is an integer, and set terminal display attributes.
+
+Terminal display attribute escape sequences can be combined, for example text
+weight `BOLD`, text style `STRIKETHROUGH`, foreground color `CYAN`, and
+background color `BG_BLUE`. They should be followed by `NORMAL`, to reset the
+terminal back to normal.
+
+Escape sequences should be quoted, since `[` is treated as a special character
+by some shells.
+
+```just
+@foo:
+  echo '{{BOLD + STRIKETHROUGH + CYAN + BG_BLUE}}Hi!{{NORMAL}}'
+```
+
 ### Attributes
 
-Recipes, `mod` statements, and aliases may be annotated with attributes that change their behavior.
+Recipes, `mod` statements, and aliases may be annotated with attributes that
+change their behavior.
 
 | Name | Type | Description |
 |------|------|-------------|
@@ -2711,8 +2773,9 @@ scripts interpreted by `COMMAND`. This avoids some of the issues with shebang
 recipes, such as the use of `cygpath` on Windows, the need to use
 `/usr/bin/env`, and inconsistences in shebang line splitting across Unix OSs.
 
-Recipes with an empty `[script]` attribute are executed with the value of
-`set script-interpreter := […]`<sup>1.33.0</sup>, defaulting to `sh -eu`.
+Recipes with an empty `[script]` attribute are executed with the value of `set
+script-interpreter := […]`<sup>1.33.0</sup>, defaulting to `sh -eu`, and *not*
+the value of `set shell`.
 
 The body of the recipe is evaluated, written to disk in the temporary
 directory, and run by passing its path as an argument to `COMMAND`.

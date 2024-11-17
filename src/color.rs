@@ -35,7 +35,6 @@ impl Color {
     Self::default()
   }
 
-  #[cfg(test)]
   pub(crate) fn always() -> Self {
     Self {
       use_color: UseColor::Always,
@@ -67,7 +66,7 @@ impl Color {
   }
 
   pub(crate) fn doc_backtick(self) -> Self {
-    self.restyle(Style::new().fg(White).on(Black))
+    self.restyle(Style::new().fg(Cyan))
   }
 
   pub(crate) fn error(self) -> Self {
