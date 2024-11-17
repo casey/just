@@ -936,7 +936,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let private = name.lexeme().starts_with('_') || attributes.contains(&Attribute::Private);
 
-    let mut doc = doc.map(|doc| doc.to_owned());
+    let mut doc = doc.map(ToOwned::to_owned);
 
     for attribute in &attributes {
       if let Attribute::Doc(attribute_doc) = attribute {
