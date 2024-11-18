@@ -4,7 +4,12 @@ fn case<F: Fn(&Path) -> Value>(justfile: &str, value: F) {
   Test::new()
     .justfile(justfile)
     .args(["--dump", "--dump-format", "json"])
-    .stdout_with_tempdir(|dir| format!("{}\n", serde_json::to_string(&value(dir.path())).unwrap()))
+    .stdout_with_tempdir(|dir| {
+      format!(
+        "{}\n",
+        serde_json::to_string(&value(&dir.path().canonicalize().unwrap())).unwrap()
+      )
+    })
     .run();
 }
 
