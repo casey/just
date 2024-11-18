@@ -25,6 +25,8 @@ fn alias() {
   let source = test
     .tempdir
     .path()
+    .canonicalize()
+    .unwrap()
     .join("justfile")
     .to_str()
     .unwrap()
@@ -1267,8 +1269,22 @@ fn module() {
     })
     .args(["--dump", "--dump-format", "json"])
     .stdout_with_tempdir(|dir| {
-      let source = dir.path().join("justfile").to_str().unwrap().to_owned();
-      let foo_just = dir.path().join("foo.just").to_str().unwrap().to_owned();
+      let source = dir
+        .path()
+        .canonicalize()
+        .unwrap()
+        .join("justfile")
+        .to_str()
+        .unwrap()
+        .to_owned();
+      let foo_just = dir
+        .path()
+        .canonicalize()
+        .unwrap()
+        .join("foo.just")
+        .to_str()
+        .unwrap()
+        .to_owned();
       format!(
         "{}\n",
         serde_json::to_string(&json!({
@@ -1368,8 +1384,22 @@ fn module_group() {
     })
     .args(["--dump", "--dump-format", "json"])
     .stdout_with_tempdir(|dir| {
-      let source = dir.path().join("justfile").to_str().unwrap().to_owned();
-      let foo_just = dir.path().join("foo.just").to_str().unwrap().to_owned();
+      let source = dir
+        .path()
+        .canonicalize()
+        .unwrap()
+        .join("justfile")
+        .to_str()
+        .unwrap()
+        .to_owned();
+      let foo_just = dir
+        .path()
+        .canonicalize()
+        .unwrap()
+        .join("foo.just")
+        .to_str()
+        .unwrap()
+        .to_owned();
       format!(
         "{}\n",
         serde_json::to_string(&json!({
