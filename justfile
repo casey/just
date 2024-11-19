@@ -29,7 +29,7 @@ fuzz:
 run:
   cargo run
 
-# only run tests matching PATTERN
+# only run tests matching `PATTERN`
 [group: 'test']
 filter PATTERN:
   cargo test {{PATTERN}}
@@ -168,6 +168,10 @@ build-book:
   cargo run --package generate-book
   mdbook build book/en
   mdbook build book/zh
+
+[group: 'dev']
+print-readme-constants-table:
+  cargo test constants::tests::readme_table -- --nocapture
 
 # run all polyglot recipes
 [group: 'demo']

@@ -167,7 +167,7 @@ most Windows users.)
     <tr>
       <td><a href=https://www.npmjs.com/>npm</a></td>
       <td><a href=https://www.npmjs.com/package/rust-just>rust-just</a></td>
-      <td><code>npm install rust-just</code></td>
+      <td><code>npm install -g rust-just</code></td>
     </tr>
     <tr>
       <td><a href=https://pypi.org/>PyPI</a></td>
@@ -401,7 +401,7 @@ Using package managers pre-installed on GitHub Actions runners on MacOS with
 With [extractions/setup-just](https://github.com/extractions/setup-just):
 
 ```yaml
-- uses: extractions/setup-just@v1
+- uses: extractions/setup-just@v2
   with:
     just-version: 1.5.0  # optional semver specification, otherwise latest
 ```
@@ -1290,9 +1290,11 @@ Available recipes:
     test
 ```
 
-### Variables and Substitution
+### Expressions and Substitutions
 
-Variables, strings, concatenation, path joining, substitution using `{{…}}`, and function calls are supported:
+Various operators and function calls are supported in expressions, which may be
+used in assignments, default recipe arguments, and inside recipe body `{{…}}`
+substitutions.
 
 ```just
 tmpdir  := `mktemp -d`
@@ -1308,6 +1310,39 @@ publish:
   tar zcvf {{tarball}} {{tardir}}
   scp {{tarball}} me@server.com:release/
   rm -rf {{tarball}} {{tardir}}
+```
+
+#### Concatenation
+
+The `+` operator returns the left-hand argument concatenated with the
+right-hand argument:
+
+```just
+foobar := 'foo' + 'bar'
+```
+
+#### Logical Operators
+
+The logical operators `&&` and `||` can be used to coalesce string
+values<sup>master</sup>, similar to Python's `and` and `or`. These operators
+consider the empty string `''` to be false, and all other strings to be true.
+
+These operators are currently unstable.
+
+The `&&` operator returns the empty string if the left-hand argument is the
+empty string, otherwise it returns the right-hand argument:
+
+```justfile
+foo := '' && 'goodbye'      # ''
+bar := 'hello' && 'goodbye' # 'goodbye'
+```
+
+The `||` operator returns the left-hand argument if it is non-empty, otherwise
+it returns the right-hand argument:
+
+```justfile
+foo := '' || 'goodbye'      # 'goodbye'
+bar := 'hello' || 'goodbye' # 'hello'
 ```
 
 #### Joining Paths
@@ -1543,11 +1578,11 @@ file.
   and can be changed with `set shell := […]`.
 
   `command` is passed as the first argument, so if the command is `'echo $@'`,
-  the full command line, with the default shell command `shell -cu` and `args`
+  the full command line, with the default shell command `sh -cu` and `args`
   `'foo'` and `'bar'` will be:
 
   ```
-  'shell' '-cu' 'echo $@' 'echo $@' 'foo' 'bar'
+  'sh' '-cu' 'echo $@' 'echo $@' 'foo' 'bar'
   ```
 
   This is so that `$@` works as expected, and `$1` refers to the first
@@ -1816,6 +1851,24 @@ for details.
   `requirement`, e.g., `">=0.1.0"`, returning `"true"` if so and `"false"`
   otherwise.
 
+#### Style
+
+- `style(name)`<sup>master</sup> - Return a named terminal display attribute
+  escape sequence used by `just`. Unlike terminal display attribute escape
+  sequence constants, which contain standard colors and styles, `style(name)`
+  returns an escape sequence used by `just` itself, and can be used to make
+  recipe output match `just`'s own output.
+
+  Recognized values for `name` are `'command'`, for echoed recipe lines,
+  `error`, and `warning`.
+
+  For example, to style an error message:
+
+  ```just
+  scary:
+    @echo '{{ style("error") }}OH NO{{ NORMAL }}'
+  ```
+
 ##### XDG Directories<sup>1.23.0</sup>
 
 These functions return paths to user-specific directories for things like
@@ -1842,6 +1895,30 @@ A number of constants are predefined:
 | `HEX`<sup>1.27.0</sup> | `"0123456789abcdef"` |
 | `HEXLOWER`<sup>1.27.0</sup> | `"0123456789abcdef"` |
 | `HEXUPPER`<sup>1.27.0</sup> | `"0123456789ABCDEF"` |
+| `CLEAR`<sup>master</sup> | `"\ec"` |
+| `NORMAL`<sup>master</sup> | `"\e[0m"` |
+| `BOLD`<sup>master</sup> | `"\e[1m"` |
+| `ITALIC`<sup>master</sup> | `"\e[3m"` |
+| `UNDERLINE`<sup>master</sup> | `"\e[4m"` |
+| `INVERT`<sup>master</sup> | `"\e[7m"` |
+| `HIDE`<sup>master</sup> | `"\e[8m"` |
+| `STRIKETHROUGH`<sup>master</sup> | `"\e[9m"` |
+| `BLACK`<sup>master</sup> | `"\e[30m"` |
+| `RED`<sup>master</sup> | `"\e[31m"` |
+| `GREEN`<sup>master</sup> | `"\e[32m"` |
+| `YELLOW`<sup>master</sup> | `"\e[33m"` |
+| `BLUE`<sup>master</sup> | `"\e[34m"` |
+| `MAGENTA`<sup>master</sup> | `"\e[35m"` |
+| `CYAN`<sup>master</sup> | `"\e[36m"` |
+| `WHITE`<sup>master</sup> | `"\e[37m"` |
+| `BG_BLACK`<sup>master</sup> | `"\e[40m"` |
+| `BG_RED`<sup>master</sup> | `"\e[41m"` |
+| `BG_GREEN`<sup>master</sup> | `"\e[42m"` |
+| `BG_YELLOW`<sup>master</sup> | `"\e[43m"` |
+| `BG_BLUE`<sup>master</sup> | `"\e[44m"` |
+| `BG_MAGENTA`<sup>master</sup> | `"\e[45m"` |
+| `BG_CYAN`<sup>master</sup> | `"\e[46m"` |
+| `BG_WHITE`<sup>master</sup> | `"\e[47m"` |
 
 ```just
 @foo:
@@ -1853,9 +1930,29 @@ $ just foo
 0123456789abcdef
 ```
 
+Constants starting with `\e` are
+[ANSI escape sequences](https://en.wikipedia.org/wiki/ANSI_escape_code).
+
+`CLEAR` clears the screen, similar to the `clear` command. The rest are of the
+form `\e[Nm`, where `N` is an integer, and set terminal display attributes.
+
+Terminal display attribute escape sequences can be combined, for example text
+weight `BOLD`, text style `STRIKETHROUGH`, foreground color `CYAN`, and
+background color `BG_BLUE`. They should be followed by `NORMAL`, to reset the
+terminal back to normal.
+
+Escape sequences should be quoted, since `[` is treated as a special character
+by some shells.
+
+```just
+@foo:
+  echo '{{BOLD + STRIKETHROUGH + CYAN + BG_BLUE}}Hi!{{NORMAL}}'
+```
+
 ### Attributes
 
-Recipes, `mod` statements, and aliases may be annotated with attributes that change their behavior.
+Recipes, `mod` statements, and aliases may be annotated with attributes that
+change their behavior.
 
 | Name | Type | Description |
 |------|------|-------------|
@@ -2385,8 +2482,8 @@ Testing server:unit…
 ./test --tests unit server
 ```
 
-Default values may be arbitrary expressions, but concatenations or path joins
-must be parenthesized:
+Default values may be arbitrary expressions, but expressions containing the
+`+`, `&&`, `||`, or `/` operators must be parenthesized:
 
 ```just
 arch := "wasm"
@@ -2694,8 +2791,9 @@ scripts interpreted by `COMMAND`. This avoids some of the issues with shebang
 recipes, such as the use of `cygpath` on Windows, the need to use
 `/usr/bin/env`, and inconsistences in shebang line splitting across Unix OSs.
 
-Recipes with an empty `[script]` attribute are executed with the value of
-`set script-interpreter := […]`<sup>1.33.0</sup>, defaulting to `sh -eu`.
+Recipes with an empty `[script]` attribute are executed with the value of `set
+script-interpreter := […]`<sup>1.33.0</sup>, defaulting to `sh -eu`, and *not*
+the value of `set shell`.
 
 The body of the recipe is evaluated, written to disk in the temporary
 directory, and run by passing its path as an argument to `COMMAND`.
@@ -2758,7 +2856,7 @@ pass a Windows-style path to the interpreter.
 Recipe lines are interpreted by the shell, not `just`, so it's not possible to
 set `just` variables in the middle of a recipe:
 
-```mf
+```justfile
 foo:
   x := "hello" # This doesn't work!
   echo {{x}}
@@ -2890,7 +2988,7 @@ means that multi-line constructs probably won't do what you want.
 
 For example, with the following `justfile`:
 
-```mf
+```justfile
 conditional:
   if true; then
     echo 'True!'
@@ -3297,7 +3395,7 @@ One `justfile` can include the contents of another using `import` statements.
 
 If you have the following `justfile`:
 
-```mf
+```justfile
 import 'foo/bar.just'
 
 a: b
@@ -3337,7 +3435,7 @@ set, variables in parent modules override variables in imports.
 
 Imports may be made optional by putting a `?` after the `import` keyword:
 
-```mf
+```just
 import? 'foo/bar.just'
 ```
 
@@ -3346,19 +3444,19 @@ This allows importing multiple justfiles, for example `foo.just` and
 `bar.just`, which both import a third justfile containing shared recipes, for
 example `baz.just`, without the duplicate import of `baz.just` being an error:
 
-```mf
+```justfile
 # justfile
 import 'foo.just'
 import 'bar.just'
 ```
 
-```mf
+```justfile
 # foo.just
 import 'baz.just'
 foo: baz
 ```
 
-```mf
+```justfile
 # bar.just
 import 'baz.just'
 bar: baz
@@ -3379,7 +3477,7 @@ versions, you'll need to use the `--unstable` flag, `set unstable`, or set the
 
 If you have the following `justfile`:
 
-```mf
+```justfile
 mod bar
 
 a:
@@ -3417,7 +3515,7 @@ the module file may have any capitalization.
 
 Module statements may be of the form:
 
-```mf
+```justfile
 mod foo 'PATH'
 ```
 
@@ -3441,7 +3539,7 @@ recipes.
 
 Modules may be made optional by putting a `?` after the `mod` keyword:
 
-```mf
+```just
 mod? foo
 ```
 
@@ -3451,7 +3549,7 @@ Optional modules with no source file do not conflict, so you can have multiple
 mod statements with the same name, but with different source file paths, as
 long as at most one source file exists:
 
-```mf
+```just
 mod? foo 'bar.just'
 mod? foo 'baz.just'
 ```
@@ -3459,7 +3557,7 @@ mod? foo 'baz.just'
 Modules may be given doc comments which appear in `--list`
 output<sup>1.30.0</sup>:
 
-```mf
+```justfile
 # foo is a great module!
 mod foo
 ```
@@ -3601,9 +3699,9 @@ The following command will create two files, `some` and `argument.txt`:
 $ just foo "some argument.txt"
 ```
 
-The users shell will parse `"some argument.txt"` as a single argument, but when
-`just` replaces `touch {{argument}}` with `touch some argument.txt`, the quotes
-are not preserved, and `touch` will receive two arguments.
+The user's shell will parse `"some argument.txt"` as a single argument, but
+when `just` replaces `touch {{argument}}` with `touch some argument.txt`, the
+quotes are not preserved, and `touch` will receive two arguments.
 
 There are a few ways to avoid this: quoting, positional arguments, and exported
 arguments.
@@ -3927,6 +4025,38 @@ fetch:
 
 Given the above `justfile`, after running `just fetch`, the recipes in
 `foo.just` will be available.
+
+### Printing Complex Strings
+
+`echo` can be used to print strings, but because it processes escape sequences,
+like `\n`, and different implementations of `echo` recognize different escape
+sequences, using `printf` is often a better choice.
+
+`printf` takes a C-style format string and any number of arguments, which are
+interpolated into the format string.
+
+This can be combined with indented, triple quoted strings to emulate shell
+heredocs.
+
+Substitution complex strings into recipe bodies with `{…}` can also lead to
+trouble as it may be split by the shell into multiple arguments depending on
+the presence of whitespace and quotes. Exporting complex strings as environment
+variables and referring to them with `"$NAME"`, note the double quotes, can
+also help.
+
+Putting all this together, to print a string verbatim to standard output, with
+all its various escape sequences and quotes undisturbed:
+
+```just
+export FOO := '''
+  a complicated string with
+  some dis\tur\bi\ng escape sequences
+  and "quotes" of 'different' kinds
+'''
+
+bar:
+  printf %s "$FOO"
+```
 
 ### Alternatives and Prior Art
 
