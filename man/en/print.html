@@ -1146,7 +1146,7 @@ right-hand argument:</p>
 </code></pre>
 <h4 id="logical-operators"><a class="header" href="#logical-operators">Logical Operators</a></h4>
 <p>The logical operators <code>&amp;&amp;</code> and <code>||</code> can be used to coalesce string
-values<sup>master</sup>, similar to Python’s <code>and</code> and <code>or</code>. These operators
+values<sup>1.37.0</sup>, similar to Python’s <code>and</code> and <code>or</code>. These operators
 consider the empty string <code>''</code> to be false, and all other strings to be true.</p>
 <p>These operators are currently unstable.</p>
 <p>The <code>&amp;&amp;</code> operator returns the empty string if the left-hand argument is the
@@ -1575,7 +1575,7 @@ otherwise.</li>
 <h4 id="style"><a class="header" href="#style">Style</a></h4>
 <ul>
 <li>
-<p><code>style(name)</code><sup>master</sup> - Return a named terminal display attribute
+<p><code>style(name)</code><sup>1.37.0</sup> - Return a named terminal display attribute
 escape sequence used by <code>just</code>. Unlike terminal display attribute escape
 sequence constants, which contain standard colors and styles, <code>style(name)</code>
 returns an escape sequence used by <code>just</code> itself, and can be used to make
@@ -1610,30 +1610,30 @@ and are implemented with the
 <tr><td><code>HEX</code><sup>1.27.0</sup></td><td><code>"0123456789abcdef"</code></td></tr>
 <tr><td><code>HEXLOWER</code><sup>1.27.0</sup></td><td><code>"0123456789abcdef"</code></td></tr>
 <tr><td><code>HEXUPPER</code><sup>1.27.0</sup></td><td><code>"0123456789ABCDEF"</code></td></tr>
-<tr><td><code>CLEAR</code><sup>master</sup></td><td><code>"\ec"</code></td></tr>
-<tr><td><code>NORMAL</code><sup>master</sup></td><td><code>"\e[0m"</code></td></tr>
-<tr><td><code>BOLD</code><sup>master</sup></td><td><code>"\e[1m"</code></td></tr>
-<tr><td><code>ITALIC</code><sup>master</sup></td><td><code>"\e[3m"</code></td></tr>
-<tr><td><code>UNDERLINE</code><sup>master</sup></td><td><code>"\e[4m"</code></td></tr>
-<tr><td><code>INVERT</code><sup>master</sup></td><td><code>"\e[7m"</code></td></tr>
-<tr><td><code>HIDE</code><sup>master</sup></td><td><code>"\e[8m"</code></td></tr>
-<tr><td><code>STRIKETHROUGH</code><sup>master</sup></td><td><code>"\e[9m"</code></td></tr>
-<tr><td><code>BLACK</code><sup>master</sup></td><td><code>"\e[30m"</code></td></tr>
-<tr><td><code>RED</code><sup>master</sup></td><td><code>"\e[31m"</code></td></tr>
-<tr><td><code>GREEN</code><sup>master</sup></td><td><code>"\e[32m"</code></td></tr>
-<tr><td><code>YELLOW</code><sup>master</sup></td><td><code>"\e[33m"</code></td></tr>
-<tr><td><code>BLUE</code><sup>master</sup></td><td><code>"\e[34m"</code></td></tr>
-<tr><td><code>MAGENTA</code><sup>master</sup></td><td><code>"\e[35m"</code></td></tr>
-<tr><td><code>CYAN</code><sup>master</sup></td><td><code>"\e[36m"</code></td></tr>
-<tr><td><code>WHITE</code><sup>master</sup></td><td><code>"\e[37m"</code></td></tr>
-<tr><td><code>BG_BLACK</code><sup>master</sup></td><td><code>"\e[40m"</code></td></tr>
-<tr><td><code>BG_RED</code><sup>master</sup></td><td><code>"\e[41m"</code></td></tr>
-<tr><td><code>BG_GREEN</code><sup>master</sup></td><td><code>"\e[42m"</code></td></tr>
-<tr><td><code>BG_YELLOW</code><sup>master</sup></td><td><code>"\e[43m"</code></td></tr>
-<tr><td><code>BG_BLUE</code><sup>master</sup></td><td><code>"\e[44m"</code></td></tr>
-<tr><td><code>BG_MAGENTA</code><sup>master</sup></td><td><code>"\e[45m"</code></td></tr>
-<tr><td><code>BG_CYAN</code><sup>master</sup></td><td><code>"\e[46m"</code></td></tr>
-<tr><td><code>BG_WHITE</code><sup>master</sup></td><td><code>"\e[47m"</code></td></tr>
+<tr><td><code>CLEAR</code><sup>1.37.0</sup></td><td><code>"\ec"</code></td></tr>
+<tr><td><code>NORMAL</code><sup>1.37.0</sup></td><td><code>"\e[0m"</code></td></tr>
+<tr><td><code>BOLD</code><sup>1.37.0</sup></td><td><code>"\e[1m"</code></td></tr>
+<tr><td><code>ITALIC</code><sup>1.37.0</sup></td><td><code>"\e[3m"</code></td></tr>
+<tr><td><code>UNDERLINE</code><sup>1.37.0</sup></td><td><code>"\e[4m"</code></td></tr>
+<tr><td><code>INVERT</code><sup>1.37.0</sup></td><td><code>"\e[7m"</code></td></tr>
+<tr><td><code>HIDE</code><sup>1.37.0</sup></td><td><code>"\e[8m"</code></td></tr>
+<tr><td><code>STRIKETHROUGH</code><sup>1.37.0</sup></td><td><code>"\e[9m"</code></td></tr>
+<tr><td><code>BLACK</code><sup>1.37.0</sup></td><td><code>"\e[30m"</code></td></tr>
+<tr><td><code>RED</code><sup>1.37.0</sup></td><td><code>"\e[31m"</code></td></tr>
+<tr><td><code>GREEN</code><sup>1.37.0</sup></td><td><code>"\e[32m"</code></td></tr>
+<tr><td><code>YELLOW</code><sup>1.37.0</sup></td><td><code>"\e[33m"</code></td></tr>
+<tr><td><code>BLUE</code><sup>1.37.0</sup></td><td><code>"\e[34m"</code></td></tr>
+<tr><td><code>MAGENTA</code><sup>1.37.0</sup></td><td><code>"\e[35m"</code></td></tr>
+<tr><td><code>CYAN</code><sup>1.37.0</sup></td><td><code>"\e[36m"</code></td></tr>
+<tr><td><code>WHITE</code><sup>1.37.0</sup></td><td><code>"\e[37m"</code></td></tr>
+<tr><td><code>BG_BLACK</code><sup>1.37.0</sup></td><td><code>"\e[40m"</code></td></tr>
+<tr><td><code>BG_RED</code><sup>1.37.0</sup></td><td><code>"\e[41m"</code></td></tr>
+<tr><td><code>BG_GREEN</code><sup>1.37.0</sup></td><td><code>"\e[42m"</code></td></tr>
+<tr><td><code>BG_YELLOW</code><sup>1.37.0</sup></td><td><code>"\e[43m"</code></td></tr>
+<tr><td><code>BG_BLUE</code><sup>1.37.0</sup></td><td><code>"\e[44m"</code></td></tr>
+<tr><td><code>BG_MAGENTA</code><sup>1.37.0</sup></td><td><code>"\e[45m"</code></td></tr>
+<tr><td><code>BG_CYAN</code><sup>1.37.0</sup></td><td><code>"\e[46m"</code></td></tr>
+<tr><td><code>BG_WHITE</code><sup>1.37.0</sup></td><td><code>"\e[47m"</code></td></tr>
 </tbody></table>
 </div>
 <pre><code class="language-just">@foo:
@@ -2718,7 +2718,7 @@ set, variables in parent modules override variables in imports.</p>
 <p>Imports may be made optional by putting a <code>?</code> after the <code>import</code> keyword:</p>
 <pre><code class="language-just">import? 'foo/bar.just'
 </code></pre>
-<p>Importing the same source file multiple times is not an error<sup>master</sup>.
+<p>Importing the same source file multiple times is not an error<sup>1.37.0</sup>.
 This allows importing multiple justfiles, for example <code>foo.just</code> and
 <code>bar.just</code>, which both import a third justfile containing shared recipes, for
 example <code>baz.just</code>, without the duplicate import of <code>baz.just</code> being an error:</p>

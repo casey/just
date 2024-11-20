@@ -187,7 +187,7 @@ set, variables in parent modules override variables in imports.</p>
 <p>Imports may be made optional by putting a <code>?</code> after the <code>import</code> keyword:</p>
 <pre><code class="language-just">import? 'foo/bar.just'
 </code></pre>
-<p>Importing the same source file multiple times is not an error<sup>master</sup>.
+<p>Importing the same source file multiple times is not an error<sup>1.37.0</sup>.
 This allows importing multiple justfiles, for example <code>foo.just</code> and
 <code>bar.just</code>, which both import a third justfile containing shared recipes, for
 example <code>baz.just</code>, without the duplicate import of <code>baz.just</code> being an error:</p>
