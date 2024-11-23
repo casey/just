@@ -147,9 +147,9 @@ impl Subcommand {
 
       if config.allow_missing && matches!(result, Err(Error::UnknownRecipe { .. })) {
         return Ok(());
-      } else {
-        return result;
       }
+
+      return result;
     }
   }
 
