@@ -594,7 +594,7 @@ foo A B:
     ",
   args:     ("foo", "ONE", "TWO", "THREE"),
   stdout:   "",
-  stderr:   "error: Justfile does not contain recipe `THREE`.\n",
+  stderr:   "error: Justfile does not contain recipe `THREE`\n",
   status:   EXIT_FAILURE,
 }
 
@@ -618,7 +618,7 @@ foo A B='B':
     ",
   args:     ("foo", "ONE", "TWO", "THREE"),
   stdout:   "",
-  stderr:   "error: Justfile does not contain recipe `THREE`.\n",
+  stderr:   "error: Justfile does not contain recipe `THREE`\n",
   status:   EXIT_FAILURE,
 }
 
@@ -643,7 +643,7 @@ test! {
   justfile: "hello:",
   args:     ("foo"),
   stdout:   "",
-  stderr:   "error: Justfile does not contain recipe `foo`.\n",
+  stderr:   "error: Justfile does not contain recipe `foo`\n",
   status:   EXIT_FAILURE,
 }
 
@@ -652,7 +652,7 @@ test! {
   justfile: "hello:",
   args:     ("foo", "bar"),
   stdout:   "",
-  stderr:   "error: Justfile does not contain recipe `foo`.\n",
+  stderr:   "error: Justfile does not contain recipe `foo`\n",
   status:   EXIT_FAILURE,
 }
 
@@ -999,7 +999,7 @@ a Z="\t z":
 "#,
   args:     ("hell"),
   stdout:   "",
-  stderr:   "error: Justfile does not contain recipe `hell`.\nDid you mean `hello`?\n",
+  stderr:   "error: Justfile does not contain recipe `hell`\nDid you mean `hello`?\n",
   status:   EXIT_FAILURE,
 }
 

@@ -468,7 +468,7 @@ impl<'src> ColorDisplay for Error<'src> {
         write!(f, "{count} {overrides} overridden on the command line but not present in justfile")?;
       }
       UnknownRecipe { recipe, suggestion } => {
-        write!(f, "Justfile does not contain recipe `{recipe}`.")?;
+        write!(f, "Justfile does not contain recipe `{recipe}`")?;
         if let Some(suggestion) = suggestion {
           write!(f, "\n{suggestion}")?;
         }
