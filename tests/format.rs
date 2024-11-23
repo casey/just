@@ -1120,3 +1120,21 @@ fn doc_attribute_suppresses_comment() {
     )
     .run();
 }
+
+#[test]
+fn unchanged_justfiles_are_not_written_to_disk() {
+  let tmp = tempdir();
+
+  let justfile = tmp.path().join("justfile");
+
+  fs::write(&justfile, "").unwrap();
+
+  let mut permissions = fs::metadata(&justfile).unwrap().permissions();
+  permissions.set_readonly(true);
+  fs::set_permissions(&justfile, permissions).unwrap();
+
+  Test::with_tempdir(tmp)
+    .no_justfile()
+    .args(["--fmt", "--unstable"])
+    .run();
+}

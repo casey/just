@@ -60,7 +60,7 @@ mod examples;
 mod explain;
 mod export;
 mod fallback;
-mod fmt;
+mod format;
 mod functions;
 #[cfg(unix)]
 mod global;
