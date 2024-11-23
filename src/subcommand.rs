@@ -145,6 +145,15 @@ impl Subcommand {
         }
       }
 
+      if config.allow_missing
+        && matches!(
+          result,
+          Err(Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })
+        )
+      {
+        return Ok(());
+      }
+
       return result;
     }
   }
