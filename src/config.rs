@@ -322,7 +322,7 @@ impl Config {
           .long("allow-missing")
           .env("JUST_ALLOW_MISSING")
           .action(ArgAction::SetTrue)
-          .help("Ignore unknown recipe errors"),
+          .help("Ignore missing recipe errors"),
       )
       .arg(
         Arg::new(arg::SET)
