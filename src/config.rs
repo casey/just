@@ -9,6 +9,7 @@ use {
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Config {
+  pub(crate) allow_missing: bool,
   pub(crate) check: bool,
   pub(crate) color: Color,
   pub(crate) command_color: Option<ansi_term::Color>,
@@ -24,7 +25,6 @@ pub(crate) struct Config {
   pub(crate) list_submodules: bool,
   pub(crate) load_dotenv: bool,
   pub(crate) no_aliases: bool,
-  pub(crate) allow_missing: bool,
   pub(crate) no_dependencies: bool,
   pub(crate) one: bool,
   pub(crate) search_config: SearchConfig,
@@ -81,6 +81,7 @@ mod cmd {
 }
 
 mod arg {
+  pub(crate) const ALLOW_MISSING: &str = "ALLOW-MISSING";
   pub(crate) const ARGUMENTS: &str = "ARGUMENTS";
   pub(crate) const CHECK: &str = "CHECK";
   pub(crate) const CHOOSER: &str = "CHOOSER";
@@ -104,7 +105,6 @@ mod arg {
   pub(crate) const NO_HIGHLIGHT: &str = "NO-HIGHLIGHT";
   pub(crate) const ONE: &str = "ONE";
   pub(crate) const QUIET: &str = "QUIET";
-  pub(crate) const ALLOW_MISSING: &str = "ALLOW-MISSING";
   pub(crate) const SET: &str = "SET";
   pub(crate) const SHELL: &str = "SHELL";
   pub(crate) const SHELL_ARG: &str = "SHELL-ARG";
@@ -322,7 +322,7 @@ impl Config {
           .long("allow-missing")
           .env("JUST_ALLOW_MISSING")
           .action(ArgAction::SetTrue)
-          .help("Suppress error code"),
+          .help("Ignore unknown recipe errors"),
       )
       .arg(
         Arg::new(arg::SET)
@@ -715,6 +715,7 @@ impl Config {
     let explain = matches.get_flag(arg::EXPLAIN);
 
     Ok(Self {
+      allow_missing: matches.get_flag(arg::ALLOW_MISSING),
       check: matches.get_flag(arg::CHECK),
       color: (*matches.get_one::<UseColor>(arg::COLOR).unwrap()).into(),
       command_color: matches
@@ -738,7 +739,6 @@ impl Config {
       list_submodules: matches.get_flag(arg::LIST_SUBMODULES),
       load_dotenv: !matches.get_flag(arg::NO_DOTENV),
       no_aliases: matches.get_flag(arg::NO_ALIASES),
-      allow_missing: matches.get_flag(arg::ALLOW_MISSING),
       no_dependencies: matches.get_flag(arg::NO_DEPS),
       one: matches.get_flag(arg::ONE),
       search_config,

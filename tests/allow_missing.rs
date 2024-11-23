@@ -1,33 +1,30 @@
 use super::*;
 
 #[test]
-fn fail_on_unknown_recipe() {
+fn allow_missing_recipes_in_invocation() {
   Test::new()
-    .arg("execute")
-    .justfile(
-      "
-        build:
-          echo \"Building...\"
-      ",
-    )
-    .stderr("error: Justfile does not contain recipe `execute`.\n")
-    .stdout("")
-    .status(1)
+    .arg("foo")
+    .stderr("error: Justfile does not contain recipe `foo`.\n")
+    .status(EXIT_FAILURE)
     .run();
+
+  Test::new().args(["--allow-missing", "foo"]).run();
 }
 
 #[test]
-fn ignore_unknown_recipe() {
+fn allow_missing_does_not_apply_to_compilation_errors() {
   Test::new()
-    .args(["--allow-missing", "execute"])
-    .justfile(
+    .justfile("bar: foo")
+    .args(["--allow-missing", "foo"])
+    .stderr(
       "
-        build:
-          echo \"Building...\"
+        error: Recipe `bar` has unknown dependency `foo`
+         ——▶ justfile:1:6
+          │
+        1 │ bar: foo
+          │      ^^^
       ",
     )
-    .stderr("")
-    .stdout("")
-    .status(0)
+    .status(EXIT_FAILURE)
     .run();
 }
