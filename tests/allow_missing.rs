@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn allow_missing_recipes_in_invocation() {
+fn allow_missing_recipes_in_run_invocation() {
   Test::new()
     .arg("foo")
     .stderr("error: Justfile does not contain recipe `foo`.\n")
@@ -25,6 +25,15 @@ fn allow_missing_does_not_apply_to_compilation_errors() {
           │      ^^^
       ",
     )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn allow_missing_does_not_apply_to_other_subcommands() {
+  Test::new()
+    .args(["--allow-missing", "--show", "foo"])
+    .stderr("error: Justfile does not contain recipe `foo`.\n")
     .status(EXIT_FAILURE)
     .run();
 }
