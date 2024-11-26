@@ -7,7 +7,7 @@
 pub(crate) use {
   crate::{
     alias::Alias, analyzer::Analyzer, argument_parser::ArgumentParser, assignment::Assignment,
-    assignment_resolver::AssignmentResolver, ast::Ast, attribute::Attribute, binding::Binding,
+    assignment_resolver::AssignmentResolver, ast::Ast, attribute::{Attribute, AttributeSet}, binding::Binding,
     color::Color, color_display::ColorDisplay, command_color::CommandColor,
     command_ext::CommandExt, compilation::Compilation, compile_error::CompileError,
     compile_error_kind::CompileErrorKind, compiler::Compiler, condition::Condition,

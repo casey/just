@@ -113,10 +113,18 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn enabled(&self) -> bool {
-    let windows = self.attributes.contains(&Attribute::Windows);
-    let linux = self.attributes.contains(&Attribute::Linux);
-    let macos = self.attributes.contains(&Attribute::Macos);
-    let unix = self.attributes.contains(&Attribute::Unix);
+    let windows = self
+      .attributes
+      .contains(&Attribute::Windows { inverted: false });
+    let linux = self
+      .attributes
+      .contains(&Attribute::Linux { inverted: false });
+    let macos = self
+      .attributes
+      .contains(&Attribute::Macos { inverted: false });
+    let unix = self
+      .attributes
+      .contains(&Attribute::Unix { inverted: false });
 
     (!windows && !linux && !macos && !unix)
       || (cfg!(target_os = "windows") && windows)

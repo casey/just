@@ -13,16 +13,16 @@ pub(crate) enum Attribute<'src> {
   Doc(Option<StringLiteral<'src>>),
   Extension(StringLiteral<'src>),
   Group(StringLiteral<'src>),
-  Linux,
-  Macos,
+  Linux { inverted: bool },
+  Macos { inverted: bool },
   NoCd,
   NoExitMessage,
   NoQuiet,
   PositionalArguments,
   Private,
   Script(Option<Interpreter<'src>>),
-  Unix,
-  Windows,
+  Unix { inverted: bool },
+  Windows { inverted: bool },
 }
 
 impl AttributeDiscriminant {
@@ -77,8 +77,8 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::Doc => Self::Doc(arguments.into_iter().next()),
       AttributeDiscriminant::Extension => Self::Extension(arguments.into_iter().next().unwrap()),
       AttributeDiscriminant::Group => Self::Group(arguments.into_iter().next().unwrap()),
-      AttributeDiscriminant::Linux => Self::Linux,
-      AttributeDiscriminant::Macos => Self::Macos,
+      AttributeDiscriminant::Linux => Self::Linux { inverted: false },
+      AttributeDiscriminant::Macos => Self::Macos { inverted: false },
       AttributeDiscriminant::NoCd => Self::NoCd,
       AttributeDiscriminant::NoExitMessage => Self::NoExitMessage,
       AttributeDiscriminant::NoQuiet => Self::NoQuiet,
@@ -91,8 +91,8 @@ impl<'src> Attribute<'src> {
           arguments: arguments.collect(),
         })
       }),
-      AttributeDiscriminant::Unix => Self::Unix,
-      AttributeDiscriminant::Windows => Self::Windows,
+      AttributeDiscriminant::Unix => Self::Unix { inverted: false },
+      AttributeDiscriminant::Windows => Self::Windows { inverted: false },
     })
   }
 
@@ -103,29 +103,59 @@ impl<'src> Attribute<'src> {
 
 impl<'src> Display for Attribute<'src> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    write!(f, "{}", self.name())?;
+    let name = self.name();
 
     match self {
       Self::Confirm(Some(argument))
       | Self::Doc(Some(argument))
       | Self::Extension(argument)
-      | Self::Group(argument) => write!(f, "({argument})")?,
-      Self::Script(Some(shell)) => write!(f, "({shell})")?,
+      | Self::Group(argument) => write!(f, "{name}({argument})")?,
+      Self::Script(Some(shell)) => write!(f, "{name}({shell})")?,
+      Self::Linux { inverted }
+      | Self::Macos { inverted }
+      | Self::Unix { inverted }
+      | Self::Windows { inverted } => {
+        if *inverted {
+          write!(f, "not({name})")?
+        } else {
+          write!(f, "{name}")?
+        }
+      }
       Self::Confirm(None)
       | Self::Doc(None)
-      | Self::Linux
-      | Self::Macos
       | Self::NoCd
       | Self::NoExitMessage
       | Self::NoQuiet
       | Self::PositionalArguments
       | Self::Private
-      | Self::Script(None)
-      | Self::Unix
-      | Self::Windows => {}
+      | Self::Script(None) => write!(f, "{name}")?,
     }
 
     Ok(())
+  }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct AttributeSet<'src> {
+  pub(crate) inner: BTreeSet<Attribute<'src>>,
+}
+
+impl<'src> Serialize for AttributeSet<'src> {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: Serializer,
+  {
+    self.inner.serialize(serializer)
+  }
+}
+
+impl<'src> AttributeSet<'src> {
+  pub(crate) fn from_set(input: BTreeSet<Attribute<'src>>) -> Self {
+    Self { inner: input }
+  }
+
+  pub(crate) fn contains(&self, attribute: &Attribute) -> bool {
+    self.inner.contains(attribute)
   }
 }
 
