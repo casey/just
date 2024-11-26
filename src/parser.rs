@@ -462,7 +462,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// Parse an alias, e.g `alias name := target`
   fn parse_alias(
     &mut self,
-    attributes: BTreeSet<Attribute<'src>>,
+    attributes: AttributeSet<'src>,
   ) -> CompileResult<'src, Alias<'src, Name<'src>>> {
     self.presume_keyword(Keyword::Alias)?;
     let name = self.parse_name()?;
@@ -480,24 +480,16 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_assignment(
     &mut self,
     export: bool,
-    attributes: BTreeSet<Attribute<'src>>,
+    attributes: AttributeSet<'src>,
   ) -> CompileResult<'src, Assignment<'src>> {
     let name = self.parse_name()?;
     self.presume(ColonEquals)?;
     let value = self.parse_expression()?;
     self.expect_eol()?;
 
-    let private = attributes.contains(&Attribute::Private);
+    let private = attributes.contains(AttributeDiscriminant::Private);
 
-    for attribute in attributes {
-      if attribute != Attribute::Private {
-        return Err(name.error(CompileErrorKind::InvalidAttribute {
-          item_kind: "Assignment",
-          item_name: name.lexeme(),
-          attribute,
-        }));
-      }
-    }
+    attributes.ensure_valid_attributes("Assignment", *name, &[AttributeDiscriminant::Private])?;
 
     Ok(Assignment {
       constant: false,
@@ -863,7 +855,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     &mut self,
     doc: Option<&'src str>,
     quiet: bool,
-    attributes: BTreeSet<Attribute<'src>>,
+    attributes: AttributeSet<'src>,
   ) -> CompileResult<'src, UnresolvedRecipe<'src>> {
     let name = self.parse_name()?;
 
@@ -924,9 +916,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let body = self.parse_body()?;
 
     let shebang = body.first().map_or(false, Line::is_shebang);
-    let script = attributes
-      .iter()
-      .any(|attribute| matches!(attribute, Attribute::Script(_)));
+    let script = attributes.contains(AttributeDiscriminant::Script);
 
     if shebang && script {
       return Err(name.error(CompileErrorKind::ShebangAndScriptAttribute {
@@ -934,7 +924,8 @@ impl<'run, 'src> Parser<'run, 'src> {
       }));
     }
 
-    let private = name.lexeme().starts_with('_') || attributes.contains(&Attribute::Private);
+    let private =
+      name.lexeme().starts_with('_') || attributes.contains(AttributeDiscriminant::Private);
 
     let mut doc = doc.map(ToOwned::to_owned);
 
@@ -1122,9 +1113,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Item attributes, i.e., `[macos]` or `[confirm: "warning!"]`
-  fn parse_attributes(
-    &mut self,
-  ) -> CompileResult<'src, Option<(Token<'src>, BTreeSet<Attribute<'src>>)>> {
+  fn parse_attributes(&mut self) -> CompileResult<'src, Option<(Token<'src>, AttributeSet<'src>)>> {
     let mut attributes = BTreeMap::new();
 
     let mut token = None;

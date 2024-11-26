@@ -1,4 +1,4 @@
-use super::*;
+use {super::*, std::collections};
 
 #[derive(
   EnumDiscriminants, PartialEq, Debug, Clone, Serialize, Ord, PartialOrd, Eq, IntoStaticStr,
@@ -94,6 +94,10 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::Unix => Self::Unix,
       AttributeDiscriminant::Windows => Self::Windows,
     })
+  }
+
+  pub(crate) fn discriminant(&self) -> AttributeDiscriminant {
+    self.into()
   }
 
   pub(crate) fn name(&self) -> &'static str {
