@@ -257,7 +257,7 @@ impl<'src, D> Recipe<'src, D> {
           );
         }
 
-        eprintln!("{}", color.paint(command));
+        eprintln!("::group::{}", color.paint(command));
       }
 
       if config.dry_run {
@@ -289,8 +289,10 @@ impl<'src, D> Recipe<'src, D> {
         &context.module.unexports,
       );
 
+
       match InterruptHandler::guard(|| cmd.status()) {
         Ok(exit_status) => {
+          eprintln!("::endgroup::");
           if let Some(code) = exit_status.code() {
             if code != 0 && !infallible_line {
               return Err(Error::Code {

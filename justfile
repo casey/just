@@ -226,6 +226,15 @@ test-release-workflow:
   git tag test-release
   git push origin test-release
 
+dummy:
+  echo "Testing groups!"
+  just nested
+  echo "What's up?"
+
+nested:
+  echo "Testing nested groups!"
+  echo "What's up?"
+
 # Local Variables:
 # mode: makefile
 # End:
