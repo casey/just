@@ -228,7 +228,7 @@ test-release-workflow:
 
 dummy:
   echo "Testing groups!"
-  just nested
+  cargo run -- nested
   echo "What's up?"
 
 nested:
