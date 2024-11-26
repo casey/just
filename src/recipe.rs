@@ -149,17 +149,15 @@ impl<'src, D> Recipe<'src, D> {
     positional: &[String],
     is_dependency: bool,
   ) -> RunResult<'src, ()> {
-    let config = &context.config;
-
-    let color = config.color.stderr().banner();
+    let color = context.config.color.stderr().banner();
     let prefix = color.prefix();
     let suffix = color.suffix();
 
-    if config.verbosity.loquacious() {
+    if context.config.verbosity.loquacious() {
       eprintln!("{prefix}===> Running recipe `{}`...{suffix}", self.name);
     }
 
-    if config.explain {
+    if context.config.explain {
       if let Some(doc) = self.doc() {
         eprintln!("{prefix}#### {doc}{suffix}");
       }
@@ -168,9 +166,9 @@ impl<'src, D> Recipe<'src, D> {
     let evaluator = Evaluator::new(context, is_dependency, scope);
 
     if self.is_script() {
-      self.run_script(context, scope, positional, config, evaluator)
+      self.run_script(context, scope, positional, evaluator)
     } else {
-      self.run_linewise(context, scope, positional, config, evaluator)
+      self.run_linewise(context, scope, positional, evaluator)
     }
   }
 
@@ -179,9 +177,10 @@ impl<'src, D> Recipe<'src, D> {
     context: &ExecutionContext<'src, 'run>,
     scope: &Scope<'src, 'run>,
     positional: &[String],
-    config: &Config,
     mut evaluator: Evaluator<'src, 'run>,
   ) -> RunResult<'src, ()> {
+    let config = &context.config;
+
     let mut lines = self.body.iter().peekable();
     let mut line_number = self.line_number() + 1;
     loop {
@@ -316,9 +315,10 @@ impl<'src, D> Recipe<'src, D> {
     context: &ExecutionContext<'src, 'run>,
     scope: &Scope<'src, 'run>,
     positional: &[String],
-    config: &Config,
     mut evaluator: Evaluator<'src, 'run>,
   ) -> RunResult<'src, ()> {
+    let config = &context.config;
+
     let mut evaluated_lines = Vec::new();
     for line in &self.body {
       evaluated_lines.push(evaluator.evaluate_line(line, false)?);
