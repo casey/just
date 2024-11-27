@@ -336,20 +336,12 @@ file := shell('cat file.txt')
 fn attribute_duplicate() {
   Test::new()
     .justfile(
-      r#"
-      [working-directory('bar')]
-      [working-directory('baz')]
-      print:
-        echo "$(basename "$PWD")"
-    "#,
+      "
+        [working-directory('bar')]
+        [working-directory('baz')]
+        foo:
+      ",
     )
-    .current_dir("foo")
-    .tree(tree! {
-      foo: {},
-      bar: {},
-      baz: {},
-    })
-    .args(["print"])
     .stderr(
       "error: Recipe attribute `working-directory` first used on line 1 is duplicated on line 2
  ——▶ justfile:2:2
@@ -358,8 +350,7 @@ fn attribute_duplicate() {
   │  ^^^^^^^^^^^^^^^^^
 ",
     )
-    .stdout("")
-    .status(1)
+    .status(EXIT_FAILURE)
     .run();
 }
 
@@ -367,30 +358,37 @@ fn attribute_duplicate() {
 fn attribute() {
   Test::new()
     .justfile(
-      r#"
-      [working-directory('bar')]
-      print1:
-        echo "$(basename "$PWD")"
+      "
+        [working-directory('foo')]
+        @qux:
+          echo baz > bar
+      ",
+    )
+    .create_dir("foo")
+    .expect_file("foo/bar", "baz\n")
+    .run();
+}
 
-      [working-directory('baz')]
-      [no-cd]
-      print2:
-        echo "$(basename "$PWD")"
-    "#,
+#[test]
+fn attribute_with_nocd_is_forbidden() {
+  Test::new()
+    .justfile(
+      "
+        [working-directory('foo')]
+        [no-cd]
+        bar:
+      ",
     )
-    .current_dir("foo")
-    .tree(tree! {
-      foo: {},
-      bar: {},
-      baz: {},
-    })
-    .args(["print1", "print2"])
     .stderr(
-      r#"echo "$(basename "$PWD")"
-echo "$(basename "$PWD")"
-"#,
+      "
+        error: Recipe `bar` has both `[no-cd]` and `[working-directory]` attributes
+         ——▶ justfile:3:1
+          │
+        3 │ bar:
+          │ ^^^
+      ",
     )
-    .stdout("bar\nfoo\n")
+    .status(EXIT_FAILURE)
     .run();
 }
 
@@ -398,28 +396,15 @@ echo "$(basename "$PWD")"
 fn setting_and_attribute() {
   Test::new()
     .justfile(
-      r#"
-      set working-directory := 'bar'
+      "
+        set working-directory := 'foo'
 
-      [working-directory('baz')]
-      print1:
-        echo "$(basename "$PWD")"
-        echo "$(basename "$(dirname "$PWD")")"
-    "#,
+        [working-directory('bar')]
+        @baz:
+          echo bob > fred
+      ",
     )
-    .current_dir("foo")
-    .tree(tree! {
-      foo: {},
-      bar: {
-        baz: {},
-      },
-    })
-    .args(["print1"])
-    .stderr(
-      r#"echo "$(basename "$PWD")"
-echo "$(basename "$(dirname "$PWD")")"
-"#,
-    )
-    .stdout("baz\nbar\n")
+    .create_dir("foo/bar")
+    .expect_file("foo/bar/fred", "bob\n")
     .run();
 }

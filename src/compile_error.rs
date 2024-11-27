@@ -203,6 +203,10 @@ impl Display for CompileError<'_> {
            consist of tabs or spaces, but not both",
         ShowWhitespace(whitespace)
       ),
+      NoCdAndWorkingDirectoryAttribute { recipe } => write!(
+        f,
+        "Recipe `{recipe}` has both `[no-cd]` and `[working-directory]` attributes"
+      ),
       ParameterFollowsVariadicParameter { parameter } => {
         write!(f, "Parameter `{parameter}` follows variadic parameter")
       }
@@ -285,6 +289,7 @@ impl Display for CompileError<'_> {
       UnpairedCarriageReturn => write!(f, "Unpaired carriage return"),
       UnterminatedBacktick => write!(f, "Unterminated backtick"),
       UnterminatedInterpolation => write!(f, "Unterminated interpolation"),
+      UnterminatedString => write!(f, "Unterminated string"),
       UnterminatedString => write!(f, "Unterminated string"),
     }
   }

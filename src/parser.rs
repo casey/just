@@ -934,6 +934,22 @@ impl<'run, 'src> Parser<'run, 'src> {
       }));
     }
 
+    let working_directory = attributes
+      .iter()
+      .any(|attribute| matches!(attribute, Attribute::WorkingDirectory(_)));
+
+    if working_directory {
+      for attribute in &attributes {
+        if let Attribute::NoCd = attribute {
+          return Err(
+            name.error(CompileErrorKind::NoCdAndWorkingDirectoryAttribute {
+              recipe: name.lexeme(),
+            }),
+          );
+        }
+      }
+    }
+
     let private = name.lexeme().starts_with('_') || attributes.contains(&Attribute::Private);
 
     let mut doc = doc.map(ToOwned::to_owned);
