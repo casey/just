@@ -884,9 +884,8 @@ $ just bar
 /subdir
 ```
 
-You can override the working directory for all recipes with `set
-working-directory := '…'`, whose value is relative to the default working
-directory.
+You can override the working directory for all recipes with
+`set working-directory := '…'`:
 
 ```just
 set working-directory := 'bar'
@@ -911,8 +910,9 @@ example:
   echo "$(pwd)"
 ```
 
-The argument to the `working-directory` attribute may be absolute or relative,
-in which case it is interpreted relative to the default working directory.
+Argument to the `working-directory` setting and attribute may be absolute or
+relative. If they are relative they are interpreted relative to the default
+working directory.
 
 ### Aliases
 
