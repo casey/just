@@ -905,14 +905,21 @@ You can override the working directory for a specific recipe with the
 `working-directory` attribute<sup>master</sup>:
 
 ```just
-[working-directory: 'some/awesome/path']
-example:
-  echo "$(pwd)"
+[working-directory: 'bar']
+@foo:
+  pwd
 ```
 
-Argument to the `working-directory` setting and attribute may be absolute or
-relative. If they are relative they are interpreted relative to the default
-working directory.
+```console
+$ pwd
+/home/bob
+$ just foo
+/home/bob/bar
+```
+
+The argument to the `working-directory` setting or `working-directory`
+attribute may be absolute or relative. If it is relative it is interpreted
+relative to the default working directory.
 
 ### Aliases
 
