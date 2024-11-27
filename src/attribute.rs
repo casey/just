@@ -23,13 +23,14 @@ pub(crate) enum Attribute<'src> {
   Script(Option<Interpreter<'src>>),
   Unix,
   Windows,
+  WorkingDirectory(StringLiteral<'src>),
 }
 
 impl AttributeDiscriminant {
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
       Self::Confirm | Self::Doc => 0..=1,
-      Self::Group | Self::Extension => 1..=1,
+      Self::Group | Self::Extension | Self::WorkingDirectory => 1..=1,
       Self::Linux
       | Self::Macos
       | Self::NoCd
@@ -93,6 +94,9 @@ impl<'src> Attribute<'src> {
       }),
       AttributeDiscriminant::Unix => Self::Unix,
       AttributeDiscriminant::Windows => Self::Windows,
+      AttributeDiscriminant::WorkingDirectory => {
+        Self::WorkingDirectory(arguments.into_iter().next().unwrap())
+      }
     })
   }
 
@@ -117,7 +121,8 @@ impl<'src> Display for Attribute<'src> {
       Self::Confirm(Some(argument))
       | Self::Doc(Some(argument))
       | Self::Extension(argument)
-      | Self::Group(argument) => write!(f, "({argument})")?,
+      | Self::Group(argument)
+      | Self::WorkingDirectory(argument) => write!(f, "({argument})")?,
       Self::Script(Some(shell)) => write!(f, "({shell})")?,
       Self::Confirm(None)
       | Self::Doc(None)

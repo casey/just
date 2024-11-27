@@ -203,6 +203,10 @@ impl Display for CompileError<'_> {
            consist of tabs or spaces, but not both",
         ShowWhitespace(whitespace)
       ),
+      NoCdAndWorkingDirectoryAttribute { recipe } => write!(
+        f,
+        "Recipe `{recipe}` has both `[no-cd]` and `[working-directory]` attributes"
+      ),
       ParameterFollowsVariadicParameter { parameter } => {
         write!(f, "Parameter `{parameter}` follows variadic parameter")
       }

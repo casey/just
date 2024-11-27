@@ -884,8 +884,8 @@ $ just bar
 /subdir
 ```
 
-You can override working directory with `set working-directory := '…'`, whose value
-is relative to the default working directory.
+You can override the working directory for all recipes with
+`set working-directory := '…'`:
 
 ```just
 set working-directory := 'bar'
@@ -900,6 +900,26 @@ $ pwd
 $ just foo
 /home/bob/bar
 ```
+
+You can override the working directory for a specific recipe with the
+`working-directory` attribute<sup>master</sup>:
+
+```just
+[working-directory: 'bar']
+@foo:
+  pwd
+```
+
+```console
+$ pwd
+/home/bob
+$ just foo
+/home/bob/bar
+```
+
+The argument to the `working-directory` setting or `working-directory`
+attribute may be absolute or relative. If it is relative it is interpreted
+relative to the default working directory.
 
 ### Aliases
 
@@ -1972,6 +1992,7 @@ change their behavior.
 | `[script(COMMAND)]`<sup>1.32.0</sup> | recipe | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
 | `[unix]`<sup>1.8.0</sup> | recipe | Enable recipe on Unixes. (Includes MacOS). |
 | `[windows]`<sup>1.8.0</sup> | recipe | Enable recipe on Windows. |
+| `[working-directory(PATH)]`<sup>master</sup> | recipe | Set recipe working directory. `PATH` may be relative or absolute. If relative, it is interpreted relative to the default working directory. |
 
 A recipe can have multiple attributes, either on multiple lines:
 
