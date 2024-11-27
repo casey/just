@@ -230,3 +230,26 @@ fn extension_on_linewise_error() {
     .status(EXIT_FAILURE)
     .run();
 }
+
+#[test]
+fn duplicate_non_repeatable_attributes_are_forbidden() {
+  Test::new()
+    .justfile(
+      "
+        [confirm: 'yes']
+        [confirm: 'no']
+        baz:
+      ",
+    )
+    .stderr(
+      "
+  error: Recipe attribute `confirm` first used on line 1 is duplicated on line 2
+   ——▶ justfile:2:2
+    │
+  2 │ [confirm: 'no']
+    │  ^^^^^^^
+",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
