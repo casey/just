@@ -173,8 +173,8 @@ $ just foo
 $ just bar
 /subdir
 </code></pre>
-<p>You can override working directory with <code>set working-directory := '…'</code>, whose value
-is relative to the default working directory.</p>
+<p>You can override the working directory for all recipes with
+<code>set working-directory := '…'</code>:</p>
 <pre><code class="language-just">set working-directory := 'bar'
 
 @foo:
@@ -185,6 +185,20 @@ is relative to the default working directory.</p>
 $ just foo
 /home/bob/bar
 </code></pre>
+<p>You can override the working directory for a specific recipe with the
+<code>working-directory</code> attribute<sup>master</sup>:</p>
+<pre><code class="language-just">[working-directory: 'bar']
+@foo:
+  pwd
+</code></pre>
+<pre><code class="language-console">$ pwd
+/home/bob
+$ just foo
+/home/bob/bar
+</code></pre>
+<p>The argument to the <code>working-directory</code> setting or <code>working-directory</code>
+attribute may be absolute or relative. If it is relative it is interpreted
+relative to the default working directory.</p>
 
                     </main>
 
