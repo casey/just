@@ -903,7 +903,7 @@ $ just foo
 ```
 
 You can override the working directory for a specific recipe with the
-`working-directory` attribute:
+`working-directory` attribute<sup>master</sup>:
 
 ```just
 [working-directory: 'some/awesome/path']
