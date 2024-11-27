@@ -6,7 +6,7 @@ use super::*;
 #[strum(serialize_all = "kebab-case")]
 #[serde(rename_all = "kebab-case")]
 #[strum_discriminants(name(AttributeDiscriminant))]
-#[strum_discriminants(derive(EnumString))]
+#[strum_discriminants(derive(EnumString, Ord, PartialOrd))]
 #[strum_discriminants(strum(serialize_all = "kebab-case"))]
 pub(crate) enum Attribute<'src> {
   Confirm(Option<StringLiteral<'src>>),
@@ -96,8 +96,16 @@ impl<'src> Attribute<'src> {
     })
   }
 
+  pub(crate) fn discriminant(&self) -> AttributeDiscriminant {
+    self.into()
+  }
+
   pub(crate) fn name(&self) -> &'static str {
     self.into()
+  }
+
+  pub(crate) fn repeatable(&self) -> bool {
+    matches!(self, Attribute::Group(_))
   }
 }
 

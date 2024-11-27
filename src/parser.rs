@@ -1126,6 +1126,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     &mut self,
   ) -> CompileResult<'src, Option<(Token<'src>, BTreeSet<Attribute<'src>>)>> {
     let mut attributes = BTreeMap::new();
+    let mut discriminants = BTreeMap::new();
 
     let mut token = None;
 
@@ -1152,12 +1153,22 @@ impl<'run, 'src> Parser<'run, 'src> {
 
         let attribute = Attribute::new(name, arguments)?;
 
-        if let Some(line) = attributes.get(&attribute) {
+        let first = attributes.get(&attribute).or_else(|| {
+          if attribute.repeatable() {
+            None
+          } else {
+            discriminants.get(&attribute.discriminant())
+          }
+        });
+
+        if let Some(&first) = first {
           return Err(name.error(CompileErrorKind::DuplicateAttribute {
             attribute: name.lexeme(),
-            first: *line,
+            first,
           }));
         }
+
+        discriminants.insert(attribute.discriminant(), name.line);
 
         attributes.insert(attribute, name.line);
 
