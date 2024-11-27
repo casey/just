@@ -1324,7 +1324,7 @@ foobar := 'foo' + 'bar'
 #### Logical Operators
 
 The logical operators `&&` and `||` can be used to coalesce string
-values<sup>master</sup>, similar to Python's `and` and `or`. These operators
+values<sup>1.37.0</sup>, similar to Python's `and` and `or`. These operators
 consider the empty string `''` to be false, and all other strings to be true.
 
 These operators are currently unstable.
@@ -1853,7 +1853,7 @@ for details.
 
 #### Style
 
-- `style(name)`<sup>master</sup> - Return a named terminal display attribute
+- `style(name)`<sup>1.37.0</sup> - Return a named terminal display attribute
   escape sequence used by `just`. Unlike terminal display attribute escape
   sequence constants, which contain standard colors and styles, `style(name)`
   returns an escape sequence used by `just` itself, and can be used to make
@@ -1895,30 +1895,30 @@ A number of constants are predefined:
 | `HEX`<sup>1.27.0</sup> | `"0123456789abcdef"` |
 | `HEXLOWER`<sup>1.27.0</sup> | `"0123456789abcdef"` |
 | `HEXUPPER`<sup>1.27.0</sup> | `"0123456789ABCDEF"` |
-| `CLEAR`<sup>master</sup> | `"\ec"` |
-| `NORMAL`<sup>master</sup> | `"\e[0m"` |
-| `BOLD`<sup>master</sup> | `"\e[1m"` |
-| `ITALIC`<sup>master</sup> | `"\e[3m"` |
-| `UNDERLINE`<sup>master</sup> | `"\e[4m"` |
-| `INVERT`<sup>master</sup> | `"\e[7m"` |
-| `HIDE`<sup>master</sup> | `"\e[8m"` |
-| `STRIKETHROUGH`<sup>master</sup> | `"\e[9m"` |
-| `BLACK`<sup>master</sup> | `"\e[30m"` |
-| `RED`<sup>master</sup> | `"\e[31m"` |
-| `GREEN`<sup>master</sup> | `"\e[32m"` |
-| `YELLOW`<sup>master</sup> | `"\e[33m"` |
-| `BLUE`<sup>master</sup> | `"\e[34m"` |
-| `MAGENTA`<sup>master</sup> | `"\e[35m"` |
-| `CYAN`<sup>master</sup> | `"\e[36m"` |
-| `WHITE`<sup>master</sup> | `"\e[37m"` |
-| `BG_BLACK`<sup>master</sup> | `"\e[40m"` |
-| `BG_RED`<sup>master</sup> | `"\e[41m"` |
-| `BG_GREEN`<sup>master</sup> | `"\e[42m"` |
-| `BG_YELLOW`<sup>master</sup> | `"\e[43m"` |
-| `BG_BLUE`<sup>master</sup> | `"\e[44m"` |
-| `BG_MAGENTA`<sup>master</sup> | `"\e[45m"` |
-| `BG_CYAN`<sup>master</sup> | `"\e[46m"` |
-| `BG_WHITE`<sup>master</sup> | `"\e[47m"` |
+| `CLEAR`<sup>1.37.0</sup> | `"\ec"` |
+| `NORMAL`<sup>1.37.0</sup> | `"\e[0m"` |
+| `BOLD`<sup>1.37.0</sup> | `"\e[1m"` |
+| `ITALIC`<sup>1.37.0</sup> | `"\e[3m"` |
+| `UNDERLINE`<sup>1.37.0</sup> | `"\e[4m"` |
+| `INVERT`<sup>1.37.0</sup> | `"\e[7m"` |
+| `HIDE`<sup>1.37.0</sup> | `"\e[8m"` |
+| `STRIKETHROUGH`<sup>1.37.0</sup> | `"\e[9m"` |
+| `BLACK`<sup>1.37.0</sup> | `"\e[30m"` |
+| `RED`<sup>1.37.0</sup> | `"\e[31m"` |
+| `GREEN`<sup>1.37.0</sup> | `"\e[32m"` |
+| `YELLOW`<sup>1.37.0</sup> | `"\e[33m"` |
+| `BLUE`<sup>1.37.0</sup> | `"\e[34m"` |
+| `MAGENTA`<sup>1.37.0</sup> | `"\e[35m"` |
+| `CYAN`<sup>1.37.0</sup> | `"\e[36m"` |
+| `WHITE`<sup>1.37.0</sup> | `"\e[37m"` |
+| `BG_BLACK`<sup>1.37.0</sup> | `"\e[40m"` |
+| `BG_RED`<sup>1.37.0</sup> | `"\e[41m"` |
+| `BG_GREEN`<sup>1.37.0</sup> | `"\e[42m"` |
+| `BG_YELLOW`<sup>1.37.0</sup> | `"\e[43m"` |
+| `BG_BLUE`<sup>1.37.0</sup> | `"\e[44m"` |
+| `BG_MAGENTA`<sup>1.37.0</sup> | `"\e[45m"` |
+| `BG_CYAN`<sup>1.37.0</sup> | `"\e[46m"` |
+| `BG_WHITE`<sup>1.37.0</sup> | `"\e[47m"` |
 
 ```just
 @foo:
@@ -3439,7 +3439,7 @@ Imports may be made optional by putting a `?` after the `import` keyword:
 import? 'foo/bar.just'
 ```
 
-Importing the same source file multiple times is not an error<sup>master</sup>.
+Importing the same source file multiple times is not an error<sup>1.37.0</sup>.
 This allows importing multiple justfiles, for example `foo.just` and
 `bar.just`, which both import a third justfile containing shared recipes, for
 example `baz.just`, without the duplicate import of `baz.just` being an error:

@@ -176,7 +176,7 @@ fn requires_setting() {
     .args(["foo"])
     .current_dir("bar")
     .status(EXIT_FAILURE)
-    .stderr("error: Justfile does not contain recipe `foo`.\n")
+    .stderr("error: Justfile does not contain recipe `foo`\n")
     .run();
 }
 
@@ -230,7 +230,7 @@ fn doesnt_work_with_justfile() {
     .args(["--justfile", "justfile", "foo"])
     .current_dir("bar")
     .status(EXIT_FAILURE)
-    .stderr("error: Justfile does not contain recipe `foo`.\n")
+    .stderr("error: Justfile does not contain recipe `foo`\n")
     .run();
 }
 
@@ -254,7 +254,7 @@ fn doesnt_work_with_justfile_and_working_directory() {
     .args(["--justfile", "justfile", "--working-directory", ".", "foo"])
     .current_dir("bar")
     .status(EXIT_FAILURE)
-    .stderr("error: Justfile does not contain recipe `foo`.\n")
+    .stderr("error: Justfile does not contain recipe `foo`\n")
     .run();
 }
 
@@ -282,7 +282,7 @@ fn prints_correct_error_message_when_recipe_not_found() {
     .status(EXIT_FAILURE)
     .stderr(
       "
-      error: Justfile does not contain recipe `foo`.
+      error: Justfile does not contain recipe `foo`
     ",
     )
     .run();
@@ -355,7 +355,7 @@ fn stop_fallback_when_fallback_is_false() {
     .current_dir("a/b")
     .stderr(
       "
-      error: Justfile does not contain recipe `baz`.
+      error: Justfile does not contain recipe `baz`
       Did you mean `bar`?
     ",
     )

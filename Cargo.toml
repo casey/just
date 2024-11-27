@@ -1,6 +1,6 @@
 [package]
 name = "just"
-version = "1.36.0"
+version = "1.37.0"
 authors = ["Casey Rodarmor <casey@rodarmor.com>"]
 autotests = false
 categories = ["command-line-utilities", "development-tools"]
@@ -56,7 +56,7 @@ uuid = { version = "1.0.0", features = ["v4"] }
 executable-path = "1.0.0"
 pretty_assertions = "1.0.0"
 temptree = "0.2.0"
-which = "6.0.0"
+which = "7.0.0"
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(fuzzing)'] }

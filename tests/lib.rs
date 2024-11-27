@@ -33,6 +33,7 @@ mod test;
 
 mod allow_duplicate_recipes;
 mod allow_duplicate_variables;
+mod allow_missing;
 mod assert_stdout;
 mod assert_success;
 mod assertions;
@@ -59,7 +60,7 @@ mod examples;
 mod explain;
 mod export;
 mod fallback;
-mod fmt;
+mod format;
 mod functions;
 #[cfg(unix)]
 mod global;

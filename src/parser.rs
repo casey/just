@@ -1126,7 +1126,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     &mut self,
   ) -> CompileResult<'src, Option<(Token<'src>, BTreeSet<Attribute<'src>>)>> {
     let mut attributes = BTreeMap::new();
-    let mut working_directory_attribute_line = None;
+    let mut discriminants = BTreeMap::new();
 
     let mut token = None;
 
@@ -1153,23 +1153,22 @@ impl<'run, 'src> Parser<'run, 'src> {
 
         let attribute = Attribute::new(name, arguments)?;
 
-        if let Attribute::WorkingDirectory(_) = &attribute {
-          if let Some(line) = working_directory_attribute_line {
-            return Err(name.error(CompileErrorKind::DuplicateAttribute {
-              attribute: name.lexeme(),
-              first: line,
-            }));
+        let first = attributes.get(&attribute).or_else(|| {
+          if attribute.repeatable() {
+            None
+          } else {
+            discriminants.get(&attribute.discriminant())
           }
+        });
 
-          working_directory_attribute_line = Some(name.line);
-        }
-
-        if let Some(line) = attributes.get(&attribute) {
+        if let Some(&first) = first {
           return Err(name.error(CompileErrorKind::DuplicateAttribute {
             attribute: name.lexeme(),
-            first: *line,
+            first,
           }));
         }
+
+        discriminants.insert(attribute.discriminant(), name.line);
 
         attributes.insert(attribute, name.line);
 

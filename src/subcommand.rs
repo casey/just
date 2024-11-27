@@ -145,6 +145,15 @@ impl Subcommand {
         }
       }
 
+      if config.allow_missing
+        && matches!(
+          result,
+          Err(Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })
+        )
+      {
+        return Ok(());
+      }
+
       return result;
     }
   }
@@ -310,44 +319,44 @@ impl Subcommand {
 
     let formatted = ast.to_string();
 
+    if formatted == src {
+      return Ok(());
+    }
+
     if config.check {
-      return if formatted == src {
-        Ok(())
-      } else {
-        if !config.verbosity.quiet() {
-          use similar::{ChangeTag, TextDiff};
+      if !config.verbosity.quiet() {
+        use similar::{ChangeTag, TextDiff};
 
-          let diff = TextDiff::configure()
-            .algorithm(similar::Algorithm::Patience)
-            .diff_lines(src, &formatted);
+        let diff = TextDiff::configure()
+          .algorithm(similar::Algorithm::Patience)
+          .diff_lines(src, &formatted);
 
-          for op in diff.ops() {
-            for change in diff.iter_changes(op) {
-              let (symbol, color) = match change.tag() {
-                ChangeTag::Delete => ("-", config.color.stdout().diff_deleted()),
-                ChangeTag::Equal => (" ", config.color.stdout()),
-                ChangeTag::Insert => ("+", config.color.stdout().diff_added()),
-              };
+        for op in diff.ops() {
+          for change in diff.iter_changes(op) {
+            let (symbol, color) = match change.tag() {
+              ChangeTag::Delete => ("-", config.color.stdout().diff_deleted()),
+              ChangeTag::Equal => (" ", config.color.stdout()),
+              ChangeTag::Insert => ("+", config.color.stdout().diff_added()),
+            };
 
-              print!("{}{symbol}{change}{}", color.prefix(), color.suffix());
-            }
+            print!("{}{symbol}{change}{}", color.prefix(), color.suffix());
           }
         }
+      }
 
-        Err(Error::FormatCheckFoundDiff)
-      };
+      Err(Error::FormatCheckFoundDiff)
+    } else {
+      fs::write(&search.justfile, formatted).map_err(|io_error| Error::WriteJustfile {
+        justfile: search.justfile.clone(),
+        io_error,
+      })?;
+
+      if config.verbosity.loud() {
+        eprintln!("Wrote justfile to `{}`", search.justfile.display());
+      }
+
+      Ok(())
     }
-
-    fs::write(&search.justfile, formatted).map_err(|io_error| Error::WriteJustfile {
-      justfile: search.justfile.clone(),
-      io_error,
-    })?;
-
-    if config.verbosity.loud() {
-      eprintln!("Wrote justfile to `{}`", search.justfile.display());
-    }
-
-    Ok(())
   }
 
   fn init(config: &Config) -> RunResult<'static> {

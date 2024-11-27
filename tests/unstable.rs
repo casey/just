@@ -4,7 +4,7 @@ use super::*;
 fn set_unstable_true_with_env_var() {
   for val in ["true", "some-arbitrary-string"] {
     Test::new()
-      .justfile("")
+      .justfile("# hello")
       .args(["--fmt"])
       .env("JUST_UNSTABLE", val)
       .status(EXIT_SUCCESS)
