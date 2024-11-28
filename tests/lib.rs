@@ -10,6 +10,7 @@ pub(crate) use {
   libc::{EXIT_FAILURE, EXIT_SUCCESS},
   pretty_assertions::Comparison,
   regex::Regex,
+  serde::{Deserialize, Serialize},
   serde_json::{json, Value},
   std::{
     collections::BTreeMap,
@@ -27,6 +28,10 @@ pub(crate) use {
   temptree::{temptree, tree, Tree},
   which::which,
 };
+
+fn default<T: Default>() -> T {
+  Default::default()
+}
 
 #[macro_use]
 mod test;
