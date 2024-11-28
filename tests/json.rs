@@ -334,7 +334,6 @@ fn dependency_argument() {
                 json!(["call", "replace", "a", "b", "c"]),
               ]
               .into(),
-              ..default()
             }]
             .into(),
             priors: 1,
