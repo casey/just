@@ -183,7 +183,7 @@ impl Display for Thunk<'_> {
   }
 }
 
-impl<'src> Serialize for Thunk<'src> {
+impl Serialize for Thunk<'_> {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
   where
     S: Serializer,

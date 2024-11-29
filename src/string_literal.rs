@@ -22,7 +22,7 @@ impl<'src> StringLiteral<'src> {
   }
 }
 
-impl<'src> Display for StringLiteral<'src> {
+impl Display for StringLiteral<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     if self.expand {
       write!(f, "x")?;
@@ -38,7 +38,7 @@ impl<'src> Display for StringLiteral<'src> {
   }
 }
 
-impl<'src> Serialize for StringLiteral<'src> {
+impl Serialize for StringLiteral<'_> {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
   where
     S: Serializer,

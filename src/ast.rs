@@ -11,7 +11,7 @@ pub(crate) struct Ast<'src> {
   pub(crate) working_directory: PathBuf,
 }
 
-impl<'src> Display for Ast<'src> {
+impl Display for Ast<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     let mut iter = self.items.iter().peekable();
 

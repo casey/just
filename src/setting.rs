@@ -22,7 +22,7 @@ pub(crate) enum Setting<'src> {
   WorkingDirectory(StringLiteral<'src>),
 }
 
-impl<'src> Display for Setting<'src> {
+impl Display for Setting<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     match self {
       Self::AllowDuplicateRecipes(value)

@@ -7,7 +7,7 @@ pub(crate) struct Dependency<'src> {
   pub(crate) recipe: Rc<Recipe<'src>>,
 }
 
-impl<'src> Display for Dependency<'src> {
+impl Display for Dependency<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     if self.arguments.is_empty() {
       write!(f, "{}", self.recipe.name())
