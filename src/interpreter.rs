@@ -6,7 +6,7 @@ pub(crate) struct Interpreter<'src> {
   pub(crate) command: StringLiteral<'src>,
 }
 
-impl<'src> Interpreter<'src> {
+impl Interpreter<'_> {
   pub(crate) fn default_script_interpreter() -> &'static Interpreter<'static> {
     static INSTANCE: Lazy<Interpreter<'static>> = Lazy::new(|| Interpreter {
       arguments: vec![StringLiteral::from_raw("-eu")],
@@ -16,7 +16,7 @@ impl<'src> Interpreter<'src> {
   }
 }
 
-impl<'src> Display for Interpreter<'src> {
+impl Display for Interpreter<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(f, "{}", self.command)?;
 

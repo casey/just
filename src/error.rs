@@ -240,7 +240,7 @@ impl<'src> From<CompileError<'src>> for Error<'src> {
   }
 }
 
-impl<'src> From<ConfigError> for Error<'src> {
+impl From<ConfigError> for Error<'_> {
   fn from(config_error: ConfigError) -> Self {
     Self::Config { config_error }
   }
@@ -252,13 +252,13 @@ impl<'src> From<dotenvy::Error> for Error<'src> {
   }
 }
 
-impl<'src> From<SearchError> for Error<'src> {
+impl From<SearchError> for Error<'_> {
   fn from(search_error: SearchError) -> Self {
     Self::Search { search_error }
   }
 }
 
-impl<'src> ColorDisplay for Error<'src> {
+impl ColorDisplay for Error<'_> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     use Error::*;
 

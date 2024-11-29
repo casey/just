@@ -6,7 +6,7 @@ pub(crate) struct Suggestion<'src> {
   pub(crate) target: Option<&'src str>,
 }
 
-impl<'src> Display for Suggestion<'src> {
+impl Display for Suggestion<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(f, "Did you mean `{}`", self.name)?;
     if let Some(target) = self.target {

@@ -113,7 +113,7 @@ impl<'src> Attribute<'src> {
   }
 }
 
-impl<'src> Display for Attribute<'src> {
+impl Display for Attribute<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(f, "{}", self.name())?;
 

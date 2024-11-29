@@ -9,7 +9,7 @@ pub(crate) enum Fragment<'src> {
   Interpolation { expression: Expression<'src> },
 }
 
-impl<'src> Serialize for Fragment<'src> {
+impl Serialize for Fragment<'_> {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
   where
     S: Serializer,

@@ -482,7 +482,7 @@ impl<'src, D> Recipe<'src, D> {
   }
 }
 
-impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
+impl<D: Display> ColorDisplay for Recipe<'_, D> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     if !self
       .attributes

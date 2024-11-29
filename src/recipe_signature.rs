@@ -5,7 +5,7 @@ pub(crate) struct RecipeSignature<'a> {
   pub(crate) recipe: &'a Recipe<'a>,
 }
 
-impl<'a> ColorDisplay for RecipeSignature<'a> {
+impl ColorDisplay for RecipeSignature<'_> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     write!(f, "{}", self.name)?;
     for parameter in &self.recipe.parameters {
