@@ -545,6 +545,7 @@ dependencies = [
  "pretty_assertions",
  "rand",
  "regex",
+ "rustversion",
  "semver",
  "serde",
  "serde_json",

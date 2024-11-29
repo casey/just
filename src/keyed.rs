@@ -18,7 +18,7 @@ where
   serializer.serialize_str(keyed.key())
 }
 
-#[allow(clippy::ref_option)]
+#[rustversion::attr(since(1.83), allow(clippy::ref_option))]
 pub(crate) fn serialize_option<'src, S, K>(
   recipe: &Option<K>,
   serializer: S,
