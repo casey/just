@@ -614,6 +614,8 @@ impl<'run, 'src> Parser<'run, 'src> {
       ConditionalOperator::Inequality
     } else if self.accepted(EqualsTilde)? {
       ConditionalOperator::RegexMatch
+    } else if self.accepted(BangTilde)? {
+      ConditionalOperator::RegexNotMatch
     } else {
       self.expect(EqualsEquals)?;
       ConditionalOperator::Equality

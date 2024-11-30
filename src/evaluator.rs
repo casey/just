@@ -245,6 +245,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       ConditionalOperator::RegexMatch => Regex::new(&rhs_value)
         .map_err(|source| Error::RegexCompile { source })?
         .is_match(&lhs_value),
+      ConditionalOperator::RegexNotMatch => !Regex::new(&rhs_value)
+        .map_err(|source| Error::RegexCompile { source })?
+        .is_match(&lhs_value),
     };
     Ok(condition)
   }
