@@ -1,16 +1,120 @@
 use super::*;
 
-fn case<F: Fn(&Path) -> Value>(justfile: &str, value: F) {
-  Test::new()
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct Alias<'a> {
+  attributes: Vec<&'a str>,
+  name: &'a str,
+  target: &'a str,
+}
+
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct Assignment<'a> {
+  export: bool,
+  name: &'a str,
+  private: bool,
+  value: &'a str,
+}
+
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct Dependency<'a> {
+  arguments: Vec<Value>,
+  recipe: &'a str,
+}
+
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct Interpreter<'a> {
+  arguments: Vec<&'a str>,
+  command: &'a str,
+}
+
+#[derive(Debug, Default, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct Module<'a> {
+  aliases: BTreeMap<&'a str, Alias<'a>>,
+  assignments: BTreeMap<&'a str, Assignment<'a>>,
+  doc: Option<&'a str>,
+  first: Option<&'a str>,
+  groups: Vec<&'a str>,
+  modules: BTreeMap<&'a str, Module<'a>>,
+  recipes: BTreeMap<&'a str, Recipe<'a>>,
+  settings: Settings<'a>,
+  unexports: Vec<&'a str>,
+  warnings: Vec<&'a str>,
+}
+
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct Parameter<'a> {
+  default: Option<&'a str>,
+  export: bool,
+  kind: &'a str,
+  name: &'a str,
+}
+
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct Recipe<'a> {
+  attributes: Vec<Value>,
+  body: Vec<Value>,
+  dependencies: Vec<Dependency<'a>>,
+  doc: Option<&'a str>,
+  name: &'a str,
+  namepath: &'a str,
+  parameters: Vec<Parameter<'a>>,
+  priors: u32,
+  private: bool,
+  quiet: bool,
+  shebang: bool,
+}
+
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+struct Settings<'a> {
+  allow_duplicate_recipes: bool,
+  allow_duplicate_variables: bool,
+  dotenv_filename: Option<&'a str>,
+  dotenv_load: bool,
+  dotenv_path: Option<&'a str>,
+  dotenv_required: bool,
+  export: bool,
+  fallback: bool,
+  ignore_comments: bool,
+  positional_arguments: bool,
+  quiet: bool,
+  shell: Option<Interpreter<'a>>,
+  tempdir: Option<&'a str>,
+  unstable: bool,
+  windows_powershell: bool,
+  windows_shell: Option<&'a str>,
+  working_directory: Option<&'a str>,
+}
+
+#[track_caller]
+fn case(justfile: &str, expected: Module) {
+  case_with_submodule(justfile, None, expected);
+}
+
+#[track_caller]
+fn case_with_submodule(justfile: &str, submodule: Option<(&str, &str)>, expected: Module) {
+  let mut test = Test::new()
     .justfile(justfile)
     .args(["--dump", "--dump-format", "json"])
-    .stdout_with_tempdir(|dir| {
-      format!(
-        "{}\n",
-        serde_json::to_string(&value(&dir.path().canonicalize().unwrap())).unwrap()
-      )
-    })
-    .run();
+    .stdout_regex(".*");
+
+  if let Some((path, source)) = submodule {
+    test = test.write(path, source);
+  }
+
+  let actual = test.run().stdout;
+
+  let mut expected = serde_json::to_string(&expected).unwrap();
+  expected.push('\n');
+
+  pretty_assertions::assert_eq!(actual, expected);
 }
 
 #[test]
@@ -21,72 +125,29 @@ fn alias() {
 
       foo:
     ",
+    Module {
+      aliases: [(
+        "f",
+        Alias {
+          name: "f",
+          target: "foo",
+          ..default()
+        },
+      )]
+      .into(),
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          name: "foo",
+          namepath: "foo",
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
   );
-  let source = test
-    .tempdir
-    .path()
-    .canonicalize()
-    .unwrap()
-    .join("justfile")
-    .to_str()
-    .unwrap()
-    .to_owned();
-  let json = json!({
-      "first": "foo",
-      "doc": null,
-      "aliases": {
-        "f": {
-          "name": "f",
-          "target": "foo",
-          "attributes": [],
-        }
-      },
-      "assignments": {},
-      "groups": [],
-      "modules": {},
-      "recipes": {
-        "foo": {
-          "attributes": [],
-          "body": [],
-          "dependencies": [],
-          "doc": null,
-          "name": "foo",
-          "namepath": "foo",
-          "parameters": [],
-          "priors": 0,
-          "private": false,
-          "quiet": false,
-          "shebang": false,
-        }
-      },
-      "settings": {
-        "allow_duplicate_recipes": false,
-        "allow_duplicate_variables": false,
-        "dotenv_filename": null,
-        "dotenv_load": false,
-        "dotenv_path": null,
-        "dotenv_required": false,
-        "export": false,
-        "fallback": false,
-        "positional_arguments": false,
-        "quiet": false,
-        "shell": null,
-        "tempdir" : null,
-        "unstable": false,
-        "ignore_comments": false,
-        "unstable": false,
-        "windows_powershell": false,
-        "windows_shell": null,
-        "working_directory" : null,
-      },
-      "unexports": [],
-      "warnings": [],
-      "source": source,
-  });
-  test
-    .args(["--dump", "--dump-format", "json"])
-    .stdout(format!("{}\n", serde_json::to_string(&json).unwrap()))
-    .run();
 }
 
 #[test]
@@ -142,52 +203,29 @@ fn private_assignment() {
       [private]
       bar := 'bar'
     ",
-    |dir| {
-      let source = dir.join("justfile").to_str().unwrap().to_owned();
-      json!({
-        "aliases": {},
-        "assignments": {
-          "_foo": {
-            "export": false,
-            "name": "_foo",
-            "value": "foo",
-            "private": true,
+    Module {
+      assignments: [
+        (
+          "_foo",
+          Assignment {
+            name: "_foo",
+            value: "foo",
+            private: true,
+            ..default()
           },
-          "bar": {
-            "export": false,
-            "name": "bar",
-            "value": "bar",
-            "private": true,
+        ),
+        (
+          "bar",
+          Assignment {
+            name: "bar",
+            value: "bar",
+            private: true,
+            ..default()
           },
-        },
-        "first": null,
-        "doc": null,
-        "groups": [],
-        "modules": {},
-        "recipes": {},
-        "settings": {
-          "allow_duplicate_recipes": false,
-          "allow_duplicate_variables": false,
-          "dotenv_filename": null,
-          "dotenv_load": false,
-          "dotenv_path": null,
-          "dotenv_required": false,
-          "export": false,
-          "fallback": false,
-          "ignore_comments": false,
-          "positional_arguments": false,
-          "quiet": false,
-          "shell": null,
-          "tempdir" : null,
-          "unstable": false,
-          "windows_powershell": false,
-          "windows_shell": null,
-          "working_directory" : null,
-        },
-        "unexports": [],
-        "warnings": [],
-        "source": source,
-      })
+        ),
+      ]
+      .into(),
+      ..default()
     },
   );
 }
@@ -200,56 +238,19 @@ fn body() {
         bar
         abc{{ 'xyz' }}def
     ",
-    |dir| {
-      let source = dir.join("justfile").to_str().unwrap().to_owned();
-      json!({
-        "aliases": {},
-        "assignments": {},
-        "first": "foo",
-        "doc": null,
-        "groups": [],
-        "modules": {},
-        "recipes": {
-          "foo": {
-            "attributes": [],
-            "body": [
-              ["bar"],
-              ["abc", ["xyz"], "def"],
-            ],
-            "dependencies": [],
-            "doc": null,
-            "name": "foo",
-            "namepath": "foo",
-            "parameters": [],
-            "priors": 0,
-            "private": false,
-            "quiet": false,
-            "shebang": false,
-          }
+    Module {
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          name: "foo",
+          namepath: "foo",
+          body: [json!(["bar"]), json!(["abc", ["xyz"], "def"])].into(),
+          ..default()
         },
-        "settings": {
-          "allow_duplicate_recipes": false,
-          "allow_duplicate_variables": false,
-          "dotenv_filename": null,
-          "dotenv_load": false,
-          "dotenv_path": null,
-          "dotenv_required": false,
-          "export": false,
-          "fallback": false,
-          "ignore_comments": false,
-          "positional_arguments": false,
-          "quiet": false,
-          "shell": null,
-          "tempdir" : null,
-          "unstable": false,
-          "windows_powershell": false,
-          "windows_shell": null,
-          "working_directory" : null,
-        },
-        "unexports": [],
-        "warnings": [],
-        "source": source,
-      })
+      )]
+      .into(),
+      ..default()
     },
   );
 }
@@ -261,69 +262,34 @@ fn dependencies() {
       foo:
       bar: foo
     ",
-    |dir| {
-      let source = dir.join("justfile").to_str().unwrap().to_owned();
-      json!({
-        "aliases": {},
-        "assignments": {},
-        "first": "foo",
-        "doc": null,
-        "groups": [],
-        "modules": {},
-        "recipes": {
-          "bar": {
-            "attributes": [],
-            "doc": null,
-            "name": "bar",
-            "namepath": "bar",
-            "body": [],
-            "dependencies": [{
-              "arguments": [],
-              "recipe": "foo"
-            }],
-            "parameters": [],
-            "priors": 1,
-            "private": false,
-            "quiet": false,
-            "shebang": false,
+    Module {
+      first: Some("foo"),
+      recipes: [
+        (
+          "foo",
+          Recipe {
+            name: "foo",
+            namepath: "foo",
+            ..default()
           },
-          "foo": {
-            "body": [],
-            "dependencies": [],
-            "doc": null,
-            "name": "foo",
-            "namepath": "foo",
-            "parameters": [],
-            "priors": 0,
-            "private": false,
-            "quiet": false,
-            "shebang": false,
-            "attributes": [],
-          }
-        },
-        "settings": {
-          "allow_duplicate_recipes": false,
-          "allow_duplicate_variables": false,
-          "dotenv_filename": null,
-          "dotenv_load": false,
-          "dotenv_path": null,
-          "dotenv_required": false,
-          "export": false,
-          "fallback": false,
-          "ignore_comments": false,
-          "positional_arguments": false,
-          "quiet": false,
-          "shell": null,
-          "tempdir" : null,
-          "unstable": false,
-          "windows_powershell": false,
-          "windows_shell": null,
-          "working_directory" : null,
-        },
-        "unexports": [],
-        "warnings": [],
-        "source": source,
-      })
+        ),
+        (
+          "bar",
+          Recipe {
+            name: "bar",
+            namepath: "bar",
+            dependencies: [Dependency {
+              recipe: "foo",
+              ..default()
+            }]
+            .into(),
+            priors: 1,
+            ..default()
+          },
+        ),
+      ]
+      .into(),
+      ..default()
     },
   );
 }
@@ -348,94 +314,61 @@ fn dependency_argument() {
         replace('a', 'b', 'c')
       )
     ",
-    |dir| {
-      let source = dir.join("justfile").to_str().unwrap().to_owned();
-      json!({
-        "aliases": {},
-        "first": "foo",
-        "doc": null,
-        "assignments": {
-          "x": {
-            "export": false,
-            "name": "x",
-            "value": "foo",
-            "private": false,
+    Module {
+      assignments: [(
+        "x",
+        Assignment {
+          name: "x",
+          value: "foo",
+          ..default()
+        },
+      )]
+      .into(),
+      first: Some("foo"),
+      recipes: [
+        (
+          "foo",
+          Recipe {
+            name: "foo",
+            namepath: "foo",
+            parameters: [Parameter {
+              kind: "star",
+              name: "args",
+              ..default()
+            }]
+            .into(),
+            ..default()
           },
-        },
-        "groups": [],
-        "modules": {},
-        "recipes": {
-          "bar": {
-            "doc": null,
-            "name": "bar",
-            "namepath": "bar",
-            "body": [],
-            "dependencies": [{
-              "arguments": [
-                "baz",
-                "baz",
-                ["concatenate", "a", "b"],
-                ["evaluate", "echo"],
-                ["variable", "x"],
-                ["if", ["==", "a", "b"], "c", "d"],
-                ["call", "arch"],
-                ["call", "env_var", "foo"],
-                ["call", "join", "a", "b"],
-                ["call", "replace", "a", "b", "c"],
-              ],
-              "recipe": "foo"
-            }],
-            "parameters": [],
-            "priors": 1,
-            "private": false,
-            "quiet": false,
-            "shebang": false,
-            "attributes": [],
+        ),
+        (
+          "bar",
+          Recipe {
+            name: "bar",
+            namepath: "bar",
+            dependencies: [Dependency {
+              recipe: "foo",
+              arguments: [
+                json!("baz"),
+                json!("baz"),
+                json!(["concatenate", "a", "b"]),
+                json!(["evaluate", "echo"]),
+                json!(["variable", "x"]),
+                json!(["if", ["==", "a", "b"], "c", "d"]),
+                json!(["call", "arch"]),
+                json!(["call", "env_var", "foo"]),
+                json!(["call", "join", "a", "b"]),
+                json!(["call", "replace", "a", "b", "c"]),
+              ]
+              .into(),
+            }]
+            .into(),
+            priors: 1,
+            ..default()
           },
-          "foo": {
-            "body": [],
-            "dependencies": [],
-            "doc": null,
-            "name": "foo",
-            "namepath": "foo",
-            "parameters": [
-              {
-                "name": "args",
-                "export": false,
-                "default": null,
-                "kind": "star",
-              }
-            ],
-            "priors": 0,
-            "private": false,
-            "quiet": false,
-            "shebang": false,
-            "attributes": [],
-          }
-        },
-        "settings": {
-          "allow_duplicate_recipes": false,
-          "allow_duplicate_variables": false,
-          "dotenv_filename": null,
-          "dotenv_load": false,
-          "dotenv_path": null,
-          "dotenv_required": false,
-          "export": false,
-          "fallback": false,
-          "ignore_comments": false,
-          "positional_arguments": false,
-          "quiet": false,
-          "shell": null,
-          "tempdir" : null,
-          "unstable": false,
-          "windows_powershell": false,
-          "windows_shell": null,
-          "working_directory" : null,
-        },
-        "unexports": [],
-        "warnings": [],
-        "source": source,
-      })
+        ),
+      ]
+      .into(),
+      ..default()
     },
   );
 }
@@ -450,66 +383,37 @@ fn duplicate_recipes() {
       foo:
       foo bar:
     ",
-    |dir| {
-      let source = dir.join("justfile").to_str().unwrap().to_owned();
-      json!({
-        "first": "foo",
-        "doc": null,
-        "aliases": {
-          "f": {
-            "attributes": [],
-            "name": "f",
-            "target": "foo",
-          }
+    Module {
+      aliases: [(
+        "f",
+        Alias {
+          name: "f",
+          target: "foo",
+          ..default()
         },
-        "assignments": {},
-        "groups": [],
-        "modules": {},
-        "recipes": {
-          "foo": {
-            "body": [],
-            "dependencies": [],
-            "doc": null,
-            "name": "foo",
-            "namepath": "foo",
-            "parameters": [
-              {
-                "name": "bar",
-                "export": false,
-                "default": null,
-                "kind": "singular",
-              },
-            ],
-            "priors": 0,
-            "private": false,
-            "quiet": false,
-            "shebang": false,
-            "attributes": [],
-          }
+      )]
+      .into(),
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          name: "foo",
+          namepath: "foo",
+          parameters: [Parameter {
+            kind: "singular",
+            name: "bar",
+            ..default()
+          }]
+          .into(),
+          ..default()
         },
-        "settings": {
-          "allow_duplicate_recipes": true,
-          "allow_duplicate_variables": false,
-          "dotenv_filename": null,
-          "dotenv_load": false,
-          "dotenv_path": null,
-          "dotenv_required": false,
-          "export": false,
-          "fallback": false,
-          "ignore_comments": false,
-          "positional_arguments": false,
-          "quiet": false,
-          "shell": null,
-          "tempdir" : null,
-          "unstable": false,
-          "windows_powershell": false,
-          "windows_shell": null,
-          "working_directory" : null,
-        },
-        "unexports": [],
-        "warnings": [],
-        "source": source,
-      })
+      )]
+      .into(),
+      settings: Settings {
+        allow_duplicate_recipes: true,
+        ..default()
+      },
+      ..default()
     },
   );
 }
@@ -522,138 +426,49 @@ fn duplicate_variables() {
       x := 'foo'
       x := 'bar'
     ",
-    |dir| {
-      let source = dir.join("justfile").to_str().unwrap().to_owned();
-      json!({
-        "aliases": {},
-        "assignments": {
-          "x": {
-            "export": false,
-            "name": "x",
-            "value": "bar",
-            "private": false,
-          }
+    Module {
+      assignments: [(
+        "x",
+        Assignment {
+          name: "x",
+          value: "bar",
+          ..default()
         },
-        "first": null,
-        "doc": null,
-        "groups": [],
-        "modules": {},
-        "recipes": {},
-        "settings": {
-          "allow_duplicate_recipes": false,
-          "allow_duplicate_variables": true,
-          "dotenv_filename": null,
-          "dotenv_load": false,
-          "dotenv_path": null,
-          "dotenv_required": false,
-          "export": false,
-          "fallback": false,
-          "ignore_comments": false,
-          "positional_arguments": false,
-          "quiet": false,
-          "shell": null,
-          "tempdir" : null,
-          "unstable": false,
-          "windows_powershell": false,
-          "windows_shell": null,
-          "working_directory" : null,
-        },
-        "unexports": [],
-        "warnings": [],
-        "source": source,
-      })
+      )]
+      .into(),
+      settings: Settings {
+        allow_duplicate_variables: true,
+        ..default()
+      },
+      ..default()
     },
   );
 }
 
 #[test]
 fn doc_comment() {
-  case("# hello\nfoo:", |dir| {
-    let source = dir.join("justfile").to_str().unwrap().to_owned();
-    json!({
-      "aliases": {},
-      "first": "foo",
-      "doc": null,
-      "assignments": {},
-      "groups": [],
-      "modules": {},
-      "recipes": {
-        "foo": {
-          "body": [],
-          "dependencies": [],
-          "doc": "hello",
-          "name": "foo",
-          "namepath": "foo",
-          "parameters": [],
-          "priors": 0,
-          "private": false,
-          "quiet": false,
-          "shebang": false,
-          "attributes": [],
-        }
-      },
-      "settings": {
-        "allow_duplicate_recipes": false,
-        "allow_duplicate_variables": false,
-        "dotenv_filename": null,
-        "dotenv_load": false,
-        "dotenv_path": null,
-        "dotenv_required": false,
-        "export": false,
-        "fallback": false,
-        "ignore_comments": false,
-        "positional_arguments": false,
-        "quiet": false,
-        "shell": null,
-        "tempdir" : null,
-        "unstable": false,
-        "windows_powershell": false,
-        "windows_shell": null,
-        "working_directory" : null,
-      },
-      "unexports": [],
-      "warnings": [],
-      "source": source,
-    })
-  });
+  case(
+    "# hello\nfoo:",
+    Module {
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          doc: Some("hello"),
+          name: "foo",
+          namepath: "foo",
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
+  );
 }
 
 #[test]
 fn empty_justfile() {
-  case("", |dir| {
-    let source = dir.join("justfile").to_str().unwrap().to_owned();
-    json!({
-      "aliases": {},
-      "assignments": {},
-      "first": null,
-      "doc": null,
-      "groups": [],
-      "modules": {},
-      "recipes": {},
-      "settings": {
-        "allow_duplicate_recipes": false,
-        "allow_duplicate_variables": false,
-        "dotenv_filename": null,
-        "dotenv_load": false,
-        "dotenv_path": null,
-        "dotenv_required": false,
-        "export": false,
-        "fallback": false,
-        "ignore_comments": false,
-        "positional_arguments": false,
-        "quiet": false,
-        "shell": null,
-        "tempdir" : null,
-        "unstable": false,
-        "windows_powershell": false,
-        "windows_shell": null,
-        "working_directory" : null,
-      },
-      "unexports": [],
-      "warnings": [],
-      "source": source,
-    })
-  });
+  case("", Module::default());
 }
 
 #[test]
@@ -667,153 +482,92 @@ fn parameters() {
       e *x:
       f $x:
     ",
-    |dir| {
-      let source = dir.join("justfile").to_str().unwrap().to_owned();
-      json!({
-        "aliases": {},
-        "first": "a",
-        "doc": null,
-        "assignments": {},
-        "groups": [],
-        "modules": {},
-        "recipes": {
-          "a": {
-            "attributes": [],
-            "body": [],
-            "dependencies": [],
-            "doc": null,
-            "name": "a",
-            "namepath": "a",
-            "parameters": [],
-            "priors": 0,
-            "private": false,
-            "quiet": false,
-            "shebang": false,
+    Module {
+      first: Some("a"),
+      recipes: [
+        (
+          "a",
+          Recipe {
+            name: "a",
+            namepath: "a",
+            ..default()
           },
-          "b": {
-            "body": [],
-            "dependencies": [],
-            "doc": null,
-            "name": "b",
-            "namepath": "b",
-            "parameters": [
-              {
-                "name": "x",
-                "export": false,
-                "default": null,
-                "kind": "singular",
-              },
-            ],
-            "priors": 0,
-            "private": false,
-            "quiet": false,
-            "shebang": false,
-            "attributes": [],
+        ),
+        (
+          "b",
+          Recipe {
+            name: "b",
+            namepath: "b",
+            parameters: [Parameter {
+              kind: "singular",
+              name: "x",
+              ..default()
+            }]
+            .into(),
+            ..default()
           },
-          "c": {
-            "body": [],
-            "dependencies": [],
-            "doc": null,
-            "name": "c",
-            "namepath": "c",
-            "parameters": [
-              {
-                "name": "x",
-                "export": false,
-                "default": "y",
-                "kind": "singular",
-              }
-            ],
-            "priors": 0,
-            "private": false,
-            "quiet": false,
-            "shebang": false,
-            "attributes": [],
+        ),
+        (
+          "c",
+          Recipe {
+            name: "c",
+            namepath: "c",
+            parameters: [Parameter {
+              default: Some("y"),
+              kind: "singular",
+              name: "x",
+              ..default()
+            }]
+            .into(),
+            ..default()
           },
-          "d": {
-            "body": [],
-            "dependencies": [],
-            "doc": null,
-            "name": "d",
-            "namepath": "d",
-            "parameters": [
-              {
-                "name": "x",
-                "export": false,
-                "default": null,
-                "kind": "plus",
-              }
-            ],
-            "priors": 0,
-            "private": false,
-            "quiet": false,
-            "shebang": false,
-            "attributes": [],
+        ),
+        (
+          "d",
+          Recipe {
+            name: "d",
+            namepath: "d",
+            parameters: [Parameter {
+              kind: "plus",
+              name: "x",
+              ..default()
+            }]
+            .into(),
+            ..default()
           },
-          "e": {
-            "body": [],
-            "dependencies": [],
-            "doc": null,
-            "name": "e",
-            "namepath": "e",
-            "parameters": [
-              {
-                "name": "x",
-                "export": false,
-                "default": null,
-                "kind": "star",
-              }
-            ],
-            "priors": 0,
-            "private": false,
-            "quiet": false,
-            "shebang": false,
-            "attributes": [],
+        ),
+        (
+          "e",
+          Recipe {
+            name: "e",
+            namepath: "e",
+            parameters: [Parameter {
+              kind: "star",
+              name: "x",
+              ..default()
+            }]
+            .into(),
+            ..default()
           },
-          "f": {
-            "body": [],
-            "dependencies": [],
-            "doc": null,
-            "name": "f",
-            "namepath": "f",
-            "parameters": [
-              {
-                "name": "x",
-                "export": true,
-                "default": null,
-                "kind": "singular",
-              }
-            ],
-            "priors": 0,
-            "private": false,
-            "quiet": false,
-            "shebang": false,
-            "attributes": [],
+        ),
+        (
+          "f",
+          Recipe {
+            name: "f",
+            namepath: "f",
+            parameters: [Parameter {
+              export: true,
+              kind: "singular",
+              name: "x",
+              ..default()
+            }]
+            .into(),
+            ..default()
           },
-        },
-        "settings": {
-          "allow_duplicate_recipes": false,
-          "allow_duplicate_variables": false,
-          "dotenv_filename": null,
-          "dotenv_load": false,
-          "dotenv_path": null,
-          "dotenv_required": false,
-          "export": false,
-          "fallback": false,
-          "ignore_comments": false,
-          "positional_arguments": false,
-          "quiet": false,
-          "shell": null,
-          "tempdir" : null,
-          "unstable": false,
-          "windows_powershell": false,
-          "windows_shell": null,
-          "working_directory" : null,
-        },
-        "unexports": [],
-        "warnings": [],
-        "source": source,
-      })
+        ),
+      ]
+      .into(),
+      ..default()
     },
   );
 }
@@ -826,263 +580,141 @@ fn priors() {
       b: a && c
       c:
     ",
-    |dir| {
-      let source = dir.join("justfile").to_str().unwrap().to_owned();
-      json!({
-        "aliases": {},
-        "assignments": {},
-        "first": "a",
-        "doc": null,
-        "groups": [],
-        "modules": {},
-        "recipes": {
-          "a": {
-            "body": [],
-            "dependencies": [],
-            "doc": null,
-            "name": "a",
-            "namepath": "a",
-            "parameters": [],
-            "priors": 0,
-            "private": false,
-            "quiet": false,
-            "shebang": false,
-            "attributes": [],
+    Module {
+      first: Some("a"),
+      recipes: [
+        (
+          "a",
+          Recipe {
+            name: "a",
+            namepath: "a",
+            ..default()
           },
-          "b": {
-            "body": [],
-            "dependencies": [
-              {
-                "arguments": [],
-                "recipe": "a",
+        ),
+        (
+          "b",
+          Recipe {
+            dependencies: [
+              Dependency {
+                recipe: "a",
+                ..default()
               },
-              {
-                "arguments": [],
-                "recipe": "c",
-              }
-            ],
-            "doc": null,
-            "name": "b",
-            "namepath": "b",
-            "private": false,
-            "quiet": false,
-            "shebang": false,
-            "attributes": [],
-            "parameters": [],
-            "priors": 1,
+              Dependency {
+                recipe: "c",
+                ..default()
+              },
+            ]
+            .into(),
+            name: "b",
+            namepath: "b",
+            priors: 1,
+            ..default()
           },
-          "c": {
-            "body": [],
-            "dependencies": [],
-            "doc": null,
-            "name": "c",
-            "namepath": "c",
-            "parameters": [],
-            "private": false,
-            "quiet": false,
-            "shebang": false,
-            "attributes": [],
-            "parameters": [],
-            "priors": 0,
+        ),
+        (
+          "c",
+          Recipe {
+            name: "c",
+            namepath: "c",
+            ..default()
           },
-        },
-        "settings": {
-          "allow_duplicate_recipes": false,
-          "allow_duplicate_variables": false,
-          "dotenv_filename": null,
-          "dotenv_load": false,
-          "dotenv_path": null,
-          "dotenv_required": false,
-          "export": false,
-          "fallback": false,
-          "ignore_comments": false,
-          "positional_arguments": false,
-          "quiet": false,
-          "shell": null,
-          "tempdir" : null,
-          "unstable": false,
-          "windows_powershell": false,
-          "windows_shell": null,
-          "working_directory" : null,
-        },
-        "unexports": [],
-        "warnings": [],
-        "source": source,
-      })
+        ),
+      ]
+      .into(),
+      ..default()
     },
   );
 }
 
 #[test]
 fn private() {
-  case("_foo:", |dir| {
-    let source = dir.join("justfile").to_str().unwrap().to_owned();
-    json!({
-      "aliases": {},
-      "assignments": {},
-      "first": "_foo",
-      "doc": null,
-      "groups": [],
-      "modules": {},
-      "recipes": {
-        "_foo": {
-          "body": [],
-          "dependencies": [],
-          "doc": null,
-          "name": "_foo",
-          "namepath": "_foo",
-          "parameters": [],
-          "priors": 0,
-          "private": true,
-          "quiet": false,
-          "shebang": false,
-          "attributes": [],
-        }
-      },
-      "settings": {
-        "allow_duplicate_recipes": false,
-        "allow_duplicate_variables": false,
-        "dotenv_filename": null,
-        "dotenv_load": false,
-        "dotenv_path": null,
-        "dotenv_required": false,
-        "export": false,
-        "fallback": false,
-        "ignore_comments": false,
-        "positional_arguments": false,
-        "quiet": false,
-        "shell": null,
-        "tempdir" : null,
-        "unstable": false,
-        "windows_powershell": false,
-        "windows_shell": null,
-        "working_directory" : null,
-      },
-      "unexports": [],
-      "warnings": [],
-      "source": source,
-    })
-  });
+  case(
+    "_foo:",
+    Module {
+      first: Some("_foo"),
+      recipes: [(
+        "_foo",
+        Recipe {
+          name: "_foo",
+          namepath: "_foo",
+          private: true,
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
+  );
 }
 
 #[test]
 fn quiet() {
-  case("@foo:", |dir| {
-    let source = dir.join("justfile").to_str().unwrap().to_owned();
-    json!({
-      "aliases": {},
-      "assignments": {},
-      "first": "foo",
-      "doc": null,
-      "groups": [],
-      "modules": {},
-      "recipes": {
-        "foo": {
-          "body": [],
-          "dependencies": [],
-          "doc": null,
-          "name": "foo",
-          "namepath": "foo",
-          "parameters": [],
-          "priors": 0,
-          "private": false,
-          "quiet": true,
-          "shebang": false,
-          "attributes": [],
-        }
-      },
-      "settings": {
-        "allow_duplicate_recipes": false,
-        "allow_duplicate_variables": false,
-        "dotenv_filename": null,
-        "dotenv_load": false,
-        "dotenv_path": null,
-        "dotenv_required": false,
-        "export": false,
-        "fallback": false,
-        "ignore_comments": false,
-        "positional_arguments": false,
-        "quiet": false,
-        "shell": null,
-        "tempdir" : null,
-        "unstable": false,
-        "windows_powershell": false,
-        "windows_shell": null,
-        "working_directory" : null,
-      },
-      "unexports": [],
-      "warnings": [],
-      "source": source,
-    })
-  });
+  case(
+    "@foo:",
+    Module {
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          name: "foo",
+          namepath: "foo",
+          quiet: true,
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
+  );
 }
 
 #[test]
 fn settings() {
   case(
     "
-      set dotenv-load
+      set allow-duplicate-recipes
       set dotenv-filename := \"filename\"
+      set dotenv-load
       set dotenv-path := \"path\"
       set export
       set fallback
+      set ignore-comments
       set positional-arguments
       set quiet
-      set ignore-comments
       set shell := ['a', 'b', 'c']
       foo:
         #!bar
     ",
-    |dir| {
-      let source = dir.join("justfile").to_str().unwrap().to_owned();
-      json!({
-        "aliases": {},
-        "assignments": {},
-        "first": "foo",
-        "doc": null,
-        "groups": [],
-        "modules": {},
-        "recipes": {
-          "foo": {
-            "body": [["#!bar"]],
-            "dependencies": [],
-            "doc": null,
-            "name": "foo",
-            "namepath": "foo",
-            "parameters": [],
-            "priors": 0,
-            "private": false,
-            "quiet": false,
-            "shebang": true,
-            "attributes": [],
-          }
+    Module {
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          name: "foo",
+          namepath: "foo",
+          shebang: true,
+          body: [json!(["#!bar"])].into(),
+          ..default()
         },
-        "settings": {
-          "allow_duplicate_recipes": false,
-          "allow_duplicate_variables": false,
-          "dotenv_filename": "filename",
-          "dotenv_load": true,
-          "dotenv_path": "path",
-          "dotenv_required": false,
-          "export": true,
-          "fallback": true,
-          "ignore_comments": true,
-          "positional_arguments": true,
-          "quiet": true,
-          "shell": {
-            "arguments": ["b", "c"],
-            "command": "a",
-          },
-          "tempdir": null,
-          "unstable": false,
-          "windows_powershell": false,
-          "windows_shell": null,
-          "working_directory" : null,
-        },
-        "unexports": [],
-        "warnings": [],
-        "source": source,
-      })
+      )]
+      .into(),
+      settings: Settings {
+        allow_duplicate_recipes: true,
+        dotenv_filename: Some("filename"),
+        dotenv_path: Some("path"),
+        dotenv_load: true,
+        export: true,
+        fallback: true,
+        ignore_comments: true,
+        positional_arguments: true,
+        quiet: true,
+        shell: Some(Interpreter {
+          arguments: ["b", "c"].into(),
+          command: "a",
+        }),
+        ..default()
+      },
+      ..default()
     },
   );
 }
@@ -1094,107 +726,42 @@ fn shebang() {
       foo:
         #!bar
     ",
-    |dir| {
-      let source = dir.join("justfile").to_str().unwrap().to_owned();
-      json!({
-        "aliases": {},
-        "assignments": {},
-        "first": "foo",
-        "doc": null,
-        "groups": [],
-        "modules": {},
-        "recipes": {
-          "foo": {
-            "body": [["#!bar"]],
-            "dependencies": [],
-            "doc": null,
-            "name": "foo",
-            "namepath": "foo",
-            "parameters": [],
-            "priors": 0,
-            "private": false,
-            "quiet": false,
-            "shebang": true,
-            "attributes": [],
-          }
+    Module {
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          name: "foo",
+          namepath: "foo",
+          shebang: true,
+          body: [json!(["#!bar"])].into(),
+          ..default()
         },
-        "settings": {
-          "allow_duplicate_recipes": false,
-          "allow_duplicate_variables": false,
-          "dotenv_filename": null,
-          "dotenv_load": false,
-          "dotenv_path": null,
-          "dotenv_required": false,
-          "export": false,
-          "fallback": false,
-          "ignore_comments": false,
-          "positional_arguments": false,
-          "quiet": false,
-          "shell": null,
-          "tempdir": null,
-          "unstable": false,
-          "windows_powershell": false,
-          "windows_shell": null,
-          "working_directory" : null,
-        },
-        "unexports": [],
-        "warnings": [],
-        "source": source,
-      })
+      )]
+      .into(),
+      ..default()
     },
   );
 }
 
 #[test]
 fn simple() {
-  case("foo:", |dir| {
-    let source = dir.join("justfile").to_str().unwrap().to_owned();
-    json!({
-      "aliases": {},
-      "assignments": {},
-      "first": "foo",
-      "doc": null,
-      "groups": [],
-      "modules": {},
-      "recipes": {
-        "foo": {
-          "body": [],
-          "dependencies": [],
-          "doc": null,
-          "name": "foo",
-          "namepath": "foo",
-          "parameters": [],
-          "priors": 0,
-          "private": false,
-          "quiet": false,
-          "shebang": false,
-          "attributes": [],
-        }
-      },
-      "settings": {
-        "allow_duplicate_recipes": false,
-        "allow_duplicate_variables": false,
-        "dotenv_filename": null,
-        "dotenv_load": false,
-        "dotenv_path": null,
-        "dotenv_required": false,
-        "export": false,
-        "fallback": false,
-        "ignore_comments": false,
-        "positional_arguments": false,
-        "quiet": false,
-        "shell": null,
-        "tempdir": null,
-        "unstable": false,
-        "windows_powershell": false,
-        "windows_shell": null,
-        "working_directory" : null,
-      },
-      "unexports": [],
-      "warnings": [],
-      "source": source,
-    })
-  });
+  case(
+    "foo:",
+    Module {
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          name: "foo",
+          namepath: "foo",
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
+  );
 }
 
 #[test]
@@ -1204,285 +771,85 @@ fn attribute() {
       [no-exit-message]
       foo:
     ",
-    |dir| {
-      let source = dir.join("justfile").to_str().unwrap().to_owned();
-      json!({
-        "aliases": {},
-        "assignments": {},
-        "first": "foo",
-        "doc": null,
-        "groups": [],
-        "modules": {},
-        "recipes": {
-          "foo": {
-            "attributes": ["no-exit-message"],
-            "body": [],
-            "dependencies": [],
-            "doc": null,
-            "name": "foo",
-            "namepath": "foo",
-            "parameters": [],
-            "priors": 0,
-            "private": false,
-            "quiet": false,
-            "shebang": false,
-          }
+    Module {
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          attributes: [json!("no-exit-message")].into(),
+          name: "foo",
+          namepath: "foo",
+          ..default()
         },
-        "settings": {
-          "allow_duplicate_recipes": false,
-          "allow_duplicate_variables": false,
-          "dotenv_filename": null,
-          "dotenv_load": false,
-          "dotenv_path": null,
-          "dotenv_required": false,
-          "export": false,
-          "fallback": false,
-          "positional_arguments": false,
-          "quiet": false,
-          "shell": null,
-          "tempdir" : null,
-          "unstable": false,
-          "ignore_comments": false,
-          "windows_powershell": false,
-          "windows_shell": null,
-          "working_directory" : null,
-        },
-        "unexports": [],
-        "warnings": [],
-        "source": source,
-      })
+      )]
+      .into(),
+      ..default()
     },
   );
 }
 
 #[test]
 fn module() {
-  Test::new()
-    .justfile(
-      "
+  case_with_submodule(
+    "
       # hello
       mod foo
     ",
-    )
-    .tree(tree! {
-      "foo.just": "bar:",
-    })
-    .args(["--dump", "--dump-format", "json"])
-    .stdout_with_tempdir(|dir| {
-      let source = dir
-        .path()
-        .canonicalize()
-        .unwrap()
-        .join("justfile")
-        .to_str()
-        .unwrap()
-        .to_owned();
-      let foo_just = dir
-        .path()
-        .canonicalize()
-        .unwrap()
-        .join("foo.just")
-        .to_str()
-        .unwrap()
-        .to_owned();
-      format!(
-        "{}\n",
-        serde_json::to_string(&json!({
-          "aliases": {},
-          "assignments": {},
-          "first": null,
-          "doc": null,
-          "groups": [],
-          "modules": {
-            "foo": {
-              "aliases": {},
-              "assignments": {},
-              "first": "bar",
-              "doc": "hello",
-              "groups": [],
-              "modules": {},
-              "recipes": {
-                "bar": {
-                  "attributes": [],
-                  "body": [],
-                  "dependencies": [],
-                  "doc": null,
-                  "name": "bar",
-                  "namepath": "foo::bar",
-                  "parameters": [],
-                  "priors": 0,
-                  "private": false,
-                  "quiet": false,
-                  "shebang": false,
-                }
-              },
-              "settings": {
-                "allow_duplicate_recipes": false,
-                "allow_duplicate_variables": false,
-                "dotenv_filename": null,
-                "dotenv_load": false,
-                "dotenv_path": null,
-                "dotenv_required": false,
-                "export": false,
-                "fallback": false,
-                "positional_arguments": false,
-                "quiet": false,
-                "shell": null,
-                "tempdir" : null,
-                "unstable": false,
-                "ignore_comments": false,
-                "windows_powershell": false,
-                "windows_shell": null,
-                "working_directory" : null,
-              },
-              "unexports": [],
-              "warnings": [],
-              "source": foo_just
+    Some(("foo.just", "bar:")),
+    Module {
+      modules: [(
+        "foo",
+        Module {
+          doc: Some("hello"),
+          first: Some("bar"),
+          recipes: [(
+            "bar",
+            Recipe {
+              name: "bar",
+              namepath: "foo::bar",
+              ..default()
             },
-          },
-          "recipes": {},
-          "settings": {
-            "allow_duplicate_recipes": false,
-            "allow_duplicate_variables": false,
-            "dotenv_filename": null,
-            "dotenv_load": false,
-            "dotenv_path": null,
-            "dotenv_required": false,
-            "export": false,
-            "fallback": false,
-            "positional_arguments": false,
-            "quiet": false,
-            "shell": null,
-            "tempdir" : null,
-            "unstable": false,
-            "ignore_comments": false,
-            "windows_powershell": false,
-            "windows_shell": null,
-            "working_directory" : null,
-          },
-          "unexports": [],
-          "warnings": [],
-          "source": source
-        }))
-        .unwrap()
-      )
-    })
-    .run();
+          )]
+          .into(),
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
+  );
 }
 
 #[test]
 fn module_group() {
-  Test::new()
-    .justfile(
-      "
+  case_with_submodule(
+    "
       [group('alpha')]
       mod foo
     ",
-    )
-    .tree(tree! {
-      "foo.just": "bar:",
-    })
-    .args(["--dump", "--dump-format", "json"])
-    .stdout_with_tempdir(|dir| {
-      let source = dir
-        .path()
-        .canonicalize()
-        .unwrap()
-        .join("justfile")
-        .to_str()
-        .unwrap()
-        .to_owned();
-      let foo_just = dir
-        .path()
-        .canonicalize()
-        .unwrap()
-        .join("foo.just")
-        .to_str()
-        .unwrap()
-        .to_owned();
-      format!(
-        "{}\n",
-        serde_json::to_string(&json!({
-          "aliases": {},
-          "assignments": {},
-          "first": null,
-          "doc": null,
-          "groups": [],
-          "modules": {
-            "foo": {
-              "aliases": {},
-              "assignments": {},
-              "first": "bar",
-              "doc": null,
-              "groups": ["alpha"],
-              "modules": {},
-              "recipes": {
-                "bar": {
-                  "attributes": [],
-                  "body": [],
-                  "dependencies": [],
-                  "doc": null,
-                  "name": "bar",
-                  "namepath": "foo::bar",
-                  "parameters": [],
-                  "priors": 0,
-                  "private": false,
-                  "quiet": false,
-                  "shebang": false,
-                }
-              },
-              "settings": {
-                "allow_duplicate_recipes": false,
-                "allow_duplicate_variables": false,
-                "dotenv_filename": null,
-                "dotenv_load": false,
-                "dotenv_path": null,
-                "dotenv_required": false,
-                "export": false,
-                "fallback": false,
-                "positional_arguments": false,
-                "quiet": false,
-                "shell": null,
-                "tempdir" : null,
-                "unstable": false,
-                "ignore_comments": false,
-                "windows_powershell": false,
-                "windows_shell": null,
-                "working_directory" : null,
-              },
-              "unexports": [],
-              "warnings": [],
-              "source": foo_just,
+    Some(("foo.just", "bar:")),
+    Module {
+      modules: [(
+        "foo",
+        Module {
+          first: Some("bar"),
+          groups: ["alpha"].into(),
+          recipes: [(
+            "bar",
+            Recipe {
+              name: "bar",
+              namepath: "foo::bar",
+              ..default()
             },
-          },
-          "recipes": {},
-          "settings": {
-            "allow_duplicate_recipes": false,
-            "allow_duplicate_variables": false,
-            "dotenv_filename": null,
-            "dotenv_load": false,
-            "dotenv_path": null,
-            "dotenv_required": false,
-            "export": false,
-            "fallback": false,
-            "positional_arguments": false,
-            "quiet": false,
-            "shell": null,
-            "tempdir" : null,
-            "unstable": false,
-            "ignore_comments": false,
-            "windows_powershell": false,
-            "windows_shell": null,
-            "working_directory" : null,
-          },
-          "unexports": [],
-          "warnings": [],
-          "source": source,
-        }))
-        .unwrap()
-      )
-    })
-    .run();
+          )]
+          .into(),
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
+  );
 }
 
 #[test]
@@ -1492,53 +859,20 @@ fn recipes_with_private_attribute_are_private() {
       [private]
       foo:
     ",
-    |dir| {
-      let source = dir.join("justfile").to_str().unwrap().to_owned();
-      json!({
-        "aliases": {},
-        "assignments": {},
-        "first": "foo",
-        "doc": null,
-        "groups": [],
-        "modules": {},
-        "recipes": {
-          "foo": {
-            "attributes": ["private"],
-            "body": [],
-            "dependencies": [],
-            "doc": null,
-            "name": "foo",
-            "namepath": "foo",
-            "parameters": [],
-            "priors": 0,
-            "private": true,
-            "quiet": false,
-            "shebang": false,
-          }
+    Module {
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          attributes: [json!("private")].into(),
+          name: "foo",
+          namepath: "foo",
+          private: true,
+          ..default()
         },
-        "settings": {
-          "allow_duplicate_recipes": false,
-          "allow_duplicate_variables": false,
-          "dotenv_filename": null,
-          "dotenv_load": false,
-          "dotenv_path": null,
-          "dotenv_required": false,
-          "export": false,
-          "fallback": false,
-          "ignore_comments": false,
-          "positional_arguments": false,
-          "quiet": false,
-          "shell": null,
-          "tempdir" : null,
-          "unstable": false,
-          "windows_powershell": false,
-          "windows_shell": null,
-          "working_directory" : null,
-        },
-        "unexports": [],
-        "warnings": [],
-        "source": source,
-      })
+      )]
+      .into(),
+      ..default()
     },
   );
 }
@@ -1551,53 +885,20 @@ fn doc_attribute_overrides_comment() {
       [doc('ATTRIBUTE')]
       foo:
     ",
-    |dir| {
-      let source = dir.join("justfile").to_str().unwrap().to_owned();
-      json!({
-        "aliases": {},
-        "assignments": {},
-        "first": "foo",
-        "doc": null,
-        "groups": [],
-        "modules": {},
-        "recipes": {
-          "foo": {
-            "attributes": [{"doc": "ATTRIBUTE"}],
-            "body": [],
-            "dependencies": [],
-            "doc": "ATTRIBUTE",
-            "name": "foo",
-            "namepath": "foo",
-            "parameters": [],
-            "priors": 0,
-            "private": false,
-            "quiet": false,
-            "shebang": false,
-          }
+    Module {
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          attributes: [json!({"doc": "ATTRIBUTE"})].into(),
+          doc: Some("ATTRIBUTE"),
+          name: "foo",
+          namepath: "foo",
+          ..default()
         },
-        "settings": {
-          "allow_duplicate_recipes": false,
-          "allow_duplicate_variables": false,
-          "dotenv_filename": null,
-          "dotenv_load": false,
-          "dotenv_path": null,
-          "dotenv_required": false,
-          "export": false,
-          "fallback": false,
-          "ignore_comments": false,
-          "positional_arguments": false,
-          "quiet": false,
-          "shell": null,
-          "tempdir" : null,
-          "unstable": false,
-          "windows_powershell": false,
-          "windows_shell": null,
-          "working_directory" : null,
-        },
-        "unexports": [],
-        "warnings": [],
-        "source": source
-      })
+      )]
+      .into(),
+      ..default()
     },
   );
 }

@@ -141,18 +141,18 @@ const ZSH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
     r"    local common=(",
   ),
   (
-    r"'*--set=[Override <VARIABLE> with <VALUE>]:VARIABLE: :VARIABLE: ' \",
+    r"'*--set=[Override <VARIABLE> with <VALUE>]:VARIABLE:_default:VARIABLE:_default' \",
     r"'*--set=[Override <VARIABLE> with <VALUE>]: :(_just_variables)' \",
   ),
   (
-    r"'()-s+[Show recipe at <PATH>]:PATH: ' \
-'()--show=[Show recipe at <PATH>]:PATH: ' \",
+    r"'()-s+[Show recipe at <PATH>]:PATH:_default' \
+'()--show=[Show recipe at <PATH>]:PATH:_default' \",
     r"'-s+[Show recipe at <PATH>]: :(_just_commands)' \
 '--show=[Show recipe at <PATH>]: :(_just_commands)' \",
   ),
   (
     "'*::ARGUMENTS -- Overrides and recipe(s) to run, defaulting to the first recipe in the \
-     justfile:' \\
+     justfile:_default' \\
 && ret=0",
     r#")
 

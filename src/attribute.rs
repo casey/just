@@ -6,7 +6,7 @@ use super::*;
 #[strum(serialize_all = "kebab-case")]
 #[serde(rename_all = "kebab-case")]
 #[strum_discriminants(name(AttributeDiscriminant))]
-#[strum_discriminants(derive(EnumString))]
+#[strum_discriminants(derive(EnumString, Ord, PartialOrd))]
 #[strum_discriminants(strum(serialize_all = "kebab-case"))]
 pub(crate) enum Attribute<'src> {
   Confirm(Option<StringLiteral<'src>>),
@@ -23,13 +23,14 @@ pub(crate) enum Attribute<'src> {
   Script(Option<Interpreter<'src>>),
   Unix,
   Windows,
+  WorkingDirectory(StringLiteral<'src>),
 }
 
 impl AttributeDiscriminant {
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
       Self::Confirm | Self::Doc => 0..=1,
-      Self::Group | Self::Extension => 1..=1,
+      Self::Group | Self::Extension | Self::WorkingDirectory => 1..=1,
       Self::Linux
       | Self::Macos
       | Self::NoCd
@@ -93,15 +94,26 @@ impl<'src> Attribute<'src> {
       }),
       AttributeDiscriminant::Unix => Self::Unix,
       AttributeDiscriminant::Windows => Self::Windows,
+      AttributeDiscriminant::WorkingDirectory => {
+        Self::WorkingDirectory(arguments.into_iter().next().unwrap())
+      }
     })
+  }
+
+  pub(crate) fn discriminant(&self) -> AttributeDiscriminant {
+    self.into()
   }
 
   pub(crate) fn name(&self) -> &'static str {
     self.into()
   }
+
+  pub(crate) fn repeatable(&self) -> bool {
+    matches!(self, Attribute::Group(_))
+  }
 }
 
-impl<'src> Display for Attribute<'src> {
+impl Display for Attribute<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(f, "{}", self.name())?;
 
@@ -109,7 +121,8 @@ impl<'src> Display for Attribute<'src> {
       Self::Confirm(Some(argument))
       | Self::Doc(Some(argument))
       | Self::Extension(argument)
-      | Self::Group(argument) => write!(f, "({argument})")?,
+      | Self::Group(argument)
+      | Self::WorkingDirectory(argument) => write!(f, "({argument})")?,
       Self::Script(Some(shell)) => write!(f, "({shell})")?,
       Self::Confirm(None)
       | Self::Doc(None)

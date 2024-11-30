@@ -426,7 +426,7 @@ impl<'src> Justfile<'src> {
   }
 }
 
-impl<'src> ColorDisplay for Justfile<'src> {
+impl ColorDisplay for Justfile<'_> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     let mut items = self.recipes.len() + self.assignments.len() + self.aliases.len();
     for (name, assignment) in &self.assignments {

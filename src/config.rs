@@ -9,6 +9,7 @@ use {
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Config {
+  pub(crate) allow_missing: bool,
   pub(crate) check: bool,
   pub(crate) color: Color,
   pub(crate) command_color: Option<ansi_term::Color>,
@@ -80,6 +81,7 @@ mod cmd {
 }
 
 mod arg {
+  pub(crate) const ALLOW_MISSING: &str = "ALLOW-MISSING";
   pub(crate) const ARGUMENTS: &str = "ARGUMENTS";
   pub(crate) const CHECK: &str = "CHECK";
   pub(crate) const CHOOSER: &str = "CHOOSER";
@@ -314,6 +316,13 @@ impl Config {
           .action(ArgAction::SetTrue)
           .help("Suppress all output")
           .conflicts_with(arg::DRY_RUN),
+      )
+      .arg(
+        Arg::new(arg::ALLOW_MISSING)
+          .long("allow-missing")
+          .env("JUST_ALLOW_MISSING")
+          .action(ArgAction::SetTrue)
+          .help("Ignore missing recipe and module errors"),
       )
       .arg(
         Arg::new(arg::SET)
@@ -706,6 +715,7 @@ impl Config {
     let explain = matches.get_flag(arg::EXPLAIN);
 
     Ok(Self {
+      allow_missing: matches.get_flag(arg::ALLOW_MISSING),
       check: matches.get_flag(arg::CHECK),
       color: (*matches.get_one::<UseColor>(arg::COLOR).unwrap()).into(),
       command_color: matches

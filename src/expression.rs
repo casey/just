@@ -60,7 +60,7 @@ impl<'src> Expression<'src> {
   }
 }
 
-impl<'src> Display for Expression<'src> {
+impl Display for Expression<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     match self {
       Self::And { lhs, rhs } => write!(f, "{lhs} && {rhs}"),
@@ -86,7 +86,7 @@ impl<'src> Display for Expression<'src> {
   }
 }
 
-impl<'src> Serialize for Expression<'src> {
+impl Serialize for Expression<'_> {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
   where
     S: Serializer,

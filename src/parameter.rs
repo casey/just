@@ -13,7 +13,7 @@ pub(crate) struct Parameter<'src> {
   pub(crate) name: Name<'src>,
 }
 
-impl<'src> ColorDisplay for Parameter<'src> {
+impl ColorDisplay for Parameter<'_> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     if let Some(prefix) = self.kind.prefix() {
       write!(f, "{}", color.annotation().paint(prefix))?;
