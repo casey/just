@@ -165,6 +165,8 @@ impl<'src, D> Recipe<'src, D> {
       eprintln!("{prefix}===> Running recipe `{}`...{suffix}", self.name);
     }
 
+    eprintln!("::group::{}", self.name);
+
     if context.config.explain {
       if let Some(doc) = self.doc() {
         eprintln!("{prefix}#### {doc}{suffix}");
@@ -173,11 +175,15 @@ impl<'src, D> Recipe<'src, D> {
 
     let evaluator = Evaluator::new(context, is_dependency, scope);
 
-    if self.is_script() {
+    let out = if self.is_script() {
       self.run_script(context, scope, positional, evaluator)
     } else {
       self.run_linewise(context, scope, positional, evaluator)
-    }
+    };
+
+    eprintln!("::endgroup::");
+
+    out
   }
 
   fn run_linewise<'run>(
@@ -257,7 +263,7 @@ impl<'src, D> Recipe<'src, D> {
           );
         }
 
-        eprintln!("::group::{}", color.paint(command));
+        // eprintln!("::group::{}", color.paint(command));
       }
 
       if config.dry_run {
@@ -292,7 +298,7 @@ impl<'src, D> Recipe<'src, D> {
 
       match InterruptHandler::guard(|| cmd.status()) {
         Ok(exit_status) => {
-          eprintln!("::endgroup::");
+          // eprintln!("::endgroup::");
           if let Some(code) = exit_status.code() {
             if code != 0 && !infallible_line {
               return Err(Error::Code {
