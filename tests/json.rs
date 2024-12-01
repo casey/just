@@ -120,12 +120,16 @@ fn case_with_submodule(justfile: &str, submodule: Option<(&str, &str)>, expected
     expected
   };
 
-  let modules = expected.modules.iter().map(|(key, module)| {
-    let module_source = test.new_justfile_path(module.source.clone());
-    let mut module = module.clone();
-    module.source = module_source;
-    (*key, module.clone())
-  }).collect();
+  let modules = expected
+    .modules
+    .iter()
+    .map(|(key, module)| {
+      let module_source = test.new_justfile_path(module.source.clone());
+      let mut module = module.clone();
+      module.source = module_source;
+      (*key, module.clone())
+    })
+    .collect();
   let mut expected = expected;
   expected.modules = modules;
 
