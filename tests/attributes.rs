@@ -8,6 +8,7 @@ fn all() {
       [macos]
       [windows]
       [linux]
+      [openbsd]
       [unix]
       [no-exit-message]
       foo:
@@ -48,7 +49,7 @@ fn multiple_attributes_one_line() {
   Test::new()
     .justfile(
       "
-      [macos, windows,linux]
+      [macos, windows,linux,openbsd]
       [no-exit-message]
       foo:
         exit 1
@@ -64,7 +65,7 @@ fn multiple_attributes_one_line_error_message() {
   Test::new()
     .justfile(
       "
-      [macos, windows linux]
+      [macos, windows linux,openbsd]
       [no-exit-message]
       foo:
         exit 1
@@ -75,7 +76,7 @@ fn multiple_attributes_one_line_error_message() {
         error: Expected ']', ':', ',', or '(', but found identifier
          ——▶ justfile:1:17
           │
-        1 │ [macos, windows linux]
+        1 │ [macos, windows linux,openbsd]
           │                 ^^^^^
           ",
     )
@@ -88,7 +89,7 @@ fn multiple_attributes_one_line_duplicate_check() {
   Test::new()
     .justfile(
       "
-      [macos, windows, linux]
+      [macos, windows, linux, openbsd]
       [linux]
       foo:
         exit 1

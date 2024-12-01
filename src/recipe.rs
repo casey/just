@@ -116,12 +116,14 @@ impl<'src, D> Recipe<'src, D> {
     let windows = self.attributes.contains(&Attribute::Windows);
     let linux = self.attributes.contains(&Attribute::Linux);
     let macos = self.attributes.contains(&Attribute::Macos);
+    let openbsd = self.attributes.contains(&Attribute::Openbsd);
     let unix = self.attributes.contains(&Attribute::Unix);
 
-    (!windows && !linux && !macos && !unix)
+    (!windows && !linux && !macos && !openbsd && !unix)
       || (cfg!(target_os = "windows") && windows)
       || (cfg!(target_os = "linux") && (linux || unix))
       || (cfg!(target_os = "macos") && (macos || unix))
+      || (cfg!(target_os = "openbsd") && (openbsd || unix))
       || (cfg!(windows) && windows)
       || (cfg!(unix) && unix)
   }
