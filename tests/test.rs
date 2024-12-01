@@ -121,12 +121,20 @@ impl Test {
 
   pub(crate) fn justfile_path(&self) -> PathBuf {
     // Doing canonicalize for tests in MacOS (Github actions)
-    self.tempdir.path().canonicalize().unwrap().join("justfile")
+    if cfg!(target_os = "macos") {
+      self.tempdir.path().canonicalize().unwrap().join("justfile")
+    } else {
+      self.tempdir.path().join("justfile")
+    }
   }
 
   pub(crate) fn new_justfile_path(&self, justfile: PathBuf) -> PathBuf {
     // Doing canonicalize for tests in MacOS (Github actions)
-    self.tempdir.path().canonicalize().unwrap().join(justfile)
+    if cfg!(target_os = "macos") {
+      self.tempdir.path().canonicalize().unwrap().join(justfile)
+    } else {
+      self.tempdir.path().join(justfile)
+    }
   }
 
   #[cfg(unix)]
