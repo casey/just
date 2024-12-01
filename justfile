@@ -14,7 +14,7 @@ watch +args='test':
 
 [group: 'test']
 test:
-  cargo test --all
+  LANG=POSIX cargo test --all
 
 [group: 'check']
 ci: forbid test build-book clippy
