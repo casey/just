@@ -4168,7 +4168,7 @@ checking the program's stdout, stderr, and exit code .
 
 5. Implement the feature.
 
-6. Run `just ci` to make sure that all tests, lints, and checks pass.
+6. Install `ripgrep` and run `just ci` to make sure that all tests, lints, and checks pass.
 
 7. Open a PR with the new code that is editable by maintainers. PRs often
    require rebasing and minor tweaks. If the PR is not editable by maintainers,
