@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize, Clone)]
 #[serde(deny_unknown_fields)]
 struct Alias<'a> {
   attributes: Vec<&'a str>,
@@ -8,7 +8,7 @@ struct Alias<'a> {
   target: &'a str,
 }
 
-#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize, Clone)]
 #[serde(deny_unknown_fields)]
 struct Assignment<'a> {
   export: bool,
@@ -17,21 +17,21 @@ struct Assignment<'a> {
   value: &'a str,
 }
 
-#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize, Clone)]
 #[serde(deny_unknown_fields)]
 struct Dependency<'a> {
   arguments: Vec<Value>,
   recipe: &'a str,
 }
 
-#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize, Clone)]
 #[serde(deny_unknown_fields)]
 struct Interpreter<'a> {
   arguments: Vec<&'a str>,
   command: &'a str,
 }
 
-#[derive(Debug, Default, PartialEq, Serialize)]
+#[derive(Debug, Default, PartialEq, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
 struct Module<'a> {
   aliases: BTreeMap<&'a str, Alias<'a>>,
@@ -44,9 +44,10 @@ struct Module<'a> {
   settings: Settings<'a>,
   unexports: Vec<&'a str>,
   warnings: Vec<&'a str>,
+  source: PathBuf,
 }
 
-#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize, Clone)]
 #[serde(deny_unknown_fields)]
 struct Parameter<'a> {
   default: Option<&'a str>,
@@ -55,7 +56,7 @@ struct Parameter<'a> {
   name: &'a str,
 }
 
-#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize, Clone)]
 #[serde(deny_unknown_fields)]
 struct Recipe<'a> {
   attributes: Vec<Value>,
@@ -71,7 +72,7 @@ struct Recipe<'a> {
   shebang: bool,
 }
 
-#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize, Clone)]
 #[serde(deny_unknown_fields)]
 struct Settings<'a> {
   allow_duplicate_recipes: bool,
@@ -109,17 +110,37 @@ fn case_with_submodule(justfile: &str, submodule: Option<(&str, &str)>, expected
     test = test.write(path, source);
   }
 
+  let expected = if expected.source.as_os_str().is_empty() {
+    let mut expected = expected;
+    expected.source = test.justfile_path();
+    expected
+  } else {
+    let mut expected = expected;
+    expected.source = test.new_justfile_path(expected.source);
+    expected
+  };
+
+  let modules = expected.modules.iter().map(|(key, module)| {
+    let module_source = test.new_justfile_path(module.source.clone());
+    let mut module = module.clone();
+    module.source = module_source;
+    (*key, module.clone())
+  }).collect();
+  let mut expected = expected;
+  expected.modules = modules;
+
   let actual = test.run().stdout;
 
-  let mut expected = serde_json::to_string(&expected).unwrap();
-  expected.push('\n');
+  let actual: Module = serde_json::from_str(actual.as_str()).unwrap();
+  println!("actual path: {:?}", actual.source);
+  println!("expected path: {:?}", expected.source);
 
   pretty_assertions::assert_eq!(actual, expected);
 }
 
 #[test]
 fn alias() {
-  let test = Test::new().justfile(
+  case(
     "
       alias f := foo
 
@@ -152,47 +173,21 @@ fn alias() {
 
 #[test]
 fn assignment() {
-  case("foo := 'bar'", |dir| {
-    let source = dir.join("justfile").to_str().unwrap().to_owned();
-    json!({
-      "aliases": {},
-      "assignments": {
-        "foo": {
-          "export": false,
-          "name": "foo",
-          "value": "bar",
-          "private": false,
-        }
-      },
-      "first": null,
-      "doc": null,
-      "groups": [],
-      "modules": {},
-      "recipes": {},
-      "settings": {
-        "allow_duplicate_recipes": false,
-        "allow_duplicate_variables": false,
-        "dotenv_filename": null,
-        "dotenv_load": false,
-        "dotenv_path": null,
-        "dotenv_required": false,
-        "export": false,
-        "fallback": false,
-        "ignore_comments": false,
-        "positional_arguments": false,
-        "quiet": false,
-        "shell": null,
-        "tempdir" : null,
-        "unstable": false,
-        "windows_powershell": false,
-        "windows_shell": null,
-        "working_directory" : null,
-      },
-      "unexports": [],
-      "warnings": [],
-      "source":  source,
-    })
-  });
+  case(
+    "foo := 'bar'",
+    Module {
+      assignments: [(
+        "foo",
+        Assignment {
+          name: "foo",
+          value: "bar",
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
+  );
 }
 
 #[test]
@@ -802,6 +797,7 @@ fn module() {
         Module {
           doc: Some("hello"),
           first: Some("bar"),
+          source: "foo.just".into(),
           recipes: [(
             "bar",
             Recipe {
@@ -834,6 +830,7 @@ fn module_group() {
         Module {
           first: Some("bar"),
           groups: ["alpha"].into(),
+          source: "foo.just".into(),
           recipes: [(
             "bar",
             Recipe {

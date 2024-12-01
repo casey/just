@@ -123,6 +123,10 @@ impl Test {
     self.tempdir.path().join("justfile")
   }
 
+  pub(crate) fn new_justfile_path(&self, justfile: PathBuf) -> PathBuf {
+    self.tempdir.path().join(justfile)
+  }
+
   #[cfg(unix)]
   #[track_caller]
   pub(crate) fn symlink(self, original: &str, link: &str) -> Self {
@@ -166,11 +170,6 @@ impl Test {
 
   pub(crate) fn stdout(mut self, stdout: impl Into<String>) -> Self {
     self.stdout = stdout.into();
-    self
-  }
-
-  pub(crate) fn stdout_with_tempdir(mut self, stdout_fn: impl Fn(&TempDir) -> String) -> Self {
-    self.stdout = stdout_fn(&self.tempdir);
     self
   }
 
