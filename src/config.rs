@@ -53,6 +53,7 @@ mod cmd {
   pub(crate) const INIT: &str = "INIT";
   pub(crate) const LIST: &str = "LIST";
   pub(crate) const MAN: &str = "MAN";
+  pub(crate) const REQUEST: &str = "REQUEST";
   pub(crate) const SHOW: &str = "SHOW";
   pub(crate) const SUMMARY: &str = "SUMMARY";
   pub(crate) const VARIABLES: &str = "VARIABLES";
@@ -69,6 +70,7 @@ mod cmd {
     INIT,
     LIST,
     MAN,
+    REQUEST,
     SHOW,
     SUMMARY,
     VARIABLES,
@@ -518,6 +520,17 @@ impl Config {
           .help_heading(cmd::HEADING),
       )
       .arg(
+        Arg::new(cmd::REQUEST)
+          .long("request")
+          .action(ArgAction::Set)
+          .hide(true)
+          .help(
+            "Execute <REQUEST>. For internal testing purposes only. May be changed or removed at \
+            any time.",
+          )
+          .help_heading(cmd::REQUEST),
+      )
+      .arg(
         Arg::new(cmd::SHOW)
           .short('s')
           .long("show")
@@ -696,6 +709,11 @@ impl Config {
       }
     } else if matches.get_flag(cmd::MAN) {
       Subcommand::Man
+    } else if let Some(request) = matches.get_one::<String>(cmd::REQUEST) {
+      Subcommand::Request {
+        request: serde_json::from_str(request)
+          .map_err(|source| ConfigError::RequestParse { source })?,
+      }
     } else if let Some(path) = matches.get_many::<String>(cmd::SHOW) {
       Subcommand::Show {
         path: Self::parse_module_path(path)?,
