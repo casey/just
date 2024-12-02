@@ -1,7 +1,10 @@
 use {
   super::*,
   clap::{
-    builder::{styling::AnsiColor, FalseyValueParser, Styles},
+    builder::{
+      styling::{AnsiColor, Effects},
+      FalseyValueParser, Styles,
+    },
     parser::ValuesRef,
     value_parser, Arg, ArgAction, ArgGroup, ArgMatches, Command,
   },
@@ -134,10 +137,12 @@ impl Config {
       .trailing_var_arg(true)
       .styles(
         Styles::styled()
-          .header(AnsiColor::Yellow.on_default())
+          .header(AnsiColor::Yellow.on_default() | Effects::BOLD)
+          .invalid(AnsiColor::Red.on_default())
           .literal(AnsiColor::Green.on_default())
           .placeholder(AnsiColor::Cyan.on_default())
-          .usage(AnsiColor::Yellow.on_default()),
+          .usage(AnsiColor::Yellow.on_default() | Effects::BOLD)
+          .valid(AnsiColor::Green.on_default()),
       )
       .arg(
         Arg::new(arg::CHECK)
