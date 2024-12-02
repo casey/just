@@ -137,6 +137,7 @@ impl Config {
       .trailing_var_arg(true)
       .styles(
         Styles::styled()
+          .error(AnsiColor::Red.on_default() | Effects::BOLD)
           .header(AnsiColor::Yellow.on_default() | Effects::BOLD)
           .invalid(AnsiColor::Red.on_default())
           .literal(AnsiColor::Green.on_default())
