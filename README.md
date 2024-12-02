@@ -48,8 +48,8 @@ Yay, all your tests passed!
   [`make`'s complexity and idiosyncrasies](#what-are-the-idiosyncrasies-of-make-that-just-avoids).
   No need for `.PHONY` recipes!
 
-- Linux, MacOS, OpenBSD and Windows are supported with no additional dependencies.
-  (Although if your system doesn't have an `sh`, you'll need to
+- Linux, MacOS, Windows, and reasonable unices are supported with no additional
+  dependencies. (Although if your system doesn't have an `sh`, you'll need to
   [choose a different shell](#shell).)
 
 - Errors are specific and informative, and syntax errors are reported along
@@ -1986,7 +1986,7 @@ change their behavior.
 | `[no-cd]`<sup>1.9.0</sup> | recipe | Don't change directory before executing recipe. |
 | `[no-exit-message]`<sup>1.7.0</sup> | recipe | Don't print an error message if recipe fails. |
 | `[no-quiet]`<sup>1.23.0</sup> | recipe | Override globally quiet recipes and always echo out the recipe. |
-| `[openbsd]`<sup>1.x.0</sup> | recipe | Enable recipe on OpenBSD. |
+| `[openbsd]`<sup>master</sup> | recipe | Enable recipe on OpenBSD. |
 | `[positional-arguments]`<sup>1.29.0</sup> | recipe | Turn on [positional arguments](#positional-arguments) for this recipe. |
 | `[private]`<sup>1.10.0</sup> | alias, recipe | Make recipe, alias, or variable private. See [Private Recipes](#private-recipes). |
 | `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
@@ -2763,12 +2763,12 @@ Hola from a nushell script!
 Hello from ruby!
 ```
 
-On Unix-like operating systems, including Linux, MacOS and OpenBSD, shebang
-recipes are executed by saving the recipe body to a file in a temporary
-directory, marking the file as executable, and executing it. The OS then
-parses the shebang line into a command line and invokes it, including the
-path to the file. For example, if a recipe starts with `#!/usr/bin/env bash`,
-the final command that the OS runs will be something like `/usr/bin/env bash
+On Unix-like operating systems, including Linux and MacOS, shebang recipes are
+executed by saving the recipe body to a file in a temporary directory, marking
+the file as executable, and executing it. The OS then parses the shebang line
+into a command line and invokes it, including the path to the file. For
+example, if a recipe starts with `#!/usr/bin/env bash`, the final command that
+the OS runs will be something like `/usr/bin/env bash
 /tmp/PATH_TO_SAVED_RECIPE_BODY`.
 
 Shebang line splitting is operating system dependent. When passing a command
