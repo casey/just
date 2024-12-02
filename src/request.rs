@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 pub enum Request {
   EnvironmentVariable(String),
