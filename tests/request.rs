@@ -8,7 +8,7 @@ fn environment_variable_set() {
       export BAR := 'baz'
 
       @foo:
-        {{just_executable()}} --request '{"environment-variable": "BAR"}'
+        '{{just_executable()}}' --request '{"environment-variable": "BAR"}'
     "#,
     )
     .response(Response::EnvironmentVariable(Some("baz".into())))
@@ -21,7 +21,7 @@ fn environment_variable_missing() {
     .justfile(
       r#"
       @foo:
-        {{just_executable()}} --request '{"environment-variable": "FOO_BAR_BAZ"}'
+        '{{just_executable()}}' --request '{"environment-variable": "FOO_BAR_BAZ"}'
     "#,
     )
     .response(Response::EnvironmentVariable(None))

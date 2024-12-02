@@ -52,7 +52,7 @@ fn constants_are_not_exported() {
         set export
 
         foo:
-          @{{just_executable()}} --request '{"environment-variable": "HEXUPPER"}'
+          @'{{just_executable()}}' --request '{"environment-variable": "HEXUPPER"}'
       "#,
     )
     .response(Response::EnvironmentVariable(None))
