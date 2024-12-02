@@ -48,9 +48,9 @@ Yay, all your tests passed!
   [`make`'s complexity and idiosyncrasies](#what-are-the-idiosyncrasies-of-make-that-just-avoids).
   No need for `.PHONY` recipes!
 
-- Linux, MacOS, and Windows are supported with no additional dependencies.
-  (Although if your system doesn't have an `sh`, you'll need to
-  [choose a different shell](#shell).)
+- Linux, MacOS, Windows, and other reasonable unices are supported with no
+  additional dependencies. (Although if your system doesn't have an `sh`,
+  you'll need to [choose a different shell](#shell).)
 
 - Errors are specific and informative, and syntax errors are reported along
   with their source context.
@@ -1986,6 +1986,7 @@ change their behavior.
 | `[no-cd]`<sup>1.9.0</sup> | recipe | Don't change directory before executing recipe. |
 | `[no-exit-message]`<sup>1.7.0</sup> | recipe | Don't print an error message if recipe fails. |
 | `[no-quiet]`<sup>1.23.0</sup> | recipe | Override globally quiet recipes and always echo out the recipe. |
+| `[openbsd]`<sup>master</sup> | recipe | Enable recipe on OpenBSD. |
 | `[positional-arguments]`<sup>1.29.0</sup> | recipe | Turn on [positional arguments](#positional-arguments) for this recipe. |
 | `[private]`<sup>1.10.0</sup> | alias, recipe | Make recipe, alias, or variable private. See [Private Recipes](#private-recipes). |
 | `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
