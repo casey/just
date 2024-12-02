@@ -596,11 +596,11 @@ fn unicode_escape_non_hex() {
     .args(["--evaluate", "x"])
     .stderr(
       r#"
-error: expected hex digit [0-9A-Fa-f] but found `o`
- ——▶ justfile:1:6
-  │
-1 │ x := "\u{foo}"
-  │      ^^^^^^^^^
+Error: expected hex digit [0-9A-Fa-f] but found `o`
+   ╭─[justfile:1:6]
+   │
+ 1 │ x := "\u{foo}"
+───╯
 "#,
     )
     .failure();

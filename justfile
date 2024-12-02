@@ -35,7 +35,6 @@ filter PATTERN:
   cargo test {{PATTERN}}
 
 [group: 'misc']
-[group: 'misc']
 build:
   cargo build
 
