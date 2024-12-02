@@ -113,19 +113,19 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn enabled(&self) -> bool {
-    let windows = self.attributes.contains(&Attribute::Windows);
     let linux = self.attributes.contains(&Attribute::Linux);
     let macos = self.attributes.contains(&Attribute::Macos);
     let openbsd = self.attributes.contains(&Attribute::Openbsd);
     let unix = self.attributes.contains(&Attribute::Unix);
+    let windows = self.attributes.contains(&Attribute::Windows);
 
     (!windows && !linux && !macos && !openbsd && !unix)
-      || (cfg!(target_os = "windows") && windows)
       || (cfg!(target_os = "linux") && (linux || unix))
       || (cfg!(target_os = "macos") && (macos || unix))
       || (cfg!(target_os = "openbsd") && (openbsd || unix))
-      || (cfg!(windows) && windows)
+      || (cfg!(target_os = "windows") && windows)
       || (cfg!(unix) && unix)
+      || (cfg!(windows) && windows)
   }
 
   fn print_exit_message(&self) -> bool {
