@@ -42,7 +42,7 @@ pub(crate) use {
   regex::Regex,
   serde::{
     ser::{SerializeMap, SerializeSeq},
-    Serialize, Serializer,
+    Deserialize, Serialize, Serializer,
   },
   snafu::{ResultExt, Snafu},
   std::{
@@ -76,9 +76,12 @@ pub(crate) use crate::{node::Node, tree::Tree};
 
 pub use crate::run::run;
 
+#[doc(hidden)]
+use request::Request;
+
 // Used in integration tests.
 #[doc(hidden)]
-pub use unindent::unindent;
+pub use {request::Response, unindent::unindent};
 
 type CompileResult<'a, T = ()> = Result<T, CompileError<'a>>;
 type ConfigResult<T> = Result<T, ConfigError>;
@@ -105,6 +108,10 @@ pub mod fuzzing;
 // breaking changes.
 #[doc(hidden)]
 pub mod summary;
+
+// Used for testing with the `--request` subcommand.
+#[doc(hidden)]
+pub mod request;
 
 mod alias;
 mod analyzer;

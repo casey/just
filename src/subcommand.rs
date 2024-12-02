@@ -35,6 +35,9 @@ pub(crate) enum Subcommand {
     path: ModulePath,
   },
   Man,
+  Request {
+    request: Request,
+  },
   Run {
     arguments: Vec<String>,
     overrides: BTreeMap<String, String>,
@@ -71,10 +74,6 @@ impl Subcommand {
     let justfile = &compilation.justfile;
 
     match self {
-      Run {
-        arguments,
-        overrides,
-      } => Self::run(config, loader, search, compilation, arguments, overrides)?,
       Choose { overrides, chooser } => {
         Self::choose(config, justfile, &search, overrides, chooser.as_deref())?;
       }
@@ -85,6 +84,11 @@ impl Subcommand {
       Format => Self::format(config, &search, compilation)?,
       Groups => Self::groups(config, justfile),
       List { path } => Self::list(config, justfile, path)?,
+      Request { request } => Self::request(request)?,
+      Run {
+        arguments,
+        overrides,
+      } => Self::run(config, loader, search, compilation, arguments, overrides)?,
       Show { path } => Self::show(config, justfile, path)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
@@ -280,7 +284,7 @@ impl Subcommand {
     match config.dump_format {
       DumpFormat::Json => {
         serde_json::to_writer(io::stdout(), &compilation.justfile)
-          .map_err(|serde_json_error| Error::DumpJson { serde_json_error })?;
+          .map_err(|source| Error::DumpJson { source })?;
         println!();
       }
       DumpFormat::Just => print!("{}", compilation.root_ast()),
@@ -398,6 +402,16 @@ impl Subcommand {
     stdout
       .flush()
       .map_err(|io_error| Error::StdoutIo { io_error })?;
+
+    Ok(())
+  }
+
+  fn request(request: &Request) -> RunResult<'static> {
+    let response = match request {
+      Request::EnvironmentVariable(key) => Response::EnvironmentVariable(env::var_os(key)),
+    };
+
+    serde_json::to_writer(io::stdout(), &response).map_err(|source| Error::DumpJson { source })?;
 
     Ok(())
   }
