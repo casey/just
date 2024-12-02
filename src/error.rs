@@ -506,7 +506,7 @@ impl ColorDisplay for Error<'_> {
 
 pub(crate) fn render_error(error: &Error, color: Color) {
   match error {
-    Error::Compile { compile_error } => compile_error::render_compile_error(compile_error),
+    Error::Compile { compile_error } => compile_error::render_compile_error(compile_error, color),
     _ => eprintln!("{}", error.color_display(color.stderr())),
   }
 }
