@@ -48,9 +48,9 @@ Yay, all your tests passed!
   [`make`'s complexity and idiosyncrasies](#what-are-the-idiosyncrasies-of-make-that-just-avoids).
   No need for `.PHONY` recipes!
 
-- Linux, MacOS, Windows, and reasonable unices are supported with no additional
-  dependencies. (Although if your system doesn't have an `sh`, you'll need to
-  [choose a different shell](#shell).)
+- Linux, MacOS, Windows, and other reasonable unices are supported with no
+  additional dependencies. (Although if your system doesn't have an `sh`,
+  you'll need to [choose a different shell](#shell).)
 
 - Errors are specific and informative, and syntax errors are reported along
   with their source context.
