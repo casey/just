@@ -630,11 +630,11 @@ fn unicode_escape_too_long() {
     .args(["--evaluate", "x"])
     .stderr(
       r#"
-error: unicode escape sequence starting with `\u{FFFFFFF` longer than six hex digits
- ——▶ justfile:1:6
-  │
-1 │ x := "\u{FFFFFFFFFF}"
-  │      ^^^^^^^^^^^^^^^^
+Error: unicode escape sequence starting with `\u{FFFFFFF` longer than six hex digits
+   ╭─[justfile:1:6]
+   │
+ 1 │ x := "\u{FFFFFFFFFF}"
+───╯
 "#,
     )
     .failure();

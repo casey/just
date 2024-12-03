@@ -380,12 +380,12 @@ fn attribute_with_nocd_is_forbidden() {
     )
     .stderr(
       "
-        error: Recipe `bar` has both `[no-cd]` and `[working-directory]` attributes
-         ——▶ justfile:3:1
-          │
-        3 │ bar:
-          │ ^^^
-      ",
+Error: Recipe `bar` has both `[no-cd]` and `[working-directory]` attributes
+   ╭─[justfile:3:1]
+   │
+ 3 │ bar:
+───╯
+"
     )
     .failure();
 }
