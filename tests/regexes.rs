@@ -64,3 +64,23 @@ fn bad_regex_fails_at_runtime() {
     .status(EXIT_FAILURE)
     .run();
 }
+
+#[test]
+fn not_matching_regex() {
+  Test::new()
+    .justfile(
+      "
+      foo := if 'Foo' !~ '^ab+c' {
+        'no'
+      } else {
+        'yes'
+      }
+
+      default:
+        echo {{ foo }}
+    ",
+    )
+    .stderr("echo no\n")
+    .stdout("no\n")
+    .run();
+}

@@ -475,7 +475,7 @@ impl<'src> Lexer<'src> {
     match start {
       ' ' | '\t' => self.lex_whitespace(),
       '!' if self.rest().starts_with("!include") => Err(self.error(Include)),
-      '!' => self.lex_digraph('!', '=', BangEquals),
+      '!' => self.lex_choices('!', &[('=', BangEquals), ('~', BangTilde)], Unspecified),
       '#' => self.lex_comment(),
       '$' => self.lex_single(Dollar),
       '&' => self.lex_digraph('&', '&', AmpersandAmpersand),
@@ -949,6 +949,7 @@ mod tests {
       Asterisk => "*",
       At => "@",
       BangEquals => "!=",
+      BangTilde => "!~",
       BarBar => "||",
       BraceL => "{",
       BraceR => "}",
