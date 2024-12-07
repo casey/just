@@ -66,6 +66,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "extension" => Unary(extension),
     "file_name" => Unary(file_name),
     "file_stem" => Unary(file_stem),
+    "file_content" => Unary(file_content),
     "home_directory" => Nullary(|_| dir("home", dirs::home_dir)),
     "invocation_directory" => Nullary(invocation_directory),
     "invocation_directory_native" => Nullary(invocation_directory_native),
@@ -170,6 +171,15 @@ fn blake3_file(context: Context, path: &str) -> FunctionResult {
     .update_mmap_rayon(&path)
     .map_err(|err| format!("Failed to hash `{}`: {err}", path.display()))?;
   Ok(hasher.finalize().to_string())
+}
+
+fn file_content(context: Context, filename: &str) -> FunctionResult {
+  let path = context.evaluator.context.working_directory().join(filename);
+  let contents = fs::read_to_string(path);
+  if let Err(err) = &contents {
+    return Err(format!("error reading file `{filename}`: {err}"));
+  }
+  Ok(contents.unwrap())
 }
 
 fn canonicalize(context: Context, path: &str) -> FunctionResult {
