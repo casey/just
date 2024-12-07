@@ -13,6 +13,14 @@ defaults:
     shell: bash
 
 jobs:
+  run-dummy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: Swatinem/rust-cache@v2
+    - run: cargo run -- dummy
+
   lint:
     runs-on: ubuntu-latest
 

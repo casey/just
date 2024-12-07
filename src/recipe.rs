@@ -167,6 +167,8 @@ impl<'src, D> Recipe<'src, D> {
       eprintln!("{prefix}===> Running recipe `{}`...{suffix}", self.name);
     }
 
+    eprintln!("::group::{}", self.name);
+
     if context.config.explain {
       if let Some(doc) = self.doc() {
         eprintln!("{prefix}#### {doc}{suffix}");
@@ -175,11 +177,15 @@ impl<'src, D> Recipe<'src, D> {
 
     let evaluator = Evaluator::new(context, is_dependency, scope);
 
-    if self.is_script() {
+    let out = if self.is_script() {
       self.run_script(context, scope, positional, evaluator)
     } else {
       self.run_linewise(context, scope, positional, evaluator)
-    }
+    };
+
+    eprintln!("::endgroup::");
+
+    out
   }
 
   fn run_linewise<'run>(
@@ -290,6 +296,7 @@ impl<'src, D> Recipe<'src, D> {
         scope,
         &context.module.unexports,
       );
+
 
       match InterruptHandler::guard(|| cmd.status()) {
         Ok(exit_status) => {
