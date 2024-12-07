@@ -749,6 +749,21 @@ fn sha256_file() {
 }
 
 #[test]
+fn file_content() {
+  Test::new()
+    .justfile("x := sha256(file_content('sub/shafile'))")
+    .tree(tree! {
+      sub: {
+        shafile: "just is great\n",
+      }
+    })
+    .current_dir("sub")
+    .args(["--evaluate", "x"])
+    .stdout("177b3d79aaafb53a7a4d7aaba99a82f27c73370e8cb0295571aade1e4fea1cd2")
+    .run();
+}
+
+#[test]
 fn just_pid() {
   let Output { stdout, pid, .. } = Test::new()
     .args(["--evaluate", "x"])
