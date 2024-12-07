@@ -764,6 +764,24 @@ fn file_content() {
 }
 
 #[test]
+fn file_content_file_not_found() {
+  Test::new()
+    .justfile("x := sha256(file_content('sub/shafile_NON_EXISTENT'))")
+    .args(["--evaluate", "x"])
+    .stderr(
+      "
+      error: Call to function `file_content` failed: error reading file `sub/shafile_NON_EXISTENT`: No such file or directory (os error 2)
+       ——▶ justfile:1:13
+        │
+      1 │ x := sha256(file_content('sub/shafile_NON_EXISTENT'))
+        │             ^^^^^^^^^^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
 fn just_pid() {
   let Output { stdout, pid, .. } = Test::new()
     .args(["--evaluate", "x"])
