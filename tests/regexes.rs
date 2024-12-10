@@ -66,21 +66,26 @@ fn bad_regex_fails_at_runtime() {
 }
 
 #[test]
-fn not_matching_regex() {
+fn mismatch() {
   Test::new()
     .justfile(
       "
       foo := if 'Foo' !~ '^ab+c' {
-        'no'
+        'mismatch'
       } else {
-        'yes'
+        'match'
       }
 
-      default:
-        echo {{ foo }}
+      bar := if 'Foo' !~ 'Foo' {
+        'mismatch'
+      } else {
+        'match'
+      }
+
+      @default:
+        echo {{ foo }} {{ bar }}
     ",
     )
-    .stderr("echo no\n")
-    .stdout("no\n")
+    .stdout("mismatch match\n")
     .run();
 }
