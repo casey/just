@@ -1218,6 +1218,9 @@ interpolation:</p>
   echo 'I {{ "{{" }}LOVE}} curly braces!'
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="strings"><a class="header" href="#strings">Strings</a></h3>
+<p><code>'single'</code>, <code>"double"</code>, and <code>'''triple'''</code> quoted string literals are
+supported. Unlike in recipe bodies, <code>{{…}}</code> interpolations are not supported
+inside strings.</p>
 <p>Double-quoted strings support escape sequences:</p>
 <pre><code class="language-just">carriage-return   := "\r"
 double-quote      := "\""
