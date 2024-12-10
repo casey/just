@@ -749,39 +749,6 @@ fn sha256_file() {
 }
 
 #[test]
-fn file_content() {
-  Test::new()
-    .justfile("x := sha256(file_content('sub/shafile'))")
-    .tree(tree! {
-      sub: {
-        shafile: "just is great\n",
-      }
-    })
-    .current_dir("sub")
-    .args(["--evaluate", "x"])
-    .stdout("177b3d79aaafb53a7a4d7aaba99a82f27c73370e8cb0295571aade1e4fea1cd2")
-    .run();
-}
-
-#[test]
-fn file_content_file_not_found() {
-  Test::new()
-    .justfile("x := sha256(file_content('sub/shafile_NON_EXISTENT'))")
-    .args(["--evaluate", "x"])
-    .stderr(
-      "
-      error: Call to function `file_content` failed: error reading file `sub/shafile_NON_EXISTENT`: No such file or directory (os error 2)
-       ——▶ justfile:1:13
-        │
-      1 │ x := sha256(file_content('sub/shafile_NON_EXISTENT'))
-        │             ^^^^^^^^^^^^
-      ",
-    )
-    .status(EXIT_FAILURE)
-    .run();
-}
-
-#[test]
 fn just_pid() {
   let Output { stdout, pid, .. } = Test::new()
     .args(["--evaluate", "x"])
@@ -1288,6 +1255,26 @@ fn style_unknown() {
           │             ^^^^^
       "#,
     )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn read_to_string() {
+  Test::new()
+    .justfile("foo := read_to_string('bar')")
+    .write("bar", "baz")
+    .args(["--evaluate", "foo"])
+    .stdout("baz")
+    .run();
+}
+
+#[test]
+fn read_to_string_not_found() {
+  Test::new()
+    .justfile("foo := read_to_string('bar')")
+    .args(["--evaluate", "foo"])
+    .stderr_regex(r"error: Call to function `read_to_string` failed: I/O error reading `bar`: .*")
     .status(EXIT_FAILURE)
     .run();
 }

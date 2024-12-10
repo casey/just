@@ -66,7 +66,6 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "extension" => Unary(extension),
     "file_name" => Unary(file_name),
     "file_stem" => Unary(file_stem),
-    "file_content" => Unary(file_content),
     "home_directory" => Nullary(|_| dir("home", dirs::home_dir)),
     "invocation_directory" => Nullary(invocation_directory),
     "invocation_directory_native" => Nullary(invocation_directory_native),
@@ -88,6 +87,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "path_exists" => Unary(path_exists),
     "prepend" => Binary(prepend),
     "quote" => Unary(quote),
+    "read_to_string" => Unary(read_to_string),
     "replace" => Ternary(replace),
     "replace_regex" => Ternary(replace_regex),
     "semver_matches" => Binary(semver_matches),
@@ -171,15 +171,6 @@ fn blake3_file(context: Context, path: &str) -> FunctionResult {
     .update_mmap_rayon(&path)
     .map_err(|err| format!("Failed to hash `{}`: {err}", path.display()))?;
   Ok(hasher.finalize().to_string())
-}
-
-fn file_content(context: Context, filename: &str) -> FunctionResult {
-  let path = context.evaluator.context.working_directory().join(filename);
-  let contents = fs::read_to_string(path);
-  if let Err(err) = &contents {
-    return Err(format!("error reading file `{filename}`: {err}"));
-  }
-  Ok(contents.unwrap())
 }
 
 fn canonicalize(context: Context, path: &str) -> FunctionResult {
@@ -536,6 +527,11 @@ fn path_exists(context: Context, path: &str) -> FunctionResult {
 
 fn quote(_context: Context, s: &str) -> FunctionResult {
   Ok(format!("'{}'", s.replace('\'', "'\\''")))
+}
+
+fn read_to_string(context: Context, filename: &str) -> FunctionResult {
+  fs::read_to_string(context.evaluator.context.working_directory().join(filename))
+    .map_err(|err| format!("I/O error reading `{filename}`: {err}"))
 }
 
 fn replace(_context: Context, s: &str, from: &str, to: &str) -> FunctionResult {

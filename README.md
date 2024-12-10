@@ -1835,7 +1835,8 @@ which will halt execution.
 - `path_exists(path)` - Returns `true` if the path points at an existing entity
   and `false` otherwise. Traverses symbolic links, and returns `false` if the
   path is inaccessible or points to a broken symlink.
-- `file_content(path)` - Returns the content of the file as a string.
+- `read_to_string(path)`<sup>master</sup> - Returns the content of file at
+  `path` as a string.
 
 ##### Error Reporting
 
