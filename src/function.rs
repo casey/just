@@ -87,6 +87,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "path_exists" => Unary(path_exists),
     "prepend" => Binary(prepend),
     "quote" => Unary(quote),
+    "read" => Unary(read),
     "replace" => Ternary(replace),
     "replace_regex" => Ternary(replace_regex),
     "semver_matches" => Binary(semver_matches),
@@ -526,6 +527,11 @@ fn path_exists(context: Context, path: &str) -> FunctionResult {
 
 fn quote(_context: Context, s: &str) -> FunctionResult {
   Ok(format!("'{}'", s.replace('\'', "'\\''")))
+}
+
+fn read(context: Context, filename: &str) -> FunctionResult {
+  fs::read_to_string(context.evaluator.context.working_directory().join(filename))
+    .map_err(|err| format!("I/O error reading `{filename}`: {err}"))
 }
 
 fn replace(_context: Context, s: &str, from: &str, to: &str) -> FunctionResult {
