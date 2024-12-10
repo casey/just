@@ -43,7 +43,7 @@ impl<'src> AttributeSet<'src> {
   }
 }
 
-impl<'src, 'a> FromIterator<Attribute<'src>> for AttributeSet<'src> {
+impl<'src> FromIterator<Attribute<'src>> for AttributeSet<'src> {
   fn from_iter<T: IntoIterator<Item = attribute::Attribute<'src>>>(iter: T) -> Self {
     Self(iter.into_iter().collect())
   }

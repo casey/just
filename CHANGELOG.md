@@ -1,6 +1,71 @@
 Changelog
 =========
 
+[1.38.0](https://github.com/casey/just/releases/tag/1.38.0) - 2024-12-10
+------------------------------------------------------------------------
+
+### Added
+- Add `[openbsd]` recipe attribute ([#2497](https://github.com/casey/just/pull/2497) by [vtamara](https://github.com/vtamara))
+- Add `[working-directory]` recipe attribute ([#2438](https://github.com/casey/just/pull/2438) by [bcheidemann](https://github.com/bcheidemann))
+- Add `--allow-missing` to ignore missing recipe and submodule errors ([#2460](https://github.com/casey/just/pull/2460) by [R3ZV](https://github.com/R3ZV))
+
+### Changed
+- Add snap package back to readme ([#2506](https://github.com/casey/just/pull/2506) by [casey](https://github.com/casey))
+- Forbid duplicate non-repeatable attributes ([#2483](https://github.com/casey/just/pull/2483) by [casey](https://github.com/casey))
+
+### Misc
+- Publish docs to GitHub pages on release only ([#2516](https://github.com/casey/just/pull/2516) by [casey](https://github.com/casey))
+- Note lack of support for string interpolation ([#2515](https://github.com/casey/just/pull/2515) by [casey](https://github.com/casey))
+- Embolden help text errors ([#2502](https://github.com/casey/just/pull/2502) by [casey](https://github.com/casey))
+- Style help text ([#2501](https://github.com/casey/just/pull/2501) by [casey](https://github.com/casey))
+- Add `--request` subcommand for testing ([#2498](https://github.com/casey/just/pull/2498) by [casey](https://github.com/casey))
+- [bin/forbid] Improve error message if ripgrep is missing ([#2493](https://github.com/casey/just/pull/2493) by [casey](https://github.com/casey))
+- Fix Rust 1.83 clippy warnings ([#2487](https://github.com/casey/just/pull/2487) by [casey](https://github.com/casey))
+- Refactor JSON tests ([#2484](https://github.com/casey/just/pull/2484) by [casey](https://github.com/casey))
+- Get `Config` from `ExecutionContext` instead of passing separately ([#2481](https://github.com/casey/just/pull/2481) by [casey](https://github.com/casey))
+- Don't write justfiles unchanged by formatting ([#2479](https://github.com/casey/just/pull/2479) by [casey](https://github.com/casey))
+
+[1.37.0](https://github.com/casey/just/releases/tag/1.37.0) - 2024-11-20
+------------------------------------------------------------------------
+
+### Added
+- Add `style()` function ([#2462](https://github.com/casey/just/pull/2462) by [casey](https://github.com/casey))
+- Terminal escape sequence constants ([#2461](https://github.com/casey/just/pull/2461) by [casey](https://github.com/casey))
+- Add `&&` and `||` operators ([#2444](https://github.com/casey/just/pull/2444) by [casey](https://github.com/casey))
+
+### Changed
+- Make recipe doc attribute override comment ([#2470](https://github.com/casey/just/pull/2470) by [casey](https://github.com/casey))
+- Don't export constants ([#2449](https://github.com/casey/just/pull/2449) by [casey](https://github.com/casey))
+- Allow duplicate imports ([#2437](https://github.com/casey/just/pull/2437) by [casey](https://github.com/casey))
+- Publish single SHA256SUM file with releases ([#2417](https://github.com/casey/just/pull/2417) by [casey](https://github.com/casey))
+- Mark recipes with private attribute as private in JSON dump ([#2415](https://github.com/casey/just/pull/2415) by [casey](https://github.com/casey))
+- Forbid invalid attributes on assignments ([#2412](https://github.com/casey/just/pull/2412) by [casey](https://github.com/casey))
+
+### Misc
+- Update `softprops/action-gh-release` ([#2471](https://github.com/casey/just/pull/2471) by [app/dependabot](https://github.com/app/dependabot))
+- Add `-g` to `rust-just` install instructions ([#2459](https://github.com/casey/just/pull/2459) by [gnpaone](https://github.com/gnpaone))
+- Change doc backtick color to cyan ([#2469](https://github.com/casey/just/pull/2469) by [casey](https://github.com/casey))
+- Note that `set shell` is not used for `[script]` recipes ([#2468](https://github.com/casey/just/pull/2468) by [iloveitaly](https://github.com/iloveitaly))
+- Replace `derivative` with `derive-where` ([#2465](https://github.com/casey/just/pull/2465) by [laniakea64](https://github.com/laniakea64))
+- Highlight backticks in docs when listing recipes ([#2423](https://github.com/casey/just/pull/2423) by [neunenak](https://github.com/neunenak))
+- Update setup-just version in README ([#2456](https://github.com/casey/just/pull/2456) by [Julian](https://github.com/Julian))
+- Fix shell function example in readme ([#2454](https://github.com/casey/just/pull/2454) by [casey](https://github.com/casey))
+- Update softprops/action-gh-release ([#2450](https://github.com/casey/just/pull/2450) by [app/dependabot](https://github.com/app/dependabot))
+- Use `justfile` instead of `mf` on invalid examples in readme ([#2447](https://github.com/casey/just/pull/2447) by [casey](https://github.com/casey))
+- Add advice on printing complex strings ([#2446](https://github.com/casey/just/pull/2446) by [casey](https://github.com/casey))
+- Document using functions in variable assignments ([#2431](https://github.com/casey/just/pull/2431) by [offby1](https://github.com/offby1))
+- Use prettier string comparison in tests ([#2435](https://github.com/casey/just/pull/2435) by [neunenak](https://github.com/neunenak))
+- Note `shell(…)` as an alternative to backticks ([#2430](https://github.com/casey/just/pull/2430) by [offby1](https://github.com/offby1))
+- Update nix package links ([#2441](https://github.com/casey/just/pull/2441) by [yunusey](https://github.com/yunusey))
+- Update README.中文.md ([#2424](https://github.com/casey/just/pull/2424) by [Jannchie](https://github.com/Jannchie))
+- Add Recipe::subsequents ([#2428](https://github.com/casey/just/pull/2428) by [casey](https://github.com/casey))
+- Add subsequents to grammar ([#2427](https://github.com/casey/just/pull/2427) by [casey](https://github.com/casey))
+- Document checking releases hashes  ([#2418](https://github.com/casey/just/pull/2418) by [casey](https://github.com/casey))
+- Show how to access positional arguments with powershell ([#2405](https://github.com/casey/just/pull/2405) by [casey](https://github.com/casey))
+- Use `-CommandWithArgs` instead of `-cwa` ([#2404](https://github.com/casey/just/pull/2404) by [casey](https://github.com/casey))
+- Document `-cwa` flag for PowerShell positional arguments ([#2403](https://github.com/casey/just/pull/2403) by [casey](https://github.com/casey))
+- Use `unwrap_or` when creating relative path in loader ([#2400](https://github.com/casey/just/pull/2400) by [casey](https://github.com/casey))
+
 [1.36.0](https://github.com/casey/just/releases/tag/1.36.0) - 2024-09-30
 ------------------------------------------------------------------------
 

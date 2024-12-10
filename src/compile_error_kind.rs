@@ -87,6 +87,9 @@ pub(crate) enum CompileErrorKind<'src> {
   MixedLeadingWhitespace {
     whitespace: &'src str,
   },
+  NoCdAndWorkingDirectoryAttribute {
+    recipe: &'src str,
+  },
   ParameterFollowsVariadicParameter {
     parameter: &'src str,
   },

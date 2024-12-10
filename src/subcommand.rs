@@ -35,6 +35,9 @@ pub(crate) enum Subcommand {
     path: ModulePath,
   },
   Man,
+  Request {
+    request: Request,
+  },
   Run {
     arguments: Vec<String>,
     overrides: BTreeMap<String, String>,
@@ -71,10 +74,6 @@ impl Subcommand {
     let justfile = &compilation.justfile;
 
     match self {
-      Run {
-        arguments,
-        overrides,
-      } => Self::run(config, loader, search, compilation, arguments, overrides)?,
       Choose { overrides, chooser } => {
         Self::choose(config, justfile, &search, overrides, chooser.as_deref())?;
       }
@@ -85,6 +84,11 @@ impl Subcommand {
       Format => Self::format(config, &search, compilation)?,
       Groups => Self::groups(config, justfile),
       List { path } => Self::list(config, justfile, path)?,
+      Request { request } => Self::request(request)?,
+      Run {
+        arguments,
+        overrides,
+      } => Self::run(config, loader, search, compilation, arguments, overrides)?,
       Show { path } => Self::show(config, justfile, path)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
@@ -143,6 +147,15 @@ impl Subcommand {
 
           continue;
         }
+      }
+
+      if config.allow_missing
+        && matches!(
+          result,
+          Err(Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })
+        )
+      {
+        return Ok(());
       }
 
       return result;
@@ -271,7 +284,7 @@ impl Subcommand {
     match config.dump_format {
       DumpFormat::Json => {
         serde_json::to_writer(io::stdout(), &compilation.justfile)
-          .map_err(|serde_json_error| Error::DumpJson { serde_json_error })?;
+          .map_err(|source| Error::DumpJson { source })?;
         println!();
       }
       DumpFormat::Just => print!("{}", compilation.root_ast()),
@@ -310,44 +323,44 @@ impl Subcommand {
 
     let formatted = ast.to_string();
 
+    if formatted == src {
+      return Ok(());
+    }
+
     if config.check {
-      return if formatted == src {
-        Ok(())
-      } else {
-        if !config.verbosity.quiet() {
-          use similar::{ChangeTag, TextDiff};
+      if !config.verbosity.quiet() {
+        use similar::{ChangeTag, TextDiff};
 
-          let diff = TextDiff::configure()
-            .algorithm(similar::Algorithm::Patience)
-            .diff_lines(src, &formatted);
+        let diff = TextDiff::configure()
+          .algorithm(similar::Algorithm::Patience)
+          .diff_lines(src, &formatted);
 
-          for op in diff.ops() {
-            for change in diff.iter_changes(op) {
-              let (symbol, color) = match change.tag() {
-                ChangeTag::Delete => ("-", config.color.stdout().diff_deleted()),
-                ChangeTag::Equal => (" ", config.color.stdout()),
-                ChangeTag::Insert => ("+", config.color.stdout().diff_added()),
-              };
+        for op in diff.ops() {
+          for change in diff.iter_changes(op) {
+            let (symbol, color) = match change.tag() {
+              ChangeTag::Delete => ("-", config.color.stdout().diff_deleted()),
+              ChangeTag::Equal => (" ", config.color.stdout()),
+              ChangeTag::Insert => ("+", config.color.stdout().diff_added()),
+            };
 
-              print!("{}{symbol}{change}{}", color.prefix(), color.suffix());
-            }
+            print!("{}{symbol}{change}{}", color.prefix(), color.suffix());
           }
         }
+      }
 
-        Err(Error::FormatCheckFoundDiff)
-      };
+      Err(Error::FormatCheckFoundDiff)
+    } else {
+      fs::write(&search.justfile, formatted).map_err(|io_error| Error::WriteJustfile {
+        justfile: search.justfile.clone(),
+        io_error,
+      })?;
+
+      if config.verbosity.loud() {
+        eprintln!("Wrote justfile to `{}`", search.justfile.display());
+      }
+
+      Ok(())
     }
-
-    fs::write(&search.justfile, formatted).map_err(|io_error| Error::WriteJustfile {
-      justfile: search.justfile.clone(),
-      io_error,
-    })?;
-
-    if config.verbosity.loud() {
-      eprintln!("Wrote justfile to `{}`", search.justfile.display());
-    }
-
-    Ok(())
   }
 
   fn init(config: &Config) -> RunResult<'static> {
@@ -389,6 +402,16 @@ impl Subcommand {
     stdout
       .flush()
       .map_err(|io_error| Error::StdoutIo { io_error })?;
+
+    Ok(())
+  }
+
+  fn request(request: &Request) -> RunResult<'static> {
+    let response = match request {
+      Request::EnvironmentVariable(key) => Response::EnvironmentVariable(env::var_os(key)),
+    };
+
+    serde_json::to_writer(io::stdout(), &response).map_err(|source| Error::DumpJson { source })?;
 
     Ok(())
   }

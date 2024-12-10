@@ -47,7 +47,7 @@ impl<'src> Display for Alias<'src, Name<'src>> {
   }
 }
 
-impl<'src> Display for Alias<'src> {
+impl Display for Alias<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(
       f,

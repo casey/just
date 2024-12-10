@@ -27,7 +27,7 @@ pub(crate) enum Item<'src> {
   },
 }
 
-impl<'src> Display for Item<'src> {
+impl Display for Item<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     match self {
       Self::Alias(alias) => write!(f, "{alias}"),

@@ -10,7 +10,7 @@ impl<'expression, 'src> Variables<'expression, 'src> {
   }
 }
 
-impl<'expression, 'src> Iterator for Variables<'expression, 'src> {
+impl<'src> Iterator for Variables<'_, 'src> {
   type Item = Token<'src>;
 
   fn next(&mut self) -> Option<Token<'src>> {

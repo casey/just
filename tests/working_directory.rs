@@ -331,3 +331,80 @@ file := shell('cat file.txt')
     .stdout("FILE\n")
     .run();
 }
+
+#[test]
+fn attribute_duplicate() {
+  Test::new()
+    .justfile(
+      "
+        [working-directory('bar')]
+        [working-directory('baz')]
+        foo:
+      ",
+    )
+    .stderr(
+      "error: Recipe attribute `working-directory` first used on line 1 is duplicated on line 2
+ ——▶ justfile:2:2
+  │
+2 │ [working-directory('baz')]
+  │  ^^^^^^^^^^^^^^^^^
+",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn attribute() {
+  Test::new()
+    .justfile(
+      "
+        [working-directory('foo')]
+        @qux:
+          echo baz > bar
+      ",
+    )
+    .create_dir("foo")
+    .expect_file("foo/bar", "baz\n")
+    .run();
+}
+
+#[test]
+fn attribute_with_nocd_is_forbidden() {
+  Test::new()
+    .justfile(
+      "
+        [working-directory('foo')]
+        [no-cd]
+        bar:
+      ",
+    )
+    .stderr(
+      "
+        error: Recipe `bar` has both `[no-cd]` and `[working-directory]` attributes
+         ——▶ justfile:3:1
+          │
+        3 │ bar:
+          │ ^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn setting_and_attribute() {
+  Test::new()
+    .justfile(
+      "
+        set working-directory := 'foo'
+
+        [working-directory('bar')]
+        @baz:
+          echo bob > fred
+      ",
+    )
+    .create_dir("foo/bar")
+    .expect_file("foo/bar/fred", "bob\n")
+    .run();
+}

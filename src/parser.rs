@@ -924,8 +924,26 @@ impl<'run, 'src> Parser<'run, 'src> {
       }));
     }
 
+    let working_directory = attributes.contains(AttributeDiscriminant::WorkingDirectory);
+
+    if working_directory && attributes.contains(AttributeDiscriminant::NoCd) {
+      return Err(
+        name.error(CompileErrorKind::NoCdAndWorkingDirectoryAttribute {
+          recipe: name.lexeme(),
+        }),
+      );
+    }
+
     let private =
       name.lexeme().starts_with('_') || attributes.contains(AttributeDiscriminant::Private);
+
+    let mut doc = doc.map(ToOwned::to_owned);
+
+    for attribute in &attributes {
+      if let Attribute::Doc(attribute_doc) = attribute {
+        doc = attribute_doc.as_ref().map(|doc| doc.cooked.clone());
+      }
+    }
 
     Ok(Recipe {
       shebang: shebang || script,
@@ -1107,6 +1125,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// Item attributes, i.e., `[macos]` or `[confirm: "warning!"]`
   fn parse_attributes(&mut self) -> CompileResult<'src, Option<(Token<'src>, AttributeSet<'src>)>> {
     let mut attributes = BTreeMap::new();
+    let mut discriminants = BTreeMap::new();
 
     let mut token = None;
 
@@ -1133,12 +1152,22 @@ impl<'run, 'src> Parser<'run, 'src> {
 
         let attribute = Attribute::new(name, arguments)?;
 
-        if let Some(line) = attributes.get(&attribute) {
+        let first = attributes.get(&attribute).or_else(|| {
+          if attribute.repeatable() {
+            None
+          } else {
+            discriminants.get(&attribute.discriminant())
+          }
+        });
+
+        if let Some(&first) = first {
           return Err(name.error(CompileErrorKind::DuplicateAttribute {
             attribute: name.lexeme(),
-            first: *line,
+            first,
           }));
         }
+
+        discriminants.insert(attribute.discriminant(), name.line);
 
         attributes.insert(attribute, name.line);
 

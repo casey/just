@@ -5,7 +5,7 @@ pub(crate) enum Executor<'a> {
   Shebang(Shebang<'a>),
 }
 
-impl<'a> Executor<'a> {
+impl Executor<'_> {
   pub(crate) fn command<'src>(
     &self,
     path: &Path,

@@ -77,19 +77,19 @@ fn nested_module_recipes_can_be_run_with_path_syntax() {
 fn invalid_path_syntax() {
   Test::new()
     .arg(":foo::foo")
-    .stderr("error: Justfile does not contain recipe `:foo::foo`.\n")
+    .stderr("error: Justfile does not contain recipe `:foo::foo`\n")
     .status(EXIT_FAILURE)
     .run();
 
   Test::new()
     .arg("foo::foo:")
-    .stderr("error: Justfile does not contain recipe `foo::foo:`.\n")
+    .stderr("error: Justfile does not contain recipe `foo::foo:`\n")
     .status(EXIT_FAILURE)
     .run();
 
   Test::new()
     .arg("foo:::foo")
-    .stderr("error: Justfile does not contain recipe `foo:::foo`.\n")
+    .stderr("error: Justfile does not contain recipe `foo:::foo`\n")
     .status(EXIT_FAILURE)
     .run();
 }
@@ -99,7 +99,7 @@ fn missing_recipe_after_invalid_path() {
   Test::new()
     .arg(":foo::foo")
     .arg("bar")
-    .stderr("error: Justfile does not contain recipe `:foo::foo`.\n")
+    .stderr("error: Justfile does not contain recipe `:foo::foo`\n")
     .status(EXIT_FAILURE)
     .run();
 }
@@ -655,7 +655,7 @@ fn submodule_recipe_not_found_spaced_error_message() {
       ",
     )
     .args(["foo", "baz"])
-    .stderr("error: Justfile does not contain recipe `foo baz`.\nDid you mean `bar`?\n")
+    .stderr("error: Justfile does not contain recipe `foo baz`\nDid you mean `bar`?\n")
     .status(1)
     .run();
 }
@@ -670,7 +670,7 @@ fn submodule_recipe_not_found_colon_separated_error_message() {
       ",
     )
     .args(["foo::baz"])
-    .stderr("error: Justfile does not contain recipe `foo::baz`.\nDid you mean `bar`?\n")
+    .stderr("error: Justfile does not contain recipe `foo::baz`\nDid you mean `bar`?\n")
     .status(1)
     .run();
 }

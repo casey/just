@@ -22,7 +22,7 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) attributes: AttributeSet<'src>,
   pub(crate) body: Vec<Line<'src>>,
   pub(crate) dependencies: Vec<D>,
-  pub(crate) doc: Option<&'src str>,
+  pub(crate) doc: Option<String>,
   #[serde(skip)]
   pub(crate) file_depth: u32,
   #[serde(skip)]
@@ -116,17 +116,19 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn enabled(&self) -> bool {
-    let windows = self.attributes.contains(AttributeDiscriminant::Windows);
     let linux = self.attributes.contains(AttributeDiscriminant::Linux);
     let macos = self.attributes.contains(AttributeDiscriminant::Macos);
+    let openbsd = self.attributes.contains(AttributeDiscriminant::Openbsd);
     let unix = self.attributes.contains(AttributeDiscriminant::Unix);
+    let windows = self.attributes.contains(AttributeDiscriminant::Windows);
 
-    (!windows && !linux && !macos && !unix)
-      || (cfg!(target_os = "windows") && windows)
+    (!windows && !linux && !macos && !openbsd && !unix)
       || (cfg!(target_os = "linux") && (linux || unix))
       || (cfg!(target_os = "macos") && (macos || unix))
-      || (cfg!(windows) && windows)
+      || (cfg!(target_os = "openbsd") && (openbsd || unix))
+      || (cfg!(target_os = "windows") && windows)
       || (cfg!(unix) && unix)
+      || (cfg!(windows) && windows)
   }
 
   fn print_exit_message(&self) -> bool {
@@ -136,11 +138,19 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
-    if self.change_directory() {
-      Some(context.working_directory())
-    } else {
-      None
+    if !self.change_directory() {
+      return None;
     }
+
+    let working_directory = context.working_directory();
+
+    for attribute in &self.attributes {
+      if let Attribute::WorkingDirectory(dir) = attribute {
+        return Some(working_directory.join(&dir.cooked));
+      }
+    }
+
+    Some(working_directory)
   }
 
   fn no_quiet(&self) -> bool {
@@ -154,17 +164,15 @@ impl<'src, D> Recipe<'src, D> {
     positional: &[String],
     is_dependency: bool,
   ) -> RunResult<'src, ()> {
-    let config = &context.config;
-
-    let color = config.color.stderr().banner();
+    let color = context.config.color.stderr().banner();
     let prefix = color.prefix();
     let suffix = color.suffix();
 
-    if config.verbosity.loquacious() {
+    if context.config.verbosity.loquacious() {
       eprintln!("{prefix}===> Running recipe `{}`...{suffix}", self.name);
     }
 
-    if config.explain {
+    if context.config.explain {
       if let Some(doc) = self.doc() {
         eprintln!("{prefix}#### {doc}{suffix}");
       }
@@ -173,9 +181,9 @@ impl<'src, D> Recipe<'src, D> {
     let evaluator = Evaluator::new(context, is_dependency, scope);
 
     if self.is_script() {
-      self.run_script(context, scope, positional, config, evaluator)
+      self.run_script(context, scope, positional, evaluator)
     } else {
-      self.run_linewise(context, scope, positional, config, evaluator)
+      self.run_linewise(context, scope, positional, evaluator)
     }
   }
 
@@ -184,9 +192,10 @@ impl<'src, D> Recipe<'src, D> {
     context: &ExecutionContext<'src, 'run>,
     scope: &Scope<'src, 'run>,
     positional: &[String],
-    config: &Config,
     mut evaluator: Evaluator<'src, 'run>,
   ) -> RunResult<'src, ()> {
+    let config = &context.config;
+
     let mut lines = self.body.iter().peekable();
     let mut line_number = self.line_number() + 1;
     loop {
@@ -321,9 +330,10 @@ impl<'src, D> Recipe<'src, D> {
     context: &ExecutionContext<'src, 'run>,
     scope: &Scope<'src, 'run>,
     positional: &[String],
-    config: &Config,
     mut evaluator: Evaluator<'src, 'run>,
   ) -> RunResult<'src, ()> {
+    let config = &context.config;
+
     let mut evaluated_lines = Vec::new();
     for line in &self.body {
       evaluated_lines.push(evaluator.evaluate_line(line, false)?);
@@ -468,7 +478,8 @@ impl<'src, D> Recipe<'src, D> {
         return doc.as_ref().map(|s| s.cooked.as_ref());
       }
     }
-    self.doc
+
+    self.doc.as_deref()
   }
 
   pub(crate) fn subsequents(&self) -> impl Iterator<Item = &D> {
@@ -476,10 +487,16 @@ impl<'src, D> Recipe<'src, D> {
   }
 }
 
-impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
+impl<D: Display> ColorDisplay for Recipe<'_, D> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
-    if let Some(doc) = self.doc {
-      writeln!(f, "# {doc}")?;
+    if !self
+      .attributes
+      .iter()
+      .any(|attribute| matches!(attribute, Attribute::Doc(_)))
+    {
+      if let Some(doc) = &self.doc {
+        writeln!(f, "# {doc}")?;
+      }
     }
 
     for attribute in &self.attributes {

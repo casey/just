@@ -1,46 +1,46 @@
 use super::*;
 
-#[derive(Derivative)]
-#[derivative(Debug, Clone, PartialEq = "feature_allow_slow_enum")]
+#[derive_where(Debug, PartialEq)]
+#[derive(Clone)]
 pub(crate) enum Thunk<'src> {
   Nullary {
     name: Name<'src>,
-    #[derivative(Debug = "ignore", PartialEq = "ignore")]
+    #[derive_where(skip(Debug, EqHashOrd))]
     function: fn(function::Context) -> FunctionResult,
   },
   Unary {
     name: Name<'src>,
-    #[derivative(Debug = "ignore", PartialEq = "ignore")]
+    #[derive_where(skip(Debug, EqHashOrd))]
     function: fn(function::Context, &str) -> FunctionResult,
     arg: Box<Expression<'src>>,
   },
   UnaryOpt {
     name: Name<'src>,
-    #[derivative(Debug = "ignore", PartialEq = "ignore")]
+    #[derive_where(skip(Debug, EqHashOrd))]
     function: fn(function::Context, &str, Option<&str>) -> FunctionResult,
     args: (Box<Expression<'src>>, Box<Option<Expression<'src>>>),
   },
   UnaryPlus {
     name: Name<'src>,
-    #[derivative(Debug = "ignore", PartialEq = "ignore")]
+    #[derive_where(skip(Debug, EqHashOrd))]
     function: fn(function::Context, &str, &[String]) -> FunctionResult,
     args: (Box<Expression<'src>>, Vec<Expression<'src>>),
   },
   Binary {
     name: Name<'src>,
-    #[derivative(Debug = "ignore", PartialEq = "ignore")]
+    #[derive_where(skip(Debug, EqHashOrd))]
     function: fn(function::Context, &str, &str) -> FunctionResult,
     args: [Box<Expression<'src>>; 2],
   },
   BinaryPlus {
     name: Name<'src>,
-    #[derivative(Debug = "ignore", PartialEq = "ignore")]
+    #[derive_where(skip(Debug, EqHashOrd))]
     function: fn(function::Context, &str, &str, &[String]) -> FunctionResult,
     args: ([Box<Expression<'src>>; 2], Vec<Expression<'src>>),
   },
   Ternary {
     name: Name<'src>,
-    #[derivative(Debug = "ignore", PartialEq = "ignore")]
+    #[derive_where(skip(Debug, EqHashOrd))]
     function: fn(function::Context, &str, &str, &str) -> FunctionResult,
     args: [Box<Expression<'src>>; 3],
   },
@@ -183,7 +183,7 @@ impl Display for Thunk<'_> {
   }
 }
 
-impl<'src> Serialize for Thunk<'src> {
+impl Serialize for Thunk<'_> {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
   where
     S: Serializer,

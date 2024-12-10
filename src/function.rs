@@ -87,6 +87,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "path_exists" => Unary(path_exists),
     "prepend" => Binary(prepend),
     "quote" => Unary(quote),
+    "read" => Unary(read),
     "replace" => Ternary(replace),
     "replace_regex" => Ternary(replace_regex),
     "semver_matches" => Binary(semver_matches),
@@ -98,6 +99,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "snakecase" => Unary(snakecase),
     "source_directory" => Nullary(source_directory),
     "source_file" => Nullary(source_file),
+    "style" => Unary(style),
     "titlecase" => Unary(titlecase),
     "trim" => Unary(trim),
     "trim_end" => Unary(trim_end),
@@ -527,6 +529,11 @@ fn quote(_context: Context, s: &str) -> FunctionResult {
   Ok(format!("'{}'", s.replace('\'', "'\\''")))
 }
 
+fn read(context: Context, filename: &str) -> FunctionResult {
+  fs::read_to_string(context.evaluator.context.working_directory().join(filename))
+    .map_err(|err| format!("I/O error reading `{filename}`: {err}"))
+}
+
 fn replace(_context: Context, s: &str, from: &str, to: &str) -> FunctionResult {
   Ok(s.replace(from, to))
 }
@@ -621,6 +628,20 @@ fn source_file(context: Context) -> FunctionResult {
         context.name.token.path.display(),
       )
     })
+}
+
+fn style(context: Context, s: &str) -> FunctionResult {
+  match s {
+    "command" => Ok(
+      Color::always()
+        .command(context.evaluator.context.config.command_color)
+        .prefix()
+        .to_string(),
+    ),
+    "error" => Ok(Color::always().error().prefix().to_string()),
+    "warning" => Ok(Color::always().warning().prefix().to_string()),
+    _ => Err(format!("unknown style: `{s}`")),
+  }
 }
 
 fn titlecase(_context: Context, s: &str) -> FunctionResult {

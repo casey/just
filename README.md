@@ -23,7 +23,10 @@
 
 `just` is a handy way to save and run project-specific commands.
 
-This readme is also available as a [book](https://just.systems/man/en/).
+This readme is also available as a [book](https://just.systems/man/en/). The
+book reflects the latest release, whereas the
+[readme on GitHub](https://github.com/casey/just/blob/master/README.md)
+reflects latest master.
 
 (中文文档在 [这里](https://github.com/casey/just/blob/master/README.中文.md),
 快看过来!)
@@ -48,9 +51,9 @@ Yay, all your tests passed!
   [`make`'s complexity and idiosyncrasies](#what-are-the-idiosyncrasies-of-make-that-just-avoids).
   No need for `.PHONY` recipes!
 
-- Linux, MacOS, and Windows are supported with no additional dependencies.
-  (Although if your system doesn't have an `sh`, you'll need to
-  [choose a different shell](#shell).)
+- Linux, MacOS, Windows, and other reasonable unices are supported with no
+  additional dependencies. (Although if your system doesn't have an `sh`,
+  you'll need to [choose a different shell](#shell).)
 
 - Errors are specific and informative, and syntax errors are reported along
   with their source context.
@@ -167,12 +170,17 @@ most Windows users.)
     <tr>
       <td><a href=https://www.npmjs.com/>npm</a></td>
       <td><a href=https://www.npmjs.com/package/rust-just>rust-just</a></td>
-      <td><code>npm install rust-just</code></td>
+      <td><code>npm install -g rust-just</code></td>
     </tr>
     <tr>
       <td><a href=https://pypi.org/>PyPI</a></td>
       <td><a href=https://pypi.org/project/rust-just/>rust-just</a></td>
       <td><code>pipx install rust-just</code></td>
+    </tr>
+    <tr>
+      <td><a href=https://snapcraft.io>Snap</a></td>
+      <td><a href=https://snapcraft.io/just>just</a></td>
+      <td><code>snap install --edge --classic just</code></td>
     </tr>
   </tbody>
 </table>
@@ -884,8 +892,8 @@ $ just bar
 /subdir
 ```
 
-You can override working directory with `set working-directory := '…'`, whose value
-is relative to the default working directory.
+You can override the working directory for all recipes with
+`set working-directory := '…'`:
 
 ```just
 set working-directory := 'bar'
@@ -900,6 +908,26 @@ $ pwd
 $ just foo
 /home/bob/bar
 ```
+
+You can override the working directory for a specific recipe with the
+`working-directory` attribute<sup>1.38.0</sup>:
+
+```just
+[working-directory: 'bar']
+@foo:
+  pwd
+```
+
+```console
+$ pwd
+/home/bob
+$ just foo
+/home/bob/bar
+```
+
+The argument to the `working-directory` setting or `working-directory`
+attribute may be absolute or relative. If it is relative it is interpreted
+relative to the default working directory.
 
 ### Aliases
 
@@ -1324,7 +1352,7 @@ foobar := 'foo' + 'bar'
 #### Logical Operators
 
 The logical operators `&&` and `||` can be used to coalesce string
-values<sup>master</sup>, similar to Python's `and` and `or`. These operators
+values<sup>1.37.0</sup>, similar to Python's `and` and `or`. These operators
 consider the empty string `''` to be false, and all other strings to be true.
 
 These operators are currently unstable.
@@ -1413,6 +1441,10 @@ braces:
 ```
 
 ### Strings
+
+`'single'`, `"double"`, and `'''triple'''` quoted string literals are
+supported. Unlike in recipe bodies, `{{…}}` interpolations are not supported
+inside strings.
 
 Double-quoted strings support escape sequences:
 
@@ -1810,6 +1842,8 @@ which will halt execution.
 - `path_exists(path)` - Returns `true` if the path points at an existing entity
   and `false` otherwise. Traverses symbolic links, and returns `false` if the
   path is inaccessible or points to a broken symlink.
+- `read(path)`<sup>master</sup> - Returns the content of file at `path` as
+  string.
 
 ##### Error Reporting
 
@@ -1851,6 +1885,24 @@ for details.
   `requirement`, e.g., `">=0.1.0"`, returning `"true"` if so and `"false"`
   otherwise.
 
+#### Style
+
+- `style(name)`<sup>1.37.0</sup> - Return a named terminal display attribute
+  escape sequence used by `just`. Unlike terminal display attribute escape
+  sequence constants, which contain standard colors and styles, `style(name)`
+  returns an escape sequence used by `just` itself, and can be used to make
+  recipe output match `just`'s own output.
+
+  Recognized values for `name` are `'command'`, for echoed recipe lines,
+  `error`, and `warning`.
+
+  For example, to style an error message:
+
+  ```just
+  scary:
+    @echo '{{ style("error") }}OH NO{{ NORMAL }}'
+  ```
+
 ##### XDG Directories<sup>1.23.0</sup>
 
 These functions return paths to user-specific directories for things like
@@ -1877,30 +1929,30 @@ A number of constants are predefined:
 | `HEX`<sup>1.27.0</sup> | `"0123456789abcdef"` |
 | `HEXLOWER`<sup>1.27.0</sup> | `"0123456789abcdef"` |
 | `HEXUPPER`<sup>1.27.0</sup> | `"0123456789ABCDEF"` |
-| `CLEAR`<sup>master</sup> | `"\ec"` |
-| `NORMAL`<sup>master</sup> | `"\e[0m"` |
-| `BOLD`<sup>master</sup> | `"\e[1m"` |
-| `ITALIC`<sup>master</sup> | `"\e[3m"` |
-| `UNDERLINE`<sup>master</sup> | `"\e[4m"` |
-| `INVERT`<sup>master</sup> | `"\e[7m"` |
-| `HIDE`<sup>master</sup> | `"\e[8m"` |
-| `STRIKETHROUGH`<sup>master</sup> | `"\e[9m"` |
-| `BLACK`<sup>master</sup> | `"\e[30m"` |
-| `RED`<sup>master</sup> | `"\e[31m"` |
-| `GREEN`<sup>master</sup> | `"\e[32m"` |
-| `YELLOW`<sup>master</sup> | `"\e[33m"` |
-| `BLUE`<sup>master</sup> | `"\e[34m"` |
-| `MAGENTA`<sup>master</sup> | `"\e[35m"` |
-| `CYAN`<sup>master</sup> | `"\e[36m"` |
-| `WHITE`<sup>master</sup> | `"\e[37m"` |
-| `BG_BLACK`<sup>master</sup> | `"\e[40m"` |
-| `BG_RED`<sup>master</sup> | `"\e[41m"` |
-| `BG_GREEN`<sup>master</sup> | `"\e[42m"` |
-| `BG_YELLOW`<sup>master</sup> | `"\e[43m"` |
-| `BG_BLUE`<sup>master</sup> | `"\e[44m"` |
-| `BG_MAGENTA`<sup>master</sup> | `"\e[45m"` |
-| `BG_CYAN`<sup>master</sup> | `"\e[46m"` |
-| `BG_WHITE`<sup>master</sup> | `"\e[47m"` |
+| `CLEAR`<sup>1.37.0</sup> | `"\ec"` |
+| `NORMAL`<sup>1.37.0</sup> | `"\e[0m"` |
+| `BOLD`<sup>1.37.0</sup> | `"\e[1m"` |
+| `ITALIC`<sup>1.37.0</sup> | `"\e[3m"` |
+| `UNDERLINE`<sup>1.37.0</sup> | `"\e[4m"` |
+| `INVERT`<sup>1.37.0</sup> | `"\e[7m"` |
+| `HIDE`<sup>1.37.0</sup> | `"\e[8m"` |
+| `STRIKETHROUGH`<sup>1.37.0</sup> | `"\e[9m"` |
+| `BLACK`<sup>1.37.0</sup> | `"\e[30m"` |
+| `RED`<sup>1.37.0</sup> | `"\e[31m"` |
+| `GREEN`<sup>1.37.0</sup> | `"\e[32m"` |
+| `YELLOW`<sup>1.37.0</sup> | `"\e[33m"` |
+| `BLUE`<sup>1.37.0</sup> | `"\e[34m"` |
+| `MAGENTA`<sup>1.37.0</sup> | `"\e[35m"` |
+| `CYAN`<sup>1.37.0</sup> | `"\e[36m"` |
+| `WHITE`<sup>1.37.0</sup> | `"\e[37m"` |
+| `BG_BLACK`<sup>1.37.0</sup> | `"\e[40m"` |
+| `BG_RED`<sup>1.37.0</sup> | `"\e[41m"` |
+| `BG_GREEN`<sup>1.37.0</sup> | `"\e[42m"` |
+| `BG_YELLOW`<sup>1.37.0</sup> | `"\e[43m"` |
+| `BG_BLUE`<sup>1.37.0</sup> | `"\e[44m"` |
+| `BG_MAGENTA`<sup>1.37.0</sup> | `"\e[45m"` |
+| `BG_CYAN`<sup>1.37.0</sup> | `"\e[46m"` |
+| `BG_WHITE`<sup>1.37.0</sup> | `"\e[47m"` |
 
 ```just
 @foo:
@@ -1948,12 +2000,14 @@ change their behavior.
 | `[no-cd]`<sup>1.9.0</sup> | recipe | Don't change directory before executing recipe. |
 | `[no-exit-message]`<sup>1.7.0</sup> | recipe | Don't print an error message if recipe fails. |
 | `[no-quiet]`<sup>1.23.0</sup> | recipe | Override globally quiet recipes and always echo out the recipe. |
+| `[openbsd]`<sup>1.38.0</sup> | recipe | Enable recipe on OpenBSD. |
 | `[positional-arguments]`<sup>1.29.0</sup> | recipe | Turn on [positional arguments](#positional-arguments) for this recipe. |
 | `[private]`<sup>1.10.0</sup> | alias, recipe | Make recipe, alias, or variable private. See [Private Recipes](#private-recipes). |
 | `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
 | `[script(COMMAND)]`<sup>1.32.0</sup> | recipe | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
 | `[unix]`<sup>1.8.0</sup> | recipe | Enable recipe on Unixes. (Includes MacOS). |
 | `[windows]`<sup>1.8.0</sup> | recipe | Enable recipe on Windows. |
+| `[working-directory(PATH)]`<sup>1.38.0</sup> | recipe | Set recipe working directory. `PATH` may be relative or absolute. If relative, it is interpreted relative to the default working directory. |
 
 A recipe can have multiple attributes, either on multiple lines:
 
@@ -2755,8 +2809,9 @@ scripts interpreted by `COMMAND`. This avoids some of the issues with shebang
 recipes, such as the use of `cygpath` on Windows, the need to use
 `/usr/bin/env`, and inconsistences in shebang line splitting across Unix OSs.
 
-Recipes with an empty `[script]` attribute are executed with the value of
-`set script-interpreter := […]`<sup>1.33.0</sup>, defaulting to `sh -eu`.
+Recipes with an empty `[script]` attribute are executed with the value of `set
+script-interpreter := […]`<sup>1.33.0</sup>, defaulting to `sh -eu`, and *not*
+the value of `set shell`.
 
 The body of the recipe is evaluated, written to disk in the temporary
 directory, and run by passing its path as an argument to `COMMAND`.
@@ -3402,7 +3457,7 @@ Imports may be made optional by putting a `?` after the `import` keyword:
 import? 'foo/bar.just'
 ```
 
-Importing the same source file multiple times is not an error<sup>master</sup>.
+Importing the same source file multiple times is not an error<sup>1.37.0</sup>.
 This allows importing multiple justfiles, for example `foo.just` and
 `bar.just`, which both import a third justfile containing shared recipes, for
 example `baz.just`, without the duplicate import of `baz.just` being an error:

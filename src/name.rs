@@ -28,7 +28,7 @@ impl Display for Name<'_> {
   }
 }
 
-impl<'src> Serialize for Name<'src> {
+impl Serialize for Name<'_> {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
   where
     S: Serializer,

@@ -9,7 +9,7 @@ pub(crate) struct Line<'src> {
   pub(crate) number: usize,
 }
 
-impl<'src> Line<'src> {
+impl Line<'_> {
   pub(crate) fn is_empty(&self) -> bool {
     self.fragments.is_empty()
   }

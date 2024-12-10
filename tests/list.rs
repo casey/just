@@ -452,7 +452,7 @@ fn backticks_highlighted() {
     .stdout(
       "
         Available recipes:
-            recipe \u{1b}[34m#\u{1b}[0m \u{1b}[34mComment \u{1b}[0m\u{1b}[40;37m``\u{1b}[0m\u{1b}[34m \u{1b}[0m\u{1b}[40;37m`with backticks`\u{1b}[0m\u{1b}[34m and trailing text\u{1b}[0m
+            recipe \u{1b}[34m#\u{1b}[0m \u{1b}[34mComment \u{1b}[0m\u{1b}[36m``\u{1b}[0m\u{1b}[34m \u{1b}[0m\u{1b}[36m`with backticks`\u{1b}[0m\u{1b}[34m and trailing text\u{1b}[0m
       ")
     .run();
 }
@@ -470,7 +470,7 @@ fn unclosed_backticks() {
     .stdout(
       "
         Available recipes:
-            recipe \u{1b}[34m#\u{1b}[0m \u{1b}[34mComment \u{1b}[0m\u{1b}[40;37m`with unclosed backick\u{1b}[0m
+            recipe \u{1b}[34m#\u{1b}[0m \u{1b}[34mComment \u{1b}[0m\u{1b}[36m`with unclosed backick\u{1b}[0m
       ")
     .run();
 }
