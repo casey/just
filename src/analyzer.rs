@@ -78,7 +78,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
               &[AttributeDiscriminant::Doc, AttributeDiscriminant::Group],
             )?;
 
-            for attribute in attributes.iter() {
+            for attribute in attributes {
               match attribute {
                 Attribute::Doc(ref doc) => {
                   doc_attr = Some(doc.as_ref().map(|s| s.cooked.as_ref()).unwrap_or_default());
