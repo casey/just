@@ -11,3 +11,14 @@ fn dont_run_duplicate_recipes() {
     )
     .run();
 }
+
+#[test]
+fn invalid_bang_operator() {
+  Test::new()
+    .justfile(
+      "
+      x := if '' !! '' { '' } else { '' }
+      ",
+    )
+    .run();
+}
