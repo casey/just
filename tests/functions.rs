@@ -1260,9 +1260,9 @@ fn style_unknown() {
 }
 
 #[test]
-fn read_to_string() {
+fn read() {
   Test::new()
-    .justfile("foo := read_to_string('bar')")
+    .justfile("foo := read('bar')")
     .write("bar", "baz")
     .args(["--evaluate", "foo"])
     .stdout("baz")
@@ -1270,11 +1270,11 @@ fn read_to_string() {
 }
 
 #[test]
-fn read_to_string_not_found() {
+fn read_file_not_found() {
   Test::new()
-    .justfile("foo := read_to_string('bar')")
+    .justfile("foo := read('bar')")
     .args(["--evaluate", "foo"])
-    .stderr_regex(r"error: Call to function `read_to_string` failed: I/O error reading `bar`: .*")
+    .stderr_regex(r"error: Call to function `read` failed: I/O error reading `bar`: .*")
     .status(EXIT_FAILURE)
     .run();
 }
