@@ -176,7 +176,10 @@
 </div>
 <br>
 <p><code>just</code> is a handy way to save and run project-specific commands.</p>
-<p>This readme is also available as a <a href="https://just.systems/man/en/">book</a>.</p>
+<p>This readme is also available as a <a href="https://just.systems/man/en/">book</a>. The
+book reflects the latest release, whereas the
+<a href="https://github.com/casey/just/blob/master/README.md">readme on GitHub</a>
+reflects latest master.</p>
 <p>(中文文档在 <a href="https://github.com/casey/just/blob/master/README.%E4%B8%AD%E6%96%87.md">这里</a>,
 快看过来!)</p>
 <p>Commands, called recipes, are stored in a file called <code>justfile</code> with syntax
@@ -859,7 +862,7 @@ $ just foo
 /home/bob/bar
 </code></pre>
 <p>You can override the working directory for a specific recipe with the
-<code>working-directory</code> attribute<sup>master</sup>:</p>
+<code>working-directory</code> attribute<sup>1.38.0</sup>:</p>
 <pre><code class="language-just">[working-directory: 'bar']
 @foo:
   pwd
@@ -1691,14 +1694,14 @@ change their behavior.</p>
 <tr><td><code>[no-cd]</code><sup>1.9.0</sup></td><td>recipe</td><td>Don’t change directory before executing recipe.</td></tr>
 <tr><td><code>[no-exit-message]</code><sup>1.7.0</sup></td><td>recipe</td><td>Don’t print an error message if recipe fails.</td></tr>
 <tr><td><code>[no-quiet]</code><sup>1.23.0</sup></td><td>recipe</td><td>Override globally quiet recipes and always echo out the recipe.</td></tr>
-<tr><td><code>[openbsd]</code><sup>master</sup></td><td>recipe</td><td>Enable recipe on OpenBSD.</td></tr>
+<tr><td><code>[openbsd]</code><sup>1.38.0</sup></td><td>recipe</td><td>Enable recipe on OpenBSD.</td></tr>
 <tr><td><code>[positional-arguments]</code><sup>1.29.0</sup></td><td>recipe</td><td>Turn on <a href="avoiding-argument-splitting.html#positional-arguments">positional arguments</a> for this recipe.</td></tr>
 <tr><td><code>[private]</code><sup>1.10.0</sup></td><td>alias, recipe</td><td>Make recipe, alias, or variable private. See <a href="private-recipes.html">Private Recipes</a>.</td></tr>
 <tr><td><code>[script]</code><sup>1.33.0</sup></td><td>recipe</td><td>Execute recipe as script. See <a href="script-recipes.html">script recipes</a> for more details.</td></tr>
 <tr><td><code>[script(COMMAND)]</code><sup>1.32.0</sup></td><td>recipe</td><td>Execute recipe as a script interpreted by <code>COMMAND</code>. See <a href="script-recipes.html">script recipes</a> for more details.</td></tr>
 <tr><td><code>[unix]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on Unixes. (Includes MacOS).</td></tr>
 <tr><td><code>[windows]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on Windows.</td></tr>
-<tr><td><code>[working-directory(PATH)]</code><sup>master</sup></td><td>recipe</td><td>Set recipe working directory. <code>PATH</code> may be relative or absolute. If relative, it is interpreted relative to the default working directory.</td></tr>
+<tr><td><code>[working-directory(PATH)]</code><sup>1.38.0</sup></td><td>recipe</td><td>Set recipe working directory. <code>PATH</code> may be relative or absolute. If relative, it is interpreted relative to the default working directory.</td></tr>
 </tbody></table>
 </div>
 <p>A recipe can have multiple attributes, either on multiple lines:</p>
