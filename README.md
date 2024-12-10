@@ -23,7 +23,10 @@
 
 `just` is a handy way to save and run project-specific commands.
 
-This readme is also available as a [book](https://just.systems/man/en/).
+This readme is also available as a [book](https://just.systems/man/en/). The
+book reflects the latest release, whereas the
+[readme on GitHub](https://github.com/casey/just/blob/master/README.md)
+reflects latest master.
 
 (中文文档在 [这里](https://github.com/casey/just/blob/master/README.中文.md),
 快看过来!)
@@ -907,7 +910,7 @@ $ just foo
 ```
 
 You can override the working directory for a specific recipe with the
-`working-directory` attribute<sup>master</sup>:
+`working-directory` attribute<sup>1.38.0</sup>:
 
 ```just
 [working-directory: 'bar']
@@ -1439,6 +1442,10 @@ braces:
 
 ### Strings
 
+`'single'`, `"double"`, and `'''triple'''` quoted string literals are
+supported. Unlike in recipe bodies, `{{…}}` interpolations are not supported
+inside strings.
+
 Double-quoted strings support escape sequences:
 
 ```just
@@ -1835,6 +1842,8 @@ which will halt execution.
 - `path_exists(path)` - Returns `true` if the path points at an existing entity
   and `false` otherwise. Traverses symbolic links, and returns `false` if the
   path is inaccessible or points to a broken symlink.
+- `read(path)`<sup>master</sup> - Returns the content of file at `path` as
+  string.
 
 ##### Error Reporting
 
@@ -1991,14 +2000,14 @@ change their behavior.
 | `[no-cd]`<sup>1.9.0</sup> | recipe | Don't change directory before executing recipe. |
 | `[no-exit-message]`<sup>1.7.0</sup> | recipe | Don't print an error message if recipe fails. |
 | `[no-quiet]`<sup>1.23.0</sup> | recipe | Override globally quiet recipes and always echo out the recipe. |
-| `[openbsd]`<sup>master</sup> | recipe | Enable recipe on OpenBSD. |
+| `[openbsd]`<sup>1.38.0</sup> | recipe | Enable recipe on OpenBSD. |
 | `[positional-arguments]`<sup>1.29.0</sup> | recipe | Turn on [positional arguments](#positional-arguments) for this recipe. |
 | `[private]`<sup>1.10.0</sup> | alias, recipe | Make recipe, alias, or variable private. See [Private Recipes](#private-recipes). |
 | `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
 | `[script(COMMAND)]`<sup>1.32.0</sup> | recipe | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
 | `[unix]`<sup>1.8.0</sup> | recipe | Enable recipe on Unixes. (Includes MacOS). |
 | `[windows]`<sup>1.8.0</sup> | recipe | Enable recipe on Windows. |
-| `[working-directory(PATH)]`<sup>master</sup> | recipe | Set recipe working directory. `PATH` may be relative or absolute. If relative, it is interpreted relative to the default working directory. |
+| `[working-directory(PATH)]`<sup>1.38.0</sup> | recipe | Set recipe working directory. `PATH` may be relative or absolute. If relative, it is interpreted relative to the default working directory. |
 
 A recipe can have multiple attributes, either on multiple lines:
 
