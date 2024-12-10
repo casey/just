@@ -1836,7 +1836,7 @@ which will halt execution.
   and `false` otherwise. Traverses symbolic links, and returns `false` if the
   path is inaccessible or points to a broken symlink.
 - `read_to_string(path)`<sup>master</sup> - Returns the content of file at
-  `path` as a string.
+  `path` as string.
 
 ##### Error Reporting
 
