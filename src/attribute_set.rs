@@ -19,7 +19,7 @@ impl<'src> AttributeSet<'src> {
       .find(|attr| discriminant == attr.discriminant())
   }
 
-  pub(crate) fn iter(&self) -> impl Iterator<Item = &Attribute<'src>> {
+  pub(crate) fn iter<'a>(&'a self) -> collections::btree_set::Iter<'a, Attribute<'src>> {
     self.0.iter()
   }
 
