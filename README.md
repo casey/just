@@ -1440,7 +1440,7 @@ braces:
 ### Strings
 
 `'single'`, `"double"`, and `'''triple'''` quoted string literals are
-supported. Unlike recipe bodies, `{{…}}` interpolations are not supported
+supported. Unlike in recipe bodies, `{{…}}` interpolations are not supported
 inside strings.
 
 Double-quoted strings support escape sequences:
