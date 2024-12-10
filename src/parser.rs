@@ -615,7 +615,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     } else if self.accepted(EqualsTilde)? {
       ConditionalOperator::RegexMatch
     } else if self.accepted(BangTilde)? {
-      ConditionalOperator::RegexNotMatch
+      ConditionalOperator::RegexMismatch
     } else {
       self.expect(EqualsEquals)?;
       ConditionalOperator::Equality

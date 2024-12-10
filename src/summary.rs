@@ -360,7 +360,7 @@ pub enum ConditionalOperator {
   Equality,
   Inequality,
   RegexMatch,
-  RegexNotMatch,
+  RegexMismatch,
 }
 
 impl ConditionalOperator {
@@ -369,7 +369,7 @@ impl ConditionalOperator {
       full::ConditionalOperator::Equality => Self::Equality,
       full::ConditionalOperator::Inequality => Self::Inequality,
       full::ConditionalOperator::RegexMatch => Self::RegexMatch,
-      full::ConditionalOperator::RegexNotMatch => Self::RegexNotMatch,
+      full::ConditionalOperator::RegexMismatch => Self::RegexMismatch,
     }
   }
 }

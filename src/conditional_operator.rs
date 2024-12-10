@@ -10,7 +10,7 @@ pub(crate) enum ConditionalOperator {
   /// `=~`
   RegexMatch,
   /// `!~`
-  RegexNotMatch,
+  RegexMismatch,
 }
 
 impl Display for ConditionalOperator {
@@ -19,7 +19,7 @@ impl Display for ConditionalOperator {
       Self::Equality => write!(f, "=="),
       Self::Inequality => write!(f, "!="),
       Self::RegexMatch => write!(f, "=~"),
-      Self::RegexNotMatch => write!(f, "!~"),
+      Self::RegexMismatch => write!(f, "!~"),
     }
   }
 }
