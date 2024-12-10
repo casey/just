@@ -1466,7 +1466,8 @@ escapes := "\t\n\r\"\\"
 ```
 
 Indented versions of both single- and double-quoted strings, delimited by
-triple single- or double-quotes, are supported. Indented string lines are
+triple single- or double-quotes, are supported. Recipe variables cannot
+be interpolated in a triple-quoted string. Indented string lines are
 stripped of a leading line break, and leading whitespace common to all
 non-blank lines:
 
@@ -3054,6 +3055,11 @@ abc2 := (
   'c'
 )
 
+abc3 := (
+  abc2 +
+  'd'
+)
+
 foo param=('foo'
       + 'bar'
     ):
@@ -3071,6 +3077,9 @@ joined by whitespace<sup>1.15.0</sup>:
 ```just
 a := 'foo' + \
      'bar'
+
+b := 'foo' + \
+     a
 
 foo param1 \
   param2='foo' \
