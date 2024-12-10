@@ -1258,3 +1258,23 @@ fn style_unknown() {
     .status(EXIT_FAILURE)
     .run();
 }
+
+#[test]
+fn read_to_string() {
+  Test::new()
+    .justfile("foo := read_to_string('bar')")
+    .write("bar", "baz")
+    .args(["--evaluate", "foo"])
+    .stdout("baz")
+    .run();
+}
+
+#[test]
+fn read_to_string_not_found() {
+  Test::new()
+    .justfile("foo := read_to_string('bar')")
+    .args(["--evaluate", "foo"])
+    .stderr_regex(r"error: Call to function `read_to_string` failed: I/O error reading `bar`: .*")
+    .status(EXIT_FAILURE)
+    .run();
+}
