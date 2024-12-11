@@ -184,7 +184,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       unstable_features.insert(UnstableFeature::ScriptInterpreterSetting);
     }
 
-    let source = root.lexiclean();
+    let source = root.to_owned();
     let root = paths.get(root).unwrap();
 
     Ok(Justfile {
