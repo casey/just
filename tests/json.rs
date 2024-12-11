@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Debug, Default, Deserialize, PartialEq, Serialize, Clone)]
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
 #[serde(deny_unknown_fields)]
 struct Alias<'a> {
   attributes: Vec<&'a str>,
@@ -8,7 +8,7 @@ struct Alias<'a> {
   target: &'a str,
 }
 
-#[derive(Debug, Default, Deserialize, PartialEq, Serialize, Clone)]
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
 #[serde(deny_unknown_fields)]
 struct Assignment<'a> {
   export: bool,
@@ -17,21 +17,21 @@ struct Assignment<'a> {
   value: &'a str,
 }
 
-#[derive(Debug, Default, Deserialize, PartialEq, Serialize, Clone)]
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
 #[serde(deny_unknown_fields)]
 struct Dependency<'a> {
   arguments: Vec<Value>,
   recipe: &'a str,
 }
 
-#[derive(Debug, Default, Deserialize, PartialEq, Serialize, Clone)]
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
 #[serde(deny_unknown_fields)]
 struct Interpreter<'a> {
   arguments: Vec<&'a str>,
   command: &'a str,
 }
 
-#[derive(Debug, Default, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Module<'a> {
   aliases: BTreeMap<&'a str, Alias<'a>>,
@@ -47,7 +47,7 @@ struct Module<'a> {
   source: PathBuf,
 }
 
-#[derive(Debug, Default, Deserialize, PartialEq, Serialize, Clone)]
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
 #[serde(deny_unknown_fields)]
 struct Parameter<'a> {
   default: Option<&'a str>,
@@ -56,7 +56,7 @@ struct Parameter<'a> {
   name: &'a str,
 }
 
-#[derive(Debug, Default, Deserialize, PartialEq, Serialize, Clone)]
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
 #[serde(deny_unknown_fields)]
 struct Recipe<'a> {
   attributes: Vec<Value>,
@@ -72,7 +72,7 @@ struct Recipe<'a> {
   shebang: bool,
 }
 
-#[derive(Debug, Default, Deserialize, PartialEq, Serialize, Clone)]
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
 #[serde(deny_unknown_fields)]
 struct Settings<'a> {
   allow_duplicate_recipes: bool,
