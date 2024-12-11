@@ -447,50 +447,23 @@ fn lowercase(_context: Context, s: &str) -> FunctionResult {
 }
 
 fn module_directory(context: Context) -> FunctionResult {
-  context
-    .evaluator
-    .context
-    .search
-    .justfile
-    .parent()
-    .unwrap()
-    .join(&context.evaluator.context.module.source)
-    .parent()
-    .unwrap()
-    .to_str()
-    .map(str::to_owned)
-    .ok_or_else(|| {
-      format!(
-        "Module directory is not valid unicode: {}",
-        context
-          .evaluator
-          .context
-          .module
-          .source
-          .parent()
-          .unwrap()
-          .display(),
-      )
-    })
+  let module_directory = context.evaluator.context.module.source.parent().unwrap();
+  module_directory.to_str().map(str::to_owned).ok_or_else(|| {
+    format!(
+      "Module directory is not valid unicode: {}",
+      module_directory.display(),
+    )
+  })
 }
 
 fn module_file(context: Context) -> FunctionResult {
-  context
-    .evaluator
-    .context
-    .search
-    .justfile
-    .parent()
-    .unwrap()
-    .join(&context.evaluator.context.module.source)
-    .to_str()
-    .map(str::to_owned)
-    .ok_or_else(|| {
-      format!(
-        "Module file path is not valid unicode: {}",
-        context.evaluator.context.module.source.display(),
-      )
-    })
+  let module_file = &context.evaluator.context.module.source;
+  module_file.to_str().map(str::to_owned).ok_or_else(|| {
+    format!(
+      "Module file path is not valid unicode: {}",
+      module_file.display(),
+    )
+  })
 }
 
 fn num_cpus(_context: Context) -> FunctionResult {
