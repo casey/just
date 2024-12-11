@@ -246,7 +246,9 @@ impl Display for CompileError<'_> {
         "Non-default parameter `{parameter}` follows default parameter"
       ),
       UndefinedVariable { variable } => write!(f, "Variable `{variable}` not defined"),
-      UnexpectedCharacter { expected } => write!(f, "Expected character `{expected}`"),
+      UnexpectedCharacter { expected } => {
+        write!(f, "Expected character {}", List::or_ticked(expected.iter()))
+      }
       UnexpectedClosingDelimiter { close } => {
         write!(f, "Unexpected closing delimiter `{}`", close.close())
       }
