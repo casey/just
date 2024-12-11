@@ -20,5 +20,15 @@ fn invalid_bang_operator() {
       x := if '' !! '' { '' } else { '' }
       ",
     )
+    .status(1)
+    .stderr(
+      r"
+error: Expected character `=` or `~`
+ ——▶ justfile:1:13
+  │
+1 │ x := if '' !! '' { '' } else { '' }
+  │             ^
+",
+    )
     .run();
 }

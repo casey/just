@@ -246,7 +246,19 @@ impl Display for CompileError<'_> {
         "Non-default parameter `{parameter}` follows default parameter"
       ),
       UndefinedVariable { variable } => write!(f, "Variable `{variable}` not defined"),
-      UnexpectedCharacter { expected } => write!(f, "Expected character `{expected}`"),
+      UnexpectedCharacter { expected } => {
+        write!(f, "Expected character")?;
+        for (i, choice) in expected.iter().enumerate() {
+          if i > 0 && i == expected.len() - 1 {
+            write!(f, " or")?;
+          }
+          write!(f, " `{choice}`")?;
+          if expected.len() > 2 && i < expected.len() - 1 {
+            write!(f, ",")?;
+          }
+        }
+        Ok(())
+      }
       UnexpectedClosingDelimiter { close } => {
         write!(f, "Unexpected closing delimiter `{}`", close.close())
       }
