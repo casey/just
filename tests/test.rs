@@ -122,15 +122,7 @@ impl Test {
   }
 
   pub(crate) fn justfile_path(&self) -> PathBuf {
-    self.justfile_path_with_filename("justfile".into())
-  }
-
-  pub(crate) fn justfile_path_with_filename(&self, justfile: PathBuf) -> PathBuf {
-    if cfg!(target_os = "macos") {
-      self.tempdir.path().canonicalize().unwrap().join(justfile)
-    } else {
-      self.tempdir.path().join(justfile)
-    }
+    self.tempdir.path().join("justfile")
   }
 
   #[cfg(unix)]

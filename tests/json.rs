@@ -99,8 +99,26 @@ fn case(justfile: &str, expected: Module) {
   case_with_submodule(justfile, None, expected);
 }
 
+fn fix_source(dir: &Path, module: &mut Module) {
+  let filename = if module.source.as_os_str().is_empty() {
+    Path::new("justfile")
+  } else {
+    &module.source
+  };
+
+  module.source = if cfg!(target_os = "macos") {
+    dir.canonicalize().unwrap().join(filename)
+  } else {
+    dir.join(filename)
+  };
+
+  for module in module.modules.values_mut() {
+    fix_source(dir, module);
+  }
+}
+
 #[track_caller]
-fn case_with_submodule(justfile: &str, submodule: Option<(&str, &str)>, expected: Module) {
+fn case_with_submodule(justfile: &str, submodule: Option<(&str, &str)>, mut expected: Module) {
   let mut test = Test::new()
     .justfile(justfile)
     .args(["--dump", "--dump-format", "json"])
@@ -110,28 +128,7 @@ fn case_with_submodule(justfile: &str, submodule: Option<(&str, &str)>, expected
     test = test.write(path, source);
   }
 
-  let expected = if expected.source.as_os_str().is_empty() {
-    let mut expected = expected;
-    expected.source = test.justfile_path();
-    expected
-  } else {
-    let mut expected = expected;
-    expected.source = test.justfile_path_with_filename(expected.source);
-    expected
-  };
-
-  let modules = expected
-    .modules
-    .iter()
-    .map(|(key, module)| {
-      let module_source = test.justfile_path_with_filename(module.source.clone());
-      let mut module = module.clone();
-      module.source = module_source;
-      (*key, module.clone())
-    })
-    .collect();
-  let mut expected = expected;
-  expected.modules = modules;
+  fix_source(test.tempdir.path(), &mut expected);
 
   let actual = test.run().stdout;
 
