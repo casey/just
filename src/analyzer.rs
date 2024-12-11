@@ -184,6 +184,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       unstable_features.insert(UnstableFeature::ScriptInterpreterSetting);
     }
 
+    let source = root.to_owned();
     let root = paths.get(root).unwrap();
 
     Ok(Justfile {
@@ -207,7 +208,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       name,
       recipes,
       settings,
-      source: root.into(),
+      source,
       unexports: self.unexports,
       unstable_features,
       warnings: self.warnings,
