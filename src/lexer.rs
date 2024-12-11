@@ -639,13 +639,17 @@ impl<'src> Lexer<'src> {
       // Emit an unspecified token to consume the current character,
       self.token(Unspecified);
 
+      let expected = choices.iter().map(|choice| choice.0).collect();
+
+      if self.at_eof() {
+        return Err(self.error(UnexpectedEndOfToken { expected }));
+      }
+
       // …and advance past another character,
       self.advance()?;
 
       // …so that the error we produce highlights the unexpected character.
-      return Err(self.error(UnexpectedCharacter {
-        expected: choices.iter().map(|choice| choice.0).collect(),
-      }));
+      return Err(self.error(UnexpectedCharacter { expected }));
     }
 
     Ok(())
@@ -710,7 +714,9 @@ impl<'src> Lexer<'src> {
       self.token(Unspecified);
 
       if self.at_eof() {
-        return Err(self.error(UnexpectedEndOfToken { expected: right }));
+        return Err(self.error(UnexpectedEndOfToken {
+          expected: vec![right],
+        }));
       }
 
       // …and advance past another character,
@@ -2281,9 +2287,10 @@ mod tests {
     column: 1,
     width:  0,
     kind:   UnexpectedEndOfToken {
-      expected: '&',
+      expected: vec!['&'],
     },
   }
+
   error! {
     name:   ampersand_unexpected,
     input:  "&%",
@@ -2293,6 +2300,18 @@ mod tests {
     width:  1,
     kind:   UnexpectedCharacter {
       expected: vec!['&'],
+    },
+  }
+
+  error! {
+    name:   bang_eof,
+    input:  "!",
+    offset: 1,
+    line:   0,
+    column: 1,
+    width:  0,
+    kind:   UnexpectedEndOfToken {
+      expected: vec!['=', '~'],
     },
   }
 
