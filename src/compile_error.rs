@@ -255,7 +255,7 @@ impl Display for CompileError<'_> {
       UnexpectedEndOfToken { expected } => {
         write!(
           f,
-          "Expected character `{}` but found end-of-file",
+          "Expected character {} but found end-of-file",
           List::or_ticked(expected),
         )
       }
