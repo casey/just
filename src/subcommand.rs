@@ -660,7 +660,10 @@ impl Subcommand {
               config,
               name,
               doc.as_deref(),
-              aliases.get(recipe.name()).unwrap_or(&Vec::new()),
+              aliases
+                .get(recipe.name())
+                .map(Vec::as_slice)
+                .unwrap_or_default(),
               max_signature_width,
               &signature_widths,
             );
@@ -683,7 +686,7 @@ impl Subcommand {
               config,
               submodule.name(),
               submodule.doc.as_deref(),
-              &Vec::new(),
+              &[],
               max_signature_width,
               &signature_widths,
             );
