@@ -952,7 +952,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       attributes,
       body,
       dependencies,
-      doc,
+      doc: doc.filter(|doc| !doc.is_empty()),
       file_depth: self.file_depth,
       import_offsets: self.import_offsets.clone(),
       name,

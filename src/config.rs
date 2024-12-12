@@ -12,6 +12,7 @@ use {
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Config {
+  pub(crate) alias_style: AliasStyle,
   pub(crate) allow_missing: bool,
   pub(crate) check: bool,
   pub(crate) color: Color,
@@ -86,6 +87,7 @@ mod cmd {
 }
 
 mod arg {
+  pub(crate) const ALIAS_STYLE: &str = "ALIAS_STYLE";
   pub(crate) const ALLOW_MISSING: &str = "ALLOW-MISSING";
   pub(crate) const ARGUMENTS: &str = "ARGUMENTS";
   pub(crate) const CHECK: &str = "CHECK";
@@ -144,6 +146,16 @@ impl Config {
           .placeholder(AnsiColor::Cyan.on_default())
           .usage(AnsiColor::Yellow.on_default() | Effects::BOLD)
           .valid(AnsiColor::Green.on_default()),
+      )
+      .arg(
+        Arg::new(arg::ALIAS_STYLE)
+          .long("alias-style")
+          .env("JUST_ALIAS_STYLE")
+          .action(ArgAction::Set)
+          .value_parser(clap::value_parser!(AliasStyle))
+          .default_value("right")
+          .help("Set list command alias display style")
+          .conflicts_with(arg::NO_ALIASES),
       )
       .arg(
         Arg::new(arg::CHECK)
@@ -739,6 +751,10 @@ impl Config {
     let explain = matches.get_flag(arg::EXPLAIN);
 
     Ok(Self {
+      alias_style: matches
+        .get_one::<AliasStyle>(arg::ALIAS_STYLE)
+        .unwrap()
+        .clone(),
       allow_missing: matches.get_flag(arg::ALLOW_MISSING),
       check: matches.get_flag(arg::CHECK),
       color: (*matches.get_one::<UseColor>(arg::COLOR).unwrap()).into(),

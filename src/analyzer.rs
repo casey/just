@@ -201,7 +201,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             Rc::clone(next)
           }),
         }),
-      doc,
+      doc: doc.filter(|doc| !doc.is_empty()),
       groups: groups.into(),
       loaded: loaded.into(),
       modules: self.modules,
