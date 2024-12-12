@@ -2829,6 +2829,14 @@ goodbye:
   print(sh.echo("Goodbye from Python!"), end='')
 ```
 
+Of course, a shebang also works:
+
+```just
+hello:
+  #!/usr/bin/env uv run --script
+  print("Hello from Python!")
+```
+
 ### Script Recipes
 
 Recipes with a `[script(COMMAND)]`<sup>1.32.0</sup> attribute are run as
