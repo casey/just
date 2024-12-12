@@ -478,11 +478,11 @@ impl Subcommand {
 
       let aliases = print_aliases.then_some(format!(
         "{}",
-        config
-          .color
-          .stdout()
-          .alias()
-          .paint(&format!("[aliases: {}]", aliases.join(", ")))
+        config.color.stdout().alias().paint(&format!(
+          "[alias{}: {}]",
+          if aliases.len() == 1 { "" } else { "es" },
+          aliases.join(", ")
+        ))
       ));
 
       let (left, right) = if config.alias_style == AliasStyle::InlineLeft {

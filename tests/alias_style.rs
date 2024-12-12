@@ -1,7 +1,56 @@
 use super::*;
 
 #[test]
-fn alias_style_inline() {
+fn default() {
+  Test::new()
+    .justfile(
+      "
+        alias f := foo
+
+        # comment
+        foo:
+
+        bar:
+      ",
+    )
+    .args(["--list"])
+    .stdout(
+      "
+        Available recipes:
+            bar
+            foo # comment [alias: f]
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn multiple() {
+  Test::new()
+    .justfile(
+      "
+        alias a := foo
+        alias b := foo
+
+        # comment
+        foo:
+
+        bar:
+      ",
+    )
+    .args(["--list"])
+    .stdout(
+      "
+        Available recipes:
+            bar
+            foo # comment [aliases: a, b]
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn inline() {
   Test::new()
     .justfile(
       "
@@ -18,14 +67,14 @@ fn alias_style_inline() {
       "
         Available recipes:
             bar
-            foo # comment [aliases: f]
+            foo # comment [alias: f]
       ",
     )
     .run();
 }
 
 #[test]
-fn alias_style_inline_left() {
+fn inline_left() {
   Test::new()
     .justfile(
       "
@@ -42,14 +91,14 @@ fn alias_style_inline_left() {
       "
         Available recipes:
             bar
-            foo # [aliases: f] comment
+            foo # [alias: f] comment
       ",
     )
     .run();
 }
 
 #[test]
-fn alias_style_recipe() {
+fn recipe() {
   Test::new()
     .justfile(
       "
