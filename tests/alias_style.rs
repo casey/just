@@ -50,7 +50,7 @@ fn multiple() {
 }
 
 #[test]
-fn inline() {
+fn right() {
   Test::new()
     .justfile(
       "
@@ -62,7 +62,7 @@ fn inline() {
         bar:
       ",
     )
-    .args(["--alias-style=inline", "--list"])
+    .args(["--alias-style=right", "--list"])
     .stdout(
       "
         Available recipes:
@@ -74,7 +74,7 @@ fn inline() {
 }
 
 #[test]
-fn inline_left() {
+fn left() {
   Test::new()
     .justfile(
       "
@@ -86,7 +86,7 @@ fn inline_left() {
         bar:
       ",
     )
-    .args(["--alias-style=inline-left", "--list"])
+    .args(["--alias-style=left", "--list"])
     .stdout(
       "
         Available recipes:
@@ -98,7 +98,7 @@ fn inline_left() {
 }
 
 #[test]
-fn recipe() {
+fn separate() {
   Test::new()
     .justfile(
       "
@@ -110,7 +110,7 @@ fn recipe() {
         bar:
       ",
     )
-    .args(["--alias-style=recipe", "--list"])
+    .args(["--alias-style=separate", "--list"])
     .stdout(
       "
         Available recipes:

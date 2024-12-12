@@ -442,7 +442,7 @@ impl Subcommand {
     ) {
       let color = config.color.stdout();
 
-      let inline_aliases = config.alias_style != AliasStyle::Recipe && !aliases.is_empty();
+      let inline_aliases = config.alias_style != AliasStyle::Separate && !aliases.is_empty();
 
       if inline_aliases || doc.is_some() {
         print!(
@@ -464,7 +464,7 @@ impl Subcommand {
         );
       };
 
-      if inline_aliases && config.alias_style == AliasStyle::InlineLeft {
+      if inline_aliases && config.alias_style == AliasStyle::Left {
         print_aliases();
       }
 
@@ -486,7 +486,7 @@ impl Subcommand {
         }
       }
 
-      if inline_aliases && config.alias_style == AliasStyle::Inline {
+      if inline_aliases && config.alias_style == AliasStyle::Right {
         print_aliases();
       }
 
@@ -613,7 +613,7 @@ impl Subcommand {
 
       if let Some(recipes) = recipe_groups.get(&group) {
         for recipe in recipes {
-          let recipe_alias_entries = if config.alias_style == AliasStyle::Recipe {
+          let recipe_alias_entries = if config.alias_style == AliasStyle::Separate {
             aliases.get(recipe.name())
           } else {
             None

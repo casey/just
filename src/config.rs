@@ -153,7 +153,7 @@ impl Config {
           .env("JUST_ALIAS_STYLE")
           .action(ArgAction::Set)
           .value_parser(clap::value_parser!(AliasStyle))
-          .default_value("inline")
+          .default_value("right")
           .help("Set list command alias display style")
           .conflicts_with(arg::NO_ALIASES),
       )
