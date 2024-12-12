@@ -500,6 +500,7 @@ impl Subcommand {
             .trim()
         );
       }
+
       println!();
     }
 
