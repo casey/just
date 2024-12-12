@@ -154,7 +154,7 @@ impl Config {
           .action(ArgAction::Set)
           .value_parser(clap::value_parser!(AliasStyle))
           .default_value("inline")
-          .help("Set the style that the list command will display aliases")
+          .help("Set list alias display style")
           .conflicts_with(arg::NO_ALIASES),
       )
       .arg(
