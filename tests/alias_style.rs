@@ -5,18 +5,22 @@ fn alias_style_inline() {
   Test::new()
     .justfile(
       "
-      alias t := test1
+        alias f := foo
 
-      # A test recipe
-      test1:
-        @echo 'test1'
+        # comment
+        foo:
 
-      test2:
-        @echo 'test2'
+        bar:
       ",
     )
     .args(["--alias-style=inline", "--list"])
-    .stdout("Available recipes:\n    test1 # A test recipe [aliases: t]\n    test2\n")
+    .stdout(
+      "
+        Available recipes:
+            bar
+            foo # comment [aliases: f]
+      ",
+    )
     .run();
 }
 
@@ -25,18 +29,22 @@ fn alias_style_inline_left() {
   Test::new()
     .justfile(
       "
-      alias t := test1
+        alias f := foo
 
-      # A test recipe
-      test1:
-        @echo 'test1'
+        # comment
+        foo:
 
-      test2:
-        @echo 'test2'
+        bar:
       ",
     )
     .args(["--alias-style=inline-left", "--list"])
-    .stdout("Available recipes:\n    test1 # [aliases: t] A test recipe\n    test2\n")
+    .stdout(
+      "
+        Available recipes:
+            bar
+            foo # [aliases: f] comment
+      ",
+    )
     .run();
 }
 
@@ -45,16 +53,22 @@ fn alias_style_recipe() {
   Test::new()
     .justfile(
       "
-      alias t := test1
+        alias f := foo
 
-      test1:
-        @echo 'test1'
+        # comment
+        foo:
 
-      test2:
-        @echo 'test2'
+        bar:
       ",
     )
     .args(["--alias-style=recipe", "--list"])
-    .stdout("Available recipes:\n    test1\n    t     # alias for `test1`\n    test2\n")
+    .stdout(
+      "
+        Available recipes:
+            bar
+            foo # comment
+            f   # alias for `foo`
+      ",
+    )
     .run();
 }
