@@ -34,7 +34,6 @@ fn alias_listing_with_doc() {
           foo # foo command [alias: f]
     ",
     )
-    .status(EXIT_SUCCESS)
     .run();
 }
 
