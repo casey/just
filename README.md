@@ -2802,6 +2802,41 @@ the final argument. For example, on Windows, if a recipe starts with `#! py`,
 the final command the OS runs will be something like
 `py C:\Temp\PATH_TO_SAVED_RECIPE_BODY`.
 
+### Python Recipes with `uv`
+
+[`uv`](https://github.com/astral-sh/uv) is an excellent cross-platform python
+project manager, written in Rust.
+
+Using the `[script]` attribute and `script-interpreter` setting, `just` can
+easily be configured to run Python recipes with `uv`:
+
+```just
+set unstable
+
+set script-interpreter := ['uv', 'run', '--script']
+
+[script]
+hello:
+  print("Hello from Python!")
+
+[script]
+goodbye:
+  # /// script
+  # requires-python = ">=3.11"
+  # dependencies=["sh"]
+  # ///
+  import sh
+  print(sh.echo("Goodbye from Python!"), end='')
+```
+
+Of course, a shebang also works:
+
+```just
+hello:
+  #!/usr/bin/env uv run --script
+  print("Hello from Python!")
+```
+
 ### Script Recipes
 
 Recipes with a `[script(COMMAND)]`<sup>1.32.0</sup> attribute are run as
