@@ -454,27 +454,28 @@ impl Subcommand {
         );
       }
 
-      let mut formatted_doc = String::new();
-      if print_doc {
+      let doc = if print_doc {
+        let mut parts = vec![];
         let mut end = 0;
         for backtick in backtick_re().find_iter(doc) {
           let prefix = &doc[end..backtick.start()];
           if !prefix.is_empty() {
-            formatted_doc.push_str(&format!("{}", color.doc().paint(prefix)));
+            parts.push(color.doc().paint(prefix));
           }
-          formatted_doc.push_str(&format!(
-            "{}",
-            color.doc_backtick().paint(backtick.as_str())
-          ));
+          parts.push(color.doc_backtick().paint(backtick.as_str()));
           end = backtick.end();
         }
 
         let suffix = &doc[end..];
         if !suffix.is_empty() {
-          formatted_doc.push_str(&format!("{}", color.doc().paint(suffix)));
+          parts.push(color.doc().paint(suffix));
         }
-      }
-      let doc = print_doc.then_some(formatted_doc);
+
+        Some(parts.into_iter().map(|p| p.to_string()).collect::<String>())
+      } else {
+        None
+      };
+
       let aliases = print_aliases.then_some(format!(
         "{}",
         config
