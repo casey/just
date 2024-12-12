@@ -11,7 +11,7 @@ test! {
   args: ("--list"),
   stdout: "
     Available recipes:
-        foo # [aliases: f]
+        foo # [alias: f]
   ",
 }
 
@@ -31,7 +31,7 @@ fn alias_listing_with_doc() {
     .stdout(
       "
       Available recipes:
-          foo # foo command [aliases: f]
+          foo # foo command [alias: f]
     ",
     )
     .status(EXIT_SUCCESS)
@@ -54,7 +54,7 @@ test! {
   args: ("--list"),
   stdout: "
     Available recipes:
-        foo PARAM='foo' # [aliases: f]
+        foo PARAM='foo' # [alias: f]
   ",
 }
 
@@ -946,7 +946,7 @@ a:
   stdout:   r"
     Available recipes:
         a
-        b # [aliases: c]
+        b # [alias: c]
   ",
 }
 
@@ -960,7 +960,7 @@ a:
   args:     ("--list", "--unsorted"),
   stdout:   r"
     Available recipes:
-        b # [aliases: c]
+        b # [alias: c]
         a
   ",
 }
