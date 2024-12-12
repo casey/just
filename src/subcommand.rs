@@ -449,7 +449,7 @@ impl Subcommand {
         print!(
           "{:padding$}{}",
           "",
-          config.color.stdout().doc().paint("#"),
+          color.doc().paint("#"),
           padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
         );
       }
@@ -478,7 +478,7 @@ impl Subcommand {
 
       let aliases = print_aliases.then_some(format!(
         "{}",
-        config.color.stdout().alias().paint(&format!(
+        color.alias().paint(&format!(
           "[alias{}: {}]",
           if aliases.len() == 1 { "" } else { "es" },
           aliases.join(", ")
