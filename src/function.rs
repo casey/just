@@ -263,6 +263,13 @@ fn encode_uri_component(_context: Context, s: &str) -> FunctionResult {
   Ok(percent_encoding::utf8_percent_encode(s, &PERCENT_ENCODE).to_string())
 }
 
+fn env(context: Context, key: &str, default: Option<&str>) -> FunctionResult {
+  match default {
+    Some(val) => env_var_or_default(context, key, val),
+    None => env_var(context, key),
+  }
+}
+
 fn env_var(context: Context, key: &str) -> FunctionResult {
   use std::env::VarError::*;
 
@@ -292,13 +299,6 @@ fn env_var_or_default(context: Context, key: &str, default: &str) -> FunctionRes
       "environment variable `{key}` not unicode: {os_string:?}"
     )),
     Ok(value) => Ok(value),
-  }
-}
-
-fn env(context: Context, key: &str, default: Option<&str>) -> FunctionResult {
-  match default {
-    Some(val) => env_var_or_default(context, key, val),
-    None => env_var(context, key),
   }
 }
 
