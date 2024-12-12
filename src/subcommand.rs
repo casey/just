@@ -432,7 +432,7 @@ impl Subcommand {
   }
 
   fn list_module(config: &Config, module: &Justfile, depth: usize) {
-    fn format_doc(
+    fn print_doc_and_aliases(
       config: &Config,
       name: &str,
       doc: Option<&str>,
@@ -440,68 +440,64 @@ impl Subcommand {
       max_signature_width: usize,
       signature_widths: &BTreeMap<&str, usize>,
     ) {
-      let doc = doc.unwrap_or_default();
-      let print_doc = !doc.is_empty() && doc.lines().count() <= 1;
-      let print_aliases = config.alias_style != AliasStyle::Recipe && !aliases.is_empty();
       let color = config.color.stdout();
 
-      if print_doc || print_aliases {
-        print!(
-          "{:padding$}{}",
-          "",
-          color.doc().paint("#"),
-          padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
-        );
+      let inline_aliases = config.alias_style != AliasStyle::Recipe && !aliases.is_empty();
+
+      if !inline_aliases && doc.is_none() {
+        println!();
+        return;
       }
 
-      let doc = if print_doc {
-        let mut parts = vec![];
+      print!(
+        "{:padding$}{}",
+        "",
+        color.doc().paint("#"),
+        padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
+      );
+
+      if inline_aliases {
+        if config.alias_style == AliasStyle::InlineLeft {
+          print_aliases(config, aliases);
+        }
+      }
+
+      if let Some(doc) = doc {
+        print!(" ");
         let mut end = 0;
         for backtick in backtick_re().find_iter(doc) {
           let prefix = &doc[end..backtick.start()];
           if !prefix.is_empty() {
-            parts.push(color.doc().paint(prefix));
+            print!("{}", color.doc().paint(prefix));
           }
-          parts.push(color.doc_backtick().paint(backtick.as_str()));
+          print!("{}", color.doc_backtick().paint(backtick.as_str()));
           end = backtick.end();
         }
 
         let suffix = &doc[end..];
         if !suffix.is_empty() {
-          parts.push(color.doc().paint(suffix));
+          print!("{}", color.doc().paint(suffix));
         }
+      }
 
-        Some(parts.into_iter().map(|p| p.to_string()).collect::<String>())
-      } else {
-        None
-      };
+      if inline_aliases {
+        if config.alias_style == AliasStyle::Inline {
+          print_aliases(config, aliases);
+        }
+      }
 
-      let aliases = print_aliases.then_some(format!(
-        "{}",
-        color.alias().paint(&format!(
+      println!();
+    }
+
+    fn print_aliases(config: &Config, aliases: &[&str]) {
+      print!(
+        " {}",
+        config.color.stdout().alias().paint(&format!(
           "[alias{}: {}]",
           if aliases.len() == 1 { "" } else { "es" },
           aliases.join(", ")
         ))
-      ));
-
-      let (left, right) = if config.alias_style == AliasStyle::InlineLeft {
-        (aliases, doc)
-      } else {
-        (doc, aliases)
-      };
-
-      if print_doc || print_aliases {
-        print!(
-          " {}",
-          [left, right]
-            .map(Option::unwrap_or_default)
-            .join(" ")
-            .trim()
-        );
-      }
-
-      println!();
+      );
     }
 
     let aliases = if config.no_aliases {
@@ -657,10 +653,10 @@ impl Subcommand {
               RecipeSignature { name, recipe }.color_display(config.color.stdout())
             );
 
-            format_doc(
+            print_doc_and_aliases(
               config,
               name,
-              doc.as_deref(),
+              doc.filter(|doc| doc.lines().count() <= 1).as_deref(),
               aliases
                 .get(recipe.name())
                 .map(Vec::as_slice)
@@ -683,7 +679,7 @@ impl Subcommand {
             Self::list_module(config, submodule, depth + 1);
           } else {
             print!("{list_prefix}{} ...", submodule.name());
-            format_doc(
+            print_doc_and_aliases(
               config,
               submodule.name(),
               submodule.doc.as_deref(),
