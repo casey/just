@@ -444,22 +444,28 @@ impl Subcommand {
 
       let inline_aliases = config.alias_style != AliasStyle::Recipe && !aliases.is_empty();
 
-      if !inline_aliases && doc.is_none() {
-        println!();
-        return;
+      if inline_aliases || doc.is_some() {
+        print!(
+          "{:padding$}{}",
+          "",
+          color.doc().paint("#"),
+          padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
+        );
       }
 
-      print!(
-        "{:padding$}{}",
-        "",
-        color.doc().paint("#"),
-        padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
-      );
+      let print_aliases = || {
+        print!(
+          " {}",
+          color.alias().paint(&format!(
+            "[alias{}: {}]",
+            if aliases.len() == 1 { "" } else { "es" },
+            aliases.join(", ")
+          ))
+        );
+      };
 
-      if inline_aliases {
-        if config.alias_style == AliasStyle::InlineLeft {
-          print_aliases(config, aliases);
-        }
+      if inline_aliases && config.alias_style == AliasStyle::InlineLeft {
+        print_aliases();
       }
 
       if let Some(doc) = doc {
@@ -480,24 +486,11 @@ impl Subcommand {
         }
       }
 
-      if inline_aliases {
-        if config.alias_style == AliasStyle::Inline {
-          print_aliases(config, aliases);
-        }
+      if inline_aliases && config.alias_style == AliasStyle::Inline {
+        print_aliases();
       }
 
       println!();
-    }
-
-    fn print_aliases(config: &Config, aliases: &[&str]) {
-      print!(
-        " {}",
-        config.color.stdout().alias().paint(&format!(
-          "[alias{}: {}]",
-          if aliases.len() == 1 { "" } else { "es" },
-          aliases.join(", ")
-        ))
-      );
     }
 
     let aliases = if config.no_aliases {
