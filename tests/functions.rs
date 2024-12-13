@@ -227,7 +227,7 @@ foo:
 test! {
   name:     env_var_functions,
   justfile: r#"
-p := env_var('USER')
+p := env_var('USERNAME')
 
 a1 := env_var_or_default('A_UNSET', 'DEFAULT')
 a2 := env_var_or_default('A_SET_EMPTY', 'DEFAULT')
