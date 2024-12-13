@@ -61,6 +61,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "env" => UnaryOpt(env),
     "env_var" => Unary(env_var),
     "env_var_or_default" => Binary(env_var_or_default),
+    "env_var_with_value" => Binary(env_var_with_value),
     "error" => Unary(error),
     "executable_directory" => Nullary(|_| dir("executable", dirs::executable_dir)),
     "extension" => Unary(extension),
@@ -299,6 +300,28 @@ fn env_var_or_default(context: Context, key: &str, default: &str) -> FunctionRes
       "environment variable `{key}` not unicode: {os_string:?}"
     )),
     Ok(value) => Ok(value),
+  }
+}
+
+fn env_var_with_value(context: Context, key: &str, default: &str) -> FunctionResult {
+  use std::env::VarError::*;
+
+  if let Some(value) = context.evaluator.context.dotenv.get(key) {
+    return Ok(value.clone());
+  }
+
+  match env::var(key) {
+    Err(NotPresent) => Ok(default.to_owned()),
+    Err(NotUnicode(os_string)) => Err(format!(
+      "environment variable `{key}` not unicode: {os_string:?}"
+    )),
+    Ok(value) => {
+      if !value.trim().is_empty() {
+        Ok(value)
+      } else {
+        Ok(default.to_owned())
+      }
+    }
   }
 }
 

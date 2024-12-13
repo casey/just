@@ -30,14 +30,26 @@ test! {
   name:     env_var_functions,
   justfile: r"
 p := env_var('USER')
-b := env_var_or_default('ZADDY', 'HTAP')
-x := env_var_or_default('XYZ', 'ABC')
+
+a1 := env_var_or_default('A_UNSET', 'DEFAULT')
+a2 := env_var_or_default('A_SET_EMPTY', 'DEFAULT')
+a3:= env_var_or_default('A_SET', 'DEFAULT')
+
+z1 := env_var_with_value('Z_UNSET', 'DEFAULT')
+z2 := env_var_with_value('Z_SET_EMPTY', 'DEFAULT')
+z3 := env_var_with_value('Z_SET', 'DEFAULT')
 
 foo:
-  /usr/bin/env echo '{{p}}' '{{b}}' '{{x}}'
+  /usr/bin/env echo '{{p}}' '{{a1}}' '{{a2}}' '{{a3}}' '{{z1}}' '{{z2}}' '{{z3}}'
 ",
-  stdout:   format!("{} HTAP ABC\n", env::var("USER").unwrap()).as_str(),
-  stderr:   format!("/usr/bin/env echo '{}' 'HTAP' 'ABC'\n", env::var("USER").unwrap()).as_str(),
+  env: {
+    "A_SET_EMPTY": "",
+    "A_SET": "VALUE",
+    "Z_SET_EMPTY": "",
+    "Z_SET": "VALUE",
+  },
+  stdout:   format!("{} DEFAULT  VALUE DEFAULT DEFAULT VALUE\n", env::var("USER").unwrap()).as_str(),
+  stderr:   format!("/usr/bin/env echo '{}' 'DEFAULT' '' 'VALUE' 'DEFAULT' 'DEFAULT' 'VALUE'\n", env::var("USER").unwrap()).as_str(),
 }
 
 #[cfg(not(windows))]
@@ -215,15 +227,27 @@ foo:
 test! {
   name:     env_var_functions,
   justfile: r#"
-p := env_var('USERNAME')
-b := env_var_or_default('ZADDY', 'HTAP')
-x := env_var_or_default('XYZ', 'ABC')
+p := env_var('USER')
+
+a1 := env_var_or_default('A_UNSET', 'DEFAULT')
+a2 := env_var_or_default('A_SET_EMPTY', 'DEFAULT')
+a3:= env_var_or_default('A_SET', 'DEFAULT')
+
+z1 := env_var_with_value('Z_UNSET', 'DEFAULT')
+z2 := env_var_with_value('Z_SET_EMPTY', 'DEFAULT')
+z3 := env_var_with_value('Z_SET', 'DEFAULT')
 
 foo:
-  /usr/bin/env echo '{{p}}' '{{b}}' '{{x}}'
+  /usr/bin/env echo '{{p}}' '{{a1}}' '{{a2}}' '{{a3}}' '{{z1}}' '{{z2}}' '{{z3}}'
 "#,
-  stdout:   format!("{} HTAP ABC\n", env::var("USERNAME").unwrap()).as_str(),
-  stderr:   format!("/usr/bin/env echo '{}' 'HTAP' 'ABC'\n", env::var("USERNAME").unwrap()).as_str(),
+  env: {
+    "A_SET_EMPTY": "",
+    "A_SET": "VALUE",
+    "Z_SET_EMPTY": "",
+    "Z_SET": "VALUE",
+  },
+  stdout:   format!("{} DEFAULT  VALUE DEFAULT DEFAULT VALUE\n", env::var("USER").unwrap()).as_str(),
+  stderr:   format!("/usr/bin/env echo '{}' 'DEFAULT' '' 'VALUE' 'DEFAULT' 'DEFAULT' 'VALUE'\n", env::var("USER").unwrap()).as_str(),
 }
 
 test! {
