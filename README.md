@@ -1664,6 +1664,8 @@ $ just
   name `key`, returning `default` if it is not present.
 - `env(key)`<sup>1.15.0</sup> — Alias for `env_var(key)`.
 - `env(key, default)`<sup>1.15.0</sup> — Alias for `env_var_or_default(key, default)`.
+- `env_var_with_value(key, default)` — Retrieves the environment variable with
+  name `key`, returning `default` if it is not present or its value is an empty string.
 
 #### Invocation Information
 
