@@ -316,10 +316,10 @@ fn env_var_with_value(context: Context, key: &str, default: &str) -> FunctionRes
       "environment variable `{key}` not unicode: {os_string:?}"
     )),
     Ok(value) => {
-      if !value.trim().is_empty() {
-        Ok(value)
-      } else {
+      if value.trim().is_empty() {
         Ok(default.to_owned())
+      } else {
+        Ok(value)
       }
     }
   }
