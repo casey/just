@@ -544,7 +544,6 @@ dependencies = [
  "dirs",
  "dotenvy",
  "edit-distance",
- "either",
  "executable-path",
  "heck",
  "is_executable",

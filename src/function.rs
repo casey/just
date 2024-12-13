@@ -1,6 +1,5 @@
 use {
   super::*,
-  either::Either,
   heck::{
     ToKebabCase, ToLowerCamelCase, ToShoutyKebabCase, ToShoutySnakeCase, ToSnakeCase, ToTitleCase,
     ToUpperCamelCase,
@@ -680,15 +679,15 @@ fn which(context: Context, s: &str) -> FunctionResult {
     1 => {
       // cmd is a regular command
       path_var = env::var_os("PATH").ok_or("Environment variable `PATH` is not set")?;
-      Either::Left(env::split_paths(&path_var).map(|path| path.join(cmd.clone())))
+      env::split_paths(&path_var).map(|path| path.join(cmd.clone())).collect()
     }
     _ => {
       // cmd contains a path separator, treat it as a path
-      Either::Right(iter::once(cmd))
+      vec![cmd]
     }
   };
 
-  for mut candidate in candidates.into_iter() {
+  for mut candidate in candidates {
     if candidate.is_relative() {
       // This candidate is a relative path, either because the user invoked `which("./rel/path")`,
       // or because there was a relative path in `PATH`. Resolve it to an absolute path.
