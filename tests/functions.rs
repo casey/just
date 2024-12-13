@@ -246,8 +246,8 @@ foo:
     "Z_SET_EMPTY": "",
     "Z_SET": "VALUE",
   },
-  stdout:   format!("{} DEFAULT  VALUE DEFAULT DEFAULT VALUE\n", env::var("USER").unwrap()).as_str(),
-  stderr:   format!("/usr/bin/env echo '{}' 'DEFAULT' '' 'VALUE' 'DEFAULT' 'DEFAULT' 'VALUE'\n", env::var("USER").unwrap()).as_str(),
+  stdout:   format!("{} DEFAULT  VALUE DEFAULT DEFAULT VALUE\n", env::var("USERNAME").unwrap()).as_str(),
+  stderr:   format!("/usr/bin/env echo '{}' 'DEFAULT' '' 'VALUE' 'DEFAULT' 'DEFAULT' 'VALUE'\n", env::var("USERNAME").unwrap()).as_str(),
 }
 
 test! {
