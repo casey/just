@@ -112,6 +112,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "uppercase" => Unary(uppercase),
     "uuid" => Nullary(uuid),
     "without_extension" => Unary(without_extension),
+    "which" => Unary(which),
     _ => return None,
   };
   Some(function)
@@ -659,6 +660,61 @@ fn uppercase(_context: Context, s: &str) -> FunctionResult {
 
 fn uuid(_context: Context) -> FunctionResult {
   Ok(uuid::Uuid::new_v4().to_string())
+}
+
+fn which(context: Context, s: &str) -> FunctionResult {
+  use is_executable::IsExecutable;
+
+  let cmd = PathBuf::from(s);
+
+  let path_var;
+  let candidates = match cmd.components().count() {
+    0 => Err("empty command string".to_string())?,
+    1 => {
+      // cmd is a regular command
+      path_var = env::var_os("PATH").ok_or("Environment variable `PATH` is not set")?;
+      env::split_paths(&path_var).map(|path| path.join(cmd.clone())).collect()
+    }
+    _ => {
+      // cmd contains a path separator, treat it as a path
+      vec![cmd]
+    }
+  };
+
+  for mut candidate in candidates {
+    if candidate.is_relative() {
+      // This candidate is a relative path, either because the user invoked `which("./rel/path")`,
+      // or because there was a relative path in `PATH`. Resolve it to an absolute path.
+      let cwd = context
+        .evaluator
+        .context
+        .search
+        .justfile
+        .parent()
+        .ok_or_else(|| {
+          format!(
+            "Could not resolve absolute path from `{}` relative to the justfile directory. Justfile `{}` had no parent.",
+            candidate.display(),
+            context.evaluator.context.search.justfile.display()
+          )
+        })?;
+      let mut cwd = PathBuf::from(cwd);
+      cwd.push(candidate);
+      candidate = cwd;
+    }
+
+    if candidate.is_executable() {
+      return candidate.to_str().map(str::to_string).ok_or_else(|| {
+        format!(
+          "Executable path is not valid unicode: {}",
+          candidate.display()
+        )
+      });
+    }
+  }
+
+  // No viable candidates; return an empty string
+  Ok(String::new())
 }
 
 fn without_extension(_context: Context, path: &str) -> FunctionResult {
