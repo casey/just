@@ -25,7 +25,7 @@ impl Shell {
 }
 
 fn clap(shell: clap_complete::Shell) -> RunResult<'static, String> {
-  fn replace(haystack: &mut String, needle: &str, replacement: &str) -> RunResult<'static, ()> {
+  fn replace(haystack: &mut String, needle: &str, replacement: &str) -> RunResult<'static> {
     if let Some(index) = haystack.find(needle) {
       haystack.replace_range(index..index + needle.len(), replacement);
       Ok(())

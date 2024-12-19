@@ -948,7 +948,6 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
 
     Ok(Recipe {
-      shebang: shebang || script,
       attributes,
       body,
       dependencies,
@@ -961,6 +960,8 @@ impl<'run, 'src> Parser<'run, 'src> {
       priors,
       private,
       quiet,
+      shebang: shebang || script,
+      statements: None,
     })
   }
 
