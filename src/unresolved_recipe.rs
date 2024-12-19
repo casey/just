@@ -34,6 +34,32 @@ impl<'src> UnresolvedRecipe<'src> {
       }
     }
 
+    let statements = if self.attributes.contains(AttributeDiscriminant::NoShell) {
+      let mut statements = Vec::new();
+
+      for line in &self.body {
+        let mut words = Vec::new();
+        for fragment in &line.fragments {
+          match fragment {
+            Fragment::Text { token } => {
+              for word in token.lexeme().split_whitespace() {
+                words.push(Word::Text(word.into()));
+              }
+            }
+            Fragment::Interpolation { expression } => {
+              words.push(Word::Expression(expression.clone()));
+            }
+          }
+        }
+
+        statements.push(Statement { words });
+      }
+
+      Some(statements)
+    } else {
+      None
+    };
+
     let dependencies = self
       .dependencies
       .into_iter()
@@ -58,6 +84,7 @@ impl<'src> UnresolvedRecipe<'src> {
       private: self.private,
       quiet: self.quiet,
       shebang: self.shebang,
+      statements,
     })
   }
 }
