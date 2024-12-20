@@ -21,9 +21,11 @@ impl<'src, 'run> Scope<'src, 'run> {
     };
 
     for (key, value) in constants() {
-      root.bind(
-        false,
-        Name {
+      root.bind(Binding {
+        constant: true,
+        export: false,
+        file_depth: 0,
+        name: Name {
           token: Token {
             column: 0,
             kind: TokenKind::Identifier,
@@ -34,22 +36,16 @@ impl<'src, 'run> Scope<'src, 'run> {
             src: key,
           },
         },
-        false,
-        (*value).into(),
-      );
+        private: false,
+        value: (*value).into(),
+      });
     }
 
     root
   }
 
-  pub(crate) fn bind(&mut self, export: bool, name: Name<'src>, private: bool, value: String) {
-    self.bindings.insert(Binding {
-      export,
-      file_depth: 0,
-      name,
-      private,
-      value,
-    });
+  pub(crate) fn bind(&mut self, binding: Binding<'src>) {
+    self.bindings.insert(binding);
   }
 
   pub(crate) fn bound(&self, name: &str) -> bool {

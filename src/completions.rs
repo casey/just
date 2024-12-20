@@ -97,33 +97,7 @@ const FISH_RECIPE_COMPLETIONS: &str = r#"function __fish_just_complete_recipes
         if string match -rq '(-f|--justfile)\s*=?(?<justfile>[^\s]+)' -- (string split -- ' -- ' (commandline -pc))[1]
           set -fx JUST_JUSTFILE "$justfile"
         end
-        just --list 2> /dev/null | tail -n +2 | awk '{
-        command = $1;
-        args = $0;
-        desc = "";
-        delim = "";
-        sub(/^[[:space:]]*[^[:space:]]*/, "", args);
-        gsub(/^[[:space:]]+|[[:space:]]+$/, "", args);
-
-        if (match(args, /#.*/)) {
-          desc = substr(args, RSTART+2, RLENGTH);
-          args = substr(args, 0, RSTART-1);
-          gsub(/^[[:space:]]+|[[:space:]]+$/, "", args);
-        }
-
-        gsub(/\+|=[`\'"][^`\'"]*[`\'"]/, "", args);
-        gsub(/ /, ",", args);
-
-        if (args != ""){
-          args = "Args: " args;
-        }
-
-        if (args != "" && desc != "") {
-          delim = "; ";
-        }
-
-        print command "\t" args delim desc
-  }'
+        printf "%s\n" (string split " " (just --summary))
 end
 
 # don't suggest files right off
@@ -141,18 +115,18 @@ const ZSH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
     r"    local common=(",
   ),
   (
-    r"'*--set=[Override <VARIABLE> with <VALUE>]:VARIABLE: :VARIABLE: ' \",
+    r"'*--set=[Override <VARIABLE> with <VALUE>]:VARIABLE:_default:VARIABLE:_default' \",
     r"'*--set=[Override <VARIABLE> with <VALUE>]: :(_just_variables)' \",
   ),
   (
-    r"'()-s+[Show recipe at <PATH>]:PATH: ' \
-'()--show=[Show recipe at <PATH>]:PATH: ' \",
+    r"'()-s+[Show recipe at <PATH>]:PATH:_default' \
+'()--show=[Show recipe at <PATH>]:PATH:_default' \",
     r"'-s+[Show recipe at <PATH>]: :(_just_commands)' \
 '--show=[Show recipe at <PATH>]: :(_just_commands)' \",
   ),
   (
     "'*::ARGUMENTS -- Overrides and recipe(s) to run, defaulting to the first recipe in the \
-     justfile:' \\
+     justfile:_default' \\
 && ret=0",
     r#")
 

@@ -19,14 +19,12 @@ fn error_from_signal(recipe: &str, line_number: Option<usize>, exit_status: Exit
 /// A recipe, e.g. `foo: bar baz`
 #[derive(PartialEq, Debug, Clone, Serialize)]
 pub(crate) struct Recipe<'src, D = Dependency<'src>> {
-  pub(crate) attributes: BTreeSet<Attribute<'src>>,
+  pub(crate) attributes: AttributeSet<'src>,
   pub(crate) body: Vec<Line<'src>>,
   pub(crate) dependencies: Vec<D>,
-  pub(crate) doc: Option<&'src str>,
+  pub(crate) doc: Option<String>,
   #[serde(skip)]
   pub(crate) file_depth: u32,
-  #[serde(skip)]
-  pub(crate) file_path: PathBuf,
   #[serde(skip)]
   pub(crate) import_offsets: Vec<usize>,
   pub(crate) name: Name<'src>,
@@ -68,20 +66,20 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn confirm(&self) -> RunResult<'src, bool> {
-    for attribute in &self.attributes {
-      if let Attribute::Confirm(prompt) = attribute {
-        if let Some(prompt) = prompt {
-          eprint!("{} ", prompt.cooked);
-        } else {
-          eprint!("Run recipe `{}`? ", self.name);
-        }
-        let mut line = String::new();
-        std::io::stdin()
-          .read_line(&mut line)
-          .map_err(|io_error| Error::GetConfirmation { io_error })?;
-        let line = line.trim().to_lowercase();
-        return Ok(line == "y" || line == "yes");
+    if let Some(Attribute::Confirm(ref prompt)) =
+      self.attributes.get(AttributeDiscriminant::Confirm)
+    {
+      if let Some(prompt) = prompt {
+        eprint!("{} ", prompt.cooked);
+      } else {
+        eprint!("Run recipe `{}`? ", self.name);
       }
+      let mut line = String::new();
+      std::io::stdin()
+        .read_line(&mut line)
+        .map_err(|io_error| Error::GetConfirmation { io_error })?;
+      let line = line.trim().to_lowercase();
+      return Ok(line == "y" || line == "yes");
     }
     Ok(true)
   }
@@ -99,7 +97,7 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn is_public(&self) -> bool {
-    !self.private && !self.attributes.contains(&Attribute::Private)
+    !self.private && !self.attributes.contains(AttributeDiscriminant::Private)
   }
 
   pub(crate) fn is_script(&self) -> bool {
@@ -107,41 +105,56 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn takes_positional_arguments(&self, settings: &Settings) -> bool {
-    settings.positional_arguments || self.attributes.contains(&Attribute::PositionalArguments)
+    settings.positional_arguments
+      || self
+        .attributes
+        .contains(AttributeDiscriminant::PositionalArguments)
   }
 
   pub(crate) fn change_directory(&self) -> bool {
-    !self.attributes.contains(&Attribute::NoCd)
+    !self.attributes.contains(AttributeDiscriminant::NoCd)
   }
 
   pub(crate) fn enabled(&self) -> bool {
-    let windows = self.attributes.contains(&Attribute::Windows);
-    let linux = self.attributes.contains(&Attribute::Linux);
-    let macos = self.attributes.contains(&Attribute::Macos);
-    let unix = self.attributes.contains(&Attribute::Unix);
+    let linux = self.attributes.contains(AttributeDiscriminant::Linux);
+    let macos = self.attributes.contains(AttributeDiscriminant::Macos);
+    let openbsd = self.attributes.contains(AttributeDiscriminant::Openbsd);
+    let unix = self.attributes.contains(AttributeDiscriminant::Unix);
+    let windows = self.attributes.contains(AttributeDiscriminant::Windows);
 
-    (!windows && !linux && !macos && !unix)
-      || (cfg!(target_os = "windows") && windows)
+    (!windows && !linux && !macos && !openbsd && !unix)
       || (cfg!(target_os = "linux") && (linux || unix))
       || (cfg!(target_os = "macos") && (macos || unix))
-      || (cfg!(windows) && windows)
+      || (cfg!(target_os = "openbsd") && (openbsd || unix))
+      || (cfg!(target_os = "windows") && windows)
       || (cfg!(unix) && unix)
+      || (cfg!(windows) && windows)
   }
 
   fn print_exit_message(&self) -> bool {
-    !self.attributes.contains(&Attribute::NoExitMessage)
+    !self
+      .attributes
+      .contains(AttributeDiscriminant::NoExitMessage)
   }
 
   fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
-    if self.change_directory() {
-      Some(context.working_directory())
-    } else {
-      None
+    if !self.change_directory() {
+      return None;
     }
+
+    let working_directory = context.working_directory();
+
+    for attribute in &self.attributes {
+      if let Attribute::WorkingDirectory(dir) = attribute {
+        return Some(working_directory.join(&dir.cooked));
+      }
+    }
+
+    Some(working_directory)
   }
 
   fn no_quiet(&self) -> bool {
-    self.attributes.contains(&Attribute::NoQuiet)
+    self.attributes.contains(AttributeDiscriminant::NoQuiet)
   }
 
   pub(crate) fn run<'run>(
@@ -151,17 +164,15 @@ impl<'src, D> Recipe<'src, D> {
     positional: &[String],
     is_dependency: bool,
   ) -> RunResult<'src, ()> {
-    let config = &context.config;
-
-    let color = config.color.stderr().banner();
+    let color = context.config.color.stderr().banner();
     let prefix = color.prefix();
     let suffix = color.suffix();
 
-    if config.verbosity.loquacious() {
+    if context.config.verbosity.loquacious() {
       eprintln!("{prefix}===> Running recipe `{}`...{suffix}", self.name);
     }
 
-    if config.explain {
+    if context.config.explain {
       if let Some(doc) = self.doc() {
         eprintln!("{prefix}#### {doc}{suffix}");
       }
@@ -170,9 +181,9 @@ impl<'src, D> Recipe<'src, D> {
     let evaluator = Evaluator::new(context, is_dependency, scope);
 
     if self.is_script() {
-      self.run_script(context, scope, positional, config, evaluator)
+      self.run_script(context, scope, positional, evaluator)
     } else {
-      self.run_linewise(context, scope, positional, config, evaluator)
+      self.run_linewise(context, scope, positional, evaluator)
     }
   }
 
@@ -181,9 +192,10 @@ impl<'src, D> Recipe<'src, D> {
     context: &ExecutionContext<'src, 'run>,
     scope: &Scope<'src, 'run>,
     positional: &[String],
-    config: &Config,
     mut evaluator: Evaluator<'src, 'run>,
   ) -> RunResult<'src, ()> {
+    let config = &context.config;
+
     let mut lines = self.body.iter().peekable();
     let mut line_number = self.line_number() + 1;
     loop {
@@ -318,9 +330,10 @@ impl<'src, D> Recipe<'src, D> {
     context: &ExecutionContext<'src, 'run>,
     scope: &Scope<'src, 'run>,
     positional: &[String],
-    config: &Config,
     mut evaluator: Evaluator<'src, 'run>,
   ) -> RunResult<'src, ()> {
+    let config = &context.config;
+
     let mut evaluated_lines = Vec::new();
     for line in &self.body {
       evaluated_lines.push(evaluator.evaluate_line(line, false)?);
@@ -343,10 +356,8 @@ impl<'src, D> Recipe<'src, D> {
       return Ok(());
     }
 
-    let executor = if let Some(Attribute::Script(interpreter)) = self
-      .attributes
-      .iter()
-      .find(|attribute| matches!(attribute, Attribute::Script(_)))
+    let executor = if let Some(Attribute::Script(interpreter)) =
+      self.attributes.get(AttributeDiscriminant::Script)
     {
       Executor::Command(
         interpreter
@@ -467,7 +478,8 @@ impl<'src, D> Recipe<'src, D> {
         return doc.as_ref().map(|s| s.cooked.as_ref());
       }
     }
-    self.doc
+
+    self.doc.as_deref()
   }
 
   pub(crate) fn subsequents(&self) -> impl Iterator<Item = &D> {
@@ -475,10 +487,16 @@ impl<'src, D> Recipe<'src, D> {
   }
 }
 
-impl<'src, D: Display> ColorDisplay for Recipe<'src, D> {
+impl<D: Display> ColorDisplay for Recipe<'_, D> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
-    if let Some(doc) = self.doc {
-      writeln!(f, "# {doc}")?;
+    if !self
+      .attributes
+      .iter()
+      .any(|attribute| matches!(attribute, Attribute::Doc(_)))
+    {
+      if let Some(doc) = &self.doc {
+        writeln!(f, "# {doc}")?;
+      }
     }
 
     for attribute in &self.attributes {

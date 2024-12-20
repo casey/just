@@ -23,7 +23,6 @@ pub(crate) struct Justfile<'src> {
   pub(crate) name: Option<Name<'src>>,
   pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
   pub(crate) settings: Settings<'src>,
-  #[serde(skip)]
   pub(crate) source: PathBuf,
   pub(crate) unexports: HashSet<String>,
   #[serde(skip)]
@@ -427,7 +426,7 @@ impl<'src> Justfile<'src> {
   }
 }
 
-impl<'src> ColorDisplay for Justfile<'src> {
+impl ColorDisplay for Justfile<'_> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     let mut items = self.recipes.len() + self.assignments.len() + self.aliases.len();
     for (name, assignment) in &self.assignments {

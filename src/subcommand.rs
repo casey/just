@@ -2,6 +2,11 @@ use {super::*, clap_mangen::Man};
 
 const INIT_JUSTFILE: &str = "default:\n    echo 'Hello, world!'\n";
 
+fn backtick_re() -> &'static Regex {
+  static BACKTICK_RE: OnceLock<Regex> = OnceLock::new();
+  BACKTICK_RE.get_or_init(|| Regex::new("(`.*?`)|(`[^`]*$)").unwrap())
+}
+
 #[derive(PartialEq, Clone, Debug)]
 pub(crate) enum Subcommand {
   Changelog,
@@ -30,6 +35,9 @@ pub(crate) enum Subcommand {
     path: ModulePath,
   },
   Man,
+  Request {
+    request: Request,
+  },
   Run {
     arguments: Vec<String>,
     overrides: BTreeMap<String, String>,
@@ -66,10 +74,6 @@ impl Subcommand {
     let justfile = &compilation.justfile;
 
     match self {
-      Run {
-        arguments,
-        overrides,
-      } => Self::run(config, loader, search, compilation, arguments, overrides)?,
       Choose { overrides, chooser } => {
         Self::choose(config, justfile, &search, overrides, chooser.as_deref())?;
       }
@@ -80,6 +84,11 @@ impl Subcommand {
       Format => Self::format(config, &search, compilation)?,
       Groups => Self::groups(config, justfile),
       List { path } => Self::list(config, justfile, path)?,
+      Request { request } => Self::request(request)?,
+      Run {
+        arguments,
+        overrides,
+      } => Self::run(config, loader, search, compilation, arguments, overrides)?,
       Show { path } => Self::show(config, justfile, path)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
@@ -138,6 +147,15 @@ impl Subcommand {
 
           continue;
         }
+      }
+
+      if config.allow_missing
+        && matches!(
+          result,
+          Err(Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })
+        )
+      {
+        return Ok(());
       }
 
       return result;
@@ -266,7 +284,7 @@ impl Subcommand {
     match config.dump_format {
       DumpFormat::Json => {
         serde_json::to_writer(io::stdout(), &compilation.justfile)
-          .map_err(|serde_json_error| Error::DumpJson { serde_json_error })?;
+          .map_err(|source| Error::DumpJson { source })?;
         println!();
       }
       DumpFormat::Just => print!("{}", compilation.root_ast()),
@@ -305,44 +323,44 @@ impl Subcommand {
 
     let formatted = ast.to_string();
 
+    if formatted == src {
+      return Ok(());
+    }
+
     if config.check {
-      return if formatted == src {
-        Ok(())
-      } else {
-        if !config.verbosity.quiet() {
-          use similar::{ChangeTag, TextDiff};
+      if !config.verbosity.quiet() {
+        use similar::{ChangeTag, TextDiff};
 
-          let diff = TextDiff::configure()
-            .algorithm(similar::Algorithm::Patience)
-            .diff_lines(src, &formatted);
+        let diff = TextDiff::configure()
+          .algorithm(similar::Algorithm::Patience)
+          .diff_lines(src, &formatted);
 
-          for op in diff.ops() {
-            for change in diff.iter_changes(op) {
-              let (symbol, color) = match change.tag() {
-                ChangeTag::Delete => ("-", config.color.stdout().diff_deleted()),
-                ChangeTag::Equal => (" ", config.color.stdout()),
-                ChangeTag::Insert => ("+", config.color.stdout().diff_added()),
-              };
+        for op in diff.ops() {
+          for change in diff.iter_changes(op) {
+            let (symbol, color) = match change.tag() {
+              ChangeTag::Delete => ("-", config.color.stdout().diff_deleted()),
+              ChangeTag::Equal => (" ", config.color.stdout()),
+              ChangeTag::Insert => ("+", config.color.stdout().diff_added()),
+            };
 
-              print!("{}{symbol}{change}{}", color.prefix(), color.suffix());
-            }
+            print!("{}{symbol}{change}{}", color.prefix(), color.suffix());
           }
         }
+      }
 
-        Err(Error::FormatCheckFoundDiff)
-      };
+      Err(Error::FormatCheckFoundDiff)
+    } else {
+      fs::write(&search.justfile, formatted).map_err(|io_error| Error::WriteJustfile {
+        justfile: search.justfile.clone(),
+        io_error,
+      })?;
+
+      if config.verbosity.loud() {
+        eprintln!("Wrote justfile to `{}`", search.justfile.display());
+      }
+
+      Ok(())
     }
-
-    fs::write(&search.justfile, formatted).map_err(|io_error| Error::WriteJustfile {
-      justfile: search.justfile.clone(),
-      io_error,
-    })?;
-
-    if config.verbosity.loud() {
-      eprintln!("Wrote justfile to `{}`", search.justfile.display());
-    }
-
-    Ok(())
   }
 
   fn init(config: &Config) -> RunResult<'static> {
@@ -388,6 +406,16 @@ impl Subcommand {
     Ok(())
   }
 
+  fn request(request: &Request) -> RunResult<'static> {
+    let response = match request {
+      Request::EnvironmentVariable(key) => Response::EnvironmentVariable(env::var_os(key)),
+    };
+
+    serde_json::to_writer(io::stdout(), &response).map_err(|source| Error::DumpJson { source })?;
+
+    Ok(())
+  }
+
   fn list(config: &Config, mut module: &Justfile, path: &ModulePath) -> RunResult<'static> {
     for name in &path.path {
       module = module
@@ -404,24 +432,64 @@ impl Subcommand {
   }
 
   fn list_module(config: &Config, module: &Justfile, depth: usize) {
-    fn format_doc(
+    fn print_doc_and_aliases(
       config: &Config,
       name: &str,
       doc: Option<&str>,
+      aliases: &[&str],
       max_signature_width: usize,
       signature_widths: &BTreeMap<&str, usize>,
     ) {
+      let color = config.color.stdout();
+
+      let inline_aliases = config.alias_style != AliasStyle::Separate && !aliases.is_empty();
+
+      if inline_aliases || doc.is_some() {
+        print!(
+          "{:padding$}{}",
+          "",
+          color.doc().paint("#"),
+          padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
+        );
+      }
+
+      let print_aliases = || {
+        print!(
+          " {}",
+          color.alias().paint(&format!(
+            "[alias{}: {}]",
+            if aliases.len() == 1 { "" } else { "es" },
+            aliases.join(", ")
+          ))
+        );
+      };
+
+      if inline_aliases && config.alias_style == AliasStyle::Left {
+        print_aliases();
+      }
+
       if let Some(doc) = doc {
-        if !doc.is_empty() && doc.lines().count() <= 1 {
-          print!(
-            "{:padding$}{} {}",
-            "",
-            config.color.stdout().doc().paint("#"),
-            config.color.stdout().doc().paint(doc),
-            padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
-          );
+        print!(" ");
+        let mut end = 0;
+        for backtick in backtick_re().find_iter(doc) {
+          let prefix = &doc[end..backtick.start()];
+          if !prefix.is_empty() {
+            print!("{}", color.doc().paint(prefix));
+          }
+          print!("{}", color.doc_backtick().paint(backtick.as_str()));
+          end = backtick.end();
+        }
+
+        let suffix = &doc[end..];
+        if !suffix.is_empty() {
+          print!("{}", color.doc().paint(suffix));
         }
       }
+
+      if inline_aliases && config.alias_style == AliasStyle::Right {
+        print_aliases();
+      }
+
       println!();
     }
 
@@ -545,8 +613,14 @@ impl Subcommand {
 
       if let Some(recipes) = recipe_groups.get(&group) {
         for recipe in recipes {
+          let recipe_alias_entries = if config.alias_style == AliasStyle::Separate {
+            aliases.get(recipe.name())
+          } else {
+            None
+          };
+
           for (i, name) in iter::once(&recipe.name())
-            .chain(aliases.get(recipe.name()).unwrap_or(&Vec::new()))
+            .chain(recipe_alias_entries.unwrap_or(&Vec::new()))
             .enumerate()
           {
             let doc = if i == 0 {
@@ -572,10 +646,14 @@ impl Subcommand {
               RecipeSignature { name, recipe }.color_display(config.color.stdout())
             );
 
-            format_doc(
+            print_doc_and_aliases(
               config,
               name,
-              doc.as_deref(),
+              doc.filter(|doc| doc.lines().count() <= 1).as_deref(),
+              aliases
+                .get(recipe.name())
+                .map(Vec::as_slice)
+                .unwrap_or_default(),
               max_signature_width,
               &signature_widths,
             );
@@ -594,10 +672,11 @@ impl Subcommand {
             Self::list_module(config, submodule, depth + 1);
           } else {
             print!("{list_prefix}{} ...", submodule.name());
-            format_doc(
+            print_doc_and_aliases(
               config,
               submodule.name(),
               submodule.doc.as_deref(),
+              &[],
               max_signature_width,
               &signature_widths,
             );

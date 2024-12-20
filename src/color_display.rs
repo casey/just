@@ -13,7 +13,7 @@ pub(crate) trait ColorDisplay {
 
 pub(crate) struct Wrapper<'a>(&'a dyn ColorDisplay, Color);
 
-impl<'a> Display for Wrapper<'a> {
+impl Display for Wrapper<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     self.0.fmt(f, self.1)
   }

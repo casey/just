@@ -49,7 +49,7 @@ struct Chapter<'a> {
   language: Language,
 }
 
-impl<'a> Chapter<'a> {
+impl Chapter<'_> {
   fn title(&self) -> String {
     if self.index == 0 {
       return self.language.introduction().into();

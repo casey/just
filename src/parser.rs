@@ -26,12 +26,12 @@ use {super::*, TokenKind::*};
 pub(crate) struct Parser<'run, 'src> {
   expected_tokens: BTreeSet<TokenKind>,
   file_depth: u32,
-  file_path: &'run Path,
   import_offsets: Vec<usize>,
   module_namepath: &'run Namepath<'src>,
   next_token: usize,
   recursion_depth: usize,
   tokens: &'run [Token<'src>],
+  unstable_features: BTreeSet<UnstableFeature>,
   working_directory: &'run Path,
 }
 
@@ -39,7 +39,6 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// Parse `tokens` into an `Ast`
   pub(crate) fn parse(
     file_depth: u32,
-    file_path: &'run Path,
     import_offsets: &[usize],
     module_namepath: &'run Namepath<'src>,
     tokens: &'run [Token<'src>],
@@ -48,12 +47,12 @@ impl<'run, 'src> Parser<'run, 'src> {
     Self {
       expected_tokens: BTreeSet::new(),
       file_depth,
-      file_path,
       import_offsets: import_offsets.to_vec(),
       module_namepath,
       next_token: 0,
       recursion_depth: 0,
       tokens,
+      unstable_features: BTreeSet::new(),
       working_directory,
     }
     .parse_ast()
@@ -445,24 +444,25 @@ impl<'run, 'src> Parser<'run, 'src> {
       }
     }
 
-    if self.next_token == self.tokens.len() {
-      Ok(Ast {
-        items,
-        warnings: Vec::new(),
-        working_directory: self.working_directory.into(),
-      })
-    } else {
-      Err(self.internal_error(format!(
+    if self.next_token != self.tokens.len() {
+      return Err(self.internal_error(format!(
         "Parse completed with {} unparsed tokens",
         self.tokens.len() - self.next_token,
-      ))?)
+      ))?);
     }
+
+    Ok(Ast {
+      items,
+      unstable_features: self.unstable_features,
+      warnings: Vec::new(),
+      working_directory: self.working_directory.into(),
+    })
   }
 
   /// Parse an alias, e.g `alias name := target`
   fn parse_alias(
     &mut self,
-    attributes: BTreeSet<Attribute<'src>>,
+    attributes: AttributeSet<'src>,
   ) -> CompileResult<'src, Alias<'src, Name<'src>>> {
     self.presume_keyword(Keyword::Alias)?;
     let name = self.parse_name()?;
@@ -480,31 +480,24 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_assignment(
     &mut self,
     export: bool,
-    attributes: BTreeSet<Attribute<'src>>,
+    attributes: AttributeSet<'src>,
   ) -> CompileResult<'src, Assignment<'src>> {
     let name = self.parse_name()?;
     self.presume(ColonEquals)?;
     let value = self.parse_expression()?;
     self.expect_eol()?;
 
-    let private = attributes.contains(&Attribute::Private);
+    let private = attributes.contains(AttributeDiscriminant::Private);
 
-    for attribute in attributes {
-      if attribute != Attribute::Private {
-        return Err(name.error(CompileErrorKind::InvalidAttribute {
-          item_kind: "Assignment",
-          item_name: name.lexeme(),
-          attribute,
-        }));
-      }
-    }
+    attributes.ensure_valid_attributes("Assignment", *name, &[AttributeDiscriminant::Private])?;
 
     Ok(Assignment {
-      file_depth: self.file_depth,
+      constant: false,
       export,
+      file_depth: self.file_depth,
       name,
-      value,
       private: private || name.lexeme().starts_with('_'),
+      value,
     })
   }
 
@@ -520,31 +513,63 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     self.recursion_depth += 1;
 
-    let expression = if self.accepted_keyword(Keyword::If)? {
-      self.parse_conditional()?
-    } else if self.accepted(Slash)? {
-      let lhs = None;
-      let rhs = self.parse_expression()?.into();
-      Expression::Join { lhs, rhs }
-    } else {
-      let value = self.parse_value()?;
+    let disjunct = self.parse_disjunct()?;
 
-      if self.accepted(Slash)? {
-        let lhs = Some(Box::new(value));
-        let rhs = self.parse_expression()?.into();
-        Expression::Join { lhs, rhs }
-      } else if self.accepted(Plus)? {
-        let lhs = value.into();
-        let rhs = self.parse_expression()?.into();
-        Expression::Concatenation { lhs, rhs }
-      } else {
-        value
-      }
+    let expression = if self.accepted(BarBar)? {
+      self
+        .unstable_features
+        .insert(UnstableFeature::LogicalOperators);
+      let lhs = disjunct.into();
+      let rhs = self.parse_expression()?.into();
+      Expression::Or { lhs, rhs }
+    } else {
+      disjunct
     };
 
     self.recursion_depth -= 1;
 
     Ok(expression)
+  }
+
+  fn parse_disjunct(&mut self) -> CompileResult<'src, Expression<'src>> {
+    let conjunct = self.parse_conjunct()?;
+
+    let disjunct = if self.accepted(AmpersandAmpersand)? {
+      self
+        .unstable_features
+        .insert(UnstableFeature::LogicalOperators);
+      let lhs = conjunct.into();
+      let rhs = self.parse_disjunct()?.into();
+      Expression::And { lhs, rhs }
+    } else {
+      conjunct
+    };
+
+    Ok(disjunct)
+  }
+
+  fn parse_conjunct(&mut self) -> CompileResult<'src, Expression<'src>> {
+    if self.accepted_keyword(Keyword::If)? {
+      self.parse_conditional()
+    } else if self.accepted(Slash)? {
+      let lhs = None;
+      let rhs = self.parse_conjunct()?.into();
+      Ok(Expression::Join { lhs, rhs })
+    } else {
+      let value = self.parse_value()?;
+
+      if self.accepted(Slash)? {
+        let lhs = Some(Box::new(value));
+        let rhs = self.parse_conjunct()?.into();
+        Ok(Expression::Join { lhs, rhs })
+      } else if self.accepted(Plus)? {
+        let lhs = value.into();
+        let rhs = self.parse_conjunct()?.into();
+        Ok(Expression::Concatenation { lhs, rhs })
+      } else {
+        Ok(value)
+      }
+    }
   }
 
   /// Parse a conditional, e.g. `if a == b { "foo" } else { "bar" }`
@@ -581,6 +606,8 @@ impl<'run, 'src> Parser<'run, 'src> {
       ConditionalOperator::Inequality
     } else if self.accepted(EqualsTilde)? {
       ConditionalOperator::RegexMatch
+    } else if self.accepted(BangTilde)? {
+      ConditionalOperator::RegexMismatch
     } else {
       self.expect(EqualsEquals)?;
       ConditionalOperator::Equality
@@ -830,7 +857,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     &mut self,
     doc: Option<&'src str>,
     quiet: bool,
-    attributes: BTreeSet<Attribute<'src>>,
+    attributes: AttributeSet<'src>,
   ) -> CompileResult<'src, UnresolvedRecipe<'src>> {
     let name = self.parse_name()?;
 
@@ -891,9 +918,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let body = self.parse_body()?;
 
     let shebang = body.first().map_or(false, Line::is_shebang);
-    let script = attributes
-      .iter()
-      .any(|attribute| matches!(attribute, Attribute::Script(_)));
+    let script = attributes.contains(AttributeDiscriminant::Script);
 
     if shebang && script {
       return Err(name.error(CompileErrorKind::ShebangAndScriptAttribute {
@@ -901,16 +926,34 @@ impl<'run, 'src> Parser<'run, 'src> {
       }));
     }
 
-    let private = name.lexeme().starts_with('_') || attributes.contains(&Attribute::Private);
+    let working_directory = attributes.contains(AttributeDiscriminant::WorkingDirectory);
+
+    if working_directory && attributes.contains(AttributeDiscriminant::NoCd) {
+      return Err(
+        name.error(CompileErrorKind::NoCdAndWorkingDirectoryAttribute {
+          recipe: name.lexeme(),
+        }),
+      );
+    }
+
+    let private =
+      name.lexeme().starts_with('_') || attributes.contains(AttributeDiscriminant::Private);
+
+    let mut doc = doc.map(ToOwned::to_owned);
+
+    for attribute in &attributes {
+      if let Attribute::Doc(attribute_doc) = attribute {
+        doc = attribute_doc.as_ref().map(|doc| doc.cooked.clone());
+      }
+    }
 
     Ok(Recipe {
       shebang: shebang || script,
       attributes,
       body,
       dependencies,
-      doc,
+      doc: doc.filter(|doc| !doc.is_empty()),
       file_depth: self.file_depth,
-      file_path: self.file_path.into(),
       import_offsets: self.import_offsets.clone(),
       name,
       namepath: self.module_namepath.join(name),
@@ -1082,10 +1125,9 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Item attributes, i.e., `[macos]` or `[confirm: "warning!"]`
-  fn parse_attributes(
-    &mut self,
-  ) -> CompileResult<'src, Option<(Token<'src>, BTreeSet<Attribute<'src>>)>> {
+  fn parse_attributes(&mut self) -> CompileResult<'src, Option<(Token<'src>, AttributeSet<'src>)>> {
     let mut attributes = BTreeMap::new();
+    let mut discriminants = BTreeMap::new();
 
     let mut token = None;
 
@@ -1112,12 +1154,22 @@ impl<'run, 'src> Parser<'run, 'src> {
 
         let attribute = Attribute::new(name, arguments)?;
 
-        if let Some(line) = attributes.get(&attribute) {
+        let first = attributes.get(&attribute).or_else(|| {
+          if attribute.repeatable() {
+            None
+          } else {
+            discriminants.get(&attribute.discriminant())
+          }
+        });
+
+        if let Some(&first) = first {
           return Err(name.error(CompileErrorKind::DuplicateAttribute {
             attribute: name.lexeme(),
-            first: *line,
+            first,
           }));
         }
+
+        discriminants.insert(attribute.discriminant(), name.line);
 
         attributes.insert(attribute, name.line);
 
@@ -1162,15 +1214,8 @@ mod tests {
   fn test(text: &str, want: Tree) {
     let unindented = unindent(text);
     let tokens = Lexer::test_lex(&unindented).expect("lexing failed");
-    let justfile = Parser::parse(
-      0,
-      &PathBuf::new(),
-      &[],
-      &Namepath::default(),
-      &tokens,
-      &PathBuf::new(),
-    )
-    .expect("parsing failed");
+    let justfile = Parser::parse(0, &[], &Namepath::default(), &tokens, &PathBuf::new())
+      .expect("parsing failed");
     let have = justfile.tree();
     if have != want {
       println!("parsed text: {unindented}");
@@ -1208,14 +1253,7 @@ mod tests {
   ) {
     let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
 
-    match Parser::parse(
-      0,
-      &PathBuf::new(),
-      &[],
-      &Namepath::default(),
-      &tokens,
-      &PathBuf::new(),
-    ) {
+    match Parser::parse(0, &[], &Namepath::default(), &tokens, &PathBuf::new()) {
       Ok(_) => panic!("Parsing unexpectedly succeeded"),
       Err(have) => {
         let want = CompileError {

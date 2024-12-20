@@ -29,7 +29,7 @@ fuzz:
 run:
   cargo run
 
-# only run tests matching PATTERN
+# only run tests matching `PATTERN`
 [group: 'test']
 filter PATTERN:
   cargo test {{PATTERN}}
@@ -68,6 +68,10 @@ update-contributors:
 [group: 'check']
 outdated:
   cargo outdated -R
+
+[group: 'check']
+unused:
+  cargo +nightly udeps --workspace
 
 # publish current GitHub master branch
 [group: 'release']
@@ -168,6 +172,10 @@ build-book:
   cargo run --package generate-book
   mdbook build book/en
   mdbook build book/zh
+
+[group: 'dev']
+print-readme-constants-table:
+  cargo test constants::tests::readme_table -- --nocapture
 
 # run all polyglot recipes
 [group: 'demo']

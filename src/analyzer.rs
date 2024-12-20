@@ -35,12 +35,16 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     root: &Path,
   ) -> CompileResult<'src, Justfile<'src>> {
     let mut definitions = HashMap::new();
+    let mut imports = HashSet::new();
+    let mut unstable_features = BTreeSet::new();
 
     let mut stack = Vec::new();
     let ast = asts.get(root).unwrap();
     stack.push(ast);
 
     while let Some(ast) = stack.pop() {
+      unstable_features.extend(&ast.unstable_features);
+
       for item in &ast.items {
         match item {
           Item::Alias(alias) => {
@@ -54,7 +58,9 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           Item::Comment(_) => (),
           Item::Import { absolute, .. } => {
             if let Some(absolute) = absolute {
-              stack.push(asts.get(absolute).unwrap());
+              if imports.insert(absolute) {
+                stack.push(asts.get(absolute).unwrap());
+              }
             }
           }
           Item::Module {
@@ -66,17 +72,21 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           } => {
             let mut doc_attr: Option<&str> = None;
             let mut groups = Vec::new();
+            attributes.ensure_valid_attributes(
+              "Module",
+              **name,
+              &[AttributeDiscriminant::Doc, AttributeDiscriminant::Group],
+            )?;
+
             for attribute in attributes {
-              if let Attribute::Doc(ref doc) = attribute {
-                doc_attr = Some(doc.as_ref().map(|s| s.cooked.as_ref()).unwrap_or_default());
-              } else if let Attribute::Group(ref group) = attribute {
-                groups.push(group.cooked.clone());
-              } else {
-                return Err(name.token.error(InvalidAttribute {
-                  item_kind: "Module",
-                  item_name: name.lexeme(),
-                  attribute: attribute.clone(),
-                }));
+              match attribute {
+                Attribute::Doc(ref doc) => {
+                  doc_attr = Some(doc.as_ref().map(|s| s.cooked.as_ref()).unwrap_or_default());
+                }
+                Attribute::Group(ref group) => {
+                  groups.push(group.cooked.clone());
+                }
+                _ => unreachable!(),
               }
             }
 
@@ -163,14 +173,10 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       aliases.insert(Self::resolve_alias(&recipes, alias)?);
     }
 
-    let mut unstable_features = BTreeSet::new();
-
     for recipe in recipes.values() {
-      for attribute in &recipe.attributes {
-        if let Attribute::Script(_) = attribute {
-          unstable_features.insert(UnstableFeature::ScriptAttribute);
-          break;
-        }
+      if recipe.attributes.contains(AttributeDiscriminant::Script) {
+        unstable_features.insert(UnstableFeature::ScriptAttribute);
+        break;
       }
     }
 
@@ -178,6 +184,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       unstable_features.insert(UnstableFeature::ScriptInterpreterSetting);
     }
 
+    let source = root.to_owned();
     let root = paths.get(root).unwrap();
 
     Ok(Justfile {
@@ -194,14 +201,14 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             Rc::clone(next)
           }),
         }),
-      doc,
+      doc: doc.filter(|doc| !doc.is_empty()),
       groups: groups.into(),
       loaded: loaded.into(),
       modules: self.modules,
       name,
       recipes,
       settings,
-      source: root.into(),
+      source,
       unexports: self.unexports,
       unstable_features,
       warnings: self.warnings,
@@ -280,11 +287,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     }
 
     if !recipe.is_script() {
-      if let Some(attribute) = recipe
-        .attributes
-        .iter()
-        .find(|attribute| matches!(attribute, Attribute::Extension(_)))
-      {
+      if let Some(attribute) = recipe.attributes.get(AttributeDiscriminant::Extension) {
         return Err(recipe.name.error(InvalidAttribute {
           item_kind: "Recipe",
           item_name: recipe.name.lexeme(),
@@ -297,16 +300,11 @@ impl<'run, 'src> Analyzer<'run, 'src> {
   }
 
   fn analyze_alias(alias: &Alias<'src, Name<'src>>) -> CompileResult<'src> {
-    for attribute in &alias.attributes {
-      if *attribute != Attribute::Private {
-        return Err(alias.name.token.error(InvalidAttribute {
-          item_kind: "Alias",
-          item_name: alias.name.lexeme(),
-          attribute: attribute.clone(),
-        }));
-      }
-    }
-
+    alias.attributes.ensure_valid_attributes(
+      "Alias",
+      *alias.name,
+      &[AttributeDiscriminant::Private],
+    )?;
     Ok(())
   }
 

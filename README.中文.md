@@ -144,13 +144,13 @@ list:
   <tr>
     <td><a href="https://nixos.org/download.html#download-nix">Various</a></td>
     <td><a href="https://nixos.org/nix/">Nix</a></td>
-    <td><a href="https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix">just</a></td>
+    <td><a href="https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/ju/just/package.nix">just</a></td>
     <td><code>nix-env -iA nixpkgs.just</code></td>
   </tr>
   <tr>
     <td><a href="https://nixos.org/nixos/">NixOS</a></td>
     <td><a href="https://nixos.org/nix/">Nix</a></td>
-    <td><a href="https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix">just</a></td>
+    <td><a href="https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/ju/just/package.nix">just</a></td>
     <td><code>nix-env -iA nixos.just</code></td>
   </tr>
   <tr>
@@ -218,6 +218,22 @@ list:
     <td>
       <code>asdf plugin add just</code><br>
       <code>asdf install just &lt;version&gt;</code>
+    </td>
+  </tr>
+  <tr>
+    <td><a href="https://packaging.python.org/tutorials/installing-packages">Various</a></td>
+    <td><a href="https://pypi.org">PyPI</a></td>
+    <td><a href="https://pypi.org/project/rust-just">rust-just</a></td>
+    <td>
+      <code>pipx install rust-just</code><br>
+    </td>
+  </tr>
+  <tr>
+    <td><a href="https://docs.npmjs.com/packages-and-modules/getting-packages-from-the-registry">Various</a></td>
+    <td><a href="https://www.npmjs.com">npm</a></td>
+    <td><a href="https://www.npmjs.com/package/rust-just">rust-just</a></td>
+    <td>
+      <code>npm install -g rust-just</code><br>
     </td>
   </tr>
   <tr>

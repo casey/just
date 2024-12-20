@@ -7,13 +7,13 @@ pub(crate) struct Condition<'src> {
   pub(crate) operator: ConditionalOperator,
 }
 
-impl<'src> Display for Condition<'src> {
+impl Display for Condition<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(f, "{} {} {}", self.lhs, self.operator, self.rhs)
   }
 }
 
-impl<'src> Serialize for Condition<'src> {
+impl Serialize for Condition<'_> {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
   where
     S: Serializer,

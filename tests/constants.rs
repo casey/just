@@ -43,3 +43,18 @@ fn constants_can_be_redefined() {
     .stdout("foo")
     .run();
 }
+
+#[test]
+fn constants_are_not_exported() {
+  Test::new()
+    .justfile(
+      r#"
+        set export
+
+        foo:
+          @'{{just_executable()}}' --request '{"environment-variable": "HEXUPPER"}'
+      "#,
+    )
+    .response(Response::EnvironmentVariable(None))
+    .run();
+}

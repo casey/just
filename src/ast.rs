@@ -6,11 +6,12 @@ use super::*;
 #[derive(Debug, Clone)]
 pub(crate) struct Ast<'src> {
   pub(crate) items: Vec<Item<'src>>,
+  pub(crate) unstable_features: BTreeSet<UnstableFeature>,
   pub(crate) warnings: Vec<Warning>,
   pub(crate) working_directory: PathBuf,
 }
 
-impl<'src> Display for Ast<'src> {
+impl Display for Ast<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     let mut iter = self.items.iter().peekable();
 

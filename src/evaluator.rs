@@ -32,12 +32,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     for (name, value) in overrides {
       if let Some(assignment) = module.assignments.get(name) {
-        scope.bind(
-          assignment.export,
-          assignment.name,
-          assignment.private,
-          value.clone(),
-        );
+        scope.bind(Binding {
+          constant: false,
+          export: assignment.export,
+          file_depth: 0,
+          name: assignment.name,
+          private: assignment.private,
+          value: value.clone(),
+        });
       } else {
         unknown_overrides.push(name.clone());
       }
@@ -68,12 +70,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     if !self.scope.bound(name) {
       let value = self.evaluate_expression(&assignment.value)?;
-      self.scope.bind(
-        assignment.export,
-        assignment.name,
-        assignment.private,
+      self.scope.bind(Binding {
+        constant: false,
+        export: assignment.export,
+        file_depth: 0,
+        name: assignment.name,
+        private: assignment.private,
         value,
-      );
+      });
     }
 
     Ok(self.scope.value(name).unwrap())
@@ -84,24 +88,31 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     expression: &Expression<'src>,
   ) -> RunResult<'src, String> {
     match expression {
-      Expression::Variable { name, .. } => {
-        let variable = name.lexeme();
-        if let Some(value) = self.scope.value(variable) {
-          Ok(value.to_owned())
-        } else if let Some(assignment) = self
-          .assignments
-          .and_then(|assignments| assignments.get(variable))
-        {
-          Ok(self.evaluate_assignment(assignment)?.to_owned())
+      Expression::And { lhs, rhs } => {
+        let lhs = self.evaluate_expression(lhs)?;
+        if lhs.is_empty() {
+          return Ok(String::new());
+        }
+        self.evaluate_expression(rhs)
+      }
+      Expression::Assert { condition, error } => {
+        if self.evaluate_condition(condition)? {
+          Ok(String::new())
         } else {
-          Err(Error::Internal {
-            message: format!("attempted to evaluate undefined variable `{variable}`"),
+          Err(Error::Assert {
+            message: self.evaluate_expression(error)?,
           })
+        }
+      }
+      Expression::Backtick { contents, token } => {
+        if self.context.config.dry_run {
+          Ok(format!("`{contents}`"))
+        } else {
+          Ok(self.run_backtick(contents, token)?)
         }
       }
       Expression::Call { thunk } => {
         use Thunk::*;
-
         let result = match thunk {
           Nullary { function, .. } => function(function::Context::new(self, thunk.name())),
           Unary { function, arg, .. } => {
@@ -118,7 +129,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
               Some(b) => Some(self.evaluate_expression(b)?),
               None => None,
             };
-
             function(function::Context::new(self, thunk.name()), &a, b.as_deref())
           }
           UnaryPlus {
@@ -175,19 +185,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             function(function::Context::new(self, thunk.name()), &a, &b, &c)
           }
         };
-
         result.map_err(|message| Error::FunctionCall {
           function: thunk.name(),
           message,
         })
-      }
-      Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.clone()),
-      Expression::Backtick { contents, token } => {
-        if self.context.config.dry_run {
-          Ok(format!("`{contents}`"))
-        } else {
-          Ok(self.run_backtick(contents, token)?)
-        }
       }
       Expression::Concatenation { lhs, rhs } => {
         Ok(self.evaluate_expression(lhs)? + &self.evaluate_expression(rhs)?)
@@ -209,12 +210,26 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         lhs: Some(lhs),
         rhs,
       } => Ok(self.evaluate_expression(lhs)? + "/" + &self.evaluate_expression(rhs)?),
-      Expression::Assert { condition, error } => {
-        if self.evaluate_condition(condition)? {
-          Ok(String::new())
+      Expression::Or { lhs, rhs } => {
+        let lhs = self.evaluate_expression(lhs)?;
+        if !lhs.is_empty() {
+          return Ok(lhs);
+        }
+        self.evaluate_expression(rhs)
+      }
+      Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.clone()),
+      Expression::Variable { name, .. } => {
+        let variable = name.lexeme();
+        if let Some(value) = self.scope.value(variable) {
+          Ok(value.to_owned())
+        } else if let Some(assignment) = self
+          .assignments
+          .and_then(|assignments| assignments.get(variable))
+        {
+          Ok(self.evaluate_assignment(assignment)?.to_owned())
         } else {
-          Err(Error::Assert {
-            message: self.evaluate_expression(error)?,
+          Err(Error::Internal {
+            message: format!("attempted to evaluate undefined variable `{variable}`"),
           })
         }
       }
@@ -228,6 +243,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       ConditionalOperator::Equality => lhs_value == rhs_value,
       ConditionalOperator::Inequality => lhs_value != rhs_value,
       ConditionalOperator::RegexMatch => Regex::new(&rhs_value)
+        .map_err(|source| Error::RegexCompile { source })?
+        .is_match(&lhs_value),
+      ConditionalOperator::RegexMismatch => !Regex::new(&rhs_value)
         .map_err(|source| Error::RegexCompile { source })?
         .is_match(&lhs_value),
     };
@@ -329,9 +347,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         rest = &rest[1..];
         value
       };
-      evaluator
-        .scope
-        .bind(parameter.export, parameter.name, false, value);
+      evaluator.scope.bind(Binding {
+        constant: false,
+        export: parameter.export,
+        file_depth: 0,
+        name: parameter.name,
+        private: false,
+        value,
+      });
     }
 
     Ok((evaluator.scope, positional))

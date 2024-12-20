@@ -23,7 +23,10 @@
 
 `just` is a handy way to save and run project-specific commands.
 
-This readme is also available as a [book](https://just.systems/man/en/).
+This readme is also available as a [book](https://just.systems/man/en/). The
+book reflects the latest release, whereas the
+[readme on GitHub](https://github.com/casey/just/blob/master/README.md)
+reflects latest master.
 
 (中文文档在 [这里](https://github.com/casey/just/blob/master/README.中文.md),
 快看过来!)
@@ -48,9 +51,9 @@ Yay, all your tests passed!
   [`make`'s complexity and idiosyncrasies](#what-are-the-idiosyncrasies-of-make-that-just-avoids).
   No need for `.PHONY` recipes!
 
-- Linux, MacOS, and Windows are supported with no additional dependencies.
-  (Although if your system doesn't have an `sh`, you'll need to
-  [choose a different shell](#shell).)
+- Linux, MacOS, Windows, and other reasonable unices are supported with no
+  additional dependencies. (Although if your system doesn't have an `sh`,
+  you'll need to [choose a different shell](#shell).)
 
 - Errors are specific and informative, and syntax errors are reported along
   with their source context.
@@ -161,18 +164,23 @@ most Windows users.)
     </tr>
     <tr>
       <td><a href=https://nixos.org/nix/>Nix</a></td>
-      <td><a href=https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix>just</a></td>
+      <td><a href=https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/ju/just/package.nix>just</a></td>
       <td><code>nix-env -iA nixpkgs.just</code></td>
     </tr>
     <tr>
       <td><a href=https://www.npmjs.com/>npm</a></td>
       <td><a href=https://www.npmjs.com/package/rust-just>rust-just</a></td>
-      <td><code>npm install rust-just</code></td>
+      <td><code>npm install -g rust-just</code></td>
     </tr>
     <tr>
       <td><a href=https://pypi.org/>PyPI</a></td>
       <td><a href=https://pypi.org/project/rust-just/>rust-just</a></td>
       <td><code>pipx install rust-just</code></td>
+    </tr>
+    <tr>
+      <td><a href=https://snapcraft.io>Snap</a></td>
+      <td><a href=https://snapcraft.io/just>just</a></td>
+      <td><code>snap install --edge --classic just</code></td>
     </tr>
   </tbody>
 </table>
@@ -268,7 +276,7 @@ most Windows users.)
     <tr>
       <td><a href=https://nixos.org/nixos/>NixOS</a></td>
       <td><a href=https://nixos.org/nix/>Nix</a></td>
-      <td><a href=https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/just/default.nix>just</a></td>
+      <td><a href=https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/ju/just/package.nix>just</a></td>
       <td><code>nix-env -iA nixos.just</code></td>
     </tr>
     <tr>
@@ -401,7 +409,7 @@ Using package managers pre-installed on GitHub Actions runners on MacOS with
 With [extractions/setup-just](https://github.com/extractions/setup-just):
 
 ```yaml
-- uses: extractions/setup-just@v1
+- uses: extractions/setup-just@v2
   with:
     just-version: 1.5.0  # optional semver specification, otherwise latest
 ```
@@ -884,8 +892,8 @@ $ just bar
 /subdir
 ```
 
-You can override working directory with `set working-directory := '…'`, whose value
-is relative to the default working directory.
+You can override the working directory for all recipes with
+`set working-directory := '…'`:
 
 ```just
 set working-directory := 'bar'
@@ -900,6 +908,26 @@ $ pwd
 $ just foo
 /home/bob/bar
 ```
+
+You can override the working directory for a specific recipe with the
+`working-directory` attribute<sup>1.38.0</sup>:
+
+```just
+[working-directory: 'bar']
+@foo:
+  pwd
+```
+
+```console
+$ pwd
+/home/bob
+$ just foo
+/home/bob/bar
+```
+
+The argument to the `working-directory` setting or `working-directory`
+attribute may be absolute or relative. If it is relative it is interpreted
+relative to the default working directory.
 
 ### Aliases
 
@@ -1290,24 +1318,59 @@ Available recipes:
     test
 ```
 
-### Variables and Substitution
+### Expressions and Substitutions
 
-Variables, strings, concatenation, path joining, and substitution using `{{…}}`
-are supported:
+Various operators and function calls are supported in expressions, which may be
+used in assignments, default recipe arguments, and inside recipe body `{{…}}`
+substitutions.
 
 ```just
 tmpdir  := `mktemp -d`
 version := "0.2.7"
 tardir  := tmpdir / "awesomesauce-" + version
 tarball := tardir + ".tar.gz"
+config  := quote(config_dir() / ".project-config")
 
 publish:
   rm -f {{tarball}}
   mkdir {{tardir}}
-  cp README.md *.c {{tardir}}
+  cp README.md *.c {{ config }} {{tardir}}
   tar zcvf {{tarball}} {{tardir}}
   scp {{tarball}} me@server.com:release/
   rm -rf {{tarball}} {{tardir}}
+```
+
+#### Concatenation
+
+The `+` operator returns the left-hand argument concatenated with the
+right-hand argument:
+
+```just
+foobar := 'foo' + 'bar'
+```
+
+#### Logical Operators
+
+The logical operators `&&` and `||` can be used to coalesce string
+values<sup>1.37.0</sup>, similar to Python's `and` and `or`. These operators
+consider the empty string `''` to be false, and all other strings to be true.
+
+These operators are currently unstable.
+
+The `&&` operator returns the empty string if the left-hand argument is the
+empty string, otherwise it returns the right-hand argument:
+
+```justfile
+foo := '' && 'goodbye'      # ''
+bar := 'hello' && 'goodbye' # 'goodbye'
+```
+
+The `||` operator returns the left-hand argument if it is non-empty, otherwise
+it returns the right-hand argument:
+
+```justfile
+foo := '' || 'goodbye'      # 'goodbye'
+bar := 'hello' || 'goodbye' # 'hello'
 ```
 
 #### Joining Paths
@@ -1378,6 +1441,10 @@ braces:
 ```
 
 ### Strings
+
+`'single'`, `"double"`, and `'''triple'''` quoted string literals are
+supported. Unlike in recipe bodies, `{{…}}` interpolations are not supported
+inside strings.
 
 Double-quoted strings support escape sequences:
 
@@ -1497,8 +1564,8 @@ Done!
 
 ### Functions
 
-`just` provides a few built-in functions that might be useful when writing
-recipes.
+`just` provides many built-in functions for use in expressions, including
+recipe body `{{…}}` substitutions, assignments, and default parameter values.
 
 All functions ending in `_directory` can be abbreviated to `_dir`. So
 `home_directory()` can also be written as `home_dir()`. In addition,
@@ -1543,11 +1610,11 @@ file.
   and can be changed with `set shell := […]`.
 
   `command` is passed as the first argument, so if the command is `'echo $@'`,
-  the full command line, with the default shell command `shell -cu` and `args`
+  the full command line, with the default shell command `sh -cu` and `args`
   `'foo'` and `'bar'` will be:
 
   ```
-  'shell' '-cu' 'echo $@' 'echo $@' 'foo' 'bar'
+  'sh' '-cu' 'echo $@' 'echo $@' 'foo' 'bar'
   ```
 
   This is so that `$@` works as expected, and `$1` refers to the first
@@ -1791,6 +1858,8 @@ which will halt execution.
 - `path_exists(path)` - Returns `true` if the path points at an existing entity
   and `false` otherwise. Traverses symbolic links, and returns `false` if the
   path is inaccessible or points to a broken symlink.
+- `read(path)`<sup>master</sup> - Returns the content of file at `path` as
+  string.
 
 ##### Error Reporting
 
@@ -1832,14 +1901,38 @@ for details.
   `requirement`, e.g., `">=0.1.0"`, returning `"true"` if so and `"false"`
   otherwise.
 
-##### XDG Directories<sup>1.23.0</sup>
+#### Style
+
+- `style(name)`<sup>1.37.0</sup> - Return a named terminal display attribute
+  escape sequence used by `just`. Unlike terminal display attribute escape
+  sequence constants, which contain standard colors and styles, `style(name)`
+  returns an escape sequence used by `just` itself, and can be used to make
+  recipe output match `just`'s own output.
+
+  Recognized values for `name` are `'command'`, for echoed recipe lines,
+  `error`, and `warning`.
+
+  For example, to style an error message:
+
+  ```just
+  scary:
+    @echo '{{ style("error") }}OH NO{{ NORMAL }}'
+  ```
+
+##### User Directories<sup>1.23.0</sup>
 
 These functions return paths to user-specific directories for things like
-configuration, data, caches, executables, and the user's home directory. These
-functions follow the
-[XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html),
-and are implemented with the
-[`dirs`](https://docs.rs/dirs/latest/dirs/index.html) crate.
+configuration, data, caches, executables, and the user's home directory.
+
+On Unix, these functions follow the
+[XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html).
+
+On MacOS and Windows, these functions return the system-specified user-specific
+directories. For example, `cache_directory()` returns `~/Library/Caches` on
+MacOS and `{FOLDERID_LocalAppData}` on Windows.
+
+See the [`dirs`](https://docs.rs/dirs/latest/dirs/index.html) crate for more
+details.
 
 - `cache_directory()` - The user-specific cache directory.
 - `config_directory()` - The user-specific configuration directory.
@@ -1848,6 +1941,10 @@ and are implemented with the
 - `data_local_directory()` - The local user-specific data directory.
 - `executable_directory()` - The user-specific executable directory.
 - `home_directory()` - The user's home directory.
+
+If you would like to use XDG base directories on all platforms you can use the
+`env(…)` function with the appropriate environment variable, e.g.,
+`env('XDG_CACHE_HOME')`.
 
 ### Constants
 
@@ -1858,6 +1955,30 @@ A number of constants are predefined:
 | `HEX`<sup>1.27.0</sup> | `"0123456789abcdef"` |
 | `HEXLOWER`<sup>1.27.0</sup> | `"0123456789abcdef"` |
 | `HEXUPPER`<sup>1.27.0</sup> | `"0123456789ABCDEF"` |
+| `CLEAR`<sup>1.37.0</sup> | `"\ec"` |
+| `NORMAL`<sup>1.37.0</sup> | `"\e[0m"` |
+| `BOLD`<sup>1.37.0</sup> | `"\e[1m"` |
+| `ITALIC`<sup>1.37.0</sup> | `"\e[3m"` |
+| `UNDERLINE`<sup>1.37.0</sup> | `"\e[4m"` |
+| `INVERT`<sup>1.37.0</sup> | `"\e[7m"` |
+| `HIDE`<sup>1.37.0</sup> | `"\e[8m"` |
+| `STRIKETHROUGH`<sup>1.37.0</sup> | `"\e[9m"` |
+| `BLACK`<sup>1.37.0</sup> | `"\e[30m"` |
+| `RED`<sup>1.37.0</sup> | `"\e[31m"` |
+| `GREEN`<sup>1.37.0</sup> | `"\e[32m"` |
+| `YELLOW`<sup>1.37.0</sup> | `"\e[33m"` |
+| `BLUE`<sup>1.37.0</sup> | `"\e[34m"` |
+| `MAGENTA`<sup>1.37.0</sup> | `"\e[35m"` |
+| `CYAN`<sup>1.37.0</sup> | `"\e[36m"` |
+| `WHITE`<sup>1.37.0</sup> | `"\e[37m"` |
+| `BG_BLACK`<sup>1.37.0</sup> | `"\e[40m"` |
+| `BG_RED`<sup>1.37.0</sup> | `"\e[41m"` |
+| `BG_GREEN`<sup>1.37.0</sup> | `"\e[42m"` |
+| `BG_YELLOW`<sup>1.37.0</sup> | `"\e[43m"` |
+| `BG_BLUE`<sup>1.37.0</sup> | `"\e[44m"` |
+| `BG_MAGENTA`<sup>1.37.0</sup> | `"\e[45m"` |
+| `BG_CYAN`<sup>1.37.0</sup> | `"\e[46m"` |
+| `BG_WHITE`<sup>1.37.0</sup> | `"\e[47m"` |
 
 ```just
 @foo:
@@ -1869,9 +1990,29 @@ $ just foo
 0123456789abcdef
 ```
 
+Constants starting with `\e` are
+[ANSI escape sequences](https://en.wikipedia.org/wiki/ANSI_escape_code).
+
+`CLEAR` clears the screen, similar to the `clear` command. The rest are of the
+form `\e[Nm`, where `N` is an integer, and set terminal display attributes.
+
+Terminal display attribute escape sequences can be combined, for example text
+weight `BOLD`, text style `STRIKETHROUGH`, foreground color `CYAN`, and
+background color `BG_BLUE`. They should be followed by `NORMAL`, to reset the
+terminal back to normal.
+
+Escape sequences should be quoted, since `[` is treated as a special character
+by some shells.
+
+```just
+@foo:
+  echo '{{BOLD + STRIKETHROUGH + CYAN + BG_BLUE}}Hi!{{NORMAL}}'
+```
+
 ### Attributes
 
-Recipes, `mod` statements, and aliases may be annotated with attributes that change their behavior.
+Recipes, `mod` statements, and aliases may be annotated with attributes that
+change their behavior.
 
 | Name | Type | Description |
 |------|------|-------------|
@@ -1885,12 +2026,14 @@ Recipes, `mod` statements, and aliases may be annotated with attributes that cha
 | `[no-cd]`<sup>1.9.0</sup> | recipe | Don't change directory before executing recipe. |
 | `[no-exit-message]`<sup>1.7.0</sup> | recipe | Don't print an error message if recipe fails. |
 | `[no-quiet]`<sup>1.23.0</sup> | recipe | Override globally quiet recipes and always echo out the recipe. |
+| `[openbsd]`<sup>1.38.0</sup> | recipe | Enable recipe on OpenBSD. |
 | `[positional-arguments]`<sup>1.29.0</sup> | recipe | Turn on [positional arguments](#positional-arguments) for this recipe. |
 | `[private]`<sup>1.10.0</sup> | alias, recipe | Make recipe, alias, or variable private. See [Private Recipes](#private-recipes). |
 | `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
 | `[script(COMMAND)]`<sup>1.32.0</sup> | recipe | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
 | `[unix]`<sup>1.8.0</sup> | recipe | Enable recipe on Unixes. (Includes MacOS). |
 | `[windows]`<sup>1.8.0</sup> | recipe | Enable recipe on Windows. |
+| `[working-directory(PATH)]`<sup>1.38.0</sup> | recipe | Set recipe working directory. `PATH` may be relative or absolute. If relative, it is interpreted relative to the default working directory. |
 
 A recipe can have multiple attributes, either on multiple lines:
 
@@ -2074,6 +2217,10 @@ See the [Strings](#strings) section for details on unindenting.
 
 Backticks may not start with `#!`. This syntax is reserved for a future
 upgrade.
+
+The [`shell(…)` function](#external-commands) provides a more general mechanism
+to invoke external commands, including the ability to execute the contents of a
+variable as a command, and to pass arguments to a command.
 
 ### Conditional Expressions
 
@@ -2379,8 +2526,8 @@ Testing server:unit…
 ./test --tests unit server
 ```
 
-Default values may be arbitrary expressions, but concatenations or path joins
-must be parenthesized:
+Default values may be arbitrary expressions, but expressions containing the
+`+`, `&&`, `||`, or `/` operators must be parenthesized:
 
 ```just
 arch := "wasm"
@@ -2681,6 +2828,41 @@ the final argument. For example, on Windows, if a recipe starts with `#! py`,
 the final command the OS runs will be something like
 `py C:\Temp\PATH_TO_SAVED_RECIPE_BODY`.
 
+### Python Recipes with `uv`
+
+[`uv`](https://github.com/astral-sh/uv) is an excellent cross-platform python
+project manager, written in Rust.
+
+Using the `[script]` attribute and `script-interpreter` setting, `just` can
+easily be configured to run Python recipes with `uv`:
+
+```just
+set unstable
+
+set script-interpreter := ['uv', 'run', '--script']
+
+[script]
+hello:
+  print("Hello from Python!")
+
+[script]
+goodbye:
+  # /// script
+  # requires-python = ">=3.11"
+  # dependencies=["sh"]
+  # ///
+  import sh
+  print(sh.echo("Goodbye from Python!"), end='')
+```
+
+Of course, a shebang also works:
+
+```just
+hello:
+  #!/usr/bin/env uv run --script
+  print("Hello from Python!")
+```
+
 ### Script Recipes
 
 Recipes with a `[script(COMMAND)]`<sup>1.32.0</sup> attribute are run as
@@ -2688,8 +2870,9 @@ scripts interpreted by `COMMAND`. This avoids some of the issues with shebang
 recipes, such as the use of `cygpath` on Windows, the need to use
 `/usr/bin/env`, and inconsistences in shebang line splitting across Unix OSs.
 
-Recipes with an empty `[script]` attribute are executed with the value of
-`set script-interpreter := […]`<sup>1.33.0</sup>, defaulting to `sh -eu`.
+Recipes with an empty `[script]` attribute are executed with the value of `set
+script-interpreter := […]`<sup>1.33.0</sup>, defaulting to `sh -eu`, and *not*
+the value of `set shell`.
 
 The body of the recipe is evaluated, written to disk in the temporary
 directory, and run by passing its path as an argument to `COMMAND`.
@@ -2752,7 +2935,7 @@ pass a Windows-style path to the interpreter.
 Recipe lines are interpreted by the shell, not `just`, so it's not possible to
 set `just` variables in the middle of a recipe:
 
-```mf
+```justfile
 foo:
   x := "hello" # This doesn't work!
   echo {{x}}
@@ -2884,7 +3067,7 @@ means that multi-line constructs probably won't do what you want.
 
 For example, with the following `justfile`:
 
-```mf
+```justfile
 conditional:
   if true; then
     echo 'True!'
@@ -3291,7 +3474,7 @@ One `justfile` can include the contents of another using `import` statements.
 
 If you have the following `justfile`:
 
-```mf
+```justfile
 import 'foo/bar.just'
 
 a: b
@@ -3331,11 +3514,37 @@ set, variables in parent modules override variables in imports.
 
 Imports may be made optional by putting a `?` after the `import` keyword:
 
-```mf
+```just
 import? 'foo/bar.just'
 ```
 
-Missing source files for optional imports do not produce an error.
+Importing the same source file multiple times is not an error<sup>1.37.0</sup>.
+This allows importing multiple justfiles, for example `foo.just` and
+`bar.just`, which both import a third justfile containing shared recipes, for
+example `baz.just`, without the duplicate import of `baz.just` being an error:
+
+```justfile
+# justfile
+import 'foo.just'
+import 'bar.just'
+```
+
+```justfile
+# foo.just
+import 'baz.just'
+foo: baz
+```
+
+```justfile
+# bar.just
+import 'baz.just'
+bar: baz
+```
+
+```just
+# baz
+baz:
+```
 
 ### Modules<sup>1.19.0</sup>
 
@@ -3347,7 +3556,7 @@ versions, you'll need to use the `--unstable` flag, `set unstable`, or set the
 
 If you have the following `justfile`:
 
-```mf
+```justfile
 mod bar
 
 a:
@@ -3385,7 +3594,7 @@ the module file may have any capitalization.
 
 Module statements may be of the form:
 
-```mf
+```justfile
 mod foo 'PATH'
 ```
 
@@ -3409,7 +3618,7 @@ recipes.
 
 Modules may be made optional by putting a `?` after the `mod` keyword:
 
-```mf
+```just
 mod? foo
 ```
 
@@ -3419,7 +3628,7 @@ Optional modules with no source file do not conflict, so you can have multiple
 mod statements with the same name, but with different source file paths, as
 long as at most one source file exists:
 
-```mf
+```just
 mod? foo 'bar.just'
 mod? foo 'baz.just'
 ```
@@ -3427,7 +3636,7 @@ mod? foo 'baz.just'
 Modules may be given doc comments which appear in `--list`
 output<sup>1.30.0</sup>:
 
-```mf
+```justfile
 # foo is a great module!
 mod foo
 ```
@@ -3569,9 +3778,9 @@ The following command will create two files, `some` and `argument.txt`:
 $ just foo "some argument.txt"
 ```
 
-The users shell will parse `"some argument.txt"` as a single argument, but when
-`just` replaces `touch {{argument}}` with `touch some argument.txt`, the quotes
-are not preserved, and `touch` will receive two arguments.
+The user's shell will parse `"some argument.txt"` as a single argument, but
+when `just` replaces `touch {{argument}}` with `touch some argument.txt`, the
+quotes are not preserved, and `touch` will receive two arguments.
 
 There are a few ways to avoid this: quoting, positional arguments, and exported
 arguments.
@@ -3895,6 +4104,38 @@ fetch:
 
 Given the above `justfile`, after running `just fetch`, the recipes in
 `foo.just` will be available.
+
+### Printing Complex Strings
+
+`echo` can be used to print strings, but because it processes escape sequences,
+like `\n`, and different implementations of `echo` recognize different escape
+sequences, using `printf` is often a better choice.
+
+`printf` takes a C-style format string and any number of arguments, which are
+interpolated into the format string.
+
+This can be combined with indented, triple quoted strings to emulate shell
+heredocs.
+
+Substitution complex strings into recipe bodies with `{…}` can also lead to
+trouble as it may be split by the shell into multiple arguments depending on
+the presence of whitespace and quotes. Exporting complex strings as environment
+variables and referring to them with `"$NAME"`, note the double quotes, can
+also help.
+
+Putting all this together, to print a string verbatim to standard output, with
+all its various escape sequences and quotes undisturbed:
+
+```just
+export FOO := '''
+  a complicated string with
+  some dis\tur\bi\ng escape sequences
+  and "quotes" of 'different' kinds
+'''
+
+bar:
+  printf %s "$FOO"
+```
 
 ### Alternatives and Prior Art
 

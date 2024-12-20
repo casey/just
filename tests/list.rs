@@ -438,3 +438,39 @@ fn no_space_before_submodules_not_following_groups() {
     )
     .run();
 }
+
+#[test]
+fn backticks_highlighted() {
+  Test::new()
+    .justfile(
+      "
+        # Comment `` `with backticks` and trailing text
+        recipe:
+      ",
+    )
+    .args(["--list", "--color=always"])
+    .stdout(
+      "
+        Available recipes:
+            recipe \u{1b}[34m#\u{1b}[0m \u{1b}[34mComment \u{1b}[0m\u{1b}[36m``\u{1b}[0m\u{1b}[34m \u{1b}[0m\u{1b}[36m`with backticks`\u{1b}[0m\u{1b}[34m and trailing text\u{1b}[0m
+      ")
+    .run();
+}
+
+#[test]
+fn unclosed_backticks() {
+  Test::new()
+    .justfile(
+      "
+        # Comment `with unclosed backick
+        recipe:
+      ",
+    )
+    .args(["--list", "--color=always"])
+    .stdout(
+      "
+        Available recipes:
+            recipe \u{1b}[34m#\u{1b}[0m \u{1b}[34mComment \u{1b}[0m\u{1b}[36m`with unclosed backick\u{1b}[0m
+      ")
+    .run();
+}

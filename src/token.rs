@@ -21,7 +21,7 @@ impl<'src> Token<'src> {
   }
 }
 
-impl<'src> ColorDisplay for Token<'src> {
+impl ColorDisplay for Token<'_> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     let width = if self.length == 0 { 1 } else { self.length };
 

@@ -1,4 +1,7 @@
-use {super::*, pretty_assertions::assert_eq};
+use {
+  super::*,
+  pretty_assertions::{assert_eq, StrComparison},
+};
 
 macro_rules! test {
   {
@@ -45,7 +48,9 @@ pub(crate) struct Test {
   pub(crate) args: Vec<String>,
   pub(crate) current_dir: PathBuf,
   pub(crate) env: BTreeMap<String, String>,
+  pub(crate) expected_files: BTreeMap<PathBuf, Vec<u8>>,
   pub(crate) justfile: Option<String>,
+  pub(crate) response: Option<Response>,
   pub(crate) shell: bool,
   pub(crate) status: i32,
   pub(crate) stderr: String,
@@ -68,7 +73,9 @@ impl Test {
       args: Vec::new(),
       current_dir: PathBuf::new(),
       env: BTreeMap::new(),
+      expected_files: BTreeMap::new(),
       justfile: Some(String::new()),
+      response: None,
       shell: true,
       status: EXIT_SUCCESS,
       stderr: String::new(),
@@ -95,7 +102,7 @@ impl Test {
   }
 
   pub(crate) fn create_dir(self, path: impl AsRef<Path>) -> Self {
-    fs::create_dir_all(self.tempdir.path().join(path.as_ref())).unwrap();
+    fs::create_dir_all(self.tempdir.path().join(path)).unwrap();
     self
   }
 
@@ -134,6 +141,11 @@ impl Test {
     self
   }
 
+  pub(crate) fn response(mut self, response: Response) -> Self {
+    self.response = Some(response);
+    self.stdout_regex(".*")
+  }
+
   pub(crate) fn shell(mut self, shell: bool) -> Self {
     self.shell = shell;
     self
@@ -165,7 +177,7 @@ impl Test {
   }
 
   pub(crate) fn stdout_regex(mut self, stdout_regex: impl AsRef<str>) -> Self {
-    self.stdout_regex = Some(Regex::new(&format!("^{}$", stdout_regex.as_ref())).unwrap());
+    self.stdout_regex = Some(Regex::new(&format!("(?s)^{}$", stdout_regex.as_ref())).unwrap());
     self
   }
 
@@ -192,6 +204,14 @@ impl Test {
     fs::write(path, content).unwrap();
     self
   }
+
+  pub(crate) fn expect_file(mut self, path: impl AsRef<Path>, content: impl AsRef<[u8]>) -> Self {
+    let path = path.as_ref();
+    self
+      .expected_files
+      .insert(path.into(), content.as_ref().into());
+    self
+  }
 }
 
 impl Test {
@@ -201,6 +221,14 @@ impl Test {
       let equal = have == want;
       if !equal {
         eprintln!("Bad {name}: {}", Comparison::new(&have, &want));
+      }
+      equal
+    }
+
+    fn compare_string(name: &str, have: &str, want: &str) -> bool {
+      let equal = have == want;
+      if !equal {
+        eprintln!("Bad {name}: {}", StrComparison::new(&have, &want));
       }
       equal
     }
@@ -266,10 +294,29 @@ impl Test {
     }
 
     if !compare("status", output.status.code(), Some(self.status))
-      | (self.stdout_regex.is_none() && !compare("stdout", output_stdout, &stdout))
-      | (self.stderr_regex.is_none() && !compare("stderr", output_stderr, &stderr))
+      | (self.stdout_regex.is_none() && !compare_string("stdout", output_stdout, &stdout))
+      | (self.stderr_regex.is_none() && !compare_string("stderr", output_stderr, &stderr))
     {
       panic!("Output mismatch.");
+    }
+
+    if let Some(ref response) = self.response {
+      assert_eq!(
+        &serde_json::from_str::<Response>(output_stdout)
+          .expect("failed to deserialize stdout as response"),
+        response,
+        "response mismatch"
+      );
+    }
+
+    for (path, expected) in &self.expected_files {
+      let actual = fs::read(self.tempdir.path().join(path)).unwrap();
+      assert_eq!(
+        actual,
+        expected.as_slice(),
+        "mismatch for expected file at path {}",
+        path.display(),
+      );
     }
 
     if self.test_round_trip && self.status == EXIT_SUCCESS {

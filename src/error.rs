@@ -81,7 +81,7 @@ pub(crate) enum Error<'src> {
   },
   DotenvRequired,
   DumpJson {
-    serde_json_error: serde_json::Error,
+    source: serde_json::Error,
   },
   EditorInvoke {
     editor: OsString,
@@ -240,7 +240,7 @@ impl<'src> From<CompileError<'src>> for Error<'src> {
   }
 }
 
-impl<'src> From<ConfigError> for Error<'src> {
+impl From<ConfigError> for Error<'_> {
   fn from(config_error: ConfigError) -> Self {
     Self::Config { config_error }
   }
@@ -252,13 +252,13 @@ impl<'src> From<dotenvy::Error> for Error<'src> {
   }
 }
 
-impl<'src> From<SearchError> for Error<'src> {
+impl From<SearchError> for Error<'_> {
   fn from(search_error: SearchError) -> Self {
     Self::Search { search_error }
   }
 }
 
-impl<'src> ColorDisplay for Error<'src> {
+impl ColorDisplay for Error<'_> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     use Error::*;
 
@@ -359,8 +359,8 @@ impl<'src> ColorDisplay for Error<'src> {
       DotenvRequired => {
         write!(f, "Dotenv file not found")?;
       }
-      DumpJson { serde_json_error } => {
-        write!(f, "Failed to dump JSON to stdout: {serde_json_error}")?;
+      DumpJson { source } => {
+        write!(f, "Failed to dump JSON to stdout: {source}")?;
       }
       EditorInvoke { editor, io_error } => {
         let editor = editor.to_string_lossy();
@@ -468,7 +468,7 @@ impl<'src> ColorDisplay for Error<'src> {
         write!(f, "{count} {overrides} overridden on the command line but not present in justfile")?;
       }
       UnknownRecipe { recipe, suggestion } => {
-        write!(f, "Justfile does not contain recipe `{recipe}`.")?;
+        write!(f, "Justfile does not contain recipe `{recipe}`")?;
         if let Some(suggestion) = suggestion {
           write!(f, "\n{suggestion}")?;
         }
