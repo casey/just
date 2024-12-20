@@ -1903,14 +1903,20 @@ for details.
     @echo '{{ style("error") }}OH NO{{ NORMAL }}'
   ```
 
-##### XDG Directories<sup>1.23.0</sup>
+##### User Directories<sup>1.23.0</sup>
 
 These functions return paths to user-specific directories for things like
-configuration, data, caches, executables, and the user's home directory. These
-functions follow the
-[XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html),
-and are implemented with the
-[`dirs`](https://docs.rs/dirs/latest/dirs/index.html) crate.
+configuration, data, caches, executables, and the user's home directory.
+
+On Unix, these functions follow the
+[XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html).
+
+On MacOS and Windows, these functions return the system-specified user-specific
+directories. For example, `cache_directory()` returns `~/Library/Caches` on
+MacOS and `{FOLDERID_LocalAppData}` on Windows.
+
+See the [`dirs`](https://docs.rs/dirs/latest/dirs/index.html) crate for more
+details.
 
 - `cache_directory()` - The user-specific cache directory.
 - `config_directory()` - The user-specific configuration directory.
@@ -1919,6 +1925,10 @@ and are implemented with the
 - `data_local_directory()` - The local user-specific data directory.
 - `executable_directory()` - The user-specific executable directory.
 - `home_directory()` - The user's home directory.
+
+If you would like to use XDG base directories on all platforms you can use the
+`env(…)` function with the appropriate environment variable, e.g.,
+`env('XDG_CACHE_HOME')`.
 
 ### Constants
 
