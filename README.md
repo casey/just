@@ -1645,11 +1645,11 @@ olleh := shell('import sys; print(sys.argv[2][::-1])', 'hello')
 
 #### Environment Variables
 
-- `env_var(key)` — Retrieves the environment variable with name `key`, aborting
+- `env(key)` — Retrieves the environment variable with name `key`, aborting
   if it is not present.
 
 ```just
-home_dir := env_var('HOME')
+home_dir := env('HOME')
 
 test:
   echo "{{home_dir}}"
@@ -1664,6 +1664,15 @@ $ just
   name `key`, returning `default` if it is not present.
 - `env(key)`<sup>1.15.0</sup> — Alias for `env_var(key)`.
 - `env(key, default)`<sup>1.15.0</sup> — Alias for `env_var_or_default(key, default)`.
+
+A default can be substituted for an empty environment variable value with the
+`||` operator, currently unstable:
+
+```just
+set unstable
+
+foo := env('FOO') || 'DEFAULT_VALUE'
+```
 
 #### Invocation Information
 
