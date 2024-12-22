@@ -1928,8 +1928,8 @@ details.
 
 If you would like to use XDG base directories on all platforms you can use the
 `env(…)` function with the appropriate environment variable and fallback,
-although note that the XDG specificiation requires ignoring non-absolute paths,
-so for full compatibility with spec-complient applications, you would need to
+although note that the XDG specification requires ignoring non-absolute paths,
+so for full compatibility with spec-compliant applications, you would need to
 do:
 
 ```just
