@@ -1927,7 +1927,11 @@ details.
 - `home_directory()` - The user's home directory.
 
 If you would like to use XDG base directories on all platforms you can use the
-`env(…)` function with the appropriate environment variable and fallback, e.g.
+`env(…)` function with the appropriate environment variable and fallback,
+although note that the XDG specificiation requires ignoring non-absolute paths,
+so for full compatibility with spec-complient applications, you would need to
+do:
+
 ```just
 xdg_config_dir := if env('XDG_CONFIG_HOME', '') =~ '^/' {
   env('XDG_CONFIG_HOME')
