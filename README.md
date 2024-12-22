@@ -3492,9 +3492,39 @@ and recipes defined after the `import` statement.
 Imported files can themselves contain `import`s, which are processed
 recursively.
 
-When `allow-duplicate-recipes` is set, recipes in parent modules override
-recipes in imports. In a similar manner, when `allow-duplicate-variables` is
-set, variables in parent modules override variables in imports.
+`allow-duplicate-recipes` and `allow-duplicate-variables` allow duplicate
+recipes and variables, respectively, to override each other, instead of
+producing an error.
+
+Within a module, later definitions override earlier definitions:
+
+```just
+set allow-duplicate-recipes
+
+foo:
+
+foo:
+  echo 'yes'
+```
+
+When `import`s are involved, things unfortunately get much more complicated and
+hard to explain.
+
+Shallower definitions always override deeper definitions, so recipes at the top
+level will override recipes in imports, and recipes in an import will override
+recipes in an import which itself imports those recipes.
+
+When two duplicate definitions are imported and are at the same depth, the one
+from the earlier import will override the one from the later import.
+
+This is because `just` uses a stack when processing imports, pushing imports
+onto the stack in source-order, and always processing the top of the stack
+next, so earlier imports are actually handled later by the compiler.
+
+This is definitely a bug, but since `just` has very strong backwards
+compatibility guarantees and we take enormous pains not to break anyone's
+`justfile`, we have created issue #2540 to discuss whether or not we can
+actually fix it.
 
 Imports may be made optional by putting a `?` after the `import` keyword:
 
