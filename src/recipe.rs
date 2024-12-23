@@ -195,20 +195,19 @@ impl<'src, D> Recipe<'src, D> {
     mut evaluator: Evaluator<'src, 'run>,
   ) -> RunResult<'src, ()> {
     let config = &context.config;
+    let settings = &context.module.settings;
 
     let mut lines = self.body.iter().peekable();
     let mut line_number = self.line_number() + 1;
     loop {
-      if lines.peek().is_none() {
+      let Some(line) = lines.peek() else {
         return Ok(());
-      }
+      };
+
       let mut evaluated = String::new();
       let mut continued = false;
-      let quiet_line = lines.peek().map_or(false, |line| line.is_quiet());
-      let infallible_line = lines.peek().map_or(false, |line| line.is_infallible());
-
-      let comment_line = context.module.settings.ignore_comments
-        && lines.peek().map_or(false, |line| line.is_comment());
+      let comment_line = settings.ignore_comments && line.is_comment();
+      let sigils = line.sigils(settings);
 
       loop {
         if lines.peek().is_none() {
@@ -233,9 +232,7 @@ impl<'src, D> Recipe<'src, D> {
 
       let mut command = evaluated.as_str();
 
-      let sigils = usize::from(infallible_line) + usize::from(quiet_line);
-
-      command = &command[sigils..];
+      command = &command[sigils.len()..];
 
       if command.is_empty() {
         continue;
@@ -243,7 +240,7 @@ impl<'src, D> Recipe<'src, D> {
 
       if config.dry_run
         || config.verbosity.loquacious()
-        || !((quiet_line ^ self.quiet)
+        || !((sigils.contains(&Sigil::Quiet) ^ self.quiet)
           || (context.module.settings.quiet && !self.no_quiet())
           || config.verbosity.quiet())
       {
@@ -299,13 +296,17 @@ impl<'src, D> Recipe<'src, D> {
       match InterruptHandler::guard(|| cmd.status()) {
         Ok(exit_status) => {
           if let Some(code) = exit_status.code() {
-            if code != 0 && !infallible_line {
-              return Err(Error::Code {
-                recipe: self.name(),
-                line_number: Some(line_number),
-                code,
-                print_message: self.print_exit_message(),
-              });
+            if code != 0 {
+              if sigils.contains(&Sigil::Guard) {
+                return Ok(());
+              } else if !sigils.contains(&Sigil::Infallible) {
+                return Err(Error::Code {
+                  recipe: self.name(),
+                  line_number: Some(line_number),
+                  code,
+                  print_message: self.print_exit_message(),
+                });
+              }
             }
           } else {
             return Err(error_from_signal(
