@@ -1679,7 +1679,7 @@ olleh := shell('import sys; print(sys.argv[2][::-1])', 'hello')
 
 #### Environment Variables
 
-- `env(key)` — Retrieves the environment variable with name `key`, aborting
+- `env(key)`<sup>1.15.0</sup> — Retrieves the environment variable with name `key`, aborting
   if it is not present.
 
 ```just
@@ -1694,10 +1694,10 @@ $ just
 /home/user1
 ```
 
-- `env_var_or_default(key, default)` — Retrieves the environment variable with
+- `env(key, default)`<sup>1.15.0</sup> — Retrieves the environment variable with
   name `key`, returning `default` if it is not present.
-- `env(key)`<sup>1.15.0</sup> — Alias for `env_var(key)`.
-- `env(key, default)`<sup>1.15.0</sup> — Alias for `env_var_or_default(key, default)`.
+- `env_var(key)` — Deprecated alias for `env(key)`.
+- `env_var_or_default(key, default)` — Deprecated alias for `env(key, default)`.
 
 A default can be substituted for an empty environment variable value with the
 `||` operator, currently unstable:
@@ -2480,8 +2480,8 @@ HOME is '/home/myuser'
 
 #### Setting `just` Variables from Environment Variables
 
-Environment variables can be propagated to `just` variables using the functions
-`env_var()` and `env_var_or_default()`. See
+Environment variables can be propagated to `just` variables using the `env()` function.
+See
 [environment-variables](#environment-variables).
 
 ### Recipe Parameters
