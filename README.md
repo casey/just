@@ -1544,7 +1544,7 @@ depend on `just` variables and `.env` files.
 
 ### Sigils
 
-Commands in linewise recipes may be prefixed with any combination of sigils
+Commands in linewise recipes may be prefixed with any combination of the sigils
 `-`, `@`, and `?`.
 
 The `@` sigil toggles command echoing:
@@ -1566,6 +1566,8 @@ nonzero exit status:
 # execution will continue, even if bar doesn't exist
 foo:
   -rmdir bar
+  mkdir bar
+  echo 'so much good stuff' > bar/stuff.txt
 ```
 
 The `?` sigil<sup>master</sup> causes the current recipe to stop executing if
