@@ -1029,7 +1029,7 @@ a := "foo"
 a := "bar"
 
 @foo:
-  echo $a
+  echo {{a}}
 ```
 
 ```console
@@ -3009,7 +3009,7 @@ foo:
 
 The other is to use a shebang recipe. Shebang recipe bodies are extracted and
 run as scripts, so a single shell instance will run the whole thing, and thus a
-`pwd` on one line will affect later lines, just like a shell script:
+`cd` on one line will affect later lines, just like a shell script:
 
 ```just
 foo:
