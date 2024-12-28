@@ -690,21 +690,9 @@ fn which(context: Context, s: &str) -> FunctionResult {
   for mut candidate in candidates {
     if candidate.is_relative() {
       // This candidate is a relative path, either because the user invoked `which("./rel/path")`,
-      // or because there was a relative path in `PATH`. Resolve it to an absolute path.
-      let cwd = context
-        .evaluator
-        .context
-        .search
-        .justfile
-        .parent()
-        .ok_or_else(|| {
-          format!(
-            "Could not resolve absolute path from `{}` relative to the justfile directory. Justfile `{}` had no parent.",
-            candidate.display(),
-            context.evaluator.context.search.justfile.display()
-          )
-        })?;
-      let mut cwd = PathBuf::from(cwd);
+      // or because there was a relative path in `PATH`. Resolve it to an absolute path,
+      // relative to the working directory of the just invocation.
+      let mut cwd = context.evaluator.context.working_directory();
       cwd.push(candidate);
       candidate = cwd;
     }
