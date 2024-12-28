@@ -665,15 +665,21 @@ fn uuid(_context: Context) -> FunctionResult {
 fn which(context: Context, s: &str) -> FunctionResult {
   use is_executable::IsExecutable;
 
+  if s.is_empty() {
+    return Err("empty command".into());
+  }
+
   let cmd = PathBuf::from(s);
 
   let path_var;
   let candidates = match cmd.components().count() {
-    0 => Err("empty command string".to_string())?,
+    0 => unreachable!("empty command string"),
     1 => {
       // cmd is a regular command
       path_var = env::var_os("PATH").ok_or("Environment variable `PATH` is not set")?;
-      env::split_paths(&path_var).map(|path| path.join(cmd.clone())).collect()
+      env::split_paths(&path_var)
+        .map(|path| path.join(cmd.clone()))
+        .collect()
     }
     _ => {
       // cmd contains a path separator, treat it as a path
