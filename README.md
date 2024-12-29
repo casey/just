@@ -1161,7 +1161,7 @@ $ just test foo "bar baz"
 - bar baz
 ```
 
-Positional arguments may also be turned on on a per-recipe basis with the
+Positional arguments may also be turned on a per-recipe basis with the
 `[positional-arguments]` attribute<sup>1.29.0</sup>:
 
 ```just
