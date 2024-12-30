@@ -42,7 +42,7 @@ fn finds_executable() {
   .executable("hello.exe");
 
   Test::new()
-    .justfile(r#"p := which("hello.exe")"#)
+    .justfile("p := which('hello.exe')")
     .env("PATH", tmp.path().to_str().unwrap())
     .args(["--evaluate", "p"])
     .stdout(format!("{}", tmp.path().join("hello.exe").display()))
@@ -57,7 +57,7 @@ fn prints_empty_string_for_missing_executable() {
   .executable("hello.exe");
 
   Test::new()
-    .justfile(r#"p := which("goodbye.exe")"#)
+    .justfile("p := which('goodbye.exe')")
     .env("PATH", tmp.path().to_str().unwrap())
     .args(["--evaluate", "p"])
     .stdout("")
@@ -73,7 +73,7 @@ fn skips_non_executable_files() {
   .executable("hello.exe");
 
   Test::new()
-    .justfile(r#"p := which("hi")"#)
+    .justfile("p := which('hi')")
     .env("PATH", tmp.path().to_str().unwrap())
     .args(["--evaluate", "p"])
     .stdout("")
@@ -96,14 +96,14 @@ fn supports_multiple_paths() {
     env::join_paths([tmp1.path().to_str().unwrap(), tmp2.path().to_str().unwrap()]).unwrap();
 
   Test::new()
-    .justfile(r#"p := which("hello1.exe")"#)
+    .justfile("p := which('hello1.exe')")
     .env("PATH", path.to_str().unwrap())
     .args(["--evaluate", "p"])
     .stdout(format!("{}", tmp1.path().join("hello1.exe").display()))
     .run();
 
   Test::new()
-    .justfile(r#"p := which("hello2.exe")"#)
+    .justfile("p := which('hello2.exe')")
     .env("PATH", path.to_str().unwrap())
     .args(["--evaluate", "p"])
     .stdout(format!("{}", tmp2.path().join("hello2.exe").display()))
@@ -155,14 +155,14 @@ fn supports_shadowed_executables() {
   .unwrap();
 
   Test::new()
-    .justfile(r#"p := which("shadowed.exe")"#)
+    .justfile("p := which('shadowed.exe')")
     .env("PATH", tmp1_path.to_str().unwrap())
     .args(["--evaluate", "p"])
     .stdout(format!("{}", tmp1.path().join("shadowed.exe").display()))
     .run();
 
   Test::new()
-    .justfile(r#"p := which("shadowed.exe")"#)
+    .justfile("p := which('shadowed.exe')")
     .env("PATH", tmp2_path.to_str().unwrap())
     .args(["--evaluate", "p"])
     .stdout(format!("{}", tmp2.path().join("shadowed.exe").display()))
