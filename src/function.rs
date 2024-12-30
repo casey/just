@@ -665,36 +665,33 @@ fn uuid(_context: Context) -> FunctionResult {
 fn which(context: Context, s: &str) -> FunctionResult {
   use is_executable::IsExecutable;
 
-  if s.is_empty() {
-    return Err("empty command".into());
-  }
+  let cmd = Path::new(s);
 
-  let cmd = PathBuf::from(s);
-
-  let path_var;
   let candidates = match cmd.components().count() {
-    0 => unreachable!("empty command string"),
+    0 => return Err("empty command".into()),
     1 => {
       // cmd is a regular command
-      path_var = env::var_os("PATH").ok_or("Environment variable `PATH` is not set")?;
+      let path_var = env::var_os("PATH").ok_or("Environment variable `PATH` is not set")?;
       env::split_paths(&path_var)
-        .map(|path| path.join(cmd.clone()))
+        .map(|path| path.join(cmd))
         .collect()
     }
     _ => {
       // cmd contains a path separator, treat it as a path
-      vec![cmd]
+      vec![cmd.into()]
     }
   };
 
   for mut candidate in candidates {
     if candidate.is_relative() {
-      // This candidate is a relative path, either because the user invoked `which("./rel/path")`,
+      // This candidate is a relative path, either because the user invoked `which("rel/path")`,
       // or because there was a relative path in `PATH`. Resolve it to an absolute path,
       // relative to the working directory of the just invocation.
-      let mut cwd = context.evaluator.context.working_directory();
-      cwd.push(candidate);
-      candidate = cwd;
+      candidate = context
+        .evaluator
+        .context
+        .working_directory()
+        .join(candidate);
     }
 
     if candidate.is_executable() {
