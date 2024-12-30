@@ -975,6 +975,7 @@ foo:
 | `fallback` | boolean | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found. |
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
 | `positional-arguments` | boolean | `false` | Pass positional arguments. |
+| `quiet` | boolean | `false` | Disable echoing recipe lines before executing. |
 | `script-interpreter`<sup>1.33.0</sup> | `[COMMAND, ARGS…]` | `['sh', '-eu']` | Set command used to invoke recipes with empty `[script]` attribute. |
 | `shell` | `[COMMAND, ARGS…]` | - | Set command used to invoke recipes and evaluate backticks. |
 | `tempdir` | string | - | Create temporary directories in `tempdir` instead of the system default temporary directory. |
@@ -1029,7 +1030,7 @@ a := "foo"
 a := "bar"
 
 @foo:
-  echo $a
+  echo {{a}}
 ```
 
 ```console
@@ -1645,11 +1646,11 @@ olleh := shell('import sys; print(sys.argv[2][::-1])', 'hello')
 
 #### Environment Variables
 
-- `env_var(key)` — Retrieves the environment variable with name `key`, aborting
+- `env(key)`<sup>1.15.0</sup> — Retrieves the environment variable with name `key`, aborting
   if it is not present.
 
 ```just
-home_dir := env_var('HOME')
+home_dir := env('HOME')
 
 test:
   echo "{{home_dir}}"
@@ -1660,10 +1661,20 @@ $ just
 /home/user1
 ```
 
-- `env_var_or_default(key, default)` — Retrieves the environment variable with
+- `env(key, default)`<sup>1.15.0</sup> — Retrieves the environment variable with
   name `key`, returning `default` if it is not present.
-- `env(key)`<sup>1.15.0</sup> — Alias for `env_var(key)`.
-- `env(key, default)`<sup>1.15.0</sup> — Alias for `env_var_or_default(key, default)`.
+- `env_var(key)` — Deprecated alias for `env(key)`.
+- `env_var_or_default(key, default)` — Deprecated alias for `env(key, default)`.
+
+A default can be substituted for an empty environment variable value with the
+`||` operator, currently unstable:
+
+```just
+set unstable
+
+foo := env('FOO') || 'DEFAULT_VALUE'
+```
+
 - `which(exe)`<sup>master</sup> — Retrieves the full path of `exe` according
   to the `PATH`. Returns an empty string if no executable named `exe` exists.
 
@@ -1943,8 +1954,18 @@ details.
 - `home_directory()` - The user's home directory.
 
 If you would like to use XDG base directories on all platforms you can use the
-`env(…)` function with the appropriate environment variable, e.g.,
-`env('XDG_CACHE_HOME')`.
+`env(…)` function with the appropriate environment variable and fallback,
+although note that the XDG specification requires ignoring non-absolute paths,
+so for full compatibility with spec-compliant applications, you would need to
+do:
+
+```just
+xdg_config_dir := if env('XDG_CONFIG_HOME', '') =~ '^/' {
+  env('XDG_CONFIG_HOME')
+} else {
+  home_directory() / '.config'
+}
+```
 
 ### Constants
 
@@ -2443,8 +2464,8 @@ HOME is '/home/myuser'
 
 #### Setting `just` Variables from Environment Variables
 
-Environment variables can be propagated to `just` variables using the functions
-`env_var()` and `env_var_or_default()`. See
+Environment variables can be propagated to `just` variables using the `env()` function.
+See
 [environment-variables](#environment-variables).
 
 ### Recipe Parameters
@@ -3006,7 +3027,7 @@ foo:
 
 The other is to use a shebang recipe. Shebang recipe bodies are extracted and
 run as scripts, so a single shell instance will run the whole thing, and thus a
-`pwd` on one line will affect later lines, just like a shell script:
+`cd` on one line will affect later lines, just like a shell script:
 
 ```just
 foo:
@@ -3508,9 +3529,39 @@ and recipes defined after the `import` statement.
 Imported files can themselves contain `import`s, which are processed
 recursively.
 
-When `allow-duplicate-recipes` is set, recipes in parent modules override
-recipes in imports. In a similar manner, when `allow-duplicate-variables` is
-set, variables in parent modules override variables in imports.
+`allow-duplicate-recipes` and `allow-duplicate-variables` allow duplicate
+recipes and variables, respectively, to override each other, instead of
+producing an error.
+
+Within a module, later definitions override earlier definitions:
+
+```just
+set allow-duplicate-recipes
+
+foo:
+
+foo:
+  echo 'yes'
+```
+
+When `import`s are involved, things unfortunately get much more complicated and
+hard to explain.
+
+Shallower definitions always override deeper definitions, so recipes at the top
+level will override recipes in imports, and recipes in an import will override
+recipes in an import which itself imports those recipes.
+
+When two duplicate definitions are imported and are at the same depth, the one
+from the earlier import will override the one from the later import.
+
+This is because `just` uses a stack when processing imports, pushing imports
+onto the stack in source-order, and always processing the top of the stack
+next, so earlier imports are actually handled later by the compiler.
+
+This is definitely a bug, but since `just` has very strong backwards
+compatibility guarantees and we take enormous pains not to break anyone's
+`justfile`, we have created issue #2540 to discuss whether or not we can
+actually fix it.
 
 Imports may be made optional by putting a `?` after the `import` keyword:
 
