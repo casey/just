@@ -141,3 +141,59 @@ fn ignores_nonexecutable_candidates() {
     .stdout(format!("{}", path.join("subdir").join("foo.exe").display()))
     .run();
 }
+
+#[test]
+fn handles_absolute_path() {
+  let tmp = tempdir();
+  let path = PathBuf::from(tmp.path());
+  let abspath = path.join("subdir").join("foo.exe");
+
+  Test::with_tempdir(tmp)
+    .justfile(format!("p := which('{}')", abspath.display()))
+    .write("subdir/foo.exe", "#!/usr/bin/env bash\necho hello\n")
+    .make_executable("subdir/foo.exe")
+    .write("pathdir/foo.exe", "#!/usr/bin/env bash\necho hello\n")
+    .make_executable("pathdir/foo.exe")
+    .env("PATH", path.join("pathdir").to_str().unwrap())
+    .args(["--evaluate", "p"])
+    .stdout(format!("{}", abspath.display()))
+    .run();
+}
+
+#[test]
+fn handles_dotslash() {
+  let tmp = tempdir();
+  let path = tmp.path().canonicalize().unwrap();
+  // canonicalize() is necessary here to account for the justfile prepending
+  // the canonicalized working directory to './foo.exe'.
+
+  Test::with_tempdir(tmp)
+    .justfile("p := which('./foo.exe')")
+    .args(["--evaluate", "p"])
+    .write("foo.exe", "#!/usr/bin/env bash\necho hello\n")
+    .make_executable("foo.exe")
+    .write("pathdir/foo.exe", "#!/usr/bin/env bash\necho hello\n")
+    .make_executable("pathdir/foo.exe")
+    .env("PATH", path.join("pathdir").to_str().unwrap())
+    .stdout(format!("{}", path.join(".").join("foo.exe").display()))
+    .run();
+}
+
+#[test]
+fn handles_dir_slash() {
+  let tmp = tempdir();
+  let path = tmp.path().canonicalize().unwrap();
+  // canonicalize() is necessary here to account for the justfile prepending
+  // the canonicalized working directory to 'subdir/foo.exe'.
+
+  Test::with_tempdir(tmp)
+    .justfile("p := which('subdir/foo.exe')")
+    .args(["--evaluate", "p"])
+    .write("subdir/foo.exe", "#!/usr/bin/env bash\necho hello\n")
+    .make_executable("subdir/foo.exe")
+    .write("pathdir/foo.exe", "#!/usr/bin/env bash\necho hello\n")
+    .make_executable("pathdir/foo.exe")
+    .env("PATH", path.join("pathdir").to_str().unwrap())
+    .stdout(format!("{}", path.join("subdir").join("foo.exe").display()))
+    .run();
+}
