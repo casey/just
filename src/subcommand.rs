@@ -181,7 +181,19 @@ impl Subcommand {
   }
 
   fn changelog() {
-    print!("{}", include_str!("../CHANGELOG.md"));
+    let cl = include_str!("../CHANGELOG.md");
+    let mut content = String::new();
+    for line in cl.lines().rev() {
+      if line.starts_with("[") {
+        // version
+        println!("{}", line);
+        // changelog content
+        print!("{}", content);
+        content = String::new();
+      } else {
+        content = format!("{}\n{}", line, content);
+      }
+    }
   }
 
   fn choose<'src>(
