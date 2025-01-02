@@ -81,6 +81,7 @@ pub(crate) use {
     shebang::Shebang,
     show_whitespace::ShowWhitespace,
     source::Source,
+    statement::Statement,
     string_delimiter::StringDelimiter,
     string_kind::StringKind,
     string_literal::StringLiteral,
@@ -97,6 +98,7 @@ pub(crate) use {
     variables::Variables,
     verbosity::Verbosity,
     warning::Warning,
+    word::Word,
   },
   camino::Utf8Path,
   clap::ValueEnum,
@@ -256,6 +258,7 @@ mod settings;
 mod shebang;
 mod show_whitespace;
 mod source;
+mod statement;
 mod string_delimiter;
 mod string_kind;
 mod string_literal;
@@ -273,3 +276,4 @@ mod use_color;
 mod variables;
 mod verbosity;
 mod warning;
+mod word;
