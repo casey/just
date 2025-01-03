@@ -64,9 +64,9 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           }
           Item::Module {
             absolute,
-            name,
             doc,
             groups,
+            name,
             ..
           } => {
             if let Some(absolute) = absolute {
