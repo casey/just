@@ -71,6 +71,7 @@ mod functions;
 #[cfg(unix)]
 mod global;
 mod groups;
+mod guards;
 mod ignore_comments;
 mod imports;
 mod init;

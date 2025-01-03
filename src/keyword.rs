@@ -15,6 +15,7 @@ pub(crate) enum Keyword {
   Export,
   Fallback,
   False,
+  Guards,
   If,
   IgnoreComments,
   Import,

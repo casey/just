@@ -83,6 +83,7 @@ struct Settings<'a> {
   dotenv_required: bool,
   export: bool,
   fallback: bool,
+  guards: bool,
   ignore_comments: bool,
   positional_arguments: bool,
   quiet: bool,

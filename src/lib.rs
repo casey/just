@@ -80,6 +80,7 @@ pub(crate) use {
     settings::Settings,
     shebang::Shebang,
     show_whitespace::ShowWhitespace,
+    sigil::Sigil,
     source::Source,
     string_delimiter::StringDelimiter,
     string_kind::StringKind,
@@ -255,6 +256,7 @@ mod setting;
 mod settings;
 mod shebang;
 mod show_whitespace;
+mod sigil;
 mod source;
 mod string_delimiter;
 mod string_kind;

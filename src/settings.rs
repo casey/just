@@ -15,6 +15,7 @@ pub(crate) struct Settings<'src> {
   pub(crate) dotenv_required: bool,
   pub(crate) export: bool,
   pub(crate) fallback: bool,
+  pub(crate) guards: bool,
   pub(crate) ignore_comments: bool,
   pub(crate) positional_arguments: bool,
   pub(crate) quiet: bool,
@@ -57,6 +58,9 @@ impl<'src> Settings<'src> {
         }
         Setting::Fallback(fallback) => {
           settings.fallback = fallback;
+        }
+        Setting::Guards(guards) => {
+          settings.guards = guards;
         }
         Setting::IgnoreComments(ignore_comments) => {
           settings.ignore_comments = ignore_comments;
