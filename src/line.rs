@@ -18,6 +18,27 @@ impl Line<'_> {
     }
   }
 
+  pub(crate) fn sigils(&self, settings: &Settings) -> BTreeSet<Sigil> {
+    let mut sigils = BTreeSet::new();
+
+    if let Some(first) = self.first() {
+      for c in first.chars() {
+        let sigil = match c {
+          '-' => Sigil::Infallible,
+          '?' if settings.guards => Sigil::Guard,
+          '@' => Sigil::Quiet,
+          _ => break,
+        };
+
+        if !sigils.insert(sigil) {
+          break;
+        }
+      }
+    }
+
+    sigils
+  }
+
   pub(crate) fn is_comment(&self) -> bool {
     self.first().is_some_and(|text| text.starts_with('#'))
   }
@@ -31,18 +52,6 @@ impl Line<'_> {
 
   pub(crate) fn is_empty(&self) -> bool {
     self.fragments.is_empty()
-  }
-
-  pub(crate) fn is_infallible(&self) -> bool {
-    self
-      .first()
-      .is_some_and(|text| text.starts_with('-') || text.starts_with("@-"))
-  }
-
-  pub(crate) fn is_quiet(&self) -> bool {
-    self
-      .first()
-      .is_some_and(|text| text.starts_with('@') || text.starts_with("-@"))
   }
 
   pub(crate) fn is_shebang(&self) -> bool {

@@ -259,7 +259,7 @@ impl<'src> Lexer<'src> {
 
   /// True if `text` could be an identifier
   pub(crate) fn is_identifier(text: &str) -> bool {
-    if !text.chars().next().map_or(false, Self::is_identifier_start) {
+    if !text.chars().next().is_some_and(Self::is_identifier_start) {
       return false;
     }
 
