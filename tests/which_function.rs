@@ -175,7 +175,7 @@ fn handles_dotslash() {
     .write("pathdir/foo.exe", "#!/usr/bin/env bash\necho hello\n")
     .make_executable("pathdir/foo.exe")
     .env("PATH", path.join("pathdir").to_str().unwrap())
-    .stdout(format!("{}", path.join(".").join("foo.exe").display()))
+    .stdout(format!("{}", path.join("foo.exe").display()))
     .run();
 }
 

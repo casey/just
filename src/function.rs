@@ -694,6 +694,8 @@ fn which(context: Context, s: &str) -> FunctionResult {
         .join(candidate);
     }
 
+    candidate = candidate.lexiclean();
+
     if candidate.is_executable() {
       return candidate.to_str().map(str::to_string).ok_or_else(|| {
         format!(
