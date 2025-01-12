@@ -1,133 +1,168 @@
 use super::*;
 
-test! {
-  name: recipe_exit_message_suppressed,
-  justfile: r#"
-# This is a doc comment
-[no-exit-message]
-hello:
-  @echo "Hello, World!"
-  @exit 100
-"#,
-  stdout:   "Hello, World!\n",
-  stderr:   "",
-  status:   100,
+#[test]
+fn recipe_exit_message_suppressed() {
+  Test::new()
+    .justfile(
+      r#"
+      # This is a doc comment
+      [no-exit-message]
+      hello:
+        @echo "Hello, World!"
+        @exit 100
+      "#,
+    )
+    .stdout("Hello, World!\n")
+    .status(100)
+    .run();
 }
 
-test! {
-  name: silent_recipe_exit_message_suppressed,
-  justfile: r#"
-# This is a doc comment
-[no-exit-message]
-@hello:
-  echo "Hello, World!"
-  exit 100
-"#,
-  stdout:   "Hello, World!\n",
-  stderr:   "",
-  status:   100,
+
+#[test]
+fn silent_recipe_exit_message_suppressed() {
+  Test::new()
+    .justfile(
+      r#"
+      # This is a doc comment
+      [no-exit-message]
+      @hello:
+        echo "Hello, World!"
+        exit 100
+      "#,
+    )
+    .stdout("Hello, World!\n")
+    .status(100)
+    .run();
 }
 
-test! {
-  name: recipe_has_doc_comment,
-  justfile: r"
-# This is a doc comment
-[no-exit-message]
-hello:
-  @exit 100
-",
-  args: ("--list"),
-  stdout: "
-    Available recipes:
-        hello # This is a doc comment
-  ",
+#[test]
+fn recipe_has_doc_comment() {
+  Test::new()
+    .justfile(
+      "
+    # This is a doc comment
+    [no-exit-message]
+    hello:
+      @exit 100
+        ",
+    )
+    .arg("--list")
+    .stdout("
+      Available recipes:
+          hello # This is a doc comment
+      ",
+    )
+    .run();
 }
 
-test! {
-  name: unknown_attribute,
-  justfile: r"
-# This is a doc comment
-[unknown-attribute]
-hello:
-  @exit 100
-",
-  stderr: r"
-error: Unknown attribute `unknown-attribute`
- ——▶ justfile:2:2
-  │
-2 │ [unknown-attribute]
-  │  ^^^^^^^^^^^^^^^^^
-",
-  status: EXIT_FAILURE,
+#[test]
+fn unknown_attribute() {
+  Test::new()
+    .justfile(
+      "
+      # This is a doc comment
+      [unknown-attribute]
+      hello:
+        @exit 100
+    ",
+    )
+    .stderr("
+      error: Unknown attribute `unknown-attribute`
+       ——▶ justfile:2:2
+        │
+      2 │ [unknown-attribute]
+        │  ^^^^^^^^^^^^^^^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
-test! {
-  name: empty_attribute,
-  justfile: r"
-# This is a doc comment
-[]
-hello:
-  @exit 100
-",
-  stderr: r"
-error: Expected identifier, but found ']'
- ——▶ justfile:2:2
-  │
-2 │ []
-  │  ^
-",
-  status: EXIT_FAILURE,
+#[test]
+fn empty_attribute() {
+  Test::new()
+    .justfile(
+      "
+      # This is a doc comment
+      []
+      hello:
+        @exit 100
+    ",
+    )
+    .stderr("
+      error: Expected identifier, but found ']'
+       ——▶ justfile:2:2
+        │
+      2 │ []
+        │  ^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
-test! {
-  name: extraneous_attribute_before_comment,
-  justfile: r"
-[no-exit-message]
-# This is a doc comment
-hello:
-  @exit 100
-",
-  stderr: r"
-error: Extraneous attribute
- ——▶ justfile:1:1
-  │
-1 │ [no-exit-message]
-  │ ^
-",
 
-  status: EXIT_FAILURE,
+#[test]
+fn extraneous_attribute_before_comment() {
+  Test::new()
+    .justfile(
+      "
+      [no-exit-message]
+      # This is a doc comment
+      hello:
+        @exit 100
+    ",
+    )
+    .stderr("
+      error: Extraneous attribute
+       ——▶ justfile:1:1
+        │
+      1 │ [no-exit-message]
+        │ ^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
-test! {
-  name: extraneous_attribute_before_empty_line,
-  justfile: r"
-[no-exit-message]
+#[test]
+fn extraneous_attribute_before_empty_line() {
+  Test::new()
+    .justfile(
+      "
+      [no-exit-message]
 
-hello:
-  @exit 100
-",
-  stderr: "
-    error: Extraneous attribute
-     ——▶ justfile:1:1
-      │
-    1 │ [no-exit-message]
-      │ ^
-  ",
-  status: EXIT_FAILURE,
+      hello:
+        @exit 100
+    ",
+    )
+    .stderr("
+      error: Extraneous attribute
+       ——▶ justfile:1:1
+        │
+      1 │ [no-exit-message]
+        │ ^
+    ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
-test! {
-  name: shebang_exit_message_suppressed,
-  justfile: r"
-[no-exit-message]
-hello:
-  #!/usr/bin/env bash
-  echo 'Hello, World!'
-  exit 100
-",
-  stdout: "Hello, World!\n",
-  stderr: "",
-  status: 100,
+#[test]
+fn shebang_exit_message_suppressed() {
+  Test::new()
+    .justfile(
+      r#"
+      [no-exit-message]
+      hello:
+        #!/usr/bin/env bash
+        echo 'Hello, World!'
+        exit 100
+    "#,
+    )
+    .stdout("Hello, World!\n")
+    .status(100)
+    .run();
 }
 
 #[test]
