@@ -86,6 +86,7 @@ struct Settings<'a> {
   ignore_comments: bool,
   positional_arguments: bool,
   quiet: bool,
+  no_exit_message: bool,
   shell: Option<Interpreter<'a>>,
   tempdir: Option<&'a str>,
   unstable: bool,

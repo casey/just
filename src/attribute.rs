@@ -17,6 +17,7 @@ pub(crate) enum Attribute<'src> {
   Macos,
   NoCd,
   NoExitMessage,
+  ExitMessage,
   NoQuiet,
   Openbsd,
   PositionalArguments,
@@ -36,6 +37,7 @@ impl AttributeDiscriminant {
       | Self::Macos
       | Self::NoCd
       | Self::NoExitMessage
+      | Self::ExitMessage
       | Self::NoQuiet
       | Self::Openbsd
       | Self::PositionalArguments
@@ -84,6 +86,7 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::Macos => Self::Macos,
       AttributeDiscriminant::NoCd => Self::NoCd,
       AttributeDiscriminant::NoExitMessage => Self::NoExitMessage,
+      AttributeDiscriminant::ExitMessage => Self::ExitMessage,
       AttributeDiscriminant::NoQuiet => Self::NoQuiet,
       AttributeDiscriminant::Openbsd => Self::Openbsd,
       AttributeDiscriminant::PositionalArguments => Self::PositionalArguments,
@@ -133,6 +136,7 @@ impl Display for Attribute<'_> {
       | Self::Macos
       | Self::NoCd
       | Self::NoExitMessage
+      | Self::ExitMessage
       | Self::NoQuiet
       | Self::Openbsd
       | Self::PositionalArguments

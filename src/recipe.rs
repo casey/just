@@ -131,10 +131,10 @@ impl<'src, D> Recipe<'src, D> {
       || (cfg!(windows) && windows)
   }
 
-  fn print_exit_message(&self) -> bool {
-    !self
-      .attributes
-      .contains(AttributeDiscriminant::NoExitMessage)
+  fn print_exit_message(&self, settings: &Settings) -> bool {
+    self.attributes.contains(AttributeDiscriminant::ExitMessage)
+        || (!settings.no_exit_message
+            && !self.attributes.contains(AttributeDiscriminant::NoExitMessage))
   }
 
   fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
@@ -304,7 +304,7 @@ impl<'src, D> Recipe<'src, D> {
                 recipe: self.name(),
                 line_number: Some(line_number),
                 code,
-                print_message: self.print_exit_message(),
+                print_message: self.print_exit_message(&context.module.settings),
               });
             }
           } else {
@@ -449,7 +449,7 @@ impl<'src, D> Recipe<'src, D> {
               recipe: self.name(),
               line_number: None,
               code,
-              print_message: self.print_exit_message(),
+              print_message: self.print_exit_message(&context.module.settings),
             })
           }
         },

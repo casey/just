@@ -21,6 +21,7 @@ pub(crate) enum Keyword {
   Mod,
   PositionalArguments,
   Quiet,
+  NoExitMessage,
   ScriptInterpreter,
   Set,
   Shell,

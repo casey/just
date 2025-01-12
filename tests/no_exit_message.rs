@@ -129,3 +129,67 @@ hello:
   stderr: "",
   status: 100,
 }
+
+test! {
+  name: recipe_exit_message_setting_suppressed,
+  justfile: r#"
+set no-exit-message
+
+# This is a doc comment
+hello:
+  @echo "Hello, World!"
+  @exit 100
+"#,
+  stdout:   "Hello, World!\n",
+  stderr:   "",
+  status:   100,
+}
+
+
+test! {
+  name: shebang_exit_message_setting_suppressed,
+  justfile: r"
+set no-exit-message
+
+hello:
+  #!/usr/bin/env bash
+  echo 'Hello, World!'
+  exit 100
+",
+  stdout: "Hello, World!\n",
+  stderr: "",
+  status: 100,
+}
+
+test! {
+  name: exit_message_attribute_and_setting,
+  justfile: r"
+set no-exit-message
+
+[no-exit-message]
+hello:
+  echo 'Hello, World!'
+  exit 100
+",
+  stdout: "Hello, World!\n",
+  stderr: r#"
+    echo 'Hello, World!'
+    exit 100
+  "#,
+  status: 100,
+}
+
+
+test! {
+  name: silent_recipe_exit_message_setting_suppressed,
+  justfile: r#"
+set no-exit-message
+
+@hello:
+  echo "Hello, World!"
+  exit 100
+"#,
+  stdout:   "Hello, World!\n",
+  stderr:   "",
+  status:   100,
+}

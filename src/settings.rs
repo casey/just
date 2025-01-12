@@ -18,6 +18,7 @@ pub(crate) struct Settings<'src> {
   pub(crate) ignore_comments: bool,
   pub(crate) positional_arguments: bool,
   pub(crate) quiet: bool,
+  pub(crate) no_exit_message: bool,
   #[serde(skip)]
   pub(crate) script_interpreter: Option<Interpreter<'src>>,
   pub(crate) shell: Option<Interpreter<'src>>,
@@ -66,6 +67,9 @@ impl<'src> Settings<'src> {
         }
         Setting::Quiet(quiet) => {
           settings.quiet = quiet;
+        }
+        Setting::NoExitMessage(no_exit_message) => {
+          settings.no_exit_message = no_exit_message;
         }
         Setting::ScriptInterpreter(script_interpreter) => {
           settings.script_interpreter = Some(script_interpreter);
