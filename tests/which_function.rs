@@ -1,5 +1,9 @@
 use super::*;
 
+const HELLO_SCRIPT: &str = "#!/usr/bin/env bash
+echo hello
+";
+
 #[test]
 fn finds_executable() {
   let tmp = tempdir();
@@ -8,7 +12,7 @@ fn finds_executable() {
   Test::with_tempdir(tmp)
     .justfile("p := which('hello.exe')")
     .args(["--evaluate", "p"])
-    .write("hello.exe", "#!/usr/bin/env bash\necho hello\n")
+    .write("hello.exe", HELLO_SCRIPT)
     .make_executable("hello.exe")
     .env("PATH", path.to_str().unwrap())
     .stdout(format!("{}", path.join("hello.exe").display()))
@@ -23,7 +27,7 @@ fn prints_empty_string_for_missing_executable() {
   Test::with_tempdir(tmp)
     .justfile("p := which('goodbye.exe')")
     .args(["--evaluate", "p"])
-    .write("hello.exe", "#!/usr/bin/env bash\necho hello\n")
+    .write("hello.exe", HELLO_SCRIPT)
     .make_executable("hello.exe")
     .env("PATH", path.to_str().unwrap())
     .stdout("")
@@ -38,7 +42,7 @@ fn skips_non_executable_files() {
   Test::with_tempdir(tmp)
     .justfile("p := which('hi')")
     .args(["--evaluate", "p"])
-    .write("hello.exe", "#!/usr/bin/env bash\necho hello\n")
+    .write("hello.exe", HELLO_SCRIPT)
     .make_executable("hello.exe")
     .write("hi", "just some regular file")
     .env("PATH", path.to_str().unwrap())
@@ -59,9 +63,9 @@ fn supports_multiple_paths() {
   Test::with_tempdir(tmp)
     .justfile("p := which('hello1.exe') + '+' + which('hello2.exe')")
     .args(["--evaluate", "p"])
-    .write("subdir1/hello1.exe", "#!/usr/bin/env bash\necho hello\n")
+    .write("subdir1/hello1.exe", HELLO_SCRIPT)
     .make_executable("subdir1/hello1.exe")
-    .write("subdir2/hello2.exe", "#!/usr/bin/env bash\necho hello\n")
+    .write("subdir2/hello2.exe", HELLO_SCRIPT)
     .make_executable("subdir2/hello2.exe")
     .env("PATH", path_var.to_str().unwrap())
     .stdout(format!(
@@ -103,9 +107,9 @@ fn supports_shadowed_executables() {
     Test::with_tempdir(tmp)
       .justfile("p := which('shadowed.exe')")
       .args(["--evaluate", "p"])
-      .write("dir1/shadowed.exe", "#!/usr/bin/env bash\necho hello\n")
+      .write("dir1/shadowed.exe", HELLO_SCRIPT)
       .make_executable("dir1/shadowed.exe")
-      .write("dir2/shadowed.exe", "#!/usr/bin/env bash\necho hello\n")
+      .write("dir2/shadowed.exe", HELLO_SCRIPT)
       .make_executable("dir2/shadowed.exe")
       .env("PATH", path_var.to_str().unwrap())
       .stdout(stdout)
@@ -134,9 +138,9 @@ fn ignores_nonexecutable_candidates() {
   Test::with_tempdir(tmp)
     .justfile("p := which('foo.exe')")
     .args(["--evaluate", "p"])
-    .write("subdir/foo.exe", "#!/usr/bin/env bash\necho hello\n")
+    .write("subdir/foo.exe", HELLO_SCRIPT)
     .make_executable("subdir/foo.exe")
-    .write(dummy_exe, "#!/usr/bin/env bash\necho hello\n")
+    .write(dummy_exe, HELLO_SCRIPT)
     .env("PATH", path_var.to_str().unwrap())
     .stdout(format!("{}", path.join("subdir").join("foo.exe").display()))
     .run();
@@ -150,9 +154,9 @@ fn handles_absolute_path() {
 
   Test::with_tempdir(tmp)
     .justfile(format!("p := which('{}')", abspath.display()))
-    .write("subdir/foo.exe", "#!/usr/bin/env bash\necho hello\n")
+    .write("subdir/foo.exe", HELLO_SCRIPT)
     .make_executable("subdir/foo.exe")
-    .write("pathdir/foo.exe", "#!/usr/bin/env bash\necho hello\n")
+    .write("pathdir/foo.exe", HELLO_SCRIPT)
     .make_executable("pathdir/foo.exe")
     .env("PATH", path.join("pathdir").to_str().unwrap())
     .args(["--evaluate", "p"])
@@ -170,9 +174,9 @@ fn handles_dotslash() {
   Test::with_tempdir(tmp)
     .justfile("p := which('./foo.exe')")
     .args(["--evaluate", "p"])
-    .write("foo.exe", "#!/usr/bin/env bash\necho hello\n")
+    .write("foo.exe", HELLO_SCRIPT)
     .make_executable("foo.exe")
-    .write("pathdir/foo.exe", "#!/usr/bin/env bash\necho hello\n")
+    .write("pathdir/foo.exe", HELLO_SCRIPT)
     .make_executable("pathdir/foo.exe")
     .env("PATH", path.join("pathdir").to_str().unwrap())
     .stdout(format!("{}", path.join("foo.exe").display()))
@@ -189,9 +193,9 @@ fn handles_dir_slash() {
   Test::with_tempdir(tmp)
     .justfile("p := which('subdir/foo.exe')")
     .args(["--evaluate", "p"])
-    .write("subdir/foo.exe", "#!/usr/bin/env bash\necho hello\n")
+    .write("subdir/foo.exe", HELLO_SCRIPT)
     .make_executable("subdir/foo.exe")
-    .write("pathdir/foo.exe", "#!/usr/bin/env bash\necho hello\n")
+    .write("pathdir/foo.exe", HELLO_SCRIPT)
     .make_executable("pathdir/foo.exe")
     .env("PATH", path.join("pathdir").to_str().unwrap())
     .stdout(format!("{}", path.join("subdir").join("foo.exe").display()))
