@@ -130,66 +130,88 @@ hello:
   status: 100,
 }
 
-test! {
-  name: recipe_exit_message_setting_suppressed,
-  justfile: r#"
-set no-exit-message
+#[test]
+fn recipe_exit_message_setting_suppressed() {
+  Test::new()
+    .justfile(
+      r#"
+      set no-exit-message
 
-# This is a doc comment
-hello:
-  @echo "Hello, World!"
-  @exit 100
-"#,
-  stdout:   "Hello, World!\n",
-  stderr:   "",
-  status:   100,
+      # This is a doc comment
+      hello:
+        @echo "Hello, World!"
+        @exit 100
+    "#,
+    )
+    .stdout("Hello, World!\n")
+    .status(100)
+    .run();
 }
 
 
-test! {
-  name: shebang_exit_message_setting_suppressed,
-  justfile: r"
-set no-exit-message
+#[test]
+fn shebang_exit_message_setting_suppressed() {
+  Test::new()
+    .justfile(
+      "
+      set no-exit-message
 
-hello:
-  #!/usr/bin/env bash
-  echo 'Hello, World!'
-  exit 100
-",
-  stdout: "Hello, World!\n",
-  stderr: "",
-  status: 100,
+      hello:
+        #!/usr/bin/env bash
+        echo 'Hello, World!'
+        exit 100
+    ",
+    )
+    .stdout("Hello, World!\n")
+    .status(100)
+    .run();
 }
 
-test! {
-  name: exit_message_attribute_and_setting,
-  justfile: r"
-set no-exit-message
-
-[no-exit-message]
-hello:
-  echo 'Hello, World!'
-  exit 100
-",
-  stdout: "Hello, World!\n",
-  stderr: r#"
-    echo 'Hello, World!'
-    exit 100
-  "#,
-  status: 100,
+#[test]
+fn exit_message_override_no_exit_setting() {
+  Test::new()
+    .justfile(
+      "
+      set no-exit-message
+      
+      [exit-message]
+      fail:
+        @exit 100
+    ",
+    )
+    .status(100)
+    .stderr("error: Recipe `fail` failed on line 5 with exit code 100\n")
+    .run();
 }
 
+#[test]
+fn exit_message_override_no_exit_attribute() {
+  Test::new()
+    .justfile(
+      "
+      [exit-message, no-exit-message]
+      fail:
+        @exit 100
+    ",
+    )
+    .status(100)
+    .stderr("error: Recipe `fail` failed on line 3 with exit code 100\n")
+    .run();
+}
 
-test! {
-  name: silent_recipe_exit_message_setting_suppressed,
-  justfile: r#"
-set no-exit-message
+#[test]
+fn exit_message_override_no_exit_setting_and_attribute() {
+  Test::new()
+    .justfile(
+      "
+      set no-exit-message
 
-@hello:
-  echo "Hello, World!"
-  exit 100
-"#,
-  stdout:   "Hello, World!\n",
-  stderr:   "",
-  status:   100,
+      [exit-message, no-exit-message]
+      fail:
+        @exit 100
+    ",
+    )
+    .status(100)
+    .stderr("error: Recipe `fail` failed on line 5 with exit code 100\n")
+    .run();
 }

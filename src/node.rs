@@ -291,9 +291,9 @@ impl<'src> Node<'src> for Set<'src> {
       | Setting::DotenvRequired(value)
       | Setting::Export(value)
       | Setting::Fallback(value)
+      | Setting::NoExitMessage(value)
       | Setting::PositionalArguments(value)
       | Setting::Quiet(value)
-      | Setting::NoExitMessage(value)
       | Setting::Unstable(value)
       | Setting::WindowsPowerShell(value)
       | Setting::IgnoreComments(value) => {

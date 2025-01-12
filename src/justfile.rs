@@ -724,54 +724,6 @@ mod tests {
     }
   }
 
-  run_error! {
-    name: exit_message_error,
-    src: "
-      set no-exit-message
-      
-      [exit-message]
-      fail:
-        @exit 100
-    ",
-    args: ["fail"],
-    error: Code {
-      recipe,
-      line_number,
-      code,
-      print_message,
-    },
-    check: {
-      assert_eq!(recipe, "fail");
-      assert_eq!(code, 100);
-      assert_eq!(line_number, Some(5));
-      assert!(print_message);
-    }
-  }
-
-  run_error! {
-    name: exit_message_overrides_error,
-    src: "
-      set no-exit-message
-
-      [exit-message, no-exit-message]
-      fail:
-        @exit 100
-    ",
-    args: ["fail"],
-    error: Code {
-      recipe,
-      line_number,
-      code,
-      print_message,
-    },
-    check: {
-      assert_eq!(recipe, "fail");
-      assert_eq!(code, 100);
-      assert_eq!(line_number, Some(5));
-      assert!(print_message);
-    }
-  }
-
   fn case(input: &str, expected: &str) {
     let justfile = compile(input);
     let actual = format!("{}", justfile.color_display(Color::never()));
