@@ -1196,11 +1196,11 @@ The executable is at: /bin/just
 - `replace_regex(s, regex, replacement)` - 将 `s` 中所有的 `regex` 替换为 `replacement`。正则表达式由 [Rust `regex` 包](https://docs.rs/regex/latest/regex/) 提供。参见 [语法文档](https://docs.rs/regex/latest/regex/#syntax) 以了解使用示例。
 - `trim(s)` - 去掉 `s` 的首尾空格。
 - `trim_end(s)` - 去掉 `s` 的尾部空格。
-- `trim_end_match(s, pat)` - 删除与 `pat` 匹配的 `s` 的后缀。
-- `trim_end_matches(s, pat)` - 反复删除与 `pat` 匹配的 `s` 的后缀。
+- `trim_end_match(s, substr)` - 删除与 `substr` 匹配的 `s` 的后缀。
+- `trim_end_matches(s, substr)` - 反复删除与 `substr` 匹配的 `s` 的后缀。
 - `trim_start(s)` - 去掉 `s` 的首部空格。
-- `trim_start_match(s, pat)` - 删除与 `pat` 匹配的 `s` 的前缀。
-- `trim_start_matches(s, pat)` - 反复删除与 `pat` 匹配的 `s` 的前缀。
+- `trim_start_match(s, substr)` - 删除与 `substr` 匹配的 `s` 的前缀。
+- `trim_start_matches(s, substr)` - 反复删除与 `substr` 匹配的 `s` 的前缀。
 
 #### 大小写转换
 
