@@ -1138,3 +1138,20 @@ fn unchanged_justfiles_are_not_written_to_disk() {
     .args(["--fmt", "--unstable"])
     .run();
 }
+
+#[test]
+fn if_else() {
+  Test::new()
+    .justfile(
+      "
+        x := if '' == '' { '' } else if '' == '' { '' } else { '' }
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        x := if '' == '' { '' } else if '' == '' { '' } else { '' }
+      ",
+    )
+    .run();
+}

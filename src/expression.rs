@@ -72,7 +72,13 @@ impl Display for Expression<'_> {
         condition,
         then,
         otherwise,
-      } => write!(f, "if {condition} {{ {then} }} else {{ {otherwise} }}"),
+      } => {
+        if let Self::Conditional { .. } = otherwise.as_ref() {
+          write!(f, "if {condition} {{ {then} }} else {otherwise}")
+        } else {
+          write!(f, "if {condition} {{ {then} }} else {{ {otherwise} }}")
+        }
+      }
       Self::Group { contents } => write!(f, "({contents})"),
       Self::Join { lhs: None, rhs } => write!(f, "/ {rhs}"),
       Self::Join {
