@@ -34,6 +34,8 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) private: bool,
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
+  #[serde(skip)]
+  pub(crate) statements: Option<Vec<Statement<'src>>>,
 }
 
 impl<'src, D> Recipe<'src, D> {
@@ -84,7 +86,7 @@ impl<'src, D> Recipe<'src, D> {
     Ok(true)
   }
 
-  pub(crate) fn check_can_be_default_recipe(&self) -> RunResult<'src, ()> {
+  pub(crate) fn check_can_be_default_recipe(&self) -> RunResult<'src> {
     let min_arguments = self.min_arguments();
     if min_arguments > 0 {
       return Err(Error::DefaultRecipeRequiresArguments {
@@ -163,7 +165,7 @@ impl<'src, D> Recipe<'src, D> {
     scope: &Scope<'src, 'run>,
     positional: &[String],
     is_dependency: bool,
-  ) -> RunResult<'src, ()> {
+  ) -> RunResult<'src> {
     let color = context.config.color.stderr().banner();
     let prefix = color.prefix();
     let suffix = color.suffix();
@@ -182,6 +184,8 @@ impl<'src, D> Recipe<'src, D> {
 
     if self.is_script() {
       self.run_script(context, scope, positional, evaluator)
+    } else if let Some(statements) = &self.statements {
+      self.run_statements(context, scope, evaluator, statements)
     } else {
       self.run_linewise(context, scope, positional, evaluator)
     }
@@ -193,7 +197,7 @@ impl<'src, D> Recipe<'src, D> {
     scope: &Scope<'src, 'run>,
     positional: &[String],
     mut evaluator: Evaluator<'src, 'run>,
-  ) -> RunResult<'src, ()> {
+  ) -> RunResult<'src> {
     let config = &context.config;
 
     let mut lines = self.body.iter().peekable();
@@ -267,15 +271,7 @@ impl<'src, D> Recipe<'src, D> {
         eprintln!("{}", color.paint(command));
       }
 
-      if config.dry_run {
-        continue;
-      }
-
       let mut cmd = context.module.settings.shell_command(config);
-
-      if let Some(working_directory) = self.working_directory(context) {
-        cmd.current_dir(working_directory);
-      }
 
       cmd.arg(command);
 
@@ -284,54 +280,17 @@ impl<'src, D> Recipe<'src, D> {
         cmd.args(positional);
       }
 
-      if config.verbosity.quiet() {
-        cmd.stderr(Stdio::null());
-        cmd.stdout(Stdio::null());
-      }
-
-      cmd.export(
-        &context.module.settings,
-        context.dotenv,
-        scope,
-        &context.module.unexports,
-      );
-
-      match InterruptHandler::guard(|| cmd.status()) {
-        Ok(exit_status) => {
-          if let Some(code) = exit_status.code() {
-            if code != 0 && !infallible_line {
-              return Err(Error::Code {
-                recipe: self.name(),
-                line_number: Some(line_number),
-                code,
-                print_message: self.print_exit_message(),
-              });
-            }
-          } else {
-            return Err(error_from_signal(
-              self.name(),
-              Some(line_number),
-              exit_status,
-            ));
-          }
-        }
-        Err(io_error) => {
-          return Err(Error::Io {
-            recipe: self.name(),
-            io_error,
-          });
-        }
-      };
+      self.run_command(context, scope, cmd, infallible_line, line_number)?;
     }
   }
 
-  pub(crate) fn run_script<'run>(
+  fn run_script<'run>(
     &self,
     context: &ExecutionContext<'src, 'run>,
     scope: &Scope<'src, 'run>,
     positional: &[String],
     mut evaluator: Evaluator<'src, 'run>,
-  ) -> RunResult<'src, ()> {
+  ) -> RunResult<'src> {
     let config = &context.config;
 
     let mut evaluated_lines = Vec::new();
@@ -456,6 +415,96 @@ impl<'src, D> Recipe<'src, D> {
       ),
       Err(io_error) => Err(executor.error(io_error, self.name())),
     }
+  }
+
+  fn run_statements<'run>(
+    &self,
+    context: &ExecutionContext<'src, 'run>,
+    scope: &Scope<'src, 'run>,
+    mut evaluator: Evaluator<'src, 'run>,
+    statements: &[Statement<'src>],
+  ) -> RunResult<'src> {
+    for statement in statements {
+      let mut evaluated = Vec::new();
+
+      for word in &statement.words {
+        match word {
+          Word::Text(text) => evaluated.push(text.clone()),
+          Word::Expression(expression) => {
+            evaluated.push(evaluator.evaluate_expression(expression)?);
+          }
+        }
+      }
+
+      let Some(first) = evaluated.first() else {
+        continue;
+      };
+
+      let mut command = Command::new(first);
+
+      command.args(&evaluated[1..]);
+
+      self.run_command(context, scope, command, false, 0)?;
+    }
+
+    Ok(())
+  }
+
+  fn run_command<'run>(
+    &self,
+    context: &ExecutionContext<'src, 'run>,
+    scope: &Scope<'src, 'run>,
+    mut command: Command,
+    infallible_line: bool,
+    line_number: usize,
+  ) -> RunResult<'src> {
+    if context.config.dry_run {
+      return Ok(());
+    }
+
+    if let Some(working_directory) = self.working_directory(context) {
+      command.current_dir(working_directory);
+    }
+
+    if context.config.verbosity.quiet() {
+      command.stderr(Stdio::null());
+      command.stdout(Stdio::null());
+    }
+
+    command.export(
+      &context.module.settings,
+      context.dotenv,
+      scope,
+      &context.module.unexports,
+    );
+
+    match InterruptHandler::guard(|| command.status()) {
+      Ok(exit_status) => {
+        if let Some(code) = exit_status.code() {
+          if code != 0 && !infallible_line {
+            return Err(Error::Code {
+              recipe: self.name(),
+              line_number: Some(line_number),
+              code,
+              print_message: self.print_exit_message(),
+            });
+          }
+        } else {
+          return Err(error_from_signal(
+            self.name(),
+            Some(line_number),
+            exit_status,
+          ));
+        }
+      }
+      Err(io_error) => {
+        return Err(Error::Io {
+          recipe: self.name(),
+          io_error,
+        });
+      }
+    };
+    Ok(())
   }
 
   pub(crate) fn groups(&self) -> BTreeSet<String> {
