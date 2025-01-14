@@ -942,7 +942,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let body = self.parse_body()?;
 
-    let shebang = body.first().map_or(false, Line::is_shebang);
+    let shebang = body.first().is_some_and(Line::is_shebang);
     let script = attributes.contains(AttributeDiscriminant::Script);
 
     if shebang && script {
@@ -1041,7 +1041,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       }
     }
 
-    while lines.last().map_or(false, Line::is_empty) {
+    while lines.last().is_some_and(Line::is_empty) {
       lines.pop();
     }
 
