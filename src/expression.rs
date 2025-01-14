@@ -73,7 +73,7 @@ impl Display for Expression<'_> {
         then,
         otherwise,
       } => {
-        if let Self::Conditional { .. } = otherwise.as_ref() {
+        if let Self::Conditional { .. } = **otherwise {
           write!(f, "if {condition} {{ {then} }} else {otherwise}")
         } else {
           write!(f, "if {condition} {{ {then} }} else {{ {otherwise} }}")
