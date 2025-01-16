@@ -111,8 +111,8 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "uppercamelcase" => Unary(uppercamelcase),
     "uppercase" => Unary(uppercase),
     "uuid" => Nullary(uuid),
-    "without_extension" => Unary(without_extension),
     "which" => Unary(which),
+    "without_extension" => Unary(without_extension),
     _ => return None,
   };
   Some(function)
