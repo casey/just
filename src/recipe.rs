@@ -133,14 +133,14 @@ impl<'src, D> Recipe<'src, D> {
 
   fn print_exit_message(&self, settings: &Settings) -> bool {
     if self.attributes.contains(AttributeDiscriminant::ExitMessage) {
-      return true;
+      true
+    } else if settings.no_exit_message {
+      false
+    } else {
+      !self
+        .attributes
+        .contains(AttributeDiscriminant::NoExitMessage)
     }
-    
-    if settings.no_exit_message {
-        return false;
-    }
-  
-    !self.attributes.contains(AttributeDiscriminant::NoExitMessage)
   }
 
   fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
