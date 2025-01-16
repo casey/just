@@ -393,8 +393,30 @@ impl<'run, 'src> Parser<'run, 'src> {
               None
             };
 
+            let attributes = take_attributes();
+
+            attributes.ensure_valid_attributes(
+              "Module",
+              *name,
+              &[AttributeDiscriminant::Doc, AttributeDiscriminant::Group],
+            )?;
+
+            let doc = match attributes.get(AttributeDiscriminant::Doc) {
+              Some(Attribute::Doc(Some(doc))) => Some(doc.cooked.clone()),
+              Some(Attribute::Doc(None)) => None,
+              None => doc.map(ToOwned::to_owned),
+              _ => unreachable!(),
+            };
+
+            let mut groups = Vec::new();
+            for attribute in attributes {
+              if let Attribute::Group(group) = attribute {
+                groups.push(group.cooked);
+              }
+            }
+
             items.push(Item::Module {
-              attributes: take_attributes(),
+              groups,
               absolute: None,
               doc,
               name,
@@ -469,6 +491,9 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.presume_any(&[Equals, ColonEquals])?;
     let target = self.parse_name()?;
     self.expect_eol()?;
+
+    attributes.ensure_valid_attributes("Alias", *name, &[AttributeDiscriminant::Private])?;
+
     Ok(Alias {
       attributes,
       name,
@@ -917,7 +942,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let body = self.parse_body()?;
 
-    let shebang = body.first().map_or(false, Line::is_shebang);
+    let shebang = body.first().is_some_and(Line::is_shebang);
     let script = attributes.contains(AttributeDiscriminant::Script);
 
     if shebang && script {
@@ -1016,7 +1041,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       }
     }
 
-    while lines.last().map_or(false, Line::is_empty) {
+    while lines.last().is_some_and(Line::is_empty) {
       lines.pop();
     }
 
@@ -1311,14 +1336,14 @@ mod tests {
 
   test! {
     name: single_argument_attribute_shorthand,
-    text: "[group: 'some-group']\nalias t := test",
-    tree: (justfile (alias t test)),
+    text: "[group: 'foo']\nbar:",
+    tree: (justfile (recipe bar)),
   }
 
   test! {
     name: single_argument_attribute_shorthand_multiple_same_line,
-    text: "[group: 'some-group', group: 'some-other-group']\nalias t := test",
-    tree: (justfile (alias t test)),
+    text: "[group: 'foo', group: 'bar']\nbaz:",
+    tree: (justfile (recipe baz)),
   }
 
   test! {

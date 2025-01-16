@@ -1808,13 +1808,13 @@ The process ID is: 420
   [Replacement string syntax](https://docs.rs/regex/latest/regex/struct.Regex.html#replacement-string-syntax).
 - `trim(s)` - Remove leading and trailing whitespace from `s`.
 - `trim_end(s)` - Remove trailing whitespace from `s`.
-- `trim_end_match(s, pat)` - Remove suffix of `s` matching `pat`.
-- `trim_end_matches(s, pat)` - Repeatedly remove suffixes of `s` matching
-  `pat`.
+- `trim_end_match(s, substring)` - Remove suffix of `s` matching `substring`.
+- `trim_end_matches(s, substring)` - Repeatedly remove suffixes of `s` matching
+  `substring`.
 - `trim_start(s)` - Remove leading whitespace from `s`.
-- `trim_start_match(s, pat)` - Remove prefix of `s` matching `pat`.
-- `trim_start_matches(s, pat)` - Repeatedly remove prefixes of `s` matching
-  `pat`.
+- `trim_start_match(s, substring)` - Remove prefix of `s` matching `substring`.
+- `trim_start_matches(s, substring)` - Repeatedly remove prefixes of `s`
+  matching `substring`.
 
 #### Case Conversion
 
