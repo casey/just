@@ -1,39 +1,6 @@
 use super::*;
 
 #[test]
-fn no_exit_message() {
-  Test::new()
-    .justfile(
-      "
-      [no-exit-message]
-      @hello:
-        echo 'Hello, World!'
-        exit 100
-    ",
-    )
-    .stdout("Hello, World!\n")
-    .status(100)
-    .run();
-}
-
-#[test]
-fn exit_message() {
-  Test::new()
-    .justfile(
-      "
-      [exit-message]
-      @hello:
-        echo 'Hello, World!'
-        exit 100
-    ",
-    )
-    .stdout("Hello, World!\n")
-    .status(100)
-    .stderr("error: Recipe `hello` failed on line 4 with exit code 100\n")
-    .run();
-}
-
-#[test]
 fn recipe_exit_message_suppressed() {
   Test::new()
     .justfile(
@@ -198,6 +165,39 @@ fn shebang_exit_message_suppressed() {
     )
     .stdout("Hello, World!\n")
     .status(100)
+    .run();
+}
+
+#[test]
+fn no_exit_message() {
+  Test::new()
+    .justfile(
+      "
+      [no-exit-message]
+      @hello:
+        echo 'Hello, World!'
+        exit 100
+    ",
+    )
+    .stdout("Hello, World!\n")
+    .status(100)
+    .run();
+}
+
+#[test]
+fn exit_message() {
+  Test::new()
+    .justfile(
+      "
+      [exit-message]
+      @hello:
+        echo 'Hello, World!'
+        exit 100
+    ",
+    )
+    .stdout("Hello, World!\n")
+    .status(100)
+    .stderr("error: Recipe `hello` failed on line 4 with exit code 100\n")
     .run();
 }
 
