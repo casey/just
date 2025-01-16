@@ -663,8 +663,6 @@ fn uuid(_context: Context) -> FunctionResult {
 }
 
 fn which(context: Context, s: &str) -> FunctionResult {
-  use is_executable::IsExecutable;
-
   let cmd = Path::new(s);
 
   let candidates = match cmd.components().count() {
@@ -696,7 +694,7 @@ fn which(context: Context, s: &str) -> FunctionResult {
 
     candidate = candidate.lexiclean();
 
-    if candidate.is_executable() {
+    if is_executable::is_executable(&candidate) {
       return candidate.to_str().map(str::to_string).ok_or_else(|| {
         format!(
           "Executable path is not valid unicode: {}",
