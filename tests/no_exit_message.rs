@@ -1,6 +1,5 @@
 use super::*;
 
-
 #[test]
 fn no_exit_message() {
   Test::new()
@@ -38,31 +37,30 @@ fn exit_message() {
 fn recipe_exit_message_suppressed() {
   Test::new()
     .justfile(
-      r#"
+      "
       # This is a doc comment
       [no-exit-message]
       hello:
-        @echo "Hello, World!"
+        @echo 'Hello, World!'
         @exit 100
-      "#,
+      ",
     )
     .stdout("Hello, World!\n")
     .status(100)
     .run();
 }
 
-
 #[test]
 fn silent_recipe_exit_message_suppressed() {
   Test::new()
     .justfile(
-      r#"
+      "
       # This is a doc comment
       [no-exit-message]
       @hello:
-        echo "Hello, World!"
+        echo 'Hello, World!'
         exit 100
-      "#,
+      ",
     )
     .stdout("Hello, World!\n")
     .status(100)
@@ -81,7 +79,8 @@ fn recipe_has_doc_comment() {
         ",
     )
     .arg("--list")
-    .stdout("
+    .stdout(
+      "
       Available recipes:
           hello # This is a doc comment
       ",
@@ -100,7 +99,8 @@ fn unknown_attribute() {
         @exit 100
     ",
     )
-    .stderr("
+    .stderr(
+      "
       error: Unknown attribute `unknown-attribute`
        ——▶ justfile:2:2
         │
@@ -123,7 +123,8 @@ fn empty_attribute() {
         @exit 100
     ",
     )
-    .stderr("
+    .stderr(
+      "
       error: Expected identifier, but found ']'
        ——▶ justfile:2:2
         │
@@ -134,7 +135,6 @@ fn empty_attribute() {
     .status(EXIT_FAILURE)
     .run();
 }
-
 
 #[test]
 fn extraneous_attribute_before_comment() {
@@ -147,7 +147,8 @@ fn extraneous_attribute_before_comment() {
         @exit 100
     ",
     )
-    .stderr("
+    .stderr(
+      "
       error: Extraneous attribute
        ——▶ justfile:1:1
         │
@@ -170,7 +171,8 @@ fn extraneous_attribute_before_empty_line() {
         @exit 100
     ",
     )
-    .stderr("
+    .stderr(
+      "
       error: Extraneous attribute
        ——▶ justfile:1:1
         │
@@ -186,13 +188,13 @@ fn extraneous_attribute_before_empty_line() {
 fn shebang_exit_message_suppressed() {
   Test::new()
     .justfile(
-      r#"
+      "
       [no-exit-message]
       hello:
         #!/usr/bin/env bash
         echo 'Hello, World!'
         exit 100
-    "#,
+    ",
     )
     .stdout("Hello, World!\n")
     .status(100)
@@ -203,20 +205,19 @@ fn shebang_exit_message_suppressed() {
 fn recipe_exit_message_setting_suppressed() {
   Test::new()
     .justfile(
-      r#"
+      "
       set no-exit-message
 
       # This is a doc comment
       hello:
-        @echo "Hello, World!"
+        @echo 'Hello, World!'
         @exit 100
-    "#,
+    ",
     )
     .stdout("Hello, World!\n")
     .status(100)
     .run();
 }
-
 
 #[test]
 fn shebang_exit_message_setting_suppressed() {
@@ -242,7 +243,7 @@ fn exit_message_override_no_exit_setting() {
     .justfile(
       "
       set no-exit-message
-      
+
       [exit-message]
       fail:
         @exit 100
