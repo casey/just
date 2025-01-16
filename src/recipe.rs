@@ -210,11 +210,11 @@ impl<'src, D> Recipe<'src, D> {
       }
       let mut evaluated = String::new();
       let mut continued = false;
-      let quiet_line = lines.peek().map_or(false, |line| line.is_quiet());
-      let infallible_line = lines.peek().map_or(false, |line| line.is_infallible());
+      let quiet_line = lines.peek().is_some_and(|line| line.is_quiet());
+      let infallible_line = lines.peek().is_some_and(|line| line.is_infallible());
 
       let comment_line = context.module.settings.ignore_comments
-        && lines.peek().map_or(false, |line| line.is_comment());
+        && lines.peek().is_some_and(|line| line.is_comment());
 
       loop {
         if lines.peek().is_none() {
