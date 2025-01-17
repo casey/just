@@ -220,8 +220,6 @@ impl Test {
       file.display()
     );
 
-    println!("hi: {}", file.display());
-
     if !cfg!(windows) {
       let perms = std::os::unix::fs::PermissionsExt::from_mode(0o755);
       fs::set_permissions(file, perms).unwrap();
