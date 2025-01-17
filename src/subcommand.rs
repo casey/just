@@ -275,7 +275,7 @@ impl Subcommand {
     justfile.run(config, search, overrides, &recipes)
   }
 
-  fn completions(shell: completions::Shell) -> RunResult<'static, ()> {
+  fn completions(shell: completions::Shell) -> RunResult<'static> {
     println!("{}", shell.script()?);
     Ok(())
   }

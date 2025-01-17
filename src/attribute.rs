@@ -18,6 +18,7 @@ pub(crate) enum Attribute<'src> {
   NoCd,
   NoExitMessage,
   NoQuiet,
+  NoShell,
   Openbsd,
   PositionalArguments,
   Private,
@@ -37,6 +38,7 @@ impl AttributeDiscriminant {
       | Self::NoCd
       | Self::NoExitMessage
       | Self::NoQuiet
+      | Self::NoShell
       | Self::Openbsd
       | Self::PositionalArguments
       | Self::Private
@@ -85,6 +87,7 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::NoCd => Self::NoCd,
       AttributeDiscriminant::NoExitMessage => Self::NoExitMessage,
       AttributeDiscriminant::NoQuiet => Self::NoQuiet,
+      AttributeDiscriminant::NoShell => Self::NoShell,
       AttributeDiscriminant::Openbsd => Self::Openbsd,
       AttributeDiscriminant::PositionalArguments => Self::PositionalArguments,
       AttributeDiscriminant::Private => Self::Private,
@@ -134,6 +137,7 @@ impl Display for Attribute<'_> {
       | Self::NoCd
       | Self::NoExitMessage
       | Self::NoQuiet
+      | Self::NoShell
       | Self::Openbsd
       | Self::PositionalArguments
       | Self::Private
