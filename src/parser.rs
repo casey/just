@@ -961,6 +961,17 @@ impl<'run, 'src> Parser<'run, 'src> {
       );
     }
 
+    let no_exit_message_attr = attributes.contains(AttributeDiscriminant::ExitMessage);
+    let exit_message_attr = attributes.contains(AttributeDiscriminant::NoExitMessage);
+
+    if no_exit_message_attr && exit_message_attr {
+      return Err(
+        name.error(CompileErrorKind::ExitMessageAndNoExitMessageAttribute {
+          recipe: name.lexeme(),
+        }),
+      );
+    }
+
     let private =
       name.lexeme().starts_with('_') || attributes.contains(AttributeDiscriminant::Private);
 

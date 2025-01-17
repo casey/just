@@ -255,33 +255,23 @@ fn exit_message_override_no_exit_setting() {
 }
 
 #[test]
-fn exit_message_override_no_exit_attribute() {
+fn exit_message_and_no_exit_message_compile_forbidden() {
   Test::new()
     .justfile(
       "
       [exit-message, no-exit-message]
-      fail:
-        @exit 100
+      bar:
     ",
     )
-    .status(100)
-    .stderr("error: Recipe `fail` failed on line 3 with exit code 100\n")
-    .run();
-}
-
-#[test]
-fn exit_message_override_no_exit_setting_and_attribute() {
-  Test::new()
-    .justfile(
+    .stderr(
       "
-      set no-exit-message
-
-      [exit-message, no-exit-message]
-      fail:
-        @exit 100
-    ",
+        error: Recipe `bar` has both `[exit-message]` and `[no-exit-message]` attributes
+         ——▶ justfile:2:1
+          │
+        2 │ bar:
+          │ ^^^
+      ",
     )
-    .status(100)
-    .stderr("error: Recipe `fail` failed on line 5 with exit code 100\n")
+    .status(EXIT_FAILURE)
     .run();
 }
