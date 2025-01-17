@@ -90,6 +90,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "read" => Unary(read),
     "replace" => Ternary(replace),
     "replace_regex" => Ternary(replace_regex),
+    "require" => Unary(require),
     "semver_matches" => Binary(semver_matches),
     "sha256" => Unary(sha256),
     "sha256_file" => Unary(sha256_file),
@@ -510,6 +511,15 @@ fn read(context: Context, filename: &str) -> FunctionResult {
 
 fn replace(_context: Context, s: &str, from: &str, to: &str) -> FunctionResult {
   Ok(s.replace(from, to))
+}
+
+fn require(context: Context, s: &str) -> FunctionResult {
+  let p = which(context, s)?;
+  if p.is_empty() {
+    Err(format!("could not find required executable: `{s}`"))
+  } else {
+    Ok(p)
+  }
 }
 
 fn replace_regex(_context: Context, s: &str, regex: &str, replacement: &str) -> FunctionResult {
