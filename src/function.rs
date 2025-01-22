@@ -514,8 +514,7 @@ fn replace(_context: Context, s: &str, from: &str, to: &str) -> FunctionResult {
 }
 
 fn require(context: Context, name: &str) -> FunctionResult {
-  crate::which(&context.evaluator.context.working_directory(), name)?
-    .ok_or_else(|| format!("could not find executable `{name}`"))
+  crate::which(context, name)?.ok_or_else(|| format!("could not find executable `{name}`"))
 }
 
 fn replace_regex(_context: Context, s: &str, regex: &str, replacement: &str) -> FunctionResult {
@@ -669,7 +668,7 @@ fn uuid(_context: Context) -> FunctionResult {
 }
 
 fn which(context: Context, name: &str) -> FunctionResult {
-  Ok(crate::which(&context.evaluator.context.working_directory(), name)?.unwrap_or_default())
+  Ok(crate::which(context, name)?.unwrap_or_default())
 }
 
 fn without_extension(_context: Context, path: &str) -> FunctionResult {
