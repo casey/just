@@ -15,6 +15,7 @@ fn finds_executable() {
     .write("hello.exe", HELLO_SCRIPT)
     .make_executable("hello.exe")
     .env("PATH", path.to_str().unwrap())
+    .env("JUST_UNSTABLE", "1")
     .stdout(format!("{}", path.join("hello.exe").display()))
     .run();
 }
@@ -30,6 +31,7 @@ fn prints_empty_string_for_missing_executable() {
     .write("hello.exe", HELLO_SCRIPT)
     .make_executable("hello.exe")
     .env("PATH", path.to_str().unwrap())
+    .env("JUST_UNSTABLE", "1")
     .stdout("")
     .run();
 }
@@ -46,6 +48,7 @@ fn skips_non_executable_files() {
     .make_executable("hello.exe")
     .write("hi", "just some regular file")
     .env("PATH", path.to_str().unwrap())
+    .env("JUST_UNSTABLE", "1")
     .stdout("")
     .run();
 }
@@ -68,6 +71,7 @@ fn supports_multiple_paths() {
     .write("subdir2/hello2.exe", HELLO_SCRIPT)
     .make_executable("subdir2/hello2.exe")
     .env("PATH", path_var.to_str().unwrap())
+    .env("JUST_UNSTABLE", "1")
     .stdout(format!(
       "{}+{}",
       path.join("subdir1").join("hello1.exe").display(),
@@ -112,6 +116,7 @@ fn supports_shadowed_executables() {
       .write("dir2/shadowed.exe", HELLO_SCRIPT)
       .make_executable("dir2/shadowed.exe")
       .env("PATH", path_var.to_str().unwrap())
+      .env("JUST_UNSTABLE", "1")
       .stdout(stdout)
       .run();
   }
@@ -142,6 +147,7 @@ fn ignores_nonexecutable_candidates() {
     .make_executable("subdir/foo.exe")
     .write(dummy_exe, HELLO_SCRIPT)
     .env("PATH", path_var.to_str().unwrap())
+    .env("JUST_UNSTABLE", "1")
     .stdout(format!("{}", path.join("subdir").join("foo.exe").display()))
     .run();
 }
@@ -159,6 +165,7 @@ fn handles_absolute_path() {
     .write("pathdir/foo.exe", HELLO_SCRIPT)
     .make_executable("pathdir/foo.exe")
     .env("PATH", path.join("pathdir").to_str().unwrap())
+    .env("JUST_UNSTABLE", "1")
     .args(["--evaluate", "p"])
     .stdout(format!("{}", abspath.display()))
     .run();
@@ -179,6 +186,7 @@ fn handles_dotslash() {
     .write("pathdir/foo.exe", HELLO_SCRIPT)
     .make_executable("pathdir/foo.exe")
     .env("PATH", path.join("pathdir").to_str().unwrap())
+    .env("JUST_UNSTABLE", "1")
     .stdout(format!("{}", path.join("foo.exe").display()))
     .run();
 }
@@ -198,6 +206,23 @@ fn handles_dir_slash() {
     .write("pathdir/foo.exe", HELLO_SCRIPT)
     .make_executable("pathdir/foo.exe")
     .env("PATH", path.join("pathdir").to_str().unwrap())
+    .env("JUST_UNSTABLE", "1")
     .stdout(format!("{}", path.join("subdir").join("foo.exe").display()))
+    .run();
+}
+
+#[test]
+fn is_unstable() {
+  let tmp = tempdir();
+  let path = PathBuf::from(tmp.path());
+
+  Test::with_tempdir(tmp)
+    .justfile("p := which('hello.exe')")
+    .args(["--evaluate", "p"])
+    .write("hello.exe", HELLO_SCRIPT)
+    .make_executable("hello.exe")
+    .env("PATH", path.to_str().unwrap())
+    .stderr_regex(r".*The `which\(\)` function is currently unstable\..*")
+    .status(1)
     .run();
 }
