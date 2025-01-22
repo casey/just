@@ -1,6 +1,49 @@
 Changelog
 =========
 
+[1.39.0](https://github.com/casey/just/releases/tag/1.39.0) - 2025-01-22
+------------------------------------------------------------------------
+
+### Added
+- Add `which()` and `require()` for finding executables ([#2440](https://github.com/casey/just/pull/2440) by [0xzhzh](https://github.com/0xzhzh))
+- Add `no-exit-message` Setting and `[exit-message]` attribute ([#2568](https://github.com/casey/just/pull/2568) by [ArchieAtkinson](https://github.com/ArchieAtkinson))
+- Configure alias style in `--list` with `--alias-style` ([#2342](https://github.com/casey/just/pull/2342) by [marcaddeo](https://github.com/marcaddeo))
+- Add regex mismatch conditional operator ([#2490](https://github.com/casey/just/pull/2490) by [laniakea64](https://github.com/laniakea64))
+- Add `read_to_string(path)` function ([#2507](https://github.com/casey/just/pull/2507) by [begoon](https://github.com/begoon))
+
+### Changed
+- Rename `read_to_string()` to `read()` ([#2518](https://github.com/casey/just/pull/2518) by [casey](https://github.com/casey))
+
+### Fixed
+- Keep `[private]` attribute when formatting assignments ([#2592](https://github.com/casey/just/pull/2592) by [casey](https://github.com/casey))
+- Format `if … else if …` without superfluous braces ([#2573](https://github.com/casey/just/pull/2573) by [casey](https://github.com/casey))
+- Fix error when lexing `!` at end-of-file ([#2520](https://github.com/casey/just/pull/2520) by [casey](https://github.com/casey))
+- Handle recipes in submodules in fish completion script ([#2514](https://github.com/casey/just/pull/2514) by [senekor](https://github.com/senekor))
+
+### Misc
+- Add tests for `require()` ([#2594](https://github.com/casey/just/pull/2594) by [casey](https://github.com/casey))
+- Evaluate concatenations and joins from left to right ([#2593](https://github.com/casey/just/pull/2593) by [casey](https://github.com/casey))
+- Disable links to empty chapters in book ([#2589](https://github.com/casey/just/pull/2589) by [casey](https://github.com/casey))
+- Link to CI workflow in readme ([#2586](https://github.com/casey/just/pull/2586) by [bravesasha](https://github.com/bravesasha))
+- Clarify that `trim_*_match` functions take subtrings ([#2574](https://github.com/casey/just/pull/2574) by [xavdid](https://github.com/xavdid))
+- Update `softprops/action-gh-release` from 2.2.0 to 2.2.1 ([#2570](https://github.com/casey/just/pull/2570) by [app/dependabot](https://github.com/app/dependabot))
+- Check attributes in parser instead of analyzer ([#2560](https://github.com/casey/just/pull/2560) by [casey](https://github.com/casey))
+- Ignore I/O errors when writing changelog to stdout ([#2558](https://github.com/casey/just/pull/2558) by [casey](https://github.com/casey))
+- Add `quiet` setting and fix typos in readme ([#2549](https://github.com/casey/just/pull/2549) by [unennhexium](https://github.com/unennhexium))
+- Update readme to use `env()` instead of `env_var*()` ([#2546](https://github.com/casey/just/pull/2546) by [laniakea64](https://github.com/laniakea64))
+- Document using `||` to provide default for empty environment variable ([#2545](https://github.com/casey/just/pull/2545) by [casey](https://github.com/casey))
+- Refactor `Line` predicates ([#2543](https://github.com/casey/just/pull/2543) by [casey](https://github.com/casey))
+- Fix typos in README.md ([#2542](https://github.com/casey/just/pull/2542) by [laniakea64](https://github.com/laniakea64))
+- Add full example getting XDG user directory to readme ([#2536](https://github.com/casey/just/pull/2536) by [laniakea64](https://github.com/laniakea64))
+- Document weird behavior of duplicate definitions in imports ([#2541](https://github.com/casey/just/pull/2541) by [casey](https://github.com/casey))
+- Update readme to reflect actual behavior of user directory functions ([#2535](https://github.com/casey/just/pull/2535) by [casey](https://github.com/casey))
+- Update softprops/action-gh-release to 2.2.0 ([#2530](https://github.com/casey/just/pull/2530) by [app/dependabot](https://github.com/app/dependabot))
+- Document running python recipes with `uv` ([#2526](https://github.com/casey/just/pull/2526) by [casey](https://github.com/casey))
+- Sort functions alphabetically ([#2525](https://github.com/casey/just/pull/2525) by [casey](https://github.com/casey))
+- Fix truncated bang operator error message ([#2522](https://github.com/casey/just/pull/2522) by [casey](https://github.com/casey))
+- Include source path in dump JSON ([#2466](https://github.com/casey/just/pull/2466) by [psibi](https://github.com/psibi))
+- Add attribute set ([#2419](https://github.com/casey/just/pull/2419) by [neunenak](https://github.com/neunenak))
+
 [1.38.0](https://github.com/casey/just/releases/tag/1.38.0) - 2024-12-10
 ------------------------------------------------------------------------
 

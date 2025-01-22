@@ -1676,7 +1676,7 @@ foo := env('FOO') || 'DEFAULT_VALUE'
 
 #### Executables
 
-- `require(name)`<sup>master</sup> — Search directories in the `PATH`
+- `require(name)`<sup>1.39.0</sup> — Search directories in the `PATH`
   environment variable for the executable `name` and return its full path, or
   halt with an error if no executable with `name` exists.
 
@@ -1692,7 +1692,7 @@ foo := env('FOO') || 'DEFAULT_VALUE'
   bash: '/bin/bash'
   ```
 
-- `which(name)`<sup>master</sup> — Search directories in the `PATH` environment
+- `which(name)`<sup>1.39.0</sup> — Search directories in the `PATH` environment
   variable for the executable `name` and return its full path, or the empty
   string if no executable with `name` exists. Currently unstable.
 
@@ -1888,7 +1888,7 @@ which will halt execution.
 - `path_exists(path)` - Returns `true` if the path points at an existing entity
   and `false` otherwise. Traverses symbolic links, and returns `false` if the
   path is inaccessible or points to a broken symlink.
-- `read(path)`<sup>master</sup> - Returns the content of file at `path` as
+- `read(path)`<sup>1.39.0</sup> - Returns the content of file at `path` as
   string.
 
 ##### Error Reporting
