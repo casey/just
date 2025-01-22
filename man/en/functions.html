@@ -223,10 +223,10 @@ olleh := shell('import sys; print(sys.argv[2][::-1])', 'hello')
 </code></pre>
 <h4 id="environment-variables"><a class="header" href="#environment-variables">Environment Variables</a></h4>
 <ul>
-<li><code>env_var(key)</code> — Retrieves the environment variable with name <code>key</code>, aborting
+<li><code>env(key)</code><sup>1.15.0</sup> — Retrieves the environment variable with name <code>key</code>, aborting
 if it is not present.</li>
 </ul>
-<pre><code class="language-just">home_dir := env_var('HOME')
+<pre><code class="language-just">home_dir := env('HOME')
 
 test:
   echo "{{home_dir}}"
@@ -235,10 +235,47 @@ test:
 /home/user1
 </code></pre>
 <ul>
-<li><code>env_var_or_default(key, default)</code> — Retrieves the environment variable with
+<li><code>env(key, default)</code><sup>1.15.0</sup> — Retrieves the environment variable with
 name <code>key</code>, returning <code>default</code> if it is not present.</li>
-<li><code>env(key)</code><sup>1.15.0</sup> — Alias for <code>env_var(key)</code>.</li>
-<li><code>env(key, default)</code><sup>1.15.0</sup> — Alias for <code>env_var_or_default(key, default)</code>.</li>
+<li><code>env_var(key)</code> — Deprecated alias for <code>env(key)</code>.</li>
+<li><code>env_var_or_default(key, default)</code> — Deprecated alias for <code>env(key, default)</code>.</li>
+</ul>
+<p>A default can be substituted for an empty environment variable value with the
+<code>||</code> operator, currently unstable:</p>
+<pre><code class="language-just">set unstable
+
+foo := env('FOO') || 'DEFAULT_VALUE'
+</code></pre>
+<h4 id="executables"><a class="header" href="#executables">Executables</a></h4>
+<ul>
+<li>
+<p><code>require(name)</code><sup>1.39.0</sup> — Search directories in the <code>PATH</code>
+environment variable for the executable <code>name</code> and return its full path, or
+halt with an error if no executable with <code>name</code> exists.</p>
+<pre><code class="language-just">bash := require("bash")
+
+@test:
+    echo "bash: '{{bash}}'"
+</code></pre>
+<pre><code class="language-console">$ just
+bash: '/bin/bash'
+</code></pre>
+</li>
+<li>
+<p><code>which(name)</code><sup>1.39.0</sup> — Search directories in the <code>PATH</code> environment
+variable for the executable <code>name</code> and return its full path, or the empty
+string if no executable with <code>name</code> exists. Currently unstable.</p>
+<pre><code class="language-just">set unstable
+
+bosh := require("bosh")
+
+@test:
+    echo "bosh: '{{bosh}}'"
+</code></pre>
+<pre><code class="language-console">$ just
+bosh: ''
+</code></pre>
+</li>
 </ul>
 <h4 id="invocation-information"><a class="header" href="#invocation-information">Invocation Information</a></h4>
 <ul>
@@ -343,13 +380,13 @@ examples. Capture groups are supported. The <code>replacement</code> string uses
 <a href="https://docs.rs/regex/latest/regex/struct.Regex.html#replacement-string-syntax">Replacement string syntax</a>.</li>
 <li><code>trim(s)</code> - Remove leading and trailing whitespace from <code>s</code>.</li>
 <li><code>trim_end(s)</code> - Remove trailing whitespace from <code>s</code>.</li>
-<li><code>trim_end_match(s, pat)</code> - Remove suffix of <code>s</code> matching <code>pat</code>.</li>
-<li><code>trim_end_matches(s, pat)</code> - Repeatedly remove suffixes of <code>s</code> matching
-<code>pat</code>.</li>
+<li><code>trim_end_match(s, substring)</code> - Remove suffix of <code>s</code> matching <code>substring</code>.</li>
+<li><code>trim_end_matches(s, substring)</code> - Repeatedly remove suffixes of <code>s</code> matching
+<code>substring</code>.</li>
 <li><code>trim_start(s)</code> - Remove leading whitespace from <code>s</code>.</li>
-<li><code>trim_start_match(s, pat)</code> - Remove prefix of <code>s</code> matching <code>pat</code>.</li>
-<li><code>trim_start_matches(s, pat)</code> - Repeatedly remove prefixes of <code>s</code> matching
-<code>pat</code>.</li>
+<li><code>trim_start_match(s, substring)</code> - Remove prefix of <code>s</code> matching <code>substring</code>.</li>
+<li><code>trim_start_matches(s, substring)</code> - Repeatedly remove prefixes of <code>s</code>
+matching <code>substring</code>.</li>
 </ul>
 <h4 id="case-conversion"><a class="header" href="#case-conversion">Case Conversion</a></h4>
 <ul>
@@ -402,6 +439,8 @@ desired on Windows.</em> Join path <code>a</code> with path <code>b</code>. <cod
 <li><code>path_exists(path)</code> - Returns <code>true</code> if the path points at an existing entity
 and <code>false</code> otherwise. Traverses symbolic links, and returns <code>false</code> if the
 path is inaccessible or points to a broken symlink.</li>
+<li><code>read(path)</code><sup>1.39.0</sup> - Returns the content of file at <code>path</code> as
+string.</li>
 </ul>
 <h5 id="error-reporting"><a class="header" href="#error-reporting">Error Reporting</a></h5>
 <ul>
@@ -456,13 +495,16 @@ recipe output match <code>just</code>’s own output.</p>
 </code></pre>
 </li>
 </ul>
-<h5 id="xdg-directories1230"><a class="header" href="#xdg-directories1230">XDG Directories<sup>1.23.0</sup></a></h5>
+<h5 id="user-directories1230"><a class="header" href="#user-directories1230">User Directories<sup>1.23.0</sup></a></h5>
 <p>These functions return paths to user-specific directories for things like
-configuration, data, caches, executables, and the user’s home directory. These
-functions follow the
-<a href="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">XDG Base Directory Specification</a>,
-and are implemented with the
-<a href="https://docs.rs/dirs/latest/dirs/index.html"><code>dirs</code></a> crate.</p>
+configuration, data, caches, executables, and the user’s home directory.</p>
+<p>On Unix, these functions follow the
+<a href="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">XDG Base Directory Specification</a>.</p>
+<p>On MacOS and Windows, these functions return the system-specified user-specific
+directories. For example, <code>cache_directory()</code> returns <code>~/Library/Caches</code> on
+MacOS and <code>{FOLDERID_LocalAppData}</code> on Windows.</p>
+<p>See the <a href="https://docs.rs/dirs/latest/dirs/index.html"><code>dirs</code></a> crate for more
+details.</p>
 <ul>
 <li><code>cache_directory()</code> - The user-specific cache directory.</li>
 <li><code>config_directory()</code> - The user-specific configuration directory.</li>
@@ -472,6 +514,17 @@ and are implemented with the
 <li><code>executable_directory()</code> - The user-specific executable directory.</li>
 <li><code>home_directory()</code> - The user’s home directory.</li>
 </ul>
+<p>If you would like to use XDG base directories on all platforms you can use the
+<code>env(…)</code> function with the appropriate environment variable and fallback,
+although note that the XDG specification requires ignoring non-absolute paths,
+so for full compatibility with spec-compliant applications, you would need to
+do:</p>
+<pre><code class="language-just">xdg_config_dir := if env('XDG_CONFIG_HOME', '') =~ '^/' {
+  env('XDG_CONFIG_HOME')
+} else {
+  home_directory() / '.config'
+}
+</code></pre>
 
                     </main>
 

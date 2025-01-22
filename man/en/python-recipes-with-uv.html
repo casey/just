@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
-<html lang="zh" class="light sidebar-visible" dir="ltr">
+<html lang="en" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>杂项 - Just 用户指南</title>
+        <title>Python Recipes with uv - Just Programmer&#x27;s Manual</title>
 
 
         <!-- Custom HTML head -->
@@ -120,7 +120,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Just 用户指南</h1>
+                    <h1 class="menu-title">Just Programmer&#x27;s Manual</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -155,17 +155,43 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="杂项"><a class="header" href="#杂项">杂项</a></h2>
+                        <h3 id="python-recipes-with-uv"><a class="header" href="#python-recipes-with-uv">Python Recipes with <code>uv</code></a></h3>
+<p><a href="https://github.com/astral-sh/uv"><code>uv</code></a> is an excellent cross-platform python
+project manager, written in Rust.</p>
+<p>Using the <code>[script]</code> attribute and <code>script-interpreter</code> setting, <code>just</code> can
+easily be configured to run Python recipes with <code>uv</code>:</p>
+<pre><code class="language-just">set unstable
+
+set script-interpreter := ['uv', 'run', '--script']
+
+[script]
+hello:
+  print("Hello from Python!")
+
+[script]
+goodbye:
+  # /// script
+  # requires-python = "&gt;=3.11"
+  # dependencies=["sh"]
+  # ///
+  import sh
+  print(sh.echo("Goodbye from Python!"), end='')
+</code></pre>
+<p>Of course, a shebang also works:</p>
+<pre><code class="language-just">hello:
+  #!/usr/bin/env uv run --script
+  print("Hello from Python!")
+</code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="更新日志.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="shebang-recipes.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="配套工具.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="script-recipes.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -175,11 +201,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="更新日志.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="shebang-recipes.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="配套工具.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="script-recipes.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

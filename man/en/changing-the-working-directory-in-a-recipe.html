@@ -170,7 +170,7 @@ the command you want to run:</p>
 </code></pre>
 <p>The other is to use a shebang recipe. Shebang recipe bodies are extracted and
 run as scripts, so a single shell instance will run the whole thing, and thus a
-<code>pwd</code> on one line will affect later lines, just like a shell script:</p>
+<code>cd</code> on one line will affect later lines, just like a shell script:</p>
 <pre><code class="language-just">foo:
   #!/usr/bin/env bash
   set -euxo pipefail

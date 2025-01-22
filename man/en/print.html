@@ -161,7 +161,7 @@
   <a href=https://crates.io/crates/just>
     <img src=https://img.shields.io/crates/v/just.svg alt="crates.io version">
   </a>
-  <a href=https://github.com/casey/just/actions>
+  <a href=https://github.com/casey/just/actions/workflows/ci.yaml>
     <img src=https://github.com/casey/just/actions/workflows/ci.yaml/badge.svg alt="build status">
   </a>
   <a href=https://github.com/casey/just/releases>
@@ -240,7 +240,6 @@ contains the <code>justfile</code>.</p>
 <p>If you need help with <code>just</code> please feel free to open an issue or ping me on
 <a href="https://discord.gg/ezYScXR">Discord</a>. Feature requests and bug reports are
 always welcome!</p>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="installation"><a class="header" href="#installation">Installation</a></h2>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="prerequisites"><a class="header" href="#prerequisites">Prerequisites</a></h3>
 <p><code>just</code> should run on any system with a reasonable <code>sh</code>, including Linux, MacOS,
 and the BSDs.</p>
@@ -634,9 +633,8 @@ out of the box, thanks to <a href="https://github.com/tomodachi94">tomodachi94</
 <p>Feel free to send me the commands necessary to get syntax highlighting working
 in your editor of choice so that I may include them here.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h2>
-<p>See <a href="installation.html">the installation section</a> for how to install <code>just</code> on your
-computer. Try running <code>just --version</code> to make sure that it’s installed
-correctly.</p>
+<p>See the installation section for how to install <code>just</code> on your computer. Try
+running <code>just --version</code> to make sure that it’s installed correctly.</p>
 <p>For an overview of the syntax, check out
 <a href="https://cheatography.com/linux-china/cheat-sheets/justfile/">this cheatsheet</a>.</p>
 <p>Once <code>just</code> is installed and working, create a file named <code>justfile</code> in the
@@ -705,7 +703,6 @@ testing… all tests passed!
 <p>A variety of <code>justfile</code>s can be found in the
 <a href="https://github.com/casey/just/tree/master/examples">examples directory</a> and on
 <a href="https://github.com/search?q=path%3A**%2Fjustfile&amp;type=code">GitHub</a>.</p>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="features"><a class="header" href="#features">Features</a></h2>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="the-default-recipe"><a class="header" href="#the-default-recipe">The Default Recipe</a></h3>
 <p>When <code>just</code> is invoked without a recipe, it runs the first recipe in the
 <code>justfile</code>. This recipe might be the most frequently run command in the
@@ -908,6 +905,7 @@ foo:
 <tr><td><code>fallback</code></td><td>boolean</td><td><code>false</code></td><td>Search <code>justfile</code> in parent directory if the first recipe on the command line is not found.</td></tr>
 <tr><td><code>ignore-comments</code></td><td>boolean</td><td><code>false</code></td><td>Ignore recipe lines beginning with <code>#</code>.</td></tr>
 <tr><td><code>positional-arguments</code></td><td>boolean</td><td><code>false</code></td><td>Pass positional arguments.</td></tr>
+<tr><td><code>quiet</code></td><td>boolean</td><td><code>false</code></td><td>Disable echoing recipe lines before executing.</td></tr>
 <tr><td><code>script-interpreter</code><sup>1.33.0</sup></td><td><code>[COMMAND, ARGS…]</code></td><td><code>['sh', '-eu']</code></td><td>Set command used to invoke recipes with empty <code>[script]</code> attribute.</td></tr>
 <tr><td><code>shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>-</td><td>Set command used to invoke recipes and evaluate backticks.</td></tr>
 <tr><td><code>tempdir</code></td><td>string</td><td>-</td><td>Create temporary directories in <code>tempdir</code> instead of the system default temporary directory.</td></tr>
@@ -948,7 +946,7 @@ a := "foo"
 a := "bar"
 
 @foo:
-  echo $a
+  echo {{a}}
 </code></pre>
 <pre><code class="language-console">$ just foo
 bar
@@ -1380,10 +1378,10 @@ olleh := shell('import sys; print(sys.argv[2][::-1])', 'hello')
 </code></pre>
 <h4 id="environment-variables"><a class="header" href="#environment-variables">Environment Variables</a></h4>
 <ul>
-<li><code>env_var(key)</code> — Retrieves the environment variable with name <code>key</code>, aborting
+<li><code>env(key)</code><sup>1.15.0</sup> — Retrieves the environment variable with name <code>key</code>, aborting
 if it is not present.</li>
 </ul>
-<pre><code class="language-just">home_dir := env_var('HOME')
+<pre><code class="language-just">home_dir := env('HOME')
 
 test:
   echo "{{home_dir}}"
@@ -1392,10 +1390,47 @@ test:
 /home/user1
 </code></pre>
 <ul>
-<li><code>env_var_or_default(key, default)</code> — Retrieves the environment variable with
+<li><code>env(key, default)</code><sup>1.15.0</sup> — Retrieves the environment variable with
 name <code>key</code>, returning <code>default</code> if it is not present.</li>
-<li><code>env(key)</code><sup>1.15.0</sup> — Alias for <code>env_var(key)</code>.</li>
-<li><code>env(key, default)</code><sup>1.15.0</sup> — Alias for <code>env_var_or_default(key, default)</code>.</li>
+<li><code>env_var(key)</code> — Deprecated alias for <code>env(key)</code>.</li>
+<li><code>env_var_or_default(key, default)</code> — Deprecated alias for <code>env(key, default)</code>.</li>
+</ul>
+<p>A default can be substituted for an empty environment variable value with the
+<code>||</code> operator, currently unstable:</p>
+<pre><code class="language-just">set unstable
+
+foo := env('FOO') || 'DEFAULT_VALUE'
+</code></pre>
+<h4 id="executables"><a class="header" href="#executables">Executables</a></h4>
+<ul>
+<li>
+<p><code>require(name)</code><sup>1.39.0</sup> — Search directories in the <code>PATH</code>
+environment variable for the executable <code>name</code> and return its full path, or
+halt with an error if no executable with <code>name</code> exists.</p>
+<pre><code class="language-just">bash := require("bash")
+
+@test:
+    echo "bash: '{{bash}}'"
+</code></pre>
+<pre><code class="language-console">$ just
+bash: '/bin/bash'
+</code></pre>
+</li>
+<li>
+<p><code>which(name)</code><sup>1.39.0</sup> — Search directories in the <code>PATH</code> environment
+variable for the executable <code>name</code> and return its full path, or the empty
+string if no executable with <code>name</code> exists. Currently unstable.</p>
+<pre><code class="language-just">set unstable
+
+bosh := require("bosh")
+
+@test:
+    echo "bosh: '{{bosh}}'"
+</code></pre>
+<pre><code class="language-console">$ just
+bosh: ''
+</code></pre>
+</li>
 </ul>
 <h4 id="invocation-information"><a class="header" href="#invocation-information">Invocation Information</a></h4>
 <ul>
@@ -1500,13 +1535,13 @@ examples. Capture groups are supported. The <code>replacement</code> string uses
 <a href="https://docs.rs/regex/latest/regex/struct.Regex.html#replacement-string-syntax">Replacement string syntax</a>.</li>
 <li><code>trim(s)</code> - Remove leading and trailing whitespace from <code>s</code>.</li>
 <li><code>trim_end(s)</code> - Remove trailing whitespace from <code>s</code>.</li>
-<li><code>trim_end_match(s, pat)</code> - Remove suffix of <code>s</code> matching <code>pat</code>.</li>
-<li><code>trim_end_matches(s, pat)</code> - Repeatedly remove suffixes of <code>s</code> matching
-<code>pat</code>.</li>
+<li><code>trim_end_match(s, substring)</code> - Remove suffix of <code>s</code> matching <code>substring</code>.</li>
+<li><code>trim_end_matches(s, substring)</code> - Repeatedly remove suffixes of <code>s</code> matching
+<code>substring</code>.</li>
 <li><code>trim_start(s)</code> - Remove leading whitespace from <code>s</code>.</li>
-<li><code>trim_start_match(s, pat)</code> - Remove prefix of <code>s</code> matching <code>pat</code>.</li>
-<li><code>trim_start_matches(s, pat)</code> - Repeatedly remove prefixes of <code>s</code> matching
-<code>pat</code>.</li>
+<li><code>trim_start_match(s, substring)</code> - Remove prefix of <code>s</code> matching <code>substring</code>.</li>
+<li><code>trim_start_matches(s, substring)</code> - Repeatedly remove prefixes of <code>s</code>
+matching <code>substring</code>.</li>
 </ul>
 <h4 id="case-conversion"><a class="header" href="#case-conversion">Case Conversion</a></h4>
 <ul>
@@ -1559,6 +1594,8 @@ desired on Windows.</em> Join path <code>a</code> with path <code>b</code>. <cod
 <li><code>path_exists(path)</code> - Returns <code>true</code> if the path points at an existing entity
 and <code>false</code> otherwise. Traverses symbolic links, and returns <code>false</code> if the
 path is inaccessible or points to a broken symlink.</li>
+<li><code>read(path)</code><sup>1.39.0</sup> - Returns the content of file at <code>path</code> as
+string.</li>
 </ul>
 <h5 id="error-reporting"><a class="header" href="#error-reporting">Error Reporting</a></h5>
 <ul>
@@ -1613,13 +1650,16 @@ recipe output match <code>just</code>’s own output.</p>
 </code></pre>
 </li>
 </ul>
-<h5 id="xdg-directories1230"><a class="header" href="#xdg-directories1230">XDG Directories<sup>1.23.0</sup></a></h5>
+<h5 id="user-directories1230"><a class="header" href="#user-directories1230">User Directories<sup>1.23.0</sup></a></h5>
 <p>These functions return paths to user-specific directories for things like
-configuration, data, caches, executables, and the user’s home directory. These
-functions follow the
-<a href="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">XDG Base Directory Specification</a>,
-and are implemented with the
-<a href="https://docs.rs/dirs/latest/dirs/index.html"><code>dirs</code></a> crate.</p>
+configuration, data, caches, executables, and the user’s home directory.</p>
+<p>On Unix, these functions follow the
+<a href="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">XDG Base Directory Specification</a>.</p>
+<p>On MacOS and Windows, these functions return the system-specified user-specific
+directories. For example, <code>cache_directory()</code> returns <code>~/Library/Caches</code> on
+MacOS and <code>{FOLDERID_LocalAppData}</code> on Windows.</p>
+<p>See the <a href="https://docs.rs/dirs/latest/dirs/index.html"><code>dirs</code></a> crate for more
+details.</p>
 <ul>
 <li><code>cache_directory()</code> - The user-specific cache directory.</li>
 <li><code>config_directory()</code> - The user-specific configuration directory.</li>
@@ -1629,6 +1669,17 @@ and are implemented with the
 <li><code>executable_directory()</code> - The user-specific executable directory.</li>
 <li><code>home_directory()</code> - The user’s home directory.</li>
 </ul>
+<p>If you would like to use XDG base directories on all platforms you can use the
+<code>env(…)</code> function with the appropriate environment variable and fallback,
+although note that the XDG specification requires ignoring non-absolute paths,
+so for full compatibility with spec-compliant applications, you would need to
+do:</p>
+<pre><code class="language-just">xdg_config_dir := if env('XDG_CONFIG_HOME', '') =~ '^/' {
+  env('XDG_CONFIG_HOME')
+} else {
+  home_directory() / '.config'
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="constants"><a class="header" href="#constants">Constants</a></h3>
 <p>A number of constants are predefined:</p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody>
@@ -1987,8 +2038,8 @@ recipes.</p>
 HOME is '/home/myuser'
 </code></pre>
 <h4 id="setting-just-variables-from-environment-variables"><a class="header" href="#setting-just-variables-from-environment-variables">Setting <code>just</code> Variables from Environment Variables</a></h4>
-<p>Environment variables can be propagated to <code>just</code> variables using the functions
-<code>env_var()</code> and <code>env_var_or_default()</code>. See
+<p>Environment variables can be propagated to <code>just</code> variables using the <code>env()</code> function.
+See
 <a href="functions.html#environment-variables">environment-variables</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="recipe-parameters"><a class="header" href="#recipe-parameters">Recipe Parameters</a></h3>
 <p>Recipes may have parameters. Here recipe <code>build</code> has a parameter called
@@ -2269,6 +2320,33 @@ the split command and arguments, adding the path to the saved recipe body as
 the final argument. For example, on Windows, if a recipe starts with <code>#! py</code>,
 the final command the OS runs will be something like
 <code>py C:\Temp\PATH_TO_SAVED_RECIPE_BODY</code>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="python-recipes-with-uv"><a class="header" href="#python-recipes-with-uv">Python Recipes with <code>uv</code></a></h3>
+<p><a href="https://github.com/astral-sh/uv"><code>uv</code></a> is an excellent cross-platform python
+project manager, written in Rust.</p>
+<p>Using the <code>[script]</code> attribute and <code>script-interpreter</code> setting, <code>just</code> can
+easily be configured to run Python recipes with <code>uv</code>:</p>
+<pre><code class="language-just">set unstable
+
+set script-interpreter := ['uv', 'run', '--script']
+
+[script]
+hello:
+  print("Hello from Python!")
+
+[script]
+goodbye:
+  # /// script
+  # requires-python = "&gt;=3.11"
+  # dependencies=["sh"]
+  # ///
+  import sh
+  print(sh.echo("Goodbye from Python!"), end='')
+</code></pre>
+<p>Of course, a shebang also works:</p>
+<pre><code class="language-just">hello:
+  #!/usr/bin/env uv run --script
+  print("Hello from Python!")
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="script-recipes"><a class="header" href="#script-recipes">Script Recipes</a></h3>
 <p>Recipes with a <code>[script(COMMAND)]</code><sup>1.32.0</sup> attribute are run as
 scripts interpreted by <code>COMMAND</code>. This avoids some of the issues with shebang
@@ -2375,7 +2453,7 @@ the command you want to run:</p>
 </code></pre>
 <p>The other is to use a shebang recipe. Shebang recipe bodies are extracted and
 run as scripts, so a single shell instance will run the whole thing, and thus a
-<code>pwd</code> on one line will affect later lines, just like a shell script:</p>
+<code>cd</code> on one line will affect later lines, just like a shell script:</p>
 <pre><code class="language-just">foo:
   #!/usr/bin/env bash
   set -euxo pipefail
@@ -2739,9 +2817,31 @@ users home directory.</p>
 and recipes defined after the <code>import</code> statement.</p>
 <p>Imported files can themselves contain <code>import</code>s, which are processed
 recursively.</p>
-<p>When <code>allow-duplicate-recipes</code> is set, recipes in parent modules override
-recipes in imports. In a similar manner, when <code>allow-duplicate-variables</code> is
-set, variables in parent modules override variables in imports.</p>
+<p><code>allow-duplicate-recipes</code> and <code>allow-duplicate-variables</code> allow duplicate
+recipes and variables, respectively, to override each other, instead of
+producing an error.</p>
+<p>Within a module, later definitions override earlier definitions:</p>
+<pre><code class="language-just">set allow-duplicate-recipes
+
+foo:
+
+foo:
+  echo 'yes'
+</code></pre>
+<p>When <code>import</code>s are involved, things unfortunately get much more complicated and
+hard to explain.</p>
+<p>Shallower definitions always override deeper definitions, so recipes at the top
+level will override recipes in imports, and recipes in an import will override
+recipes in an import which itself imports those recipes.</p>
+<p>When two duplicate definitions are imported and are at the same depth, the one
+from the earlier import will override the one from the later import.</p>
+<p>This is because <code>just</code> uses a stack when processing imports, pushing imports
+onto the stack in source-order, and always processing the top of the stack
+next, so earlier imports are actually handled later by the compiler.</p>
+<p>This is definitely a bug, but since <code>just</code> has very strong backwards
+compatibility guarantees and we take enormous pains not to break anyone’s
+<code>justfile</code>, we have created issue #2540 to discuss whether or not we can
+actually fix it.</p>
 <p>Imports may be made optional by putting a <code>?</code> after the <code>import</code> keyword:</p>
 <pre><code class="language-just">import? 'foo/bar.just'
 </code></pre>
@@ -3007,7 +3107,6 @@ for details.</p>
 Changelogs for previous releases are available on
 <a href="https://github.com/casey/just/releases">the releases page</a>. <code>just --changelog</code>
 can also be used to make a <code>just</code> binary print its changelog.</p>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="miscellanea"><a class="header" href="#miscellanea">Miscellanea</a></h2>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="re-running-recipes-when-files-change"><a class="header" href="#re-running-recipes-when-files-change">Re-running recipes when files change</a></h3>
 <p><a href="https://github.com/mattgreen/watchexec"><code>watchexec</code></a> can re-run any command
 when files change.</p>
@@ -3328,7 +3427,6 @@ new features.</p>
 - Update dependencies
 - Update version references in readme
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="frequently-asked-questions"><a class="header" href="#frequently-asked-questions">Frequently Asked Questions</a></h2>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="what-are-the-idiosyncrasies-of-make-that-just-avoids"><a class="header" href="#what-are-the-idiosyncrasies-of-make-that-just-avoids">What are the idiosyncrasies of Make that Just avoids?</a></h3>
 <p><code>make</code> has some behaviors which are confusing, complicated, or make it
 unsuitable for use as a general command runner.</p>

@@ -229,11 +229,11 @@ The executable is at: /bin/just
 <li><code>replace_regex(s, regex, replacement)</code> - 将 <code>s</code> 中所有的 <code>regex</code> 替换为 <code>replacement</code>。正则表达式由 <a href="https://docs.rs/regex/latest/regex/">Rust <code>regex</code> 包</a> 提供。参见 <a href="https://docs.rs/regex/latest/regex/#syntax">语法文档</a> 以了解使用示例。</li>
 <li><code>trim(s)</code> - 去掉 <code>s</code> 的首尾空格。</li>
 <li><code>trim_end(s)</code> - 去掉 <code>s</code> 的尾部空格。</li>
-<li><code>trim_end_match(s, pat)</code> - 删除与 <code>pat</code> 匹配的 <code>s</code> 的后缀。</li>
-<li><code>trim_end_matches(s, pat)</code> - 反复删除与 <code>pat</code> 匹配的 <code>s</code> 的后缀。</li>
+<li><code>trim_end_match(s, substr)</code> - 删除与 <code>substr</code> 匹配的 <code>s</code> 的后缀。</li>
+<li><code>trim_end_matches(s, substr)</code> - 反复删除与 <code>substr</code> 匹配的 <code>s</code> 的后缀。</li>
 <li><code>trim_start(s)</code> - 去掉 <code>s</code> 的首部空格。</li>
-<li><code>trim_start_match(s, pat)</code> - 删除与 <code>pat</code> 匹配的 <code>s</code> 的前缀。</li>
-<li><code>trim_start_matches(s, pat)</code> - 反复删除与 <code>pat</code> 匹配的 <code>s</code> 的前缀。</li>
+<li><code>trim_start_match(s, substr)</code> - 删除与 <code>substr</code> 匹配的 <code>s</code> 的前缀。</li>
+<li><code>trim_start_matches(s, substr)</code> - 反复删除与 <code>substr</code> 匹配的 <code>s</code> 的前缀。</li>
 </ul>
 <h4 id="大小写转换"><a class="header" href="#大小写转换">大小写转换</a></h4>
 <ul>

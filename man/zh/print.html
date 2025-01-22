@@ -222,7 +222,6 @@ Yay, all your tests passed!
 </li>
 </ul>
 <p>如果你在使用 <code>just</code> 方面需要帮助，请随时创建一个 Issue 或在 <a href="https://discord.gg/ezYScXR">Discord</a> 上与我联系。我们随时欢迎功能请求和错误报告！</p>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="安装"><a class="header" href="#安装">安装</a></h2>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="预备知识"><a class="header" href="#预备知识">预备知识</a></h3>
 <p><code>just</code> 应该可以在任何有合适的 <code>sh</code> 的系统上运行，包括 Linux、MacOS 和 BSD。</p>
 <p>在 Windows 上，<code>just</code> 可以使用 <a href="https://git-scm.com">Git for Windows</a>、<a href="https://desktop.github.com">GitHub Desktop</a> 或 <a href="http://www.cygwin.com">Cygwin</a> 所提供的 <code>sh</code>。</p>
@@ -552,7 +551,6 @@ testing… all tests passed!
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="示例"><a class="header" href="#示例">示例</a></h2>
 <p>在 <a href="https://github.com/casey/just/tree/master/examples">Examples 目录</a> 中可以找到各种 <code>justfile</code> 的例子。</p>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="特性介绍"><a class="header" href="#特性介绍">特性介绍</a></h2>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="默认配方"><a class="header" href="#默认配方">默认配方</a></h3>
 <p>当 <code>just</code> 被调用而没有传入任何配方时，它会运行 <code>justfile</code> 中的第一个配方。这个配方可能是项目中最常运行的命令，比如运行测试：</p>
 <pre><code class="language-just">test:
@@ -1012,11 +1010,11 @@ The executable is at: /bin/just
 <li><code>replace_regex(s, regex, replacement)</code> - 将 <code>s</code> 中所有的 <code>regex</code> 替换为 <code>replacement</code>。正则表达式由 <a href="https://docs.rs/regex/latest/regex/">Rust <code>regex</code> 包</a> 提供。参见 <a href="https://docs.rs/regex/latest/regex/#syntax">语法文档</a> 以了解使用示例。</li>
 <li><code>trim(s)</code> - 去掉 <code>s</code> 的首尾空格。</li>
 <li><code>trim_end(s)</code> - 去掉 <code>s</code> 的尾部空格。</li>
-<li><code>trim_end_match(s, pat)</code> - 删除与 <code>pat</code> 匹配的 <code>s</code> 的后缀。</li>
-<li><code>trim_end_matches(s, pat)</code> - 反复删除与 <code>pat</code> 匹配的 <code>s</code> 的后缀。</li>
+<li><code>trim_end_match(s, substr)</code> - 删除与 <code>substr</code> 匹配的 <code>s</code> 的后缀。</li>
+<li><code>trim_end_matches(s, substr)</code> - 反复删除与 <code>substr</code> 匹配的 <code>s</code> 的后缀。</li>
 <li><code>trim_start(s)</code> - 去掉 <code>s</code> 的首部空格。</li>
-<li><code>trim_start_match(s, pat)</code> - 删除与 <code>pat</code> 匹配的 <code>s</code> 的前缀。</li>
-<li><code>trim_start_matches(s, pat)</code> - 反复删除与 <code>pat</code> 匹配的 <code>s</code> 的前缀。</li>
+<li><code>trim_start_match(s, substr)</code> - 删除与 <code>substr</code> 匹配的 <code>s</code> 的前缀。</li>
+<li><code>trim_start_matches(s, substr)</code> - 反复删除与 <code>substr</code> 匹配的 <code>s</code> 的前缀。</li>
 </ul>
 <h4 id="大小写转换"><a class="header" href="#大小写转换">大小写转换</a></h4>
 <ul>
@@ -1775,7 +1773,6 @@ foo argument:
 <p>由于 <code>set windows-shell</code> 比 <code>set shell</code> 有更高的优先级，你可以用 <code>set windows-shell</code> 在 Windows 上选择一个 Shell，而 <code>set shell</code> 则为所有其他平台选择一个 Shell。</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="更新日志"><a class="header" href="#更新日志">更新日志</a></h2>
 <p>最新版本的更新日志可以在 <a href="https://raw.githubusercontent.com/casey/just/master/CHANGELOG.md">CHANGELOG.md</a> 中找到。以前版本的更新日志可在 <a href="https://github.com/casey/just/releases">发布页</a> 找到。<code>just --changelog</code> 也可以用来使 <code>just</code> 二进制文件打印其更新日志。</p>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="杂项"><a class="header" href="#杂项">杂项</a></h2>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="配套工具"><a class="header" href="#配套工具">配套工具</a></h3>
 <p>与 <code>just</code> 搭配得很好的工具包括：</p>
 <ul>
@@ -1877,7 +1874,6 @@ done
 - Update man page
 - Update version references in readme
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h2 id="常见问题"><a class="header" href="#常见问题">常见问题</a></h2>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="just-避免了-make-的哪些特异性"><a class="header" href="#just-避免了-make-的哪些特异性">Just 避免了 Make 的哪些特异性？</a></h3>
 <p><code>make</code> 有一些行为令人感到困惑、复杂，或者使它不适合作为通用的命令运行器。</p>
 <p>一个例子是，在某些情况下，<code>make</code> 不会实际运行配方中的命令。例如，如果你有一个名为 <code>test</code> 的文件和以下 makefile：</p>

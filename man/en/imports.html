@@ -181,9 +181,31 @@ users home directory.</p>
 and recipes defined after the <code>import</code> statement.</p>
 <p>Imported files can themselves contain <code>import</code>s, which are processed
 recursively.</p>
-<p>When <code>allow-duplicate-recipes</code> is set, recipes in parent modules override
-recipes in imports. In a similar manner, when <code>allow-duplicate-variables</code> is
-set, variables in parent modules override variables in imports.</p>
+<p><code>allow-duplicate-recipes</code> and <code>allow-duplicate-variables</code> allow duplicate
+recipes and variables, respectively, to override each other, instead of
+producing an error.</p>
+<p>Within a module, later definitions override earlier definitions:</p>
+<pre><code class="language-just">set allow-duplicate-recipes
+
+foo:
+
+foo:
+  echo 'yes'
+</code></pre>
+<p>When <code>import</code>s are involved, things unfortunately get much more complicated and
+hard to explain.</p>
+<p>Shallower definitions always override deeper definitions, so recipes at the top
+level will override recipes in imports, and recipes in an import will override
+recipes in an import which itself imports those recipes.</p>
+<p>When two duplicate definitions are imported and are at the same depth, the one
+from the earlier import will override the one from the later import.</p>
+<p>This is because <code>just</code> uses a stack when processing imports, pushing imports
+onto the stack in source-order, and always processing the top of the stack
+next, so earlier imports are actually handled later by the compiler.</p>
+<p>This is definitely a bug, but since <code>just</code> has very strong backwards
+compatibility guarantees and we take enormous pains not to break anyone’s
+<code>justfile</code>, we have created issue #2540 to discuss whether or not we can
+actually fix it.</p>
 <p>Imports may be made optional by putting a <code>?</code> after the <code>import</code> keyword:</p>
 <pre><code class="language-just">import? 'foo/bar.just'
 </code></pre>
