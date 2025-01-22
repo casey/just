@@ -1674,20 +1674,39 @@ set unstable
 foo := env('FOO') || 'DEFAULT_VALUE'
 ```
 
-- `which(exe)`<sup>master</sup> — Retrieves the full path of `exe` according
-  to the `PATH`. Returns an empty string if no executable named `exe` exists.
+- `require(exe)`<sup>master</sup> — Retrieves the full path of `exe` according
+  to the `PATH`. Throws an error if no executable named `exe` exists.
 
 ```just
-bash := which("bash")
-nexist := which("does-not-exist")
+bash := require("bash")
 
 @test:
     echo "bash: '{{bash}}'"
+```
+
+```console
+$ just
+bash: '/bin/bash'
+```
+
+- `which(exe)`<sup>master</sup> — Like `require()`, retrieves the full path of
+  `exe` according to the `PATH`. However, unlike `require()`, `which()`
+  returns an empty string if no executable named `exe` exists, instead of
+  throwing an error.
+
+  This feature is currently unstable.
+
+```just
+set unstable
+
+nexist := require("nexist")
+
+@test:
     echo "nexist: '{{nexist}}'"
 ```
 
 ```console
-bash: '/bin/bash'
+$ just
 nexist: ''
 ```
 
