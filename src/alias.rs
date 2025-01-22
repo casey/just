@@ -1,7 +1,7 @@
 use super::*;
 
 /// An alias, e.g. `name := target`
-#[derive(Debug, PartialEq, Clone, Serialize)]
+#[derive(Debug, PartialEq, Ord, PartialOrd, Eq, Clone, Serialize)]
 pub(crate) struct Alias<'src, T = Rc<Recipe<'src>>> {
   pub(crate) attributes: AttributeSet<'src>,
   pub(crate) name: Name<'src>,

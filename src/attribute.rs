@@ -9,6 +9,7 @@ use super::*;
 #[strum_discriminants(derive(EnumString, Ord, PartialOrd))]
 #[strum_discriminants(strum(serialize_all = "kebab-case"))]
 pub(crate) enum Attribute<'src> {
+  Alias(Name<'src>),
   Confirm(Option<StringLiteral<'src>>),
   Doc(Option<StringLiteral<'src>>),
   ExitMessage,
@@ -32,7 +33,7 @@ impl AttributeDiscriminant {
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
       Self::Confirm | Self::Doc => 0..=1,
-      Self::Group | Self::Extension | Self::WorkingDirectory => 1..=1,
+      Self::Alias | Self::Group | Self::Extension | Self::WorkingDirectory => 1..=1,
       Self::ExitMessage
       | Self::Linux
       | Self::Macos
@@ -52,7 +53,7 @@ impl AttributeDiscriminant {
 impl<'src> Attribute<'src> {
   pub(crate) fn new(
     name: Name<'src>,
-    arguments: Vec<StringLiteral<'src>>,
+    arguments: Vec<(Token<'src>, StringLiteral<'src>)>,
   ) -> CompileResult<'src, Self> {
     let discriminant = name
       .lexeme()
@@ -77,7 +78,30 @@ impl<'src> Attribute<'src> {
       );
     }
 
+    let alias_args = arguments.clone();
+    let arguments = arguments.into_iter().map(|(_, arg)| arg);
     Ok(match discriminant {
+      AttributeDiscriminant::Alias => Self::Alias({
+        let (token, string_literal) = alias_args.into_iter().next().unwrap();
+        let delim = string_literal.kind.delimiter_len();
+        let token = Token {
+          kind: TokenKind::Identifier,
+          column: token.column + delim,
+          length: token.length - (delim * 2),
+          offset: token.offset + delim,
+          ..token
+        };
+
+        if !token
+          .lexeme()
+          .chars()
+          .all(|c| c.is_ascii_alphanumeric() || c == '_')
+        {
+          todo!("alias is not a valid identifier")
+        }
+
+        Name::from_identifier(token)
+      }),
       AttributeDiscriminant::Confirm => Self::Confirm(arguments.into_iter().next()),
       AttributeDiscriminant::Doc => Self::Doc(arguments.into_iter().next()),
       AttributeDiscriminant::ExitMessage => Self::ExitMessage,
@@ -115,7 +139,7 @@ impl<'src> Attribute<'src> {
   }
 
   pub(crate) fn repeatable(&self) -> bool {
-    matches!(self, Attribute::Group(_))
+    matches!(self, Attribute::Group(_) | Attribute::Alias(_))
   }
 }
 
@@ -124,6 +148,7 @@ impl Display for Attribute<'_> {
     write!(f, "{}", self.name())?;
 
     match self {
+      Self::Alias(argument) => write!(f, "({argument})")?,
       Self::Confirm(Some(argument))
       | Self::Doc(Some(argument))
       | Self::Extension(argument)
