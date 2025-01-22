@@ -1674,6 +1674,43 @@ set unstable
 foo := env('FOO') || 'DEFAULT_VALUE'
 ```
 
+#### Executables
+
+- `require(name)`<sup>master</sup> — Search directories in the `PATH`
+  environment variable for the executable `name` and return its full path, or
+  halt with an error if no executable with `name` exists.
+
+  ```just
+  bash := require("bash")
+
+  @test:
+      echo "bash: '{{bash}}'"
+  ```
+
+  ```console
+  $ just
+  bash: '/bin/bash'
+  ```
+
+- `which(name)`<sup>master</sup> — Search directories in the `PATH` environment
+  variable for the executable `name` and return its full path, or the empty
+  string if no executable with `name` exists. Currently unstable.
+
+
+  ```just
+  set unstable
+
+  bosh := require("bosh")
+
+  @test:
+      echo "bosh: '{{bosh}}'"
+  ```
+
+  ```console
+  $ just
+  bosh: ''
+  ```
+
 #### Invocation Information
 
 - `is_dependency()` - Returns the string `true` if the current recipe is being
