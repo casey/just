@@ -32,7 +32,6 @@ fn prints_empty_string_for_missing_executable() {
     .make_executable("hello.exe")
     .env("PATH", path.to_str().unwrap())
     .env("JUST_UNSTABLE", "1")
-    .stdout("")
     .run();
 }
 
@@ -49,7 +48,6 @@ fn skips_non_executable_files() {
     .write("hi", "just some regular file")
     .env("PATH", path.to_str().unwrap())
     .env("JUST_UNSTABLE", "1")
-    .stdout("")
     .run();
 }
 
