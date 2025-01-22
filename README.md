@@ -1700,7 +1700,7 @@ foo := env('FOO') || 'DEFAULT_VALUE'
   ```just
   set unstable
 
-  bosh := require("bosh")
+  bosh := which("bosh")
 
   @test:
       echo "bosh: '{{bosh}}'"
