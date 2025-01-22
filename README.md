@@ -583,9 +583,8 @@ in your editor of choice so that I may include them here.
 Quick Start
 -----------
 
-See [the installation section](#installation) for how to install `just` on your
-computer. Try running `just --version` to make sure that it's installed
-correctly.
+See the installation section for how to install `just` on your computer. Try
+running `just --version` to make sure that it's installed correctly.
 
 For an overview of the syntax, check out
 [this cheatsheet](https://cheatography.com/linux-china/cheat-sheets/justfile/).
