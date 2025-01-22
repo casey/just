@@ -16,7 +16,7 @@ fn finds_executable() {
     .make_executable("hello.exe")
     .env("PATH", path.to_str().unwrap())
     .env("JUST_UNSTABLE", "1")
-    .stdout(format!("{}", path.join("hello.exe").display()))
+    .stdout(path.join("hello.exe").display().to_string())
     .run();
 }
 
@@ -148,7 +148,7 @@ fn ignores_nonexecutable_candidates() {
     .write(dummy_exe, HELLO_SCRIPT)
     .env("PATH", path_var.to_str().unwrap())
     .env("JUST_UNSTABLE", "1")
-    .stdout(format!("{}", path.join("subdir").join("foo.exe").display()))
+    .stdout(path.join("subdir").join("foo.exe").display().to_string())
     .run();
 }
 
@@ -167,7 +167,7 @@ fn handles_absolute_path() {
     .env("PATH", path.join("pathdir").to_str().unwrap())
     .env("JUST_UNSTABLE", "1")
     .args(["--evaluate", "p"])
-    .stdout(format!("{}", abspath.display()))
+    .stdout(abspath.display().to_string())
     .run();
 }
 
@@ -187,7 +187,7 @@ fn handles_dotslash() {
     .make_executable("pathdir/foo.exe")
     .env("PATH", path.join("pathdir").to_str().unwrap())
     .env("JUST_UNSTABLE", "1")
-    .stdout(format!("{}", path.join("foo.exe").display()))
+    .stdout(path.join("foo.exe").display().to_string())
     .run();
 }
 
@@ -207,7 +207,7 @@ fn handles_dir_slash() {
     .make_executable("pathdir/foo.exe")
     .env("PATH", path.join("pathdir").to_str().unwrap())
     .env("JUST_UNSTABLE", "1")
-    .stdout(format!("{}", path.join("subdir").join("foo.exe").display()))
+    .stdout(path.join("subdir").join("foo.exe").display().to_string())
     .run();
 }
 
