@@ -172,9 +172,14 @@ fn handles_absolute_path() {
 #[test]
 fn handles_dotslash() {
   let tmp = tempdir();
-  let path = tmp.path().canonicalize().unwrap();
-  // canonicalize() is necessary here to account for the justfile prepending
-  // the canonicalized working directory to './foo.exe'.
+
+  let path = if cfg!(windows) {
+    tmp.path().into()
+  } else {
+    // canonicalize() is necessary here to account for the justfile prepending
+    // the canonicalized working directory to 'subdir/foo.exe'.
+    tmp.path().canonicalize().unwrap()
+  };
 
   Test::with_tempdir(tmp)
     .justfile("p := which('./foo.exe')")
@@ -192,9 +197,14 @@ fn handles_dotslash() {
 #[test]
 fn handles_dir_slash() {
   let tmp = tempdir();
-  let path = tmp.path().canonicalize().unwrap();
-  // canonicalize() is necessary here to account for the justfile prepending
-  // the canonicalized working directory to 'subdir/foo.exe'.
+
+  let path = if cfg!(windows) {
+    tmp.path().into()
+  } else {
+    // canonicalize() is necessary here to account for the justfile prepending
+    // the canonicalized working directory to 'subdir/foo.exe'.
+    tmp.path().canonicalize().unwrap()
+  };
 
   Test::with_tempdir(tmp)
     .justfile("p := which('subdir/foo.exe')")
