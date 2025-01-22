@@ -1674,41 +1674,42 @@ set unstable
 foo := env('FOO') || 'DEFAULT_VALUE'
 ```
 
-- `require(exe)`<sup>master</sup> — Retrieves the full path of `exe` according
-  to the `PATH`. Throws an error if no executable named `exe` exists.
+#### Executables
 
-```just
-bash := require("bash")
+- `require(name)`<sup>master</sup> — Search directories in the `PATH`
+  environment variable for the executable `name` and return its full path, or
+  halt with an error if no executable with `name` exists.
 
-@test:
-    echo "bash: '{{bash}}'"
-```
+  ```just
+  bash := require("bash")
 
-```console
-$ just
-bash: '/bin/bash'
-```
+  @test:
+      echo "bash: '{{bash}}'"
+  ```
 
-- `which(exe)`<sup>master</sup> — Like `require()`, retrieves the full path of
-  `exe` according to the `PATH`. However, unlike `require()`, `which()`
-  returns an empty string if no executable named `exe` exists, instead of
-  throwing an error.
+  ```console
+  $ just
+  bash: '/bin/bash'
+  ```
 
-  This feature is currently unstable.
+- `which(s)`<sup>master</sup> — Search directories in the `PATH` environment
+  variable for the executable `name` and return its full path, or the empty
+  string if no executable with `name` exists. Currently unstable.
 
-```just
-set unstable
 
-nexist := require("nexist")
+  ```just
+  set unstable
 
-@test:
-    echo "nexist: '{{nexist}}'"
-```
+  bosh := require("bosh")
 
-```console
-$ just
-nexist: ''
-```
+  @test:
+      echo "bosh: '{{bosh}}'"
+  ```
+
+  ```console
+  $ just
+  bosh: ''
+  ```
 
 #### Invocation Information
 
