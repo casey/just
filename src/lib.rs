@@ -97,6 +97,7 @@ pub(crate) use {
     variables::Variables,
     verbosity::Verbosity,
     warning::Warning,
+    which::which,
   },
   camino::Utf8Path,
   clap::ValueEnum,
@@ -273,3 +274,4 @@ mod use_color;
 mod variables;
 mod verbosity;
 mod warning;
+mod which;

@@ -231,6 +231,39 @@ fn is_unstable() {
     .make_executable("hello.exe")
     .env("PATH", path.to_str().unwrap())
     .stderr_regex(r".*The `which\(\)` function is currently unstable\..*")
-    .status(1)
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn require_error() {
+  Test::new()
+    .justfile("p := require('asdfasdf')")
+    .args(["--evaluate", "p"])
+    .stderr(
+      "
+        error: Call to function `require` failed: could not find executable `asdfasdf`
+         ——▶ justfile:1:6
+          │
+        1 │ p := require('asdfasdf')
+          │      ^^^^^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn require_success() {
+  let tmp = tempdir();
+  let path = PathBuf::from(tmp.path());
+
+  Test::with_tempdir(tmp)
+    .justfile("p := require('hello.exe')")
+    .args(["--evaluate", "p"])
+    .write("hello.exe", HELLO_SCRIPT)
+    .make_executable("hello.exe")
+    .env("PATH", path.to_str().unwrap())
+    .stdout(path.join("hello.exe").display().to_string())
     .run();
 }
