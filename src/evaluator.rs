@@ -191,7 +191,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         })
       }
       Expression::Concatenation { lhs, rhs } => {
-        Ok(self.evaluate_expression(lhs)? + &self.evaluate_expression(rhs)?)
+        let lhs = self.evaluate_expression(lhs)?;
+        let rhs = self.evaluate_expression(rhs)?;
+        Ok(lhs + &rhs)
       }
       Expression::Conditional {
         condition,
@@ -209,7 +211,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       Expression::Join {
         lhs: Some(lhs),
         rhs,
-      } => Ok(self.evaluate_expression(lhs)? + "/" + &self.evaluate_expression(rhs)?),
+      } => {
+        let lhs = self.evaluate_expression(lhs)?;
+        let rhs = self.evaluate_expression(rhs)?;
+        Ok(lhs + "/" + &rhs)
+      }
       Expression::Or { lhs, rhs } => {
         let lhs = self.evaluate_expression(lhs)?;
         if !lhs.is_empty() {
