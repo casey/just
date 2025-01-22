@@ -954,11 +954,21 @@ impl<'run, 'src> Parser<'run, 'src> {
       }));
     }
 
-    let working_directory = attributes.contains(AttributeDiscriminant::WorkingDirectory);
-
-    if working_directory && attributes.contains(AttributeDiscriminant::NoCd) {
+    if attributes.contains(AttributeDiscriminant::WorkingDirectory)
+      && attributes.contains(AttributeDiscriminant::NoCd)
+    {
       return Err(
         name.error(CompileErrorKind::NoCdAndWorkingDirectoryAttribute {
+          recipe: name.lexeme(),
+        }),
+      );
+    }
+
+    if attributes.contains(AttributeDiscriminant::ExitMessage)
+      && attributes.contains(AttributeDiscriminant::NoExitMessage)
+    {
+      return Err(
+        name.error(CompileErrorKind::ExitMessageAndNoExitMessageAttribute {
           recipe: name.lexeme(),
         }),
       );
@@ -1096,6 +1106,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       Keyword::Export => Some(Setting::Export(self.parse_set_bool()?)),
       Keyword::Fallback => Some(Setting::Fallback(self.parse_set_bool()?)),
       Keyword::IgnoreComments => Some(Setting::IgnoreComments(self.parse_set_bool()?)),
+      Keyword::NoExitMessage => Some(Setting::NoExitMessage(self.parse_set_bool()?)),
       Keyword::PositionalArguments => Some(Setting::PositionalArguments(self.parse_set_bool()?)),
       Keyword::Quiet => Some(Setting::Quiet(self.parse_set_bool()?)),
       Keyword::Unstable => Some(Setting::Unstable(self.parse_set_bool()?)),
