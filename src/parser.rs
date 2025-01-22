@@ -951,9 +951,9 @@ impl<'run, 'src> Parser<'run, 'src> {
       }));
     }
 
-    let working_directory = attributes.contains(AttributeDiscriminant::WorkingDirectory);
-
-    if working_directory && attributes.contains(AttributeDiscriminant::NoCd) {
+    if attributes.contains(AttributeDiscriminant::WorkingDirectory)
+      && attributes.contains(AttributeDiscriminant::NoCd)
+    {
       return Err(
         name.error(CompileErrorKind::NoCdAndWorkingDirectoryAttribute {
           recipe: name.lexeme(),
@@ -961,10 +961,9 @@ impl<'run, 'src> Parser<'run, 'src> {
       );
     }
 
-    let no_exit_message_attr = attributes.contains(AttributeDiscriminant::ExitMessage);
-    let exit_message_attr = attributes.contains(AttributeDiscriminant::NoExitMessage);
-
-    if no_exit_message_attr && exit_message_attr {
+    if attributes.contains(AttributeDiscriminant::ExitMessage)
+      && attributes.contains(AttributeDiscriminant::NoExitMessage)
+    {
       return Err(
         name.error(CompileErrorKind::ExitMessageAndNoExitMessageAttribute {
           recipe: name.lexeme(),
