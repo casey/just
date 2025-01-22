@@ -1692,7 +1692,7 @@ foo := env('FOO') || 'DEFAULT_VALUE'
   bash: '/bin/bash'
   ```
 
-- `which(s)`<sup>master</sup> — Search directories in the `PATH` environment
+- `which(name)`<sup>master</sup> — Search directories in the `PATH` environment
   variable for the executable `name` and return its full path, or the empty
   string if no executable with `name` exists. Currently unstable.
 
