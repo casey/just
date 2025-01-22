@@ -1155,3 +1155,22 @@ fn if_else() {
     )
     .run();
 }
+
+#[test]
+fn private_variable() {
+  Test::new()
+    .justfile(
+      "
+        [private]
+        foo := 'bar'
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        [private]
+        foo := 'bar'
+      ",
+    )
+    .run();
+}
