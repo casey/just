@@ -4150,7 +4150,7 @@ export PATH := "./node_modules/.bin:" + env_var('PATH')
 
 ### Paths on Windows
 
-On Windows, all functions that return paths, execpt `invocation_directory()`
+On Windows, all functions that return paths, except `invocation_directory()`
 will return `\`-separated paths. When not using PowerShell or `cmd.exe` these
 paths should be quoted to prevent the `\`s from being interpreted as character
 escapes:
