@@ -103,7 +103,7 @@ Like PowerShell:
 
 ```just
 # use PowerShell instead of sh:
-set shell := ["powershell.exe", "-c"]
+set shell := ["pwsh.exe", "-c"]
 
 hello:
   Write-Host "Hello, world!"
@@ -120,7 +120,7 @@ list:
 ```
 
 You can also set the shell using command-line arguments. For example, to use
-PowerShell, launch `just` with `--shell powershell.exe --shell-arg -c`.
+PowerShell, launch `just` with `--shell pwsh.exe --shell-arg -c`.
 
 (PowerShell is installed by default on Windows 7 SP1 and Windows Server 2008 R2
 S1 and later, and `cmd.exe` is quite fiddly, so PowerShell is recommended for
@@ -1211,7 +1211,7 @@ an additional flag, often `-c`, to make them evaluate the first argument.
 use `windows-shell`:
 
 ```just
-set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
+set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
 
 hello:
   Write-Host "Hello, world!"
