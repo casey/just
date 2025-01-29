@@ -524,10 +524,10 @@ impl Config {
           .short('l')
           .long("list")
           .num_args(0..)
-          .value_name("PATH")
+          .value_name("MODULE")
           .action(ArgAction::Set)
           .conflicts_with(arg::ARGUMENTS)
-          .help("List available recipes")
+          .help("List available recipes in <MODULE> or root if omitted")
           .help_heading(cmd::HEADING),
       )
       .arg(
