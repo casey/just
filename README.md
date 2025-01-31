@@ -2087,6 +2087,7 @@ change their behavior.
 | `[private]`<sup>1.10.0</sup> | alias, recipe | Make recipe, alias, or variable private. See [Private Recipes](#private-recipes). |
 | `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
 | `[script(COMMAND)]`<sup>1.32.0</sup> | recipe | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
+| `[cached]`<sup>TODO</sup> | recipe | Cache a recipe by the contents of its body. See [cached recipes](#cached-recipes) for more details. |
 | `[unix]`<sup>1.8.0</sup> | recipe | Enable recipe on Unixes. (Includes MacOS). |
 | `[windows]`<sup>1.8.0</sup> | recipe | Enable recipe on Windows. |
 | `[working-directory(PATH)]`<sup>1.38.0</sup> | recipe | Set recipe working directory. `PATH` may be relative or absolute. If relative, it is interpreted relative to the default working directory. |
@@ -2985,6 +2986,55 @@ The interpreter path `/bin/sh` will be translated to a Windows-style path using
 If the interpreter path does not contain a `/` it will be executed without
 being translated. This is useful if `cygpath` is not available, or you wish to
 pass a Windows-style path to the interpreter.
+
+### Cached recipes
+
+Recipes can be marked with `[cached]` to avoid unnecessary reruns. Cached
+recipes only run if its contents, *after evaluation*, change in any way. Cached
+recipes also rerun if one of its prior (normal) dependencies has to rerun. A
+cache folder called `.justcache/` will be added to the directory containing the
+main `justfile`, and should NOT be added to version control.
+
+Cached recipes are currently an unstable feature (requires `--unstable` or
+similar) that only work with shebang or script recipes for now. Additionally,
+all prior dependencies must be cached recipes, but that is not required of
+subsequent deps.
+
+```just
+variable := "My value could change by running `just variable=changed my-recipe ...`"
+
+[cached, script]
+my-recipe ARG: dependency
+  @# This recipe will rerun if any of the following change: {{variable}} {{ARG}} {{`$HOME`}} {{sha256_file("./input")}}
+  @# Also reruns if dependency would rerun
+  echo Recipe body contents have changed!
+  echo $RANDOM  # Even though the output of $RANDOM changes, the command is the same as far as `just` is concerned
+
+[cached, script]
+dependency:
+  ...
+```
+
+In the example above, you can see the many ways the *evaluated* recipe body can
+change thereby allowing a rerun. This allows you to precisely fine-tune exactly
+when a recipe needs to run again. Of course, manually changing the recipe also
+causes it to run the next time. While not necessary, it can be convenient to put
+the "inputs" to the cached recipe in a quiet comment like shown: `@# ...`.
+
+The last line of the above example might also unearth an easy misconception; the
+line `echo $RANDOM` is static as far as `just` is concerned and therefore
+doesn't invalidate the cache even if the output is always different. Instead,
+include `{{env(ENV_VAR, default)}}` somewhere in your recipe. On the flip side,
+including content that always changes like `{{uuid()}}` means the cache will
+always be invalidated.
+
+Until directories or glob patterns are supported as inputs to `sha256_file()`
+and `blake3_file()`, here is a useful pattern to run a cached recipe if any files in a
+directory change (or you can just pipe the output of find to sha256sum):
+
+```just
+@# {{sha256(`find $DIR -type f -exec sha256sum "{}" ";"`)}}
+```
 
 ### Setting Variables in a Recipe
 
