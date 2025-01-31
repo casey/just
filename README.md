@@ -350,8 +350,6 @@ most Windows users.)
 
 ![just package version table](https://repology.org/badge/vertical-allrepos/just.svg)
 
-![rust:just package version table](https://repology.org/badge/vertical-allrepos/rust:just.svg)
-
 ### Pre-Built Binaries
 
 Pre-built binaries for Linux, MacOS, and Windows can be found on
