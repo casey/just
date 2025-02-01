@@ -2995,12 +2995,13 @@ recipes also rerun if one of its prior (normal) dependencies has to rerun. A
 cache folder called `.justcache/` will be added to the directory containing the
 main `justfile`, and should NOT be added to version control.
 
-Cached recipes are currently an unstable feature (requires `--unstable` or
+Cached recipes are currently an unstable feature (Run with `--unstable` or
 similar) that only work with shebang or script recipes for now. Additionally,
 all prior dependencies must be cached recipes, but that is not required of
 subsequent deps.
 
 ```just
+set unstable
 variable := "My value could change by running `just variable=changed my-recipe ...`"
 
 [cached, script]
@@ -3032,7 +3033,7 @@ Until directories or glob patterns are supported as inputs to `sha256_file()`
 and `blake3_file()`, here is a useful pattern to run a cached recipe if any files in a
 directory change (or you can just pipe the output of find to sha256sum):
 
-```just
+```sh
 @# {{sha256(`find $DIR -type f -exec sha256sum "{}" ";"`)}}
 ```
 

@@ -15,6 +15,8 @@ impl<'src> UnresolvedRecipe<'src> {
       resolved.len()
     );
 
+    let self_cached = self.attributes.contains(AttributeDiscriminant::Cached);
+
     for (unresolved, resolved) in self.dependencies.iter().zip(&resolved) {
       assert_eq!(unresolved.recipe.lexeme(), resolved.name.lexeme());
       if !resolved
@@ -29,6 +31,15 @@ impl<'src> UnresolvedRecipe<'src> {
               found: unresolved.arguments.len(),
               min: resolved.min_arguments(),
               max: resolved.max_arguments(),
+            }),
+        );
+      } else if self_cached && !resolved.attributes.contains(AttributeDiscriminant::Cached) {
+        return Err(
+          self
+            .name
+            .error(CompileErrorKind::CachedRecipeDependsOnUncachedRecipe {
+              recipe: self.name(),
+              dependency: resolved.name(),
             }),
         );
       }

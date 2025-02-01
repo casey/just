@@ -9,6 +9,7 @@ use super::*;
 #[strum_discriminants(derive(EnumString, Ord, PartialOrd))]
 #[strum_discriminants(strum(serialize_all = "kebab-case"))]
 pub(crate) enum Attribute<'src> {
+  Cached,
   Confirm(Option<StringLiteral<'src>>),
   Doc(Option<StringLiteral<'src>>),
   ExitMessage,
@@ -33,7 +34,8 @@ impl AttributeDiscriminant {
     match self {
       Self::Confirm | Self::Doc => 0..=1,
       Self::Group | Self::Extension | Self::WorkingDirectory => 1..=1,
-      Self::ExitMessage
+      Self::Cached
+      | Self::ExitMessage
       | Self::Linux
       | Self::Macos
       | Self::NoCd
@@ -78,6 +80,7 @@ impl<'src> Attribute<'src> {
     }
 
     Ok(match discriminant {
+      AttributeDiscriminant::Cached => Self::Cached,
       AttributeDiscriminant::Confirm => Self::Confirm(arguments.into_iter().next()),
       AttributeDiscriminant::Doc => Self::Doc(arguments.into_iter().next()),
       AttributeDiscriminant::ExitMessage => Self::ExitMessage,
@@ -130,7 +133,8 @@ impl Display for Attribute<'_> {
       | Self::Group(argument)
       | Self::WorkingDirectory(argument) => write!(f, "({argument})")?,
       Self::Script(Some(shell)) => write!(f, "({shell})")?,
-      Self::Confirm(None)
+      Self::Cached
+      | Self::Confirm(None)
       | Self::Doc(None)
       | Self::ExitMessage
       | Self::Linux

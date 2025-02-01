@@ -54,6 +54,7 @@ mod assignment;
 mod attributes;
 mod backticks;
 mod byte_order_mark;
+mod cached_recipes;
 mod changelog;
 mod choose;
 mod command;
