@@ -92,12 +92,13 @@ impl<'src> Attribute<'src> {
           ..token
         };
 
-        if !token
-          .lexeme()
-          .chars()
-          .all(|c| c.is_ascii_alphanumeric() || c == '_')
-        {
-          todo!("alias is not a valid identifier")
+        let alias = token.lexeme();
+        let valid_alias = alias.chars().all(|c| c.is_ascii_alphabetic() || c == '_');
+
+        if alias.is_empty() || !valid_alias {
+          return Err(token.error(CompileErrorKind::InvalidAliasName {
+            name: token.lexeme(),
+          }));
         }
 
         Name::from_identifier(token)
