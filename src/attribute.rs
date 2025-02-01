@@ -78,12 +78,16 @@ impl<'src> Attribute<'src> {
       );
     }
 
-    let alias_args = arguments.clone();
-    let arguments = arguments.into_iter().map(|(_, arg)| arg);
+    let mut arguments = arguments.into_iter();
+    let (token, argument) = arguments
+      .next()
+      .map(|(token, arg)| (Some(token), Some(arg)))
+      .unwrap_or_default();
+
     Ok(match discriminant {
       AttributeDiscriminant::Alias => Self::Alias({
-        let (token, string_literal) = alias_args.into_iter().next().unwrap();
-        let delim = string_literal.kind.delimiter_len();
+        let delim = argument.unwrap().kind.delimiter_len();
+        let token = token.unwrap();
         let token = Token {
           kind: TokenKind::Identifier,
           column: token.column + delim,
@@ -103,11 +107,11 @@ impl<'src> Attribute<'src> {
 
         Name::from_identifier(token)
       }),
-      AttributeDiscriminant::Confirm => Self::Confirm(arguments.into_iter().next()),
-      AttributeDiscriminant::Doc => Self::Doc(arguments.into_iter().next()),
+      AttributeDiscriminant::Confirm => Self::Confirm(argument),
+      AttributeDiscriminant::Doc => Self::Doc(argument),
       AttributeDiscriminant::ExitMessage => Self::ExitMessage,
-      AttributeDiscriminant::Extension => Self::Extension(arguments.into_iter().next().unwrap()),
-      AttributeDiscriminant::Group => Self::Group(arguments.into_iter().next().unwrap()),
+      AttributeDiscriminant::Extension => Self::Extension(argument.unwrap()),
+      AttributeDiscriminant::Group => Self::Group(argument.unwrap()),
       AttributeDiscriminant::Linux => Self::Linux,
       AttributeDiscriminant::Macos => Self::Macos,
       AttributeDiscriminant::NoCd => Self::NoCd,
@@ -117,17 +121,14 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::PositionalArguments => Self::PositionalArguments,
       AttributeDiscriminant::Private => Self::Private,
       AttributeDiscriminant::Script => Self::Script({
-        let mut arguments = arguments.into_iter();
-        arguments.next().map(|command| Interpreter {
+        argument.map(|command| Interpreter {
           command,
-          arguments: arguments.collect(),
+          arguments: arguments.map(|(_, arg)| arg).collect(),
         })
       }),
       AttributeDiscriminant::Unix => Self::Unix,
       AttributeDiscriminant::Windows => Self::Windows,
-      AttributeDiscriminant::WorkingDirectory => {
-        Self::WorkingDirectory(arguments.into_iter().next().unwrap())
-      }
+      AttributeDiscriminant::WorkingDirectory => Self::WorkingDirectory(argument.unwrap()),
     })
   }
 
