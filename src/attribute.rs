@@ -9,7 +9,7 @@ use super::*;
 #[strum_discriminants(derive(EnumString, Ord, PartialOrd))]
 #[strum_discriminants(strum(serialize_all = "kebab-case"))]
 pub(crate) enum Attribute<'src> {
-  Alias(Name<'src>),
+  Alias(Name<'src>, StringLiteral<'src>),
   Confirm(Option<StringLiteral<'src>>),
   Doc(Option<StringLiteral<'src>>),
   ExitMessage,
@@ -85,8 +85,9 @@ impl<'src> Attribute<'src> {
       .unwrap_or_default();
 
     Ok(match discriminant {
-      AttributeDiscriminant::Alias => Self::Alias({
-        let delim = argument.unwrap().kind.delimiter_len();
+      AttributeDiscriminant::Alias => {
+        let string_literal = argument.unwrap();
+        let delim = string_literal.kind.delimiter_len();
         let token = token.unwrap();
         let token = Token {
           kind: TokenKind::Identifier,
@@ -105,8 +106,8 @@ impl<'src> Attribute<'src> {
           }));
         }
 
-        Name::from_identifier(token)
-      }),
+        Self::Alias(Name::from_identifier(token), string_literal)
+      }
       AttributeDiscriminant::Confirm => Self::Confirm(argument),
       AttributeDiscriminant::Doc => Self::Doc(argument),
       AttributeDiscriminant::ExitMessage => Self::ExitMessage,
@@ -141,7 +142,7 @@ impl<'src> Attribute<'src> {
   }
 
   pub(crate) fn repeatable(&self) -> bool {
-    matches!(self, Attribute::Group(_) | Attribute::Alias(_))
+    matches!(self, Attribute::Group(_) | Attribute::Alias(_, _))
   }
 }
 
@@ -150,8 +151,8 @@ impl Display for Attribute<'_> {
     write!(f, "{}", self.name())?;
 
     match self {
-      Self::Alias(argument) => write!(f, "({argument})")?,
-      Self::Confirm(Some(argument))
+      Self::Alias(_, argument)
+      | Self::Confirm(Some(argument))
       | Self::Doc(Some(argument))
       | Self::Extension(argument)
       | Self::Group(argument)

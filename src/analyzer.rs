@@ -88,7 +88,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
               self.recipes.push(recipe);
 
               for attribute in &recipe.attributes {
-                if let Attribute::Alias(name) = attribute {
+                if let Attribute::Alias(name, _) = attribute {
                   Self::define(&mut definitions, *name, "alias", false)?;
                   self.aliases.insert(Alias {
                     name: *name,

@@ -254,3 +254,17 @@ fn duplicate_non_repeatable_attributes_are_forbidden() {
     .status(EXIT_FAILURE)
     .run();
 }
+
+#[test]
+fn aliases_can_be_defined_as_attributes() {
+  Test::new()
+    .justfile(
+      "
+        [alias('bar')]
+        baz:
+        ",
+    )
+    .arg("bar")
+    .status(EXIT_SUCCESS)
+    .run();
+}
