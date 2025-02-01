@@ -155,7 +155,8 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     for recipe in recipes.values() {
       if recipe.attributes.contains(AttributeDiscriminant::Script) {
         unstable_features.insert(UnstableFeature::ScriptAttribute);
-        break;
+      } else if recipe.attributes.contains(AttributeDiscriminant::Cached) {
+        unstable_features.insert(UnstableFeature::CachedRecipes);
       }
     }
 
