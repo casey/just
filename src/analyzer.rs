@@ -90,12 +90,11 @@ impl<'run, 'src> Analyzer<'run, 'src> {
               for attribute in &recipe.attributes {
                 if let Attribute::Alias(name) = attribute {
                   Self::define(&mut definitions, *name, "alias", false)?;
-                  let alias = Alias {
+                  self.aliases.insert(Alias {
                     name: *name,
                     target: recipe.name,
                     attributes: AttributeSet::new(),
-                  };
-                  self.aliases.insert(alias);
+                  });
                 }
               }
             }
