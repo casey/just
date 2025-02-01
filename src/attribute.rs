@@ -98,7 +98,7 @@ impl<'src> Attribute<'src> {
         };
 
         let alias = token.lexeme();
-        let valid_alias = alias.chars().all(|c| c.is_ascii_alphabetic() || c == '_');
+        let valid_alias = alias.chars().all(|c| c.is_ascii_alphanumeric() || c == '_');
 
         if alias.is_empty() || !valid_alias {
           return Err(token.error(CompileErrorKind::InvalidAliasName {
