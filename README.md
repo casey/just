@@ -469,6 +469,10 @@ editor to use `make` syntax highlighting for `just`.
 
 ### Vim and Neovim
 
+Vim version 9.1.1042 or better and Neovim version 0.11 or better support
+Justfile syntax highlighting out of the box, thanks to
+[pbnj](https://github.com/pbnj).
+
 #### `vim-just`
 
 The [vim-just](https://github.com/NoahTheDuke/vim-just) plugin provides syntax
