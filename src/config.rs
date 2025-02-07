@@ -289,7 +289,7 @@ impl Config {
           .env("JUST_LIST_SUBMODULES")
           .help("List recipes in submodules")
           .action(ArgAction::SetTrue)
-          .env("JUST_LIST_SUBMODULES"),
+          .requires(cmd::LIST),
       )
       .arg(
         Arg::new(arg::NO_ALIASES)

@@ -474,3 +474,12 @@ fn unclosed_backticks() {
       ")
     .run();
 }
+
+#[test]
+fn list_submodules_requires_list() {
+  Test::new()
+    .arg("--list-submodules")
+    .stderr_regex("error: the following required arguments were not provided:\n  --list .*")
+    .status(2)
+    .run();
+}
