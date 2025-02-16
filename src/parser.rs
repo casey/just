@@ -485,11 +485,11 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_alias(
     &mut self,
     attributes: AttributeSet<'src>,
-  ) -> CompileResult<'src, Alias<'src, Name<'src>>> {
+  ) -> CompileResult<'src, Alias<'src, Namepath<'src>>> {
     self.presume_keyword(Keyword::Alias)?;
     let name = self.parse_name()?;
     self.presume_any(&[Equals, ColonEquals])?;
-    let target = self.parse_name()?;
+    let target = self.parse_double_colon_path()?;
     self.expect_eol()?;
 
     attributes.ensure_valid_attributes("Alias", *name, &[AttributeDiscriminant::Private])?;
@@ -861,6 +861,19 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// Parse a name from an identifier token
   fn parse_name(&mut self) -> CompileResult<'src, Name<'src>> {
     self.expect(Identifier).map(Name::from_identifier)
+  }
+
+  /// Parse a path of the forms `a` or `a::b` or `a::b::c` etc.
+  fn parse_double_colon_path(&mut self) -> CompileResult<'src, Namepath<'src>> {
+    let first = self.parse_name()?;
+    let mut result = vec![first];
+
+    while self.accepted(ColonColon)? {
+      let name = self.parse_name()?;
+      result.push(name);
+    }
+
+    Ok(Namepath::new(result))
   }
 
   /// Parse sequence of comma-separated expressions
@@ -1349,6 +1362,12 @@ mod tests {
     name: alias_with_attribute,
     text: "[private]\nalias t := test",
     tree: (justfile (alias t test)),
+  }
+
+  test! {
+    name: alias_module_path,
+    text: "alias fbb := foo::bar::baz",
+    tree: (justfile (alias fbb (foo bar baz))),
   }
 
   test! {
@@ -2424,7 +2443,7 @@ mod tests {
     line:   0,
     column: 17,
     width:  3,
-    kind:   UnexpectedToken { expected: vec![Comment, Eof, Eol], found: Identifier },
+    kind:   UnexpectedToken { expected: vec![ColonColon, Comment, Eof, Eol], found: Identifier },
   }
 
   error! {
@@ -2435,6 +2454,26 @@ mod tests {
     column: 13,
     width:  1,
     kind:   UnexpectedToken {expected: vec![Identifier], found:Eol},
+  }
+
+  error! {
+    name:   alias_syntax_colon_end,
+    input:  "alias foo := bar::\n",
+    offset: 18,
+    line:   0,
+    column: 18,
+    width:  1,
+    kind:   UnexpectedToken {expected: vec![Identifier], found:Eol},
+  }
+
+  error! {
+    name:   alias_syntax_single_colon,
+    input:  "alias foo := bar:baz",
+    offset: 16,
+    line:   0,
+    column: 16,
+    width:  1,
+    kind:   UnexpectedToken {expected: vec![ColonColon, Comment, Eof, Eol], found:Colon},
   }
 
   error! {
