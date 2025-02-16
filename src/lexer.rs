@@ -735,6 +735,8 @@ impl<'src> Lexer<'src> {
 
     if self.accepted('=')? {
       self.token(ColonEquals);
+    } else if self.accepted(':')? {
+      self.token(ColonColon);
     } else {
       self.token(Colon);
       self.recipe_body_pending = true;
@@ -982,6 +984,7 @@ mod tests {
       BracketR => "]",
       ByteOrderMark => "\u{feff}",
       Colon => ":",
+      ColonColon => "::",
       ColonEquals => ":=",
       Comma => ",",
       Dollar => "$",
