@@ -66,9 +66,7 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn confirm(&self) -> RunResult<'src, bool> {
-    if let Some(Attribute::Confirm(ref prompt)) =
-      self.attributes.get(AttributeDiscriminant::Confirm)
-    {
+    if let Some(Attribute::Confirm(prompt)) = self.attributes.get(AttributeDiscriminant::Confirm) {
       if let Some(prompt) = prompt {
         eprint!("{} ", prompt.cooked);
       } else {

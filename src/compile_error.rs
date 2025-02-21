@@ -54,7 +54,7 @@ impl Display for CompileError<'_> {
         }
       }
       BacktickShebang => write!(f, "Backticks may not start with `#!`"),
-      CircularRecipeDependency { recipe, ref circle } => {
+      CircularRecipeDependency { recipe, circle } => {
         if circle.len() == 2 {
           write!(f, "Recipe `{recipe}` depends on itself")
         } else {
@@ -65,10 +65,7 @@ impl Display for CompileError<'_> {
           )
         }
       }
-      CircularVariableDependency {
-        variable,
-        ref circle,
-      } => {
+      CircularVariableDependency { variable, circle } => {
         if circle.len() == 2 {
           write!(f, "Variable `{variable}` is defined in terms of itself")
         } else {
@@ -165,7 +162,7 @@ impl Display for CompileError<'_> {
         ShowWhitespace(expected),
         ShowWhitespace(found)
       ),
-      Internal { ref message } => write!(
+      Internal { message } => write!(
         f,
         "Internal error, this may indicate a bug in just: {message}\n\
            consider filing an issue: https://github.com/casey/just/issues/new"
@@ -263,10 +260,9 @@ impl Display for CompileError<'_> {
           List::or_ticked(expected),
         )
       }
-      UnexpectedToken {
-        ref expected,
-        found,
-      } => write!(f, "Expected {}, but found {found}", List::or(expected)),
+      UnexpectedToken { expected, found } => {
+        write!(f, "Expected {}, but found {found}", List::or(expected))
+      }
       UnicodeEscapeCharacter { character } => {
         write!(f, "expected hex digit [0-9A-Fa-f] but found `{character}`")
       }
