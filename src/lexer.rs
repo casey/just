@@ -2333,7 +2333,7 @@ mod tests {
       }
     );
     assert_matches!(&*compile_error.kind,
-        Internal { ref message }
+        Internal { message }
         if message == "Lexer presumed character `-`"
     );
 
