@@ -239,16 +239,13 @@ impl Subcommand {
       }
     };
 
+    let stdin = child.stdin.as_mut().unwrap();
     for recipe in recipes {
-      writeln!(
-        child.stdin.as_mut().unwrap(),
-        "{}",
-        recipe.namepath.spaced()
-      )
-      .map_err(|io_error| Error::ChooserWrite {
-        io_error,
-        chooser: chooser.clone(),
-      })?;
+      if let Err(io_error) = writeln!(stdin, "{}", recipe.namepath.spaced()) {
+        if io_error.kind() != std::io::ErrorKind::BrokenPipe {
+          return Err(Error::ChooserWrite { io_error, chooser });
+        }
+      }
     }
 
     let output = match child.wait_with_output() {
