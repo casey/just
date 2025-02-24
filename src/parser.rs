@@ -864,7 +864,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Parse a path of the forms `a` or `a::b` or `a::b::c` etc.
-  fn parse_double_colon_path(&mut self) -> CompileResult<'src, Namepath<'src>> {
+  fn parse_namepath(&mut self) -> CompileResult<'src, Namepath<'src>> {
     let first = self.parse_name()?;
     let mut result = vec![first];
 
