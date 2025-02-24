@@ -5,7 +5,7 @@ pub(crate) struct Source<'src> {
   pub(crate) file_depth: u32,
   pub(crate) file_path: Vec<PathBuf>,
   pub(crate) import_offsets: Vec<usize>,
-  pub(crate) namepath: Namepath<'src>,
+  pub(crate) namepath: Option<Namepath<'src>>,
   pub(crate) path: PathBuf,
   pub(crate) working_directory: PathBuf,
 }
@@ -16,7 +16,7 @@ impl<'src> Source<'src> {
       file_depth: 0,
       file_path: vec![path.into()],
       import_offsets: Vec::new(),
-      namepath: Namepath::default(),
+      namepath: None,
       path: path.into(),
       working_directory: path.parent().unwrap().into(),
     }
@@ -53,7 +53,12 @@ impl<'src> Source<'src> {
         .chain(iter::once(path.clone()))
         .collect(),
       import_offsets: Vec::new(),
-      namepath: self.namepath.join(name),
+      namepath: Some(
+        self
+          .namepath
+          .as_ref()
+          .map_or_else(|| name.into(), |namepath| namepath.join(name)),
+      ),
       path: path.clone(),
       working_directory: path.parent().unwrap().into(),
     }

@@ -59,7 +59,7 @@ pub(crate) fn analysis_error(
 ) {
   let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
 
-  let ast = Parser::parse(0, &[], &Namepath::default(), &tokens, &PathBuf::new())
+  let ast = Parser::parse(0, &[], None, &tokens, &PathBuf::new())
     .expect("Parsing failed in analysis test...");
 
   let root = PathBuf::from("justfile");
