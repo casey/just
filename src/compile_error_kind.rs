@@ -154,7 +154,7 @@ pub(crate) enum CompileErrorKind<'src> {
     setting: &'src str,
   },
   UnknownStartOfToken {
-    token: char,
+    start: char,
   },
   UnpairedCarriageReturn,
   UnterminatedBacktick,

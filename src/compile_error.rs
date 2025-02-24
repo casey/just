@@ -291,15 +291,13 @@ impl Display for CompileError<'_> {
       }
       UnknownFunction { function } => write!(f, "Call to unknown function `{function}`"),
       UnknownSetting { setting } => write!(f, "Unknown setting `{setting}`"),
-      UnknownStartOfToken { token } => write!(
-        f,
-        "Unknown start of token {}:",
-        if token.is_ascii() {
-          format!("'{token}'")
-        } else {
-          format!("'{token}' ({})", token.escape_unicode())
+      UnknownStartOfToken { start } => {
+        write!(f, "Unknown start of token '{start}'")?;
+        if !start.is_ascii_graphic() {
+          write!(f, " (U+{:04X})", *start as u32)?;
         }
-      ),
+        write!(f, ":")
+      }
       UnpairedCarriageReturn => write!(f, "Unpaired carriage return"),
       UnterminatedBacktick => write!(f, "Unterminated backtick"),
       UnterminatedInterpolation => write!(f, "Unterminated interpolation"),
