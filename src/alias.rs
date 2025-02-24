@@ -36,14 +36,9 @@ impl<'src, T> Keyed<'src> for Alias<'src, T> {
   }
 }
 
-impl<'src> Display for Alias<'src, Name<'src>> {
+impl<'src> Display for Alias<'src, Namepath<'src>> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    write!(
-      f,
-      "alias {} := {}",
-      self.name.lexeme(),
-      self.target.lexeme()
-    )
+    write!(f, "alias {} := {}", self.name.lexeme(), self.target)
   }
 }
 

@@ -138,7 +138,7 @@ pub(crate) enum CompileErrorKind<'src> {
   UnicodeEscapeUnterminated,
   UnknownAliasTarget {
     alias: &'src str,
-    target: &'src str,
+    target: Namepath<'src>,
   },
   UnknownAttribute {
     attribute: &'src str,
