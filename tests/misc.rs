@@ -1685,10 +1685,25 @@ test! {
 \u{200b}foo := 'bar'
 ",
   stderr:   "
-error: Unknown start of token '\u{200b}' (\\u{200b}):
+error: Unknown start of token '\u{200b}' (U+200B):
  ——▶ justfile:1:1
   │
 1 │ \u{200b}foo := 'bar'
+  │ ^
+",
+   status:   EXIT_FAILURE,
+}
+
+test! {
+  name:     unknown_start_of_token_ascii_control_char,
+  justfile: "
+\0foo := 'bar'
+",
+  stderr:   "
+error: Unknown start of token '\0' (U+0000):
+ ——▶ justfile:1:1
+  │
+1 │ \0foo := 'bar'
   │ ^
 ",
    status:   EXIT_FAILURE,
