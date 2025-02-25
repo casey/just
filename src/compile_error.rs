@@ -296,7 +296,7 @@ impl Display for CompileError<'_> {
         if !start.is_ascii_graphic() {
           write!(f, " (U+{:04X})", *start as u32)?;
         }
-        write!(f, ":")
+        Ok(())
       }
       UnpairedCarriageReturn => write!(f, "Unpaired carriage return"),
       UnterminatedBacktick => write!(f, "Unterminated backtick"),
