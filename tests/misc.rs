@@ -558,9 +558,11 @@ echo `echo command interpolation`
 ",
 }
 
-test! {
-  name:     line_error_spacing,
-  justfile: r"
+#[test]
+fn line_error_spacing() {
+  Test::new()
+    .justfile(
+      r"
 
 
 
@@ -572,14 +574,17 @@ test! {
 
 ^^^
 ",
-  stdout:   "",
-  stderr:   "error: Unknown start of token '^':
+    )
+    .stderr(
+      "error: Unknown start of token '^'
   ——▶ justfile:10:1
    │
 10 │ ^^^
    │ ^
 ",
-  status:   EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
@@ -1664,49 +1669,67 @@ test! {
   status:   EXIT_FAILURE,
 }
 
-test! {
-  name:     unknown_start_of_token,
-  justfile: "
+#[test]
+fn unknown_start_of_token() {
+  Test::new()
+    .justfile(
+      "
 assembly_source_files = %(wildcard src/arch/$(arch)/*.s)
-",
-  stderr:   r"
-    error: Unknown start of token '%':
+      ",
+    )
+    .stderr(
+      r"
+    error: Unknown start of token '%'
      ——▶ justfile:1:25
       │
     1 │ assembly_source_files = %(wildcard src/arch/$(arch)/*.s)
       │                         ^
   ",
-   status:   EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
-test! {
-  name:     unknown_start_of_token_invisible_unicode,
-  justfile: "
+#[test]
+fn unknown_start_of_token_invisible_unicode() {
+  Test::new()
+    .justfile(
+      "
 \u{200b}foo := 'bar'
-",
-  stderr:   "
-error: Unknown start of token '\u{200b}' (U+200B):
+      ",
+    )
+    .stderr(
+      "
+error: Unknown start of token '\u{200b}' (U+200B)
  ——▶ justfile:1:1
   │
 1 │ \u{200b}foo := 'bar'
   │ ^
 ",
-   status:   EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
-test! {
-  name:     unknown_start_of_token_ascii_control_char,
-  justfile: "
+#[test]
+fn unknown_start_of_token_ascii_control_char() {
+  Test::new()
+    .justfile(
+      "
 \0foo := 'bar'
 ",
-  stderr:   "
-error: Unknown start of token '\0' (U+0000):
+    )
+    .stderr(
+      "
+error: Unknown start of token '\0' (U+0000)
  ——▶ justfile:1:1
   │
 1 │ \0foo := 'bar'
   │ ^
 ",
-   status:   EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
