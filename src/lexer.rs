@@ -505,7 +505,7 @@ impl<'src> Lexer<'src> {
       _ if Self::is_identifier_start(start) => self.lex_identifier(),
       _ => {
         self.advance()?;
-        Err(self.error(UnknownStartOfToken))
+        Err(self.error(UnknownStartOfToken { start }))
       }
     }
   }
@@ -2121,7 +2121,7 @@ mod tests {
     line:   0,
     column: 0,
     width:  1,
-    kind:   UnknownStartOfToken,
+    kind:   UnknownStartOfToken { start: '%'},
   }
 
   error! {
@@ -2182,7 +2182,7 @@ mod tests {
     line:   0,
     column: 0,
     width:  1,
-    kind:   UnknownStartOfToken,
+    kind:   UnknownStartOfToken{ start: '-'},
   }
 
   error! {
@@ -2192,7 +2192,7 @@ mod tests {
     line:   0,
     column: 0,
     width:  1,
-    kind:   UnknownStartOfToken,
+    kind:   UnknownStartOfToken { start: '0' },
   }
 
   error! {
@@ -2262,7 +2262,7 @@ mod tests {
     line:   0,
     column: 1,
     width:  1,
-    kind:   UnknownStartOfToken,
+    kind:   UnknownStartOfToken { start: '%'},
   }
 
   error! {
