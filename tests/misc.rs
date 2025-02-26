@@ -999,15 +999,19 @@ hello baz arg='XYZ"	':
     .run();
 }
 
-test! {
-  name:     supply_use_default,
-  justfile: r"
+#[test]
+fn supply_use_default() {
+  Test::new()
+    .arg("hello")
+    .arg("0")
+    .arg("1")
+    .justfile(r"
 hello a b='B' c='C':
   echo {{a}} {{b}} {{c}}
-",
-  args:     ("hello", "0", "1"),
-  stdout:   "0 1 C\n",
-  stderr:   "echo 0 1 C\n",
+")
+    .stdout("0 1 C\n")
+    .stderr("echo 0 1 C\n")
+    .run();
 }
 
 test! {
