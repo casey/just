@@ -150,22 +150,24 @@ foo:
 }
 
 #[cfg(not(windows))]
-test! {
-  name: broken_file_stem_function,
-  justfile: r"
+#[test]
+fn broken_file_stem_function() {
+  Test::new()
+    .justfile(r"
 we  := file_stem('')
 
 foo:
   /usr/bin/env echo '{{we}}'
-",
-  stdout:   "",
-  stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
-    "error: Call to function `file_stem` failed: Could not extract file stem from ``",
-    " ——▶ justfile:1:8",
-    "  │",
-    "1 │ we  := file_stem(\'\')",
-    "  │        ^^^^^^^^^").as_str(),
-  status:   EXIT_FAILURE,
+")
+    .stdout("")
+    .stderr(format!("{}\n{}\n{}\n{}\n{}\n",
+      "error: Call to function `file_stem` failed: Could not extract file stem from ``",
+      " ——▶ justfile:1:8",
+      "  │",
+      "1 │ we  := file_stem(\'\')",
+      "  │        ^^^^^^^^^").as_str())
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 #[cfg(not(windows))]
