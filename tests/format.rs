@@ -1013,19 +1013,21 @@ fn comment_leading() {
     .run();
 }
 
-test! {
-  name: comment_trailing,
-  justfile: "
+#[test]
+fn comment_trailing() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo := 'bar'
 
     # foo
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo := 'bar'
 
     # foo
-  ",
+  ")
+    .run();
 }
 
 test! {
