@@ -174,9 +174,12 @@ fn setting_shebang() {
     .run();
 }
 
-test! {
-  name: setting_override_undefined,
-  justfile: r#"
+#[test]
+fn setting_override_undefined() {
+  Test::new()
+    .arg("A=zzz")
+    .arg("foo")
+    .justfile(r#"
     set export
 
     A := 'hello'
@@ -185,10 +188,10 @@ test! {
     foo C='goodbye' D=`if [ -n "${C+1}" ]; then echo defined; else echo undefined; fi`:
       echo $B
       echo $D
-  "#,
-  args: ("A=zzz", "foo"),
-  stdout: "undefined\nundefined\n",
-  stderr: "echo $B\necho $D\n",
+  "#)
+    .stdout("undefined\nundefined\n")
+    .stderr("echo $B\necho $D\n")
+    .run();
 }
 
 test! {
