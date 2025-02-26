@@ -24,14 +24,16 @@ fn otherwise_branch_unevaluated() {
     .run();
 }
 
-test! {
-  name: otherwise_branch_unevaluated_inverted,
-  justfile: "
+#[test]
+fn otherwise_branch_unevaluated_inverted() {
+  Test::new()
+    .justfile("
     foo:
       echo {{ if 'a' != 'b' { 'then' } else { `exit 1` } }}
-  ",
-  stdout: "then\n",
-  stderr: "echo then\n",
+  ")
+    .stdout("then\n")
+    .stderr("echo then\n")
+    .run();
 }
 
 test! {
