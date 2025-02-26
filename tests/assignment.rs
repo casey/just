@@ -18,20 +18,22 @@ fn set_export_parse_error() {
     .run();
 }
 
-test! {
-  name: set_export_parse_error_eol,
-  justfile: "
+#[test]
+fn set_export_parse_error_eol() {
+    Test::new()
+        .justfile("
     set export :=
-  ",
-  stdout: "",
-  stderr: "
+  ")
+        .stdout("")
+        .stderr("
     error: Expected identifier, but found end of line
      ——▶ justfile:1:14
       │
     1 │ set export :=
       │              ^
-  ",
-  status: EXIT_FAILURE,
+  ")
+        .status(EXIT_FAILURE)
+        .run();
 }
 
 #[test]
