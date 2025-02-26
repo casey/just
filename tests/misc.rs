@@ -1179,17 +1179,23 @@ b:
     .run();
 }
 
-test! {
-  name:     list_empty_prefix_and_heading,
-  justfile: r"
+#[test]
+fn list_empty_prefix_and_heading() {
+  Test::new()
+    .arg("--list")
+    .arg("--list-heading")
+    .arg("")
+    .arg("--list-prefix")
+    .arg("")
+    .justfile(r"
 a:
 b:
-",
-  args:     ("--list", "--list-heading", "", "--list-prefix", ""),
-  stdout:   r"
+")
+    .stdout(r"
     a
     b
-  ",
+  ")
+    .run();
 }
 
 test! {
