@@ -1133,17 +1133,19 @@ fn group_assignments() {
     .run();
 }
 
-test! {
-  name: group_sets,
-  justfile: "
+#[test]
+fn group_sets() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     set export := true
     set positional-arguments := true
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     set export := true
     set positional-arguments := true
-  ",
+  ")
+    .run();
 }
 
 test! {
