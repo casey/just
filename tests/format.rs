@@ -660,17 +660,19 @@ fn recipe_parameters() {
     .run();
 }
 
-test! {
-  name: recipe_parameters_envar,
-  justfile: "
+#[test]
+fn recipe_parameters_envar() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo $BAR $BAZ:
         echo foo
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo $BAR $BAZ:
         echo foo
-  ",
+  ")
+    .run();
 }
 
 test! {
