@@ -2127,19 +2127,21 @@ default:
     .run();
 }
 
-test! {
-   name:     backtick_variable_read_multiple,
-   justfile: "
+#[test]
+fn backtick_variable_read_multiple() {
+  Test::new()
+    .justfile("
 a := `read A && echo $A`
 b := `read B && echo $B`
 
 default:
   echo {{a}}
   echo {{b}}
-",
-   stdin:    "foo\nbar\n",
-   stdout:   "foo\nbar\n",
-   stderr:   "echo foo\necho bar\n",
+")
+    .stdin("foo\nbar\n")
+    .stdout("foo\nbar\n")
+    .stderr("echo foo\necho bar\n")
+    .run();
 }
 
 test! {
