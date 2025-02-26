@@ -15,17 +15,19 @@ fn mismatched_delimiter() {
     .run();
 }
 
-test! {
-  name: unexpected_delimiter,
-  justfile: "]",
-  stderr: "
+#[test]
+fn unexpected_delimiter() {
+  Test::new()
+    .justfile("]")
+    .stderr("
     error: Unexpected closing delimiter `]`
      ——▶ justfile:1:1
       │
     1 │ ]
       │ ^
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
