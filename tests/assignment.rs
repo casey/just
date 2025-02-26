@@ -1,19 +1,21 @@
 use super::*;
 
-test! {
-  name: set_export_parse_error,
-  justfile: "
+#[test]
+fn set_export_parse_error() {
+  Test::new()
+    .justfile("
     set export := fals
-  ",
-  stdout: "",
-  stderr: "
+  ")
+    .stdout("")
+    .stderr("
     error: Expected keyword `true` or `false` but found identifier `fals`
      ——▶ justfile:1:15
       │
     1 │ set export := fals
       │               ^^^^
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
