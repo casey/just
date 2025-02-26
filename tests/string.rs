@@ -215,21 +215,23 @@ fn unterminated_raw_string() {
     .run();
 }
 
-test! {
-  name:     unterminated_string,
-  justfile: r#"
+#[test]
+fn unterminated_string() {
+  Test::new()
+    .arg("a")
+    .justfile(r#"
     a b= ":
-  "#,
-  args:     ("a"),
-  stdout:   "",
-  stderr:   r#"
+  "#)
+    .stdout("")
+    .stderr(r#"
     error: Unterminated string
      ——▶ justfile:1:6
       │
     1 │ a b= ":
       │      ^
-  "#,
-  status:   EXIT_FAILURE,
+  "#)
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
