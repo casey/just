@@ -1256,14 +1256,16 @@ foo:
     .run();
 }
 
-test! {
-  name: infallible_command,
-  justfile: r"
+#[test]
+fn infallible_command() {
+  Test::new()
+    .justfile(r"
 infallible:
   -exit 101
-",
-  stderr: "exit 101\n",
-  status: EXIT_SUCCESS,
+")
+    .stderr("exit 101\n")
+    .status(EXIT_SUCCESS)
+    .run();
 }
 
 test! {
