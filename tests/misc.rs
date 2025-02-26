@@ -2094,20 +2094,22 @@ default stdin = `cat`:
     .run();
 }
 
-test! {
-  name:     backtick_default_cat_justfile,
-  justfile: "
+#[test]
+fn backtick_default_cat_justfile() {
+  Test::new()
+    .justfile("
     default stdin = `cat justfile`:
       echo '{{stdin}}'
-  ",
-  stdout:   "
+  ")
+    .stdout("
     default stdin = `cat justfile`:
       echo {{stdin}}
-  ",
-  stderr:   "
+  ")
+    .stderr("
     echo 'default stdin = `cat justfile`:
       echo '{{stdin}}''
-  ",
+  ")
+    .run();
 }
 
 test! {
