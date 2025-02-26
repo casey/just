@@ -1,16 +1,18 @@
 use super::*;
 
-test! {
-  name: mismatched_delimiter,
-  justfile: "(]",
-  stderr: "
+#[test]
+fn mismatched_delimiter() {
+  Test::new()
+    .justfile("(]")
+    .stderr("
     error: Mismatched closing delimiter `]`. (Did you mean to close the `(` on line 1?)
      ——▶ justfile:1:2
       │
     1 │ (]
       │  ^
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
