@@ -249,19 +249,15 @@ fn select() {
     .run();
 }
 
-test! {
-  name:     print,
-  justfile: "b:
-  echo b
-a:
-  echo a
-d:
-  echo d
-c:
-  echo c",
-  args:     ("d", "c"),
-  stdout:   "d\nc\n",
-  stderr:   "echo d\necho c\n",
+#[test]
+fn print() {
+  Test::new()
+    .arg("d")
+    .arg("c")
+    .justfile("b:\n  echo b\na:\n  echo a\nd:\n  echo d\nc:\n  echo c")
+    .stdout("d\nc\n")
+    .stderr("echo d\necho c\n")
+    .run();
 }
 
 test! {
