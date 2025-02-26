@@ -1164,20 +1164,22 @@ fn group_comments() {
     .run();
 }
 
-test! {
-  name: separate_recipes_aliases,
-  justfile: "
+#[test]
+fn separate_recipes_aliases() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     alias f := foo
     foo:
         echo foo
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     alias f := foo
 
     foo:
         echo foo
-  ",
+  ")
+    .run();
 }
 
 test! {
