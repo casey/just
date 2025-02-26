@@ -1268,18 +1268,20 @@ infallible:
     .run();
 }
 
-test! {
-  name: infallible_with_failing,
-  justfile: r"
+#[test]
+fn infallible_with_failing() {
+  Test::new()
+    .justfile(r"
 infallible:
   -exit 101
   exit 202
-",
-  stderr: r"exit 101
+")
+    .stderr(r"exit 101
 exit 202
 error: Recipe `infallible` failed on line 3 with exit code 202
-",
-  status: 202,
+")
+    .status(202)
+    .run();
 }
 
 test! {
