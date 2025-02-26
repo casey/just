@@ -14,22 +14,24 @@ recipe:
     .run();
 }
 
-test! {
-  name:     multiline_raw_string,
-  justfile: "
+#[test]
+fn multiline_raw_string() {
+  Test::new()
+    .arg("a")
+    .justfile("
 string := 'hello
 whatever'
 
 a:
   echo '{{string}}'
-",
-  args:     ("a"),
-  stdout:   "hello
+")
+    .stdout("hello
 whatever
-",
-  stderr:   "echo 'hello
+")
+    .stderr("echo 'hello
 whatever'
-",
+")
+    .run();
 }
 
 test! {
