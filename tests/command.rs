@@ -1,13 +1,17 @@
 use super::*;
 
-test! {
-  name: long,
-  justfile: "
+#[test]
+fn long() {
+  Test::new()
+    .arg("--command")
+    .arg("printf")
+    .arg("foo")
+    .justfile("
     x:
       echo XYZ
-  ",
-  args: ("--command", "printf", "foo"),
-  stdout: "foo",
+  ")
+    .stdout("foo")
+    .run();
 }
 
 test! {
