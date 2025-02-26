@@ -630,17 +630,19 @@ fn recipe_parameter_default_envar() {
     .run();
 }
 
-test! {
-  name: recipe_parameter_concat,
-  justfile: "
+#[test]
+fn recipe_parameter_concat() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo BAR=('bar' + 'baz'):
         echo foo
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo BAR=('bar' + 'baz'):
         echo foo
-  ",
+  ")
+    .run();
 }
 
 test! {
