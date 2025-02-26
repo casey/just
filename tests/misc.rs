@@ -2371,19 +2371,20 @@ fn duplicate_dependency_argument() {
 }
 
 #[cfg(windows)]
-test! {
-  name: pwsh_invocation_directory,
-  justfile: r#"
+#[test]
+fn pwsh_invocation_directory() {
+  Test::new()
+    .justfile(r#"
     set shell := ["pwsh", "-NoProfile", "-c"]
 
     pwd:
       @Test-Path {{invocation_directory()}} > result.txt
-  "#,
-  args: (),
-  stdout: "",
-  stderr: "",
-  status: EXIT_SUCCESS,
-  shell: false,
+  "#)
+    .stdout("")
+    .stderr("")
+    .status(EXIT_SUCCESS)
+    .shell(false)
+    .run();
 }
 
 test! {
