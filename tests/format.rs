@@ -369,15 +369,17 @@ fn assignment_if_multiline() {
     .run();
 }
 
-test! {
-  name: assignment_nullary_function,
-  justfile: "
+#[test]
+fn assignment_nullary_function() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo := arch()
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo := arch()
-  ",
+  ")
+    .run();
 }
 
 test! {
