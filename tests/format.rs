@@ -799,23 +799,25 @@ fn recipe_assignment_in_body() {
     .run();
 }
 
-test! {
-  name: recipe_dependency,
-  justfile: "
+#[test]
+fn recipe_dependency() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     bar:
         echo bar
 
     foo: bar
         echo foo
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     bar:
         echo bar
 
     foo: bar
         echo foo
-  ",
+  ")
+    .run();
 }
 
 test! {
