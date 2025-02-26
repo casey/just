@@ -1,14 +1,16 @@
 use super::*;
 
 #[cfg(windows)]
-test! {
-  name:     powershell,
-  justfile: r#"
+#[test]
+fn powershell() {
+  Test::new()
+    .justfile(r#"
 default:
   #!powershell
   Write-Host Hello-World
-"#,
-  stdout: "Hello-World\n",
+"#)
+    .stdout("Hello-World\n")
+    .run();
 }
 
 #[cfg(windows)]
