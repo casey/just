@@ -383,9 +383,10 @@ fn indented_raw_string_escapes() {
     .run();
 }
 
-test! {
-  name:     indented_cooked_string_escapes,
-  justfile: r#"
+#[test]
+fn indented_cooked_string_escapes() {
+  Test::new()
+    .justfile(r#"
     a := """
       foo\n
       bar
@@ -393,12 +394,13 @@ test! {
 
     @default:
       printf %s '{{a}}'
-  "#,
-  stdout: "
+  "#)
+    .stdout("
     foo
 
     bar
-  ",
+  ")
+    .run();
 }
 
 test! {
