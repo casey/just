@@ -252,18 +252,20 @@ foo:
     .run();
 }
 
-test! {
-  name:     env_var_failure,
-  justfile: "a:\n  echo {{env_var('ZADDY')}}",
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "error: Call to function `env_var` failed: environment variable `ZADDY` not present
+#[test]
+fn env_var_failure() {
+  Test::new()
+    .arg("a")
+    .justfile("a:\n  echo {{env_var('ZADDY')}}")
+    .status(EXIT_FAILURE)
+    .stdout("")
+    .stderr("error: Call to function `env_var` failed: environment variable `ZADDY` not present
  ——▶ justfile:2:10
   │
 2 │   echo {{env_var('ZADDY')}}
   │          ^^^^^^^
-",
-  status:   EXIT_FAILURE,
+")
+    .run();
 }
 
 test! {
