@@ -1070,22 +1070,24 @@ fn comment_before_docstring_recipe() {
     .run();
 }
 
-test! {
-  name: group_recipes,
-  justfile: "
+#[test]
+fn group_recipes() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo:
         echo foo
     bar:
         echo bar
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo:
         echo foo
 
     bar:
         echo bar
-  ",
+  ")
+    .run();
 }
 
 test! {
