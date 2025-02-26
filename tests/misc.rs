@@ -2066,17 +2066,19 @@ error: Unknown start of token '\0' (U+0000)
     .run();
 }
 
-test! {
-  name:     backtick_variable_cat,
-  justfile: "
+#[test]
+fn backtick_variable_cat() {
+  Test::new()
+    .justfile("
 stdin := `cat`
 
 default:
   echo {{stdin}}
-",
-  stdin:    "STDIN",
-  stdout:   "STDIN\n",
-  stderr:   "echo STDIN\n",
+")
+    .stdin("STDIN")
+    .stdout("STDIN\n")
+    .stderr("echo STDIN\n")
+    .run();
 }
 
 test! {
