@@ -12,14 +12,16 @@ default:
     .run();
 }
 
-test! {
-  name:     stderr,
-  justfile: r"
+#[test]
+fn stderr() {
+  Test::new()
+    .arg("--quiet")
+    .justfile(r"
 default:
   @echo hello 1>&2
-",
-  args:     ("--quiet"),
-  stdout:   "",
+")
+    .stdout("")
+    .run();
 }
 
 test! {
