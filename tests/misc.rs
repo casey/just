@@ -441,9 +441,10 @@ fn backtick_code_interpolation_unicode_hell() {
     .run();
 }
 
-test! {
-  name:     backtick_code_long,
-  justfile: "
+#[test]
+fn backtick_code_long() {
+  Test::new()
+    .justfile("
 
 
 
@@ -454,15 +455,16 @@ test! {
     a := `echo hello`
     bar:
      echo '{{`exit 200`}}'
-  ",
-  stderr:   "
+  ")
+    .stderr("
     error: Backtick failed with exit code 200
       ——▶ justfile:10:10
        │
     10 │  echo '{{`exit 200`}}'
        │          ^^^^^^^^^^
-  ",
-  status:   200,
+  ")
+    .status(200)
+    .run();
 }
 
 test! {
