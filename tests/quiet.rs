@@ -100,11 +100,16 @@ fn choose_invocation() {
     .run();
 }
 
-test! {
-  name: choose_status,
-  justfile: "foo:",
-  args: ("--choose", "--quiet", "--chooser", "/usr/bin/env false"),
-  status: EXIT_FAILURE,
+#[test]
+fn choose_status() {
+  Test::new()
+    .arg("--choose")
+    .arg("--quiet")
+    .arg("--chooser")
+    .arg("/usr/bin/env false")
+    .justfile("foo:")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
