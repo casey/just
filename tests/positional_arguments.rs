@@ -1,8 +1,12 @@
 use super::*;
 
-test! {
-  name: linewise,
-  justfile: r#"
+#[test]
+fn linewise() {
+  Test::new()
+    .arg("foo")
+    .arg("hello")
+    .arg("goodbye")
+    .justfile(r#"
     set positional-arguments
 
     foo bar baz:
@@ -10,20 +14,20 @@ test! {
       echo $1
       echo $2
       echo "$@"
-  "#,
-  args:   ("foo", "hello", "goodbye"),
-  stdout: "
+  "#)
+    .stdout("
     foo
     hello
     goodbye
     hello goodbye
-  ",
-  stderr: r#"
+  ")
+    .stderr(r#"
     echo $0
     echo $1
     echo $2
     echo "$@"
-  "#,
+  "#)
+    .run();
 }
 
 test! {
