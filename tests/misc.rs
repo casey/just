@@ -202,12 +202,14 @@ fn quiet() {
         .run();
 }
 
-test! {
-  name:     verbose,
-  justfile: "default:\n @echo hello",
-  args:     ("--verbose"),
-  stdout:   "hello\n",
-  stderr:   "===> Running recipe `default`...\necho hello\n",
+#[test]
+fn verbose() {
+  Test::new()
+    .arg("--verbose")
+    .justfile("default:\n @echo hello")
+    .stdout("hello\n")
+    .stderr("===> Running recipe `default`...\necho hello\n")
+    .run();
 }
 
 test! {
