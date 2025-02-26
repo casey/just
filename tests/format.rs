@@ -313,15 +313,17 @@ fn assignment_parenthesized_expression() {
     .run();
 }
 
-test! {
-  name: assignment_export,
-  justfile: "
+#[test]
+fn assignment_export() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     export foo := 'foo'
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     export foo := 'foo'
-  ",
+  ")
+    .run();
 }
 
 test! {
