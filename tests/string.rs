@@ -53,22 +53,24 @@ goodbye'
     .run();
 }
 
-test! {
-  name:     multiline_cooked_string,
-  justfile: r#"
+#[test]
+fn multiline_cooked_string() {
+  Test::new()
+    .arg("a")
+    .justfile(r#"
 string := "hello
 whatever"
 
 a:
   echo '{{string}}'
-"#,
-  args:     ("a"),
-  stdout:   "hello
+"#)
+    .stdout("hello
 whatever
-",
-  stderr:   "echo 'hello
+")
+    .stderr("echo 'hello
 whatever'
-",
+")
+    .run();
 }
 
 test! {
