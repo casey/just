@@ -1414,18 +1414,20 @@ fn duplicate_parameter() {
     .run();
 }
 
-test! {
-  name:     duplicate_recipe,
-  justfile: "b:\nb:",
-  args:     ("b"),
-  stdout:   "",
-  stderr:   "error: Recipe `b` first defined on line 1 is redefined on line 2
+#[test]
+fn duplicate_recipe() {
+    Test::new()
+        .arg("b")
+        .justfile("b:\nb:")
+        .stdout("")
+        .stderr("error: Recipe `b` first defined on line 1 is redefined on line 2
  ——▶ justfile:2:1
   │
 2 │ b:
   │ ^
-",
-  status:   EXIT_FAILURE,
+")
+        .status(EXIT_FAILURE)
+        .run();
 }
 
 test! {
