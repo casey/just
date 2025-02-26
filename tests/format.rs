@@ -929,15 +929,17 @@ fn set_true_explicit() {
     .run();
 }
 
-test! {
-  name: set_true_implicit,
-  justfile: "
+#[test]
+fn set_true_implicit() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     set export
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     set export := true
-  ",
+  ")
+    .run();
 }
 
 test! {
