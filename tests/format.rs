@@ -1196,19 +1196,21 @@ fn no_trailing_newline() {
     .run();
 }
 
-test! {
-  name: subsequent,
-  justfile: "
+#[test]
+fn subsequent() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     bar:
     foo: && bar
-        echo foo",
-  args: ("--dump"),
-  stdout: "
+        echo foo")
+    .stdout("
     bar:
 
     foo: && bar
         echo foo
-  ",
+  ")
+    .run();
 }
 
 #[test]
