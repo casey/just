@@ -908,18 +908,20 @@ fn extra_leading_whitespace() {
     .run();
 }
 
-test! {
-  name:     inconsistent_leading_whitespace,
-  justfile: "bar:\n\t\techo hello\n\t echo goodbye",
-  stdout:   "",
-  stderr:   "error: Recipe line has inconsistent leading whitespace. \
+#[test]
+fn inconsistent_leading_whitespace() {
+  Test::new()
+    .justfile("bar:\n\t\techo hello\n\t echo goodbye")
+    .stdout("")
+    .stderr("error: Recipe line has inconsistent leading whitespace. \
             Recipe started with `␉␉` but found line with `␉␠`
  ——▶ justfile:3:1
   │
 3 │      echo goodbye
   │ ^^^^^
-",
-  status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
