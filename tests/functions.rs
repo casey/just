@@ -390,14 +390,16 @@ fn shoutysnakecase() {
     .run();
 }
 
-test! {
-  name: titlecase,
-  justfile: "
+#[test]
+fn titlecase() {
+  Test::new()
+    .justfile("
     foo:
       echo {{ titlecase('foo bar') }}
-  ",
-  stdout: "Foo Bar\n",
-  stderr: "echo Foo Bar\n",
+  ")
+    .stdout("Foo Bar\n")
+    .stderr("echo Foo Bar\n")
+    .run();
 }
 
 test! {
