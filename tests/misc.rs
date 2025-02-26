@@ -1161,18 +1161,22 @@ b:
     .run();
 }
 
-test! {
-  name:     list_prefix,
-  justfile: r"
+#[test]
+fn list_prefix() {
+  Test::new()
+    .arg("--list")
+    .arg("--list-prefix")
+    .arg("····")
+    .justfile(r"
 a:
 b:
-",
-  args:     ("--list", "--list-prefix", "····"),
-  stdout:   r"
+")
+    .stdout(r"
     Available recipes:
     ····a
     ····b
-  ",
+  ")
+    .run();
 }
 
 test! {
