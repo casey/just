@@ -10,14 +10,16 @@ fn unstable_not_passed() {
     .run();
 }
 
-test! {
-  name: check_without_fmt,
-  justfile: "",
-  args: ("--check"),
-  stderr_regex: "error: the following required arguments were not provided:
+#[test]
+fn check_without_fmt() {
+    Test::new()
+        .arg("--check")
+        .justfile("")
+        .stderr_regex("error: the following required arguments were not provided:
   --fmt
-(.|\\n)+",
-  status: 2,
+(.|\\n)+")
+        .status(2)
+        .run();
 }
 
 test! {
