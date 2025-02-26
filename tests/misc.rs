@@ -2325,18 +2325,19 @@ fn dependency_argument_assignment() {
     .run();
 }
 
-test! {
-  name: dependency_argument_plus_variadic,
-  justfile: "
+#[test]
+fn dependency_argument_plus_variadic() {
+  Test::new()
+    .justfile("
     foo: (bar 'A' 'B' 'C')
 
     bar +args:
       echo {{args}}
-  ",
-  args: (),
-  stdout: "A B C\n",
-  stderr: "echo A B C\n",
-  shell: false,
+  ")
+    .stdout("A B C\n")
+    .stderr("echo A B C\n")
+    .shell(false)
+    .run();
 }
 
 test! {
