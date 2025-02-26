@@ -1818,16 +1818,22 @@ a:
         .run();
 }
 
-test! {
-  name:     no_highlight,
-  justfile: "
+#[test]
+fn no_highlight() {
+  Test::new()
+    .arg("--color")
+    .arg("always")
+    .arg("--highlight")
+    .arg("--no-highlight")
+    .arg("--verbose")
+    .justfile("
 # comment
 a:
   echo hi
-",
-  args:     ("--color", "always", "--highlight", "--no-highlight", "--verbose"),
-  stdout:   "hi\n",
-  stderr:   "\u{1b}[1;36m===> Running recipe `a`...\u{1b}[0m\necho hi\n",
+")
+    .stdout("hi\n")
+    .stderr("\u{1b}[1;36m===> Running recipe `a`...\u{1b}[0m\necho hi\n")
+    .run();
 }
 
 test! {
