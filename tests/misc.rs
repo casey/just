@@ -2211,18 +2211,19 @@ fn dependency_argument_parameter() {
     .run();
 }
 
-test! {
-  name: dependency_argument_function,
-  justfile: "
+#[test]
+fn dependency_argument_function() {
+  Test::new()
+    .justfile("
     foo: (bar env_var_or_default('x', 'y'))
 
     bar arg:
       echo {{arg}}
-  ",
-  args: (),
-  stdout: "y\n",
-  stderr: "echo y\n",
-  shell: false,
+  ")
+    .stdout("y\n")
+    .stderr("echo y\n")
+    .shell(false)
+    .run();
 }
 
 test! {
