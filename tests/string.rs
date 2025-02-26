@@ -346,9 +346,10 @@ fn indented_cooked_string_contents_indentation_removed() {
     .run();
 }
 
-test! {
-  name:     indented_backtick_string_contents_indentation_removed,
-  justfile: r"
+#[test]
+fn indented_backtick_string_contents_indentation_removed() {
+  Test::new()
+    .justfile(r"
     a := ```
       printf '
       foo
@@ -358,8 +359,9 @@ test! {
 
     @default:
       printf '{{a}}'
-  ",
-  stdout: "\n\nfoo\nbar",
+  ")
+    .stdout("\n\nfoo\nbar")
+    .run();
 }
 
 test! {
