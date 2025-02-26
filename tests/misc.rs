@@ -1967,20 +1967,22 @@ foo x=y:
     .run();
 }
 
-test! {
-  name:     unterminated_interpolation_eol,
-  justfile: "
+#[test]
+fn unterminated_interpolation_eol() {
+  Test::new()
+    .justfile("
     foo:
       echo {{
-  ",
-  stderr:   r"
+  ")
+    .stderr(r"
     error: Unterminated interpolation
      ——▶ justfile:2:8
       │
     2 │   echo {{
       │        ^^
-  ",
-  status:   EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
