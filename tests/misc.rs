@@ -423,20 +423,22 @@ fn backtick_code_interpolation_leading_emoji() {
     .run();
 }
 
-test! {
-  name:     backtick_code_interpolation_unicode_hell,
-  justfile: "
+#[test]
+fn backtick_code_interpolation_unicode_hell() {
+  Test::new()
+    .justfile("
     backtick-fail:
     \techo \t\t\t😬鎌鼬{{\t\t`exit 200 # \t\t\tabc`}}\t\t\t😬鎌鼬
-  ",
-  stderr: "
+  ")
+    .stderr("
     error: Backtick failed with exit code 200
      ——▶ justfile:2:24
       │
     2 │     echo             😬鎌鼬{{        `exit 200 #             abc`}}            😬鎌鼬
       │                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  ",
-  status:   200,
+  ")
+    .status(200)
+    .run();
 }
 
 test! {
