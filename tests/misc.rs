@@ -353,19 +353,21 @@ fn backtick_code_interpolation_mod() {
     .run();
 }
 
-test! {
-  name:     backtick_code_interpolation_tab,
-  justfile: "
+#[test]
+fn backtick_code_interpolation_tab() {
+    Test::new()
+        .justfile("
     backtick-fail:
     \techo {{`exit 200`}}
-  ",
-  stderr:   "    error: Backtick failed with exit code 200
+  ")
+        .stderr("    error: Backtick failed with exit code 200
      ——▶ justfile:2:9
       │
     2 │     echo {{`exit 200`}}
       │            ^^^^^^^^^^
-  ",
-  status:   200,
+  ")
+        .status(200)
+        .run();
 }
 
 test! {
