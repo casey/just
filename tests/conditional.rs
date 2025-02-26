@@ -144,23 +144,25 @@ fn undefined_otherwise() {
     .run();
 }
 
-test! {
-  name: unexpected_op,
-  justfile: "
+#[test]
+fn unexpected_op() {
+  Test::new()
+    .justfile("
     a := if '' a '' { '' } else { b }
 
     foo:
       echo {{ a }}
-  ",
-  stdout: "",
-  stderr: "
+  ")
+    .stdout("")
+    .stderr("
     error: Expected '&&', '!=', '!~', '||', '==', '=~', '+', or '/', but found identifier
      ——▶ justfile:1:12
       │
     1 │ a := if '' a '' { '' } else { b }
       │            ^
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
