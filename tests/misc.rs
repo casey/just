@@ -2480,13 +2480,14 @@ fn multi_line_string_in_interpolation() {
 }
 
 #[cfg(windows)]
-test! {
-  name: windows_interpreter_path_no_base,
-  justfile: r#"
+#[test]
+fn windows_interpreter_path_no_base() {
+  Test::new()
+    .justfile(r#"
     foo:
       #!powershell
 
       exit 0
-  "#,
-  args: (),
+  "#)
+    .run();
 }
