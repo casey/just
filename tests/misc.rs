@@ -75,12 +75,14 @@ fn alias_listing_private() {
     .run();
 }
 
-test! {
-  name: alias,
-  justfile: "foo:\n  echo foo\nalias f := foo",
-  args: ("f"),
-  stdout: "foo\n",
-  stderr: "echo foo\n",
+#[test]
+fn alias() {
+  Test::new()
+    .arg("f")
+    .justfile("foo:\n  echo foo\nalias f := foo")
+    .stdout("foo\n")
+    .stderr("echo foo\n")
+    .run();
 }
 
 test! {
