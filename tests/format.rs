@@ -352,19 +352,21 @@ fn assignment_if_oneline() {
     .run();
 }
 
-test! {
-  name: assignment_if_multiline,
-  justfile: "
+#[test]
+fn assignment_if_multiline() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo := if 'foo' != 'foo' {
       'foo'
     } else {
       'bar'
     }
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo := if 'foo' != 'foo' { 'foo' } else { 'bar' }
-  ",
+  ")
+    .run();
 }
 
 test! {
