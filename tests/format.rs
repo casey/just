@@ -585,17 +585,19 @@ fn recipe_parameter() {
     .run();
 }
 
-test! {
-  name: recipe_parameter_default,
-  justfile: "
+#[test]
+fn recipe_parameter_default() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo BAR='bar':
         echo foo
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo BAR='bar':
         echo foo
-  ",
+  ")
+    .run();
 }
 
 test! {
