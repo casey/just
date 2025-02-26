@@ -395,15 +395,17 @@ fn assignment_unary_function() {
     .run();
 }
 
-test! {
-  name: assignment_binary_function,
-  justfile: "
+#[test]
+fn assignment_binary_function() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo := env_var_or_default('foo', 'bar')
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo := env_var_or_default('foo', 'bar')
-  ",
+  ")
+    .run();
 }
 
 test! {
