@@ -306,14 +306,16 @@ fn clean() {
     .run();
 }
 
-test! {
-  name: uppercase,
-  justfile: "
+#[test]
+fn uppercase() {
+  Test::new()
+    .justfile("
     foo:
       echo {{ uppercase('bar') }}
-  ",
-  stdout: "BAR\n",
-  stderr: "echo BAR\n",
+  ")
+    .stdout("BAR\n")
+    .stderr("echo BAR\n")
+    .run();
 }
 
 test! {
