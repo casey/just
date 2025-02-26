@@ -1430,18 +1430,20 @@ fn duplicate_recipe() {
         .run();
 }
 
-test! {
-  name:     duplicate_variable,
-  justfile: "a := 'hello'\na := 'hello'\nfoo:",
-  args:     ("foo"),
-  stdout:   "",
-  stderr:   "error: Variable `a` has multiple definitions
+#[test]
+fn duplicate_variable() {
+  Test::new()
+    .arg("foo")
+    .justfile("a := 'hello'\na := 'hello'\nfoo:")
+    .status(EXIT_FAILURE)
+    .stdout("")
+    .stderr("error: Variable `a` has multiple definitions
  ——▶ justfile:2:1
   │
 2 │ a := 'hello'
   │ ^
-",
-  status:   EXIT_FAILURE,
+")
+    .run();
 }
 
 test! {
