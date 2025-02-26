@@ -16,15 +16,18 @@ recipe:
         .run();
 }
 
-test! {
-  name: alias_show,
-  justfile: "foo:\n    bar\nalias f := foo",
-  args: ("--show", "f"),
-  stdout: "
+#[test]
+fn alias_show() {
+  Test::new()
+    .arg("--show")
+    .arg("f")
+    .justfile("foo:\n    bar\nalias f := foo")
+    .stdout("
     alias f := foo
     foo:
         bar
-  ",
+  ")
+    .run();
 }
 
 test! {
