@@ -174,24 +174,26 @@ a:
     .run();
 }
 
-test! {
-  name:     error_line_after_multiline_raw_string_in_interpolation,
-  justfile: r#"
+#[test]
+fn error_line_after_multiline_raw_string_in_interpolation() {
+  Test::new()
+    .arg("a")
+    .justfile(r#"
 a:
   echo '{{"a" + '
   ' + "b"}}'
 
   echo {{b}}
-"#,
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "error: Variable `b` not defined
+"#)
+    .stdout("")
+    .stderr("error: Variable `b` not defined
  ——▶ justfile:5:10
   │
 5 │   echo {{b}}
   │          ^
-",
-  status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
