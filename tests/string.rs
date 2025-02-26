@@ -1,15 +1,17 @@
 use super::*;
 
-test! {
-  name:     raw_string,
-  justfile: r#"
+#[test]
+fn raw_string() {
+  Test::new()
+    .justfile(r#"
 export EXPORTED_VARIABLE := '\z'
 
 recipe:
   printf "$EXPORTED_VARIABLE"
-"#,
-  stdout:   "\\z",
-  stderr:   "printf \"$EXPORTED_VARIABLE\"\n",
+"#)
+    .stdout("\\z")
+    .stderr("printf \"$EXPORTED_VARIABLE\"\n")
+    .run();
 }
 
 test! {
