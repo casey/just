@@ -364,9 +364,10 @@ fn indented_backtick_string_contents_indentation_removed() {
     .run();
 }
 
-test! {
-  name:     indented_raw_string_escapes,
-  justfile: r"
+#[test]
+fn indented_raw_string_escapes() {
+  Test::new()
+    .justfile(r"
     a := '''
       foo\n
       bar
@@ -374,11 +375,12 @@ test! {
 
     @default:
       printf %s '{{a}}'
-  ",
-  stdout: r"
+  ")
+    .stdout(r"
     foo\n
     bar
-  ",
+  ")
+    .run();
 }
 
 test! {
