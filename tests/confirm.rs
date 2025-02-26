@@ -81,7 +81,6 @@ fn do_not_confirm_recipe() {
         ",
     )
     .stderr("Run recipe `requires_confirmation`? error: Recipe `requires_confirmation` was not confirmed\n")
-    .stdout("")
     .status(1)
     .run();
 }
@@ -139,7 +138,6 @@ fn confirm_recipe_with_prompt_too_many_args() {
           │  ^^^^^^^
       "#,
     )
-    .stdout("")
     .status(1)
     .run();
 }

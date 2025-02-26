@@ -1,45 +1,61 @@
 use super::*;
 
-test! {
-  name:     summary,
-  justfile: "b: a
+#[test]
+fn summary() {
+  Test::new()
+    .arg("--summary")
+    .justfile(
+      "b: a
 a:
 d: c
 c: b
 _z: _y
 _y:
 ",
-  args:     ("--summary"),
-  stdout:   "a b c d\n",
+    )
+    .stdout("a b c d\n")
+    .run();
 }
 
-test! {
-  name:     summary_sorted,
-  justfile: "
+#[test]
+fn summary_sorted() {
+  Test::new()
+    .arg("--summary")
+    .justfile(
+      "
 b:
 c:
 a:
 ",
-  args:     ("--summary"),
-  stdout:   "a b c\n",
+    )
+    .stdout("a b c\n")
+    .run();
 }
 
-test! {
-  name:     summary_unsorted,
-  justfile: "
+#[test]
+fn summary_unsorted() {
+  Test::new()
+    .arg("--summary")
+    .arg("--unsorted")
+    .justfile(
+      "
 b:
 c:
 a:
 ",
-  args:     ("--summary", "--unsorted"),
-  stdout:   "b c a\n",
+    )
+    .stdout("b c a\n")
+    .run();
 }
 
-test! {
-  name: summary_none,
-  justfile: "",
-  args: ("--summary", "--quiet"),
-  stdout: "\n\n\n",
+#[test]
+fn summary_none() {
+  Test::new()
+    .arg("--summary")
+    .arg("--quiet")
+    .justfile("")
+    .stdout("\n\n\n")
+    .run();
 }
 
 #[test]

@@ -1,42 +1,54 @@
 use super::*;
 
-test! {
-  name: invalid_alias_attribute,
-  justfile: "[private]\n[linux]\nalias t := test\n\ntest:\n",
-  stderr: "
+#[test]
+fn invalid_alias_attribute() {
+  Test::new()
+    .justfile("[private]\n[linux]\nalias t := test\n\ntest:\n")
+    .stderr(
+      "
     error: Alias `t` has invalid attribute `linux`
      ——▶ justfile:3:7
       │
     3 │ alias t := test
       │       ^
   ",
-  status: EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
-test! {
-  name: expected_keyword,
-  justfile: "foo := if '' == '' { '' } arlo { '' }",
-  stderr: "
+#[test]
+fn expected_keyword() {
+  Test::new()
+    .justfile("foo := if '' == '' { '' } arlo { '' }")
+    .stderr(
+      "
     error: Expected keyword `else` but found identifier `arlo`
      ——▶ justfile:1:27
       │
     1 │ foo := if '' == '' { '' } arlo { '' }
       │                           ^^^^
   ",
-  status: EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
-test! {
-  name: unexpected_character,
-  justfile: "&~",
-  stderr: "
+#[test]
+fn unexpected_character() {
+  Test::new()
+    .justfile("&~")
+    .stderr(
+      "
     error: Expected character `&`
      ——▶ justfile:1:2
       │
     1 │ &~
       │  ^
   ",
-  status: EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 #[test]

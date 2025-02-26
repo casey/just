@@ -3,40 +3,6 @@ use {
   pretty_assertions::{assert_eq, StrComparison},
 };
 
-macro_rules! test {
-  {
-    name: $name:ident,
-    $(justfile: $justfile:expr,)?
-    $(args: ($($arg:tt),*),)?
-    $(env: { $($env_key:literal : $env_value:literal,)* },)?
-    $(stdin: $stdin:expr,)?
-    $(stdout: $stdout:expr,)?
-    $(stdout_regex: $stdout_regex:expr,)?
-    $(stderr: $stderr:expr,)?
-    $(stderr_regex: $stderr_regex:expr,)?
-    $(status: $status:expr,)?
-    $(shell: $shell:expr,)?
-  } => {
-    #[test]
-    fn $name() {
-      let test = crate::test::Test::new();
-
-      $($(let test = test.arg($arg);)*)?
-      $($(let test = test.env($env_key, $env_value);)*)?
-      $(let test = test.justfile($justfile);)?
-      $(let test = test.shell($shell);)?
-      $(let test = test.status($status);)?
-      $(let test = test.stderr($stderr);)?
-      $(let test = test.stderr_regex($stderr_regex);)?
-      $(let test = test.stdin($stdin);)?
-      $(let test = test.stdout($stdout);)?
-      $(let test = test.stdout_regex($stdout_regex);)?
-
-      test.run();
-    }
-  }
-}
-
 pub(crate) struct Output {
   pub(crate) pid: u32,
   pub(crate) stdout: String,

@@ -1,22 +1,27 @@
 use super::*;
 
-test! {
-  name: assert_pass,
-  justfile: "
+#[test]
+fn assert_pass() {
+  Test::new()
+    .justfile(
+      "
     foo:
       {{ assert('a' == 'a', 'error message') }}
   ",
-  stdout: "",
-  stderr: "",
+    )
+    .run();
 }
 
-test! {
-  name: assert_fail,
-  justfile: "
+#[test]
+fn assert_fail() {
+  Test::new()
+    .justfile(
+      "
     foo:
       {{ assert('a' != 'a', 'error message') }}
   ",
-  stdout: "",
-  stderr: "error: Assert failed: error message\n",
-  status: EXIT_FAILURE,
+    )
+    .stderr("error: Assert failed: error message\n")
+    .status(EXIT_FAILURE)
+    .run();
 }

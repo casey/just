@@ -1,38 +1,53 @@
 use super::*;
 
-test! {
-  name:     raw_string,
-  justfile: r#"
+#[test]
+fn raw_string() {
+  Test::new()
+    .justfile(
+      r#"
 export EXPORTED_VARIABLE := '\z'
 
 recipe:
   printf "$EXPORTED_VARIABLE"
 "#,
-  stdout:   "\\z",
-  stderr:   "printf \"$EXPORTED_VARIABLE\"\n",
+    )
+    .stdout("\\z")
+    .stderr("printf \"$EXPORTED_VARIABLE\"\n")
+    .run();
 }
 
-test! {
-  name:     multiline_raw_string,
-  justfile: "
+#[test]
+fn multiline_raw_string() {
+  Test::new()
+    .arg("a")
+    .justfile(
+      "
 string := 'hello
 whatever'
 
 a:
   echo '{{string}}'
 ",
-  args:     ("a"),
-  stdout:   "hello
+    )
+    .stdout(
+      "hello
 whatever
 ",
-  stderr:   "echo 'hello
+    )
+    .stderr(
+      "echo 'hello
 whatever'
 ",
+    )
+    .run();
 }
 
-test! {
-  name:     multiline_backtick,
-  justfile: "
+#[test]
+fn multiline_backtick() {
+  Test::new()
+    .arg("a")
+    .justfile(
+      "
 string := `echo hello
 echo goodbye
 `
@@ -40,34 +55,47 @@ echo goodbye
 a:
   echo '{{string}}'
 ",
-  args:     ("a"),
-  stdout:   "hello\ngoodbye\n",
-  stderr:   "echo 'hello
+    )
+    .stdout("hello\ngoodbye\n")
+    .stderr(
+      "echo 'hello
 goodbye'
 ",
+    )
+    .run();
 }
 
-test! {
-  name:     multiline_cooked_string,
-  justfile: r#"
+#[test]
+fn multiline_cooked_string() {
+  Test::new()
+    .arg("a")
+    .justfile(
+      r#"
 string := "hello
 whatever"
 
 a:
   echo '{{string}}'
 "#,
-  args:     ("a"),
-  stdout:   "hello
+    )
+    .stdout(
+      "hello
 whatever
 ",
-  stderr:   "echo 'hello
+    )
+    .stderr(
+      "echo 'hello
 whatever'
 ",
+    )
+    .run();
 }
 
-test! {
-  name:     cooked_string_suppress_newline,
-  justfile: r#"
+#[test]
+fn cooked_string_suppress_newline() {
+  Test::new()
+    .justfile(
+      r#"
     a := """
       foo\
       bar
@@ -76,29 +104,41 @@ test! {
     @default:
       printf %s '{{a}}'
   "#,
-  stdout: "
+    )
+    .stdout(
+      "
     foobar
   ",
+    )
+    .run();
 }
 
-test! {
-  name:     invalid_escape_sequence,
-  justfile: r#"x := "\q"
+#[test]
+fn invalid_escape_sequence() {
+  Test::new()
+    .arg("a")
+    .justfile(
+      r#"x := "\q"
 a:"#,
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "error: `\\q` is not a valid escape sequence
+    )
+    .stderr(
+      "error: `\\q` is not a valid escape sequence
  ——▶ justfile:1:6
   │
 1 │ x := \"\\q\"
   │      ^^^^
 ",
-  status:   EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
-test! {
-  name:     error_line_after_multiline_raw_string,
-  justfile: "
+#[test]
+fn error_line_after_multiline_raw_string() {
+  Test::new()
+    .arg("a")
+    .justfile(
+      "
 string := 'hello
 
 whatever' + 'yo'
@@ -106,20 +146,25 @@ whatever' + 'yo'
 a:
   echo '{{foo}}'
 ",
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "error: Variable `foo` not defined
+    )
+    .stderr(
+      "error: Variable `foo` not defined
  ——▶ justfile:6:11
   │
 6 │   echo '{{foo}}'
   │           ^^^
 ",
-  status:   EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
-test! {
-  name:     error_column_after_multiline_raw_string,
-  justfile: "
+#[test]
+fn error_column_after_multiline_raw_string() {
+  Test::new()
+    .arg("a")
+    .justfile(
+      "
 string := 'hello
 
 whatever' + bar
@@ -127,158 +172,207 @@ whatever' + bar
 a:
   echo '{{string}}'
 ",
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "error: Variable `bar` not defined
+    )
+    .stderr(
+      "error: Variable `bar` not defined
  ——▶ justfile:3:13
   │
 3 │ whatever' + bar
   │             ^^^
 ",
-  status:   EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
-test! {
-  name:     multiline_raw_string_in_interpolation,
-  justfile: r#"
+#[test]
+fn multiline_raw_string_in_interpolation() {
+  Test::new()
+    .arg("a")
+    .justfile(
+      r#"
 a:
   echo '{{"a" + '
   ' + "b"}}'
 "#,
-  args:     ("a"),
-  stdout:   "
+    )
+    .stdout(
+      "
     a
       b
   ",
-  stderr:   "
+    )
+    .stderr(
+      "
     echo 'a
       b'
   ",
+    )
+    .run();
 }
 
-test! {
-  name:     error_line_after_multiline_raw_string_in_interpolation,
-  justfile: r#"
+#[test]
+fn error_line_after_multiline_raw_string_in_interpolation() {
+  Test::new()
+    .arg("a")
+    .justfile(
+      r#"
 a:
   echo '{{"a" + '
   ' + "b"}}'
 
   echo {{b}}
 "#,
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "error: Variable `b` not defined
+    )
+    .stderr(
+      "error: Variable `b` not defined
  ——▶ justfile:5:10
   │
 5 │   echo {{b}}
   │          ^
 ",
-  status:   EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
-test! {
-  name:     unterminated_raw_string,
-  justfile: "
+#[test]
+fn unterminated_raw_string() {
+  Test::new()
+    .arg("a")
+    .justfile(
+      "
     a b= ':
   ",
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "
+    )
+    .stderr(
+      "
     error: Unterminated string
      ——▶ justfile:1:6
       │
     1 │ a b= ':
       │      ^
   ",
-  status:   EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
-test! {
-  name:     unterminated_string,
-  justfile: r#"
+#[test]
+fn unterminated_string() {
+  Test::new()
+    .arg("a")
+    .justfile(
+      r#"
     a b= ":
   "#,
-  args:     ("a"),
-  stdout:   "",
-  stderr:   r#"
+    )
+    .stderr(
+      r#"
     error: Unterminated string
      ——▶ justfile:1:6
       │
     1 │ a b= ":
       │      ^
   "#,
-  status:   EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
-test! {
-  name:     unterminated_backtick,
-  justfile: "
+#[test]
+fn unterminated_backtick() {
+  Test::new()
+    .justfile(
+      "
     foo a=\t`echo blaaaaaah:
       echo {{a}}
   ",
-  stderr:   r"
+    )
+    .stderr(
+      r"
     error: Unterminated backtick
      ——▶ justfile:1:8
       │
     1 │ foo a=    `echo blaaaaaah:
       │           ^
   ",
-  status:   EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
-test! {
-  name:     unterminated_indented_raw_string,
-  justfile: "
+#[test]
+fn unterminated_indented_raw_string() {
+  Test::new()
+    .arg("a")
+    .justfile(
+      "
     a b= ''':
   ",
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "
+    )
+    .stderr(
+      "
     error: Unterminated string
      ——▶ justfile:1:6
       │
     1 │ a b= ''':
       │      ^^^
   ",
-  status:   EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
-test! {
-  name:     unterminated_indented_string,
-  justfile: r#"
+#[test]
+fn unterminated_indented_string() {
+  Test::new()
+    .arg("a")
+    .justfile(
+      r#"
     a b= """:
   "#,
-  args:     ("a"),
-  stdout:   "",
-  stderr:   r#"
+    )
+    .stderr(
+      r#"
     error: Unterminated string
      ——▶ justfile:1:6
       │
     1 │ a b= """:
       │      ^^^
   "#,
-  status:   EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
-test! {
-  name:     unterminated_indented_backtick,
-  justfile: "
+#[test]
+fn unterminated_indented_backtick() {
+  Test::new()
+    .justfile(
+      "
     foo a=\t```echo blaaaaaah:
       echo {{a}}
   ",
-  stderr:   r"
+    )
+    .stderr(
+      r"
     error: Unterminated backtick
      ——▶ justfile:1:8
       │
     1 │ foo a=    ```echo blaaaaaah:
       │           ^^^
   ",
-  status:   EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
-test! {
-  name:     indented_raw_string_contents_indentation_removed,
-  justfile: "
+#[test]
+fn indented_raw_string_contents_indentation_removed() {
+  Test::new()
+    .justfile(
+      "
     a := '''
       foo
       bar
@@ -287,15 +381,21 @@ test! {
     @default:
       printf '{{a}}'
   ",
-  stdout: "
+    )
+    .stdout(
+      "
     foo
     bar
   ",
+    )
+    .run();
 }
 
-test! {
-  name:     indented_cooked_string_contents_indentation_removed,
-  justfile: r#"
+#[test]
+fn indented_cooked_string_contents_indentation_removed() {
+  Test::new()
+    .justfile(
+      r#"
     a := """
       foo
       bar
@@ -304,15 +404,21 @@ test! {
     @default:
       printf '{{a}}'
   "#,
-  stdout: "
+    )
+    .stdout(
+      "
     foo
     bar
   ",
+    )
+    .run();
 }
 
-test! {
-  name:     indented_backtick_string_contents_indentation_removed,
-  justfile: r"
+#[test]
+fn indented_backtick_string_contents_indentation_removed() {
+  Test::new()
+    .justfile(
+      r"
     a := ```
       printf '
       foo
@@ -323,12 +429,16 @@ test! {
     @default:
       printf '{{a}}'
   ",
-  stdout: "\n\nfoo\nbar",
+    )
+    .stdout("\n\nfoo\nbar")
+    .run();
 }
 
-test! {
-  name:     indented_raw_string_escapes,
-  justfile: r"
+#[test]
+fn indented_raw_string_escapes() {
+  Test::new()
+    .justfile(
+      r"
     a := '''
       foo\n
       bar
@@ -337,15 +447,21 @@ test! {
     @default:
       printf %s '{{a}}'
   ",
-  stdout: r"
+    )
+    .stdout(
+      r"
     foo\n
     bar
   ",
+    )
+    .run();
 }
 
-test! {
-  name:     indented_cooked_string_escapes,
-  justfile: r#"
+#[test]
+fn indented_cooked_string_escapes() {
+  Test::new()
+    .justfile(
+      r#"
     a := """
       foo\n
       bar
@@ -354,16 +470,22 @@ test! {
     @default:
       printf %s '{{a}}'
   "#,
-  stdout: "
+    )
+    .stdout(
+      "
     foo
 
     bar
   ",
+    )
+    .run();
 }
 
-test! {
-  name:     indented_backtick_string_escapes,
-  justfile: r"
+#[test]
+fn indented_backtick_string_escapes() {
+  Test::new()
+    .justfile(
+      r"
     a := ```
       printf %s '
       foo\n
@@ -374,22 +496,30 @@ test! {
     @default:
       printf %s '{{a}}'
   ",
-  stdout: "\n\nfoo\\n\nbar",
+    )
+    .stdout("\n\nfoo\\n\nbar")
+    .run();
 }
 
-test! {
-  name:     shebang_backtick,
-  justfile: "
+#[test]
+fn shebang_backtick() {
+  Test::new()
+    .justfile(
+      "
     x := `#!/usr/bin/env sh`
   ",
-  stderr:   "
+    )
+    .stderr(
+      "
     error: Backticks may not start with `#!`
      ——▶ justfile:1:6
       │
     1 │ x := `#!/usr/bin/env sh`
       │      ^^^^^^^^^^^^^^^^^^^
   ",
-  status:   EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 #[test]
