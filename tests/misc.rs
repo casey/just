@@ -1242,16 +1242,18 @@ foo:
     .run();
 }
 
-test! {
-  name:     line_continuation_no_space,
-  justfile: r"
+#[test]
+fn line_continuation_no_space() {
+  Test::new()
+    .justfile(r"
 foo:
   echo a\
   b\
   c
-",
-  stdout:   "abc\n",
-  stderr:   "echo abc\n",
+")
+    .stdout("abc\n")
+    .stderr("echo abc\n")
+    .run();
 }
 
 test! {
