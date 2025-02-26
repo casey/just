@@ -705,17 +705,19 @@ fn recipe_variadic_star() {
     .run();
 }
 
-test! {
-  name: recipe_positional_variadic,
-  justfile: "
+#[test]
+fn recipe_positional_variadic() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo BAR *BAZ:
         echo foo
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo BAR *BAZ:
         echo foo
-  ",
+  ")
+    .run();
 }
 
 test! {
