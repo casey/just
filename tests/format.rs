@@ -195,15 +195,17 @@ fn alias_fix_indent() {
     .run();
 }
 
-test! {
-  name: assignment_singlequote,
-  justfile: "
+#[test]
+fn assignment_singlequote() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo := 'foo'
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo := 'foo'
-  ",
+  ")
+    .run();
 }
 
 test! {
