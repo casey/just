@@ -2436,16 +2436,18 @@ fn interpolation_evaluation_ignore_quiet_continuation() {
     .run();
 }
 
-test! {
-  name: brace_escape,
-  justfile: "
+#[test]
+fn brace_escape() {
+  Test::new()
+    .justfile("
     foo:
       echo '{{{{'
-  ",
-  stdout: "{{\n",
-  stderr: "
+  ")
+    .stdout("{{\n")
+    .stderr("
     echo '{{'
-  ",
+  ")
+    .run();
 }
 
 test! {
