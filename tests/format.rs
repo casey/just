@@ -208,15 +208,17 @@ fn assignment_singlequote() {
     .run();
 }
 
-test! {
-  name: assignment_doublequote,
-  justfile: r#"
+#[test]
+fn assignment_doublequote() {
+  Test::new()
+    .arg("--dump")
+    .justfile(r#"
     foo := "foo"
-  "#,
-  args: ("--dump"),
-  stdout: r#"
+  "#)
+    .stdout(r#"
     foo := "foo"
-  "#,
+  "#)
+    .run();
 }
 
 test! {
