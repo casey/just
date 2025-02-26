@@ -981,17 +981,19 @@ fn comment() {
     .run();
 }
 
-test! {
-  name: comment_multiline,
-  justfile: "
+#[test]
+fn comment_multiline() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     # foo
     # bar
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     # foo
     # bar
-  ",
+  ")
+    .run();
 }
 
 test! {
