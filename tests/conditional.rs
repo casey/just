@@ -48,14 +48,16 @@ fn then_branch_unevaluated_inverted() {
     .run();
 }
 
-test! {
-  name: complex_expressions,
-  justfile: "
+#[test]
+fn complex_expressions() {
+  Test::new()
+    .justfile("
     foo:
       echo {{ if 'a' + 'b' == `echo ab` { 'c' + 'd' } else { 'e' + 'f' } }}
-  ",
-  stdout: "cd\n",
-  stderr: "echo cd\n",
+  ")
+    .stdout("cd\n")
+    .stderr("echo cd\n")
+    .run();
 }
 
 test! {
