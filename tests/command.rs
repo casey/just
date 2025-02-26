@@ -116,14 +116,18 @@ fn set_overrides_work() {
     .run();
 }
 
-test! {
-  name: run_in_shell,
-  justfile: "
+#[test]
+fn run_in_shell() {
+  Test::new()
+    .arg("--shell-command")
+    .arg("--command")
+    .arg("bar baz")
+    .justfile("
     set shell := ['printf']
-  ",
-  args: ("--shell-command", "--command", "bar baz"),
-  stdout: "bar baz",
-  shell: false,
+  ")
+    .stdout("bar baz")
+    .shell(false)
+    .run();
 }
 
 test! {
