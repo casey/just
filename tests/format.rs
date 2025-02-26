@@ -942,15 +942,17 @@ fn set_true_implicit() {
     .run();
 }
 
-test! {
-  name: set_false,
-  justfile: "
+#[test]
+fn set_false() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     set export := false
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     set export := false
-  ",
+  ")
+    .run();
 }
 
 test! {
