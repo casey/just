@@ -170,17 +170,19 @@ fn unknown_alias_target() {
     .run();
 }
 
-test! {
-  name: alias_shadows_recipe,
-  justfile: "bar:\n  echo bar\nalias foo := bar\nfoo:\n  echo foo",
-  stderr: "
+#[test]
+fn alias_shadows_recipe() {
+  Test::new()
+    .justfile("bar:\n  echo bar\nalias foo := bar\nfoo:\n  echo foo")
+    .stderr("
     error: Alias `foo` defined on line 3 is redefined as a recipe on line 4
      ——▶ justfile:4:1
       │
     4 │ foo:
       │ ^^^
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
