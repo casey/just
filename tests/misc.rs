@@ -1616,16 +1616,20 @@ a x y +z='HELLO':
     .run();
 }
 
-test! {
-  name:     plus_variadic_too_few,
-  justfile: "
+#[test]
+fn plus_variadic_too_few() {
+  Test::new()
+    .arg("a")
+    .arg("0")
+    .arg("1")
+    .justfile("
 a x y +z:
   echo {{x}} {{y}} {{z}}
-",
-  args:     ("a", "0", "1"),
-  stdout:   "",
-  stderr:   "error: Recipe `a` got 2 arguments but takes at least 3\nusage:\n    just a x y +z\n",
-  status:   EXIT_FAILURE,
+")
+    .stdout("")
+    .stderr("error: Recipe `a` got 2 arguments but takes at least 3\nusage:\n    just a x y +z\n")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
