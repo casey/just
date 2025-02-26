@@ -81,23 +81,25 @@ fn undefined_lhs() {
     .run();
 }
 
-test! {
-  name: undefined_rhs,
-  justfile: "
+#[test]
+fn undefined_rhs() {
+  Test::new()
+    .justfile("
     a := if '' == b { '' } else { '' }
 
     foo:
       echo {{ a }}
-  ",
-  stdout: "",
-  stderr: "
+  ")
+    .stdout("")
+    .stderr("
     error: Variable `b` not defined
      ——▶ justfile:1:15
       │
     1 │ a := if '' == b { '' } else { '' }
       │               ^
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
