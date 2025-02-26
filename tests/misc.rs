@@ -1836,15 +1836,20 @@ a:
     .run();
 }
 
-test! {
-  name:     trailing_flags,
-  justfile: "
+#[test]
+fn trailing_flags() {
+  Test::new()
+    .arg("echo")
+    .arg("--some")
+    .arg("--awesome")
+    .arg("--flags")
+    .justfile("
 echo A B C:
   echo {{A}} {{B}} {{C}}
-",
-  args:     ("echo", "--some", "--awesome", "--flags"),
-  stdout:   "--some --awesome --flags\n",
-  stderr:   "echo --some --awesome --flags\n",
+")
+    .stdout("--some --awesome --flags\n")
+    .stderr("echo --some --awesome --flags\n")
+    .run();
 }
 
 test! {
