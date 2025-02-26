@@ -1148,18 +1148,20 @@ fn group_sets() {
     .run();
 }
 
-test! {
-  name: group_comments,
-  justfile: "
+#[test]
+fn group_comments() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     # foo
 
     # bar
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     # foo
     # bar
-  ",
+  ")
+    .run();
 }
 
 test! {
