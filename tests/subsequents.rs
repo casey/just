@@ -146,23 +146,25 @@ fn duplicate_subsequents_dont_run() {
         .run();
 }
 
-test! {
-  name: subsequents_run_even_if_already_ran_as_prior,
-  justfile: "
+#[test]
+fn subsequents_run_even_if_already_ran_as_prior() {
+  Test::new()
+    .justfile("
     a: b && b
       echo a
 
     b:
       echo b
-  ",
-  stdout: "
+  ")
+    .stdout("
     b
     a
     b
-  ",
-  stderr: "
+  ")
+    .stderr("
     echo b
     echo a
     echo b
-  ",
+  ")
+    .run();
 }
