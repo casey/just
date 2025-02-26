@@ -1143,18 +1143,22 @@ a:
     .run();
 }
 
-test! {
-  name:     list_heading,
-  justfile: r"
+#[test]
+fn list_heading() {
+  Test::new()
+    .arg("--list")
+    .arg("--list-heading")
+    .arg("Cool stuff…\n")
+    .justfile(r"
 a:
 b:
-",
-  args:     ("--list", "--list-heading", "Cool stuff…\n"),
-  stdout:   r"
+")
+    .stdout(r"
     Cool stuff…
         a
         b
-  ",
+  ")
+    .run();
 }
 
 test! {
