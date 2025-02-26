@@ -66,9 +66,10 @@ fn brace_continuation() {
     .run();
 }
 
-test! {
-  name: bracket_continuation,
-  justfile: "
+#[test]
+fn bracket_continuation() {
+  Test::new()
+    .justfile("
     set shell := [
       'sh',
       '-cu',
@@ -76,9 +77,10 @@ test! {
 
     foo:
       echo foo
-  ",
-  stdout: "foo\n",
-  stderr: "echo foo\n",
+  ")
+    .stdout("foo\n")
+    .stderr("echo foo\n")
+    .run();
 }
 
 test! {
