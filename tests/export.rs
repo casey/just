@@ -1,3 +1,5 @@
+use super::*;
+
 test! {
   name:     success,
   justfile: r#"
