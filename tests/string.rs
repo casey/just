@@ -73,9 +73,10 @@ whatever'
     .run();
 }
 
-test! {
-  name:     cooked_string_suppress_newline,
-  justfile: r#"
+#[test]
+fn cooked_string_suppress_newline() {
+  Test::new()
+    .justfile(r#"
     a := """
       foo\
       bar
@@ -83,10 +84,11 @@ test! {
 
     @default:
       printf %s '{{a}}'
-  "#,
-  stdout: "
+  "#)
+    .stdout("
     foobar
-  ",
+  ")
+    .run();
 }
 
 test! {
