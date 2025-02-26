@@ -1311,15 +1311,17 @@ fn quiet_shebang_recipe() {
     .run();
 }
 
-test! {
-  name:     complex_dependencies,
-  justfile: r"
+#[test]
+fn complex_dependencies() {
+  Test::new()
+    .arg("b")
+    .justfile(r"
 a: b
 b:
 c: b a
-",
-  args:     ("b"),
-  stdout:   "",
+")
+    .stdout("")
+    .run();
 }
 
 test! {
