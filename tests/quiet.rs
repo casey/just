@@ -144,11 +144,15 @@ fn init_exists() {
     .run();
 }
 
-test! {
-  name: show_missing,
-  justfile: "foo:",
-  args: ("--show", "bar", "--quiet"),
-  status: EXIT_FAILURE,
+#[test]
+fn show_missing() {
+  Test::new()
+    .arg("--show")
+    .arg("bar")
+    .arg("--quiet")
+    .justfile("foo:")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
