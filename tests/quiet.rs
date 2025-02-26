@@ -77,11 +77,14 @@ default:
     .run();
 }
 
-test! {
-  name: choose_none,
-  justfile: "",
-  args: ("--choose", "--quiet"),
-  status: EXIT_FAILURE,
+#[test]
+fn choose_none() {
+  Test::new()
+    .arg("--choose")
+    .arg("--quiet")
+    .justfile("")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
