@@ -268,16 +268,18 @@ fn env_var_failure() {
     .run();
 }
 
-test! {
-  name:     test_just_executable_function,
-  justfile: "
+#[test]
+fn test_just_executable_function() {
+  Test::new()
+    .arg("a")
+    .justfile("
     a:
       @printf 'Executable path is: %s\\n' '{{ just_executable() }}'
-  ",
-  args:     ("a"),
-  stdout:   format!("Executable path is: {}\n", executable_path("just").to_str().unwrap()).as_str(),
-  stderr:   "",
-  status:   EXIT_SUCCESS,
+  ")
+    .status(EXIT_SUCCESS)
+    .stderr("")
+    .stdout(format!("Executable path is: {}\n", executable_path("just").to_str().unwrap()).as_str())
+    .run();
 }
 
 test! {
