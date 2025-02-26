@@ -60,23 +60,25 @@ fn complex_expressions() {
     .run();
 }
 
-test! {
-  name: undefined_lhs,
-  justfile: "
+#[test]
+fn undefined_lhs() {
+  Test::new()
+    .justfile("
     a := if b == '' { '' } else { '' }
 
     foo:
       echo {{ a }}
-  ",
-  stdout: "",
-  stderr: "
+  ")
+    .stdout("")
+    .stderr("
     error: Variable `b` not defined
      ——▶ justfile:1:9
       │
     1 │ a := if b == '' { '' } else { '' }
       │         ^
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
