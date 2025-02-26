@@ -171,22 +171,24 @@ foo:
 }
 
 #[cfg(not(windows))]
-test! {
-  name: broken_file_name_function,
-  justfile: r"
+#[test]
+fn broken_file_name_function() {
+  Test::new()
+    .justfile(r"
 we  := file_name('')
 
 foo:
   /usr/bin/env echo '{{we}}'
-",
-  stdout:   "",
-  stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
-    "error: Call to function `file_name` failed: Could not extract file name from ``",
-    " ——▶ justfile:1:8",
-    "  │",
-    "1 │ we  := file_name(\'\')",
-    "  │        ^^^^^^^^^").as_str(),
-  status:   EXIT_FAILURE,
+")
+    .stdout("")
+    .stderr(format!("{}\n{}\n{}\n{}\n{}\n",
+      "error: Call to function `file_name` failed: Could not extract file name from ``",
+      " ——▶ justfile:1:8",
+      "  │",
+      "1 │ we  := file_name(\'\')",
+      "  │        ^^^^^^^^^").as_str())
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 #[cfg(not(windows))]
