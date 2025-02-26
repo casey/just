@@ -955,15 +955,17 @@ fn set_false() {
     .run();
 }
 
-test! {
-  name: set_shell,
-  justfile: r#"
+#[test]
+fn set_shell() {
+  Test::new()
+    .arg("--dump")
+    .justfile(r#"
     set shell := ['sh', "-c"]
-  "#,
-  args: ("--dump"),
-  stdout: r#"
+  "#)
+    .stdout(r#"
     set shell := ['sh', "-c"]
-  "#,
+  "#)
+    .run();
 }
 
 test! {
