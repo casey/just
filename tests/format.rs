@@ -268,19 +268,21 @@ fn assignment_backtick() {
     .run();
 }
 
-test! {
-  name: assignment_indented_backtick,
-  justfile: "
+#[test]
+fn assignment_indented_backtick() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo := ```
       foo
     ```
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo := ```
       foo
     ```
-  ",
+  ")
+    .run();
 }
 
 test! {
