@@ -198,20 +198,22 @@ fn if_else() {
     .run();
 }
 
-test! {
-  name: missing_else,
-  justfile: "
+#[test]
+fn missing_else() {
+  Test::new()
+    .justfile("
   TEST := if path_exists('/bin/bash') == 'true' {'yes'}
-  ",
-  stdout: "",
-  stderr: "
+  ")
+    .stdout("")
+    .stderr("
     error: Expected keyword `else` but found `end of line`
      ——▶ justfile:1:54
       │
     1 │ TEST := if path_exists('/bin/bash') == 'true' {'yes'}
       │                                                      ^
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
