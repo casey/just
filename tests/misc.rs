@@ -622,9 +622,13 @@ recipe arg:
     .run();
 }
 
-test! {
-  name:     dry_run,
-  justfile: r"
+#[test]
+fn dry_run() {
+    Test::new()
+        .arg("--dry-run")
+        .arg("shebang")
+        .arg("command")
+        .justfile(r"
 var := `echo stderr 1>&2; echo backtick`
 
 command:
@@ -636,17 +640,17 @@ shebang:
   #!/bin/sh
   touch /this/is/not/a/file
   {{var}}
-  echo {{`echo shebang interpolation`}}",
-  args:     ("--dry-run", "shebang", "command"),
-  stdout:   "",
-  stderr:   "#!/bin/sh
+  echo {{`echo shebang interpolation`}}")
+        .stdout("")
+        .stderr("#!/bin/sh
 touch /this/is/not/a/file
 `echo stderr 1>&2; echo backtick`
 echo `echo shebang interpolation`
 touch /this/is/not/a/file
 `echo stderr 1>&2; echo backtick`
 echo `echo command interpolation`
-",
+")
+        .run();
 }
 
 #[test]
