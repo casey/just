@@ -79,16 +79,21 @@ fn env_is_loaded() {
     .run();
 }
 
-test! {
-  name: exports_are_available,
-  justfile: "
+#[test]
+fn exports_are_available() {
+  Test::new()
+    .arg("--command")
+    .arg("sh")
+    .arg("-c")
+    .arg("printf $FOO")
+    .justfile("
     export FOO := 'bar'
 
     x:
       echo XYZ
-  ",
-  args: ("--command", "sh", "-c", "printf $FOO"),
-  stdout: "bar",
+  ")
+    .stdout("bar")
+    .run();
 }
 
 test! {
