@@ -59,18 +59,20 @@ fn linewise_with_attribute() {
     .run();
 }
 
-test! {
-  name: variadic_linewise,
-  justfile: r#"
+#[test]
+fn variadic_linewise() {
+  Test::new()
+    .args(&["foo", "a", "b", "c"])
+    .justfile(r#"
     set positional-arguments
 
     foo *bar:
       echo $1
       echo "$@"
-  "#,
-  args:   ("foo", "a", "b", "c"),
-  stdout: "a\na b c\n",
-  stderr: "echo $1\necho \"$@\"\n",
+  "#)
+    .stdout("a\na b c\n")
+    .stderr("echo $1\necho \"$@\"\n")
+    .run();
 }
 
 test! {
