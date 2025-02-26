@@ -118,9 +118,10 @@ fn setting_implicit() {
     .run();
 }
 
-test! {
-  name: setting_true,
-  justfile: "
+#[test]
+fn setting_true() {
+  Test::new()
+    .justfile("
     set export := true
 
     A := 'hello'
@@ -129,10 +130,12 @@ test! {
       echo $A
       echo $B
       echo $C
-  ",
-  args: ("foo", "goodbye"),
-  stdout: "hello\ngoodbye\nhello\n",
-  stderr: "echo $A\necho $B\necho $C\n",
+  ")
+    .arg("foo")
+    .arg("goodbye")
+    .stdout("hello\ngoodbye\nhello\n")
+    .stderr("echo $A\necho $B\necho $C\n")
+    .run();
 }
 
 test! {
