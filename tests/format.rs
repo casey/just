@@ -765,17 +765,19 @@ fn recipe_parameter_conditional() {
     .run();
 }
 
-test! {
-  name: recipe_escaped_braces,
-  justfile: "
+#[test]
+fn recipe_escaped_braces() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo BAR:
         echo '{{{{BAR}}}}'
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo BAR:
         echo '{{{{BAR}}}}'
-  ",
+  ")
+    .run();
 }
 
 test! {
