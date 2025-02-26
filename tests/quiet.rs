@@ -134,11 +134,14 @@ fn edit_status() {
     .run();
 }
 
-test! {
-  name: init_exists,
-  justfile: "foo:",
-  args: ("--init", "--quiet"),
-  status: EXIT_FAILURE,
+#[test]
+fn init_exists() {
+  Test::new()
+    .arg("--init")
+    .arg("--quiet")
+    .justfile("foo:")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
