@@ -382,15 +382,17 @@ fn assignment_nullary_function() {
     .run();
 }
 
-test! {
-  name: assignment_unary_function,
-  justfile: "
+#[test]
+fn assignment_unary_function() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo := env_var('foo')
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo := env_var('foo')
-  ",
+  ")
+    .run();
 }
 
 test! {
