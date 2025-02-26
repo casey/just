@@ -403,9 +403,10 @@ fn indented_cooked_string_escapes() {
     .run();
 }
 
-test! {
-  name:     indented_backtick_string_escapes,
-  justfile: r"
+#[test]
+fn indented_backtick_string_escapes() {
+  Test::new()
+    .justfile(r"
     a := ```
       printf %s '
       foo\n
@@ -415,8 +416,9 @@ test! {
 
     @default:
       printf %s '{{a}}'
-  ",
-  stdout: "\n\nfoo\\n\nbar",
+  ")
+    .stdout("\n\nfoo\\n\nbar")
+    .run();
 }
 
 test! {
