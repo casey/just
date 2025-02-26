@@ -924,17 +924,19 @@ fn inconsistent_leading_whitespace() {
     .run();
 }
 
-test! {
-  name:     required_after_default,
-  justfile: "bar:\nhello baz arg='foo' bar:",
-  stdout:   "",
-  stderr:   "error: Non-default parameter `bar` follows default parameter
+#[test]
+fn required_after_default() {
+  Test::new()
+    .justfile("bar:\nhello baz arg='foo' bar:")
+    .stdout("")
+    .stderr("error: Non-default parameter `bar` follows default parameter
  ——▶ justfile:2:21
   │
 2 │ hello baz arg='foo' bar:
   │                     ^^^
-",
-  status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
