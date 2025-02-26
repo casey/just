@@ -86,18 +86,21 @@ a Z="\t z":
     .run();
 }
 
-test! {
-  name:     show_no_suggestion,
-  justfile: r#"
+#[test]
+fn show_no_suggestion() {
+  Test::new()
+    .arg("--show")
+    .arg("hell")
+    .justfile(r#"
 helloooooo a b='B	' c='C':
   echo {{a}} {{b}} {{c}}
 
 a Z="\t z":
-"#,
-  args:     ("--show", "hell"),
-  stdout:   "",
-  stderr:   "error: Justfile does not contain recipe `hell`\n",
-  status:   EXIT_FAILURE,
+"#)
+    .stdout("")
+    .stderr("error: Justfile does not contain recipe `hell`\n")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
