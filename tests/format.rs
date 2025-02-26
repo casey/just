@@ -968,15 +968,17 @@ fn set_shell() {
     .run();
 }
 
-test! {
-  name: comment,
-  justfile: "
+#[test]
+fn comment() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     # foo
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     # foo
-  ",
+  ")
+    .run();
 }
 
 test! {
