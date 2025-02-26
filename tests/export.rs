@@ -154,9 +154,12 @@ fn setting_false() {
     .run();
 }
 
-test! {
-  name: setting_shebang,
-  justfile: "
+#[test]
+fn setting_shebang() {
+  Test::new()
+    .arg("foo")
+    .arg("goodbye")
+    .justfile("
     set export
 
     A := 'hello'
@@ -165,10 +168,10 @@ test! {
       #!/bin/sh
       echo $A
       echo $B
-  ",
-  args: ("foo", "goodbye"),
-  stdout: "hello\ngoodbye\n",
-  stderr: "",
+  ")
+    .stdout("hello\ngoodbye\n")
+    .stderr("")
+    .run();
 }
 
 test! {
