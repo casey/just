@@ -1182,16 +1182,18 @@ fn separate_recipes_aliases() {
     .run();
 }
 
-test! {
-  name: no_trailing_newline,
-  justfile: "
+#[test]
+fn no_trailing_newline() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo:
-        echo foo",
-  args: ("--dump"),
-  stdout: "
+        echo foo")
+    .stdout("
     foo:
         echo foo
-  ",
+  ")
+    .run();
 }
 
 test! {
