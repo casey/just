@@ -1867,19 +1867,21 @@ echo:
     .run();
 }
 
-test! {
-   name:     invalid_escape_sequence_message,
-   justfile: r#"
+#[test]
+fn invalid_escape_sequence_message() {
+  Test::new()
+    .justfile(r#"
 X := "\'"
-"#,
-   stdout:   "",
-   stderr:   r#"error: `\'` is not a valid escape sequence
+"#)
+    .stdout("")
+    .stderr(r#"error: `\'` is not a valid escape sequence
  ——▶ justfile:1:6
   │
 1 │ X := "\'"
   │      ^^^^
-"#,
-   status:   EXIT_FAILURE,
+"#)
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
