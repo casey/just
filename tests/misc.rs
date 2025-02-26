@@ -696,15 +696,19 @@ foo A:
     .run();
 }
 
-test! {
-  name:     argument_multiple,
-  justfile: "
+#[test]
+fn argument_multiple() {
+  Test::new()
+    .arg("foo")
+    .arg("ONE")
+    .arg("TWO")
+    .justfile("
 foo A B:
   echo A:{{A}} B:{{B}}
-    ",
-  args:     ("foo", "ONE", "TWO"),
-  stdout:   "A:ONE B:TWO\n",
-  stderr:   "echo A:ONE B:TWO\n",
+    ")
+    .stdout("A:ONE B:TWO\n")
+    .stderr("echo A:ONE B:TWO\n")
+    .run();
 }
 
 test! {
