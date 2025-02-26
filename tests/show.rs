@@ -64,23 +64,26 @@ a Z="\t z":
     .run();
 }
 
-test! {
-  name:     show_alias_suggestion,
-  justfile: r#"
+#[test]
+fn show_alias_suggestion() {
+  Test::new()
+    .arg("--show")
+    .arg("fo")
+    .justfile(r#"
 hello a b='B	' c='C':
   echo {{a}} {{b}} {{c}}
 
 alias foo := hello
 
 a Z="\t z":
-"#,
-  args:     ("--show", "fo"),
-  stdout:   "",
-  stderr:   "
+"#)
+    .stdout("")
+    .stderr("
     error: Justfile does not contain recipe `fo`
     Did you mean `foo`, an alias for `hello`?
-  ",
-  status:   EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
