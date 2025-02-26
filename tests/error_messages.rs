@@ -1,16 +1,18 @@
 use super::*;
 
-test! {
-  name: invalid_alias_attribute,
-  justfile: "[private]\n[linux]\nalias t := test\n\ntest:\n",
-  stderr: "
+#[test]
+fn invalid_alias_attribute() {
+  Test::new()
+    .justfile("[private]\n[linux]\nalias t := test\n\ntest:\n")
+    .stderr("
     error: Alias `t` has invalid attribute `linux`
      ——▶ justfile:3:7
       │
     3 │ alias t := test
       │       ^
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
