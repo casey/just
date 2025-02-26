@@ -1,13 +1,15 @@
 use super::*;
 
-test! {
-  name:     test_os_arch_functions_in_interpolation,
-  justfile: r"
+#[test]
+fn test_os_arch_functions_in_interpolation() {
+  Test::new()
+    .justfile(r"
 foo:
   echo {{arch()}} {{os()}} {{os_family()}} {{num_cpus()}}
-",
-  stdout:   format!("{} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
-  stderr:   format!("echo {} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
+")
+    .stdout(format!("{} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str())
+    .stderr(format!("echo {} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str())
+    .run();
 }
 
 test! {
