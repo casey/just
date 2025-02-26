@@ -14,14 +14,16 @@ default:
 }
 
 #[cfg(windows)]
-test! {
-  name:     powershell_exe,
-  justfile: r#"
+#[test]
+fn powershell_exe() {
+  Test::new()
+    .justfile(r#"
 default:
   #!powershell.exe
    Write-Host Hello-World
-"#,
-  stdout: "Hello-World\n",
+"#)
+    .stdout("Hello-World\n")
+    .run();
 }
 
 #[cfg(windows)]
