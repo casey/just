@@ -326,15 +326,17 @@ fn assignment_export() {
     .run();
 }
 
-test! {
-  name: assignment_concat_values,
-  justfile: "
+#[test]
+fn assignment_concat_values() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo := 'foo' + 'bar'
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo := 'foo' + 'bar'
-  ",
+  ")
+    .run();
 }
 
 test! {
