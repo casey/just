@@ -1,18 +1,20 @@
 use super::*;
 
-test! {
-  name: alias_listing,
-  justfile: "
+#[test]
+fn alias_listing() {
+  Test::new()
+    .arg("--list")
+    .justfile("
     foo:
       echo foo
 
     alias f := foo
-  ",
-  args: ("--list"),
-  stdout: "
+  ")
+    .stdout("
     Available recipes:
         foo # [alias: f]
-  ",
+  ")
+    .run();
 }
 
 #[test]
