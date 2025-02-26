@@ -1930,14 +1930,16 @@ foo x='bar':
         .run();
 }
 
-test! {
-   name:     default_concatenation,
-   justfile: "
+#[test]
+fn default_concatenation() {
+  Test::new()
+    .justfile("
 foo x=(`echo foo` + 'bar'):
   echo {{x}}
-",
-   stdout:   "foobar\n",
-   stderr:   "echo foobar\n",
+")
+    .stdout("foobar\n")
+    .stderr("echo foobar\n")
+    .run();
 }
 
 test! {
