@@ -1780,21 +1780,25 @@ a: x y
     .run();
 }
 
-test! {
-  name:     list_colors,
-  justfile: "
+#[test]
+fn list_colors() {
+    Test::new()
+        .arg("--color")
+        .arg("always")
+        .arg("--list")
+        .justfile("
 # comment
 a B C +D='hello':
   echo {{B}} {{C}} {{D}}
-",
-  args:     ("--color", "always", "--list"),
-  stdout:   "
+")
+        .stdout("
     Available recipes:
         a \
     \u{1b}[36mB\u{1b}[0m \u{1b}[36mC\u{1b}[0m \u{1b}[35m+\
     \u{1b}[0m\u{1b}[36mD\u{1b}[0m=\u{1b}[32m'hello'\u{1b}[0m \
      \u{1b}[34m#\u{1b}[0m \u{1b}[34mcomment\u{1b}[0m
-  ",
+  ")
+        .run();
 }
 
 test! {
