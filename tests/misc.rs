@@ -2112,17 +2112,19 @@ fn backtick_default_cat_justfile() {
     .run();
 }
 
-test! {
-   name:     backtick_variable_read_single,
-   justfile: "
+#[test]
+fn backtick_variable_read_single() {
+  Test::new()
+    .justfile("
 password := `read PW && echo $PW`
 
 default:
   echo {{password}}
-",
-   stdin:    "foobar\n",
-   stdout:   "foobar\n",
-   stderr:   "echo foobar\n",
+")
+    .stdin("foobar\n")
+    .stdout("foobar\n")
+    .stderr("echo foobar\n")
+    .run();
 }
 
 test! {
