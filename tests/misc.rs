@@ -1801,16 +1801,21 @@ a B C +D='hello':
         .run();
 }
 
-test! {
-  name:     run_colors,
-  justfile: "
+#[test]
+fn run_colors() {
+    Test::new()
+        .arg("--color")
+        .arg("always")
+        .arg("--highlight")
+        .arg("--verbose")
+        .justfile("
 # comment
 a:
   echo hi
-",
-  args:     ("--color", "always", "--highlight", "--verbose"),
-  stdout:   "hi\n",
-  stderr:   "\u{1b}[1;36m===> Running recipe `a`...\u{1b}[0m\n\u{1b}[1mecho hi\u{1b}[0m\n",
+")
+        .stdout("hi\n")
+        .stderr("\u{1b}[1;36m===> Running recipe `a`...\u{1b}[0m\n\u{1b}[1mecho hi\u{1b}[0m\n")
+        .run();
 }
 
 test! {
