@@ -1,8 +1,9 @@
 use super::*;
 
-test! {
-  name:     success,
-  justfile: r#"
+#[test]
+fn success() {
+  Test::new()
+    .justfile(r#"
 export FOO := "a"
 baz := "c"
 export BAR := "b"
@@ -10,9 +11,10 @@ export ABC := FOO + BAR + baz
 
 wut:
   echo $FOO $BAR $ABC
-"#,
-  stdout:   "a b abc\n",
-  stderr:   "echo $FOO $BAR $ABC\n",
+"#)
+    .stdout("a b abc\n")
+    .stderr("echo $FOO $BAR $ABC\n")
+    .run();
 }
 
 test! {
