@@ -46,9 +46,14 @@ fn parameter_not_visible_to_backtick() {
     .run();
 }
 
-test! {
-  name:     override_variable,
-  justfile: r#"
+#[test]
+fn override_variable() {
+  Test::new()
+    .arg("--set")
+    .arg("BAR")
+    .arg("bye")
+    .arg("FOO=hello")
+    .justfile(r#"
 export FOO := "a"
 baz := "c"
 export BAR := "b"
@@ -56,10 +61,10 @@ export ABC := FOO + "-" + BAR + "-" + baz
 
 wut:
   echo $FOO $BAR $ABC
-"#,
-  args:     ("--set", "BAR", "bye", "FOO=hello"),
-  stdout:   "hello bye hello-bye-c\n",
-  stderr:   "echo $FOO $BAR $ABC\n",
+"#)
+    .stdout("hello bye hello-bye-c\n")
+    .stderr("echo $FOO $BAR $ABC\n")
+    .run();
 }
 
 test! {
