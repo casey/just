@@ -342,14 +342,16 @@ fn uppercamelcase() {
     .run();
 }
 
-test! {
-  name: lowercamelcase,
-  justfile: "
+#[test]
+fn lowercamelcase() {
+  Test::new()
+    .justfile("
     foo:
       echo {{ lowercamelcase('foo bar') }}
-  ",
-  stdout: "fooBar\n",
-  stderr: "echo fooBar\n",
+  ")
+    .stdout("fooBar\n")
+    .stderr("echo fooBar\n")
+    .run();
 }
 
 test! {
