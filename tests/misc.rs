@@ -85,12 +85,15 @@ fn alias() {
     .run();
 }
 
-test! {
-  name: alias_with_parameters,
-  justfile: "foo value='foo':\n  echo {{value}}\nalias f := foo",
-  args: ("f", "bar"),
-  stdout: "bar\n",
-  stderr: "echo bar\n",
+#[test]
+fn alias_with_parameters() {
+  Test::new()
+    .arg("f")
+    .arg("bar")
+    .justfile("foo value='foo':\n  echo {{value}}\nalias f := foo")
+    .stdout("bar\n")
+    .stderr("echo bar\n")
+    .run();
 }
 
 test! {
