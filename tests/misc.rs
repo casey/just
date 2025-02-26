@@ -140,17 +140,19 @@ fn alias_with_dependencies() {
     .run();
 }
 
-test! {
-  name: duplicate_alias,
-  justfile: "alias foo := bar\nalias foo := baz\n",
-  stderr: "
+#[test]
+fn duplicate_alias() {
+  Test::new()
+    .justfile("alias foo := bar\nalias foo := baz\n")
+    .stderr("
     error: Alias `foo` first defined on line 1 is redefined on line 2
      ——▶ justfile:2:7
       │
     2 │ alias foo := baz
       │       ^^^
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
