@@ -1,16 +1,18 @@
 use super::*;
 
-test! {
-  name:     summary,
-  justfile: "b: a
+#[test]
+fn summary() {
+  Test::new()
+    .arg("--summary")
+    .justfile("b: a
 a:
 d: c
 c: b
 _z: _y
 _y:
-",
-  args:     ("--summary"),
-  stdout:   "a b c d\n",
+")
+    .stdout("a b c d\n")
+    .run();
 }
 
 test! {
