@@ -1901,19 +1901,21 @@ fn unknown_variable_in_default() {
     .run();
 }
 
-test! {
-   name:     unknown_function_in_default,
-   justfile: "
+#[test]
+fn unknown_function_in_default() {
+  Test::new()
+    .justfile("
 foo x=bar():
-",
-   stdout:   "",
-   stderr:   r"error: Call to unknown function `bar`
+")
+    .stdout("")
+    .stderr(r"error: Call to unknown function `bar`
  ——▶ justfile:1:7
   │
 1 │ foo x=bar():
   │       ^^^
-",
-   status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
