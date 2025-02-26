@@ -2401,20 +2401,21 @@ fn variables() {
     .run();
 }
 
-test! {
-  name: interpolation_evaluation_ignore_quiet,
-  justfile: r#"
+#[test]
+fn interpolation_evaluation_ignore_quiet() {
+  Test::new()
+    .justfile(r#"
     foo:
       {{"@echo foo 2>/dev/null"}}
-  "#,
-  args: (),
-  stdout: "",
-  stderr: "
+  "#)
+    .stdout("")
+    .stderr("
     @echo foo 2>/dev/null
     error: Recipe `foo` failed on line 2 with exit code 127
-  ",
-  status: 127,
-  shell: false,
+  ")
+    .status(127)
+    .shell(false)
+    .run();
 }
 
 test! {
