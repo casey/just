@@ -1284,16 +1284,18 @@ error: Recipe `infallible` failed on line 3 with exit code 202
     .run();
 }
 
-test! {
-  name:     quiet_recipe,
-  justfile: r"
+#[test]
+fn quiet_recipe() {
+  Test::new()
+    .justfile(r"
 @quiet:
   # a
   # b
   @echo c
-",
-  stdout:   "c\n",
-  stderr:   "echo c\n",
+")
+    .stdout("c\n")
+    .stderr("echo c\n")
+    .run();
 }
 
 test! {
