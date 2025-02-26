@@ -64,17 +64,20 @@ fn evaluate_single_free() {
     .run();
 }
 
-test! {
-  name:     evaluate_no_suggestion,
-  justfile: "
+#[test]
+fn evaluate_no_suggestion() {
+  Test::new()
+    .arg("--evaluate")
+    .arg("aby")
+    .justfile("
     abc := 'x'
-  ",
-  args:   ("--evaluate", "aby"),
-  stderr: "
+  ")
+    .status(EXIT_FAILURE)
+    .stderr("
     error: Justfile does not contain variable `aby`.
     Did you mean `abc`?
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .run();
 }
 
 test! {
