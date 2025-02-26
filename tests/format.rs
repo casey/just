@@ -720,17 +720,19 @@ fn recipe_positional_variadic() {
     .run();
 }
 
-test! {
-  name: recipe_variadic_default,
-  justfile: "
+#[test]
+fn recipe_variadic_default() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo +BAR='bar':
         echo foo
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo +BAR='bar':
         echo foo
-  ",
+  ")
+    .run();
 }
 
 test! {
