@@ -44,19 +44,21 @@ fn failure() {
     .run();
 }
 
-test! {
-  name: circular_dependency,
-  justfile: "
+#[test]
+fn circular_dependency() {
+  Test::new()
+    .justfile("
     foo: && foo
-  ",
-  stderr: "
+  ")
+    .stderr("
     error: Recipe `foo` depends on itself
      ——▶ justfile:1:9
       │
     1 │ foo: && foo
       │         ^^^
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
