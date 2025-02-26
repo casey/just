@@ -47,18 +47,21 @@ fn alias_show_missing_target() {
     .run();
 }
 
-test! {
-  name:     show_suggestion,
-  justfile: r#"
+#[test]
+fn show_suggestion() {
+  Test::new()
+    .arg("--show")
+    .arg("hell")
+    .justfile(r#"
 hello a b='B	' c='C':
   echo {{a}} {{b}} {{c}}
 
 a Z="\t z":
-"#,
-  args:     ("--show", "hell"),
-  stdout:   "",
-  stderr:   "error: Justfile does not contain recipe `hell`\nDid you mean `hello`?\n",
-  status:   EXIT_FAILURE,
+"#)
+    .stdout("")
+    .stderr("error: Justfile does not contain recipe `hell`\nDid you mean `hello`?\n")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
