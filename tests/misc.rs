@@ -260,17 +260,19 @@ fn print() {
     .run();
 }
 
-test! {
-  name:     status_passthrough,
-  justfile: "
+#[test]
+fn status_passthrough() {
+  Test::new()
+    .arg("recipe")
+    .justfile("
 
 hello:
 
 recipe:
-  @exit 100",
-  args:     ("recipe"),
-  stderr:   "error: Recipe `recipe` failed on line 5 with exit code 100\n",
-  status:   100,
+  @exit 100")
+    .stderr("error: Recipe `recipe` failed on line 5 with exit code 100\n")
+    .status(100)
+    .run();
 }
 
 test! {
