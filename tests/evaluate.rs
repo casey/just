@@ -95,17 +95,19 @@ fn evaluate_suggestion() {
     .run();
 }
 
-test! {
-  name:    evaluate_private,
-  justfile: "
+#[test]
+fn evaluate_private() {
+  Test::new()
+    .arg("--evaluate")
+    .justfile("
     [private]
     foo := 'one'
     bar := 'two'
     _baz := 'three'
-  ",
-  args:   ("--evaluate"),
-  stdout: "bar  := \"two\"\n",
-  status: EXIT_SUCCESS,
+  ")
+    .stdout("bar  := \"two\"\n")
+    .status(EXIT_SUCCESS)
+    .run();
 }
 
 test! {
