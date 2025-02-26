@@ -11,12 +11,15 @@ fn parameter_may_shadow_variable() {
     .run();
 }
 
-test! {
-  name:     shadowing_parameters_do_not_change_environment,
-  justfile: "export FOO := 'hello'\na FOO:\n echo $FOO\n",
-  args:     ("a", "bar"),
-  stdout:   "hello\n",
-  stderr:   "echo $FOO\n",
+#[test]
+fn shadowing_parameters_do_not_change_environment() {
+  Test::new()
+    .arg("a")
+    .arg("bar")
+    .justfile("export FOO := 'hello'\na FOO:\n echo $FOO\n")
+    .stdout("hello\n")
+    .stderr("echo $FOO\n")
+    .run();
 }
 
 test! {
