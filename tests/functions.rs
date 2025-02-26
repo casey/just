@@ -414,14 +414,16 @@ fn shoutykebabcase() {
     .run();
 }
 
-test! {
-  name: trim,
-  justfile: "
+#[test]
+fn trim() {
+  Test::new()
+    .justfile("
     foo:
       echo {{ trim('   bar   ') }}
-  ",
-  stdout: "bar\n",
-  stderr: "echo bar\n",
+  ")
+    .stdout("bar\n")
+    .stderr("echo bar\n")
+    .run();
 }
 
 test! {
