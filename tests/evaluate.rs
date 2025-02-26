@@ -80,16 +80,19 @@ fn evaluate_no_suggestion() {
     .run();
 }
 
-test! {
-  name:     evaluate_suggestion,
-  justfile: "
+#[test]
+fn evaluate_suggestion() {
+  Test::new()
+    .arg("--evaluate")
+    .arg("goodbye")
+    .justfile("
     hello := 'x'
-  ",
-  args:   ("--evaluate", "goodbye"),
-  stderr: "
+  ")
+    .status(EXIT_FAILURE)
+    .stderr("
     error: Justfile does not contain variable `goodbye`.
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .run();
 }
 
 test! {
