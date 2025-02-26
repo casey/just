@@ -1055,9 +1055,11 @@ _private-recipe:
     .run();
 }
 
-test! {
-  name:     list_alignment,
-  justfile: r#"
+#[test]
+fn list_alignment() {
+  Test::new()
+    .arg("--list")
+    .justfile(r#"
 
 # this does a thing
 hello a b='B	' c='C':
@@ -1068,13 +1070,13 @@ a Z="\t z":
 
 # this recipe will not appear
 _private-recipe:
-"#,
-  args:     ("--list"),
-  stdout:   r#"
+"#)
+    .stdout(r#"
     Available recipes:
         a Z="\t z"           # something else
         hello a b='B	' c='C' # this does a thing
-  "#,
+  "#)
+    .run();
 }
 
 test! {
