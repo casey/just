@@ -275,17 +275,19 @@ recipe:
     .run();
 }
 
-test! {
-  name:     unknown_dependency,
-  justfile: "bar:\nhello:\nfoo: bar baaaaaaaz hello",
-  stderr:   "
+#[test]
+fn unknown_dependency() {
+  Test::new()
+    .justfile("bar:\nhello:\nfoo: bar baaaaaaaz hello")
+    .stderr("
     error: Recipe `foo` has unknown dependency `baaaaaaaz`
      ——▶ justfile:3:10
       │
     3 │ foo: bar baaaaaaaz hello
       │          ^^^^^^^^^
-  ",
-  status:   EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
