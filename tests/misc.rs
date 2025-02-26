@@ -155,17 +155,19 @@ fn duplicate_alias() {
     .run();
 }
 
-test! {
-  name: unknown_alias_target,
-  justfile: "alias foo := bar\n",
-  stderr: "
+#[test]
+fn unknown_alias_target() {
+  Test::new()
+    .justfile("alias foo := bar\n")
+    .stderr("
     error: Alias `foo` has an unknown target `bar`
      ——▶ justfile:1:7
       │
     1 │ alias foo := bar
       │       ^^^
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
