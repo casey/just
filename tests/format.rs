@@ -841,23 +841,25 @@ fn recipe_dependency_param() {
     .run();
 }
 
-test! {
-  name: recipe_dependency_params,
-  justfile: "
+#[test]
+fn recipe_dependency_params() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     bar BAR BAZ:
         echo bar
 
     foo: (bar 'bar' 'baz')
         echo foo
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     bar BAR BAZ:
         echo bar
 
     foo: (bar 'bar' 'baz')
         echo foo
-  ",
+  ")
+    .run();
 }
 
 test! {
