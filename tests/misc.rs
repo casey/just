@@ -290,11 +290,13 @@ fn unknown_dependency() {
     .run();
 }
 
-test! {
-  name:     backtick_success,
-  justfile: "a := `printf Hello,`\nbar:\n printf '{{a + `printf ' world.'`}}'",
-  stdout:   "Hello, world.",
-  stderr:   "printf 'Hello, world.'\n",
+#[test]
+fn backtick_success() {
+  Test::new()
+    .justfile("a := `printf Hello,`\nbar:\n printf '{{a + `printf ' world.'`}}'")
+    .stdout("Hello, world.")
+    .stderr("printf 'Hello, world.'\n")
+    .run();
 }
 
 test! {
