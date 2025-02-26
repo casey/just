@@ -540,17 +540,19 @@ fn recipe_quiet_command() {
     .run();
 }
 
-test! {
-  name: recipe_quiet_comment,
-  justfile: "
+#[test]
+fn recipe_quiet_comment() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo:
         @# bar
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo:
         @# bar
-  ",
+  ")
+    .run();
 }
 
 test! {
