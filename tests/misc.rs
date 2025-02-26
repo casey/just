@@ -582,19 +582,24 @@ a := `exit 222`")
     .run();
 }
 
-test! {
-  name:     overrides_first,
-  justfile: r#"
+#[test]
+fn overrides_first() {
+  Test::new()
+    .arg("foo=bar")
+    .arg("a=b")
+    .arg("recipe")
+    .arg("baz=bar")
+    .justfile(r#"
 foo := "foo"
 a := "a"
 baz := "baz"
 
 recipe arg:
  echo arg={{arg}}
- echo {{foo + a + baz}}"#,
-  args:     ("foo=bar", "a=b", "recipe", "baz=bar"),
-  stdout:   "arg=baz=bar\nbarbbaz\n",
-  stderr:   "echo arg=baz=bar\necho barbbaz\n",
+ echo {{foo + a + baz}}"#)
+    .stdout("arg=baz=bar\nbarbbaz\n")
+    .stderr("echo arg=baz=bar\necho barbbaz\n")
+    .run();
 }
 
 test! {
