@@ -21,25 +21,27 @@ fn success() {
     .run();
 }
 
-test! {
-  name: failure,
-  justfile: "
+#[test]
+fn failure() {
+  Test::new()
+    .justfile("
     foo: && bar
       echo foo
       false
 
     bar:
       echo bar
-  ",
-  stdout: "
+  ")
+    .stdout("
     foo
-  ",
-  stderr: "
+  ")
+    .stderr("
     echo foo
     false
     error: Recipe `foo` failed on line 3 with exit code 1
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
