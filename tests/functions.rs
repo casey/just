@@ -450,13 +450,14 @@ fn replace_regex() {
     .run();
 }
 
-test! {
-  name: invalid_replace_regex,
-  justfile: "
+#[test]
+fn invalid_replace_regex() {
+  Test::new()
+    .justfile("
     foo:
       echo {{ replace_regex('barbarbar', 'foo\\', 'foo') }}
-  ",
-  stderr:
+  ")
+    .stderr(
 "error: Call to function `replace_regex` failed: regex parse error:
     foo\\
        ^
@@ -465,8 +466,9 @@ error: incomplete escape sequence, reached end of pattern prematurely
   │
 2 │   echo {{ replace_regex('barbarbar', 'foo\\', 'foo') }}
   │           ^^^^^^^^^^^^^
-",
-  status: EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
