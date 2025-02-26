@@ -354,14 +354,16 @@ fn lowercamelcase() {
     .run();
 }
 
-test! {
-  name: snakecase,
-  justfile: "
+#[test]
+fn snakecase() {
+  Test::new()
+    .justfile("
     foo:
       echo {{ snakecase('foo bar') }}
-  ",
-  stdout: "foo_bar\n",
-  stderr: "echo foo_bar\n",
+  ")
+    .stdout("foo_bar\n")
+    .stderr("echo foo_bar\n")
+    .run();
 }
 
 test! {
