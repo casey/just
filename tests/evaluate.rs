@@ -110,15 +110,18 @@ fn evaluate_private() {
     .run();
 }
 
-test! {
-  name:    evaluate_single_private,
-  justfile: "
+#[test]
+fn evaluate_single_private() {
+  Test::new()
+    .arg("--evaluate")
+    .arg("foo")
+    .justfile("
     [private]
     foo := 'one'
     bar := 'two'
     _baz := 'three'
-  ",
-  args:   ("--evaluate", "foo"),
-  stdout: "one",
-  status: EXIT_SUCCESS,
+  ")
+    .stdout("one")
+    .status(EXIT_SUCCESS)
+    .run();
 }
