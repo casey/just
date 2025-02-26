@@ -1398,18 +1398,20 @@ fn dependency_takes_arguments_at_most() {
     .run();
 }
 
-test! {
-  name:     duplicate_parameter,
-  justfile: "a foo foo:",
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "error: Recipe `a` has duplicate parameter `foo`
+#[test]
+fn duplicate_parameter() {
+  Test::new()
+    .arg("a")
+    .justfile("a foo foo:")
+    .stdout("")
+    .stderr("error: Recipe `a` has duplicate parameter `foo`
  ——▶ justfile:1:7
   │
 1 │ a foo foo:
   │       ^^^
-",
-  status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
