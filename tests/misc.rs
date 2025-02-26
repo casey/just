@@ -96,19 +96,21 @@ fn alias_with_parameters() {
     .run();
 }
 
-test! {
-  name: bad_setting,
-  justfile: "
+#[test]
+fn bad_setting() {
+  Test::new()
+    .justfile("
     set foo
-  ",
-  stderr: "
+  ")
+    .stderr("
   error: Unknown setting `foo`
    ——▶ justfile:1:5
     │
   1 │ set foo
     │     ^^^
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
