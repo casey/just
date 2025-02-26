@@ -2194,20 +2194,21 @@ fn dependency_argument_string() {
     .run();
 }
 
-test! {
-  name: dependency_argument_parameter,
-  justfile: "
+#[test]
+fn dependency_argument_parameter() {
+  Test::new()
+    .justfile("
     default: (release '1.0')
 
     release version: (build 'foo' version) (build 'bar' version)
 
     build target version:
       echo 'Building {{target}}@{{version}}...'
-  ",
-  args: (),
-  stdout: "Building foo@1.0...\nBuilding bar@1.0...\n",
-  stderr: "echo 'Building foo@1.0...'\necho 'Building bar@1.0...'\n",
-  shell: false,
+  ")
+    .stdout("Building foo@1.0...\nBuilding bar@1.0...\n")
+    .stderr("echo 'Building foo@1.0...'\necho 'Building bar@1.0...'\n")
+    .shell(false)
+    .run();
 }
 
 test! {
