@@ -877,18 +877,20 @@ recipe a b +d:
     .run();
 }
 
-test! {
-  name:     mixed_whitespace,
-  justfile: "bar:\n\t echo hello",
-  stdout:   "",
-  stderr:   "error: Found a mix of tabs and spaces in leading whitespace: `␉␠`
+#[test]
+fn mixed_whitespace() {
+  Test::new()
+    .justfile("bar:\n\t echo hello")
+    .stdout("")
+    .stderr("error: Found a mix of tabs and spaces in leading whitespace: `␉␠`
 Leading whitespace may consist of tabs or spaces, but not both
  ——▶ justfile:2:1
   │
 2 │      echo hello
   │ ^^^^^
-",
-  status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
