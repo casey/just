@@ -429,17 +429,19 @@ fn assignment_path_functions() {
     .run();
 }
 
-test! {
-  name: recipe_ordinary,
-  justfile: "
+#[test]
+fn recipe_ordinary() {
+    Test::new()
+        .justfile("
     foo:
         echo bar
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+        .arg("--dump")
+        .stdout("
     foo:
         echo bar
-  ",
+  ")
+        .run();
 }
 
 test! {
