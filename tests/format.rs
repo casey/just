@@ -46,18 +46,22 @@ deps:
     .run();
 }
 
-test! {
-  name: check_found_diff,
-  justfile: "x:=``\n",
-  args: ("--unstable", "--fmt", "--check"),
-  stdout: "
+#[test]
+fn check_found_diff() {
+  Test::new()
+    .arg("--unstable")
+    .arg("--fmt")
+    .arg("--check")
+    .justfile("x:=``\n")
+    .stdout("
     -x:=``
     +x := ``
-  ",
-  stderr: "
+  ")
+    .stderr("
     error: Formatted justfile differs from original.
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
