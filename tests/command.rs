@@ -28,16 +28,21 @@ fn short() {
     .run();
 }
 
-test! {
-  name: command_color,
-  justfile: "
+#[test]
+fn command_color() {
+  Test::new()
+    .arg("--color")
+    .arg("always")
+    .arg("--command-color")
+    .arg("cyan")
+    .justfile("
     x:
       echo XYZ
-  ",
-  args: ("--color", "always", "--command-color", "cyan"),
-  stdout: "XYZ\n",
-  stderr: "\u{1b}[1;36mecho XYZ\u{1b}[0m\n",
-  status: EXIT_SUCCESS,
+  ")
+    .stdout("XYZ\n")
+    .stderr("\u{1b}[1;36mecho XYZ\u{1b}[0m\n")
+    .status(EXIT_SUCCESS)
+    .run();
 }
 
 test! {
