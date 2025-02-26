@@ -1014,15 +1014,20 @@ hello a b='B' c='C':
     .run();
 }
 
-test! {
-  name:     supply_defaults,
-  justfile: r"
+#[test]
+fn supply_defaults() {
+  Test::new()
+    .arg("hello")
+    .arg("0")
+    .arg("1")
+    .arg("2")
+    .justfile(r"
 hello a b='B' c='C':
   echo {{a}} {{b}} {{c}}
-",
-  args:     ("hello", "0", "1", "2"),
-  stdout:   "0 1 2\n",
-  stderr:   "echo 0 1 2\n",
+")
+    .stdout("0 1 2\n")
+    .stderr("echo 0 1 2\n")
+    .run();
 }
 
 test! {
