@@ -300,15 +300,17 @@ fn assignment_name() {
     .run();
 }
 
-test! {
-  name: assignment_parenthesized_expression,
-  justfile: "
+#[test]
+fn assignment_parenthesized_expression() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo := ('foo')
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo := ('foo')
-  ",
+  ")
+    .run();
 }
 
 test! {
