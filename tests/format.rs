@@ -493,19 +493,21 @@ fn recipe_body_is_comment() {
     .run();
 }
 
-test! {
-  name: recipe_several_commands,
-  justfile: "
+#[test]
+fn recipe_several_commands() {
+    Test::new()
+        .arg("--dump")
+        .justfile("
     foo:
         echo bar
         echo baz
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+        .stdout("
     foo:
         echo bar
         echo baz
-  ",
+  ")
+        .run();
 }
 
 test! {
