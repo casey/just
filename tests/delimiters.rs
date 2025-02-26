@@ -48,9 +48,10 @@ fn paren_continuation() {
     .run();
 }
 
-test! {
-  name: brace_continuation,
-  justfile: "
+#[test]
+fn brace_continuation() {
+  Test::new()
+    .justfile("
     x := if '' == '' {
       'a'
     } else {
@@ -59,9 +60,10 @@ test! {
 
     foo:
       echo {{x}}
-  ",
-  stdout: "a\n",
-  stderr: "echo a\n",
+  ")
+    .stdout("a\n")
+    .stderr("echo a\n")
+    .run();
 }
 
 test! {
