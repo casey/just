@@ -889,9 +889,11 @@ fn recipe_dependencies() {
     .run();
 }
 
-test! {
-  name: recipe_dependencies_params,
-  justfile: "
+#[test]
+fn recipe_dependencies_params() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     bar BAR:
         echo bar
 
@@ -900,9 +902,8 @@ test! {
 
     foo: (baz 'baz') (bar 'bar')
         echo foo
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     bar BAR:
         echo bar
 
@@ -911,7 +912,8 @@ test! {
 
     foo: (baz 'baz') (bar 'bar')
         echo foo
-  ",
+  ")
+    .run();
 }
 
 test! {
