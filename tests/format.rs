@@ -461,19 +461,21 @@ fn recipe_with_docstring() {
         .run();
 }
 
-test! {
-  name: recipe_with_comments_in_body,
-  justfile: "
+#[test]
+fn recipe_with_comments_in_body() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo:
         # bar
         echo bar
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo:
         # bar
         echo bar
-  ",
+  ")
+    .run();
 }
 
 test! {
