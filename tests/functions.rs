@@ -402,14 +402,16 @@ fn titlecase() {
     .run();
 }
 
-test! {
-  name: shoutykebabcase,
-  justfile: "
+#[test]
+fn shoutykebabcase() {
+  Test::new()
+    .justfile("
     foo:
       echo {{ shoutykebabcase('foo bar') }}
-  ",
-  stdout: "FOO-BAR\n",
-  stderr: "echo FOO-BAR\n",
+  ")
+    .stdout("FOO-BAR\n")
+    .stderr("echo FOO-BAR\n")
+    .run();
 }
 
 test! {
