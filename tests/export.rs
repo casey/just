@@ -67,9 +67,10 @@ wut:
     .run();
 }
 
-test! {
-  name:     shebang,
-  justfile: r#"
+#[test]
+fn shebang() {
+  Test::new()
+    .justfile(r#"
 export FOO := "a"
 baz := "c"
 export BAR := "b"
@@ -78,8 +79,9 @@ export ABC := FOO + BAR + baz
 wut:
   #!/bin/sh
   echo $FOO $BAR $ABC
-"#,
-  stdout:   "a b abc\n",
+"#)
+    .stdout("a b abc\n")
+    .run();
 }
 
 test! {
