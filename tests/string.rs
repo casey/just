@@ -271,21 +271,23 @@ fn unterminated_indented_raw_string() {
     .run();
 }
 
-test! {
-  name:     unterminated_indented_string,
-  justfile: r#"
+#[test]
+fn unterminated_indented_string() {
+  Test::new()
+    .arg("a")
+    .justfile(r#"
     a b= """:
-  "#,
-  args:     ("a"),
-  stdout:   "",
-  stderr:   r#"
+  "#)
+    .stdout("")
+    .stderr(r#"
     error: Unterminated string
      ——▶ justfile:1:6
       │
     1 │ a b= """:
       │      ^^^
-  "#,
-  status:   EXIT_FAILURE,
+  "#)
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
