@@ -1,8 +1,10 @@
 use super::*;
 
-test! {
-  name:     evaluate,
-  justfile: r#"
+#[test]
+fn evaluate() {
+  Test::new()
+    .arg("--evaluate")
+    .justfile(r#"
 foo := "a\t"
 hello := "c"
 bar := "b\t"
@@ -10,13 +12,13 @@ ab := foo + bar + hello
 
 wut:
   touch /this/is/not/a/file
-"#,
-  args:     ("--evaluate"),
-  stdout:   r#"ab    := "a	b	c"
+"#)
+    .stdout(r#"ab    := "a	b	c"
 bar   := "b	"
 foo   := "a	"
 hello := "c"
-"#,
+"#)
+    .run();
 }
 
 test! {
