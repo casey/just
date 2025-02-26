@@ -615,17 +615,19 @@ fn recipe_parameter_envar() {
     .run();
 }
 
-test! {
-  name: recipe_parameter_default_envar,
-  justfile: "
+#[test]
+fn recipe_parameter_default_envar() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo $BAR='foo':
         echo foo
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo $BAR='foo':
         echo foo
-  ",
+  ")
+    .run();
 }
 
 test! {
