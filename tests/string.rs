@@ -327,9 +327,10 @@ fn indented_raw_string_contents_indentation_removed() {
     .run();
 }
 
-test! {
-  name:     indented_cooked_string_contents_indentation_removed,
-  justfile: r#"
+#[test]
+fn indented_cooked_string_contents_indentation_removed() {
+  Test::new()
+    .justfile(r#"
     a := """
       foo
       bar
@@ -337,11 +338,12 @@ test! {
 
     @default:
       printf '{{a}}'
-  "#,
-  stdout: "
+  "#)
+    .stdout("
     foo
     bar
-  ",
+  ")
+    .run();
 }
 
 test! {
