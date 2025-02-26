@@ -2081,15 +2081,17 @@ default:
     .run();
 }
 
-test! {
-   name:     backtick_default_cat_stdin,
-   justfile: "
+#[test]
+fn backtick_default_cat_stdin() {
+  Test::new()
+    .justfile("
 default stdin = `cat`:
   echo {{stdin}}
-",
-   stdin:    "STDIN",
-   stdout:   "STDIN\n",
-   stderr:   "echo STDIN\n",
+")
+    .stdin("STDIN")
+    .stdout("STDIN\n")
+    .stderr("echo STDIN\n")
+    .run();
 }
 
 test! {
