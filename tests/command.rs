@@ -130,15 +130,18 @@ fn run_in_shell() {
     .run();
 }
 
-test! {
-  name: exit_status,
-  justfile: "
+#[test]
+fn exit_status() {
+  Test::new()
+    .arg("--command")
+    .arg("false")
+    .justfile("
     x:
       echo XYZ
-  ",
-  args: ("--command", "false"),
-  stderr_regex: "error: Command `false` failed: exit (code|status): 1\n",
-  status: EXIT_FAILURE,
+  ")
+    .stderr_regex("error: Command `false` failed: exit (code|status): 1\n")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 #[test]
