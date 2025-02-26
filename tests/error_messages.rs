@@ -30,17 +30,19 @@ fn expected_keyword() {
     .run();
 }
 
-test! {
-  name: unexpected_character,
-  justfile: "&~",
-  stderr: "
+#[test]
+fn unexpected_character() {
+  Test::new()
+    .justfile("&~")
+    .stderr("
     error: Expected character `&`
      ——▶ justfile:1:2
       │
     1 │ &~
       │  ^
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 #[test]
