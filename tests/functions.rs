@@ -471,14 +471,16 @@ error: incomplete escape sequence, reached end of pattern prematurely
     .run();
 }
 
-test! {
-    name: capitalize,
-    justfile: "
+#[test]
+fn capitalize() {
+    Test::new()
+        .justfile("
       foo:
         echo {{ capitalize('BAR') }}
-    ",
-    stdout: "Bar\n",
-    stderr: "echo Bar\n",
+    ")
+        .stdout("Bar\n")
+        .stderr("echo Bar\n")
+        .run();
 }
 
 #[test]
