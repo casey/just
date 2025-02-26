@@ -30,18 +30,21 @@ fn alias_show() {
     .run();
 }
 
-test! {
-  name: alias_show_missing_target,
-  justfile: "alias f := foo",
-  args: ("--show", "f"),
-  stderr: "
+#[test]
+fn alias_show_missing_target() {
+  Test::new()
+    .arg("--show")
+    .arg("f")
+    .justfile("alias f := foo")
+    .status(EXIT_FAILURE)
+    .stderr("
     error: Alias `f` has an unknown target `foo`
      ——▶ justfile:1:7
       │
     1 │ alias f := foo
       │       ^
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .run();
 }
 
 test! {
