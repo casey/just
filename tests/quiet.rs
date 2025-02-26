@@ -123,14 +123,15 @@ fn edit_invocation() {
     .run();
 }
 
-test! {
-  name: edit_status,
-  justfile: "foo:",
-  args: ("--edit", "--quiet"),
-  env: {
-    "VISUAL": "false",
-  },
-  status: EXIT_FAILURE,
+#[test]
+fn edit_status() {
+  Test::new()
+    .arg("--edit")
+    .arg("--quiet")
+    .env("VISUAL", "false")
+    .justfile("foo:")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
