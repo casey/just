@@ -87,12 +87,17 @@ fn choose_none() {
     .run();
 }
 
-test! {
-  name: choose_invocation,
-  justfile: "foo:",
-  args: ("--choose", "--quiet", "--shell", "asdfasdfasfdasdfasdfadsf"),
-  status: EXIT_FAILURE,
-  shell: false,
+#[test]
+fn choose_invocation() {
+  Test::new()
+    .arg("--choose")
+    .arg("--quiet")
+    .arg("--shell")
+    .arg("asdfasdfasfdasdfasdfadsf")
+    .justfile("foo:")
+    .shell(false)
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
