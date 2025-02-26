@@ -155,13 +155,15 @@ fn show_missing() {
     .run();
 }
 
-test! {
-  name: quiet_shebang,
-  justfile: "
+#[test]
+fn quiet_shebang() {
+  Test::new()
+    .arg("--quiet")
+    .justfile("
     @foo:
       #!/bin/sh
-  ",
-  args: ("--quiet"),
+  ")
+    .run();
 }
 
 #[test]
