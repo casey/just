@@ -98,9 +98,12 @@ recipe:
     .run();
 }
 
-test! {
-  name: setting_implicit,
-  justfile: "
+#[test]
+fn setting_implicit() {
+  Test::new()
+    .arg("foo")
+    .arg("goodbye")
+    .justfile("
     set export
 
     A := 'hello'
@@ -109,10 +112,10 @@ test! {
       echo $A
       echo $B
       echo $C
-  ",
-  args: ("foo", "goodbye"),
-  stdout: "hello\ngoodbye\nhello\n",
-  stderr: "echo $A\necho $B\necho $C\n",
+  ")
+    .stdout("hello\ngoodbye\nhello\n")
+    .stderr("echo $A\necho $B\necho $C\n")
+    .run();
 }
 
 test! {
