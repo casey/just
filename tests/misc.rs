@@ -308,17 +308,19 @@ fn backtick_trimming() {
     .run();
 }
 
-test! {
-  name:     backtick_code_assignment,
-  justfile: "b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'",
-  stderr:   "
+#[test]
+fn backtick_code_assignment() {
+  Test::new()
+    .justfile("b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'")
+    .stderr("
     error: Backtick failed with exit code 100
      ——▶ justfile:2:6
       │
     2 │ a := `exit 100`
       │      ^^^^^^^^^^
-  ",
-  status:   100,
+  ")
+    .status(100)
+    .run();
 }
 
 test! {
