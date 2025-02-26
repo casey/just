@@ -1324,19 +1324,21 @@ c: b a
     .run();
 }
 
-test! {
-  name:     unknown_function_in_assignment,
-  justfile: r#"foo := foo() + "hello"
-bar:"#,
-  args:     ("bar"),
-  stdout:   "",
-  stderr:   r#"error: Call to unknown function `foo`
+#[test]
+fn unknown_function_in_assignment() {
+  Test::new()
+    .arg("bar")
+    .justfile(r#"foo := foo() + "hello"
+bar:"#)
+    .stdout("")
+    .stderr(r#"error: Call to unknown function `foo`
  ——▶ justfile:1:8
   │
 1 │ foo := foo() + "hello"
   │        ^^^
-"#,
-  status:   EXIT_FAILURE,
+"#)
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
