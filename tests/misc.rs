@@ -1446,19 +1446,21 @@ fn duplicate_variable() {
     .run();
 }
 
-test! {
-  name:     unexpected_token_in_dependency_position,
-  justfile: "foo: 'bar'",
-  args:     ("foo"),
-  stdout:   "",
-  stderr:   "error: Expected '&&', comment, end of file, end of line, \
+#[test]
+fn unexpected_token_in_dependency_position() {
+  Test::new()
+    .arg("foo")
+    .justfile("foo: 'bar'")
+    .stdout("")
+    .stderr("error: Expected '&&', comment, end of file, end of line, \
     identifier, or '(', but found string
  ——▶ justfile:1:6
   │
 1 │ foo: 'bar'
   │      ^^^^^
-",
-  status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
