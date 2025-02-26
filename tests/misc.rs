@@ -51,14 +51,16 @@ fn alias_listing_multiple_aliases() {
     .run();
 }
 
-test! {
-  name: alias_listing_parameters,
-  justfile: "foo PARAM='foo':\n  echo {{PARAM}}\nalias f := foo",
-  args: ("--list"),
-  stdout: "
+#[test]
+fn alias_listing_parameters() {
+  Test::new()
+    .args(&["--list"])
+    .justfile("foo PARAM='foo':\n  echo {{PARAM}}\nalias f := foo")
+    .stdout("
     Available recipes:
         foo PARAM='foo' # [alias: f]
-  ",
+  ")
+    .run();
 }
 
 test! {
