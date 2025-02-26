@@ -675,17 +675,19 @@ fn recipe_parameters_envar() {
     .run();
 }
 
-test! {
-  name: recipe_variadic_plus,
-  justfile: "
+#[test]
+fn recipe_variadic_plus() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo +BAR:
         echo foo
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo +BAR:
         echo foo
-  ",
+  ")
+    .run();
 }
 
 test! {
