@@ -45,19 +45,21 @@ fn command_color() {
     .run();
 }
 
-test! {
-  name: no_binary,
-  justfile: "
+#[test]
+fn no_binary() {
+  Test::new()
+    .arg("--command")
+    .justfile("
     x:
       echo XYZ
-  ",
-  args: ("--command"),
-  stderr: "
+  ")
+    .stderr("
     error: a value is required for '--command <COMMAND>...' but none was supplied
 
     For more information, try '--help'.
-  ",
-  status: 2,
+  ")
+    .status(2)
+    .run();
 }
 
 #[test]
