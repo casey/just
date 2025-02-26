@@ -130,12 +130,14 @@ fn bad_setting_with_keyword_name() {
     .run();
 }
 
-test! {
-  name: alias_with_dependencies,
-  justfile: "foo:\n  echo foo\nbar: foo\nalias b := bar",
-  args: ("b"),
-  stdout: "foo\n",
-  stderr: "echo foo\n",
+#[test]
+fn alias_with_dependencies() {
+  Test::new()
+    .arg("b")
+    .justfile("foo:\n  echo foo\nbar: foo\nalias b := bar")
+    .stdout("foo\n")
+    .stderr("echo foo\n")
+    .run();
 }
 
 test! {
