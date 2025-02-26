@@ -566,15 +566,20 @@ a := `exit 222`")
     .run();
 }
 
-test! {
-  name:     unknown_override_arg,
-  justfile: "foo:
+#[test]
+fn unknown_override_arg() {
+  Test::new()
+    .arg("foo=bar")
+    .arg("a=b")
+    .arg("a")
+    .arg("b")
+    .justfile("foo:
  echo hello
  echo {{`exit 111`}}
-a := `exit 222`",
-  args:     ("foo=bar", "a=b", "a", "b"),
-  stderr:   "error: Variable `foo` overridden on the command line but not present in justfile\n",
-  status:   EXIT_FAILURE,
+a := `exit 222`")
+    .stderr("error: Variable `foo` overridden on the command line but not present in justfile\n")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
