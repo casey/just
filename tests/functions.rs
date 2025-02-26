@@ -438,14 +438,16 @@ fn replace() {
     .run();
 }
 
-test! {
-  name: replace_regex,
-  justfile: "
+#[test]
+fn replace_regex() {
+  Test::new()
+    .justfile("
     foo:
       echo {{ replace_regex('123bar123bar123bar', '\\d+bar', 'foo') }}
-  ",
-  stdout: "foofoofoo\n",
-  stderr: "echo foofoofoo\n",
+  ")
+    .stdout("foofoofoo\n")
+    .stderr("echo foofoofoo\n")
+    .run();
 }
 
 test! {
