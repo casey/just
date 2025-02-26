@@ -83,9 +83,10 @@ fn bracket_continuation() {
     .run();
 }
 
-test! {
-  name: dependency_continuation,
-  justfile: "
+#[test]
+fn dependency_continuation() {
+  Test::new()
+    .justfile("
     foo: (
     bar 'bar'
     )
@@ -93,9 +94,10 @@ test! {
 
     bar x:
       echo {{x}}
-  ",
-  stdout: "bar\nfoo\n",
-  stderr: "echo bar\necho foo\n",
+  ")
+    .stdout("bar\nfoo\n")
+    .stderr("echo bar\necho foo\n")
+    .run();
 }
 
 test! {
