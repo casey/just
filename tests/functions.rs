@@ -426,14 +426,16 @@ fn trim() {
     .run();
 }
 
-test! {
-  name: replace,
-  justfile: "
+#[test]
+fn replace() {
+  Test::new()
+    .justfile("
     foo:
       echo {{ replace('barbarbar', 'bar', 'foo') }}
-  ",
-  stdout: "foofoofoo\n",
-  stderr: "echo foofoofoo\n",
+  ")
+    .stdout("foofoofoo\n")
+    .stderr("echo foofoofoo\n")
+    .run();
 }
 
 test! {
