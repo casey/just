@@ -184,16 +184,18 @@ fn dump() {
     .run();
 }
 
-test! {
-  name: if_else,
-  justfile: "
+#[test]
+fn if_else() {
+  Test::new()
+    .justfile("
     x := if '0' == '1' { 'a' } else if '0' == '0' { 'b' } else { 'c' }
 
     foo:
       echo {{ x }}
-  ",
-  stdout: "b\n",
-  stderr: "echo b\n",
+  ")
+    .stdout("b\n")
+    .stderr("echo b\n")
+    .run();
 }
 
 test! {
