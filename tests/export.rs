@@ -17,16 +17,18 @@ wut:
     .run();
 }
 
-test! {
-  name:     parameter,
-  justfile: r#"
+#[test]
+fn parameter() {
+  Test::new()
+    .justfile(r#"
     wut $FOO='a' BAR='b':
       echo $FOO
       echo {{BAR}}
       if [ -n "${BAR+1}" ]; then echo defined; else echo undefined; fi
-  "#,
-  stdout: "a\nb\nundefined\n",
-  stderr: "echo $FOO\necho b\nif [ -n \"${BAR+1}\" ]; then echo defined; else echo undefined; fi\n",
+  "#)
+    .stdout("a\nb\nundefined\n")
+    .stderr("echo $FOO\necho b\nif [ -n \"${BAR+1}\" ]; then echo defined; else echo undefined; fi\n")
+    .run();
 }
 
 test! {
