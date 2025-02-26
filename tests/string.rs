@@ -308,9 +308,10 @@ fn unterminated_indented_backtick() {
     .run();
 }
 
-test! {
-  name:     indented_raw_string_contents_indentation_removed,
-  justfile: "
+#[test]
+fn indented_raw_string_contents_indentation_removed() {
+  Test::new()
+    .justfile("
     a := '''
       foo
       bar
@@ -318,11 +319,12 @@ test! {
 
     @default:
       printf '{{a}}'
-  ",
-  stdout: "
+  ")
+    .stdout("
     foo
     bar
-  ",
+  ")
+    .run();
 }
 
 test! {
