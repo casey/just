@@ -645,17 +645,19 @@ fn recipe_parameter_concat() {
     .run();
 }
 
-test! {
-  name: recipe_parameters,
-  justfile: "
+#[test]
+fn recipe_parameters() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo BAR BAZ:
         echo foo
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo BAR BAZ:
         echo foo
-  ",
+  ")
+    .run();
 }
 
 test! {
