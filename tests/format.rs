@@ -444,19 +444,21 @@ fn recipe_ordinary() {
         .run();
 }
 
-test! {
-  name: recipe_with_docstring,
-  justfile: "
+#[test]
+fn recipe_with_docstring() {
+    Test::new()
+        .arg("--dump")
+        .justfile("
     # bar
     foo:
         echo bar
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+        .stdout("
     # bar
     foo:
         echo bar
-  ",
+  ")
+        .run();
 }
 
 test! {
