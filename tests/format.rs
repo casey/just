@@ -408,23 +408,25 @@ fn assignment_binary_function() {
     .run();
 }
 
-test! {
-  name: assignment_path_functions,
-  justfile: "
+#[test]
+fn assignment_path_functions() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo  := without_extension('foo/bar.baz')
     foo2 := file_stem('foo/bar.baz')
     foo3 := parent_directory('foo/bar.baz')
     foo4 := file_name('foo/bar.baz')
     foo5 := extension('foo/bar.baz')
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
   foo := without_extension('foo/bar.baz')
   foo2 := file_stem('foo/bar.baz')
   foo3 := parent_directory('foo/bar.baz')
   foo4 := file_name('foo/bar.baz')
   foo5 := extension('foo/bar.baz')
-  ",
+  ")
+    .run();
 }
 
 test! {
