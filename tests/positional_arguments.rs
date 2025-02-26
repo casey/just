@@ -91,16 +91,19 @@ fn shebang() {
     .run();
 }
 
-test! {
-  name: shebang_with_attribute,
-  justfile: "
+#[test]
+fn shebang_with_attribute() {
+  Test::new()
+    .arg("foo")
+    .arg("hello")
+    .justfile("
     [positional-arguments]
     foo bar:
       #!/bin/sh
       echo $1
-  ",
-  args:   ("foo", "hello"),
-  stdout: "hello\n",
+  ")
+    .stdout("hello\n")
+    .run();
 }
 
 test! {
