@@ -123,23 +123,25 @@ fn undefined_then() {
     .run();
 }
 
-test! {
-  name: undefined_otherwise,
-  justfile: "
+#[test]
+fn undefined_otherwise() {
+  Test::new()
+    .justfile("
     a := if '' == '' { '' } else { b }
 
     foo:
       echo {{ a }}
-  ",
-  stdout: "",
-  stderr: "
+  ")
+    .stdout("")
+    .stderr("
     error: Variable `b` not defined
      ——▶ justfile:1:32
       │
     1 │ a := if '' == '' { '' } else { b }
       │                                ^
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
