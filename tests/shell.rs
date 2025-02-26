@@ -144,9 +144,10 @@ fn shell_arg_override() {
     .run();
 }
 
-test! {
-  name: set_shell,
-  justfile: "
+#[test]
+fn set_shell() {
+  Test::new()
+    .justfile("
     set shell := ['echo', '-n']
 
     x := `bar`
@@ -154,11 +155,11 @@ test! {
     foo:
       echo {{x}}
       echo foo
-  ",
-  args: (),
-  stdout: "echo barecho foo",
-  stderr: "echo bar\necho foo\n",
-  shell: false,
+  ")
+    .stdout("echo barecho foo")
+    .stderr("echo bar\necho foo\n")
+    .shell(false)
+    .run();
 }
 
 #[test]
