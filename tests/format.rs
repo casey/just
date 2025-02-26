@@ -221,19 +221,21 @@ fn assignment_doublequote() {
     .run();
 }
 
-test! {
-  name: assignment_indented_singlequote,
-  justfile: "
+#[test]
+fn assignment_indented_singlequote() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo := '''
       foo
     '''
-  ",
-  args: ("--dump"),
-  stdout: r"
+  ")
+    .stdout(r"
     foo := '''
       foo
     '''
-  ",
+  ")
+    .run();
 }
 
 test! {
