@@ -1942,14 +1942,16 @@ foo x=(`echo foo` + 'bar'):
     .run();
 }
 
-test! {
-   name:     default_backtick,
-   justfile: "
+#[test]
+fn default_backtick() {
+  Test::new()
+    .justfile("
 foo x=`echo foo`:
   echo {{x}}
-",
-   stdout:   "foo\n",
-   stderr:   "echo foo\n",
+")
+    .stdout("foo\n")
+    .stderr("echo foo\n")
+    .run();
 }
 
 test! {
