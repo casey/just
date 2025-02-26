@@ -1214,16 +1214,18 @@ a Z="\t z":
     .run();
 }
 
-test! {
-  name:     line_continuation_with_space,
-  justfile: r"
+#[test]
+fn line_continuation_with_space() {
+  Test::new()
+    .justfile(r"
 foo:
   echo a\
          b  \
              c
-",
-  stdout:   "ab c\n",
-  stderr:   "echo ab  c\n",
+")
+    .stdout("ab c\n")
+    .stderr("echo ab  c\n")
+    .run();
 }
 
 test! {
