@@ -421,19 +421,21 @@ fn indented_backtick_string_escapes() {
     .run();
 }
 
-test! {
-  name:     shebang_backtick,
-  justfile: "
+#[test]
+fn shebang_backtick() {
+  Test::new()
+    .justfile("
     x := `#!/usr/bin/env sh`
-  ",
-  stderr:   "
+  ")
+    .stderr("
     error: Backticks may not start with `#!`
      ——▶ justfile:1:6
       │
     1 │ x := `#!/usr/bin/env sh`
       │      ^^^^^^^^^^^^^^^^^^^
-  ",
-  status:   EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 #[test]
