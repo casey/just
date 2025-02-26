@@ -78,21 +78,23 @@ fn unknown() {
     .run();
 }
 
-test! {
-  name: unknown_argument,
-  justfile: "
+#[test]
+fn unknown_argument() {
+  Test::new()
+    .justfile("
     bar x:
 
     foo: && (bar y)
-  ",
-  stderr: "
+  ")
+    .stderr("
     error: Variable `y` not defined
      ——▶ justfile:3:14
       │
     3 │ foo: && (bar y)
       │              ^
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
