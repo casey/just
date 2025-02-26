@@ -77,18 +77,19 @@ fn check_found_diff_quiet() {
         .run();
 }
 
-test! {
-  name: check_diff_color,
-  justfile: "x:=``\n",
-  args: ("--unstable", "--fmt", "--check", "--color", "always"),
-  stdout: "
-    \u{1b}[31m-x:=``
-    \u{1b}[0m\u{1b}[32m+x := ``
-    \u{1b}[0m",
-  stderr: "
-    \u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mFormatted justfile differs from original.\u{1b}[0m
-  ",
-  status: EXIT_FAILURE,
+#[test]
+fn check_diff_color() {
+    Test::new()
+        .justfile("x:=``\n")
+        .arg("--unstable")
+        .arg("--fmt")
+        .arg("--check")
+        .arg("--color")
+        .arg("always")
+        .stdout("\n    \u{1b}[31m-x:=``\n    \u{1b}[0m\u{1b}[32m+x := ``\n    \u{1b}[0m")
+        .stderr("\n    \u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mFormatted justfile differs from original.\u{1b}[0m\n  ")
+        .status(EXIT_FAILURE)
+        .run();
 }
 
 #[test]
