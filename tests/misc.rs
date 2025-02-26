@@ -1298,15 +1298,17 @@ fn quiet_recipe() {
     .run();
 }
 
-test! {
-  name:     quiet_shebang_recipe,
-  justfile: r"
+#[test]
+fn quiet_shebang_recipe() {
+  Test::new()
+    .justfile(r"
 @quiet:
   #!/bin/sh
   echo hello
-",
-  stdout:   "hello\n",
-  stderr:   "#!/bin/sh\necho hello\n",
+")
+    .stdout("hello\n")
+    .stderr("#!/bin/sh\necho hello\n")
+    .run();
 }
 
 test! {
