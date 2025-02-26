@@ -728,16 +728,19 @@ foo A B:
     .run();
 }
 
-test! {
-  name:     argument_mismatch_fewer,
-  justfile: "
+#[test]
+fn argument_mismatch_fewer() {
+  Test::new()
+    .arg("foo")
+    .arg("ONE")
+    .justfile("
 foo A B:
   echo A:{{A}} B:{{B}}
-    ",
-  args:     ("foo", "ONE"),
-  stdout:   "",
-  stderr:   "error: Recipe `foo` got 1 argument but takes 2\nusage:\n    just foo A B\n",
-  status:   EXIT_FAILURE,
+    ")
+    .stdout("")
+    .stderr("error: Recipe `foo` got 1 argument but takes 2\nusage:\n    just foo A B\n")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
