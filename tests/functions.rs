@@ -294,14 +294,16 @@ foo a=arch() o=os() f=os_family() n=num_cpus():
     .run();
 }
 
-test! {
-  name: clean,
-  justfile: "
+#[test]
+fn clean() {
+  Test::new()
+    .justfile("
     foo:
       echo {{ clean('a/../b') }}
-  ",
-  stdout: "b\n",
-  stderr: "echo b\n",
+  ")
+    .stdout("b\n")
+    .stderr("echo b\n")
+    .run();
 }
 
 test! {
