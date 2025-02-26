@@ -2179,18 +2179,19 @@ fn old_equals_assignment_syntax_produces_error() {
     .run();
 }
 
-test! {
-  name: dependency_argument_string,
-  justfile: "
+#[test]
+fn dependency_argument_string() {
+  Test::new()
+    .justfile("
     release: (build 'foo') (build 'bar')
 
     build target:
       echo 'Building {{target}}...'
-  ",
-  args: (),
-  stdout: "Building foo...\nBuilding bar...\n",
-  stderr: "echo 'Building foo...'\necho 'Building bar...'\n",
-  shell: false,
+  ")
+    .stdout("Building foo...\nBuilding bar...\n")
+    .stderr("echo 'Building foo...'\necho 'Building bar...'\n")
+    .shell(false)
+    .run();
 }
 
 test! {
