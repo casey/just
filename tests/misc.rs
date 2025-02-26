@@ -548,16 +548,22 @@ a := `exit 222`")
     .run();
 }
 
-test! {
-  name:     unknown_override_args,
-  justfile: "foo:
+#[test]
+fn unknown_override_args() {
+  Test::new()
+    .arg("foo=bar")
+    .arg("baz=bob")
+    .arg("a=b")
+    .arg("a")
+    .arg("b")
+    .justfile("foo:
  echo hello
  echo {{`exit 111`}}
-a := `exit 222`",
-  args:     ("foo=bar", "baz=bob", "a=b", "a", "b"),
-  stderr:   "error: Variables `baz` and `foo` overridden on the command line but not present \
-    in justfile\n",
-  status:   EXIT_FAILURE,
+a := `exit 222`")
+    .stderr("error: Variables `baz` and `foo` overridden on the command line but not present \
+    in justfile\n")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
