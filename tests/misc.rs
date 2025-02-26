@@ -1463,18 +1463,20 @@ fn unexpected_token_in_dependency_position() {
     .run();
 }
 
-test! {
-  name:     unexpected_token_after_name,
-  justfile: "foo 'bar'",
-  args:     ("foo"),
-  stdout:   "",
-  stderr:   "error: Expected '*', ':', '$', identifier, or '+', but found string
+#[test]
+fn unexpected_token_after_name() {
+  Test::new()
+    .arg("foo")
+    .justfile("foo 'bar'")
+    .stdout("")
+    .stderr("error: Expected '*', ':', '$', identifier, or '+', but found string
  ——▶ justfile:1:5
   │
 1 │ foo 'bar'
   │     ^^^^^
-",
-  status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
