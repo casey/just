@@ -780,21 +780,23 @@ fn recipe_escaped_braces() {
     .run();
 }
 
-test! {
-  name: recipe_assignment_in_body,
-  justfile: "
+#[test]
+fn recipe_assignment_in_body() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     bar := 'bar'
 
     foo:
         echo $bar
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     bar := 'bar'
 
     foo:
         echo $bar
-  ",
+  ")
+    .run();
 }
 
 test! {
