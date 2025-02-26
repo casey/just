@@ -1030,21 +1030,23 @@ fn comment_trailing() {
     .run();
 }
 
-test! {
-  name: comment_before_recipe,
-  justfile: "
+#[test]
+fn comment_before_recipe() {
+    Test::new()
+        .arg("--dump")
+        .justfile("
     # foo
 
     foo:
         echo foo
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+        .stdout("
     # foo
 
     foo:
         echo foo
-  ",
+  ")
+        .run();
 }
 
 test! {
