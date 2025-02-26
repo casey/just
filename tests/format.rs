@@ -735,17 +735,19 @@ fn recipe_variadic_default() {
     .run();
 }
 
-test! {
-  name: recipe_parameter_in_body,
-  justfile: "
+#[test]
+fn recipe_parameter_in_body() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo BAR:
         echo {{ BAR }}
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo BAR:
         echo {{ BAR }}
-  ",
+  ")
+    .run();
 }
 
 test! {
