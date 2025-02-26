@@ -1734,9 +1734,19 @@ foo +a *b:
     .run();
 }
 
-test! {
-  name:     argument_grouping,
-  justfile: "
+#[test]
+fn argument_grouping() {
+  Test::new()
+    .arg("BAR")
+    .arg("0")
+    .arg("FOO")
+    .arg("1")
+    .arg("2")
+    .arg("BAZ")
+    .arg("3")
+    .arg("4")
+    .arg("5")
+    .justfile("
 FOO A B='blarg':
   echo foo: {{A}} {{B}}
 
@@ -1745,10 +1755,10 @@ BAR X:
 
 BAZ +Z:
   echo baz: {{Z}}
-",
-  args:     ("BAR", "0", "FOO", "1", "2", "BAZ", "3", "4", "5"),
-  stdout:   "bar: 0\nfoo: 1 2\nbaz: 3 4 5\n",
-  stderr:   "echo bar: 0\necho foo: 1 2\necho baz: 3 4 5\n",
+")
+    .stdout("bar: 0\nfoo: 1 2\nbaz: 3 4 5\n")
+    .stderr("echo bar: 0\necho foo: 1 2\necho baz: 3 4 5\n")
+    .run();
 }
 
 test! {
