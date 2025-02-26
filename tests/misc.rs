@@ -1360,21 +1360,23 @@ fn dependency_takes_arguments_exact() {
     .run();
 }
 
-test! {
-  name:     dependency_takes_arguments_at_least,
-  justfile: "
+#[test]
+fn dependency_takes_arguments_at_least() {
+  Test::new()
+    .arg("b")
+    .justfile("
     a FOO LUZ='hello':
     b: a
-  ",
-  args:     ("b"),
-  stdout:   "",
-  stderr:   "error: Dependency `a` got 0 arguments but takes at least 1 argument
+  ")
+    .stdout("")
+    .stderr("error: Dependency `a` got 0 arguments but takes at least 1 argument
  ——▶ justfile:2:4
   │
 2 │ b: a
   │    ^
-",
-  status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
