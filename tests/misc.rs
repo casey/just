@@ -969,16 +969,19 @@ fn required_after_star_variadic() {
     .run();
 }
 
-test! {
-  name:     use_string_default,
-  justfile: r#"
+#[test]
+fn use_string_default() {
+  Test::new()
+    .arg("hello")
+    .arg("ABC")
+    .justfile(r#"
 bar:
 hello baz arg="XYZ\t\"	":
   echo '{{baz}}...{{arg}}'
-"#,
-  args:     ("hello", "ABC"),
-  stdout:   "ABC...XYZ\t\"\t\n",
-  stderr:   "echo 'ABC...XYZ\t\"\t'\n",
+"#)
+    .stdout("ABC...XYZ\t\"\t\n")
+    .stderr("echo 'ABC...XYZ\t\"\t'\n")
+    .run();
 }
 
 test! {
