@@ -91,19 +91,21 @@ fn cooked_string_suppress_newline() {
     .run();
 }
 
-test! {
-  name:     invalid_escape_sequence,
-  justfile: r#"x := "\q"
-a:"#,
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "error: `\\q` is not a valid escape sequence
+#[test]
+fn invalid_escape_sequence() {
+  Test::new()
+    .arg("a")
+    .justfile(r#"x := "\q"
+a:"#)
+    .stdout("")
+    .stderr("error: `\\q` is not a valid escape sequence
  ——▶ justfile:1:6
   │
 1 │ x := \"\\q\"
   │      ^^^^
-",
-  status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
