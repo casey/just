@@ -236,18 +236,20 @@ foo:
 }
 
 #[cfg(windows)]
-test! {
-  name:     env_var_functions,
-  justfile: r#"
+#[test]
+fn env_var_functions() {
+  Test::new()
+    .justfile(r#"
 p := env_var('USERNAME')
 b := env_var_or_default('ZADDY', 'HTAP')
 x := env_var_or_default('XYZ', 'ABC')
 
 foo:
   /usr/bin/env echo '{{p}}' '{{b}}' '{{x}}'
-"#,
-  stdout:   format!("{} HTAP ABC\n", env::var("USERNAME").unwrap()).as_str(),
-  stderr:   format!("/usr/bin/env echo '{}' 'HTAP' 'ABC'\n", env::var("USERNAME").unwrap()).as_str(),
+"#)
+    .stdout(format!("{} HTAP ABC\n", env::var("USERNAME").unwrap()).as_str())
+    .stderr(format!("/usr/bin/env echo '{}' 'HTAP' 'ABC'\n", env::var("USERNAME").unwrap()).as_str())
+    .run();
 }
 
 test! {
