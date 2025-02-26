@@ -1650,15 +1650,19 @@ a x y *z:
     .run();
 }
 
-test! {
-  name:     star_variadic_none,
-  justfile: "
+#[test]
+fn star_variadic_none() {
+  Test::new()
+    .arg("a")
+    .arg("0")
+    .arg("1")
+    .justfile("
 a x y *z:
   echo {{x}} {{y}} {{z}}
-",
-  args:     ("a", "0", "1"),
-  stdout:   "0 1\n",
-  stderr:   "echo 0 1 \n",
+")
+    .stdout("0 1\n")
+    .stderr("echo 0 1 \n")
+    .run();
 }
 
 test! {
