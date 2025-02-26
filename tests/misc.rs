@@ -63,14 +63,16 @@ fn alias_listing_parameters() {
     .run();
 }
 
-test! {
-  name: alias_listing_private,
-  justfile: "foo PARAM='foo':\n  echo {{PARAM}}\nalias _f := foo",
-  args: ("--list"),
-  stdout: "
+#[test]
+fn alias_listing_private() {
+  Test::new()
+    .arg("--list")
+    .justfile("foo PARAM='foo':\n  echo {{PARAM}}\nalias _f := foo")
+    .stdout("
     Available recipes:
         foo PARAM='foo'
-  ",
+  ")
+    .run();
 }
 
 test! {
