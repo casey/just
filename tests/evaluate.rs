@@ -34,16 +34,20 @@ fn evaluate_empty() {
     .run();
 }
 
-test! {
-  name:     evaluate_multiple,
-  justfile: "
+#[test]
+fn evaluate_multiple() {
+  Test::new()
+    .arg("--evaluate")
+    .arg("a")
+    .arg("c")
+    .justfile("
     a := 'x'
     b := 'y'
     c := 'z'
-  ",
-  args:   ("--evaluate", "a", "c"),
-  stderr: "error: `--evaluate` used with unexpected argument: `c`\n",
-  status: EXIT_FAILURE,
+  ")
+    .stderr("error: `--evaluate` used with unexpected argument: `c`\n")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
