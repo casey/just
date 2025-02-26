@@ -290,20 +290,22 @@ fn unterminated_indented_string() {
     .run();
 }
 
-test! {
-  name:     unterminated_indented_backtick,
-  justfile: "
+#[test]
+fn unterminated_indented_backtick() {
+  Test::new()
+    .justfile("
     foo a=\t```echo blaaaaaah:
       echo {{a}}
-  ",
-  stderr:   r"
+  ")
+    .stderr(r"
     error: Unterminated backtick
      ——▶ justfile:1:8
       │
     1 │ foo a=    ```echo blaaaaaah:
       │           ^^^
-  ",
-  status:   EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
