@@ -63,16 +63,18 @@ default:
     .run();
 }
 
-test! {
-  name:     interpolation_backtick_stderr,
-  justfile: r"
+#[test]
+fn interpolation_backtick_stderr() {
+  Test::new()
+    .arg("--quiet")
+    .justfile(r"
 default:
   echo `echo hello 1>&2`
   exit 100
-",
-  args:     ("--quiet"),
-  stdout:   "",
-  status:   100,
+")
+    .stdout("")
+    .status(100)
+    .run();
 }
 
 test! {
