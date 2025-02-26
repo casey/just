@@ -131,25 +131,27 @@ a:
     .run();
 }
 
-test! {
-  name:     error_column_after_multiline_raw_string,
-  justfile: "
+#[test]
+fn error_column_after_multiline_raw_string() {
+  Test::new()
+    .arg("a")
+    .justfile("
 string := 'hello
 
 whatever' + bar
 
 a:
   echo '{{string}}'
-",
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "error: Variable `bar` not defined
+")
+    .stdout("")
+    .stderr("error: Variable `bar` not defined
  ——▶ justfile:3:13
   │
 3 │ whatever' + bar
   │             ^^^
-",
-  status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
