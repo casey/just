@@ -1118,17 +1118,19 @@ fn group_aliases() {
     .run();
 }
 
-test! {
-  name: group_assignments,
-  justfile: "
+#[test]
+fn group_assignments() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo := 'foo'
     bar := 'bar'
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo := 'foo'
     bar := 'bar'
-  ",
+  ")
+    .run();
 }
 
 test! {
