@@ -1,13 +1,15 @@
 use super::*;
 
-test! {
-  name: then_branch_unevaluated,
-  justfile: "
+#[test]
+fn then_branch_unevaluated() {
+  Test::new()
+    .justfile("
     foo:
       echo {{ if 'a' == 'b' { `exit 1` } else { 'otherwise' } }}
-  ",
-  stdout: "otherwise\n",
-  stderr: "echo otherwise\n",
+  ")
+    .stdout("otherwise\n")
+    .stderr("echo otherwise\n")
+    .run();
 }
 
 test! {
