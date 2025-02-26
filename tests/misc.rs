@@ -1884,19 +1884,21 @@ X := "\'"
     .run();
 }
 
-test! {
-   name:     unknown_variable_in_default,
-   justfile: "
+#[test]
+fn unknown_variable_in_default() {
+  Test::new()
+    .justfile("
      foo x=bar:
-   ",
-   stdout:   "",
-   stderr:   r"error: Variable `bar` not defined
+   ")
+    .stdout("")
+    .stderr(r"error: Variable `bar` not defined
  ——▶ justfile:1:7
   │
 1 │ foo x=bar:
   │       ^^^
-",
-   status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
