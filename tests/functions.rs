@@ -318,14 +318,16 @@ fn uppercase() {
     .run();
 }
 
-test! {
-  name: lowercase,
-  justfile: "
+#[test]
+fn lowercase() {
+  Test::new()
+    .justfile("
     foo:
       echo {{ lowercase('BAR') }}
-  ",
-  stdout: "bar\n",
-  stderr: "echo bar\n",
+  ")
+    .stdout("bar\n")
+    .stderr("echo bar\n")
+    .run();
 }
 
 test! {
