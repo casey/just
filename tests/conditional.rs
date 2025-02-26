@@ -216,18 +216,20 @@ fn missing_else() {
     .run();
 }
 
-test! {
-  name: incorrect_else_identifier,
-  justfile: "
+#[test]
+fn incorrect_else_identifier() {
+  Test::new()
+    .justfile("
   TEST := if path_exists('/bin/bash') == 'true' {'yes'} els {'no'}
-  ",
-  stdout: "",
-  stderr: "
+  ")
+    .stdout("")
+    .stderr("
     error: Expected keyword `else` but found identifier `els`
      ——▶ justfile:1:55
       │
     1 │ TEST := if path_exists('/bin/bash') == 'true' {'yes'} els {'no'}
       │                                                       ^^^
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
