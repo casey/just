@@ -97,20 +97,22 @@ fn unknown_argument() {
     .run();
 }
 
-test! {
-  name: argument,
-  justfile: "
+#[test]
+fn argument() {
+  Test::new()
+    .justfile("
     foo: && (bar 'hello')
 
     bar x:
       echo {{ x }}
-  ",
-  stdout: "
+  ")
+    .stdout("
     hello
-  ",
-  stderr: "
+  ")
+    .stderr("
     echo hello
-  ",
+  ")
+    .run();
 }
 
 test! {
