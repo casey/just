@@ -49,16 +49,18 @@ default:
     .run();
 }
 
-test! {
-  name:     assignment_backtick_stderr,
-  justfile: r"
+#[test]
+fn assignment_backtick_stderr() {
+  Test::new()
+    .arg("--quiet")
+    .justfile(r"
 a := `echo hello 1>&2`
 default:
   exit 100
-",
-  args:     ("--quiet"),
-  stdout:   "",
-  status:   100,
+")
+    .stdout("")
+    .status(100)
+    .run();
 }
 
 test! {
