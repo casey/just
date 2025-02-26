@@ -154,22 +154,24 @@ a:
     .run();
 }
 
-test! {
-  name:     multiline_raw_string_in_interpolation,
-  justfile: r#"
+#[test]
+fn multiline_raw_string_in_interpolation() {
+  Test::new()
+    .arg("a")
+    .justfile(r#"
 a:
   echo '{{"a" + '
   ' + "b"}}'
-"#,
-  args:     ("a"),
-  stdout:   "
+"#)
+    .stdout("
     a
       b
-  ",
-  stderr:   "
+  ")
+    .stderr("
     echo 'a
       b'
-  ",
+  ")
+    .run();
 }
 
 test! {
