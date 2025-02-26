@@ -2418,21 +2418,22 @@ fn interpolation_evaluation_ignore_quiet() {
     .run();
 }
 
-test! {
-  name: interpolation_evaluation_ignore_quiet_continuation,
-  justfile: r#"
+#[test]
+fn interpolation_evaluation_ignore_quiet_continuation() {
+  Test::new()
+    .justfile(r#"
     foo:
       {{""}}\
       @echo foo 2>/dev/null
-  "#,
-  args: (),
-  stdout: "",
-  stderr: "
+  "#)
+    .stdout("")
+    .stderr("
     @echo foo 2>/dev/null
     error: Recipe `foo` failed on line 3 with exit code 127
-  ",
-  status: 127,
-  shell: false,
+  ")
+    .status(127)
+    .shell(false)
+    .run();
 }
 
 test! {
