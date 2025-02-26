@@ -42,11 +42,14 @@ a:
     .run();
 }
 
-test! {
-  name: summary_none,
-  justfile: "",
-  args: ("--summary", "--quiet"),
-  stdout: "\n\n\n",
+#[test]
+fn summary_none() {
+  Test::new()
+    .arg("--summary")
+    .arg("--quiet")
+    .justfile("")
+    .stdout("\n\n\n")
+    .run();
 }
 
 #[test]
