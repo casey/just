@@ -802,13 +802,16 @@ fn unknown_recipes() {
     .run();
 }
 
-test! {
-  name:     color_always,
-  justfile: "b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'",
-  args:     ("--color", "always"),
-  stdout:   "",
-  stderr:   "\u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mBacktick failed with exit code 100\u{1b}[0m\n \u{1b}[1;34m——▶\u{1b}[0m justfile:2:6\n  \u{1b}[1;34m│\u{1b}[0m\n\u{1b}[1;34m2 │\u{1b}[0m a := `exit 100`\n  \u{1b}[1;34m│\u{1b}[0m      \u{1b}[1;31m^^^^^^^^^^\u{1b}[0m\n",
-  status:   100,
+#[test]
+fn color_always() {
+    Test::new()
+        .arg("--color")
+        .arg("always")
+        .justfile("b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'")
+        .status(100)
+        .stdout("")
+        .stderr("\u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mBacktick failed with exit code 100\u{1b}[0m\n \u{1b}[1;34m——▶\u{1b}[0m justfile:2:6\n  \u{1b}[1;34m│\u{1b}[0m\n\u{1b}[1;34m2 │\u{1b}[0m a := `exit 100`\n  \u{1b}[1;34m│\u{1b}[0m      \u{1b}[1;31m^^^^^^^^^^\u{1b}[0m\n")
+        .run();
 }
 
 test! {
