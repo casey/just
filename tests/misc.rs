@@ -2722,8 +2722,6 @@ fn pwsh_invocation_directory() {
       @Test-Path {{invocation_directory()}} > result.txt
   "#,
     )
-    .stdout("")
-    .stderr("")
     .status(EXIT_SUCCESS)
     .shell(false)
     .run();
@@ -2740,7 +2738,6 @@ fn variables() {
   ",
     )
     .stdout("a z\n")
-    .stderr("")
     .shell(false)
     .run();
 }

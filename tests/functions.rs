@@ -149,7 +149,6 @@ foo:
   /usr/bin/env echo '{{we}}'
 ",
     )
-    .stdout("")
     .stderr(
       format!(
         "{} {}\n{}\n{}\n{}\n{}\n",
@@ -178,7 +177,6 @@ foo:
   /usr/bin/env echo '{{we}}'
 ",
     )
-    .stdout("")
     .stderr(
       format!(
         "{}\n{}\n{}\n{}\n{}\n",
@@ -390,7 +388,6 @@ fn test_just_executable_function() {
   ",
     )
     .status(EXIT_SUCCESS)
-    .stderr("")
     .stdout(
       format!(
         "Executable path is: {}\n",

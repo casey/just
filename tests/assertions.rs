@@ -9,8 +9,6 @@ fn assert_pass() {
       {{ assert('a' == 'a', 'error message') }}
   ",
     )
-    .stdout("")
-    .stderr("")
     .run();
 }
 
@@ -23,7 +21,6 @@ fn assert_fail() {
       {{ assert('a' != 'a', 'error message') }}
   ",
     )
-    .stdout("")
     .stderr("error: Assert failed: error message\n")
     .status(EXIT_FAILURE)
     .run();

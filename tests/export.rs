@@ -192,7 +192,6 @@ fn setting_shebang() {
   ",
     )
     .stdout("hello\ngoodbye\n")
-    .stderr("")
     .run();
 }
 

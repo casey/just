@@ -81,7 +81,6 @@ fn check_found_diff_quiet() {
     .arg("--quiet")
     .justfile("x:=``\n")
     .status(EXIT_FAILURE)
-    .stderr("")
     .run();
 }
 
