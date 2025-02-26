@@ -60,7 +60,7 @@ fn alias_listing_multiple_aliases() {
 #[test]
 fn alias_listing_parameters() {
   Test::new()
-    .args(&["--list"])
+    .args(["--list"])
     .justfile("foo PARAM='foo':\n  echo {{PARAM}}\nalias f := foo")
     .stdout(
       "

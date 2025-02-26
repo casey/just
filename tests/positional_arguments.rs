@@ -74,7 +74,7 @@ fn linewise_with_attribute() {
 #[test]
 fn variadic_linewise() {
   Test::new()
-    .args(&["foo", "a", "b", "c"])
+    .args(["foo", "a", "b", "c"])
     .justfile(
       r#"
     set positional-arguments
