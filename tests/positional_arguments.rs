@@ -139,17 +139,18 @@ fn default_arguments() {
     .run();
 }
 
-test! {
-  name: empty_variadic_is_undefined,
-  justfile: r#"
+#[test]
+fn empty_variadic_is_undefined() {
+  Test::new()
+    .justfile(r#"
     set positional-arguments
 
     foo *bar:
       if [ -n "${1+1}" ]; then echo defined; else echo undefined; fi
-  "#,
-  args:   (),
-  stdout: "undefined\n",
-  stderr: "if [ -n \"${1+1}\" ]; then echo defined; else echo undefined; fi\n",
+  "#)
+    .stdout("undefined\n")
+    .stderr("if [ -n \"${1+1}\" ]; then echo defined; else echo undefined; fi\n")
+    .run();
 }
 
 test! {
