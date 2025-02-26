@@ -61,19 +61,21 @@ fn circular_dependency() {
     .run();
 }
 
-test! {
-  name: unknown,
-  justfile: "
+#[test]
+fn unknown() {
+  Test::new()
+    .justfile("
     foo: && bar
-  ",
-  stderr: "
+  ")
+    .stderr("
     error: Recipe `foo` has unknown dependency `bar`
      ——▶ justfile:1:9
       │
     1 │ foo: && bar
       │         ^^^
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
