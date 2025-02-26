@@ -75,17 +75,20 @@ fn variadic_linewise() {
     .run();
 }
 
-test! {
-  name: shebang,
-  justfile: "
+#[test]
+fn shebang() {
+  Test::new()
+    .arg("foo")
+    .arg("hello")
+    .justfile("
     set positional-arguments
 
     foo bar:
       #!/bin/sh
       echo $1
-  ",
-  args:   ("foo", "hello"),
-  stdout: "hello\n",
+  ")
+    .stdout("hello\n")
+    .run();
 }
 
 test! {
