@@ -939,17 +939,19 @@ fn required_after_default() {
     .run();
 }
 
-test! {
-  name:     required_after_plus_variadic,
-  justfile: "bar:\nhello baz +arg bar:",
-  stdout:   "",
-  stderr:   "error: Parameter `bar` follows variadic parameter
+#[test]
+fn required_after_plus_variadic() {
+  Test::new()
+    .justfile("bar:\nhello baz +arg bar:")
+    .stdout("")
+    .stderr("error: Parameter `bar` follows variadic parameter
  ——▶ justfile:2:16
   │
 2 │ hello baz +arg bar:
   │                ^^^
-",
-  status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
