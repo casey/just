@@ -1852,17 +1852,19 @@ echo A B C:
     .run();
 }
 
-test! {
-   name:     comment_before_variable,
-   justfile: "
+#[test]
+fn comment_before_variable() {
+  Test::new()
+    .arg("echo")
+    .justfile("
 #
 A:='1'
 echo:
   echo {{A}}
- ",
-   args:     ("echo"),
-   stdout:   "1\n",
-   stderr:   "echo 1\n",
+ ")
+    .stdout("1\n")
+    .stderr("echo 1\n")
+    .run();
 }
 
 test! {
