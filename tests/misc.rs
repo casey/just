@@ -505,21 +505,23 @@ fn command_backtick_failure() {
     .run();
 }
 
-test! {
-  name:     assignment_backtick_failure,
-  justfile: "foo:
+#[test]
+fn assignment_backtick_failure() {
+  Test::new()
+    .justfile("foo:
  echo hello
  echo {{`exit 111`}}
-a := `exit 222`",
-  stdout:   "",
-  stderr:   "
+a := `exit 222`")
+    .stdout("")
+    .stderr("
     error: Backtick failed with exit code 222
      ——▶ justfile:4:6
       │
     4 │ a := `exit 222`
       │      ^^^^^^^^^^
-  ",
-  status:   222,
+  ")
+    .status(222)
+    .run();
 }
 
 test! {
