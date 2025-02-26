@@ -138,18 +138,20 @@ fn setting_true() {
     .run();
 }
 
-test! {
-  name: setting_false,
-  justfile: r#"
+#[test]
+fn setting_false() {
+  Test::new()
+    .justfile(r#"
     set export := false
 
     A := 'hello'
 
     foo:
       if [ -n "${A+1}" ]; then echo defined; else echo undefined; fi
-  "#,
-  stdout: "undefined\n",
-  stderr: "if [ -n \"${A+1}\" ]; then echo defined; else echo undefined; fi\n",
+  "#)
+    .stdout("undefined\n")
+    .stderr("if [ -n \"${A+1}\" ]; then echo defined; else echo undefined; fi\n")
+    .run();
 }
 
 test! {
