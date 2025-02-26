@@ -1954,15 +1954,17 @@ foo x=`echo foo`:
     .run();
 }
 
-test! {
-   name:     default_variable,
-   justfile: "
+#[test]
+fn default_variable() {
+  Test::new()
+    .justfile("
 y := 'foo'
 foo x=y:
   echo {{x}}
-",
-   stdout:   "foo\n",
-   stderr:   "echo foo\n",
+")
+    .stdout("foo\n")
+    .stderr("echo foo\n")
+    .run();
 }
 
 test! {
