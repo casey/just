@@ -570,17 +570,19 @@ fn recipe_ignore_errors() {
     .run();
 }
 
-test! {
-  name: recipe_parameter,
-  justfile: "
+#[test]
+fn recipe_parameter() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo BAR:
         echo foo
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo BAR:
         echo foo
-  ",
+  ")
+    .run();
 }
 
 test! {
