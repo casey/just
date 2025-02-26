@@ -893,17 +893,19 @@ Leading whitespace may consist of tabs or spaces, but not both
     .run();
 }
 
-test! {
-  name:     extra_leading_whitespace,
-  justfile: "bar:\n\t\techo hello\n\t\t\techo goodbye",
-  stdout:   "",
-  stderr:   "error: Recipe line has extra leading whitespace
+#[test]
+fn extra_leading_whitespace() {
+  Test::new()
+    .justfile("bar:\n\t\techo hello\n\t\t\techo goodbye")
+    .stdout("")
+    .stderr("error: Recipe line has extra leading whitespace
  ——▶ justfile:3:3
   │
 3 │             echo goodbye
   │         ^^^^^^^^^^^^^^^^
-",
-  status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
