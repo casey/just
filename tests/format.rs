@@ -1,11 +1,13 @@
 use super::*;
 
-test! {
-  name: unstable_not_passed,
-  justfile: "",
-  args: ("--fmt"),
-  stderr_regex: "error: The `--fmt` command is currently unstable..*",
-  status: EXIT_FAILURE,
+#[test]
+fn unstable_not_passed() {
+  Test::new()
+    .arg("--fmt")
+    .justfile("")
+    .stderr_regex("error: The `--fmt` command is currently unstable..*")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
