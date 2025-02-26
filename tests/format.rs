@@ -478,17 +478,19 @@ fn recipe_with_comments_in_body() {
     .run();
 }
 
-test! {
-  name: recipe_body_is_comment,
-  justfile: "
+#[test]
+fn recipe_body_is_comment() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo:
         # bar
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo:
         # bar
-  ",
+  ")
+    .run();
 }
 
 test! {
