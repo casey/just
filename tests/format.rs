@@ -996,19 +996,21 @@ fn comment_multiline() {
     .run();
 }
 
-test! {
-  name: comment_leading,
-  justfile: "
+#[test]
+fn comment_leading() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     # foo
 
     foo := 'bar'
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     # foo
 
     foo := 'bar'
-  ",
+  ")
+    .run();
 }
 
 test! {
