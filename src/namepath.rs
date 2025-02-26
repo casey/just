@@ -14,6 +14,14 @@ impl<'src> Namepath<'src> {
       spaced: true,
     }
   }
+
+  pub(crate) fn new(path: Vec<Name<'src>>) -> Self {
+    Self(path)
+  }
+
+  pub fn into_inner(self) -> Vec<Name<'src>> {
+    self.0
+  }
 }
 
 impl Display for Namepath<'_> {
@@ -40,5 +48,13 @@ impl Serialize for Namepath<'_> {
     S: Serializer,
   {
     serializer.serialize_str(&format!("{self}"))
+  }
+}
+
+impl<'src> Deref for Namepath<'src> {
+  type Target = Vec<Name<'src>>;
+
+  fn deref(&self) -> &Self::Target {
+    &self.0
   }
 }
