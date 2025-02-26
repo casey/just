@@ -12,14 +12,16 @@ fn then_branch_unevaluated() {
     .run();
 }
 
-test! {
-  name: otherwise_branch_unevaluated,
-  justfile: "
+#[test]
+fn otherwise_branch_unevaluated() {
+  Test::new()
+    .justfile("
     foo:
       echo {{ if 'a' == 'a' { 'then' } else { `exit 1` } }}
-  ",
-  stdout: "then\n",
-  stderr: "echo then\n",
+  ")
+    .stdout("then\n")
+    .stderr("echo then\n")
+    .run();
 }
 
 test! {
