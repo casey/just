@@ -299,11 +299,13 @@ fn backtick_success() {
     .run();
 }
 
-test! {
-  name:     backtick_trimming,
-  justfile: "a := `echo Hello,`\nbar:\n echo '{{a + `echo ' world.'`}}'",
-  stdout:   "Hello, world.\n",
-  stderr:   "echo 'Hello, world.'\n",
+#[test]
+fn backtick_trimming() {
+  Test::new()
+    .justfile("a := `echo Hello,`\nbar:\n echo '{{a + `echo ' world.'`}}'")
+    .stdout("Hello, world.\n")
+    .stderr("echo 'Hello, world.'\n")
+    .run();
 }
 
 test! {
