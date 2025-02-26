@@ -862,17 +862,19 @@ recipe:
     .run();
 }
 
-test! {
-  name:     dump,
-  justfile: r"
+#[test]
+fn dump() {
+  Test::new()
+    .arg("--dump")
+    .justfile(r"
 # this recipe does something
 recipe a b +d:
- @exit 100",
-  args:     ("--dump"),
-  stdout:   "# this recipe does something
+ @exit 100")
+    .stdout("# this recipe does something
 recipe a b +d:
     @exit 100
-",
+")
+    .run();
 }
 
 test! {
