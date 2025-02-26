@@ -110,18 +110,21 @@ fn shell_args() {
     .run();
 }
 
-test! {
-  name: shell_override,
-  justfile: "
+#[test]
+fn shell_override() {
+  Test::new()
+    .arg("--shell")
+    .arg("bash")
+    .justfile("
     set shell := ['foo-bar-baz']
 
     default:
       echo hello
-  ",
-  args: ("--shell", "bash"),
-  stdout: "hello\n",
-  stderr: "echo hello\n",
-  shell: false,
+  ")
+    .shell(false)
+    .stdout("hello\n")
+    .stderr("echo hello\n")
+    .run();
 }
 
 test! {
