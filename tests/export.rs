@@ -84,16 +84,18 @@ wut:
     .run();
 }
 
-test! {
-  name:     recipe_backtick,
-  justfile: r#"
+#[test]
+fn recipe_backtick() {
+  Test::new()
+    .justfile(r#"
 export EXPORTED_VARIABLE := "A-IS-A"
 
 recipe:
   echo {{`echo recipe $EXPORTED_VARIABLE`}}
-"#,
-  stdout:   "recipe A-IS-A\n",
-  stderr:   "echo recipe A-IS-A\n",
+"#)
+    .stdout("recipe A-IS-A\n")
+    .stderr("echo recipe A-IS-A\n")
+    .run();
 }
 
 test! {
