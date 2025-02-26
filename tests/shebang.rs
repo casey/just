@@ -53,15 +53,17 @@ default:
 }
 
 #[cfg(windows)]
-test! {
-  name:     multi_line_cmd_shebangs_are_removed,
-  justfile: r#"
+#[test]
+fn multi_line_cmd_shebangs_are_removed() {
+  Test::new()
+    .justfile(r#"
 default:
   #!cmd.exe /c
   #!foo
   @echo Hello-World
-"#,
-  stdout: "Hello-World\r\n",
+"#)
+    .stdout("Hello-World\r\n")
+    .run();
 }
 
 #[test]
