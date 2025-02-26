@@ -405,20 +405,22 @@ fn backtick_code_interpolation_inner_tab() {
     .run();
 }
 
-test! {
-  name:     backtick_code_interpolation_leading_emoji,
-  justfile: "
+#[test]
+fn backtick_code_interpolation_leading_emoji() {
+  Test::new()
+    .justfile("
     backtick-fail:
     \techo 😬{{`exit 200`}}
-  ",
-  stderr: "
+  ")
+    .stderr("
     error: Backtick failed with exit code 200
      ——▶ justfile:2:13
       │
     2 │     echo 😬{{`exit 200`}}
       │              ^^^^^^^^^^
-  ",
-  status:   200,
+  ")
+    .status(200)
+    .run();
 }
 
 test! {
