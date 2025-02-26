@@ -378,14 +378,16 @@ fn kebabcase() {
     .run();
 }
 
-test! {
-  name: shoutysnakecase,
-  justfile: "
+#[test]
+fn shoutysnakecase() {
+  Test::new()
+    .justfile("
     foo:
       echo {{ shoutysnakecase('foo bar') }}
-  ",
-  stdout: "FOO_BAR\n",
-  stderr: "echo FOO_BAR\n",
+  ")
+    .stdout("FOO_BAR\n")
+    .stderr("echo FOO_BAR\n")
+    .run();
 }
 
 test! {
