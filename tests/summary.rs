@@ -15,15 +15,17 @@ _y:
     .run();
 }
 
-test! {
-  name:     summary_sorted,
-  justfile: "
+#[test]
+fn summary_sorted() {
+  Test::new()
+    .arg("--summary")
+    .justfile("
 b:
 c:
 a:
-",
-  args:     ("--summary"),
-  stdout:   "a b c\n",
+")
+    .stdout("a b c\n")
+    .run();
 }
 
 test! {
