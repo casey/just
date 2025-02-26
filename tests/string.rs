@@ -196,21 +196,23 @@ a:
     .run();
 }
 
-test! {
-  name:     unterminated_raw_string,
-  justfile: "
+#[test]
+fn unterminated_raw_string() {
+  Test::new()
+    .arg("a")
+    .justfile("
     a b= ':
-  ",
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "
+  ")
+    .stdout("")
+    .stderr("
     error: Unterminated string
      ——▶ justfile:1:6
       │
     1 │ a b= ':
       │      ^
-  ",
-  status:   EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
