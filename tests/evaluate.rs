@@ -21,15 +21,17 @@ hello := "c"
     .run();
 }
 
-test! {
-  name:     evaluate_empty,
-  justfile: "
+#[test]
+fn evaluate_empty() {
+  Test::new()
+    .arg("--evaluate")
+    .justfile("
     a := 'foo'
-  ",
-  args:     ("--evaluate"),
-  stdout:   r#"
+  ")
+    .stdout(r#"
     a := "foo"
-  "#,
+  "#)
+    .run();
 }
 
 test! {
