@@ -22,9 +22,13 @@ fn check_without_fmt() {
         .run();
 }
 
-test! {
-  name: check_ok,
-  justfile: r#"
+#[test]
+fn check_ok() {
+  Test::new()
+    .arg("--unstable")
+    .arg("--fmt")
+    .arg("--check")
+    .justfile(r#"
 # comment   with   spaces
 
 export x := `backtick
@@ -37,9 +41,9 @@ recipe: deps
 deps:
     echo {{ x }}
     echo '$x'
-"#,
-  args: ("--unstable", "--fmt", "--check"),
-  status: EXIT_SUCCESS,
+"#)
+    .status(EXIT_SUCCESS)
+    .run();
 }
 
 test! {
