@@ -28,15 +28,18 @@ a:
     .run();
 }
 
-test! {
-  name:     summary_unsorted,
-  justfile: "
+#[test]
+fn summary_unsorted() {
+  Test::new()
+    .arg("--summary")
+    .arg("--unsorted")
+    .justfile("
 b:
 c:
 a:
-",
-  args:     ("--summary", "--unsorted"),
-  stdout:   "b c a\n",
+")
+    .stdout("b c a\n")
+    .run();
 }
 
 test! {
