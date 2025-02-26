@@ -1583,15 +1583,22 @@ a x y +z:
     .run();
 }
 
-test! {
-  name:     plus_variadic_ignore_default,
-  justfile: "
+#[test]
+fn plus_variadic_ignore_default() {
+  Test::new()
+    .arg("a")
+    .arg("0")
+    .arg("1")
+    .arg("2")
+    .arg("3")
+    .arg(" 4 ")
+    .justfile("
 a x y +z='HELLO':
   echo {{x}} {{y}} {{z}}
-",
-  args:     ("a", "0", "1", "2", "3", " 4 "),
-  stdout:   "0 1 2 3 4\n",
-  stderr:   "echo 0 1 2 3  4 \n",
+")
+    .stdout("0 1 2 3 4\n")
+    .stderr("echo 0 1 2 3  4 \n")
+    .run();
 }
 
 test! {
