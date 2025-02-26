@@ -486,21 +486,23 @@ fn shebang_backtick_failure() {
     .run();
 }
 
-test! {
-  name:     command_backtick_failure,
-  justfile: "foo:
+#[test]
+fn command_backtick_failure() {
+  Test::new()
+    .justfile("foo:
  echo hello
- echo {{`exit 123`}}",
-  stdout:   "hello\n",
-  stderr:   "
+ echo {{`exit 123`}}")
+    .stdout("hello\n")
+    .stderr("
     echo hello
     error: Backtick failed with exit code 123
      ——▶ justfile:3:9
       │
     3 │  echo {{`exit 123`}}
       │         ^^^^^^^^^^
-  ",
-  status:   123,
+  ")
+    .status(123)
+    .run();
 }
 
 test! {
