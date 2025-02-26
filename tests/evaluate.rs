@@ -50,15 +50,18 @@ fn evaluate_multiple() {
     .run();
 }
 
-test! {
-  name:     evaluate_single_free,
-  justfile: "
+#[test]
+fn evaluate_single_free() {
+  Test::new()
+    .arg("--evaluate")
+    .arg("b")
+    .justfile("
     a := 'x'
     b := 'y'
     c := 'z'
-  ",
-  args:   ("--evaluate", "b"),
-  stdout: "y",
+  ")
+    .stdout("y")
+    .run();
 }
 
 test! {
