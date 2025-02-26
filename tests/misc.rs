@@ -2387,16 +2387,18 @@ fn pwsh_invocation_directory() {
     .run();
 }
 
-test! {
-  name: variables,
-  justfile: "
+#[test]
+fn variables() {
+  Test::new()
+    .arg("--variables")
+    .justfile("
     z := 'a'
     a := 'z'
-  ",
-  args: ("--variables"),
-  stdout: "a z\n",
-  stderr: "",
-  shell: false,
+  ")
+    .stdout("a z\n")
+    .stderr("")
+    .shell(false)
+    .run();
 }
 
 test! {
