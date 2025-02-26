@@ -95,16 +95,19 @@ fn powershell() {
   assert_stdout(&output, stdout);
 }
 
-test! {
-  name: shell_args,
-  justfile: "
+#[test]
+fn shell_args() {
+  Test::new()
+    .arg("--shell-arg")
+    .arg("-c")
+    .justfile("
     default:
       echo A${foo}A
-  ",
-  args: ("--shell-arg", "-c"),
-  stdout: "AA\n",
-  stderr: "echo A${foo}A\n",
-  shell: false,
+  ")
+    .shell(false)
+    .stdout("AA\n")
+    .stderr("echo A${foo}A\n")
+    .run();
 }
 
 test! {
