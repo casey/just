@@ -2355,18 +2355,19 @@ fn duplicate_dependency_no_args() {
     .run();
 }
 
-test! {
-  name: duplicate_dependency_argument,
-  justfile: "
+#[test]
+fn duplicate_dependency_argument() {
+  Test::new()
+    .justfile("
     foo: (bar 'BAR') (bar `echo BAR`)
 
     bar bar:
       echo {{bar}}
-  ",
-  args: (),
-  stdout: "BAR\n",
-  stderr: "echo BAR\n",
-  shell: false,
+  ")
+    .stdout("BAR\n")
+    .stderr("echo BAR\n")
+    .shell(false)
+    .run();
 }
 
 #[cfg(windows)]
