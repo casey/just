@@ -194,10 +194,12 @@ fn default() {
     .run();
 }
 
-test! {
-  name:     quiet,
-  justfile: "default:\n @echo hello",
-  stdout:   "hello\n",
+#[test]
+fn quiet() {
+    Test::new()
+        .justfile("default:\n @echo hello")
+        .stdout("hello\n")
+        .run();
 }
 
 test! {
