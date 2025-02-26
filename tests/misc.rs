@@ -682,15 +682,18 @@ fn line_error_spacing() {
     .run();
 }
 
-test! {
-  name:     argument_single,
-  justfile: "
+#[test]
+fn argument_single() {
+  Test::new()
+    .arg("foo")
+    .arg("ARGUMENT")
+    .justfile("
 foo A:
   echo {{A}}
-    ",
-  args:     ("foo", "ARGUMENT"),
-  stdout:   "ARGUMENT\n",
-  stderr:   "echo ARGUMENT\n",
+    ")
+    .stdout("ARGUMENT\n")
+    .stderr("echo ARGUMENT\n")
+    .run();
 }
 
 test! {
