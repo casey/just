@@ -743,16 +743,21 @@ foo A B:
     .run();
 }
 
-test! {
-  name:     argument_mismatch_more_with_default,
-  justfile: "
+#[test]
+fn argument_mismatch_more_with_default() {
+  Test::new()
+    .arg("foo")
+    .arg("ONE")
+    .arg("TWO")
+    .arg("THREE")
+    .justfile("
 foo A B='B':
   echo A:{{A}} B:{{B}}
-    ",
-  args:     ("foo", "ONE", "TWO", "THREE"),
-  stdout:   "",
-  stderr:   "error: Justfile does not contain recipe `THREE`\n",
-  status:   EXIT_FAILURE,
+    ")
+    .stdout("")
+    .stderr("error: Justfile does not contain recipe `THREE`\n")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
