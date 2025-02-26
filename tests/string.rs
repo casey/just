@@ -108,25 +108,27 @@ a:"#)
     .run();
 }
 
-test! {
-  name:     error_line_after_multiline_raw_string,
-  justfile: "
+#[test]
+fn error_line_after_multiline_raw_string() {
+  Test::new()
+    .arg("a")
+    .justfile("
 string := 'hello
 
 whatever' + 'yo'
 
 a:
   echo '{{foo}}'
-",
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "error: Variable `foo` not defined
+")
+    .stdout("")
+    .stderr("error: Variable `foo` not defined
  ——▶ justfile:6:11
   │
 6 │   echo '{{foo}}'
   │           ^^^
-",
-  status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
