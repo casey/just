@@ -577,6 +577,12 @@ available on [PackageControl](https://packagecontrol.io/packages/Just).
 [Micro](https://micro-editor.github.io/) supports Justfile syntax highlighting
 out of the box, thanks to [tomodachi94](https://github.com/tomodachi94).
 
+### Zed
+
+A [zed-just](https://github.com/jackTabsCode/zed-just/tree/main) extension by
+[jackTabsCode](https://github.com/jackTabsCode) is available on
+[Zed extensions page](https://zed.dev/extensions?query=just).
+
 ### Other Editors
 
 Feel free to send me the commands necessary to get syntax highlighting working
