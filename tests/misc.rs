@@ -760,20 +760,23 @@ foo A B='B':
     .run();
 }
 
-test! {
-  name:     argument_mismatch_fewer_with_default,
-  justfile: "
+#[test]
+fn argument_mismatch_fewer_with_default() {
+  Test::new()
+    .arg("foo")
+    .arg("bar")
+    .justfile("
 foo A B C='C':
   echo A:{{A}} B:{{B}} C:{{C}}
-    ",
-  args:     ("foo", "bar"),
-  stdout:   "",
-  stderr:   "
+    ")
+    .stdout("")
+    .stderr("
     error: Recipe `foo` got 1 argument but takes at least 2
     usage:
         just foo A B C='C'
-  ",
-  status:   EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
