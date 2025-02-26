@@ -1543,24 +1543,26 @@ fn variable_circular_dependency() {
     .run();
 }
 
-test! {
-  name:     variable_circular_dependency_with_additional_variable,
-  justfile: "
+#[test]
+fn variable_circular_dependency_with_additional_variable() {
+  Test::new()
+    .arg("a")
+    .justfile("
     a := ''
     x := y
     y := x
 
     a:
-  ",
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "error: Variable `x` depends on its own value: `x -> y -> x`
+  ")
+    .stdout("")
+    .stderr("error: Variable `x` depends on its own value: `x -> y -> x`
  ——▶ justfile:2:1
   │
 2 │ x := y
   │ ^
-",
-  status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
