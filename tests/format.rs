@@ -1090,9 +1090,11 @@ fn group_recipes() {
     .run();
 }
 
-test! {
-  name: group_aliases,
-  justfile: "
+#[test]
+fn group_aliases() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     alias f := foo
 
     alias b := bar
@@ -1102,9 +1104,8 @@ test! {
 
     bar:
         echo bar
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     alias f := foo
     alias b := bar
 
@@ -1113,7 +1114,8 @@ test! {
 
     bar:
         echo bar
-  ",
+  ")
+    .run();
 }
 
 test! {
