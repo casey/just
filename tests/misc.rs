@@ -1479,18 +1479,20 @@ fn unexpected_token_after_name() {
     .run();
 }
 
-test! {
-  name:     self_dependency,
-  justfile: "a: a",
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "error: Recipe `a` depends on itself
+#[test]
+fn self_dependency() {
+  Test::new()
+    .arg("a")
+    .justfile("a: a")
+    .stdout("")
+    .stderr("error: Recipe `a` depends on itself
  ——▶ justfile:1:4
   │
 1 │ a: a
   │    ^
-",
-  status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
