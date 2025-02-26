@@ -30,29 +30,33 @@ fn linewise() {
     .run();
 }
 
-test! {
-  name: linewise_with_attribute,
-  justfile: r#"
+#[test]
+fn linewise_with_attribute() {
+  Test::new()
+    .arg("foo")
+    .arg("hello")
+    .arg("goodbye")
+    .justfile(r#"
     [positional-arguments]
     foo bar baz:
       echo $0
       echo $1
       echo $2
       echo "$@"
-  "#,
-  args:   ("foo", "hello", "goodbye"),
-  stdout: "
+  "#)
+    .stdout("
     foo
     hello
     goodbye
     hello goodbye
-  ",
-  stderr: r#"
+  ")
+    .stderr(r#"
     echo $0
     echo $1
     echo $2
     echo "$@"
-  "#,
+  "#)
+    .run();
 }
 
 test! {
