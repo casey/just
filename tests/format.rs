@@ -255,15 +255,17 @@ fn assignment_indented_doublequote() {
     .run();
 }
 
-test! {
-  name: assignment_backtick,
-  justfile: "
+#[test]
+fn assignment_backtick() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo := `foo`
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo := `foo`
-  ",
+  ")
+    .run();
 }
 
 test! {
