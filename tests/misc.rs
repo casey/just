@@ -848,16 +848,18 @@ fn color_auto() {
     .run();
 }
 
-test! {
-  name:     colors_no_context,
-  justfile: "
+#[test]
+fn colors_no_context() {
+  Test::new()
+    .arg("--color=always")
+    .stdout("")
+    .stderr("\u{1b}[1;31merror\u{1b}[0m: \u{1b}[1m\
+Recipe `recipe` failed on line 2 with exit code 100\u{1b}[0m\n")
+    .status(100)
+    .justfile("
 recipe:
-  @exit 100",
-  args:     ("--color=always"),
-  stdout:   "",
-  stderr:   "\u{1b}[1;31merror\u{1b}[0m: \u{1b}[1m\
-Recipe `recipe` failed on line 2 with exit code 100\u{1b}[0m\n",
-  status:   100,
+  @exit 100")
+    .run();
 }
 
 test! {
