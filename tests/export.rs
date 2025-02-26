@@ -194,16 +194,18 @@ fn setting_override_undefined() {
     .run();
 }
 
-test! {
-  name: setting_variable_not_visible,
-  justfile: r#"
+#[test]
+fn setting_variable_not_visible() {
+  Test::new()
+    .arg("A=zzz")
+    .justfile(r#"
     export A := 'hello'
     export B := `if [ -n "${A+1}" ]; then echo defined; else echo undefined; fi`
 
     foo:
       echo $B
-  "#,
-  args: ("A=zzz"),
-  stdout: "undefined\n",
-  stderr: "echo $B\n",
+  "#)
+    .stdout("undefined\n")
+    .stderr("echo $B\n")
+    .run();
 }
