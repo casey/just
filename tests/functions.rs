@@ -192,23 +192,25 @@ foo:
 }
 
 #[cfg(not(windows))]
-test! {
-  name: broken_directory_function,
-  justfile: r"
+#[test]
+fn broken_directory_function() {
+  Test::new()
+    .justfile(r"
 we  := parent_directory('')
 
 foo:
   /usr/bin/env echo '{{we}}'
-",
-  stdout:   "",
-  stderr:   format!("{} {}\n{}\n{}\n{}\n{}\n",
-    "error: Call to function `parent_directory` failed:",
-    "Could not extract parent directory from ``",
-    " ——▶ justfile:1:8",
-    "  │",
-    "1 │ we  := parent_directory(\'\')",
-    "  │        ^^^^^^^^^^^^^^^^").as_str(),
-  status:   EXIT_FAILURE,
+")
+    .stdout("")
+    .stderr(format!("{} {}\n{}\n{}\n{}\n{}\n",
+      "error: Call to function `parent_directory` failed:",
+      "Could not extract parent directory from ``",
+      " ——▶ justfile:1:8",
+      "  │",
+      "1 │ we  := parent_directory(\'\')",
+      "  │        ^^^^^^^^^^^^^^^^").as_str())
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 #[cfg(not(windows))]
