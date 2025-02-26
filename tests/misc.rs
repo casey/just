@@ -1698,20 +1698,22 @@ a x y *z='HELLO':
     .run();
 }
 
-test! {
-  name:     star_then_plus_variadic,
-  justfile: "
+#[test]
+fn star_then_plus_variadic() {
+  Test::new()
+    .justfile("
 foo *a +b:
   echo {{a}} {{b}}
-",
-  stdout:   "",
-  stderr:   "error: Expected \':\' or \'=\', but found \'+\'
+")
+    .stdout("")
+    .stderr("error: Expected \':\' or \'=\', but found \'+\'
  ——▶ justfile:1:8
   │
 1 │ foo *a +b:
   │        ^
-",
-  status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
