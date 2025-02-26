@@ -86,23 +86,25 @@ foo:
 }
 
 #[cfg(not(windows))]
-test! {
-  name: broken_without_extension_function,
-  justfile: r"
+#[test]
+fn broken_without_extension_function() {
+  Test::new()
+    .justfile(r"
 we  := without_extension('')
 
 foo:
   /usr/bin/env echo '{{we}}'
-",
-  stdout:   "",
-  stderr:   format!("{} {}\n{}\n{}\n{}\n{}\n",
-    "error: Call to function `without_extension` failed:",
-    "Could not extract parent from ``",
-    " ——▶ justfile:1:8",
-    "  │",
-    "1 │ we  := without_extension(\'\')",
-    "  │        ^^^^^^^^^^^^^^^^^").as_str(),
-  status:   EXIT_FAILURE,
+")
+    .stdout("")
+    .stderr(format!("{} {}\n{}\n{}\n{}\n{}\n",
+      "error: Call to function `without_extension` failed:",
+      "Could not extract parent from ``",
+      " ——▶ justfile:1:8",
+      "  │",
+      "1 │ we  := without_extension(\'\')",
+      "  │        ^^^^^^^^^^^^^^^^^").as_str())
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 #[cfg(not(windows))]
