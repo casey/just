@@ -1,11 +1,14 @@
 use super::*;
 
-test! {
-  name:     parameter_may_shadow_variable,
-  justfile: "FOO := 'hello'\na FOO:\n echo {{FOO}}\n",
-  args:     ("a", "bar"),
-  stdout:   "bar\n",
-  stderr:   "echo bar\n",
+#[test]
+fn parameter_may_shadow_variable() {
+  Test::new()
+    .arg("a")
+    .arg("bar")
+    .justfile("FOO := 'hello'\na FOO:\n echo {{FOO}}\n")
+    .stdout("bar\n")
+    .stderr("echo bar\n")
+    .run();
 }
 
 test! {
