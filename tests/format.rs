@@ -750,17 +750,19 @@ fn recipe_parameter_in_body() {
     .run();
 }
 
-test! {
-  name: recipe_parameter_conditional,
-  justfile: "
+#[test]
+fn recipe_parameter_conditional() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo BAR:
         echo {{ if 'foo' == 'foo' { 'foo' } else { 'bar' } }}
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo BAR:
         echo {{ if 'foo' == 'foo' { 'foo' } else { 'bar' } }}
-  ",
+  ")
+    .run();
 }
 
 test! {
