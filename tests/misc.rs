@@ -1511,18 +1511,20 @@ fn long_circular_recipe_dependency() {
     .run();
 }
 
-test! {
-  name:     variable_self_dependency,
-  justfile: "z := z\na:",
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "error: Variable `z` is defined in terms of itself
+#[test]
+fn variable_self_dependency() {
+  Test::new()
+    .arg("a")
+    .justfile("z := z\na:")
+    .stdout("")
+    .stderr("error: Variable `z` is defined in terms of itself
  ——▶ justfile:1:1
   │
 1 │ z := z
   │ ^
-",
-  status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
