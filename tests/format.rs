@@ -916,15 +916,17 @@ fn recipe_dependencies_params() {
     .run();
 }
 
-test! {
-  name: set_true_explicit,
-  justfile: "
+#[test]
+fn set_true_explicit() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     set export := true
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     set export := true
-  ",
+  ")
+    .run();
 }
 
 test! {
