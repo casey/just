@@ -2340,18 +2340,19 @@ fn dependency_argument_plus_variadic() {
     .run();
 }
 
-test! {
-  name: duplicate_dependency_no_args,
-  justfile: "
+#[test]
+fn duplicate_dependency_no_args() {
+  Test::new()
+    .justfile("
     foo: bar bar bar bar
 
     bar:
       echo BAR
-  ",
-  args: (),
-  stdout: "BAR\n",
-  stderr: "echo BAR\n",
-  shell: false,
+  ")
+    .stdout("BAR\n")
+    .stderr("echo BAR\n")
+    .shell(false)
+    .run();
 }
 
 test! {
