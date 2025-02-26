@@ -555,17 +555,19 @@ fn recipe_quiet_comment() {
     .run();
 }
 
-test! {
-  name: recipe_ignore_errors,
-  justfile: "
+#[test]
+fn recipe_ignore_errors() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo:
         -echo foo
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo:
         -echo foo
-  ",
+  ")
+    .run();
 }
 
 test! {
