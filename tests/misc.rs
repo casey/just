@@ -1125,19 +1125,22 @@ a:
     .run();
 }
 
-test! {
-  name:     list_unsorted,
-  justfile: r"
+#[test]
+fn list_unsorted() {
+  Test::new()
+    .arg("--list")
+    .arg("--unsorted")
+    .justfile(r"
 alias c := b
 b:
 a:
-",
-  args:     ("--list", "--unsorted"),
-  stdout:   r"
+")
+    .stdout(r"
     Available recipes:
         b # [alias: c]
         a
-  ",
+  ")
+    .run();
 }
 
 test! {
