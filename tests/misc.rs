@@ -113,19 +113,21 @@ fn bad_setting() {
     .run();
 }
 
-test! {
-  name: bad_setting_with_keyword_name,
-  justfile: "
+#[test]
+fn bad_setting_with_keyword_name() {
+  Test::new()
+    .justfile("
     set if := 'foo'
-  ",
-  stderr: "
+  ")
+    .stderr("
   error: Unknown setting `if`
    ——▶ justfile:1:5
     │
   1 │ set if := 'foo'
     │     ^^
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
