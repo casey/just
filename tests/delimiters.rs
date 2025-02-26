@@ -30,9 +30,10 @@ fn unexpected_delimiter() {
     .run();
 }
 
-test! {
-  name: paren_continuation,
-  justfile: "
+#[test]
+fn paren_continuation() {
+  Test::new()
+    .justfile("
     x := (
           'a'
               +
@@ -41,9 +42,10 @@ test! {
 
     foo:
       echo {{x}}
-  ",
-  stdout: "ab\n",
-  stderr: "echo ab\n",
+  ")
+    .stdout("ab\n")
+    .stderr("echo ab\n")
+    .run();
 }
 
 test! {
