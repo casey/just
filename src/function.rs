@@ -200,10 +200,6 @@ fn capitalize(_context: Context, s: &str) -> FunctionResult {
 }
 
 fn choose(_context: Context, n: &str, alphabet: &str) -> FunctionResult {
-  if alphabet.is_empty() {
-    return Err("empty alphabet".into());
-  }
-
   let mut chars = HashSet::<char>::with_capacity(alphabet.len());
 
   for c in alphabet.chars() {
@@ -220,7 +216,13 @@ fn choose(_context: Context, n: &str, alphabet: &str) -> FunctionResult {
 
   let mut rng = thread_rng();
 
-  Ok((0..n).map(|_| alphabet.choose(&mut rng).unwrap()).collect())
+  (0..n)
+    .map(|_| {
+      alphabet
+        .choose(&mut rng)
+        .ok_or_else(|| "empty alphabet".to_string())
+    })
+    .collect()
 }
 
 fn clean(_context: Context, path: &str) -> FunctionResult {
