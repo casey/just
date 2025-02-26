@@ -234,20 +234,22 @@ fn unterminated_string() {
     .run();
 }
 
-test! {
-  name:     unterminated_backtick,
-  justfile: "
+#[test]
+fn unterminated_backtick() {
+  Test::new()
+    .justfile("
     foo a=\t`echo blaaaaaah:
       echo {{a}}
-  ",
-  stderr:   r"
+  ")
+    .stderr(r"
     error: Unterminated backtick
      ——▶ justfile:1:8
       │
     1 │ foo a=    `echo blaaaaaah:
       │           ^
-  ",
-  status:   EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
