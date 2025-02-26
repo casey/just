@@ -153,16 +153,20 @@ fn empty_variadic_is_undefined() {
     .run();
 }
 
-test! {
-  name: variadic_arguments_are_separate,
-  justfile: r"
+#[test]
+fn variadic_arguments_are_separate() {
+  Test::new()
+    .arg("foo")
+    .arg("a")
+    .arg("b")
+    .justfile(r"
     set positional-arguments
 
     foo *bar:
       echo $1
       echo $2
-  ",
-  args:   ("foo", "a", "b"),
-  stdout: "a\nb\n",
-  stderr: "echo $1\necho $2\n",
+  ")
+    .stdout("a\nb\n")
+    .stderr("echo $1\necho $2\n")
+    .run();
 }
