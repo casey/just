@@ -1379,21 +1379,23 @@ fn dependency_takes_arguments_at_least() {
     .run();
 }
 
-test! {
-  name:     dependency_takes_arguments_at_most,
-  justfile: "
+#[test]
+fn dependency_takes_arguments_at_most() {
+  Test::new()
+    .arg("b")
+    .justfile("
     a FOO LUZ='hello':
     b: (a '0' '1' '2')
-  ",
-  args:     ("b"),
-  stdout:   "",
-  stderr:   "error: Dependency `a` got 3 arguments but takes at most 2 arguments
+  ")
+    .stdout("")
+    .stderr("error: Dependency `a` got 3 arguments but takes at most 2 arguments
  ——▶ justfile:2:5
   │
 2 │ b: (a '0' '1' '2')
   │     ^
-",
-  status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
