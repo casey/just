@@ -2290,9 +2290,10 @@ fn env_function_as_env_var_or_default_with_existing_env_var() {
     .run();
 }
 
-test! {
-  name: dependency_argument_backtick,
-  justfile: "
+#[test]
+fn dependency_argument_backtick() {
+  Test::new()
+    .justfile("
     export X := 'X'
 
     foo: (bar `echo $X`)
@@ -2300,11 +2301,11 @@ test! {
     bar arg:
       echo {{arg}}
       echo $X
-  ",
-  args: (),
-  stdout: "X\nX\n",
-  stderr: "echo X\necho $X\n",
-  shell: false,
+  ")
+    .stdout("X\nX\n")
+    .stderr("echo X\necho $X\n")
+    .shell(false)
+    .run();
 }
 
 test! {
