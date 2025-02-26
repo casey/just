@@ -1049,23 +1049,25 @@ fn comment_before_recipe() {
         .run();
 }
 
-test! {
-  name: comment_before_docstring_recipe,
-  justfile: "
+#[test]
+fn comment_before_docstring_recipe() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     # bar
 
     # foo
     foo:
         echo foo
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     # bar
 
     # foo
     foo:
         echo foo
-  ",
+  ")
+    .run();
 }
 
 test! {
