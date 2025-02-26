@@ -1632,15 +1632,22 @@ a x y +z:
     .run();
 }
 
-test! {
-  name:     star_variadic_recipe,
-  justfile: "
+#[test]
+fn star_variadic_recipe() {
+  Test::new()
+    .arg("a")
+    .arg("0")
+    .arg("1")
+    .arg("2")
+    .arg("3")
+    .arg(" 4 ")
+    .justfile("
 a x y *z:
   echo {{x}} {{y}} {{z}}
-",
-  args:     ("a", "0", "1", "2", "3", " 4 "),
-  stdout:   "0 1 2 3 4\n",
-  stderr:   "echo 0 1 2 3  4 \n",
+")
+    .stdout("0 1 2 3 4\n")
+    .stderr("echo 0 1 2 3  4 \n")
+    .run();
 }
 
 test! {
