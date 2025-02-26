@@ -4,13 +4,15 @@ use super::*;
 fn mismatched_delimiter() {
   Test::new()
     .justfile("(]")
-    .stderr("
+    .stderr(
+      "
     error: Mismatched closing delimiter `]`. (Did you mean to close the `(` on line 1?)
      ——▶ justfile:1:2
       │
     1 │ (]
       │  ^
-  ")
+  ",
+    )
     .status(EXIT_FAILURE)
     .run();
 }
@@ -19,13 +21,15 @@ fn mismatched_delimiter() {
 fn unexpected_delimiter() {
   Test::new()
     .justfile("]")
-    .stderr("
+    .stderr(
+      "
     error: Unexpected closing delimiter `]`
      ——▶ justfile:1:1
       │
     1 │ ]
       │ ^
-  ")
+  ",
+    )
     .status(EXIT_FAILURE)
     .run();
 }
@@ -33,7 +37,8 @@ fn unexpected_delimiter() {
 #[test]
 fn paren_continuation() {
   Test::new()
-    .justfile("
+    .justfile(
+      "
     x := (
           'a'
               +
@@ -42,7 +47,8 @@ fn paren_continuation() {
 
     foo:
       echo {{x}}
-  ")
+  ",
+    )
     .stdout("ab\n")
     .stderr("echo ab\n")
     .run();
@@ -51,7 +57,8 @@ fn paren_continuation() {
 #[test]
 fn brace_continuation() {
   Test::new()
-    .justfile("
+    .justfile(
+      "
     x := if '' == '' {
       'a'
     } else {
@@ -60,7 +67,8 @@ fn brace_continuation() {
 
     foo:
       echo {{x}}
-  ")
+  ",
+    )
     .stdout("a\n")
     .stderr("echo a\n")
     .run();
@@ -69,7 +77,8 @@ fn brace_continuation() {
 #[test]
 fn bracket_continuation() {
   Test::new()
-    .justfile("
+    .justfile(
+      "
     set shell := [
       'sh',
       '-cu',
@@ -77,7 +86,8 @@ fn bracket_continuation() {
 
     foo:
       echo foo
-  ")
+  ",
+    )
     .stdout("foo\n")
     .stderr("echo foo\n")
     .run();
@@ -86,7 +96,8 @@ fn bracket_continuation() {
 #[test]
 fn dependency_continuation() {
   Test::new()
-    .justfile("
+    .justfile(
+      "
     foo: (
     bar 'bar'
     )
@@ -94,7 +105,8 @@ fn dependency_continuation() {
 
     bar x:
       echo {{x}}
-  ")
+  ",
+    )
     .stdout("bar\nfoo\n")
     .stderr("echo bar\necho foo\n")
     .run();
@@ -103,19 +115,23 @@ fn dependency_continuation() {
 #[test]
 fn no_interpolation_continuation() {
   Test::new()
-    .justfile("
+    .justfile(
+      "
     foo:
       echo {{ (
         'a' + 'b')}}
-  ")
+  ",
+    )
     .stdout("")
-    .stderr("
+    .stderr(
+      "
     error: Unterminated interpolation
      ——▶ justfile:2:8
       │
     2 │   echo {{ (
       │        ^^
-  ")
+  ",
+    )
     .status(EXIT_FAILURE)
     .run();
 }

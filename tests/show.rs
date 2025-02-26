@@ -2,18 +2,22 @@ use super::*;
 
 #[test]
 fn show() {
-    Test::new()
-        .arg("--show")
-        .arg("recipe")
-        .justfile(r#"hello := "foo"
+  Test::new()
+    .arg("--show")
+    .arg("recipe")
+    .justfile(
+      r#"hello := "foo"
 bar := hello + hello
 recipe:
- echo {{hello + "bar" + bar}}"#)
-        .stdout(r#"
+ echo {{hello + "bar" + bar}}"#,
+    )
+    .stdout(
+      r#"
     recipe:
         echo {{ hello + "bar" + bar }}
-  "#)
-        .run();
+  "#,
+    )
+    .run();
 }
 
 #[test]
@@ -22,11 +26,13 @@ fn alias_show() {
     .arg("--show")
     .arg("f")
     .justfile("foo:\n    bar\nalias f := foo")
-    .stdout("
+    .stdout(
+      "
     alias f := foo
     foo:
         bar
-  ")
+  ",
+    )
     .run();
 }
 
@@ -37,13 +43,15 @@ fn alias_show_missing_target() {
     .arg("f")
     .justfile("alias f := foo")
     .status(EXIT_FAILURE)
-    .stderr("
+    .stderr(
+      "
     error: Alias `f` has an unknown target `foo`
      ——▶ justfile:1:7
       │
     1 │ alias f := foo
       │       ^
-  ")
+  ",
+    )
     .run();
 }
 
@@ -52,12 +60,14 @@ fn show_suggestion() {
   Test::new()
     .arg("--show")
     .arg("hell")
-    .justfile(r#"
+    .justfile(
+      r#"
 hello a b='B	' c='C':
   echo {{a}} {{b}} {{c}}
 
 a Z="\t z":
-"#)
+"#,
+    )
     .stdout("")
     .stderr("error: Justfile does not contain recipe `hell`\nDid you mean `hello`?\n")
     .status(EXIT_FAILURE)
@@ -69,19 +79,23 @@ fn show_alias_suggestion() {
   Test::new()
     .arg("--show")
     .arg("fo")
-    .justfile(r#"
+    .justfile(
+      r#"
 hello a b='B	' c='C':
   echo {{a}} {{b}} {{c}}
 
 alias foo := hello
 
 a Z="\t z":
-"#)
+"#,
+    )
     .stdout("")
-    .stderr("
+    .stderr(
+      "
     error: Justfile does not contain recipe `fo`
     Did you mean `foo`, an alias for `hello`?
-  ")
+  ",
+    )
     .status(EXIT_FAILURE)
     .run();
 }
@@ -91,12 +105,14 @@ fn show_no_suggestion() {
   Test::new()
     .arg("--show")
     .arg("hell")
-    .justfile(r#"
+    .justfile(
+      r#"
 helloooooo a b='B	' c='C':
   echo {{a}} {{b}} {{c}}
 
 a Z="\t z":
-"#)
+"#,
+    )
     .stdout("")
     .stderr("error: Justfile does not contain recipe `hell`\n")
     .status(EXIT_FAILURE)
@@ -108,14 +124,16 @@ fn show_no_alias_suggestion() {
   Test::new()
     .arg("--show")
     .arg("fooooooo")
-    .justfile(r#"
+    .justfile(
+      r#"
 hello a b='B	' c='C':
   echo {{a}} {{b}} {{c}}
 
 alias foo := hello
 
 a Z="\t z":
-"#)
+"#,
+    )
     .stdout("")
     .stderr("error: Justfile does not contain recipe `fooooooo`\n")
     .status(EXIT_FAILURE)

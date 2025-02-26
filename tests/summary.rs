@@ -4,13 +4,15 @@ use super::*;
 fn summary() {
   Test::new()
     .arg("--summary")
-    .justfile("b: a
+    .justfile(
+      "b: a
 a:
 d: c
 c: b
 _z: _y
 _y:
-")
+",
+    )
     .stdout("a b c d\n")
     .run();
 }
@@ -19,11 +21,13 @@ _y:
 fn summary_sorted() {
   Test::new()
     .arg("--summary")
-    .justfile("
+    .justfile(
+      "
 b:
 c:
 a:
-")
+",
+    )
     .stdout("a b c\n")
     .run();
 }
@@ -33,11 +37,13 @@ fn summary_unsorted() {
   Test::new()
     .arg("--summary")
     .arg("--unsorted")
-    .justfile("
+    .justfile(
+      "
 b:
 c:
 a:
-")
+",
+    )
     .stdout("b c a\n")
     .run();
 }

@@ -6,10 +6,12 @@ fn long() {
     .arg("--command")
     .arg("printf")
     .arg("foo")
-    .justfile("
+    .justfile(
+      "
     x:
       echo XYZ
-  ")
+  ",
+    )
     .stdout("foo")
     .run();
 }
@@ -20,10 +22,12 @@ fn short() {
     .arg("-c")
     .arg("printf")
     .arg("foo")
-    .justfile("
+    .justfile(
+      "
     x:
       echo XYZ
-  ")
+  ",
+    )
     .stdout("foo")
     .run();
 }
@@ -35,10 +39,12 @@ fn command_color() {
     .arg("always")
     .arg("--command-color")
     .arg("cyan")
-    .justfile("
+    .justfile(
+      "
     x:
       echo XYZ
-  ")
+  ",
+    )
     .stdout("XYZ\n")
     .stderr("\u{1b}[1;36mecho XYZ\u{1b}[0m\n")
     .status(EXIT_SUCCESS)
@@ -49,15 +55,19 @@ fn command_color() {
 fn no_binary() {
   Test::new()
     .arg("--command")
-    .justfile("
+    .justfile(
+      "
     x:
       echo XYZ
-  ")
-    .stderr("
+  ",
+    )
+    .stderr(
+      "
     error: a value is required for '--command <COMMAND>...' but none was supplied
 
     For more information, try '--help'.
-  ")
+  ",
+    )
     .status(2)
     .run();
 }
@@ -86,12 +96,14 @@ fn exports_are_available() {
     .arg("sh")
     .arg("-c")
     .arg("printf $FOO")
-    .justfile("
+    .justfile(
+      "
     export FOO := 'bar'
 
     x:
       echo XYZ
-  ")
+  ",
+    )
     .stdout("bar")
     .run();
 }
@@ -106,12 +118,14 @@ fn set_overrides_work() {
     .arg("sh")
     .arg("-c")
     .arg("printf $FOO")
-    .justfile("
+    .justfile(
+      "
     export FOO := 'bar'
 
     x:
       echo XYZ
-  ")
+  ",
+    )
     .stdout("baz")
     .run();
 }
@@ -122,9 +136,11 @@ fn run_in_shell() {
     .arg("--shell-command")
     .arg("--command")
     .arg("bar baz")
-    .justfile("
+    .justfile(
+      "
     set shell := ['printf']
-  ")
+  ",
+    )
     .stdout("bar baz")
     .shell(false)
     .run();
@@ -135,10 +151,12 @@ fn exit_status() {
   Test::new()
     .arg("--command")
     .arg("false")
-    .justfile("
+    .justfile(
+      "
     x:
       echo XYZ
-  ")
+  ",
+    )
     .stderr_regex("error: Command `false` failed: exit (code|status): 1\n")
     .status(EXIT_FAILURE)
     .run();

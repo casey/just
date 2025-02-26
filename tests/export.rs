@@ -3,7 +3,8 @@ use super::*;
 #[test]
 fn success() {
   Test::new()
-    .justfile(r#"
+    .justfile(
+      r#"
 export FOO := "a"
 baz := "c"
 export BAR := "b"
@@ -11,7 +12,8 @@ export ABC := FOO + BAR + baz
 
 wut:
   echo $FOO $BAR $ABC
-"#)
+"#,
+    )
     .stdout("a b abc\n")
     .stderr("echo $FOO $BAR $ABC\n")
     .run();
@@ -20,14 +22,18 @@ wut:
 #[test]
 fn parameter() {
   Test::new()
-    .justfile(r#"
+    .justfile(
+      r#"
     wut $FOO='a' BAR='b':
       echo $FOO
       echo {{BAR}}
       if [ -n "${BAR+1}" ]; then echo defined; else echo undefined; fi
-  "#)
+  "#,
+    )
     .stdout("a\nb\nundefined\n")
-    .stderr("echo $FOO\necho b\nif [ -n \"${BAR+1}\" ]; then echo defined; else echo undefined; fi\n")
+    .stderr(
+      "echo $FOO\necho b\nif [ -n \"${BAR+1}\" ]; then echo defined; else echo undefined; fi\n",
+    )
     .run();
 }
 
@@ -36,11 +42,13 @@ fn parameter_not_visible_to_backtick() {
   Test::new()
     .arg("wut")
     .arg("bar")
-    .justfile(r#"
+    .justfile(
+      r#"
     wut $FOO BAR=`if [ -n "${FOO+1}" ]; then echo defined; else echo undefined; fi`:
       echo $FOO
       echo {{BAR}}
-  "#)
+  "#,
+    )
     .stdout("bar\nundefined\n")
     .stderr("echo $FOO\necho undefined\n")
     .run();
@@ -53,7 +61,8 @@ fn override_variable() {
     .arg("BAR")
     .arg("bye")
     .arg("FOO=hello")
-    .justfile(r#"
+    .justfile(
+      r#"
 export FOO := "a"
 baz := "c"
 export BAR := "b"
@@ -61,7 +70,8 @@ export ABC := FOO + "-" + BAR + "-" + baz
 
 wut:
   echo $FOO $BAR $ABC
-"#)
+"#,
+    )
     .stdout("hello bye hello-bye-c\n")
     .stderr("echo $FOO $BAR $ABC\n")
     .run();
@@ -70,7 +80,8 @@ wut:
 #[test]
 fn shebang() {
   Test::new()
-    .justfile(r#"
+    .justfile(
+      r#"
 export FOO := "a"
 baz := "c"
 export BAR := "b"
@@ -79,7 +90,8 @@ export ABC := FOO + BAR + baz
 wut:
   #!/bin/sh
   echo $FOO $BAR $ABC
-"#)
+"#,
+    )
     .stdout("a b abc\n")
     .run();
 }
@@ -87,12 +99,14 @@ wut:
 #[test]
 fn recipe_backtick() {
   Test::new()
-    .justfile(r#"
+    .justfile(
+      r#"
 export EXPORTED_VARIABLE := "A-IS-A"
 
 recipe:
   echo {{`echo recipe $EXPORTED_VARIABLE`}}
-"#)
+"#,
+    )
     .stdout("recipe A-IS-A\n")
     .stderr("echo recipe A-IS-A\n")
     .run();
@@ -103,7 +117,8 @@ fn setting_implicit() {
   Test::new()
     .arg("foo")
     .arg("goodbye")
-    .justfile("
+    .justfile(
+      "
     set export
 
     A := 'hello'
@@ -112,7 +127,8 @@ fn setting_implicit() {
       echo $A
       echo $B
       echo $C
-  ")
+  ",
+    )
     .stdout("hello\ngoodbye\nhello\n")
     .stderr("echo $A\necho $B\necho $C\n")
     .run();
@@ -121,7 +137,8 @@ fn setting_implicit() {
 #[test]
 fn setting_true() {
   Test::new()
-    .justfile("
+    .justfile(
+      "
     set export := true
 
     A := 'hello'
@@ -130,7 +147,8 @@ fn setting_true() {
       echo $A
       echo $B
       echo $C
-  ")
+  ",
+    )
     .arg("foo")
     .arg("goodbye")
     .stdout("hello\ngoodbye\nhello\n")
@@ -141,14 +159,16 @@ fn setting_true() {
 #[test]
 fn setting_false() {
   Test::new()
-    .justfile(r#"
+    .justfile(
+      r#"
     set export := false
 
     A := 'hello'
 
     foo:
       if [ -n "${A+1}" ]; then echo defined; else echo undefined; fi
-  "#)
+  "#,
+    )
     .stdout("undefined\n")
     .stderr("if [ -n \"${A+1}\" ]; then echo defined; else echo undefined; fi\n")
     .run();
@@ -159,7 +179,8 @@ fn setting_shebang() {
   Test::new()
     .arg("foo")
     .arg("goodbye")
-    .justfile("
+    .justfile(
+      "
     set export
 
     A := 'hello'
@@ -168,7 +189,8 @@ fn setting_shebang() {
       #!/bin/sh
       echo $A
       echo $B
-  ")
+  ",
+    )
     .stdout("hello\ngoodbye\n")
     .stderr("")
     .run();
@@ -179,7 +201,8 @@ fn setting_override_undefined() {
   Test::new()
     .arg("A=zzz")
     .arg("foo")
-    .justfile(r#"
+    .justfile(
+      r#"
     set export
 
     A := 'hello'
@@ -188,7 +211,8 @@ fn setting_override_undefined() {
     foo C='goodbye' D=`if [ -n "${C+1}" ]; then echo defined; else echo undefined; fi`:
       echo $B
       echo $D
-  "#)
+  "#,
+    )
     .stdout("undefined\nundefined\n")
     .stderr("echo $B\necho $D\n")
     .run();
@@ -198,13 +222,15 @@ fn setting_override_undefined() {
 fn setting_variable_not_visible() {
   Test::new()
     .arg("A=zzz")
-    .justfile(r#"
+    .justfile(
+      r#"
     export A := 'hello'
     export B := `if [ -n "${A+1}" ]; then echo defined; else echo undefined; fi`
 
     foo:
       echo $B
-  "#)
+  "#,
+    )
     .stdout("undefined\n")
     .stderr("echo $B\n")
     .run();

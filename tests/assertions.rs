@@ -3,10 +3,12 @@ use super::*;
 #[test]
 fn assert_pass() {
   Test::new()
-    .justfile("
+    .justfile(
+      "
     foo:
       {{ assert('a' == 'a', 'error message') }}
-  ")
+  ",
+    )
     .stdout("")
     .stderr("")
     .run();
@@ -15,10 +17,12 @@ fn assert_pass() {
 #[test]
 fn assert_fail() {
   Test::new()
-    .justfile("
+    .justfile(
+      "
     foo:
       {{ assert('a' != 'a', 'error message') }}
-  ")
+  ",
+    )
     .stdout("")
     .stderr("error: Assert failed: error message\n")
     .status(EXIT_FAILURE)

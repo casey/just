@@ -3,43 +3,55 @@ use super::*;
 #[test]
 fn success() {
   Test::new()
-    .justfile("
+    .justfile(
+      "
     foo: && bar
       echo foo
 
     bar:
       echo bar
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo
     bar
-  ")
-    .stderr("
+  ",
+    )
+    .stderr(
+      "
     echo foo
     echo bar
-  ")
+  ",
+    )
     .run();
 }
 
 #[test]
 fn failure() {
   Test::new()
-    .justfile("
+    .justfile(
+      "
     foo: && bar
       echo foo
       false
 
     bar:
       echo bar
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo
-  ")
-    .stderr("
+  ",
+    )
+    .stderr(
+      "
     echo foo
     false
     error: Recipe `foo` failed on line 3 with exit code 1
-  ")
+  ",
+    )
     .status(EXIT_FAILURE)
     .run();
 }
@@ -47,16 +59,20 @@ fn failure() {
 #[test]
 fn circular_dependency() {
   Test::new()
-    .justfile("
+    .justfile(
+      "
     foo: && foo
-  ")
-    .stderr("
+  ",
+    )
+    .stderr(
+      "
     error: Recipe `foo` depends on itself
      ——▶ justfile:1:9
       │
     1 │ foo: && foo
       │         ^^^
-  ")
+  ",
+    )
     .status(EXIT_FAILURE)
     .run();
 }
@@ -64,16 +80,20 @@ fn circular_dependency() {
 #[test]
 fn unknown() {
   Test::new()
-    .justfile("
+    .justfile(
+      "
     foo: && bar
-  ")
-    .stderr("
+  ",
+    )
+    .stderr(
+      "
     error: Recipe `foo` has unknown dependency `bar`
      ——▶ justfile:1:9
       │
     1 │ foo: && bar
       │         ^^^
-  ")
+  ",
+    )
     .status(EXIT_FAILURE)
     .run();
 }
@@ -81,18 +101,22 @@ fn unknown() {
 #[test]
 fn unknown_argument() {
   Test::new()
-    .justfile("
+    .justfile(
+      "
     bar x:
 
     foo: && (bar y)
-  ")
-    .stderr("
+  ",
+    )
+    .stderr(
+      "
     error: Variable `y` not defined
      ——▶ justfile:3:14
       │
     3 │ foo: && (bar y)
       │              ^
-  ")
+  ",
+    )
     .status(EXIT_FAILURE)
     .run();
 }
@@ -100,25 +124,32 @@ fn unknown_argument() {
 #[test]
 fn argument() {
   Test::new()
-    .justfile("
+    .justfile(
+      "
     foo: && (bar 'hello')
 
     bar x:
       echo {{ x }}
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     hello
-  ")
-    .stderr("
+  ",
+    )
+    .stderr(
+      "
     echo hello
-  ")
+  ",
+    )
     .run();
 }
 
 #[test]
 fn duplicate_subsequents_dont_run() {
-    Test::new()
-        .justfile("
+  Test::new()
+    .justfile(
+      "
     a: && b c
       echo a
 
@@ -130,41 +161,52 @@ fn duplicate_subsequents_dont_run() {
 
     d:
       echo d
-  ")
-        .stdout("
+  ",
+    )
+    .stdout(
+      "
     a
     d
     b
     c
-  ")
-        .stderr("
+  ",
+    )
+    .stderr(
+      "
     echo a
     echo d
     echo b
     echo c
-  ")
-        .run();
+  ",
+    )
+    .run();
 }
 
 #[test]
 fn subsequents_run_even_if_already_ran_as_prior() {
   Test::new()
-    .justfile("
+    .justfile(
+      "
     a: b && b
       echo a
 
     b:
       echo b
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     b
     a
     b
-  ")
-    .stderr("
+  ",
+    )
+    .stderr(
+      "
     echo b
     echo a
     echo b
-  ")
+  ",
+    )
     .run();
 }

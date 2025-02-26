@@ -12,14 +12,16 @@ fn unstable_not_passed() {
 
 #[test]
 fn check_without_fmt() {
-    Test::new()
-        .arg("--check")
-        .justfile("")
-        .stderr_regex("error: the following required arguments were not provided:
+  Test::new()
+    .arg("--check")
+    .justfile("")
+    .stderr_regex(
+      "error: the following required arguments were not provided:
   --fmt
-(.|\\n)+")
-        .status(2)
-        .run();
+(.|\\n)+",
+    )
+    .status(2)
+    .run();
 }
 
 #[test]
@@ -28,7 +30,8 @@ fn check_ok() {
     .arg("--unstable")
     .arg("--fmt")
     .arg("--check")
-    .justfile(r#"
+    .justfile(
+      r#"
 # comment   with   spaces
 
 export x := `backtick
@@ -41,7 +44,8 @@ recipe: deps
 deps:
     echo {{ x }}
     echo '$x'
-"#)
+"#,
+    )
     .status(EXIT_SUCCESS)
     .run();
 }
@@ -53,33 +57,37 @@ fn check_found_diff() {
     .arg("--fmt")
     .arg("--check")
     .justfile("x:=``\n")
-    .stdout("
+    .stdout(
+      "
     -x:=``
     +x := ``
-  ")
-    .stderr("
+  ",
+    )
+    .stderr(
+      "
     error: Formatted justfile differs from original.
-  ")
+  ",
+    )
     .status(EXIT_FAILURE)
     .run();
 }
 
 #[test]
 fn check_found_diff_quiet() {
-    Test::new()
-        .arg("--unstable")
-        .arg("--fmt")
-        .arg("--check")
-        .arg("--quiet")
-        .justfile("x:=``\n")
-        .status(EXIT_FAILURE)
-        .stderr("")
-        .run();
+  Test::new()
+    .arg("--unstable")
+    .arg("--fmt")
+    .arg("--check")
+    .arg("--quiet")
+    .justfile("x:=``\n")
+    .status(EXIT_FAILURE)
+    .stderr("")
+    .run();
 }
 
 #[test]
 fn check_diff_color() {
-    Test::new()
+  Test::new()
         .justfile("x:=``\n")
         .arg("--unstable")
         .arg("--fmt")
@@ -161,18 +169,22 @@ fn write_error() {
 fn alias_good() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     alias f := foo
 
     foo:
         echo foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     alias f := foo
 
     foo:
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -180,18 +192,22 @@ fn alias_good() {
 fn alias_fix_indent() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     alias f:=    foo
 
     foo:
         echo foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     alias f := foo
 
     foo:
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -199,12 +215,16 @@ fn alias_fix_indent() {
 fn assignment_singlequote() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo := 'foo'
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo := 'foo'
-  ")
+  ",
+    )
     .run();
 }
 
@@ -212,12 +232,16 @@ fn assignment_singlequote() {
 fn assignment_doublequote() {
   Test::new()
     .arg("--dump")
-    .justfile(r#"
+    .justfile(
+      r#"
     foo := "foo"
-  "#)
-    .stdout(r#"
+  "#,
+    )
+    .stdout(
+      r#"
     foo := "foo"
-  "#)
+  "#,
+    )
     .run();
 }
 
@@ -225,16 +249,20 @@ fn assignment_doublequote() {
 fn assignment_indented_singlequote() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo := '''
       foo
     '''
-  ")
-    .stdout(r"
+  ",
+    )
+    .stdout(
+      r"
     foo := '''
       foo
     '''
-  ")
+  ",
+    )
     .run();
 }
 
@@ -242,16 +270,20 @@ fn assignment_indented_singlequote() {
 fn assignment_indented_doublequote() {
   Test::new()
     .arg("--dump")
-    .justfile(r#"
+    .justfile(
+      r#"
     foo := """
       foo
     """
-  "#)
-    .stdout(r#"
+  "#,
+    )
+    .stdout(
+      r#"
     foo := """
       foo
     """
-  "#)
+  "#,
+    )
     .run();
 }
 
@@ -259,12 +291,16 @@ fn assignment_indented_doublequote() {
 fn assignment_backtick() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo := `foo`
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo := `foo`
-  ")
+  ",
+    )
     .run();
 }
 
@@ -272,16 +308,20 @@ fn assignment_backtick() {
 fn assignment_indented_backtick() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo := ```
       foo
     ```
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo := ```
       foo
     ```
-  ")
+  ",
+    )
     .run();
 }
 
@@ -289,14 +329,18 @@ fn assignment_indented_backtick() {
 fn assignment_name() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     bar := 'bar'
     foo := bar
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     bar := 'bar'
     foo := bar
-  ")
+  ",
+    )
     .run();
 }
 
@@ -304,12 +348,16 @@ fn assignment_name() {
 fn assignment_parenthesized_expression() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo := ('foo')
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo := ('foo')
-  ")
+  ",
+    )
     .run();
 }
 
@@ -317,12 +365,16 @@ fn assignment_parenthesized_expression() {
 fn assignment_export() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     export foo := 'foo'
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     export foo := 'foo'
-  ")
+  ",
+    )
     .run();
 }
 
@@ -330,12 +382,16 @@ fn assignment_export() {
 fn assignment_concat_values() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo := 'foo' + 'bar'
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo := 'foo' + 'bar'
-  ")
+  ",
+    )
     .run();
 }
 
@@ -343,12 +399,16 @@ fn assignment_concat_values() {
 fn assignment_if_oneline() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo := if 'foo' == 'foo' { 'foo' } else { 'bar' }
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo := if 'foo' == 'foo' { 'foo' } else { 'bar' }
-  ")
+  ",
+    )
     .run();
 }
 
@@ -356,16 +416,20 @@ fn assignment_if_oneline() {
 fn assignment_if_multiline() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo := if 'foo' != 'foo' {
       'foo'
     } else {
       'bar'
     }
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo := if 'foo' != 'foo' { 'foo' } else { 'bar' }
-  ")
+  ",
+    )
     .run();
 }
 
@@ -373,12 +437,16 @@ fn assignment_if_multiline() {
 fn assignment_nullary_function() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo := arch()
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo := arch()
-  ")
+  ",
+    )
     .run();
 }
 
@@ -386,12 +454,16 @@ fn assignment_nullary_function() {
 fn assignment_unary_function() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo := env_var('foo')
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo := env_var('foo')
-  ")
+  ",
+    )
     .run();
 }
 
@@ -399,12 +471,16 @@ fn assignment_unary_function() {
 fn assignment_binary_function() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo := env_var_or_default('foo', 'bar')
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo := env_var_or_default('foo', 'bar')
-  ")
+  ",
+    )
     .run();
 }
 
@@ -412,69 +488,85 @@ fn assignment_binary_function() {
 fn assignment_path_functions() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo  := without_extension('foo/bar.baz')
     foo2 := file_stem('foo/bar.baz')
     foo3 := parent_directory('foo/bar.baz')
     foo4 := file_name('foo/bar.baz')
     foo5 := extension('foo/bar.baz')
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
   foo := without_extension('foo/bar.baz')
   foo2 := file_stem('foo/bar.baz')
   foo3 := parent_directory('foo/bar.baz')
   foo4 := file_name('foo/bar.baz')
   foo5 := extension('foo/bar.baz')
-  ")
+  ",
+    )
     .run();
 }
 
 #[test]
 fn recipe_ordinary() {
-    Test::new()
-        .justfile("
+  Test::new()
+    .justfile(
+      "
     foo:
         echo bar
-  ")
-        .arg("--dump")
-        .stdout("
+  ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
     foo:
         echo bar
-  ")
-        .run();
+  ",
+    )
+    .run();
 }
 
 #[test]
 fn recipe_with_docstring() {
-    Test::new()
-        .arg("--dump")
-        .justfile("
+  Test::new()
+    .arg("--dump")
+    .justfile(
+      "
     # bar
     foo:
         echo bar
-  ")
-        .stdout("
+  ",
+    )
+    .stdout(
+      "
     # bar
     foo:
         echo bar
-  ")
-        .run();
+  ",
+    )
+    .run();
 }
 
 #[test]
 fn recipe_with_comments_in_body() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo:
         # bar
         echo bar
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo:
         # bar
         echo bar
-  ")
+  ",
+    )
     .run();
 }
 
@@ -482,46 +574,58 @@ fn recipe_with_comments_in_body() {
 fn recipe_body_is_comment() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo:
         # bar
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo:
         # bar
-  ")
+  ",
+    )
     .run();
 }
 
 #[test]
 fn recipe_several_commands() {
-    Test::new()
-        .arg("--dump")
-        .justfile("
+  Test::new()
+    .arg("--dump")
+    .justfile(
+      "
     foo:
         echo bar
         echo baz
-  ")
-        .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo:
         echo bar
         echo baz
-  ")
-        .run();
+  ",
+    )
+    .run();
 }
 
 #[test]
 fn recipe_quiet() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     @foo:
         echo bar
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     @foo:
         echo bar
-  ")
+  ",
+    )
     .run();
 }
 
@@ -529,14 +633,18 @@ fn recipe_quiet() {
 fn recipe_quiet_command() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo:
         @echo bar
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo:
         @echo bar
-  ")
+  ",
+    )
     .run();
 }
 
@@ -544,14 +652,18 @@ fn recipe_quiet_command() {
 fn recipe_quiet_comment() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo:
         @# bar
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo:
         @# bar
-  ")
+  ",
+    )
     .run();
 }
 
@@ -559,14 +671,18 @@ fn recipe_quiet_comment() {
 fn recipe_ignore_errors() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo:
         -echo foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo:
         -echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -574,14 +690,18 @@ fn recipe_ignore_errors() {
 fn recipe_parameter() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo BAR:
         echo foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo BAR:
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -589,14 +709,18 @@ fn recipe_parameter() {
 fn recipe_parameter_default() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo BAR='bar':
         echo foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo BAR='bar':
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -604,14 +728,18 @@ fn recipe_parameter_default() {
 fn recipe_parameter_envar() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo $BAR:
         echo foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo $BAR:
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -619,14 +747,18 @@ fn recipe_parameter_envar() {
 fn recipe_parameter_default_envar() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo $BAR='foo':
         echo foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo $BAR='foo':
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -634,14 +766,18 @@ fn recipe_parameter_default_envar() {
 fn recipe_parameter_concat() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo BAR=('bar' + 'baz'):
         echo foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo BAR=('bar' + 'baz'):
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -649,14 +785,18 @@ fn recipe_parameter_concat() {
 fn recipe_parameters() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo BAR BAZ:
         echo foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo BAR BAZ:
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -664,14 +804,18 @@ fn recipe_parameters() {
 fn recipe_parameters_envar() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo $BAR $BAZ:
         echo foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo $BAR $BAZ:
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -679,14 +823,18 @@ fn recipe_parameters_envar() {
 fn recipe_variadic_plus() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo +BAR:
         echo foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo +BAR:
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -694,14 +842,18 @@ fn recipe_variadic_plus() {
 fn recipe_variadic_star() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo *BAR:
         echo foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo *BAR:
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -709,14 +861,18 @@ fn recipe_variadic_star() {
 fn recipe_positional_variadic() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo BAR *BAZ:
         echo foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo BAR *BAZ:
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -724,14 +880,18 @@ fn recipe_positional_variadic() {
 fn recipe_variadic_default() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo +BAR='bar':
         echo foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo +BAR='bar':
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -739,14 +899,18 @@ fn recipe_variadic_default() {
 fn recipe_parameter_in_body() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo BAR:
         echo {{ BAR }}
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo BAR:
         echo {{ BAR }}
-  ")
+  ",
+    )
     .run();
 }
 
@@ -754,14 +918,18 @@ fn recipe_parameter_in_body() {
 fn recipe_parameter_conditional() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo BAR:
         echo {{ if 'foo' == 'foo' { 'foo' } else { 'bar' } }}
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo BAR:
         echo {{ if 'foo' == 'foo' { 'foo' } else { 'bar' } }}
-  ")
+  ",
+    )
     .run();
 }
 
@@ -769,14 +937,18 @@ fn recipe_parameter_conditional() {
 fn recipe_escaped_braces() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo BAR:
         echo '{{{{BAR}}}}'
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo BAR:
         echo '{{{{BAR}}}}'
-  ")
+  ",
+    )
     .run();
 }
 
@@ -784,18 +956,22 @@ fn recipe_escaped_braces() {
 fn recipe_assignment_in_body() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     bar := 'bar'
 
     foo:
         echo $bar
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     bar := 'bar'
 
     foo:
         echo $bar
-  ")
+  ",
+    )
     .run();
 }
 
@@ -803,20 +979,24 @@ fn recipe_assignment_in_body() {
 fn recipe_dependency() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     bar:
         echo bar
 
     foo: bar
         echo foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     bar:
         echo bar
 
     foo: bar
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -824,20 +1004,24 @@ fn recipe_dependency() {
 fn recipe_dependency_param() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     bar BAR:
         echo bar
 
     foo: (bar 'bar')
         echo foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     bar BAR:
         echo bar
 
     foo: (bar 'bar')
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -845,20 +1029,24 @@ fn recipe_dependency_param() {
 fn recipe_dependency_params() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     bar BAR BAZ:
         echo bar
 
     foo: (bar 'bar' 'baz')
         echo foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     bar BAR BAZ:
         echo bar
 
     foo: (bar 'bar' 'baz')
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -866,7 +1054,8 @@ fn recipe_dependency_params() {
 fn recipe_dependencies() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     bar:
         echo bar
 
@@ -875,8 +1064,10 @@ fn recipe_dependencies() {
 
     foo: baz bar
         echo foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     bar:
         echo bar
 
@@ -885,7 +1076,8 @@ fn recipe_dependencies() {
 
     foo: baz bar
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -893,7 +1085,8 @@ fn recipe_dependencies() {
 fn recipe_dependencies_params() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     bar BAR:
         echo bar
 
@@ -902,8 +1095,10 @@ fn recipe_dependencies_params() {
 
     foo: (baz 'baz') (bar 'bar')
         echo foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     bar BAR:
         echo bar
 
@@ -912,7 +1107,8 @@ fn recipe_dependencies_params() {
 
     foo: (baz 'baz') (bar 'bar')
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -920,12 +1116,16 @@ fn recipe_dependencies_params() {
 fn set_true_explicit() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     set export := true
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     set export := true
-  ")
+  ",
+    )
     .run();
 }
 
@@ -933,12 +1133,16 @@ fn set_true_explicit() {
 fn set_true_implicit() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     set export
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     set export := true
-  ")
+  ",
+    )
     .run();
 }
 
@@ -946,12 +1150,16 @@ fn set_true_implicit() {
 fn set_false() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     set export := false
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     set export := false
-  ")
+  ",
+    )
     .run();
 }
 
@@ -959,12 +1167,16 @@ fn set_false() {
 fn set_shell() {
   Test::new()
     .arg("--dump")
-    .justfile(r#"
+    .justfile(
+      r#"
     set shell := ['sh', "-c"]
-  "#)
-    .stdout(r#"
+  "#,
+    )
+    .stdout(
+      r#"
     set shell := ['sh', "-c"]
-  "#)
+  "#,
+    )
     .run();
 }
 
@@ -972,12 +1184,16 @@ fn set_shell() {
 fn comment() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     # foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     # foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -985,14 +1201,18 @@ fn comment() {
 fn comment_multiline() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     # foo
     # bar
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     # foo
     # bar
-  ")
+  ",
+    )
     .run();
 }
 
@@ -1000,16 +1220,20 @@ fn comment_multiline() {
 fn comment_leading() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     # foo
 
     foo := 'bar'
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     # foo
 
     foo := 'bar'
-  ")
+  ",
+    )
     .run();
 }
 
@@ -1017,56 +1241,68 @@ fn comment_leading() {
 fn comment_trailing() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo := 'bar'
 
     # foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo := 'bar'
 
     # foo
-  ")
+  ",
+    )
     .run();
 }
 
 #[test]
 fn comment_before_recipe() {
-    Test::new()
-        .arg("--dump")
-        .justfile("
+  Test::new()
+    .arg("--dump")
+    .justfile(
+      "
     # foo
 
     foo:
         echo foo
-  ")
-        .stdout("
+  ",
+    )
+    .stdout(
+      "
     # foo
 
     foo:
         echo foo
-  ")
-        .run();
+  ",
+    )
+    .run();
 }
 
 #[test]
 fn comment_before_docstring_recipe() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     # bar
 
     # foo
     foo:
         echo foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     # bar
 
     # foo
     foo:
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -1074,19 +1310,23 @@ fn comment_before_docstring_recipe() {
 fn group_recipes() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo:
         echo foo
     bar:
         echo bar
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo:
         echo foo
 
     bar:
         echo bar
-  ")
+  ",
+    )
     .run();
 }
 
@@ -1094,7 +1334,8 @@ fn group_recipes() {
 fn group_aliases() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     alias f := foo
 
     alias b := bar
@@ -1104,8 +1345,10 @@ fn group_aliases() {
 
     bar:
         echo bar
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     alias f := foo
     alias b := bar
 
@@ -1114,7 +1357,8 @@ fn group_aliases() {
 
     bar:
         echo bar
-  ")
+  ",
+    )
     .run();
 }
 
@@ -1122,14 +1366,18 @@ fn group_aliases() {
 fn group_assignments() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo := 'foo'
     bar := 'bar'
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     foo := 'foo'
     bar := 'bar'
-  ")
+  ",
+    )
     .run();
 }
 
@@ -1137,14 +1385,18 @@ fn group_assignments() {
 fn group_sets() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     set export := true
     set positional-arguments := true
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     set export := true
     set positional-arguments := true
-  ")
+  ",
+    )
     .run();
 }
 
@@ -1152,15 +1404,19 @@ fn group_sets() {
 fn group_comments() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     # foo
 
     # bar
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     # foo
     # bar
-  ")
+  ",
+    )
     .run();
 }
 
@@ -1168,17 +1424,21 @@ fn group_comments() {
 fn separate_recipes_aliases() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     alias f := foo
     foo:
         echo foo
-  ")
-    .stdout("
+  ",
+    )
+    .stdout(
+      "
     alias f := foo
 
     foo:
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -1186,13 +1446,17 @@ fn separate_recipes_aliases() {
 fn no_trailing_newline() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     foo:
-        echo foo")
-    .stdout("
+        echo foo",
+    )
+    .stdout(
+      "
     foo:
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 
@@ -1200,16 +1464,20 @@ fn no_trailing_newline() {
 fn subsequent() {
   Test::new()
     .arg("--dump")
-    .justfile("
+    .justfile(
+      "
     bar:
     foo: && bar
-        echo foo")
-    .stdout("
+        echo foo",
+    )
+    .stdout(
+      "
     bar:
 
     foo: && bar
         echo foo
-  ")
+  ",
+    )
     .run();
 }
 

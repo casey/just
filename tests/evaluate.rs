@@ -4,7 +4,8 @@ use super::*;
 fn evaluate() {
   Test::new()
     .arg("--evaluate")
-    .justfile(r#"
+    .justfile(
+      r#"
 foo := "a\t"
 hello := "c"
 bar := "b\t"
@@ -12,12 +13,15 @@ ab := foo + bar + hello
 
 wut:
   touch /this/is/not/a/file
-"#)
-    .stdout(r#"ab    := "a	b	c"
+"#,
+    )
+    .stdout(
+      r#"ab    := "a	b	c"
 bar   := "b	"
 foo   := "a	"
 hello := "c"
-"#)
+"#,
+    )
     .run();
 }
 
@@ -25,12 +29,16 @@ hello := "c"
 fn evaluate_empty() {
   Test::new()
     .arg("--evaluate")
-    .justfile("
+    .justfile(
+      "
     a := 'foo'
-  ")
-    .stdout(r#"
+  ",
+    )
+    .stdout(
+      r#"
     a := "foo"
-  "#)
+  "#,
+    )
     .run();
 }
 
@@ -40,11 +48,13 @@ fn evaluate_multiple() {
     .arg("--evaluate")
     .arg("a")
     .arg("c")
-    .justfile("
+    .justfile(
+      "
     a := 'x'
     b := 'y'
     c := 'z'
-  ")
+  ",
+    )
     .stderr("error: `--evaluate` used with unexpected argument: `c`\n")
     .status(EXIT_FAILURE)
     .run();
@@ -55,11 +65,13 @@ fn evaluate_single_free() {
   Test::new()
     .arg("--evaluate")
     .arg("b")
-    .justfile("
+    .justfile(
+      "
     a := 'x'
     b := 'y'
     c := 'z'
-  ")
+  ",
+    )
     .stdout("y")
     .run();
 }
@@ -69,14 +81,18 @@ fn evaluate_no_suggestion() {
   Test::new()
     .arg("--evaluate")
     .arg("aby")
-    .justfile("
+    .justfile(
+      "
     abc := 'x'
-  ")
+  ",
+    )
     .status(EXIT_FAILURE)
-    .stderr("
+    .stderr(
+      "
     error: Justfile does not contain variable `aby`.
     Did you mean `abc`?
-  ")
+  ",
+    )
     .run();
 }
 
@@ -85,13 +101,17 @@ fn evaluate_suggestion() {
   Test::new()
     .arg("--evaluate")
     .arg("goodbye")
-    .justfile("
+    .justfile(
+      "
     hello := 'x'
-  ")
+  ",
+    )
     .status(EXIT_FAILURE)
-    .stderr("
+    .stderr(
+      "
     error: Justfile does not contain variable `goodbye`.
-  ")
+  ",
+    )
     .run();
 }
 
@@ -99,12 +119,14 @@ fn evaluate_suggestion() {
 fn evaluate_private() {
   Test::new()
     .arg("--evaluate")
-    .justfile("
+    .justfile(
+      "
     [private]
     foo := 'one'
     bar := 'two'
     _baz := 'three'
-  ")
+  ",
+    )
     .stdout("bar  := \"two\"\n")
     .status(EXIT_SUCCESS)
     .run();
@@ -115,12 +137,14 @@ fn evaluate_single_private() {
   Test::new()
     .arg("--evaluate")
     .arg("foo")
-    .justfile("
+    .justfile(
+      "
     [private]
     foo := 'one'
     bar := 'two'
     _baz := 'three'
-  ")
+  ",
+    )
     .stdout("one")
     .status(EXIT_SUCCESS)
     .run();

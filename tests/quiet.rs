@@ -4,10 +4,12 @@ use super::*;
 fn no_stdout() {
   Test::new()
     .arg("--quiet")
-    .justfile(r"
+    .justfile(
+      r"
 default:
   @echo hello
-")
+",
+    )
     .stdout("")
     .run();
 }
@@ -16,10 +18,12 @@ default:
 fn stderr() {
   Test::new()
     .arg("--quiet")
-    .justfile(r"
+    .justfile(
+      r"
 default:
   @echo hello 1>&2
-")
+",
+    )
     .stdout("")
     .run();
 }
@@ -28,10 +32,12 @@ default:
 fn command_echoing() {
   Test::new()
     .arg("--quiet")
-    .justfile(r"
+    .justfile(
+      r"
 default:
   exit
-")
+",
+    )
     .stdout("")
     .run();
 }
@@ -40,10 +46,12 @@ default:
 fn error_messages() {
   Test::new()
     .arg("--quiet")
-    .justfile(r"
+    .justfile(
+      r"
 default:
   exit 100
-")
+",
+    )
     .stdout("")
     .status(100)
     .run();
@@ -53,11 +61,13 @@ default:
 fn assignment_backtick_stderr() {
   Test::new()
     .arg("--quiet")
-    .justfile(r"
+    .justfile(
+      r"
 a := `echo hello 1>&2`
 default:
   exit 100
-")
+",
+    )
     .stdout("")
     .status(100)
     .run();
@@ -67,11 +77,13 @@ default:
 fn interpolation_backtick_stderr() {
   Test::new()
     .arg("--quiet")
-    .justfile(r"
+    .justfile(
+      r"
 default:
   echo `echo hello 1>&2`
   exit 100
-")
+",
+    )
     .stdout("")
     .status(100)
     .run();
@@ -159,10 +171,12 @@ fn show_missing() {
 fn quiet_shebang() {
   Test::new()
     .arg("--quiet")
-    .justfile("
+    .justfile(
+      "
     @foo:
       #!/bin/sh
-  ")
+  ",
+    )
     .run();
 }
 

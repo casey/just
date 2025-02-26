@@ -100,10 +100,12 @@ fn shell_args() {
   Test::new()
     .arg("--shell-arg")
     .arg("-c")
-    .justfile("
+    .justfile(
+      "
     default:
       echo A${foo}A
-  ")
+  ",
+    )
     .shell(false)
     .stdout("AA\n")
     .stderr("echo A${foo}A\n")
@@ -115,12 +117,14 @@ fn shell_override() {
   Test::new()
     .arg("--shell")
     .arg("bash")
-    .justfile("
+    .justfile(
+      "
     set shell := ['foo-bar-baz']
 
     default:
       echo hello
-  ")
+  ",
+    )
     .shell(false)
     .stdout("hello\n")
     .stderr("echo hello\n")
@@ -132,12 +136,14 @@ fn shell_arg_override() {
   Test::new()
     .arg("--shell-arg")
     .arg("-cu")
-    .justfile("
+    .justfile(
+      "
     set shell := ['foo-bar-baz']
 
     default:
       echo hello
-  ")
+  ",
+    )
     .stdout("hello\n")
     .stderr("echo hello\n")
     .shell(false)
@@ -147,7 +153,8 @@ fn shell_arg_override() {
 #[test]
 fn set_shell() {
   Test::new()
-    .justfile("
+    .justfile(
+      "
     set shell := ['echo', '-n']
 
     x := `bar`
@@ -155,7 +162,8 @@ fn set_shell() {
     foo:
       echo {{x}}
       echo foo
-  ")
+  ",
+    )
     .stdout("echo barecho foo")
     .stderr("echo bar\necho foo\n")
     .shell(false)

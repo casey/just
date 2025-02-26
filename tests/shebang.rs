@@ -4,11 +4,13 @@ use super::*;
 #[test]
 fn powershell() {
   Test::new()
-    .justfile(r#"
+    .justfile(
+      r#"
 default:
   #!powershell
   Write-Host Hello-World
-"#)
+"#,
+    )
     .stdout("Hello-World\n")
     .run();
 }
@@ -17,11 +19,13 @@ default:
 #[test]
 fn powershell_exe() {
   Test::new()
-    .justfile(r#"
+    .justfile(
+      r#"
 default:
   #!powershell.exe
    Write-Host Hello-World
-"#)
+"#,
+    )
     .stdout("Hello-World\n")
     .run();
 }
@@ -30,11 +34,13 @@ default:
 #[test]
 fn cmd() {
   Test::new()
-    .justfile(r#"
+    .justfile(
+      r#"
 default:
   #!cmd /c
   @echo Hello-World
-"#)
+"#,
+    )
     .stdout("Hello-World\r\n")
     .run();
 }
@@ -43,11 +49,13 @@ default:
 #[test]
 fn cmd_exe() {
   Test::new()
-    .justfile(r#"
+    .justfile(
+      r#"
 default:
   #!cmd.exe /c
   @echo Hello-World
-"#)
+"#,
+    )
     .stdout("Hello-World\r\n")
     .run();
 }
@@ -56,12 +64,14 @@ default:
 #[test]
 fn multi_line_cmd_shebangs_are_removed() {
   Test::new()
-    .justfile(r#"
+    .justfile(
+      r#"
 default:
   #!cmd.exe /c
   #!foo
   @echo Hello-World
-"#)
+"#,
+    )
     .stdout("Hello-World\r\n")
     .run();
 }

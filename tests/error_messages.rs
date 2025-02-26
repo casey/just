@@ -4,13 +4,15 @@ use super::*;
 fn invalid_alias_attribute() {
   Test::new()
     .justfile("[private]\n[linux]\nalias t := test\n\ntest:\n")
-    .stderr("
+    .stderr(
+      "
     error: Alias `t` has invalid attribute `linux`
      ——▶ justfile:3:7
       │
     3 │ alias t := test
       │       ^
-  ")
+  ",
+    )
     .status(EXIT_FAILURE)
     .run();
 }
@@ -19,13 +21,15 @@ fn invalid_alias_attribute() {
 fn expected_keyword() {
   Test::new()
     .justfile("foo := if '' == '' { '' } arlo { '' }")
-    .stderr("
+    .stderr(
+      "
     error: Expected keyword `else` but found identifier `arlo`
      ——▶ justfile:1:27
       │
     1 │ foo := if '' == '' { '' } arlo { '' }
       │                           ^^^^
-  ")
+  ",
+    )
     .status(EXIT_FAILURE)
     .run();
 }
@@ -34,13 +38,15 @@ fn expected_keyword() {
 fn unexpected_character() {
   Test::new()
     .justfile("&~")
-    .stderr("
+    .stderr(
+      "
     error: Expected character `&`
      ——▶ justfile:1:2
       │
     1 │ &~
       │  ^
-  ")
+  ",
+    )
     .status(EXIT_FAILURE)
     .run();
 }
