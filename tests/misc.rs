@@ -2464,17 +2464,19 @@ fn brace_escape_extra() {
     .run();
 }
 
-test! {
-  name: multi_line_string_in_interpolation,
-  justfile: "
+#[test]
+fn multi_line_string_in_interpolation() {
+  Test::new()
+    .justfile("
     foo:
       echo {{'a
       echo b
       echo c'}}z
       echo baz
-  ",
-  stdout: "a\nb\ncz\nbaz\n",
-  stderr: "echo a\n  echo b\n  echo cz\necho baz\n",
+  ")
+    .stdout("a\nb\ncz\nbaz\n")
+    .stderr("echo a\n  echo b\n  echo cz\necho baz\n")
+    .run();
 }
 
 #[cfg(windows)]
