@@ -1079,9 +1079,11 @@ _private-recipe:
     .run();
 }
 
-test! {
-  name:     list_alignment_long,
-  justfile: r#"
+#[test]
+fn list_alignment_long() {
+  Test::new()
+    .arg("--list")
+    .justfile(r#"
 
 # this does a thing
 hello a b='B	' c='C':
@@ -1096,14 +1098,14 @@ this-recipe-is-very-very-very-very-very-very-very-very-important Z="\t z":
 
 # this recipe will not appear
 _private-recipe:
-"#,
-  args:     ("--list"),
-  stdout:   r#"
+"#)
+    .stdout(r#"
     Available recipes:
         hello a b='B	' c='C' # this does a thing
         this-recipe-is-very-very-very-very-very-very-very-very-important Z="\t z" # something else
         x a b='B	' c='C'     # this does another thing
-  "#,
+  "#)
+    .run();
 }
 
 test! {
