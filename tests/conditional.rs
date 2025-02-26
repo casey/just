@@ -165,21 +165,23 @@ fn unexpected_op() {
     .run();
 }
 
-test! {
-  name: dump,
-  justfile: "
+#[test]
+fn dump() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     a := if '' == '' { '' } else { '' }
 
     foo:
       echo {{ a }}
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     a := if '' == '' { '' } else { '' }
 
     foo:
         echo {{ a }}
-  ",
+  ")
+    .run();
 }
 
 test! {
