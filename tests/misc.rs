@@ -185,11 +185,13 @@ fn alias_shadows_recipe() {
     .run();
 }
 
-test! {
-  name:     default,
-  justfile: "default:\n echo hello\nother: \n echo bar",
-  stdout:   "hello\n",
-  stderr:   "echo hello\n",
+#[test]
+fn default() {
+  Test::new()
+    .justfile("default:\n echo hello\nother: \n echo bar")
+    .stdout("hello\n")
+    .stderr("echo hello\n")
+    .run();
 }
 
 test! {
