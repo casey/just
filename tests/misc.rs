@@ -2308,20 +2308,21 @@ fn dependency_argument_backtick() {
     .run();
 }
 
-test! {
-  name: dependency_argument_assignment,
-  justfile: "
+#[test]
+fn dependency_argument_assignment() {
+  Test::new()
+    .justfile("
     v := '1.0'
 
     default: (release v)
 
     release version:
       echo Release {{version}}...
-  ",
-  args: (),
-  stdout: "Release 1.0...\n",
-  stderr: "echo Release 1.0...\n",
-  shell: false,
+  ")
+    .stdout("Release 1.0...\n")
+    .stderr("echo Release 1.0...\n")
+    .shell(false)
+    .run();
 }
 
 test! {
