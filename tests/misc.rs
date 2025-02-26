@@ -1108,19 +1108,21 @@ _private-recipe:
     .run();
 }
 
-test! {
-  name:     list_sorted,
-  justfile: r"
+#[test]
+fn list_sorted() {
+  Test::new()
+    .arg("--list")
+    .justfile(r"
 alias c := b
 b:
 a:
-",
-  args:     ("--list"),
-  stdout:   r"
+")
+    .stdout(r"
     Available recipes:
         a
         b # [alias: c]
-  ",
+  ")
+    .run();
 }
 
 test! {
