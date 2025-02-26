@@ -12,9 +12,10 @@ foo:
     .run();
 }
 
-test! {
-  name:     test_os_arch_functions_in_expression,
-  justfile: r"
+#[test]
+fn test_os_arch_functions_in_expression() {
+  Test::new()
+    .justfile(r"
 a := arch()
 o := os()
 f := os_family()
@@ -22,9 +23,10 @@ n := num_cpus()
 
 foo:
   echo {{a}} {{o}} {{f}} {{n}}
-",
-  stdout:   format!("{} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
-  stderr:   format!("echo {} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
+")
+    .stdout(format!("{} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str())
+    .stderr(format!("echo {} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str())
+    .run();
 }
 
 #[cfg(not(windows))]
