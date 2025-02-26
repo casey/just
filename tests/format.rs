@@ -690,17 +690,19 @@ fn recipe_variadic_plus() {
     .run();
 }
 
-test! {
-  name: recipe_variadic_star,
-  justfile: "
+#[test]
+fn recipe_variadic_star() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     foo *BAR:
         echo foo
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     foo *BAR:
         echo foo
-  ",
+  ")
+    .run();
 }
 
 test! {
