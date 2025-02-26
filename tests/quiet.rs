@@ -24,14 +24,16 @@ default:
     .run();
 }
 
-test! {
-  name:     command_echoing,
-  justfile: r"
+#[test]
+fn command_echoing() {
+  Test::new()
+    .arg("--quiet")
+    .justfile(r"
 default:
   exit
-",
-  args:     ("--quiet"),
-  stdout:   "",
+")
+    .stdout("")
+    .run();
 }
 
 test! {
