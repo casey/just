@@ -96,16 +96,24 @@ fn exports_are_available() {
     .run();
 }
 
-test! {
-  name: set_overrides_work,
-  justfile: "
+#[test]
+fn set_overrides_work() {
+  Test::new()
+    .arg("--set")
+    .arg("FOO")
+    .arg("baz")
+    .arg("--command")
+    .arg("sh")
+    .arg("-c")
+    .arg("printf $FOO")
+    .justfile("
     export FOO := 'bar'
 
     x:
       echo XYZ
-  ",
-  args: ("--set", "FOO", "baz", "--command", "sh", "-c", "printf $FOO"),
-  stdout: "baz",
+  ")
+    .stdout("baz")
+    .run();
 }
 
 test! {
