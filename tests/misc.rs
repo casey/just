@@ -2450,16 +2450,18 @@ fn brace_escape() {
     .run();
 }
 
-test! {
-  name: brace_escape_extra,
-  justfile: "
+#[test]
+fn brace_escape_extra() {
+  Test::new()
+    .justfile("
     foo:
       echo '{{{{{'
-  ",
-  stdout: "{{{\n",
-  stderr: "
+  ")
+    .stdout("{{{\n")
+    .stderr("
     echo '{{{'
-  ",
+  ")
+    .run();
 }
 
 test! {
