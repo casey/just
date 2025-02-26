@@ -34,21 +34,23 @@ whatever'
     .run();
 }
 
-test! {
-  name:     multiline_backtick,
-  justfile: "
+#[test]
+fn multiline_backtick() {
+  Test::new()
+    .arg("a")
+    .justfile("
 string := `echo hello
 echo goodbye
 `
 
 a:
   echo '{{string}}'
-",
-  args:     ("a"),
-  stdout:   "hello\ngoodbye\n",
-  stderr:   "echo 'hello
+")
+    .stdout("hello\ngoodbye\n")
+    .stderr("echo 'hello
 goodbye'
-",
+")
+    .run();
 }
 
 test! {
