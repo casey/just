@@ -1761,21 +1761,23 @@ BAZ +Z:
     .run();
 }
 
-test! {
-  name:     missing_second_dependency,
-  justfile: "
+#[test]
+fn missing_second_dependency() {
+  Test::new()
+    .justfile("
 x:
 
 a: x y
-",
-  stdout:   "",
-  stderr:   "error: Recipe `a` has unknown dependency `y`
+")
+    .stdout("")
+    .stderr("error: Recipe `a` has unknown dependency `y`
  ——▶ justfile:3:6
   │
 3 │ a: x y
   │      ^
-",
-  status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
