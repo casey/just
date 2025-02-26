@@ -106,18 +106,23 @@ fn shebang_with_attribute() {
     .run();
 }
 
-test! {
-  name: variadic_shebang,
-  justfile: r#"
+#[test]
+fn variadic_shebang() {
+  Test::new()
+    .arg("foo")
+    .arg("a")
+    .arg("b")
+    .arg("c")
+    .justfile(r#"
     set positional-arguments
 
     foo *bar:
       #!/bin/sh
       echo $1
       echo "$@"
-  "#,
-  args:   ("foo", "a", "b", "c"),
-  stdout: "a\na b c\n",
+  "#)
+    .stdout("a\na b c\n")
+    .run();
 }
 
 test! {
