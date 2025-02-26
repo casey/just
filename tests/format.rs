@@ -157,21 +157,23 @@ fn write_error() {
   );
 }
 
-test! {
-  name: alias_good,
-  justfile: "
+#[test]
+fn alias_good() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     alias f := foo
 
     foo:
         echo foo
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     alias f := foo
 
     foo:
         echo foo
-  ",
+  ")
+    .run();
 }
 
 test! {
