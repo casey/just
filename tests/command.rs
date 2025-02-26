@@ -14,14 +14,18 @@ fn long() {
     .run();
 }
 
-test! {
-  name: short,
-  justfile: "
+#[test]
+fn short() {
+  Test::new()
+    .arg("-c")
+    .arg("printf")
+    .arg("foo")
+    .justfile("
     x:
       echo XYZ
-  ",
-  args: ("-c", "printf", "foo"),
-  stdout: "foo",
+  ")
+    .stdout("foo")
+    .run();
 }
 
 test! {
