@@ -1,13 +1,15 @@
 use super::*;
 
-test! {
-  name:     no_stdout,
-  justfile: r"
+#[test]
+fn no_stdout() {
+  Test::new()
+    .arg("--quiet")
+    .justfile(r"
 default:
   @echo hello
-",
-  args:     ("--quiet"),
-  stdout:   "",
+")
+    .stdout("")
+    .run();
 }
 
 test! {
