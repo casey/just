@@ -204,7 +204,6 @@ foo:
   /usr/bin/env echo '{{we}}'
 ",
     )
-    .stdout("")
     .stderr(
       format!(
         "{}\n{}\n{}\n{}\n{}\n",
@@ -232,7 +231,6 @@ foo:
   /usr/bin/env echo '{{we}}'
 ",
     )
-    .stdout("")
     .stderr(
       format!(
         "{}\n{}\n{}\n{}\n{}\n",
@@ -260,7 +258,6 @@ foo:
   /usr/bin/env echo '{{we}}'
 ",
     )
-    .stdout("")
     .stderr(
       format!(
         "{}\n{}\n{}\n{}\n{}\n",
@@ -288,7 +285,6 @@ foo:
   /usr/bin/env echo '{{we}}'
 ",
     )
-    .stdout("")
     .stderr(
       format!(
         "{} {}\n{}\n{}\n{}\n{}\n",
@@ -317,7 +313,6 @@ foo:
   /usr/bin/env echo '{{we}}'
 ",
     )
-    .stdout("")
     .stderr(
       format!(
         "{} {}\n{}\n{}\n{}\n{}\n",
@@ -365,7 +360,6 @@ fn env_var_failure() {
     .arg("a")
     .justfile("a:\n  echo {{env_var('ZADDY')}}")
     .status(EXIT_FAILURE)
-    .stdout("")
     .stderr(
       "error: Call to function `env_var` failed: environment variable `ZADDY` not present
  ——▶ justfile:2:10

@@ -81,7 +81,6 @@ fn undefined_lhs() {
       echo {{ a }}
   ",
     )
-    .stdout("")
     .stderr(
       "
     error: Variable `b` not defined
@@ -106,7 +105,6 @@ fn undefined_rhs() {
       echo {{ a }}
   ",
     )
-    .stdout("")
     .stderr(
       "
     error: Variable `b` not defined
@@ -131,7 +129,6 @@ fn undefined_then() {
       echo {{ a }}
   ",
     )
-    .stdout("")
     .stderr(
       "
     error: Variable `b` not defined
@@ -156,7 +153,6 @@ fn undefined_otherwise() {
       echo {{ a }}
   ",
     )
-    .stdout("")
     .stderr(
       "
     error: Variable `b` not defined
@@ -181,7 +177,6 @@ fn unexpected_op() {
       echo {{ a }}
   ",
     )
-    .stdout("")
     .stderr(
       "
     error: Expected '&&', '!=', '!~', '||', '==', '=~', '+', or '/', but found identifier
@@ -242,7 +237,6 @@ fn missing_else() {
   TEST := if path_exists('/bin/bash') == 'true' {'yes'}
   ",
     )
-    .stdout("")
     .stderr(
       "
     error: Expected keyword `else` but found `end of line`
@@ -264,7 +258,6 @@ fn incorrect_else_identifier() {
   TEST := if path_exists('/bin/bash') == 'true' {'yes'} els {'no'}
   ",
     )
-    .stdout("")
     .stderr(
       "
     error: Expected keyword `else` but found identifier `els`

@@ -10,7 +10,6 @@ default:
   @echo hello
 ",
     )
-    .stdout("")
     .run();
 }
 
@@ -24,7 +23,6 @@ default:
   @echo hello 1>&2
 ",
     )
-    .stdout("")
     .run();
 }
 
@@ -38,7 +36,6 @@ default:
   exit
 ",
     )
-    .stdout("")
     .run();
 }
 
@@ -52,7 +49,6 @@ default:
   exit 100
 ",
     )
-    .stdout("")
     .status(100)
     .run();
 }
@@ -68,7 +64,6 @@ default:
   exit 100
 ",
     )
-    .stdout("")
     .status(100)
     .run();
 }
@@ -84,7 +79,6 @@ default:
   exit 100
 ",
     )
-    .stdout("")
     .status(100)
     .run();
 }

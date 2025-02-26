@@ -122,7 +122,6 @@ fn no_interpolation_continuation() {
         'a' + 'b')}}
   ",
     )
-    .stdout("")
     .stderr(
       "
     error: Unterminated interpolation

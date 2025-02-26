@@ -121,7 +121,6 @@ fn invalid_escape_sequence() {
       r#"x := "\q"
 a:"#,
     )
-    .stdout("")
     .stderr(
       "error: `\\q` is not a valid escape sequence
  ——▶ justfile:1:6
@@ -148,7 +147,6 @@ a:
   echo '{{foo}}'
 ",
     )
-    .stdout("")
     .stderr(
       "error: Variable `foo` not defined
  ——▶ justfile:6:11
@@ -175,7 +173,6 @@ a:
   echo '{{string}}'
 ",
     )
-    .stdout("")
     .stderr(
       "error: Variable `bar` not defined
  ——▶ justfile:3:13
@@ -227,7 +224,6 @@ a:
   echo {{b}}
 "#,
     )
-    .stdout("")
     .stderr(
       "error: Variable `b` not defined
  ——▶ justfile:5:10
@@ -249,7 +245,6 @@ fn unterminated_raw_string() {
     a b= ':
   ",
     )
-    .stdout("")
     .stderr(
       "
     error: Unterminated string
@@ -272,7 +267,6 @@ fn unterminated_string() {
     a b= ":
   "#,
     )
-    .stdout("")
     .stderr(
       r#"
     error: Unterminated string
@@ -317,7 +311,6 @@ fn unterminated_indented_raw_string() {
     a b= ''':
   ",
     )
-    .stdout("")
     .stderr(
       "
     error: Unterminated string
@@ -340,7 +333,6 @@ fn unterminated_indented_string() {
     a b= """:
   "#,
     )
-    .stdout("")
     .stderr(
       r#"
     error: Unterminated string

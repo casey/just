@@ -536,7 +536,6 @@ fn shebang_backtick_failure() {
  echo hello
  echo {{`exit 123`}}",
     )
-    .stdout("")
     .stderr(
       "
     error: Backtick failed with exit code 123
@@ -582,7 +581,6 @@ fn assignment_backtick_failure() {
  echo {{`exit 111`}}
 a := `exit 222`",
     )
-    .stdout("")
     .stderr(
       "
     error: Backtick failed with exit code 222
@@ -729,7 +727,6 @@ shebang:
   {{var}}
   echo {{`echo shebang interpolation`}}",
     )
-    .stdout("")
     .stderr(
       "#!/bin/sh
 touch /this/is/not/a/file
@@ -812,7 +809,6 @@ fn argument_mismatch_more() {
     .arg("ONE")
     .arg("TWO")
     .arg("THREE")
-    .stdout("")
     .stderr("error: Justfile does not contain recipe `THREE`\n")
     .status(EXIT_FAILURE)
     .justfile(
@@ -835,7 +831,6 @@ foo A B:
   echo A:{{A}} B:{{B}}
     ",
     )
-    .stdout("")
     .stderr("error: Recipe `foo` got 1 argument but takes 2\nusage:\n    just foo A B\n")
     .status(EXIT_FAILURE)
     .run();
@@ -854,7 +849,6 @@ foo A B='B':
   echo A:{{A}} B:{{B}}
     ",
     )
-    .stdout("")
     .stderr("error: Justfile does not contain recipe `THREE`\n")
     .status(EXIT_FAILURE)
     .run();
@@ -871,7 +865,6 @@ foo A B C='C':
   echo A:{{A}} B:{{B}} C:{{C}}
     ",
     )
-    .stdout("")
     .stderr(
       "
     error: Recipe `foo` got 1 argument but takes at least 2
@@ -888,7 +881,6 @@ fn unknown_recipe() {
   Test::new()
     .arg("foo")
     .justfile("hello:")
-    .stdout("")
     .stderr("error: Justfile does not contain recipe `foo`\n")
     .status(EXIT_FAILURE)
     .run();
@@ -900,7 +892,6 @@ fn unknown_recipes() {
     .arg("foo")
     .arg("bar")
     .justfile("hello:")
-    .stdout("")
     .stderr("error: Justfile does not contain recipe `foo`\n")
     .status(EXIT_FAILURE)
     .run();
@@ -913,7 +904,6 @@ fn color_always() {
         .arg("always")
         .justfile("b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'")
         .status(100)
-        .stdout("")
         .stderr("\u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mBacktick failed with exit code 100\u{1b}[0m\n \u{1b}[1;34m——▶\u{1b}[0m justfile:2:6\n  \u{1b}[1;34m│\u{1b}[0m\n\u{1b}[1;34m2 │\u{1b}[0m a := `exit 100`\n  \u{1b}[1;34m│\u{1b}[0m      \u{1b}[1;31m^^^^^^^^^^\u{1b}[0m\n")
         .run();
 }
@@ -924,7 +914,6 @@ fn color_never() {
     .arg("--color")
     .arg("never")
     .justfile("b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'")
-    .stdout("")
     .stderr(
       "error: Backtick failed with exit code 100
  ——▶ justfile:2:6
@@ -943,7 +932,6 @@ fn color_auto() {
     .arg("--color")
     .arg("auto")
     .justfile("b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'")
-    .stdout("")
     .stderr(
       "error: Backtick failed with exit code 100
  ——▶ justfile:2:6
@@ -960,7 +948,6 @@ fn color_auto() {
 fn colors_no_context() {
   Test::new()
     .arg("--color=always")
-    .stdout("")
     .stderr(
       "\u{1b}[1;31merror\u{1b}[0m: \u{1b}[1m\
 Recipe `recipe` failed on line 2 with exit code 100\u{1b}[0m\n",
@@ -997,7 +984,6 @@ recipe a b +d:
 fn mixed_whitespace() {
   Test::new()
     .justfile("bar:\n\t echo hello")
-    .stdout("")
     .stderr(
       "error: Found a mix of tabs and spaces in leading whitespace: `␉␠`
 Leading whitespace may consist of tabs or spaces, but not both
@@ -1015,7 +1001,6 @@ Leading whitespace may consist of tabs or spaces, but not both
 fn extra_leading_whitespace() {
   Test::new()
     .justfile("bar:\n\t\techo hello\n\t\t\techo goodbye")
-    .stdout("")
     .stderr(
       "error: Recipe line has extra leading whitespace
  ——▶ justfile:3:3
@@ -1032,7 +1017,6 @@ fn extra_leading_whitespace() {
 fn inconsistent_leading_whitespace() {
   Test::new()
     .justfile("bar:\n\t\techo hello\n\t echo goodbye")
-    .stdout("")
     .stderr(
       "error: Recipe line has inconsistent leading whitespace. \
             Recipe started with `␉␉` but found line with `␉␠`
@@ -1050,7 +1034,6 @@ fn inconsistent_leading_whitespace() {
 fn required_after_default() {
   Test::new()
     .justfile("bar:\nhello baz arg='foo' bar:")
-    .stdout("")
     .stderr(
       "error: Non-default parameter `bar` follows default parameter
  ——▶ justfile:2:21
@@ -1067,7 +1050,6 @@ fn required_after_default() {
 fn required_after_plus_variadic() {
   Test::new()
     .justfile("bar:\nhello baz +arg bar:")
-    .stdout("")
     .stderr(
       "error: Parameter `bar` follows variadic parameter
  ——▶ justfile:2:16
@@ -1084,7 +1066,6 @@ fn required_after_plus_variadic() {
 fn required_after_star_variadic() {
   Test::new()
     .justfile("bar:\nhello baz *arg bar:")
-    .stdout("")
     .stderr(
       "error: Parameter `bar` follows variadic parameter
  ——▶ justfile:2:16
@@ -1378,7 +1359,6 @@ hello a b='B	' c='C':
 a Z="\t z":
 "#,
     )
-    .stdout("")
     .stderr("error: Justfile does not contain recipe `hell`\nDid you mean `hello`?\n")
     .status(EXIT_FAILURE)
     .run();
@@ -1508,7 +1488,6 @@ b:
 c: b a
 ",
     )
-    .stdout("")
     .run();
 }
 
@@ -1520,7 +1499,6 @@ fn unknown_function_in_assignment() {
       r#"foo := foo() + "hello"
 bar:"#,
     )
-    .stdout("")
     .stderr(
       r#"error: Call to unknown function `foo`
  ——▶ justfile:1:8
@@ -1543,7 +1521,6 @@ fn dependency_takes_arguments_exact() {
     b: a
   ",
     )
-    .stdout("")
     .stderr(
       "error: Dependency `a` got 0 arguments but takes 1 argument
  ——▶ justfile:2:4
@@ -1566,7 +1543,6 @@ fn dependency_takes_arguments_at_least() {
     b: a
   ",
     )
-    .stdout("")
     .stderr(
       "error: Dependency `a` got 0 arguments but takes at least 1 argument
  ——▶ justfile:2:4
@@ -1589,7 +1565,6 @@ fn dependency_takes_arguments_at_most() {
     b: (a '0' '1' '2')
   ",
     )
-    .stdout("")
     .stderr(
       "error: Dependency `a` got 3 arguments but takes at most 2 arguments
  ——▶ justfile:2:5
@@ -1607,7 +1582,6 @@ fn duplicate_parameter() {
   Test::new()
     .arg("a")
     .justfile("a foo foo:")
-    .stdout("")
     .stderr(
       "error: Recipe `a` has duplicate parameter `foo`
  ——▶ justfile:1:7
@@ -1625,7 +1599,6 @@ fn duplicate_recipe() {
   Test::new()
     .arg("b")
     .justfile("b:\nb:")
-    .stdout("")
     .stderr(
       "error: Recipe `b` first defined on line 1 is redefined on line 2
  ——▶ justfile:2:1
@@ -1644,7 +1617,6 @@ fn duplicate_variable() {
     .arg("foo")
     .justfile("a := 'hello'\na := 'hello'\nfoo:")
     .status(EXIT_FAILURE)
-    .stdout("")
     .stderr(
       "error: Variable `a` has multiple definitions
  ——▶ justfile:2:1
@@ -1661,7 +1633,6 @@ fn unexpected_token_in_dependency_position() {
   Test::new()
     .arg("foo")
     .justfile("foo: 'bar'")
-    .stdout("")
     .stderr(
       "error: Expected '&&', comment, end of file, end of line, \
     identifier, or '(', but found string
@@ -1680,7 +1651,6 @@ fn unexpected_token_after_name() {
   Test::new()
     .arg("foo")
     .justfile("foo 'bar'")
-    .stdout("")
     .stderr(
       "error: Expected '*', ':', '$', identifier, or '+', but found string
  ——▶ justfile:1:5
@@ -1698,7 +1668,6 @@ fn self_dependency() {
   Test::new()
     .arg("a")
     .justfile("a: a")
-    .stdout("")
     .stderr(
       "error: Recipe `a` depends on itself
  ——▶ justfile:1:4
@@ -1716,7 +1685,6 @@ fn long_circular_recipe_dependency() {
   Test::new()
     .arg("a")
     .justfile("a: b\nb: c\nc: d\nd: a")
-    .stdout("")
     .stderr(
       "error: Recipe `d` has circular dependency `a -> b -> c -> d -> a`
  ——▶ justfile:4:4
@@ -1734,7 +1702,6 @@ fn variable_self_dependency() {
   Test::new()
     .arg("a")
     .justfile("z := z\na:")
-    .stdout("")
     .stderr(
       "error: Variable `z` is defined in terms of itself
  ——▶ justfile:1:1
@@ -1753,7 +1720,6 @@ fn variable_circular_dependency() {
     .arg("a")
     .justfile("x := y\ny := z\nz := x\na:")
     .status(EXIT_FAILURE)
-    .stdout("")
     .stderr(
       "error: Variable `x` depends on its own value: `x -> y -> z -> x`
  ——▶ justfile:1:1
@@ -1778,7 +1744,6 @@ fn variable_circular_dependency_with_additional_variable() {
     a:
   ",
     )
-    .stdout("")
     .stderr(
       "error: Variable `x` depends on its own value: `x -> y -> x`
  ——▶ justfile:2:1
@@ -1860,7 +1825,6 @@ a x y +z:
   echo {{x}} {{y}} {{z}}
 ",
     )
-    .stdout("")
     .stderr("error: Recipe `a` got 2 arguments but takes at least 3\nusage:\n    just a x y +z\n")
     .status(EXIT_FAILURE)
     .run();
@@ -1949,7 +1913,6 @@ foo *a +b:
   echo {{a}} {{b}}
 ",
     )
-    .stdout("")
     .stderr(
       "error: Expected \':\' or \'=\', but found \'+\'
  ——▶ justfile:1:8
@@ -1971,7 +1934,6 @@ foo +a *b:
   echo {{a}} {{b}}
 ",
     )
-    .stdout("")
     .stderr(
       "error: Expected \':\' or \'=\', but found \'*\'
  ——▶ justfile:1:8
@@ -2023,7 +1985,6 @@ x:
 a: x y
 ",
     )
-    .stdout("")
     .stderr(
       "error: Recipe `a` has unknown dependency `y`
  ——▶ justfile:3:6
@@ -2143,7 +2104,6 @@ fn invalid_escape_sequence_message() {
 X := "\'"
 "#,
     )
-    .stdout("")
     .stderr(
       r#"error: `\'` is not a valid escape sequence
  ——▶ justfile:1:6
@@ -2164,7 +2124,6 @@ fn unknown_variable_in_default() {
      foo x=bar:
    ",
     )
-    .stdout("")
     .stderr(
       r"error: Variable `bar` not defined
  ——▶ justfile:1:7
@@ -2185,7 +2144,6 @@ fn unknown_function_in_default() {
 foo x=bar():
 ",
     )
-    .stdout("")
     .stderr(
       r"error: Call to unknown function `bar`
  ——▶ justfile:1:7
@@ -2751,7 +2709,6 @@ fn interpolation_evaluation_ignore_quiet() {
       {{"@echo foo 2>/dev/null"}}
   "#,
     )
-    .stdout("")
     .stderr(
       "
     @echo foo 2>/dev/null
@@ -2773,7 +2730,6 @@ fn interpolation_evaluation_ignore_quiet_continuation() {
       @echo foo 2>/dev/null
   "#,
     )
-    .stdout("")
     .stderr(
       "
     @echo foo 2>/dev/null

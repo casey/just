@@ -8,7 +8,6 @@ fn set_export_parse_error() {
     set export := fals
   ",
     )
-    .stdout("")
     .stderr(
       "
     error: Expected keyword `true` or `false` but found identifier `fals`
@@ -30,7 +29,6 @@ fn set_export_parse_error_eol() {
     set export :=
   ",
     )
-    .stdout("")
     .stderr(
       "
     error: Expected identifier, but found end of line

@@ -68,7 +68,6 @@ hello a b='B	' c='C':
 a Z="\t z":
 "#,
     )
-    .stdout("")
     .stderr("error: Justfile does not contain recipe `hell`\nDid you mean `hello`?\n")
     .status(EXIT_FAILURE)
     .run();
@@ -89,7 +88,6 @@ alias foo := hello
 a Z="\t z":
 "#,
     )
-    .stdout("")
     .stderr(
       "
     error: Justfile does not contain recipe `fo`
@@ -113,7 +111,6 @@ helloooooo a b='B	' c='C':
 a Z="\t z":
 "#,
     )
-    .stdout("")
     .stderr("error: Justfile does not contain recipe `hell`\n")
     .status(EXIT_FAILURE)
     .run();
@@ -134,7 +131,6 @@ alias foo := hello
 a Z="\t z":
 "#,
     )
-    .stdout("")
     .stderr("error: Justfile does not contain recipe `fooooooo`\n")
     .status(EXIT_FAILURE)
     .run();

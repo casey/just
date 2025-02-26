@@ -68,7 +68,6 @@ fn newline_escape_deps_invalid_esc() {
       default: a\\ b
     ",
     )
-    .stdout("")
     .stderr(
       "
         error: `\\ ` is not a valid escape sequence
@@ -89,7 +88,6 @@ fn newline_escape_unpaired_linefeed() {
       "
       default:\\\ra",
     )
-    .stdout("")
     .stderr(
       "
         error: Unpaired carriage return
