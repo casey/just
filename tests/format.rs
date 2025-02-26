@@ -64,12 +64,17 @@ fn check_found_diff() {
     .run();
 }
 
-test! {
-  name: check_found_diff_quiet,
-  justfile: "x:=``\n",
-  args: ("--unstable", "--fmt", "--check", "--quiet"),
-  stderr: "",
-  status: EXIT_FAILURE,
+#[test]
+fn check_found_diff_quiet() {
+    Test::new()
+        .arg("--unstable")
+        .arg("--fmt")
+        .arg("--check")
+        .arg("--quiet")
+        .justfile("x:=``\n")
+        .status(EXIT_FAILURE)
+        .stderr("")
+        .run();
 }
 
 test! {
