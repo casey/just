@@ -323,17 +323,19 @@ fn backtick_code_assignment() {
     .run();
 }
 
-test! {
-  name:     backtick_code_interpolation,
-  justfile: "b := a\na := `echo hello`\nbar:\n echo '{{`exit 200`}}'",
-  stderr:   "
+#[test]
+fn backtick_code_interpolation() {
+  Test::new()
+    .justfile("b := a\na := `echo hello`\nbar:\n echo '{{`exit 200`}}'")
+    .stderr("
     error: Backtick failed with exit code 200
      ——▶ justfile:4:10
       │
     4 │  echo '{{`exit 200`}}'
       │          ^^^^^^^^^^
-  ",
-  status:   200,
+  ")
+    .status(200)
+    .run();
 }
 
 test! {
