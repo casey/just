@@ -115,9 +115,10 @@ fn argument() {
     .run();
 }
 
-test! {
-  name: duplicate_subsequents_dont_run,
-  justfile: "
+#[test]
+fn duplicate_subsequents_dont_run() {
+    Test::new()
+        .justfile("
     a: && b c
       echo a
 
@@ -129,19 +130,20 @@ test! {
 
     d:
       echo d
-  ",
-  stdout: "
+  ")
+        .stdout("
     a
     d
     b
     c
-  ",
-  stderr: "
+  ")
+        .stderr("
     echo a
     echo d
     echo b
     echo c
-  ",
+  ")
+        .run();
 }
 
 test! {
