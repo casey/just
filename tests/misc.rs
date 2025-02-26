@@ -212,9 +212,12 @@ fn verbose() {
     .run();
 }
 
-test! {
-  name:     order,
-  justfile: "
+#[test]
+fn order() {
+  Test::new()
+    .arg("a")
+    .arg("d")
+    .justfile("
 b: a
   echo b
   @mv a b
@@ -230,10 +233,10 @@ d: c
 
 c: b
   echo c
-  @mv b c",
-  args:     ("a", "d"),
-  stdout:   "a\nb\nc\nd\n",
-  stderr:   "echo a\necho b\necho c\necho d\n",
+  @mv b c")
+    .stdout("a\nb\nc\nd\n")
+    .stderr("echo a\necho b\necho c\necho d\n")
+    .run();
 }
 
 test! {
