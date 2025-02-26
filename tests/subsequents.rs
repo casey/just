@@ -1,22 +1,24 @@
 use super::*;
 
-test! {
-  name: success,
-  justfile: "
+#[test]
+fn success() {
+  Test::new()
+    .justfile("
     foo: && bar
       echo foo
 
     bar:
       echo bar
-  ",
-  stdout: "
+  ")
+    .stdout("
     foo
     bar
-  ",
-  stderr: "
+  ")
+    .stderr("
     echo foo
     echo bar
-  ",
+  ")
+    .run();
 }
 
 test! {
