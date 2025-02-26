@@ -1918,14 +1918,16 @@ foo x=bar():
     .run();
 }
 
-test! {
-   name:     default_string,
-   justfile: "
+#[test]
+fn default_string() {
+    Test::new()
+        .justfile("
 foo x='bar':
   echo {{x}}
-",
-   stdout:   "bar\n",
-   stderr:   "echo bar\n",
+")
+        .stdout("bar\n")
+        .stderr("echo bar\n")
+        .run();
 }
 
 test! {
