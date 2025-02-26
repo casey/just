@@ -31,16 +31,19 @@ fn parameter() {
     .run();
 }
 
-test! {
-  name:     parameter_not_visible_to_backtick,
-  justfile: r#"
+#[test]
+fn parameter_not_visible_to_backtick() {
+  Test::new()
+    .arg("wut")
+    .arg("bar")
+    .justfile(r#"
     wut $FOO BAR=`if [ -n "${FOO+1}" ]; then echo defined; else echo undefined; fi`:
       echo $FOO
       echo {{BAR}}
-  "#,
-  args:   ("wut", "bar"),
-  stdout: "bar\nundefined\n",
-  stderr: "echo $FOO\necho undefined\n",
+  "#)
+    .stdout("bar\nundefined\n")
+    .stderr("echo $FOO\necho undefined\n")
+    .run();
 }
 
 test! {
