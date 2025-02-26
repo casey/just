@@ -2159,22 +2159,24 @@ default a=`read A && echo $A` b=`read B && echo $B`:
     .run();
 }
 
-test! {
-  name: old_equals_assignment_syntax_produces_error,
-  justfile: "
+#[test]
+fn old_equals_assignment_syntax_produces_error() {
+  Test::new()
+    .justfile("
     foo = 'bar'
 
     default:
       echo {{foo}}
-  ",
-  stderr: "
+  ")
+    .stderr("
     error: Expected '*', ':', '$', identifier, or '+', but found '='
      ——▶ justfile:1:5
       │
     1 │ foo = 'bar'
       │     ^
-    ",
-  status: EXIT_FAILURE,
+    ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
