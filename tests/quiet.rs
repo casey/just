@@ -112,14 +112,15 @@ fn choose_status() {
     .run();
 }
 
-test! {
-  name: edit_invocation,
-  justfile: "foo:",
-  args: ("--edit", "--quiet"),
-  env: {
-    "VISUAL": "adsfasdfasdfadsfadfsaf",
-  },
-  status: EXIT_FAILURE,
+#[test]
+fn edit_invocation() {
+  Test::new()
+    .arg("--edit")
+    .arg("--quiet")
+    .env("VISUAL", "adsfasdfasdfadsfadfsaf")
+    .justfile("foo:")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
