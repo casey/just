@@ -1,16 +1,19 @@
 use super::*;
 
-test! {
-  name:     show,
-  justfile: r#"hello := "foo"
+#[test]
+fn show() {
+    Test::new()
+        .arg("--show")
+        .arg("recipe")
+        .justfile(r#"hello := "foo"
 bar := hello + hello
 recipe:
- echo {{hello + "bar" + bar}}"#,
-  args:     ("--show", "recipe"),
-  stdout:   r#"
+ echo {{hello + "bar" + bar}}"#)
+        .stdout(r#"
     recipe:
         echo {{ hello + "bar" + bar }}
-  "#,
+  "#)
+        .run();
 }
 
 test! {
