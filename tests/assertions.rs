@@ -1,13 +1,15 @@
 use super::*;
 
-test! {
-  name: assert_pass,
-  justfile: "
+#[test]
+fn assert_pass() {
+  Test::new()
+    .justfile("
     foo:
       {{ assert('a' == 'a', 'error message') }}
-  ",
-  stdout: "",
-  stderr: "",
+  ")
+    .stdout("")
+    .stderr("")
+    .run();
 }
 
 test! {
