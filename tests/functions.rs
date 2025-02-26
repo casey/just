@@ -282,14 +282,16 @@ fn test_just_executable_function() {
     .run();
 }
 
-test! {
-  name:     test_os_arch_functions_in_default,
-  justfile: r"
+#[test]
+fn test_os_arch_functions_in_default() {
+  Test::new()
+    .justfile(r"
 foo a=arch() o=os() f=os_family() n=num_cpus():
   echo {{a}} {{o}} {{f}} {{n}}
-",
-  stdout:   format!("{} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
-  stderr:   format!("echo {} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
+")
+    .stdout(format!("{} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str())
+    .stderr(format!("echo {} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str())
+    .run();
 }
 
 test! {
