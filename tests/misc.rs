@@ -2226,19 +2226,20 @@ fn dependency_argument_function() {
     .run();
 }
 
-test! {
-  name: env_function_as_env_var,
-  justfile: "
+#[test]
+fn env_function_as_env_var() {
+  Test::new()
+    .env("x", "z")
+    .justfile("
     foo: (bar env('x'))
 
     bar arg:
       echo {{arg}}
-  ",
-  args: (),
-  env: { "x": "z", },
-  stdout: "z\n",
-  stderr: "echo z\n",
-  shell: false,
+  ")
+    .stdout("z\n")
+    .stderr("echo z\n")
+    .shell(false)
+    .run();
 }
 
 test! {
