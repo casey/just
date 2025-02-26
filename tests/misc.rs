@@ -1683,15 +1683,19 @@ a x y *z='HELLO':
     .run();
 }
 
-test! {
-  name:     star_variadic_use_default,
-  justfile: "
+#[test]
+fn star_variadic_use_default() {
+  Test::new()
+    .arg("a")
+    .arg("0")
+    .arg("1")
+    .justfile("
 a x y *z='HELLO':
   echo {{x}} {{y}} {{z}}
-",
-  args:     ("a", "0", "1"),
-  stdout:   "0 1 HELLO\n",
-  stderr:   "echo 0 1 HELLO\n",
+")
+    .stdout("0 1 HELLO\n")
+    .stderr("echo 0 1 HELLO\n")
+    .run();
 }
 
 test! {
