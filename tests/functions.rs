@@ -67,9 +67,10 @@ foo:
 }
 
 #[cfg(not(windows))]
-test! {
-  name: path_functions2,
-  justfile: r"
+#[test]
+fn path_functions2() {
+    Test::new()
+        .justfile(r"
 we  := without_extension('/foo/bar/baz')
 fs  := file_stem('/foo/bar/baz.hello.ciao')
 fn  := file_name('/bar/baz.hello.ciao')
@@ -78,9 +79,10 @@ ext := extension('/foo/bar/baz.hello.ciao')
 
 foo:
   /usr/bin/env echo '{{we}}' '{{fs}}' '{{fn}}' '{{dir}}' '{{ext}}'
-",
-  stdout:   "/foo/bar/baz baz.hello baz.hello.ciao / ciao\n",
-  stderr:   "/usr/bin/env echo '/foo/bar/baz' 'baz.hello' 'baz.hello.ciao' '/' 'ciao'\n",
+")
+        .stdout("/foo/bar/baz baz.hello baz.hello.ciao / ciao\n")
+        .stderr("/usr/bin/env echo '/foo/bar/baz' 'baz.hello' 'baz.hello.ciao' '/' 'ciao'\n")
+        .run();
 }
 
 #[cfg(not(windows))]
