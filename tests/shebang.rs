@@ -27,14 +27,16 @@ default:
 }
 
 #[cfg(windows)]
-test! {
-  name:     cmd,
-  justfile: r#"
+#[test]
+fn cmd() {
+  Test::new()
+    .justfile(r#"
 default:
   #!cmd /c
   @echo Hello-World
-"#,
-  stdout: "Hello-World\r\n",
+"#)
+    .stdout("Hello-World\r\n")
+    .run();
 }
 
 #[cfg(windows)]
