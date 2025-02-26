@@ -15,17 +15,19 @@ fn invalid_alias_attribute() {
     .run();
 }
 
-test! {
-  name: expected_keyword,
-  justfile: "foo := if '' == '' { '' } arlo { '' }",
-  stderr: "
+#[test]
+fn expected_keyword() {
+  Test::new()
+    .justfile("foo := if '' == '' { '' } arlo { '' }")
+    .stderr("
     error: Expected keyword `else` but found identifier `arlo`
      ——▶ justfile:1:27
       │
     1 │ foo := if '' == '' { '' } arlo { '' }
       │                           ^^^^
-  ",
-  status: EXIT_FAILURE,
+  ")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
