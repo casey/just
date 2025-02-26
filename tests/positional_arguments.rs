@@ -125,17 +125,18 @@ fn variadic_shebang() {
     .run();
 }
 
-test! {
-  name: default_arguments,
-  justfile: r"
+#[test]
+fn default_arguments() {
+  Test::new()
+    .justfile(r"
     set positional-arguments
 
     foo bar='baz':
       echo $1
-  ",
-  args:   (),
-  stdout: "baz\n",
-  stderr: "echo $1\n",
+  ")
+    .stdout("baz\n")
+    .stderr("echo $1\n")
+    .run();
 }
 
 test! {
