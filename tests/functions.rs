@@ -108,22 +108,24 @@ foo:
 }
 
 #[cfg(not(windows))]
-test! {
-  name: broken_extension_function,
-  justfile: r"
+#[test]
+fn broken_extension_function() {
+  Test::new()
+    .justfile(r"
 we  := extension('')
 
 foo:
   /usr/bin/env echo '{{we}}'
-",
-  stdout:   "",
-  stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
-    "error: Call to function `extension` failed: Could not extract extension from ``",
-    " ——▶ justfile:1:8",
-    "  │",
-    "1 │ we  := extension(\'\')",
-    "  │        ^^^^^^^^^").as_str(),
-  status:   EXIT_FAILURE,
+")
+    .stdout("")
+    .stderr(format!("{}\n{}\n{}\n{}\n{}\n",
+      "error: Call to function `extension` failed: Could not extract extension from ``",
+      " ——▶ justfile:1:8",
+      "  │",
+      "1 │ we  := extension(\'\')",
+      "  │        ^^^^^^^^^").as_str())
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 #[cfg(not(windows))]
