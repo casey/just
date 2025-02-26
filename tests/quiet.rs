@@ -36,15 +36,17 @@ default:
     .run();
 }
 
-test! {
-  name:     error_messages,
-  justfile: r"
+#[test]
+fn error_messages() {
+  Test::new()
+    .arg("--quiet")
+    .justfile(r"
 default:
   exit 100
-",
-  args:     ("--quiet"),
-  stdout:   "",
-  status:   100,
+")
+    .stdout("")
+    .status(100)
+    .run();
 }
 
 test! {
