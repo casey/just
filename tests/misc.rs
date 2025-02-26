@@ -39,14 +39,16 @@ fn alias_listing_with_doc() {
     .run();
 }
 
-test! {
-  name: alias_listing_multiple_aliases,
-  justfile: "foo:\n  echo foo\nalias f := foo\nalias fo := foo",
-  args: ("--list"),
-  stdout: "
+#[test]
+fn alias_listing_multiple_aliases() {
+  Test::new()
+    .arg("--list")
+    .justfile("foo:\n  echo foo\nalias f := foo\nalias fo := foo")
+    .stdout("
     Available recipes:
         foo # [aliases: f, fo]
-  ",
+  ")
+    .run();
 }
 
 test! {
