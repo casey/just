@@ -1495,18 +1495,20 @@ fn self_dependency() {
     .run();
 }
 
-test! {
-  name:     long_circular_recipe_dependency,
-  justfile: "a: b\nb: c\nc: d\nd: a",
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "error: Recipe `d` has circular dependency `a -> b -> c -> d -> a`
+#[test]
+fn long_circular_recipe_dependency() {
+  Test::new()
+    .arg("a")
+    .justfile("a: b\nb: c\nc: d\nd: a")
+    .stdout("")
+    .stderr("error: Recipe `d` has circular dependency `a -> b -> c -> d -> a`
  ——▶ justfile:4:4
   │
 4 │ d: a
   │    ^
-",
-  status:   EXIT_FAILURE,
+")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
