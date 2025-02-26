@@ -790,13 +790,16 @@ fn unknown_recipe() {
     .run();
 }
 
-test! {
-  name:     unknown_recipes,
-  justfile: "hello:",
-  args:     ("foo", "bar"),
-  stdout:   "",
-  stderr:   "error: Justfile does not contain recipe `foo`\n",
-  status:   EXIT_FAILURE,
+#[test]
+fn unknown_recipes() {
+  Test::new()
+    .arg("foo")
+    .arg("bar")
+    .justfile("hello:")
+    .stdout("")
+    .stderr("error: Justfile does not contain recipe `foo`\n")
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 test! {
