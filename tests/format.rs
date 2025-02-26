@@ -176,21 +176,23 @@ fn alias_good() {
     .run();
 }
 
-test! {
-  name: alias_fix_indent,
-  justfile: "
+#[test]
+fn alias_fix_indent() {
+  Test::new()
+    .arg("--dump")
+    .justfile("
     alias f:=    foo
 
     foo:
         echo foo
-  ",
-  args: ("--dump"),
-  stdout: "
+  ")
+    .stdout("
     alias f := foo
 
     foo:
         echo foo
-  ",
+  ")
+    .run();
 }
 
 test! {
