@@ -79,7 +79,6 @@ fn continuations_with_echo_comments_true() {
         echo something-useful
     ",
     )
-    .stdout("")
     .stderr("# comment lines can be continued echo something-useful\n")
     .run();
 }

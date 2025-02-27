@@ -1,18 +1,42 @@
 use super::*;
 
-test! {
-  name:     test_os_arch_functions_in_interpolation,
-  justfile: r"
+#[test]
+fn test_os_arch_functions_in_interpolation() {
+  Test::new()
+    .justfile(
+      r"
 foo:
   echo {{arch()}} {{os()}} {{os_family()}} {{num_cpus()}}
 ",
-  stdout:   format!("{} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
-  stderr:   format!("echo {} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
+    )
+    .stdout(
+      format!(
+        "{} {} {} {}\n",
+        target::arch(),
+        target::os(),
+        target::family(),
+        num_cpus::get()
+      )
+      .as_str(),
+    )
+    .stderr(
+      format!(
+        "echo {} {} {} {}\n",
+        target::arch(),
+        target::os(),
+        target::family(),
+        num_cpus::get()
+      )
+      .as_str(),
+    )
+    .run();
 }
 
-test! {
-  name:     test_os_arch_functions_in_expression,
-  justfile: r"
+#[test]
+fn test_os_arch_functions_in_expression() {
+  Test::new()
+    .justfile(
+      r"
 a := arch()
 o := os()
 f := os_family()
@@ -21,14 +45,36 @@ n := num_cpus()
 foo:
   echo {{a}} {{o}} {{f}} {{n}}
 ",
-  stdout:   format!("{} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
-  stderr:   format!("echo {} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
+    )
+    .stdout(
+      format!(
+        "{} {} {} {}\n",
+        target::arch(),
+        target::os(),
+        target::family(),
+        num_cpus::get()
+      )
+      .as_str(),
+    )
+    .stderr(
+      format!(
+        "echo {} {} {} {}\n",
+        target::arch(),
+        target::os(),
+        target::family(),
+        num_cpus::get()
+      )
+      .as_str(),
+    )
+    .run();
 }
 
 #[cfg(not(windows))]
-test! {
-  name:     env_var_functions,
-  justfile: r"
+#[test]
+fn env_var_functions() {
+  Test::new()
+    .justfile(
+      r"
 p := env_var('USER')
 b := env_var_or_default('ZADDY', 'HTAP')
 x := env_var_or_default('XYZ', 'ABC')
@@ -36,14 +82,24 @@ x := env_var_or_default('XYZ', 'ABC')
 foo:
   /usr/bin/env echo '{{p}}' '{{b}}' '{{x}}'
 ",
-  stdout:   format!("{} HTAP ABC\n", env::var("USER").unwrap()).as_str(),
-  stderr:   format!("/usr/bin/env echo '{}' 'HTAP' 'ABC'\n", env::var("USER").unwrap()).as_str(),
+    )
+    .stdout(format!("{} HTAP ABC\n", env::var("USER").unwrap()).as_str())
+    .stderr(
+      format!(
+        "/usr/bin/env echo '{}' 'HTAP' 'ABC'\n",
+        env::var("USER").unwrap()
+      )
+      .as_str(),
+    )
+    .run();
 }
 
 #[cfg(not(windows))]
-test! {
-  name: path_functions,
-  justfile: r"
+#[test]
+fn path_functions() {
+  Test::new()
+    .justfile(
+      r"
 we  := without_extension('/foo/bar/baz.hello')
 fs  := file_stem('/foo/bar/baz.hello')
 fn  := file_name('/foo/bar/baz.hello')
@@ -54,14 +110,18 @@ jn  := join('a', 'b')
 foo:
   /usr/bin/env echo '{{we}}' '{{fs}}' '{{fn}}' '{{dir}}' '{{ext}}' '{{jn}}'
 ",
-  stdout:   "/foo/bar/baz baz baz.hello /foo/bar hello a/b\n",
-  stderr:   "/usr/bin/env echo '/foo/bar/baz' 'baz' 'baz.hello' '/foo/bar' 'hello' 'a/b'\n",
+    )
+    .stdout("/foo/bar/baz baz baz.hello /foo/bar hello a/b\n")
+    .stderr("/usr/bin/env echo '/foo/bar/baz' 'baz' 'baz.hello' '/foo/bar' 'hello' 'a/b'\n")
+    .run();
 }
 
 #[cfg(not(windows))]
-test! {
-  name: path_functions2,
-  justfile: r"
+#[test]
+fn path_functions2() {
+  Test::new()
+    .justfile(
+      r"
 we  := without_extension('/foo/bar/baz')
 fs  := file_stem('/foo/bar/baz.hello.ciao')
 fn  := file_name('/bar/baz.hello.ciao')
@@ -71,150 +131,210 @@ ext := extension('/foo/bar/baz.hello.ciao')
 foo:
   /usr/bin/env echo '{{we}}' '{{fs}}' '{{fn}}' '{{dir}}' '{{ext}}'
 ",
-  stdout:   "/foo/bar/baz baz.hello baz.hello.ciao / ciao\n",
-  stderr:   "/usr/bin/env echo '/foo/bar/baz' 'baz.hello' 'baz.hello.ciao' '/' 'ciao'\n",
+    )
+    .stdout("/foo/bar/baz baz.hello baz.hello.ciao / ciao\n")
+    .stderr("/usr/bin/env echo '/foo/bar/baz' 'baz.hello' 'baz.hello.ciao' '/' 'ciao'\n")
+    .run();
 }
 
 #[cfg(not(windows))]
-test! {
-  name: broken_without_extension_function,
-  justfile: r"
+#[test]
+fn broken_without_extension_function() {
+  Test::new()
+    .justfile(
+      r"
 we  := without_extension('')
 
 foo:
   /usr/bin/env echo '{{we}}'
 ",
-  stdout:   "",
-  stderr:   format!("{} {}\n{}\n{}\n{}\n{}\n",
-    "error: Call to function `without_extension` failed:",
-    "Could not extract parent from ``",
-    " ——▶ justfile:1:8",
-    "  │",
-    "1 │ we  := without_extension(\'\')",
-    "  │        ^^^^^^^^^^^^^^^^^").as_str(),
-  status:   EXIT_FAILURE,
+    )
+    .stderr(
+      format!(
+        "{} {}\n{}\n{}\n{}\n{}\n",
+        "error: Call to function `without_extension` failed:",
+        "Could not extract parent from ``",
+        " ——▶ justfile:1:8",
+        "  │",
+        "1 │ we  := without_extension(\'\')",
+        "  │        ^^^^^^^^^^^^^^^^^"
+      )
+      .as_str(),
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 #[cfg(not(windows))]
-test! {
-  name: broken_extension_function,
-  justfile: r"
+#[test]
+fn broken_extension_function() {
+  Test::new()
+    .justfile(
+      r"
 we  := extension('')
 
 foo:
   /usr/bin/env echo '{{we}}'
 ",
-  stdout:   "",
-  stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
-    "error: Call to function `extension` failed: Could not extract extension from ``",
-    " ——▶ justfile:1:8",
-    "  │",
-    "1 │ we  := extension(\'\')",
-    "  │        ^^^^^^^^^").as_str(),
-  status:   EXIT_FAILURE,
+    )
+    .stderr(
+      format!(
+        "{}\n{}\n{}\n{}\n{}\n",
+        "error: Call to function `extension` failed: Could not extract extension from ``",
+        " ——▶ justfile:1:8",
+        "  │",
+        "1 │ we  := extension(\'\')",
+        "  │        ^^^^^^^^^"
+      )
+      .as_str(),
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 #[cfg(not(windows))]
-test! {
-  name: broken_extension_function2,
-  justfile: r"
+#[test]
+fn broken_extension_function2() {
+  Test::new()
+    .justfile(
+      r"
 we  := extension('foo')
 
 foo:
   /usr/bin/env echo '{{we}}'
 ",
-  stdout:   "",
-  stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
-    "error: Call to function `extension` failed: Could not extract extension from `foo`",
-    " ——▶ justfile:1:8",
-    "  │",
-    "1 │ we  := extension(\'foo\')",
-    "  │        ^^^^^^^^^").as_str(),
-  status:   EXIT_FAILURE,
+    )
+    .stderr(
+      format!(
+        "{}\n{}\n{}\n{}\n{}\n",
+        "error: Call to function `extension` failed: Could not extract extension from `foo`",
+        " ——▶ justfile:1:8",
+        "  │",
+        "1 │ we  := extension(\'foo\')",
+        "  │        ^^^^^^^^^"
+      )
+      .as_str(),
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 #[cfg(not(windows))]
-test! {
-  name: broken_file_stem_function,
-  justfile: r"
+#[test]
+fn broken_file_stem_function() {
+  Test::new()
+    .justfile(
+      r"
 we  := file_stem('')
 
 foo:
   /usr/bin/env echo '{{we}}'
 ",
-  stdout:   "",
-  stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
-    "error: Call to function `file_stem` failed: Could not extract file stem from ``",
-    " ——▶ justfile:1:8",
-    "  │",
-    "1 │ we  := file_stem(\'\')",
-    "  │        ^^^^^^^^^").as_str(),
-  status:   EXIT_FAILURE,
+    )
+    .stderr(
+      format!(
+        "{}\n{}\n{}\n{}\n{}\n",
+        "error: Call to function `file_stem` failed: Could not extract file stem from ``",
+        " ——▶ justfile:1:8",
+        "  │",
+        "1 │ we  := file_stem(\'\')",
+        "  │        ^^^^^^^^^"
+      )
+      .as_str(),
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 #[cfg(not(windows))]
-test! {
-  name: broken_file_name_function,
-  justfile: r"
+#[test]
+fn broken_file_name_function() {
+  Test::new()
+    .justfile(
+      r"
 we  := file_name('')
 
 foo:
   /usr/bin/env echo '{{we}}'
 ",
-  stdout:   "",
-  stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
-    "error: Call to function `file_name` failed: Could not extract file name from ``",
-    " ——▶ justfile:1:8",
-    "  │",
-    "1 │ we  := file_name(\'\')",
-    "  │        ^^^^^^^^^").as_str(),
-  status:   EXIT_FAILURE,
+    )
+    .stderr(
+      format!(
+        "{}\n{}\n{}\n{}\n{}\n",
+        "error: Call to function `file_name` failed: Could not extract file name from ``",
+        " ——▶ justfile:1:8",
+        "  │",
+        "1 │ we  := file_name(\'\')",
+        "  │        ^^^^^^^^^"
+      )
+      .as_str(),
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 #[cfg(not(windows))]
-test! {
-  name: broken_directory_function,
-  justfile: r"
+#[test]
+fn broken_directory_function() {
+  Test::new()
+    .justfile(
+      r"
 we  := parent_directory('')
 
 foo:
   /usr/bin/env echo '{{we}}'
 ",
-  stdout:   "",
-  stderr:   format!("{} {}\n{}\n{}\n{}\n{}\n",
-    "error: Call to function `parent_directory` failed:",
-    "Could not extract parent directory from ``",
-    " ——▶ justfile:1:8",
-    "  │",
-    "1 │ we  := parent_directory(\'\')",
-    "  │        ^^^^^^^^^^^^^^^^").as_str(),
-  status:   EXIT_FAILURE,
+    )
+    .stderr(
+      format!(
+        "{} {}\n{}\n{}\n{}\n{}\n",
+        "error: Call to function `parent_directory` failed:",
+        "Could not extract parent directory from ``",
+        " ——▶ justfile:1:8",
+        "  │",
+        "1 │ we  := parent_directory(\'\')",
+        "  │        ^^^^^^^^^^^^^^^^"
+      )
+      .as_str(),
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 #[cfg(not(windows))]
-test! {
-  name: broken_directory_function2,
-  justfile: r"
+#[test]
+fn broken_directory_function2() {
+  Test::new()
+    .justfile(
+      r"
 we  := parent_directory('/')
 
 foo:
   /usr/bin/env echo '{{we}}'
 ",
-  stdout:   "",
-  stderr:   format!("{} {}\n{}\n{}\n{}\n{}\n",
-    "error: Call to function `parent_directory` failed:",
-    "Could not extract parent directory from `/`",
-    " ——▶ justfile:1:8",
-    "  │",
-    "1 │ we  := parent_directory(\'/\')",
-    "  │        ^^^^^^^^^^^^^^^^").as_str(),
-  status:   EXIT_FAILURE,
+    )
+    .stderr(
+      format!(
+        "{} {}\n{}\n{}\n{}\n{}\n",
+        "error: Call to function `parent_directory` failed:",
+        "Could not extract parent directory from `/`",
+        " ——▶ justfile:1:8",
+        "  │",
+        "1 │ we  := parent_directory(\'/\')",
+        "  │        ^^^^^^^^^^^^^^^^"
+      )
+      .as_str(),
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
 #[cfg(windows)]
-test! {
-  name:     env_var_functions,
-  justfile: r#"
+#[test]
+fn env_var_functions() {
+  Test::new()
+    .justfile(
+      r#"
 p := env_var('USERNAME')
 b := env_var_or_default('ZADDY', 'HTAP')
 x := env_var_or_default('XYZ', 'ABC')
@@ -222,184 +342,281 @@ x := env_var_or_default('XYZ', 'ABC')
 foo:
   /usr/bin/env echo '{{p}}' '{{b}}' '{{x}}'
 "#,
-  stdout:   format!("{} HTAP ABC\n", env::var("USERNAME").unwrap()).as_str(),
-  stderr:   format!("/usr/bin/env echo '{}' 'HTAP' 'ABC'\n", env::var("USERNAME").unwrap()).as_str(),
+    )
+    .stdout(format!("{} HTAP ABC\n", env::var("USERNAME").unwrap()).as_str())
+    .stderr(
+      format!(
+        "/usr/bin/env echo '{}' 'HTAP' 'ABC'\n",
+        env::var("USERNAME").unwrap()
+      )
+      .as_str(),
+    )
+    .run();
 }
 
-test! {
-  name:     env_var_failure,
-  justfile: "a:\n  echo {{env_var('ZADDY')}}",
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "error: Call to function `env_var` failed: environment variable `ZADDY` not present
+#[test]
+fn env_var_failure() {
+  Test::new()
+    .arg("a")
+    .justfile("a:\n  echo {{env_var('ZADDY')}}")
+    .status(EXIT_FAILURE)
+    .stderr(
+      "error: Call to function `env_var` failed: environment variable `ZADDY` not present
  ——▶ justfile:2:10
   │
 2 │   echo {{env_var('ZADDY')}}
   │          ^^^^^^^
 ",
-  status:   EXIT_FAILURE,
+    )
+    .run();
 }
 
-test! {
-  name:     test_just_executable_function,
-  justfile: "
+#[test]
+fn test_just_executable_function() {
+  Test::new()
+    .arg("a")
+    .justfile(
+      "
     a:
       @printf 'Executable path is: %s\\n' '{{ just_executable() }}'
   ",
-  args:     ("a"),
-  stdout:   format!("Executable path is: {}\n", executable_path("just").to_str().unwrap()).as_str(),
-  stderr:   "",
-  status:   EXIT_SUCCESS,
+    )
+    .status(EXIT_SUCCESS)
+    .stdout(
+      format!(
+        "Executable path is: {}\n",
+        executable_path("just").to_str().unwrap()
+      )
+      .as_str(),
+    )
+    .run();
 }
 
-test! {
-  name:     test_os_arch_functions_in_default,
-  justfile: r"
+#[test]
+fn test_os_arch_functions_in_default() {
+  Test::new()
+    .justfile(
+      r"
 foo a=arch() o=os() f=os_family() n=num_cpus():
   echo {{a}} {{o}} {{f}} {{n}}
 ",
-  stdout:   format!("{} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
-  stderr:   format!("echo {} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
+    )
+    .stdout(
+      format!(
+        "{} {} {} {}\n",
+        target::arch(),
+        target::os(),
+        target::family(),
+        num_cpus::get()
+      )
+      .as_str(),
+    )
+    .stderr(
+      format!(
+        "echo {} {} {} {}\n",
+        target::arch(),
+        target::os(),
+        target::family(),
+        num_cpus::get()
+      )
+      .as_str(),
+    )
+    .run();
 }
 
-test! {
-  name: clean,
-  justfile: "
+#[test]
+fn clean() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ clean('a/../b') }}
   ",
-  stdout: "b\n",
-  stderr: "echo b\n",
+    )
+    .stdout("b\n")
+    .stderr("echo b\n")
+    .run();
 }
 
-test! {
-  name: uppercase,
-  justfile: "
+#[test]
+fn uppercase() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ uppercase('bar') }}
   ",
-  stdout: "BAR\n",
-  stderr: "echo BAR\n",
+    )
+    .stdout("BAR\n")
+    .stderr("echo BAR\n")
+    .run();
 }
 
-test! {
-  name: lowercase,
-  justfile: "
+#[test]
+fn lowercase() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ lowercase('BAR') }}
   ",
-  stdout: "bar\n",
-  stderr: "echo bar\n",
+    )
+    .stdout("bar\n")
+    .stderr("echo bar\n")
+    .run();
 }
 
-test! {
-  name: uppercamelcase,
-  justfile: "
+#[test]
+fn uppercamelcase() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ uppercamelcase('foo bar') }}
   ",
-  stdout: "FooBar\n",
-  stderr: "echo FooBar\n",
+    )
+    .stdout("FooBar\n")
+    .stderr("echo FooBar\n")
+    .run();
 }
 
-test! {
-  name: lowercamelcase,
-  justfile: "
+#[test]
+fn lowercamelcase() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ lowercamelcase('foo bar') }}
   ",
-  stdout: "fooBar\n",
-  stderr: "echo fooBar\n",
+    )
+    .stdout("fooBar\n")
+    .stderr("echo fooBar\n")
+    .run();
 }
 
-test! {
-  name: snakecase,
-  justfile: "
+#[test]
+fn snakecase() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ snakecase('foo bar') }}
   ",
-  stdout: "foo_bar\n",
-  stderr: "echo foo_bar\n",
+    )
+    .stdout("foo_bar\n")
+    .stderr("echo foo_bar\n")
+    .run();
 }
 
-test! {
-  name: kebabcase,
-  justfile: "
+#[test]
+fn kebabcase() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ kebabcase('foo bar') }}
   ",
-  stdout: "foo-bar\n",
-  stderr: "echo foo-bar\n",
+    )
+    .stdout("foo-bar\n")
+    .stderr("echo foo-bar\n")
+    .run();
 }
 
-test! {
-  name: shoutysnakecase,
-  justfile: "
+#[test]
+fn shoutysnakecase() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ shoutysnakecase('foo bar') }}
   ",
-  stdout: "FOO_BAR\n",
-  stderr: "echo FOO_BAR\n",
+    )
+    .stdout("FOO_BAR\n")
+    .stderr("echo FOO_BAR\n")
+    .run();
 }
 
-test! {
-  name: titlecase,
-  justfile: "
+#[test]
+fn titlecase() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ titlecase('foo bar') }}
   ",
-  stdout: "Foo Bar\n",
-  stderr: "echo Foo Bar\n",
+    )
+    .stdout("Foo Bar\n")
+    .stderr("echo Foo Bar\n")
+    .run();
 }
 
-test! {
-  name: shoutykebabcase,
-  justfile: "
+#[test]
+fn shoutykebabcase() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ shoutykebabcase('foo bar') }}
   ",
-  stdout: "FOO-BAR\n",
-  stderr: "echo FOO-BAR\n",
+    )
+    .stdout("FOO-BAR\n")
+    .stderr("echo FOO-BAR\n")
+    .run();
 }
 
-test! {
-  name: trim,
-  justfile: "
+#[test]
+fn trim() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ trim('   bar   ') }}
   ",
-  stdout: "bar\n",
-  stderr: "echo bar\n",
+    )
+    .stdout("bar\n")
+    .stderr("echo bar\n")
+    .run();
 }
 
-test! {
-  name: replace,
-  justfile: "
+#[test]
+fn replace() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ replace('barbarbar', 'bar', 'foo') }}
   ",
-  stdout: "foofoofoo\n",
-  stderr: "echo foofoofoo\n",
+    )
+    .stdout("foofoofoo\n")
+    .stderr("echo foofoofoo\n")
+    .run();
 }
 
-test! {
-  name: replace_regex,
-  justfile: "
+#[test]
+fn replace_regex() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ replace_regex('123bar123bar123bar', '\\d+bar', 'foo') }}
   ",
-  stdout: "foofoofoo\n",
-  stderr: "echo foofoofoo\n",
+    )
+    .stdout("foofoofoo\n")
+    .stderr("echo foofoofoo\n")
+    .run();
 }
 
-test! {
-  name: invalid_replace_regex,
-  justfile: "
+#[test]
+fn invalid_replace_regex() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ replace_regex('barbarbar', 'foo\\', 'foo') }}
   ",
-  stderr:
-"error: Call to function `replace_regex` failed: regex parse error:
+    )
+    .stderr(
+      "error: Call to function `replace_regex` failed: regex parse error:
     foo\\
        ^
 error: incomplete escape sequence, reached end of pattern prematurely
@@ -408,17 +625,23 @@ error: incomplete escape sequence, reached end of pattern prematurely
 2 │   echo {{ replace_regex('barbarbar', 'foo\\', 'foo') }}
   │           ^^^^^^^^^^^^^
 ",
-  status: EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
-test! {
-    name: capitalize,
-    justfile: "
+#[test]
+fn capitalize() {
+  Test::new()
+    .justfile(
+      "
       foo:
         echo {{ capitalize('BAR') }}
     ",
-    stdout: "Bar\n",
-    stderr: "echo Bar\n",
+    )
+    .stdout("Bar\n")
+    .stderr("echo Bar\n")
+    .run();
 }
 
 #[test]

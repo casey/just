@@ -1,59 +1,79 @@
 use super::*;
 
 #[cfg(windows)]
-test! {
-  name:     powershell,
-  justfile: r#"
+#[test]
+fn powershell() {
+  Test::new()
+    .justfile(
+      r#"
 default:
   #!powershell
   Write-Host Hello-World
 "#,
-  stdout: "Hello-World\n",
+    )
+    .stdout("Hello-World\n")
+    .run();
 }
 
 #[cfg(windows)]
-test! {
-  name:     powershell_exe,
-  justfile: r#"
+#[test]
+fn powershell_exe() {
+  Test::new()
+    .justfile(
+      r#"
 default:
   #!powershell.exe
    Write-Host Hello-World
 "#,
-  stdout: "Hello-World\n",
+    )
+    .stdout("Hello-World\n")
+    .run();
 }
 
 #[cfg(windows)]
-test! {
-  name:     cmd,
-  justfile: r#"
+#[test]
+fn cmd() {
+  Test::new()
+    .justfile(
+      r#"
 default:
   #!cmd /c
   @echo Hello-World
 "#,
-  stdout: "Hello-World\r\n",
+    )
+    .stdout("Hello-World\r\n")
+    .run();
 }
 
 #[cfg(windows)]
-test! {
-  name:     cmd_exe,
-  justfile: r#"
+#[test]
+fn cmd_exe() {
+  Test::new()
+    .justfile(
+      r#"
 default:
   #!cmd.exe /c
   @echo Hello-World
 "#,
-  stdout: "Hello-World\r\n",
+    )
+    .stdout("Hello-World\r\n")
+    .run();
 }
 
 #[cfg(windows)]
-test! {
-  name:     multi_line_cmd_shebangs_are_removed,
-  justfile: r#"
+#[test]
+fn multi_line_cmd_shebangs_are_removed() {
+  Test::new()
+    .justfile(
+      r#"
 default:
   #!cmd.exe /c
   #!foo
   @echo Hello-World
 "#,
-  stdout: "Hello-World\r\n",
+    )
+    .stdout("Hello-World\r\n")
+    .run();
 }
 
 #[test]

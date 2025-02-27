@@ -130,7 +130,6 @@ fn no_choosable_recipes() {
     )
     .status(EXIT_FAILURE)
     .stderr("error: Justfile contains no choosable recipes.\n")
-    .stdout("")
     .run();
 }
 

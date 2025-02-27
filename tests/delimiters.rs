@@ -1,34 +1,44 @@
 use super::*;
 
-test! {
-  name: mismatched_delimiter,
-  justfile: "(]",
-  stderr: "
+#[test]
+fn mismatched_delimiter() {
+  Test::new()
+    .justfile("(]")
+    .stderr(
+      "
     error: Mismatched closing delimiter `]`. (Did you mean to close the `(` on line 1?)
      ——▶ justfile:1:2
       │
     1 │ (]
       │  ^
   ",
-  status: EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
-test! {
-  name: unexpected_delimiter,
-  justfile: "]",
-  stderr: "
+#[test]
+fn unexpected_delimiter() {
+  Test::new()
+    .justfile("]")
+    .stderr(
+      "
     error: Unexpected closing delimiter `]`
      ——▶ justfile:1:1
       │
     1 │ ]
       │ ^
   ",
-  status: EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
 
-test! {
-  name: paren_continuation,
-  justfile: "
+#[test]
+fn paren_continuation() {
+  Test::new()
+    .justfile(
+      "
     x := (
           'a'
               +
@@ -38,13 +48,17 @@ test! {
     foo:
       echo {{x}}
   ",
-  stdout: "ab\n",
-  stderr: "echo ab\n",
+    )
+    .stdout("ab\n")
+    .stderr("echo ab\n")
+    .run();
 }
 
-test! {
-  name: brace_continuation,
-  justfile: "
+#[test]
+fn brace_continuation() {
+  Test::new()
+    .justfile(
+      "
     x := if '' == '' {
       'a'
     } else {
@@ -54,13 +68,17 @@ test! {
     foo:
       echo {{x}}
   ",
-  stdout: "a\n",
-  stderr: "echo a\n",
+    )
+    .stdout("a\n")
+    .stderr("echo a\n")
+    .run();
 }
 
-test! {
-  name: bracket_continuation,
-  justfile: "
+#[test]
+fn bracket_continuation() {
+  Test::new()
+    .justfile(
+      "
     set shell := [
       'sh',
       '-cu',
@@ -69,13 +87,17 @@ test! {
     foo:
       echo foo
   ",
-  stdout: "foo\n",
-  stderr: "echo foo\n",
+    )
+    .stdout("foo\n")
+    .stderr("echo foo\n")
+    .run();
 }
 
-test! {
-  name: dependency_continuation,
-  justfile: "
+#[test]
+fn dependency_continuation() {
+  Test::new()
+    .justfile(
+      "
     foo: (
     bar 'bar'
     )
@@ -84,24 +106,31 @@ test! {
     bar x:
       echo {{x}}
   ",
-  stdout: "bar\nfoo\n",
-  stderr: "echo bar\necho foo\n",
+    )
+    .stdout("bar\nfoo\n")
+    .stderr("echo bar\necho foo\n")
+    .run();
 }
 
-test! {
-  name: no_interpolation_continuation,
-  justfile: "
+#[test]
+fn no_interpolation_continuation() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ (
         'a' + 'b')}}
   ",
-  stdout: "",
-  stderr: "
+    )
+    .stderr(
+      "
     error: Unterminated interpolation
      ——▶ justfile:2:8
       │
     2 │   echo {{ (
       │        ^^
   ",
-  status: EXIT_FAILURE,
+    )
+    .status(EXIT_FAILURE)
+    .run();
 }
