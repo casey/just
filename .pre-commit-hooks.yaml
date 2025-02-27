@@ -1,0 +1,6 @@
+- id: just-format
+  name: just-format
+  description: "Runs just --unstable --fmt on changed files"
+  entry: just --unstable --fmt -f 
+  files: '\.?[jJ][uU][sS][tT][fF][iI][lL][eE]'
+  language: rust

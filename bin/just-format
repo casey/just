@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Check if just is available
+if ! command -v just >/dev/null 2>&1; then
+  echo >&2 "Error: 'just' command not found"
+  exit 1
+fi
+
+# Process each file passed as an argument
+for file in "$@"; do
+  just --unstable --fmt -f "$file"
+done
