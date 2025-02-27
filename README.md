@@ -579,8 +579,8 @@ out of the box, thanks to [tomodachi94](https://github.com/tomodachi94).
 
 ### Zed
 
-A [zed-just](https://github.com/jackTabsCode/zed-just/tree/main) extension by
-[jackTabsCode](https://github.com/jackTabsCode) is available on
+The [zed-just](https://github.com/jackTabsCode/zed-just/) extension by
+[jackTabsCode](https://github.com/jackTabsCode) is avilable on the
 [Zed extensions page](https://zed.dev/extensions?query=just).
 
 ### Other Editors
