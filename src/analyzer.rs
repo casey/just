@@ -2,7 +2,7 @@ use {super::*, CompileErrorKind::*};
 
 #[derive(Default)]
 pub(crate) struct Analyzer<'run, 'src> {
-  aliases: Table<'src, Alias<'src, Name<'src>>>,
+  aliases: Table<'src, Alias<'src, Namepath<'src>>>,
   assignments: Vec<&'run Binding<'src, Expression<'src>>>,
   modules: Table<'src, Justfile<'src>>,
   recipes: Vec<&'run Recipe<'src, UnresolvedDependency<'src>>>,
@@ -149,7 +149,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     let mut aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
-      aliases.insert(Self::resolve_alias(&recipes, alias)?);
+      aliases.insert(Self::resolve_alias(&self.modules, &recipes, alias)?);
     }
 
     for recipe in recipes.values() {
@@ -289,18 +289,60 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     Ok(())
   }
 
-  fn resolve_alias(
-    recipes: &Table<'src, Rc<Recipe<'src>>>,
-    alias: Alias<'src, Name<'src>>,
+  fn resolve_alias<'a>(
+    modules: &'a Table<'src, Justfile<'src>>,
+    recipes: &'a Table<'src, Rc<Recipe<'src>>>,
+    alias: Alias<'src, Namepath<'src>>,
   ) -> CompileResult<'src, Alias<'src>> {
+    let Alias {
+      attributes,
+      name,
+      target,
+    } = alias;
+    let target_str = format!("{target}");
+    let mut path = target.into_inner();
+    let target = path
+      .pop()
+      .expect("Internal error: Alias target path can't be empty");
+
+    let alias = Alias {
+      attributes,
+      name,
+      target,
+    };
+
+    let mut maybe_recipes = Some(recipes);
+    if !path.is_empty() {
+      maybe_recipes =
+        Self::traverse_nonempty_module_name_path(&path, modules).map(|justfile| &justfile.recipes);
+    }
+
     // Make sure the target recipe exists
-    match recipes.get(alias.target.lexeme()) {
+    match maybe_recipes.and_then(|recipes| recipes.get(target.lexeme())) {
       Some(target) => Ok(alias.resolve(Rc::clone(target))),
       None => Err(alias.name.token.error(UnknownAliasTarget {
         alias: alias.name.lexeme(),
-        target: alias.target.lexeme(),
+        target: target_str,
       })),
     }
+  }
+
+  fn traverse_nonempty_module_name_path<'modules>(
+    path: &[Name],
+    mut modules: &'modules Table<'src, Justfile<'src>>,
+  ) -> Option<&'modules Justfile<'src>> {
+    assert!(!path.is_empty());
+  
+    let mut iter = path.iter();
+    let mut result = modules.get(iter.next().unwrap().lexeme())?;
+    modules = &result.modules;
+
+    for mod_name in iter {
+      result = modules.get(mod_name.lexeme())?;
+      modules = &result.modules;
+    }
+
+    Some(result)
   }
 }
 
@@ -325,7 +367,7 @@ mod tests {
     line: 0,
     column: 6,
     width: 3,
-    kind: UnknownAliasTarget {alias: "foo", target: "bar"},
+    kind: UnknownAliasTarget {alias: "foo", target: "bar".to_string()},
   }
 
   analysis_error! {
