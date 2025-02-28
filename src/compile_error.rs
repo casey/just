@@ -167,6 +167,10 @@ impl Display for CompileError<'_> {
         "Internal error, this may indicate a bug in just: {message}\n\
            consider filing an issue: https://github.com/casey/just/issues/new"
       ),
+      InvalidAliasName { name } => write!(
+        f,
+        "`{name}` is not a valid alias. Aliases must only contain alphanumeric characters and underscores."
+      ),
       InvalidAttribute {
         item_name,
         item_kind,
