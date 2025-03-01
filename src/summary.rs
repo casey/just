@@ -80,31 +80,31 @@ pub struct Recipe {
   pub aliases: Vec<String>,
   pub dependencies: Vec<Dependency>,
   pub lines: Vec<Line>,
+  pub parameters: Vec<Parameter>,
   pub private: bool,
   pub quiet: bool,
   pub shebang: bool,
-  pub parameters: Vec<Parameter>,
 }
 
 impl Recipe {
   fn new(recipe: &full::Recipe, aliases: Vec<String>) -> Self {
     Self {
-      private: recipe.private,
-      shebang: recipe.shebang,
-      quiet: recipe.quiet,
+      aliases,
       dependencies: recipe.dependencies.iter().map(Dependency::new).collect(),
       lines: recipe.body.iter().map(Line::new).collect(),
       parameters: recipe.parameters.iter().map(Parameter::new).collect(),
-      aliases,
+      private: recipe.private,
+      quiet: recipe.quiet,
+      shebang: recipe.shebang,
     }
   }
 }
 
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub struct Parameter {
+  pub default: Option<Expression>,
   pub kind: ParameterKind,
   pub name: String,
-  pub default: Option<Expression>,
 }
 
 impl Parameter {
@@ -351,8 +351,8 @@ impl Expression {
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub struct Condition {
   lhs: Box<Expression>,
-  rhs: Box<Expression>,
   operator: ConditionalOperator,
+  rhs: Box<Expression>,
 }
 
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
@@ -376,8 +376,8 @@ impl ConditionalOperator {
 
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub struct Dependency {
-  pub recipe: String,
   pub arguments: Vec<Expression>,
+  pub recipe: String,
 }
 
 impl Dependency {

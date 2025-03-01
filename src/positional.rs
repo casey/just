@@ -28,12 +28,12 @@ use super::*;
 /// prepended to rest.
 #[cfg_attr(test, derive(PartialEq, Eq, Debug))]
 pub struct Positional {
+  /// Everything else
+  pub arguments: Vec<String>,
   /// Overrides from values of the form `[a-zA-Z_][a-zA-Z0-9_-]*=.*`
   pub overrides: Vec<(String, String)>,
   /// An argument equal to '.', '..', or ending with `/`
   pub search_directory: Option<String>,
-  /// Everything else
-  pub arguments: Vec<String>,
 }
 
 impl Positional {
@@ -67,9 +67,9 @@ impl Positional {
     }
 
     Self {
+      arguments,
       overrides,
       search_directory,
-      arguments,
     }
   }
 

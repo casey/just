@@ -42,9 +42,9 @@ struct Module<'a> {
   modules: BTreeMap<&'a str, Module<'a>>,
   recipes: BTreeMap<&'a str, Recipe<'a>>,
   settings: Settings<'a>,
+  source: PathBuf,
   unexports: Vec<&'a str>,
   warnings: Vec<&'a str>,
-  source: PathBuf,
 }
 
 #[derive(Debug, Default, Deserialize, PartialEq, Serialize)]

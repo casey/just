@@ -282,7 +282,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         arguments.push(self.parse_expression()?);
       }
 
-      Ok(Some(UnresolvedDependency { recipe, arguments }))
+      Ok(Some(UnresolvedDependency { arguments, recipe }))
     } else {
       Ok(None)
     }

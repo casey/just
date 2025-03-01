@@ -2,8 +2,8 @@ use super::*;
 
 #[derive(Debug)]
 pub(crate) struct Scope<'src: 'run, 'run> {
-  parent: Option<&'run Self>,
   bindings: Table<'src, Binding<'src, String>>,
+  parent: Option<&'run Self>,
 }
 
 impl<'src, 'run> Scope<'src, 'run> {

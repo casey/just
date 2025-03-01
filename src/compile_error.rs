@@ -2,8 +2,8 @@ use super::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct CompileError<'src> {
-  pub(crate) token: Token<'src>,
   pub(crate) kind: Box<CompileErrorKind<'src>>,
+  pub(crate) token: Token<'src>,
 }
 
 impl<'src> CompileError<'src> {
