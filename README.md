@@ -4311,12 +4311,9 @@ unindented value. However, there are not integration tests for all possible
 cases. These are covered by faster, more concise unit tests that call
 `unindent()` directly.
 
-Existing integration tests are in two forms, those that use the `test!` macro
-and those that use the `Test` struct directly. The `test!` macro, while often
-concise, is less flexible and harder to understand, so new tests should use the
-`Test` struct. The `Test` struct is a builder which allows for easily invoking
-`just` with a given `justfile`, arguments, and environment variables, and
-checking the program's stdout, stderr, and exit code .
+Integration tests use the `Test` struct, a builder which allows for easily
+invoking `just` with a given `justfile`, arguments, and environment variables,
+and checking the program's stdout, stderr, and exit code .
 
 ### Contribution Workflow
 
