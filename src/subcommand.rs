@@ -98,6 +98,70 @@ impl Subcommand {
     Ok(())
   }
 
+  fn groups(config: &Config, justfile: &Justfile) {
+    println!("Recipe groups:");
+    for group in justfile.public_groups(config) {
+      println!("{}{group}", config.list_prefix);
+    }
+  }
+
+  fn run<'src>(
+    config: &Config,
+    loader: &'src Loader,
+    mut search: Search,
+    mut compilation: Compilation<'src>,
+    arguments: &[String],
+    overrides: &BTreeMap<String, String>,
+  ) -> RunResult<'src> {
+    let starting_parent = search.justfile.parent().as_ref().unwrap().lexiclean();
+
+    loop {
+      let justfile = &compilation.justfile;
+      let fallback = justfile.settings.fallback
+        && matches!(
+          config.search_config,
+          SearchConfig::FromInvocationDirectory | SearchConfig::FromSearchDirectory { .. }
+        );
+
+      let result = justfile.run(config, &search, overrides, arguments);
+
+      if fallback {
+        if let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result {
+          search = search.search_parent_directory().map_err(|_| err)?;
+
+          if config.verbosity.loquacious() {
+            eprintln!(
+              "Trying {}",
+              starting_parent
+                .strip_prefix(search.justfile.parent().unwrap())
+                .unwrap()
+                .components()
+                .map(|_| path::Component::ParentDir)
+                .collect::<PathBuf>()
+                .join(search.justfile.file_name().unwrap())
+                .display()
+            );
+          }
+
+          compilation = Self::compile(config, loader, &search)?;
+
+          continue;
+        }
+      }
+
+      if config.allow_missing
+        && matches!(
+          result,
+          Err(Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })
+        )
+      {
+        return Ok(());
+      }
+
+      return result;
+    }
+  }
+
   fn compile<'src>(
     config: &Config,
     loader: &'src Loader,
@@ -118,13 +182,6 @@ impl Subcommand {
 
   fn changelog() {
     write!(io::stdout(), "{}", include_str!("../CHANGELOG.md")).ok();
-  }
-
-  fn groups(config: &Config, justfile: &Justfile) {
-    println!("Recipe groups:");
-    for group in justfile.public_groups(config) {
-      println!("{}{group}", config.list_prefix);
-    }
   }
 
   fn choose<'src>(
@@ -254,63 +311,6 @@ impl Subcommand {
     Ok(())
   }
 
-  fn run<'src>(
-    config: &Config,
-    loader: &'src Loader,
-    mut search: Search,
-    mut compilation: Compilation<'src>,
-    arguments: &[String],
-    overrides: &BTreeMap<String, String>,
-  ) -> RunResult<'src> {
-    let starting_parent = search.justfile.parent().as_ref().unwrap().lexiclean();
-
-    loop {
-      let justfile = &compilation.justfile;
-      let fallback = justfile.settings.fallback
-        && matches!(
-          config.search_config,
-          SearchConfig::FromInvocationDirectory | SearchConfig::FromSearchDirectory { .. }
-        );
-
-      let result = justfile.run(config, &search, overrides, arguments);
-
-      if fallback {
-        if let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result {
-          search = search.search_parent_directory().map_err(|_| err)?;
-
-          if config.verbosity.loquacious() {
-            eprintln!(
-              "Trying {}",
-              starting_parent
-                .strip_prefix(search.justfile.parent().unwrap())
-                .unwrap()
-                .components()
-                .map(|_| path::Component::ParentDir)
-                .collect::<PathBuf>()
-                .join(search.justfile.file_name().unwrap())
-                .display()
-            );
-          }
-
-          compilation = Self::compile(config, loader, &search)?;
-
-          continue;
-        }
-      }
-
-      if config.allow_missing
-        && matches!(
-          result,
-          Err(Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })
-        )
-      {
-        return Ok(());
-      }
-
-      return result;
-    }
-  }
-
   fn format(config: &Config, search: &Search, compilation: Compilation) -> RunResult<'static> {
     let justfile = &compilation.justfile;
     let src = compilation.root_src();
@@ -383,21 +383,6 @@ impl Subcommand {
     Ok(())
   }
 
-  fn list(config: &Config, mut module: &Justfile, path: &ModulePath) -> RunResult<'static> {
-    for name in &path.path {
-      module = module
-        .modules
-        .get(name)
-        .ok_or_else(|| Error::UnknownSubmodule {
-          path: path.to_string(),
-        })?;
-    }
-
-    Self::list_module(config, module, 0);
-
-    Ok(())
-  }
-
   fn man() -> RunResult<'static> {
     let mut buffer = Vec::<u8>::new();
 
@@ -414,6 +399,31 @@ impl Subcommand {
     stdout
       .flush()
       .map_err(|io_error| Error::StdoutIo { io_error })?;
+
+    Ok(())
+  }
+
+  fn request(request: &Request) -> RunResult<'static> {
+    let response = match request {
+      Request::EnvironmentVariable(key) => Response::EnvironmentVariable(env::var_os(key)),
+    };
+
+    serde_json::to_writer(io::stdout(), &response).map_err(|source| Error::DumpJson { source })?;
+
+    Ok(())
+  }
+
+  fn list(config: &Config, mut module: &Justfile, path: &ModulePath) -> RunResult<'static> {
+    for name in &path.path {
+      module = module
+        .modules
+        .get(name)
+        .ok_or_else(|| Error::UnknownSubmodule {
+          path: path.to_string(),
+        })?;
+    }
+
+    Self::list_module(config, module, 0);
 
     Ok(())
   }
@@ -671,16 +681,6 @@ impl Subcommand {
         }
       }
     }
-  }
-
-  fn request(request: &Request) -> RunResult<'static> {
-    let response = match request {
-      Request::EnvironmentVariable(key) => Response::EnvironmentVariable(env::var_os(key)),
-    };
-
-    serde_json::to_writer(io::stdout(), &response).map_err(|source| Error::DumpJson { source })?;
-
-    Ok(())
   }
 
   fn show<'src>(

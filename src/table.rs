@@ -7,38 +7,42 @@ pub(crate) struct Table<'key, V: Keyed<'key>> {
 }
 
 impl<'key, V: Keyed<'key>> Table<'key, V> {
-  pub(crate) fn contains_key(&self, key: &str) -> bool {
-    self.map.contains_key(key)
-  }
-
-  pub(crate) fn get(&self, key: &str) -> Option<&V> {
-    self.map.get(key)
+  pub(crate) fn new() -> Self {
+    Self {
+      map: BTreeMap::new(),
+    }
   }
 
   pub(crate) fn insert(&mut self, value: V) {
     self.map.insert(value.key(), value);
   }
 
+  pub(crate) fn len(&self) -> usize {
+    self.map.len()
+  }
+
+  pub(crate) fn get(&self, key: &str) -> Option<&V> {
+    self.map.get(key)
+  }
+
   pub(crate) fn is_empty(&self) -> bool {
     self.map.is_empty()
   }
 
-  pub(crate) fn iter(&self) -> btree_map::Iter<&'key str, V> {
-    self.map.iter()
+  pub(crate) fn values(&self) -> btree_map::Values<&'key str, V> {
+    self.map.values()
+  }
+
+  pub(crate) fn contains_key(&self, key: &str) -> bool {
+    self.map.contains_key(key)
   }
 
   pub(crate) fn keys(&self) -> btree_map::Keys<&'key str, V> {
     self.map.keys()
   }
 
-  pub(crate) fn len(&self) -> usize {
-    self.map.len()
-  }
-
-  pub(crate) fn new() -> Self {
-    Self {
-      map: BTreeMap::new(),
-    }
+  pub(crate) fn iter(&self) -> btree_map::Iter<&'key str, V> {
+    self.map.iter()
   }
 
   pub(crate) fn pop(&mut self) -> Option<V> {
@@ -48,10 +52,6 @@ impl<'key, V: Keyed<'key>> Table<'key, V> {
 
   pub(crate) fn remove(&mut self, key: &str) -> Option<V> {
     self.map.remove(key)
-  }
-
-  pub(crate) fn values(&self) -> btree_map::Values<&'key str, V> {
-    self.map.values()
   }
 }
 

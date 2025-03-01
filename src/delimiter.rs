@@ -6,19 +6,19 @@ pub(crate) enum Delimiter {
 }
 
 impl Delimiter {
-  pub(crate) fn close(self) -> char {
-    match self {
-      Self::Brace => '}',
-      Self::Bracket => ']',
-      Self::Paren => ')',
-    }
-  }
-
   pub(crate) fn open(self) -> char {
     match self {
       Self::Brace => '{',
       Self::Bracket => '[',
       Self::Paren => '(',
+    }
+  }
+
+  pub(crate) fn close(self) -> char {
+    match self {
+      Self::Brace => '}',
+      Self::Bracket => ']',
+      Self::Paren => ')',
     }
   }
 }

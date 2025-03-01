@@ -19,6 +19,13 @@ impl StringKind {
     Self::new(StringDelimiter::QuoteSingle, false),
   ];
 
+  const fn new(delimiter: StringDelimiter, indented: bool) -> Self {
+    Self {
+      delimiter,
+      indented,
+    }
+  }
+
   pub(crate) fn delimiter(self) -> &'static str {
     match (self.delimiter, self.indented) {
       (StringDelimiter::Backtick, false) => "`",
@@ -32,39 +39,6 @@ impl StringKind {
 
   pub(crate) fn delimiter_len(self) -> usize {
     self.delimiter().len()
-  }
-
-  pub(crate) fn from_string_or_backtick(token: Token) -> CompileResult<Self> {
-    Self::from_token_start(token.lexeme()).ok_or_else(|| {
-      token.error(CompileErrorKind::Internal {
-        message: "StringKind::from_token: Expected String or Backtick".to_owned(),
-      })
-    })
-  }
-
-  pub(crate) fn from_token_start(token_start: &str) -> Option<Self> {
-    Self::ALL
-      .iter()
-      .find(|&&kind| token_start.starts_with(kind.delimiter()))
-      .copied()
-  }
-
-  pub(crate) fn indented(self) -> bool {
-    self.indented
-  }
-
-  const fn new(delimiter: StringDelimiter, indented: bool) -> Self {
-    Self {
-      delimiter,
-      indented,
-    }
-  }
-
-  pub(crate) fn processes_escape_sequences(self) -> bool {
-    match self.delimiter {
-      StringDelimiter::QuoteDouble => true,
-      StringDelimiter::Backtick | StringDelimiter::QuoteSingle => false,
-    }
   }
 
   pub(crate) fn token_kind(self) -> TokenKind {
@@ -81,5 +55,31 @@ impl StringKind {
       }
       StringDelimiter::Backtick => CompileErrorKind::UnterminatedBacktick,
     }
+  }
+
+  pub(crate) fn processes_escape_sequences(self) -> bool {
+    match self.delimiter {
+      StringDelimiter::QuoteDouble => true,
+      StringDelimiter::Backtick | StringDelimiter::QuoteSingle => false,
+    }
+  }
+
+  pub(crate) fn indented(self) -> bool {
+    self.indented
+  }
+
+  pub(crate) fn from_string_or_backtick(token: Token) -> CompileResult<Self> {
+    Self::from_token_start(token.lexeme()).ok_or_else(|| {
+      token.error(CompileErrorKind::Internal {
+        message: "StringKind::from_token: Expected String or Backtick".to_owned(),
+      })
+    })
+  }
+
+  pub(crate) fn from_token_start(token_start: &str) -> Option<Self> {
+    Self::ALL
+      .iter()
+      .find(|&&kind| token_start.starts_with(kind.delimiter()))
+      .copied()
   }
 }
