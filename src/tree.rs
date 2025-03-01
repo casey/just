@@ -60,27 +60,6 @@ impl<'text> Tree<'text> {
     Self::Atom(text.into())
   }
 
-  /// Construct a List from an iterable of trees
-  pub(crate) fn list(children: impl IntoIterator<Item = Self>) -> Self {
-    Self::List(children.into_iter().collect())
-  }
-
-  /// Convenience function to create an atom containing quoted text
-  pub(crate) fn string(contents: impl AsRef<str>) -> Self {
-    Self::atom(format!("\"{}\"", contents.as_ref()))
-  }
-
-  /// Push a child node into self, turning it into a List if it was an Atom
-  pub(crate) fn push(self, tree: impl Into<Self>) -> Self {
-    match self {
-      Self::List(mut children) => {
-        children.push(tree.into());
-        Self::List(children)
-      }
-      Self::Atom(text) => Self::List(vec![Self::Atom(text), tree.into()]),
-    }
-  }
-
   /// Extend a self with a tail of Trees, turning self into a List if it was an
   /// Atom
   pub(crate) fn extend<I, T>(self, tail: I) -> Self
@@ -101,9 +80,30 @@ impl<'text> Tree<'text> {
     Self::List(head)
   }
 
+  /// Construct a List from an iterable of trees
+  pub(crate) fn list(children: impl IntoIterator<Item = Self>) -> Self {
+    Self::List(children.into_iter().collect())
+  }
+
+  /// Push a child node into self, turning it into a List if it was an Atom
+  pub(crate) fn push(self, tree: impl Into<Self>) -> Self {
+    match self {
+      Self::List(mut children) => {
+        children.push(tree.into());
+        Self::List(children)
+      }
+      Self::Atom(text) => Self::List(vec![Self::Atom(text), tree.into()]),
+    }
+  }
+
   /// Like `push`, but modify self in-place
   pub(crate) fn push_mut(&mut self, tree: impl Into<Self>) {
     *self = mem::replace(self, Self::List(Vec::new())).push(tree.into());
+  }
+
+  /// Convenience function to create an atom containing quoted text
+  pub(crate) fn string(contents: impl AsRef<str>) -> Self {
+    Self::atom(format!("\"{}\"", contents.as_ref()))
   }
 }
 

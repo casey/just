@@ -41,14 +41,6 @@ impl<'src, D> Recipe<'src, D> {
     self.min_arguments()..=self.max_arguments()
   }
 
-  pub(crate) fn min_arguments(&self) -> usize {
-    self
-      .parameters
-      .iter()
-      .filter(|p| p.default.is_none() && p.kind != ParameterKind::Star)
-      .count()
-  }
-
   pub(crate) fn max_arguments(&self) -> usize {
     if self.parameters.iter().any(|p| p.kind.is_variadic()) {
       usize::MAX - 1
@@ -57,12 +49,24 @@ impl<'src, D> Recipe<'src, D> {
     }
   }
 
-  pub(crate) fn name(&self) -> &'src str {
-    self.name.lexeme()
+  pub(crate) fn min_arguments(&self) -> usize {
+    self
+      .parameters
+      .iter()
+      .filter(|p| p.default.is_none() && p.kind != ParameterKind::Star)
+      .count()
   }
 
-  pub(crate) fn line_number(&self) -> usize {
-    self.name.line
+  pub(crate) fn check_can_be_default_recipe(&self) -> RunResult<'src, ()> {
+    let min_arguments = self.min_arguments();
+    if min_arguments > 0 {
+      return Err(Error::DefaultRecipeRequiresArguments {
+        recipe: self.name.lexeme(),
+        min_arguments,
+      });
+    }
+
+    Ok(())
   }
 
   pub(crate) fn confirm(&self) -> RunResult<'src, bool> {
@@ -82,16 +86,12 @@ impl<'src, D> Recipe<'src, D> {
     Ok(true)
   }
 
-  pub(crate) fn check_can_be_default_recipe(&self) -> RunResult<'src, ()> {
-    let min_arguments = self.min_arguments();
-    if min_arguments > 0 {
-      return Err(Error::DefaultRecipeRequiresArguments {
-        recipe: self.name.lexeme(),
-        min_arguments,
-      });
-    }
+  pub(crate) fn line_number(&self) -> usize {
+    self.name.line
+  }
 
-    Ok(())
+  pub(crate) fn name(&self) -> &'src str {
+    self.name.lexeme()
   }
 
   pub(crate) fn is_public(&self) -> bool {
@@ -102,15 +102,15 @@ impl<'src, D> Recipe<'src, D> {
     self.shebang
   }
 
+  pub(crate) fn change_directory(&self) -> bool {
+    !self.attributes.contains(AttributeDiscriminant::NoCd)
+  }
+
   pub(crate) fn takes_positional_arguments(&self, settings: &Settings) -> bool {
     settings.positional_arguments
       || self
         .attributes
         .contains(AttributeDiscriminant::PositionalArguments)
-  }
-
-  pub(crate) fn change_directory(&self) -> bool {
-    !self.attributes.contains(AttributeDiscriminant::NoCd)
   }
 
   pub(crate) fn enabled(&self) -> bool {
@@ -141,6 +141,10 @@ impl<'src, D> Recipe<'src, D> {
     }
   }
 
+  fn no_quiet(&self) -> bool {
+    self.attributes.contains(AttributeDiscriminant::NoQuiet)
+  }
+
   fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
     if !self.change_directory() {
       return None;
@@ -155,10 +159,6 @@ impl<'src, D> Recipe<'src, D> {
     }
 
     Some(working_directory)
-  }
-
-  fn no_quiet(&self) -> bool {
-    self.attributes.contains(AttributeDiscriminant::NoQuiet)
   }
 
   pub(crate) fn run<'run>(

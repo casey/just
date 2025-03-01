@@ -14,6 +14,10 @@ impl<'src, 'run> Scope<'src, 'run> {
     }
   }
 
+  pub(crate) fn bind(&mut self, binding: Binding<'src>) {
+    self.bindings.insert(binding);
+  }
+
   pub(crate) fn root() -> Self {
     let mut root = Self {
       parent: None,
@@ -44,12 +48,12 @@ impl<'src, 'run> Scope<'src, 'run> {
     root
   }
 
-  pub(crate) fn bind(&mut self, binding: Binding<'src>) {
-    self.bindings.insert(binding);
-  }
-
   pub(crate) fn bound(&self, name: &str) -> bool {
     self.bindings.contains_key(name)
+  }
+
+  pub(crate) fn bindings(&self) -> impl Iterator<Item = &Binding<String>> {
+    self.bindings.values()
   }
 
   pub(crate) fn value(&self, name: &str) -> Option<&str> {
@@ -58,10 +62,6 @@ impl<'src, 'run> Scope<'src, 'run> {
     } else {
       self.parent?.value(name)
     }
-  }
-
-  pub(crate) fn bindings(&self) -> impl Iterator<Item = &Binding<String>> {
-    self.bindings.values()
   }
 
   pub(crate) fn names(&self) -> impl Iterator<Item = &str> {

@@ -5,6 +5,18 @@ pub(crate) struct Shebang<'line> {
 }
 
 impl<'line> Shebang<'line> {
+  pub(crate) fn include_shebang_line(&self) -> bool {
+    !(cfg!(windows) || matches!(self.interpreter_filename(), "cmd" | "cmd.exe"))
+  }
+
+  pub fn interpreter_filename(&self) -> &str {
+    self
+      .interpreter
+      .split(['/', '\\'])
+      .last()
+      .unwrap_or(self.interpreter)
+  }
+
   pub(crate) fn new(line: &'line str) -> Option<Self> {
     if !line.starts_with("#!") {
       return None;
@@ -28,18 +40,6 @@ impl<'line> Shebang<'line> {
       argument,
       interpreter,
     })
-  }
-
-  pub fn interpreter_filename(&self) -> &str {
-    self
-      .interpreter
-      .split(['/', '\\'])
-      .last()
-      .unwrap_or(self.interpreter)
-  }
-
-  pub(crate) fn include_shebang_line(&self) -> bool {
-    !(cfg!(windows) || matches!(self.interpreter_filename(), "cmd" | "cmd.exe"))
   }
 }
 

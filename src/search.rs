@@ -11,27 +11,16 @@ pub(crate) struct Search {
 }
 
 impl Search {
-  fn global_justfile_paths() -> Vec<PathBuf> {
-    let mut paths = Vec::new();
-
-    if let Some(config_dir) = dirs::config_dir() {
-      paths.push(config_dir.join("just").join(DEFAULT_JUSTFILE_NAME));
-    }
-
-    if let Some(home_dir) = dirs::home_dir() {
-      paths.push(
-        home_dir
-          .join(".config")
-          .join("just")
-          .join(DEFAULT_JUSTFILE_NAME),
-      );
-
-      for justfile_name in JUSTFILE_NAMES {
-        paths.push(home_dir.join(justfile_name));
-      }
-    }
-
-    paths
+  /// Find justfile starting from parent directory of current justfile
+  pub(crate) fn search_parent_directory(&self) -> SearchResult<Self> {
+    let parent = self
+      .justfile
+      .parent()
+      .and_then(|path| path.parent())
+      .ok_or_else(|| SearchError::JustfileHadNoParent {
+        path: self.justfile.clone(),
+      })?;
+    Self::find_in_directory(parent)
   }
 
   /// Find justfile given search configuration and invocation directory
@@ -76,18 +65,6 @@ impl Search {
     }
   }
 
-  /// Find justfile starting from parent directory of current justfile
-  pub(crate) fn search_parent_directory(&self) -> SearchResult<Self> {
-    let parent = self
-      .justfile
-      .parent()
-      .and_then(|path| path.parent())
-      .ok_or_else(|| SearchError::JustfileHadNoParent {
-        path: self.justfile.clone(),
-      })?;
-    Self::find_in_directory(parent)
-  }
-
   /// Find justfile starting in given directory searching upwards in directory tree
   fn find_in_directory(starting_dir: &Path) -> SearchResult<Self> {
     let justfile = Self::justfile(starting_dir)?;
@@ -96,6 +73,29 @@ impl Search {
       justfile,
       working_directory,
     })
+  }
+
+  fn global_justfile_paths() -> Vec<PathBuf> {
+    let mut paths = Vec::new();
+
+    if let Some(config_dir) = dirs::config_dir() {
+      paths.push(config_dir.join("just").join(DEFAULT_JUSTFILE_NAME));
+    }
+
+    if let Some(home_dir) = dirs::home_dir() {
+      paths.push(
+        home_dir
+          .join(".config")
+          .join("just")
+          .join(DEFAULT_JUSTFILE_NAME),
+      );
+
+      for justfile_name in JUSTFILE_NAMES {
+        paths.push(home_dir.join(justfile_name));
+      }
+    }
+
+    paths
   }
 
   /// Get working directory and justfile path for newly-initialized justfile

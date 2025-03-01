@@ -8,6 +8,10 @@ pub(crate) enum Verbosity {
 }
 
 impl Verbosity {
+  pub const fn default() -> Self {
+    Self::Taciturn
+  }
+
   pub(crate) fn from_flag_occurrences(flag_occurrences: u8) -> Self {
     match flag_occurrences {
       0 => Self::Taciturn,
@@ -16,24 +20,20 @@ impl Verbosity {
     }
   }
 
-  pub(crate) fn quiet(self) -> bool {
-    self == Self::Quiet
-  }
-
-  pub(crate) fn loud(self) -> bool {
-    !self.quiet()
+  pub(crate) fn grandiloquent(self) -> bool {
+    self >= Self::Grandiloquent
   }
 
   pub(crate) fn loquacious(self) -> bool {
     self >= Self::Loquacious
   }
 
-  pub(crate) fn grandiloquent(self) -> bool {
-    self >= Self::Grandiloquent
+  pub(crate) fn loud(self) -> bool {
+    !self.quiet()
   }
 
-  pub const fn default() -> Self {
-    Self::Taciturn
+  pub(crate) fn quiet(self) -> bool {
+    self == Self::Quiet
   }
 }
 

@@ -12,12 +12,12 @@ pub(crate) struct Token<'src> {
 }
 
 impl<'src> Token<'src> {
-  pub(crate) fn lexeme(&self) -> &'src str {
-    &self.src[self.offset..self.offset + self.length]
-  }
-
   pub(crate) fn error(&self, kind: CompileErrorKind<'src>) -> CompileError<'src> {
     CompileError::new(*self, kind)
+  }
+
+  pub(crate) fn lexeme(&self) -> &'src str {
+    &self.src[self.offset..self.offset + self.length]
   }
 }
 

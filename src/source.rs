@@ -11,17 +11,6 @@ pub(crate) struct Source<'src> {
 }
 
 impl<'src> Source<'src> {
-  pub(crate) fn root(path: &Path) -> Self {
-    Self {
-      file_depth: 0,
-      file_path: vec![path.into()],
-      import_offsets: Vec::new(),
-      namepath: None,
-      path: path.into(),
-      working_directory: path.parent().unwrap().into(),
-    }
-  }
-
   pub(crate) fn import(&self, path: PathBuf, import_offset: usize) -> Self {
     Self {
       file_depth: self.file_depth + 1,
@@ -60,6 +49,17 @@ impl<'src> Source<'src> {
           .map_or_else(|| name.into(), |namepath| namepath.join(name)),
       ),
       path: path.clone(),
+      working_directory: path.parent().unwrap().into(),
+    }
+  }
+
+  pub(crate) fn root(path: &Path) -> Self {
+    Self {
+      file_depth: 0,
+      file_path: vec![path.into()],
+      import_offsets: Vec::new(),
+      namepath: None,
+      path: path.into(),
       working_directory: path.parent().unwrap().into(),
     }
   }
