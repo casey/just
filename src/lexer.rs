@@ -540,10 +540,10 @@ impl<'src> Lexer<'src> {
   /// Lex token while in recipe body
   fn lex_body(&mut self) -> CompileResult<'src> {
     enum Terminator {
+      EndOfFile,
+      Interpolation,
       Newline,
       NewlineCarriageReturn,
-      Interpolation,
-      EndOfFile,
     }
 
     use Terminator::*;

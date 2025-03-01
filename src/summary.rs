@@ -119,8 +119,8 @@ impl Parameter {
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub enum ParameterKind {
-  Singular,
   Plus,
+  Singular,
   Star,
 }
 
@@ -149,8 +149,8 @@ impl Line {
 
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub enum Fragment {
-  Text { text: String },
   Expression { expression: Expression },
+  Text { text: String },
 }
 
 impl Fragment {

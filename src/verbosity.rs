@@ -1,3 +1,4 @@
+#[allow(clippy::arbitrary_source_item_ordering)]
 #[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
 pub(crate) enum Verbosity {
   Quiet,

@@ -65,6 +65,7 @@ unexpected_cfgs = { level = "warn", check-cfg = ['cfg(fuzzing)'] }
 
 [lints.clippy]
 all = { level = "deny", priority = -1 }
+arbitrary-source-item-ordering = "deny"
 enum_glob_use = "allow"
 needless_pass_by_value = "allow"
 pedantic = { level = "deny", priority = -1 }
