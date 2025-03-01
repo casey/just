@@ -1,5 +1,6 @@
 use super::*;
 
+#[allow(clippy::arbitrary_source_item_ordering)]
 #[derive_where(Debug, PartialEq)]
 #[derive(Clone)]
 pub(crate) enum Thunk<'src> {

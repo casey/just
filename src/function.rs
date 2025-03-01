@@ -10,6 +10,7 @@ use {
   Function::*,
 };
 
+#[allow(clippy::arbitrary_source_item_ordering)]
 pub(crate) enum Function {
   Nullary(fn(Context) -> FunctionResult),
   Unary(fn(Context, &str) -> FunctionResult),

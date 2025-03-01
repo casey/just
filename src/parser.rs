@@ -282,7 +282,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         arguments.push(self.parse_expression()?);
       }
 
-      Ok(Some(UnresolvedDependency { recipe, arguments }))
+      Ok(Some(UnresolvedDependency { arguments, recipe }))
     } else {
       Ok(None)
     }
@@ -774,8 +774,8 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn cook_string(token: Token<'src>, text: &str) -> CompileResult<'src, String> {
     #[derive(PartialEq, Eq)]
     enum State {
-      Initial,
       Backslash,
+      Initial,
       Unicode,
       UnicodeValue { hex: String },
     }

@@ -20,10 +20,6 @@ pub(crate) enum Error<'src> {
     token: Token<'src>,
     output_error: OutputError,
   },
-  RuntimeDirIo {
-    io_error: io::Error,
-    path: PathBuf,
-  },
   ChooserInvoke {
     shell_binary: String,
     shell_arguments: String,
@@ -139,6 +135,10 @@ pub(crate) enum Error<'src> {
   RegexCompile {
     source: regex::Error,
   },
+  RuntimeDirIo {
+    io_error: io::Error,
+    path: PathBuf,
+  },
   Script {
     command: String,
     io_error: io::Error,
@@ -172,15 +172,15 @@ pub(crate) enum Error<'src> {
     recipe: &'src str,
     line_number: Option<usize>,
   },
-  UnknownSubmodule {
-    path: String,
-  },
   UnknownOverrides {
     overrides: Vec<String>,
   },
   UnknownRecipe {
     recipe: String,
     suggestion: Option<Suggestion<'src>>,
+  },
+  UnknownSubmodule {
+    path: String,
   },
   UnstableFeature {
     unstable_feature: UnstableFeature,

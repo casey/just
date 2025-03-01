@@ -3,10 +3,10 @@ use super::*;
 /// A line fragment consisting either of…
 #[derive(PartialEq, Debug, Clone)]
 pub(crate) enum Fragment<'src> {
-  /// …raw text…
-  Text { token: Token<'src> },
   /// …an interpolation containing `expression`.
   Interpolation { expression: Expression<'src> },
+  /// …raw text…
+  Text { token: Token<'src> },
 }
 
 impl Serialize for Fragment<'_> {

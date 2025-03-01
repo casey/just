@@ -27,12 +27,12 @@ pub(crate) struct Lexer<'src> {
   recipe_body_pending: bool,
   /// Source text
   src: &'src str,
-  /// Tokens
-  tokens: Vec<Token<'src>>,
   /// Current token end
   token_end: Position,
   /// Current token start
   token_start: Position,
+  /// Tokens
+  tokens: Vec<Token<'src>>,
 }
 
 impl<'src> Lexer<'src> {
@@ -540,10 +540,10 @@ impl<'src> Lexer<'src> {
   /// Lex token while in recipe body
   fn lex_body(&mut self) -> CompileResult<'src> {
     enum Terminator {
+      EndOfFile,
+      Interpolation,
       Newline,
       NewlineCarriageReturn,
-      Interpolation,
-      EndOfFile,
     }
 
     use Terminator::*;

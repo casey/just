@@ -23,12 +23,6 @@ pub(crate) enum CompileErrorKind<'src> {
     min: usize,
     max: usize,
   },
-  Redefinition {
-    first: usize,
-    first_type: &'static str,
-    name: &'src str,
-    second_type: &'static str,
-  },
   DuplicateAttribute {
     attribute: &'src str,
     first: usize,
@@ -41,10 +35,10 @@ pub(crate) enum CompileErrorKind<'src> {
     setting: &'src str,
     first: usize,
   },
-  DuplicateVariable {
+  DuplicateUnexport {
     variable: &'src str,
   },
-  DuplicateUnexport {
+  DuplicateVariable {
     variable: &'src str,
   },
   ExitMessageAndNoExitMessageAttribute {
@@ -97,6 +91,12 @@ pub(crate) enum CompileErrorKind<'src> {
     parameter: &'src str,
   },
   ParsingRecursionDepthExceeded,
+  Redefinition {
+    first: usize,
+    first_type: &'static str,
+    name: &'src str,
+    second_type: &'static str,
+  },
   RequiredParameterFollowsDefaultParameter {
     parameter: &'src str,
   },

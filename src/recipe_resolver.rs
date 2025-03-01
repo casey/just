@@ -1,9 +1,9 @@
 use {super::*, CompileErrorKind::*};
 
 pub(crate) struct RecipeResolver<'src: 'run, 'run> {
-  unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
-  resolved_recipes: Table<'src, Rc<Recipe<'src>>>,
   assignments: &'run Table<'src, Assignment<'src>>,
+  resolved_recipes: Table<'src, Rc<Recipe<'src>>>,
+  unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
 }
 
 impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {

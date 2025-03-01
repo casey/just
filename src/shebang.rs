@@ -1,7 +1,7 @@
 #[derive(Copy, Clone)]
 pub(crate) struct Shebang<'line> {
-  pub(crate) interpreter: &'line str,
   pub(crate) argument: Option<&'line str>,
+  pub(crate) interpreter: &'line str,
 }
 
 impl<'line> Shebang<'line> {
@@ -25,8 +25,8 @@ impl<'line> Shebang<'line> {
     }
 
     Some(Self {
-      interpreter,
       argument,
+      interpreter,
     })
   }
 
