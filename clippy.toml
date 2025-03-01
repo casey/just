@@ -1,3 +1,2 @@
 cognitive-complexity-threshold = 1337
-# source-item-ordering = ['enum', 'impl', 'struct', 'trait']
-source-item-ordering = ['enum', 'struct']
+source-item-ordering = ['enum', 'struct', 'trait']

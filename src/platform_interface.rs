@@ -1,6 +1,9 @@
 use super::*;
 
 pub(crate) trait PlatformInterface {
+  /// Translate a path from a "native" path to a path the interpreter expects
+  fn convert_native_path(working_directory: &Path, path: &Path) -> FunctionResult;
+
   /// Construct a command equivalent to running the script at `path` with the
   /// shebang line `shebang`
   fn make_shebang_command(
@@ -15,7 +18,4 @@ pub(crate) trait PlatformInterface {
   /// Extract the signal from a process exit status, if it was terminated by a
   /// signal
   fn signal_from_exit_status(exit_status: ExitStatus) -> Option<i32>;
-
-  /// Translate a path from a "native" path to a path the interpreter expects
-  fn convert_native_path(working_directory: &Path, path: &Path) -> FunctionResult;
 }

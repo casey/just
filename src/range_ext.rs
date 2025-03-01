@@ -1,11 +1,11 @@
 use super::*;
 
 pub(crate) trait RangeExt<T> {
-  fn range_contains(&self, i: &T) -> bool;
-
   fn display(&self) -> DisplayRange<&Self> {
     DisplayRange(self)
   }
+
+  fn range_contains(&self, i: &T) -> bool;
 }
 
 pub(crate) struct DisplayRange<T>(T);
