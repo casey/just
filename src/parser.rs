@@ -489,7 +489,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.presume_keyword(Keyword::Alias)?;
     let name = self.parse_name()?;
     self.presume_any(&[Equals, ColonEquals])?;
-    let target = self.parse_double_colon_path()?;
+    let target = self.parse_namepath()?;
     self.expect_eol()?;
 
     attributes.ensure_valid_attributes("Alias", *name, &[AttributeDiscriminant::Private])?;
@@ -866,14 +866,14 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// Parse a path of the forms `a` or `a::b` or `a::b::c` etc.
   fn parse_namepath(&mut self) -> CompileResult<'src, Namepath<'src>> {
     let first = self.parse_name()?;
-    let mut result = vec![first];
+    let mut path = Namepath::from(first);
 
     while self.accepted(ColonColon)? {
       let name = self.parse_name()?;
-      result.push(name);
+      path.push(name);
     }
 
-    Ok(Namepath::new(result))
+    Ok(path)
   }
 
   /// Parse sequence of comma-separated expressions

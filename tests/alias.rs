@@ -1,6 +1,6 @@
 use super::*;
-#[test]
 
+#[test]
 fn alias_nested_module() {
   Test::new()
     .write("foo.just", "mod bar\nbaz: \n @echo FOO")

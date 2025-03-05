@@ -1,7 +1,20 @@
 use super::*;
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Clone, Debug, Eq, Ord, PartialOrd)]
 pub(crate) struct Namepath<'src>(Vec<Name<'src>>);
+
+impl PartialEq for Namepath<'_> {
+  fn eq(&self, other: &Self) -> bool {
+    let self_lexeme_iter = self.lexeme_iter();
+    let other_lexeme_iter = other.lexeme_iter();
+    if self_lexeme_iter.len() != other_lexeme_iter.len() {
+      return false;
+    }
+    self_lexeme_iter
+      .zip(other_lexeme_iter)
+      .all(|(self_lexeme, other_lexeme)| self_lexeme == other_lexeme)
+  }
+}
 
 impl<'src> Namepath<'src> {
   pub(crate) fn join(&self, name: Name<'src>) -> Self {
@@ -15,12 +28,12 @@ impl<'src> Namepath<'src> {
     }
   }
 
-  pub(crate) fn new(path: Vec<Name<'src>>) -> Self {
-    Self(path)
+  pub fn push(&mut self, name: Name<'src>) {
+    self.0.push(name);
   }
 
-  pub fn into_inner(self) -> Vec<Name<'src>> {
-    self.0
+  fn lexeme_iter(&self) -> impl ExactSizeIterator<Item = &str> {
+    self.0.iter().map(|name| name.lexeme())
   }
 }
 

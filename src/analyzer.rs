@@ -294,55 +294,31 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     recipes: &'a Table<'src, Rc<Recipe<'src>>>,
     alias: Alias<'src, Namepath<'src>>,
   ) -> CompileResult<'src, Alias<'src>> {
-    let Alias {
-      attributes,
-      name,
-      target,
-    } = alias;
-    let target_str = format!("{target}");
-    let mut path = target.into_inner();
-    let target = path
-      .pop()
-      .expect("Internal error: Alias target path can't be empty");
-
-    let alias = Alias {
-      attributes,
-      name,
-      target,
-    };
-
-    let mut maybe_recipes = Some(recipes);
-    if !path.is_empty() {
-      maybe_recipes =
-        Self::traverse_nonempty_module_name_path(&path, modules).map(|justfile| &justfile.recipes);
-    }
-
     // Make sure the target recipe exists
-    match maybe_recipes.and_then(|recipes| recipes.get(target.lexeme())) {
-      Some(target) => Ok(alias.resolve(Rc::clone(target))),
+    match Self::recipe_from_path(alias.target.as_ref(), modules, recipes) {
+      Some(target) => Ok(alias.resolve(target)),
       None => Err(alias.name.token.error(UnknownAliasTarget {
         alias: alias.name.lexeme(),
-        target: target_str,
+        target: alias.target,
       })),
     }
   }
 
-  fn traverse_nonempty_module_name_path<'modules>(
+  fn recipe_from_path<'a>(
     path: &[Name],
-    mut modules: &'modules Table<'src, Justfile<'src>>,
-  ) -> Option<&'modules Justfile<'src>> {
-    assert!(!path.is_empty());
-  
-    let mut iter = path.iter();
-    let mut result = modules.get(iter.next().unwrap().lexeme())?;
-    modules = &result.modules;
+    mut modules: &'a Table<'src, Justfile<'src>>,
+    mut recipes: &'a Table<'src, Rc<Recipe<'src>>>,
+  ) -> Option<Rc<Recipe<'src>>> {
+    let name = path.last()?;
+    let module_path = &path[0..path.len() - 1];
 
-    for mod_name in iter {
-      result = modules.get(mod_name.lexeme())?;
-      modules = &result.modules;
+    for module_name in module_path {
+      let just_file = modules.get(module_name.lexeme())?;
+      recipes = &just_file.recipes;
+      modules = &just_file.modules;
     }
 
-    Some(result)
+    recipes.get(name.lexeme()).cloned()
   }
 }
 
@@ -360,14 +336,16 @@ mod tests {
     kind: Redefinition { first_type: "alias", second_type: "alias", name: "foo", first: 0 },
   }
 
+  const UNKNOWN_ALIAS_TARGET: &str = "alias foo := bar\n";
   analysis_error! {
     name: unknown_alias_target,
-    input: "alias foo := bar\n",
+    input: UNKNOWN_ALIAS_TARGET,
     offset: 6,
     line: 0,
     column: 6,
     width: 3,
-    kind: UnknownAliasTarget {alias: "foo", target: "bar".to_string()},
+    kind: UnknownAliasTarget {alias: "foo", target: Namepath::from(Name::from_identifier(Token{
+    column: 13,kind: TokenKind::Identifier,length: 3,line: 0,offset: 13,path: Path::new("justfile"),src: UNKNOWN_ALIAS_TARGET,}))},
   }
 
   analysis_error! {

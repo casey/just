@@ -12,9 +12,9 @@ pub(crate) struct Alias<'src, T = Rc<Recipe<'src>>> {
   pub(crate) target: T,
 }
 
-impl<'src> Alias<'src, Name<'src>> {
+impl<'src> Alias<'src, Namepath<'src>> {
   pub(crate) fn resolve(self, target: Rc<Recipe<'src>>) -> Alias<'src> {
-    assert_eq!(self.target.lexeme(), target.name.lexeme());
+    assert_eq!(self.target, target.namepath);
 
     Alias {
       attributes: self.attributes,
