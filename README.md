@@ -198,6 +198,12 @@ most Windows users.)
   </thead>
   <tbody>
     <tr>
+      <td><a href=https://aprendiendo.pasosdeJesus.org>adJ</a> (distribution of OpenBSD)</td>
+      <td><a href=https://www.openbsd.org/faq/faq15.html#Intro>pkg_add</a></td>
+      <td><a href=https://gitlab.com/pasosdeJesus/adJ/-/tree/main/arboldes/usr/ports/mystuff/devel/just?ref_type=heads>just</a></td>
+      <td><code>PKG_PATH=https://adj.pasosdejesus.org/pub/AprendiendoDeJesus/7.6-amd64/paquetes doas pkg_add just</code></td>
+    </tr>
+    <tr>
       <td><a href=https://www.freebsd.org>FreeBSD</a></td>
       <td><a href=https://www.freebsd.org/doc/handbook/pkgng-intro.html>pkg</a></td>
       <td><a href=https://www.freshports.org/deskutils/just/>just</a></td>
