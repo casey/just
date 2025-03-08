@@ -239,7 +239,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
       if parameter.default.is_some() {
         passed_default = true;
-      } else if passed_default && parameter.is_required() {
+      } else if passed_default && parameter.kind != ParameterKind::Star {
         return Err(
           parameter
             .name
