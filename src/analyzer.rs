@@ -296,7 +296,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     alias: Alias<'src, Namepath<'src>>,
   ) -> CompileResult<'src, Alias<'src>> {
     // Make sure the target recipe exists
-    match Self::recipe_from_path(alias.target.as_ref(), modules, recipes) {
+    match Self::recipe_from_path(&alias.target, modules, recipes) {
       Some(target) => Ok(alias.resolve(target)),
       None => Err(alias.name.token.error(UnknownAliasTarget {
         alias: alias.name.lexeme(),
@@ -306,14 +306,13 @@ impl<'run, 'src> Analyzer<'run, 'src> {
   }
 
   fn recipe_from_path<'a>(
-    path: &[Name],
+    path: &Namepath<'src>,
     mut modules: &'a Table<'src, Justfile<'src>>,
     mut recipes: &'a Table<'src, Rc<Recipe<'src>>>,
   ) -> Option<Rc<Recipe<'src>>> {
-    let name = path.last()?;
-    let module_path = &path[0..path.len() - 1];
+    let (parent_path, name) = path.split_last();
 
-    for module_name in module_path {
+    for module_name in parent_path {
       let just_file = modules.get(module_name.lexeme())?;
       recipes = &just_file.recipes;
       modules = &just_file.modules;
@@ -337,20 +336,27 @@ mod tests {
     kind: Redefinition { first_type: "alias", second_type: "alias", name: "foo", first: 0 },
   }
 
-  const UNKNOWN_ALIAS_TARGET: &str = "alias foo := bar\n";
   analysis_error! {
     name: unknown_alias_target,
-    input: UNKNOWN_ALIAS_TARGET,
+    input: "alias foo := bar\n",
     offset: 6,
     line: 0,
     column: 6,
     width: 3,
     kind: UnknownAliasTarget {
       alias: "foo",
-      target: Namepath::from(Name::from_identifier(Token {
-        column: 13,
-        …
-    column: 13,kind: TokenKind::Identifier,length: 3,line: 0,offset: 13,path: Path::new("justfile"),src: UNKNOWN_ALIAS_TARGET,}))},
+      target: Namepath::from(Name::from_identifier(
+        Token{
+          column: 13,
+          kind: TokenKind::Identifier,
+          length: 3,
+          line: 0,
+          offset: 13,
+          path: Path::new("justfile"),
+          src: "alias foo := bar\n",
+        }
+      ))
+    },
   }
 
   analysis_error! {

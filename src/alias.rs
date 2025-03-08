@@ -14,7 +14,7 @@ pub(crate) struct Alias<'src, T = Rc<Recipe<'src>>> {
 
 impl<'src> Alias<'src, Namepath<'src>> {
   pub(crate) fn resolve(self, target: Rc<Recipe<'src>>) -> Alias<'src> {
-    assert_eq!(self.target, target.namepath);
+    assert!(self.target.is_same_path(&target.namepath));
 
     Alias {
       attributes: self.attributes,

@@ -66,7 +66,7 @@ impl<'src> Node<'src> for Item<'src> {
 impl<'src> Node<'src> for Namepath<'src> {
   fn tree(&self) -> Tree<'src> {
     match self.len() {
-      1 => Tree::atom(self.first().unwrap().lexeme()),
+      1 => Tree::atom(self.last().lexeme()),
       _ => Tree::list(
         self
           .iter()
