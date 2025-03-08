@@ -345,7 +345,11 @@ mod tests {
     line: 0,
     column: 6,
     width: 3,
-    kind: UnknownAliasTarget {alias: "foo", target: Namepath::from(Name::from_identifier(Token{
+    kind: UnknownAliasTarget {
+      alias: "foo",
+      target: Namepath::from(Name::from_identifier(Token {
+        column: 13,
+        …
     column: 13,kind: TokenKind::Identifier,length: 3,line: 0,offset: 13,path: Path::new("justfile"),src: UNKNOWN_ALIAS_TARGET,}))},
   }
 
