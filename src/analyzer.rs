@@ -234,11 +234,12 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           parameter: parameter.name.lexeme(),
         }));
       }
+
       parameters.insert(parameter.name.lexeme());
 
       if parameter.default.is_some() {
         passed_default = true;
-      } else if passed_default {
+      } else if passed_default && parameter.is_required() {
         return Err(
           parameter
             .name
