@@ -65,7 +65,7 @@ impl Serialize for Namepath<'_> {
 }
 
 impl<'src> Deref for Namepath<'src> {
-  type Target = Vec<Name<'src>>;
+  type Target = [Name<'src>];
 
   fn deref(&self) -> &Self::Target {
     &self.0
