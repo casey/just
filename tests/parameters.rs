@@ -36,3 +36,17 @@ fn parameter_default_values_may_not_use_later_parameters() {
     .status(EXIT_FAILURE)
     .run();
 }
+
+#[test]
+fn star_may_follow_default() {
+  Test::new()
+    .justfile(
+      "
+        foo bar='baz' *bob:
+          @echo {{bar}} {{bob}}
+      ",
+    )
+    .args(["foo", "hello", "goodbye"])
+    .stdout("hello goodbye\n")
+    .run();
+}
