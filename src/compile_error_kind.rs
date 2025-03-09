@@ -68,6 +68,9 @@ pub(crate) enum CompileErrorKind<'src> {
   Internal {
     message: String,
   },
+  InvalidAliasName {
+    name: &'src str,
+  },
   InvalidAttribute {
     item_kind: &'static str,
     item_name: &'src str,

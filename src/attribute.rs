@@ -9,6 +9,7 @@ use super::*;
 #[strum_discriminants(derive(EnumString, Ord, PartialOrd))]
 #[strum_discriminants(strum(serialize_all = "kebab-case"))]
 pub(crate) enum Attribute<'src> {
+  Alias(Name<'src>, StringLiteral<'src>),
   Confirm(Option<StringLiteral<'src>>),
   Doc(Option<StringLiteral<'src>>),
   ExitMessage,
@@ -32,7 +33,7 @@ impl AttributeDiscriminant {
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
       Self::Confirm | Self::Doc => 0..=1,
-      Self::Group | Self::Extension | Self::WorkingDirectory => 1..=1,
+      Self::Alias | Self::Group | Self::Extension | Self::WorkingDirectory => 1..=1,
       Self::ExitMessage
       | Self::Linux
       | Self::Macos
@@ -52,7 +53,7 @@ impl AttributeDiscriminant {
 impl<'src> Attribute<'src> {
   pub(crate) fn new(
     name: Name<'src>,
-    arguments: Vec<StringLiteral<'src>>,
+    arguments: Vec<(Token<'src>, StringLiteral<'src>)>,
   ) -> CompileResult<'src, Self> {
     let discriminant = name
       .lexeme()
@@ -77,12 +78,41 @@ impl<'src> Attribute<'src> {
       );
     }
 
+    let mut arguments = arguments.into_iter();
+    let (token, argument) = arguments
+      .next()
+      .map(|(token, arg)| (Some(token), Some(arg)))
+      .unwrap_or_default();
+
     Ok(match discriminant {
-      AttributeDiscriminant::Confirm => Self::Confirm(arguments.into_iter().next()),
-      AttributeDiscriminant::Doc => Self::Doc(arguments.into_iter().next()),
+      AttributeDiscriminant::Alias => {
+        let string_literal = argument.unwrap();
+        let delim = string_literal.kind.delimiter_len();
+        let token = token.unwrap();
+        let token = Token {
+          kind: TokenKind::Identifier,
+          column: token.column + delim,
+          length: token.length - (delim * 2),
+          offset: token.offset + delim,
+          ..token
+        };
+
+        let alias = token.lexeme();
+        let valid_alias = alias.chars().all(|c| c.is_ascii_alphanumeric() || c == '_');
+
+        if alias.is_empty() || !valid_alias {
+          return Err(token.error(CompileErrorKind::InvalidAliasName {
+            name: token.lexeme(),
+          }));
+        }
+
+        Self::Alias(Name::from_identifier(token), string_literal)
+      }
+      AttributeDiscriminant::Confirm => Self::Confirm(argument),
+      AttributeDiscriminant::Doc => Self::Doc(argument),
       AttributeDiscriminant::ExitMessage => Self::ExitMessage,
-      AttributeDiscriminant::Extension => Self::Extension(arguments.into_iter().next().unwrap()),
-      AttributeDiscriminant::Group => Self::Group(arguments.into_iter().next().unwrap()),
+      AttributeDiscriminant::Extension => Self::Extension(argument.unwrap()),
+      AttributeDiscriminant::Group => Self::Group(argument.unwrap()),
       AttributeDiscriminant::Linux => Self::Linux,
       AttributeDiscriminant::Macos => Self::Macos,
       AttributeDiscriminant::NoCd => Self::NoCd,
@@ -92,17 +122,14 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::PositionalArguments => Self::PositionalArguments,
       AttributeDiscriminant::Private => Self::Private,
       AttributeDiscriminant::Script => Self::Script({
-        let mut arguments = arguments.into_iter();
-        arguments.next().map(|command| Interpreter {
+        argument.map(|command| Interpreter {
           command,
-          arguments: arguments.collect(),
+          arguments: arguments.map(|(_, arg)| arg).collect(),
         })
       }),
       AttributeDiscriminant::Unix => Self::Unix,
       AttributeDiscriminant::Windows => Self::Windows,
-      AttributeDiscriminant::WorkingDirectory => {
-        Self::WorkingDirectory(arguments.into_iter().next().unwrap())
-      }
+      AttributeDiscriminant::WorkingDirectory => Self::WorkingDirectory(argument.unwrap()),
     })
   }
 
@@ -115,7 +142,7 @@ impl<'src> Attribute<'src> {
   }
 
   pub(crate) fn repeatable(&self) -> bool {
-    matches!(self, Attribute::Group(_))
+    matches!(self, Attribute::Group(_) | Attribute::Alias(_, _))
   }
 }
 
@@ -124,7 +151,8 @@ impl Display for Attribute<'_> {
     write!(f, "{}", self.name())?;
 
     match self {
-      Self::Confirm(Some(argument))
+      Self::Alias(_, argument)
+      | Self::Confirm(Some(argument))
       | Self::Doc(Some(argument))
       | Self::Extension(argument)
       | Self::Group(argument)
