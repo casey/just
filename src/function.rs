@@ -4,7 +4,6 @@ use {
     ToKebabCase, ToLowerCamelCase, ToShoutyKebabCase, ToShoutySnakeCase, ToSnakeCase, ToTitleCase,
     ToUpperCamelCase,
   },
-  rand::{seq::SliceRandom, thread_rng},
   semver::{Version, VersionReq},
   std::collections::HashSet,
   Function::*,
@@ -215,7 +214,7 @@ fn choose(_context: Context, n: &str, alphabet: &str) -> FunctionResult {
     .parse::<usize>()
     .map_err(|err| format!("failed to parse `{n}` as positive integer: {err}"))?;
 
-  let mut rng = thread_rng();
+  let mut rng = rand::rng();
 
   (0..n)
     .map(|_| {
