@@ -106,6 +106,7 @@ pub(crate) use {
   lexiclean::Lexiclean,
   libc::EXIT_FAILURE,
   once_cell::sync::Lazy,
+  rand::seq::IndexedRandom,
   regex::Regex,
   serde::{
     ser::{SerializeMap, SerializeSeq},

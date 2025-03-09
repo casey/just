@@ -1,6 +1,32 @@
 Changelog
 =========
 
+[1.40.0](https://github.com/casey/just/releases/tag/1.40.0) - 2025-03-09
+------------------------------------------------------------------------
+
+### Added
+- Allow the target of aliases to be recipes in submodules ([#2632](https://github.com/casey/just/pull/2632) by [corvusrabus](https://github.com/corvusrabus))
+- Make `--list-submodules` require `--list` ([#2622](https://github.com/casey/just/pull/2622) by [casey](https://github.com/casey))
+
+### Fixed
+- Star parameters may follow default parameters ([#2660](https://github.com/casey/just/pull/2660) by [casey](https://github.com/casey))
+
+### Misc
+- Remove `test!` macro from readme ([#2648](https://github.com/casey/just/pull/2648) by [casey](https://github.com/casey))
+- Sort enum variant, struct member, and trait members alphabetically ([#2646](https://github.com/casey/just/pull/2646) by [casey](https://github.com/casey))
+- Add Zed extension to readme ([#2640](https://github.com/casey/just/pull/2640) by [sectore](https://github.com/sectore))
+- Refactor error checking in choose function ([#2643](https://github.com/casey/just/pull/2643) by [casey](https://github.com/casey))
+- Use `Test` struct instead of `test!` macro ([#2642](https://github.com/casey/just/pull/2642) by [casey](https://github.com/casey))
+- Include unicode codepoint in unknown start of token error  ([#2637](https://github.com/casey/just/pull/2637) by [CramBL](https://github.com/CramBL))
+- Ignore broken pipe error from chooser ([#2639](https://github.com/casey/just/pull/2639) by [casey](https://github.com/casey))
+- Guarantee that `Namepath`s are non-empty ([#2638](https://github.com/casey/just/pull/2638) by [casey](https://github.com/casey))
+- Remove unnecessary binding modifiers ([#2636](https://github.com/casey/just/pull/2636) by [casey](https://github.com/casey))
+- Document Vim and Neovim built-in syntax highlighting ([#2619](https://github.com/casey/just/pull/2619) by [laniakea64](https://github.com/laniakea64))
+- Remove rust:just Repology badge ([#2614](https://github.com/casey/just/pull/2614) by [laniakea64](https://github.com/laniakea64))
+- Clarify --list argument ([#2609](https://github.com/casey/just/pull/2609) by [casey](https://github.com/casey))
+- Expand Windows path documentation ([#2602](https://github.com/casey/just/pull/2602) by [casey](https://github.com/casey))
+- Fix readme typos ([#2596](https://github.com/casey/just/pull/2596) by [CramBL](https://github.com/CramBL))
+
 [1.39.0](https://github.com/casey/just/releases/tag/1.39.0) - 2025-01-22
 ------------------------------------------------------------------------
 
