@@ -111,11 +111,11 @@ function playground_text(playground, hidden = true) {
         let text = playground_text(code_block);
         let classes = code_block.querySelector('code').classList;
         let edition = "2015";
-        if(classes.contains("edition2018")) {
-            edition = "2018";
-        } else if(classes.contains("edition2021")) {
-            edition = "2021";
-        }
+        classes.forEach(className => {
+            if (className.startsWith("edition")) {
+                edition = className.slice(7);
+            }
+        });
         var params = {
             version: "stable",
             optimize: "0",
@@ -294,9 +294,9 @@ function playground_text(playground, hidden = true) {
         themeIds.push(el.id);
     });
     var stylesheets = {
-        ayuHighlight: document.querySelector("[href$='ayu-highlight.css']"),
-        tomorrowNight: document.querySelector("[href$='tomorrow-night.css']"),
-        highlight: document.querySelector("[href$='highlight.css']"),
+        ayuHighlight: document.querySelector("#ayu-highlight-css"),
+        tomorrowNight: document.querySelector("#tomorrow-night-css"),
+        highlight: document.querySelector("#highlight-css"),
     };
 
     function showThemes() {
@@ -449,6 +449,7 @@ function playground_text(playground, hidden = true) {
     var sidebar = document.getElementById("sidebar");
     var sidebarLinks = document.querySelectorAll('#sidebar a');
     var sidebarToggleButton = document.getElementById("sidebar-toggle");
+    var sidebarToggleAnchor = document.getElementById("sidebar-toggle-anchor");
     var sidebarResizeHandle = document.getElementById("sidebar-resize-handle");
     var firstContact = null;
 
@@ -475,22 +476,16 @@ function playground_text(playground, hidden = true) {
     }
 
     // Toggle sidebar
-    sidebarToggleButton.addEventListener('click', function sidebarToggle() {
-        if (body.classList.contains("sidebar-hidden")) {
+    sidebarToggleAnchor.addEventListener('change', function sidebarToggle() {
+        if (sidebarToggleAnchor.checked) {
             var current_width = parseInt(
                 document.documentElement.style.getPropertyValue('--sidebar-width'), 10);
             if (current_width < 150) {
                 document.documentElement.style.setProperty('--sidebar-width', '150px');
             }
             showSidebar();
-        } else if (body.classList.contains("sidebar-visible")) {
-            hideSidebar();
         } else {
-            if (getComputedStyle(sidebar)['transform'] === 'none') {
-                hideSidebar();
-            } else {
-                showSidebar();
-            }
+            hideSidebar();
         }
     });
 

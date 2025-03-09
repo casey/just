@@ -421,11 +421,14 @@ ul#searchresults span.teaser em {
     color: var(--sidebar-fg);
 }
 .sidebar-iframe-inner {
+    --padding: 10px;
+
     background-color: var(--sidebar-bg);
-    color: var(--sidebar-fg);
-    padding: 10px 10px;
+    padding: var(--padding);
     margin: 0;
     font-size: 1.4rem;
+    color: var(--sidebar-fg);
+    min-height: calc(100vh - var(--padding) * 2);
 }
 .sidebar-iframe-outer {
     border: none;

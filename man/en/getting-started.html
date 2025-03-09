@@ -24,9 +24,9 @@
         <link rel="stylesheet" href="fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="highlight.css">
-        <link rel="stylesheet" href="tomorrow-night.css">
-        <link rel="stylesheet" href="ayu-highlight.css">
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
@@ -180,12 +180,9 @@ which make sure that evaluating a triple-quoted string produces the correct
 unindented value. However, there are not integration tests for all possible
 cases. These are covered by faster, more concise unit tests that call
 <code>unindent()</code> directly.</p>
-<p>Existing integration tests are in two forms, those that use the <code>test!</code> macro
-and those that use the <code>Test</code> struct directly. The <code>test!</code> macro, while often
-concise, is less flexible and harder to understand, so new tests should use the
-<code>Test</code> struct. The <code>Test</code> struct is a builder which allows for easily invoking
-<code>just</code> with a given <code>justfile</code>, arguments, and environment variables, and
-checking the program’s stdout, stderr, and exit code .</p>
+<p>Integration tests use the <code>Test</code> struct, a builder which allows for easily
+invoking <code>just</code> with a given <code>justfile</code>, arguments, and environment variables,
+and checking the program’s stdout, stderr, and exit code .</p>
 
                     </main>
 

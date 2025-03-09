@@ -200,9 +200,11 @@ sup {
     line-height: 0;
 }
 
-:not(.footnote-definition) + .footnote-definition,
-.footnote-definition + :not(.footnote-definition) {
+:not(.footnote-definition) + .footnote-definition {
     margin-block-start: 2em;
+}
+.footnote-definition:not(:has(+ .footnote-definition)) {
+    margin-block-end: 2em;
 }
 .footnote-definition {
     font-size: 0.9em;

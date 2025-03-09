@@ -24,9 +24,9 @@
         <link rel="stylesheet" href="fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="highlight.css">
-        <link rel="stylesheet" href="tomorrow-night.css">
-        <link rel="stylesheet" href="ayu-highlight.css">
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
@@ -156,11 +156,31 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="paths-on-windows"><a class="header" href="#paths-on-windows">Paths on Windows</a></h3>
-<p>On Windows, functions that return paths will return <code>\</code>-separated paths. When
-not using PowerShell or <code>cmd.exe</code> these paths should be quoted to prevent the
-<code>\</code>s from being interpreted as character escapes:</p>
+<p>On Windows, all functions that return paths, except <code>invocation_directory()</code>
+will return <code>\</code>-separated paths. When not using PowerShell or <code>cmd.exe</code> these
+paths should be quoted to prevent the <code>\</code>s from being interpreted as character
+escapes:</p>
 <pre><code class="language-just">ls:
     echo '{{absolute_path(".")}}'
+</code></pre>
+<p><code>cygpath.exe</code> is an executable included in some distributions of Unix userlands
+for Windows, including <a href="https://www.cygwin.com/">Cygwin</a> and
+<a href="https://git-scm.com/downloads">Git</a> for Windows.</p>
+<p><code>just</code> uses <code>cygpath.exe</code> in two places:</p>
+<p>For backwards compatibility, <code>invocation_directory()</code>, uses <code>cygpath.exe</code> to
+convert the invocation directory into a unix-style <code>/</code>-separated path. Use
+<code>invocation_directory_native()</code> to get the native, Windows-style path. On unix,
+<code>invocation_directory()</code> and <code>invocation_directory_native()</code> both return the
+same unix-style path.</p>
+<p><code>cygpath.exe</code> is used also used to convert Unix-style shebang lines into
+Windows paths. As an alternative, the <code>[script]</code> attribute, currently unstable,
+can be used, which does not depend on <code>cygpath.exe</code>.</p>
+<p>If <code>cygpath.exe</code> is available, you can use it to convert between path styles:</p>
+<pre><code class="language-just">foo_unix := '/hello/world'
+foo_windows := shell('cygpath --windows $1', foo_unix)
+
+bar_windows := 'C:\hello\world'
+bar_unix := shell('cygpath --unix $1', bar_windows)
 </code></pre>
 
                     </main>

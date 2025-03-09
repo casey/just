@@ -25,9 +25,9 @@
         <link rel="stylesheet" href="fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="highlight.css">
-        <link rel="stylesheet" href="tomorrow-night.css">
-        <link rel="stylesheet" href="ayu-highlight.css">
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
@@ -480,7 +480,6 @@ most Windows users.)</p>
   </tbody>
 </table>
 <p><img src="https://repology.org/badge/vertical-allrepos/just.svg" alt="just package version table" /></p>
-<p><img src="https://repology.org/badge/vertical-allrepos/rust:just.svg" alt="rust:just package version table" /></p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="pre-built-binaries"><a class="header" href="#pre-built-binaries">Pre-Built Binaries</a></h3>
 <p>Pre-built binaries for Linux, MacOS, and Windows can be found on
 <a href="https://github.com/casey/just/releases">the releases page</a>.</p>
@@ -561,6 +560,9 @@ value other than <code>false</code>, <code>0</code>, or the empty string.</p>
 <p><code>justfile</code> syntax is close enough to <code>make</code> that you may want to tell your
 editor to use <code>make</code> syntax highlighting for <code>just</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="vim-and-neovim"><a class="header" href="#vim-and-neovim">Vim and Neovim</a></h3>
+<p>Vim version 9.1.1042 or better and Neovim version 0.11 or better support
+Justfile syntax highlighting out of the box, thanks to
+<a href="https://github.com/pbnj">pbnj</a>.</p>
 <h4 id="vim-just"><a class="header" href="#vim-just"><code>vim-just</code></a></h4>
 <p>The <a href="https://github.com/NoahTheDuke/vim-just">vim-just</a> plugin provides syntax
 highlighting for <code>justfile</code>s.</p>
@@ -629,6 +631,10 @@ available on <a href="https://packagecontrol.io/packages/Just">PackageControl</a
 <div style="break-before: page; page-break-before: always;"></div><h3 id="micro"><a class="header" href="#micro">Micro</a></h3>
 <p><a href="https://micro-editor.github.io/">Micro</a> supports Justfile syntax highlighting
 out of the box, thanks to <a href="https://github.com/tomodachi94">tomodachi94</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="zed"><a class="header" href="#zed">Zed</a></h3>
+<p>The <a href="https://github.com/jackTabsCode/zed-just/">zed-just</a> extension by
+<a href="https://github.com/jackTabsCode">jackTabsCode</a> is avilable on the
+<a href="https://zed.dev/extensions?query=just">Zed extensions page</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="other-editors"><a class="header" href="#other-editors">Other Editors</a></h3>
 <p>Feel free to send me the commands necessary to get syntax highlighting working
 in your editor of choice so that I may include them here.</p>
@@ -882,6 +888,11 @@ build:
 <pre><code class="language-console">$ just b
 echo 'Building!'
 Building!
+</code></pre>
+<p>The target of an alias may be a recipe in a submodule:</p>
+<pre><code class="language-justfile">mod foo
+
+alias baz := foo::bar
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="settings"><a class="header" href="#settings">Settings</a></h3>
 <p>Settings control interpretation and execution. Each setting may be specified at
@@ -1422,7 +1433,7 @@ variable for the executable <code>name</code> and return its full path, or the e
 string if no executable with <code>name</code> exists. Currently unstable.</p>
 <pre><code class="language-just">set unstable
 
-bosh := require("bosh")
+bosh := which("bosh")
 
 @test:
     echo "bosh: '{{bosh}}'"
@@ -2351,7 +2362,7 @@ goodbye:
 <p>Recipes with a <code>[script(COMMAND)]</code><sup>1.32.0</sup> attribute are run as
 scripts interpreted by <code>COMMAND</code>. This avoids some of the issues with shebang
 recipes, such as the use of <code>cygpath</code> on Windows, the need to use
-<code>/usr/bin/env</code>, and inconsistences in shebang line splitting across Unix OSs.</p>
+<code>/usr/bin/env</code>, and inconsistencies in shebang line splitting across Unix OSs.</p>
 <p>Recipes with an empty <code>[script]</code> attribute are executed with the value of <code>set script-interpreter := […]</code><sup>1.33.0</sup>, defaulting to <code>sh -eu</code>, and <em>not</em>
 the value of <code>set shell</code>.</p>
 <p>The body of the recipe is evaluated, written to disk in the temporary
@@ -3227,11 +3238,31 @@ Node.js <code>package.json</code> files:</p>
 <pre><code class="language-just">export PATH := "./node_modules/.bin:" + env_var('PATH')
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="paths-on-windows"><a class="header" href="#paths-on-windows">Paths on Windows</a></h3>
-<p>On Windows, functions that return paths will return <code>\</code>-separated paths. When
-not using PowerShell or <code>cmd.exe</code> these paths should be quoted to prevent the
-<code>\</code>s from being interpreted as character escapes:</p>
+<p>On Windows, all functions that return paths, except <code>invocation_directory()</code>
+will return <code>\</code>-separated paths. When not using PowerShell or <code>cmd.exe</code> these
+paths should be quoted to prevent the <code>\</code>s from being interpreted as character
+escapes:</p>
 <pre><code class="language-just">ls:
     echo '{{absolute_path(".")}}'
+</code></pre>
+<p><code>cygpath.exe</code> is an executable included in some distributions of Unix userlands
+for Windows, including <a href="https://www.cygwin.com/">Cygwin</a> and
+<a href="https://git-scm.com/downloads">Git</a> for Windows.</p>
+<p><code>just</code> uses <code>cygpath.exe</code> in two places:</p>
+<p>For backwards compatibility, <code>invocation_directory()</code>, uses <code>cygpath.exe</code> to
+convert the invocation directory into a unix-style <code>/</code>-separated path. Use
+<code>invocation_directory_native()</code> to get the native, Windows-style path. On unix,
+<code>invocation_directory()</code> and <code>invocation_directory_native()</code> both return the
+same unix-style path.</p>
+<p><code>cygpath.exe</code> is used also used to convert Unix-style shebang lines into
+Windows paths. As an alternative, the <code>[script]</code> attribute, currently unstable,
+can be used, which does not depend on <code>cygpath.exe</code>.</p>
+<p>If <code>cygpath.exe</code> is available, you can use it to convert between path styles:</p>
+<pre><code class="language-just">foo_unix := '/hello/world'
+foo_windows := shell('cygpath --windows $1', foo_unix)
+
+bar_windows := 'C:\hello\world'
+bar_unix := shell('cygpath --unix $1', bar_windows)
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="remote-justfiles"><a class="header" href="#remote-justfiles">Remote Justfiles</a></h3>
 <p>If you wish to include a <code>mod</code> or <code>import</code> source file in many <code>justfiles</code>
@@ -3327,12 +3358,9 @@ which make sure that evaluating a triple-quoted string produces the correct
 unindented value. However, there are not integration tests for all possible
 cases. These are covered by faster, more concise unit tests that call
 <code>unindent()</code> directly.</p>
-<p>Existing integration tests are in two forms, those that use the <code>test!</code> macro
-and those that use the <code>Test</code> struct directly. The <code>test!</code> macro, while often
-concise, is less flexible and harder to understand, so new tests should use the
-<code>Test</code> struct. The <code>Test</code> struct is a builder which allows for easily invoking
-<code>just</code> with a given <code>justfile</code>, arguments, and environment variables, and
-checking the program’s stdout, stderr, and exit code .</p>
+<p>Integration tests use the <code>Test</code> struct, a builder which allows for easily
+invoking <code>just</code> with a given <code>justfile</code>, arguments, and environment variables,
+and checking the program’s stdout, stderr, and exit code .</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="contribution-workflow"><a class="header" href="#contribution-workflow">Contribution Workflow</a></h3>
 <ol>
 <li>

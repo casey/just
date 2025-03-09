@@ -24,9 +24,9 @@
         <link rel="stylesheet" href="fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="highlight.css">
-        <link rel="stylesheet" href="tomorrow-night.css">
-        <link rel="stylesheet" href="ayu-highlight.css">
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
@@ -159,7 +159,7 @@
 <p>Recipes with a <code>[script(COMMAND)]</code><sup>1.32.0</sup> attribute are run as
 scripts interpreted by <code>COMMAND</code>. This avoids some of the issues with shebang
 recipes, such as the use of <code>cygpath</code> on Windows, the need to use
-<code>/usr/bin/env</code>, and inconsistences in shebang line splitting across Unix OSs.</p>
+<code>/usr/bin/env</code>, and inconsistencies in shebang line splitting across Unix OSs.</p>
 <p>Recipes with an empty <code>[script]</code> attribute are executed with the value of <code>set script-interpreter := […]</code><sup>1.33.0</sup>, defaulting to <code>sh -eu</code>, and <em>not</em>
 the value of <code>set shell</code>.</p>
 <p>The body of the recipe is evaluated, written to disk in the temporary
