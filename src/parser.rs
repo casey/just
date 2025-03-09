@@ -863,7 +863,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.expect(Identifier).map(Name::from_identifier)
   }
 
-  /// Parse a path of the forms `a` or `a::b` or `a::b::c` etc.
+  /// Parse a path of `::` separated names
   fn parse_namepath(&mut self) -> CompileResult<'src, Namepath<'src>> {
     let first = self.parse_name()?;
     let mut path = Namepath::from(first);
