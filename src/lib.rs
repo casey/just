@@ -139,7 +139,10 @@ pub(crate) use {
 };
 
 #[cfg(test)]
-pub(crate) use crate::{node::Node, tree::Tree};
+pub(crate) use {
+  crate::{node::Node, tree::Tree},
+  std::slice,
+};
 
 pub use crate::run::run;
 

@@ -3,7 +3,7 @@ use super::*;
 /// A single top-level item
 #[derive(Debug, Clone)]
 pub(crate) enum Item<'src> {
-  Alias(Alias<'src, Name<'src>>),
+  Alias(Alias<'src, Namepath<'src>>),
   Assignment(Assignment<'src>),
   Comment(&'src str),
   Import {

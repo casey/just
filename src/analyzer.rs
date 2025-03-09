@@ -2,7 +2,7 @@ use {super::*, CompileErrorKind::*};
 
 #[derive(Default)]
 pub(crate) struct Analyzer<'run, 'src> {
-  aliases: Table<'src, Alias<'src, Name<'src>>>,
+  aliases: Table<'src, Alias<'src, Namepath<'src>>>,
   assignments: Vec<&'run Binding<'src, Expression<'src>>>,
   modules: Table<'src, Justfile<'src>>,
   recipes: Vec<&'run Recipe<'src, UnresolvedDependency<'src>>>,
@@ -149,7 +149,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     let mut aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
-      aliases.insert(Self::resolve_alias(&recipes, alias)?);
+      aliases.insert(Self::resolve_alias(&self.modules, &recipes, alias)?);
     }
 
     for recipe in recipes.values() {
@@ -290,18 +290,34 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     Ok(())
   }
 
-  fn resolve_alias(
-    recipes: &Table<'src, Rc<Recipe<'src>>>,
-    alias: Alias<'src, Name<'src>>,
+  fn resolve_alias<'a>(
+    modules: &'a Table<'src, Justfile<'src>>,
+    recipes: &'a Table<'src, Rc<Recipe<'src>>>,
+    alias: Alias<'src, Namepath<'src>>,
   ) -> CompileResult<'src, Alias<'src>> {
-    // Make sure the target recipe exists
-    match recipes.get(alias.target.lexeme()) {
-      Some(target) => Ok(alias.resolve(Rc::clone(target))),
+    match Self::alias_target(&alias.target, modules, recipes) {
+      Some(target) => Ok(alias.resolve(target)),
       None => Err(alias.name.token.error(UnknownAliasTarget {
         alias: alias.name.lexeme(),
-        target: alias.target.lexeme(),
+        target: alias.target,
       })),
     }
+  }
+
+  fn alias_target<'a>(
+    path: &Namepath<'src>,
+    mut modules: &'a Table<'src, Justfile<'src>>,
+    mut recipes: &'a Table<'src, Rc<Recipe<'src>>>,
+  ) -> Option<Rc<Recipe<'src>>> {
+    let (name, path) = path.split_last();
+
+    for name in path {
+      let module = modules.get(name.lexeme())?;
+      modules = &module.modules;
+      recipes = &module.recipes;
+    }
+
+    recipes.get(name.lexeme()).cloned()
   }
 }
 
@@ -326,7 +342,20 @@ mod tests {
     line: 0,
     column: 6,
     width: 3,
-    kind: UnknownAliasTarget {alias: "foo", target: "bar"},
+    kind: UnknownAliasTarget {
+      alias: "foo",
+      target: Namepath::from(Name::from_identifier(
+        Token{
+          column: 13,
+          kind: TokenKind::Identifier,
+          length: 3,
+          line: 0,
+          offset: 13,
+          path: Path::new("justfile"),
+          src: "alias foo := bar\n",
+        }
+      ))
+    },
   }
 
   analysis_error! {

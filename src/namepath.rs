@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Clone, Debug, PartialEq, Eq, Ord, PartialOrd)]
 pub(crate) struct Namepath<'src>(Vec<Name<'src>>);
 
 impl<'src> Namepath<'src> {
@@ -13,6 +13,28 @@ impl<'src> Namepath<'src> {
       path: self.0.iter().map(|name| name.lexeme().into()).collect(),
       spaced: true,
     }
+  }
+
+  pub(crate) fn push(&mut self, name: Name<'src>) {
+    self.0.push(name);
+  }
+
+  pub(crate) fn last(&self) -> &Name<'src> {
+    self.0.last().unwrap()
+  }
+
+  pub(crate) fn split_last(&self) -> (&Name<'src>, &[Name<'src>]) {
+    self.0.split_last().unwrap()
+  }
+
+  #[cfg(test)]
+  pub(crate) fn iter(&self) -> slice::Iter<'_, Name<'src>> {
+    self.0.iter()
+  }
+
+  #[cfg(test)]
+  pub(crate) fn len(&self) -> usize {
+    self.0.len()
   }
 }
 

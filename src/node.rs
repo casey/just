@@ -63,11 +63,26 @@ impl<'src> Node<'src> for Item<'src> {
   }
 }
 
-impl<'src> Node<'src> for Alias<'src, Name<'src>> {
+impl<'src> Node<'src> for Namepath<'src> {
   fn tree(&self) -> Tree<'src> {
+    match self.len() {
+      1 => Tree::atom(self.last().lexeme()),
+      _ => Tree::list(
+        self
+          .iter()
+          .map(|name| Tree::atom(Cow::Borrowed(name.lexeme()))),
+      ),
+    }
+  }
+}
+
+impl<'src> Node<'src> for Alias<'src, Namepath<'src>> {
+  fn tree(&self) -> Tree<'src> {
+    let target = self.target.tree();
+
     Tree::atom(Keyword::Alias.lexeme())
       .push(self.name.lexeme())
-      .push(self.target.lexeme())
+      .push(target)
   }
 }
 

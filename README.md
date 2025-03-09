@@ -953,6 +953,14 @@ echo 'Building!'
 Building!
 ```
 
+The target of an alias may be a recipe in a submodule:
+
+```justfile
+mod foo
+
+alias baz := foo::bar
+```
+
 ### Settings
 
 Settings control interpretation and execution. Each setting may be specified at
