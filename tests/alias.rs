@@ -44,3 +44,25 @@ fn unknown_nested_alias() {
     .status(EXIT_FAILURE)
     .run();
 }
+
+#[test]
+fn alias_in_submodule() {
+  Test::new()
+    .write(
+      "foo.just",
+      "
+alias b := bar
+
+bar:
+  @echo BAR
+",
+    )
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .arg("foo::b")
+    .stdout("BAR\n")
+    .run();
+}

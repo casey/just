@@ -295,8 +295,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     recipes: &'a Table<'src, Rc<Recipe<'src>>>,
     alias: Alias<'src, Namepath<'src>>,
   ) -> CompileResult<'src, Alias<'src>> {
-    // Make sure the target recipe exists
-    match Self::recipe_from_path(&alias.target, modules, recipes) {
+    match Self::alias_target(&alias.target, modules, recipes) {
       Some(target) => Ok(alias.resolve(target)),
       None => Err(alias.name.token.error(UnknownAliasTarget {
         alias: alias.name.lexeme(),
@@ -305,17 +304,17 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     }
   }
 
-  fn recipe_from_path<'a>(
+  fn alias_target<'a>(
     path: &Namepath<'src>,
     mut modules: &'a Table<'src, Justfile<'src>>,
     mut recipes: &'a Table<'src, Rc<Recipe<'src>>>,
   ) -> Option<Rc<Recipe<'src>>> {
-    let (parent_path, name) = path.split_last();
+    let (name, path) = path.split_last();
 
-    for module_name in parent_path {
-      let just_file = modules.get(module_name.lexeme())?;
-      recipes = &just_file.recipes;
-      modules = &just_file.modules;
+    for name in path {
+      let module = modules.get(name.lexeme())?;
+      modules = &module.modules;
+      recipes = &module.recipes;
     }
 
     recipes.get(name.lexeme()).cloned()

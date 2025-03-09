@@ -952,21 +952,13 @@ $ just b
 echo 'Building!'
 Building!
 ```
-Aliases can also be used for recipes in modules.
 
-Given we have a file `foo.just`
-
-```justfile
-bar:
-  @echo 'bar'
-```
-
-we can alias the `bar` recipe in `foo`:
+The target of an alias may be a recipe in a submodule:
 
 ```justfile
 mod foo
 
-alias fb := foo::bar
+alias baz := foo::bar
 ```
 
 ### Settings
