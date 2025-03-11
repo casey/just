@@ -31,6 +31,7 @@ enum System {
   MacOS,
   OpenBSD,
   Unix,
+  Unrecognized,
   Windows,
 }
 
@@ -52,7 +53,7 @@ impl System {
     if cfg!(unix) {
       return Unix;
     }
-    panic!("No recognized system");
+    Unrecognized
   }
 
   fn enabled(self, enabled: SystemMap, disabled: SystemMap) -> bool {
@@ -82,6 +83,7 @@ impl System {
           && (enabled.unix
             || !(enabled.windows || enabled.macos || enabled.linux || enabled.openbsd))
       }
+      System::Unrecognized => true,
     }
   }
 }
