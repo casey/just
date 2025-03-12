@@ -16,16 +16,7 @@ fn error_from_signal(recipe: &str, line_number: Option<usize>, exit_status: Exit
   }
 }
 
-#[derive(Debug)]
-struct SystemMap {
-  linux: bool,
-  macos: bool,
-  openbsd: bool,
-  unix: bool,
-  windows: bool,
-}
-
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, strum::EnumIter)]
 enum System {
   Linux,
   MacOS,
@@ -56,35 +47,34 @@ impl System {
     Unrecognized
   }
 
-  fn enabled(self, enabled: SystemMap, disabled: SystemMap) -> bool {
+  fn is_specific_unix(self) -> bool {
     match self {
-      System::Windows => {
-        !disabled.windows
-          && (enabled.windows
-            || !(enabled.macos || enabled.linux || enabled.openbsd || enabled.unix))
-      }
-      System::MacOS => {
-        !disabled.macos
-          && ((enabled.macos || enabled.unix)
-            || !(enabled.windows || enabled.linux || enabled.openbsd))
-      }
-      System::Linux => {
-        !disabled.linux
-          && ((enabled.linux || enabled.unix)
-            || !(enabled.windows || enabled.macos || enabled.openbsd))
-      }
-      System::OpenBSD => {
-        !disabled.openbsd
-          && ((enabled.openbsd || enabled.unix)
-            || !(enabled.windows || enabled.macos || enabled.linux))
-      }
-      System::Unix => {
-        !disabled.unix
-          && (enabled.unix
-            || !(enabled.windows || enabled.macos || enabled.linux || enabled.openbsd))
-      }
-      System::Unrecognized => true,
+      System::Linux => true,
+      System::MacOS => true,
+      System::OpenBSD => true,
+      _ => false,
     }
+  }
+
+  fn others(self) -> Vec<System> {
+    use strum::IntoEnumIterator;
+    System::iter()
+      .filter(|system| {
+        *system != self
+          && if system.is_specific_unix() {
+            *system != System::Unix
+          } else {
+            true
+          }
+      })
+      .collect()
+  }
+
+  fn enabled(self, enabled: HashMap<System, bool>, disabled: HashMap<System, bool>) -> bool {
+    let not_disabled = !disabled[&self];
+    let explicitly_enabled = enabled[&self];
+    let no_others_enabled = !self.others().iter().any(|system| enabled[system]);
+    not_disabled && (explicitly_enabled || no_others_enabled)
   }
 }
 
@@ -211,21 +201,25 @@ impl<'src, D> Recipe<'src, D> {
       return true;
     }
 
-    let enabled = SystemMap {
-      windows: windows.unwrap_or(false),
-      macos: macos.unwrap_or(false),
-      linux: linux.unwrap_or(false),
-      openbsd: openbsd.unwrap_or(false),
-      unix: unix.unwrap_or(false),
-    };
+    let enabled: HashMap<System, bool> = [
+      (System::Windows, windows.unwrap_or(false)),
+      (System::MacOS, macos.unwrap_or(false)),
+      (System::Linux, linux.unwrap_or(false)),
+      (System::OpenBSD, openbsd.unwrap_or(false)),
+      (System::Unix, unix.unwrap_or(false)),
+    ]
+    .into_iter()
+    .collect();
 
-    let disabled = SystemMap {
-      linux: linux.is_some_and(bool::not),
-      macos: macos.is_some_and(bool::not),
-      openbsd: openbsd.is_some_and(bool::not),
-      unix: unix.is_some_and(bool::not),
-      windows: windows.is_some_and(bool::not),
-    };
+    let disabled: HashMap<System, bool> = [
+      (System::Windows, windows.is_some_and(bool::not)),
+      (System::MacOS, macos.is_some_and(bool::not)),
+      (System::Linux, linux.is_some_and(bool::not)),
+      (System::OpenBSD, openbsd.is_some_and(bool::not)),
+      (System::Unix, unix.is_some_and(bool::not)),
+    ]
+    .into_iter()
+    .collect();
 
     System::current().enabled(enabled, disabled)
   }
