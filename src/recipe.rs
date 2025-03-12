@@ -48,12 +48,7 @@ impl System {
   }
 
   fn is_specific_unix(self) -> bool {
-    match self {
-      System::Linux => true,
-      System::MacOS => true,
-      System::OpenBSD => true,
-      _ => false,
-    }
+    matches!(self, System::Linux | System::MacOS | System::OpenBSD)
   }
 
   fn others(self) -> Vec<System> {
@@ -73,7 +68,16 @@ impl System {
   fn enabled(self, enabled: HashMap<System, bool>, disabled: HashMap<System, bool>) -> bool {
     let not_disabled = !disabled[&self];
     let explicitly_enabled = enabled[&self];
-    let no_others_enabled = !self.others().iter().any(|system| enabled[system]);
+    let no_others_enabled = !self
+      .others()
+      .iter()
+      .any(|system| *enabled.get(system).unwrap_or(&false));
+
+    // Special case for Unix family
+    if self.is_specific_unix() && enabled.get(&System::Unix).copied().unwrap_or(false) {
+      return !disabled.get(&self).copied().unwrap_or(false);
+    }
+
     not_disabled && (explicitly_enabled || no_others_enabled)
   }
 }
@@ -207,6 +211,7 @@ impl<'src, D> Recipe<'src, D> {
       (System::Linux, linux.unwrap_or(false)),
       (System::OpenBSD, openbsd.unwrap_or(false)),
       (System::Unix, unix.unwrap_or(false)),
+      (System::Unrecognized, false),
     ]
     .into_iter()
     .collect();
@@ -217,6 +222,7 @@ impl<'src, D> Recipe<'src, D> {
       (System::Linux, linux.is_some_and(bool::not)),
       (System::OpenBSD, openbsd.is_some_and(bool::not)),
       (System::Unix, unix.is_some_and(bool::not)),
+      (System::Unrecognized, false),
     ]
     .into_iter()
     .collect();
