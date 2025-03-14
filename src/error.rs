@@ -165,16 +165,16 @@ pub(crate) enum Error<'src> {
   SignalHandlerInstall {
     source: ctrlc::Error,
   },
-  #[cfg(not(windows))]
+  #[cfg(unix)]
   SignalHandlerPipeOpen {
     io_error: io::Error,
   },
-  #[cfg(not(windows))]
+  #[cfg(unix)]
   SignalHandlerSigaction {
     signal: Signal,
     io_error: io::Error,
   },
-  #[cfg(not(windows))]
+  #[cfg(unix)]
   SignalHandlerSpawnThread {
     io_error: io::Error,
   },
