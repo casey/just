@@ -156,9 +156,6 @@ pub(crate) enum Error<'src> {
     io_error: io::Error,
     recipe: &'src str,
   },
-  // SignalPlatform {
-  //   source: <Platform as PlatformInterface>::SignalError,
-  // },
   Signal {
     recipe: &'src str,
     line_number: Option<usize>,
