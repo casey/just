@@ -3982,8 +3982,9 @@ for details.
 running programs to trigger specific behavior. For example, `SIGINT` is sent to
 all processes in the terminal forground process group when `CTRL-C` is pressed.
 
-`just` tries to exit when requested by a signal and avoid leaving behind
-running child proccesses, two goals which are somewhat in conflict.
+`just` tries to exit when requested by a signal, but it also tries to avoid
+leaving behind running child proccesses, two goals which are somewhat in
+conflict.
 
 If `just` exits leaving behind child processes, the user will have no recourse
 but to `ps aux | grep` for the children and manually `kill` them, a tedious
