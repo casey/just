@@ -482,15 +482,15 @@ impl ColorDisplay for Error<'_> {
       SignalHandlerInstall { source } => {
         write!(f, "Could not install signal handler: {source}")?;
       }
-      #[cfg(not(windows))]
+      #[cfg(unix)]
       SignalHandlerPipeOpen { io_error } => {
         write!(f, "I/O error opening pipe for signal handler: {io_error}")?;
       }
-      #[cfg(not(windows))]
+      #[cfg(unix)]
       SignalHandlerSigaction { io_error, signal } => {
         write!(f, "I/O error setting sigaction for {signal}: {io_error}")?;
       }
-      #[cfg(not(windows))]
+      #[cfg(unix)]
       SignalHandlerSpawnThread { io_error } => {
         write!(f, "I/O error spawning thread for signal handler: {io_error}")?;
       }
