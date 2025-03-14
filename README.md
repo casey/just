@@ -3979,9 +3979,8 @@ for details.
 ### Signal Handling
 
 [Signals](https://en.wikipedia.org/wiki/Signal_(IPC)) are messsages sent to
-running programs to trigger specific behavior. For example, the `SIGINT` signal
-is sent to all processes in the terminal forground process group when `CTRL-C`
-is pressed.
+running programs to trigger specific behavior. For example, `SIGINT` is sent to
+all processes in the terminal forground process group when `CTRL-C` is pressed.
 
 `just` tries to exit when requested by a signal and avoid leaving behind
 running child proccesses, two goals which are somewhat in conflict.
