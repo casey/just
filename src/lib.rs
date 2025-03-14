@@ -258,7 +258,7 @@ mod shebang;
 mod show_whitespace;
 mod signal;
 mod signal_handler;
-#[cfg(not(windows))]
+#[cfg(unix)]
 mod signals;
 mod source;
 mod string_delimiter;
