@@ -1,21 +1,23 @@
 use super::*;
 
 pub(crate) trait PlatformInterface {
-  /// Translate a path from a "native" path to a path the interpreter expects
+  /// translate path from "native" path to path interpreter expects
   fn convert_native_path(working_directory: &Path, path: &Path) -> FunctionResult;
 
-  /// Construct a command equivalent to running the script at `path` with the
-  /// shebang line `shebang`
+  /// install handler, may only be called once
+  fn install_signal_handler<T: Fn(Signal) + Send + 'static>(handler: T) -> RunResult<'static>;
+
+  /// construct command equivalent to running script at `path` with shebang
+  /// line `shebang`
   fn make_shebang_command(
     path: &Path,
     working_directory: Option<&Path>,
     shebang: Shebang,
   ) -> Result<Command, OutputError>;
 
-  /// Set the execute permission on the file pointed to by `path`
+  /// set the execute permission on file pointed to by `path`
   fn set_execute_permission(path: &Path) -> io::Result<()>;
 
-  /// Extract the signal from a process exit status, if it was terminated by a
-  /// signal
+  /// extract signal from process exit status
   fn signal_from_exit_status(exit_status: ExitStatus) -> Option<i32>;
 }

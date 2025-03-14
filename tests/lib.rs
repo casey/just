@@ -1,4 +1,4 @@
-pub(crate) use {
+use {
   crate::{
     assert_stdout::assert_stdout,
     assert_success::assert_success,
@@ -27,6 +27,12 @@ pub(crate) use {
   tempfile::TempDir,
   temptree::{temptree, tree, Tree},
   which::which,
+};
+
+#[cfg(not(windows))]
+use std::{
+  thread,
+  time::{Duration, Instant},
 };
 
 fn default<T: Default>() -> T {
@@ -75,8 +81,6 @@ mod groups;
 mod ignore_comments;
 mod imports;
 mod init;
-#[cfg(unix)]
-mod interrupts;
 mod invocation_directory;
 mod json;
 mod line_prefixes;
@@ -111,6 +115,8 @@ mod shebang;
 mod shell;
 mod shell_expansion;
 mod show;
+#[cfg(unix)]
+mod signals;
 mod slash_operator;
 mod string;
 mod subsequents;

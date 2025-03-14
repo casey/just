@@ -112,6 +112,9 @@ pub(crate) enum Error<'src> {
   Internal {
     message: String,
   },
+  Interrupted {
+    signal: Signal,
+  },
   Io {
     recipe: &'src str,
     io_error: io::Error,
@@ -153,10 +156,30 @@ pub(crate) enum Error<'src> {
     io_error: io::Error,
     recipe: &'src str,
   },
+  // SignalPlatform {
+  //   source: <Platform as PlatformInterface>::SignalError,
+  // },
   Signal {
     recipe: &'src str,
     line_number: Option<usize>,
     signal: i32,
+  },
+  #[cfg(windows)]
+  SignalHandlerInstall {
+    source: ctrlc::Error,
+  },
+  #[cfg(not(windows))]
+  SignalHandlerPipeOpen {
+    io_error: io::Error,
+  },
+  #[cfg(not(windows))]
+  SignalHandlerSigaction {
+    signal: Signal,
+    io_error: io::Error,
+  },
+  #[cfg(not(windows))]
+  SignalHandlerSpawnThread {
+    io_error: io::Error,
   },
   StdoutIo {
     io_error: io::Error,
@@ -194,12 +217,23 @@ pub(crate) enum Error<'src> {
 impl<'src> Error<'src> {
   pub(crate) fn code(&self) -> Option<i32> {
     match self {
-      Self::Code { code, .. }
-      | Self::Backtick {
+      Self::Backtick {
         output_error: OutputError::Code(code),
         ..
-      } => Some(*code),
+      }
+      | Self::Code { code, .. } => Some(*code),
+
       Self::ChooserStatus { status, .. } | Self::EditorStatus { status, .. } => status.code(),
+      Self::Backtick {
+        output_error: OutputError::Signal(signal),
+        ..
+      }
+      | Self::Signal { signal, .. } => 128i32.checked_add(*signal),
+      Self::Backtick {
+        output_error: OutputError::Interrupted(signal),
+        ..
+      }
+      | Self::Interrupted { signal } => signal.code(),
       _ => None,
     }
   }
@@ -291,6 +325,7 @@ impl ColorDisplay for Error<'_> {
         OutputError::Code(code) => write!(f, "Backtick failed with exit code {code}")?,
         OutputError::Signal(signal) => write!(f, "Backtick was terminated by signal {signal}")?,
         OutputError::Unknown => write!(f, "Backtick failed for an unknown reason")?,
+        OutputError::Interrupted(signal) => write!(f, "Backtick succeeded but `just` was interrupted by signal {signal}")?,
         OutputError::Io(io_error) => match io_error.kind() {
             io::ErrorKind::NotFound => write!(f, "Backtick could not be run because just could not find the shell:\n{io_error}"),
             io::ErrorKind::PermissionDenied => write!(f, "Backtick could not be run because just could not run the shell:\n{io_error}"),
@@ -340,6 +375,7 @@ impl ColorDisplay for Error<'_> {
         OutputError::Code(code) => write!(f, "Cygpath failed with exit code {code} while translating recipe `{recipe}` shebang interpreter path")?,
         OutputError::Signal(signal) => write!(f, "Cygpath terminated by signal {signal} while translating recipe `{recipe}` shebang interpreter path")?,
         OutputError::Unknown => write!(f, "Cygpath experienced an unknown failure while translating recipe `{recipe}` shebang interpreter path")?,
+        OutputError::Interrupted(signal) => write!(f, "Cygpath succeeded but `just` was interrupted by {signal}")?,
         OutputError::Io(io_error) => {
           match io_error.kind() {
             io::ErrorKind::NotFound => write!(f, "Could not find `cygpath` executable to translate recipe `{recipe}` shebang interpreter path:\n{io_error}"),
@@ -402,6 +438,9 @@ impl ColorDisplay for Error<'_> {
         write!(f, "Internal runtime error, this may indicate a bug in just: {message} \
                    consider filing an issue: https://github.com/casey/just/issues/new")?;
       }
+      Interrupted { signal } => {
+        write!(f, "Interrupted by {signal}")?;
+      }
       Io { recipe, io_error } => {
         match io_error.kind() {
           io::ErrorKind::NotFound => write!(f, "Recipe `{recipe}` could not be run because just could not find the shell: {io_error}"),
@@ -442,8 +481,24 @@ impl ColorDisplay for Error<'_> {
           write!(f, "Recipe `{recipe}` was terminated by signal {signal}")?;
         }
       }
+      #[cfg(windows)]
+      SignalHandlerInstall { source } => {
+        write!(f, "Could not install signal handler: {source}")?;
+      }
+      #[cfg(not(windows))]
+      SignalHandlerPipeOpen { io_error } => {
+        write!(f, "I/O error opening pipe for signal handler: {io_error}")?;
+      }
+      #[cfg(not(windows))]
+      SignalHandlerSigaction { io_error, signal } => {
+        write!(f, "I/O error setting sigaction for {signal}: {io_error}")?;
+      }
+      #[cfg(not(windows))]
+      SignalHandlerSpawnThread { io_error } => {
+        write!(f, "I/O error spawning thread for signal handler: {io_error}")?;
+      }
       StdoutIo { io_error } => {
-        write!(f, "I/O error writing to stdout: {io_error}?")?;
+        write!(f, "I/O error writing to stdout: {io_error}")?;
       }
       TempdirIo { recipe, io_error } => {
         write!(f, "Recipe `{recipe}` could not be run because of an IO error while trying to create a temporary \
