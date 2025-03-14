@@ -19,7 +19,7 @@ members = [".", "crates/*"]
 
 [dependencies]
 ansi_term = "0.12.0"
-blake3 = { version = "1.5.0", features = ["rayon", "mmap"] }
+blake3 = { version = "1.5.0", features = ["rayon", "mmap"], git = "https://github.com/BLAKE3-team/BLAKE3.git", branch = "fix-clang-cl-cross-rebase" }
 camino = "1.0.4"
 chrono = "0.4.38"
 clap = { version = "4.0.0", features = ["derive", "env", "wrap_help"] }
