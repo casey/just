@@ -13,9 +13,9 @@ pub(crate) trait CommandExt {
 
   fn output_guard(self) -> (io::Result<process::Output>, Option<Signal>);
 
-  fn status_guard(self) -> (io::Result<ExitStatus>, Option<Signal>);
-
   fn output_guard_stdout(self) -> Result<String, OutputError>;
+
+  fn status_guard(self) -> (io::Result<ExitStatus>, Option<Signal>);
 }
 
 impl CommandExt for Command {
@@ -53,10 +53,6 @@ impl CommandExt for Command {
     }
   }
 
-  fn status_guard(self) -> (io::Result<ExitStatus>, Option<Signal>) {
-    SignalHandler::spawn(self, |mut child| child.wait())
-  }
-
   fn output_guard(self) -> (io::Result<process::Output>, Option<Signal>) {
     SignalHandler::spawn(self, process::Child::wait_with_output)
   }
@@ -81,5 +77,9 @@ impl CommandExt for Command {
         .unwrap_or(output)
         .into(),
     )
+  }
+
+  fn status_guard(self) -> (io::Result<ExitStatus>, Option<Signal>) {
+    SignalHandler::spawn(self, |mut child| child.wait())
   }
 }
