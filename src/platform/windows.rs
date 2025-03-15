@@ -1,39 +1,5 @@
 use super::*;
 
-/// Run a command and return the data it wrote to stdout as a string
-fn output(command: Command) -> Result<String, OutputError> {
-  command.output_guard_stdout()
-  // match command.output() {
-  //   Ok(output) => {
-  //     if let Some(code) = output.status.code() {
-  //       if code != 0 {
-  //         return Err(OutputError::Code(code));
-  //       }
-  //     } else {
-  //       let signal = Platform::signal_from_exit_status(output.status);
-  //       return Err(match signal {
-  //         Some(signal) => OutputError::Signal(signal),
-  //         None => OutputError::Unknown,
-  //       });
-  //     }
-  //     match str::from_utf8(&output.stdout) {
-  //       Err(error) => Err(OutputError::Utf8(error)),
-  //       Ok(output) => Ok(
-  //         if output.ends_with("\r\n") {
-  //           &output[0..output.len() - 2]
-  //         } else if output.ends_with('\n') {
-  //           &output[0..output.len() - 1]
-  //         } else {
-  //           output
-  //         }
-  //         .to_owned(),
-  //       ),
-  //     }
-  //   }
-  //   Err(io_error) => Err(OutputError::Io(io_error)),
-  // }
-}
-
 impl PlatformInterface for Platform {
   fn make_shebang_command(
     path: &Path,
@@ -46,13 +12,19 @@ impl PlatformInterface for Platform {
     let command = if shebang.interpreter.contains('/') {
       // …translate path to the interpreter from unix style to windows style.
       let mut cygpath = Command::new("cygpath");
+
       if let Some(working_directory) = working_directory {
         cygpath.current_dir(working_directory);
       }
-      cygpath.arg("--windows");
-      cygpath.arg(shebang.interpreter);
 
-      Cow::Owned(output(cygpath)?)
+      cygpath
+        .arg("--windows")
+        .arg(shebang.interpreter)
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped());
+
+      Cow::Owned(cygpath.output_guard_stdout()?)
     } else {
       // …otherwise use it as-is.
       Cow::Borrowed(shebang.interpreter)
@@ -87,11 +59,16 @@ impl PlatformInterface for Platform {
   fn convert_native_path(working_directory: &Path, path: &Path) -> FunctionResult {
     // Translate path from windows style to unix style
     let mut cygpath = Command::new("cygpath");
-    cygpath.current_dir(working_directory);
-    cygpath.arg("--unix");
-    cygpath.arg(path);
 
-    match output(cygpath) {
+    cygpath
+      .current_dir(working_directory)
+      .arg("--unix")
+      .arg(path)
+      .stdin(Stdio::null())
+      .stdout(Stdio::piped())
+      .stderr(Stdio::piped());
+
+    match cygpath.output_guard_stdout() {
       Ok(shell_path) => Ok(shell_path),
       Err(_) => path
         .to_str()
