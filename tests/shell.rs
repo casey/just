@@ -71,7 +71,7 @@ fn powershell() {
   let tmp = temptree! {
       justfile: r#"
 
-set shell := ["pwsh.exe", "-c"]
+set shell := ["powershell.exe", "-c"]
 
 x := `Write-Host "Hello, world!"`
 
