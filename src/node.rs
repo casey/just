@@ -237,7 +237,7 @@ impl<'src> Node<'src> for UnresolvedRecipe<'src> {
       let mut subsequents = Tree::atom("sups");
 
       for (i, dependency) in self.dependencies.iter().enumerate() {
-        let mut d = Tree::atom(dependency.recipe.lexeme());
+        let mut d = dependency.recipe.tree();
 
         for argument in &dependency.arguments {
           d.push_mut(argument.tree());
