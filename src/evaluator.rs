@@ -292,25 +292,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       })
       .stdout(Stdio::piped());
 
-    let (result, caught) = cmd.output_guard();
-
-    let output = result.map_err(OutputError::Io)?;
-
-    OutputError::result_from_exit_status(output.status)?;
-
-    let output = str::from_utf8(&output.stdout).map_err(OutputError::Utf8)?;
-
-    if let Some(signal) = caught {
-      return Err(OutputError::Interrupted(signal));
-    }
-
-    Ok(
-      output
-        .strip_suffix("\r\n")
-        .or_else(|| output.strip_suffix("\n"))
-        .unwrap_or(output)
-        .into(),
-    )
+    cmd.output_guard_stdout()
   }
 
   pub(crate) fn evaluate_line(
