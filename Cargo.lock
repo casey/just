@@ -112,7 +112,8 @@ checksum = "5c8214115b7bf84099f1309324e63141d4c5d7cc26862f97a0a857dbefe165bd"
 [[package]]
 name = "blake3"
 version = "1.6.1"
-source = "git+https://github.com/BLAKE3-team/BLAKE3.git?branch=fix-clang-cl-cross-rebase#1b9dd88c6277cc59657242d832a93b9ff0d90f56"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "675f87afced0413c9bb02843499dbbd3882a237645883f71a2b59644a6d2f753"
 dependencies = [
  "arrayref",
  "arrayvec",
