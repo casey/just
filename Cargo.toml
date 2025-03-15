@@ -54,6 +54,12 @@ typed-arena = "2.0.1"
 unicode-width = "0.2.0"
 uuid = { version = "1.0.0", features = ["v4"] }
 
+[target.'cfg(unix)'.dependencies]
+nix = { version = "0.29.0", features = ["user"] }
+
+[target.'cfg(windows)'.dependencies]
+ctrlc = { version = "3.1.1", features = ["termination"] }
+
 [dev-dependencies]
 executable-path = "1.0.0"
 pretty_assertions = "1.0.0"
@@ -74,6 +80,7 @@ struct_excessive_bools = "allow"
 struct_field_names = "allow"
 too_many_arguments = "allow"
 too_many_lines = "allow"
+undocumented_unsafe_blocks = "deny"
 unnecessary_wraps = "allow"
 wildcard_imports = "allow"
 

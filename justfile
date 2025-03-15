@@ -17,7 +17,7 @@ test:
   cargo test --all
 
 [group: 'check']
-ci: forbid test build-book clippy
+ci: test clippy build-book forbid
   cargo fmt --all -- --check
   cargo update --locked --package just
 

@@ -406,6 +406,16 @@ impl Subcommand {
   fn request(request: &Request) -> RunResult<'static> {
     let response = match request {
       Request::EnvironmentVariable(key) => Response::EnvironmentVariable(env::var_os(key)),
+      #[cfg(not(windows))]
+      Request::Signal => {
+        let sigset = nix::sys::signal::SigSet::all();
+
+        sigset.thread_block().unwrap();
+
+        let received = sigset.wait().unwrap();
+
+        Response::Signal(received.as_str().into())
+      }
     };
 
     serde_json::to_writer(io::stdout(), &response).map_err(|source| Error::DumpJson { source })?;

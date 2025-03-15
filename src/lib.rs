@@ -42,8 +42,6 @@ pub(crate) use {
     fragment::Fragment,
     function::Function,
     interpreter::Interpreter,
-    interrupt_guard::InterruptGuard,
-    interrupt_handler::InterruptHandler,
     item::Item,
     justfile::Justfile,
     keyed::Keyed,
@@ -57,7 +55,6 @@ pub(crate) use {
     name::Name,
     namepath::Namepath,
     ordinal::Ordinal,
-    output::output,
     output_error::OutputError,
     parameter::Parameter,
     parameter_kind::ParameterKind,
@@ -80,6 +77,8 @@ pub(crate) use {
     settings::Settings,
     shebang::Shebang,
     show_whitespace::ShowWhitespace,
+    signal::Signal,
+    signal_handler::SignalHandler,
     source::Source,
     string_delimiter::StringDelimiter,
     string_kind::StringKind,
@@ -221,8 +220,6 @@ mod expression;
 mod fragment;
 mod function;
 mod interpreter;
-mod interrupt_guard;
-mod interrupt_handler;
 mod item;
 mod justfile;
 mod keyed;
@@ -236,7 +233,6 @@ mod module_path;
 mod name;
 mod namepath;
 mod ordinal;
-mod output;
 mod output_error;
 mod parameter;
 mod parameter_kind;
@@ -260,6 +256,10 @@ mod setting;
 mod settings;
 mod shebang;
 mod show_whitespace;
+mod signal;
+mod signal_handler;
+#[cfg(unix)]
+mod signals;
 mod source;
 mod string_delimiter;
 mod string_kind;

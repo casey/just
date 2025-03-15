@@ -273,22 +273,26 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       .module
       .settings
       .shell_command(self.context.config);
-    cmd.arg(command);
-    cmd.args(args);
-    cmd.current_dir(self.context.working_directory());
-    cmd.export(
-      &self.context.module.settings,
-      self.context.dotenv,
-      &self.scope,
-      &self.context.module.unexports,
-    );
-    cmd.stdin(Stdio::inherit());
-    cmd.stderr(if self.context.config.verbosity.quiet() {
-      Stdio::null()
-    } else {
-      Stdio::inherit()
-    });
-    InterruptHandler::guard(|| output(cmd))
+
+    cmd
+      .arg(command)
+      .args(args)
+      .current_dir(self.context.working_directory())
+      .export(
+        &self.context.module.settings,
+        self.context.dotenv,
+        &self.scope,
+        &self.context.module.unexports,
+      )
+      .stdin(Stdio::inherit())
+      .stderr(if self.context.config.verbosity.quiet() {
+        Stdio::null()
+      } else {
+        Stdio::inherit()
+      })
+      .stdout(Stdio::piped());
+
+    cmd.output_guard_stdout()
   }
 
   pub(crate) fn evaluate_line(
