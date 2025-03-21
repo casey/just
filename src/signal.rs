@@ -20,7 +20,7 @@ pub(crate) enum Signal {
 
 impl Signal {
   #[cfg(not(windows))]
-  pub(crate) const ALL: &[Signal] = &[
+  pub(crate) const ALL: &'static [Signal] = &[
     Signal::Hangup,
     #[cfg(any(
       target_os = "dragonfly",
