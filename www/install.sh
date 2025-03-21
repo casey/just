@@ -55,10 +55,24 @@ download() {
   url="$1"
   output="$2"
 
+  set +x
+
   if command -v curl > /dev/null; then
-    curl --proto =https --tlsv1.2 -sSfL "$url" "-o$output"
+    if [ -n "${GITHUB_TOKEN+x}" ]; then
+      curl --proto =https --tlsv1.2 -sSfL -H "Authorization: Bearer $GITHUB_TOKEN" "$url" -o"$output"
+    else
+      curl --proto =https --tlsv1.2 -sSfL "$url" "-o$output"
+    fi
   else
-    wget --https-only --secure-protocol=TLSv1_2 --quiet "$url" "-O$output"
+    if [ -n "${GITHUB_TOKEN+x}" ]; then
+      wget --https-only --secure-protocol=TLSv1_2 --quiet --header="Authorization: Bearer $GITHUB_TOKEN" "$url" -O"$output"
+    else
+      wget --https-only --secure-protocol=TLSv1_2 --quiet "$url" -O"$output"
+    fi
+  fi
+
+  if [ -n "${GITHUB_ACTIONS-}" ]; then
+    set -x
   fi
 }
 
