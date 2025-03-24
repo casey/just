@@ -8,6 +8,7 @@ fn constants_are_defined() {
 #[test]
 fn constants_can_have_different_values_on_windows() {
   assert_eval_eq("PATH_SEP", if cfg!(windows) { "\\" } else { "/" });
+  assert_eval_eq("PATH_VAR_SEP", if cfg!(windows) { ";" } else { ":" });
 }
 
 #[test]
