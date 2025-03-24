@@ -36,7 +36,7 @@ pub(crate) fn constants() -> &'static HashMap<&'static str, &'static str> {
   static MAP: OnceLock<HashMap<&str, &str>> = OnceLock::new();
   MAP.get_or_init(|| {
     CONSTANTS
-      .into_iter()
+      .iter()
       .copied()
       .map(|(name, unix, windows, _version)| {
         (
