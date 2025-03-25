@@ -409,7 +409,7 @@ fn dotenv_path_does_not_override_dotenv_file() {
 }
 
 #[test]
-fn multiple_dotenv_filename() {
+fn dotenv_multiple_filename() {
   Test::new()
     .justfile(
       r#"
@@ -426,7 +426,7 @@ fn multiple_dotenv_filename() {
 }
 
 #[test]
-fn multiple_dotenv_filename_parent() {
+fn dotenv_multiple_filename_parent() {
   Test::new()
     .justfile(
       r#"
@@ -448,7 +448,7 @@ fn multiple_dotenv_filename_parent() {
 }
 
 #[test]
-fn multiple_dotenv_path() {
+fn dotenv_multiple_path() {
   Test::new()
     .justfile(
       r#"
@@ -465,7 +465,7 @@ fn multiple_dotenv_path() {
 }
 
 #[test]
-fn empty_dotenv_path_array_falls_back_to_dotenv_filename() {
+fn dotenv_empty_path_array_falls_back_to_dotenv_filename() {
   Test::new()
     .justfile(
       r#"
@@ -482,7 +482,7 @@ fn empty_dotenv_path_array_falls_back_to_dotenv_filename() {
 }
 
 #[test]
-fn empty_dotenv_filename_array() {
+fn dotenv_empty_filename_array() {
   Test::new()
     .justfile(
       r#"
@@ -494,5 +494,24 @@ fn empty_dotenv_filename_array() {
     )
     .write(".env", "KEY=value")
     .stdout("not_set\n")
+    .run();
+}
+
+#[test]
+fn dotenv_multiple_filenames_with_variable_expansion() {
+  Test::new()
+    .justfile(
+      r#"
+        set dotenv-filename := [".env", x'.env.${ENV:-dev}']
+
+        foo:
+          @echo $KEY1$KEY2
+      "#,
+    )
+    .write(".env", "KEY1=default\nKEY2=default")
+    .write(".env.dev", "KEY2=dev")
+    .write(".env.prod", "KEY2=prod")
+    .env("ENV", "prod")
+    .stdout("defaultprod\n")
     .run();
 }
