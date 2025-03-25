@@ -17,8 +17,8 @@ pub(crate) struct Config {
   pub(crate) check: bool,
   pub(crate) color: Color,
   pub(crate) command_color: Option<ansi_term::Color>,
-  pub(crate) dotenv_filename: Option<String>,
-  pub(crate) dotenv_path: Option<PathBuf>,
+  pub(crate) dotenv_filename: Vec<String>,
+  pub(crate) dotenv_path: Vec<PathBuf>,
   pub(crate) dry_run: bool,
   pub(crate) dump_format: DumpFormat,
   pub(crate) explain: bool,
@@ -201,17 +201,17 @@ impl Config {
       .arg(
         Arg::new(arg::DOTENV_FILENAME)
           .long("dotenv-filename")
-          .action(ArgAction::Set)
-          .help("Search for environment file named <DOTENV-FILENAME> instead of `.env`")
+          .action(ArgAction::Append)
+          .help("Search for environment files with these names instead of `.env`. Can be used multiple times")
           .conflicts_with(arg::DOTENV_PATH),
       )
       .arg(
         Arg::new(arg::DOTENV_PATH)
           .short('E')
           .long("dotenv-path")
-          .action(ArgAction::Set)
+          .action(ArgAction::Append)
           .value_parser(value_parser!(PathBuf))
-          .help("Load <DOTENV-PATH> as environment file instead of searching for one"),
+          .help("Load environment files at these paths instead of searching. Can be used multiple times"),
       )
       .arg(
         Arg::new(arg::DRY_RUN)
@@ -763,9 +763,15 @@ impl Config {
         .copied()
         .map(CommandColor::into),
       dotenv_filename: matches
-        .get_one::<String>(arg::DOTENV_FILENAME)
-        .map(Into::into),
-      dotenv_path: matches.get_one::<PathBuf>(arg::DOTENV_PATH).map(Into::into),
+        .get_many::<String>(arg::DOTENV_FILENAME)
+        .unwrap_or_default()
+        .map(Into::into)
+        .collect(),
+      dotenv_path: matches
+        .get_many::<PathBuf>(arg::DOTENV_PATH)
+        .unwrap_or_default()
+        .map(Into::into)
+        .collect(),
       dry_run: matches.get_flag(arg::DRY_RUN),
       dump_format: matches
         .get_one::<DumpFormat>(arg::DUMP_FORMAT)
