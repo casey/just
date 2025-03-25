@@ -77,9 +77,9 @@ struct Recipe<'a> {
 struct Settings<'a> {
   allow_duplicate_recipes: bool,
   allow_duplicate_variables: bool,
-  dotenv_filename: Option<&'a str>,
+  dotenv_filename: Vec<&'a str>,
   dotenv_load: bool,
-  dotenv_path: Option<&'a str>,
+  dotenv_path: Vec<&'a str>,
   dotenv_required: bool,
   export: bool,
   fallback: bool,
@@ -694,8 +694,8 @@ fn settings() {
       .into(),
       settings: Settings {
         allow_duplicate_recipes: true,
-        dotenv_filename: Some("filename"),
-        dotenv_path: Some("path"),
+        dotenv_filename: vec!["filename"],
+        dotenv_path: vec!["path"],
         dotenv_load: true,
         export: true,
         fallback: true,
@@ -706,6 +706,24 @@ fn settings() {
           arguments: ["b", "c"].into(),
           command: "a",
         }),
+        ..default()
+      },
+      ..default()
+    },
+  );
+}
+
+#[test]
+fn settings_multiple_dotenv() {
+  case(
+    "
+      set dotenv-filename := ['filename1', 'filename2']
+      set dotenv-path := ['path1', 'path2']
+    ",
+    Module {
+      settings: Settings {
+        dotenv_filename: vec!["filename1", "filename2"],
+        dotenv_path: vec!["path1", "path2"],
         ..default()
       },
       ..default()
