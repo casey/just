@@ -2,6 +2,11 @@ use {super::*, clap_mangen::Man};
 
 const INIT_JUSTFILE: &str = "default:\n    echo 'Hello, world!'\n";
 
+#[derive(boilerplate::Boilerplate)]
+struct SheetHtml {
+  examples: Vec<&'static str>,
+}
+
 fn backtick_re() -> &'static Regex {
   static BACKTICK_RE: OnceLock<Regex> = OnceLock::new();
   BACKTICK_RE.get_or_init(|| Regex::new("(`.*?`)|(`[^`]*$)").unwrap())
@@ -42,6 +47,7 @@ pub(crate) enum Subcommand {
     arguments: Vec<String>,
     overrides: BTreeMap<String, String>,
   },
+  Sheet,
   Show {
     path: ModulePath,
   },
@@ -89,6 +95,7 @@ impl Subcommand {
         arguments,
         overrides,
       } => Self::run(config, loader, search, compilation, arguments, overrides)?,
+      Sheet => Self::sheet()?,
       Show { path } => Self::show(config, justfile, path)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
@@ -691,6 +698,20 @@ impl Subcommand {
         }
       }
     }
+  }
+
+  fn sheet() -> RunResult<'static> {
+    println!(
+      "{}",
+      SheetHtml {
+        examples: include_str!("../sheet.just")
+          .split("\n#\n")
+          .map(|example| example.trim())
+          .collect(),
+      }
+    );
+
+    Ok(())
   }
 
   fn show<'src>(
