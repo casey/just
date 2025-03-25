@@ -46,6 +46,7 @@ pub(crate) struct Config {
 
 mod cmd {
   pub(crate) const CHANGELOG: &str = "CHANGELOG";
+  pub(crate) const CHEAT_SHEET: &str = "CHEAT_SHEET";
   pub(crate) const CHOOSE: &str = "CHOOSE";
   pub(crate) const COMMAND: &str = "COMMAND";
   pub(crate) const COMPLETIONS: &str = "COMPLETIONS";
@@ -58,7 +59,6 @@ mod cmd {
   pub(crate) const LIST: &str = "LIST";
   pub(crate) const MAN: &str = "MAN";
   pub(crate) const REQUEST: &str = "REQUEST";
-  pub(crate) const SHEET: &str = "SHEET";
   pub(crate) const SHOW: &str = "SHOW";
   pub(crate) const SUMMARY: &str = "SUMMARY";
   pub(crate) const VARIABLES: &str = "VARIABLES";
@@ -550,8 +550,8 @@ impl Config {
           .help_heading(cmd::REQUEST),
       )
       .arg(
-        Arg::new(cmd::SHEET)
-          .long("sheet")
+        Arg::new(cmd::CHEAT_SHEET)
+          .long("cheet-sheet")
           .action(ArgAction::SetTrue)
           .help("Print HTML cheet sheet")
           .help_heading(cmd::HEADING),
@@ -740,8 +740,8 @@ impl Config {
         request: serde_json::from_str(request)
           .map_err(|source| ConfigError::RequestParse { source })?,
       }
-    } else if matches.get_flag(cmd::SHEET) {
-      Subcommand::Sheet
+    } else if matches.get_flag(cmd::CHEAT_SHEET) {
+      Subcommand::CheatSheet
     } else if let Some(path) = matches.get_many::<String>(cmd::SHOW) {
       Subcommand::Show {
         path: Self::parse_module_path(path)?,

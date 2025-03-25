@@ -3,7 +3,7 @@ use {super::*, clap_mangen::Man};
 const INIT_JUSTFILE: &str = "default:\n    echo 'Hello, world!'\n";
 
 #[derive(boilerplate::Boilerplate)]
-struct SheetHtml {
+struct CheatSheetHtml {
   examples: Vec<&'static str>,
 }
 
@@ -15,6 +15,7 @@ fn backtick_re() -> &'static Regex {
 #[derive(PartialEq, Clone, Debug)]
 pub(crate) enum Subcommand {
   Changelog,
+  CheatSheet,
   Choose {
     overrides: BTreeMap<String, String>,
     chooser: Option<String>,
@@ -47,7 +48,6 @@ pub(crate) enum Subcommand {
     arguments: Vec<String>,
     overrides: BTreeMap<String, String>,
   },
-  Sheet,
   Show {
     path: ModulePath,
   },
@@ -64,9 +64,11 @@ impl Subcommand {
         Self::changelog();
         return Ok(());
       }
+      CheatSheet => Self::cheat_sheet()?,
       Completions { shell } => return Self::completions(*shell),
       Init => return Self::init(config),
       Man => return Self::man(),
+      Request { request } => Self::request(request)?,
       _ => {}
     }
 
@@ -90,16 +92,16 @@ impl Subcommand {
       Format => Self::format(config, &search, compilation)?,
       Groups => Self::groups(config, justfile),
       List { path } => Self::list(config, justfile, path)?,
-      Request { request } => Self::request(request)?,
       Run {
         arguments,
         overrides,
       } => Self::run(config, loader, search, compilation, arguments, overrides)?,
-      Sheet => Self::sheet()?,
       Show { path } => Self::show(config, justfile, path)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
-      Changelog | Completions { .. } | Edit | Init | Man => unreachable!(),
+      Changelog | CheatSheet | Completions { .. } | Edit | Init | Man | Request { .. } => {
+        unreachable!()
+      }
     }
 
     Ok(())
@@ -700,13 +702,13 @@ impl Subcommand {
     }
   }
 
-  fn sheet() -> RunResult<'static> {
+  fn cheat_sheet() -> RunResult<'static> {
     println!(
       "{}",
-      SheetHtml {
-        examples: include_str!("../sheet.just")
+      CheatSheetHtml {
+        examples: include_str!("../cheat-sheet.just")
           .split("\n#\n")
-          .map(|example| example.trim())
+          .map(str::trim)
           .collect(),
       }
     );
