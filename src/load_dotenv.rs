@@ -26,12 +26,15 @@ pub(crate) fn load_dotenv(
   }
 
   if !dotenv_paths.is_empty() {
-    let paths = dotenv_paths
+    let present_paths = dotenv_paths
       .iter()
       .map(|path| working_directory.join(path))
+      .filter(|path| path.is_file())
       .collect::<Vec<_>>();
 
-    return load_from_files(&paths);
+    if !present_paths.is_empty() {
+      return load_from_files(&present_paths);
+    }
   }
 
   let filenames = if dotenv_filenames.is_empty() {
