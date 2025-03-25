@@ -407,3 +407,92 @@ fn dotenv_path_does_not_override_dotenv_file() {
     .stdout("ROOT\n")
     .run();
 }
+
+#[test]
+fn multiple_dotenv_filename() {
+  Test::new()
+    .justfile(
+      r#"
+        set dotenv-filename := ['.env1', '.env2']
+
+        foo:
+          @echo $KEY1-$KEY2-$KEY3
+      "#,
+    )
+    .write(".env1", "KEY1=one\nKEY2=two")
+    .write(".env2", "KEY2=override\nKEY3=three")
+    .stdout("one-override-three\n")
+    .run();
+}
+
+#[test]
+fn multiple_dotenv_filename_parent() {
+  Test::new()
+    .justfile(
+      r#"
+        set dotenv-filename := ['.env1', '.env2']
+
+        foo:
+          @echo $KEY1-$KEY2
+      "#,
+    )
+    .write(".env1", "KEY1=parent1")
+    .write(".env2", "KEY2=parent2")
+    .write(
+      "sub/justfile",
+      "set dotenv-filename := ['.env1', '.env2']\n@foo:\n echo $KEY1-$KEY2",
+    )
+    .current_dir("sub")
+    .stdout("parent1-parent2\n")
+    .run();
+}
+
+#[test]
+fn multiple_dotenv_path() {
+  Test::new()
+    .justfile(
+      r#"
+        set dotenv-path := ['config/.env1', 'config/.env2']
+
+        foo:
+          @echo $KEY1-$KEY2-$KEY3
+      "#,
+    )
+    .write("config/.env1", "KEY1=one\nKEY2=two")
+    .write("config/.env2", "KEY2=override\nKEY3=three")
+    .stdout("one-override-three\n")
+    .run();
+}
+
+#[test]
+fn empty_dotenv_path_array_falls_back_to_dotenv_filename() {
+  Test::new()
+    .justfile(
+      r#"
+        set dotenv-path := []
+        set dotenv-load
+
+        foo:
+          @echo $KEY
+      "#,
+    )
+    .write(".env", "KEY=value")
+    .stdout("value\n")
+    .run();
+}
+
+#[test]
+fn empty_dotenv_filename_array() {
+  Test::new()
+    .justfile(
+      r#"
+        set dotenv-filename := []
+
+        foo:
+          @echo ${KEY:-not_set}
+      "#,
+    )
+    .write(".env", "KEY=value")
+    .stdout("not_set\n")
+    .run();
+}
