@@ -68,7 +68,7 @@ impl Subcommand {
       Completions { shell } => return Self::completions(*shell),
       Init => return Self::init(config),
       Man => return Self::man(),
-      Request { request } => Self::request(request)?,
+      Request { request } => return Self::request(request),
       _ => {}
     }
 
