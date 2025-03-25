@@ -41,14 +41,14 @@ impl<'src> Settings<'src> {
         Setting::AllowDuplicateVariables(allow_duplicate_variables) => {
           settings.allow_duplicate_variables = allow_duplicate_variables;
         }
-        Setting::DotenvFilename(filename) => {
-          settings.dotenv_filename = Some(filename.cooked);
+        Setting::DotenvFilename(filenames) => {
+          settings.dotenv_filename = filenames.cooked();
         }
         Setting::DotenvLoad(dotenv_load) => {
           settings.dotenv_load = dotenv_load;
         }
-        Setting::DotenvPath(path) => {
-          settings.dotenv_path = Some(PathBuf::from(path.cooked));
+        Setting::DotenvPath(paths) => {
+          settings.dotenv_path = paths.cooked().into_iter().map(Into::into).collect();
         }
         Setting::DotenvRequired(dotenv_required) => {
           settings.dotenv_required = dotenv_required;
