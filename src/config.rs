@@ -202,7 +202,7 @@ impl Config {
         Arg::new(arg::DOTENV_FILENAME)
           .long("dotenv-filename")
           .action(ArgAction::Append)
-          .help("Search for environment files with these names instead of `.env`. Can be used multiple times")
+          .help("Search for environment files with this name instead of `.env`. Can be used multiple times to load from multiple files in order.")
           .conflicts_with(arg::DOTENV_PATH),
       )
       .arg(
@@ -211,7 +211,7 @@ impl Config {
           .long("dotenv-path")
           .action(ArgAction::Append)
           .value_parser(value_parser!(PathBuf))
-          .help("Load environment files at these paths instead of searching. Can be used multiple times"),
+          .help("Load environment files at this path instead of searching. Can be used multiple times to load from multiple files in order."),
       )
       .arg(
         Arg::new(arg::DRY_RUN)
