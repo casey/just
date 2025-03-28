@@ -1316,12 +1316,12 @@ Available recipes:
 The `[doc]` attribute can be used to set or suppress a recipe's doc comment:
 
 ```just
-# This comment won't appear
+# This comment will appear
 [doc('Build stuff')]
 build:
   ./bin/build
 
-# This one won't either
+# This one won't
 [doc]
 test:
   ./bin/test
