@@ -281,6 +281,9 @@ impl<'src, D> Recipe<'src, D> {
         cmd.current_dir(working_directory);
       }
 
+      #[cfg(target_os = "windows")]
+      std::os::windows::process::CommandExt::raw_arg(&mut cmd, command);
+      #[cfg(not(target_os = "windows"))]
       cmd.arg(command);
 
       if self.takes_positional_arguments(&context.module.settings) {
