@@ -282,7 +282,10 @@ impl<'src, D> Recipe<'src, D> {
       }
 
       #[cfg(target_os = "windows")]
-      std::os::windows::process::CommandExt::raw_arg(&mut cmd, command);
+      {
+        use std::os::windows::process::CommandExt;
+        cmd.raw_arg(command);
+      }
       #[cfg(not(target_os = "windows"))]
       cmd.arg(command);
 
