@@ -26,6 +26,14 @@ impl Search {
           .join(DEFAULT_JUSTFILE_NAME),
       );
 
+      if let Some(xdg_config_home) = std::env::var_os("XDG_CONFIG_HOME") {
+        paths.push(
+          PathBuf::from(xdg_config_home)
+              .join("just")
+              .join(DEFAULT_JUSTFILE_NAME)
+        );
+      };
+
       for justfile_name in JUSTFILE_NAMES {
         paths.push(home_dir.join(justfile_name));
       }
