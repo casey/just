@@ -395,4 +395,34 @@ mod tests {
       assert_eq!(have, Path::new(want));
     }
   }
+  #[test]
+  fn global_justfile_path_from_xdg_env(){
+    let old_value = std::env::var_os("XDG_CONFIG_HOME");
+
+    std::env::set_var("XDG_CONFIG_HOME", "/test/config");
+
+    let paths = Search::global_justfile_paths();
+    assert!(paths.contains(&PathBuf::from("/test/config/just/justfile")));
+
+    if let Some(old) = old_value {
+      std::env::set_var("XDG_CONFIG_HOME", old);
+    } else {
+      std::env::remove_var("XDG_CONFIG_HOME");
+    }
+  }
+  #[test]
+  fn global_justfile_path_when_xdg_env_not_set(){
+    let old_value = std::env::var_os("XDG_CONFIG_HOME");
+
+    std::env::set_var("XDG_CONFIG_HOME", "");
+
+    let paths = Search::global_justfile_paths();
+    assert!(!paths.contains(&PathBuf::from("/test/config/just/justfile")));
+
+    if let Some(old) = old_value {
+      std::env::set_var("XDG_CONFIG_HOME", old);
+    } else {
+      std::env::remove_var("XDG_CONFIG_HOME");
+    }
+  }
 }
