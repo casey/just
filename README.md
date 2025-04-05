@@ -2915,7 +2915,7 @@ Of course, a shebang also works:
 
 ```just
 hello:
-  #!/usr/bin/env uv run --script
+  #!/usr/bin/env -S uv run --script
   print("Hello from Python!")
 ```
 
