@@ -107,6 +107,8 @@ jobs:
 
     - name: Test
       run: cargo test --all
+      env:
+        RUST_BACKTRACE: '1'
 
     - name: Test install.sh
       run: |
