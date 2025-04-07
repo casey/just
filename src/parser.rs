@@ -246,10 +246,10 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
   }
 
-  /// Accept a token of kind `Identifier` and parse into a `Name`
-  fn accept_name(&mut self) -> CompileResult<'src, Option<Name<'src>>> {
+  /// Accept a token of kind `Identifier` and parse into a `Namepath`
+  fn accept_namepath(&mut self) -> CompileResult<'src, Option<Namepath<'src>>> {
     if self.next_is(Identifier) {
-      Ok(Some(self.parse_name()?))
+      Ok(Some(self.parse_namepath()?))
     } else {
       Ok(None)
     }
@@ -268,13 +268,13 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   /// Accept a dependency
   fn accept_dependency(&mut self) -> CompileResult<'src, Option<UnresolvedDependency<'src>>> {
-    if let Some(recipe) = self.accept_name()? {
+    if let Some(recipe) = self.accept_namepath()? {
       Ok(Some(UnresolvedDependency {
         arguments: Vec::new(),
         recipe,
       }))
     } else if self.accepted(ParenL)? {
-      let recipe = self.parse_name()?;
+      let recipe = self.parse_namepath()?;
 
       let mut arguments = Vec::new();
 
@@ -2533,7 +2533,7 @@ mod tests {
     column:  9,
     width:   1,
     kind:    UnexpectedToken{
-      expected: vec![AmpersandAmpersand, Comment, Eof, Eol, Identifier, ParenL],
+      expected: vec![AmpersandAmpersand, ColonColon, Comment, Eof, Eol, Identifier, ParenL],
       found: Equals
     },
   }
