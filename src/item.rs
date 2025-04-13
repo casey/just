@@ -45,11 +45,21 @@ impl Display for Item<'_> {
         write!(f, " {relative}")
       }
       Self::Module {
+        doc,
+        groups,
         name,
         relative,
         optional,
         ..
       } => {
+        if let Some(docstr) = doc {
+          writeln!(f, "# {docstr}")?;
+        }
+
+        if !groups.is_empty() {
+          writeln!(f, "[group('{}')]", groups.first().unwrap())?;
+        }
+
         write!(f, "mod")?;
 
         if *optional {
