@@ -83,6 +83,7 @@ impl SignalHandler {
           );
 
           for (&child, command) in &self.children {
+            use std::fmt::Write;
             writeln!(message, "{child}: {command:?}").unwrap();
           }
 
