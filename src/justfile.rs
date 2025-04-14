@@ -219,21 +219,21 @@ impl<'src> Justfile<'src> {
 
       let mut evaluator = Evaluator::new(&context, true, &scope);
       if let Err(err) = result {
-        if invocation.recipe.recoveries().peekable().peek().is_none() {
+        if invocation.recipe.recoveries().peekable().peek().is_none()
+          || context.config.no_dependencies
+        {
           return Err(err);
         }
 
-        if !context.config.no_dependencies {
-          let mut ran = Ran::default();
+        let mut ran = Ran::default();
 
-          for Dependency { recipe, arguments } in invocation.recipe.recoveries() {
-            let evaluated = arguments
-              .iter()
-              .map(|argument| evaluator.evaluate_expression(argument))
-              .collect::<RunResult<Vec<String>>>()?;
+        for Dependency { recipe, arguments } in invocation.recipe.recoveries() {
+          let evaluated = arguments
+            .iter()
+            .map(|argument| evaluator.evaluate_expression(argument))
+            .collect::<RunResult<Vec<String>>>()?;
 
-            Self::run_recipe(&evaluated, &context, &mut ran, recipe, true)?;
-          }
+          Self::run_recipe(&evaluated, &context, &mut ran, recipe, true)?;
         }
       }
     }
