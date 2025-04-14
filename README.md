@@ -4582,3 +4582,4 @@ I hope you enjoy using `just` and find great success and satisfaction in all
 your computational endeavors!
 
 😸
+🔼[Back to top](#just)
