@@ -10,7 +10,7 @@ impl Display for ShowWhitespace<'_> {
         '\t' => write!(f, "␉")?,
         ' ' => write!(f, "␠")?,
         _ => write!(f, "{c}")?,
-      };
+      }
     }
 
     Ok(())

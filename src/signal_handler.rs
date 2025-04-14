@@ -83,7 +83,8 @@ impl SignalHandler {
           );
 
           for (&child, command) in &self.children {
-            message.push_str(&format!("{child}: {command:?}\n"));
+            use std::fmt::Write;
+            writeln!(message, "{child}: {command:?}").unwrap();
           }
 
           eprint!("{message}");

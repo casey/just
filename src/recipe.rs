@@ -251,11 +251,12 @@ impl<'src, D> Recipe<'src, D> {
           || (context.module.settings.quiet && !self.no_quiet())
           || config.verbosity.quiet())
       {
-        let color = config
-          .highlight
-          .then(|| config.color.command(config.command_color))
-          .unwrap_or(config.color)
-          .stderr();
+        let color = if config.highlight {
+          config.color.command(config.command_color)
+        } else {
+          config.color
+        }
+        .stderr();
 
         if config.timestamp {
           eprint!(
@@ -327,7 +328,7 @@ impl<'src, D> Recipe<'src, D> {
             io_error,
           });
         }
-      };
+      }
 
       if !infallible_line {
         if let Some(signal) = caught {
