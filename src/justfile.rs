@@ -351,15 +351,16 @@ impl<'src> Justfile<'src> {
         return Err(err);
       }
 
-      let mut ran = Ran::default();
+      if !context.config.no_dependencies {
+        let mut ran = Ran::default();
+        for Dependency { recipe, arguments } in recipe.recoveries() {
+          let evaluated = arguments
+            .iter()
+            .map(|argument| evaluator.evaluate_expression(argument))
+            .collect::<RunResult<Vec<String>>>()?;
 
-      for Dependency { recipe, arguments } in recipe.recoveries() {
-        let evaluated = arguments
-          .iter()
-          .map(|argument| evaluator.evaluate_expression(argument))
-          .collect::<RunResult<Vec<String>>>()?;
-
-        Self::run_recipe(&evaluated, context, &mut ran, recipe, true)?;
+          Self::run_recipe(&evaluated, context, &mut ran, recipe, true)?;
+        }
       }
     } else if !context.config.no_dependencies {
       let mut ran = Ran::default();
