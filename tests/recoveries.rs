@@ -330,3 +330,69 @@ fn recoveries_run_even_if_already_ran_as_prior() {
     )
     .run();
 }
+
+#[test]
+fn recoveries_in_pre_deps() {
+  Test::new()
+    .justfile(
+      "
+    a: b || c
+      echo a
+
+    b:
+      echo b
+      exit 1
+
+    c:
+      echo c
+  ",
+    )
+    .stdout(
+      "
+    b
+    c
+  ",
+    )
+    .stderr(
+      "
+    echo b
+    exit 1
+    echo c
+  ",
+    )
+    .run();
+}
+
+#[test]
+fn recoveries_in_post_deps() {
+  Test::new()
+    .justfile(
+      "
+    a: && b || c
+      echo a
+
+    b:
+      echo b
+      exit 1
+
+    c:
+      echo c
+  ",
+    )
+    .stdout(
+      "
+    a
+    b
+    c
+  ",
+    )
+    .stderr(
+      "
+    echo a
+    echo b
+    exit 1
+    echo c
+  ",
+    )
+    .run();
+}
