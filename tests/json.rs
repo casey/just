@@ -63,6 +63,7 @@ struct Recipe<'a> {
   body: Vec<Value>,
   dependencies: Vec<Dependency<'a>>,
   doc: Option<&'a str>,
+  if_error: u32,
   name: &'a str,
   namepath: &'a str,
   parameters: Vec<Parameter<'a>>,
@@ -277,6 +278,7 @@ fn dependencies() {
               ..default()
             }]
             .into(),
+            if_error: 1,
             priors: 1,
             ..default()
           },
@@ -356,6 +358,7 @@ fn dependency_argument() {
               .into(),
             }]
             .into(),
+            if_error: 1,
             priors: 1,
             ..default()
           },
@@ -601,6 +604,7 @@ fn priors() {
             .into(),
             name: "b",
             namepath: "b",
+            if_error: 2,
             priors: 1,
             ..default()
           },

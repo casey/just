@@ -25,6 +25,7 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) doc: Option<String>,
   #[serde(skip)]
   pub(crate) file_depth: u32,
+  pub(crate) if_error: usize,
   #[serde(skip)]
   pub(crate) import_offsets: Vec<usize>,
   pub(crate) name: Name<'src>,
@@ -503,7 +504,11 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn subsequents(&self) -> impl Iterator<Item = &D> {
-    self.dependencies.iter().skip(self.priors)
+    self.dependencies[self.priors..self.if_error].iter()
+  }
+
+  pub(crate) fn recoveries(&self) -> impl Iterator<Item = &D> {
+    self.dependencies[self.if_error..].iter()
   }
 }
 
