@@ -118,7 +118,7 @@ pub(crate) use {
     collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     env,
     ffi::OsString,
-    fmt::{self, Debug, Display, Formatter},
+    fmt::{self, Debug, Display, Formatter, Write as _},
     fs,
     io::{self, Read, Seek, Write},
     iter::{self, FromIterator},
