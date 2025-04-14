@@ -219,9 +219,7 @@ impl<'src> Justfile<'src> {
 
       let mut evaluator = Evaluator::new(&context, true, &scope);
       if let Err(err) = result {
-        if invocation.recipe.recoveries().peekable().peek().is_none()
-          || context.config.no_dependencies
-        {
+        if invocation.recipe.recoveries().next().is_none() || context.config.no_dependencies {
           return Err(err);
         }
 

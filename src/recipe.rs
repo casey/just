@@ -540,8 +540,12 @@ impl<D: Display> ColorDisplay for Recipe<'_, D> {
     write!(f, ":")?;
 
     for (i, dependency) in self.dependencies.iter().enumerate() {
-      if i == self.priors {
+      if i == self.priors && self.subsequents().next().is_some() {
         write!(f, " &&")?;
+      }
+
+      if i == self.if_error {
+        write!(f, " ||")?;
       }
 
       write!(f, " {dependency}")?;
