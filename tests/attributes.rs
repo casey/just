@@ -254,3 +254,165 @@ fn duplicate_non_repeatable_attributes_are_forbidden() {
     .status(EXIT_FAILURE)
     .run();
 }
+
+#[test]
+fn aliases_can_be_defined_as_attributes() {
+  Test::new()
+    .justfile(
+      "
+      [alias('bar')]
+      baz:
+      ",
+    )
+    .arg("bar")
+    .status(EXIT_SUCCESS)
+    .run();
+}
+
+#[test]
+fn multiple_aliases_can_be_defined_as_attributes() {
+  Test::new()
+    .justfile(
+      "
+      [alias('bar')]
+      [alias('foo')]
+      baz:
+      ",
+    )
+    .arg("foo")
+    .status(EXIT_SUCCESS)
+    .run();
+}
+
+#[test]
+fn duplicate_alias_attributes_are_forbidden() {
+  Test::new()
+    .justfile(
+      "
+      [alias('foo')]
+      [alias('foo')]
+      baz:
+      ",
+    )
+    .arg("foo")
+    .stderr(
+      "
+  error: Alias `foo` first defined on line 1 is redefined on line 2
+   ——▶ justfile:2:9
+    │
+  2 │ [alias('foo')]
+    │         ^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn alias_attributes_duplicating_alias_definition_is_forbidden() {
+  Test::new()
+    .justfile(
+      "
+      alias foo := baz
+      [alias('foo')]
+      baz:
+      ",
+    )
+    .arg("foo")
+    .stderr(
+      "
+  error: Alias `foo` first defined on line 1 is redefined on line 2
+   ——▶ justfile:2:9
+    │
+  2 │ [alias('foo')]
+    │         ^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn alias_definitions_duplicating_alias_attributes_is_forbidden() {
+  Test::new()
+    .justfile(
+      "
+      [alias('foo')]
+      baz:
+
+      alias foo := baz
+      ",
+    )
+    .arg("foo")
+    .stderr(
+      "
+  error: Alias `foo` first defined on line 1 is redefined on line 4
+   ——▶ justfile:4:7
+    │
+  4 │ alias foo := baz
+    │       ^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn alphanumeric_and_underscores_are_valid_alias_attributes() {
+  Test::new()
+    .justfile(
+      "
+      [alias('alpha_numeric_123')]
+      baz:
+      ",
+    )
+    .arg("alpha_numeric_123")
+    .status(EXIT_SUCCESS)
+    .run();
+}
+
+#[test]
+fn nonalphanumeric_alias_attribute_is_forbidden() {
+  Test::new()
+    .justfile(
+      "
+      [alias('invalid name!')]
+      baz:
+      ",
+    )
+    .arg("foo")
+    .stderr(
+      "
+  error: `invalid name!` is not a valid alias. Aliases must only contain alphanumeric characters and underscores.
+   ——▶ justfile:1:9
+    │
+  1 │ [alias('invalid name!')]
+    │         ^^^^^^^^^^^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn empty_alias_attribute_is_forbidden() {
+  Test::new()
+    .justfile(
+      "
+      [alias('')]
+      baz:
+      ",
+    )
+    .arg("baz")
+    .stderr(
+      "
+  error: `` is not a valid alias. Aliases must only contain alphanumeric characters and underscores.
+   ——▶ justfile:1:9
+    │
+  1 │ [alias('')]
+    │         ^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
