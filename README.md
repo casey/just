@@ -4119,6 +4119,9 @@ fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath)
 # compinit
 ```
 
+*zinit Note:* If you are using zinit, [here's example](https://github.com/iloveitaly/dotfiles/blob/a18fd4b0745877cfa03de2736caa39af49525afa/.zsh_plugins#L51) of how to install `just`
+shell completions easily.
+
 ### Man Page
 
 `just` can print its own man page with `just --man`. Man pages are written in
@@ -4520,7 +4523,7 @@ dependency, or running some kind of codegen step.
 `just`, on the other hand, is for all the other miscellaneous commands you
 might run as part of development. Things like running tests in different
 configurations, linting your code, pushing build artifacts to a server,
-removing temporary files, and the like.
+removing temporary files, and the like.pppppp
 
 Also, although `just` is written in Rust, it can be used regardless of the
 language or build system your project uses.
