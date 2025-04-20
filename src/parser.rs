@@ -24,15 +24,57 @@ use {super::*, TokenKind::*};
 /// token, the set is cleared. If the parser finds a token which is unexpected,
 /// the elements of the set are printed in the resultant error message.
 pub(crate) struct Parser<'run, 'src> {
+  ast_in_progress: AstInProgress<'src>,
   expected_tokens: BTreeSet<TokenKind>,
   file_depth: u32,
   import_offsets: Vec<usize>,
+  /// Indicates whether we're parsing an indented inline module
+  inline_module_stack: Vec<InlineModuleStackItem<'src>>,
   module_namepath: Option<&'run Namepath<'src>>,
   next_token: usize,
   recursion_depth: usize,
   tokens: &'run [Token<'src>],
-  unstable_features: BTreeSet<UnstableFeature>,
   working_directory: &'run Path,
+}
+
+pub struct AstInProgress<'src> {
+  pub items: Vec<Item<'src>>,
+  pub unstable_features: BTreeSet<UnstableFeature>,
+}
+
+impl AstInProgress<'_> {
+  pub fn new() -> Self {
+    Self {
+      items: Vec::new(),
+      unstable_features: BTreeSet::new(),
+    }
+  }
+}
+
+impl<'src> AstInProgress<'src> {
+  // Replace self with default value and return the previous value
+  pub fn take(&mut self) -> AstInProgress<'src> {
+    Self {
+      items: std::mem::take(&mut self.items),
+      unstable_features: std::mem::take(&mut self.unstable_features),
+    }
+  }
+
+  pub fn into_ast(self, working_directory: PathBuf) -> Ast<'src> {
+    Ast {
+      items: self.items,
+      unstable_features: self.unstable_features,
+      warnings: Vec::new(),
+      working_directory,
+    }
+  }
+}
+
+pub struct InlineModuleStackItem<'src> {
+  pub(crate) doc: Option<String>,
+  pub(crate) groups: Vec<String>,
+  pub(crate) name: Name<'src>,
+  pub shelved_ast: AstInProgress<'src>,
 }
 
 impl<'run, 'src> Parser<'run, 'src> {
@@ -52,10 +94,15 @@ impl<'run, 'src> Parser<'run, 'src> {
       next_token: 0,
       recursion_depth: 0,
       tokens,
-      unstable_features: BTreeSet::new(),
       working_directory,
+      inline_module_stack: Vec::new(),
+      ast_in_progress: AstInProgress::new(),
     }
     .parse_ast()
+  }
+
+  fn add_unstable_feature(&mut self, feature: UnstableFeature) {
+    self.ast_in_progress.unstable_features.insert(feature);
   }
 
   fn error(&self, kind: CompileErrorKind<'src>) -> CompileResult<'src, CompileError<'src>> {
@@ -293,7 +340,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok(self.accept(kind)?.is_some())
   }
 
-  /// Parse a justfile, consumes self
+  /// Parse a justfile or inline module, consumes self
   fn parse_ast(mut self) -> CompileResult<'src, Ast<'src>> {
     fn pop_doc_comment<'src>(
       items: &mut Vec<Item<'src>>,
@@ -309,8 +356,6 @@ impl<'run, 'src> Parser<'run, 'src> {
 
       None
     }
-
-    let mut items = Vec::new();
 
     let mut eol_since_last_comment = false;
 
@@ -328,7 +373,10 @@ impl<'run, 'src> Parser<'run, 'src> {
       let next = self.next()?;
 
       if let Some(comment) = self.accept(Comment)? {
-        items.push(Item::Comment(comment.lexeme().trim_end()));
+        self
+          .ast_in_progress
+          .items
+          .push(Item::Comment(comment.lexeme().trim_end()));
         self.expect_eol()?;
         eol_since_last_comment = false;
       } else if self.accepted(Eol)? {
@@ -338,13 +386,16 @@ impl<'run, 'src> Parser<'run, 'src> {
       } else if self.next_is(Identifier) {
         match Keyword::from_lexeme(next.lexeme()) {
           Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
-            items.push(Item::Alias(self.parse_alias(take_attributes())?));
+            let parsed_alias = self.parse_alias(take_attributes())?;
+            self.ast_in_progress.items.push(Item::Alias(parsed_alias));
           }
           Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             self.presume_keyword(Keyword::Export)?;
-            items.push(Item::Assignment(
-              self.parse_assignment(true, take_attributes())?,
-            ));
+            let parsed_assignment = self.parse_assignment(true, take_attributes())?;
+            self
+              .ast_in_progress
+              .items
+              .push(Item::Assignment(parsed_assignment));
           }
           Some(Keyword::Unexport)
             if self.next_are(&[Identifier, Identifier, Eof])
@@ -353,7 +404,7 @@ impl<'run, 'src> Parser<'run, 'src> {
             self.presume_keyword(Keyword::Unexport)?;
             let name = self.parse_name()?;
             self.expect_eol()?;
-            items.push(Item::Unexport { name });
+            self.ast_in_progress.items.push(Item::Unexport { name });
           }
           Some(Keyword::Import)
             if self.next_are(&[Identifier, StringToken])
@@ -363,7 +414,7 @@ impl<'run, 'src> Parser<'run, 'src> {
             self.presume_keyword(Keyword::Import)?;
             let optional = self.accepted(QuestionMark)?;
             let (path, relative) = self.parse_string_literal_token()?;
-            items.push(Item::Import {
+            self.ast_in_progress.items.push(Item::Import {
               absolute: None,
               optional,
               path,
@@ -378,13 +429,15 @@ impl<'run, 'src> Parser<'run, 'src> {
               || self.next_are(&[Identifier, Identifier, StringToken])
               || self.next_are(&[Identifier, QuestionMark]) =>
           {
-            let doc = pop_doc_comment(&mut items, eol_since_last_comment);
+            let doc = pop_doc_comment(&mut self.ast_in_progress.items, eol_since_last_comment);
 
             self.presume_keyword(Keyword::Mod)?;
 
             let optional = self.accepted(QuestionMark)?;
 
             let name = self.parse_name()?;
+
+            self.check_inline_module_nesting(name)?;
 
             let relative = if self.next_is(StringToken) || self.next_are(&[Identifier, StringToken])
             {
@@ -395,27 +448,9 @@ impl<'run, 'src> Parser<'run, 'src> {
 
             let attributes = take_attributes();
 
-            attributes.ensure_valid_attributes(
-              "Module",
-              *name,
-              &[AttributeDiscriminant::Doc, AttributeDiscriminant::Group],
-            )?;
+            let (doc, groups) = Self::process_modules_attributes(doc, name, attributes)?;
 
-            let doc = match attributes.get(AttributeDiscriminant::Doc) {
-              Some(Attribute::Doc(Some(doc))) => Some(doc.cooked.clone()),
-              Some(Attribute::Doc(None)) => None,
-              None => doc.map(ToOwned::to_owned),
-              _ => unreachable!(),
-            };
-
-            let mut groups = Vec::new();
-            for attribute in attributes {
-              if let Attribute::Group(group) = attribute {
-                groups.push(group.cooked);
-              }
-            }
-
-            items.push(Item::Module {
+            self.ast_in_progress.items.push(Item::Module {
               groups,
               absolute: None,
               doc,
@@ -431,30 +466,31 @@ impl<'run, 'src> Parser<'run, 'src> {
               || self.next_are(&[Identifier, Identifier, Eof])
               || self.next_are(&[Identifier, Identifier, Eol]) =>
           {
-            items.push(Item::Set(self.parse_set()?));
+            let parsed_set = self.parse_set()?;
+            self.ast_in_progress.items.push(Item::Set(parsed_set));
           }
           _ => {
             if self.next_are(&[Identifier, ColonEquals]) {
-              items.push(Item::Assignment(
-                self.parse_assignment(false, take_attributes())?,
-              ));
+              let ass = self.parse_assignment(false, take_attributes())?;
+              self.ast_in_progress.items.push(Item::Assignment(ass));
+            } else if self.next_are(&[Identifier, ColonColon]) {
+              let doc = pop_doc_comment(&mut self.ast_in_progress.items, eol_since_last_comment);
+              self.enter_inline_module(doc, take_attributes())?;
             } else {
-              let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-              items.push(Item::Recipe(self.parse_recipe(
-                doc,
-                false,
-                take_attributes(),
-              )?));
+              let doc = pop_doc_comment(&mut self.ast_in_progress.items, eol_since_last_comment);
+
+              let parsed_recipe = self.parse_recipe(doc, false, take_attributes())?;
+              self.ast_in_progress.items.push(Item::Recipe(parsed_recipe));
             }
           }
         }
       } else if self.accepted(At)? {
-        let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-        items.push(Item::Recipe(self.parse_recipe(
-          doc,
-          true,
-          take_attributes(),
-        )?));
+        let doc = pop_doc_comment(&mut self.ast_in_progress.items, eol_since_last_comment);
+        let parsed_recipe = self.parse_recipe(doc, true, take_attributes())?;
+
+        self.ast_in_progress.items.push(Item::Recipe(parsed_recipe));
+      } else if self.in_inline_module() && self.accepted(Dedent)? {
+        self.exit_inline_module()?;
       } else {
         return Err(self.unexpected_token()?);
       }
@@ -466,6 +502,11 @@ impl<'run, 'src> Parser<'run, 'src> {
       }
     }
 
+    assert!(
+      self.inline_module_stack.is_empty(),
+      "Internal error: Inline module stack not empty"
+    );
+
     if self.next_token != self.tokens.len() {
       return Err(self.internal_error(format!(
         "Parse completed with {} unparsed tokens",
@@ -474,8 +515,8 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
 
     Ok(Ast {
-      items,
-      unstable_features: self.unstable_features,
+      items: self.ast_in_progress.items,
+      unstable_features: self.ast_in_progress.unstable_features,
       warnings: Vec::new(),
       working_directory: self.working_directory.into(),
     })
@@ -541,9 +582,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let disjunct = self.parse_disjunct()?;
 
     let expression = if self.accepted(BarBar)? {
-      self
-        .unstable_features
-        .insert(UnstableFeature::LogicalOperators);
+      self.add_unstable_feature(UnstableFeature::LogicalOperators);
       let lhs = disjunct.into();
       let rhs = self.parse_expression()?.into();
       Expression::Or { lhs, rhs }
@@ -560,9 +599,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let conjunct = self.parse_conjunct()?;
 
     let disjunct = if self.accepted(AmpersandAmpersand)? {
-      self
-        .unstable_features
-        .insert(UnstableFeature::LogicalOperators);
+      self.add_unstable_feature(UnstableFeature::LogicalOperators);
       let lhs = conjunct.into();
       let rhs = self.parse_disjunct()?.into();
       Expression::And { lhs, rhs }
@@ -699,9 +736,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         if self.next_is(ParenL) {
           let arguments = self.parse_sequence()?;
           if name.lexeme() == "which" {
-            self
-              .unstable_features
-              .insert(UnstableFeature::WhichFunction);
+            self.add_unstable_feature(UnstableFeature::WhichFunction);
           }
           Ok(Expression::Call {
             thunk: Thunk::resolve(name, arguments)?,
@@ -893,6 +928,93 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.expect(ParenR)?;
 
     Ok(elements)
+  }
+
+  /// Errors if we're already in an inline module.
+  /// Currently we don't support nested modules inside an inline module.
+  fn check_inline_module_nesting(&self, name: Name<'src>) -> CompileResult<'src, ()> {
+    if self.in_inline_module() {
+      let parent_module = self
+        .inline_module_stack
+        .last()
+        .as_ref()
+        .expect("Internal error")
+        .name
+        .lexeme();
+
+      Err(CompileError::new(
+        name.token,
+        CompileErrorKind::InlineModuleCannotBeNested { parent_module },
+      ))
+    } else {
+      Ok(())
+    }
+  }
+
+  // Parse inline module
+  fn enter_inline_module(
+    &mut self,
+    doc: Option<&'src str>,
+    attributes: AttributeSet<'src>,
+  ) -> CompileResult<'src, ()> {
+    let name = self.parse_name()?;
+
+    self.check_inline_module_nesting(name)?;
+
+    self.presume(ColonColon)?;
+    self.expect(Eol)?;
+
+    let (doc, groups) = Self::process_modules_attributes(doc, name, attributes)?;
+
+    // Shelf currently built AST until we leave the inline module
+    let stack_item = InlineModuleStackItem {
+      doc,
+      name,
+      groups,
+      shelved_ast: self.ast_in_progress.take(),
+    };
+    self.inline_module_stack.push(stack_item);
+
+    // This means that there can't be a bunch of newlines after the module name
+    // which doesn't really make sense, let's revisit later.
+    if !self.accepted(Indent)? {
+      // the inline module is empty, which should not be an eror
+      self.exit_inline_module()?;
+    }
+
+    Ok(())
+  }
+
+  fn in_inline_module(&self) -> bool {
+    !self.inline_module_stack.is_empty()
+  }
+
+  /// Finish parsing an inline module. This can either occur when
+  /// 1. We encounter a deent
+  /// 2. We encounter EOF and need to wrap up all inline modules on the stack
+  ///
+  /// Panics if we are not currently inside an inline module
+  fn exit_inline_module(&mut self) -> CompileResult<'src, ()> {
+    let shelved = self
+      .inline_module_stack
+      .pop()
+      .expect("Internal error: we should be inside an inline module");
+
+    let module_ast = self.ast_in_progress.take();
+    self.ast_in_progress = shelved.shelved_ast;
+
+    let ast = module_ast.into_ast(self.working_directory.to_path_buf());
+
+    self
+      .ast_in_progress
+      .items
+      .push(Item::ModuleInline(ModuleInline {
+        doc: shelved.doc,
+        name: shelved.name,
+        groups: shelved.groups,
+        ast,
+      }));
+    Ok(())
   }
 
   /// Parse a recipe
@@ -1242,6 +1364,34 @@ impl<'run, 'src> Parser<'run, 'src> {
     } else {
       Ok(Some((token.unwrap(), attributes.into_keys().collect())))
     }
+  }
+
+  fn process_modules_attributes(
+    doc: Option<&str>,
+    name: Name<'src>,
+    attributes: AttributeSet<'src>,
+  ) -> CompileResult<'src, (Option<String>, Vec<String>)> {
+    attributes.ensure_valid_attributes(
+      "Module",
+      *name,
+      &[AttributeDiscriminant::Doc, AttributeDiscriminant::Group],
+    )?;
+
+    let doc = match attributes.get(AttributeDiscriminant::Doc) {
+      Some(Attribute::Doc(Some(doc))) => Some(doc.cooked.clone()),
+      Some(Attribute::Doc(None)) => None,
+      None => doc.map(ToOwned::to_owned),
+      _ => unreachable!(),
+    };
+
+    let mut groups = Vec::new();
+    for attribute in attributes {
+      if let Attribute::Group(group) = attribute {
+        groups.push(group.cooked);
+      }
+    }
+
+    Ok((doc, groups))
   }
 }
 
@@ -2422,6 +2572,18 @@ mod tests {
     name: optional_module_with_path,
     text: "mod? foo \"some/file/path.txt\"     \n",
     tree: (justfile (mod ? foo "some/file/path.txt")),
+  }
+
+  test! {
+    name: inline_module,
+    text: "foo::\n",
+    tree: (justfile (mod_inline foo (justfile))),
+  }
+
+  test! {
+    name: inline_module_and_recipe,
+    text: "foo::\n  bar:\n    @echo FOOBAR\n\nbar:\n  @echo BAR",
+    tree: (justfile (mod_inline foo (justfile (recipe bar (body ("@echo FOOBAR"))))) (recipe bar (body ("@echo BAR")))),
   }
 
   test! {
