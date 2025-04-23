@@ -268,42 +268,33 @@ fn encode_uri_component(_context: Context, s: &str) -> FunctionResult {
 }
 
 fn env(context: Context, key: &str, default: Option<&str>) -> FunctionResult {
-  match default {
-    Some(val) => env_var_or_default(context, key, val),
-    None => env_var(context, key),
+  use std::env::VarError::*;
+
+  if let Some(value) = context.evaluator.context.dotenv.get(key) {
+    return Ok(value.clone());
+  } else if let Some(value) = context.evaluator.scope.value(key) {
+    return Ok(value.to_string());
+  }
+
+  match env::var(key) {
+    // Not in global env, might have been loaded
+    Err(NotPresent) => match default {
+      Some(val) => Ok(val.to_string()),
+      None => Err(format!("environment variable `{key}` not present")),
+    },
+    Err(NotUnicode(os_string)) => Err(format!(
+      "environment variable `{key}` not unicode: {os_string:?}"
+    )),
+    Ok(value) => Ok(value),
   }
 }
 
 fn env_var(context: Context, key: &str) -> FunctionResult {
-  use std::env::VarError::*;
-
-  if let Some(value) = context.evaluator.context.dotenv.get(key) {
-    return Ok(value.clone());
-  }
-
-  match env::var(key) {
-    Err(NotPresent) => Err(format!("environment variable `{key}` not present")),
-    Err(NotUnicode(os_string)) => Err(format!(
-      "environment variable `{key}` not unicode: {os_string:?}"
-    )),
-    Ok(value) => Ok(value),
-  }
+  env(context, key, None)
 }
 
 fn env_var_or_default(context: Context, key: &str, default: &str) -> FunctionResult {
-  use std::env::VarError::*;
-
-  if let Some(value) = context.evaluator.context.dotenv.get(key) {
-    return Ok(value.clone());
-  }
-
-  match env::var(key) {
-    Err(NotPresent) => Ok(default.to_owned()),
-    Err(NotUnicode(os_string)) => Err(format!(
-      "environment variable `{key}` not unicode: {os_string:?}"
-    )),
-    Ok(value) => Ok(value),
-  }
+  env(context, key, Some(default))
 }
 
 fn error(_context: Context, message: &str) -> FunctionResult {
