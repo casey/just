@@ -302,6 +302,7 @@ impl Display for CompileError<'_> {
       UnterminatedBacktick => write!(f, "Unterminated backtick"),
       UnterminatedInterpolation => write!(f, "Unterminated interpolation"),
       UnterminatedString => write!(f, "Unterminated string"),
+      UndefinedEnum { enum_name } => write!(f, "Undefined enum `{enum_name}`"),
     }
   }
 }

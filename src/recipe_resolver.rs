@@ -6,6 +6,7 @@ pub(crate) struct RecipeResolver<'src: 'run, 'run> {
   modules: &'run Table<'src, Justfile<'src>>,
   resolved_recipes: Table<'src, Arc<Recipe<'src>>>,
   unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
+  enums: &'run Table<'src, Enum<'src>>,
 }
 
 impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
@@ -13,6 +14,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     assignments: &'run Table<'src, Assignment<'src>>,
     module_path: &'run str,
     modules: &'run Table<'src, Justfile<'src>>,
+    enums: &'run Table<'src, Enum<'src>>,
     settings: &Settings,
     unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
   ) -> CompileResult<'src, Table<'src, Arc<Recipe<'src>>>> {
@@ -22,6 +24,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       modules,
       resolved_recipes: Table::new(),
       unresolved_recipes,
+      enums,
     };
 
     while let Some(unresolved) = resolver.unresolved_recipes.pop() {
@@ -34,6 +37,9 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
           for variable in expression.variables() {
             resolver.resolve_variable(&variable, &recipe.parameters[..i])?;
           }
+        }
+        if let Some(one_of) = &parameter.one_of {
+          resolver.resolve_one_of(one_of)?;
         }
       }
 
@@ -61,6 +67,15 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     }
 
     Ok(resolver.resolved_recipes)
+  }
+
+  fn resolve_one_of(&self, one_of: &parameter::OneOf<'src>) -> CompileResult<'src> {
+    match self.enums.get(&one_of.enum_name.lexeme()) {
+      Some(_) => Ok(()),
+      None => Err(one_of.enum_name.error(UndefinedEnum {
+        enum_name: one_of.enum_name.lexeme(),
+      })),
+    }
   }
 
   fn resolve_variable(

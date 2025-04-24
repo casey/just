@@ -351,6 +351,36 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         let value = rest.to_vec().join(" ");
         rest = &[];
         value
+      } else if let Some(ref one_of) = parameter.one_of {
+        let arg_value = rest[0].clone();
+
+        let valid_enum = match context.module.enums.get(one_of.enum_name.lexeme()) {
+          Some(v) => v,
+          None => {
+            return Err(Error::Internal {
+              message: "invalid enum".to_owned(),
+            });
+          }
+        };
+
+        let arg_value = match valid_enum.variants.get(arg_value.as_str()) {
+          None => {
+            return Err(Error::InvalidEnumVariant {
+              enum_name: one_of.enum_name.lexeme().to_owned(),
+              variant_name: arg_value,
+              possible_variants: valid_enum
+                .variants
+                .keys()
+                .cloned()
+                .map(|key| key.to_owned())
+                .collect(),
+            })
+          }
+          Some(v) => v.raw.to_owned(),
+        };
+
+        rest = &rest[1..];
+        arg_value
       } else {
         let value = rest[0].clone();
         positional.push(value.clone());

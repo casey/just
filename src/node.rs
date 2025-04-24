@@ -59,6 +59,7 @@ impl<'src> Node<'src> for Item<'src> {
         unexport.push_mut(name.lexeme().replace('-', "_"));
         unexport
       }
+      Self::Enum(_enum) => todo!("node enum"),
     }
   }
 }

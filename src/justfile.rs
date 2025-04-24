@@ -30,6 +30,7 @@ pub(crate) struct Justfile<'src> {
   pub(crate) warnings: Vec<Warning>,
   #[serde(skip)]
   pub(crate) working_directory: PathBuf,
+  pub(crate) enums: Table<'src, Enum<'src>>,
 }
 
 impl<'src> Justfile<'src> {
