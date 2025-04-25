@@ -11,6 +11,13 @@ pub(crate) struct Parameter<'src> {
   pub(crate) kind: ParameterKind,
   /// The parameter name
   pub(crate) name: Name<'src>,
+  pub(crate) one_of: Option<OneOf<'src>>,
+}
+
+#[derive(PartialEq, Debug, Clone, Serialize)]
+pub(crate) struct OneOf<'src> {
+  pub(crate) enum_name: Name<'src>,
+  pub(crate) default: Option<Expression<'src>>,
 }
 
 impl Parameter<'_> {

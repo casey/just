@@ -1,4 +1,4 @@
-use {super::*, TokenKind::*};
+use {super::*, crate::parameter::OneOf, TokenKind::*};
 
 /// Just language parser
 ///
@@ -339,6 +339,9 @@ impl<'run, 'src> Parser<'run, 'src> {
         match Keyword::from_lexeme(next.lexeme()) {
           Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             items.push(Item::Alias(self.parse_alias(take_attributes())?));
+          }
+          Some(Keyword::Enum) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
+            items.push(Item::Enum(self.parse_enum()?));
           }
           Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             self.presume_keyword(Keyword::Export)?;
@@ -1025,10 +1028,15 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let name = self.parse_name()?;
 
-    let default = if self.accepted(Equals)? {
-      Some(self.parse_value()?)
+    let (default, one_of) = if self.accepted(Equals)? {
+      if self.next_are(&[Identifier, ParenL]) {
+        let one_of = self.parse_one_of_parameter_value()?;
+        (one_of.default.clone(), Some(one_of))
+      } else {
+        (Some(self.parse_value()?), None)
+      }
     } else {
-      None
+      (None, None)
     };
 
     Ok(Parameter {
@@ -1036,7 +1044,37 @@ impl<'run, 'src> Parser<'run, 'src> {
       export,
       kind,
       name,
+      one_of,
     })
+  }
+
+  /// Parse a one_of parameter
+  fn parse_one_of_parameter_value(&mut self) -> CompileResult<'src, OneOf<'src>> {
+    let one_of_variant = self.parse_name()?;
+
+    if one_of_variant.lexeme() == "one_of" {
+      self.expect(ParenL)?;
+      let enum_name = self.parse_name()?;
+      self.expect(ParenR)?;
+      Ok(OneOf {
+        enum_name,
+        default: None,
+      })
+    } else if one_of_variant.lexeme() == "one_of_or_default" {
+      self.expect(ParenL)?;
+      let enum_name = self.parse_name()?;
+      self.expect(Comma)?;
+      let default = self.parse_value()?;
+      self.expect(ParenR)?;
+      Ok(OneOf {
+        enum_name,
+        default: Some(default),
+      })
+    } else {
+      Err(one_of_variant.error(CompileErrorKind::UnknownFunction {
+        function: one_of_variant.lexeme(),
+      }))
+    }
   }
 
   /// Parse the body of a recipe
@@ -1155,6 +1193,33 @@ impl<'run, 'src> Parser<'run, 'src> {
     Err(name.error(CompileErrorKind::UnknownSetting {
       setting: name.lexeme(),
     }))
+  }
+
+  fn parse_enum(&mut self) -> CompileResult<'src, Enum<'src>> {
+    self.presume_keyword(Keyword::Enum)?;
+    let name = self.parse_name()?;
+    self.presume_any(&[Equals, ColonEquals])?;
+
+    self.expect(BracketL)?;
+
+    let mut variants = BTreeMap::new();
+
+    while !self.next_is(BracketR) {
+      let variant_name = self.parse_string_literal()?;
+      // divided by =
+      self.expect(Equals)?;
+      let variant_value = self.parse_string_literal()?;
+
+      variants.insert(variant_name.raw, variant_value);
+
+      if !self.accepted(Comma)? {
+        break;
+      }
+    }
+
+    self.expect(BracketR)?;
+
+    Ok(Enum { name, variants })
   }
 
   /// Parse interpreter setting value, i.e., `['sh', '-eu']`
