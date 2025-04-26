@@ -34,6 +34,54 @@ fn recipe_nested_module_dependencies2() {
 }
 
 #[test]
+fn recipe_nested_module_dependencies_doesnt_exist() {
+  Test::new()
+    .write("foo.just", "qux: \n @echo QUX")
+    .justfile(
+      "
+      mod foo
+      baz: foo::baz
+      ",
+    )
+    .arg("baz")
+    .status(1)
+    .stderr(
+      "error: Recipe `baz` has unknown dependency `foo::baz`
+ ——▶ justfile:2:11
+  │
+2 │ baz: foo::baz
+  │           ^^^
+",
+    )
+    .run();
+}
+
+#[test]
+fn recipe_nested_module_dependencies_doesnt_exist2() {
+  Test::new()
+    .justfile(
+      "
+      foo:
+        @echo FOO
+      bar:
+        @echo BAR
+      baz: foo::bar
+      ",
+    )
+    .arg("baz")
+    .status(1)
+    .stderr(
+      "error: Recipe `baz` has unknown dependency `foo::bar`
+ ——▶ justfile:5:11
+  │
+5 │ baz: foo::bar
+  │           ^^^
+",
+    )
+    .run();
+}
+
+#[test]
 fn recipe_dependency_on_module_fails() {
   Test::new()
     .write("foo.just", "mod bar\nbaz: \n @echo BAR")
