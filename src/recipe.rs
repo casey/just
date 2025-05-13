@@ -284,7 +284,7 @@ impl<'src, D> Recipe<'src, D> {
       #[cfg(target_os = "windows")]
       {
         use std::os::windows::process::CommandExt;
-        cmd.raw_arg(command);
+        cmd.raw_arg(format!("\"{}\"", command.replace("\"", "\\\"")));
       }
       #[cfg(not(target_os = "windows"))]
       cmd.arg(command);
