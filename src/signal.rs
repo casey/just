@@ -108,10 +108,7 @@ impl TryFrom<u8> for Signal {
       2 => Ok(Signal::Interrupt),
       3 => Ok(Signal::Quit),
       15 => Ok(Signal::Terminate),
-      _ => Err(io::Error::new(
-        io::ErrorKind::Other,
-        format!("unexpected signal: {n}"),
-      )),
+      _ => Err(io::Error::other(format!("unexpected signal: {n}"))),
     }
   }
 }
