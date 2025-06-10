@@ -296,10 +296,7 @@ const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
 "#,
   ),
   (r"for i in ${COMP_WORDS[@]}", r"for i in ${words[@]}"),
-  (
-    r"elif [[ ${COMP_CWORD} -eq 1 ]]; then",
-    r"elif [[ ${cword} -eq 1 ]]; then",
-  ),
+  (r"elif [[ ${COMP_CWORD} -eq 1 ]]; then", r"else"),
   (
     r#"COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )"#,
     r#"COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )
