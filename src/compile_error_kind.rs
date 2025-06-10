@@ -109,6 +109,9 @@ pub(crate) enum CompileErrorKind<'src> {
   UndefinedVariable {
     variable: &'src str,
   },
+  UndefinedEnum {
+    enum_name: &'src str,
+  },
   UnexpectedCharacter {
     expected: Vec<char>,
   },
