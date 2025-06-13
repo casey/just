@@ -123,10 +123,7 @@ impl SignalHandler {
     let pid = match child.id().try_into() {
       Err(err) => {
         return (
-          Err(io::Error::new(
-            io::ErrorKind::Other,
-            format!("invalid child PID: {err}"),
-          )),
+          Err(io::Error::other(format!("invalid child PID: {err}"))),
           None,
         )
       }
