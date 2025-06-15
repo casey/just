@@ -3,7 +3,7 @@ use {super::*, clap_mangen::Man};
 pub const INIT_JUSTFILE: &str = "\
 # https://just.systems
 
-foo:
+default:
     echo 'Hello, world!'
 ";
 
