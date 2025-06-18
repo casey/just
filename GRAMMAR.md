@@ -65,9 +65,9 @@ set           : 'set' setting eol
 
 setting       : 'allow-duplicate-recipes' boolean?
               | 'allow-duplicate-variables' boolean?
-              | 'dotenv-filename' ':=' string
+              | 'dotenv-filename' ':=' string | string_list
               | 'dotenv-load' boolean?
-              | 'dotenv-path' ':=' string
+              | 'dotenv-path' ':=' string | string_list
               | 'dotenv-required' boolean?
               | 'export' boolean?
               | 'fallback' boolean?
