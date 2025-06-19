@@ -198,6 +198,7 @@ impl<'src> Justfile<'src> {
     }
 
     let mut ran = Ran::default();
+
     for invocation in invocations {
       let context = ExecutionContext {
         config,
@@ -207,18 +208,32 @@ impl<'src> Justfile<'src> {
         search,
       };
 
-      Self::run_recipe(
-        &invocation
-          .arguments
-          .iter()
-          .copied()
-          .map(str::to_string)
-          .collect::<Vec<String>>(),
-        &context,
-        &mut ran,
-        invocation.recipe,
-        false,
-      )?;
+      let evaluated = &invocation
+        .arguments
+        .iter()
+        .copied()
+        .map(str::to_string)
+        .collect::<Vec<String>>();
+
+      let result = Self::run_recipe(evaluated, &context, &mut ran, invocation.recipe, false);
+
+      let mut evaluator = Evaluator::new(&context, true, &scope);
+      if let Err(err) = result {
+        if invocation.recipe.recoveries().next().is_none() || context.config.no_dependencies {
+          return Err(err);
+        }
+
+        let mut ran = Ran::default();
+
+        for Dependency { recipe, arguments } in invocation.recipe.recoveries() {
+          let evaluated = arguments
+            .iter()
+            .map(|argument| evaluator.evaluate_expression(argument))
+            .collect::<RunResult<Vec<String>>>()?;
+
+          Self::run_recipe(&evaluated, &context, &mut ran, recipe, true)?;
+        }
+      }
     }
 
     Ok(())
@@ -344,6 +359,7 @@ impl<'src> Justfile<'src> {
       }
     }
 
+    // eprintln!("name:{} scope:{}", recipe.name, is_dependency);
     recipe.run(context, &scope, &positional, is_dependency)?;
 
     if !context.config.no_dependencies {

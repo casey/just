@@ -103,6 +103,7 @@ mod private;
 mod quiet;
 mod quote;
 mod readme;
+mod recoveries;
 mod recursion_limit;
 mod regexes;
 mod request;
