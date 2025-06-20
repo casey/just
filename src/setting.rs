@@ -6,6 +6,7 @@ pub(crate) enum Setting<'src> {
   AllowDuplicateVariables(bool),
   DotenvFilename(StringLiteral<'src>),
   DotenvLoad(bool),
+  DotenvOverride(bool),
   DotenvPath(StringLiteral<'src>),
   DotenvRequired(bool),
   Export(bool),
@@ -29,6 +30,7 @@ impl Display for Setting<'_> {
       Self::AllowDuplicateRecipes(value)
       | Self::AllowDuplicateVariables(value)
       | Self::DotenvLoad(value)
+      | Self::DotenvOverride(value)
       | Self::DotenvRequired(value)
       | Self::Export(value)
       | Self::Fallback(value)
