@@ -4374,6 +4374,9 @@ Integration tests use the `Test` struct, a builder which allows for easily
 invoking `just` with a given `justfile`, arguments, and environment variables,
 and checking the program's stdout, stderr, and exit code .
 
+Currently the integration tests also depend on an installation of
+[mdBook](https://github.com/rust-lang/mdBook) and its [mdBook-linkcheck](https://github.com/Michael-F-Bryan/mdbook-linkcheck) backend.
+
 ### Contribution Workflow
 
 1. Make sure the feature is wanted. There should be an open issue about the
