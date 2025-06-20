@@ -32,7 +32,6 @@ impl<'src> Namepath<'src> {
     self.0.iter()
   }
 
-  #[cfg(test)]
   pub(crate) fn len(&self) -> usize {
     self.0.len()
   }
