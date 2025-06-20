@@ -1119,6 +1119,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         Some(Setting::AllowDuplicateVariables(self.parse_set_bool()?))
       }
       Keyword::DotenvLoad => Some(Setting::DotenvLoad(self.parse_set_bool()?)),
+      Keyword::DotenvOverride => Some(Setting::DotenvOverride(self.parse_set_bool()?)),
       Keyword::DotenvRequired => Some(Setting::DotenvRequired(self.parse_set_bool()?)),
       Keyword::Export => Some(Setting::Export(self.parse_set_bool()?)),
       Keyword::Fallback => Some(Setting::Fallback(self.parse_set_bool()?)),

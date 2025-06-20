@@ -9,6 +9,7 @@ pub(crate) enum Keyword {
   Assert,
   DotenvFilename,
   DotenvLoad,
+  DotenvOverride,
   DotenvPath,
   DotenvRequired,
   Else,

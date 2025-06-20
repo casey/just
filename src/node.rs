@@ -303,6 +303,7 @@ impl<'src> Node<'src> for Set<'src> {
       Setting::AllowDuplicateRecipes(value)
       | Setting::AllowDuplicateVariables(value)
       | Setting::DotenvLoad(value)
+      | Setting::DotenvOverride(value)
       | Setting::DotenvRequired(value)
       | Setting::Export(value)
       | Setting::Fallback(value)
