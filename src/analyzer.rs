@@ -86,6 +86,17 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             if recipe.enabled() {
               Self::analyze_recipe(recipe)?;
               self.recipes.push(recipe);
+
+              for attribute in &recipe.attributes {
+                if let Attribute::Alias(name, _) = attribute {
+                  Self::define(&mut definitions, *name, "alias", false)?;
+                  self.aliases.insert(Alias {
+                    name: *name,
+                    target: recipe.name,
+                    attributes: AttributeSet::new(),
+                  });
+                }
+              }
             }
           }
           Item::Set(set) => {
