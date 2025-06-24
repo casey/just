@@ -1,6 +1,11 @@
 use {super::*, clap_mangen::Man};
 
-const INIT_JUSTFILE: &str = "default:\n    echo 'Hello, world!'\n";
+pub const INIT_JUSTFILE: &str = "\
+# https://just.systems
+
+default:
+    echo 'Hello, world!'
+";
 
 fn backtick_re() -> &'static Regex {
   static BACKTICK_RE: OnceLock<Regex> = OnceLock::new();

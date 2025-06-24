@@ -77,9 +77,10 @@ impl<'src, D> Recipe<'src, D> {
         .read_line(&mut line)
         .map_err(|io_error| Error::GetConfirmation { io_error })?;
       let line = line.trim().to_lowercase();
-      return Ok(line == "y" || line == "yes");
+      Ok(line == "y" || line == "yes")
+    } else {
+      Ok(true)
     }
-    Ok(true)
   }
 
   pub(crate) fn check_can_be_default_recipe(&self) -> RunResult<'src, ()> {

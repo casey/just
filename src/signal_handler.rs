@@ -40,20 +40,14 @@ impl SignalHandler {
   }
 
   fn interrupt(&mut self, signal: Signal) {
-    if self.children.is_empty() {
-      process::exit(signal.code().unwrap_or(1));
-    }
+    if signal.is_fatal() {
+      if self.children.is_empty() {
+        process::exit(signal.code());
+      }
 
-    #[cfg(any(
-      target_os = "dragonfly",
-      target_os = "freebsd",
-      target_os = "ios",
-      target_os = "macos",
-      target_os = "netbsd",
-      target_os = "openbsd",
-    ))]
-    if signal != Signal::Info && self.caught.is_none() {
-      self.caught = Some(signal);
+      if self.caught.is_none() {
+        self.caught = Some(signal);
+      }
     }
 
     match signal {
@@ -123,10 +117,7 @@ impl SignalHandler {
     let pid = match child.id().try_into() {
       Err(err) => {
         return (
-          Err(io::Error::new(
-            io::ErrorKind::Other,
-            format!("invalid child PID: {err}"),
-          )),
+          Err(io::Error::other(format!("invalid child PID: {err}"))),
           None,
         )
       }
