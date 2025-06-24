@@ -4329,8 +4329,8 @@ to `just` include:
   runner written in AWK and shell.
 - [haku](https://github.com/VladimirMarkelov/haku): A make-like command runner
   written in Rust.
-- [mise tasks](https://mise.jdx.dev/tasks/): A task runner written in Rust
-  supporing tasks in TOML files and as separate shell scripts.
+- [mise](https://mise.jdx.dev/): A development environment tool version manager
+  written in Rust supporing tasks in TOML files and as separate shell scripts.
 
 Contributing
 ------------
