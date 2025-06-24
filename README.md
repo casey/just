@@ -407,7 +407,7 @@ Using package managers pre-installed on GitHub Actions runners on MacOS with
 With [extractions/setup-just](https://github.com/extractions/setup-just):
 
 ```yaml
-- uses: extractions/setup-just@v2
+- uses: extractions/setup-just@v3
   with:
     just-version: 1.5.0  # optional semver specification, otherwise latest
 ```
@@ -4329,6 +4329,8 @@ to `just` include:
   runner written in AWK and shell.
 - [haku](https://github.com/VladimirMarkelov/haku): A make-like command runner
   written in Rust.
+- [mise](https://mise.jdx.dev/): A development environment tool manager written
+  in Rust supporing tasks in TOML files and standalone scripts.
 
 Contributing
 ------------
