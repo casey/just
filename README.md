@@ -2108,6 +2108,13 @@ foo:
     echo "foo"
 ```
 
+Attributes with a single argument may be written with a colon:
+
+```just
+[group: 'bar']
+foo:
+```
+
 #### Enabling and Disabling Recipes<sup>1.8.0</sup>
 
 The `[linux]`, `[macos]`, `[unix]`, and `[windows]` attributes are

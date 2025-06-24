@@ -124,9 +124,11 @@ sequence      : expression ',' sequence
 
 recipe        : attributes* '@'? NAME parameter* variadic? ':' dependencies eol body?
 
-attributes    : '[' attribute* ']' eol
+attributes    : '[' attribute (',' attribute)* ']' eol
 
-attribute     : NAME ( '(' string ')' )?
+attribute     : NAME
+              | NAME ':' string
+              | NAME '(' string (',' string)* ')'
 
 parameter     : '$'? NAME
               | '$'? NAME '=' value
