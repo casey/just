@@ -2182,7 +2182,7 @@ delete-everything:
 
 ### Groups
 
-Recipes and modules may be annotated with a group name:
+Recipes and modules may be annotated with one or more group names:
 
 ```just
 [group('lint')]
