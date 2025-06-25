@@ -407,7 +407,7 @@ Using package managers pre-installed on GitHub Actions runners on MacOS with
 With [extractions/setup-just](https://github.com/extractions/setup-just):
 
 ```yaml
-- uses: extractions/setup-just@v2
+- uses: extractions/setup-just@v3
   with:
     just-version: 1.5.0  # optional semver specification, otherwise latest
 ```
@@ -2108,6 +2108,13 @@ foo:
     echo "foo"
 ```
 
+Attributes with a single argument may be written with a colon:
+
+```just
+[group: 'bar']
+foo:
+```
+
 #### Enabling and Disabling Recipes<sup>1.8.0</sup>
 
 The `[linux]`, `[macos]`, `[unix]`, and `[windows]` attributes are
@@ -2182,7 +2189,7 @@ delete-everything:
 
 ### Groups
 
-Recipes and modules may be annotated with a group name:
+Recipes and modules may be annotated with one or more group names:
 
 ```just
 [group('lint')]
@@ -4337,6 +4344,8 @@ to `just` include:
   runner written in AWK and shell.
 - [haku](https://github.com/VladimirMarkelov/haku): A make-like command runner
   written in Rust.
+- [mise](https://mise.jdx.dev/): A development environment tool manager written
+  in Rust supporing tasks in TOML files and standalone scripts.
 
 Contributing
 ------------
