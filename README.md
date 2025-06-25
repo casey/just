@@ -3271,9 +3271,9 @@ recipe:
   echo 'back to recipe body'
 ```
 
-### Command Line Options
+### Command-line Options
 
-`just` supports a number of useful command line options for listing, dumping,
+`just` supports a number of useful command-line options for listing, dumping,
 and debugging recipes and variables:
 
 ```console
@@ -3291,58 +3291,30 @@ perl:
 $ just --show polyglot
 polyglot: python js perl sh ruby
 ```
-#### Setting options using environment variables
 
-Some command-line options can be set with environment variables. For example:
+#### Setting Command-line Options with Environment Variables
+
+Some command-line options can be set with environment variables
+
+For example, unstable features can be enabled either with the `--unstable`
+flag:
+
+```console
+$ just --unstable
+```
+
+Or by setting the `JUST_UNSTABLE` environment variable:
 
 ```console
 $ export JUST_UNSTABLE=1
 $ just
 ```
 
-Is equivalent to:
+Since environment variables are inherited by child processes, command-line
+options set with environment variables are inherited by recursive invocations
+of `just`, where as command line options set with arguments are not.
 
-```console
-$ just --unstable
-```
-
-When a command-line option is set, and the recipe that is called makes a further recursive call to `just`,
-the recursive invocation does not inherit the command-line option. By contrast, if the equivalent option
-is set using an environment variable, a recursive invocation of `just` *will* inherit that option, since
-a child process inherits the environment variables of its parent.
-
-For example, consider this justfile:
-
-```just                                                
-bar:
-        echo "bar" > /dev/null
-
-foobar:
-        echo "foo" > /dev/null
-        @just bar
-
-```
-
-Invoking using a command-line option does not apply the option to the recursively-called recipe:
-
-```console
-$ just --timestamp foobar
-[16:04:02] echo "foo" > /dev/null
-echo "bar" > /dev/null
-```
-
-whereas using the corresponding enviroment variable does apply the option recursively:
-
-```console
-$ export JUST_TIMESTAMP=true
-$ just foobar
-[16:04:02] echo "foo" > /dev/null
-[16:04:02] echo "bar" > /dev/null
-```
-
-
-Consult `just --help` to see which options can be set from environment
-variables.
+Consult `just --help` for which options can be set with environment variables.
 
 ### Private Recipes
 
