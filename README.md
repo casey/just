@@ -3278,9 +3278,9 @@ recipe:
   echo 'back to recipe body'
 ```
 
-### Command Line Options
+### Command-line Options
 
-`just` supports a number of useful command line options for listing, dumping,
+`just` supports a number of useful command-line options for listing, dumping,
 and debugging recipes and variables:
 
 ```console
@@ -3299,21 +3299,29 @@ $ just --show polyglot
 polyglot: python js perl sh ruby
 ```
 
-Some command-line options can be set with environment variables. For example:
+#### Setting Command-line Options with Environment Variables
+
+Some command-line options can be set with environment variables
+
+For example, unstable features can be enabled either with the `--unstable`
+flag:
+
+```console
+$ just --unstable
+```
+
+Or by setting the `JUST_UNSTABLE` environment variable:
 
 ```console
 $ export JUST_UNSTABLE=1
 $ just
 ```
 
-Is equivalent to:
+Since environment variables are inherited by child processes, command-line
+options set with environment variables are inherited by recursive invocations
+of `just`, where as command line options set with arguments are not.
 
-```console
-$ just --unstable
-```
-
-Consult `just --help` to see which options can be set from environment
-variables.
+Consult `just --help` for which options can be set with environment variables.
 
 ### Private Recipes
 
