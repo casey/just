@@ -64,7 +64,7 @@ ctrlc = { version = "3.1.1", features = ["termination"] }
 executable-path = "1.0.0"
 pretty_assertions = "1.0.0"
 temptree = "0.2.0"
-which = "7.0.0"
+which = "8.0.0"
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(fuzzing)'] }
