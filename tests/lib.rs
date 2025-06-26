@@ -81,6 +81,7 @@ mod groups;
 mod ignore_comments;
 mod imports;
 mod init;
+mod inline_modules;
 mod invocation_directory;
 mod json;
 mod line_prefixes;

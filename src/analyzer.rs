@@ -62,6 +62,22 @@ impl<'run, 'src> Analyzer<'run, 'src> {
               }
             }
           }
+          Item::ModuleInline(ModuleInline {
+            doc, name, groups, ..
+          }) => {
+            Self::define(&mut definitions, *name, "module", false)?;
+            let absolute = root.join(name.lexeme());
+
+            self.modules.insert(Self::analyze(
+              asts,
+              doc.clone(),
+              groups.as_slice(),
+              loaded,
+              Some(*name),
+              paths,
+              &absolute,
+            )?);
+          }
           Item::Module {
             absolute,
             doc,
