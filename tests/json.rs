@@ -784,6 +784,88 @@ fn attribute() {
 }
 
 #[test]
+fn metadata_attribute() {
+  case(
+    "
+      [metadata('example')]
+      foo:
+    ",
+    Module {
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          attributes: [json!({"metadata": ["example"]})].into(),
+          name: "foo",
+          namepath: "foo",
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
+  );
+}
+
+#[test]
+fn multiple_metadata_attributes() {
+  case(
+    "
+      [metadata('example')]
+      [metadata('sample')]
+      foo:
+    ",
+    Module {
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          attributes: [
+            json!({"metadata": ["example"]}),
+            json!({"metadata": ["sample"]}),
+          ]
+          .into(),
+          name: "foo",
+          namepath: "foo",
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
+  );
+}
+
+#[test]
+fn multiple_metadata_attributes_with_arguments() {
+  case(
+    "
+      [metadata('example', 'arg1')]
+      [metadata('sample', 'argument')]
+      foo:
+    ",
+    Module {
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          attributes: [
+            json!({"metadata": ["example", "arg1"]}),
+            json!({"metadata": ["sample", "argument"]}),
+          ]
+          .into(),
+          name: "foo",
+          namepath: "foo",
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
+  );
+}
+
+#[test]
 fn module() {
   case_with_submodule(
     "

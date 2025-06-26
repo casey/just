@@ -16,6 +16,7 @@ pub(crate) enum Attribute<'src> {
   Group(StringLiteral<'src>),
   Linux,
   Macos,
+  Metadata(Vec<StringLiteral<'src>>),
   NoCd,
   NoExitMessage,
   NoQuiet,
@@ -32,6 +33,7 @@ impl AttributeDiscriminant {
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
       Self::Confirm | Self::Doc => 0..=1,
+      Self::Metadata => 1..=usize::MAX,
       Self::Group | Self::Extension | Self::WorkingDirectory => 1..=1,
       Self::ExitMessage
       | Self::Linux
@@ -85,6 +87,7 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::Group => Self::Group(arguments.into_iter().next().unwrap()),
       AttributeDiscriminant::Linux => Self::Linux,
       AttributeDiscriminant::Macos => Self::Macos,
+      AttributeDiscriminant::Metadata => Self::Metadata(arguments),
       AttributeDiscriminant::NoCd => Self::NoCd,
       AttributeDiscriminant::NoExitMessage => Self::NoExitMessage,
       AttributeDiscriminant::NoQuiet => Self::NoQuiet,
@@ -115,7 +118,7 @@ impl<'src> Attribute<'src> {
   }
 
   pub(crate) fn repeatable(&self) -> bool {
-    matches!(self, Attribute::Group(_))
+    matches!(self, Attribute::Group(_) | Attribute::Metadata(_))
   }
 }
 
@@ -130,6 +133,15 @@ impl Display for Attribute<'_> {
       | Self::Group(argument)
       | Self::WorkingDirectory(argument) => write!(f, "({argument})")?,
       Self::Script(Some(shell)) => write!(f, "({shell})")?,
+      Self::Metadata(arguments) => write!(
+        f,
+        "({})",
+        arguments
+          .iter()
+          .map(StringLiteral::to_string)
+          .collect::<Vec<_>>()
+          .join(", ")
+      )?,
       Self::Confirm(None)
       | Self::Doc(None)
       | Self::ExitMessage
