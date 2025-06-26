@@ -297,7 +297,7 @@ impl<'src> Lexer<'src> {
             self.lex_body()?;
           } else {
             self.lex_normal(first)?;
-          };
+          }
         }
         None => break,
       }
@@ -402,7 +402,7 @@ impl<'src> Lexer<'src> {
           }
 
           self.token(Whitespace);
-        };
+        }
 
         Ok(())
       }

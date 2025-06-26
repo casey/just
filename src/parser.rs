@@ -1065,7 +1065,7 @@ impl<'run, 'src> Parser<'run, 'src> {
               return Err(self.unexpected_token()?);
             }
           }
-        };
+        }
 
         lines.push(Line { fragments, number });
       }

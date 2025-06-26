@@ -131,7 +131,7 @@ impl<'src> Justfile<'src> {
             arguments: arguments.clone(),
             status,
           });
-        };
+        }
 
         if let Some(signal) = caught {
           return Err(Error::Interrupted { signal });

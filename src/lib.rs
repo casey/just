@@ -152,7 +152,7 @@ use request::Request;
 
 // Used in integration tests.
 #[doc(hidden)]
-pub use {request::Response, unindent::unindent};
+pub use {request::Response, subcommand::INIT_JUSTFILE, unindent::unindent};
 
 type CompileResult<'a, T = ()> = Result<T, CompileError<'a>>;
 type ConfigResult<T> = Result<T, ConfigError>;

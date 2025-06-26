@@ -407,7 +407,7 @@ Using package managers pre-installed on GitHub Actions runners on MacOS with
 With [extractions/setup-just](https://github.com/extractions/setup-just):
 
 ```yaml
-- uses: extractions/setup-just@v2
+- uses: extractions/setup-just@v3
   with:
     just-version: 1.5.0  # optional semver specification, otherwise latest
 ```
@@ -2108,6 +2108,13 @@ foo:
     echo "foo"
 ```
 
+Attributes with a single argument may be written with a colon:
+
+```just
+[group: 'bar']
+foo:
+```
+
 #### Enabling and Disabling Recipes<sup>1.8.0</sup>
 
 The `[linux]`, `[macos]`, `[unix]`, and `[windows]` attributes are
@@ -2182,7 +2189,7 @@ delete-everything:
 
 ### Groups
 
-Recipes and modules may be annotated with a group name:
+Recipes and modules may be annotated with one or more group names:
 
 ```just
 [group('lint')]
@@ -2915,7 +2922,7 @@ Of course, a shebang also works:
 
 ```just
 hello:
-  #!/usr/bin/env uv run --script
+  #!/usr/bin/env -S uv run --script
   print("Hello from Python!")
 ```
 
@@ -3271,9 +3278,9 @@ recipe:
   echo 'back to recipe body'
 ```
 
-### Command Line Options
+### Command-line Options
 
-`just` supports a number of useful command line options for listing, dumping,
+`just` supports a number of useful command-line options for listing, dumping,
 and debugging recipes and variables:
 
 ```console
@@ -3292,21 +3299,29 @@ $ just --show polyglot
 polyglot: python js perl sh ruby
 ```
 
-Some command-line options can be set with environment variables. For example:
+#### Setting Command-line Options with Environment Variables
+
+Some command-line options can be set with environment variables
+
+For example, unstable features can be enabled either with the `--unstable`
+flag:
+
+```console
+$ just --unstable
+```
+
+Or by setting the `JUST_UNSTABLE` environment variable:
 
 ```console
 $ export JUST_UNSTABLE=1
 $ just
 ```
 
-Is equivalent to:
+Since environment variables are inherited by child processes, command-line
+options set with environment variables are inherited by recursive invocations
+of `just`, where as command line options set with arguments are not.
 
-```console
-$ just --unstable
-```
-
-Consult `just --help` to see which options can be set from environment
-variables.
+Consult `just --help` for which options can be set with environment variables.
 
 ### Private Recipes
 
@@ -4329,6 +4344,8 @@ to `just` include:
   runner written in AWK and shell.
 - [haku](https://github.com/VladimirMarkelov/haku): A make-like command runner
   written in Rust.
+- [mise](https://mise.jdx.dev/): A development environment tool manager written
+  in Rust supporing tasks in TOML files and standalone scripts.
 
 Contributing
 ------------
@@ -4582,3 +4599,5 @@ I hope you enjoy using `just` and find great success and satisfaction in all
 your computational endeavors!
 
 😸
+
+[🔼 Back to the top!](#just)
