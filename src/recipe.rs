@@ -16,6 +16,72 @@ fn error_from_signal(recipe: &str, line_number: Option<usize>, exit_status: Exit
   }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, strum::EnumIter)]
+enum System {
+  Linux,
+  MacOS,
+  OpenBSD,
+  Unix,
+  Unrecognized,
+  Windows,
+}
+
+impl System {
+  fn current() -> System {
+    use System::*;
+    if cfg!(target_os = "linux") {
+      return Linux;
+    }
+    if cfg!(target_os = "openbsd") {
+      return OpenBSD;
+    }
+    if cfg!(target_os = "macos") {
+      return MacOS;
+    }
+    if cfg!(target_os = "windows") || cfg!(windows) {
+      return Windows;
+    }
+    if cfg!(unix) {
+      return Unix;
+    }
+    Unrecognized
+  }
+
+  fn is_specific_unix(self) -> bool {
+    matches!(self, System::Linux | System::MacOS | System::OpenBSD)
+  }
+
+  fn others(self) -> Vec<System> {
+    use strum::IntoEnumIterator;
+    System::iter()
+      .filter(|system| {
+        *system != self
+          && if system.is_specific_unix() {
+            *system != System::Unix
+          } else {
+            true
+          }
+      })
+      .collect()
+  }
+
+  fn enabled(self, enabled: HashMap<System, bool>, disabled: HashMap<System, bool>) -> bool {
+    let not_disabled = !disabled[&self];
+    let explicitly_enabled = enabled[&self];
+    let no_others_enabled = !self
+      .others()
+      .iter()
+      .any(|system| *enabled.get(system).unwrap_or(&false));
+
+    // Special case for Unix family
+    if self.is_specific_unix() && enabled.get(&System::Unix).copied().unwrap_or(false) {
+      return !disabled.get(&self).copied().unwrap_or(false);
+    }
+
+    not_disabled && (explicitly_enabled || no_others_enabled)
+  }
+}
+
 /// A recipe, e.g. `foo: bar baz`
 #[derive(PartialEq, Debug, Clone, Serialize)]
 pub(crate) struct Recipe<'src, D = Dependency<'src>> {
@@ -115,19 +181,54 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn enabled(&self) -> bool {
-    let linux = self.attributes.contains(AttributeDiscriminant::Linux);
-    let macos = self.attributes.contains(AttributeDiscriminant::Macos);
-    let openbsd = self.attributes.contains(AttributeDiscriminant::Openbsd);
-    let unix = self.attributes.contains(AttributeDiscriminant::Unix);
-    let windows = self.attributes.contains(AttributeDiscriminant::Windows);
+    use std::ops::Not;
 
-    (!windows && !linux && !macos && !openbsd && !unix)
-      || (cfg!(target_os = "linux") && (linux || unix))
-      || (cfg!(target_os = "macos") && (macos || unix))
-      || (cfg!(target_os = "openbsd") && (openbsd || unix))
-      || (cfg!(target_os = "windows") && windows)
-      || (cfg!(unix) && unix)
-      || (cfg!(windows) && windows)
+    let linux = self
+      .attributes
+      .contains_invertible(AttributeDiscriminant::Linux);
+    let macos = self
+      .attributes
+      .contains_invertible(AttributeDiscriminant::Macos);
+    let openbsd = self
+      .attributes
+      .contains_invertible(AttributeDiscriminant::Openbsd);
+    let unix = self
+      .attributes
+      .contains_invertible(AttributeDiscriminant::Unix);
+    let windows = self
+      .attributes
+      .contains_invertible(AttributeDiscriminant::Windows);
+
+    if [linux, macos, openbsd, unix, windows]
+      .into_iter()
+      .all(|x| x.is_none())
+    {
+      return true;
+    }
+
+    let enabled: HashMap<System, bool> = [
+      (System::Windows, windows.unwrap_or(false)),
+      (System::MacOS, macos.unwrap_or(false)),
+      (System::Linux, linux.unwrap_or(false)),
+      (System::OpenBSD, openbsd.unwrap_or(false)),
+      (System::Unix, unix.unwrap_or(false)),
+      (System::Unrecognized, false),
+    ]
+    .into_iter()
+    .collect();
+
+    let disabled: HashMap<System, bool> = [
+      (System::Windows, windows.is_some_and(bool::not)),
+      (System::MacOS, macos.is_some_and(bool::not)),
+      (System::Linux, linux.is_some_and(bool::not)),
+      (System::OpenBSD, openbsd.is_some_and(bool::not)),
+      (System::Unix, unix.is_some_and(bool::not)),
+      (System::Unrecognized, false),
+    ]
+    .into_iter()
+    .collect();
+
+    System::current().enabled(enabled, disabled)
   }
 
   fn print_exit_message(&self, settings: &Settings) -> bool {
