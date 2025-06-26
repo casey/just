@@ -16,6 +16,7 @@ pub(crate) enum Attribute<'src> {
   Group(StringLiteral<'src>),
   Linux,
   Macos,
+  Metadata(StringLiteral<'src>),
   NoCd,
   NoExitMessage,
   NoQuiet,
@@ -32,7 +33,7 @@ impl AttributeDiscriminant {
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
       Self::Confirm | Self::Doc => 0..=1,
-      Self::Group | Self::Extension | Self::WorkingDirectory => 1..=1,
+      Self::Group | Self::Metadata | Self::Extension | Self::WorkingDirectory => 1..=1,
       Self::ExitMessage
       | Self::Linux
       | Self::Macos
@@ -85,6 +86,7 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::Group => Self::Group(arguments.into_iter().next().unwrap()),
       AttributeDiscriminant::Linux => Self::Linux,
       AttributeDiscriminant::Macos => Self::Macos,
+      AttributeDiscriminant::Metadata => Self::Metadata(arguments.into_iter().next().unwrap()),
       AttributeDiscriminant::NoCd => Self::NoCd,
       AttributeDiscriminant::NoExitMessage => Self::NoExitMessage,
       AttributeDiscriminant::NoQuiet => Self::NoQuiet,
@@ -115,7 +117,7 @@ impl<'src> Attribute<'src> {
   }
 
   pub(crate) fn repeatable(&self) -> bool {
-    matches!(self, Attribute::Group(_))
+    matches!(self, Attribute::Group(_) | Attribute::Metadata(_))
   }
 }
 
@@ -128,6 +130,7 @@ impl Display for Attribute<'_> {
       | Self::Doc(Some(argument))
       | Self::Extension(argument)
       | Self::Group(argument)
+      | Self::Metadata(argument)
       | Self::WorkingDirectory(argument) => write!(f, "({argument})")?,
       Self::Script(Some(shell)) => write!(f, "({shell})")?,
       Self::Confirm(None)
