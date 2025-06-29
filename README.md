@@ -2921,7 +2921,7 @@ otherwise non-executable.
 The directory that `just` writes temporary files to may be configured in a
 number of ways, from highest to lowest precedence:
 
-- Globally with the `--tempdir` command-line option, or the `JUST_TEMPDIR`
+- Globally with the `--tempdir` command-line option or the `JUST_TEMPDIR`
   environment variable.
 
 - On a per-module basis with the `tempdir` setting.
