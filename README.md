@@ -2926,7 +2926,7 @@ number of ways, from highest to lowest precedence:
 
 - On a per-module basis with the `tempdir` setting.
 
-- Globally on Linux the `XDG_RUNTIME_DIR` environment variable.
+- Globally on Linux with the `XDG_RUNTIME_DIR` environment variable.
 
 - Falling back to the directory returned by
   [std::env::temp_dir](https://doc.rust-lang.org/std/env/fn.temp_dir.html).
