@@ -25,6 +25,7 @@ pub(crate) enum Item<'src> {
   Unexport {
     name: Name<'src>,
   },
+  Enum(Enum<'src>),
 }
 
 impl Display for Item<'_> {
@@ -67,6 +68,7 @@ impl Display for Item<'_> {
       Self::Recipe(recipe) => write!(f, "{}", recipe.color_display(Color::never())),
       Self::Set(set) => write!(f, "{set}"),
       Self::Unexport { name } => write!(f, "unexport {name}"),
+      Self::Enum(v) => write!(f, "{v}"),
     }
   }
 }
