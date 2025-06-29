@@ -133,7 +133,7 @@ pub(crate) use {
     vec,
   },
   strum::{Display, EnumDiscriminants, EnumString, IntoStaticStr},
-  tempfile::tempfile,
+  tempfile::{tempfile, TempDir},
   typed_arena::Arena,
   unicode_width::{UnicodeWidthChar, UnicodeWidthStr},
 };
