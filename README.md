@@ -2891,6 +2891,46 @@ the final argument. For example, on Windows, if a recipe starts with `#! py`,
 the final command the OS runs will be something like
 `py C:\Temp\PATH_TO_SAVED_RECIPE_BODY`.
 
+### Script Recipes
+
+Recipes with a `[script(COMMAND)]`<sup>1.32.0</sup> attribute are run as
+scripts interpreted by `COMMAND`. This avoids some of the issues with shebang
+recipes, such as the use of `cygpath` on Windows, the need to use
+`/usr/bin/env`, inconsistencies in shebang line splitting across Unix OSs, and
+requiring a temporary directory from which files can be executed.
+
+Recipes with an empty `[script]` attribute are executed with the value of `set
+script-interpreter := […]`<sup>1.33.0</sup>, defaulting to `sh -eu`, and *not*
+the value of `set shell`.
+
+The body of the recipe is evaluated, written to disk in the temporary
+directory, and run by passing its path as an argument to `COMMAND`.
+
+The `[script(…)]` attribute is unstable, so you'll need to use `set unstable`,
+set the `JUST_UNSTABLE` environment variable, or pass `--unstable` on the
+command line.
+
+### Script and Shebang Recipe Temporary Files
+
+Both script and shebang recipes write the recipe body to a temporary file for
+execution. Script recipes execute that file by passing it to a command, while
+shebang recipes execute the file directly. Shebang recipe execution will fail
+if the filesystem containing the temporary file is mounted with `noexec` or is
+otherwise non-executable.
+
+The directory that `just` writes temporary files to may be configured in a
+number of ways, from highest to lowest precedence:
+
+- Globally with the `--tempdir` command-line option or the `JUST_TEMPDIR`
+  environment variable.
+
+- On a per-module basis with the `tempdir` setting.
+
+- Globally on Linux with the `XDG_RUNTIME_DIR` environment variable.
+
+- Falling back to the directory returned by
+  [std::env::temp_dir](https://doc.rust-lang.org/std/env/fn.temp_dir.html).
+
 ### Python Recipes with `uv`
 
 [`uv`](https://github.com/astral-sh/uv) is an excellent cross-platform python
@@ -2926,23 +2966,6 @@ hello:
   print("Hello from Python!")
 ```
 
-### Script Recipes
-
-Recipes with a `[script(COMMAND)]`<sup>1.32.0</sup> attribute are run as
-scripts interpreted by `COMMAND`. This avoids some of the issues with shebang
-recipes, such as the use of `cygpath` on Windows, the need to use
-`/usr/bin/env`, and inconsistencies in shebang line splitting across Unix OSs.
-
-Recipes with an empty `[script]` attribute are executed with the value of `set
-script-interpreter := […]`<sup>1.33.0</sup>, defaulting to `sh -eu`, and *not*
-the value of `set shell`.
-
-The body of the recipe is evaluated, written to disk in the temporary
-directory, and run by passing its path as an argument to `COMMAND`.
-
-The `[script(…)]` attribute is unstable, so you'll need to use `set unstable`,
-set the `JUST_UNSTABLE` environment variable, or pass `--unstable` on the
-command line.
 
 ### Safer Bash Shebang Recipes
 
