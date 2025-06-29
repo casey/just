@@ -2915,8 +2915,8 @@ command line.
 Both script and shebang recipes write the recipe body to a temporary file for
 execution. Script recipes execute that file by passing it to a command, while
 shebang recipes execute the file directly. Shebang recipe execution will fail
-if the filesystem the temporary file is mounted with `noexec` or is otherwise
-non-executable.
+if the filesystem containing the temporary file is mounted with `noexec` or is
+otherwise non-executable.
 
 The directory that `just` writes temporary files to may be configured in a
 number of ways, from highest to lowest precedence:
@@ -2928,8 +2928,8 @@ number of ways, from highest to lowest precedence:
 
 - Globally on Linux the `XDG_RUNTIME_DIR` environment variable.
 
-If none of the above are used, `just` falls back to the directory returned by
-[std::env::temp_dir](https://doc.rust-lang.org/std/env/fn.temp_dir.html).
+- Falling back to the directory returned by
+  [std::env::temp_dir](https://doc.rust-lang.org/std/env/fn.temp_dir.html).
 
 ### Python Recipes with `uv`
 
