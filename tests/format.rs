@@ -1460,6 +1460,27 @@ fn no_trailing_newline() {
 }
 
 #[test]
+fn recovery() {
+  Test::new()
+    .arg("--dump")
+    .justfile(
+      "
+    bar:
+    foo: || bar
+        echo foo",
+    )
+    .stdout(
+      "
+    bar:
+
+    foo: || bar
+        echo foo
+  ",
+    )
+    .run();
+}
+
+#[test]
 fn subsequent() {
   Test::new()
     .arg("--dump")
