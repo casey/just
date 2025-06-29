@@ -381,7 +381,7 @@ impl Config {
           .env("JUST_TEMPDIR")
           .long("tempdir")
           .value_parser(value_parser!(PathBuf))
-          .help("Save temporary files to <TEMPDIR>. Must be writable and executable."),
+          .help("Save temporary files to <TEMPDIR>."),
       )
       .arg(
         Arg::new(arg::TIMESTAMP)
