@@ -322,10 +322,16 @@ impl<'src> Node<'src> for Set<'src> {
           set.push_mut(Tree::string(&argument.cooked));
         }
       }
-      Setting::DotenvFilename(value)
-      | Setting::DotenvPath(value)
-      | Setting::Tempdir(value)
-      | Setting::WorkingDirectory(value) => {
+      Setting::DotenvFilename(value) | Setting::DotenvPath(value) => match value {
+        StringLiteralOrArray::Single(string_literal) => {
+          set.push_mut(Tree::string(&string_literal.cooked))
+        }
+        StringLiteralOrArray::Multiple(string_literals) => set.push_mut(Tree::list(
+          string_literals.iter().map(|s| Tree::string(&s.cooked)),
+        )),
+      },
+
+      Setting::Tempdir(value) | Setting::WorkingDirectory(value) => {
         set.push_mut(Tree::string(&value.cooked));
       }
     }

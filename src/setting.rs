@@ -4,9 +4,9 @@ use super::*;
 pub(crate) enum Setting<'src> {
   AllowDuplicateRecipes(bool),
   AllowDuplicateVariables(bool),
-  DotenvFilename(StringLiteral<'src>),
+  DotenvFilename(StringLiteralOrArray<'src>),
   DotenvLoad(bool),
-  DotenvPath(StringLiteral<'src>),
+  DotenvPath(StringLiteralOrArray<'src>),
   DotenvRequired(bool),
   Export(bool),
   Fallback(bool),
@@ -41,10 +41,12 @@ impl Display for Setting<'_> {
       Self::ScriptInterpreter(shell) | Self::Shell(shell) | Self::WindowsShell(shell) => {
         write!(f, "[{shell}]")
       }
-      Self::DotenvFilename(value)
-      | Self::DotenvPath(value)
-      | Self::Tempdir(value)
-      | Self::WorkingDirectory(value) => {
+
+      Self::DotenvFilename(value) | Self::DotenvPath(value) => {
+        write!(f, "{}", value)
+      }
+
+      Self::Tempdir(value) | Self::WorkingDirectory(value) => {
         write!(f, "{value}")
       }
     }
