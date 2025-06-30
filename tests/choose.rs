@@ -134,7 +134,6 @@ fn no_choosable_recipes() {
 }
 
 #[test]
-#[ignore]
 fn multiple_recipes() {
   Test::new()
     .arg("--choose")
