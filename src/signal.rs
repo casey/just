@@ -36,8 +36,23 @@ impl Signal {
     Signal::Terminate,
   ];
 
-  pub(crate) fn code(self) -> Option<i32> {
-    128i32.checked_add(self.number())
+  pub(crate) fn code(self) -> i32 {
+    128i32.checked_add(self.number()).unwrap()
+  }
+
+  pub(crate) fn is_fatal(self) -> bool {
+    match self {
+      Self::Hangup | Self::Interrupt | Self::Quit | Self::Terminate => true,
+      #[cfg(any(
+        target_os = "dragonfly",
+        target_os = "freebsd",
+        target_os = "ios",
+        target_os = "macos",
+        target_os = "netbsd",
+        target_os = "openbsd",
+      ))]
+      Self::Info => false,
+    }
   }
 
   pub(crate) fn number(self) -> i32 {
@@ -108,10 +123,7 @@ impl TryFrom<u8> for Signal {
       2 => Ok(Signal::Interrupt),
       3 => Ok(Signal::Quit),
       15 => Ok(Signal::Terminate),
-      _ => Err(io::Error::new(
-        io::ErrorKind::Other,
-        format!("unexpected signal: {n}"),
-      )),
+      _ => Err(io::Error::other(format!("unexpected signal: {n}"))),
     }
   }
 }
@@ -125,6 +137,13 @@ mod tests {
   fn signals_fit_in_u8() {
     for signal in Signal::ALL {
       assert!(signal.number() <= i32::from(u8::MAX));
+    }
+  }
+
+  #[test]
+  fn signals_have_valid_exit_codes() {
+    for signal in Signal::ALL {
+      signal.code();
     }
   }
 
