@@ -139,9 +139,9 @@ most Windows users.)
     </tr>
   </thead>
   <tbody>
-      <tr>
+    <tr>
       <td><a href=https://github.com/alexellis/arkade>arkade</a></td>
-      <td><a href=https://github.com/alexellis/arkade?tab=readme-ov-file#catalog-of-clis>just</a></td>
+      <td>just</td>
       <td><code>arkade get just</code></td>
     </tr>
     <tr>
