@@ -140,6 +140,11 @@ most Windows users.)
   </thead>
   <tbody>
     <tr>
+      <td><a href=https://github.com/alexellis/arkade>arkade</a></td>
+      <td>just</td>
+      <td><code>arkade get just</code></td>
+    </tr>
+    <tr>
       <td><a href=https://asdf-vm.com>asdf</a></td>
       <td><a href=https://github.com/olofvndrhr/asdf-just>just</a></td>
       <td>
