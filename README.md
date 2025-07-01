@@ -989,6 +989,7 @@ foo:
 | `allow-duplicate-variables` | boolean | `false` | Allow variables appearing later in a `justfile` to override earlier variables with the same name. |
 | `dotenv-filename` | string | - | Load a `.env` file with a custom name, if present. |
 | `dotenv-load` | boolean | `false` | Load a `.env` file, if present. |
+| `dotenv-override` | boolean | `false` | Override existing environment variables with values from the `.env` file. |
 | `dotenv-path` | string | - | Load a `.env` file from a custom path and error if not present. Overrides `dotenv-filename`. |
 | `dotenv-required` | boolean | `false` | Error if a `.env` file isn't found. |
 | `export` | boolean | `false` | Export all variables as environment variables. |
@@ -1060,8 +1061,9 @@ bar
 
 #### Dotenv Settings
 
-If any of `dotenv-load`, `dotenv-filename`, `dotenv-path`, or `dotenv-required`
-are set, `just` will try to load environment variables from a file.
+If any of `dotenv-load`, `dotenv-filename`, `dotenv-override`, `dotenv-path`,
+or `dotenv-required` are set, `just` will try to load environment variables
+from a file.
 
 If `dotenv-path` is set, `just` will look for a file at the given path, which
 may be absolute, or relative to the working directory.
@@ -1085,6 +1087,9 @@ It is not an error if an environment file is not found, unless
 
 The loaded variables are environment variables, not `just` variables, and so
 must be accessed using `$VARIABLE_NAME` in recipes and backticks.
+
+If `dotenv-override` is set, variables from the environment file will override
+existing environment variables.
 
 For example, if your `.env` file contains:
 
