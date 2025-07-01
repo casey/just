@@ -1,6 +1,11 @@
 use {super::*, clap_mangen::Man};
 
-const INIT_JUSTFILE: &str = "default:\n    echo 'Hello, world!'\n";
+pub const INIT_JUSTFILE: &str = "\
+# https://just.systems
+
+default:
+    echo 'Hello, world!'
+";
 
 fn backtick_re() -> &'static Regex {
   static BACKTICK_RE: OnceLock<Regex> = OnceLock::new();
@@ -61,6 +66,7 @@ impl Subcommand {
       Completions { shell } => return Self::completions(*shell),
       Init => return Self::init(config),
       Man => return Self::man(),
+      Request { request } => return Self::request(request),
       _ => {}
     }
 
@@ -84,7 +90,6 @@ impl Subcommand {
       Format => Self::format(config, &search, compilation)?,
       Groups => Self::groups(config, justfile),
       List { path } => Self::list(config, justfile, path)?,
-      Request { request } => Self::request(request)?,
       Run {
         arguments,
         overrides,
@@ -92,7 +97,7 @@ impl Subcommand {
       Show { path } => Self::show(config, justfile, path)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
-      Changelog | Completions { .. } | Edit | Init | Man => unreachable!(),
+      Changelog | Completions { .. } | Edit | Init | Man | Request { .. } => unreachable!(),
     }
 
     Ok(())
