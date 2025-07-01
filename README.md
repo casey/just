@@ -4405,9 +4405,9 @@ and checking the program's stdout, stderr, and exit code .
 
 5. Implement the feature.
 
-6. Run `just ci` to make sure that all tests, lints, and checks pass. This
-  requires [mdBook](https://github.com/rust-lang/mdBook) and
-  [mdbook-linkcheck](https://github.com/Michael-F-Bryan/mdbook-linkcheck).
+6. Run `just ci` to make sure that all tests, lints, and checks pass. Requires
+   [mdBook](https://github.com/rust-lang/mdBook) and
+   [mdbook-linkcheck](https://github.com/Michael-F-Bryan/mdbook-linkcheck).
 
 7. Open a PR with the new code that is editable by maintainers. PRs often
    require rebasing and minor tweaks. If the PR is not editable by maintainers,
