@@ -31,21 +31,33 @@
         <!-- Custom theme stylesheets -->
 
 
-        <!-- Provide site root to javascript -->
+        <!-- Provide site root and default themes to javascript -->
         <script>
-            var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc.js"></script>
     </head>
     <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
     <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
             try {
-                var theme = localStorage.getItem('mdbook-theme');
-                var sidebar = localStorage.getItem('mdbook-sidebar');
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
 
                 if (theme.startsWith('"') && theme.endsWith('"')) {
                     localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
@@ -59,7 +71,8 @@
 
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script>
-            var theme;
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
             const html = document.documentElement;
@@ -72,8 +85,8 @@
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var sidebar = null;
-            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
@@ -109,13 +122,14 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
                         </ul>
-                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
                             <i class="fa fa-search"></i>
                         </button>
                     </div>
@@ -157,34 +171,36 @@
                     <main>
                         <h3 id="constants"><a class="header" href="#constants">Constants</a></h3>
 <p>A number of constants are predefined:</p>
-<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody>
-<tr><td><code>HEX</code><sup>1.27.0</sup></td><td><code>"0123456789abcdef"</code></td></tr>
-<tr><td><code>HEXLOWER</code><sup>1.27.0</sup></td><td><code>"0123456789abcdef"</code></td></tr>
-<tr><td><code>HEXUPPER</code><sup>1.27.0</sup></td><td><code>"0123456789ABCDEF"</code></td></tr>
-<tr><td><code>CLEAR</code><sup>1.37.0</sup></td><td><code>"\ec"</code></td></tr>
-<tr><td><code>NORMAL</code><sup>1.37.0</sup></td><td><code>"\e[0m"</code></td></tr>
-<tr><td><code>BOLD</code><sup>1.37.0</sup></td><td><code>"\e[1m"</code></td></tr>
-<tr><td><code>ITALIC</code><sup>1.37.0</sup></td><td><code>"\e[3m"</code></td></tr>
-<tr><td><code>UNDERLINE</code><sup>1.37.0</sup></td><td><code>"\e[4m"</code></td></tr>
-<tr><td><code>INVERT</code><sup>1.37.0</sup></td><td><code>"\e[7m"</code></td></tr>
-<tr><td><code>HIDE</code><sup>1.37.0</sup></td><td><code>"\e[8m"</code></td></tr>
-<tr><td><code>STRIKETHROUGH</code><sup>1.37.0</sup></td><td><code>"\e[9m"</code></td></tr>
-<tr><td><code>BLACK</code><sup>1.37.0</sup></td><td><code>"\e[30m"</code></td></tr>
-<tr><td><code>RED</code><sup>1.37.0</sup></td><td><code>"\e[31m"</code></td></tr>
-<tr><td><code>GREEN</code><sup>1.37.0</sup></td><td><code>"\e[32m"</code></td></tr>
-<tr><td><code>YELLOW</code><sup>1.37.0</sup></td><td><code>"\e[33m"</code></td></tr>
-<tr><td><code>BLUE</code><sup>1.37.0</sup></td><td><code>"\e[34m"</code></td></tr>
-<tr><td><code>MAGENTA</code><sup>1.37.0</sup></td><td><code>"\e[35m"</code></td></tr>
-<tr><td><code>CYAN</code><sup>1.37.0</sup></td><td><code>"\e[36m"</code></td></tr>
-<tr><td><code>WHITE</code><sup>1.37.0</sup></td><td><code>"\e[37m"</code></td></tr>
-<tr><td><code>BG_BLACK</code><sup>1.37.0</sup></td><td><code>"\e[40m"</code></td></tr>
-<tr><td><code>BG_RED</code><sup>1.37.0</sup></td><td><code>"\e[41m"</code></td></tr>
-<tr><td><code>BG_GREEN</code><sup>1.37.0</sup></td><td><code>"\e[42m"</code></td></tr>
-<tr><td><code>BG_YELLOW</code><sup>1.37.0</sup></td><td><code>"\e[43m"</code></td></tr>
-<tr><td><code>BG_BLUE</code><sup>1.37.0</sup></td><td><code>"\e[44m"</code></td></tr>
-<tr><td><code>BG_MAGENTA</code><sup>1.37.0</sup></td><td><code>"\e[45m"</code></td></tr>
-<tr><td><code>BG_CYAN</code><sup>1.37.0</sup></td><td><code>"\e[46m"</code></td></tr>
-<tr><td><code>BG_WHITE</code><sup>1.37.0</sup></td><td><code>"\e[47m"</code></td></tr>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Value</th><th>Value on Windows</th></tr></thead><tbody>
+<tr><td><code>HEX</code><sup>1.27.0</sup></td><td><code>"0123456789abcdef"</code></td><td></td></tr>
+<tr><td><code>HEXLOWER</code><sup>1.27.0</sup></td><td><code>"0123456789abcdef"</code></td><td></td></tr>
+<tr><td><code>HEXUPPER</code><sup>1.27.0</sup></td><td><code>"0123456789ABCDEF"</code></td><td></td></tr>
+<tr><td><code>PATH_SEP</code><sup>1.41.0</sup></td><td><code>"/"</code></td><td>“"</td></tr>
+<tr><td><code>PATH_VAR_SEP</code><sup>1.41.0</sup></td><td><code>":"</code></td><td>“;”</td></tr>
+<tr><td><code>CLEAR</code><sup>1.37.0</sup></td><td><code>"\ec"</code></td><td></td></tr>
+<tr><td><code>NORMAL</code><sup>1.37.0</sup></td><td><code>"\e[0m"</code></td><td></td></tr>
+<tr><td><code>BOLD</code><sup>1.37.0</sup></td><td><code>"\e[1m"</code></td><td></td></tr>
+<tr><td><code>ITALIC</code><sup>1.37.0</sup></td><td><code>"\e[3m"</code></td><td></td></tr>
+<tr><td><code>UNDERLINE</code><sup>1.37.0</sup></td><td><code>"\e[4m"</code></td><td></td></tr>
+<tr><td><code>INVERT</code><sup>1.37.0</sup></td><td><code>"\e[7m"</code></td><td></td></tr>
+<tr><td><code>HIDE</code><sup>1.37.0</sup></td><td><code>"\e[8m"</code></td><td></td></tr>
+<tr><td><code>STRIKETHROUGH</code><sup>1.37.0</sup></td><td><code>"\e[9m"</code></td><td></td></tr>
+<tr><td><code>BLACK</code><sup>1.37.0</sup></td><td><code>"\e[30m"</code></td><td></td></tr>
+<tr><td><code>RED</code><sup>1.37.0</sup></td><td><code>"\e[31m"</code></td><td></td></tr>
+<tr><td><code>GREEN</code><sup>1.37.0</sup></td><td><code>"\e[32m"</code></td><td></td></tr>
+<tr><td><code>YELLOW</code><sup>1.37.0</sup></td><td><code>"\e[33m"</code></td><td></td></tr>
+<tr><td><code>BLUE</code><sup>1.37.0</sup></td><td><code>"\e[34m"</code></td><td></td></tr>
+<tr><td><code>MAGENTA</code><sup>1.37.0</sup></td><td><code>"\e[35m"</code></td><td></td></tr>
+<tr><td><code>CYAN</code><sup>1.37.0</sup></td><td><code>"\e[36m"</code></td><td></td></tr>
+<tr><td><code>WHITE</code><sup>1.37.0</sup></td><td><code>"\e[37m"</code></td><td></td></tr>
+<tr><td><code>BG_BLACK</code><sup>1.37.0</sup></td><td><code>"\e[40m"</code></td><td></td></tr>
+<tr><td><code>BG_RED</code><sup>1.37.0</sup></td><td><code>"\e[41m"</code></td><td></td></tr>
+<tr><td><code>BG_GREEN</code><sup>1.37.0</sup></td><td><code>"\e[42m"</code></td><td></td></tr>
+<tr><td><code>BG_YELLOW</code><sup>1.37.0</sup></td><td><code>"\e[43m"</code></td><td></td></tr>
+<tr><td><code>BG_BLUE</code><sup>1.37.0</sup></td><td><code>"\e[44m"</code></td><td></td></tr>
+<tr><td><code>BG_MAGENTA</code><sup>1.37.0</sup></td><td><code>"\e[45m"</code></td><td></td></tr>
+<tr><td><code>BG_CYAN</code><sup>1.37.0</sup></td><td><code>"\e[46m"</code></td><td></td></tr>
+<tr><td><code>BG_WHITE</code><sup>1.37.0</sup></td><td><code>"\e[47m"</code></td><td></td></tr>
 </tbody></table>
 </div>
 <pre><code class="language-just">@foo:

@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
-<html lang="zh" class="light sidebar-visible" dir="ltr">
+<html lang="en" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Node.js 安装 - Just 用户指南</title>
+        <title>Signal Handling - Just Programmer&#x27;s Manual</title>
 
 
         <!-- Custom HTML head -->
@@ -134,7 +134,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Just 用户指南</h1>
+                    <h1 class="menu-title">Just Programmer&#x27;s Manual</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -169,20 +169,51 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h3 id="nodejs-安装"><a class="header" href="#nodejs-安装">Node.js 安装</a></h3>
-<p><a href="https://npmjs.com/package/just-install">just-install</a> 可用于在 Node.js 应用程序中自动安装 <code>just</code>。</p>
-<p><code>just</code> 是一个很赞的比 npm 脚本更强大的替代品。如果你想在 Node.js 应用程序的依赖中包含 <code>just</code>，可以通过 <code>just-install</code>，它将在本机安装一个针对特定平台的二进制文件作为 <code>npm install</code> 安装结果的一部分。这样就不需要每个开发者使用上述提到的步骤独立安装 <code>just</code>。安装后，<code>just</code> 命令将在 npm 脚本或 npx 中工作。这对那些想让项目的设置过程尽可能简单的团队来说是很有用的。</p>
-<p>想了解更多信息, 请查看 <a href="https://github.com/brombal/just-install#readme">just-install 说明文件</a>。</p>
+                        <h3 id="signal-handling"><a class="header" href="#signal-handling">Signal Handling</a></h3>
+<p><a href="https://en.wikipedia.org/wiki/Signal_(IPC)">Signals</a> are messsages sent to
+running programs to trigger specific behavior. For example, <code>SIGINT</code> is sent to
+all processes in the terminal forground process group when <code>CTRL-C</code> is pressed.</p>
+<p><code>just</code> tries to exit when requested by a signal, but it also tries to avoid
+leaving behind running child proccesses, two goals which are somewhat in
+conflict.</p>
+<p>If <code>just</code> exits leaving behind child processes, the user will have no recourse
+but to <code>ps aux | grep</code> for the children and manually <code>kill</code> them, a tedious
+endevour.</p>
+<h4 id="fatal-signals"><a class="header" href="#fatal-signals">Fatal Signals</a></h4>
+<p><code>SIGHUP</code>, <code>SIGINT</code>, and <code>SIGQUIT</code> are generated when the user closes the
+terminal, types <code>ctrl-c</code>, or types <code>ctrl-\</code>, respectively, and are sent to all
+processes in the foreground process group.</p>
+<p><code>SIGTERM</code> is the default signal sent by the <code>kill</code> command, and is delivered
+only to its intended victim.</p>
+<p>When a child process is not running, <code>just</code> will exit immediately on receipt of
+any of the above signals.</p>
+<p>When a child process <em>is</em> running, <code>just</code> will wait until it terminates, to
+avoid leaving it behind.</p>
+<p>Additionally, on receipt of <code>SIGTERM</code>, <code>just</code> will forward <code>SIGTERM</code> to any
+running children<sup>1.41.0</sup>, since unlike other fatal signals, <code>SIGTERM</code>,
+was likely sent to <code>just</code> alone.</p>
+<p>Regardless of whether a child process terminates successfully after <code>just</code>
+receives a fatal signal, <code>just</code> halts execution.</p>
+<h4 id="siginfo"><a class="header" href="#siginfo"><code>SIGINFO</code></a></h4>
+<p><code>SIGINFO</code> is sent to all processes in the foreground process group when the
+user types <code>ctrl-t</code> on
+<a href="https://en.wikipedia.org/wiki/Berkeley_Software_Distribution">BSD</a>-derived
+operating systems, including MacOS, but not Linux.</p>
+<p><code>just</code> responds by printing a list of all child process IDs and
+commands<sup>1.41.0</sup>.</p>
+<h4 id="windows"><a class="header" href="#windows">Windows</a></h4>
+<p>On Windows, <code>just</code> behaves as if it had received <code>SIGINT</code> when the user types
+<code>ctrl-c</code>. Other signals are unsupported.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="发布-rss-订阅.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="timestamps.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="向后兼容性.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="changelog.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -192,11 +223,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="发布-rss-订阅.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="timestamps.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="向后兼容性.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="changelog.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

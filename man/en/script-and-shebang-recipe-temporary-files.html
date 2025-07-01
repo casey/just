@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
-<html lang="zh" class="light sidebar-visible" dir="ltr">
+<html lang="en" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Node.js 安装 - Just 用户指南</title>
+        <title>Script and Shebang Recipe Temporary Files - Just Programmer&#x27;s Manual</title>
 
 
         <!-- Custom HTML head -->
@@ -134,7 +134,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Just 用户指南</h1>
+                    <h1 class="menu-title">Just Programmer&#x27;s Manual</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -169,20 +169,40 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h3 id="nodejs-安装"><a class="header" href="#nodejs-安装">Node.js 安装</a></h3>
-<p><a href="https://npmjs.com/package/just-install">just-install</a> 可用于在 Node.js 应用程序中自动安装 <code>just</code>。</p>
-<p><code>just</code> 是一个很赞的比 npm 脚本更强大的替代品。如果你想在 Node.js 应用程序的依赖中包含 <code>just</code>，可以通过 <code>just-install</code>，它将在本机安装一个针对特定平台的二进制文件作为 <code>npm install</code> 安装结果的一部分。这样就不需要每个开发者使用上述提到的步骤独立安装 <code>just</code>。安装后，<code>just</code> 命令将在 npm 脚本或 npx 中工作。这对那些想让项目的设置过程尽可能简单的团队来说是很有用的。</p>
-<p>想了解更多信息, 请查看 <a href="https://github.com/brombal/just-install#readme">just-install 说明文件</a>。</p>
+                        <h3 id="script-and-shebang-recipe-temporary-files"><a class="header" href="#script-and-shebang-recipe-temporary-files">Script and Shebang Recipe Temporary Files</a></h3>
+<p>Both script and shebang recipes write the recipe body to a temporary file for
+execution. Script recipes execute that file by passing it to a command, while
+shebang recipes execute the file directly. Shebang recipe execution will fail
+if the filesystem containing the temporary file is mounted with <code>noexec</code> or is
+otherwise non-executable.</p>
+<p>The directory that <code>just</code> writes temporary files to may be configured in a
+number of ways, from highest to lowest precedence:</p>
+<ul>
+<li>
+<p>Globally with the <code>--tempdir</code> command-line option or the <code>JUST_TEMPDIR</code>
+environment variable<sup>1.41.0</sup>.</p>
+</li>
+<li>
+<p>On a per-module basis with the <code>tempdir</code> setting.</p>
+</li>
+<li>
+<p>Globally on Linux with the <code>XDG_RUNTIME_DIR</code> environment variable.</p>
+</li>
+<li>
+<p>Falling back to the directory returned by
+<a href="https://doc.rust-lang.org/std/env/fn.temp_dir.html">std::env::temp_dir</a>.</p>
+</li>
+</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="发布-rss-订阅.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="script-recipes.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="向后兼容性.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="python-recipes-with-uv.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -192,11 +212,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="发布-rss-订阅.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="script-recipes.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="向后兼容性.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="python-recipes-with-uv.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

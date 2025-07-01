@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Command Line Options - Just Programmer&#x27;s Manual</title>
+        <title>Command-line Options - Just Programmer&#x27;s Manual</title>
 
 
         <!-- Custom HTML head -->
@@ -31,21 +31,33 @@
         <!-- Custom theme stylesheets -->
 
 
-        <!-- Provide site root to javascript -->
+        <!-- Provide site root and default themes to javascript -->
         <script>
-            var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc.js"></script>
     </head>
     <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
     <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
             try {
-                var theme = localStorage.getItem('mdbook-theme');
-                var sidebar = localStorage.getItem('mdbook-sidebar');
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
 
                 if (theme.startsWith('"') && theme.endsWith('"')) {
                     localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
@@ -59,7 +71,8 @@
 
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script>
-            var theme;
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
             const html = document.documentElement;
@@ -72,8 +85,8 @@
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var sidebar = null;
-            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
@@ -109,13 +122,14 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
                         </ul>
-                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
                             <i class="fa fa-search"></i>
                         </button>
                     </div>
@@ -155,8 +169,8 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h3 id="command-line-options"><a class="header" href="#command-line-options">Command Line Options</a></h3>
-<p><code>just</code> supports a number of useful command line options for listing, dumping,
+                        <h3 id="command-line-options"><a class="header" href="#command-line-options">Command-line Options</a></h3>
+<p><code>just</code> supports a number of useful command-line options for listing, dumping,
 and debugging recipes and variables:</p>
 <pre><code class="language-console">$ just --list
 Available recipes:
@@ -172,15 +186,20 @@ perl:
 $ just --show polyglot
 polyglot: python js perl sh ruby
 </code></pre>
-<p>Some command-line options can be set with environment variables. For example:</p>
+<h4 id="setting-command-line-options-with-environment-variables"><a class="header" href="#setting-command-line-options-with-environment-variables">Setting Command-line Options with Environment Variables</a></h4>
+<p>Some command-line options can be set with environment variables</p>
+<p>For example, unstable features can be enabled either with the <code>--unstable</code>
+flag:</p>
+<pre><code class="language-console">$ just --unstable
+</code></pre>
+<p>Or by setting the <code>JUST_UNSTABLE</code> environment variable:</p>
 <pre><code class="language-console">$ export JUST_UNSTABLE=1
 $ just
 </code></pre>
-<p>Is equivalent to:</p>
-<pre><code class="language-console">$ just --unstable
-</code></pre>
-<p>Consult <code>just --help</code> to see which options can be set from environment
-variables.</p>
+<p>Since environment variables are inherited by child processes, command-line
+options set with environment variables are inherited by recursive invocations
+of <code>just</code>, where as command line options set with arguments are not.</p>
+<p>Consult <code>just --help</code> for which options can be set with environment variables.</p>
 
                     </main>
 

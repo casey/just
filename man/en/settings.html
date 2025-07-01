@@ -31,21 +31,33 @@
         <!-- Custom theme stylesheets -->
 
 
-        <!-- Provide site root to javascript -->
+        <!-- Provide site root and default themes to javascript -->
         <script>
-            var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc.js"></script>
     </head>
     <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
     <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
             try {
-                var theme = localStorage.getItem('mdbook-theme');
-                var sidebar = localStorage.getItem('mdbook-sidebar');
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
 
                 if (theme.startsWith('"') && theme.endsWith('"')) {
                     localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
@@ -59,7 +71,8 @@
 
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script>
-            var theme;
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
             const html = document.documentElement;
@@ -72,8 +85,8 @@
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var sidebar = null;
-            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
@@ -109,13 +122,14 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
                         </ul>
-                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
                             <i class="fa fa-search"></i>
                         </button>
                     </div>
@@ -171,6 +185,7 @@ foo:
 <tr><td><code>allow-duplicate-variables</code></td><td>boolean</td><td><code>false</code></td><td>Allow variables appearing later in a <code>justfile</code> to override earlier variables with the same name.</td></tr>
 <tr><td><code>dotenv-filename</code></td><td>string</td><td>-</td><td>Load a <code>.env</code> file with a custom name, if present.</td></tr>
 <tr><td><code>dotenv-load</code></td><td>boolean</td><td><code>false</code></td><td>Load a <code>.env</code> file, if present.</td></tr>
+<tr><td><code>dotenv-override</code></td><td>boolean</td><td><code>false</code></td><td>Override existing environment variables with values from the <code>.env</code> file.</td></tr>
 <tr><td><code>dotenv-path</code></td><td>string</td><td>-</td><td>Load a <code>.env</code> file from a custom path and error if not present. Overrides <code>dotenv-filename</code>.</td></tr>
 <tr><td><code>dotenv-required</code></td><td>boolean</td><td><code>false</code></td><td>Error if a <code>.env</code> file isn’t found.</td></tr>
 <tr><td><code>export</code></td><td>boolean</td><td><code>false</code></td><td>Export all variables as environment variables.</td></tr>
@@ -224,8 +239,9 @@ a := "bar"
 bar
 </code></pre>
 <h4 id="dotenv-settings"><a class="header" href="#dotenv-settings">Dotenv Settings</a></h4>
-<p>If any of <code>dotenv-load</code>, <code>dotenv-filename</code>, <code>dotenv-path</code>, or <code>dotenv-required</code>
-are set, <code>just</code> will try to load environment variables from a file.</p>
+<p>If any of <code>dotenv-load</code>, <code>dotenv-filename</code>, <code>dotenv-override</code>, <code>dotenv-path</code>,
+or <code>dotenv-required</code> are set, <code>just</code> will try to load environment variables
+from a file.</p>
 <p>If <code>dotenv-path</code> is set, <code>just</code> will look for a file at the given path, which
 may be absolute, or relative to the working directory.</p>
 <p>The command-line option <code>--dotenv-path</code>, short form <code>-E</code>, can be used to set or
@@ -242,6 +258,8 @@ relative to the working directory and each of its ancestors.</p>
 <code>dotenv-required</code> is set.</p>
 <p>The loaded variables are environment variables, not <code>just</code> variables, and so
 must be accessed using <code>$VARIABLE_NAME</code> in recipes and backticks.</p>
+<p>If <code>dotenv-override</code> is set, variables from the environment file will override
+existing environment variables.</p>
 <p>For example, if your <code>.env</code> file contains:</p>
 <pre><code class="language-console"># a comment, will be ignored
 DATABASE_ADDRESS=localhost:6379

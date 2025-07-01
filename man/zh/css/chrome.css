@@ -474,9 +474,24 @@ html:not(.sidebar-resizing) .sidebar {
 
 .sidebar-resize-handle .sidebar-resize-indicator {
     width: 100%;
-    height: 12px;
-    background-color: var(--icons);
+    height: 16px;
+    color: var(--icons);
     margin-inline-start: var(--sidebar-resize-indicator-space);
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+}
+.sidebar-resize-handle .sidebar-resize-indicator::before {
+    content: "";
+    width: 2px;
+    height: 12px;
+    border-left: dotted 2px currentColor;
+}
+.sidebar-resize-handle .sidebar-resize-indicator::after {
+    content: "";
+    width: 2px;
+    height: 16px;
+    border-left: dotted 2px currentColor;
 }
 
 [dir=rtl] .sidebar .sidebar-resize-handle {
@@ -640,4 +655,47 @@ html:not(.sidebar-resizing) .sidebar {
     content: "✓";
     margin-inline-start: -14px;
     width: 14px;
+}
+
+/* The container for the help popup that covers the whole window. */
+#mdbook-help-container {
+    /* Position and size for the whole window. */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* This uses flex layout (which is set in book.js), and centers the popup
+       in the window.*/
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    /* Dim out the book while the popup is visible. */
+    background: var(--overlay-bg);
+}
+
+/* The popup help box. */
+#mdbook-help-popup {
+    box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+    min-width: 300px;
+    max-width: 500px;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--bg);
+    color: var(--fg);
+    border-width: 1px;
+    border-color: var(--theme-popup-border);
+    border-style: solid;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.mdbook-help-title {
+    text-align: center;
+    /* mdbook's margin for h2 is way too large. */
+    margin: 10px;
 }

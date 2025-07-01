@@ -32,21 +32,33 @@
         <!-- Custom theme stylesheets -->
 
 
-        <!-- Provide site root to javascript -->
+        <!-- Provide site root and default themes to javascript -->
         <script>
-            var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc.js"></script>
     </head>
     <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
     <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
             try {
-                var theme = localStorage.getItem('mdbook-theme');
-                var sidebar = localStorage.getItem('mdbook-sidebar');
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
 
                 if (theme.startsWith('"') && theme.endsWith('"')) {
                     localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
@@ -60,7 +72,8 @@
 
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script>
-            var theme;
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
             const html = document.documentElement;
@@ -73,8 +86,8 @@
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var sidebar = null;
-            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
@@ -110,13 +123,14 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
                         </ul>
-                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
                             <i class="fa fa-search"></i>
                         </button>
                     </div>
@@ -280,6 +294,11 @@ most Windows users.)</p>
   </thead>
   <tbody>
     <tr>
+      <td><a href=https://github.com/alexellis/arkade>arkade</a></td>
+      <td>just</td>
+      <td><code>arkade get just</code></td>
+    </tr>
+    <tr>
       <td><a href=https://asdf-vm.com>asdf</a></td>
       <td><a href=https://github.com/olofvndrhr/asdf-just>just</a></td>
       <td>
@@ -313,7 +332,7 @@ most Windows users.)</p>
       <td><code>npm install -g rust-just</code></td>
     </tr>
     <tr>
-      <td><a href=https://pypi.org/>PyPI</a></td>
+      <td><a href=https://pipx.pypa.io/stable/>pipx</a></td>
       <td><a href=https://pypi.org/project/rust-just/>rust-just</a></td>
       <td><code>pipx install rust-just</code></td>
     </tr>
@@ -519,7 +538,7 @@ which can be used to verify the integrity of pre-built binary archives.</p>
 <p>Using package managers pre-installed on GitHub Actions runners on MacOS with
 <code>brew install just</code>, and on Windows with <code>choco install just</code>.</p>
 <p>With <a href="https://github.com/extractions/setup-just">extractions/setup-just</a>:</p>
-<pre><code class="language-yaml">- uses: extractions/setup-just@v2
+<pre><code class="language-yaml">- uses: extractions/setup-just@v3
   with:
     just-version: 1.5.0  # optional semver specification, otherwise latest
 </code></pre>
@@ -910,6 +929,7 @@ foo:
 <tr><td><code>allow-duplicate-variables</code></td><td>boolean</td><td><code>false</code></td><td>Allow variables appearing later in a <code>justfile</code> to override earlier variables with the same name.</td></tr>
 <tr><td><code>dotenv-filename</code></td><td>string</td><td>-</td><td>Load a <code>.env</code> file with a custom name, if present.</td></tr>
 <tr><td><code>dotenv-load</code></td><td>boolean</td><td><code>false</code></td><td>Load a <code>.env</code> file, if present.</td></tr>
+<tr><td><code>dotenv-override</code></td><td>boolean</td><td><code>false</code></td><td>Override existing environment variables with values from the <code>.env</code> file.</td></tr>
 <tr><td><code>dotenv-path</code></td><td>string</td><td>-</td><td>Load a <code>.env</code> file from a custom path and error if not present. Overrides <code>dotenv-filename</code>.</td></tr>
 <tr><td><code>dotenv-required</code></td><td>boolean</td><td><code>false</code></td><td>Error if a <code>.env</code> file isn’t found.</td></tr>
 <tr><td><code>export</code></td><td>boolean</td><td><code>false</code></td><td>Export all variables as environment variables.</td></tr>
@@ -963,8 +983,9 @@ a := "bar"
 bar
 </code></pre>
 <h4 id="dotenv-settings"><a class="header" href="#dotenv-settings">Dotenv Settings</a></h4>
-<p>If any of <code>dotenv-load</code>, <code>dotenv-filename</code>, <code>dotenv-path</code>, or <code>dotenv-required</code>
-are set, <code>just</code> will try to load environment variables from a file.</p>
+<p>If any of <code>dotenv-load</code>, <code>dotenv-filename</code>, <code>dotenv-override</code>, <code>dotenv-path</code>,
+or <code>dotenv-required</code> are set, <code>just</code> will try to load environment variables
+from a file.</p>
 <p>If <code>dotenv-path</code> is set, <code>just</code> will look for a file at the given path, which
 may be absolute, or relative to the working directory.</p>
 <p>The command-line option <code>--dotenv-path</code>, short form <code>-E</code>, can be used to set or
@@ -981,6 +1002,8 @@ relative to the working directory and each of its ancestors.</p>
 <code>dotenv-required</code> is set.</p>
 <p>The loaded variables are environment variables, not <code>just</code> variables, and so
 must be accessed using <code>$VARIABLE_NAME</code> in recipes and backticks.</p>
+<p>If <code>dotenv-override</code> is set, variables from the environment file will override
+existing environment variables.</p>
 <p>For example, if your <code>.env</code> file contains:</p>
 <pre><code class="language-console"># a comment, will be ignored
 DATABASE_ADDRESS=localhost:6379
@@ -1693,34 +1716,36 @@ do:</p>
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="constants"><a class="header" href="#constants">Constants</a></h3>
 <p>A number of constants are predefined:</p>
-<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody>
-<tr><td><code>HEX</code><sup>1.27.0</sup></td><td><code>"0123456789abcdef"</code></td></tr>
-<tr><td><code>HEXLOWER</code><sup>1.27.0</sup></td><td><code>"0123456789abcdef"</code></td></tr>
-<tr><td><code>HEXUPPER</code><sup>1.27.0</sup></td><td><code>"0123456789ABCDEF"</code></td></tr>
-<tr><td><code>CLEAR</code><sup>1.37.0</sup></td><td><code>"\ec"</code></td></tr>
-<tr><td><code>NORMAL</code><sup>1.37.0</sup></td><td><code>"\e[0m"</code></td></tr>
-<tr><td><code>BOLD</code><sup>1.37.0</sup></td><td><code>"\e[1m"</code></td></tr>
-<tr><td><code>ITALIC</code><sup>1.37.0</sup></td><td><code>"\e[3m"</code></td></tr>
-<tr><td><code>UNDERLINE</code><sup>1.37.0</sup></td><td><code>"\e[4m"</code></td></tr>
-<tr><td><code>INVERT</code><sup>1.37.0</sup></td><td><code>"\e[7m"</code></td></tr>
-<tr><td><code>HIDE</code><sup>1.37.0</sup></td><td><code>"\e[8m"</code></td></tr>
-<tr><td><code>STRIKETHROUGH</code><sup>1.37.0</sup></td><td><code>"\e[9m"</code></td></tr>
-<tr><td><code>BLACK</code><sup>1.37.0</sup></td><td><code>"\e[30m"</code></td></tr>
-<tr><td><code>RED</code><sup>1.37.0</sup></td><td><code>"\e[31m"</code></td></tr>
-<tr><td><code>GREEN</code><sup>1.37.0</sup></td><td><code>"\e[32m"</code></td></tr>
-<tr><td><code>YELLOW</code><sup>1.37.0</sup></td><td><code>"\e[33m"</code></td></tr>
-<tr><td><code>BLUE</code><sup>1.37.0</sup></td><td><code>"\e[34m"</code></td></tr>
-<tr><td><code>MAGENTA</code><sup>1.37.0</sup></td><td><code>"\e[35m"</code></td></tr>
-<tr><td><code>CYAN</code><sup>1.37.0</sup></td><td><code>"\e[36m"</code></td></tr>
-<tr><td><code>WHITE</code><sup>1.37.0</sup></td><td><code>"\e[37m"</code></td></tr>
-<tr><td><code>BG_BLACK</code><sup>1.37.0</sup></td><td><code>"\e[40m"</code></td></tr>
-<tr><td><code>BG_RED</code><sup>1.37.0</sup></td><td><code>"\e[41m"</code></td></tr>
-<tr><td><code>BG_GREEN</code><sup>1.37.0</sup></td><td><code>"\e[42m"</code></td></tr>
-<tr><td><code>BG_YELLOW</code><sup>1.37.0</sup></td><td><code>"\e[43m"</code></td></tr>
-<tr><td><code>BG_BLUE</code><sup>1.37.0</sup></td><td><code>"\e[44m"</code></td></tr>
-<tr><td><code>BG_MAGENTA</code><sup>1.37.0</sup></td><td><code>"\e[45m"</code></td></tr>
-<tr><td><code>BG_CYAN</code><sup>1.37.0</sup></td><td><code>"\e[46m"</code></td></tr>
-<tr><td><code>BG_WHITE</code><sup>1.37.0</sup></td><td><code>"\e[47m"</code></td></tr>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Value</th><th>Value on Windows</th></tr></thead><tbody>
+<tr><td><code>HEX</code><sup>1.27.0</sup></td><td><code>"0123456789abcdef"</code></td><td></td></tr>
+<tr><td><code>HEXLOWER</code><sup>1.27.0</sup></td><td><code>"0123456789abcdef"</code></td><td></td></tr>
+<tr><td><code>HEXUPPER</code><sup>1.27.0</sup></td><td><code>"0123456789ABCDEF"</code></td><td></td></tr>
+<tr><td><code>PATH_SEP</code><sup>1.41.0</sup></td><td><code>"/"</code></td><td>“"</td></tr>
+<tr><td><code>PATH_VAR_SEP</code><sup>1.41.0</sup></td><td><code>":"</code></td><td>“;”</td></tr>
+<tr><td><code>CLEAR</code><sup>1.37.0</sup></td><td><code>"\ec"</code></td><td></td></tr>
+<tr><td><code>NORMAL</code><sup>1.37.0</sup></td><td><code>"\e[0m"</code></td><td></td></tr>
+<tr><td><code>BOLD</code><sup>1.37.0</sup></td><td><code>"\e[1m"</code></td><td></td></tr>
+<tr><td><code>ITALIC</code><sup>1.37.0</sup></td><td><code>"\e[3m"</code></td><td></td></tr>
+<tr><td><code>UNDERLINE</code><sup>1.37.0</sup></td><td><code>"\e[4m"</code></td><td></td></tr>
+<tr><td><code>INVERT</code><sup>1.37.0</sup></td><td><code>"\e[7m"</code></td><td></td></tr>
+<tr><td><code>HIDE</code><sup>1.37.0</sup></td><td><code>"\e[8m"</code></td><td></td></tr>
+<tr><td><code>STRIKETHROUGH</code><sup>1.37.0</sup></td><td><code>"\e[9m"</code></td><td></td></tr>
+<tr><td><code>BLACK</code><sup>1.37.0</sup></td><td><code>"\e[30m"</code></td><td></td></tr>
+<tr><td><code>RED</code><sup>1.37.0</sup></td><td><code>"\e[31m"</code></td><td></td></tr>
+<tr><td><code>GREEN</code><sup>1.37.0</sup></td><td><code>"\e[32m"</code></td><td></td></tr>
+<tr><td><code>YELLOW</code><sup>1.37.0</sup></td><td><code>"\e[33m"</code></td><td></td></tr>
+<tr><td><code>BLUE</code><sup>1.37.0</sup></td><td><code>"\e[34m"</code></td><td></td></tr>
+<tr><td><code>MAGENTA</code><sup>1.37.0</sup></td><td><code>"\e[35m"</code></td><td></td></tr>
+<tr><td><code>CYAN</code><sup>1.37.0</sup></td><td><code>"\e[36m"</code></td><td></td></tr>
+<tr><td><code>WHITE</code><sup>1.37.0</sup></td><td><code>"\e[37m"</code></td><td></td></tr>
+<tr><td><code>BG_BLACK</code><sup>1.37.0</sup></td><td><code>"\e[40m"</code></td><td></td></tr>
+<tr><td><code>BG_RED</code><sup>1.37.0</sup></td><td><code>"\e[41m"</code></td><td></td></tr>
+<tr><td><code>BG_GREEN</code><sup>1.37.0</sup></td><td><code>"\e[42m"</code></td><td></td></tr>
+<tr><td><code>BG_YELLOW</code><sup>1.37.0</sup></td><td><code>"\e[43m"</code></td><td></td></tr>
+<tr><td><code>BG_BLUE</code><sup>1.37.0</sup></td><td><code>"\e[44m"</code></td><td></td></tr>
+<tr><td><code>BG_MAGENTA</code><sup>1.37.0</sup></td><td><code>"\e[45m"</code></td><td></td></tr>
+<tr><td><code>BG_CYAN</code><sup>1.37.0</sup></td><td><code>"\e[46m"</code></td><td></td></tr>
+<tr><td><code>BG_WHITE</code><sup>1.37.0</sup></td><td><code>"\e[47m"</code></td><td></td></tr>
 </tbody></table>
 </div>
 <pre><code class="language-just">@foo:
@@ -1777,6 +1802,10 @@ foo:
 foo:
     echo "foo"
 </code></pre>
+<p>Attributes with a single argument may be written with a colon:</p>
+<pre><code class="language-just">[group: 'bar']
+foo:
+</code></pre>
 <h4 id="enabling-and-disabling-recipes180"><a class="header" href="#enabling-and-disabling-recipes180">Enabling and Disabling Recipes<sup>1.8.0</sup></a></h4>
 <p>The <code>[linux]</code>, <code>[macos]</code>, <code>[unix]</code>, and <code>[windows]</code> attributes are
 configuration attributes. By default, recipes are always enabled. A recipe with
@@ -1830,7 +1859,7 @@ delete-everything:
   rm -rf *
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="groups"><a class="header" href="#groups">Groups</a></h3>
-<p>Recipes and modules may be annotated with a group name:</p>
+<p>Recipes and modules may be annotated with one or more group names:</p>
 <pre><code class="language-just">[group('lint')]
 js-lint:
     echo 'Running JS linter…'
@@ -2331,6 +2360,43 @@ the split command and arguments, adding the path to the saved recipe body as
 the final argument. For example, on Windows, if a recipe starts with <code>#! py</code>,
 the final command the OS runs will be something like
 <code>py C:\Temp\PATH_TO_SAVED_RECIPE_BODY</code>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="script-recipes"><a class="header" href="#script-recipes">Script Recipes</a></h3>
+<p>Recipes with a <code>[script(COMMAND)]</code><sup>1.32.0</sup> attribute are run as
+scripts interpreted by <code>COMMAND</code>. This avoids some of the issues with shebang
+recipes, such as the use of <code>cygpath</code> on Windows, the need to use
+<code>/usr/bin/env</code>, inconsistencies in shebang line splitting across Unix OSs, and
+requiring a temporary directory from which files can be executed.</p>
+<p>Recipes with an empty <code>[script]</code> attribute are executed with the value of <code>set script-interpreter := […]</code><sup>1.33.0</sup>, defaulting to <code>sh -eu</code>, and <em>not</em>
+the value of <code>set shell</code>.</p>
+<p>The body of the recipe is evaluated, written to disk in the temporary
+directory, and run by passing its path as an argument to <code>COMMAND</code>.</p>
+<p>The <code>[script(…)]</code> attribute is unstable, so you’ll need to use <code>set unstable</code>,
+set the <code>JUST_UNSTABLE</code> environment variable, or pass <code>--unstable</code> on the
+command line.</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="script-and-shebang-recipe-temporary-files"><a class="header" href="#script-and-shebang-recipe-temporary-files">Script and Shebang Recipe Temporary Files</a></h3>
+<p>Both script and shebang recipes write the recipe body to a temporary file for
+execution. Script recipes execute that file by passing it to a command, while
+shebang recipes execute the file directly. Shebang recipe execution will fail
+if the filesystem containing the temporary file is mounted with <code>noexec</code> or is
+otherwise non-executable.</p>
+<p>The directory that <code>just</code> writes temporary files to may be configured in a
+number of ways, from highest to lowest precedence:</p>
+<ul>
+<li>
+<p>Globally with the <code>--tempdir</code> command-line option or the <code>JUST_TEMPDIR</code>
+environment variable<sup>1.41.0</sup>.</p>
+</li>
+<li>
+<p>On a per-module basis with the <code>tempdir</code> setting.</p>
+</li>
+<li>
+<p>Globally on Linux with the <code>XDG_RUNTIME_DIR</code> environment variable.</p>
+</li>
+<li>
+<p>Falling back to the directory returned by
+<a href="https://doc.rust-lang.org/std/env/fn.temp_dir.html">std::env::temp_dir</a>.</p>
+</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="python-recipes-with-uv"><a class="header" href="#python-recipes-with-uv">Python Recipes with <code>uv</code></a></h3>
 <p><a href="https://github.com/astral-sh/uv"><code>uv</code></a> is an excellent cross-platform python
 project manager, written in Rust.</p>
@@ -2355,21 +2421,9 @@ goodbye:
 </code></pre>
 <p>Of course, a shebang also works:</p>
 <pre><code class="language-just">hello:
-  #!/usr/bin/env uv run --script
+  #!/usr/bin/env -S uv run --script
   print("Hello from Python!")
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h3 id="script-recipes"><a class="header" href="#script-recipes">Script Recipes</a></h3>
-<p>Recipes with a <code>[script(COMMAND)]</code><sup>1.32.0</sup> attribute are run as
-scripts interpreted by <code>COMMAND</code>. This avoids some of the issues with shebang
-recipes, such as the use of <code>cygpath</code> on Windows, the need to use
-<code>/usr/bin/env</code>, and inconsistencies in shebang line splitting across Unix OSs.</p>
-<p>Recipes with an empty <code>[script]</code> attribute are executed with the value of <code>set script-interpreter := […]</code><sup>1.33.0</sup>, defaulting to <code>sh -eu</code>, and <em>not</em>
-the value of <code>set shell</code>.</p>
-<p>The body of the recipe is evaluated, written to disk in the temporary
-directory, and run by passing its path as an argument to <code>COMMAND</code>.</p>
-<p>The <code>[script(…)]</code> attribute is unstable, so you’ll need to use <code>set unstable</code>,
-set the <code>JUST_UNSTABLE</code> environment variable, or pass <code>--unstable</code> on the
-command line.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="safer-bash-shebang-recipes"><a class="header" href="#safer-bash-shebang-recipes">Safer Bash Shebang Recipes</a></h3>
 <p>If you’re writing a <code>bash</code> shebang recipe, consider adding <code>set -euxo pipefail</code>:</p>
 <pre><code class="language-just">foo:
@@ -2622,8 +2676,8 @@ following the backslash must be indented.</p>
   }}'
   echo 'back to recipe body'
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h3 id="command-line-options"><a class="header" href="#command-line-options">Command Line Options</a></h3>
-<p><code>just</code> supports a number of useful command line options for listing, dumping,
+<div style="break-before: page; page-break-before: always;"></div><h3 id="command-line-options"><a class="header" href="#command-line-options">Command-line Options</a></h3>
+<p><code>just</code> supports a number of useful command-line options for listing, dumping,
 and debugging recipes and variables:</p>
 <pre><code class="language-console">$ just --list
 Available recipes:
@@ -2639,15 +2693,20 @@ perl:
 $ just --show polyglot
 polyglot: python js perl sh ruby
 </code></pre>
-<p>Some command-line options can be set with environment variables. For example:</p>
+<h4 id="setting-command-line-options-with-environment-variables"><a class="header" href="#setting-command-line-options-with-environment-variables">Setting Command-line Options with Environment Variables</a></h4>
+<p>Some command-line options can be set with environment variables</p>
+<p>For example, unstable features can be enabled either with the <code>--unstable</code>
+flag:</p>
+<pre><code class="language-console">$ just --unstable
+</code></pre>
+<p>Or by setting the <code>JUST_UNSTABLE</code> environment variable:</p>
 <pre><code class="language-console">$ export JUST_UNSTABLE=1
 $ just
 </code></pre>
-<p>Is equivalent to:</p>
-<pre><code class="language-console">$ just --unstable
-</code></pre>
-<p>Consult <code>just --help</code> to see which options can be set from environment
-variables.</p>
+<p>Since environment variables are inherited by child processes, command-line
+options set with environment variables are inherited by recursive invocations
+of <code>just</code>, where as command line options set with arguments are not.</p>
+<p>Consult <code>just --help</code> for which options can be set with environment variables.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="private-recipes"><a class="header" href="#private-recipes">Private Recipes</a></h3>
 <p>Recipes and aliases whose name starts with a <code>_</code> are omitted from <code>just --list</code>:</p>
 <pre><code class="language-just">test: _test-helper
@@ -3112,6 +3171,41 @@ two
 the
 <a href="https://docs.rs/chrono/latest/chrono/format/strftime/index.html"><code>chrono</code> library docs</a>
 for details.</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="signal-handling"><a class="header" href="#signal-handling">Signal Handling</a></h3>
+<p><a href="https://en.wikipedia.org/wiki/Signal_(IPC)">Signals</a> are messsages sent to
+running programs to trigger specific behavior. For example, <code>SIGINT</code> is sent to
+all processes in the terminal forground process group when <code>CTRL-C</code> is pressed.</p>
+<p><code>just</code> tries to exit when requested by a signal, but it also tries to avoid
+leaving behind running child proccesses, two goals which are somewhat in
+conflict.</p>
+<p>If <code>just</code> exits leaving behind child processes, the user will have no recourse
+but to <code>ps aux | grep</code> for the children and manually <code>kill</code> them, a tedious
+endevour.</p>
+<h4 id="fatal-signals"><a class="header" href="#fatal-signals">Fatal Signals</a></h4>
+<p><code>SIGHUP</code>, <code>SIGINT</code>, and <code>SIGQUIT</code> are generated when the user closes the
+terminal, types <code>ctrl-c</code>, or types <code>ctrl-\</code>, respectively, and are sent to all
+processes in the foreground process group.</p>
+<p><code>SIGTERM</code> is the default signal sent by the <code>kill</code> command, and is delivered
+only to its intended victim.</p>
+<p>When a child process is not running, <code>just</code> will exit immediately on receipt of
+any of the above signals.</p>
+<p>When a child process <em>is</em> running, <code>just</code> will wait until it terminates, to
+avoid leaving it behind.</p>
+<p>Additionally, on receipt of <code>SIGTERM</code>, <code>just</code> will forward <code>SIGTERM</code> to any
+running children<sup>1.41.0</sup>, since unlike other fatal signals, <code>SIGTERM</code>,
+was likely sent to <code>just</code> alone.</p>
+<p>Regardless of whether a child process terminates successfully after <code>just</code>
+receives a fatal signal, <code>just</code> halts execution.</p>
+<h4 id="siginfo"><a class="header" href="#siginfo"><code>SIGINFO</code></a></h4>
+<p><code>SIGINFO</code> is sent to all processes in the foreground process group when the
+user types <code>ctrl-t</code> on
+<a href="https://en.wikipedia.org/wiki/Berkeley_Software_Distribution">BSD</a>-derived
+operating systems, including MacOS, but not Linux.</p>
+<p><code>just</code> responds by printing a list of all child process IDs and
+commands<sup>1.41.0</sup>.</p>
+<h4 id="windows-1"><a class="header" href="#windows-1">Windows</a></h4>
+<p>On Windows, <code>just</code> behaves as if it had received <code>SIGINT</code> when the user types
+<code>ctrl-c</code>. Other signals are unsupported.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="changelog"><a class="header" href="#changelog">Changelog</a></h2>
 <p>A changelog for the latest release is available in
 <a href="https://raw.githubusercontent.com/casey/just/master/CHANGELOG.md">CHANGELOG.md</a>.
@@ -3326,6 +3420,8 @@ written in Rust.</li>
 runner written in AWK and shell.</li>
 <li><a href="https://github.com/VladimirMarkelov/haku">haku</a>: A make-like command runner
 written in Rust.</li>
+<li><a href="https://mise.jdx.dev/">mise</a>: A development environment tool manager written
+in Rust supporing tasks in TOML files and standalone scripts.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="contributing"><a class="header" href="#contributing">Contributing</a></h2>
 <p><code>just</code> welcomes your contributions! <code>just</code> is released under the maximally
@@ -3396,7 +3492,9 @@ statement importing that file in
 <p>Implement the feature.</p>
 </li>
 <li>
-<p>Run <code>just ci</code> to make sure that all tests, lints, and checks pass.</p>
+<p>Run <code>just ci</code> to make sure that all tests, lints, and checks pass. Requires
+<a href="https://github.com/rust-lang/mdBook">mdBook</a> and
+<a href="https://github.com/Michael-F-Bryan/mdbook-linkcheck">mdbook-linkcheck</a>.</p>
 </li>
 <li>
 <p>Open a PR with the new code that is editable by maintainers. PRs often
@@ -3549,6 +3647,7 @@ or some of the
 <p>I hope you enjoy using <code>just</code> and find great success and satisfaction in all
 your computational endeavors!</p>
 <p>😸</p>
+<p><a href="further-ramblings.html#just">🔼 Back to the top!</a></p>
 
                     </main>
 

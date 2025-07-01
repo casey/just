@@ -1,14 +1,16 @@
-"use strict";
+'use strict';
+
+/* global default_theme, default_dark_theme, default_light_theme, hljs, ClipboardJS */
 
 // Fix back button cache problem
-window.onunload = function () { };
+window.onunload = function() { };
 
 // Global variable, shared between modules
 function playground_text(playground, hidden = true) {
-    let code_block = playground.querySelector("code");
+    const code_block = playground.querySelector('code');
 
-    if (window.ace && code_block.classList.contains("editable")) {
-        let editor = window.ace.edit(code_block);
+    if (window.ace && code_block.classList.contains('editable')) {
+        const editor = window.ace.edit(code_block);
         return editor.getValue();
     } else if (hidden) {
         return code_block.textContent;
@@ -21,25 +23,25 @@ function playground_text(playground, hidden = true) {
     function fetch_with_timeout(url, options, timeout = 6000) {
         return Promise.race([
             fetch(url, options),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), timeout))
+            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), timeout)),
         ]);
     }
 
-    var playgrounds = Array.from(document.querySelectorAll(".playground"));
+    const playgrounds = Array.from(document.querySelectorAll('.playground'));
     if (playgrounds.length > 0) {
-        fetch_with_timeout("https://play.rust-lang.org/meta/crates", {
+        fetch_with_timeout('https://play.rust-lang.org/meta/crates', {
             headers: {
-                'Content-Type': "application/json",
+                'Content-Type': 'application/json',
             },
             method: 'POST',
             mode: 'cors',
         })
-        .then(response => response.json())
-        .then(response => {
+            .then(response => response.json())
+            .then(response => {
             // get list of crates available in the rust playground
-            let playground_crates = response.crates.map(item => item["id"]);
-            playgrounds.forEach(block => handle_crate_list_update(block, playground_crates));
-        });
+                const playground_crates = response.crates.map(item => item['id']);
+                playgrounds.forEach(block => handle_crate_list_update(block, playground_crates));
+            });
     }
 
     function handle_crate_list_update(playground_block, playground_crates) {
@@ -48,20 +50,20 @@ function playground_text(playground, hidden = true) {
 
         // and install on change listener to dynamically update ACE editors
         if (window.ace) {
-            let code_block = playground_block.querySelector("code");
-            if (code_block.classList.contains("editable")) {
-                let editor = window.ace.edit(code_block);
-                editor.addEventListener("change", function (e) {
+            const code_block = playground_block.querySelector('code');
+            if (code_block.classList.contains('editable')) {
+                const editor = window.ace.edit(code_block);
+                editor.addEventListener('change', () => {
                     update_play_button(playground_block, playground_crates);
                 });
                 // add Ctrl-Enter command to execute rust code
                 editor.commands.addCommand({
-                    name: "run",
+                    name: 'run',
                     bindKey: {
-                        win: "Ctrl-Enter",
-                        mac: "Ctrl-Enter"
+                        win: 'Ctrl-Enter',
+                        mac: 'Ctrl-Enter',
                     },
-                    exec: _editor => run_rust_code(playground_block)
+                    exec: _editor => run_rust_code(playground_block),
                 });
             }
         }
@@ -70,37 +72,38 @@ function playground_text(playground, hidden = true) {
     // updates the visibility of play button based on `no_run` class and
     // used crates vs ones available on https://play.rust-lang.org
     function update_play_button(pre_block, playground_crates) {
-        var play_button = pre_block.querySelector(".play-button");
+        const play_button = pre_block.querySelector('.play-button');
 
         // skip if code is `no_run`
-        if (pre_block.querySelector('code').classList.contains("no_run")) {
-            play_button.classList.add("hidden");
+        if (pre_block.querySelector('code').classList.contains('no_run')) {
+            play_button.classList.add('hidden');
             return;
         }
 
         // get list of `extern crate`'s from snippet
-        var txt = playground_text(pre_block);
-        var re = /extern\s+crate\s+([a-zA-Z_0-9]+)\s*;/g;
-        var snippet_crates = [];
-        var item;
+        const txt = playground_text(pre_block);
+        const re = /extern\s+crate\s+([a-zA-Z_0-9]+)\s*;/g;
+        const snippet_crates = [];
+        let item;
+        // eslint-disable-next-line no-cond-assign
         while (item = re.exec(txt)) {
             snippet_crates.push(item[1]);
         }
 
         // check if all used crates are available on play.rust-lang.org
-        var all_available = snippet_crates.every(function (elem) {
+        const all_available = snippet_crates.every(function(elem) {
             return playground_crates.indexOf(elem) > -1;
         });
 
         if (all_available) {
-            play_button.classList.remove("hidden");
+            play_button.classList.remove('hidden');
         } else {
-            play_button.classList.add("hidden");
+            play_button.classList.add('hidden');
         }
     }
 
     function run_rust_code(code_block) {
-        var result_block = code_block.querySelector(".result");
+        let result_block = code_block.querySelector('.result');
         if (!result_block) {
             result_block = document.createElement('code');
             result_block.className = 'result hljs language-bash';
@@ -108,93 +111,110 @@ function playground_text(playground, hidden = true) {
             code_block.append(result_block);
         }
 
-        let text = playground_text(code_block);
-        let classes = code_block.querySelector('code').classList;
-        let edition = "2015";
+        const text = playground_text(code_block);
+        const classes = code_block.querySelector('code').classList;
+        let edition = '2015';
         classes.forEach(className => {
-            if (className.startsWith("edition")) {
+            if (className.startsWith('edition')) {
                 edition = className.slice(7);
             }
         });
-        var params = {
-            version: "stable",
-            optimize: "0",
+        const params = {
+            version: 'stable',
+            optimize: '0',
             code: text,
-            edition: edition
+            edition: edition,
         };
 
-        if (text.indexOf("#![feature") !== -1) {
-            params.version = "nightly";
+        if (text.indexOf('#![feature') !== -1) {
+            params.version = 'nightly';
         }
 
-        result_block.innerText = "Running...";
+        result_block.innerText = 'Running...';
 
-        fetch_with_timeout("https://play.rust-lang.org/evaluate.json", {
+        fetch_with_timeout('https://play.rust-lang.org/evaluate.json', {
             headers: {
-                'Content-Type': "application/json",
+                'Content-Type': 'application/json',
             },
             method: 'POST',
             mode: 'cors',
-            body: JSON.stringify(params)
+            body: JSON.stringify(params),
         })
-        .then(response => response.json())
-        .then(response => {
-            if (response.result.trim() === '') {
-                result_block.innerText = "No output";
-                result_block.classList.add("result-no-output");
-            } else {
-                result_block.innerText = response.result;
-                result_block.classList.remove("result-no-output");
-            }
-        })
-        .catch(error => result_block.innerText = "Playground Communication: " + error.message);
+            .then(response => response.json())
+            .then(response => {
+                if (response.result.trim() === '') {
+                    result_block.innerText = 'No output';
+                    result_block.classList.add('result-no-output');
+                } else {
+                    result_block.innerText = response.result;
+                    result_block.classList.remove('result-no-output');
+                }
+            })
+            .catch(error => result_block.innerText = 'Playground Communication: ' + error.message);
     }
 
     // Syntax highlighting Configuration
     hljs.configure({
         tabReplace: '    ', // 4 spaces
-        languages: [],      // Languages used for auto-detection
+        languages: [], // Languages used for auto-detection
     });
 
-    let code_nodes = Array
+    const code_nodes = Array
         .from(document.querySelectorAll('code'))
         // Don't highlight `inline code` blocks in headers.
-        .filter(function (node) {return !node.parentElement.classList.contains("header"); });
+        .filter(function(node) {
+            return !node.parentElement.classList.contains('header');
+        });
 
     if (window.ace) {
         // language-rust class needs to be removed for editable
         // blocks or highlightjs will capture events
         code_nodes
-            .filter(function (node) {return node.classList.contains("editable"); })
-            .forEach(function (block) { block.classList.remove('language-rust'); });
+            .filter(function(node) {
+                return node.classList.contains('editable');
+            })
+            .forEach(function(block) {
+                block.classList.remove('language-rust');
+            });
 
         code_nodes
-            .filter(function (node) {return !node.classList.contains("editable"); })
-            .forEach(function (block) { hljs.highlightBlock(block); });
+            .filter(function(node) {
+                return !node.classList.contains('editable');
+            })
+            .forEach(function(block) {
+                hljs.highlightBlock(block);
+            });
     } else {
-        code_nodes.forEach(function (block) { hljs.highlightBlock(block); });
+        code_nodes.forEach(function(block) {
+            hljs.highlightBlock(block);
+        });
     }
 
     // Adding the hljs class gives code blocks the color css
     // even if highlighting doesn't apply
-    code_nodes.forEach(function (block) { block.classList.add('hljs'); });
+    code_nodes.forEach(function(block) {
+        block.classList.add('hljs');
+    });
 
-    Array.from(document.querySelectorAll("code.hljs")).forEach(function (block) {
+    Array.from(document.querySelectorAll('code.hljs')).forEach(function(block) {
 
-        var lines = Array.from(block.querySelectorAll('.boring'));
+        const lines = Array.from(block.querySelectorAll('.boring'));
         // If no lines were hidden, return
-        if (!lines.length) { return; }
-        block.classList.add("hide-boring");
+        if (!lines.length) {
+            return;
+        }
+        block.classList.add('hide-boring');
 
-        var buttons = document.createElement('div');
+        const buttons = document.createElement('div');
         buttons.className = 'buttons';
-        buttons.innerHTML = "<button class=\"fa fa-eye\" title=\"Show hidden lines\" aria-label=\"Show hidden lines\"></button>";
+        buttons.innerHTML = '<button class="fa fa-eye" title="Show hidden lines" \
+aria-label="Show hidden lines"></button>';
 
         // add expand button
-        var pre_block = block.parentNode;
+        const pre_block = block.parentNode;
         pre_block.insertBefore(buttons, pre_block.firstChild);
 
-        pre_block.querySelector('.buttons').addEventListener('click', function (e) {
+        pre_block.querySelector('.buttons').addEventListener('click', function(e) {
             if (e.target.classList.contains('fa-eye')) {
                 e.target.classList.remove('fa-eye');
                 e.target.classList.add('fa-eye-slash');
@@ -214,21 +234,21 @@ function playground_text(playground, hidden = true) {
     });
 
     if (window.playground_copyable) {
-        Array.from(document.querySelectorAll('pre code')).forEach(function (block) {
-            var pre_block = block.parentNode;
+        Array.from(document.querySelectorAll('pre code')).forEach(function(block) {
+            const pre_block = block.parentNode;
             if (!pre_block.classList.contains('playground')) {
-                var buttons = pre_block.querySelector(".buttons");
+                let buttons = pre_block.querySelector('.buttons');
                 if (!buttons) {
                     buttons = document.createElement('div');
                     buttons.className = 'buttons';
                     pre_block.insertBefore(buttons, pre_block.firstChild);
                 }
 
-                var clipButton = document.createElement('button');
+                const clipButton = document.createElement('button');
                 clipButton.className = 'clip-button';
                 clipButton.title = 'Copy to clipboard';
                 clipButton.setAttribute('aria-label', clipButton.title);
-                clipButton.innerHTML = '<i class=\"tooltiptext\"></i>';
+                clipButton.innerHTML = '<i class="tooltiptext"></i>';
 
                 buttons.insertBefore(clipButton, buttons.firstChild);
             }
@@ -236,28 +256,28 @@ function playground_text(playground, hidden = true) {
     }
 
     // Process playground code blocks
-    Array.from(document.querySelectorAll(".playground")).forEach(function (pre_block) {
+    Array.from(document.querySelectorAll('.playground')).forEach(function(pre_block) {
         // Add play button
-        var buttons = pre_block.querySelector(".buttons");
+        let buttons = pre_block.querySelector('.buttons');
         if (!buttons) {
             buttons = document.createElement('div');
             buttons.className = 'buttons';
             pre_block.insertBefore(buttons, pre_block.firstChild);
         }
 
-        var runCodeButton = document.createElement('button');
+        const runCodeButton = document.createElement('button');
         runCodeButton.className = 'fa fa-play play-button';
         runCodeButton.hidden = true;
         runCodeButton.title = 'Run this code';
         runCodeButton.setAttribute('aria-label', runCodeButton.title);
 
         buttons.insertBefore(runCodeButton, buttons.firstChild);
-        runCodeButton.addEventListener('click', function (e) {
+        runCodeButton.addEventListener('click', () => {
             run_rust_code(pre_block);
         });
 
         if (window.playground_copyable) {
-            var copyCodeClipboardButton = document.createElement('button');
+            const copyCodeClipboardButton = document.createElement('button');
             copyCodeClipboardButton.className = 'clip-button';
             copyCodeClipboardButton.innerHTML = '<i class="tooltiptext"></i>';
             copyCodeClipboardButton.title = 'Copy to clipboard';
@@ -266,17 +286,17 @@ function playground_text(playground, hidden = true) {
             buttons.insertBefore(copyCodeClipboardButton, buttons.firstChild);
         }
 
-        let code_block = pre_block.querySelector("code");
-        if (window.ace && code_block.classList.contains("editable")) {
-            var undoChangesButton = document.createElement('button');
+        const code_block = pre_block.querySelector('code');
+        if (window.ace && code_block.classList.contains('editable')) {
+            const undoChangesButton = document.createElement('button');
             undoChangesButton.className = 'fa fa-history reset-button';
             undoChangesButton.title = 'Undo changes';
             undoChangesButton.setAttribute('aria-label', undoChangesButton.title);
 
             buttons.insertBefore(undoChangesButton, buttons.firstChild);
 
-            undoChangesButton.addEventListener('click', function () {
-                let editor = window.ace.edit(code_block);
+            undoChangesButton.addEventListener('click', function() {
+                const editor = window.ace.edit(code_block);
                 editor.setValue(editor.originalCode);
                 editor.clearSelection();
             });
@@ -285,31 +305,37 @@ function playground_text(playground, hidden = true) {
 })();
 
 (function themes() {
-    var html = document.querySelector('html');
-    var themeToggleButton = document.getElementById('theme-toggle');
-    var themePopup = document.getElementById('theme-list');
-    var themeColorMetaTag = document.querySelector('meta[name="theme-color"]');
-    var themeIds = [];
-    themePopup.querySelectorAll('button.theme').forEach(function (el) {
+    const html = document.querySelector('html');
+    const themeToggleButton = document.getElementById('theme-toggle');
+    const themePopup = document.getElementById('theme-list');
+    const themeColorMetaTag = document.querySelector('meta[name="theme-color"]');
+    const themeIds = [];
+    themePopup.querySelectorAll('button.theme').forEach(function(el) {
         themeIds.push(el.id);
     });
-    var stylesheets = {
-        ayuHighlight: document.querySelector("#ayu-highlight-css"),
-        tomorrowNight: document.querySelector("#tomorrow-night-css"),
-        highlight: document.querySelector("#highlight-css"),
+    const stylesheets = {
+        ayuHighlight: document.querySelector('#ayu-highlight-css'),
+        tomorrowNight: document.querySelector('#tomorrow-night-css'),
+        highlight: document.querySelector('#highlight-css'),
     };
 
     function showThemes() {
         themePopup.style.display = 'block';
         themeToggleButton.setAttribute('aria-expanded', true);
-        themePopup.querySelector("button#" + get_theme()).focus();
+        themePopup.querySelector('button#' + get_theme()).focus();
     }
 
     function updateThemeSelected() {
-        themePopup.querySelectorAll('.theme-selected').forEach(function (el) {
+        themePopup.querySelectorAll('.theme-selected').forEach(function(el) {
             el.classList.remove('theme-selected');
         });
-        themePopup.querySelector("button#" + get_theme()).classList.add('theme-selected');
+        const selected = get_saved_theme() ?? 'default_theme';
+        let element = themePopup.querySelector('button#' + selected);
+        if (element === null) {
+            // Fall back in case there is no "Default" item.
+            element = themePopup.querySelector('button#' + get_theme());
+        }
+        element.classList.add('theme-selected');
     }
 
     function hideThemes() {
@@ -318,64 +344,91 @@ function playground_text(playground, hidden = true) {
         themeToggleButton.focus();
     }
 
+    function get_saved_theme() {
+        let theme = null;
+        try {
+            theme = localStorage.getItem('mdbook-theme');
+        } catch (e) {
+            // ignore error.
+        }
+        return theme;
+    }
+
+    function delete_saved_theme() {
+        localStorage.removeItem('mdbook-theme');
+    }
+
     function get_theme() {
-        var theme;
-        try { theme = localStorage.getItem('mdbook-theme'); } catch (e) { }
+        const theme = get_saved_theme();
         if (theme === null || theme === undefined || !themeIds.includes(theme)) {
-            return default_theme;
+            if (typeof default_dark_theme === 'undefined') {
+                // A customized index.hbs might not define this, so fall back to
+                // old behavior of determining the default on page load.
+                return default_theme;
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? default_dark_theme
+                : default_light_theme;
         } else {
             return theme;
         }
     }
 
+    let previousTheme = default_theme;
     function set_theme(theme, store = true) {
         let ace_theme;
 
-        if (theme == 'coal' || theme == 'navy') {
+        if (theme === 'coal' || theme === 'navy') {
             stylesheets.ayuHighlight.disabled = true;
             stylesheets.tomorrowNight.disabled = false;
             stylesheets.highlight.disabled = true;
 
-            ace_theme = "ace/theme/tomorrow_night";
-        } else if (theme == 'ayu') {
+            ace_theme = 'ace/theme/tomorrow_night';
+        } else if (theme === 'ayu') {
             stylesheets.ayuHighlight.disabled = false;
             stylesheets.tomorrowNight.disabled = true;
             stylesheets.highlight.disabled = true;
-            ace_theme = "ace/theme/tomorrow_night";
+            ace_theme = 'ace/theme/tomorrow_night';
         } else {
             stylesheets.ayuHighlight.disabled = true;
             stylesheets.tomorrowNight.disabled = true;
             stylesheets.highlight.disabled = false;
-            ace_theme = "ace/theme/dawn";
+            ace_theme = 'ace/theme/dawn';
         }
 
-        setTimeout(function () {
+        setTimeout(function() {
             themeColorMetaTag.content = getComputedStyle(document.documentElement).backgroundColor;
         }, 1);
 
         if (window.ace && window.editors) {
-            window.editors.forEach(function (editor) {
+            window.editors.forEach(function(editor) {
                 editor.setTheme(ace_theme);
             });
         }
 
-        var previousTheme = get_theme();
-
         if (store) {
-            try { localStorage.setItem('mdbook-theme', theme); } catch (e) { }
+            try {
+                localStorage.setItem('mdbook-theme', theme);
+            } catch (e) {
+                // ignore error.
+            }
         }
 
         html.classList.remove(previousTheme);
         html.classList.add(theme);
+        previousTheme = theme;
         updateThemeSelected();
     }
 
-    // Set theme
-    var theme = get_theme();
+    const query = window.matchMedia('(prefers-color-scheme: dark)');
+    query.onchange = function() {
+        set_theme(get_theme(), false);
+    };
 
-    set_theme(theme, false);
+    // Set theme.
+    set_theme(get_theme(), false);
 
-    themeToggleButton.addEventListener('click', function () {
+    themeToggleButton.addEventListener('click', function() {
         if (themePopup.style.display === 'block') {
             hideThemes();
         } else {
@@ -383,105 +436,130 @@ function playground_text(playground, hidden = true) {
         }
     });
 
-    themePopup.addEventListener('click', function (e) {
-        var theme;
-        if (e.target.className === "theme") {
+    themePopup.addEventListener('click', function(e) {
+        let theme;
+        if (e.target.className === 'theme') {
             theme = e.target.id;
-        } else if (e.target.parentElement.className === "theme") {
+        } else if (e.target.parentElement.className === 'theme') {
             theme = e.target.parentElement.id;
         } else {
             return;
         }
-        set_theme(theme);
+        if (theme === 'default_theme' || theme === null) {
+            delete_saved_theme();
+            set_theme(get_theme(), false);
+        } else {
+            set_theme(theme);
+        }
     });
 
     themePopup.addEventListener('focusout', function(e) {
         // e.relatedTarget is null in Safari and Firefox on macOS (see workaround below)
-        if (!!e.relatedTarget && !themeToggleButton.contains(e.relatedTarget) && !themePopup.contains(e.relatedTarget)) {
+        if (!!e.relatedTarget &&
+            !themeToggleButton.contains(e.relatedTarget) &&
+            !themePopup.contains(e.relatedTarget)
+        ) {
             hideThemes();
         }
     });
 
-    // Should not be needed, but it works around an issue on macOS & iOS: https://github.com/rust-lang/mdBook/issues/628
+    // Should not be needed, but it works around an issue on macOS & iOS:
+    // https://github.com/rust-lang/mdBook/issues/628
     document.addEventListener('click', function(e) {
-        if (themePopup.style.display === 'block' && !themeToggleButton.contains(e.target) && !themePopup.contains(e.target)) {
+        if (themePopup.style.display === 'block' &&
+            !themeToggleButton.contains(e.target) &&
+            !themePopup.contains(e.target)
+        ) {
             hideThemes();
         }
     });
 
-    document.addEventListener('keydown', function (e) {
-        if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) { return; }
-        if (!themePopup.contains(e.target)) { return; }
+    document.addEventListener('keydown', function(e) {
+        if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) {
+            return;
+        }
+        if (!themePopup.contains(e.target)) {
+            return;
+        }
 
+        let li;
         switch (e.key) {
-            case 'Escape':
-                e.preventDefault();
-                hideThemes();
-                break;
-            case 'ArrowUp':
-                e.preventDefault();
-                var li = document.activeElement.parentElement;
-                if (li && li.previousElementSibling) {
-                    li.previousElementSibling.querySelector('button').focus();
-                }
-                break;
-            case 'ArrowDown':
-                e.preventDefault();
-                var li = document.activeElement.parentElement;
-                if (li && li.nextElementSibling) {
-                    li.nextElementSibling.querySelector('button').focus();
-                }
-                break;
-            case 'Home':
-                e.preventDefault();
-                themePopup.querySelector('li:first-child button').focus();
-                break;
-            case 'End':
-                e.preventDefault();
-                themePopup.querySelector('li:last-child button').focus();
-                break;
+        case 'Escape':
+            e.preventDefault();
+            hideThemes();
+            break;
+        case 'ArrowUp':
+            e.preventDefault();
+            li = document.activeElement.parentElement;
+            if (li && li.previousElementSibling) {
+                li.previousElementSibling.querySelector('button').focus();
+            }
+            break;
+        case 'ArrowDown':
+            e.preventDefault();
+            li = document.activeElement.parentElement;
+            if (li && li.nextElementSibling) {
+                li.nextElementSibling.querySelector('button').focus();
+            }
+            break;
+        case 'Home':
+            e.preventDefault();
+            themePopup.querySelector('li:first-child button').focus();
+            break;
+        case 'End':
+            e.preventDefault();
+            themePopup.querySelector('li:last-child button').focus();
+            break;
         }
     });
 })();
 
 (function sidebar() {
-    var body = document.querySelector("body");
-    var sidebar = document.getElementById("sidebar");
-    var sidebarLinks = document.querySelectorAll('#sidebar a');
-    var sidebarToggleButton = document.getElementById("sidebar-toggle");
-    var sidebarToggleAnchor = document.getElementById("sidebar-toggle-anchor");
-    var sidebarResizeHandle = document.getElementById("sidebar-resize-handle");
-    var firstContact = null;
+    const body = document.querySelector('body');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarLinks = document.querySelectorAll('#sidebar a');
+    const sidebarToggleButton = document.getElementById('sidebar-toggle');
+    const sidebarToggleAnchor = document.getElementById('sidebar-toggle-anchor');
+    const sidebarResizeHandle = document.getElementById('sidebar-resize-handle');
+    let firstContact = null;
 
     function showSidebar() {
-        body.classList.remove('sidebar-hidden')
+        body.classList.remove('sidebar-hidden');
         body.classList.add('sidebar-visible');
-        Array.from(sidebarLinks).forEach(function (link) {
+        Array.from(sidebarLinks).forEach(function(link) {
             link.setAttribute('tabIndex', 0);
         });
         sidebarToggleButton.setAttribute('aria-expanded', true);
         sidebar.setAttribute('aria-hidden', false);
-        try { localStorage.setItem('mdbook-sidebar', 'visible'); } catch (e) { }
+        try {
+            localStorage.setItem('mdbook-sidebar', 'visible');
+        } catch (e) {
+            // Ignore error.
+        }
     }
 
     function hideSidebar() {
-        body.classList.remove('sidebar-visible')
+        body.classList.remove('sidebar-visible');
         body.classList.add('sidebar-hidden');
-        Array.from(sidebarLinks).forEach(function (link) {
+        Array.from(sidebarLinks).forEach(function(link) {
             link.setAttribute('tabIndex', -1);
         });
         sidebarToggleButton.setAttribute('aria-expanded', false);
         sidebar.setAttribute('aria-hidden', true);
-        try { localStorage.setItem('mdbook-sidebar', 'hidden'); } catch (e) { }
+        try {
+            localStorage.setItem('mdbook-sidebar', 'hidden');
+        } catch (e) {
+            // Ignore error.
+        }
     }
 
     // Toggle sidebar
     sidebarToggleAnchor.addEventListener('change', function sidebarToggle() {
         if (sidebarToggleAnchor.checked) {
-            var current_width = parseInt(
-                document.documentElement.style.getPropertyValue('--sidebar-width'), 10);
+            const current_width = parseInt(
+                document.documentElement.style.getPropertyValue('--sidebar-target-width'), 10);
             if (current_width < 150) {
-                document.documentElement.style.setProperty('--sidebar-width', '150px');
+                document.documentElement.style.setProperty('--sidebar-target-width', '150px');
             }
             showSidebar();
         } else {
@@ -491,50 +569,52 @@ function playground_text(playground, hidden = true) {
 
     sidebarResizeHandle.addEventListener('mousedown', initResize, false);
 
-    function initResize(e) {
+    function initResize() {
         window.addEventListener('mousemove', resize, false);
         window.addEventListener('mouseup', stopResize, false);
         body.classList.add('sidebar-resizing');
     }
     function resize(e) {
-        var pos = (e.clientX - sidebar.offsetLeft);
+        let pos = e.clientX - sidebar.offsetLeft;
         if (pos < 20) {
             hideSidebar();
         } else {
-            if (body.classList.contains("sidebar-hidden")) {
+            if (body.classList.contains('sidebar-hidden')) {
                 showSidebar();
             }
             pos = Math.min(pos, window.innerWidth - 100);
-            document.documentElement.style.setProperty('--sidebar-width', pos + 'px');
+            document.documentElement.style.setProperty('--sidebar-target-width', pos + 'px');
         }
     }
     //on mouseup remove windows functions mousemove & mouseup
-    function stopResize(e) {
+    function stopResize() {
         body.classList.remove('sidebar-resizing');
         window.removeEventListener('mousemove', resize, false);
         window.removeEventListener('mouseup', stopResize, false);
     }
 
-    document.addEventListener('touchstart', function (e) {
+    document.addEventListener('touchstart', function(e) {
         firstContact = {
             x: e.touches[0].clientX,
-            time: Date.now()
+            time: Date.now(),
         };
     }, { passive: true });
 
-    document.addEventListener('touchmove', function (e) {
-        if (!firstContact)
+    document.addEventListener('touchmove', function(e) {
+        if (!firstContact) {
             return;
+        }
 
-        var curX = e.touches[0].clientX;
-        var xDiff = curX - firstContact.x,
+        const curX = e.touches[0].clientX;
+        const xDiff = curX - firstContact.x,
             tDiff = Date.now() - firstContact.time;
 
         if (tDiff < 250 && Math.abs(xDiff) >= 150) {
-            if (xDiff >= 0 && firstContact.x < Math.min(document.body.clientWidth * 0.25, 300))
+            if (xDiff >= 0 && firstContact.x < Math.min(document.body.clientWidth * 0.25, 300)) {
                 showSidebar();
-            else if (xDiff < 0 && curX < 300)
+            } else if (xDiff < 0 && curX < 300) {
                 hideSidebar();
+            }
 
             firstContact = null;
         }
@@ -542,49 +622,102 @@ function playground_text(playground, hidden = true) {
 })();
 
 (function chapterNavigation() {
-    document.addEventListener('keydown', function (e) {
-        if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) { return; }
-        if (window.search && window.search.hasFocus()) { return; }
-        var html = document.querySelector('html');
+    document.addEventListener('keydown', function(e) {
+        if (e.altKey || e.ctrlKey || e.metaKey) {
+            return;
+        }
+        if (window.search && window.search.hasFocus()) {
+            return;
+        }
+        const html = document.querySelector('html');
 
         function next() {
-            var nextButton = document.querySelector('.nav-chapters.next');
+            const nextButton = document.querySelector('.nav-chapters.next');
             if (nextButton) {
                 window.location.href = nextButton.href;
             }
         }
         function prev() {
-            var previousButton = document.querySelector('.nav-chapters.previous');
+            const previousButton = document.querySelector('.nav-chapters.previous');
             if (previousButton) {
                 window.location.href = previousButton.href;
             }
         }
+        function showHelp() {
+            const container = document.getElementById('mdbook-help-container');
+            const overlay = document.getElementById('mdbook-help-popup');
+            container.style.display = 'flex';
+
+            // Clicking outside the popup will dismiss it.
+            const mouseHandler = event => {
+                if (overlay.contains(event.target)) {
+                    return;
+                }
+                if (event.button !== 0) {
+                    return;
+                }
+                event.preventDefault();
+                event.stopPropagation();
+                document.removeEventListener('mousedown', mouseHandler);
+                hideHelp();
+            };
+
+            // Pressing esc will dismiss the popup.
+            const escapeKeyHandler = event => {
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    document.removeEventListener('keydown', escapeKeyHandler, true);
+                    hideHelp();
+                }
+            };
+            document.addEventListener('keydown', escapeKeyHandler, true);
+            document.getElementById('mdbook-help-container')
+                .addEventListener('mousedown', mouseHandler);
+        }
+        function hideHelp() {
+            document.getElementById('mdbook-help-container').style.display = 'none';
+        }
+
+        // Usually needs the Shift key to be pressed
         switch (e.key) {
-            case 'ArrowRight':
-                e.preventDefault();
-                if (html.dir == 'rtl') {
-                    prev();
-                } else {
-                    next();
-                }
-                break;
-            case 'ArrowLeft':
-                e.preventDefault();
-                if (html.dir == 'rtl') {
-                    next();
-                } else {
-                    prev();
-                }
-                break;
+        case '?':
+            e.preventDefault();
+            showHelp();
+            break;
+        }
+
+        // Rest of the keys are only active when the Shift key is not pressed
+        if (e.shiftKey) {
+            return;
+        }
+
+        switch (e.key) {
+        case 'ArrowRight':
+            e.preventDefault();
+            if (html.dir === 'rtl') {
+                prev();
+            } else {
+                next();
+            }
+            break;
+        case 'ArrowLeft':
+            e.preventDefault();
+            if (html.dir === 'rtl') {
+                next();
+            } else {
+                prev();
+            }
+            break;
         }
     });
 })();
 
 (function clipboard() {
-    var clipButtons = document.querySelectorAll('.clip-button');
+    const clipButtons = document.querySelectorAll('.clip-button');
 
     function hideTooltip(elem) {
-        elem.firstChild.innerText = "";
+        elem.firstChild.innerText = '';
         elem.className = 'clip-button';
     }
 
@@ -593,58 +726,58 @@ function playground_text(playground, hidden = true) {
         elem.className = 'clip-button tooltipped';
     }
 
-    var clipboardSnippets = new ClipboardJS('.clip-button', {
-        text: function (trigger) {
+    const clipboardSnippets = new ClipboardJS('.clip-button', {
+        text: function(trigger) {
             hideTooltip(trigger);
-            let playground = trigger.closest("pre");
+            const playground = trigger.closest('pre');
             return playground_text(playground, false);
-        }
+        },
     });
 
-    Array.from(clipButtons).forEach(function (clipButton) {
-        clipButton.addEventListener('mouseout', function (e) {
+    Array.from(clipButtons).forEach(function(clipButton) {
+        clipButton.addEventListener('mouseout', function(e) {
             hideTooltip(e.currentTarget);
         });
     });
 
-    clipboardSnippets.on('success', function (e) {
+    clipboardSnippets.on('success', function(e) {
         e.clearSelection();
-        showTooltip(e.trigger, "Copied!");
+        showTooltip(e.trigger, 'Copied!');
     });
 
-    clipboardSnippets.on('error', function (e) {
-        showTooltip(e.trigger, "Clipboard error!");
+    clipboardSnippets.on('error', function(e) {
+        showTooltip(e.trigger, 'Clipboard error!');
     });
 })();
 
-(function scrollToTop () {
-    var menuTitle = document.querySelector('.menu-title');
+(function scrollToTop() {
+    const menuTitle = document.querySelector('.menu-title');
 
-    menuTitle.addEventListener('click', function () {
+    menuTitle.addEventListener('click', function() {
         document.scrollingElement.scrollTo({ top: 0, behavior: 'smooth' });
     });
 })();
 
 (function controllMenu() {
-    var menu = document.getElementById('menu-bar');
+    const menu = document.getElementById('menu-bar');
 
     (function controllPosition() {
-        var scrollTop = document.scrollingElement.scrollTop;
-        var prevScrollTop = scrollTop;
-        var minMenuY = -menu.clientHeight - 50;
+        let scrollTop = document.scrollingElement.scrollTop;
+        let prevScrollTop = scrollTop;
+        const minMenuY = -menu.clientHeight - 50;
         // When the script loads, the page can be at any scroll (e.g. if you reforesh it).
         menu.style.top = scrollTop + 'px';
         // Same as parseInt(menu.style.top.slice(0, -2), but faster
-        var topCache = menu.style.top.slice(0, -2);
+        let topCache = menu.style.top.slice(0, -2);
         menu.classList.remove('sticky');
-        var stickyCache = false; // Same as menu.classList.contains('sticky'), but faster
-        document.addEventListener('scroll', function () {
+        let stickyCache = false; // Same as menu.classList.contains('sticky'), but faster
+        document.addEventListener('scroll', function() {
             scrollTop = Math.max(document.scrollingElement.scrollTop, 0);
             // `null` means that it doesn't need to be updated
-            var nextSticky = null;
-            var nextTop = null;
-            var scrollDown = scrollTop > prevScrollTop;
-            var menuPosAbsoluteY = topCache - scrollTop;
+            let nextSticky = null;
+            let nextTop = null;
+            const scrollDown = scrollTop > prevScrollTop;
+            const menuPosAbsoluteY = topCache - scrollTop;
             if (scrollDown) {
                 nextSticky = false;
                 if (menuPosAbsoluteY > 0) {
