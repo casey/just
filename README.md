@@ -140,6 +140,11 @@ most Windows users.)
   </thead>
   <tbody>
     <tr>
+      <td><a href=https://github.com/alexellis/arkade>arkade</a></td>
+      <td>just</td>
+      <td><code>arkade get just</code></td>
+    </tr>
+    <tr>
       <td><a href=https://asdf-vm.com>asdf</a></td>
       <td><a href=https://github.com/olofvndrhr/asdf-just>just</a></td>
       <td>
@@ -173,7 +178,7 @@ most Windows users.)
       <td><code>npm install -g rust-just</code></td>
     </tr>
     <tr>
-      <td><a href=https://pypi.org/>PyPI</a></td>
+      <td><a href=https://pipx.pypa.io/stable/>pipx</a></td>
       <td><a href=https://pypi.org/project/rust-just/>rust-just</a></td>
       <td><code>pipx install rust-just</code></td>
     </tr>
@@ -407,7 +412,7 @@ Using package managers pre-installed on GitHub Actions runners on MacOS with
 With [extractions/setup-just](https://github.com/extractions/setup-just):
 
 ```yaml
-- uses: extractions/setup-just@v2
+- uses: extractions/setup-just@v3
   with:
     just-version: 1.5.0  # optional semver specification, otherwise latest
 ```
@@ -2006,35 +2011,37 @@ xdg_config_dir := if env('XDG_CONFIG_HOME', '') =~ '^/' {
 
 A number of constants are predefined:
 
-| Name | Value |
-|------|-------------|
-| `HEX`<sup>1.27.0</sup> | `"0123456789abcdef"` |
-| `HEXLOWER`<sup>1.27.0</sup> | `"0123456789abcdef"` |
-| `HEXUPPER`<sup>1.27.0</sup> | `"0123456789ABCDEF"` |
-| `CLEAR`<sup>1.37.0</sup> | `"\ec"` |
-| `NORMAL`<sup>1.37.0</sup> | `"\e[0m"` |
-| `BOLD`<sup>1.37.0</sup> | `"\e[1m"` |
-| `ITALIC`<sup>1.37.0</sup> | `"\e[3m"` |
-| `UNDERLINE`<sup>1.37.0</sup> | `"\e[4m"` |
-| `INVERT`<sup>1.37.0</sup> | `"\e[7m"` |
-| `HIDE`<sup>1.37.0</sup> | `"\e[8m"` |
-| `STRIKETHROUGH`<sup>1.37.0</sup> | `"\e[9m"` |
-| `BLACK`<sup>1.37.0</sup> | `"\e[30m"` |
-| `RED`<sup>1.37.0</sup> | `"\e[31m"` |
-| `GREEN`<sup>1.37.0</sup> | `"\e[32m"` |
-| `YELLOW`<sup>1.37.0</sup> | `"\e[33m"` |
-| `BLUE`<sup>1.37.0</sup> | `"\e[34m"` |
-| `MAGENTA`<sup>1.37.0</sup> | `"\e[35m"` |
-| `CYAN`<sup>1.37.0</sup> | `"\e[36m"` |
-| `WHITE`<sup>1.37.0</sup> | `"\e[37m"` |
-| `BG_BLACK`<sup>1.37.0</sup> | `"\e[40m"` |
-| `BG_RED`<sup>1.37.0</sup> | `"\e[41m"` |
-| `BG_GREEN`<sup>1.37.0</sup> | `"\e[42m"` |
-| `BG_YELLOW`<sup>1.37.0</sup> | `"\e[43m"` |
-| `BG_BLUE`<sup>1.37.0</sup> | `"\e[44m"` |
-| `BG_MAGENTA`<sup>1.37.0</sup> | `"\e[45m"` |
-| `BG_CYAN`<sup>1.37.0</sup> | `"\e[46m"` |
-| `BG_WHITE`<sup>1.37.0</sup> | `"\e[47m"` |
+| Name | Value | Value on Windows |
+|---|---|---|
+| `HEX`<sup>1.27.0</sup> | `"0123456789abcdef"` |  |
+| `HEXLOWER`<sup>1.27.0</sup> | `"0123456789abcdef"` |  |
+| `HEXUPPER`<sup>1.27.0</sup> | `"0123456789ABCDEF"` |  |
+| `PATH_SEP`<sup>master</sup> | `"/"` | "\" |
+| `PATH_VAR_SEP`<sup>master</sup> | `":"` | ";" |
+| `CLEAR`<sup>1.37.0</sup> | `"\ec"` |  |
+| `NORMAL`<sup>1.37.0</sup> | `"\e[0m"` |  |
+| `BOLD`<sup>1.37.0</sup> | `"\e[1m"` |  |
+| `ITALIC`<sup>1.37.0</sup> | `"\e[3m"` |  |
+| `UNDERLINE`<sup>1.37.0</sup> | `"\e[4m"` |  |
+| `INVERT`<sup>1.37.0</sup> | `"\e[7m"` |  |
+| `HIDE`<sup>1.37.0</sup> | `"\e[8m"` |  |
+| `STRIKETHROUGH`<sup>1.37.0</sup> | `"\e[9m"` |  |
+| `BLACK`<sup>1.37.0</sup> | `"\e[30m"` |  |
+| `RED`<sup>1.37.0</sup> | `"\e[31m"` |  |
+| `GREEN`<sup>1.37.0</sup> | `"\e[32m"` |  |
+| `YELLOW`<sup>1.37.0</sup> | `"\e[33m"` |  |
+| `BLUE`<sup>1.37.0</sup> | `"\e[34m"` |  |
+| `MAGENTA`<sup>1.37.0</sup> | `"\e[35m"` |  |
+| `CYAN`<sup>1.37.0</sup> | `"\e[36m"` |  |
+| `WHITE`<sup>1.37.0</sup> | `"\e[37m"` |  |
+| `BG_BLACK`<sup>1.37.0</sup> | `"\e[40m"` |  |
+| `BG_RED`<sup>1.37.0</sup> | `"\e[41m"` |  |
+| `BG_GREEN`<sup>1.37.0</sup> | `"\e[42m"` |  |
+| `BG_YELLOW`<sup>1.37.0</sup> | `"\e[43m"` |  |
+| `BG_BLUE`<sup>1.37.0</sup> | `"\e[44m"` |  |
+| `BG_MAGENTA`<sup>1.37.0</sup> | `"\e[45m"` |  |
+| `BG_CYAN`<sup>1.37.0</sup> | `"\e[46m"` |  |
+| `BG_WHITE`<sup>1.37.0</sup> | `"\e[47m"` |  |
 
 ```just
 @foo:
@@ -2106,6 +2113,13 @@ Or separated by commas on a single line<sup>1.14.0</sup>:
 [no-cd, private]
 foo:
     echo "foo"
+```
+
+Attributes with a single argument may be written with a colon:
+
+```just
+[group: 'bar']
+foo:
 ```
 
 #### Enabling and Disabling Recipes<sup>1.8.0</sup>
@@ -2182,7 +2196,7 @@ delete-everything:
 
 ### Groups
 
-Recipes and modules may be annotated with a group name:
+Recipes and modules may be annotated with one or more group names:
 
 ```just
 [group('lint')]
@@ -2884,6 +2898,46 @@ the final argument. For example, on Windows, if a recipe starts with `#! py`,
 the final command the OS runs will be something like
 `py C:\Temp\PATH_TO_SAVED_RECIPE_BODY`.
 
+### Script Recipes
+
+Recipes with a `[script(COMMAND)]`<sup>1.32.0</sup> attribute are run as
+scripts interpreted by `COMMAND`. This avoids some of the issues with shebang
+recipes, such as the use of `cygpath` on Windows, the need to use
+`/usr/bin/env`, inconsistencies in shebang line splitting across Unix OSs, and
+requiring a temporary directory from which files can be executed.
+
+Recipes with an empty `[script]` attribute are executed with the value of `set
+script-interpreter := […]`<sup>1.33.0</sup>, defaulting to `sh -eu`, and *not*
+the value of `set shell`.
+
+The body of the recipe is evaluated, written to disk in the temporary
+directory, and run by passing its path as an argument to `COMMAND`.
+
+The `[script(…)]` attribute is unstable, so you'll need to use `set unstable`,
+set the `JUST_UNSTABLE` environment variable, or pass `--unstable` on the
+command line.
+
+### Script and Shebang Recipe Temporary Files
+
+Both script and shebang recipes write the recipe body to a temporary file for
+execution. Script recipes execute that file by passing it to a command, while
+shebang recipes execute the file directly. Shebang recipe execution will fail
+if the filesystem containing the temporary file is mounted with `noexec` or is
+otherwise non-executable.
+
+The directory that `just` writes temporary files to may be configured in a
+number of ways, from highest to lowest precedence:
+
+- Globally with the `--tempdir` command-line option or the `JUST_TEMPDIR`
+  environment variable.
+
+- On a per-module basis with the `tempdir` setting.
+
+- Globally on Linux with the `XDG_RUNTIME_DIR` environment variable.
+
+- Falling back to the directory returned by
+  [std::env::temp_dir](https://doc.rust-lang.org/std/env/fn.temp_dir.html).
+
 ### Python Recipes with `uv`
 
 [`uv`](https://github.com/astral-sh/uv) is an excellent cross-platform python
@@ -2919,23 +2973,6 @@ hello:
   print("Hello from Python!")
 ```
 
-### Script Recipes
-
-Recipes with a `[script(COMMAND)]`<sup>1.32.0</sup> attribute are run as
-scripts interpreted by `COMMAND`. This avoids some of the issues with shebang
-recipes, such as the use of `cygpath` on Windows, the need to use
-`/usr/bin/env`, and inconsistencies in shebang line splitting across Unix OSs.
-
-Recipes with an empty `[script]` attribute are executed with the value of `set
-script-interpreter := […]`<sup>1.33.0</sup>, defaulting to `sh -eu`, and *not*
-the value of `set shell`.
-
-The body of the recipe is evaluated, written to disk in the temporary
-directory, and run by passing its path as an argument to `COMMAND`.
-
-The `[script(…)]` attribute is unstable, so you'll need to use `set unstable`,
-set the `JUST_UNSTABLE` environment variable, or pass `--unstable` on the
-command line.
 
 ### Safer Bash Shebang Recipes
 
@@ -3271,9 +3308,9 @@ recipe:
   echo 'back to recipe body'
 ```
 
-### Command Line Options
+### Command-line Options
 
-`just` supports a number of useful command line options for listing, dumping,
+`just` supports a number of useful command-line options for listing, dumping,
 and debugging recipes and variables:
 
 ```console
@@ -3292,21 +3329,29 @@ $ just --show polyglot
 polyglot: python js perl sh ruby
 ```
 
-Some command-line options can be set with environment variables. For example:
+#### Setting Command-line Options with Environment Variables
+
+Some command-line options can be set with environment variables
+
+For example, unstable features can be enabled either with the `--unstable`
+flag:
+
+```console
+$ just --unstable
+```
+
+Or by setting the `JUST_UNSTABLE` environment variable:
 
 ```console
 $ export JUST_UNSTABLE=1
 $ just
 ```
 
-Is equivalent to:
+Since environment variables are inherited by child processes, command-line
+options set with environment variables are inherited by recursive invocations
+of `just`, where as command line options set with arguments are not.
 
-```console
-$ just --unstable
-```
-
-Consult `just --help` to see which options can be set from environment
-variables.
+Consult `just --help` for which options can be set with environment variables.
 
 ### Private Recipes
 
@@ -4329,6 +4374,8 @@ to `just` include:
   runner written in AWK and shell.
 - [haku](https://github.com/VladimirMarkelov/haku): A make-like command runner
   written in Rust.
+- [mise](https://mise.jdx.dev/): A development environment tool manager written
+  in Rust supporing tasks in TOML files and standalone scripts.
 
 Contributing
 ------------
