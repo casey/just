@@ -4374,9 +4374,6 @@ Integration tests use the `Test` struct, a builder which allows for easily
 invoking `just` with a given `justfile`, arguments, and environment variables,
 and checking the program's stdout, stderr, and exit code .
 
-Currently the integration tests also depend on an installation of
-[mdBook](https://github.com/rust-lang/mdBook) and its [mdBook-linkcheck](https://github.com/Michael-F-Bryan/mdbook-linkcheck) backend.
-
 ### Contribution Workflow
 
 1. Make sure the feature is wanted. There should be an open issue about the
@@ -4408,7 +4405,9 @@ Currently the integration tests also depend on an installation of
 
 5. Implement the feature.
 
-6. Run `just ci` to make sure that all tests, lints, and checks pass.
+6. Run `just ci` to make sure that all tests, lints, and checks pass. This
+  requires [mdBook](https://github.com/rust-lang/mdBook) and
+  [mdbook-linkcheck](https://github.com/Michael-F-Bryan/mdbook-linkcheck).
 
 7. Open a PR with the new code that is editable by maintainers. PRs often
    require rebasing and minor tweaks. If the PR is not editable by maintainers,
