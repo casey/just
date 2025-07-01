@@ -2021,8 +2021,8 @@ A number of constants are predefined:
 | `HEX`<sup>1.27.0</sup> | `"0123456789abcdef"` |  |
 | `HEXLOWER`<sup>1.27.0</sup> | `"0123456789abcdef"` |  |
 | `HEXUPPER`<sup>1.27.0</sup> | `"0123456789ABCDEF"` |  |
-| `PATH_SEP`<sup>master</sup> | `"/"` | "\" |
-| `PATH_VAR_SEP`<sup>master</sup> | `":"` | ";" |
+| `PATH_SEP`<sup>1.41.0</sup> | `"/"` | "\" |
+| `PATH_VAR_SEP`<sup>1.41.0</sup> | `":"` | ";" |
 | `CLEAR`<sup>1.37.0</sup> | `"\ec"` |  |
 | `NORMAL`<sup>1.37.0</sup> | `"\e[0m"` |  |
 | `BOLD`<sup>1.37.0</sup> | `"\e[1m"` |  |
@@ -2934,7 +2934,7 @@ The directory that `just` writes temporary files to may be configured in a
 number of ways, from highest to lowest precedence:
 
 - Globally with the `--tempdir` command-line option or the `JUST_TEMPDIR`
-  environment variable.
+  environment variable<sup>1.41.0</sup>.
 
 - On a per-module basis with the `tempdir` setting.
 
@@ -4056,7 +4056,7 @@ When a child process *is* running, `just` will wait until it terminates, to
 avoid leaving it behind.
 
 Additionally, on receipt of `SIGTERM`, `just` will forward `SIGTERM` to any
-running children<sup>master</sup>, since unlike other fatal signals, `SIGTERM`,
+running children<sup>1.41.0</sup>, since unlike other fatal signals, `SIGTERM`,
 was likely sent to `just` alone.
 
 Regardless of whether a child process terminates successfully after `just`
@@ -4070,7 +4070,7 @@ user types `ctrl-t` on
 operating systems, including MacOS, but not Linux.
 
 `just` responds by printing a list of all child process IDs and
-commands<sup>master</sup>.
+commands<sup>1.41.0</sup>.
 
 #### Windows
 
