@@ -63,6 +63,7 @@ pub(crate) use {
     platform_interface::PlatformInterface,
     position::Position,
     positional::Positional,
+    r#enum::Enum,
     ran::Ran,
     range_ext::RangeExt,
     recipe::Recipe,
@@ -212,6 +213,7 @@ mod delimiter;
 mod dependency;
 mod dump_format;
 mod enclosure;
+mod r#enum;
 mod error;
 mod evaluator;
 mod execution_context;
