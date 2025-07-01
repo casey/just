@@ -73,6 +73,7 @@ unexpected_cfgs = { level = "warn", check-cfg = ['cfg(fuzzing)'] }
 all = { level = "deny", priority = -1 }
 arbitrary-source-item-ordering = "deny"
 enum_glob_use = "allow"
+ignore_without_reason = "allow"
 needless_pass_by_value = "allow"
 pedantic = { level = "deny", priority = -1 }
 similar_names = "allow"

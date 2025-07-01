@@ -42,7 +42,7 @@ fn interrupt_test(arguments: &[&str], justfile: &str) {
 }
 
 #[test]
-#[ignore = "Interrupt tests are flaky."]
+#[ignore]
 fn interrupt_shebang() {
   interrupt_test(
     &[],
@@ -55,7 +55,7 @@ fn interrupt_shebang() {
 }
 
 #[test]
-#[ignore = "Interrupt tests are flaky."]
+#[ignore]
 fn interrupt_line() {
   interrupt_test(
     &[],
@@ -67,7 +67,7 @@ fn interrupt_line() {
 }
 
 #[test]
-#[ignore = "Interrupt tests are flaky."]
+#[ignore]
 fn interrupt_backtick() {
   interrupt_test(
     &[],
@@ -81,15 +81,16 @@ fn interrupt_backtick() {
 }
 
 #[test]
-#[ignore = "Interrupt tests are flaky."]
+#[ignore]
 fn interrupt_command() {
   interrupt_test(&["--command", "sleep", "1"], "");
 }
 
+// This test is ignored because it is sensitive to the process signal mask.
+// Programs like `watchexec` and `cargo-watch` change the signal mask to ignore
+// `SIGHUP`, which causes this test to fail.
 #[test]
-#[ignore = "This test is sensitive to the process signal mask. Programs like \
-            `watchexec` and `cargo-watch` change the signal mask to ignore \
-            `SIGHUP`, which causes this test to fail."]
+#[ignore]
 fn forwarding() {
   let just = executable_path("just");
 
@@ -155,7 +156,7 @@ fn forwarding() {
 }
 
 #[test]
-#[ignore = "Includes a 500ms wait is often flakey."]
+#[ignore]
 #[cfg(any(
   target_os = "dragonfly",
   target_os = "freebsd",
