@@ -956,6 +956,22 @@ impl<'run, 'src> Parser<'run, 'src> {
       dependencies.append(&mut subsequents);
     }
 
+    let if_error = dependencies.len();
+
+    if self.accepted(BarBar)? {
+      let mut recoveries = Vec::new();
+
+      while let Some(recovery) = self.accept_dependency()? {
+        recoveries.push(recovery);
+      }
+
+      if recoveries.is_empty() {
+        return Err(self.unexpected_token()?);
+      }
+
+      dependencies.append(&mut recoveries);
+    }
+
     self.expect_eol()?;
 
     let body = self.parse_body()?;
@@ -1007,6 +1023,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       dependencies,
       doc: doc.filter(|doc| !doc.is_empty()),
       file_depth: self.file_depth,
+      if_error,
       import_offsets: self.import_offsets.clone(),
       name,
       namepath: self
@@ -2534,7 +2551,7 @@ mod tests {
     column:  9,
     width:   1,
     kind:    UnexpectedToken{
-      expected: vec![AmpersandAmpersand, Comment, Eof, Eol, Identifier, ParenL],
+      expected: vec![AmpersandAmpersand, BarBar, Comment, Eof, Eol, Identifier, ParenL],
       found: Equals
     },
   }

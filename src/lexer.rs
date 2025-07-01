@@ -1118,6 +1118,12 @@ mod tests {
   }
 
   test! {
+    name:   bar_bar,
+    text:   "||",
+    tokens: (BarBar),
+  }
+
+  test! {
     name:   equals,
     text:   "=",
     tokens: (Equals),
