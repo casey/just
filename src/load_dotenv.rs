@@ -16,9 +16,10 @@ pub(crate) fn load_dotenv(
     .or(settings.dotenv_path.as_ref());
 
   if !settings.dotenv_load
+    && !settings.dotenv_override
+    && !settings.dotenv_required
     && dotenv_filename.is_none()
     && dotenv_path.is_none()
-    && !settings.dotenv_required
   {
     return Ok(BTreeMap::new());
   }

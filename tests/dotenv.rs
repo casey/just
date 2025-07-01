@@ -407,7 +407,7 @@ fn dotenv_env_var_override_no_load() {
     )
     .write(".env", "DOTENV_KEY=dotenv-value")
     .env("DOTENV_KEY", "not-the-dotenv-value")
-    .stdout("not-the-dotenv-value\n")
+    .stdout("dotenv-value\n")
     .stderr("echo $DOTENV_KEY\n")
     .run();
 }
