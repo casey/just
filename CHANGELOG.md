@@ -1,6 +1,43 @@
 Changelog
 =========
 
+[1.41.0](https://github.com/casey/just/releases/tag/1.41.0) - 2025-07-01
+------------------------------------------------------------------------
+
+### Changed
+- Treat SIGINFO as non-fatal ([#2788](https://github.com/casey/just/pull/2788) by [casey](https://github.com/casey))
+- Improve signal handling ([#2488](https://github.com/casey/just/pull/2488) by [casey](https://github.com/casey))
+
+### Added
+- Add `dotenv-override` setting ([#2785](https://github.com/casey/just/pull/2785) by [Lun4m](https://github.com/Lun4m))
+- Add `PATH_SEP` and `PATH_VAR_SEP` constants ([#2679](https://github.com/casey/just/pull/2679) by [casey](https://github.com/casey))
+- Add `--tempdir` command-line option ([#2798](https://github.com/casey/just/pull/2798) by [casey](https://github.com/casey))
+
+### Fixed
+- Pin `clap_complete` to last compatible version ([#2800](https://github.com/casey/just/pull/2800) by [casey](https://github.com/casey))
+
+### Misc
+- Add `arkade` to readme ([#2700](https://github.com/casey/just/pull/2700) by [rgee0](https://github.com/rgee0))
+- Link to pipx instead of pypi in readme ([#2799](https://github.com/casey/just/pull/2799) by [casey](https://github.com/casey))
+- Add reasons to `#[ignore]` attributes ([#2797](https://github.com/casey/just/pull/2797) by [casey](https://github.com/casey))
+- Mention that command-line environment variables are inherited ([#2783](https://github.com/casey/just/pull/2783) by [philipmgrant](https://github.com/philipmgrant))
+- Fix attribute grammar and update documentation ([#2790](https://github.com/casey/just/pull/2790) by [casey](https://github.com/casey))
+- Tweak prose in groups section of readme ([#2767](https://github.com/casey/just/pull/2767) by [offby1](https://github.com/offby1))
+- Update `extractions/setup-just` version in readme ([#2735](https://github.com/casey/just/pull/2735) by [esadek](https://github.com/esadek))
+- Remove `return` in `Recipe::confirm` ([#2789](https://github.com/casey/just/pull/2789) by [casey](https://github.com/casey))
+- Add `mise` to alternatives in readem ([#2758](https://github.com/casey/just/pull/2758) by [koppor](https://github.com/koppor))
+- Update `softprops/action-gh-release` ([#2781](https://github.com/casey/just/pull/2781) by [app/dependabot](https://github.com/app/dependabot))
+- Use `default` as name of `--init` justfile default recipe ([#2777](https://github.com/casey/just/pull/2777) by [casey](https://github.com/casey))
+- Add `just.systems` link to `--init` justfile ([#2776](https://github.com/casey/just/pull/2776) by [casey](https://github.com/casey))
+- Fix `kitchen-sink.just` comment ([#2738](https://github.com/casey/just/pull/2738) by [azarmadr](https://github.com/azarmadr))
+- Update `softprops/action-gh-release` ([#2716](https://github.com/casey/just/pull/2716) by [app/dependabot](https://github.com/app/dependabot))
+- Fix clippy lints ([#2768](https://github.com/casey/just/pull/2768) by [casey](https://github.com/casey))
+- Add back-to-the-top link to readme ([#2707](https://github.com/casey/just/pull/2707) by [bravesasha](https://github.com/bravesasha))
+- Placate clippy lints for 1.86 ([#2708](https://github.com/casey/just/pull/2708) by [casey](https://github.com/casey))
+- Use `-S` in `uv` example ([#2696](https://github.com/casey/just/pull/2696) by [rmoorman](https://github.com/rmoorman))
+- Handle `--request` without parsing justfile ([#2683](https://github.com/casey/just/pull/2683) by [casey](https://github.com/casey))
+- Bump MSRV to 1.77 and enforce on CI ([#2674](https://github.com/casey/just/pull/2674) by [casey](https://github.com/casey))
+
 [1.40.0](https://github.com/casey/just/releases/tag/1.40.0) - 2025-03-09
 ------------------------------------------------------------------------
 

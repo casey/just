@@ -63,3 +63,20 @@ fn unix() {
     .stdout("bar\n")
     .run();
 }
+
+#[test]
+#[cfg(all(unix, not(target_os = "macos")))]
+fn case_insensitive() {
+  let tempdir = tempdir();
+
+  let path = tempdir.path().to_owned();
+
+  Test::with_tempdir(tempdir)
+    .no_justfile()
+    .test_round_trip(false)
+    .write("just/JUSTFILE", "@default:\n  echo foo")
+    .env("XDG_CONFIG_HOME", path.to_str().unwrap())
+    .args(["--global-justfile"])
+    .stdout("foo\n")
+    .run();
+}
