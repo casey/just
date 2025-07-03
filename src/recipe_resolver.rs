@@ -120,7 +120,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     let name = dependency.recipe.last().lexeme();
 
     if dependency.recipe.components() > 1 {
-      // recipe is in a submodule and thus is already resovled
+      // recipe is in a submodule and is thus already resovled
       Ok(Analyzer::resolve_recipe(
         &dependency.recipe,
         self.modules,
