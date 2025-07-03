@@ -246,7 +246,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
   }
 
-  /// Accept a token of kind `Identifier` and parse into a `Namepath`
+  /// Accept a double-colon separated sequence of identifiers
   fn accept_namepath(&mut self) -> CompileResult<'src, Option<Namepath<'src>>> {
     if self.next_is(Identifier) {
       Ok(Some(self.parse_namepath()?))
