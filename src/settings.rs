@@ -11,6 +11,7 @@ pub(crate) struct Settings<'src> {
   pub(crate) allow_duplicate_variables: bool,
   pub(crate) dotenv_filename: Option<String>,
   pub(crate) dotenv_load: bool,
+  pub(crate) dotenv_override: bool,
   pub(crate) dotenv_path: Option<PathBuf>,
   pub(crate) dotenv_required: bool,
   pub(crate) export: bool,
@@ -49,6 +50,9 @@ impl<'src> Settings<'src> {
         }
         Setting::DotenvPath(path) => {
           settings.dotenv_path = Some(PathBuf::from(path.cooked));
+        }
+        Setting::DotenvOverride(dotenv_overrride) => {
+          settings.dotenv_override = dotenv_overrride;
         }
         Setting::DotenvRequired(dotenv_required) => {
           settings.dotenv_required = dotenv_required;

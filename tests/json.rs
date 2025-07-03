@@ -79,6 +79,7 @@ struct Settings<'a> {
   allow_duplicate_variables: bool,
   dotenv_filename: Option<&'a str>,
   dotenv_load: bool,
+  dotenv_override: bool,
   dotenv_path: Option<&'a str>,
   dotenv_required: bool,
   export: bool,
