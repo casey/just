@@ -337,7 +337,7 @@ impl<'src> Justfile<'src> {
 
     let mut evaluator = Evaluator::new(context, true, &scope);
 
-    Self::run_dependencies(context, recipe.priors(), &mut evaluator, &ran, recipe)?;
+    Self::run_dependencies(context, recipe.priors(), &mut evaluator, ran, recipe)?;
 
     recipe.run(context, &scope, &positional, is_dependency)?;
 
