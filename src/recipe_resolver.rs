@@ -89,55 +89,67 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
 
     stack.push(recipe.name());
 
-    let mut dependencies: Vec<Rc<Recipe>> = Vec::new();
-    for dependency in &recipe.dependencies {
-      let maybe_dependency = if dependency.recipe.len() > 1 {
-        // dependency points to a recipe in a module and ought to be already resolved
-        // since modules are resolved first
-        Analyzer::resolve_recipe(&dependency.recipe, self.modules, &self.resolved_recipes)
-      } else {
-        let name = dependency.recipe.last().lexeme();
-
-        if let Some(resolved) = self.resolved_recipes.get(name) {
-          // dependency already resolved
-          Some(Rc::clone(resolved))
-        } else if stack.contains(&name) {
-          let first = stack[0];
-          stack.push(first);
-          return Err(
-            dependency.recipe.last().error(CircularRecipeDependency {
+    let dependencies = recipe
+      .dependencies
+      .iter()
+      .map(|dependency| {
+        self
+          .resolve_dependency(dependency, &recipe, stack)?
+          .ok_or_else(|| {
+            dependency.recipe.last().error(UnknownDependency {
               recipe: recipe.name(),
-              circle: stack
-                .iter()
-                .skip_while(|name| **name != dependency.recipe.last().lexeme())
-                .copied()
-                .collect(),
-            }),
-          );
-        } else if let Some(unresolved) = self.unresolved_recipes.remove(name) {
-          // resolve unresolved dependency
-          Some(self.resolve_recipe(stack, unresolved)?)
-        } else {
-          // dependency is unknown
-          None
-        }
-      };
-
-      if let Some(dependency) = maybe_dependency {
-        dependencies.push(dependency);
-      } else {
-        return Err(dependency.recipe.last().error(UnknownDependency {
-          recipe: recipe.name(),
-          unknown: dependency.recipe.clone(),
-        }));
-      }
-    }
+              unknown: dependency.recipe.clone(),
+            })
+          })
+      })
+      .collect::<CompileResult<Vec<Rc<Recipe>>>>()?;
 
     stack.pop();
 
     let resolved = Rc::new(recipe.resolve(dependencies)?);
     self.resolved_recipes.insert(Rc::clone(&resolved));
     Ok(resolved)
+  }
+
+  fn resolve_dependency(
+    &mut self,
+    dependency: &UnresolvedDependency<'src>,
+    recipe: &UnresolvedRecipe<'src>,
+    stack: &mut Vec<&'src str>,
+  ) -> CompileResult<'src, Option<Rc<Recipe<'src>>>> {
+    let name = dependency.recipe.last().lexeme();
+
+    if dependency.recipe.len() > 1 {
+      // recipe is in a submodule and thus is already resovled
+      Ok(Analyzer::resolve_recipe(
+        &dependency.recipe,
+        self.modules,
+        &self.resolved_recipes,
+      ))
+    } else if let Some(resolved) = self.resolved_recipes.get(name) {
+      // recipe is the current module and has already been resolved
+      Ok(Some(Rc::clone(resolved)))
+    } else if stack.contains(&name) {
+      // recipe depends on itself
+      let first = stack[0];
+      stack.push(first);
+      return Err(
+        dependency.recipe.last().error(CircularRecipeDependency {
+          recipe: recipe.name(),
+          circle: stack
+            .iter()
+            .skip_while(|name| **name != dependency.recipe.last().lexeme())
+            .copied()
+            .collect(),
+        }),
+      );
+    } else if let Some(unresolved) = self.unresolved_recipes.remove(name) {
+      // recipe is as of yet unresolved
+      Ok(Some(self.resolve_recipe(stack, unresolved)?))
+    } else {
+      // recipe is unknown
+      Ok(None)
+    }
   }
 }
 
