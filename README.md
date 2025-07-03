@@ -684,14 +684,14 @@ cc main.c foo.c bar.c -o main
 ./test
 testing… all tests passed!
 ```
-Dependencies may be recipes in a submodule:
+
+Recipes may depend on recipes in submodules:
 
 ```justfile
 mod foo
 
 baz: foo::bar
 ```
-
 
 Examples
 --------
