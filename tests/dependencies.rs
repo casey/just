@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn recipe_nested_module_dependencies() {
+fn recipe_doubly_nested_module_dependencies() {
   Test::new()
     .write("foo.just", "mod bar\nbaz: \n @echo FOO")
     .write("bar.just", "baz:\n @echo BAZ")
@@ -18,7 +18,7 @@ fn recipe_nested_module_dependencies() {
 }
 
 #[test]
-fn recipe_nested_module_dependencies2() {
+fn recipe_singly_nested_module_dependencies() {
   Test::new()
     .write("foo.just", "mod bar\nbaz: \n @echo BAR")
     .write("bar.just", "baz:\n @echo BAZ")
@@ -34,7 +34,7 @@ fn recipe_nested_module_dependencies2() {
 }
 
 #[test]
-fn recipe_nested_module_dependencies_doesnt_exist() {
+fn dependency_not_in_submodule() {
   Test::new()
     .write("foo.just", "qux: \n @echo QUX")
     .justfile(
@@ -57,7 +57,7 @@ fn recipe_nested_module_dependencies_doesnt_exist() {
 }
 
 #[test]
-fn recipe_nested_module_dependencies_doesnt_exist2() {
+fn dependency_submodule_missing() {
   Test::new()
     .justfile(
       "
@@ -112,7 +112,7 @@ fn recipe_module_dependency_subsequent_mix() {
     .justfile(
       "
       mod foo
-      baz :
+      baz:
         @echo BAZ
       quux: foo::bar && baz
         @echo QUUX
