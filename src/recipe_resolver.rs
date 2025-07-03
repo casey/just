@@ -119,7 +119,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
   ) -> CompileResult<'src, Option<Rc<Recipe<'src>>>> {
     let name = dependency.recipe.last().lexeme();
 
-    if dependency.recipe.len() > 1 {
+    if dependency.recipe.components() > 1 {
       // recipe is in a submodule and thus is already resovled
       Ok(Analyzer::resolve_recipe(
         &dependency.recipe,

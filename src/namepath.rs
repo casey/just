@@ -32,7 +32,7 @@ impl<'src> Namepath<'src> {
     self.0.iter()
   }
 
-  pub(crate) fn len(&self) -> usize {
+  pub(crate) fn components(&self) -> usize {
     self.0.len()
   }
 }
