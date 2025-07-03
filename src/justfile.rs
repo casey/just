@@ -13,7 +13,7 @@ pub(crate) struct Justfile<'src> {
   pub(crate) aliases: Table<'src, Alias<'src>>,
   pub(crate) assignments: Table<'src, Assignment<'src>>,
   #[serde(rename = "first", serialize_with = "keyed::serialize_option")]
-  pub(crate) default: Option<Rc<Recipe<'src>>>,
+  pub(crate) default: Option<Arc<Recipe<'src>>>,
   pub(crate) doc: Option<String>,
   pub(crate) groups: Vec<String>,
   #[serde(skip)]
@@ -21,7 +21,7 @@ pub(crate) struct Justfile<'src> {
   pub(crate) modules: Table<'src, Justfile<'src>>,
   #[serde(skip)]
   pub(crate) name: Option<Name<'src>>,
-  pub(crate) recipes: Table<'src, Rc<Recipe<'src>>>,
+  pub(crate) recipes: Table<'src, Arc<Recipe<'src>>>,
   pub(crate) settings: Settings<'src>,
   pub(crate) source: PathBuf,
   pub(crate) unexports: HashSet<String>,
@@ -197,7 +197,7 @@ impl<'src> Justfile<'src> {
       });
     }
 
-    let mut ran = Ran::default();
+    let ran = Ran::default();
     for invocation in invocations {
       let context = ExecutionContext {
         config,
@@ -215,7 +215,7 @@ impl<'src> Justfile<'src> {
           .map(str::to_string)
           .collect::<Vec<String>>(),
         &context,
-        &mut ran,
+        &ran,
         invocation.recipe,
         false,
       )?;
@@ -244,7 +244,7 @@ impl<'src> Justfile<'src> {
     self
       .recipes
       .get(name)
-      .map(Rc::as_ref)
+      .map(Arc::as_ref)
       .or_else(|| self.aliases.get(name).map(|alias| alias.target.as_ref()))
   }
 
@@ -312,11 +312,15 @@ impl<'src> Justfile<'src> {
   fn run_recipe(
     arguments: &[String],
     context: &ExecutionContext<'src, '_>,
-    ran: &mut Ran<'src>,
+    ran: &Ran<'src>,
     recipe: &Recipe<'src>,
     is_dependency: bool,
   ) -> RunResult<'src> {
-    if ran.has_run(&recipe.namepath, arguments) {
+    let mutex = ran.mutex(&recipe.namepath, arguments);
+
+    let mut guard = mutex.lock().unwrap();
+
+    if *guard {
       return Ok(());
     }
 
@@ -333,34 +337,63 @@ impl<'src> Justfile<'src> {
 
     let mut evaluator = Evaluator::new(context, true, &scope);
 
-    if !context.config.no_dependencies {
-      for Dependency { recipe, arguments } in recipe.dependencies.iter().take(recipe.priors) {
-        let arguments = arguments
-          .iter()
-          .map(|argument| evaluator.evaluate_expression(argument))
-          .collect::<RunResult<Vec<String>>>()?;
-
-        Self::run_recipe(&arguments, context, ran, recipe, true)?;
-      }
-    }
+    Self::run_dependencies(context, recipe.priors(), &mut evaluator, &ran, recipe)?;
 
     recipe.run(context, &scope, &positional, is_dependency)?;
 
-    if !context.config.no_dependencies {
-      let mut ran = Ran::default();
+    Self::run_dependencies(
+      context,
+      recipe.subsequents(),
+      &mut evaluator,
+      &Ran::default(),
+      recipe,
+    )?;
 
-      for Dependency { recipe, arguments } in recipe.subsequents() {
-        let mut evaluated = Vec::new();
+    *guard = true;
 
-        for argument in arguments {
-          evaluated.push(evaluator.evaluate_expression(argument)?);
-        }
+    Ok(())
+  }
 
-        Self::run_recipe(&evaluated, context, &mut ran, recipe, true)?;
-      }
+  fn run_dependencies<'run>(
+    context: &ExecutionContext<'src, 'run>,
+    dependencies: &[Dependency<'src>],
+    evaluator: &mut Evaluator<'src, 'run>,
+    ran: &Ran<'src>,
+    recipe: &Recipe<'src>,
+  ) -> RunResult<'src> {
+    if context.config.no_dependencies {
+      return Ok(());
     }
 
-    ran.ran(&recipe.namepath, arguments.to_vec());
+    let mut evaluated = Vec::new();
+    for Dependency { recipe, arguments } in dependencies {
+      let arguments = arguments
+        .iter()
+        .map(|argument| evaluator.evaluate_expression(argument))
+        .collect::<RunResult<Vec<String>>>()?;
+      evaluated.push((recipe, arguments));
+    }
+
+    if recipe.is_parallel() {
+      thread::scope::<_, RunResult>(|thread_scope| {
+        let mut handles = Vec::new();
+        for (recipe, arguments) in evaluated {
+          handles.push(
+            thread_scope.spawn(move || Self::run_recipe(&arguments, context, ran, recipe, true)),
+          );
+        }
+        for handle in handles {
+          handle
+            .join()
+            .map_err(|_| Error::internal("parallel dependency thread panicked"))??;
+        }
+        Ok(())
+      })?;
+    } else {
+      for (recipe, arguments) in evaluated {
+        Self::run_recipe(&arguments, context, ran, recipe, true)?;
+      }
+    }
 
     Ok(())
   }

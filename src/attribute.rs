@@ -20,6 +20,7 @@ pub(crate) enum Attribute<'src> {
   NoExitMessage,
   NoQuiet,
   Openbsd,
+  Parallel,
   PositionalArguments,
   Private,
   Script(Option<Interpreter<'src>>),
@@ -40,6 +41,7 @@ impl AttributeDiscriminant {
       | Self::NoExitMessage
       | Self::NoQuiet
       | Self::Openbsd
+      | Self::Parallel
       | Self::PositionalArguments
       | Self::Private
       | Self::Unix
@@ -89,6 +91,7 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::NoExitMessage => Self::NoExitMessage,
       AttributeDiscriminant::NoQuiet => Self::NoQuiet,
       AttributeDiscriminant::Openbsd => Self::Openbsd,
+      AttributeDiscriminant::Parallel => Self::Parallel,
       AttributeDiscriminant::PositionalArguments => Self::PositionalArguments,
       AttributeDiscriminant::Private => Self::Private,
       AttributeDiscriminant::Script => Self::Script({
@@ -139,6 +142,7 @@ impl Display for Attribute<'_> {
       | Self::NoExitMessage
       | Self::NoQuiet
       | Self::Openbsd
+      | Self::Parallel
       | Self::PositionalArguments
       | Self::Private
       | Self::Script(None)
