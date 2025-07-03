@@ -23,6 +23,7 @@ use {
     path::{Path, PathBuf, MAIN_SEPARATOR, MAIN_SEPARATOR_STR},
     process::{Command, Stdio},
     str,
+    time::Instant,
   },
   tempfile::TempDir,
   temptree::{temptree, tree, Tree},
@@ -30,10 +31,7 @@ use {
 };
 
 #[cfg(not(windows))]
-use std::{
-  thread,
-  time::{Duration, Instant},
-};
+use std::{thread, time::Duration};
 
 fn default<T: Default>() -> T {
   Default::default()
