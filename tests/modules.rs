@@ -998,3 +998,27 @@ fn empty_doc_attribute_on_module() {
     .stdout("Available recipes:\n    foo ...\n")
     .run();
 }
+
+#[test]
+fn modules_with_attributes_are_dumped_correctly() {
+  Test::new()
+    .write("foo.just", "foo:\n @echo FOO")
+    .justfile(
+      "
+        # doc
+        [group('bar')]
+        [group('baz')]
+        mod foo
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        # doc
+        [group('bar')]
+        [group('baz')]
+        mod foo
+      ",
+    )
+    .run();
+}
