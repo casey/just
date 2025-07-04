@@ -1197,10 +1197,10 @@ impl<'run, 'src> Parser<'run, 'src> {
         let mut arguments = Vec::new();
 
         if self.accepted(Colon)? {
-          arguments.push(self.parse_string_literal()?);
+          arguments.push(self.parse_string_literal_token()?);
         } else if self.accepted(ParenL)? {
           loop {
-            arguments.push(self.parse_string_literal()?);
+            arguments.push(self.parse_string_literal_token()?);
 
             if !self.accepted(Comma)? {
               break;

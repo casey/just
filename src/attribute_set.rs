@@ -1,9 +1,13 @@
 use {super::*, std::collections};
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize)]
+#[derive(Default, Debug, Clone, PartialEq, PartialOrd, Ord, Eq, Serialize)]
 pub(crate) struct AttributeSet<'src>(BTreeSet<Attribute<'src>>);
 
 impl<'src> AttributeSet<'src> {
+  pub(crate) fn new() -> Self {
+    Self(BTreeSet::new())
+  }
+
   pub(crate) fn len(&self) -> usize {
     self.0.len()
   }
