@@ -33,8 +33,6 @@ impl AttributeDiscriminant {
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
       Self::Confirm | Self::Doc => 0..=1,
-      Self::Metadata => 1..=usize::MAX,
-      Self::Group | Self::Extension | Self::WorkingDirectory => 1..=1,
       Self::ExitMessage
       | Self::Linux
       | Self::Macos
@@ -46,6 +44,8 @@ impl AttributeDiscriminant {
       | Self::Private
       | Self::Unix
       | Self::Windows => 0..=0,
+      Self::Extension | Self::Group | Self::WorkingDirectory => 1..=1,
+      Self::Metadata => 1..=usize::MAX,
       Self::Script => 0..=usize::MAX,
     }
   }
@@ -127,21 +127,6 @@ impl Display for Attribute<'_> {
     write!(f, "{}", self.name())?;
 
     match self {
-      Self::Confirm(Some(argument))
-      | Self::Doc(Some(argument))
-      | Self::Extension(argument)
-      | Self::Group(argument)
-      | Self::WorkingDirectory(argument) => write!(f, "({argument})")?,
-      Self::Script(Some(shell)) => write!(f, "({shell})")?,
-      Self::Metadata(arguments) => write!(
-        f,
-        "({})",
-        arguments
-          .iter()
-          .map(StringLiteral::to_string)
-          .collect::<Vec<_>>()
-          .join(", ")
-      )?,
       Self::Confirm(None)
       | Self::Doc(None)
       | Self::ExitMessage
@@ -156,6 +141,22 @@ impl Display for Attribute<'_> {
       | Self::Script(None)
       | Self::Unix
       | Self::Windows => {}
+      Self::Confirm(Some(argument))
+      | Self::Doc(Some(argument))
+      | Self::Extension(argument)
+      | Self::Group(argument)
+      | Self::WorkingDirectory(argument) => write!(f, "({argument})")?,
+      Self::Metadata(arguments) => {
+        write!(f, "(")?;
+        for (i, argument) in arguments.iter().enumerate() {
+          if i > 0 {
+            write!(f, ", ")?;
+          }
+          write!(f, "{argument}")?;
+        }
+        write!(f, ")")?;
+      }
+      Self::Script(Some(shell)) => write!(f, "({shell})")?,
     }
 
     Ok(())
