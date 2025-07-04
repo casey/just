@@ -61,6 +61,7 @@ mod confirm;
 mod constants;
 mod datetime;
 mod delimiters;
+mod dependencies;
 mod directories;
 mod dotenv;
 mod edit;
