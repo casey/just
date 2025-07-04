@@ -65,6 +65,9 @@ pub(crate) enum CompileErrorKind<'src> {
     expected: &'src str,
     found: &'src str,
   },
+  InlineModuleCannotBeNested {
+    parent_module: &'src str,
+  },
   Internal {
     message: String,
   },

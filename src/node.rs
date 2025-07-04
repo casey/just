@@ -52,6 +52,7 @@ impl<'src> Node<'src> for Item<'src> {
 
         tree
       }
+      Self::ModuleInline(inline_mod) => inline_mod.tree(),
       Self::Recipe(recipe) => recipe.tree(),
       Self::Set(set) => set.tree(),
       Self::Unexport { name } => {
@@ -344,5 +345,15 @@ impl<'src> Node<'src> for Warning {
 impl<'src> Node<'src> for str {
   fn tree(&self) -> Tree<'src> {
     Tree::atom("comment").push(["\"", self, "\""].concat())
+  }
+}
+
+impl<'src> Node<'src> for ModuleInline<'src> {
+  fn tree(&self) -> Tree<'src> {
+    Tree::list([
+      Tree::atom("mod_inline"),
+      Tree::atom(self.name.lexeme()),
+      self.ast.tree(),
+    ])
   }
 }
