@@ -132,6 +132,63 @@ fn unexpected_attribute_argument() {
 }
 
 #[test]
+fn multiple_metadata_attributes() {
+  Test::new()
+    .justfile(
+      "
+      [metadata('example')]
+      [metadata('sample')]
+      [no-exit-message]
+      foo:
+        exit 1
+    ",
+    )
+    .stderr("exit 1\n")
+    .status(1)
+    .run();
+}
+
+#[test]
+fn multiple_metadata_attributes_with_multiple_args() {
+  Test::new()
+    .justfile(
+      "
+      [metadata('example', 'arg1')]
+      [metadata('sample', 'argument')]
+      [no-exit-message]
+      foo:
+        exit 1
+    ",
+    )
+    .stderr("exit 1\n")
+    .status(1)
+    .run();
+}
+
+#[test]
+fn expected_metadata_attribute_argument() {
+  Test::new()
+    .justfile(
+      "
+      [metadata]
+      foo:
+        exit 1
+    ",
+    )
+    .stderr(
+      "
+        error: Attribute `metadata` got 0 arguments but takes at least 1 argument
+         ——▶ justfile:1:2
+          │
+        1 │ [metadata]
+          │  ^^^^^^^^
+          ",
+    )
+    .status(1)
+    .run();
+}
+
+#[test]
 fn doc_attribute() {
   Test::new()
     .justfile(
