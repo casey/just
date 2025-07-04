@@ -102,6 +102,7 @@ pub(crate) use {
   clap::ValueEnum,
   derive_where::derive_where,
   edit_distance::edit_distance,
+  html_escaper::Escape,
   lexiclean::Lexiclean,
   libc::EXIT_FAILURE,
   once_cell::sync::Lazy,
