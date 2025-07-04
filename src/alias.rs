@@ -2,7 +2,7 @@ use super::*;
 
 /// An alias, e.g. `name := target`
 #[derive(Debug, PartialEq, Clone, Serialize)]
-pub(crate) struct Alias<'src, T = Rc<Recipe<'src>>> {
+pub(crate) struct Alias<'src, T = Arc<Recipe<'src>>> {
   pub(crate) attributes: AttributeSet<'src>,
   pub(crate) name: Name<'src>,
   #[serde(
@@ -13,7 +13,7 @@ pub(crate) struct Alias<'src, T = Rc<Recipe<'src>>> {
 }
 
 impl<'src> Alias<'src, Namepath<'src>> {
-  pub(crate) fn resolve(self, target: Rc<Recipe<'src>>) -> Alias<'src> {
+  pub(crate) fn resolve(self, target: Arc<Recipe<'src>>) -> Alias<'src> {
     assert!(self.target.last().lexeme() == target.namepath.last().lexeme());
 
     Alias {

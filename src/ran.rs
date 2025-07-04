@@ -1,17 +1,20 @@
 use super::*;
 
 #[derive(Default)]
-pub(crate) struct Ran<'src>(BTreeMap<Namepath<'src>, BTreeSet<Vec<String>>>);
+pub(crate) struct Ran<'src>(
+  Mutex<BTreeMap<Namepath<'src>, BTreeMap<Vec<String>, Arc<Mutex<bool>>>>>,
+);
 
 impl<'src> Ran<'src> {
-  pub(crate) fn has_run(&self, recipe: &Namepath<'src>, arguments: &[String]) -> bool {
+  pub(crate) fn mutex(&self, recipe: &Namepath<'src>, arguments: &[String]) -> Arc<Mutex<bool>> {
     self
       .0
-      .get(recipe)
-      .is_some_and(|ran| ran.contains(arguments))
-  }
-
-  pub(crate) fn ran(&mut self, recipe: &Namepath<'src>, arguments: Vec<String>) {
-    self.0.entry(recipe.clone()).or_default().insert(arguments);
+      .lock()
+      .unwrap()
+      .entry(recipe.clone())
+      .or_default()
+      .entry(arguments.into())
+      .or_default()
+      .clone()
   }
 }

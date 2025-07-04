@@ -95,6 +95,10 @@ impl<'src, D> Recipe<'src, D> {
     Ok(())
   }
 
+  pub(crate) fn is_parallel(&self) -> bool {
+    self.attributes.contains(AttributeDiscriminant::Parallel)
+  }
+
   pub(crate) fn is_public(&self) -> bool {
     !self.private && !self.attributes.contains(AttributeDiscriminant::Private)
   }
@@ -485,8 +489,12 @@ impl<'src, D> Recipe<'src, D> {
     self.doc.as_deref()
   }
 
-  pub(crate) fn subsequents(&self) -> impl Iterator<Item = &D> {
-    self.dependencies.iter().skip(self.priors)
+  pub(crate) fn priors(&self) -> &[D] {
+    &self.dependencies[..self.priors]
+  }
+
+  pub(crate) fn subsequents(&self) -> &[D] {
+    &self.dependencies[self.priors..]
   }
 }
 
