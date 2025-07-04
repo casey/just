@@ -784,7 +784,7 @@ fn attribute() {
 }
 
 #[test]
-fn metadata_attribute() {
+fn single_metadata_attribute() {
   case(
     "
       [metadata('example')]
@@ -837,7 +837,7 @@ fn multiple_metadata_attributes() {
 }
 
 #[test]
-fn multiple_metadata_attributes_with_arguments() {
+fn multiple_metadata_attributes_with_multiple_arguments() {
   case(
     "
       [metadata('example', 'arg1')]
