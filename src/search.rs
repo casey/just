@@ -11,20 +11,15 @@ pub(crate) struct Search {
 }
 
 impl Search {
-  fn global_justfile_paths() -> Vec<PathBuf> {
+  fn global_justfile_paths() -> Vec<(PathBuf, &'static str)> {
     let mut paths = Vec::new();
 
     if let Some(config_dir) = dirs::config_dir() {
-      paths.push(config_dir.join("just").join(DEFAULT_JUSTFILE_NAME));
+      paths.push((config_dir.join("just"), DEFAULT_JUSTFILE_NAME));
     }
 
     if let Some(home_dir) = dirs::home_dir() {
-      paths.push(
-        home_dir
-          .join(".config")
-          .join("just")
-          .join(DEFAULT_JUSTFILE_NAME),
-      );
+      paths.push((home_dir.join(".config").join("just"), DEFAULT_JUSTFILE_NAME));
 
       if let Some(xdg_config_home) = std::env::var_os("XDG_CONFIG_HOME") {
         paths.push(
@@ -35,7 +30,7 @@ impl Search {
       };
 
       for justfile_name in JUSTFILE_NAMES {
-        paths.push(home_dir.join(justfile_name));
+        paths.push((home_dir.clone(), justfile_name));
       }
     }
 
@@ -59,11 +54,7 @@ impl Search {
         })
       }
       SearchConfig::GlobalJustfile => Ok(Self {
-        justfile: Self::global_justfile_paths()
-          .iter()
-          .find(|path| path.exists())
-          .cloned()
-          .ok_or(SearchError::GlobalJustfileNotFound)?,
+        justfile: Self::find_global_justfile()?,
         working_directory: Self::project_root(invocation_directory)?,
       }),
       SearchConfig::WithJustfile { justfile } => {
@@ -82,6 +73,26 @@ impl Search {
         working_directory: Self::clean(invocation_directory, working_directory),
       }),
     }
+  }
+
+  fn find_global_justfile() -> SearchResult<PathBuf> {
+    for (directory, filename) in Self::global_justfile_paths() {
+      if let Ok(read_dir) = fs::read_dir(&directory) {
+        for entry in read_dir {
+          let entry = entry.map_err(|io_error| SearchError::Io {
+            io_error,
+            directory: directory.clone(),
+          })?;
+          if let Some(candidate) = entry.file_name().to_str() {
+            if candidate.eq_ignore_ascii_case(filename) {
+              return Ok(entry.path());
+            }
+          }
+        }
+      }
+    }
+
+    Err(SearchError::GlobalJustfileNotFound)
   }
 
   /// Find justfile starting from parent directory of current justfile
@@ -158,6 +169,7 @@ impl Search {
         io_error,
         directory: directory.to_owned(),
       })?;
+
       for entry in entries {
         let entry = entry.map_err(|io_error| SearchError::Io {
           io_error,

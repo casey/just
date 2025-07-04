@@ -1,6 +1,6 @@
 [package]
 name = "just"
-version = "1.40.0"
+version = "1.41.0"
 authors = ["Casey Rodarmor <casey@rodarmor.com>"]
 autotests = false
 categories = ["command-line-utilities", "development-tools"]
@@ -23,7 +23,7 @@ blake3 = { version = "1.5.0", features = ["rayon", "mmap"] }
 camino = "1.0.4"
 chrono = "0.4.38"
 clap = { version = "4.0.0", features = ["derive", "env", "wrap_help"] }
-clap_complete = "4.0.0"
+clap_complete = "=4.5.48"
 clap_mangen = "0.2.20"
 ctrlc = { version = "3.1.1", features = ["termination"] }
 derive-where = "1.2.7"
@@ -55,7 +55,7 @@ unicode-width = "0.2.0"
 uuid = { version = "1.0.0", features = ["v4"] }
 
 [target.'cfg(unix)'.dependencies]
-nix = { version = "0.29.0", features = ["user"] }
+nix = { version = "0.30.1", features = ["user"] }
 
 [target.'cfg(windows)'.dependencies]
 ctrlc = { version = "3.1.1", features = ["termination"] }
@@ -64,7 +64,7 @@ ctrlc = { version = "3.1.1", features = ["termination"] }
 executable-path = "1.0.0"
 pretty_assertions = "1.0.0"
 temptree = "0.2.0"
-which = "7.0.0"
+which = "8.0.0"
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(fuzzing)'] }
@@ -73,6 +73,7 @@ unexpected_cfgs = { level = "warn", check-cfg = ['cfg(fuzzing)'] }
 all = { level = "deny", priority = -1 }
 arbitrary-source-item-ordering = "deny"
 enum_glob_use = "allow"
+ignore_without_reason = "allow"
 needless_pass_by_value = "allow"
 pedantic = { level = "deny", priority = -1 }
 similar_names = "allow"
