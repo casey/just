@@ -16,6 +16,7 @@ pub(crate) enum Attribute<'src> {
   Group(StringLiteral<'src>),
   Linux,
   Macos,
+  Metadata(Vec<StringLiteral<'src>>),
   NoCd,
   NoExitMessage,
   NoQuiet,
@@ -32,7 +33,6 @@ impl AttributeDiscriminant {
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
       Self::Confirm | Self::Doc => 0..=1,
-      Self::Group | Self::Extension | Self::WorkingDirectory => 1..=1,
       Self::ExitMessage
       | Self::Linux
       | Self::Macos
@@ -44,6 +44,8 @@ impl AttributeDiscriminant {
       | Self::Private
       | Self::Unix
       | Self::Windows => 0..=0,
+      Self::Extension | Self::Group | Self::WorkingDirectory => 1..=1,
+      Self::Metadata => 1..=usize::MAX,
       Self::Script => 0..=usize::MAX,
     }
   }
@@ -85,6 +87,7 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::Group => Self::Group(arguments.into_iter().next().unwrap()),
       AttributeDiscriminant::Linux => Self::Linux,
       AttributeDiscriminant::Macos => Self::Macos,
+      AttributeDiscriminant::Metadata => Self::Metadata(arguments),
       AttributeDiscriminant::NoCd => Self::NoCd,
       AttributeDiscriminant::NoExitMessage => Self::NoExitMessage,
       AttributeDiscriminant::NoQuiet => Self::NoQuiet,
@@ -115,7 +118,7 @@ impl<'src> Attribute<'src> {
   }
 
   pub(crate) fn repeatable(&self) -> bool {
-    matches!(self, Attribute::Group(_))
+    matches!(self, Attribute::Group(_) | Attribute::Metadata(_))
   }
 }
 
@@ -124,12 +127,6 @@ impl Display for Attribute<'_> {
     write!(f, "{}", self.name())?;
 
     match self {
-      Self::Confirm(Some(argument))
-      | Self::Doc(Some(argument))
-      | Self::Extension(argument)
-      | Self::Group(argument)
-      | Self::WorkingDirectory(argument) => write!(f, "({argument})")?,
-      Self::Script(Some(shell)) => write!(f, "({shell})")?,
       Self::Confirm(None)
       | Self::Doc(None)
       | Self::ExitMessage
@@ -144,6 +141,22 @@ impl Display for Attribute<'_> {
       | Self::Script(None)
       | Self::Unix
       | Self::Windows => {}
+      Self::Confirm(Some(argument))
+      | Self::Doc(Some(argument))
+      | Self::Extension(argument)
+      | Self::Group(argument)
+      | Self::WorkingDirectory(argument) => write!(f, "({argument})")?,
+      Self::Metadata(arguments) => {
+        write!(f, "(")?;
+        for (i, argument) in arguments.iter().enumerate() {
+          if i > 0 {
+            write!(f, ", ")?;
+          }
+          write!(f, "{argument}")?;
+        }
+        write!(f, ")")?;
+      }
+      Self::Script(Some(shell)) => write!(f, "({shell})")?,
     }
 
     Ok(())

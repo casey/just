@@ -16,21 +16,19 @@ impl<'src> UnresolvedRecipe<'src> {
     );
 
     for (unresolved, resolved) in self.dependencies.iter().zip(&resolved) {
-      assert_eq!(unresolved.recipe.lexeme(), resolved.name.lexeme());
+      assert_eq!(unresolved.recipe.last().lexeme(), resolved.name.lexeme());
       if !resolved
         .argument_range()
         .contains(&unresolved.arguments.len())
       {
-        return Err(
-          unresolved
-            .recipe
-            .error(CompileErrorKind::DependencyArgumentCountMismatch {
-              dependency: unresolved.recipe.lexeme(),
-              found: unresolved.arguments.len(),
-              min: resolved.min_arguments(),
-              max: resolved.max_arguments(),
-            }),
-        );
+        return Err(unresolved.recipe.last().error(
+          CompileErrorKind::DependencyArgumentCountMismatch {
+            dependency: unresolved.recipe.clone(),
+            found: unresolved.arguments.len(),
+            min: resolved.min_arguments(),
+            max: resolved.max_arguments(),
+          },
+        ));
       }
     }
 

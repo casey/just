@@ -1,6 +1,4 @@
-use super::*;
-
-const EXPECTED: &str = "default:\n    echo 'Hello, world!'\n";
+use {super::*, just::INIT_JUSTFILE};
 
 #[test]
 fn current_dir() {
@@ -16,7 +14,7 @@ fn current_dir() {
 
   assert_eq!(
     fs::read_to_string(tmp.path().join("justfile")).unwrap(),
-    EXPECTED
+    INIT_JUSTFILE
   );
 }
 
@@ -72,7 +70,7 @@ fn invocation_directory() {
     .arg("--init")
     .run();
 
-  assert_eq!(fs::read_to_string(justfile_path).unwrap(), EXPECTED);
+  assert_eq!(fs::read_to_string(justfile_path).unwrap(), INIT_JUSTFILE);
 }
 
 #[test]
@@ -92,7 +90,7 @@ fn parent_dir() {
 
   assert_eq!(
     fs::read_to_string(tmp.path().join("justfile")).unwrap(),
-    EXPECTED
+    INIT_JUSTFILE
   );
 }
 
@@ -112,7 +110,7 @@ fn alternate_marker() {
 
   assert_eq!(
     fs::read_to_string(tmp.path().join("justfile")).unwrap(),
-    EXPECTED
+    INIT_JUSTFILE
   );
 }
 
@@ -135,7 +133,7 @@ fn search_directory() {
 
   assert_eq!(
     fs::read_to_string(tmp.path().join("sub/justfile")).unwrap(),
-    EXPECTED
+    INIT_JUSTFILE
   );
 }
 
@@ -159,7 +157,7 @@ fn justfile() {
 
   assert_eq!(
     fs::read_to_string(tmp.path().join("justfile")).unwrap(),
-    EXPECTED
+    INIT_JUSTFILE
   );
 }
 
@@ -185,7 +183,7 @@ fn justfile_and_working_directory() {
 
   assert_eq!(
     fs::read_to_string(tmp.path().join("justfile")).unwrap(),
-    EXPECTED
+    INIT_JUSTFILE
   );
 }
 

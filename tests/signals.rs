@@ -86,9 +86,9 @@ fn interrupt_command() {
   interrupt_test(&["--command", "sleep", "1"], "");
 }
 
-/// This test is sensitive to the process signal mask. Programs like
-/// `watchexec` and `cargo-watch` change the signal mask to ignore `SIGHUP`,
-/// which causes this test to fail.
+// This test is ignored because it is sensitive to the process signal mask.
+// Programs like `watchexec` and `cargo-watch` change the signal mask to ignore
+// `SIGHUP`, which causes this test to fail.
 #[test]
 #[ignore]
 fn forwarding() {
@@ -155,8 +155,6 @@ fn forwarding() {
   }
 }
 
-/// This test is ignored because it includes a 500ms wait, and because signal
-/// tests are often flakey.
 #[test]
 #[ignore]
 #[cfg(any(

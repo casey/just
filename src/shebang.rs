@@ -34,7 +34,7 @@ impl<'line> Shebang<'line> {
     self
       .interpreter
       .split(['/', '\\'])
-      .last()
+      .next_back()
       .unwrap_or(self.interpreter)
   }
 

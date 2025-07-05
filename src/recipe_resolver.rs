@@ -2,6 +2,7 @@ use {super::*, CompileErrorKind::*};
 
 pub(crate) struct RecipeResolver<'src: 'run, 'run> {
   assignments: &'run Table<'src, Assignment<'src>>,
+  modules: &'run Table<'src, Justfile<'src>>,
   resolved_recipes: Table<'src, Rc<Recipe<'src>>>,
   unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
 }
@@ -9,6 +10,7 @@ pub(crate) struct RecipeResolver<'src: 'run, 'run> {
 impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
   pub(crate) fn resolve_recipes(
     assignments: &'run Table<'src, Assignment<'src>>,
+    modules: &'run Table<'src, Justfile<'src>>,
     settings: &Settings,
     unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
   ) -> CompileResult<'src, Table<'src, Rc<Recipe<'src>>>> {
@@ -16,6 +18,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       resolved_recipes: Table::new(),
       unresolved_recipes,
       assignments,
+      modules,
     };
 
     while let Some(unresolved) = resolver.unresolved_recipes.pop() {
@@ -86,43 +89,67 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
 
     stack.push(recipe.name());
 
-    let mut dependencies: Vec<Rc<Recipe>> = Vec::new();
-    for dependency in &recipe.dependencies {
-      let name = dependency.recipe.lexeme();
-
-      if let Some(resolved) = self.resolved_recipes.get(name) {
-        // dependency already resolved
-        dependencies.push(Rc::clone(resolved));
-      } else if stack.contains(&name) {
-        let first = stack[0];
-        stack.push(first);
-        return Err(
-          dependency.recipe.error(CircularRecipeDependency {
-            recipe: recipe.name(),
-            circle: stack
-              .iter()
-              .skip_while(|name| **name != dependency.recipe.lexeme())
-              .copied()
-              .collect(),
-          }),
-        );
-      } else if let Some(unresolved) = self.unresolved_recipes.remove(name) {
-        // resolve unresolved dependency
-        dependencies.push(self.resolve_recipe(stack, unresolved)?);
-      } else {
-        // dependency is unknown
-        return Err(dependency.recipe.error(UnknownDependency {
-          recipe: recipe.name(),
-          unknown: name,
-        }));
-      }
-    }
+    let dependencies = recipe
+      .dependencies
+      .iter()
+      .map(|dependency| {
+        self
+          .resolve_dependency(dependency, &recipe, stack)?
+          .ok_or_else(|| {
+            dependency.recipe.last().error(UnknownDependency {
+              recipe: recipe.name(),
+              unknown: dependency.recipe.clone(),
+            })
+          })
+      })
+      .collect::<CompileResult<Vec<Rc<Recipe>>>>()?;
 
     stack.pop();
 
     let resolved = Rc::new(recipe.resolve(dependencies)?);
     self.resolved_recipes.insert(Rc::clone(&resolved));
     Ok(resolved)
+  }
+
+  fn resolve_dependency(
+    &mut self,
+    dependency: &UnresolvedDependency<'src>,
+    recipe: &UnresolvedRecipe<'src>,
+    stack: &mut Vec<&'src str>,
+  ) -> CompileResult<'src, Option<Rc<Recipe<'src>>>> {
+    let name = dependency.recipe.last().lexeme();
+
+    if dependency.recipe.components() > 1 {
+      // recipe is in a submodule and is thus already resovled
+      Ok(Analyzer::resolve_recipe(
+        &dependency.recipe,
+        self.modules,
+        &self.resolved_recipes,
+      ))
+    } else if let Some(resolved) = self.resolved_recipes.get(name) {
+      // recipe is the current module and has already been resolved
+      Ok(Some(Rc::clone(resolved)))
+    } else if stack.contains(&name) {
+      // recipe depends on itself
+      let first = stack[0];
+      stack.push(first);
+      return Err(
+        dependency.recipe.last().error(CircularRecipeDependency {
+          recipe: recipe.name(),
+          circle: stack
+            .iter()
+            .skip_while(|name| **name != dependency.recipe.last().lexeme())
+            .copied()
+            .collect(),
+        }),
+      );
+    } else if let Some(unresolved) = self.unresolved_recipes.remove(name) {
+      // recipe is as of yet unresolved
+      Ok(Some(self.resolve_recipe(stack, unresolved)?))
+    } else {
+      // recipe is unknown
+      Ok(None)
+    }
   }
 }
 
@@ -157,7 +184,18 @@ mod tests {
     line:   0,
     column: 3,
     width:  1,
-    kind:   UnknownDependency{recipe: "a", unknown: "b"},
+    kind:   UnknownDependency{
+      recipe: "a",
+      unknown: Namepath::from(Name::from_identifier(
+        Token{
+          column: 3,
+          kind: TokenKind::Identifier,
+          length: 1,
+          line: 0,
+          offset: 3,
+          path: Path::new("justfile"),
+          src: "a: b" }))
+    },
   }
 
   analysis_error! {
