@@ -392,6 +392,10 @@ to determine the latest version of `just` to install, and those API calls are
 rate-limited on a per-IP basis. To make `install.sh` more reliable in such
 circumstances, pass a specific tag to install with `--tag`.
 
+Another way to avoid rate-limiting is to pass a GitHub authentication token to
+`install.sh` as an environment variable named `GITHUB_TOKEN`, allowing it to
+authenticate its requests.
+
 [Releases](https://github.com/casey/just/releases) include a `SHA256SUM` file
 which can be used to verify the integrity of pre-built binary archives.
 
