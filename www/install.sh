@@ -1,10 +1,6 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 set -eu
-
-if [ -n "${GITHUB_ACTIONS-}" ]; then
-  set -x
-fi
 
 # Check pipefail support in a subshell, ignore if unsupported
 # shellcheck disable=SC3040
@@ -55,10 +51,15 @@ download() {
   url="$1"
   output="$2"
 
+  args=()
+  if [ -n "${GITHUB_TOKEN+x}" ]; then
+    args+=(--header "Authorization: Bearer $GITHUB_TOKEN")
+  fi
+
   if command -v curl > /dev/null; then
-    curl --proto =https --tlsv1.2 -sSfL "$url" "-o$output"
+    curl --proto =https --tlsv1.2 -sSfL ${args[@]+"${args[@]}"} "$url" -o"$output"
   else
-    wget --https-only --secure-protocol=TLSv1_2 --quiet "$url" "-O$output"
+    wget --https-only --secure-protocol=TLSv1_2 --quiet ${args[@]+"${args[@]}"} "$url" -O"$output"
   fi
 }
 
