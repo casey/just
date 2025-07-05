@@ -11,7 +11,7 @@ impl Executor<'_> {
     path: &Path,
     recipe: &'src str,
     working_directory: Option<&Path>,
-    cygpath: Option<&OsString>,
+    cygpath: Option<&PathBuf>,
   ) -> RunResult<'src, Command> {
     match self {
       Self::Command(interpreter) => {

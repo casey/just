@@ -5,7 +5,7 @@ impl PlatformInterface for Platform {
     path: &Path,
     working_directory: Option<&Path>,
     shebang: Shebang,
-    cygpath: Option<&OsString>,
+    cygpath: Option<&PathBuf>,
   ) -> Result<Command, OutputError> {
     use std::borrow::Cow;
 
@@ -57,7 +57,7 @@ impl PlatformInterface for Platform {
     None
   }
 
-  fn convert_native_path(working_directory: &Path, path: &Path, cygpath: Option<&OsString>) -> FunctionResult {
+  fn convert_native_path(working_directory: &Path, path: &Path, cygpath: Option<&PathBuf>) -> FunctionResult {
     // Translate path from windows style to unix style
     let mut cygpath = Command::new(cygpath.unwrap_or(&"cygpath".into()));
 
