@@ -53,7 +53,7 @@ download() {
 
   args=()
   if [ -n "${GITHUB_TOKEN+x}" ]; then
-    args+=("--header" "Authorization: Bearer $GITHUB_TOKEN")
+    args+=(--header "Authorization: Bearer $GITHUB_TOKEN")
   fi
 
   if command -v curl > /dev/null; then
