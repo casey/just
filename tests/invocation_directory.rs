@@ -12,7 +12,7 @@ fn convert_native_path(path: &Path) -> String {
 #[cfg(windows)]
 fn convert_native_path(path: &Path) -> String {
   // Translate path from windows style to unix style
-  let mut cygpath = Command::new("cygpath");
+  let mut cygpath = Command::new(env::var_os("JUST_CYGPATH").unwrap_or("cygpath".into()));
   cygpath.arg("--unix");
   cygpath.arg(path);
 
