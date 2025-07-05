@@ -57,9 +57,9 @@ download() {
   fi
 
   if command -v curl > /dev/null; then
-    curl --proto =https --tlsv1.2 -sSfL "${args[@]}" "$url" -o"$output"
+    curl --proto =https --tlsv1.2 -sSfL ${args[@]+"${args[@]}"} "$url" -o"$output"
   else
-    wget --https-only --secure-protocol=TLSv1_2 --quiet "${args[@]}" "$url" -O"$output"
+    wget --https-only --secure-protocol=TLSv1_2 --quiet ${args[@]+"${args[@]}"} "$url" -O"$output"
   fi
 }
 
