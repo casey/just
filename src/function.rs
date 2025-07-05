@@ -335,6 +335,7 @@ fn invocation_directory(context: Context) -> FunctionResult {
   Platform::convert_native_path(
     &context.evaluator.context.search.working_directory,
     &context.evaluator.context.config.invocation_directory,
+    context.evaluator.context.config.cygpath.as_ref()
   )
   .map_err(|e| format!("Error getting shell path: {e}"))
 }

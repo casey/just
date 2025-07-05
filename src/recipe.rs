@@ -419,6 +419,7 @@ impl<'src, D> Recipe<'src, D> {
       &path,
       self.name(),
       self.working_directory(context).as_deref(),
+      config.cygpath.as_ref(),
     )?;
 
     if self.takes_positional_arguments(&context.module.settings) {
