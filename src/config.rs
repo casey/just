@@ -17,7 +17,7 @@ pub(crate) struct Config {
   pub(crate) check: bool,
   pub(crate) color: Color,
   pub(crate) command_color: Option<ansi_term::Color>,
-  pub(crate) cygpath: Option<PathBuf>,
+  pub(crate) cygpath: PathBuf,
   pub(crate) dotenv_filename: Option<String>,
   pub(crate) dotenv_path: Option<PathBuf>,
   pub(crate) dry_run: bool,
@@ -208,8 +208,8 @@ impl Config {
           .env("JUST_CYGPATH")
           .action(ArgAction::Set)
           .value_parser(value_parser!(PathBuf))
-          .hide(!cfg!(windows))
-          .help("Convert unix paths to Windows paths using <CYGPATH>")
+          .default_value("cygpath")
+          .help("Use binary at <CYGPATH> convert between unix and Windows paths."),
       )
       .arg(
         Arg::new(arg::DOTENV_FILENAME)
@@ -783,7 +783,7 @@ impl Config {
         .get_one::<CommandColor>(arg::COMMAND_COLOR)
         .copied()
         .map(CommandColor::into),
-      cygpath: matches.get_one::<PathBuf>(arg::CYGPATH).map(Into::into),
+      cygpath: matches.get_one::<PathBuf>(arg::CYGPATH).unwrap().clone(),
       dotenv_filename: matches
         .get_one::<String>(arg::DOTENV_FILENAME)
         .map(Into::into),

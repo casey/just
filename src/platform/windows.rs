@@ -5,14 +5,14 @@ impl PlatformInterface for Platform {
     path: &Path,
     working_directory: Option<&Path>,
     shebang: Shebang,
-    cygpath: Option<&PathBuf>,
+    config: &Config,
   ) -> Result<Command, OutputError> {
     use std::borrow::Cow;
 
     // If the path contains forward slashes…
     let command = if shebang.interpreter.contains('/') {
       // …translate path to the interpreter from unix style to windows style.
-      let mut cygpath = Command::new(cygpath.unwrap_or(&"cygpath".into()));
+      let mut cygpath = Command::new(&config.cygpath);
 
       if let Some(working_directory) = working_directory {
         cygpath.current_dir(working_directory);
@@ -57,9 +57,9 @@ impl PlatformInterface for Platform {
     None
   }
 
-  fn convert_native_path(working_directory: &Path, path: &Path, cygpath: Option<&PathBuf>) -> FunctionResult {
+  fn convert_native_path(working_directory: &Path, path: &Path, config: &Config) -> FunctionResult {
     // Translate path from windows style to unix style
-    let mut cygpath = Command::new(cygpath.unwrap_or(&"cygpath".into()));
+    let mut cygpath = Command::new(&config.cygpath);
 
     cygpath
       .current_dir(working_directory)

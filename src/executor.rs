@@ -11,7 +11,7 @@ impl Executor<'_> {
     path: &Path,
     recipe: &'src str,
     working_directory: Option<&Path>,
-    cygpath: Option<&PathBuf>,
+    config: &Config,
   ) -> RunResult<'src, Command> {
     match self {
       Self::Command(interpreter) => {
@@ -37,12 +37,12 @@ impl Executor<'_> {
         })?;
 
         // create command to run script
-        Platform::make_shebang_command(path, working_directory, *shebang, cygpath).map_err(|output_error| {
-          Error::Cygpath {
+        Platform::make_shebang_command(path, working_directory, *shebang, config).map_err(
+          |output_error| Error::Cygpath {
             recipe,
             output_error,
-          }
-        })
+          },
+        )
       }
     }
   }

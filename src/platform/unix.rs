@@ -5,7 +5,7 @@ impl PlatformInterface for Platform {
     path: &Path,
     working_directory: Option<&Path>,
     _shebang: Shebang,
-    _cygpath: Option<&PathBuf>,
+    _config: &Config,
   ) -> Result<Command, OutputError> {
     // shebang scripts can be executed directly on unix
     let mut command = Command::new(path);
@@ -36,7 +36,11 @@ impl PlatformInterface for Platform {
     exit_status.signal()
   }
 
-  fn convert_native_path(_working_directory: &Path, path: &Path, _cygpath: Option<&PathBuf>) -> FunctionResult {
+  fn convert_native_path(
+    _working_directory: &Path,
+    path: &Path,
+    _config: &Config,
+  ) -> FunctionResult {
     path
       .to_str()
       .map(str::to_string)
