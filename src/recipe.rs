@@ -416,7 +416,7 @@ impl<'src, D> Recipe<'src, D> {
     })?;
 
     let mut command = executor.command(
-      &config,
+      config,
       &path,
       self.name(),
       self.working_directory(context).as_deref(),
