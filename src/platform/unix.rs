@@ -37,9 +37,9 @@ impl PlatformInterface for Platform {
   }
 
   fn convert_native_path(
+    _config: &Config,
     _working_directory: &Path,
     path: &Path,
-    _config: &Config,
   ) -> FunctionResult {
     path
       .to_str()

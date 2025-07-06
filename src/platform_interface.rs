@@ -2,7 +2,7 @@ use super::*;
 
 pub(crate) trait PlatformInterface {
   /// translate path from "native" path to path interpreter expects
-  fn convert_native_path(working_directory: &Path, path: &Path, config: &Config) -> FunctionResult;
+  fn convert_native_path(config: &Config, working_directory: &Path, path: &Path) -> FunctionResult;
 
   /// install handler, may only be called once
   fn install_signal_handler<T: Fn(Signal) + Send + 'static>(handler: T) -> RunResult<'static>;
