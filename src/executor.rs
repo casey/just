@@ -8,6 +8,7 @@ pub(crate) enum Executor<'a> {
 impl Executor<'_> {
   pub(crate) fn command<'src>(
     &self,
+    config: &Config,
     path: &Path,
     recipe: &'src str,
     working_directory: Option<&Path>,
@@ -36,12 +37,12 @@ impl Executor<'_> {
         })?;
 
         // create command to run script
-        Platform::make_shebang_command(path, working_directory, *shebang).map_err(|output_error| {
-          Error::Cygpath {
+        Platform::make_shebang_command(config, path, *shebang, working_directory).map_err(
+          |output_error| Error::Cygpath {
             recipe,
             output_error,
-          }
-        })
+          },
+        )
       }
     }
   }

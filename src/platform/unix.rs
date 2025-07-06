@@ -2,9 +2,10 @@ use super::*;
 
 impl PlatformInterface for Platform {
   fn make_shebang_command(
+    _config: &Config,
     path: &Path,
-    working_directory: Option<&Path>,
     _shebang: Shebang,
+    working_directory: Option<&Path>,
   ) -> Result<Command, OutputError> {
     // shebang scripts can be executed directly on unix
     let mut command = Command::new(path);
@@ -35,7 +36,11 @@ impl PlatformInterface for Platform {
     exit_status.signal()
   }
 
-  fn convert_native_path(_working_directory: &Path, path: &Path) -> FunctionResult {
+  fn convert_native_path(
+    _config: &Config,
+    _working_directory: &Path,
+    path: &Path,
+  ) -> FunctionResult {
     path
       .to_str()
       .map(str::to_string)
