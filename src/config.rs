@@ -209,7 +209,7 @@ impl Config {
           .action(ArgAction::Set)
           .value_parser(value_parser!(PathBuf))
           .default_value("cygpath")
-          .help("Use binary at <CYGPATH> convert between unix and Windows paths."),
+          .help("Use binary at <CYGPATH> to convert between unix and Windows paths."),
       )
       .arg(
         Arg::new(arg::DOTENV_FILENAME)
