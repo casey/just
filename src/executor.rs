@@ -8,10 +8,10 @@ pub(crate) enum Executor<'a> {
 impl Executor<'_> {
   pub(crate) fn command<'src>(
     &self,
+    config: &Config,
     path: &Path,
     recipe: &'src str,
     working_directory: Option<&Path>,
-    config: &Config,
   ) -> RunResult<'src, Command> {
     match self {
       Self::Command(interpreter) => {

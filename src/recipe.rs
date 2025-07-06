@@ -416,10 +416,10 @@ impl<'src, D> Recipe<'src, D> {
     })?;
 
     let mut command = executor.command(
+      &config,
       &path,
       self.name(),
       self.working_directory(context).as_deref(),
-      &config,
     )?;
 
     if self.takes_positional_arguments(&context.module.settings) {
