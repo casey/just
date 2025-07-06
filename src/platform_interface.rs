@@ -10,10 +10,10 @@ pub(crate) trait PlatformInterface {
   /// construct command equivalent to running script at `path` with shebang
   /// line `shebang`
   fn make_shebang_command(
-    path: &Path,
-    working_directory: Option<&Path>,
-    shebang: Shebang,
     config: &Config,
+    path: &Path,
+    shebang: Shebang,
+    working_directory: Option<&Path>,
   ) -> Result<Command, OutputError>;
 
   /// set the execute permission on file pointed to by `path`

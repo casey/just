@@ -37,7 +37,7 @@ impl Executor<'_> {
         })?;
 
         // create command to run script
-        Platform::make_shebang_command(path, working_directory, *shebang, config).map_err(
+        Platform::make_shebang_command(config, path, *shebang, working_directory).map_err(
           |output_error| Error::Cygpath {
             recipe,
             output_error,
