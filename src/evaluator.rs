@@ -323,12 +323,41 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   pub(crate) fn evaluate_parameters(
     context: &ExecutionContext<'src, 'run>,
     is_dependency: bool,
+    flag_arguments: &BTreeMap<String, Option<String>>,
+    flags: &BTreeMap<String, Parameter<'src>>,
     arguments: &[String],
     parameters: &[Parameter<'src>],
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>)> {
     let mut evaluator = Self::new(context, is_dependency, context.scope);
 
     let mut positional = Vec::new();
+
+    for (name, parameter) in flags {
+      let value = if let Some(default) = &parameter.default {
+        // option
+        if let Some(value) = flag_arguments.get(name).cloned().flatten() {
+          value
+        } else {
+          evaluator.evaluate_expression(default)?
+        }
+      } else {
+        // flag
+        if flag_arguments.contains_key(name) {
+          name.clone()
+        } else {
+          String::new()
+        }
+      };
+
+      evaluator.scope.bind(Binding {
+        constant: false,
+        export: parameter.export,
+        file_depth: 0,
+        name: parameter.name,
+        private: false,
+        value,
+      });
+    }
 
     let mut rest = arguments;
     for parameter in parameters {
