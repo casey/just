@@ -63,6 +63,7 @@ struct Recipe<'a> {
   body: Vec<Value>,
   dependencies: Vec<Dependency<'a>>,
   doc: Option<&'a str>,
+  flags: BTreeMap<String, Parameter<'a>>,
   name: &'a str,
   namepath: &'a str,
   parameters: Vec<Parameter<'a>>,

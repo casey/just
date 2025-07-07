@@ -25,6 +25,7 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) doc: Option<String>,
   #[serde(skip)]
   pub(crate) file_depth: u32,
+  pub(crate) flags: BTreeMap<String, Parameter<'src>>,
   #[serde(skip)]
   pub(crate) import_offsets: Vec<usize>,
   pub(crate) name: Name<'src>,

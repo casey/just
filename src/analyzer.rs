@@ -232,7 +232,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut parameters = BTreeSet::new();
     let mut passed_default = false;
 
-    for parameter in &recipe.parameters {
+    for parameter in recipe.parameters.iter().chain(recipe.flags.values()) {
       if parameters.contains(parameter.name.lexeme()) {
         return Err(parameter.name.token.error(DuplicateParameter {
           recipe: recipe.name.lexeme(),

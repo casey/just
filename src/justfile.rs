@@ -180,7 +180,7 @@ impl<'src> Justfile<'src> {
     for group in &groups {
       invocations.push(self.invocation(
         &arena,
-        &group.arguments,
+        &group.positional_arguments,
         config,
         &dotenv,
         &scope,

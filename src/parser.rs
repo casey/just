@@ -904,15 +904,16 @@ impl<'run, 'src> Parser<'run, 'src> {
   ) -> CompileResult<'src, UnresolvedRecipe<'src>> {
     let name = self.parse_name()?;
 
+    let mut flags = BTreeMap::new();
+    while self.next_is(Flag) {
+      let parameter = self.parse_parameter(ParameterKind::Flag)?;
+      flags.insert(parameter.name.to_string(), parameter);
+    }
+
     let mut positional = Vec::new();
 
-    while self.next_is(Identifier) || self.next_is(Dollar) || self.next_is(Flag) {
-      let kind = if self.next_is(Flag) {
-        ParameterKind::Flag
-      } else {
-        ParameterKind::Singular
-      };
-      positional.push(self.parse_parameter(kind)?);
+    while self.next_is(Identifier) || self.next_is(Dollar) {
+      positional.push(self.parse_parameter(ParameterKind::Singular)?);
     }
 
     let kind = if self.accepted(Plus)? {
@@ -1018,6 +1019,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         .module_namepath
         .map_or_else(|| name.into(), |module_namepath| module_namepath.join(name)),
       parameters: positional.into_iter().chain(variadic).collect(),
+      flags,
       priors,
       private,
       quiet,
@@ -1565,7 +1567,7 @@ mod tests {
   test! {
     name: recipe_parameter_flags,
     text: r#"foo --bar --baz="default":"#,
-    tree: (justfile (recipe foo (params (~bar) (~baz "default")))),
+    tree: (justfile (recipe foo (flags (~bar) (~baz "default")))),
   }
 
   test! {
@@ -2518,7 +2520,7 @@ mod tests {
     column: 5,
     width:  1,
     kind:   UnexpectedToken{
-      expected: vec![Asterisk, Colon, Dollar, Equals, Flag, Identifier, Plus],
+      expected: vec![Asterisk, Colon, Dollar, Equals, Identifier, Plus],
       found:    Eol
     },
   }
@@ -2653,7 +2655,7 @@ mod tests {
     column: 8,
     width:  0,
     kind:   UnexpectedToken {
-      expected: vec![Asterisk, Colon, Dollar, Equals, Flag, Identifier, Plus],
+      expected: vec![Asterisk, Colon, Dollar, Equals, Identifier, Plus],
       found:    Eof
     },
   }

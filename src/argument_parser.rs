@@ -25,7 +25,8 @@ pub(crate) struct ArgumentParser<'src: 'run, 'run> {
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct ArgumentGroup<'run> {
-  pub(crate) arguments: Vec<&'run str>,
+  pub(crate) positional_arguments: Vec<&'run str>,
+  pub(crate) flag_arguments: BTreeMap<String, Option<&'run str>>,
   pub(crate) path: Vec<String>,
 }
 
@@ -75,25 +76,80 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
       (recipe, path)
     };
 
-    let rest = self.rest();
+    let (consumed, positional_arguments, flag_arguments) =
+      Self::parse_recipe_arguments(recipe, self.rest())?;
+    self.next += consumed;
 
-    let argument_range = recipe.argument_range();
-    let argument_count = cmp::min(rest.len(), recipe.max_arguments());
-    if !argument_range.range_contains(&argument_count) {
+    Ok(ArgumentGroup {
+      positional_arguments,
+      flag_arguments,
+      path,
+    })
+  }
+
+  fn parse_recipe_arguments(
+    recipe: &'run Recipe<'src>,
+    args: &[&'run str],
+  ) -> RunResult<'src, (usize, Vec<&'run str>, BTreeMap<String, Option<&'run str>>)> {
+    let mut verbatim = false;
+
+    let min_positional = recipe.min_arguments();
+    let max_positional = recipe.max_arguments();
+
+    let mut consumed = 0;
+    let mut positional_arguments = Vec::new();
+    let mut flag_arguments = BTreeMap::new();
+    loop {
+      if consumed >= args.len() {
+        break;
+      }
+
+      let current = args[consumed];
+
+      // allow trailing flags
+      if (!current.starts_with("--") || verbatim) && positional_arguments.len() >= max_positional {
+        break;
+      }
+
+      if verbatim {
+        positional_arguments.push(current);
+        consumed += 1;
+      } else if current == "--" {
+        verbatim = true;
+        consumed += 1;
+      } else if let Some(flag) = current.strip_prefix("--") {
+        let Some(parameter) = recipe.flags.get(flag) else {
+          return Err(Error::internal("TODO: fix error message, unknown flag"));
+        };
+        if parameter.default.is_some() {
+          if consumed + 1 >= args.len() {
+            return Err(Error::internal(
+              "TODO: fix error message, missing option argument",
+            ));
+          }
+          flag_arguments.insert(parameter.name.to_string(), Some(args[consumed + 1]));
+          consumed += 2;
+        } else {
+          flag_arguments.insert(parameter.name.to_string(), None);
+          consumed += 1;
+        }
+      } else {
+        positional_arguments.push(current);
+        consumed += 1;
+      }
+    }
+
+    if positional_arguments.len() < min_positional {
       return Err(Error::ArgumentCountMismatch {
         recipe: recipe.name(),
         parameters: recipe.parameters.clone(),
-        found: rest.len(),
+        found: positional_arguments.len(),
         min: recipe.min_arguments(),
         max: recipe.max_arguments(),
       });
     }
 
-    let arguments = rest[..argument_count].to_vec();
-
-    self.next += argument_count;
-
-    Ok(ArgumentGroup { arguments, path })
+    Ok((consumed, positional_arguments, flag_arguments))
   }
 
   fn resolve_recipe(
@@ -184,7 +240,8 @@ mod tests {
       ArgumentParser::parse_arguments(&justfile, &["foo"]).unwrap(),
       vec![ArgumentGroup {
         path: vec!["foo".into()],
-        arguments: Vec::new()
+        positional_arguments: Vec::new(),
+        flag_arguments: BTreeMap::new(),
       }],
     );
   }
@@ -197,7 +254,8 @@ mod tests {
       ArgumentParser::parse_arguments(&justfile, &["foo", "baz"]).unwrap(),
       vec![ArgumentGroup {
         path: vec!["foo".into()],
-        arguments: vec!["baz"],
+        positional_arguments: vec!["baz"],
+        flag_arguments: BTreeMap::new(),
       }],
     );
   }
@@ -258,7 +316,8 @@ mod tests {
       ArgumentParser::parse_arguments(&compilation.justfile, &["foo", "bar"]).unwrap(),
       vec![ArgumentGroup {
         path: vec!["foo".into(), "bar".into()],
-        arguments: Vec::new()
+        positional_arguments: Vec::new(),
+        flag_arguments: BTreeMap::new(),
       }],
     );
   }
@@ -387,15 +446,18 @@ BAZ +Z:
       vec![
         ArgumentGroup {
           path: vec!["BAR".into()],
-          arguments: vec!["0"],
+          positional_arguments: vec!["0"],
+          flag_arguments: BTreeMap::new(),
         },
         ArgumentGroup {
           path: vec!["FOO".into()],
-          arguments: vec!["1", "2"],
+          positional_arguments: vec!["1", "2"],
+          flag_arguments: BTreeMap::new(),
         },
         ArgumentGroup {
           path: vec!["BAZ".into()],
-          arguments: vec!["3", "4", "5"],
+          positional_arguments: vec!["3", "4", "5"],
+          flag_arguments: BTreeMap::new(),
         },
       ],
     );
