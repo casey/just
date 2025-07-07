@@ -4,7 +4,7 @@ use super::*;
 pub(crate) struct Dependency<'src> {
   pub(crate) arguments: Vec<Expression<'src>>,
   #[serde(serialize_with = "keyed::serialize")]
-  pub(crate) recipe: Rc<Recipe<'src>>,
+  pub(crate) recipe: Arc<Recipe<'src>>,
 }
 
 impl Display for Dependency<'_> {

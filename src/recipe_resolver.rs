@@ -3,7 +3,7 @@ use {super::*, CompileErrorKind::*};
 pub(crate) struct RecipeResolver<'src: 'run, 'run> {
   assignments: &'run Table<'src, Assignment<'src>>,
   modules: &'run Table<'src, Justfile<'src>>,
-  resolved_recipes: Table<'src, Rc<Recipe<'src>>>,
+  resolved_recipes: Table<'src, Arc<Recipe<'src>>>,
   unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
 }
 
@@ -13,7 +13,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     modules: &'run Table<'src, Justfile<'src>>,
     settings: &Settings,
     unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
-  ) -> CompileResult<'src, Table<'src, Rc<Recipe<'src>>>> {
+  ) -> CompileResult<'src, Table<'src, Arc<Recipe<'src>>>> {
     let mut resolver = Self {
       resolved_recipes: Table::new(),
       unresolved_recipes,
@@ -82,9 +82,9 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     &mut self,
     stack: &mut Vec<&'src str>,
     recipe: UnresolvedRecipe<'src>,
-  ) -> CompileResult<'src, Rc<Recipe<'src>>> {
+  ) -> CompileResult<'src, Arc<Recipe<'src>>> {
     if let Some(resolved) = self.resolved_recipes.get(recipe.name()) {
-      return Ok(Rc::clone(resolved));
+      return Ok(Arc::clone(resolved));
     }
 
     stack.push(recipe.name());
@@ -102,12 +102,12 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
             })
           })
       })
-      .collect::<CompileResult<Vec<Rc<Recipe>>>>()?;
+      .collect::<CompileResult<Vec<Arc<Recipe>>>>()?;
 
     stack.pop();
 
-    let resolved = Rc::new(recipe.resolve(dependencies)?);
-    self.resolved_recipes.insert(Rc::clone(&resolved));
+    let resolved = Arc::new(recipe.resolve(dependencies)?);
+    self.resolved_recipes.insert(Arc::clone(&resolved));
     Ok(resolved)
   }
 
@@ -116,7 +116,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     dependency: &UnresolvedDependency<'src>,
     recipe: &UnresolvedRecipe<'src>,
     stack: &mut Vec<&'src str>,
-  ) -> CompileResult<'src, Option<Rc<Recipe<'src>>>> {
+  ) -> CompileResult<'src, Option<Arc<Recipe<'src>>>> {
     let name = dependency.recipe.last().lexeme();
 
     if dependency.recipe.components() > 1 {
@@ -128,7 +128,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       ))
     } else if let Some(resolved) = self.resolved_recipes.get(name) {
       // recipe is the current module and has already been resolved
-      Ok(Some(Rc::clone(resolved)))
+      Ok(Some(Arc::clone(resolved)))
     } else if stack.contains(&name) {
       // recipe depends on itself
       let first = stack[0];
