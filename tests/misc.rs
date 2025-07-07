@@ -1652,7 +1652,7 @@ fn unexpected_token_after_name() {
     .arg("foo")
     .justfile("foo 'bar'")
     .stderr(
-      "error: Expected '*', ':', '$', identifier, or '+', but found string
+      "error: Expected '*', ':', '$', flag, identifier, or '+', but found string
  ——▶ justfile:1:5
   │
 1 │ foo 'bar'
@@ -2442,7 +2442,7 @@ fn old_equals_assignment_syntax_produces_error() {
     )
     .stderr(
       "
-    error: Expected '*', ':', '$', identifier, or '+', but found '='
+    error: Expected '*', ':', '$', flag, identifier, or '+', but found '='
      ——▶ justfile:1:5
       │
     1 │ foo = 'bar'

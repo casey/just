@@ -502,6 +502,7 @@ impl<'src> Lexer<'src> {
       '{' => self.lex_delimiter(BraceL),
       '|' => self.lex_digraph('|', '|', BarBar),
       '}' => self.lex_delimiter(BraceR),
+      '-' => self.lex_flag(),
       _ if Self::is_identifier_start(start) => self.lex_identifier(),
       _ => {
         self.advance()?;
@@ -808,6 +809,23 @@ impl<'src> Lexer<'src> {
     Ok(())
   }
 
+  // Lex a flag: --
+  fn lex_flag(&mut self) -> CompileResult<'src> {
+    self.advance()?;
+
+    if self.next == Some('-') {
+      self.advance()?;
+    } else {
+      return Err(self.error(UnexpectedCharacter {
+        expected: vec!['-'],
+      }));
+    }
+
+    self.token(Flag);
+
+    Ok(())
+  }
+
   /// Lex comment: #[^\r\n]
   fn lex_comment(&mut self) -> CompileResult<'src> {
     self.presume('#')?;
@@ -992,6 +1010,7 @@ mod tests {
       Equals => "=",
       EqualsEquals => "==",
       EqualsTilde => "=~",
+      Flag => "--",
       Indent => "  ",
       InterpolationEnd => "}}",
       InterpolationStart => "{{",
@@ -2074,6 +2093,30 @@ mod tests {
   }
 
   test! {
+    name: recipies_with_flags,
+    text: "a --flag:\n  foo\nb --option='bar':",
+    tokens: (
+      Identifier:"a",
+      Whitespace,
+      Flag,
+      Identifier:"flag",
+      Colon,
+      Eol,
+      Indent:"  ",
+      Text:"foo",
+      Eol,
+      Dedent,
+      Identifier:"b",
+      Whitespace,
+      Flag,
+      Identifier:"option",
+      Equals,
+      StringToken:"'bar'",
+      Colon,
+    ),
+  }
+
+  test! {
     name:   brackets,
     text:   "[][]",
     tokens: (BracketL, BracketR, BracketL, BracketR),
@@ -2176,16 +2219,6 @@ mod tests {
     column: 3,
     width:  1,
     kind:   UnpairedCarriageReturn,
-  }
-
-  error! {
-    name:   invalid_name_start_dash,
-    input:  "-foo",
-    offset: 0,
-    line:   0,
-    column: 0,
-    width:  1,
-    kind:   UnknownStartOfToken{ start: '-'},
   }
 
   error! {

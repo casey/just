@@ -10,6 +10,8 @@ pub(crate) enum ParameterKind {
   Singular,
   /// …variadic, accepting zero or more arguments
   Star,
+  /// flag, optional argument
+  Flag,
 }
 
 impl ParameterKind {
@@ -18,10 +20,11 @@ impl ParameterKind {
       Self::Singular => None,
       Self::Plus => Some("+"),
       Self::Star => Some("*"),
+      Self::Flag => Some("--"),
     }
   }
 
   pub(crate) fn is_variadic(self) -> bool {
-    self != Self::Singular
+    !matches!(self, Self::Singular | Self::Flag)
   }
 }

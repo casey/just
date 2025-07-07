@@ -212,3 +212,6 @@ c:
 
 d:
   echo 'D!'
+
+flags --flag:
+  echo {{ if flag != "" { 'flagged'} else { 'not-flaged' } }}

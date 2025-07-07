@@ -906,8 +906,13 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let mut positional = Vec::new();
 
-    while self.next_is(Identifier) || self.next_is(Dollar) {
-      positional.push(self.parse_parameter(ParameterKind::Singular)?);
+    while self.next_is(Identifier) || self.next_is(Dollar) || self.next_is(Flag) {
+      let kind = if self.next_is(Flag) {
+        ParameterKind::Flag
+      } else {
+        ParameterKind::Singular
+      };
+      positional.push(self.parse_parameter(kind)?);
     }
 
     let kind = if self.accepted(Plus)? {
@@ -1021,6 +1026,10 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   /// Parse a recipe parameter
   fn parse_parameter(&mut self, kind: ParameterKind) -> CompileResult<'src, Parameter<'src>> {
+    if kind == ParameterKind::Flag {
+      self.expect(Flag)?;
+    }
+
     let export = self.accepted(Dollar)?;
 
     let name = self.parse_name()?;
@@ -1551,6 +1560,12 @@ mod tests {
     name: recipe_default_multiple,
     text: r#"foo bar="baz" bob="biz":"#,
     tree: (justfile (recipe foo (params (bar "baz") (bob "biz")))),
+  }
+
+  test! {
+    name: recipe_parameter_flags,
+    text: r#"foo --bar --baz="default":"#,
+    tree: (justfile (recipe foo (params (~bar) (~baz "default")))),
   }
 
   test! {
@@ -2503,7 +2518,7 @@ mod tests {
     column: 5,
     width:  1,
     kind:   UnexpectedToken{
-      expected: vec![Asterisk, Colon, Dollar, Equals, Identifier, Plus],
+      expected: vec![Asterisk, Colon, Dollar, Equals, Flag, Identifier, Plus],
       found:    Eol
     },
   }
@@ -2638,7 +2653,7 @@ mod tests {
     column: 8,
     width:  0,
     kind:   UnexpectedToken {
-      expected: vec![Asterisk, Colon, Dollar, Equals, Identifier, Plus],
+      expected: vec![Asterisk, Colon, Dollar, Equals, Flag, Identifier, Plus],
       found:    Eof
     },
   }

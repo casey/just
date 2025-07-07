@@ -122,6 +122,7 @@ pub enum ParameterKind {
   Plus,
   Singular,
   Star,
+  Flag,
 }
 
 impl ParameterKind {
@@ -130,6 +131,7 @@ impl ParameterKind {
       full::ParameterKind::Singular => Self::Singular,
       full::ParameterKind::Plus => Self::Plus,
       full::ParameterKind::Star => Self::Star,
+      full::ParameterKind::Flag => Self::Flag,
     }
   }
 }

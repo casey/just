@@ -222,8 +222,10 @@ impl<'src> Node<'src> for UnresolvedRecipe<'src> {
       let mut params = Tree::atom("params");
 
       for parameter in &self.parameters {
-        if let Some(prefix) = parameter.kind.prefix() {
-          params.push_mut(prefix);
+        if parameter.kind != ParameterKind::Flag {
+          if let Some(prefix) = parameter.kind.prefix() {
+            params.push_mut(prefix);
+          }
         }
 
         params.push_mut(parameter.tree());
@@ -269,7 +271,13 @@ impl<'src> Node<'src> for UnresolvedRecipe<'src> {
 
 impl<'src> Node<'src> for Parameter<'src> {
   fn tree(&self) -> Tree<'src> {
-    let mut children = vec![Tree::atom(self.name.lexeme())];
+    let mut children = Vec::new();
+
+    if self.kind == ParameterKind::Flag {
+      children.push(Tree::atom("--"));
+    }
+
+    children.push(Tree::atom(self.name.lexeme()));
 
     if let Some(default) = &self.default {
       children.push(default.tree());
