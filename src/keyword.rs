@@ -34,6 +34,7 @@ pub(crate) enum Keyword {
   WindowsShell,
   WorkingDirectory,
   X,
+  Enum,
 }
 
 impl Keyword {
