@@ -17,7 +17,6 @@ pub(crate) struct Parameter<'src> {
 #[derive(PartialEq, Debug, Clone, Serialize)]
 pub(crate) struct OneOf<'src> {
   pub(crate) enum_name: Name<'src>,
-  pub(crate) default: Option<Expression<'src>>,
 }
 
 impl Parameter<'_> {

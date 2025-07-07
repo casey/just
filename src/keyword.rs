@@ -35,6 +35,8 @@ pub(crate) enum Keyword {
   WorkingDirectory,
   X,
   Enum,
+  OneOf,
+  OneOfOrDefault,
 }
 
 impl Keyword {

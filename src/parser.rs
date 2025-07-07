@@ -1031,9 +1031,18 @@ impl<'run, 'src> Parser<'run, 'src> {
     let name = self.parse_name()?;
 
     let (default, one_of) = if self.accepted(Equals)? {
-      if self.next_are(&[Identifier, ParenL]) {
-        let one_of = self.parse_one_of_parameter_value()?;
-        (one_of.default.clone(), Some(one_of))
+      if self.accepted_keyword(Keyword::OneOf)? {
+        self.expect(ParenL)?;
+        let enum_name = self.parse_name()?;
+        self.expect(ParenR)?;
+        (None, Some(OneOf { enum_name }))
+      } else if self.accepted_keyword(Keyword::OneOfOrDefault)? {
+        self.expect(ParenL)?;
+        let enum_name = self.parse_name()?;
+        self.expect(Comma)?;
+        let default = self.parse_value()?;
+        self.expect(ParenR)?;
+        (Some(default.clone()), Some(OneOf { enum_name }))
       } else {
         (Some(self.parse_value()?), None)
       }
@@ -1048,35 +1057,6 @@ impl<'run, 'src> Parser<'run, 'src> {
       name,
       one_of,
     })
-  }
-
-  /// Parse a one_of parameter
-  fn parse_one_of_parameter_value(&mut self) -> CompileResult<'src, OneOf<'src>> {
-    let one_of_variant = self.parse_name()?;
-
-    if one_of_variant.lexeme() == "one_of" {
-      self.expect(ParenL)?;
-      let enum_name = self.parse_name()?;
-      self.expect(ParenR)?;
-      Ok(OneOf {
-        enum_name,
-        default: None,
-      })
-    } else if one_of_variant.lexeme() == "one_of_or_default" {
-      self.expect(ParenL)?;
-      let enum_name = self.parse_name()?;
-      self.expect(Comma)?;
-      let default = self.parse_value()?;
-      self.expect(ParenR)?;
-      Ok(OneOf {
-        enum_name,
-        default: Some(default),
-      })
-    } else {
-      Err(one_of_variant.error(CompileErrorKind::UnknownFunction {
-        function: one_of_variant.lexeme(),
-      }))
-    }
   }
 
   /// Parse the body of a recipe
