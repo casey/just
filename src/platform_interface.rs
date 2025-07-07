@@ -2,7 +2,7 @@ use super::*;
 
 pub(crate) trait PlatformInterface {
   /// translate path from "native" path to path interpreter expects
-  fn convert_native_path(working_directory: &Path, path: &Path) -> FunctionResult;
+  fn convert_native_path(config: &Config, working_directory: &Path, path: &Path) -> FunctionResult;
 
   /// install handler, may only be called once
   fn install_signal_handler<T: Fn(Signal) + Send + 'static>(handler: T) -> RunResult<'static>;
@@ -10,9 +10,10 @@ pub(crate) trait PlatformInterface {
   /// construct command equivalent to running script at `path` with shebang
   /// line `shebang`
   fn make_shebang_command(
+    config: &Config,
     path: &Path,
-    working_directory: Option<&Path>,
     shebang: Shebang,
+    working_directory: Option<&Path>,
   ) -> Result<Command, OutputError>;
 
   /// set the execute permission on file pointed to by `path`

@@ -333,6 +333,7 @@ fn file_stem(_context: Context, path: &str) -> FunctionResult {
 
 fn invocation_directory(context: Context) -> FunctionResult {
   Platform::convert_native_path(
+    context.evaluator.context.config,
     &context.evaluator.context.search.working_directory,
     &context.evaluator.context.config.invocation_directory,
   )

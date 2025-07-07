@@ -2,16 +2,17 @@ use super::*;
 
 impl PlatformInterface for Platform {
   fn make_shebang_command(
+    config: &Config,
     path: &Path,
-    working_directory: Option<&Path>,
     shebang: Shebang,
+    working_directory: Option<&Path>,
   ) -> Result<Command, OutputError> {
     use std::borrow::Cow;
 
     // If the path contains forward slashes…
     let command = if shebang.interpreter.contains('/') {
       // …translate path to the interpreter from unix style to windows style.
-      let mut cygpath = Command::new("cygpath");
+      let mut cygpath = Command::new(&config.cygpath);
 
       if let Some(working_directory) = working_directory {
         cygpath.current_dir(working_directory);
@@ -56,9 +57,9 @@ impl PlatformInterface for Platform {
     None
   }
 
-  fn convert_native_path(working_directory: &Path, path: &Path) -> FunctionResult {
+  fn convert_native_path(config: &Config, working_directory: &Path, path: &Path) -> FunctionResult {
     // Translate path from windows style to unix style
-    let mut cygpath = Command::new("cygpath");
+    let mut cygpath = Command::new(&config.cygpath);
 
     cygpath
       .current_dir(working_directory)
