@@ -3797,6 +3797,15 @@ Available recipes:
     foo ... # foo is a great module!
 ```
 
+Modules can be defined inline. Currently inline modules can not contain further modules or inline modules.
+
+```justfile
+# foo is an inline module!
+foo::
+  hello:
+    @echo "Hello from inside the inline foo module"
+```
+
 Modules are still missing a lot of features, for example, the ability to depend
 on recipes and refer to variables in other modules. See the
 [module improvement tracking issue](https://github.com/casey/just/issues/2252)

@@ -162,6 +162,9 @@ impl Display for CompileError<'_> {
         ShowWhitespace(expected),
         ShowWhitespace(found)
       ),
+      InlineModuleCannotBeNested { parent_module } => {
+        write!(f, "Inline module `{parent_module}` cannot be nested")
+      }
       Internal { message } => write!(
         f,
         "Internal error, this may indicate a bug in just: {message}\n\

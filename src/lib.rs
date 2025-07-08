@@ -51,6 +51,7 @@ pub(crate) use {
     list::List,
     load_dotenv::load_dotenv,
     loader::Loader,
+    module_inline::ModuleInline,
     module_path::ModulePath,
     name::Name,
     namepath::Namepath,
@@ -228,6 +229,7 @@ mod line;
 mod list;
 mod load_dotenv;
 mod loader;
+mod module_inline;
 mod module_path;
 mod name;
 mod namepath;

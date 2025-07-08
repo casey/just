@@ -20,6 +20,7 @@ pub(crate) enum Item<'src> {
     optional: bool,
     relative: Option<StringLiteral<'src>>,
   },
+  ModuleInline(ModuleInline<'src>),
   Recipe(UnresolvedRecipe<'src>),
   Set(Set<'src>),
   Unexport {
@@ -64,6 +65,7 @@ impl Display for Item<'_> {
 
         Ok(())
       }
+      Self::ModuleInline(inline_module) => write!(f, "{}::", inline_module.name),
       Self::Recipe(recipe) => write!(f, "{}", recipe.color_display(Color::never())),
       Self::Set(set) => write!(f, "{set}"),
       Self::Unexport { name } => write!(f, "unexport {name}"),

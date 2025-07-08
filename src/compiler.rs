@@ -87,6 +87,12 @@ impl Compiler {
               return Err(Error::MissingImportFile { path: *path });
             }
           }
+          Item::ModuleInline(ModuleInline { ast, name, .. }) => {
+            // Don't need to think about circular imports because nesting isn't allowed.
+            let path = current.path.join(name.lexeme());
+            paths.insert(path.clone(), relative.join(name.lexeme()));
+            asts.insert(path, ast.clone());
+          }
           _ => {}
         }
       }
