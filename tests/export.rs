@@ -38,6 +38,23 @@ fn parameter() {
 }
 
 #[test]
+fn option() {
+  let source = r#"
+    wut --$foo='a':
+      @echo $foo
+  "#;
+
+  Test::new().justfile(source).stdout("a\n").run();
+  Test::new()
+    .arg("wut")
+    .arg("--foo")
+    .arg("bar")
+    .justfile(source)
+    .stdout("bar\n")
+    .run();
+}
+
+#[test]
 fn parameter_not_visible_to_backtick() {
   Test::new()
     .arg("wut")
