@@ -122,13 +122,16 @@ string        : 'x'? STRING
 sequence      : expression ',' sequence
               | expression ','?
 
-recipe        : attributes* '@'? NAME parameter* variadic? ':' dependencies eol body?
+recipe        : attributes* '@'? NAME flag_parameter* parameter* variadic? ':' dependencies eol body?
 
 attributes    : '[' attribute (',' attribute)* ']' eol
 
 attribute     : NAME
               | NAME ':' string
               | NAME '(' string (',' string)* ')'
+
+flag_parameter : '--' '$'? NAME 
+               | '--' '$'? NAME '=' value 
 
 parameter     : '$'? NAME
               | '$'? NAME '=' value
