@@ -91,7 +91,8 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
     recipe: &'run Recipe<'src>,
     args: &[&'run str],
   ) -> RunResult<'src, (usize, Vec<&'run str>, BTreeMap<String, Option<&'run str>>)> {
-    let mut verbatim = false;
+    // if the recipie does not contain flags, use the original parsing behavior
+    let mut verbatim = recipe.flags.is_empty();
 
     let min_positional = recipe.min_arguments();
     let max_positional = recipe.max_arguments();

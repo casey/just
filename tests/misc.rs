@@ -2065,8 +2065,6 @@ a:
 fn trailing_flags() {
   Test::new()
     .arg("echo")
-    // TODO(chmp): remove when unknown flags should just be grouped
-    .arg("--")
     .arg("--some")
     .arg("--awesome")
     .arg("--flags")
