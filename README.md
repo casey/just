@@ -2695,7 +2695,8 @@ foo $bar:
 ### Flags and option parameters
 
 Recipies can also define parameters as flags and options by prefixing the
-parameters with `--` in their definition. For example:
+parameters with `--` in their definition. Flags and options must be defined
+before any positional parameters. For example:
 
 ```just
 example --flag --option="default" positional:
