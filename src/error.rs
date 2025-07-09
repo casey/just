@@ -123,6 +123,9 @@ pub(crate) enum Error<'src> {
     path: PathBuf,
     io_error: io::Error,
   },
+  MissingArgument {
+    name: String,
+  },
   MissingImportFile {
     path: Token<'src>,
   },
@@ -191,6 +194,9 @@ pub(crate) enum Error<'src> {
   Unknown {
     recipe: &'src str,
     line_number: Option<usize>,
+  },
+  UnknownFlagParameter {
+    name: String,
   },
   UnknownOverrides {
     overrides: Vec<String>,
@@ -448,6 +454,7 @@ impl ColorDisplay for Error<'_> {
       Load { io_error, path } => {
         write!(f, "Failed to read justfile at `{}`: {io_error}", path.display())?;
       }
+      MissingArgument { name } => write!(f, "Missing argument for flag parameter `{name}`")?,
       MissingImportFile { .. } => write!(f, "Could not find source file for import.")?,
       MissingModuleFile { module } => write!(f, "Could not find source file for module `{module}`.")?,
       NoChoosableRecipes => write!(f, "Justfile contains no choosable recipes.")?,
@@ -511,6 +518,7 @@ impl ColorDisplay for Error<'_> {
           write!(f, "Recipe `{recipe}` failed for an unknown reason")?;
         }
       }
+      UnknownFlagParameter { name } => write!(f, "Unknown flag parameters `{name}` passed")?,
       UnknownSubmodule { path } => {
         write!(f, "Justfile does not contain submodule `{path}`")?;
       }

@@ -904,6 +904,12 @@ impl<'run, 'src> Parser<'run, 'src> {
   ) -> CompileResult<'src, UnresolvedRecipe<'src>> {
     let name = self.parse_name()?;
 
+    let mut flags = BTreeMap::new();
+    while self.next_is(Flag) {
+      let parameter = self.parse_parameter(ParameterKind::Flag)?;
+      flags.insert(parameter.name.to_string(), parameter);
+    }
+
     let mut positional = Vec::new();
 
     while self.next_is(Identifier) || self.next_is(Dollar) {
@@ -1013,6 +1019,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         .module_namepath
         .map_or_else(|| name.into(), |module_namepath| module_namepath.join(name)),
       parameters: positional.into_iter().chain(variadic).collect(),
+      flags,
       priors,
       private,
       quiet,
@@ -1021,6 +1028,10 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   /// Parse a recipe parameter
   fn parse_parameter(&mut self, kind: ParameterKind) -> CompileResult<'src, Parameter<'src>> {
+    if kind == ParameterKind::Flag {
+      self.expect(Flag)?;
+    }
+
     let export = self.accepted(Dollar)?;
 
     let name = self.parse_name()?;
@@ -1551,6 +1562,12 @@ mod tests {
     name: recipe_default_multiple,
     text: r#"foo bar="baz" bob="biz":"#,
     tree: (justfile (recipe foo (params (bar "baz") (bob "biz")))),
+  }
+
+  test! {
+    name: recipe_parameter_flags,
+    text: r#"foo --bar --baz="default":"#,
+    tree: (justfile (recipe foo (flags (~bar) (~baz "default")))),
   }
 
   test! {
