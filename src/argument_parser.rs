@@ -463,4 +463,84 @@ BAZ +Z:
       ],
     );
   }
+
+  #[test]
+  fn options() {
+    let justfile = testing::compile(
+      "
+RULE --flag --option='foo' positional:
+  echo {{ flag }} {{ option }} {{ positional }}
+",
+    );
+
+    fn argument_group<'a, const M: usize, const N: usize>(
+      items: [&'a str; M],
+      kv: [(&'a str, Option<&'a str>); N],
+    ) -> ArgumentGroup<'a> {
+      ArgumentGroup {
+        path: vec!["RULE".into()],
+        positional_arguments: items.to_vec(),
+        flag_arguments: kv.iter().map(|(k, v)| (k.to_string(), *v)).collect(),
+      }
+    }
+
+    assert_eq!(
+      ArgumentParser::parse_arguments(&justfile, &["RULE", "1"]).unwrap(),
+      vec![argument_group(["1"], [])],
+    );
+
+    assert_eq!(
+      ArgumentParser::parse_arguments(&justfile, &["RULE", "--flag", "1"]).unwrap(),
+      vec![argument_group(["1"], [("flag", None)])],
+    );
+
+    assert_eq!(
+      ArgumentParser::parse_arguments(&justfile, &["RULE", "--option", "1", "2"]).unwrap(),
+      vec![argument_group(["2"], [("option", Some("1"))])],
+    );
+
+    assert_eq!(
+      ArgumentParser::parse_arguments(&justfile, &["RULE", "--option", "1", "--flag", "2"])
+        .unwrap(),
+      vec![argument_group(
+        ["2"],
+        [("option", Some("1")), ("flag", None)]
+      )],
+    );
+
+    // options swallow arguments
+    assert_eq!(
+      ArgumentParser::parse_arguments(&justfile, &["RULE", "--option", "--flag", "2"]).unwrap(),
+      vec![argument_group(["2"], [("option", Some("--flag"))])],
+    );
+
+    // arguments can be parsed in any order
+    assert_eq!(
+      ArgumentParser::parse_arguments(&justfile, &["RULE", "2", "--option", "1", "--flag"])
+        .unwrap(),
+      vec![argument_group(
+        ["2"],
+        [("option", Some("1")), ("flag", None)]
+      )],
+    );
+
+    // -- allows to parse unknown arguments
+    assert_eq!(
+      ArgumentParser::parse_arguments(&justfile, &["RULE", "--", "--foo"]).unwrap(),
+      vec![argument_group(["--foo"], [])],
+    );
+
+    // -- resets for each recipie
+    assert_eq!(
+      ArgumentParser::parse_arguments(&justfile, &["RULE", "--", "--foo", "RULE", "--flag", "2"])
+        .unwrap(),
+      vec![
+        argument_group(["--foo"], []),
+        argument_group(["2"], [("flag", None)]),
+      ],
+    );
+
+    // unknown arguments are forbidden
+    ArgumentParser::parse_arguments(&justfile, &["RULE", "2", "--foo"]).unwrap_err();
+  }
 }
