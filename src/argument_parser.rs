@@ -120,13 +120,15 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
         consumed += 1;
       } else if let Some(flag) = current.strip_prefix("--") {
         let Some(parameter) = recipe.flags.get(flag) else {
-          return Err(Error::internal("TODO: fix error message, unknown flag"));
+          return Err(Error::UnknownFlagParameter {
+            name: flag.to_string(),
+          });
         };
         if parameter.default.is_some() {
           if consumed + 1 >= args.len() {
-            return Err(Error::internal(
-              "TODO: fix error message, missing option argument",
-            ));
+            return Err(Error::MissingArgument {
+              name: flag.to_string(),
+            });
           }
           flag_arguments.insert(parameter.name.to_string(), Some(args[consumed + 1]));
           consumed += 2;
