@@ -140,6 +140,11 @@ most Windows users.)
   </thead>
   <tbody>
     <tr>
+      <td><a href=https://github.com/alexellis/arkade>arkade</a></td>
+      <td>just</td>
+      <td><code>arkade get just</code></td>
+    </tr>
+    <tr>
       <td><a href=https://asdf-vm.com>asdf</a></td>
       <td><a href=https://github.com/olofvndrhr/asdf-just>just</a></td>
       <td>
@@ -173,7 +178,7 @@ most Windows users.)
       <td><code>npm install -g rust-just</code></td>
     </tr>
     <tr>
-      <td><a href=https://pypi.org/>PyPI</a></td>
+      <td><a href=https://pipx.pypa.io/stable/>pipx</a></td>
       <td><a href=https://pypi.org/project/rust-just/>rust-just</a></td>
       <td><code>pipx install rust-just</code></td>
     </tr>
@@ -386,6 +391,10 @@ where many machines share IP addresses. `install.sh` calls GitHub APIs in order
 to determine the latest version of `just` to install, and those API calls are
 rate-limited on a per-IP basis. To make `install.sh` more reliable in such
 circumstances, pass a specific tag to install with `--tag`.
+
+Another way to avoid rate-limiting is to pass a GitHub authentication token to
+`install.sh` as an environment variable named `GITHUB_TOKEN`, allowing it to
+authenticate its requests.
 
 [Releases](https://github.com/casey/just/releases) include a `SHA256SUM` file
 which can be used to verify the integrity of pre-built binary archives.
@@ -683,6 +692,14 @@ $ just test build
 cc main.c foo.c bar.c -o main
 ./test
 testing… all tests passed!
+```
+
+Recipes may depend on recipes in submodules:
+
+```justfile
+mod foo
+
+baz: foo::bar
 ```
 
 Examples
@@ -984,6 +1001,7 @@ foo:
 | `allow-duplicate-variables` | boolean | `false` | Allow variables appearing later in a `justfile` to override earlier variables with the same name. |
 | `dotenv-filename` | string or [string] | - | Load a `.env` file with a custom name, if present. If an array is supplied, files are loaded in order. |
 | `dotenv-load` | boolean | `false` | Load a `.env` file, if present. |
+| `dotenv-override` | boolean | `false` | Override existing environment variables with values from the `.env` file. |
 | `dotenv-path` | string or [string] | - | Load a `.env` file from a custom path and error if not present. If an array is supplied, files are loaded in order. Overrides `dotenv-filename`. |
 | `dotenv-required` | boolean | `false` | Error if a `.env` file isn't found. |
 | `export` | boolean | `false` | Export all variables as environment variables. |
@@ -1055,8 +1073,9 @@ bar
 
 #### Dotenv Settings
 
-If any of `dotenv-load`, `dotenv-filename`, `dotenv-path`, or `dotenv-required`
-are set, `just` will try to load environment variables from a file.
+If any of `dotenv-load`, `dotenv-filename`, `dotenv-override`, `dotenv-path`,
+or `dotenv-required` are set, `just` will try to load environment variables
+from a file.
 
 If `dotenv-path` is set, `just` will look for a file at the given path, which
 may be absolute, or relative to the working directory.
@@ -1080,6 +1099,9 @@ It is not an error if an environment file is not found, unless
 
 The loaded variables are environment variables, not `just` variables, and so
 must be accessed using `$VARIABLE_NAME` in recipes and backticks.
+
+If `dotenv-override` is set, variables from the environment file will override
+existing environment variables.
 
 For example, if your `.env` file contains:
 
@@ -2006,35 +2028,37 @@ xdg_config_dir := if env('XDG_CONFIG_HOME', '') =~ '^/' {
 
 A number of constants are predefined:
 
-| Name | Value |
-|------|-------------|
-| `HEX`<sup>1.27.0</sup> | `"0123456789abcdef"` |
-| `HEXLOWER`<sup>1.27.0</sup> | `"0123456789abcdef"` |
-| `HEXUPPER`<sup>1.27.0</sup> | `"0123456789ABCDEF"` |
-| `CLEAR`<sup>1.37.0</sup> | `"\ec"` |
-| `NORMAL`<sup>1.37.0</sup> | `"\e[0m"` |
-| `BOLD`<sup>1.37.0</sup> | `"\e[1m"` |
-| `ITALIC`<sup>1.37.0</sup> | `"\e[3m"` |
-| `UNDERLINE`<sup>1.37.0</sup> | `"\e[4m"` |
-| `INVERT`<sup>1.37.0</sup> | `"\e[7m"` |
-| `HIDE`<sup>1.37.0</sup> | `"\e[8m"` |
-| `STRIKETHROUGH`<sup>1.37.0</sup> | `"\e[9m"` |
-| `BLACK`<sup>1.37.0</sup> | `"\e[30m"` |
-| `RED`<sup>1.37.0</sup> | `"\e[31m"` |
-| `GREEN`<sup>1.37.0</sup> | `"\e[32m"` |
-| `YELLOW`<sup>1.37.0</sup> | `"\e[33m"` |
-| `BLUE`<sup>1.37.0</sup> | `"\e[34m"` |
-| `MAGENTA`<sup>1.37.0</sup> | `"\e[35m"` |
-| `CYAN`<sup>1.37.0</sup> | `"\e[36m"` |
-| `WHITE`<sup>1.37.0</sup> | `"\e[37m"` |
-| `BG_BLACK`<sup>1.37.0</sup> | `"\e[40m"` |
-| `BG_RED`<sup>1.37.0</sup> | `"\e[41m"` |
-| `BG_GREEN`<sup>1.37.0</sup> | `"\e[42m"` |
-| `BG_YELLOW`<sup>1.37.0</sup> | `"\e[43m"` |
-| `BG_BLUE`<sup>1.37.0</sup> | `"\e[44m"` |
-| `BG_MAGENTA`<sup>1.37.0</sup> | `"\e[45m"` |
-| `BG_CYAN`<sup>1.37.0</sup> | `"\e[46m"` |
-| `BG_WHITE`<sup>1.37.0</sup> | `"\e[47m"` |
+| Name | Value | Value on Windows |
+|---|---|---|
+| `HEX`<sup>1.27.0</sup> | `"0123456789abcdef"` |  |
+| `HEXLOWER`<sup>1.27.0</sup> | `"0123456789abcdef"` |  |
+| `HEXUPPER`<sup>1.27.0</sup> | `"0123456789ABCDEF"` |  |
+| `PATH_SEP`<sup>1.41.0</sup> | `"/"` | "\" |
+| `PATH_VAR_SEP`<sup>1.41.0</sup> | `":"` | ";" |
+| `CLEAR`<sup>1.37.0</sup> | `"\ec"` |  |
+| `NORMAL`<sup>1.37.0</sup> | `"\e[0m"` |  |
+| `BOLD`<sup>1.37.0</sup> | `"\e[1m"` |  |
+| `ITALIC`<sup>1.37.0</sup> | `"\e[3m"` |  |
+| `UNDERLINE`<sup>1.37.0</sup> | `"\e[4m"` |  |
+| `INVERT`<sup>1.37.0</sup> | `"\e[7m"` |  |
+| `HIDE`<sup>1.37.0</sup> | `"\e[8m"` |  |
+| `STRIKETHROUGH`<sup>1.37.0</sup> | `"\e[9m"` |  |
+| `BLACK`<sup>1.37.0</sup> | `"\e[30m"` |  |
+| `RED`<sup>1.37.0</sup> | `"\e[31m"` |  |
+| `GREEN`<sup>1.37.0</sup> | `"\e[32m"` |  |
+| `YELLOW`<sup>1.37.0</sup> | `"\e[33m"` |  |
+| `BLUE`<sup>1.37.0</sup> | `"\e[34m"` |  |
+| `MAGENTA`<sup>1.37.0</sup> | `"\e[35m"` |  |
+| `CYAN`<sup>1.37.0</sup> | `"\e[36m"` |  |
+| `WHITE`<sup>1.37.0</sup> | `"\e[37m"` |  |
+| `BG_BLACK`<sup>1.37.0</sup> | `"\e[40m"` |  |
+| `BG_RED`<sup>1.37.0</sup> | `"\e[41m"` |  |
+| `BG_GREEN`<sup>1.37.0</sup> | `"\e[42m"` |  |
+| `BG_YELLOW`<sup>1.37.0</sup> | `"\e[43m"` |  |
+| `BG_BLUE`<sup>1.37.0</sup> | `"\e[44m"` |  |
+| `BG_MAGENTA`<sup>1.37.0</sup> | `"\e[45m"` |  |
+| `BG_CYAN`<sup>1.37.0</sup> | `"\e[46m"` |  |
+| `BG_WHITE`<sup>1.37.0</sup> | `"\e[47m"` |  |
 
 ```just
 @foo:
@@ -2073,16 +2097,18 @@ change their behavior.
 | Name | Type | Description |
 |------|------|-------------|
 | `[confirm]`<sup>1.17.0</sup> | recipe | Require confirmation prior to executing recipe. |
-| `[confirm('PROMPT')]`<sup>1.23.0</sup> | recipe | Require confirmation prior to executing recipe with a custom prompt. |
-| `[doc('DOC')]`<sup>1.27.0</sup> | module, recipe | Set recipe or module's [documentation comment](#documentation-comments) to `DOC`. |
-| `[extension('EXT')]`<sup>1.32.0</sup> | recipe | Set shebang recipe script's file extension to `EXT`. `EXT` should include a period if one is desired. |
-| `[group('NAME')]`<sup>1.27.0</sup> | module, recipe | Put recipe or module in in [group](#groups) `NAME`. |
+| `[confirm(PROMPT)]`<sup>1.23.0</sup> | recipe | Require confirmation prior to executing recipe with a custom prompt. |
+| `[doc(DOC)]`<sup>1.27.0</sup> | module, recipe | Set recipe or module's [documentation comment](#documentation-comments) to `DOC`. |
+| `[extension(EXT)]`<sup>1.32.0</sup> | recipe | Set shebang recipe script's file extension to `EXT`. `EXT` should include a period if one is desired. |
+| `[group(NAME)]`<sup>1.27.0</sup> | module, recipe | Put recipe or module in in [group](#groups) `NAME`. |
 | `[linux]`<sup>1.8.0</sup> | recipe | Enable recipe on Linux. |
 | `[macos]`<sup>1.8.0</sup> | recipe | Enable recipe on MacOS. |
+| `[metadata(METADATA)]`<sup>master</sup> | recipe | Attach `METADATA` to recipe. |
 | `[no-cd]`<sup>1.9.0</sup> | recipe | Don't change directory before executing recipe. |
 | `[no-exit-message]`<sup>1.7.0</sup> | recipe | Don't print an error message if recipe fails. |
 | `[no-quiet]`<sup>1.23.0</sup> | recipe | Override globally quiet recipes and always echo out the recipe. |
 | `[openbsd]`<sup>1.38.0</sup> | recipe | Enable recipe on OpenBSD. |
+| `[parallel]`<sup>master</sup> | recipe | Run this recipe's dependencies in parallel. |
 | `[positional-arguments]`<sup>1.29.0</sup> | recipe | Turn on [positional arguments](#positional-arguments) for this recipe. |
 | `[private]`<sup>1.10.0</sup> | alias, recipe | Make recipe, alias, or variable private. See [Private Recipes](#private-recipes). |
 | `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
@@ -2891,6 +2917,46 @@ the final argument. For example, on Windows, if a recipe starts with `#! py`,
 the final command the OS runs will be something like
 `py C:\Temp\PATH_TO_SAVED_RECIPE_BODY`.
 
+### Script Recipes
+
+Recipes with a `[script(COMMAND)]`<sup>1.32.0</sup> attribute are run as
+scripts interpreted by `COMMAND`. This avoids some of the issues with shebang
+recipes, such as the use of `cygpath` on Windows, the need to use
+`/usr/bin/env`, inconsistencies in shebang line splitting across Unix OSs, and
+requiring a temporary directory from which files can be executed.
+
+Recipes with an empty `[script]` attribute are executed with the value of `set
+script-interpreter := […]`<sup>1.33.0</sup>, defaulting to `sh -eu`, and *not*
+the value of `set shell`.
+
+The body of the recipe is evaluated, written to disk in the temporary
+directory, and run by passing its path as an argument to `COMMAND`.
+
+The `[script(…)]` attribute is unstable, so you'll need to use `set unstable`,
+set the `JUST_UNSTABLE` environment variable, or pass `--unstable` on the
+command line.
+
+### Script and Shebang Recipe Temporary Files
+
+Both script and shebang recipes write the recipe body to a temporary file for
+execution. Script recipes execute that file by passing it to a command, while
+shebang recipes execute the file directly. Shebang recipe execution will fail
+if the filesystem containing the temporary file is mounted with `noexec` or is
+otherwise non-executable.
+
+The directory that `just` writes temporary files to may be configured in a
+number of ways, from highest to lowest precedence:
+
+- Globally with the `--tempdir` command-line option or the `JUST_TEMPDIR`
+  environment variable<sup>1.41.0</sup>.
+
+- On a per-module basis with the `tempdir` setting.
+
+- Globally on Linux with the `XDG_RUNTIME_DIR` environment variable.
+
+- Falling back to the directory returned by
+  [std::env::temp_dir](https://doc.rust-lang.org/std/env/fn.temp_dir.html).
+
 ### Python Recipes with `uv`
 
 [`uv`](https://github.com/astral-sh/uv) is an excellent cross-platform python
@@ -2926,23 +2992,6 @@ hello:
   print("Hello from Python!")
 ```
 
-### Script Recipes
-
-Recipes with a `[script(COMMAND)]`<sup>1.32.0</sup> attribute are run as
-scripts interpreted by `COMMAND`. This avoids some of the issues with shebang
-recipes, such as the use of `cygpath` on Windows, the need to use
-`/usr/bin/env`, and inconsistencies in shebang line splitting across Unix OSs.
-
-Recipes with an empty `[script]` attribute are executed with the value of `set
-script-interpreter := […]`<sup>1.33.0</sup>, defaulting to `sh -eu`, and *not*
-the value of `set shell`.
-
-The body of the recipe is evaluated, written to disk in the temporary
-directory, and run by passing its path as an argument to `COMMAND`.
-
-The `[script(…)]` attribute is unstable, so you'll need to use `set unstable`,
-set the `JUST_UNSTABLE` environment variable, or pass `--unstable` on the
-command line.
 
 ### Safer Bash Shebang Recipes
 
@@ -4021,7 +4070,7 @@ When a child process *is* running, `just` will wait until it terminates, to
 avoid leaving it behind.
 
 Additionally, on receipt of `SIGTERM`, `just` will forward `SIGTERM` to any
-running children<sup>master</sup>, since unlike other fatal signals, `SIGTERM`,
+running children<sup>1.41.0</sup>, since unlike other fatal signals, `SIGTERM`,
 was likely sent to `just` alone.
 
 Regardless of whether a child process terminates successfully after `just`
@@ -4035,7 +4084,7 @@ user types `ctrl-t` on
 operating systems, including MacOS, but not Linux.
 
 `just` responds by printing a list of all child process IDs and
-commands<sup>master</sup>.
+commands<sup>1.41.0</sup>.
 
 #### Windows
 
@@ -4422,7 +4471,9 @@ and checking the program's stdout, stderr, and exit code .
 
 5. Implement the feature.
 
-6. Run `just ci` to make sure that all tests, lints, and checks pass.
+6. Run `just ci` to make sure that all tests, lints, and checks pass. Requires
+   [mdBook](https://github.com/rust-lang/mdBook) and
+   [mdbook-linkcheck](https://github.com/Michael-F-Bryan/mdbook-linkcheck).
 
 7. Open a PR with the new code that is editable by maintainers. PRs often
    require rebasing and minor tweaks. If the PR is not editable by maintainers,

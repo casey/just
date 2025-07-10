@@ -95,6 +95,10 @@ impl<'src, D> Recipe<'src, D> {
     Ok(())
   }
 
+  pub(crate) fn is_parallel(&self) -> bool {
+    self.attributes.contains(AttributeDiscriminant::Parallel)
+  }
+
   pub(crate) fn is_public(&self) -> bool {
     !self.private && !self.attributes.contains(AttributeDiscriminant::Private)
   }
@@ -390,27 +394,8 @@ impl<'src, D> Recipe<'src, D> {
       Executor::Shebang(shebang)
     };
 
-    let mut tempdir_builder = tempfile::Builder::new();
-    tempdir_builder.prefix("just-");
-    let tempdir = match &context.module.settings.tempdir {
-      Some(tempdir) => tempdir_builder.tempdir_in(context.search.working_directory.join(tempdir)),
-      None => {
-        if let Some(runtime_dir) = dirs::runtime_dir() {
-          let path = runtime_dir.join("just");
-          fs::create_dir_all(&path).map_err(|io_error| Error::RuntimeDirIo {
-            io_error,
-            path: path.clone(),
-          })?;
-          tempdir_builder.tempdir_in(path)
-        } else {
-          tempdir_builder.tempdir()
-        }
-      }
-    }
-    .map_err(|error| Error::TempdirIo {
-      recipe: self.name(),
-      io_error: error,
-    })?;
+    let tempdir = context.tempdir(self)?;
+
     let mut path = tempdir.path().to_path_buf();
 
     let extension = self.attributes.iter().find_map(|attribute| {
@@ -435,6 +420,7 @@ impl<'src, D> Recipe<'src, D> {
     })?;
 
     let mut command = executor.command(
+      config,
       &path,
       self.name(),
       self.working_directory(context).as_deref(),
@@ -504,8 +490,12 @@ impl<'src, D> Recipe<'src, D> {
     self.doc.as_deref()
   }
 
-  pub(crate) fn subsequents(&self) -> impl Iterator<Item = &D> {
-    self.dependencies.iter().skip(self.priors)
+  pub(crate) fn priors(&self) -> &[D] {
+    &self.dependencies[..self.priors]
+  }
+
+  pub(crate) fn subsequents(&self) -> &[D] {
+    &self.dependencies[self.priors..]
   }
 }
 

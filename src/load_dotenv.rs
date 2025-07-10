@@ -18,9 +18,10 @@ pub(crate) fn load_dotenv(
   };
 
   if !settings.dotenv_load
+    && !settings.dotenv_override
+    && !settings.dotenv_required
     && dotenv_filenames.is_empty()
     && dotenv_paths.is_empty()
-    && !settings.dotenv_required
   {
     return Ok(BTreeMap::new());
   }
@@ -33,7 +34,7 @@ pub(crate) fn load_dotenv(
       .collect::<Vec<_>>();
 
     if !present_paths.is_empty() {
-      return load_from_files(&present_paths);
+      return load_from_files(&present_paths, settings);
     }
   }
 
@@ -60,7 +61,7 @@ pub(crate) fn load_dotenv(
       .collect::<Vec<_>>();
 
     if !present_filenames.is_empty() {
-      return load_from_files(&present_filenames);
+      return load_from_files(&present_filenames, settings);
     }
   }
 
@@ -71,14 +72,17 @@ pub(crate) fn load_dotenv(
   }
 }
 
-fn load_from_files(paths: &[PathBuf]) -> RunResult<'static, BTreeMap<String, String>> {
+fn load_from_files(
+  paths: &[PathBuf],
+  settings: &Settings,
+) -> RunResult<'static, BTreeMap<String, String>> {
   let mut dotenv = BTreeMap::new();
 
   for path in paths {
     let iter = dotenvy::from_path_iter(path)?;
     for result in iter {
       let (key, value) = result?;
-      if env::var_os(&key).is_none() {
+      if settings.dotenv_override || env::var_os(&key).is_none() {
         dotenv.insert(key, value);
       }
     }

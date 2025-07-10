@@ -23,6 +23,7 @@ use {
     path::{Path, PathBuf, MAIN_SEPARATOR, MAIN_SEPARATOR_STR},
     process::{Command, Stdio},
     str,
+    time::{Duration, Instant},
   },
   tempfile::TempDir,
   temptree::{temptree, tree, Tree},
@@ -30,10 +31,7 @@ use {
 };
 
 #[cfg(not(windows))]
-use std::{
-  thread,
-  time::{Duration, Instant},
-};
+use std::thread;
 
 fn default<T: Default>() -> T {
   Default::default()
@@ -63,6 +61,7 @@ mod confirm;
 mod constants;
 mod datetime;
 mod delimiters;
+mod dependencies;
 mod directories;
 mod dotenv;
 mod edit;
@@ -96,6 +95,7 @@ mod no_cd;
 mod no_dependencies;
 mod no_exit_message;
 mod os_attributes;
+mod parallel;
 mod parameters;
 mod parser;
 mod positional_arguments;

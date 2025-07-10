@@ -362,7 +362,7 @@ fn no_dotenv() {
 }
 
 #[test]
-fn dotenv_env_var_override() {
+fn dotenv_env_var_default_no_override() {
   Test::new()
     .justfile(
       "
@@ -373,6 +373,41 @@ fn dotenv_env_var_override() {
     .write(".env", "DOTENV_KEY=dotenv-value")
     .env("DOTENV_KEY", "not-the-dotenv-value")
     .stdout("not-the-dotenv-value\n")
+    .stderr("echo $DOTENV_KEY\n")
+    .run();
+}
+
+#[test]
+fn dotenv_env_var_override() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-load
+        set dotenv-override := true
+        echo:
+          echo $DOTENV_KEY
+      ",
+    )
+    .write(".env", "DOTENV_KEY=dotenv-value")
+    .env("DOTENV_KEY", "not-the-dotenv-value")
+    .stdout("dotenv-value\n")
+    .stderr("echo $DOTENV_KEY\n")
+    .run();
+}
+
+#[test]
+fn dotenv_env_var_override_no_load() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-override := true
+        echo:
+          echo $DOTENV_KEY
+      ",
+    )
+    .write(".env", "DOTENV_KEY=dotenv-value")
+    .env("DOTENV_KEY", "not-the-dotenv-value")
+    .stdout("dotenv-value\n")
     .stderr("echo $DOTENV_KEY\n")
     .run();
 }

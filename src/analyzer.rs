@@ -145,7 +145,12 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       }
     }
 
-    let recipes = RecipeResolver::resolve_recipes(&assignments, &settings, deduplicated_recipes)?;
+    let recipes = RecipeResolver::resolve_recipes(
+      &assignments,
+      &self.modules,
+      &settings,
+      deduplicated_recipes,
+    )?;
 
     let mut aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
@@ -173,11 +178,11 @@ impl<'run, 'src> Analyzer<'run, 'src> {
         .values()
         .filter(|recipe| recipe.name.path == root)
         .fold(None, |accumulator, next| match accumulator {
-          None => Some(Rc::clone(next)),
+          None => Some(Arc::clone(next)),
           Some(previous) => Some(if previous.line_number() < next.line_number() {
             previous
           } else {
-            Rc::clone(next)
+            Arc::clone(next)
           }),
         }),
       doc: doc.filter(|doc| !doc.is_empty()),
@@ -292,10 +297,10 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
   fn resolve_alias<'a>(
     modules: &'a Table<'src, Justfile<'src>>,
-    recipes: &'a Table<'src, Rc<Recipe<'src>>>,
+    recipes: &'a Table<'src, Arc<Recipe<'src>>>,
     alias: Alias<'src, Namepath<'src>>,
   ) -> CompileResult<'src, Alias<'src>> {
-    match Self::alias_target(&alias.target, modules, recipes) {
+    match Self::resolve_recipe(&alias.target, modules, recipes) {
       Some(target) => Ok(alias.resolve(target)),
       None => Err(alias.name.token.error(UnknownAliasTarget {
         alias: alias.name.lexeme(),
@@ -304,11 +309,11 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     }
   }
 
-  fn alias_target<'a>(
+  pub(crate) fn resolve_recipe<'a>(
     path: &Namepath<'src>,
     mut modules: &'a Table<'src, Justfile<'src>>,
-    mut recipes: &'a Table<'src, Rc<Recipe<'src>>>,
-  ) -> Option<Rc<Recipe<'src>>> {
+    mut recipes: &'a Table<'src, Arc<Recipe<'src>>>,
+  ) -> Option<Arc<Recipe<'src>>> {
     let (name, path) = path.split_last();
 
     for name in path {
