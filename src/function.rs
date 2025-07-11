@@ -159,7 +159,30 @@ fn append(_context: Context, suffix: &str, s: &str) -> FunctionResult {
 }
 
 fn arch(_context: Context) -> FunctionResult {
-  Ok(target::arch().to_owned())
+    // For Windows, check the environment for ARM or x86_64 architecture
+    if cfg!(target_os = "windows") {
+        let output = std::process::Command::new("cmd")
+            .arg("/C")
+            .arg("echo %PROCESSOR_ARCHITECTURE%")
+            .output()
+            .expect("Failed to execute command");
+
+        let arch = String::from_utf8_lossy(&output.stdout).trim().to_string();
+
+        // If the architecture is ARM, return aarch64
+        if arch.contains("ARM") {
+            return Ok("aarch64".to_string());
+        }
+    }
+
+    // Default fallback for other platforms
+    if cfg!(target_arch = "x86_64") {
+        return Ok("x86_64".to_string());
+    } else if cfg!(target_arch = "aarch64") {
+        return Ok("aarch64".to_string());
+    } else {
+        return Ok("unknown".to_string());
+    }
 }
 
 fn blake3(_context: Context, s: &str) -> FunctionResult {
