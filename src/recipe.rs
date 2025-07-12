@@ -37,7 +37,8 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
 }
 
 impl<'src> Recipe<'src> {
-  fn foo(&self, modules: &mut BTreeSet<Vec<Name<'src>>>) {
+  #[allow(unused)]
+  fn modules(&self, modules: &mut BTreeSet<Vec<Name<'src>>>) {
     let path = self.namepath.split_last().1;
 
     if !modules.contains(path) {
@@ -45,7 +46,7 @@ impl<'src> Recipe<'src> {
     }
 
     for dependency in &self.dependencies {
-      dependency.recipe.foo(modules);
+      dependency.recipe.modules(modules);
     }
   }
 }

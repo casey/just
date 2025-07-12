@@ -211,19 +211,10 @@ impl<'src> Justfile<'src> {
 
     let groups = ArgumentParser::parse_arguments(self, &arguments)?;
 
-    let arena: Arena<Scope> = Arena::new();
     let mut invocations = Vec::<Invocation>::new();
 
     for group in &groups {
-      invocations.push(self.invocation(
-        &arena,
-        &group.arguments,
-        config,
-        &dotenv,
-        &group.path,
-        0,
-        search,
-      )?);
+      invocations.push(self.invocation(&group.arguments, &group.path, 0)?);
     }
 
     if config.one && invocations.len() > 1 {
@@ -285,13 +276,9 @@ impl<'src> Justfile<'src> {
 
   fn invocation<'run>(
     &'run self,
-    arena: &'run Arena<Scope<'src, 'run>>,
     arguments: &[&'run str],
-    config: &'run Config,
-    dotenv: &'run BTreeMap<String, String>,
     path: &'run [String],
     position: usize,
-    search: &'run Search,
   ) -> RunResult<'src, Invocation<'src, 'run>> {
     if position + 1 == path.len() {
       let recipe = self.get_recipe(&path[position]).unwrap();
@@ -302,7 +289,7 @@ impl<'src> Justfile<'src> {
       })
     } else {
       let module = self.modules.get(&path[position]).unwrap();
-      module.invocation(arena, arguments, config, dotenv, path, position + 1, search)
+      module.invocation(arguments, path, position + 1)
     }
   }
 
