@@ -315,14 +315,7 @@ impl<'src> Justfile<'src> {
     }
 
     let scope = scopes
-      .get(
-        recipe
-          .namepath
-          .to_string()
-          .rsplit_once("::")
-          .map(|(module, _recipe)| module)
-          .unwrap_or_default(),
-      )
+      .get(&recipe.module_path())
       .expect("failed to retrieve scope for module");
 
     if !context.config.yes && !recipe.confirm()? {
