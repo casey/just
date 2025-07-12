@@ -314,15 +314,15 @@ impl<'src> Justfile<'src> {
       return Ok(());
     }
 
-    let scope = scopes
-      .get(&recipe.module_path())
-      .expect("failed to retrieve scope for module");
-
     if !context.config.yes && !recipe.confirm()? {
       return Err(Error::NotConfirmed {
         recipe: recipe.name(),
       });
     }
+
+    let scope = scopes
+      .get(&recipe.module_path())
+      .expect("failed to retrieve scope for module");
 
     let (outer, positional) =
       Evaluator::evaluate_parameters(context, is_dependency, arguments, &recipe.parameters, scope)?;
