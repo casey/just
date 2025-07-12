@@ -107,6 +107,7 @@ mod recursion_limit;
 mod regexes;
 mod request;
 mod run;
+mod scope;
 mod script;
 mod search;
 mod search_arguments;

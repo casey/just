@@ -188,6 +188,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       doc: doc.filter(|doc| !doc.is_empty()),
       groups: groups.into(),
       loaded: loaded.into(),
+      module_path: ast.module_path.clone(),
       modules: self.modules,
       name,
       recipes,

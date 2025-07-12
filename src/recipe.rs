@@ -57,6 +57,12 @@ impl<'src, D> Recipe<'src, D> {
     }
   }
 
+  pub(crate) fn module_path(&self) -> String {
+    let mut path = self.namepath.to_string();
+    path.truncate(path.find("::").unwrap_or_default());
+    path
+  }
+
   pub(crate) fn name(&self) -> &'src str {
     self.name.lexeme()
   }
