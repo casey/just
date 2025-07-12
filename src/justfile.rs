@@ -237,9 +237,9 @@ impl<'src> Justfile<'src> {
           .map(str::to_string)
           .collect::<Vec<String>>(),
         &context,
+        false,
         &ran,
         invocation.recipe,
-        false,
         &scopes,
       )?;
     }
@@ -301,9 +301,9 @@ impl<'src> Justfile<'src> {
   fn run_recipe(
     arguments: &[String],
     context: &ExecutionContext<'src, '_>,
+    is_dependency: bool,
     ran: &Ran<'src>,
     recipe: &Recipe<'src>,
-    is_dependency: bool,
     scopes: &BTreeMap<String, &Scope<'src, '_>>,
   ) -> RunResult<'src> {
     let mutex = ran.mutex(&recipe.namepath, arguments);
@@ -383,7 +383,7 @@ impl<'src> Justfile<'src> {
         for (recipe, arguments) in evaluated {
           handles.push(
             thread_scope
-              .spawn(move || Self::run_recipe(&arguments, context, ran, recipe, true, scopes)),
+              .spawn(move || Self::run_recipe(&arguments, context, true, ran, recipe, scopes)),
           );
         }
         for handle in handles {
@@ -395,7 +395,7 @@ impl<'src> Justfile<'src> {
       })?;
     } else {
       for (recipe, arguments) in evaluated {
-        Self::run_recipe(&arguments, context, ran, recipe, true, scopes)?;
+        Self::run_recipe(&arguments, context, true, ran, recipe, scopes)?;
       }
     }
 
