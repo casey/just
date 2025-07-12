@@ -118,11 +118,8 @@ impl<'src> Justfile<'src> {
     };
 
     let root = Scope::root();
-
-    let arena: Arena<Scope> = Arena::new();
-
+    let arena = Arena::new();
     let mut scopes = BTreeMap::new();
-
     self.evaluate_assignments(
       &arena,
       config,
