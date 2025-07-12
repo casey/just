@@ -478,6 +478,10 @@ impl<'run, 'src> Parser<'run, 'src> {
       unstable_features: self.unstable_features,
       warnings: Vec::new(),
       working_directory: self.working_directory.into(),
+      module_path: self
+        .module_namepath
+        .map(ToString::to_string)
+        .unwrap_or_default(),
     })
   }
 

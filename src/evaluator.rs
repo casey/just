@@ -23,11 +23,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       config,
       dotenv,
       module,
-      scope: parent,
       search,
     };
 
-    let mut scope = context.scope.child();
+    let mut scope = parent.child();
     let mut unknown_overrides = Vec::new();
 
     for (name, value) in overrides {
@@ -325,8 +324,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     is_dependency: bool,
     arguments: &[String],
     parameters: &[Parameter<'src>],
+    scope: &'run Scope<'src, 'run>,
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>)> {
-    let mut evaluator = Self::new(context, is_dependency, context.scope);
+    let mut evaluator = Self::new(context, is_dependency, scope);
 
     let mut positional = Vec::new();
 

@@ -36,6 +36,20 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) shebang: bool,
 }
 
+impl<'src> Recipe<'src> {
+  fn foo(&self, modules: &mut BTreeSet<Vec<Name<'src>>>) {
+    let path = self.namepath.split_last().1;
+
+    if !modules.contains(path) {
+      modules.insert(path.into());
+    }
+
+    for dependency in &self.dependencies {
+      dependency.recipe.foo(modules);
+    }
+  }
+}
+
 impl<'src, D> Recipe<'src, D> {
   pub(crate) fn argument_range(&self) -> RangeInclusive<usize> {
     self.min_arguments()..=self.max_arguments()
