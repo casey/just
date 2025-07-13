@@ -2694,9 +2694,9 @@ foo $bar:
 
 ### Flags and option parameters
 
-Recipies can also define parameters as flags and options by prefixing the
-parameters with `--` in their definition. Flags and options must be defined
-before any positional parameters. For example:
+Recipies can also define parameters as flags and options by prefixing parameters
+with `--` in their definition. Flags and options must be defined before any
+positional parameters. For example:
 
 ```just
 example --flag --option="default" positional:
@@ -2704,7 +2704,7 @@ example --flag --option="default" positional:
 ```
 
 Flags are defined by not providing a default argument, the definition of
-options include a default argument. Both flags and options can be omitted when
+options includes a default argument. Both flags and options can be omitted when
 calling the recipie. Flags evaluate to the name if specified, but to the empty
 string when not passed. Options evaluate to the specified value when passed, but
 to their default value when not passed. For example:
@@ -2738,8 +2738,8 @@ $ just example --option --flag 1
 flag --flag 1
 ```
 
-Arguments after `--` are always treated as positional for the current recipie.
-This behavior recepts for the following recipie:
+Arguments after `--` are treated as positional for the current recipie. This
+behavior resets for the following recipie:
 
 ```console
 $ just example -- --flag
@@ -2750,9 +2750,9 @@ $just example -- --flag example --flag 1
 flag default 1
 ```
 
-Uknown options for recipies accepting options will results in an error.
-Recipies that are not defined to accept options treat any option as a
-positional argument.
+Uknown options will results in an error for recipies that are defined with flags
+or options. Recipies whose definition does not contain flags or options treat
+option as positional arguments.
 
 ### Dependencies
 

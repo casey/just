@@ -518,7 +518,7 @@ impl ColorDisplay for Error<'_> {
           write!(f, "Recipe `{recipe}` failed for an unknown reason")?;
         }
       }
-      UnknownFlagParameter { name } => write!(f, "Unknown flag parameters `{name}` passed")?,
+      UnknownFlagParameter { name } => write!(f, "Unknown flag parameter `{name}` passed")?,
       UnknownSubmodule { path } => {
         write!(f, "Justfile does not contain submodule `{path}`")?;
       }
