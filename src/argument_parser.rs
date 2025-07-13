@@ -25,7 +25,7 @@ pub(crate) struct ArgumentParser<'src: 'run, 'run> {
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct ArgumentGroup<'run> {
-  pub(crate) positional_arguments: Vec<&'run str>,
+  pub(crate) arguments: Vec<&'run str>,
   pub(crate) flag_arguments: BTreeMap<String, Option<&'run str>>,
   pub(crate) path: Vec<String>,
 }
@@ -81,7 +81,7 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
     self.next += consumed;
 
     Ok(ArgumentGroup {
-      positional_arguments,
+      arguments: positional_arguments,
       flag_arguments,
       path,
     })
@@ -243,7 +243,7 @@ mod tests {
       ArgumentParser::parse_arguments(&justfile, &["foo"]).unwrap(),
       vec![ArgumentGroup {
         path: vec!["foo".into()],
-        positional_arguments: Vec::new(),
+        arguments: Vec::new(),
         flag_arguments: BTreeMap::new(),
       }],
     );
@@ -257,7 +257,7 @@ mod tests {
       ArgumentParser::parse_arguments(&justfile, &["foo", "baz"]).unwrap(),
       vec![ArgumentGroup {
         path: vec!["foo".into()],
-        positional_arguments: vec!["baz"],
+        arguments: vec!["baz"],
         flag_arguments: BTreeMap::new(),
       }],
     );
@@ -319,7 +319,7 @@ mod tests {
       ArgumentParser::parse_arguments(&compilation.justfile, &["foo", "bar"]).unwrap(),
       vec![ArgumentGroup {
         path: vec!["foo".into(), "bar".into()],
-        positional_arguments: Vec::new(),
+        arguments: Vec::new(),
         flag_arguments: BTreeMap::new(),
       }],
     );
@@ -449,17 +449,17 @@ BAZ +Z:
       vec![
         ArgumentGroup {
           path: vec!["BAR".into()],
-          positional_arguments: vec!["0"],
+          arguments: vec!["0"],
           flag_arguments: BTreeMap::new(),
         },
         ArgumentGroup {
           path: vec!["FOO".into()],
-          positional_arguments: vec!["1", "2"],
+          arguments: vec!["1", "2"],
           flag_arguments: BTreeMap::new(),
         },
         ArgumentGroup {
           path: vec!["BAZ".into()],
-          positional_arguments: vec!["3", "4", "5"],
+          arguments: vec!["3", "4", "5"],
           flag_arguments: BTreeMap::new(),
         },
       ],
@@ -481,7 +481,7 @@ RULE --flag --option='foo' positional:
     ) -> ArgumentGroup<'a> {
       ArgumentGroup {
         path: vec!["RULE".into()],
-        positional_arguments: items.to_vec(),
+        arguments: items.to_vec(),
         flag_arguments: kv.iter().map(|(k, v)| (k.to_string(), *v)).collect(),
       }
     }

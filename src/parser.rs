@@ -441,9 +441,9 @@ impl<'run, 'src> Parser<'run, 'src> {
             } else {
               let doc = pop_doc_comment(&mut items, eol_since_last_comment);
               items.push(Item::Recipe(self.parse_recipe(
+                take_attributes(),
                 doc,
                 false,
-                take_attributes(),
               )?));
             }
           }
@@ -451,9 +451,9 @@ impl<'run, 'src> Parser<'run, 'src> {
       } else if self.accepted(At)? {
         let doc = pop_doc_comment(&mut items, eol_since_last_comment);
         items.push(Item::Recipe(self.parse_recipe(
+          take_attributes(),
           doc,
           true,
-          take_attributes(),
         )?));
       } else {
         return Err(self.unexpected_token()?);
@@ -475,6 +475,10 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     Ok(Ast {
       items,
+      module_path: self
+        .module_namepath
+        .map(ToString::to_string)
+        .unwrap_or_default(),
       unstable_features: self.unstable_features,
       warnings: Vec::new(),
       working_directory: self.working_directory.into(),
@@ -898,9 +902,9 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// Parse a recipe
   fn parse_recipe(
     &mut self,
+    attributes: AttributeSet<'src>,
     doc: Option<&'src str>,
     quiet: bool,
-    attributes: AttributeSet<'src>,
   ) -> CompileResult<'src, UnresolvedRecipe<'src>> {
     let name = self.parse_name()?;
 
