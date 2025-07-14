@@ -91,7 +91,7 @@ impl<'src> Justfile<'src> {
         config,
         dotenv,
         &BTreeMap::new(),
-        root,
+        scope,
         scopes,
         search,
       )?;
