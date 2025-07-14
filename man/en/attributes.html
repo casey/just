@@ -174,16 +174,18 @@
 change their behavior.</p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>[confirm]</code><sup>1.17.0</sup></td><td>recipe</td><td>Require confirmation prior to executing recipe.</td></tr>
-<tr><td><code>[confirm('PROMPT')]</code><sup>1.23.0</sup></td><td>recipe</td><td>Require confirmation prior to executing recipe with a custom prompt.</td></tr>
-<tr><td><code>[doc('DOC')]</code><sup>1.27.0</sup></td><td>module, recipe</td><td>Set recipe or module’s <a href="documentation-comments.html">documentation comment</a> to <code>DOC</code>.</td></tr>
-<tr><td><code>[extension('EXT')]</code><sup>1.32.0</sup></td><td>recipe</td><td>Set shebang recipe script’s file extension to <code>EXT</code>. <code>EXT</code> should include a period if one is desired.</td></tr>
-<tr><td><code>[group('NAME')]</code><sup>1.27.0</sup></td><td>module, recipe</td><td>Put recipe or module in in <a href="groups.html">group</a> <code>NAME</code>.</td></tr>
+<tr><td><code>[confirm(PROMPT)]</code><sup>1.23.0</sup></td><td>recipe</td><td>Require confirmation prior to executing recipe with a custom prompt.</td></tr>
+<tr><td><code>[doc(DOC)]</code><sup>1.27.0</sup></td><td>module, recipe</td><td>Set recipe or module’s <a href="documentation-comments.html">documentation comment</a> to <code>DOC</code>.</td></tr>
+<tr><td><code>[extension(EXT)]</code><sup>1.32.0</sup></td><td>recipe</td><td>Set shebang recipe script’s file extension to <code>EXT</code>. <code>EXT</code> should include a period if one is desired.</td></tr>
+<tr><td><code>[group(NAME)]</code><sup>1.27.0</sup></td><td>module, recipe</td><td>Put recipe or module in in <a href="groups.html">group</a> <code>NAME</code>.</td></tr>
 <tr><td><code>[linux]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on Linux.</td></tr>
 <tr><td><code>[macos]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on MacOS.</td></tr>
+<tr><td><code>[metadata(METADATA)]</code><sup>1.42.0</sup></td><td>recipe</td><td>Attach <code>METADATA</code> to recipe.</td></tr>
 <tr><td><code>[no-cd]</code><sup>1.9.0</sup></td><td>recipe</td><td>Don’t change directory before executing recipe.</td></tr>
 <tr><td><code>[no-exit-message]</code><sup>1.7.0</sup></td><td>recipe</td><td>Don’t print an error message if recipe fails.</td></tr>
 <tr><td><code>[no-quiet]</code><sup>1.23.0</sup></td><td>recipe</td><td>Override globally quiet recipes and always echo out the recipe.</td></tr>
 <tr><td><code>[openbsd]</code><sup>1.38.0</sup></td><td>recipe</td><td>Enable recipe on OpenBSD.</td></tr>
+<tr><td><code>[parallel]</code><sup>1.42.0</sup></td><td>recipe</td><td>Run this recipe’s dependencies in parallel.</td></tr>
 <tr><td><code>[positional-arguments]</code><sup>1.29.0</sup></td><td>recipe</td><td>Turn on <a href="avoiding-argument-splitting.html#positional-arguments">positional arguments</a> for this recipe.</td></tr>
 <tr><td><code>[private]</code><sup>1.10.0</sup></td><td>alias, recipe</td><td>Make recipe, alias, or variable private. See <a href="private-recipes.html">Private Recipes</a>.</td></tr>
 <tr><td><code>[script]</code><sup>1.33.0</sup></td><td>recipe</td><td>Execute recipe as script. See <a href="script-recipes.html">script recipes</a> for more details.</td></tr>

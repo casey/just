@@ -236,6 +236,11 @@ cc main.c foo.c bar.c -o main
 ./test
 testing… all tests passed!
 </code></pre>
+<p>Recipes may depend on recipes in submodules:</p>
+<pre><code class="language-justfile">mod foo
+
+baz: foo::bar
+</code></pre>
 
                     </main>
 

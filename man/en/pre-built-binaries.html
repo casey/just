@@ -197,6 +197,9 @@ where many machines share IP addresses. <code>install.sh</code> calls GitHub API
 to determine the latest version of <code>just</code> to install, and those API calls are
 rate-limited on a per-IP basis. To make <code>install.sh</code> more reliable in such
 circumstances, pass a specific tag to install with <code>--tag</code>.</p>
+<p>Another way to avoid rate-limiting is to pass a GitHub authentication token to
+<code>install.sh</code> as an environment variable named <code>GITHUB_TOKEN</code>, allowing it to
+authenticate its requests.</p>
 <p><a href="https://github.com/casey/just/releases">Releases</a> include a <code>SHA256SUM</code> file
 which can be used to verify the integrity of pre-built binary archives.</p>
 <p>To verify a release, download the pre-built binary archive along with the
