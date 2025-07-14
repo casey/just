@@ -1018,3 +1018,54 @@ fn overrides_work_when_submodule_is_present() {
     .stdout("b\n")
     .run();
 }
+
+#[test]
+fn exported_variables_are_available_in_submodules() {
+  Test::new()
+    .write("foo.just", "bar:\n @echo $x")
+    .justfile(
+      "
+        mod foo
+
+        export x := 'a'
+      ",
+    )
+    .test_round_trip(false)
+    .arg("foo::bar")
+    .stdout("a\n")
+    .run();
+}
+
+#[test]
+fn exported_variables_can_be_unexported_in_submodules() {
+  Test::new()
+    .write("foo.just", "unexport x\nbar:\n @echo ${x:-default}")
+    .justfile(
+      "
+        mod foo
+
+        export x := 'a'
+      ",
+    )
+    .test_round_trip(false)
+    .arg("foo::bar")
+    .stdout("default\n")
+    .run();
+}
+
+#[test]
+fn exported_variables_can_be_overridden_in_submodules() {
+  Test::new()
+    .write("foo.just", "export x := 'b'\nbar:\n @echo $x")
+    .justfile(
+      "
+        mod foo
+
+        export x := 'a'
+      ",
+    )
+    .test_round_trip(false)
+    .arg("foo::bar")
+    .stdout("b\n")
+    .run();
+}
