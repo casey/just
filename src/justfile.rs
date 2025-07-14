@@ -86,7 +86,15 @@ impl<'src> Justfile<'src> {
     scopes.get(&self.module_path).unwrap();
 
     for module in self.modules.values() {
-      module.evaluate_assignments(arena, config, dotenv, overrides, root, scopes, search)?;
+      module.evaluate_assignments(
+        arena,
+        config,
+        dotenv,
+        &BTreeMap::new(),
+        root,
+        scopes,
+        search,
+      )?;
     }
 
     Ok(())
