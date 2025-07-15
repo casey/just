@@ -344,9 +344,34 @@ mark.fade-out {
     max-width: var(--content-max-width);
 }
 
+#searchbar-outer.searching #searchbar {
+    padding-right: 30px;
+}
+#searchbar-outer .spinner-wrapper {
+    display: none;
+}
+#searchbar-outer.searching .spinner-wrapper {
+    display: block;
+}
+
+.search-wrapper {
+    position: relative;
+}
+
+.spinner-wrapper {
+    --spinner-margin: 2px;
+    position: absolute;
+    margin-block-start: calc(var(--searchbar-margin-block-start) + var(--spinner-margin));
+    right: var(--spinner-margin);
+    top: 0;
+    bottom: var(--spinner-margin);
+    padding: 6px;
+    background-color: var(--bg);
+}
+
 #searchbar {
     width: 100%;
-    margin-block-start: 5px;
+    margin-block-start: var(--searchbar-margin-block-start);
     margin-block-end: 0;
     margin-inline-start: auto;
     margin-inline-end: auto;
@@ -505,7 +530,6 @@ html:not(.sidebar-resizing) .sidebar {
 /* sidebar-hidden */
 #sidebar-toggle-anchor:not(:checked) ~ .sidebar {
     transform: translateX(calc(0px - var(--sidebar-width) - var(--sidebar-resize-indicator-width)));
-    z-index: -1;
 }
 [dir=rtl] #sidebar-toggle-anchor:not(:checked) ~ .sidebar {
     transform: translateX(calc(var(--sidebar-width) + var(--sidebar-resize-indicator-width)));

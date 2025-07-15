@@ -515,17 +515,39 @@ aria-label="Show hidden lines"></button>';
 })();
 
 (function sidebar() {
-    const body = document.querySelector('body');
     const sidebar = document.getElementById('sidebar');
     const sidebarLinks = document.querySelectorAll('#sidebar a');
     const sidebarToggleButton = document.getElementById('sidebar-toggle');
-    const sidebarToggleAnchor = document.getElementById('sidebar-toggle-anchor');
     const sidebarResizeHandle = document.getElementById('sidebar-resize-handle');
+    const sidebarCheckbox = document.getElementById('sidebar-toggle-anchor');
     let firstContact = null;
 
+
+    /* Because we cannot change the `display` using only CSS after/before the transition, we
+       need JS to do it. We change the display to prevent the browsers search to find text inside
+       the collapsed sidebar. */
+    if (!document.documentElement.classList.contains('sidebar-visible')) {
+        sidebar.style.display = 'none';
+    }
+    sidebar.addEventListener('transitionend', () => {
+        /* We only change the display to "none" if we're collapsing the sidebar. */
+        if (!sidebarCheckbox.checked) {
+            sidebar.style.display = 'none';
+        }
+    });
+    sidebarToggleButton.addEventListener('click', () => {
+        /* To allow the sidebar expansion animation, we first need to put back the display. */
+        if (!sidebarCheckbox.checked) {
+            sidebar.style.display = '';
+            // Workaround for Safari skipping the animation when changing
+            // `display` and a transform in the same event loop. This forces a
+            // reflow after updating the display.
+            sidebar.offsetHeight;
+        }
+    });
+
     function showSidebar() {
-        body.classList.remove('sidebar-hidden');
-        body.classList.add('sidebar-visible');
+        document.documentElement.classList.add('sidebar-visible');
         Array.from(sidebarLinks).forEach(function(link) {
             link.setAttribute('tabIndex', 0);
         });
@@ -539,8 +561,7 @@ aria-label="Show hidden lines"></button>';
     }
 
     function hideSidebar() {
-        body.classList.remove('sidebar-visible');
-        body.classList.add('sidebar-hidden');
+        document.documentElement.classList.remove('sidebar-visible');
         Array.from(sidebarLinks).forEach(function(link) {
             link.setAttribute('tabIndex', -1);
         });
@@ -554,8 +575,8 @@ aria-label="Show hidden lines"></button>';
     }
 
     // Toggle sidebar
-    sidebarToggleAnchor.addEventListener('change', function sidebarToggle() {
-        if (sidebarToggleAnchor.checked) {
+    sidebarCheckbox.addEventListener('change', function sidebarToggle() {
+        if (sidebarCheckbox.checked) {
             const current_width = parseInt(
                 document.documentElement.style.getPropertyValue('--sidebar-target-width'), 10);
             if (current_width < 150) {
@@ -572,14 +593,14 @@ aria-label="Show hidden lines"></button>';
     function initResize() {
         window.addEventListener('mousemove', resize, false);
         window.addEventListener('mouseup', stopResize, false);
-        body.classList.add('sidebar-resizing');
+        document.documentElement.classList.add('sidebar-resizing');
     }
     function resize(e) {
         let pos = e.clientX - sidebar.offsetLeft;
         if (pos < 20) {
             hideSidebar();
         } else {
-            if (body.classList.contains('sidebar-hidden')) {
+            if (!document.documentElement.classList.contains('sidebar-visible')) {
                 showSidebar();
             }
             pos = Math.min(pos, window.innerWidth - 100);
@@ -588,7 +609,7 @@ aria-label="Show hidden lines"></button>';
     }
     //on mouseup remove windows functions mousemove & mouseup
     function stopResize() {
-        body.classList.remove('sidebar-resizing');
+        document.documentElement.classList.remove('sidebar-resizing');
         window.removeEventListener('mousemove', resize, false);
         window.removeEventListener('mouseup', stopResize, false);
     }
@@ -765,7 +786,7 @@ aria-label="Show hidden lines"></button>';
         let scrollTop = document.scrollingElement.scrollTop;
         let prevScrollTop = scrollTop;
         const minMenuY = -menu.clientHeight - 50;
-        // When the script loads, the page can be at any scroll (e.g. if you reforesh it).
+        // When the script loads, the page can be at any scroll (e.g. if you refresh it).
         menu.style.top = scrollTop + 'px';
         // Same as parseInt(menu.style.top.slice(0, -2), but faster
         let topCache = menu.style.top.slice(0, -2);

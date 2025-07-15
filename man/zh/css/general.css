@@ -86,11 +86,12 @@ h6:target::before {
     box-sizing: border-box;
     background-color: var(--bg);
 }
-.no-js .page-wrapper,
+html:not(.js) .page-wrapper,
 .js:not(.sidebar-resizing) .page-wrapper {
     transition: margin-left 0.3s ease, transform 0.3s ease; /* Animation: slide away */
 }
-[dir=rtl] .js:not(.sidebar-resizing) .page-wrapper {
+[dir=rtl]:not(.js) .page-wrapper,
+[dir=rtl].js:not(.sidebar-resizing) .page-wrapper {
     transition: margin-right 0.3s ease, transform 0.3s ease; /* Animation: slide away */
 }
 
