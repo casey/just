@@ -1,11 +1,16 @@
 Changelog
 =========
 
+[1.42.2](https://github.com/casey/just/releases/tag/1.42.2) - 2025-07-15
+------------------------------------------------------------------------
+
+### Fixed
+- Fix scope lookup for nested submodules ([#2820](https://github.com/casey/just/pull/2820) by [casey](https://github.com/casey))
+
 [1.42.1](https://github.com/casey/just/releases/tag/1.42.1) - 2025-07-14
 ------------------------------------------------------------------------
 
 ### Fixed
-
 - Export variables to submodules ([#2816](https://github.com/casey/just/pull/2816) by [casey](https://github.com/casey))
 - Only override root-justfile variable assignments ([#2815](https://github.com/casey/just/pull/2815) by [casey](https://github.com/casey))
 
