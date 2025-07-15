@@ -7,6 +7,7 @@ pub(crate) struct Analyzer<'run, 'src> {
   modules: Table<'src, Justfile<'src>>,
   recipes: Vec<&'run Recipe<'src, UnresolvedDependency<'src>>>,
   sets: Table<'src, Set<'src>>,
+  enums: Table<'src, Enum<'src>>,
   unexports: HashSet<String>,
   warnings: Vec<Warning>,
 }
@@ -99,6 +100,10 @@ impl<'run, 'src> Analyzer<'run, 'src> {
               }));
             }
           }
+          Item::Enum(enumm) => {
+            Self::define(&mut definitions, enumm.name, "enum", false)?;
+            self.enums.insert(enumm.clone());
+          }
         }
       }
 
@@ -147,6 +152,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     let recipes = RecipeResolver::resolve_recipes(
       &assignments,
+      &self.enums,
       &self.modules,
       &settings,
       deduplicated_recipes,
@@ -198,6 +204,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       unstable_features,
       warnings: self.warnings,
       working_directory: ast.working_directory.clone(),
+      enums: self.enums,
     })
   }
 
