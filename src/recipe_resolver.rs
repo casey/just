@@ -29,7 +29,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       for (i, parameter) in recipe.parameters.iter().enumerate() {
         if let Some(expression) = &parameter.default {
           for variable in expression.variables() {
-            resolver.resolve_variable(&variable, &recipe.parameters[..i])?;
+            resolver.resolve_variable(&variable, &recipe.flags, &recipe.parameters[..i])?;
           }
         }
       }
@@ -37,7 +37,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       for dependency in &recipe.dependencies {
         for argument in &dependency.arguments {
           for variable in argument.variables() {
-            resolver.resolve_variable(&variable, &recipe.parameters)?;
+            resolver.resolve_variable(&variable, &recipe.flags, &recipe.parameters)?;
           }
         }
       }
@@ -50,7 +50,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
         for fragment in &line.fragments {
           if let Fragment::Interpolation { expression, .. } = fragment {
             for variable in expression.variables() {
-              resolver.resolve_variable(&variable, &recipe.parameters)?;
+              resolver.resolve_variable(&variable, &recipe.flags, &recipe.parameters)?;
             }
           }
         }
@@ -63,11 +63,13 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
   fn resolve_variable(
     &self,
     variable: &Token<'src>,
+    flags: &BTreeMap<String, Parameter>,
     parameters: &[Parameter],
   ) -> CompileResult<'src> {
     let name = variable.lexeme();
 
     let defined = self.assignments.contains_key(name)
+      || flags.values().any(|p| p.name.lexeme() == name)
       || parameters.iter().any(|p| p.name.lexeme() == name)
       || constants().contains_key(name);
 
