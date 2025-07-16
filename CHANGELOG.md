@@ -1,6 +1,36 @@
 Changelog
 =========
 
+[1.42.2](https://github.com/casey/just/releases/tag/1.42.2) - 2025-07-15
+------------------------------------------------------------------------
+
+### Fixed
+- Fix scope lookup for nested submodules ([#2820](https://github.com/casey/just/pull/2820) by [casey](https://github.com/casey))
+
+[1.42.1](https://github.com/casey/just/releases/tag/1.42.1) - 2025-07-14
+------------------------------------------------------------------------
+
+### Fixed
+- Export variables to submodules ([#2816](https://github.com/casey/just/pull/2816) by [casey](https://github.com/casey))
+- Only override root-justfile variable assignments ([#2815](https://github.com/casey/just/pull/2815) by [casey](https://github.com/casey))
+
+[1.42.0](https://github.com/casey/just/releases/tag/1.42.0) - 2025-07-13
+------------------------------------------------------------------------
+
+### Fixed
+- Use correct scope when running recipes in submodules ([#2810](https://github.com/casey/just/pull/2810) by [casey](https://github.com/casey))
+
+### Added
+- Add `[parallel]` attribute to run dependencies in parallel ([#2803](https://github.com/casey/just/pull/2803) by [casey](https://github.com/casey))
+- Allow configuring `cygpath` with `--cygpath` and `$JUST_CYGPATH` ([#2804](https://github.com/casey/just/pull/2804) by [hyrious](https://github.com/hyrious))
+- Use GitHub token in `install.sh` if available ([#2676](https://github.com/casey/just/pull/2676) by [jpeeler](https://github.com/jpeeler))
+- Add `[metadata]` recipe attribute ([#2794](https://github.com/casey/just/pull/2794) by [wiktor-k](https://github.com/wiktor-k))
+- Allow depending on recipes in submodules ([#2672](https://github.com/casey/just/pull/2672) by [corvusrabus](https://github.com/corvusrabus))
+
+### Changed
+- Allow completing multiple recipes in bash ([#2764](https://github.com/casey/just/pull/2764) by [antirais](https://github.com/antirais))
+- Make global justfile filename case-insensitive ([#2802](https://github.com/casey/just/pull/2802) by [casey](https://github.com/casey))
+
 [1.41.0](https://github.com/casey/just/releases/tag/1.41.0) - 2025-07-01
 ------------------------------------------------------------------------
 
