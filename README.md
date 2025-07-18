@@ -700,6 +700,23 @@ Recipes may depend on recipes in submodules:
 mod foo
 
 baz: foo::bar
+  @echo "baz depends on foo::bar"
+```
+
+```console
+$ just baz
+bar output
+baz depends on foo::bar
+```
+
+Multiple cross-module dependencies are supported:
+
+```justfile
+mod backend
+mod frontend
+
+deploy: backend::build frontend::build backend::test
+  @echo "Deploying application"
 ```
 
 Examples
@@ -2846,6 +2863,23 @@ This has limitations, since recipe `c` is run with an entirely new invocation
 of `just`: Assignments will be recalculated, dependencies might run twice, and
 command line arguments will not be propagated to the child `just` process.
 
+#### Cross-Module Dependencies
+
+Dependencies can reference recipes in other modules using the `::` syntax:
+
+```justfile
+mod backend
+
+deploy: backend::build backend::test
+  @echo "Deploying after backend is ready"
+```
+
+This is preferred over calling `just` as a subprocess because it:
+- Maintains the single dependency graph
+- Runs dependencies only once
+- Propagates command line arguments correctly
+- Avoids recalculating assignments
+
 ### Shebang Recipes
 
 Recipes that start with `#!` are called shebang recipes, and are executed by
@@ -3797,10 +3831,37 @@ Available recipes:
     foo ... # foo is a great module!
 ```
 
-Modules are still missing a lot of features, for example, the ability to depend
-on recipes and refer to variables in other modules. See the
-[module improvement tracking issue](https://github.com/casey/just/issues/2252)
-for more information.
+#### Cross-Module Dependencies
+
+Recipes can depend on recipes in other modules using the `::` syntax:
+
+```justfile
+mod backend
+mod frontend
+
+deploy: backend::build frontend::build backend::test
+  @echo "Deploying application"
+```
+
+```console
+$ just deploy
+Building backend...
+Building frontend...
+Running backend tests...
+Deploying application
+```
+
+Multiple dependencies across modules are supported, and they execute in the correct order. Dependencies can also be mixed with local recipes:
+
+```justfile
+mod tools
+
+setup: check-deps tools::install
+  @echo "Setup complete"
+
+check-deps:
+  @echo "Checking dependencies..."
+```
 
 ### Hiding `justfile`s
 
