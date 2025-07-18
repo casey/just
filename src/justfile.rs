@@ -306,6 +306,49 @@ impl<'src> Justfile<'src> {
     self.name.map(|name| name.lexeme()).unwrap_or_default()
   }
 
+  fn create_dependency_context<'run>(
+    context: &ExecutionContext<'src, 'run>,
+    recipe: &Arc<Recipe<'src>>,
+  ) -> ExecutionContext<'src, 'run> {
+    // Check if the recipe is from a submodule by looking at its namepath
+    if recipe.namepath.components() > 1 {
+      // This is a cross-module dependency, find the correct submodule
+      let mut current_module = context.module;
+      let (_recipe_name, path_components) = recipe.namepath.split_last();
+
+      // Navigate to the correct submodule
+      for component in path_components {
+        if let Some(submodule) = current_module.modules.get(component.lexeme()) {
+          current_module = submodule;
+        } else {
+          // If we can't find the submodule, fall back to the original context
+          return ExecutionContext {
+            config: context.config,
+            dotenv: context.dotenv,
+            module: context.module,
+            search: context.search,
+          };
+        }
+      }
+
+      // Create new ExecutionContext with the correct submodule
+      ExecutionContext {
+        config: context.config,
+        dotenv: context.dotenv,
+        module: current_module,
+        search: context.search,
+      }
+    } else {
+      // Same module, use original context
+      ExecutionContext {
+        config: context.config,
+        dotenv: context.dotenv,
+        module: context.module,
+        search: context.search,
+      }
+    }
+  }
+
   fn run_recipe(
     arguments: &[String],
     context: &ExecutionContext<'src, '_>,
@@ -389,9 +432,10 @@ impl<'src> Justfile<'src> {
       thread::scope::<_, RunResult>(|thread_scope| {
         let mut handles = Vec::new();
         for (recipe, arguments) in evaluated {
+          let dep_context = Self::create_dependency_context(context, recipe);
           handles.push(
             thread_scope
-              .spawn(move || Self::run_recipe(&arguments, context, true, ran, recipe, scopes)),
+              .spawn(move || Self::run_recipe(&arguments, &dep_context, true, ran, recipe, scopes)),
           );
         }
         for handle in handles {
@@ -403,7 +447,8 @@ impl<'src> Justfile<'src> {
       })?;
     } else {
       for (recipe, arguments) in evaluated {
-        Self::run_recipe(&arguments, context, true, ran, recipe, scopes)?;
+        let dep_context = Self::create_dependency_context(context, recipe);
+        Self::run_recipe(&arguments, &dep_context, true, ran, recipe, scopes)?;
       }
     }
 
