@@ -1,6 +1,12 @@
 Changelog
 =========
 
+[1.42.3](https://github.com/casey/just/releases/tag/1.42.3) - 2025-07-18
+------------------------------------------------------------------------
+
+### Fixed
+- Run recipes from submodules in correct directory ([#2829](https://github.com/casey/just/pull/2829) by [eisbaw](https://github.com/eisbaw))
+
 [1.42.2](https://github.com/casey/just/releases/tag/1.42.2) - 2025-07-15
 ------------------------------------------------------------------------
 
