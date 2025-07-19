@@ -68,7 +68,7 @@ impl<'src> Justfile<'src> {
     )
   }
 
-  fn evaluate_assignments<'run>(
+  fn evaluate_scopes<'run>(
     &'run self,
     arena: &'run Arena<Scope<'src, 'run>>,
     config: &'run Config,
@@ -84,7 +84,7 @@ impl<'src> Justfile<'src> {
     scopes.insert(self.module_path.clone(), (self, scope));
 
     for module in self.modules.values() {
-      module.evaluate_assignments(
+      module.evaluate_scopes(
         arena,
         config,
         dotenv,
@@ -126,7 +126,7 @@ impl<'src> Justfile<'src> {
     let root = Scope::root();
     let arena = Arena::new();
     let mut scopes = BTreeMap::new();
-    self.evaluate_assignments(
+    self.evaluate_scopes(
       &arena,
       config,
       &dotenv,
