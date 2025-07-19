@@ -622,12 +622,14 @@ fn cross_module_dependency_runs_in_submodule_directory() {
 fn cross_module_dependency_with_no_cd_runs_in_invocation_directory() {
   Test::new()
     .write("root_file", "ROOT")
-    .write("foo/mod.just",
+    .write(
+      "foo/mod.just",
       "
 [no-cd]
 foo:
   @cat root_file
-      ")
+      ",
+    )
     .justfile(
       "
         mod foo

@@ -3,7 +3,6 @@ use {super::*, serde::Serialize};
 #[derive(Debug)]
 struct Invocation<'src: 'run, 'run> {
   arguments: Vec<&'run str>,
-  module: &'run Justfile<'src>,
   recipe: &'run Recipe<'src>,
 }
 
@@ -76,14 +75,13 @@ impl<'src> Justfile<'src> {
     dotenv: &'run BTreeMap<String, String>,
     overrides: &BTreeMap<String, String>,
     root: &'run Scope<'src, 'run>,
-    scopes: &mut BTreeMap<String, &'run Scope<'src, 'run>>,
+    scopes: &mut BTreeMap<String, (&'run Justfile<'src>, &'run Scope<'src, 'run>)>,
     search: &'run Search,
   ) -> RunResult<'src> {
     let scope = Evaluator::evaluate_assignments(config, dotenv, self, overrides, root, search)?;
 
     let scope = arena.alloc(scope);
-    scopes.insert(self.module_path.clone(), scope);
-    scopes.get(&self.module_path).unwrap();
+    scopes.insert(self.module_path.clone(), (self, scope));
 
     for module in self.modules.values() {
       module.evaluate_assignments(
@@ -138,7 +136,7 @@ impl<'src> Justfile<'src> {
       search,
     )?;
 
-    let scope = scopes.get(&self.module_path).unwrap();
+    let scope = scopes.get(&self.module_path).unwrap().1;
 
     match &config.subcommand {
       Subcommand::Command {
@@ -230,13 +228,6 @@ impl<'src> Justfile<'src> {
 
     let ran = Ran::default();
     for invocation in invocations {
-      let context = ExecutionContext {
-        config,
-        dotenv: &dotenv,
-        module: invocation.module,
-        search,
-      };
-
       Self::run_recipe(
         &invocation
           .arguments
@@ -244,11 +235,13 @@ impl<'src> Justfile<'src> {
           .copied()
           .map(str::to_string)
           .collect::<Vec<String>>(),
-        &context,
+        config,
+        &dotenv,
         false,
         &ran,
         invocation.recipe,
         &scopes,
+        search,
       )?;
     }
 
@@ -289,7 +282,6 @@ impl<'src> Justfile<'src> {
       let recipe = self.get_recipe(&path[position]).unwrap();
       Ok(Invocation {
         arguments: arguments.into(),
-        module: self,
         recipe,
       })
     } else {
@@ -306,56 +298,15 @@ impl<'src> Justfile<'src> {
     self.name.map(|name| name.lexeme()).unwrap_or_default()
   }
 
-  fn create_dependency_context<'run>(
-    context: &ExecutionContext<'src, 'run>,
-    recipe: &Arc<Recipe<'src>>,
-  ) -> ExecutionContext<'src, 'run> {
-    // Check if the recipe is from a submodule by looking at its namepath
-    if recipe.namepath.components() > 1 {
-      // This is a cross-module dependency, find the correct submodule
-      let mut current_module = context.module;
-      let (_recipe_name, path_components) = recipe.namepath.split_last();
-
-      // Navigate to the correct submodule
-      for component in path_components {
-        if let Some(submodule) = current_module.modules.get(component.lexeme()) {
-          current_module = submodule;
-        } else {
-          // If we can't find the submodule, fall back to the original context
-          return ExecutionContext {
-            config: context.config,
-            dotenv: context.dotenv,
-            module: context.module,
-            search: context.search,
-          };
-        }
-      }
-
-      // Create new ExecutionContext with the correct submodule
-      ExecutionContext {
-        config: context.config,
-        dotenv: context.dotenv,
-        module: current_module,
-        search: context.search,
-      }
-    } else {
-      // Same module, use original context
-      ExecutionContext {
-        config: context.config,
-        dotenv: context.dotenv,
-        module: context.module,
-        search: context.search,
-      }
-    }
-  }
-
   fn run_recipe(
     arguments: &[String],
-    context: &ExecutionContext<'src, '_>,
+    config: &Config,
+    dotenv: &BTreeMap<String, String>,
     is_dependency: bool,
     ran: &Ran<'src>,
     recipe: &Recipe<'src>,
-    scopes: &BTreeMap<String, &Scope<'src, '_>>,
+    scopes: &BTreeMap<String, (&Justfile<'src>, &Scope<'src, '_>)>,
+    search: &Search,
   ) -> RunResult<'src> {
     let mutex = ran.mutex(&recipe.namepath, arguments);
 
@@ -365,41 +316,59 @@ impl<'src> Justfile<'src> {
       return Ok(());
     }
 
-    if !context.config.yes && !recipe.confirm()? {
+    if !config.yes && !recipe.confirm()? {
       return Err(Error::NotConfirmed {
         recipe: recipe.name(),
       });
     }
 
-    let scope = scopes
+    let (module, scope) = scopes
       .get(&recipe.module_path())
       .expect("failed to retrieve scope for module");
 
-    let (outer, positional) =
-      Evaluator::evaluate_parameters(context, is_dependency, arguments, &recipe.parameters, scope)?;
+    let context = ExecutionContext {
+      config,
+      dotenv,
+      module,
+      search,
+    };
+
+    let (outer, positional) = Evaluator::evaluate_parameters(
+      &context,
+      is_dependency,
+      arguments,
+      &recipe.parameters,
+      scope,
+    )?;
 
     let scope = outer.child();
 
-    let mut evaluator = Evaluator::new(context, true, &scope);
+    let mut evaluator = Evaluator::new(&context, true, &scope);
 
     Self::run_dependencies(
-      context,
+      config,
+      &context,
       recipe.priors(),
+      dotenv,
       &mut evaluator,
       ran,
       recipe,
       scopes,
+      search,
     )?;
 
-    recipe.run(context, &scope, &positional, is_dependency)?;
+    recipe.run(&context, &scope, &positional, is_dependency)?;
 
     Self::run_dependencies(
-      context,
+      config,
+      &context,
       recipe.subsequents(),
+      dotenv,
       &mut evaluator,
       &Ran::default(),
       recipe,
       scopes,
+      search,
     )?;
 
     *guard = true;
@@ -408,12 +377,15 @@ impl<'src> Justfile<'src> {
   }
 
   fn run_dependencies<'run>(
+    config: &Config,
     context: &ExecutionContext<'src, 'run>,
     dependencies: &[Dependency<'src>],
+    dotenv: &BTreeMap<String, String>,
     evaluator: &mut Evaluator<'src, 'run>,
     ran: &Ran<'src>,
     recipe: &Recipe<'src>,
-    scopes: &BTreeMap<String, &Scope<'src, 'run>>,
+    scopes: &BTreeMap<String, (&Justfile<'src>, &Scope<'src, 'run>)>,
+    search: &Search,
   ) -> RunResult<'src> {
     if context.config.no_dependencies {
       return Ok(());
@@ -432,11 +404,11 @@ impl<'src> Justfile<'src> {
       thread::scope::<_, RunResult>(|thread_scope| {
         let mut handles = Vec::new();
         for (recipe, arguments) in evaluated {
-          let dep_context = Self::create_dependency_context(context, recipe);
-          handles.push(
-            thread_scope
-              .spawn(move || Self::run_recipe(&arguments, &dep_context, true, ran, recipe, scopes)),
-          );
+          handles.push(thread_scope.spawn(move || {
+            Self::run_recipe(
+              &arguments, config, dotenv, true, ran, recipe, scopes, search,
+            )
+          }));
         }
         for handle in handles {
           handle
@@ -447,8 +419,9 @@ impl<'src> Justfile<'src> {
       })?;
     } else {
       for (recipe, arguments) in evaluated {
-        let dep_context = Self::create_dependency_context(context, recipe);
-        Self::run_recipe(&arguments, &dep_context, true, ran, recipe, scopes)?;
+        Self::run_recipe(
+          &arguments, config, dotenv, true, ran, recipe, scopes, search,
+        )?;
       }
     }
 
