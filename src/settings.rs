@@ -9,10 +9,10 @@ pub(crate) const WINDOWS_POWERSHELL_ARGS: &[&str] = &["-NoLogo", "-Command"];
 pub(crate) struct Settings<'src> {
   pub(crate) allow_duplicate_recipes: bool,
   pub(crate) allow_duplicate_variables: bool,
-  pub(crate) dotenv_filename: Option<String>,
+  pub(crate) dotenv_filename: Vec<String>,
   pub(crate) dotenv_load: bool,
   pub(crate) dotenv_override: bool,
-  pub(crate) dotenv_path: Option<PathBuf>,
+  pub(crate) dotenv_path: Vec<PathBuf>,
   pub(crate) dotenv_required: bool,
   pub(crate) export: bool,
   pub(crate) fallback: bool,
@@ -42,14 +42,14 @@ impl<'src> Settings<'src> {
         Setting::AllowDuplicateVariables(allow_duplicate_variables) => {
           settings.allow_duplicate_variables = allow_duplicate_variables;
         }
-        Setting::DotenvFilename(filename) => {
-          settings.dotenv_filename = Some(filename.cooked);
+        Setting::DotenvFilename(filenames) => {
+          settings.dotenv_filename = filenames.cooked();
         }
         Setting::DotenvLoad(dotenv_load) => {
           settings.dotenv_load = dotenv_load;
         }
-        Setting::DotenvPath(path) => {
-          settings.dotenv_path = Some(PathBuf::from(path.cooked));
+        Setting::DotenvPath(paths) => {
+          settings.dotenv_path = paths.cooked().into_iter().map(Into::into).collect();
         }
         Setting::DotenvOverride(dotenv_overrride) => {
           settings.dotenv_override = dotenv_overrride;
