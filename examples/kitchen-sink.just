@@ -1,5 +1,5 @@
 set shell := ["sh", "-c"]
-set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
+set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
 set allow-duplicate-recipes
 set positional-arguments
 set dotenv-load
