@@ -601,6 +601,65 @@ fn submodule_shebang_recipes_run_in_submodule_directory() {
     .run();
 }
 
+#[test]
+fn cross_module_dependency_runs_in_submodule_directory() {
+  Test::new()
+    .write("foo/bar", "BAR")
+    .write("foo/mod.just", "foo:\n @cat bar")
+    .justfile(
+      "
+        mod foo
+
+        main: foo::foo
+      ",
+    )
+    .arg("main")
+    .stdout("BAR")
+    .run();
+}
+
+#[test]
+fn cross_module_dependency_with_no_cd_runs_in_invocation_directory() {
+  Test::new()
+    .write("root_file", "ROOT")
+    .write(
+      "foo/mod.just",
+      "
+[no-cd]
+foo:
+  @cat root_file
+      ",
+    )
+    .justfile(
+      "
+        mod foo
+
+        main: foo::foo
+      ",
+    )
+    .arg("main")
+    .stdout("ROOT")
+    .run();
+}
+
+#[test]
+fn nested_cross_module_dependency_runs_in_correct_directory() {
+  Test::new()
+    .write("outer/inner/file", "NESTED")
+    .write("outer/inner/mod.just", "task:\n @cat file")
+    .write("outer/mod.just", "mod inner")
+    .justfile(
+      "
+        mod outer
+
+        main: outer::inner::task
+      ",
+    )
+    .arg("main")
+    .stdout("NESTED")
+    .run();
+}
+
 #[cfg(not(windows))]
 #[test]
 fn module_paths_beginning_with_tilde_are_expanded_to_homdir() {
