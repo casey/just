@@ -2103,12 +2103,12 @@ change their behavior.
 | `[group(NAME)]`<sup>1.27.0</sup> | module, recipe | Put recipe or module in in [group](#groups) `NAME`. |
 | `[linux]`<sup>1.8.0</sup> | recipe | Enable recipe on Linux. |
 | `[macos]`<sup>1.8.0</sup> | recipe | Enable recipe on MacOS. |
-| `[metadata(METADATA)]`<sup>master</sup> | recipe | Attach `METADATA` to recipe. |
+| `[metadata(METADATA)]`<sup>1.42.0</sup> | recipe | Attach `METADATA` to recipe. |
 | `[no-cd]`<sup>1.9.0</sup> | recipe | Don't change directory before executing recipe. |
 | `[no-exit-message]`<sup>1.7.0</sup> | recipe | Don't print an error message if recipe fails. |
 | `[no-quiet]`<sup>1.23.0</sup> | recipe | Override globally quiet recipes and always echo out the recipe. |
 | `[openbsd]`<sup>1.38.0</sup> | recipe | Enable recipe on OpenBSD. |
-| `[parallel]`<sup>master</sup> | recipe | Run this recipe's dependencies in parallel. |
+| `[parallel]`<sup>1.42.0</sup> | recipe | Run this recipe's dependencies in parallel. |
 | `[positional-arguments]`<sup>1.29.0</sup> | recipe | Turn on [positional arguments](#positional-arguments) for this recipe. |
 | `[private]`<sup>1.10.0</sup> | alias, recipe | Make recipe, alias, or variable private. See [Private Recipes](#private-recipes). |
 | `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
@@ -3859,10 +3859,9 @@ Available recipes:
     foo ... # foo is a great module!
 ```
 
-Modules are still missing a lot of features, for example, the ability to depend
-on recipes and refer to variables in other modules. See the
-[module improvement tracking issue](https://github.com/casey/just/issues/2252)
-for more information.
+Modules are still missing a lot of features, for example, the ability to refer
+to variables in other modules. See the [module improvement tracking
+issue](https://github.com/casey/just/issues/2252) for more information.
 
 ### Hiding `justfile`s
 
