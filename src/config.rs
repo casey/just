@@ -28,6 +28,7 @@ pub(crate) struct Config {
   pub(crate) list_heading: String,
   pub(crate) list_prefix: String,
   pub(crate) list_submodules: bool,
+  pub(crate) list_all: bool,
   pub(crate) load_dotenv: bool,
   pub(crate) no_aliases: bool,
   pub(crate) no_dependencies: bool,
@@ -58,6 +59,7 @@ mod cmd {
   pub(crate) const GROUPS: &str = "GROUPS";
   pub(crate) const INIT: &str = "INIT";
   pub(crate) const LIST: &str = "LIST";
+  pub(crate) const LIST_ALL: &str = "LIST_ALL";
   pub(crate) const MAN: &str = "MAN";
   pub(crate) const REQUEST: &str = "REQUEST";
   pub(crate) const SHOW: &str = "SHOW";
@@ -75,6 +77,7 @@ mod cmd {
     FORMAT,
     INIT,
     LIST,
+    LIST_ALL,
     MAN,
     REQUEST,
     SHOW,
@@ -552,6 +555,17 @@ impl Config {
           .help_heading(cmd::HEADING),
       )
       .arg(
+        Arg::new(cmd::LIST_ALL)
+          .long("list-all")
+          .num_args(0..)
+          .value_name("MODULE")
+          .action(ArgAction::Set)
+          .conflicts_with(arg::ARGUMENTS)
+          .conflicts_with(cmd::LIST)
+          .help("List all available recipes including those in submodules")
+          .help_heading(cmd::HEADING),
+      )
+      .arg(
         Arg::new(cmd::MAN)
           .long("man")
           .action(ArgAction::SetTrue)
@@ -746,6 +760,10 @@ impl Config {
       Subcommand::List {
         path: Self::parse_module_path(path)?,
       }
+    } else if let Some(path) = matches.get_many::<String>(cmd::LIST_ALL) {
+      Subcommand::List {
+        path: Self::parse_module_path(path)?,
+      }
     } else if matches.get_flag(cmd::MAN) {
       Subcommand::Man
     } else if let Some(request) = matches.get_one::<String>(cmd::REQUEST) {
@@ -798,7 +816,8 @@ impl Config {
       invocation_directory: env::current_dir().context(config_error::CurrentDirContext)?,
       list_heading: matches.get_one::<String>(arg::LIST_HEADING).unwrap().into(),
       list_prefix: matches.get_one::<String>(arg::LIST_PREFIX).unwrap().into(),
-      list_submodules: matches.get_flag(arg::LIST_SUBMODULES),
+      list_submodules: matches.get_flag(arg::LIST_SUBMODULES) || matches.contains_id(cmd::LIST_ALL),
+      list_all: matches.contains_id(cmd::LIST_ALL),
       load_dotenv: !matches.get_flag(arg::NO_DOTENV),
       no_aliases: matches.get_flag(arg::NO_ALIASES),
       no_dependencies: matches.get_flag(arg::NO_DEPS),

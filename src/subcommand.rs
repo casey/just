@@ -454,7 +454,7 @@ impl Subcommand {
     ) {
       let color = config.color.stdout();
 
-      let inline_aliases = config.alias_style != AliasStyle::Separate && !aliases.is_empty();
+      let inline_aliases = config.alias_style != AliasStyle::Separate && !aliases.is_empty() && !config.list_all;
 
       if inline_aliases || doc.is_some() {
         print!(
@@ -625,7 +625,7 @@ impl Subcommand {
 
       if let Some(recipes) = recipe_groups.get(&group) {
         for recipe in recipes {
-          let recipe_alias_entries = if config.alias_style == AliasStyle::Separate {
+          let recipe_alias_entries = if config.alias_style == AliasStyle::Separate || config.list_all {
             aliases.get(recipe.name())
           } else {
             None
@@ -676,10 +676,16 @@ impl Subcommand {
       if let Some(submodules) = submodule_groups.get(&group) {
         for (i, submodule) in submodules.iter().enumerate() {
           if config.list_submodules {
-            if no_groups && (i + groups_count > 0) {
+            if depth == 0 && no_groups && (i + groups_count > 0) {
               println!();
             }
-            println!("{list_prefix}{}:", submodule.name());
+            print!("{list_prefix}{}:", submodule.name());
+            if config.list_all {
+              if let Some(doc) = &submodule.doc {
+                print!(" {}", config.color.stdout().doc().paint(&format!("# {}", doc)));
+              }
+            }
+            println!();
 
             Self::list_module(config, submodule, depth + 1);
           } else {
