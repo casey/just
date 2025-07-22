@@ -1,6 +1,6 @@
 use super::*;
 
-/// An alias, e.g. `name := target`
+/// An alias, e.g. `alias name := target`
 #[derive(Debug, PartialEq, Clone, Serialize)]
 pub(crate) struct Alias<'src, T = Arc<Recipe<'src>>> {
   pub(crate) attributes: AttributeSet<'src>,
