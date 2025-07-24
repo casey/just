@@ -43,13 +43,13 @@ impl<'src> UnresolvedRecipe<'src> {
       })
       .collect();
 
-    let mut module_path = String::from(module_path);
+    let mut namepath = String::from(module_path);
 
-    if !module_path.is_empty() {
-      module_path.push_str("::");
+    if !namepath.is_empty() {
+      namepath.push_str("::");
     }
 
-    module_path.push_str(self.name.lexeme());
+    namepath.push_str(self.name.lexeme());
 
     Ok(Recipe {
       attributes: self.attributes,
@@ -59,7 +59,7 @@ impl<'src> UnresolvedRecipe<'src> {
       file_depth: self.file_depth,
       import_offsets: self.import_offsets,
       name: self.name,
-      namepath: Some(module_path),
+      namepath: Some(namepath),
       parameters: self.parameters,
       priors: self.priors,
       private: self.private,
