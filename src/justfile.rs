@@ -308,7 +308,7 @@ impl<'src> Justfile<'src> {
     scopes: &BTreeMap<String, (&Justfile<'src>, &Scope<'src, '_>)>,
     search: &Search,
   ) -> RunResult<'src> {
-    let mutex = ran.mutex(recipe.namepath(), arguments);
+    let mutex = ran.mutex(recipe, arguments);
 
     let mut guard = mutex.lock().unwrap();
 
