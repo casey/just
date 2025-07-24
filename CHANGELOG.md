@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[1.42.4](https://github.com/casey/just/releases/tag/1.42.4) - 2025-07-24
+------------------------------------------------------------------------
+
+### Fixed
+- Run imported recipes in correct scope ([#2835](https://github.com/casey/just/pull/2835) by [casey](https://github.com/casey))
+- Fix alias doc comment ([#2833](https://github.com/casey/just/pull/2833) by [casey](https://github.com/casey))
+
 [1.42.3](https://github.com/casey/just/releases/tag/1.42.3) - 2025-07-18
 ------------------------------------------------------------------------
 
