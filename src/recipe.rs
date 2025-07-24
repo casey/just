@@ -28,12 +28,27 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   #[serde(skip)]
   pub(crate) import_offsets: Vec<usize>,
   pub(crate) name: Name<'src>,
-  pub(crate) namepath: Namepath<'src>,
+  pub(crate) namepath: Option<String>,
   pub(crate) parameters: Vec<Parameter<'src>>,
   pub(crate) priors: usize,
   pub(crate) private: bool,
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
+}
+
+impl Recipe<'_> {
+  pub(crate) fn module_path(&self) -> &str {
+    let namepath = self.namepath();
+    &namepath[0..namepath.rfind("::").unwrap_or_default()]
+  }
+
+  pub(crate) fn namepath(&self) -> &str {
+    self.namepath.as_ref().unwrap()
+  }
+
+  pub(crate) fn spaced_namepath(&self) -> String {
+    self.namepath().replace("::", " ")
+  }
 }
 
 impl<'src, D> Recipe<'src, D> {
@@ -55,12 +70,6 @@ impl<'src, D> Recipe<'src, D> {
     } else {
       self.parameters.len()
     }
-  }
-
-  pub(crate) fn module_path(&self) -> String {
-    let mut path = self.namepath.to_string();
-    path.truncate(path.rfind("::").unwrap_or_default());
-    path
   }
 
   pub(crate) fn name(&self) -> &'src str {

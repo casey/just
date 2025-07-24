@@ -14,7 +14,7 @@ pub(crate) struct Alias<'src, T = Arc<Recipe<'src>>> {
 
 impl<'src> Alias<'src, Namepath<'src>> {
   pub(crate) fn resolve(self, target: Arc<Recipe<'src>>) -> Alias<'src> {
-    assert!(self.target.last().lexeme() == target.namepath.last().lexeme());
+    assert!(self.target.last().lexeme() == target.name());
 
     Alias {
       attributes: self.attributes,

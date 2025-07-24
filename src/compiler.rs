@@ -16,8 +16,13 @@ impl Compiler {
     stack.push(Source::root(root));
 
     while let Some(current) = stack.pop() {
+      if paths.contains_key(&current.path) {
+        continue;
+      }
+
       let (relative, src) = loader.load(root, &current.path)?;
       loaded.push(relative.into());
+
       let tokens = Lexer::lex(relative, src)?;
       let mut ast = Parser::parse(
         current.file_depth,
