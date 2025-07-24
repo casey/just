@@ -1,17 +1,15 @@
 use super::*;
 
 #[derive(Default)]
-pub(crate) struct Ran<'src>(
-  Mutex<BTreeMap<Namepath<'src>, BTreeMap<Vec<String>, Arc<Mutex<bool>>>>>,
-);
+pub(crate) struct Ran(Mutex<BTreeMap<String, BTreeMap<Vec<String>, Arc<Mutex<bool>>>>>);
 
-impl<'src> Ran<'src> {
-  pub(crate) fn mutex(&self, recipe: &Namepath<'src>, arguments: &[String]) -> Arc<Mutex<bool>> {
+impl Ran {
+  pub(crate) fn mutex(&self, recipe: &str, arguments: &[String]) -> Arc<Mutex<bool>> {
     self
       .0
       .lock()
       .unwrap()
-      .entry(recipe.clone())
+      .entry(recipe.into())
       .or_default()
       .entry(arguments.into())
       .or_default()

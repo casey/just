@@ -303,12 +303,12 @@ impl<'src> Justfile<'src> {
     config: &Config,
     dotenv: &BTreeMap<String, String>,
     is_dependency: bool,
-    ran: &Ran<'src>,
+    ran: &Ran,
     recipe: &Recipe<'src>,
     scopes: &BTreeMap<String, (&Justfile<'src>, &Scope<'src, '_>)>,
     search: &Search,
   ) -> RunResult<'src> {
-    let mutex = ran.mutex(&recipe.namepath, arguments);
+    let mutex = ran.mutex(recipe.namepath(), arguments);
 
     let mut guard = mutex.lock().unwrap();
 
@@ -323,7 +323,7 @@ impl<'src> Justfile<'src> {
     }
 
     let (module, scope) = scopes
-      .get(&recipe.module_path())
+      .get(recipe.module_path())
       .expect("failed to retrieve scope for module");
 
     let context = ExecutionContext {
@@ -382,7 +382,7 @@ impl<'src> Justfile<'src> {
     dependencies: &[Dependency<'src>],
     dotenv: &BTreeMap<String, String>,
     evaluator: &mut Evaluator<'src, 'run>,
-    ran: &Ran<'src>,
+    ran: &Ran,
     recipe: &Recipe<'src>,
     scopes: &BTreeMap<String, (&Justfile<'src>, &Scope<'src, 'run>)>,
     search: &Search,

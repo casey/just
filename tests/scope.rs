@@ -51,3 +51,20 @@ foo:
     .args(["a", "b", "foo"])
     .run();
 }
+
+#[test]
+fn imported_recipes_run_in_correct_scope() {
+  Test::new()
+    .justfile(
+      "
+        mod a
+        mod b
+      ",
+    )
+    .write("a.just", "X := 'A'\nimport 'shared.just'")
+    .write("b.just", "X := 'B'\nimport 'shared.just'")
+    .write("shared.just", "foo:\n @echo {{ X }}")
+    .args(["a::foo", "b::foo"])
+    .stdout("A\nB\n")
+    .run();
+}

@@ -150,6 +150,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       &self.modules,
       &settings,
       deduplicated_recipes,
+      &ast.module_path,
     )?;
 
     let mut aliases = Table::new();

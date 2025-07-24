@@ -5,6 +5,7 @@ pub(crate) struct RecipeResolver<'src: 'run, 'run> {
   modules: &'run Table<'src, Justfile<'src>>,
   resolved_recipes: Table<'src, Arc<Recipe<'src>>>,
   unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
+  module_path: &'run str,
 }
 
 impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
@@ -13,12 +14,14 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     modules: &'run Table<'src, Justfile<'src>>,
     settings: &Settings,
     unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
+    module_path: &'run str,
   ) -> CompileResult<'src, Table<'src, Arc<Recipe<'src>>>> {
     let mut resolver = Self {
       resolved_recipes: Table::new(),
       unresolved_recipes,
       assignments,
       modules,
+      module_path,
     };
 
     while let Some(unresolved) = resolver.unresolved_recipes.pop() {
@@ -106,7 +109,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
 
     stack.pop();
 
-    let resolved = Arc::new(recipe.resolve(dependencies)?);
+    let resolved = Arc::new(recipe.resolve(dependencies, self.module_path)?);
     self.resolved_recipes.insert(Arc::clone(&resolved));
     Ok(resolved)
   }

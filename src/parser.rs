@@ -1013,9 +1013,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       file_depth: self.file_depth,
       import_offsets: self.import_offsets.clone(),
       name,
-      namepath: self
-        .module_namepath
-        .map_or_else(|| name.into(), |module_namepath| module_namepath.join(name)),
+      namepath: None,
       parameters: positional.into_iter().chain(variadic).collect(),
       priors,
       private,

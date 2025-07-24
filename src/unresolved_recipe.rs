@@ -6,6 +6,7 @@ impl<'src> UnresolvedRecipe<'src> {
   pub(crate) fn resolve(
     self,
     resolved: Vec<Arc<Recipe<'src>>>,
+    module_path: &str,
   ) -> CompileResult<'src, Recipe<'src>> {
     assert_eq!(
       self.dependencies.len(),
@@ -42,6 +43,14 @@ impl<'src> UnresolvedRecipe<'src> {
       })
       .collect();
 
+    let mut module_path = String::from(module_path);
+
+    if !module_path.is_empty() {
+      module_path.push_str("::");
+    }
+
+    module_path.push_str(self.name.lexeme());
+
     Ok(Recipe {
       attributes: self.attributes,
       body: self.body,
@@ -50,7 +59,7 @@ impl<'src> UnresolvedRecipe<'src> {
       file_depth: self.file_depth,
       import_offsets: self.import_offsets,
       name: self.name,
-      namepath: self.namepath,
+      namepath: Some(module_path),
       parameters: self.parameters,
       priors: self.priors,
       private: self.private,

@@ -246,7 +246,7 @@ impl Subcommand {
 
     let stdin = child.stdin.as_mut().unwrap();
     for recipe in recipes {
-      if let Err(io_error) = writeln!(stdin, "{}", recipe.namepath.spaced()) {
+      if let Err(io_error) = writeln!(stdin, "{}", recipe.spaced_namepath()) {
         if io_error.kind() != std::io::ErrorKind::BrokenPipe {
           return Err(Error::ChooserWrite { io_error, chooser });
         }
