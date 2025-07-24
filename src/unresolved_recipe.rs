@@ -5,8 +5,8 @@ pub(crate) type UnresolvedRecipe<'src> = Recipe<'src, UnresolvedDependency<'src>
 impl<'src> UnresolvedRecipe<'src> {
   pub(crate) fn resolve(
     self,
-    resolved: Vec<Arc<Recipe<'src>>>,
     module_path: &str,
+    resolved: Vec<Arc<Recipe<'src>>>,
   ) -> CompileResult<'src, Recipe<'src>> {
     assert_eq!(
       self.dependencies.len(),
