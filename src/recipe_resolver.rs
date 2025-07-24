@@ -2,26 +2,26 @@ use {super::*, CompileErrorKind::*};
 
 pub(crate) struct RecipeResolver<'src: 'run, 'run> {
   assignments: &'run Table<'src, Assignment<'src>>,
+  module_path: &'run str,
   modules: &'run Table<'src, Justfile<'src>>,
   resolved_recipes: Table<'src, Arc<Recipe<'src>>>,
   unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
-  module_path: &'run str,
 }
 
 impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
   pub(crate) fn resolve_recipes(
     assignments: &'run Table<'src, Assignment<'src>>,
+    module_path: &'run str,
     modules: &'run Table<'src, Justfile<'src>>,
     settings: &Settings,
     unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
-    module_path: &'run str,
   ) -> CompileResult<'src, Table<'src, Arc<Recipe<'src>>>> {
     let mut resolver = Self {
+      assignments,
+      module_path,
+      modules,
       resolved_recipes: Table::new(),
       unresolved_recipes,
-      assignments,
-      modules,
-      module_path,
     };
 
     while let Some(unresolved) = resolver.unresolved_recipes.pop() {
