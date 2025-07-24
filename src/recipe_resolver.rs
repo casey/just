@@ -109,7 +109,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
 
     stack.pop();
 
-    let resolved = Arc::new(recipe.resolve(dependencies, self.module_path)?);
+    let resolved = Arc::new(recipe.resolve(self.module_path, dependencies)?);
     self.resolved_recipes.insert(Arc::clone(&resolved));
     Ok(resolved)
   }
