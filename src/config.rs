@@ -48,6 +48,7 @@ pub(crate) struct Config {
 
 mod cmd {
   pub(crate) const CHANGELOG: &str = "CHANGELOG";
+  pub(crate) const CHEAT_SHEET: &str = "CHEAT_SHEET";
   pub(crate) const CHOOSE: &str = "CHOOSE";
   pub(crate) const COMMAND: &str = "COMMAND";
   pub(crate) const COMPLETIONS: &str = "COMPLETIONS";
@@ -570,6 +571,13 @@ impl Config {
           .help_heading(cmd::REQUEST),
       )
       .arg(
+        Arg::new(cmd::CHEAT_SHEET)
+          .long("cheet-sheet")
+          .action(ArgAction::SetTrue)
+          .help("Print HTML cheet sheet")
+          .help_heading(cmd::HEADING),
+      )
+      .arg(
         Arg::new(cmd::SHOW)
           .short('s')
           .long("show")
@@ -753,6 +761,8 @@ impl Config {
         request: serde_json::from_str(request)
           .map_err(|source| ConfigError::RequestParse { source })?,
       }
+    } else if matches.get_flag(cmd::CHEAT_SHEET) {
+      Subcommand::CheatSheet
     } else if let Some(path) = matches.get_many::<String>(cmd::SHOW) {
       Subcommand::Show {
         path: Self::parse_module_path(path)?,
