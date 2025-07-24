@@ -36,7 +36,7 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) shebang: bool,
 }
 
-impl<'src> Recipe<'src> {
+impl Recipe<'_> {
   pub(crate) fn module_path(&self) -> &str {
     let namepath = self.namepath();
     &namepath[0..namepath.rfind("::").unwrap_or_default()]
