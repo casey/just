@@ -99,10 +99,9 @@ On Windows, `just` works with the `sh` provided by
 
 To run `just` on Windows, you must use one of the following setups:
 * Option 1: Run `just` from within one of the shells above (i.e. Git Bash).
-* Option 2: To run `just` from within PowerShell or CMD, you must one have a `sh` executable on your system PATH.
+* Option 2: To run `just` from within PowerShell or CMD, you must have a `sh` executable on your system PATH.
   * For example, add `C:\Program Files\Git\bin` and `C:\Program Files\Git\usr\bin` to your PATH.
-* Option 3: If you'd rather not install `sh`, or rather not modify your PATH, you can use the `shell` setting to use the
-shell of your choice (see below).
+* Option 3: If you'd rather not install `sh`, or rather not modify your PATH, you can use the `shell` setting to use the shell of your choice (see below).
 
 Like PowerShell:
 
