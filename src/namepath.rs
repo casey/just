@@ -8,13 +8,6 @@ impl<'src> Namepath<'src> {
     Self(self.0.iter().copied().chain(iter::once(name)).collect())
   }
 
-  pub(crate) fn spaced(&self) -> ModulePath {
-    ModulePath {
-      path: self.0.iter().map(|name| name.lexeme().into()).collect(),
-      spaced: true,
-    }
-  }
-
   pub(crate) fn push(&mut self, name: Name<'src>) {
     self.0.push(name);
   }

@@ -147,6 +147,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     let recipes = RecipeResolver::resolve_recipes(
       &assignments,
+      &ast.module_path,
       &self.modules,
       &settings,
       deduplicated_recipes,

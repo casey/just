@@ -5,6 +5,7 @@ pub(crate) type UnresolvedRecipe<'src> = Recipe<'src, UnresolvedDependency<'src>
 impl<'src> UnresolvedRecipe<'src> {
   pub(crate) fn resolve(
     self,
+    module_path: &str,
     resolved: Vec<Arc<Recipe<'src>>>,
   ) -> CompileResult<'src, Recipe<'src>> {
     assert_eq!(
@@ -42,6 +43,14 @@ impl<'src> UnresolvedRecipe<'src> {
       })
       .collect();
 
+    let mut namepath = String::from(module_path);
+
+    if !namepath.is_empty() {
+      namepath.push_str("::");
+    }
+
+    namepath.push_str(self.name.lexeme());
+
     Ok(Recipe {
       attributes: self.attributes,
       body: self.body,
@@ -51,7 +60,7 @@ impl<'src> UnresolvedRecipe<'src> {
       file_depth: self.file_depth,
       import_offsets: self.import_offsets,
       name: self.name,
-      namepath: self.namepath,
+      namepath: Some(namepath),
       parameters: self.parameters,
       priors: self.priors,
       private: self.private,

@@ -2,6 +2,7 @@ use {super::*, CompileErrorKind::*};
 
 pub(crate) struct RecipeResolver<'src: 'run, 'run> {
   assignments: &'run Table<'src, Assignment<'src>>,
+  module_path: &'run str,
   modules: &'run Table<'src, Justfile<'src>>,
   resolved_recipes: Table<'src, Arc<Recipe<'src>>>,
   unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
@@ -10,15 +11,17 @@ pub(crate) struct RecipeResolver<'src: 'run, 'run> {
 impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
   pub(crate) fn resolve_recipes(
     assignments: &'run Table<'src, Assignment<'src>>,
+    module_path: &'run str,
     modules: &'run Table<'src, Justfile<'src>>,
     settings: &Settings,
     unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
   ) -> CompileResult<'src, Table<'src, Arc<Recipe<'src>>>> {
     let mut resolver = Self {
+      assignments,
+      module_path,
+      modules,
       resolved_recipes: Table::new(),
       unresolved_recipes,
-      assignments,
-      modules,
     };
 
     while let Some(unresolved) = resolver.unresolved_recipes.pop() {
@@ -108,7 +111,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
 
     stack.pop();
 
-    let resolved = Arc::new(recipe.resolve(dependencies)?);
+    let resolved = Arc::new(recipe.resolve(self.module_path, dependencies)?);
     self.resolved_recipes.insert(Arc::clone(&resolved));
     Ok(resolved)
   }
