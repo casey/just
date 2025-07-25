@@ -4116,9 +4116,27 @@ watchexec just foo
 See `watchexec --help` for more info, including how to specify which files
 should be watched for changes.
 
-### Running tasks in parallel
+### Parallelism
 
-GNU parallel can be used to run tasks concurrently:
+Dependencies may be run in parallel with the `[parallel]` attribute.
+
+In this `justfile`, `foo`, `bar`, and `baz` will execute in parallel:
+
+```just
+[paralel]
+main: foo bar baz
+
+foo:
+  sleep 1
+
+bar:
+  sleep 1
+
+baz:
+  sleep 1
+```
+
+GNU `parallel` may be used to run recipe lines concurrently:
 
 ```just
 parallel:
