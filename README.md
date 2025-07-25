@@ -592,6 +592,10 @@ The [zed-just](https://github.com/jackTabsCode/zed-just/) extension by
 [jackTabsCode](https://github.com/jackTabsCode) is avilable on the
 [Zed extensions page](https://zed.dev/extensions?query=just).
 
+### Model Context Protocol
+[just-mcp](http://github.com/promptexecution/just-mcp) agentic tooling (ex: co-pilot, claude code, claude desktop, gemini-cli, openai codex, hundreds more) can discover & execute justfile commands with parameters without dangerous bash access.  
+
+
 ### Other Editors
 
 Feel free to send me the commands necessary to get syntax highlighting working
