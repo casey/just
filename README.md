@@ -4120,7 +4120,8 @@ should be watched for changes.
 
 Dependencies may be run in parallel with the `[parallel]` attribute.
 
-In this `justfile`, `foo`, `bar`, and `baz` will execute in parallel:
+In this `justfile`, `foo`, `bar`, and `baz` will execute in parallel when
+`main` is run:
 
 ```just
 [paralel]
