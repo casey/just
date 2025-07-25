@@ -4124,7 +4124,7 @@ In this `justfile`, `foo`, `bar`, and `baz` will execute in parallel when
 `main` is run:
 
 ```just
-[paralel]
+[parallel]
 main: foo bar baz
 
 foo:
