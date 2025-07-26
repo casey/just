@@ -2,6 +2,7 @@ use {super::*, serde::Serialize};
 
 #[derive(Debug)]
 struct Invocation<'src: 'run, 'run> {
+  flag_arguments: BTreeMap<String, Option<&'run str>>,
   arguments: Vec<&'run str>,
   recipe: &'run Recipe<'src>,
 }
@@ -217,7 +218,7 @@ impl<'src> Justfile<'src> {
     let mut invocations = Vec::<Invocation>::new();
 
     for group in &groups {
-      invocations.push(self.invocation(&group.arguments, &group.path, 0)?);
+      invocations.push(self.invocation(&group.flag_arguments, &group.arguments, &group.path, 0)?);
     }
 
     if config.one && invocations.len() > 1 {
@@ -229,6 +230,11 @@ impl<'src> Justfile<'src> {
     let ran = Ran::default();
     for invocation in invocations {
       Self::run_recipe(
+        &invocation
+          .flag_arguments
+          .iter()
+          .map(|(k, v)| (k.clone(), v.map(str::to_string)))
+          .collect::<BTreeMap<_, _>>(),
         &invocation
           .arguments
           .iter()
@@ -274,6 +280,7 @@ impl<'src> Justfile<'src> {
 
   fn invocation<'run>(
     &'run self,
+    flag_arguments: &BTreeMap<String, Option<&'run str>>,
     arguments: &[&'run str],
     path: &'run [String],
     position: usize,
@@ -281,12 +288,13 @@ impl<'src> Justfile<'src> {
     if position + 1 == path.len() {
       let recipe = self.get_recipe(&path[position]).unwrap();
       Ok(Invocation {
+        flag_arguments: flag_arguments.clone(),
         arguments: arguments.into(),
         recipe,
       })
     } else {
       let module = self.modules.get(&path[position]).unwrap();
-      module.invocation(arguments, path, position + 1)
+      module.invocation(flag_arguments, arguments, path, position + 1)
     }
   }
 
@@ -299,6 +307,7 @@ impl<'src> Justfile<'src> {
   }
 
   fn run_recipe(
+    flag_arguments: &BTreeMap<String, Option<String>>,
     arguments: &[String],
     config: &Config,
     dotenv: &BTreeMap<String, String>,
@@ -336,6 +345,8 @@ impl<'src> Justfile<'src> {
     let (outer, positional) = Evaluator::evaluate_parameters(
       &context,
       is_dependency,
+      flag_arguments,
+      &recipe.flags,
       arguments,
       &recipe.parameters,
       scope,
@@ -406,7 +417,15 @@ impl<'src> Justfile<'src> {
         for (recipe, arguments) in evaluated {
           handles.push(thread_scope.spawn(move || {
             Self::run_recipe(
-              &arguments, config, dotenv, true, ran, recipe, scopes, search,
+              &BTreeMap::new(),
+              &arguments,
+              config,
+              dotenv,
+              true,
+              ran,
+              recipe,
+              scopes,
+              search,
             )
           }));
         }
@@ -420,7 +439,15 @@ impl<'src> Justfile<'src> {
     } else {
       for (recipe, arguments) in evaluated {
         Self::run_recipe(
-          &arguments, config, dotenv, true, ran, recipe, scopes, search,
+          &BTreeMap::new(),
+          &arguments,
+          config,
+          dotenv,
+          true,
+          ran,
+          recipe,
+          scopes,
+          search,
         )?;
       }
     }

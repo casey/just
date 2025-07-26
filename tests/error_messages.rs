@@ -74,7 +74,7 @@ fn file_path_is_indented_if_justfile_is_long() {
     .status(EXIT_FAILURE)
     .stderr(
       "
-error: Expected '*', ':', '$', identifier, or '+', but found end of file
+error: Expected '*', ':', '$', flag, identifier, or '+', but found end of file
   ——▶ justfile:20:4
    │
 20 │ foo
@@ -92,7 +92,7 @@ fn file_paths_are_relative() {
     .status(EXIT_FAILURE)
     .stderr(format!(
       "
-error: Expected '*', ':', '$', identifier, or '+', but found end of file
+error: Expected '*', ':', '$', flag, identifier, or '+', but found end of file
  ——▶ foo{MAIN_SEPARATOR}bar.just:1:4
   │
 1 │ baz
@@ -112,7 +112,7 @@ fn file_paths_not_in_subdir_are_absolute() {
     .args(["--justfile", "foo/justfile"])
     .status(EXIT_FAILURE)
     .stderr_regex(
-      r"error: Expected '\*', ':', '\$', identifier, or '\+', but found end of file
+      r"error: Expected '\*', ':', '\$', flag, identifier, or '\+', but found end of file
  ——▶ /.*/bar.just:1:4
   │
 1 │ baz
