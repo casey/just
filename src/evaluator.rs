@@ -330,6 +330,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     let mut positional = Vec::new();
 
+    // Check if there's a variadic parameter to determine argument consumption behavior
+    let has_variadic = parameters.iter().any(|p| p.kind.is_variadic());
+
     let mut rest = arguments;
     for parameter in parameters {
       let value = if rest.is_empty() {
@@ -350,6 +353,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
         let value = rest.to_vec().join(" ");
         rest = &[];
+        value
+      } else if parameter.export && parameter.default.is_some() && has_variadic {
+        // Exported parameters with defaults should use their default value when variadic parameters are present
+        let value = evaluator.evaluate_expression(parameter.default.as_ref().unwrap())?;
+        positional.push(value.clone());
         value
       } else {
         let value = rest[0].clone();

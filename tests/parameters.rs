@@ -50,3 +50,18 @@ fn star_may_follow_default() {
     .stdout("hello goodbye\n")
     .run();
 }
+
+#[test]
+fn exported_parameter_with_default_and_variadic() {
+  Test::new()
+    .justfile(
+      "
+        test $THE_ENV='hi' *args:
+          @echo $THE_ENV
+          @echo {{args}}
+      ",
+    )
+    .args(["test", "this", "arg", "gets", "assigned"])
+    .stdout("hi\nthis arg gets assigned\n")
+    .run();
+}
