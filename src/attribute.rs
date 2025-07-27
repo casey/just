@@ -11,6 +11,7 @@ use super::*;
 pub(crate) enum Attribute<'src> {
   Confirm(Option<StringLiteral<'src>>),
   Doc(Option<StringLiteral<'src>>),
+  Env(Vec<StringLiteral<'src>>),
   ExitMessage,
   Extension(StringLiteral<'src>),
   Group(StringLiteral<'src>),
@@ -34,6 +35,7 @@ impl AttributeDiscriminant {
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
       Self::Confirm | Self::Doc => 0..=1,
+      Self::Env | Self::Metadata => 1..=usize::MAX,
       Self::ExitMessage
       | Self::Linux
       | Self::Macos
@@ -47,7 +49,6 @@ impl AttributeDiscriminant {
       | Self::Unix
       | Self::Windows => 0..=0,
       Self::Extension | Self::Group | Self::WorkingDirectory => 1..=1,
-      Self::Metadata => 1..=usize::MAX,
       Self::Script => 0..=usize::MAX,
     }
   }
@@ -84,6 +85,7 @@ impl<'src> Attribute<'src> {
     Ok(match discriminant {
       AttributeDiscriminant::Confirm => Self::Confirm(arguments.into_iter().next()),
       AttributeDiscriminant::Doc => Self::Doc(arguments.into_iter().next()),
+      AttributeDiscriminant::Env => Self::Env(arguments),
       AttributeDiscriminant::ExitMessage => Self::ExitMessage,
       AttributeDiscriminant::Extension => Self::Extension(arguments.into_iter().next().unwrap()),
       AttributeDiscriminant::Group => Self::Group(arguments.into_iter().next().unwrap()),
@@ -121,7 +123,10 @@ impl<'src> Attribute<'src> {
   }
 
   pub(crate) fn repeatable(&self) -> bool {
-    matches!(self, Attribute::Group(_) | Attribute::Metadata(_))
+    matches!(
+      self,
+      Attribute::Env(_) | Attribute::Group(_) | Attribute::Metadata(_)
+    )
   }
 }
 
@@ -150,7 +155,7 @@ impl Display for Attribute<'_> {
       | Self::Extension(argument)
       | Self::Group(argument)
       | Self::WorkingDirectory(argument) => write!(f, "({argument})")?,
-      Self::Metadata(arguments) => {
+      Self::Env(arguments) | Self::Metadata(arguments) => {
         write!(f, "(")?;
         for (i, argument) in arguments.iter().enumerate() {
           if i > 0 {

@@ -65,6 +65,7 @@ mod dependencies;
 mod directories;
 mod dotenv;
 mod edit;
+mod env_attribute;
 mod equals;
 mod error_messages;
 mod evaluate;

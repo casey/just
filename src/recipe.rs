@@ -321,6 +321,18 @@ impl<'src, D> Recipe<'src, D> {
         &context.module.unexports,
       );
 
+      // Set recipe-level environment variables from env attributes (overrides exported vars)
+      for attribute in &self.attributes {
+        if let Attribute::Env(env_vars) = attribute {
+          for env_var in env_vars {
+            let env_string = &env_var.cooked;
+            if let Some((key, value)) = env_string.split_once('=') {
+              cmd.env(key, value);
+            }
+          }
+        }
+      }
+
       let (result, caught) = cmd.status_guard();
 
       match result {
@@ -451,6 +463,18 @@ impl<'src, D> Recipe<'src, D> {
       scope,
       &context.module.unexports,
     );
+
+    // Set recipe-level environment variables from env attributes (overrides exported vars)
+    for attribute in &self.attributes {
+      if let Attribute::Env(env_vars) = attribute {
+        for env_var in env_vars {
+          let env_string = &env_var.cooked;
+          if let Some((key, value)) = env_string.split_once('=') {
+            command.env(key, value);
+          }
+        }
+      }
+    }
 
     // run it!
     let (result, caught) = command.status_guard();
