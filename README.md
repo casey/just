@@ -91,10 +91,13 @@ Installation
 `just` should run on any system with a reasonable `sh`, including Linux, MacOS,
 and the BSDs.
 
+#### Windows
+
 On Windows, `just` works with the `sh` provided by
 [Git for Windows](https://git-scm.com),
 [GitHub Desktop](https://desktop.github.com), or
-[Cygwin](http://www.cygwin.com).
+[Cygwin](http://www.cygwin.com). After installation, `sh` must be
+available in the `PATH` of the shell you want to to invoke `just` from.
 
 If you'd rather not install `sh`, you can use the `shell` setting to use the
 shell of your choice.
@@ -596,6 +599,12 @@ The [zed-just](https://github.com/jackTabsCode/zed-just/) extension by
 
 Feel free to send me the commands necessary to get syntax highlighting working
 in your editor of choice so that I may include them here.
+
+### Model Context Protocol
+
+[just-mcp](http://github.com/promptexecution/just-mcp) provides a
+[model context protocol](https://en.wikipedia.org/wiki/Model_Context_Protocol)
+adapter to allow LLMs to query the contents of `justfiles` and run recipes.
 
 Quick Start
 -----------
