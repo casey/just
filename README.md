@@ -602,7 +602,7 @@ in your editor of choice so that I may include them here.
 
 ### Language Server Protocol
 
-[just-lsp](http://github.com/terror/just-lsp) provides a
+[just-lsp](https://github.com/terror/just-lsp) provides a
 [language server protocol](https://en.wikipedia.org/wiki/Language_Server_Protocol)
 implementation, enabling your editor with features like go-to-definition, inline diagnostics, and
 code completion.
