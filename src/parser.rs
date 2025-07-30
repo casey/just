@@ -2502,6 +2502,18 @@ mod tests {
     tree: (justfile (assignment foo (assert (if a != b c d) == "abc" "error"))),
   }
 
+  test! {
+    name: one_of,
+    text: "foo a=one-of(bar):",
+    tree: (justfile (recipe foo (params (a (one_of bar))))),
+  }
+
+  test! {
+    name: one_of_or_default_simple,
+    text: "foo a=one-of-or-default(bar, \"default_value\"):",
+    tree: (justfile (recipe foo (params (a "default_value" (one_of bar))))),
+  }
+
   error! {
     name:   alias_syntax_multiple_rhs,
     input:  "alias foo := bar baz",
