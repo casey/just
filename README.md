@@ -4678,4 +4678,14 @@ your computational endeavors!
 
 😸
 
+## Container Usage
+
+Copy `just` into your multistage build (automatically selects correct architecture):
+
+```dockerfile
+FROM ghcr.io/casey/just:latest as just
+FROM your-base-image
+COPY --from=just /usr/local/bin/just /usr/local/bin/just
+```
+
 [🔼 Back to the top!](#just)
