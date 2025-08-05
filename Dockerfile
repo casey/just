@@ -3,9 +3,8 @@ FROM alpine:latest as downloader
 
 # Version will be passed from GitHub Actions during release builds
 ARG JUST_VERSION
-# Docker automatically provides these for multi-platform builds
+# Docker automatically provides this for multi-platform builds
 ARG TARGETARCH
-ARG TARGETVARIANT
 
 # Install tools needed to download and extract the binary
 RUN apk add --no-cache wget tar
@@ -16,22 +15,15 @@ RUN set -eux; \
     case "$TARGETARCH" in \
         "amd64") ARCH="x86_64-unknown-linux-musl" ;; \
         "arm64") ARCH="aarch64-unknown-linux-musl" ;; \
-        "arm") \
-            # Handle ARM variants - v7 maps to armv7, others to generic arm
-            case "$TARGETVARIANT" in \
-                "v7") ARCH="armv7-unknown-linux-musleabihf" ;; \
-                *) ARCH="arm-unknown-linux-musleabihf" ;; \
-            esac ;; \
         *) echo "Unsupported architecture: $TARGETARCH" && exit 1 ;; \
     esac; \
-    wget -O just.tar.gz "https://github.com/casey/just/releases/download/${JUST_VERSION}/just-${JUST_VERSION}-${ARCH}.tar.gz"; \
-    tar -xzf just.tar.gz; \
-    chmod +x just
+    wget -O - "https://github.com/casey/just/releases/download/${JUST_VERSION}/just-${JUST_VERSION}-${ARCH}.tar.gz" \
+        | tar --directory /usr/local/bin --extract --gzip --file - --no-same-owner just
 
 # Use scratch for minimal final image - no OS, just the binary
 # This results in a ~10MB image vs ~50MB+ with a full OS
 FROM scratch
-COPY --from=downloader /just /usr/local/bin/just
+COPY --from=downloader /usr/local/bin/just /usr/local/bin/just
 
 # Set working directory for when just is run
 WORKDIR /work
