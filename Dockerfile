@@ -6,9 +6,6 @@ ARG JUST_VERSION
 # Docker automatically provides this for multi-platform builds
 ARG TARGETARCH
 
-# Install tools needed to download and extract the binary
-RUN apk add --no-cache wget tar
-
 # Download the appropriate just binary for the target architecture
 # Map Docker's platform names to just's release naming convention
 RUN set -eux; \
