@@ -105,9 +105,29 @@ impl SignalHandler {
 
   pub(crate) fn spawn<T>(
     mut command: Command,
+    config: &Config,
     f: impl Fn(process::Child) -> io::Result<T>,
   ) -> (io::Result<T>, Option<Signal>) {
     let mut instance = Self::instance();
+
+    let color = config.color.context().stderr();
+    let pfx = color.prefix();
+    let sfx = color.suffix();
+
+    // Print an xtrace of run commands.
+    if config.verbosity.grandiloquent() {
+      // At the highest verbosity level, print the exact command as-is.
+      eprintln!("{pfx}+ {command:?}{sfx}");
+    } else if config.verbosity.loquacious() {
+      // For the second highest verbosity level, reconstruct the command but don't include
+      // environment (can be quite noisy with many `export`ed variables).
+      let mut dbg_cmd = Command::new(command.get_program());
+      dbg_cmd.args(command.get_args());
+      if let Some(cwd) = command.get_current_dir() {
+        dbg_cmd.current_dir(cwd);
+      }
+      eprintln!("{pfx}+ {dbg_cmd:?}{sfx}");
+    }
 
     let child = match command.spawn() {
       Err(err) => return (Err(err), None),

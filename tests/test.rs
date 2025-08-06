@@ -1,5 +1,6 @@
 use {
   super::*,
+  once_cell::sync::Lazy,
   pretty_assertions::{assert_eq, StrComparison},
 };
 
@@ -16,10 +17,12 @@ pub(crate) struct Test {
   pub(crate) env: BTreeMap<String, String>,
   pub(crate) expected_files: BTreeMap<PathBuf, Vec<u8>>,
   pub(crate) justfile: Option<String>,
+  pub(crate) normalize_xtrace: bool,
   pub(crate) response: Option<Response>,
   pub(crate) shell: bool,
   pub(crate) status: i32,
   pub(crate) stderr: String,
+  pub(crate) stderr_fn: Option<Box<dyn Fn(&str) -> Result<(), String>>>,
   pub(crate) stderr_regex: Option<Regex>,
   pub(crate) stdin: String,
   pub(crate) stdout: String,
@@ -46,12 +49,14 @@ impl Test {
       status: EXIT_SUCCESS,
       stderr: String::new(),
       stderr_regex: None,
+      stderr_fn: None,
       stdin: String::new(),
       stdout: String::new(),
       stdout_regex: None,
       tempdir,
       test_round_trip: true,
       unindent_stdout: true,
+      normalize_xtrace: true,
     }
   }
 
@@ -132,6 +137,11 @@ impl Test {
     self
   }
 
+  pub(crate) fn stderr_fn(mut self, f: impl Fn(&str) -> Result<(), String> + 'static) -> Self {
+    self.stderr_fn = Some(Box::from(f));
+    self
+  }
+
   pub(crate) fn stdin(mut self, stdin: impl Into<String>) -> Self {
     self.stdin = stdin.into();
     self
@@ -161,6 +171,11 @@ impl Test {
 
   pub(crate) fn unindent_stdout(mut self, unindent_stdout: bool) -> Self {
     self.unindent_stdout = unindent_stdout;
+    self
+  }
+
+  pub(crate) fn normalize_xtrace(mut self, normalize_xtrace: bool) -> Self {
+    self.normalize_xtrace = normalize_xtrace;
     self
   }
 
@@ -203,6 +218,18 @@ impl Test {
     self
   }
 }
+
+static XTRACE_RE: Lazy<Regex> = Lazy::new(|| {
+  Regex::new(
+    r#"(?mx)^                  # multiline, verbose
+    (?P<pfx>\u{1b}\[[\d;]+m)?  # match the color prefix, if available
+    \+.*bash.*?                # match the command. Currently all tests that pass `--verbose` are
+                               # run on bash, so this matcher is "good enough" for now.
+    (?P<sfx>\u{1b}\[[\d;]+m)?  # match the color suffix, if available
+    $"#,
+  )
+  .unwrap()
+});
 
 impl Test {
   #[track_caller]
@@ -267,7 +294,14 @@ impl Test {
       .expect("failed to wait for just process");
 
     let output_stdout = str::from_utf8(&output.stdout).unwrap();
-    let output_stderr = str::from_utf8(&output.stderr).unwrap();
+    let mut output_stderr = str::from_utf8(&output.stderr).unwrap();
+
+    // The xtrace output can differ by working directory, shell, and flags. Normalize it.
+    let tmp;
+    if self.normalize_xtrace {
+      tmp = XTRACE_RE.replace_all(output_stderr, "${pfx}+ COMMAND_XTRACE${sfx}");
+      output_stderr = tmp.as_ref();
+    }
 
     if let Some(ref stdout_regex) = self.stdout_regex {
       assert!(
@@ -283,9 +317,18 @@ impl Test {
       );
     }
 
+    if let Some(ref stderr_fn) = self.stderr_fn {
+      match stderr_fn(output_stderr) {
+        Ok(()) => (),
+        Err(e) => panic!("Stderr function mismatch: {e}\n{output_stderr:?}\n",),
+      }
+    }
+
     if !compare("status", output.status.code(), Some(self.status))
       | (self.stdout_regex.is_none() && !compare_string("stdout", output_stdout, &stdout))
-      | (self.stderr_regex.is_none() && !compare_string("stderr", output_stderr, &stderr))
+      | (self.stderr_regex.is_none()
+        && self.stderr_fn.is_none()
+        && !compare_string("stderr", output_stderr, &stderr))
     {
       panic!("Output mismatch.");
     }

@@ -232,7 +232,64 @@ fn verbose() {
     .arg("--verbose")
     .justfile("default:\n @echo hello")
     .stdout("hello\n")
-    .stderr("===> Running recipe `default`...\necho hello\n")
+    .stderr(
+      "\
+      ===> Running recipe `default`...\n\
+      echo hello\n\
+      + COMMAND_XTRACE\n\
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn xtrace() {
+  Test::new()
+    .arg("--verbose")
+    .justfile(
+      r#"
+export MESSAGE := "hi"
+a:
+  echo $MESSAGE
+"#,
+    )
+    .normalize_xtrace(false)
+    .stdout("hi\n")
+    .stderr_fn(|s| {
+      // The lowest verbosity mode shouldn't print MESSAGE. Easier to check with a function
+      // than with regex.
+      if s.contains("MESSAGE=") {
+        return Err("shouldn't print env".into());
+      }
+      Ok(())
+    })
+    .stderr_regex(if cfg!(windows) {
+      r".*\+ .*echo \$MESSAGE.*"
+    } else {
+      r".*\+ cd.*&&.*echo \$MESSAGE.*"
+    })
+    .run();
+}
+
+#[test]
+fn xtrace_very_verbose() {
+  Test::new()
+    .arg("-vv")
+    .justfile(
+      r#"
+export MESSAGE := "hi"
+a:
+  echo $MESSAGE
+"#,
+    )
+    .normalize_xtrace(false)
+    .stdout("hi\n")
+    .stderr_regex(if cfg!(windows) {
+      // `Debug for Command` doesn't print env on windows
+      r".*\+ .*echo \$MESSAGE.*"
+    } else {
+      r".*\+ cd.*&&.*MESSAGE=.*echo \$MESSAGE.*"
+    })
     .run();
 }
 
@@ -2037,7 +2094,13 @@ a:
 ",
     )
     .stdout("hi\n")
-    .stderr("\u{1b}[1;36m===> Running recipe `a`...\u{1b}[0m\n\u{1b}[1mecho hi\u{1b}[0m\n")
+    .stderr(
+      "\
+      \u{1b}[1;36m===> Running recipe `a`...\u{1b}[0m\n\
+      \u{1b}[1mecho hi\u{1b}[0m\n\
+      \u{1b}[1;34m+ COMMAND_XTRACE\u{1b}[0m\n\
+      ",
+    )
     .run();
 }
 
@@ -2057,7 +2120,13 @@ a:
 ",
     )
     .stdout("hi\n")
-    .stderr("\u{1b}[1;36m===> Running recipe `a`...\u{1b}[0m\necho hi\n")
+    .stderr(
+      "\
+      \u{1b}[1;36m===> Running recipe `a`...\u{1b}[0m\n\
+      echo hi\n\
+      \u{1b}[1;34m+ COMMAND_XTRACE\u{1b}[0m\n\
+      ",
+    )
     .run();
 }
 
