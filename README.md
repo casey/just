@@ -4680,12 +4680,10 @@ your computational endeavors!
 
 ## Container Usage
 
-Copy `just` into your multistage build (automatically selects correct architecture):
+Copy `just` into your own `Dockerfile`:
 
-```dockerfile
-FROM ghcr.io/casey/just:latest as just
-FROM your-base-image
-COPY --from=just /usr/local/bin/just /usr/local/bin/just
+```Dockerfile
+COPY --link --from=ghcr.io/casey/just:latest /usr/local/bin/just /usr/local/bin/just
 ```
 
 [🔼 Back to the top!](#just)
