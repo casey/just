@@ -207,3 +207,12 @@ jobs:
         github_token: ${{secrets.GITHUB_TOKEN}}
         publish_branch: gh-pages
         publish_dir: www
+
+  container:
+    uses: ./.github/workflows/container.yaml
+    needs:
+      - checksum
+      - prerelease  
+    with:
+      version: ${{ github.ref_name }}
+    secrets: inherit

@@ -1,8 +1,12 @@
 name: Container Image
 
 on:
-  release:
-    types: [published]
+  workflow_call:
+    inputs:
+      version:
+        description: 'Version to build (e.g., 1.42.4)'
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       version:
@@ -43,11 +47,7 @@ jobs:
     - name: Extract version
       id: version
       run: |
-        if [ "${{ github.event_name }}" = "release" ]; then
-          VERSION="${{ github.event.release.tag_name }}"
-        else
-          VERSION="${{ inputs.version }}"
-        fi
+        VERSION="${{ inputs.version }}"
         echo "version=${VERSION}" >> $GITHUB_OUTPUT
         echo "Building container for version: ${VERSION}"
 
