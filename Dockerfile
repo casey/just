@@ -1,21 +1,24 @@
-# Multi-stage build to download the just binary and create a minimal container
-FROM alpine:latest as downloader
+# syntax=docker/dockerfile:1
 
-# Version will be passed from GitHub Actions during release builds
+# NOTE: ARGs `BUILDPLATFORM` + `TARGETARCH` are implicitly defined by BuildKit:
+# https://docs.docker.com/reference/dockerfile/#automatic-platform-args-in-the-global-scope
+# NOTE: BuildKit supplied ARGs use convention amd64 / arm64 instead of the desired x86_64 / aarch64
+# https://itsfoss.com/arm-aarch64-x86_64
+#
+# Map arch naming conventions from BuildKit to Rust (BUILDARCH => BUILDARCH_RUST):
+FROM --platform=linux/amd64 alpine AS downloader-amd64
+ARG BUILDARCH_RUST=x86_64
+FROM --platform=linux/arm64 alpine AS downloader-arm64
+ARG BUILDARCH_RUST=aarch64
+
+# Fetch the expected version of `just` via GH Releases:
+FROM downloader-${BUILDARCH} AS downloader
+SHELL ["/bin/ash", "-eux", "-o", "pipefail", "-c"]
+# This ARG will be set via GitHub Actions during release builds
 ARG JUST_VERSION
-# Docker automatically provides this for multi-platform builds
-ARG TARGETARCH
-
-# Download the appropriate just binary for the target architecture
-# Map Docker's platform names to just's release naming convention
-RUN set -eux; \
-    case "$TARGETARCH" in \
-        "amd64") ARCH="x86_64-unknown-linux-musl" ;; \
-        "arm64") ARCH="aarch64-unknown-linux-musl" ;; \
-        *) echo "Unsupported architecture: $TARGETARCH" && exit 1 ;; \
-    esac; \
-    wget -O - "https://github.com/casey/just/releases/download/${JUST_VERSION}/just-${JUST_VERSION}-${ARCH}.tar.gz" \
-        | tar --directory /usr/local/bin --extract --gzip --file - --no-same-owner just
+ARG RELEASE_URL="https://github.com/casey/just/releases/download/${JUST_VERSION}/just-${JUST_VERSION}-${BUILDARCH_RUST}-unknown-linux-musl.tar.gz"
+RUN wget -O - "${RELEASE_URL}" \
+    | tar --directory /usr/local/bin --extract --gzip --no-same-owner just
 
 # Use scratch for minimal final image - no OS, just the binary
 # This results in a ~10MB image vs ~50MB+ with a full OS
