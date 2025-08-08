@@ -46,6 +46,7 @@ serde_json = "1.0.68"
 sha2 = "0.10"
 shellexpand = "3.1.0"
 similar = { version = "2.1.0", features = ["unicode"] }
+skim = { version = "0.20.4", default-features = false }
 snafu = "0.8.0"
 strum = { version = "0.27.1", features = ["derive"] }
 target = "2.0.0"
