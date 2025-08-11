@@ -25,9 +25,6 @@ RUN wget -O - "${RELEASE_URL}" \
 FROM scratch
 COPY --from=downloader /usr/local/bin/just /usr/local/bin/just
 
-# Set working directory for when just is run
-WORKDIR /work
-
 # Default to running just with help if no arguments provided
 ENTRYPOINT ["just"]
 CMD ["--help"]
