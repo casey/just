@@ -11,6 +11,12 @@ pub(crate) struct Parameter<'src> {
   pub(crate) kind: ParameterKind,
   /// The parameter name
   pub(crate) name: Name<'src>,
+  pub(crate) one_of: Option<OneOf<'src>>,
+}
+
+#[derive(PartialEq, Debug, Clone, Serialize)]
+pub(crate) struct OneOf<'src> {
+  pub(crate) enum_name: Name<'src>,
 }
 
 impl Parameter<'_> {
@@ -29,7 +35,22 @@ impl ColorDisplay for Parameter<'_> {
     }
     write!(f, "{}", color.parameter().paint(self.name.lexeme()))?;
     if let Some(ref default) = self.default {
-      write!(f, "={}", color.string().paint(&default.to_string()))?;
+      if let Some(ref one_of) = self.one_of {
+        write!(
+          f,
+          "=one-of-or-default({}, {})",
+          color.string().paint(&one_of.enum_name.to_string()),
+          color.string().paint(&default.to_string())
+        )?;
+      } else {
+        write!(f, "={}", color.string().paint(&default.to_string()))?;
+      }
+    } else if let Some(ref one_of) = self.one_of {
+      write!(
+        f,
+        "=one-of({})",
+        color.string().paint(&one_of.enum_name.to_string()),
+      )?;
     }
     Ok(())
   }

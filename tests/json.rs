@@ -19,6 +19,13 @@ struct Assignment<'a> {
 
 #[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
 #[serde(deny_unknown_fields)]
+struct Enum<'a> {
+  pub name: &'a str,
+  pub variants: BTreeMap<&'a str, &'a str>,
+}
+
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
 struct Dependency<'a> {
   arguments: Vec<Value>,
   recipe: &'a str,
@@ -36,6 +43,7 @@ struct Interpreter<'a> {
 struct Module<'a> {
   aliases: BTreeMap<&'a str, Alias<'a>>,
   assignments: BTreeMap<&'a str, Assignment<'a>>,
+  enums: BTreeMap<&'a str, Enum<'a>>,
   doc: Option<&'a str>,
   first: Option<&'a str>,
   groups: Vec<&'a str>,
@@ -54,6 +62,7 @@ struct Parameter<'a> {
   export: bool,
   kind: &'a str,
   name: &'a str,
+  one_of: Option<&'a str>,
 }
 
 #[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
