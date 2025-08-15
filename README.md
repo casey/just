@@ -2042,8 +2042,8 @@ A number of constants are predefined:
 | `HEX`<sup>1.27.0</sup> | `"0123456789abcdef"` |  |
 | `HEXLOWER`<sup>1.27.0</sup> | `"0123456789abcdef"` |  |
 | `HEXUPPER`<sup>1.27.0</sup> | `"0123456789ABCDEF"` |  |
-| `PATH_SEP`<sup>1.41.0</sup> | `"/"` | "\" |
-| `PATH_VAR_SEP`<sup>1.41.0</sup> | `":"` | ";" |
+| `PATH_SEP`<sup>1.41.0</sup> | `"/"` | `"\"` |
+| `PATH_VAR_SEP`<sup>1.41.0</sup> | `":"` | `";"` |
 | `CLEAR`<sup>1.37.0</sup> | `"\ec"` |  |
 | `NORMAL`<sup>1.37.0</sup> | `"\e[0m"` |  |
 | `BOLD`<sup>1.37.0</sup> | `"\e[1m"` |  |
