@@ -8,7 +8,16 @@ pub(crate) struct Enum<'src> {
 
 impl Display for Enum<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    write!(f, "enum {}", self.name)
+    write!(f, "enum {} := [ ", self.name)?;
+    let mut first = true;
+    for (key, value) in &self.variants {
+      if !first {
+        write!(f, ", ")?;
+      }
+      write!(f, "\"{}\" = \"{}\"", key, value.cooked)?;
+      first = false;
+    }
+    write!(f, " ]")
   }
 }
 
