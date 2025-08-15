@@ -192,6 +192,7 @@ mod ast;
 mod attribute;
 mod attribute_set;
 mod binding;
+mod chooser;
 mod color;
 mod color_display;
 mod command_color;
