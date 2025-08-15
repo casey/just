@@ -240,7 +240,7 @@ most Windows users.)
     </tr>
     <tr>
       <td>
-        <a href=https://debian.org>Debian 13 (unreleased)</a> and
+        <a href=https://debian.org>Debian 13</a> and
         <a href=https://ubuntu.com>Ubuntu 24.04</a> derivatives</td>
       <td><a href=https://en.wikipedia.org/wiki/APT_(software)>apt</a></td>
       <td><a href=https://packages.debian.org/trixie/just>just</a></td>
