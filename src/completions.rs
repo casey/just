@@ -94,7 +94,7 @@ export extern "just" [
 ]"#;
 
 const FISH_RECIPE_COMPLETIONS: &str = r#"function __fish_just_complete_recipes
-        if string match -rq '(-f|--justfile)\s*=?(?<justfile>[^\s]+)' -- (string split -- ' -- ' (commandline -pc))[1]
+        if string match -rq '\s+(-f|--justfile)\s*=?(?<justfile>[^\s]+)' -- (string split -- ' -- ' (commandline -pc))[1]
           set -fx JUST_JUSTFILE "$justfile"
         end
         printf "%s\n" (string split " " (just --summary))
