@@ -11,11 +11,11 @@ pub(crate) trait CommandExt {
 
   fn export_scope(&mut self, settings: &Settings, scope: &Scope, unexports: &HashSet<String>);
 
-  fn output_guard(self) -> (io::Result<process::Output>, Option<Signal>);
+  fn output_guard(self, config: &Config) -> (io::Result<process::Output>, Option<Signal>);
 
-  fn output_guard_stdout(self) -> Result<String, OutputError>;
+  fn output_guard_stdout(self, config: &Config) -> Result<String, OutputError>;
 
-  fn status_guard(self) -> (io::Result<ExitStatus>, Option<Signal>);
+  fn status_guard(self, config: &Config) -> (io::Result<ExitStatus>, Option<Signal>);
 }
 
 impl CommandExt for Command {
@@ -53,12 +53,12 @@ impl CommandExt for Command {
     }
   }
 
-  fn output_guard(self) -> (io::Result<process::Output>, Option<Signal>) {
-    SignalHandler::spawn(self, process::Child::wait_with_output)
+  fn output_guard(self, config: &Config) -> (io::Result<process::Output>, Option<Signal>) {
+    SignalHandler::spawn(self, config, process::Child::wait_with_output)
   }
 
-  fn output_guard_stdout(self) -> Result<String, OutputError> {
-    let (result, caught) = self.output_guard();
+  fn output_guard_stdout(self, config: &Config) -> Result<String, OutputError> {
+    let (result, caught) = self.output_guard(config);
 
     let output = result.map_err(OutputError::Io)?;
 
@@ -79,7 +79,7 @@ impl CommandExt for Command {
     )
   }
 
-  fn status_guard(self) -> (io::Result<ExitStatus>, Option<Signal>) {
-    SignalHandler::spawn(self, |mut child| child.wait())
+  fn status_guard(self, config: &Config) -> (io::Result<ExitStatus>, Option<Signal>) {
+    SignalHandler::spawn(self, config, |mut child| child.wait())
   }
 }
