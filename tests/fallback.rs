@@ -61,6 +61,7 @@ fn fallback_from_subdir_verbose_message() {
       Trying ../justfile
       ===> Running recipe `bar`...
       echo bar
+      + COMMAND_XTRACE
       ",
     ))
     .stdout("bar\n")
