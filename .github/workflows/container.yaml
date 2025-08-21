@@ -47,25 +47,18 @@ jobs:
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Extract version
-      id: version
-      run: |
-        VERSION="${{ inputs.version }}"
-        echo "version=${VERSION}" >> $GITHUB_OUTPUT
-        echo "Building container for version: ${VERSION}"
-
-    - name: Extract metadata
-      id: meta
+    - name: Prepare image metadata
+      id: metadata
       uses: docker/metadata-action@v5
       with:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        # NOTE: The `semver` tag type below with the default `flavor.latest=auto` action setting,
+        # NOTE: The `semver` tag type below (with the default `flavor.latest=auto` action setting),
         # will implicitly append a `latest` tag to publish:
         # https://github.com/docker/metadata-action/issues/461#issuecomment-2680849083
         tags: |
-          type=semver,pattern={{version}},value=${{ steps.version.outputs.version }}
-          type=semver,pattern={{major}}.{{minor}},value=${{ steps.version.outputs.version }}
-          type=semver,pattern={{major}},value=${{ steps.version.outputs.version }}
+          type=semver,pattern={{major}},value=${{ inputs.version }}
+          type=semver,pattern={{major}}.{{minor}},value=${{ inputs.version }}
+          type=semver,pattern={{major}}.{{minor}}.{{patch}},value=${{ inputs.version }}
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v6
@@ -73,7 +66,7 @@ jobs:
         context: .
         platforms: linux/amd64,linux/arm64
         push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+        tags: ${{ steps.metadata.outputs.tags }}
+        labels: ${{ steps.metadata.outputs.labels }}
         build-args: |
-          JUST_VERSION=${{ steps.version.outputs.version }}
+          JUST_VERSION=${{ inputs.version }}
