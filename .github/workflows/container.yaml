@@ -27,7 +27,6 @@ env:
 
 jobs:
   container:
-    if: ${{ github.event.workflow_run.conclusion == 'success' || inputs.version }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
