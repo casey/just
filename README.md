@@ -4678,4 +4678,12 @@ your computational endeavors!
 
 😸
 
+## Container Usage
+
+Copy `just` into your own `Dockerfile`:
+
+```Dockerfile
+COPY --link --from=ghcr.io/casey/just:latest /usr/local/bin/just /usr/local/bin/just
+```
+
 [🔼 Back to the top!](#just)
