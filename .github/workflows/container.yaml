@@ -10,6 +10,9 @@ on:
         required: true
         type: string
 
+  # `release.yaml` calls this workflow after it has published a new release and attached files.
+  # NOTE: As `release.yaml` is triggered via a tag being pushed, this workflow inherits
+  # that push event context (github.{event_name, event, ref_type, ref_name, ...})
   workflow_call:
     inputs:
       version:
