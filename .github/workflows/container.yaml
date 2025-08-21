@@ -1,11 +1,6 @@
 name: Container Image
 
 on:
-  # Event triggered upon completion of the `release.yaml` workflow
-  workflow_run:
-    workflows: ['Release']
-    types:
-      - completed
 
   # Manual trigger
   workflow_dispatch:
