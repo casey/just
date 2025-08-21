@@ -2,7 +2,8 @@ name: Container Image
 
 on:
 
-  # Manual trigger
+  # Manual trigger via GH Actions page, runs this workflow from a selected tag or branch,
+  # which also affects the git clone for the `Dockerfile` used, and `github.ref_type` (branch / tag)
   workflow_dispatch:
     inputs:
       version:
