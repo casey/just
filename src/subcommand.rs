@@ -70,7 +70,11 @@ impl Subcommand {
       _ => {}
     }
 
-    let search = Search::find(&config.search_config, &config.invocation_directory)?;
+    let search = Search::find(
+      config.ceiling.as_deref(),
+      &config.invocation_directory,
+      &config.search_config,
+    )?;
 
     if let Edit = self {
       return Self::edit(&search);
@@ -132,7 +136,9 @@ impl Subcommand {
 
       if fallback {
         if let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result {
-          search = search.search_parent_directory().map_err(|_| err)?;
+          search = search
+            .search_parent_directory(config.ceiling.as_deref())
+            .map_err(|_| err)?;
 
           if config.verbosity.loquacious() {
             eprintln!(
@@ -366,7 +372,11 @@ impl Subcommand {
   }
 
   fn init(config: &Config) -> RunResult<'static> {
-    let search = Search::init(&config.search_config, &config.invocation_directory)?;
+    let search = Search::init(
+      &config.search_config,
+      &config.invocation_directory,
+      config.ceiling.as_deref(),
+    )?;
 
     if search.justfile.is_file() {
       return Err(Error::InitExists {
