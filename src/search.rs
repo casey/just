@@ -187,6 +187,8 @@ impl Search {
       }
 
       if let Some(ceiling) = ceiling {
+        dbg!(directory);
+        dbg!(ceiling);
         if directory == ceiling {
           break;
         }
