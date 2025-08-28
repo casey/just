@@ -18,7 +18,7 @@ fn justfile_run_search_stops_at_ceiling_dir() {
       ",
     )
     .create_dir("foo/bar")
-    .current_dir("foo/bar")
+    .current_dir(if cfg!(windows) { "foo\\bar" } else { "foo/bar" })
     .args(["--ceiling", ceiling.to_str().unwrap()])
     .stderr("error: No justfile found\n")
     .status(EXIT_FAILURE)
