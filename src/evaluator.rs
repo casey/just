@@ -291,7 +291,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       })
       .stdout(Stdio::piped());
 
-    cmd.output_guard_stdout()
+    cmd.output_guard_stdout(self.context.config)
   }
 
   pub(crate) fn evaluate_line(
