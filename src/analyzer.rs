@@ -179,9 +179,9 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           return Err(recipe.name.error(CompileErrorKind::DuplicateDefault {
             recipe: recipe.name.lexeme(),
           }));
-        } else {
-          default = Some(Arc::clone(recipe));
         }
+
+        default = Some(Arc::clone(recipe));
       }
     }
 
