@@ -55,7 +55,9 @@ item          : alias
 eol           : NEWLINE
               | COMMENT NEWLINE
 
-alias         : 'alias' NAME ':=' NAME eol
+alias         : 'alias' NAME ':=' target eol
+
+target        : NAME ('::' NAME)*
 
 assignment    : NAME ':=' expression eol
 
@@ -138,8 +140,8 @@ variadic      : '*' parameter
 
 dependencies  : dependency* ('&&' dependency+)?
 
-dependency    : NAME
-              | '(' NAME expression* ')'
+dependency    : target
+              | '(' target expression* ')'
 
 body          : INDENT line+ DEDENT
 
