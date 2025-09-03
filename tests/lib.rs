@@ -61,6 +61,7 @@ mod conditional;
 mod confirm;
 mod constants;
 mod datetime;
+mod default;
 mod delimiters;
 mod dependencies;
 mod directories;
