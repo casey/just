@@ -1,3 +1,4 @@
+use crate::chooser::Chooser;
 use {super::*, clap_mangen::Man};
 
 pub const INIT_JUSTFILE: &str = "\
@@ -219,66 +220,17 @@ impl Subcommand {
     }
 
     let chooser = if let Some(chooser) = chooser {
-      OsString::from(chooser)
+      Chooser::Command {
+        chooser: OsString::from(chooser),
+        justfile,
+        search,
+        config,
+      }
     } else {
-      let mut chooser = OsString::new();
-      chooser.push("fzf --multi --preview 'just --unstable --color always --justfile \"");
-      chooser.push(&search.justfile);
-      chooser.push("\" --show {}'");
-      chooser
+      Chooser::Skim
     };
 
-    let result = justfile
-      .settings
-      .shell_command(config)
-      .arg(&chooser)
-      .current_dir(&search.working_directory)
-      .stdin(Stdio::piped())
-      .stdout(Stdio::piped())
-      .spawn();
-
-    let mut child = match result {
-      Ok(child) => child,
-      Err(io_error) => {
-        let (shell_binary, shell_arguments) = justfile.settings.shell(config);
-        return Err(Error::ChooserInvoke {
-          shell_binary: shell_binary.to_owned(),
-          shell_arguments: shell_arguments.join(" "),
-          chooser,
-          io_error,
-        });
-      }
-    };
-
-    let stdin = child.stdin.as_mut().unwrap();
-    for recipe in recipes {
-      if let Err(io_error) = writeln!(stdin, "{}", recipe.spaced_namepath()) {
-        if io_error.kind() != std::io::ErrorKind::BrokenPipe {
-          return Err(Error::ChooserWrite { io_error, chooser });
-        }
-      }
-    }
-
-    let output = match child.wait_with_output() {
-      Ok(output) => output,
-      Err(io_error) => {
-        return Err(Error::ChooserRead { io_error, chooser });
-      }
-    };
-
-    if !output.status.success() {
-      return Err(Error::ChooserStatus {
-        status: output.status,
-        chooser,
-      });
-    }
-
-    let stdout = String::from_utf8_lossy(&output.stdout);
-
-    let recipes = stdout
-      .split_whitespace()
-      .map(str::to_owned)
-      .collect::<Vec<String>>();
+    let recipes = chooser.run(recipes)?;
 
     justfile.run(config, search, overrides, &recipes)
   }
