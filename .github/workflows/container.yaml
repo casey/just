@@ -1,0 +1,72 @@
+name: Container Image
+
+on:
+
+  # Manual trigger via GH Actions page, runs this workflow from a selected tag or branch,
+  # which also affects the git clone for the `Dockerfile` used, and `github.ref_type` (branch / tag)
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (e.g., 1.42.4)'
+        required: true
+        type: string
+
+  # `release.yaml` calls this workflow after it has published a new release and attached files.
+  # NOTE: As `release.yaml` is triggered via a tag being pushed, this workflow inherits
+  # that push event context (github.{event_name, event, ref_type, ref_name, ...})
+  workflow_call:
+    inputs:
+      version:
+        description: 'Version to build (e.g., 1.42.4)'
+        required: true
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  container:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Prepare image metadata
+      id: metadata
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        # NOTE: The `semver` tag type below (with the default `flavor.latest=auto` action setting),
+        # will implicitly append a `latest` tag to publish:
+        # https://github.com/docker/metadata-action/issues/461#issuecomment-2680849083
+        tags: |
+          type=semver,pattern={{major}},value=${{ inputs.version }}
+          type=semver,pattern={{major}}.{{minor}},value=${{ inputs.version }}
+          type=semver,pattern={{major}}.{{minor}}.{{patch}},value=${{ inputs.version }}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.metadata.outputs.tags }}
+        labels: ${{ steps.metadata.outputs.labels }}
+        build-args: |
+          JUST_VERSION=${{ inputs.version }}
