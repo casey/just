@@ -7,6 +7,11 @@ default:
     echo 'Hello, world!'
 ";
 
+#[derive(boilerplate::Boilerplate)]
+struct CheatSheetHtml {
+  examples: Vec<&'static str>,
+}
+
 fn backtick_re() -> &'static Regex {
   static BACKTICK_RE: OnceLock<Regex> = OnceLock::new();
   BACKTICK_RE.get_or_init(|| Regex::new("(`.*?`)|(`[^`]*$)").unwrap())
@@ -15,6 +20,7 @@ fn backtick_re() -> &'static Regex {
 #[derive(PartialEq, Clone, Debug)]
 pub(crate) enum Subcommand {
   Changelog,
+  CheatSheet,
   Choose {
     overrides: BTreeMap<String, String>,
     chooser: Option<String>,
@@ -63,6 +69,7 @@ impl Subcommand {
         Self::changelog();
         return Ok(());
       }
+      CheatSheet => Self::cheat_sheet()?,
       Completions { shell } => return Self::completions(*shell),
       Init => return Self::init(config),
       Man => return Self::man(),
@@ -101,7 +108,9 @@ impl Subcommand {
       Show { path } => Self::show(config, justfile, path)?,
       Summary => Self::summary(config, justfile),
       Variables => Self::variables(justfile),
-      Changelog | Completions { .. } | Edit | Init | Man | Request { .. } => unreachable!(),
+      Changelog | CheatSheet | Completions { .. } | Edit | Init | Man | Request { .. } => {
+        unreachable!()
+      }
     }
 
     Ok(())
@@ -706,6 +715,20 @@ impl Subcommand {
         }
       }
     }
+  }
+
+  fn cheat_sheet() -> RunResult<'static> {
+    println!(
+      "{}",
+      CheatSheetHtml {
+        examples: include_str!("../cheat-sheet.just")
+          .split("\n#\n")
+          .map(str::trim)
+          .collect(),
+      }
+    );
+
+    Ok(())
   }
 
   fn show<'src>(
