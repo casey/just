@@ -67,6 +67,7 @@ temptree = "0.2.0"
 which = "8.0.0"
 
 [lints.rust]
+mismatched_lifetime_syntaxes = "allow"
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(fuzzing)'] }
 
 [lints.clippy]
