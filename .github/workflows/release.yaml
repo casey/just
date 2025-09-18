@@ -37,6 +37,7 @@ jobs:
         - aarch64-unknown-linux-musl
         - arm-unknown-linux-musleabihf
         - armv7-unknown-linux-musleabihf
+        - loongarch64-unknown-linux-musl
         - x86_64-apple-darwin
         - x86_64-pc-windows-msvc
         - aarch64-pc-windows-msvc
@@ -54,6 +55,10 @@ jobs:
         - target: armv7-unknown-linux-musleabihf
           os: ubuntu-latest
           target_rustflags: '--codegen linker=arm-linux-gnueabihf-gcc'
+        - target: loongarch64-unknown-linux-musl
+          os: ubuntu-latest
+          # TODO: Switch to loongarch64-linux-gnu-gcc when available
+          target_rustflags: '--codegen linker=loongarch64-linux-gnu-gcc-14'
         - target: x86_64-apple-darwin
           os: macos-latest
           target_rustflags: ''
@@ -85,6 +90,13 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install gcc-arm-linux-gnueabihf
+
+    - name: Install LoongArch64 Toolchain
+      if: ${{ matrix.target == 'loongarch64-unknown-linux-musl' }}
+      run: |
+        sudo apt-get update
+        # TODO: Switch to gcc-loongarch64-linux-gnu when available
+        sudo apt-get install gcc-14-loongarch64-linux-gnu
 
     - name: Install AArch64 Toolchain (Windows)
       if: ${{ matrix.target == 'aarch64-pc-windows-msvc' }}
