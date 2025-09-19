@@ -14,6 +14,7 @@ pub(crate) enum Item<'src> {
   },
   Module {
     absolute: Option<PathBuf>,
+    private: bool,
     doc: Option<String>,
     groups: Vec<String>,
     name: Name<'src>,

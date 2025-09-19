@@ -443,6 +443,7 @@ impl Subcommand {
       module = module
         .modules
         .get(name)
+        .filter(|m| !m.private)
         .ok_or_else(|| Error::UnknownSubmodule {
           path: path.to_string(),
         })?;
@@ -549,7 +550,8 @@ impl Subcommand {
         }
       }
       if !config.list_submodules {
-        for (name, _) in &module.modules {
+        for submodule in module.public_modules(config) {
+          let name = submodule.name();
           signature_widths.insert(name, UnicodeWidthStr::width(format!("{name} ...").as_str()));
         }
       }
@@ -587,7 +589,7 @@ impl Subcommand {
 
     let submodule_groups = {
       let mut groups = BTreeMap::<Option<String>, Vec<&Justfile>>::new();
-      for submodule in module.modules(config) {
+      for submodule in module.public_modules(config) {
         let submodule_groups = submodule.groups();
         if submodule_groups.is_empty() {
           groups.entry(None).or_default().push(submodule);
@@ -770,7 +772,8 @@ impl Subcommand {
       *printed += 1;
     }
 
-    for (name, module) in &justfile.modules {
+    for module in justfile.public_modules(config) {
+      let name = module.name();
       components.push(name);
       Self::summary_recursive(config, components, printed, module);
       components.pop();

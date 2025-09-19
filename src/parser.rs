@@ -398,7 +398,11 @@ impl<'run, 'src> Parser<'run, 'src> {
             attributes.ensure_valid_attributes(
               "Module",
               *name,
-              &[AttributeDiscriminant::Doc, AttributeDiscriminant::Group],
+              &[
+                AttributeDiscriminant::Doc,
+                AttributeDiscriminant::Group,
+                AttributeDiscriminant::Private,
+              ],
             )?;
 
             let doc = match attributes.get(AttributeDiscriminant::Doc) {
@@ -407,6 +411,8 @@ impl<'run, 'src> Parser<'run, 'src> {
               None => doc.map(ToOwned::to_owned),
               _ => unreachable!(),
             };
+
+            let private = attributes.contains(AttributeDiscriminant::Private);
 
             let mut groups = Vec::new();
             for attribute in attributes {
@@ -418,6 +424,7 @@ impl<'run, 'src> Parser<'run, 'src> {
             items.push(Item::Module {
               groups,
               absolute: None,
+              private,
               doc,
               name,
               optional,

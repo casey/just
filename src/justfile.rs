@@ -21,6 +21,8 @@ pub(crate) struct Justfile<'src> {
   pub(crate) modules: Table<'src, Justfile<'src>>,
   #[serde(skip)]
   pub(crate) name: Option<Name<'src>>,
+  #[serde(skip)]
+  pub(crate) private: bool,
   pub(crate) recipes: Table<'src, Arc<Recipe<'src>>>,
   pub(crate) settings: Settings<'src>,
   pub(crate) source: PathBuf,
@@ -428,8 +430,12 @@ impl<'src> Justfile<'src> {
     Ok(())
   }
 
-  pub(crate) fn modules(&self, config: &Config) -> Vec<&Justfile> {
-    let mut modules = self.modules.values().collect::<Vec<&Justfile>>();
+  pub(crate) fn public_modules(&self, config: &Config) -> Vec<&Justfile> {
+    let mut modules = self
+      .modules
+      .values()
+      .filter(|module| !module.private)
+      .collect::<Vec<&Justfile>>();
 
     if config.unsorted {
       modules.sort_by_key(|module| {
@@ -473,7 +479,7 @@ impl<'src> Justfile<'src> {
       }
     }
 
-    for submodule in self.modules.values() {
+    for submodule in self.public_modules(config) {
       for group in submodule.groups() {
         groups.push((&[], submodule.name.unwrap().offset, group.to_string()));
       }
