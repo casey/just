@@ -21,7 +21,8 @@ mod full {
   pub(crate) use crate::{
     assignment::Assignment, condition::Condition, conditional_operator::ConditionalOperator,
     dependency::Dependency, expression::Expression, fragment::Fragment, justfile::Justfile,
-    line::Line, parameter::Parameter, parameter_kind::ParameterKind, recipe::Recipe, thunk::Thunk,
+    line::Line, parameter::Parameter, parameter_kind::ParameterKind, recipe::Recipe, set::Set,
+    setting::Setting as FullSetting, thunk::Thunk,
   };
 }
 
@@ -42,6 +43,7 @@ pub fn summary(path: &Path) -> io::Result<Result<Summary, String>> {
 pub struct Summary {
   pub assignments: BTreeMap<String, Assignment>,
   pub recipes: BTreeMap<String, Recipe>,
+  pub settings: Vec<Setting>,
 }
 
 impl Summary {
@@ -71,6 +73,12 @@ impl Summary {
         .iter()
         .map(|(name, assignment)| ((*name).to_owned(), Assignment::new(assignment)))
         .collect(),
+      settings: justfile
+        .settings
+        .settings
+        .iter()
+        .map(Setting::new)
+        .collect(),
     }
   }
 }
@@ -96,6 +104,21 @@ impl Recipe {
       private: recipe.private,
       quiet: recipe.quiet,
       shebang: recipe.shebang,
+    }
+  }
+}
+
+#[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
+pub struct Setting {
+  pub name: String,
+  pub value: Expression,
+}
+
+impl Setting {
+  fn new(set: &full::Set) -> Self {
+    Self {
+      name: set.name.lexeme().to_owned(),
+      value: Expression::new(&set.value),
     }
   }
 }
