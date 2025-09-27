@@ -284,7 +284,7 @@ impl Subcommand {
   }
 
   fn completions(shell: completions::Shell) -> RunResult<'static, ()> {
-    println!("{}", shell.script()?);
+    println!("{}", shell.script());
     Ok(())
   }
 

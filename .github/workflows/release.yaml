@@ -91,14 +91,10 @@ jobs:
       run: |
         rustup target add aarch64-pc-windows-msvc
 
-    - name: Generate Completion Scripts and Manpage
+    - name: Generate Manpage
       run: |
         set -euxo pipefail
         cargo build
-        mkdir -p completions
-        for shell in bash elvish fish nu powershell zsh; do
-          ./target/debug/just --completions $shell > completions/just.$shell
-        done
         mkdir -p man
         ./target/debug/just --man > man/just.1
 
