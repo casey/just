@@ -104,7 +104,6 @@ pub(crate) use {
   edit_distance::edit_distance,
   lexiclean::Lexiclean,
   libc::EXIT_FAILURE,
-  once_cell::sync::Lazy,
   rand::seq::IndexedRandom,
   regex::Regex,
   serde::{
@@ -128,7 +127,7 @@ pub(crate) use {
     path::{self, Path, PathBuf},
     process::{self, Command, ExitStatus, Stdio},
     str::{self, Chars},
-    sync::{Arc, Mutex, MutexGuard, OnceLock},
+    sync::{Arc, LazyLock, Mutex, MutexGuard, OnceLock},
     thread, vec,
   },
   strum::{Display, EnumDiscriminants, EnumString, IntoStaticStr},
