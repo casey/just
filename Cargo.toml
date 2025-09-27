@@ -24,7 +24,6 @@ camino = "1.0.4"
 chrono = "0.4.38"
 clap = { version = "4.0.0", features = ["derive", "env", "wrap_help"] }
 clap_mangen = "0.2.20"
-ctrlc = { version = "3.1.1", features = ["termination"] }
 derive-where = "1.2.7"
 dirs = "6.0.0"
 dotenvy = "0.15"
@@ -54,7 +53,7 @@ unicode-width = "0.2.0"
 uuid = { version = "1.0.0", features = ["v4"] }
 
 [target.'cfg(unix)'.dependencies]
-nix = { version = "0.30.1", features = ["user"] }
+nix = { version = "0.30.1", features = ["signal", "user"] }
 
 [target.'cfg(windows)'.dependencies]
 ctrlc = { version = "3.1.1", features = ["termination"] }
