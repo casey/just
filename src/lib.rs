@@ -120,7 +120,7 @@ pub(crate) use {
     ffi::OsString,
     fmt::{self, Debug, Display, Formatter},
     fs,
-    io::{self, Read, Write},
+    io::{self, Write},
     iter::{self, FromIterator},
     mem,
     ops::Deref,
