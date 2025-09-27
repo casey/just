@@ -179,9 +179,11 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="the-default-recipe"><a class="header" href="#the-default-recipe">The Default Recipe</a></h3>
-<p>When <code>just</code> is invoked without a recipe, it runs the first recipe in the
-<code>justfile</code>. This recipe might be the most frequently run command in the
-project, like running the tests:</p>
+<p>When <code>just</code> is invoked without a recipe, it runs the recipe with the
+<code>[default]</code> attribute, or the first recipe in the <code>justfile</code> if no recipe has
+the <code>[default]</code> attribute.</p>
+<p>This recipe might be the most frequently run command in the project, like
+running the tests:</p>
 <pre><code class="language-just">test:
   cargo test
 </code></pre>

@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Running tasks in parallel - Just Programmer&#x27;s Manual</title>
+        <title>Parallelism - Just Programmer&#x27;s Manual</title>
 
 
         <!-- Custom HTML head -->
@@ -178,8 +178,23 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h3 id="running-tasks-in-parallel"><a class="header" href="#running-tasks-in-parallel">Running tasks in parallel</a></h3>
-<p>GNU parallel can be used to run tasks concurrently:</p>
+                        <h3 id="parallelism"><a class="header" href="#parallelism">Parallelism</a></h3>
+<p>Dependencies may be run in parallel with the <code>[parallel]</code> attribute.</p>
+<p>In this <code>justfile</code>, <code>foo</code>, <code>bar</code>, and <code>baz</code> will execute in parallel when
+<code>main</code> is run:</p>
+<pre><code class="language-just">[parallel]
+main: foo bar baz
+
+foo:
+  sleep 1
+
+bar:
+  sleep 1
+
+baz:
+  sleep 1
+</code></pre>
+<p>GNU <code>parallel</code> may be used to run recipe lines concurrently:</p>
 <pre><code class="language-just">parallel:
   #!/usr/bin/env -S parallel --shebang --ungroup --jobs {{ num_cpus() }}
   echo task 1 start; sleep 3; echo task 1 done

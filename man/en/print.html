@@ -266,10 +266,12 @@ always welcome!</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="prerequisites"><a class="header" href="#prerequisites">Prerequisites</a></h3>
 <p><code>just</code> should run on any system with a reasonable <code>sh</code>, including Linux, MacOS,
 and the BSDs.</p>
+<h4 id="windows"><a class="header" href="#windows">Windows</a></h4>
 <p>On Windows, <code>just</code> works with the <code>sh</code> provided by
 <a href="https://git-scm.com">Git for Windows</a>,
 <a href="https://desktop.github.com">GitHub Desktop</a>, or
-<a href="http://www.cygwin.com">Cygwin</a>.</p>
+<a href="http://www.cygwin.com">Cygwin</a>. After installation, <code>sh</code> must be
+available in the <code>PATH</code> of the shell you want to to invoke <code>just</code> from.</p>
 <p>If you’d rather not install <code>sh</code>, you can use the <code>shell</code> setting to use the
 shell of your choice.</p>
 <p>Like PowerShell:</p>
@@ -396,7 +398,7 @@ most Windows users.)</p>
     </tr>
     <tr>
       <td>
-        <a href=https://debian.org>Debian 13 (unreleased)</a> and
+        <a href=https://debian.org>Debian 13</a> and
         <a href=https://ubuntu.com>Ubuntu 24.04</a> derivatives</td>
       <td><a href=https://en.wikipedia.org/wiki/APT_(software)>apt</a></td>
       <td><a href=https://packages.debian.org/trixie/just>just</a></td>
@@ -463,7 +465,7 @@ most Windows users.)</p>
     </tr>
   </tbody>
 </table>
-<h4 id="windows"><a class="header" href="#windows">Windows</a></h4>
+<h4 id="windows-1"><a class="header" href="#windows-1">Windows</a></h4>
 <table>
   <thead>
     <tr>
@@ -669,6 +671,10 @@ out of the box, thanks to <a href="https://github.com/tomodachi94">tomodachi94</
 <div style="break-before: page; page-break-before: always;"></div><h3 id="other-editors"><a class="header" href="#other-editors">Other Editors</a></h3>
 <p>Feel free to send me the commands necessary to get syntax highlighting working
 in your editor of choice so that I may include them here.</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="model-context-protocol"><a class="header" href="#model-context-protocol">Model Context Protocol</a></h3>
+<p><a href="http://github.com/promptexecution/just-mcp">just-mcp</a> provides a
+<a href="https://en.wikipedia.org/wiki/Model_Context_Protocol">model context protocol</a>
+adapter to allow LLMs to query the contents of <code>justfiles</code> and run recipes.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h2>
 <p>See the installation section for how to install <code>just</code> on your computer. Try
 running <code>just --version</code> to make sure that it’s installed correctly.</p>
@@ -746,9 +752,11 @@ baz: foo::bar
 <a href="https://github.com/casey/just/tree/master/examples">examples directory</a> and on
 <a href="https://github.com/search?q=path%3A**%2Fjustfile&amp;type=code">GitHub</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="the-default-recipe"><a class="header" href="#the-default-recipe">The Default Recipe</a></h3>
-<p>When <code>just</code> is invoked without a recipe, it runs the first recipe in the
-<code>justfile</code>. This recipe might be the most frequently run command in the
-project, like running the tests:</p>
+<p>When <code>just</code> is invoked without a recipe, it runs the recipe with the
+<code>[default]</code> attribute, or the first recipe in the <code>justfile</code> if no recipe has
+the <code>[default]</code> attribute.</p>
+<p>This recipe might be the most frequently run command in the project, like
+running the tests:</p>
 <pre><code class="language-just">test:
   cargo test
 </code></pre>
@@ -1737,8 +1745,8 @@ do:</p>
 <tr><td><code>HEX</code><sup>1.27.0</sup></td><td><code>"0123456789abcdef"</code></td><td></td></tr>
 <tr><td><code>HEXLOWER</code><sup>1.27.0</sup></td><td><code>"0123456789abcdef"</code></td><td></td></tr>
 <tr><td><code>HEXUPPER</code><sup>1.27.0</sup></td><td><code>"0123456789ABCDEF"</code></td><td></td></tr>
-<tr><td><code>PATH_SEP</code><sup>1.41.0</sup></td><td><code>"/"</code></td><td>“"</td></tr>
-<tr><td><code>PATH_VAR_SEP</code><sup>1.41.0</sup></td><td><code>":"</code></td><td>“;”</td></tr>
+<tr><td><code>PATH_SEP</code><sup>1.41.0</sup></td><td><code>"/"</code></td><td><code>"\"</code></td></tr>
+<tr><td><code>PATH_VAR_SEP</code><sup>1.41.0</sup></td><td><code>":"</code></td><td><code>";"</code></td></tr>
 <tr><td><code>CLEAR</code><sup>1.37.0</sup></td><td><code>"\ec"</code></td><td></td></tr>
 <tr><td><code>NORMAL</code><sup>1.37.0</sup></td><td><code>"\e[0m"</code></td><td></td></tr>
 <tr><td><code>BOLD</code><sup>1.37.0</sup></td><td><code>"\e[1m"</code></td><td></td></tr>
@@ -1790,6 +1798,7 @@ change their behavior.</p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>[confirm]</code><sup>1.17.0</sup></td><td>recipe</td><td>Require confirmation prior to executing recipe.</td></tr>
 <tr><td><code>[confirm(PROMPT)]</code><sup>1.23.0</sup></td><td>recipe</td><td>Require confirmation prior to executing recipe with a custom prompt.</td></tr>
+<tr><td><code>[default]</code><sup>1.43.0</sup></td><td>recipe</td><td>Use recipe as module’s default recipe.</td></tr>
 <tr><td><code>[doc(DOC)]</code><sup>1.27.0</sup></td><td>module, recipe</td><td>Set recipe or module’s <a href="documentation-comments.html">documentation comment</a> to <code>DOC</code>.</td></tr>
 <tr><td><code>[extension(EXT)]</code><sup>1.32.0</sup></td><td>recipe</td><td>Set shebang recipe script’s file extension to <code>EXT</code>. <code>EXT</code> should include a period if one is desired.</td></tr>
 <tr><td><code>[group(NAME)]</code><sup>1.27.0</sup></td><td>module, recipe</td><td>Put recipe or module in in <a href="groups.html">group</a> <code>NAME</code>.</td></tr>
@@ -3221,7 +3230,7 @@ user types <code>ctrl-t</code> on
 operating systems, including MacOS, but not Linux.</p>
 <p><code>just</code> responds by printing a list of all child process IDs and
 commands<sup>1.41.0</sup>.</p>
-<h4 id="windows-1"><a class="header" href="#windows-1">Windows</a></h4>
+<h4 id="windows-2"><a class="header" href="#windows-2">Windows</a></h4>
 <p>On Windows, <code>just</code> behaves as if it had received <code>SIGINT</code> when the user types
 <code>ctrl-c</code>. Other signals are unsupported.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="changelog"><a class="header" href="#changelog">Changelog</a></h2>
@@ -3238,8 +3247,23 @@ when files change.</p>
 </code></pre>
 <p>See <code>watchexec --help</code> for more info, including how to specify which files
 should be watched for changes.</p>
-<div style="break-before: page; page-break-before: always;"></div><h3 id="running-tasks-in-parallel"><a class="header" href="#running-tasks-in-parallel">Running tasks in parallel</a></h3>
-<p>GNU parallel can be used to run tasks concurrently:</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="parallelism"><a class="header" href="#parallelism">Parallelism</a></h3>
+<p>Dependencies may be run in parallel with the <code>[parallel]</code> attribute.</p>
+<p>In this <code>justfile</code>, <code>foo</code>, <code>bar</code>, and <code>baz</code> will execute in parallel when
+<code>main</code> is run:</p>
+<pre><code class="language-just">[parallel]
+main: foo bar baz
+
+foo:
+  sleep 1
+
+bar:
+  sleep 1
+
+baz:
+  sleep 1
+</code></pre>
+<p>GNU <code>parallel</code> may be used to run recipe lines concurrently:</p>
 <pre><code class="language-just">parallel:
   #!/usr/bin/env -S parallel --shebang --ungroup --jobs {{ num_cpus() }}
   echo task 1 start; sleep 3; echo task 1 done
