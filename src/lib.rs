@@ -120,7 +120,7 @@ pub(crate) use {
     ffi::OsString,
     fmt::{self, Debug, Display, Formatter},
     fs,
-    io::{self, Read, Seek, Write},
+    io::{self, Write},
     iter::{self, FromIterator},
     mem,
     ops::Deref,
@@ -132,7 +132,7 @@ pub(crate) use {
     thread, vec,
   },
   strum::{Display, EnumDiscriminants, EnumString, IntoStaticStr},
-  tempfile::{tempfile, TempDir},
+  tempfile::TempDir,
   typed_arena::Arena,
   unicode_width::{UnicodeWidthChar, UnicodeWidthStr},
 };
