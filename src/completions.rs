@@ -26,7 +26,7 @@ impl Shell {
 
 #[cfg(test)]
 mod tests {
-  use {super::*, pretty_assertions::assert_eq};
+  use {super::*, pretty_assertions::assert_eq, std::io::Seek, tempfile::tempfile};
 
   #[test]
   fn scripts() {
