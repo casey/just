@@ -72,7 +72,7 @@ jobs:
     - prerelease
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Install AArch64 Toolchain
       if: ${{ matrix.target == 'aarch64-unknown-linux-musl' }}
@@ -91,14 +91,10 @@ jobs:
       run: |
         rustup target add aarch64-pc-windows-msvc
 
-    - name: Generate Completion Scripts and Manpage
+    - name: Generate Manpage
       run: |
         set -euxo pipefail
         cargo build
-        mkdir -p completions
-        for shell in bash elvish fish nu powershell zsh; do
-          ./target/debug/just --completions $shell > completions/just.$shell
-        done
         mkdir -p man
         ./target/debug/just --man > man/just.1
 
@@ -113,7 +109,7 @@ jobs:
       shell: bash
 
     - name: Publish Archive
-      uses: softprops/action-gh-release@v2.3.2
+      uses: softprops/action-gh-release@v2.3.3
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
       with:
         draft: false
@@ -123,7 +119,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Publish Changelog
-      uses: softprops/action-gh-release@v2.3.2
+      uses: softprops/action-gh-release@v2.3.3
       if: >-
         ${{
           startsWith(github.ref, 'refs/tags/')
@@ -160,7 +156,7 @@ jobs:
         shasum -a 256 * > ../SHA256SUMS
 
     - name: Publish Checksums
-      uses: softprops/action-gh-release@v2.3.2
+      uses: softprops/action-gh-release@v2.3.3
       with:
         draft: false
         files: SHA256SUMS
@@ -178,7 +174,7 @@ jobs:
       contents: write
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - uses: Swatinem/rust-cache@v2
 

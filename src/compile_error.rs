@@ -103,6 +103,10 @@ impl Display for CompileError<'_> {
         first.ordinal(),
         self.token.line.ordinal(),
       ),
+      DuplicateDefault { recipe } => write!(
+        f,
+        "Recipe `{recipe}` has duplicate `[default]` attribute, which may only appear once per module",
+      ),
       DuplicateParameter { recipe, parameter } => {
         write!(f, "Recipe `{recipe}` has duplicate parameter `{parameter}`")
       }
