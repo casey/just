@@ -86,10 +86,37 @@ impl Compiler {
                   import,
                 });
               }
-              *absolute = Some(import.clone());
+              absolute.push(import.clone());
               stack.push(current.import(import, path.offset));
-            } else if !*optional {
-              return Err(Error::MissingImportFile { path: *path });
+            } else {
+              let path_as_str_for_glob = import
+                .to_str()
+                .ok_or(Error::MissingImportFile { path: *path })?;
+
+              let mut at_least_matched_once = false;
+              for next_path_match in glob::glob(path_as_str_for_glob)
+                .map_err(|_| Error::MissingImportFile { path: *path })?
+              {
+                match next_path_match {
+                  Ok(next_import) => {
+                    at_least_matched_once = true;
+
+                    if current.file_path.contains(&next_import) {
+                      return Err(Error::CircularImport {
+                        current: current.path,
+                        import,
+                      });
+                    }
+                    absolute.push(next_import.clone());
+                    stack.push(current.import(next_import, path.offset));
+                  }
+                  Err(_pattern_error) => return Err(Error::MissingImportFile { path: *path }),
+                }
+              }
+
+              if !at_least_matched_once && !*optional {
+                return Err(Error::MissingImportFile { path: *path });
+              }
             }
           }
           _ => {}

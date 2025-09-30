@@ -3656,6 +3656,39 @@ foo:
   echo 'yes'
 ```
 
+You can also import several justfiles via wild globbing like in a shell.
+
+As an example we have two seperate justfiles called `a.just` and `b.just`:
+
+````justfile
+# a.just
+a:
+  echo a
+foo: baz
+````
+
+````justfile
+# b.just
+b:
+  echo b
+````
+
+And we have our just file called `justfile`:
+
+````justfile
+# justfile
+import '*.just'
+z: a b
+````
+
+Running the recipe `z` will result in:
+
+````console
+$ just z
+a
+b
+````
+
 When `import`s are involved, things unfortunately get much more complicated and
 hard to explain.
 

@@ -1,6 +1,93 @@
 use super::*;
 
 #[test]
+fn wildcard_no_match_error() {
+  Test::new()
+    .tree(tree! {
+          ".just": {
+          }
+    })
+    .justfile(
+      "
+        import '.just/*.just'
+
+        a: b c d
+          @echo A
+      ",
+    )
+    .arg("a")
+    .status(EXIT_FAILURE)
+    .stderr(
+      "
+      error: Could not find source file for import.
+       ——▶ justfile:1:8
+        │
+      1 │ import '.just/*.just'
+        │        ^^^^^^^^^^^^^^
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn import_wildcard_succeeds_with_dir() {
+  Test::new()
+    .tree(tree! {
+          ".just": {
+              "b.just": "
+                 b:
+                  @echo B
+              ",
+              "c.just": "
+                c:
+                  @echo C
+              ",
+              "d.just": "
+                d:
+                  @echo D
+              ",
+          }
+    })
+    .justfile(
+      "
+        import '.just/*.just'
+
+        a: b c d
+          @echo A
+      ",
+    )
+    .arg("a")
+    .stdout("B\nC\nD\nA\n")
+    .run();
+}
+
+#[test]
+fn import_wildcard_succeeds() {
+  Test::new()
+    .tree(tree! {
+      "import.justfile": "
+        b:
+          @echo B
+      ",
+      "import.another.justfile": "
+        c:
+          @echo C
+      "
+    })
+    .justfile(
+      "
+        import './import.*'
+
+        a: b c
+          @echo A
+      ",
+    )
+    .arg("a")
+    .stdout("B\nC\nA\n")
+    .run();
+}
+
+#[test]
 fn import_succeeds() {
   Test::new()
     .tree(tree! {
