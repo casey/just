@@ -154,3 +154,26 @@ fn lazy_with_private() {
     .stdout("hidden\n")
     .run();
 }
+
+#[test]
+fn lazy_variable_evaluated_once() {
+  Test::new()
+    .justfile(
+      "
+        lazy value := `date +%s%N`
+
+        test:
+          #!/usr/bin/env bash
+          first={{value}}
+          second={{value}}
+          if [ \"$first\" = \"$second\" ]; then
+            echo \"PASS: $first\"
+          else
+            echo \"FAIL: first=$first second=$second\"
+            exit 1
+          fi
+      ",
+    )
+    .stdout_regex("^PASS: \\d+\\n$")
+    .run();
+}
