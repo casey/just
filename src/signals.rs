@@ -6,6 +6,7 @@ use {
   },
   std::{
     fs::File,
+    io::Read,
     os::fd::{BorrowedFd, IntoRawFd},
     sync::atomic::{self, AtomicI32},
   },

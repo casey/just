@@ -14,6 +14,7 @@ use {
 pub(crate) struct Config {
   pub(crate) alias_style: AliasStyle,
   pub(crate) allow_missing: bool,
+  pub(crate) ceiling: Option<PathBuf>,
   pub(crate) check: bool,
   pub(crate) color: Color,
   pub(crate) command_color: Option<ansi_term::Color>,
@@ -92,6 +93,7 @@ mod arg {
   pub(crate) const ALIAS_STYLE: &str = "ALIAS_STYLE";
   pub(crate) const ALLOW_MISSING: &str = "ALLOW-MISSING";
   pub(crate) const ARGUMENTS: &str = "ARGUMENTS";
+  pub(crate) const CEILING: &str = "CEILING";
   pub(crate) const CHECK: &str = "CHECK";
   pub(crate) const CHOOSER: &str = "CHOOSER";
   pub(crate) const CLEAR_SHELL_ARGS: &str = "CLEAR-SHELL-ARGS";
@@ -160,6 +162,14 @@ impl Config {
           .default_value("right")
           .help("Set list command alias display style")
           .conflicts_with(arg::NO_ALIASES),
+      )
+      .arg(
+        Arg::new(arg::CEILING)
+          .long("ceiling")
+          .env("JUST_CEILING")
+          .action(ArgAction::Set)
+          .value_parser(value_parser!(PathBuf))
+          .help("Do not ascend above <CEILING> directory when searching for a justfile."),
       )
       .arg(
         Arg::new(arg::CHECK)
@@ -777,6 +787,7 @@ impl Config {
         .unwrap()
         .clone(),
       allow_missing: matches.get_flag(arg::ALLOW_MISSING),
+      ceiling: matches.get_one::<PathBuf>(arg::CEILING).cloned(),
       check: matches.get_flag(arg::CHECK),
       color: (*matches.get_one::<UseColor>(arg::COLOR).unwrap()).into(),
       command_color: matches
