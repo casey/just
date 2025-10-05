@@ -1490,6 +1490,19 @@ braces:
   echo 'I {{ "{{" }}LOVE}} curly braces!'
 ```
 
+#### Lazy Evaluation
+
+By default, variables are evaluated when they are defined. If you would like a
+variable to only be evaluated when it is used for the first time, you can use the
+`lazy` keyword:
+
+```just
+lazy password := `aws ecr get-login-password --region us-west-2`
+```
+
+This is useful for values that are expensive to compute, or that may not be
+needed in every invocation of `just`.
+
 ### Strings
 
 `'single'`, `"double"`, and `'''triple'''` quoted string literals are
