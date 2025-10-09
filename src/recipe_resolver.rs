@@ -136,7 +136,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       // recipe depends on itself
       let first = stack[0];
       stack.push(first);
-      return Err(
+      Err(
         dependency.recipe.last().error(CircularRecipeDependency {
           recipe: recipe.name(),
           circle: stack
@@ -145,7 +145,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
             .copied()
             .collect(),
         }),
-      );
+      )
     } else if let Some(unresolved) = self.unresolved_recipes.remove(name) {
       // recipe is as of yet unresolved
       Ok(Some(self.resolve_recipe(stack, unresolved)?))

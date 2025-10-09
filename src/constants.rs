@@ -66,7 +66,7 @@ mod tests {
         "| `{name}`<sup>{version}</sup> | `\"{}\"` | {} |",
         unix.replace('\x1b', "\\e"),
         windows
-          .map(|value| format!("\"{value}\""))
+          .map(|value| format!("`\"{value}\"`"))
           .unwrap_or_default(),
       ));
     }

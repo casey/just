@@ -94,7 +94,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           }
           Item::Unexport { name } => {
             if !self.unexports.insert(name.lexeme().to_string()) {
-              return Err(name.token.error(DuplicateUnexport {
+              return Err(name.error(DuplicateUnexport {
                 variable: name.lexeme(),
               }));
             }
@@ -112,7 +112,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       let variable = assignment.name.lexeme();
 
       if !settings.allow_duplicate_variables && assignments.contains_key(variable) {
-        return Err(assignment.name.token.error(DuplicateVariable { variable }));
+        return Err(assignment.name.error(DuplicateVariable { variable }));
       }
 
       if assignments.get(variable).map_or(true, |original| {
@@ -122,7 +122,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       }
 
       if self.unexports.contains(variable) {
-        return Err(assignment.name.token.error(ExportUnexported { variable }));
+        return Err(assignment.name.error(ExportUnexported { variable }));
       }
     }
 
@@ -172,10 +172,21 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let source = root.to_owned();
     let root = paths.get(root).unwrap();
 
-    Ok(Justfile {
-      aliases,
-      assignments,
-      default: recipes
+    let mut default = None;
+    for recipe in recipes.values() {
+      if recipe.attributes.contains(AttributeDiscriminant::Default) {
+        if default.is_some() {
+          return Err(recipe.name.error(CompileErrorKind::DuplicateDefault {
+            recipe: recipe.name.lexeme(),
+          }));
+        }
+
+        default = Some(Arc::clone(recipe));
+      }
+    }
+
+    let default = default.or_else(|| {
+      recipes
         .values()
         .filter(|recipe| recipe.name.path == root)
         .fold(None, |accumulator, next| match accumulator {
@@ -185,7 +196,13 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           } else {
             Arc::clone(next)
           }),
-        }),
+        })
+    });
+
+    Ok(Justfile {
+      aliases,
+      assignments,
+      default,
       doc: doc.filter(|doc| !doc.is_empty()),
       groups: groups.into(),
       loaded: loaded.into(),
@@ -236,7 +253,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     for parameter in &recipe.parameters {
       if parameters.contains(parameter.name.lexeme()) {
-        return Err(parameter.name.token.error(DuplicateParameter {
+        return Err(parameter.name.error(DuplicateParameter {
           recipe: recipe.name.lexeme(),
           parameter: parameter.name.lexeme(),
         }));
@@ -304,7 +321,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
   ) -> CompileResult<'src, Alias<'src>> {
     match Self::resolve_recipe(&alias.target, modules, recipes) {
       Some(target) => Ok(alias.resolve(target)),
-      None => Err(alias.name.token.error(UnknownAliasTarget {
+      None => Err(alias.name.error(UnknownAliasTarget {
         alias: alias.name.lexeme(),
         target: alias.target,
       })),

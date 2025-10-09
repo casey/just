@@ -240,7 +240,7 @@ most Windows users.)
     </tr>
     <tr>
       <td>
-        <a href=https://debian.org>Debian 13 (unreleased)</a> and
+        <a href=https://debian.org>Debian 13</a> and
         <a href=https://ubuntu.com>Ubuntu 24.04</a> derivatives</td>
       <td><a href=https://en.wikipedia.org/wiki/APT_(software)>apt</a></td>
       <td><a href=https://packages.debian.org/trixie/just>just</a></td>
@@ -730,9 +730,12 @@ Features
 
 ### The Default Recipe
 
-When `just` is invoked without a recipe, it runs the first recipe in the
-`justfile`. This recipe might be the most frequently run command in the
-project, like running the tests:
+When `just` is invoked without a recipe, it runs the recipe with the
+`[default]` attribute, or the first recipe in the `justfile` if no recipe has
+the `[default]` attribute.
+
+This recipe might be the most frequently run command in the project, like
+running the tests:
 
 ```just
 test:
@@ -2049,8 +2052,8 @@ A number of constants are predefined:
 | `HEX`<sup>1.27.0</sup> | `"0123456789abcdef"` |  |
 | `HEXLOWER`<sup>1.27.0</sup> | `"0123456789abcdef"` |  |
 | `HEXUPPER`<sup>1.27.0</sup> | `"0123456789ABCDEF"` |  |
-| `PATH_SEP`<sup>1.41.0</sup> | `"/"` | "\" |
-| `PATH_VAR_SEP`<sup>1.41.0</sup> | `":"` | ";" |
+| `PATH_SEP`<sup>1.41.0</sup> | `"/"` | `"\"` |
+| `PATH_VAR_SEP`<sup>1.41.0</sup> | `":"` | `";"` |
 | `CLEAR`<sup>1.37.0</sup> | `"\ec"` |  |
 | `NORMAL`<sup>1.37.0</sup> | `"\e[0m"` |  |
 | `BOLD`<sup>1.37.0</sup> | `"\e[1m"` |  |
@@ -2114,6 +2117,7 @@ change their behavior.
 |------|------|-------------|
 | `[confirm]`<sup>1.17.0</sup> | recipe | Require confirmation prior to executing recipe. |
 | `[confirm(PROMPT)]`<sup>1.23.0</sup> | recipe | Require confirmation prior to executing recipe with a custom prompt. |
+| `[default]`<sup>1.43.0</sup> | recipe | Use recipe as module's default recipe. |
 | `[doc(DOC)]`<sup>1.27.0</sup> | module, recipe | Set recipe or module's [documentation comment](#documentation-comments) to `DOC`. |
 | `[extension(EXT)]`<sup>1.32.0</sup> | recipe | Set shebang recipe script's file extension to `EXT`. `EXT` should include a period if one is desired. |
 | `[group(NAME)]`<sup>1.27.0</sup> | module, recipe | Put recipe or module in in [group](#groups) `NAME`. |
