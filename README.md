@@ -4319,7 +4319,7 @@ bar_unix := shell('cygpath --unix $1', bar_windows)
 
 ### Remote Justfiles
 
-You can import `justfiles` directly from Git repositories using `import` statements with Git URLs. Just automatically clones the repository to a temporary directory and imports the specified file.
+You can import `justfiles` directly from Git repositories using `import` statements with Git URLs. Just automatically clones the repository to a stable cache directory and imports the specified file.
 
 #### Git Repository Imports
 
