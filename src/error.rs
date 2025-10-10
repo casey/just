@@ -123,6 +123,22 @@ pub(crate) enum Error<'src> {
     path: PathBuf,
     io_error: io::Error,
   },
+  GitClone {
+    url: String,
+    git_error: git2::Error,
+  },
+  GitAuth {
+    url: String,
+    message: String,
+  },
+  GitNetwork {
+    url: String,
+    message: String,
+  },
+  GitRepository {
+    url: String,
+    message: String,
+  },
   MissingImportFile {
     path: Token<'src>,
   },
@@ -447,6 +463,18 @@ impl ColorDisplay for Error<'_> {
       }
       Load { io_error, path } => {
         write!(f, "Failed to read justfile at `{}`: {io_error}", path.display())?;
+      }
+      GitClone { url, git_error } => {
+        write!(f, "Failed to clone git repository `{url}`: {git_error}")?;
+      }
+      GitAuth { url, message } => {
+        write!(f, "Authentication failed for git repository `{url}`: {message}")?;
+      }
+      GitNetwork { url, message } => {
+        write!(f, "Network error accessing git repository `{url}`: {message}")?;
+      }
+      GitRepository { url, message } => {
+        write!(f, "Git repository error for `{url}`: {message}")?;
       }
       MissingImportFile { .. } => write!(f, "Could not find source file for import.")?,
       MissingModuleFile { module } => write!(f, "Could not find source file for module `{module}`.")?,
