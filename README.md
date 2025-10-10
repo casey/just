@@ -3619,8 +3619,8 @@ A
 ```
 
 The `import` path can be absolute or relative to the location of the justfile
-containing it. A leading `~/` in the import path is replaced with the current
-users home directory.
+containing it, or it can be a Git repository URL for remote imports.
+A leading `~/` in the import path is replaced with the current users home directory.
 
 Justfiles are insensitive to order, so included files can reference variables
 and recipes defined after the `import` statement.
@@ -4319,7 +4319,60 @@ bar_unix := shell('cygpath --unix $1', bar_windows)
 
 ### Remote Justfiles
 
-If you wish to include a `mod` or `import` source file in many `justfiles`
+You can import `justfiles` directly from Git repositories using `import` statements with Git URLs. Just automatically clones the repository to a temporary directory and imports the specified file.
+
+#### Git Repository Imports
+
+Import a justfile from a Git repository:
+
+`import 'https://github.com/user/repo.git'`
+
+Import a specific file from a Git repository by appending `@path/to/file`:
+
+`import 'https://github.com/user/repo.git@path/to/recipes.just'`
+
+Pin to a specific commit using SHA after `#`:
+
+`import 'https://github.com/user/repo.git#abc123def456'`
+
+Combine SHA pinning with specific file paths:
+
+`import 'https://github.com/user/repo.git#abc123def456@path/to/recipes.just'`
+
+Supported URL formats:
+- `https://github.com/user/repo.git` - Latest default branch
+- `https://github.com/user/repo.git#commit-sha` - Specific commit  
+- `git@github.com:user/repo.git#commit-sha` - SSH with commit pinning
+- `https://gitlab.com/user/repo#commit-sha@path/file.just` - All features combined
+
+Optional imports work with Git repositories too:
+
+`import? 'https://github.com/user/repo.git#commit-sha'`
+
+#### Version Pinning
+
+SHA pinning ensures reproducible builds by locking imports to specific commits:
+
+Use full 40-character SHA hashes for maximum security, or shorter hashes for convenience.
+
+#### Authentication
+
+For private repositories, `just` uses your system's Git credentials:
+- SSH keys for `git@` URLs
+- Git credential helper for HTTPS URLs
+- Environment variables `GIT_USERNAME` and `GIT_PASSWORD` as fallback
+
+#### Error Handling
+
+Git import errors provide clear context:
+- **Repository not found (404)**: Check the URL is correct
+- **Authentication failed**: Verify your SSH keys or credentials
+- **Network error**: Check your internet connection
+- **File not found**: Verify the file path exists in the repository
+
+#### Manual Remote Justfiles
+
+Alternatively, if you wish to include a `mod` or `import` source file in many `justfiles`
 without needing to duplicate it, you can use an optional `mod` or `import`,
 along with a recipe to fetch the module source:
 
