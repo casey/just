@@ -1,9 +1,21 @@
 use super::*;
+use crate::git_repository::GitRepositoryManager;
+use std::cell::RefCell;
 
-pub(crate) struct Compiler;
+pub(crate) struct Compiler {
+  git_manager: RefCell<GitRepositoryManager>,
+}
 
 impl Compiler {
+  pub(crate) fn new() -> RunResult<'static, Self> {
+    Ok(Self {
+      git_manager: RefCell::new(GitRepositoryManager::new()?),
+    })
+  }
+
   pub(crate) fn compile<'src>(
+    &self,
+    config: &Config,
     loader: &'src Loader,
     root: &Path,
   ) -> RunResult<'src, Compilation<'src>> {
@@ -67,24 +79,51 @@ impl Compiler {
             optional,
             path,
           } => {
-            let import = current
-              .path
-              .parent()
-              .unwrap()
-              .join(Self::expand_tilde(&relative.cooked)?)
-              .lexiclean();
+            let expanded_path = Self::expand_tilde(&relative.cooked)?;
+            let path_str = expanded_path.to_string_lossy();
 
-            if import.is_file() {
-              if current.file_path.contains(&import) {
-                return Err(Error::CircularImport {
-                  current: current.path,
-                  import,
-                });
+            // Check if this is a Git repository URL
+            if GitRepositoryManager::is_git_url(&path_str) {
+              // Handle remote Git repository import
+              let (git_url, sha, file_path) = GitRepositoryManager::parse_git_url(&path_str);
+              match self.git_manager.borrow().clone_and_get_path(&git_url, sha.as_deref(), file_path.as_deref(), config.force_reclone) {
+                Ok(import_path) => {
+                  if current.file_path.contains(&import_path) {
+                    return Err(Error::CircularImport {
+                      current: current.path,
+                      import: import_path,
+                    });
+                  }
+                  *absolute = Some(import_path.clone());
+                  stack.push(current.import(import_path, path.offset));
+                }
+                Err(err) => {
+                  if !*optional {
+                    return Err(err);
+                  }
+                }
               }
-              *absolute = Some(import.clone());
-              stack.push(current.import(import, path.offset));
-            } else if !*optional {
-              return Err(Error::MissingImportFile { path: *path });
+            } else {
+              // Handle local file import (existing logic)
+              let import = current
+                .path
+                .parent()
+                .unwrap()
+                .join(expanded_path)
+                .lexiclean();
+
+              if import.is_file() {
+                if current.file_path.contains(&import) {
+                  return Err(Error::CircularImport {
+                    current: current.path,
+                    import,
+                  });
+                }
+                *absolute = Some(import.clone());
+                stack.push(current.import(import, path.offset));
+              } else if !*optional {
+                return Err(Error::MissingImportFile { path: *path });
+              }
             }
           }
           _ => {}
@@ -259,7 +298,9 @@ recipe_b: recipe_c
     let loader = Loader::new();
 
     let justfile_a_path = tmp.path().join("justfile");
-    let compilation = Compiler::compile(&loader, &justfile_a_path).unwrap();
+    let compiler = Compiler::new().unwrap();
+    let config = Config::default_for_tests();
+    let compilation = compiler.compile(&config, &loader, &justfile_a_path).unwrap();
 
     assert_eq!(compilation.root_src(), justfile_a);
   }
@@ -276,7 +317,9 @@ recipe_b: recipe_c
     let loader = Loader::new();
 
     let justfile_a_path = tmp.path().join("justfile");
-    let loader_output = Compiler::compile(&loader, &justfile_a_path).unwrap_err();
+    let compiler = Compiler::new().unwrap();
+    let config = Config::default_for_tests();
+    let loader_output = compiler.compile(&config, &loader, &justfile_a_path).unwrap_err();
 
     assert_matches!(loader_output, Error::CircularImport { current, import }
       if current == tmp.path().join("subdir").join("b").lexiclean() &&

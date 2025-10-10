@@ -105,6 +105,7 @@ mod quote;
 mod readme;
 mod recursion_limit;
 mod regexes;
+mod remote_imports;
 mod request;
 mod run;
 mod scope;

@@ -23,6 +23,7 @@ pub(crate) struct Config {
   pub(crate) dry_run: bool,
   pub(crate) dump_format: DumpFormat,
   pub(crate) explain: bool,
+  pub(crate) force_reclone: bool,
   pub(crate) highlight: bool,
   pub(crate) invocation_directory: PathBuf,
   pub(crate) list_heading: String,
@@ -103,6 +104,7 @@ mod arg {
   pub(crate) const DRY_RUN: &str = "DRY-RUN";
   pub(crate) const DUMP_FORMAT: &str = "DUMP-FORMAT";
   pub(crate) const EXPLAIN: &str = "EXPLAIN";
+  pub(crate) const FORCE_RECLONE: &str = "FORCE-RECLONE";
   pub(crate) const GLOBAL_JUSTFILE: &str = "GLOBAL-JUSTFILE";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
@@ -451,6 +453,13 @@ impl Config {
           .help("Automatically confirm all recipes."),
       )
       .arg(
+        Arg::new(arg::FORCE_RECLONE)
+          .long("force-reclone")
+          .env("JUST_FORCE_RECLONE")
+          .action(ArgAction::SetTrue)
+          .help("Force re-cloning of recipe dependencies"),
+      )
+      .arg(
         Arg::new(cmd::CHANGELOG)
           .long("changelog")
           .action(ArgAction::SetTrue)
@@ -794,6 +803,7 @@ impl Config {
         .unwrap()
         .clone(),
       explain,
+      force_reclone: matches.get_flag(arg::FORCE_RECLONE),
       highlight: !matches.get_flag(arg::NO_HIGHLIGHT),
       invocation_directory: env::current_dir().context(config_error::CurrentDirContext)?,
       list_heading: matches.get_one::<String>(arg::LIST_HEADING).unwrap().into(),
@@ -840,6 +850,46 @@ impl Config {
       Ok(())
     } else {
       Err(Error::UnstableFeature { unstable_feature })
+    }
+  }
+
+  /// Create a default config for internal use (tests, etc.)
+  pub(crate) fn default_for_tests() -> Self {
+    use std::env;
+    Self {
+      alias_style: AliasStyle::Right,
+      allow_missing: false,
+      check: false,
+      color: Color::auto(),
+      command_color: None,
+      cygpath: PathBuf::from("cygpath"),
+      dotenv_filename: None,
+      dotenv_path: None,
+      dry_run: false,
+      dump_format: DumpFormat::Just,
+      explain: false,
+      force_reclone: false,
+      highlight: true,
+      invocation_directory: env::current_dir().unwrap_or_else(|_| PathBuf::from(".")),
+      list_heading: "Available recipes:\n".to_string(),
+      list_prefix: "    ".to_string(),
+      list_submodules: false,
+      load_dotenv: true,
+      no_aliases: false,
+      no_dependencies: false,
+      one: false,
+      search_config: SearchConfig::FromInvocationDirectory,
+      shell: None,
+      shell_args: None,
+      shell_command: false,
+      subcommand: Subcommand::Summary,
+      tempdir: None,
+      timestamp: false,
+      timestamp_format: "%H:%M:%S".to_string(),
+      unsorted: false,
+      unstable: false,
+      verbosity: Verbosity::Quiet,
+      yes: false,
     }
   }
 }

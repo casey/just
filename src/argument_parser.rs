@@ -252,7 +252,9 @@ mod tests {
     fs::write(&path, "mod foo").unwrap();
     fs::create_dir(tempdir.path().join("foo")).unwrap();
     fs::write(tempdir.path().join("foo/mod.just"), "bar:").unwrap();
-    let compilation = Compiler::compile(&loader, &path).unwrap();
+    let compiler = Compiler::new().unwrap();
+    let config = Config::default_for_tests();
+    let compilation = compiler.compile(&config, &loader, &path).unwrap();
 
     assert_eq!(
       ArgumentParser::parse_arguments(&compilation.justfile, &["foo", "bar"]).unwrap(),
@@ -271,7 +273,9 @@ mod tests {
     fs::write(&path, "mod foo").unwrap();
     fs::create_dir(tempdir.path().join("foo")).unwrap();
     fs::write(tempdir.path().join("foo/mod.just"), "bar:").unwrap();
-    let compilation = Compiler::compile(&loader, &path).unwrap();
+    let compiler = Compiler::new().unwrap();
+  let config = Config::default_for_tests();
+  let compilation = compiler.compile(&config, &loader, &path).unwrap();
 
     assert_matches!(
       ArgumentParser::parse_arguments(&compilation.justfile, &["foo", "zzz"]).unwrap_err(),
@@ -289,7 +293,9 @@ mod tests {
     tempdir.write("foo.just", "bar:");
 
     let loader = Loader::new();
-    let compilation = Compiler::compile(&loader, &tempdir.path().join("justfile")).unwrap();
+    let compiler = Compiler::new().unwrap();
+    let config = Config::default_for_tests();
+    let compilation = compiler.compile(&config, &loader, &tempdir.path().join("justfile")).unwrap();
 
     assert_matches!(
       ArgumentParser::parse_arguments(&compilation.justfile, &["foo::zzz"]).unwrap_err(),
@@ -307,7 +313,9 @@ mod tests {
     tempdir.write("foo.just", "bar:");
 
     let loader = Loader::new();
-    let compilation = Compiler::compile(&loader, &tempdir.path().join("justfile")).unwrap();
+    let compiler = Compiler::new().unwrap();
+    let config = Config::default_for_tests();
+    let compilation = compiler.compile(&config, &loader, &tempdir.path().join("justfile")).unwrap();
 
     assert_matches!(
       ArgumentParser::parse_arguments(&compilation.justfile, &["foo::bar::baz"]).unwrap_err(),
@@ -323,7 +331,9 @@ mod tests {
     tempdir.write("justfile", "");
 
     let loader = Loader::new();
-    let compilation = Compiler::compile(&loader, &tempdir.path().join("justfile")).unwrap();
+    let compiler = Compiler::new().unwrap();
+    let config = Config::default_for_tests();
+    let compilation = compiler.compile(&config, &loader, &tempdir.path().join("justfile")).unwrap();
 
     assert_matches!(
       ArgumentParser::parse_arguments(&compilation.justfile, &[]).unwrap_err(),
@@ -337,7 +347,9 @@ mod tests {
     tempdir.write("justfile", "foo bar:");
 
     let loader = Loader::new();
-    let compilation = Compiler::compile(&loader, &tempdir.path().join("justfile")).unwrap();
+    let compiler = Compiler::new().unwrap();
+    let config = Config::default_for_tests();
+    let compilation = compiler.compile(&config, &loader, &tempdir.path().join("justfile")).unwrap();
 
     assert_matches!(
       ArgumentParser::parse_arguments(&compilation.justfile, &[]).unwrap_err(),
@@ -355,7 +367,9 @@ mod tests {
     tempdir.write("foo.just", "bar:");
 
     let loader = Loader::new();
-    let compilation = Compiler::compile(&loader, &tempdir.path().join("justfile")).unwrap();
+    let compiler = Compiler::new().unwrap();
+    let config = Config::default_for_tests();
+    let compilation = compiler.compile(&config, &loader, &tempdir.path().join("justfile")).unwrap();
 
     assert_matches!(
       ArgumentParser::parse_arguments(&compilation.justfile, &[]).unwrap_err(),

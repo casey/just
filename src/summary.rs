@@ -13,7 +13,7 @@
 //! of existing justfiles.
 
 use {
-  crate::{compiler::Compiler, error::Error, loader::Loader},
+  crate::{compiler::Compiler, config::Config, error::Error, loader::Loader},
   std::{collections::BTreeMap, io, path::Path},
 };
 
@@ -27,8 +27,10 @@ mod full {
 
 pub fn summary(path: &Path) -> io::Result<Result<Summary, String>> {
   let loader = Loader::new();
+  let config = Config::default_for_tests();
 
-  match Compiler::compile(&loader, path) {
+  let compiler = Compiler::new().map_err(|_| io::Error::new(io::ErrorKind::Other, "Failed to create compiler"))?;
+  match compiler.compile(&config, &loader, path) {
     Ok(compilation) => Ok(Ok(Summary::new(&compilation.justfile))),
     Err(error) => Ok(Err(if let Error::Compile { compile_error } = error {
       compile_error.to_string()

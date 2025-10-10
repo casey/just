@@ -218,6 +218,7 @@ mod executor;
 mod expression;
 mod fragment;
 mod function;
+pub mod git_repository;
 mod interpreter;
 mod item;
 mod justfile;
