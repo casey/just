@@ -49,12 +49,22 @@ impl<'src> Justfile<'src> {
       input,
       self
         .recipes
-        .keys()
-        .map(|name| Suggestion { name, target: None })
-        .chain(self.aliases.iter().map(|(name, alias)| Suggestion {
-          name,
-          target: Some(alias.target.name.lexeme()),
-        })),
+        .values()
+        .filter(|recipe| recipe.is_public())
+        .map(|recipe| Suggestion {
+          name: recipe.name(),
+          target: None,
+        })
+        .chain(
+          self
+            .aliases
+            .values()
+            .filter(|alias| alias.is_public())
+            .map(|alias| Suggestion {
+              name: alias.name.lexeme(),
+              target: Some(alias.target.name.lexeme()),
+            }),
+        ),
     )
   }
 
