@@ -1589,3 +1589,25 @@ fn private_variable() {
     )
     .run();
 }
+
+#[test]
+fn module_groups_are_preserved() {
+  Test::new()
+    .justfile(
+      r#"
+        [group('bar')]
+        [group("baz")]
+        mod foo
+      "#,
+    )
+    .write("foo.just", "")
+    .arg("--dump")
+    .stdout(
+      r#"
+        [group: 'bar']
+        [group: "baz"]
+        mod foo
+      "#,
+    )
+    .run();
+}

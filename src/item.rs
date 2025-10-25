@@ -15,7 +15,7 @@ pub(crate) enum Item<'src> {
   Module {
     absolute: Option<PathBuf>,
     doc: Option<String>,
-    groups: Vec<String>,
+    groups: Vec<StringLiteral<'src>>,
     name: Name<'src>,
     optional: bool,
     relative: Option<StringLiteral<'src>>,
@@ -45,11 +45,16 @@ impl Display for Item<'_> {
         write!(f, " {relative}")
       }
       Self::Module {
+        groups,
         name,
-        relative,
         optional,
+        relative,
         ..
       } => {
+        for group in groups {
+          writeln!(f, "[group: {group}]")?;
+        }
+
         write!(f, "mod")?;
 
         if *optional {
