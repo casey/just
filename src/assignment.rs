@@ -9,6 +9,10 @@ impl Display for Assignment<'_> {
       writeln!(f, "[private]")?;
     }
 
+    if self.lazy {
+      write!(f, "lazy ")?;
+    }
+
     if self.export {
       write!(f, "export ")?;
     }
