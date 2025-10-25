@@ -321,7 +321,7 @@ impl<'src, D> Recipe<'src, D> {
         &context.module.unexports,
       );
 
-      let (result, caught) = cmd.status_guard();
+      let (result, caught) = cmd.status_guard(context.config);
 
       match result {
         Ok(exit_status) => {
@@ -453,7 +453,7 @@ impl<'src, D> Recipe<'src, D> {
     );
 
     // run it!
-    let (result, caught) = command.status_guard();
+    let (result, caught) = command.status_guard(context.config);
 
     match result {
       Ok(exit_status) => exit_status.code().map_or_else(
