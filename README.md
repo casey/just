@@ -23,6 +23,8 @@
 
 `just` is a handy way to save and run project-specific commands.
 
+Hello!
+
 This readme is also available as a [book](https://just.systems/man/en/). The
 book reflects the latest release, whereas the
 [readme on GitHub](https://github.com/casey/just/blob/master/README.md)
