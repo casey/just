@@ -218,6 +218,14 @@ impl<'src> Node<'src> for UnresolvedRecipe<'src> {
 
     t.push_mut(self.name.lexeme());
 
+    if !self.flags.is_empty() {
+      let mut flags = Tree::atom("flags");
+      for parameter in self.flags.values() {
+        flags.push_mut(parameter.tree());
+      }
+      t.push_mut(flags);
+    }
+
     if !self.parameters.is_empty() {
       let mut params = Tree::atom("params");
 
@@ -269,7 +277,13 @@ impl<'src> Node<'src> for UnresolvedRecipe<'src> {
 
 impl<'src> Node<'src> for Parameter<'src> {
   fn tree(&self) -> Tree<'src> {
-    let mut children = vec![Tree::atom(self.name.lexeme())];
+    let mut children = Vec::new();
+
+    if self.kind == ParameterKind::Flag {
+      children.push(Tree::atom("--"));
+    }
+
+    children.push(Tree::atom(self.name.lexeme()));
 
     if let Some(default) = &self.default {
       children.push(default.tree());

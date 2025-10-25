@@ -212,3 +212,9 @@ c:
 
 d:
   echo 'D!'
+
+flags --flag --option="foo" positional:
+  @echo "flag:      " {{ flag }}
+  @echo "option:    " {{ option }}
+  @echo "positional:" {{ positional}}
+

@@ -15,7 +15,7 @@ pub(crate) struct Parameter<'src> {
 
 impl Parameter<'_> {
   pub(crate) fn is_required(&self) -> bool {
-    self.default.is_none() && self.kind != ParameterKind::Star
+    self.default.is_none() && !matches!(self.kind, ParameterKind::Star | ParameterKind::Flag)
   }
 }
 
