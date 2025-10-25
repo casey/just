@@ -134,6 +134,7 @@ if [ -z "${target-}" ]; then
     arm64-Darwin) target=aarch64-apple-darwin;;
     armv6l-Linux) target=arm-unknown-linux-musleabihf;;
     armv7l-Linux) target=armv7-unknown-linux-musleabihf;;
+    loongarch64-Linux) target=loongarch64-unknown-linux-musl;;
     x86_64-Darwin) target=x86_64-apple-darwin;;
     x86_64-Linux) target=x86_64-unknown-linux-musl;;
     x86_64-MINGW64_NT) target=x86_64-pc-windows-msvc;;
