@@ -34,17 +34,20 @@ jobs:
       matrix:
         target:
         - aarch64-apple-darwin
+        - aarch64-pc-windows-msvc
         - aarch64-unknown-linux-musl
         - arm-unknown-linux-musleabihf
         - armv7-unknown-linux-musleabihf
         - loongarch64-unknown-linux-musl
         - x86_64-apple-darwin
         - x86_64-pc-windows-msvc
-        - aarch64-pc-windows-msvc
         - x86_64-unknown-linux-musl
         include:
         - target: aarch64-apple-darwin
           os: macos-latest
+          target_rustflags: ''
+        - target: aarch64-pc-windows-msvc
+          os: windows-latest
           target_rustflags: ''
         - target: aarch64-unknown-linux-musl
           os: ubuntu-latest
@@ -57,16 +60,12 @@ jobs:
           target_rustflags: '--codegen linker=arm-linux-gnueabihf-gcc'
         - target: loongarch64-unknown-linux-musl
           os: ubuntu-latest
-          # TODO: Switch to loongarch64-linux-gnu-gcc when available
           target_rustflags: '--codegen linker=loongarch64-linux-gnu-gcc-14'
         - target: x86_64-apple-darwin
           os: macos-latest
           target_rustflags: ''
         - target: x86_64-pc-windows-msvc
           os: windows-latest
-        - target: aarch64-pc-windows-msvc
-          os: windows-latest
-          target_rustflags: ''
         - target: x86_64-unknown-linux-musl
           os: ubuntu-latest
           target_rustflags: ''
@@ -95,7 +94,6 @@ jobs:
       if: ${{ matrix.target == 'loongarch64-unknown-linux-musl' }}
       run: |
         sudo apt-get update
-        # TODO: Switch to gcc-loongarch64-linux-gnu when available
         sudo apt-get install gcc-14-loongarch64-linux-gnu
 
     - name: Install AArch64 Toolchain (Windows)
