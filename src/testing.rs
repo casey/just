@@ -69,7 +69,7 @@ pub(crate) fn analysis_error(
   let mut paths: HashMap<PathBuf, PathBuf> = HashMap::new();
   paths.insert("justfile".into(), "justfile".into());
 
-  match Analyzer::analyze(&asts, None, &[], &[], None, &paths, &root) {
+  match Analyzer::analyze(&asts, None, &[], &[], None, &paths, &root, false) {
     Ok(_) => panic!("Analysis unexpectedly succeeded"),
     Err(have) => {
       let want = CompileError {
