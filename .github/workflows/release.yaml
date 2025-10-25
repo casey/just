@@ -78,28 +78,25 @@ jobs:
     steps:
     - uses: actions/checkout@v5
 
-    - name: Install AArch64 Toolchain
-      if: ${{ matrix.target == 'aarch64-unknown-linux-musl' }}
+    - name: Install Target Dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install gcc-aarch64-linux-gnu libc6-dev-i386
-
-    - name: Install ARM Toolchain
-      if: ${{ matrix.target == 'arm-unknown-linux-musleabihf' || matrix.target == 'armv7-unknown-linux-musleabihf' }}
-      run: |
-        sudo apt-get update
-        sudo apt-get install gcc-arm-linux-gnueabihf
-
-    - name: Install LoongArch64 Toolchain
-      if: ${{ matrix.target == 'loongarch64-unknown-linux-musl' }}
-      run: |
-        sudo apt-get update
-        sudo apt-get install gcc-14-loongarch64-linux-gnu
-
-    - name: Install AArch64 Toolchain (Windows)
-      if: ${{ matrix.target == 'aarch64-pc-windows-msvc' }}
-      run: |
-        rustup target add aarch64-pc-windows-msvc
+        case ${{ matrix.target }} in
+          aarch64-pc-windows-msvc)
+            rustup target add aarch64-pc-windows-msvc
+            ;;
+          aarch64-unknown-linux-musl)
+            sudo apt-get update
+            sudo apt-get install gcc-aarch64-linux-gnu libc6-dev-i386
+            ;;
+          arm-unknown-linux-musleabihf|armv7-unknown-linux-musleabihf)
+            sudo apt-get update
+            sudo apt-get install gcc-arm-linux-gnueabihf
+            ;;
+          loongarch64-unknown-linux-musl)
+            sudo apt-get update
+            sudo apt-get install gcc-14-loongarch64-linux-gnu
+            ;;
+        esac
 
     - name: Generate Manpage
       run: |
@@ -208,7 +205,7 @@ jobs:
 
     - name: Deploy Pages
       uses: peaceiris/actions-gh-pages@v4
-      if: ${{ needs.prerelease.outputs.value }}
+      if: ${{ !needs.prerelease.outputs.value }}
       with:
         github_token: ${{secrets.GITHUB_TOKEN}}
         publish_branch: gh-pages
