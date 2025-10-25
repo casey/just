@@ -12,88 +12,95 @@ pub(crate) enum Shell {
 }
 
 impl Shell {
-  pub(crate) fn script(self) -> RunResult<'static, String> {
+  pub(crate) fn script(self) -> &'static str {
     match self {
-      Self::Bash => completions::clap(clap_complete::Shell::Bash),
-      Self::Elvish => completions::clap(clap_complete::Shell::Elvish),
-      Self::Fish => completions::clap(clap_complete::Shell::Fish),
-      Self::Nushell => Ok(completions::NUSHELL_COMPLETION_SCRIPT.into()),
-      Self::Powershell => completions::clap(clap_complete::Shell::PowerShell),
-      Self::Zsh => completions::clap(clap_complete::Shell::Zsh),
+      Self::Bash => include_str!("../completions/just.bash"),
+      Self::Elvish => include_str!("../completions/just.elvish"),
+      Self::Fish => include_str!("../completions/just.fish"),
+      Self::Nushell => include_str!("../completions/just.nu"),
+      Self::Powershell => include_str!("../completions/just.powershell"),
+      Self::Zsh => include_str!("../completions/just.zsh"),
     }
   }
 }
 
-fn clap(shell: clap_complete::Shell) -> RunResult<'static, String> {
-  fn replace(haystack: &mut String, needle: &str, replacement: &str) -> RunResult<'static, ()> {
-    if let Some(index) = haystack.find(needle) {
-      haystack.replace_range(index..index + needle.len(), replacement);
-      Ok(())
-    } else {
-      Err(Error::internal(format!(
-        "Failed to find text:\n{needle}\n…in completion script:\n{haystack}"
-      )))
-    }
-  }
-
-  let mut script = {
-    let mut tempfile = tempfile().map_err(|io_error| Error::TempfileIo { io_error })?;
-
-    clap_complete::generate(
-      shell,
-      &mut crate::config::Config::app(),
-      env!("CARGO_PKG_NAME"),
-      &mut tempfile,
-    );
-
-    tempfile
-      .rewind()
-      .map_err(|io_error| Error::TempfileIo { io_error })?;
-
-    let mut buffer = String::new();
-
-    tempfile
-      .read_to_string(&mut buffer)
-      .map_err(|io_error| Error::TempfileIo { io_error })?;
-
-    buffer
+#[cfg(test)]
+mod tests {
+  use {
+    super::*,
+    pretty_assertions::assert_eq,
+    std::io::{Read, Seek},
+    tempfile::tempfile,
   };
 
-  match shell {
-    clap_complete::Shell::Bash => {
-      for (needle, replacement) in completions::BASH_COMPLETION_REPLACEMENTS {
-        replace(&mut script, needle, replacement)?;
-      }
-    }
-    clap_complete::Shell::Fish => {
-      script.insert_str(0, completions::FISH_RECIPE_COMPLETIONS);
-    }
-    clap_complete::Shell::PowerShell => {
-      for (needle, replacement) in completions::POWERSHELL_COMPLETION_REPLACEMENTS {
-        replace(&mut script, needle, replacement)?;
-      }
-    }
-    clap_complete::Shell::Zsh => {
-      for (needle, replacement) in completions::ZSH_COMPLETION_REPLACEMENTS {
-        replace(&mut script, needle, replacement)?;
-      }
-    }
-    _ => {}
+  #[test]
+  fn scripts() {
+    assert_eq!(Shell::Bash.script(), clap(clap_complete::Shell::Bash));
+    assert_eq!(Shell::Elvish.script(), clap(clap_complete::Shell::Elvish));
+    assert_eq!(Shell::Fish.script(), clap(clap_complete::Shell::Fish));
+    assert_eq!(
+      Shell::Powershell.script(),
+      clap(clap_complete::Shell::PowerShell)
+    );
+    assert_eq!(Shell::Zsh.script(), clap(clap_complete::Shell::Zsh));
   }
 
-  Ok(script.trim().into())
-}
+  fn clap(shell: clap_complete::Shell) -> String {
+    fn replace(haystack: &mut String, needle: &str, replacement: &str) {
+      if let Some(index) = haystack.find(needle) {
+        haystack.replace_range(index..index + needle.len(), replacement);
+      } else {
+        panic!("Failed to find text:\n{needle}\n…in completion script:\n{haystack}")
+      }
+    }
 
-const NUSHELL_COMPLETION_SCRIPT: &str = r#"def "nu-complete just" [] {
-    (^just --dump --unstable --dump-format json | from json).recipes | transpose recipe data | flatten | where {|row| $row.private == false } | select recipe doc parameters | rename value description
-}
+    let mut script = {
+      let mut tempfile = tempfile().unwrap();
 
-# Just: A Command Runner
-export extern "just" [
-    ...recipe: string@"nu-complete just", # Recipe(s) to run, may be with argument(s)
-]"#;
+      clap_complete::generate(
+        shell,
+        &mut crate::config::Config::app(),
+        env!("CARGO_PKG_NAME"),
+        &mut tempfile,
+      );
 
-const FISH_RECIPE_COMPLETIONS: &str = r#"function __fish_just_complete_recipes
+      tempfile.rewind().unwrap();
+
+      let mut buffer = String::new();
+
+      tempfile.read_to_string(&mut buffer).unwrap();
+
+      buffer
+    };
+
+    match shell {
+      clap_complete::Shell::Bash => {
+        for (needle, replacement) in BASH_COMPLETION_REPLACEMENTS {
+          replace(&mut script, needle, replacement);
+        }
+      }
+      clap_complete::Shell::Fish => {
+        script.insert_str(0, FISH_RECIPE_COMPLETIONS);
+      }
+      clap_complete::Shell::PowerShell => {
+        for (needle, replacement) in POWERSHELL_COMPLETION_REPLACEMENTS {
+          replace(&mut script, needle, replacement);
+        }
+      }
+      clap_complete::Shell::Zsh => {
+        for (needle, replacement) in ZSH_COMPLETION_REPLACEMENTS {
+          replace(&mut script, needle, replacement);
+        }
+      }
+      _ => {}
+    }
+
+    let mut script = script.trim().to_string();
+    script.push('\n');
+    script
+  }
+
+  const FISH_RECIPE_COMPLETIONS: &str = r#"function __fish_just_complete_recipes
         if string match -rq '(-f|--justfile)\s*=?(?<justfile>[^\s]+)' -- (string split -- ' -- ' (commandline -pc))[1]
           set -fx JUST_JUSTFILE "$justfile"
         end
@@ -109,26 +116,26 @@ complete -c just -a '(__fish_just_complete_recipes)'
 # autogenerated completions
 "#;
 
-const ZSH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
-  (
-    r#"    _arguments "${_arguments_options[@]}" : \"#,
-    r"    local common=(",
-  ),
-  (
-    r"'*--set=[Override <VARIABLE> with <VALUE>]:VARIABLE:_default:VARIABLE:_default' \",
-    r"'*--set=[Override <VARIABLE> with <VALUE>]: :(_just_variables)' \",
-  ),
-  (
-    r"'()-s+[Show recipe at <PATH>]:PATH:_default' \
+  const ZSH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
+    (
+      r#"    _arguments "${_arguments_options[@]}" : \"#,
+      r"    local common=(",
+    ),
+    (
+      r"'*--set=[Override <VARIABLE> with <VALUE>]:VARIABLE:_default:VARIABLE:_default' \",
+      r"'*--set=[Override <VARIABLE> with <VALUE>]: :(_just_variables)' \",
+    ),
+    (
+      r"'()-s+[Show recipe at <PATH>]:PATH:_default' \
 '()--show=[Show recipe at <PATH>]:PATH:_default' \",
-    r"'-s+[Show recipe at <PATH>]: :(_just_commands)' \
+      r"'-s+[Show recipe at <PATH>]: :(_just_commands)' \
 '--show=[Show recipe at <PATH>]: :(_just_commands)' \",
-  ),
-  (
-    "'*::ARGUMENTS -- Overrides and recipe(s) to run, defaulting to the first recipe in the \
+    ),
+    (
+      "'*::ARGUMENTS -- Overrides and recipe(s) to run, defaulting to the first recipe in the \
      justfile:_default' \\
 && ret=0",
-    r#")
+      r#")
 
     _arguments "${_arguments_options[@]}" $common \
         '1: :_just_commands' \
@@ -173,10 +180,10 @@ const ZSH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
 
     return ret
 "#,
-  ),
-  (
-    "    local commands; commands=()",
-    r#"    [[ $PREFIX = -* ]] && return 1
+    ),
+    (
+      "    local commands; commands=()",
+      r#"    [[ $PREFIX = -* ]] && return 1
     integer ret=1
     local variables; variables=(
         ${(s: :)$(_call_program commands just --variables)}
@@ -185,10 +192,10 @@ const ZSH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
         ${${${(M)"${(f)$(_call_program commands just --list)}":#    *}/ ##/}/ ##/:Args: }
     )
 "#,
-  ),
-  (
-    r#"    _describe -t commands 'just commands' commands "$@""#,
-    r#"    if compset -P '*='; then
+    ),
+    (
+      r#"    _describe -t commands 'just commands' commands "$@""#,
+      r#"    if compset -P '*='; then
         case "${${words[-1]%=*}#*=}" in
             *) _message 'value' && ret=0 ;;
         esac
@@ -197,10 +204,10 @@ const ZSH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
         _describe -t commands 'just commands' commands "$@"
     fi
 "#,
-  ),
-  (
-    r#"_just "$@""#,
-    r#"(( $+functions[_just_variables] )) ||
+    ),
+    (
+      r#"_just "$@""#,
+      r#"(( $+functions[_just_variables] )) ||
 _just_variables() {
     [[ $PREFIX = -* ]] && return 1
     integer ret=1
@@ -220,13 +227,13 @@ _just_variables() {
 }
 
 _just "$@""#,
-  ),
-];
+    ),
+  ];
 
-const POWERSHELL_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[(
-  r#"$completions.Where{ $_.CompletionText -like "$wordToComplete*" } |
+  const POWERSHELL_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[(
+    r#"$completions.Where{ $_.CompletionText -like "$wordToComplete*" } |
         Sort-Object -Property ListItemText"#,
-  r#"function Get-JustFileRecipes([string[]]$CommandElements) {
+    r#"function Get-JustFileRecipes([string[]]$CommandElements) {
         $justFileIndex = $commandElements.IndexOf("--justfile");
 
         if ($justFileIndex -ne -1 -and $justFileIndex + 1 -le $commandElements.Length) {
@@ -248,15 +255,15 @@ const POWERSHELL_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[(
     $completions += $recipes
     $completions.Where{ $_.CompletionText -like "$wordToComplete*" } |
         Sort-Object -Property ListItemText"#,
-)];
+  )];
 
-const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
-  (
-    r#"            if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
+  const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
+    (
+      r#"            if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi"#,
-    r#"                if [[ ${cur} == -* ]] ; then
+      r#"                if [[ ${cur} == -* ]] ; then
                     COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                     return 0
                 elif [[ ${COMP_CWORD} -eq 1 ]]; then
@@ -273,15 +280,15 @@ const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
                         return 0
                     fi
                 fi"#,
-  ),
-  (
-    r"local i cur prev opts cmd",
-    r"local i cur prev words cword opts cmd",
-  ),
-  (
-    r#"    cur="${COMP_WORDS[COMP_CWORD]}"
+    ),
+    (
+      r"local i cur prev opts cmd",
+      r"local i cur prev words cword opts cmd",
+    ),
+    (
+      r#"    cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}""#,
-    r#"
+      r#"
     # Modules use "::" as the separator, which is considered a wordbreak character in bash.
     # The _get_comp_words_by_ref function is a hack to allow for exceptions to this rule without
     # modifying the global COMP_WORDBREAKS environment variable.
@@ -294,14 +301,15 @@ const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
         cword=$COMP_CWORD
     fi
 "#,
-  ),
-  (r"for i in ${COMP_WORDS[@]}", r"for i in ${words[@]}"),
-  (r"elif [[ ${COMP_CWORD} -eq 1 ]]; then", r"else"),
-  (
-    r#"COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )"#,
-    r#"COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )
+    ),
+    (r"for i in ${COMP_WORDS[@]}", r"for i in ${words[@]}"),
+    (r"elif [[ ${COMP_CWORD} -eq 1 ]]; then", r"else"),
+    (
+      r#"COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )"#,
+      r#"COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )
                         if type __ltrim_colon_completions &>/dev/null; then
                             __ltrim_colon_completions "$cur"
                         fi"#,
-  ),
-];
+    ),
+  ];
+}

@@ -63,7 +63,10 @@ impl Subcommand {
         Self::changelog();
         return Ok(());
       }
-      Completions { shell } => return Self::completions(*shell),
+      Completions { shell } => {
+        Self::completions(*shell);
+        return Ok(());
+      }
       Init => return Self::init(config),
       Man => return Self::man(),
       Request { request } => return Self::request(request),
@@ -283,9 +286,8 @@ impl Subcommand {
     justfile.run(config, search, overrides, &recipes)
   }
 
-  fn completions(shell: completions::Shell) -> RunResult<'static, ()> {
-    println!("{}", shell.script()?);
-    Ok(())
+  fn completions(shell: completions::Shell) {
+    print!("{}", shell.script());
   }
 
   fn dump(config: &Config, compilation: Compilation) -> RunResult<'static> {
@@ -519,7 +521,7 @@ impl Subcommand {
       BTreeMap::new()
     } else {
       let mut aliases = BTreeMap::<&str, Vec<&str>>::new();
-      for alias in module.aliases.values().filter(|alias| !alias.is_private()) {
+      for alias in module.aliases.values().filter(|alias| alias.is_public()) {
         aliases
           .entry(alias.target.name.lexeme())
           .or_default()
