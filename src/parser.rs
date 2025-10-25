@@ -1,4 +1,4 @@
-use {super::*, TokenKind::*};
+use {super::*, crate::parameter::OneOf, TokenKind::*};
 
 /// Just language parser
 ///
@@ -339,6 +339,9 @@ impl<'run, 'src> Parser<'run, 'src> {
         match Keyword::from_lexeme(next.lexeme()) {
           Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             items.push(Item::Alias(self.parse_alias(take_attributes())?));
+          }
+          Some(Keyword::Enum) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
+            items.push(Item::Enum(self.parse_enum()?));
           }
           Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             self.presume_keyword(Keyword::Export)?;
@@ -1027,10 +1030,24 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let name = self.parse_name()?;
 
-    let default = if self.accepted(Equals)? {
-      Some(self.parse_value()?)
+    let (default, one_of) = if self.accepted(Equals)? {
+      if self.accepted_keyword(Keyword::OneOf)? {
+        self.expect(ParenL)?;
+        let enum_name = self.parse_name()?;
+        self.expect(ParenR)?;
+        (None, Some(OneOf { enum_name }))
+      } else if self.accepted_keyword(Keyword::OneOfOrDefault)? {
+        self.expect(ParenL)?;
+        let enum_name = self.parse_name()?;
+        self.expect(Comma)?;
+        let default = self.parse_value()?;
+        self.expect(ParenR)?;
+        (Some(default.clone()), Some(OneOf { enum_name }))
+      } else {
+        (Some(self.parse_value()?), None)
+      }
     } else {
-      None
+      (None, None)
     };
 
     Ok(Parameter {
@@ -1038,6 +1055,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       export,
       kind,
       name,
+      one_of,
     })
   }
 
@@ -1158,6 +1176,33 @@ impl<'run, 'src> Parser<'run, 'src> {
     Err(name.error(CompileErrorKind::UnknownSetting {
       setting: name.lexeme(),
     }))
+  }
+
+  fn parse_enum(&mut self) -> CompileResult<'src, Enum<'src>> {
+    self.presume_keyword(Keyword::Enum)?;
+    let name = self.parse_name()?;
+    self.presume_any(&[Equals, ColonEquals])?;
+
+    self.expect(BracketL)?;
+
+    let mut variants = BTreeMap::new();
+
+    while !self.next_is(BracketR) {
+      let variant_name = self.parse_string_literal()?;
+      // divided by =
+      self.expect(Equals)?;
+      let variant_value = self.parse_string_literal()?;
+
+      variants.insert(variant_name.raw, variant_value);
+
+      if !self.accepted(Comma)? {
+        break;
+      }
+    }
+
+    self.expect(BracketR)?;
+
+    Ok(Enum { name, variants })
   }
 
   /// Parse interpreter setting value, i.e., `['sh', '-eu']`
@@ -2455,6 +2500,18 @@ mod tests {
     name: assert_conditional_condition,
     text: "foo := assert(if a != b { c } else { d } == \"abc\", \"error\")",
     tree: (justfile (assignment foo (assert (if a != b c d) == "abc" "error"))),
+  }
+
+  test! {
+    name: one_of,
+    text: "foo a=one-of(bar):",
+    tree: (justfile (recipe foo (params (a (one_of bar))))),
+  }
+
+  test! {
+    name: one_of_or_default_simple,
+    text: "foo a=one-of-or-default(bar, \"default_value\"):",
+    tree: (justfile (recipe foo (params (a "default_value" (one_of bar))))),
   }
 
   error! {
