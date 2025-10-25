@@ -15,7 +15,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
   pub(crate) fn analyze(
     asts: &'run HashMap<PathBuf, Ast<'src>>,
     doc: Option<String>,
-    groups: &[String],
+    groups: &[StringLiteral<'src>],
     loaded: &[PathBuf],
     name: Option<Name<'src>>,
     paths: &HashMap<PathBuf, PathBuf>,
@@ -28,7 +28,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     mut self,
     asts: &'run HashMap<PathBuf, Ast<'src>>,
     doc: Option<String>,
-    groups: &[String],
+    groups: &[StringLiteral<'src>],
     loaded: &[PathBuf],
     name: Option<Name<'src>>,
     paths: &HashMap<PathBuf, PathBuf>,
