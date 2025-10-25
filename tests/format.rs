@@ -1611,3 +1611,23 @@ fn module_groups_are_preserved() {
     )
     .run();
 }
+
+#[test]
+fn module_docs_are_preserved() {
+  Test::new()
+    .justfile(
+      r"
+        # bar
+        mod foo
+      ",
+    )
+    .write("foo.just", "")
+    .arg("--dump")
+    .stdout(
+      r"
+        # bar
+        mod foo
+      ",
+    )
+    .run();
+}
