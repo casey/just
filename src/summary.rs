@@ -206,7 +206,7 @@ pub enum Expression {
     lhs: Box<Expression>,
     rhs: Box<Expression>,
     then: Box<Expression>,
-    otherwise: Box<Expression>,
+    otherwise: Option<Box<Expression>>,
     operator: ConditionalOperator,
   },
   Join {
@@ -325,7 +325,10 @@ impl Expression {
       } => Self::Conditional {
         lhs: Self::new(lhs).into(),
         operator: ConditionalOperator::new(*operator),
-        otherwise: Self::new(otherwise).into(),
+        otherwise: match otherwise {
+          Some(x) => Some(Self::new(x).into()),
+          None => None,
+        },
         rhs: Self::new(rhs).into(),
         then: Self::new(then).into(),
       },

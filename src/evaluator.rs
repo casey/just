@@ -202,7 +202,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         if self.evaluate_condition(condition)? {
           self.evaluate_expression(then)
         } else {
-          self.evaluate_expression(otherwise)
+          match otherwise {
+            Some(otherwise) => self.evaluate_expression(otherwise),
+            None => Ok(String::new()),
+          }
         }
       }
       Expression::Group { contents } => self.evaluate_expression(contents),
