@@ -230,43 +230,17 @@ fn if_else() {
 }
 
 #[test]
-fn missing_else() {
+fn optional_else() {
   Test::new()
     .justfile(
       "
-  TEST := if path_exists('/bin/bash') == 'true' {'yes'}
-  ",
-    )
-    .stderr(
-      "
-    error: Expected keyword `else` but found `end of line`
-     ——▶ justfile:1:54
-      │
-    1 │ TEST := if path_exists('/bin/bash') == 'true' {'yes'}
-      │                                                      ^
-  ",
-    )
-    .status(EXIT_FAILURE)
-    .run();
-}
+    x := if '1' == '1' { 'yes' }
 
-#[test]
-fn incorrect_else_identifier() {
-  Test::new()
-    .justfile(
-      "
-  TEST := if path_exists('/bin/bash') == 'true' {'yes'} els {'no'}
+    foo:
+      echo {{ x }}
   ",
     )
-    .stderr(
-      "
-    error: Expected keyword `else` but found identifier `els`
-     ——▶ justfile:1:55
-      │
-    1 │ TEST := if path_exists('/bin/bash') == 'true' {'yes'} els {'no'}
-      │                                                       ^^^
-  ",
-    )
-    .status(EXIT_FAILURE)
+    .stdout("yes\n")
+    .stderr("echo yes\n")
     .run();
 }
