@@ -1721,7 +1721,7 @@ A default can be substituted for an empty environment variable value with the
 ```just
 set unstable
 
-foo := env('FOO') || 'DEFAULT_VALUE'
+foo := env('FOO', '') || 'DEFAULT_VALUE'
 ```
 
 #### Executables
