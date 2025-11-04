@@ -450,7 +450,16 @@ impl Subcommand {
         })?;
     }
 
-    Self::list_module(config, module, 0);
+    if config.human_readable {
+      Self::list_module(config, module, 0);
+    } else {
+      let serialize_just_result = serde_json::to_string(module);
+      if let Ok(serialized_just) = serialize_just_result {
+        println!("{}", serialized_just);
+      } else {
+        return Err(Error::Internal { message: "Error serializing just module.".to_string() });
+      }
+    }
 
     Ok(())
   }

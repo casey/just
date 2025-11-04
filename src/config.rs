@@ -29,6 +29,7 @@ pub(crate) struct Config {
   pub(crate) list_heading: String,
   pub(crate) list_prefix: String,
   pub(crate) list_submodules: bool,
+  pub(crate) human_readable: bool,
   pub(crate) load_dotenv: bool,
   pub(crate) no_aliases: bool,
   pub(crate) no_dependencies: bool,
@@ -111,6 +112,7 @@ mod arg {
   pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
   pub(crate) const LIST_PREFIX: &str = "LIST-PREFIX";
   pub(crate) const LIST_SUBMODULES: &str = "LIST-SUBMODULES";
+  pub(crate) const LIST_JSON: &str = "LIST-JSON";
   pub(crate) const NO_ALIASES: &str = "NO-ALIASES";
   pub(crate) const NO_DEPS: &str = "NO-DEPS";
   pub(crate) const NO_DOTENV: &str = "NO-DOTENV";
@@ -313,6 +315,15 @@ impl Config {
           .help("List recipes in submodules")
           .action(ArgAction::SetTrue)
           .requires(cmd::LIST),
+      )
+      .arg(
+        Arg::new(arg::LIST_JSON)
+          .short('j')
+          .long("json")
+          .env("JUST_LIST_JSON")
+          .help("Print parsable json version of a module")
+          .action(ArgAction::SetTrue)
+          .requires(cmd::LIST)
       )
       .arg(
         Arg::new(arg::NO_ALIASES)
@@ -810,6 +821,7 @@ impl Config {
       list_heading: matches.get_one::<String>(arg::LIST_HEADING).unwrap().into(),
       list_prefix: matches.get_one::<String>(arg::LIST_PREFIX).unwrap().into(),
       list_submodules: matches.get_flag(arg::LIST_SUBMODULES),
+      human_readable: !matches.get_flag(arg::LIST_JSON),
       load_dotenv: !matches.get_flag(arg::NO_DOTENV),
       no_aliases: matches.get_flag(arg::NO_ALIASES),
       no_dependencies: matches.get_flag(arg::NO_DEPS),
