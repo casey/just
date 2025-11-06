@@ -168,7 +168,7 @@ impl<'src> Justfile<'src> {
 
         command.export(&self.settings, &dotenv, &scope, &self.unexports);
 
-        let (result, caught) = command.status_guard();
+        let (result, caught) = command.status_guard(config);
 
         let status = result.map_err(|io_error| Error::CommandInvoke {
           binary: binary.clone(),
