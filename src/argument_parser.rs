@@ -538,7 +538,7 @@ BAZ +Z:
     }
   }
 
-  fn make_justfile_with_recipe<'src>(recipe: Recipe<'src>) -> Justfile<'src> {
+  fn make_justfile_with_recipe(recipe: Recipe<'_>) -> Justfile<'_> {
     let mut justfile = Justfile {
       aliases: Table::new(),
       assignments: Table::new(),
