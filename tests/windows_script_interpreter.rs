@@ -16,7 +16,6 @@ fn windows_script_interpreter_setting() {
     )
     .shell(false)
     .stdout("bar\r\n")
-    .stderr("Write-Output bar\n")
     .run();
 }
 
@@ -45,6 +44,5 @@ fn overrides_script_interpreter() {
     )
     .shell(false)
     .stdout("bar\r\n")
-    .stderr("Write-Output bar\n")
     .run();
 }
