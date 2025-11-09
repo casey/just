@@ -7,6 +7,7 @@ pub(crate) enum UnstableFeature {
   ScriptAttribute,
   ScriptInterpreterSetting,
   WhichFunction,
+  WindowsScriptInterpreterSetting,
 }
 
 impl Display for UnstableFeature {
@@ -22,6 +23,12 @@ impl Display for UnstableFeature {
         write!(f, "The `script-interpreter` setting is currently unstable.")
       }
       Self::WhichFunction => write!(f, "The `which()` function is currently unstable."),
+      Self::WindowsScriptInterpreterSetting => {
+        write!(
+          f,
+          "The `windows-script-interpreter` setting is currently unstable."
+        )
+      }
     }
   }
 }
