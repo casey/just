@@ -57,6 +57,7 @@ impl<'src> UnresolvedRecipe<'src> {
       dependencies,
       doc: self.doc,
       file_depth: self.file_depth,
+      flags: self.flags,
       import_offsets: self.import_offsets,
       name: self.name,
       namepath: Some(namepath),
