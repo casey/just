@@ -2705,6 +2705,68 @@ foo $bar:
   echo $bar
 ```
 
+### Recipe Flags
+
+In addition to parameters, recipes may have flags.
+Flags are named optional arguments that use `--flag` syntax and can appear anywhere in the argument list:
+
+```just
+build target --release --jobs='4':
+  cargo build {{ if release == "true" { "--release" } else { "" } }} --jobs={{jobs}} --target={{target}}
+```
+
+Flags come in two forms:
+
+**Switch flags** are boolean flags that don't take a value.
+When present on the command line, they're set to `"true"`, otherwise `"false"`:
+
+```just
+deploy --dry-run:
+  @echo "Dry run: {{dry-run}}"
+```
+
+```console
+$ just deploy --dry-run
+Dry run: true
+$ just deploy
+Dry run: false
+```
+
+**Value flags** take a value and must have a default, specified with `=`:
+
+```just
+serve --port='8080':
+  python -m http.server {{port}}
+```
+
+```console
+$ just serve --port=3000
+python -m http.server 3000
+$ just serve
+python -m http.server 8080
+```
+
+Flags can be passed in any order and can be mixed with positional parameters:
+
+```console
+$ just build x86_64-linux --release --jobs=8
+$ just build x86_64-linux --jobs=8 --release
+```
+
+Flag names are converted to variable names by preserving the exact characters,
+allowing hyphens in variable names when accessed via `{{flag-name}}`:
+
+```just
+test --dry-run:
+  @echo "Dry run mode: {{dry-run}}"
+```
+
+To pass a value that looks like a flag as a positional argument, use `--` to stop flag parsing:
+
+```console
+$ just cmd -- --not-a-flag
+```
+
 ### Dependencies
 
 Dependencies run before recipes that depend on them:

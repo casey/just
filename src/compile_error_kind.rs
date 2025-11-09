@@ -30,6 +30,10 @@ pub(crate) enum CompileErrorKind<'src> {
   DuplicateDefault {
     recipe: &'src str,
   },
+  DuplicateFlagParameter {
+    recipe: &'src str,
+    flag: String,
+  },
   DuplicateParameter {
     recipe: &'src str,
     parameter: &'src str,
@@ -44,6 +48,7 @@ pub(crate) enum CompileErrorKind<'src> {
   DuplicateVariable {
     variable: &'src str,
   },
+  EmptyFlagName,
   ExitMessageAndNoExitMessageAttribute {
     recipe: &'src str,
   },
@@ -57,6 +62,10 @@ pub(crate) enum CompileErrorKind<'src> {
   ExtraLeadingWhitespace,
   ExtraneousAttributes {
     count: usize,
+  },
+  FlagParameterNameCollision {
+    recipe: &'src str,
+    name: String,
   },
   FunctionArgumentCountMismatch {
     function: &'src str,
@@ -78,6 +87,9 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   InvalidEscapeSequence {
     character: char,
+  },
+  InvalidFlagName {
+    flag: String,
   },
   MismatchedClosingDelimiter {
     close: Delimiter,

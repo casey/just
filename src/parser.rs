@@ -232,20 +232,6 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
   }
 
-  /// Return an error if the next token is of kind `forbidden`
-  fn forbid<F>(&self, forbidden: TokenKind, error: F) -> CompileResult<'src>
-  where
-    F: FnOnce(Token) -> CompileError,
-  {
-    let next = self.next()?;
-
-    if next.kind == forbidden {
-      Err(error(next))
-    } else {
-      Ok(())
-    }
-  }
-
   /// Accept a double-colon separated sequence of identifiers
   fn accept_namepath(&mut self) -> CompileResult<'src, Option<Namepath<'src>>> {
     if self.next_is(Identifier) {
@@ -911,6 +897,12 @@ impl<'run, 'src> Parser<'run, 'src> {
     let mut positional = Vec::new();
 
     while self.next_is(Identifier) || self.next_is(Dollar) {
+      if self.next_is(Identifier) {
+        let token = self.next()?;
+        if token.lexeme().starts_with("--") {
+          break;
+        }
+      }
       positional.push(self.parse_parameter(ParameterKind::Singular)?);
     }
 
@@ -925,16 +917,98 @@ impl<'run, 'src> Parser<'run, 'src> {
     let variadic = if kind.is_variadic() {
       let variadic = self.parse_parameter(kind)?;
 
-      self.forbid(Identifier, |token| {
-        token.error(CompileErrorKind::ParameterFollowsVariadicParameter {
-          parameter: token.lexeme(),
-        })
-      })?;
+      if self.next_is(Identifier) {
+        let token = self.next()?;
+        let lexeme = token.lexeme();
+        if !lexeme.starts_with("--") {
+          return Err(token.error(CompileErrorKind::ParameterFollowsVariadicParameter {
+            parameter: lexeme,
+          }));
+        }
+      }
 
       Some(variadic)
     } else {
       None
     };
+
+    let mut flags = BTreeMap::new();
+
+    while self.next_is(Identifier) {
+      let token = self.next()?;
+      let lexeme = token.lexeme();
+
+      if !lexeme.starts_with("--") {
+        break;
+      }
+
+      self.advance()?;
+
+      let flag_name = &lexeme[2..];
+
+      if flag_name.is_empty() {
+        return Err(token.error(CompileErrorKind::EmptyFlagName));
+      }
+
+      if !flag_name.chars().all(|c| c.is_alphanumeric() || c == '-' || c == '_') {
+        return Err(token.error(CompileErrorKind::InvalidFlagName {
+          flag: flag_name.to_string(),
+        }));
+      }
+
+      if flags.contains_key(flag_name) {
+        return Err(token.error(CompileErrorKind::DuplicateFlagParameter {
+          recipe: name.lexeme(),
+          flag: flag_name.to_string(),
+        }));
+      }
+
+      for param in &positional {
+        if param.name.lexeme() == flag_name {
+          return Err(token.error(CompileErrorKind::FlagParameterNameCollision {
+            recipe: name.lexeme(),
+            name: flag_name.to_string(),
+          }));
+        }
+      }
+
+      if let Some(variadic_param) = &variadic {
+        if variadic_param.name.lexeme() == flag_name {
+          return Err(token.error(CompileErrorKind::FlagParameterNameCollision {
+            recipe: name.lexeme(),
+            name: flag_name.to_string(),
+          }));
+        }
+      }
+
+      let bare_token = Token {
+        column: token.column + 2,
+        kind: Identifier,
+        length: flag_name.len(),
+        line: token.line,
+        offset: token.offset + 2,
+        path: token.path,
+        src: token.src,
+      };
+
+      let flag_name_name = Name::from_identifier(bare_token);
+
+      let (arity, default) = if self.accepted(Equals)? {
+        let default_expr = self.parse_expression()?;
+        (FlagArity::WithValue, Some(default_expr))
+      } else {
+        (FlagArity::Switch, None)
+      };
+
+      flags.insert(
+        flag_name.to_string(),
+        FlagSpec {
+          name: flag_name_name,
+          arity,
+          default,
+        },
+      );
+    }
 
     self.expect(Colon)?;
 
@@ -1011,6 +1085,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       dependencies,
       doc: doc.filter(|doc| !doc.is_empty()),
       file_depth: self.file_depth,
+      flags,
       import_offsets: self.import_offsets.clone(),
       name,
       namepath: None,

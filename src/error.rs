@@ -79,6 +79,10 @@ pub(crate) enum Error<'src> {
   DumpJson {
     source: serde_json::Error,
   },
+  DuplicateFlag {
+    recipe: String,
+    flag: String,
+  },
   EditorInvoke {
     editor: OsString,
     io_error: io::Error,
@@ -122,6 +126,10 @@ pub(crate) enum Error<'src> {
   Load {
     path: PathBuf,
     io_error: io::Error,
+  },
+  MissingFlagValue {
+    recipe: String,
+    flag: String,
   },
   MissingImportFile {
     path: Token<'src>,
@@ -185,9 +193,18 @@ pub(crate) enum Error<'src> {
     recipe: &'src str,
     io_error: io::Error,
   },
+  UnexpectedFlagValue {
+    recipe: String,
+    flag: String,
+  },
   Unknown {
     recipe: &'src str,
     line_number: Option<usize>,
+  },
+  UnknownFlag {
+    recipe: String,
+    flag: String,
+    suggestion: Option<String>,
   },
   UnknownOverrides {
     overrides: Vec<String>,
@@ -392,6 +409,9 @@ impl ColorDisplay for Error<'_> {
       DumpJson { source } => {
         write!(f, "Failed to dump JSON to stdout: {source}")?;
       }
+      DuplicateFlag { recipe, flag } => {
+        write!(f, "Recipe `{recipe}` got flag `--{flag}` multiple times")?;
+      }
       EditorInvoke { editor, io_error } => {
         let editor = editor.to_string_lossy();
         write!(f, "Editor `{editor}` invocation failed: {io_error}")?;
@@ -446,6 +466,9 @@ impl ColorDisplay for Error<'_> {
         write!(f, "Failed to read justfile at `{}`: {io_error}", path.display())?;
       }
       MissingImportFile { .. } => write!(f, "Could not find source file for import.")?,
+      MissingFlagValue { recipe, flag } => {
+        write!(f, "Recipe `{recipe}` flag `--{flag}` requires a value")?;
+      }
       MissingModuleFile { module } => write!(f, "Could not find source file for module `{module}`.")?,
       NoChoosableRecipes => write!(f, "Justfile contains no choosable recipes.")?,
       NoDefaultRecipe => write!(f, "Justfile contains no default recipe.")?,
@@ -503,6 +526,15 @@ impl ColorDisplay for Error<'_> {
           write!(f, "Recipe `{recipe}` failed on line {n} for an unknown reason")?;
         } else {
           write!(f, "Recipe `{recipe}` failed for an unknown reason")?;
+        }
+      }
+      UnexpectedFlagValue { recipe, flag } => {
+        write!(f, "Recipe `{recipe}` flag `--{flag}` does not take a value")?;
+      }
+      UnknownFlag { recipe, flag, suggestion } => {
+        write!(f, "Recipe `{recipe}` does not have flag `--{flag}`")?;
+        if let Some(suggestion) = suggestion {
+          write!(f, "; did you mean `--{suggestion}`?")?;
         }
       }
       UnknownSubmodule { path } => {

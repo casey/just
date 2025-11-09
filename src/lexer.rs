@@ -502,6 +502,7 @@ impl<'src> Lexer<'src> {
       '{' => self.lex_delimiter(BraceL),
       '|' => self.lex_digraph('|', '|', BarBar),
       '}' => self.lex_delimiter(BraceR),
+      '-' if self.rest_starts_with("--") => self.lex_flag_identifier(),
       _ if Self::is_identifier_start(start) => self.lex_identifier(),
       _ => {
         self.advance()?;
@@ -794,6 +795,30 @@ impl<'src> Lexer<'src> {
   /// Lex name: [a-zA-Z_][a-zA-Z0-9_]*
   fn lex_identifier(&mut self) -> CompileResult<'src> {
     self.advance()?;
+
+    while let Some(c) = self.next {
+      if !Self::is_identifier_continue(c) {
+        break;
+      }
+
+      self.advance()?;
+    }
+
+    self.token(Identifier);
+
+    Ok(())
+  }
+
+  /// Lex a flag identifier: --[a-zA-Z_][a-zA-Z0-9_-]*
+  fn lex_flag_identifier(&mut self) -> CompileResult<'src> {
+    self.presume('-')?;
+    self.presume('-')?;
+
+    if !self.next.is_some_and(Self::is_identifier_start) {
+      return Err(self.error(UnexpectedCharacter {
+        expected: vec!['a', 'z', 'A', 'Z', '_'],
+      }));
+    }
 
     while let Some(c) = self.next {
       if !Self::is_identifier_continue(c) {
