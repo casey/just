@@ -921,9 +921,9 @@ impl<'run, 'src> Parser<'run, 'src> {
         let token = self.next()?;
         let lexeme = token.lexeme();
         if !lexeme.starts_with("--") {
-          return Err(token.error(CompileErrorKind::ParameterFollowsVariadicParameter {
-            parameter: lexeme,
-          }));
+          return Err(
+            token.error(CompileErrorKind::ParameterFollowsVariadicParameter { parameter: lexeme }),
+          );
         }
       }
 
@@ -950,7 +950,10 @@ impl<'run, 'src> Parser<'run, 'src> {
         return Err(token.error(CompileErrorKind::EmptyFlagName));
       }
 
-      if !flag_name.chars().all(|c| c.is_alphanumeric() || c == '-' || c == '_') {
+      if !flag_name
+        .chars()
+        .all(|c| c.is_alphanumeric() || c == '-' || c == '_')
+      {
         return Err(token.error(CompileErrorKind::InvalidFlagName {
           flag: flag_name.to_string(),
         }));

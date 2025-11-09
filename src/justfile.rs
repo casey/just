@@ -423,7 +423,15 @@ impl<'src> Justfile<'src> {
         for (recipe, arguments) in evaluated {
           handles.push(thread_scope.spawn(move || {
             Self::run_recipe(
-              &arguments, config, dotenv, &BTreeMap::new(), true, ran, recipe, scopes, search,
+              &arguments,
+              config,
+              dotenv,
+              &BTreeMap::new(),
+              true,
+              ran,
+              recipe,
+              scopes,
+              search,
             )
           }));
         }
@@ -437,7 +445,15 @@ impl<'src> Justfile<'src> {
     } else {
       for (recipe, arguments) in evaluated {
         Self::run_recipe(
-          &arguments, config, dotenv, &BTreeMap::new(), true, ran, recipe, scopes, search,
+          &arguments,
+          config,
+          dotenv,
+          &BTreeMap::new(),
+          true,
+          ran,
+          recipe,
+          scopes,
+          search,
         )?;
       }
     }
