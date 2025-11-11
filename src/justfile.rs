@@ -153,7 +153,7 @@ impl<'src> Justfile<'src> {
         binary, arguments, ..
       } => {
         let mut command = if config.shell_command {
-          let mut command = self.settings.shell_command(config);
+          let mut command = self.settings.shell_command(config, &search.working_directory)?;
           command.arg(binary);
           command
         } else {
