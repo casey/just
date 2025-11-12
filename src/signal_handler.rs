@@ -10,9 +10,9 @@ pub(crate) struct SignalHandler {
 impl SignalHandler {
   pub(crate) fn install(verbosity: Verbosity) -> RunResult<'static> {
     let mut instance = Self::instance();
+    instance.verbosity = verbosity;
     if !instance.initialized {
       instance.initialized = true;
-      instance.verbosity = verbosity;
       Platform::install_signal_handler(|signal| Self::instance().handle(signal))?;
     }
     Ok(())
