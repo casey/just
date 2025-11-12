@@ -3,14 +3,19 @@ use super::*;
 pub(crate) struct SignalHandler {
   caught: Option<Signal>,
   children: BTreeMap<i32, Command>,
+  initialized: bool,
   verbosity: Verbosity,
 }
 
 impl SignalHandler {
   pub(crate) fn install(verbosity: Verbosity) -> RunResult<'static> {
     let mut instance = Self::instance();
-    instance.verbosity = verbosity;
-    Platform::install_signal_handler(|signal| Self::instance().handle(signal))
+    if !instance.initialized {
+      instance.initialized = true;
+      instance.verbosity = verbosity;
+      Platform::install_signal_handler(|signal| Self::instance().handle(signal))?;
+    }
+    Ok(())
   }
 
   pub(crate) fn instance() -> MutexGuard<'static, Self> {
@@ -35,6 +40,7 @@ impl SignalHandler {
     Self {
       caught: None,
       children: BTreeMap::new(),
+      initialized: false,
       verbosity: Verbosity::default(),
     }
   }

@@ -1,10 +1,5 @@
 use super::*;
 
-// options:
-// - allow passing a flag into `run` which enables or disables installing the signal handler,
-//   library users who call more than once per process should set it to `false`
-// - just don't enable the sign
-
 /// Main entry point into `just`. Parse arguments from `args` and run.
 #[allow(clippy::missing_errors_doc)]
 pub fn run(args: impl Iterator<Item = impl Into<OsString> + Clone>) -> Result<(), i32> {
