@@ -10,7 +10,7 @@ impl SignalHandler {
   pub(crate) fn install(verbosity: Verbosity) -> RunResult<'static> {
     let mut instance = Self::instance();
     instance.verbosity = verbosity;
-    Platform::install_signal_handler(|signal| Self::instance().interrupt(signal))
+    Platform::install_signal_handler(|signal| Self::instance().handle(signal))
   }
 
   pub(crate) fn instance() -> MutexGuard<'static, Self> {
@@ -39,7 +39,7 @@ impl SignalHandler {
     }
   }
 
-  fn interrupt(&mut self, signal: Signal) {
+  fn handle(&mut self, signal: Signal) {
     if signal.is_fatal() {
       if self.children.is_empty() {
         process::exit(signal.code());
