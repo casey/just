@@ -12,8 +12,8 @@ impl SignalHandler {
     let mut instance = Self::instance();
     instance.verbosity = verbosity;
     if !instance.initialized {
-      instance.initialized = true;
       Platform::install_signal_handler(|signal| Self::instance().handle(signal))?;
+      instance.initialized = true;
     }
     Ok(())
   }
