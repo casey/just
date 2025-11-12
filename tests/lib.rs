@@ -67,6 +67,7 @@ mod dependencies;
 mod directories;
 mod dotenv;
 mod edit;
+mod r#enum;
 mod equals;
 mod error_messages;
 mod evaluate;

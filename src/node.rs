@@ -1,3 +1,5 @@
+use crate::parameter::OneOf;
+
 use super::*;
 
 /// Methods common to all AST nodes. Currently only used in parser unit tests.
@@ -59,6 +61,7 @@ impl<'src> Node<'src> for Item<'src> {
         unexport.push_mut(name.lexeme().replace('-', "_"));
         unexport
       }
+      Self::Enum(_enum) => todo!("node enum"),
     }
   }
 }
@@ -274,6 +277,18 @@ impl<'src> Node<'src> for Parameter<'src> {
     if let Some(default) = &self.default {
       children.push(default.tree());
     }
+
+    if let Some(one_of) = &self.one_of {
+      children.push(one_of.tree());
+    }
+
+    Tree::List(children)
+  }
+}
+
+impl<'src> Node<'src> for OneOf<'src> {
+  fn tree(&self) -> Tree<'src> {
+    let children = vec![Tree::atom("one_of"), Tree::atom(self.enum_name.lexeme())];
 
     Tree::List(children)
   }
