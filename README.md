@@ -2705,6 +2705,68 @@ foo $bar:
   echo $bar
 ```
 
+### Flags and option parameters
+
+Recipies can also define parameters as flags and options by prefixing parameters
+with `--` in their definition. Flags and options must be defined before any
+positional parameters. For example:
+
+```just
+example --flag --option="default" positional:
+  @echo $flag $option $positional
+```
+
+Flags are defined by not providing a default argument, the definition of
+options includes a default argument. Both flags and options can be omitted when
+calling the recipie. Flags evaluate to the name if specified, but to the empty
+string when not passed. Options evaluate to the specified value when passed, but
+to their default value when not passed. For example:
+
+```console
+$ just example 1
+ default 1
+
+$ just example --flag 1
+ﬂag default 1
+
+$ just example --flag --option option 1
+flag option 1
+```
+
+Flags and options can be specified out of order:
+
+```console
+$ just example 1 --flag
+flag default 1
+
+$ just example 1 --flag --option option
+flag option 1
+```
+
+An option consume the following argument, even when it matches an existing
+flag or option:
+
+```console
+$ just example --option --flag 1
+flag --flag 1
+```
+
+Arguments after `--` are treated as positional for the current recipie. This
+behavior resets for the following recipie:
+
+```console
+$ just example -- --flag
+ default --flag
+
+$just example -- --flag example --flag 1
+ default --flag
+flag default 1
+```
+
+Uknown options will results in an error for recipies that are defined with flags
+or options. Recipies whose definition does not contain flags or options treat
+option as positional arguments.
+
 ### Dependencies
 
 Dependencies run before recipes that depend on them:
