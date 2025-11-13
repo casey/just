@@ -8,6 +8,7 @@ pub(crate) struct Binding<'src, V = String> {
   pub(crate) export: bool,
   #[serde(skip)]
   pub(crate) file_depth: u32,
+  pub(crate) lazy: bool,
   pub(crate) name: Name<'src>,
   pub(crate) private: bool,
   pub(crate) value: V,

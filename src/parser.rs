@@ -346,6 +346,12 @@ impl<'run, 'src> Parser<'run, 'src> {
               self.parse_assignment(true, take_attributes())?,
             ));
           }
+          Some(Keyword::Lazy) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
+            self.presume_keyword(Keyword::Lazy)?;
+            items.push(Item::Assignment(
+              self.parse_assignment_lazy(take_attributes())?,
+            ));
+          }
           Some(Keyword::Unexport)
             if self.next_are(&[Identifier, Identifier, Eof])
               || self.next_are(&[Identifier, Identifier, Eol]) =>
@@ -526,6 +532,31 @@ impl<'run, 'src> Parser<'run, 'src> {
       file_depth: self.file_depth,
       name,
       private: private || name.lexeme().starts_with('_'),
+      lazy: false,
+      value,
+    })
+  }
+
+  fn parse_assignment_lazy(
+    &mut self,
+    attributes: AttributeSet<'src>,
+  ) -> CompileResult<'src, Assignment<'src>> {
+    let name = self.parse_name()?;
+    self.presume(ColonEquals)?;
+    let value = self.parse_expression()?;
+    self.expect_eol()?;
+
+    let private = attributes.contains(AttributeDiscriminant::Private);
+
+    attributes.ensure_valid_attributes("Assignment", *name, &[AttributeDiscriminant::Private])?;
+
+    Ok(Assignment {
+      constant: false,
+      export: false,
+      file_depth: self.file_depth,
+      name,
+      private: private || name.lexeme().starts_with('_'),
+      lazy: true,
       value,
     })
   }

@@ -59,7 +59,7 @@ alias         : 'alias' NAME ':=' target eol
 
 target        : NAME ('::' NAME)*
 
-assignment    : NAME ':=' expression eol
+assignment    : 'lazy'? NAME ':=' expression eol
 
 export        : 'export' assignment
 
