@@ -31,6 +31,7 @@ pub(crate) enum Keyword {
   Unexport,
   Unstable,
   WindowsPowershell,
+  WindowsScriptInterpreter,
   WindowsShell,
   WorkingDirectory,
   X,

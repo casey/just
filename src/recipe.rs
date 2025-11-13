@@ -395,6 +395,11 @@ impl<'src, D> Recipe<'src, D> {
       Executor::Command(
         interpreter
           .as_ref()
+          .or(if cfg!(windows) {
+            context.module.settings.windows_script_interpreter.as_ref()
+          } else {
+            None
+          })
           .or(context.module.settings.script_interpreter.as_ref())
           .unwrap_or_else(|| Interpreter::default_script_interpreter()),
       )
