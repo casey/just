@@ -1957,7 +1957,7 @@ foo *a +b:
 ",
     )
     .stderr(
-      "error: Expected \':\' or \'=\', but found \'+\'
+      "error: Expected \':\', \'=\', or identifier, but found \'+\'
  ——▶ justfile:1:8
   │
 1 │ foo *a +b:
@@ -1978,7 +1978,7 @@ foo +a *b:
 ",
     )
     .stderr(
-      "error: Expected \':\' or \'=\', but found \'*\'
+      "error: Expected \':\', \'=\', or identifier, but found \'*\'
  ——▶ justfile:1:8
   │
 1 │ foo +a *b:
@@ -2105,20 +2105,70 @@ a:
 }
 
 #[test]
-fn trailing_flags() {
+fn positional_flags_in_order() {
   Test::new()
-    .arg("echo")
-    .arg("--some")
-    .arg("--awesome")
-    .arg("--flags")
+    .arg("deploy")
+    .arg("--force")
+    .arg("--production")
     .justfile(
       "
-echo A B C:
-  echo {{A}} {{B}} {{C}}
+deploy --force --production:
+  echo 'Forcing deployment to production'
 ",
     )
-    .stdout("--some --awesome --flags\n")
-    .stderr("echo --some --awesome --flags\n")
+    .stdout("Forcing deployment to production\n")
+    .stderr("echo 'Forcing deployment to production'\n")
+    .run();
+}
+
+#[test]
+fn positional_flags_out_of_order() {
+  Test::new()
+    .arg("deploy")
+    .arg("--production")
+    .arg("--force")
+    .justfile(
+      "
+deploy --force --production:
+  echo 'Forcing deployment to production'
+",
+    )
+    .stdout("Forcing deployment to production\n")
+    .stderr("echo 'Forcing deployment to production'\n")
+    .run();
+}
+
+#[test]
+fn positional_flags_mixed_with_parameters() {
+  Test::new()
+    .arg("deploy")
+    .arg("latest")
+    .arg("--production")
+    .arg("--force")
+    .justfile(
+      "
+deploy tag --force --production:
+  echo 'Forcing deployment to production:{{tag}}'
+",
+    )
+    .stdout("Forcing deployment to production:latest\n")
+    .stderr("echo 'Forcing deployment to production:latest'\n")
+    .run();
+}
+
+#[test]
+fn invalid_flag() {
+  Test::new()
+    .arg("echo")
+    .arg("--invalid")
+    .justfile(
+      "
+echo POS:
+  echo {{POS}}
+",
+    )
+    .stderr("error: Recipe `echo` does not have flag `--invalid`\n")
+    .status(EXIT_FAILURE)
     .run();
 }
 

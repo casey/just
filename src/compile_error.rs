@@ -110,6 +110,9 @@ impl Display for CompileError<'_> {
       DuplicateParameter { recipe, parameter } => {
         write!(f, "Recipe `{recipe}` has duplicate parameter `{parameter}`")
       }
+      DuplicateFlagParameter { recipe, flag } => {
+        write!(f, "Recipe `{recipe}` has duplicate flag parameter `--{flag}`")
+      }
       DuplicateSet { setting, first } => write!(
         f,
         "Setting `{setting}` first set on line {} is redefined on line {}",
@@ -119,6 +122,7 @@ impl Display for CompileError<'_> {
       DuplicateVariable { variable } => {
         write!(f, "Variable `{variable}` has multiple definitions")
       }
+      EmptyFlagName => write!(f, "Flag name cannot be empty"),
       DuplicateUnexport { variable } => {
         write!(f, "Variable `{variable}` is unexported multiple times")
       }
@@ -145,6 +149,10 @@ impl Display for CompileError<'_> {
       ExtraneousAttributes { count } => {
         write!(f, "Extraneous {}", Count("attribute", *count))
       }
+      FlagParameterNameCollision { recipe, name } => write!(
+        f,
+        "Recipe `{recipe}` has flag `--{name}` that collides with a parameter name"
+      ),
       FunctionArgumentCountMismatch {
         function,
         found,
@@ -158,6 +166,10 @@ impl Display for CompileError<'_> {
       Include => write!(
         f,
         "The `!include` directive has been stabilized as `import`"
+      ),
+      InvalidFlagName { flag } => write!(
+        f,
+        "Flag name `{flag}` is invalid; flag names must contain only alphanumeric characters, hyphens, and underscores"
       ),
       InconsistentLeadingWhitespace { expected, found } => write!(
         f,
