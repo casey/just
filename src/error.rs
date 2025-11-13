@@ -94,6 +94,10 @@ pub(crate) enum Error<'src> {
   ExcessInvocations {
     invocations: usize,
   },
+  ExecutableNotFound {
+    name: String,
+    suggestion: Option<Suggestion<'src>>,
+  },
   ExpectedSubmoduleButFoundRecipe {
     path: String,
   },
@@ -409,6 +413,12 @@ impl ColorDisplay for Error<'_> {
       ExcessInvocations { invocations } => {
         write!(f, "Expected 1 command-line recipe invocation but found {invocations}.")?;
       },
+      ExecutableNotFound { name, suggestion } => {
+        write!(f, "Could not find executable `{name}` in PATH")?;
+        if let Some(suggestion) = suggestion {
+          write!(f, "\n{suggestion}")?;
+        }
+      }
       ExpectedSubmoduleButFoundRecipe { path } => {
         write!(f, "Expected submodule at `{path}` but found recipe.")?;
       },

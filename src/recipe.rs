@@ -296,10 +296,11 @@ impl<'src, D> Recipe<'src, D> {
         continue;
       }
 
-      let mut cmd = context.module.settings.shell_command(config);
+      let working_dir = context.working_directory();
+      let mut cmd = context.module.settings.shell_command(config, &working_dir)?;
 
-      if let Some(working_directory) = self.working_directory(context) {
-        cmd.current_dir(working_directory);
+      if let Some(recipe_working_directory) = self.working_directory(context) {
+        cmd.current_dir(recipe_working_directory);
       }
 
       cmd.arg(command);
