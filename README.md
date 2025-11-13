@@ -190,6 +190,11 @@ most Windows users.)
       <td><a href=https://snapcraft.io/just>just</a></td>
       <td><code>snap install --edge --classic just</code></td>
     </tr>
+    <tr>
+      <td><a href=https://docs.astral.sh/uv/>uv</a></td>
+      <td><a href=https://pypi.org/project/rust-just/>rust-just</a></td>
+      <td><code>uv tool install rust-just</code></td>
+    </tr>
   </tbody>
 </table>
 
