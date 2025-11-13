@@ -1,6 +1,23 @@
 Changelog
 =========
 
+[1.43.1](https://github.com/casey/just/releases/tag/1.43.1) - 2025-11-12
+------------------------------------------------------------------------
+
+### Fixed
+- Only initialize signal handler once ([#2953](https://github.com/casey/just/pull/2953) by [casey](https://github.com/casey))
+- Preserve module docs when formatting ([#2931](https://github.com/casey/just/pull/2931) by [casey](https://github.com/casey))
+- Preserve module groups when formatting ([#2930](https://github.com/casey/just/pull/2930) by [casey](https://github.com/casey))
+- Don't suggest private recipes and aliases ([#2916](https://github.com/casey/just/pull/2916) by [casey](https://github.com/casey))
+
+### Misc
+- Update softprops/action-gh-release to 2.4.2 ([#2948](https://github.com/casey/just/pull/2948) by [app/dependabot](https://github.com/app/dependabot))
+- Fix `env()` usage in readme ([#2936](https://github.com/casey/just/pull/2936) by [laniakea64](https://github.com/laniakea64))
+- Use a case statement to install target dependencies ([#2929](https://github.com/casey/just/pull/2929) by [casey](https://github.com/casey))
+- Build loongarch64 release binaries ([#2886](https://github.com/casey/just/pull/2886) by [SkyBird233](https://github.com/SkyBird233))
+- Bump softprops/action-gh-release to 2.4.1 ([#2919](https://github.com/casey/just/pull/2919) by [app/dependabot](https://github.com/app/dependabot))
+- Update softprops/action-gh-release to 2.3.4 ([#2910](https://github.com/casey/just/pull/2910) by [app/dependabot](https://github.com/app/dependabot))
+
 [1.43.0](https://github.com/casey/just/releases/tag/1.43.0) - 2025-09-27
 ------------------------------------------------------------------------
 
