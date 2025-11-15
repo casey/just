@@ -134,13 +134,15 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn enabled(&self) -> bool {
+    let android = self.attributes.contains(AttributeDiscriminant::Android);
     let linux = self.attributes.contains(AttributeDiscriminant::Linux);
     let macos = self.attributes.contains(AttributeDiscriminant::Macos);
     let openbsd = self.attributes.contains(AttributeDiscriminant::Openbsd);
     let unix = self.attributes.contains(AttributeDiscriminant::Unix);
     let windows = self.attributes.contains(AttributeDiscriminant::Windows);
 
-    (!windows && !linux && !macos && !openbsd && !unix)
+    (!windows && !android && !linux && !macos && !openbsd && !unix)
+      || (cfg!(target_os = "android") && (android || unix))
       || (cfg!(target_os = "linux") && (linux || unix))
       || (cfg!(target_os = "macos") && (macos || unix))
       || (cfg!(target_os = "openbsd") && (openbsd || unix))
