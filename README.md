@@ -2413,6 +2413,21 @@ $ just bar
 abc
 ```
 
+If the `else` part is omitted, it defaults to "":
+
+```just
+bar mode='debug':
+  foo {{ if mode == 'release' { 'do_release_build' } }}
+```
+
+```console
+$ just bar
+foo
+
+$ just bar release
+foo do_release_build
+```
+
 ### Stopping execution with error
 
 Execution can be halted with the `error` function. For example:

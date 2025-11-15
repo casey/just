@@ -611,21 +611,26 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     self.expect(BraceR)?;
 
-    self.expect_keyword(Keyword::Else)?;
-
-    let otherwise = if self.accepted_keyword(Keyword::If)? {
-      self.parse_conditional()?
-    } else {
-      self.expect(BraceL)?;
-      let otherwise = self.parse_expression()?;
-      self.expect(BraceR)?;
-      otherwise
-    };
+    if self.accepted_keyword(Keyword::Else)? {
+      let otherwise = if self.accepted_keyword(Keyword::If)? {
+        self.parse_conditional()?
+      } else {
+        self.expect(BraceL)?;
+        let otherwise = self.parse_expression()?;
+        self.expect(BraceR)?;
+        otherwise
+      };
+      return Ok(Expression::Conditional {
+        condition,
+        then: then.into(),
+        otherwise: Some(otherwise.into()),
+      });
+    }
 
     Ok(Expression::Conditional {
       condition,
       then: then.into(),
-      otherwise: otherwise.into(),
+      otherwise: None,
     })
   }
 
