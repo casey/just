@@ -96,133 +96,184 @@ mod tests {
 
   use pretty_assertions::assert_eq;
 
-  macro_rules! test {
-    {
-      name: $name:ident,
-      values: $vals:expr,
-      overrides: $overrides:expr,
-      search_directory: $search_directory:expr,
-      arguments: $arguments:expr,
-    } => {
-      #[test]
-      fn $name() {
-        assert_eq! (
-          Positional::from_values(Some($vals.iter().cloned())),
-          Positional {
-            overrides: $overrides
-              .iter()
-              .cloned()
-              .map(|(key, value): (&str, &str)| (key.to_owned(), value.to_owned()))
-              .collect(),
-            search_directory: $search_directory.map(str::to_owned),
-            arguments: $arguments.iter().cloned().map(str::to_owned).collect(),
-          },
-        )
-      }
-    }
+  #[test]
+  fn no_values() {
+    assert_eq!(
+      Positional::from_values(Some([].iter().copied())),
+      Positional {
+        overrides: vec![],
+        search_directory: None,
+        arguments: vec![],
+      },
+    );
   }
 
-  test! {
-    name: no_values,
-    values: [],
-    overrides: [],
-    search_directory: None,
-    arguments: [],
+  #[test]
+  fn arguments_only() {
+    assert_eq!(
+      Positional::from_values(Some(["foo", "bar"].iter().copied())),
+      Positional {
+        overrides: vec![],
+        search_directory: None,
+        arguments: vec!["foo".to_owned(), "bar".to_owned()],
+      },
+    );
   }
 
-  test! {
-    name: arguments_only,
-    values: ["foo", "bar"],
-    overrides: [],
-    search_directory: None,
-    arguments: ["foo", "bar"],
+  #[test]
+  fn all_overrides() {
+    assert_eq!(
+      Positional::from_values(Some(["foo=bar", "bar=foo"].iter().copied())),
+      Positional {
+        overrides: vec![
+          ("foo".to_owned(), "bar".to_owned()),
+          ("bar".to_owned(), "foo".to_owned())
+        ],
+        search_directory: None,
+        arguments: vec![],
+      },
+    );
   }
 
-  test! {
-    name: all_overrides,
-    values: ["foo=bar", "bar=foo"],
-    overrides: [("foo", "bar"), ("bar", "foo")],
-    search_directory: None,
-    arguments: [],
+  #[test]
+  fn override_not_name() {
+    assert_eq!(
+      Positional::from_values(Some(["foo=bar", "bar.=foo"].iter().copied())),
+      Positional {
+        overrides: vec![("foo".to_owned(), "bar".to_owned())],
+        search_directory: None,
+        arguments: vec!["bar.=foo".to_owned()],
+      },
+    );
   }
 
-  test! {
-    name: override_not_name,
-    values: ["foo=bar", "bar.=foo"],
-    overrides: [("foo", "bar")],
-    search_directory: None,
-    arguments: ["bar.=foo"],
+  #[test]
+  fn no_overrides() {
+    assert_eq!(
+      Positional::from_values(Some(["the-dir/", "baz", "bzzd"].iter().copied())),
+      Positional {
+        overrides: vec![],
+        search_directory: Some("the-dir/".to_owned()),
+        arguments: vec!["baz".to_owned(), "bzzd".to_owned()],
+      },
+    );
   }
 
-  test! {
-    name: no_overrides,
-    values: ["the-dir/", "baz", "bzzd"],
-    overrides: [],
-    search_directory: Some("the-dir/"),
-    arguments: ["baz", "bzzd"],
+  #[test]
+  fn no_search_directory() {
+    assert_eq!(
+      Positional::from_values(Some(["foo=bar", "bar=foo", "baz", "bzzd"].iter().copied())),
+      Positional {
+        overrides: vec![
+          ("foo".to_owned(), "bar".to_owned()),
+          ("bar".to_owned(), "foo".to_owned())
+        ],
+        search_directory: None,
+        arguments: vec!["baz".to_owned(), "bzzd".to_owned()],
+      },
+    );
   }
 
-  test! {
-    name: no_search_directory,
-    values: ["foo=bar", "bar=foo", "baz", "bzzd"],
-    overrides: [("foo", "bar"), ("bar", "foo")],
-    search_directory: None,
-    arguments: ["baz", "bzzd"],
+  #[test]
+  fn no_arguments() {
+    assert_eq!(
+      Positional::from_values(Some(["foo=bar", "bar=foo", "the-dir/"].iter().copied())),
+      Positional {
+        overrides: vec![
+          ("foo".to_owned(), "bar".to_owned()),
+          ("bar".to_owned(), "foo".to_owned())
+        ],
+        search_directory: Some("the-dir/".to_owned()),
+        arguments: vec![],
+      },
+    );
   }
 
-  test! {
-    name: no_arguments,
-    values: ["foo=bar", "bar=foo", "the-dir/"],
-    overrides: [("foo", "bar"), ("bar", "foo")],
-    search_directory: Some("the-dir/"),
-    arguments: [],
+  #[test]
+  fn all_dot() {
+    assert_eq!(
+      Positional::from_values(Some(["foo=bar", "bar=foo", ".", "garnor"].iter().copied())),
+      Positional {
+        overrides: vec![
+          ("foo".to_owned(), "bar".to_owned()),
+          ("bar".to_owned(), "foo".to_owned())
+        ],
+        search_directory: Some(".".to_owned()),
+        arguments: vec!["garnor".to_owned()],
+      },
+    );
   }
 
-  test! {
-    name: all_dot,
-    values: ["foo=bar", "bar=foo", ".", "garnor"],
-    overrides: [("foo", "bar"), ("bar", "foo")],
-    search_directory: Some("."),
-    arguments: ["garnor"],
+  #[test]
+  fn all_dot_dot() {
+    assert_eq!(
+      Positional::from_values(Some(["foo=bar", "bar=foo", "..", "garnor"].iter().copied())),
+      Positional {
+        overrides: vec![
+          ("foo".to_owned(), "bar".to_owned()),
+          ("bar".to_owned(), "foo".to_owned())
+        ],
+        search_directory: Some("..".to_owned()),
+        arguments: vec!["garnor".to_owned()],
+      },
+    );
   }
 
-  test! {
-    name: all_dot_dot,
-    values: ["foo=bar", "bar=foo", "..", "garnor"],
-    overrides: [("foo", "bar"), ("bar", "foo")],
-    search_directory: Some(".."),
-    arguments: ["garnor"],
+  #[test]
+  fn all_slash() {
+    assert_eq!(
+      Positional::from_values(Some(["foo=bar", "bar=foo", "/", "garnor"].iter().copied())),
+      Positional {
+        overrides: vec![
+          ("foo".to_owned(), "bar".to_owned()),
+          ("bar".to_owned(), "foo".to_owned())
+        ],
+        search_directory: Some("/".to_owned()),
+        arguments: vec!["garnor".to_owned()],
+      },
+    );
   }
 
-  test! {
-    name: all_slash,
-    values: ["foo=bar", "bar=foo", "/", "garnor"],
-    overrides: [("foo", "bar"), ("bar", "foo")],
-    search_directory: Some("/"),
-    arguments: ["garnor"],
+  #[test]
+  fn search_directory_after_argument() {
+    assert_eq!(
+      Positional::from_values(Some(
+        ["foo=bar", "bar=foo", "baz", "bzzd", "bar/"]
+          .iter()
+          .copied()
+      )),
+      Positional {
+        overrides: vec![
+          ("foo".to_owned(), "bar".to_owned()),
+          ("bar".to_owned(), "foo".to_owned())
+        ],
+        search_directory: None,
+        arguments: vec!["baz".to_owned(), "bzzd".to_owned(), "bar/".to_owned()],
+      },
+    );
   }
 
-  test! {
-    name: search_directory_after_argument,
-    values: ["foo=bar", "bar=foo", "baz", "bzzd", "bar/"],
-    overrides: [("foo", "bar"), ("bar", "foo")],
-    search_directory: None,
-    arguments: ["baz", "bzzd", "bar/"],
+  #[test]
+  fn override_after_search_directory() {
+    assert_eq!(
+      Positional::from_values(Some(["..", "a=b"].iter().copied())),
+      Positional {
+        overrides: vec![],
+        search_directory: Some("..".to_owned()),
+        arguments: vec!["a=b".to_owned()],
+      },
+    );
   }
 
-  test! {
-    name: override_after_search_directory,
-    values: ["..", "a=b"],
-    overrides: [],
-    search_directory: Some(".."),
-    arguments: ["a=b"],
-  }
-
-  test! {
-    name: override_after_argument,
-    values: ["a", "a=b"],
-    overrides: [],
-    search_directory: None,
-    arguments: ["a", "a=b"],
+  #[test]
+  fn override_after_argument() {
+    assert_eq!(
+      Positional::from_values(Some(["a", "a=b"].iter().copied())),
+      Positional {
+        overrides: vec![],
+        search_directory: None,
+        arguments: vec!["a".to_owned(), "a=b".to_owned()],
+      },
+    );
   }
 }
