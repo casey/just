@@ -323,3 +323,80 @@ fn shell_expanded_strings_can_be_used_in_attributes() {
     )
     .run();
 }
+
+#[test]
+fn env_attribute_single() {
+  Test::new()
+    .justfile(
+      "
+        [env('MY_VAR', 'my_value')]
+        foo:
+          echo $MY_VAR
+      ",
+    )
+    .stdout("my_value\n")
+    .stderr("echo $MY_VAR\n")
+    .run();
+}
+
+#[test]
+fn env_attribute_multiple() {
+  Test::new()
+    .justfile(
+      "
+        [env('VAR1', 'value1')]
+        [env('VAR2', 'value 2')]
+        foo:
+          echo $VAR1 $VAR2
+      ",
+    )
+    .stdout("value1 value 2\n")
+    .stderr("echo $VAR1 $VAR2\n")
+    .run();
+}
+
+#[test]
+fn env_attribute_1_arg() {
+  Test::new()
+    .justfile(
+      "
+        [env('MY_VAR')]
+        foo:
+          echo bar
+      ",
+    )
+    .stderr(
+      "
+  error: Attribute `env` got 1 argument but takes 2 arguments
+   ——▶ justfile:1:2
+    │
+  1 │ [env('MY_VAR')]
+    │  ^^^
+",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn env_attribute_3_args() {
+  Test::new()
+    .justfile(
+      "
+        [env('A', 'B', 'C')]
+        foo:
+          echo bar
+      ",
+    )
+    .stderr(
+      "
+  error: Attribute `env` got 3 arguments but takes 2 arguments
+   ——▶ justfile:1:2
+    │
+  1 │ [env('A', 'B', 'C')]
+    │  ^^^
+",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
