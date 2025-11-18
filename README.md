@@ -346,6 +346,27 @@ most Windows users.)
   </tbody>
 </table>
 
+
+#### Nix flake
+
+The `just` repository has a `flake.nix` file defining the repository as a [nix flake](https://nix.dev/concepts/flakes.html)
+
+You can specify the `just` repository as an input to another nix flake:
+
+```nix
+{
+  inputs = {
+    ...
+    just.url = "github:casey/just";
+  }
+
+  outputs = {self, nixpkgs, just}: {
+    ...
+  }
+}
+
+```
+
 ![just package version table](https://repology.org/badge/vertical-allrepos/just.svg)
 
 ### Pre-Built Binaries
