@@ -63,14 +63,21 @@ impl Subcommand {
         Self::changelog();
         return Ok(());
       }
-      Completions { shell } => return Self::completions(*shell),
+      Completions { shell } => {
+        Self::completions(*shell);
+        return Ok(());
+      }
       Init => return Self::init(config),
       Man => return Self::man(),
       Request { request } => return Self::request(request),
       _ => {}
     }
 
-    let search = Search::find(&config.search_config, &config.invocation_directory)?;
+    let search = Search::find(
+      config.ceiling.as_deref(),
+      &config.invocation_directory,
+      &config.search_config,
+    )?;
 
     if let Edit = self {
       return Self::edit(&search);
@@ -132,7 +139,9 @@ impl Subcommand {
 
       if fallback {
         if let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result {
-          search = search.search_parent_directory().map_err(|_| err)?;
+          search = search
+            .search_parent_directory(config.ceiling.as_deref())
+            .map_err(|_| err)?;
 
           if config.verbosity.loquacious() {
             eprintln!(
@@ -277,9 +286,8 @@ impl Subcommand {
     justfile.run(config, search, overrides, &recipes)
   }
 
-  fn completions(shell: completions::Shell) -> RunResult<'static, ()> {
-    println!("{}", shell.script()?);
-    Ok(())
+  fn completions(shell: completions::Shell) {
+    print!("{}", shell.script());
   }
 
   fn dump(config: &Config, compilation: Compilation) -> RunResult<'static> {
@@ -366,7 +374,11 @@ impl Subcommand {
   }
 
   fn init(config: &Config) -> RunResult<'static> {
-    let search = Search::init(&config.search_config, &config.invocation_directory)?;
+    let search = Search::init(
+      &config.search_config,
+      &config.invocation_directory,
+      config.ceiling.as_deref(),
+    )?;
 
     if search.justfile.is_file() {
       return Err(Error::InitExists {
@@ -509,7 +521,7 @@ impl Subcommand {
       BTreeMap::new()
     } else {
       let mut aliases = BTreeMap::<&str, Vec<&str>>::new();
-      for alias in module.aliases.values().filter(|alias| !alias.is_private()) {
+      for alias in module.aliases.values().filter(|alias| alias.is_public()) {
         aliases
           .entry(alias.target.name.lexeme())
           .or_default()

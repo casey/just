@@ -147,7 +147,6 @@ impl Test {
     self
   }
 
-  #[allow(unused)]
   pub(crate) fn test_round_trip(mut self, test_round_trip: bool) -> Self {
     self.test_round_trip = test_round_trip;
     self

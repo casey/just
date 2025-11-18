@@ -8,7 +8,7 @@ pub(crate) struct Interpreter<'src> {
 
 impl Interpreter<'_> {
   pub(crate) fn default_script_interpreter() -> &'static Interpreter<'static> {
-    static INSTANCE: Lazy<Interpreter<'static>> = Lazy::new(|| Interpreter {
+    static INSTANCE: LazyLock<Interpreter<'static>> = LazyLock::new(|| Interpreter {
       arguments: vec![StringLiteral::from_raw("-eu")],
       command: StringLiteral::from_raw("sh"),
     });
