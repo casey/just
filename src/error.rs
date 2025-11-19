@@ -206,6 +206,11 @@ pub(crate) enum Error<'src> {
     justfile: PathBuf,
     io_error: io::Error,
   },
+  InvalidEnumVariant {
+    enum_name: String,
+    variant_name: String,
+    possible_variants: Vec<String>,
+  },
 }
 
 impl<'src> Error<'src> {
@@ -525,6 +530,12 @@ impl ColorDisplay for Error<'_> {
       WriteJustfile { justfile, io_error } => {
         let justfile = justfile.display();
         write!(f, "Failed to write justfile to `{justfile}`: {io_error}")?;
+      }
+      InvalidEnumVariant { enum_name, variant_name, possible_variants } => {
+        write!(f, "Invalid enum variant `{variant_name}` for enum `{enum_name}`. Possible variants are:")?;
+        for variant in possible_variants {
+          write!(f, "\n    {}", variant)?;
+        }
       }
     }
 
