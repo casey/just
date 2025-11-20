@@ -353,6 +353,11 @@ most Windows users.)
       <td><a href=https://ports.macports.org/port/just/summary>just</a></td>
       <td><code>port install just</code></td>
     </tr>
+    <tr>
+      <td><a href=https://brew.sh>Homebrew</a></td>
+      <td><a href=https://formulae.brew.sh/formula/just>just</a></td>
+      <td><code>brew install just</code></td>
+    </tr>
   </tbody>
 </table>
 
