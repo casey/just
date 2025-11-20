@@ -1823,6 +1823,18 @@ script:
 directory, respectively, of the current `import` or `mod` source file when
 called from within an import or submodule.
 
+#### Module and Module Directory
+
+- `module_file()` - Retrieves the path of the current module file.
+
+- `module_directory()` - Retrieves the path of the parent directory of the
+  current module file.
+
+`module_file()` and `module_directory()` behave the same as `justfile()` and
+`justfile_directory()` in the root `justfile`, but will return the path and
+directory, respectively, of the current `mod` source file when
+called from within submodule.
+
 #### Just Executable
 
 - `just_executable()` - Absolute path to the `just` executable.
