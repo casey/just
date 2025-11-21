@@ -157,7 +157,9 @@ impl<'src> Justfile<'src> {
           command.arg(binary);
           command
         } else {
-          Command::new(binary)
+          let mut command = Command::new(binary);
+          command.with_explicit_path();
+          command
         };
 
         command
