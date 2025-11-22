@@ -34,21 +34,114 @@ _just() {
                 if [[ ${cur} == -* ]] ; then
                     COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                     return 0
-                else
+                elif [[ ${COMP_CWORD} -eq 1 ]]; then
+                    # Get recipes and aliases from just --list
+                    local list_output=$(just --list 2> /dev/null)
+                    if [[ $? -eq 0 ]]; then
+                        # Extract recipe names (first word after leading spaces, before any * or #)
+                        local recipes=$(echo "$list_output" | sed -n 's/^[[:space:]]*\([a-zA-Z0-9_-]*\).*/\1/p' | grep -v '^$' | grep -v '^Available$')
+                        
+                        # Extract aliases from [alias: ...] or [aliases: ...] patterns
+                        local aliases=$(echo "$list_output" | sed -n 's/.*\[alias:[[:space:]]*\([^]]*\)\].*/\1/p' | tr ',' '\n')
+                        aliases="$aliases"$(echo "$list_output" | sed -n 's/.*\[aliases:[[:space:]]*\([^]]*\)\].*/\1/p' | tr ',' '\n')
+                        aliases=$(echo "$aliases" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | grep -v '^$')
+                        
+                        # Combine recipes and aliases
+                        local all_completions=$(printf "%s\n%s\n" "$recipes" "$aliases" | sort -u | tr '\n' ' ')
+                        
+                        if echo "${cur}" | \grep -qF '/'; then
+                            local path_prefix=$(echo "${cur}" | sed 's/[/][^/]*$/\//')
+                            local path_recipes=$(just --summary 2> /dev/null -- "${path_prefix}")
+                            if [[ $? -eq 0 ]]; then
+                                all_completions=$(printf "${path_prefix}%s\t" $path_recipes)
+                            fi
+                        fi
+                        
+                        COMPREPLY=( $(compgen -W "${all_completions}" -- "${cur}") )
+                        if type __ltrim_colon_completions &>/dev/null; then
+                            __ltrim_colon_completions "$cur"
+                        fi
+                        return 0
+                    fi
+                    
+                    # Fallback to --summary if --list fails
                     local recipes=$(just --summary 2> /dev/null)
-
                     if echo "${cur}" | \grep -qF '/'; then
                         local path_prefix=$(echo "${cur}" | sed 's/[/][^/]*$/\//')
                         local recipes=$(just --summary 2> /dev/null -- "${path_prefix}")
                         local recipes=$(printf "${path_prefix}%s\t" $recipes)
                     fi
-
                     if [[ $? -eq 0 ]]; then
                         COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )
                         if type __ltrim_colon_completions &>/dev/null; then
                             __ltrim_colon_completions "$cur"
                         fi
                         return 0
+                    fi
+                elif [[ ${COMP_CWORD} -eq 2 ]]; then
+                    # Handle submodule completion: just <module> <recipe>
+                    local module="${COMP_WORDS[1]}"
+                    
+                    # Try to find the module's justfile and get recipes + aliases from it
+                    # First, find the project root (where the main justfile is)
+                    local project_root=""
+                    local current_dir="${PWD}"
+                    while [[ -n "$current_dir" && "$current_dir" != "/" ]]; do
+                        if [[ -f "$current_dir/justfile" ]]; then
+                            project_root="$current_dir"
+                            break
+                        fi
+                        current_dir=$(dirname "$current_dir")
+                    done
+                    
+                    # Try to find module justfile in common locations
+                    local module_justfile=""
+                    if [[ -n "$project_root" ]]; then
+                        # Check common module locations
+                        for dir in "$project_root/$module" "$project_root/$module/justfile" "$project_root/modules/$module" "$project_root/modules/$module/justfile"; do
+                            if [[ -f "$dir/justfile" ]]; then
+                                module_justfile="$dir/justfile"
+                                break
+                            elif [[ -f "$dir" && "$dir" == *justfile ]]; then
+                                module_justfile="$dir"
+                                break
+                            fi
+                        done
+                    fi
+                    
+                    # If we found the module's justfile, get recipes and aliases from it
+                    if [[ -n "$module_justfile" && -f "$module_justfile" ]]; then
+                        local list_output=$(just --list --justfile "$module_justfile" 2> /dev/null)
+                        if [[ $? -eq 0 ]]; then
+                            # Extract recipe names (first word after leading spaces, before any * or #)
+                            local recipes=$(echo "$list_output" | sed -n 's/^[[:space:]]*\([a-zA-Z0-9_-]*\).*/\1/p' | grep -v '^$' | grep -v '^Available$')
+                            
+                            # Extract aliases from [alias: ...] or [aliases: ...] patterns
+                            local aliases=$(echo "$list_output" | sed -n 's/.*\[alias:[[:space:]]*\([^]]*\)\].*/\1/p' | tr ',' '\n')
+                            aliases="$aliases"$(echo "$list_output" | sed -n 's/.*\[aliases:[[:space:]]*\([^]]*\)\].*/\1/p' | tr ',' '\n')
+                            aliases=$(echo "$aliases" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | grep -v '^$')
+                            
+                            # Combine recipes and aliases
+                            local all_completions=$(printf "%s\n%s\n" "$recipes" "$aliases" | sort -u | tr '\n' ' ')
+                            
+                            if [[ -n "$all_completions" ]]; then
+                                COMPREPLY=( $(compgen -W "${all_completions}" -- "${cur}") )
+                                return 0
+                            fi
+                        fi
+                    fi
+                    
+                    # Fallback: use --summary with module:: prefix (won't include aliases)
+                    local all_recipes=$(just --summary 2> /dev/null)
+                    if [[ $? -eq 0 ]]; then
+                        # Filter recipes that start with module:: and strip the prefix
+                        # just --summary returns space-separated recipes, so convert to lines first
+                        local module_recipes=$(echo "$all_recipes" | tr ' ' '\n' | grep -E "^${module}::" | sed "s/^${module}:://")
+                        
+                        if [[ -n "$module_recipes" ]]; then
+                            COMPREPLY=( $(compgen -W "${module_recipes}" -- "${cur}") )
+                            return 0
+                        fi
                     fi
                 fi
             case "${prev}" in
