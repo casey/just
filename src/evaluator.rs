@@ -325,12 +325,20 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     arguments: &[String],
     parameters: &[Parameter<'src>],
     scope: &'run Scope<'src, 'run>,
+    use_named_parameters: bool,
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>)> {
     let mut evaluator = Self::new(context, is_dependency, scope);
 
     let mut positional = Vec::new();
 
     let mut rest = arguments;
+    let mut defaults = Table::new();
+    for parameter in parameters {
+      if parameter.default.is_some() {
+        defaults.insert(parameter);
+      }
+    }
+
     for parameter in parameters {
       let value = if rest.is_empty() {
         if let Some(ref default) = parameter.default {
@@ -352,9 +360,24 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         rest = &[];
         value
       } else {
-        let value = rest[0].clone();
+        let mut value = rest[0].clone();
+        if use_named_parameters {
+          // We stop handling of positional parameters once we hit a named parameter
+          // if it is escaped we continue treating it as positional but unescape it
+          if value.starts_with(|c| c == '\'' || c == '"') {
+            let quote = value.chars().next().unwrap();
+            if value.ends_with(quote) && value.len() >= 2 {
+              value = value[1..value.len() - 1].to_string();
+            } else if value.contains('=') {
+              break;
+            }
+          } else if value.contains('=') {
+            break;
+          }
+        }
         positional.push(value.clone());
         rest = &rest[1..];
+        defaults.remove(parameter.name.lexeme());
         value
       };
       evaluator.scope.bind(Binding {
@@ -363,8 +386,69 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         file_depth: 0,
         name: parameter.name,
         private: false,
-        value,
+        value: value.clone(),
       });
+    }
+
+      // invariantly rest is only non-empty if we have named parameters
+    if !rest.is_empty() {
+      assert!(use_named_parameters);
+      for arg in rest {
+        let mut split = arg.splitn(2, '=');
+        // name and value should always be present. Earlier static analysis
+        // ensures once we hit default values no more positional parameters exist
+        let name = split.next().ok_or_else(||
+            Error::Internal {
+            message: "named parameter missing name".to_string(),
+          })?;
+        let value = split.next().ok_or_else(|| Error::Internal {
+            message: "named parameter missing value".to_string(),
+          })?;
+        match defaults.remove(name) {
+          None => {
+            if parameters.iter().any(|p| p.name.lexeme() == name) {
+              return Err(Error::EvalNamedParameterDuplicate {
+                parameter: name.to_string(),
+              });
+            }
+            let candidates = parameters
+              .iter()
+              .filter(|p| p.default.is_some())
+              .map(|p| Suggestion {
+                name: p.name.lexeme(),
+                target: None,
+              });
+            let suggestion = Suggestion::find_suggestion(name, candidates);
+            return Err(Error::EvalUnknownNamedParameter {
+              parameter: name.to_string(),
+              suggestion,
+            });
+          },
+          Some(parameter) => {
+            evaluator.scope.bind(Binding {
+              constant: false,
+              export: parameter.export,
+              file_depth: 0,
+              name: parameter.name,
+              private: false,
+              value: value.to_string(),
+            });
+          }
+        }
+      }
+
+      for parameter in defaults.values() {
+        let default = parameter.default.as_ref().expect("Default value expected for parameter");
+        let value = evaluator.evaluate_expression(default)?;
+        evaluator.scope.bind(Binding {
+          constant: false,
+          export: parameter.export,
+          file_depth: 0,
+          name: parameter.name,
+          private: false,
+          value: value,
+        });
+      }
     }
 
     Ok((evaluator.scope, positional))

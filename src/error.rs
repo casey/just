@@ -87,6 +87,13 @@ pub(crate) enum Error<'src> {
     editor: OsString,
     status: ExitStatus,
   },
+  EvalNamedParameterDuplicate {
+    parameter: String,
+  },
+  EvalUnknownNamedParameter {
+    parameter: String,
+    suggestion: Option<Suggestion<'src>>,
+  },
   EvalUnknownVariable {
     variable: String,
     suggestion: Option<Suggestion<'src>>,
@@ -399,6 +406,15 @@ impl ColorDisplay for Error<'_> {
       EditorStatus { editor, status } => {
         let editor = editor.to_string_lossy();
         write!(f, "Editor `{editor}` failed: {status}")?;
+      }
+      EvalNamedParameterDuplicate { parameter } => {
+        write!(f, "`{parameter}` defined multiple times.")?;
+      }
+      EvalUnknownNamedParameter { parameter, suggestion} => {
+        write!(f, "Recipe does not contain parameter `{parameter}`.")?;
+        if let Some(suggestion) = suggestion {
+          write!(f, "\n{suggestion}")?;
+        }
       }
       EvalUnknownVariable { variable, suggestion} => {
         write!(f, "Justfile does not contain variable `{variable}`.")?;

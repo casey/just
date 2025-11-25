@@ -18,6 +18,7 @@ pub(crate) enum Attribute<'src> {
   Linux,
   Macos,
   Metadata(Vec<StringLiteral<'src>>),
+  NamedParameters,
   NoCd,
   NoExitMessage,
   NoQuiet,
@@ -39,6 +40,7 @@ impl AttributeDiscriminant {
       | Self::ExitMessage
       | Self::Linux
       | Self::Macos
+      | Self::NamedParameters
       | Self::NoCd
       | Self::NoExitMessage
       | Self::NoQuiet
@@ -93,6 +95,7 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::Linux => Self::Linux,
       AttributeDiscriminant::Macos => Self::Macos,
       AttributeDiscriminant::Metadata => Self::Metadata(arguments),
+      AttributeDiscriminant::NamedParameters => Self::NamedParameters,
       AttributeDiscriminant::NoCd => Self::NoCd,
       AttributeDiscriminant::NoExitMessage => Self::NoExitMessage,
       AttributeDiscriminant::NoQuiet => Self::NoQuiet,
@@ -139,6 +142,7 @@ impl Display for Attribute<'_> {
       | Self::ExitMessage
       | Self::Linux
       | Self::Macos
+      | Self::NamedParameters
       | Self::NoCd
       | Self::NoExitMessage
       | Self::NoQuiet
