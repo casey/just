@@ -87,7 +87,9 @@ impl<'src> Iterator for Variables<'_, 'src> {
           then,
           otherwise,
         } => {
-          self.stack.push(otherwise);
+          if let Some(otherwise) = otherwise.as_ref() {
+            self.stack.push(otherwise);
+          }
           self.stack.push(then);
           self.stack.push(rhs);
           self.stack.push(lhs);

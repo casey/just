@@ -34,7 +34,7 @@ pub(crate) enum Expression<'src> {
   Conditional {
     condition: Condition<'src>,
     then: Box<Expression<'src>>,
-    otherwise: Box<Expression<'src>>,
+    otherwise: Option<Box<Expression<'src>>>,
   },
   /// `(contents)`
   Group { contents: Box<Expression<'src>> },
@@ -72,13 +72,16 @@ impl Display for Expression<'_> {
         condition,
         then,
         otherwise,
-      } => {
-        if let Self::Conditional { .. } = **otherwise {
-          write!(f, "if {condition} {{ {then} }} else {otherwise}")
-        } else {
-          write!(f, "if {condition} {{ {then} }} else {{ {otherwise} }}")
+      } => match otherwise {
+        None => write!(f, "if {condition} {{ {then} }}"),
+        Some(otherwise) => {
+          if let Self::Conditional { .. } = **otherwise {
+            write!(f, "if {condition} {{ {then} }} else {otherwise}")
+          } else {
+            write!(f, "if {condition} {{ {then} }} else {{ {otherwise} }}")
+          }
         }
-      }
+      },
       Self::Group { contents } => write!(f, "({contents})"),
       Self::Join { lhs: None, rhs } => write!(f, "/ {rhs}"),
       Self::Join {

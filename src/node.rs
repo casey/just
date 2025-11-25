@@ -185,7 +185,9 @@ impl<'src> Node<'src> for Expression<'src> {
         tree.push_mut(operator.to_string());
         tree.push_mut(rhs.tree());
         tree.push_mut(then.tree());
-        tree.push_mut(otherwise.tree());
+        if let Some(otherwise) = otherwise.as_ref() {
+          tree.push_mut(otherwise.tree());
+        }
         tree
       }
       Self::Group { contents } => Tree::List(vec![contents.tree()]),
