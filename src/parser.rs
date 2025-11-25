@@ -1146,6 +1146,9 @@ impl<'run, 'src> Parser<'run, 'src> {
       Keyword::ScriptInterpreter => Some(Setting::ScriptInterpreter(self.parse_interpreter()?)),
       Keyword::Shell => Some(Setting::Shell(self.parse_interpreter()?)),
       Keyword::Tempdir => Some(Setting::Tempdir(self.parse_string_literal()?)),
+      Keyword::WindowsScriptInterpreter => {
+        Some(Setting::WindowsScriptInterpreter(self.parse_interpreter()?))
+      }
       Keyword::WindowsShell => Some(Setting::WindowsShell(self.parse_interpreter()?)),
       Keyword::WorkingDirectory => Some(Setting::WorkingDirectory(self.parse_string_literal()?)),
       _ => None,
