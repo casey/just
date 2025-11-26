@@ -144,3 +144,36 @@ fn fail_on_unknown_named_param() {
     .status(EXIT_FAILURE)
     .run();
 }
+
+#[test]
+fn named_parameters_setting() {
+    Test::new()
+      .arg("foo")
+      .arg("a=1")
+      .arg("c=3")
+      .justfile(
+        r#"
+      set named-parameters
+
+      foo a="a" b="b" c="c":
+        echo {{ a }}
+        echo {{ b }}
+        echo {{ c }}
+    "#,
+      )
+      .stdout(
+        "
+      1
+      b
+      3
+    ",
+      )
+      .stderr(
+        r#"
+      echo 1
+      echo b
+      echo 3
+    "#,
+    )
+    .run();
+}

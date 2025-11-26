@@ -334,7 +334,8 @@ impl<'src> Justfile<'src> {
 
     let use_named_parameters = recipe
       .attributes
-      .contains(AttributeDiscriminant::NamedParameters);
+      .contains(AttributeDiscriminant::NamedParameters)
+      || module.settings.named_parameters;
 
     let (outer, positional) = Evaluator::evaluate_parameters(
       &context,

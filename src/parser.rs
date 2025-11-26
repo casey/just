@@ -1131,6 +1131,9 @@ impl<'run, 'src> Parser<'run, 'src> {
       Keyword::Quiet => Some(Setting::Quiet(self.parse_set_bool()?)),
       Keyword::Unstable => Some(Setting::Unstable(self.parse_set_bool()?)),
       Keyword::WindowsPowershell => Some(Setting::WindowsPowerShell(self.parse_set_bool()?)),
+      Keyword::NamedParameters => {
+        Some(Setting::NamedParameters(self.parse_set_bool()?))
+      }
       _ => None,
     };
 

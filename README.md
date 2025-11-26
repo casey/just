@@ -1019,6 +1019,7 @@ foo:
 | `export` | boolean | `false` | Export all variables as environment variables. |
 | `fallback` | boolean | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found. |
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
+| `named-parameters` | boolean | `false` | Using named-parameters feature for all recipes in `justfile`. |
 | `positional-arguments` | boolean | `false` | Pass positional arguments. |
 | `quiet` | boolean | `false` | Disable echoing recipe lines before executing. |
 | `script-interpreter`<sup>1.33.0</sup> | `[COMMAND, ARGS…]` | `['sh', '-eu']` | Set command used to invoke recipes with empty `[script]` attribute. |
@@ -2117,6 +2118,7 @@ change their behavior.
 | `[linux]`<sup>1.8.0</sup> | recipe | Enable recipe on Linux. |
 | `[macos]`<sup>1.8.0</sup> | recipe | Enable recipe on MacOS. |
 | `[metadata(METADATA)]`<sup>1.42.0</sup> | recipe | Attach `METADATA` to recipe. |
+| `[named-parameters]`<sup>1.44.0<sup> | recipe | Turn on [named_parameters](#named_parameters) for this recipe. |
 | `[no-cd]`<sup>1.9.0</sup> | recipe | Don't change directory before executing recipe. |
 | `[no-exit-message]`<sup>1.7.0</sup> | recipe | Don't print an error message if recipe fails. |
 | `[no-quiet]`<sup>1.23.0</sup> | recipe | Override globally quiet recipes and always echo out the recipe. |
@@ -3959,6 +3961,29 @@ foo argument:
 This preserves `just`'s ability to catch variable name typos before running,
 for example if you were to write `{{argument}}`, but will not do what you want
 if the value of `argument` contains single quotes.
+
+#### Named Parameters
+
+The `named-arguments` setting enables python like keyword arguments for recipe calls.
+Take for instance the following 
+
+``` just
+set named-parameters
+
+foo default1="changes_often" default2="changes_sometimes" default3="changes_rarely":
+   echo {{ default1 }} {{ default2 }} {{ default3 }}
+```
+
+Calling `just foo default2="x"` would normally result in stdout of 
+`default2=x changes_sometimes changes_rarely`. while with `named-arguments`
+one would get `changes_often x changes_rarely`. Notice it is still possible
+to have positional parameters such as the recipe:
+
+``` just
+foo a b="default" c=b:
+   echo {{ a }} {{ b }} {{ c }}
+```
+
 
 #### Positional Arguments
 
