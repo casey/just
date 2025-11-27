@@ -1628,12 +1628,13 @@ All functions ending in `_directory` can be abbreviated to `_dir`. So
   `"arm"`, `"asmjs"`, `"hexagon"`, `"mips"`, `"msp430"`, `"powerpc"`,
   `"powerpc64"`, `"s390x"`, `"sparc"`, `"wasm32"`, `"x86"`, `"x86_64"`, and
   `"xcore"`.
-- `num_cpus()`<sup>1.15.0</sup> - Number of logical CPUs.
+- `num_cpus()`<sup>1.15.0</sup> — Number of logical CPUs.
 - `os()` — Operating system. Possible values are: `"android"`, `"bitrig"`,
   `"dragonfly"`, `"emscripten"`, `"freebsd"`, `"haiku"`, `"ios"`, `"linux"`,
   `"macos"`, `"netbsd"`, `"openbsd"`, `"solaris"`, and `"windows"`.
 - `os_family()` — Operating system family; possible values are: `"unix"` and
   `"windows"`.
+- `just_version()`<sup>master</sup> — The version of `just` being run, e.g. `"1.42.5"`.
 
 For example:
 
