@@ -32,6 +32,7 @@ impl PlatformInterface for Platform {
     };
 
     let mut cmd = Command::new(command.as_ref());
+    cmd.with_explicit_path();
 
     if let Some(working_directory) = working_directory {
       cmd.current_dir(working_directory);
