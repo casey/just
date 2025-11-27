@@ -15,7 +15,11 @@ impl Executor<'_> {
   ) -> RunResult<'src, Command> {
     match self {
       Self::Command(interpreter) => {
-        let mut command = Command::new(&interpreter.command.cooked);
+        // Resolve executable to absolute path using PATH
+        let working_dir = working_directory.unwrap_or_else(|| Path::new("."));
+        let resolved = which::resolve_executable(&interpreter.command.cooked, working_dir)?;
+
+        let mut command = Command::new(resolved);
 
         if let Some(working_directory) = working_directory {
           command.current_dir(working_directory);

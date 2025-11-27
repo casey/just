@@ -202,3 +202,103 @@ fn backtick_recipe_shell_not_found_error_message() {
     .status(1)
     .run();
 }
+
+/// Test that shell resolution respects PATH order
+/// This verifies that executables are resolved according to PATH order,
+/// not system-specific priority (like System32 on Windows)
+#[test]
+fn shell_respects_path_order() {
+  let tmp = tempdir();
+  let path = PathBuf::from(tmp.path());
+
+  // Create a custom shell in a directory that comes before system PATH
+  let custom_dir = path.join("custom");
+  fs::create_dir_all(&custom_dir).unwrap();
+
+  // Create a wrapper script that uses the real sh but identifies itself
+  // We'll use a simple approach: create a script that calls sh
+  let script = if cfg!(windows) {
+    r#"@echo off
+echo CUSTOM_SHELL
+sh -c %*
+"#
+  } else {
+    "#!/bin/sh\necho CUSTOM_SHELL\nsh -c \"$@\"\n"
+  };
+
+  Test::with_tempdir(tmp)
+    .write("custom/sh.exe", script)
+    .make_executable("custom/sh.exe")
+    .justfile(
+      "
+        set shell := ['sh.exe', '-c']
+
+        default:
+          echo hello
+      ",
+    )
+    .env("PATH", custom_dir.to_str().unwrap())
+    .shell(false)
+    // Should use our custom sh.exe wrapper
+    .stdout(if cfg!(windows) {
+      "CUSTOM_SHELL\r\nhello\r\n"
+    } else {
+      "CUSTOM_SHELL\nhello\n"
+    })
+    .run();
+}
+
+/// Test that executable not found gives a clear error message
+#[test]
+fn shell_executable_not_found_error() {
+  Test::new()
+    .justfile(
+      "
+        set shell := ['nonexistent-shell-xyz123', '-c']
+
+        default:
+          echo hello
+      ",
+    )
+    .shell(false)
+    .stderr_regex(r"(?s).*error: Could not find executable `nonexistent-shell-xyz123` in PATH.*")
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+/// Test that absolute paths work for shell setting
+#[test]
+fn shell_absolute_path() {
+  let tmp = tempdir();
+  let path = PathBuf::from(tmp.path());
+  let shell_path = path.join("custom-shell.exe");
+
+  let script = if cfg!(windows) {
+    r#"@echo off
+echo custom
+%*
+"#
+  } else {
+    "#!/bin/sh\necho custom\nexec sh -c \"$@\"\n"
+  };
+
+  Test::with_tempdir(tmp)
+    .write("custom-shell.exe", script)
+    .make_executable("custom-shell.exe")
+    .justfile(format!(
+      "
+        set shell := ['{}', '-c']
+
+        default:
+          echo hello
+      ",
+      shell_path.display()
+    ))
+    .shell(false)
+    .stdout(if cfg!(windows) {
+      "custom\r\nhello\r\n"
+    } else {
+      "custom\nhello\n"
+    })
+    .run();
+}
