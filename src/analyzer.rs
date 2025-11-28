@@ -56,9 +56,9 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           }
           Item::Comment(_) => (),
           Item::Import { absolute, .. } => {
-            if let Some(absolute) = absolute {
-              if imports.insert(absolute) {
-                stack.push(asts.get(absolute).unwrap());
+            for path in absolute {
+              if imports.insert(path) {
+                stack.push(asts.get(path).unwrap());
               }
             }
           }

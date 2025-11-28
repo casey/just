@@ -364,7 +364,7 @@ impl<'run, 'src> Parser<'run, 'src> {
             let optional = self.accepted(QuestionMark)?;
             let (path, relative) = self.parse_string_literal_token()?;
             items.push(Item::Import {
-              absolute: None,
+              absolute: Vec::new(),
               optional,
               path,
               relative,
