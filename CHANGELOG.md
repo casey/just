@@ -1,6 +1,42 @@
 Changelog
 =========
 
+[1.43.1](https://github.com/casey/just/releases/tag/1.43.1) - 2025-11-12
+------------------------------------------------------------------------
+
+### Fixed
+- Only initialize signal handler once ([#2953](https://github.com/casey/just/pull/2953) by [casey](https://github.com/casey))
+- Preserve module docs when formatting ([#2931](https://github.com/casey/just/pull/2931) by [casey](https://github.com/casey))
+- Preserve module groups when formatting ([#2930](https://github.com/casey/just/pull/2930) by [casey](https://github.com/casey))
+- Don't suggest private recipes and aliases ([#2916](https://github.com/casey/just/pull/2916) by [casey](https://github.com/casey))
+
+### Misc
+- Update softprops/action-gh-release to 2.4.2 ([#2948](https://github.com/casey/just/pull/2948) by [app/dependabot](https://github.com/app/dependabot))
+- Fix `env()` usage in readme ([#2936](https://github.com/casey/just/pull/2936) by [laniakea64](https://github.com/laniakea64))
+- Use a case statement to install target dependencies ([#2929](https://github.com/casey/just/pull/2929) by [casey](https://github.com/casey))
+- Build loongarch64 release binaries ([#2886](https://github.com/casey/just/pull/2886) by [SkyBird233](https://github.com/SkyBird233))
+- Bump softprops/action-gh-release to 2.4.1 ([#2919](https://github.com/casey/just/pull/2919) by [app/dependabot](https://github.com/app/dependabot))
+- Update softprops/action-gh-release to 2.3.4 ([#2910](https://github.com/casey/just/pull/2910) by [app/dependabot](https://github.com/app/dependabot))
+
+[1.43.0](https://github.com/casey/just/releases/tag/1.43.0) - 2025-09-27
+------------------------------------------------------------------------
+
+### Added
+- Add `[default]` attribute ([#2878](https://github.com/casey/just/pull/2878) by [casey](https://github.com/casey))
+- Do not ascend above `--ceiling` when looking for justfile ([#2870](https://github.com/casey/just/pull/2870) by [casey](https://github.com/casey))
+
+### Misc
+- Don't generate completions at runtime ([#2896](https://github.com/casey/just/pull/2896) by [casey](https://github.com/casey))
+- Update `softprops/action-gh-release` to 2.3.3 ([#2879](https://github.com/casey/just/pull/2879) by [app/dependabot](https://github.com/app/dependabot))
+- Add submodule alias and dependency targets to grammar ([#2877](https://github.com/casey/just/pull/2877) by [casey](https://github.com/casey))
+- Bump `actions/checkout` to v5 ([#2864](https://github.com/casey/just/pull/2864) by [app/dependabot](https://github.com/app/dependabot))
+- Fix Windows `PATH_SEP` value in readme ([#2859](https://github.com/casey/just/pull/2859) by [casey](https://github.com/casey))
+- Fix lints for Rust 1.89 ([#2860](https://github.com/casey/just/pull/2860) by [casey](https://github.com/casey))
+- Note that Debian 13 has been released ([#2856](https://github.com/casey/just/pull/2856) by [sblondon](https://github.com/sblondon))
+- Mention `just-mcp` in readme ([#2843](https://github.com/casey/just/pull/2843) by [casey](https://github.com/casey))
+- Expand Windows instructions in readme ([#2842](https://github.com/casey/just/pull/2842) by [casey](https://github.com/casey))
+- Note `[parallel]` attribute in parallelism section ([#2837](https://github.com/casey/just/pull/2837) by [casey](https://github.com/casey))
+
 [1.42.4](https://github.com/casey/just/releases/tag/1.42.4) - 2025-07-24
 ------------------------------------------------------------------------
 

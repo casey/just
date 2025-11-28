@@ -781,10 +781,10 @@ $ cat foo.just
 mod bar
 $ cat bar.just
 baz:
-$ just foo bar
+$ just --list foo bar
 Available recipes:
     baz
-$ just foo::bar
+$ just --list foo::bar
 Available recipes:
     baz
 ```
@@ -1721,7 +1721,7 @@ A default can be substituted for an empty environment variable value with the
 ```just
 set unstable
 
-foo := env('FOO') || 'DEFAULT_VALUE'
+foo := env('FOO', '') || 'DEFAULT_VALUE'
 ```
 
 #### Executables
@@ -2110,7 +2110,7 @@ change their behavior.
 |------|------|-------------|
 | `[confirm]`<sup>1.17.0</sup> | recipe | Require confirmation prior to executing recipe. |
 | `[confirm(PROMPT)]`<sup>1.23.0</sup> | recipe | Require confirmation prior to executing recipe with a custom prompt. |
-| `[default]`<sup>master</sup> | recipe | Use recipe as module's default recipe. |
+| `[default]`<sup>1.43.0</sup> | recipe | Use recipe as module's default recipe. |
 | `[doc(DOC)]`<sup>1.27.0</sup> | module, recipe | Set recipe or module's [documentation comment](#documentation-comments) to `DOC`. |
 | `[extension(EXT)]`<sup>1.32.0</sup> | recipe | Set shebang recipe script's file extension to `EXT`. `EXT` should include a period if one is desired. |
 | `[group(NAME)]`<sup>1.27.0</sup> | module, recipe | Put recipe or module in in [group](#groups) `NAME`. |

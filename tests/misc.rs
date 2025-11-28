@@ -1351,15 +1351,58 @@ b:
 fn run_suggestion() {
   Test::new()
     .arg("hell")
-    .justfile(
-      r#"
-hello a b='B	' c='C':
-  echo {{a}} {{b}} {{c}}
-
-a Z="\t z":
-"#,
-    )
+    .justfile("hello:")
     .stderr("error: Justfile does not contain recipe `hell`\nDid you mean `hello`?\n")
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn private_recipes_are_not_suggested() {
+  Test::new()
+    .arg("hell")
+    .justfile(
+      "
+        [private]
+        hello:
+      ",
+    )
+    .stderr("error: Justfile does not contain recipe `hell`\n")
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn alias_suggestion() {
+  Test::new()
+    .arg("hell")
+    .justfile(
+      "
+        alias hello := bar
+
+        bar:
+      ",
+    )
+    .stderr(
+      "error: Justfile does not contain recipe `hell`\nDid you mean `hello`, an alias for `bar`?\n",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn private_aliases_are_not_suggested() {
+  Test::new()
+    .arg("hell")
+    .justfile(
+      "
+        [private]
+        alias hello := bar
+
+        bar:
+      ",
+    )
+    .stderr("error: Justfile does not contain recipe `hell`\n")
     .status(EXIT_FAILURE)
     .run();
 }
