@@ -781,10 +781,10 @@ $ cat foo.just
 mod bar
 $ cat bar.just
 baz:
-$ just foo bar
+$ just --list foo bar
 Available recipes:
     baz
-$ just foo::bar
+$ just --list foo::bar
 Available recipes:
     baz
 ```
