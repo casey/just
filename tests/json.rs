@@ -58,11 +58,28 @@ struct Parameter<'a> {
 
 #[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
 #[serde(deny_unknown_fields)]
+pub(crate) enum FlagArity {
+  #[default]
+  Switch,
+  WithValue,
+}
+
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct FlagSpec<'a> {
+  arity: FlagArity,
+  default: Option<&'a str>,
+  name: &'a str,
+}
+
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
+#[serde(deny_unknown_fields)]
 struct Recipe<'a> {
   attributes: Vec<Value>,
   body: Vec<Value>,
   dependencies: Vec<Dependency<'a>>,
   doc: Option<&'a str>,
+  flags: BTreeMap<String, FlagSpec<'a>>,
   name: &'a str,
   namepath: &'a str,
   parameters: Vec<Parameter<'a>>,

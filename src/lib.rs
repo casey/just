@@ -39,6 +39,7 @@ pub(crate) use {
     execution_context::ExecutionContext,
     executor::Executor,
     expression::Expression,
+    flag::{FlagArity, FlagSpec},
     fragment::Fragment,
     function::Function,
     interpreter::Interpreter,
@@ -113,7 +114,6 @@ pub(crate) use {
   snafu::{ResultExt, Snafu},
   std::{
     borrow::Cow,
-    cmp,
     collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     env,
     ffi::OsString,
@@ -215,6 +215,7 @@ mod evaluator;
 mod execution_context;
 mod executor;
 mod expression;
+mod flag;
 mod fragment;
 mod function;
 mod interpreter;
