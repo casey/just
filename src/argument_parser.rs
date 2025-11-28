@@ -26,6 +26,7 @@ pub(crate) struct ArgumentParser<'src: 'run, 'run> {
 #[derive(Debug, PartialEq)]
 pub(crate) struct ArgumentGroup<'run> {
   pub(crate) arguments: Vec<&'run str>,
+  pub(crate) flag_arguments: BTreeMap<String, Option<&'run str>>,
   pub(crate) path: Vec<String>,
 }
 
@@ -75,25 +76,83 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
       (recipe, path)
     };
 
-    let rest = self.rest();
+    let (consumed, positional_arguments, flag_arguments) =
+      Self::parse_recipe_arguments(recipe, self.rest())?;
+    self.next += consumed;
 
-    let argument_range = recipe.argument_range();
-    let argument_count = cmp::min(rest.len(), recipe.max_arguments());
-    if !argument_range.range_contains(&argument_count) {
+    Ok(ArgumentGroup {
+      arguments: positional_arguments,
+      flag_arguments,
+      path,
+    })
+  }
+
+  fn parse_recipe_arguments(
+    recipe: &'run Recipe<'src>,
+    args: &[&'run str],
+  ) -> RunResult<'src, (usize, Vec<&'run str>, BTreeMap<String, Option<&'run str>>)> {
+    // if the recipie does not contain flags, use the original parsing behavior
+    let mut verbatim = recipe.flags.is_empty();
+
+    let min_positional = recipe.min_arguments();
+    let max_positional = recipe.max_arguments();
+
+    let mut consumed = 0;
+    let mut positional_arguments = Vec::new();
+    let mut flag_arguments = BTreeMap::new();
+    loop {
+      if consumed >= args.len() {
+        break;
+      }
+
+      let current = args[consumed];
+
+      // allow trailing flags
+      if (!current.starts_with("--") || verbatim) && positional_arguments.len() >= max_positional {
+        break;
+      }
+
+      if verbatim {
+        positional_arguments.push(current);
+        consumed += 1;
+      } else if current == "--" {
+        verbatim = true;
+        consumed += 1;
+      } else if let Some(flag) = current.strip_prefix("--") {
+        let Some(parameter) = recipe.flags.get(flag) else {
+          return Err(Error::UnknownFlagParameter {
+            name: flag.to_string(),
+          });
+        };
+        if parameter.default.is_some() {
+          if consumed + 1 >= args.len() {
+            return Err(Error::MissingArgument {
+              name: flag.to_string(),
+            });
+          }
+          flag_arguments.insert(parameter.name.to_string(), Some(args[consumed + 1]));
+          consumed += 2;
+        } else {
+          flag_arguments.insert(parameter.name.to_string(), None);
+          consumed += 1;
+        }
+      } else {
+        positional_arguments.push(current);
+        consumed += 1;
+      }
+    }
+
+    if positional_arguments.len() < min_positional {
       return Err(Error::ArgumentCountMismatch {
         recipe: recipe.name(),
         parameters: recipe.parameters.clone(),
-        found: rest.len(),
+        found: positional_arguments.len(),
         min: recipe.min_arguments(),
         max: recipe.max_arguments(),
       });
     }
 
-    let arguments = rest[..argument_count].to_vec();
-
-    self.next += argument_count;
-
-    Ok(ArgumentGroup { arguments, path })
+    Ok((consumed, positional_arguments, flag_arguments))
   }
 
   fn resolve_recipe(
@@ -184,7 +243,8 @@ mod tests {
       ArgumentParser::parse_arguments(&justfile, &["foo"]).unwrap(),
       vec![ArgumentGroup {
         path: vec!["foo".into()],
-        arguments: Vec::new()
+        arguments: Vec::new(),
+        flag_arguments: BTreeMap::new(),
       }],
     );
   }
@@ -198,6 +258,7 @@ mod tests {
       vec![ArgumentGroup {
         path: vec!["foo".into()],
         arguments: vec!["baz"],
+        flag_arguments: BTreeMap::new(),
       }],
     );
   }
@@ -258,7 +319,8 @@ mod tests {
       ArgumentParser::parse_arguments(&compilation.justfile, &["foo", "bar"]).unwrap(),
       vec![ArgumentGroup {
         path: vec!["foo".into(), "bar".into()],
-        arguments: Vec::new()
+        arguments: Vec::new(),
+        flag_arguments: BTreeMap::new(),
       }],
     );
   }
@@ -388,16 +450,99 @@ BAZ +Z:
         ArgumentGroup {
           path: vec!["BAR".into()],
           arguments: vec!["0"],
+          flag_arguments: BTreeMap::new(),
         },
         ArgumentGroup {
           path: vec!["FOO".into()],
           arguments: vec!["1", "2"],
+          flag_arguments: BTreeMap::new(),
         },
         ArgumentGroup {
           path: vec!["BAZ".into()],
           arguments: vec!["3", "4", "5"],
+          flag_arguments: BTreeMap::new(),
         },
       ],
     );
+  }
+
+  #[test]
+  fn options() {
+    let justfile = testing::compile(
+      "
+RULE --flag --option='foo' positional:
+  echo {{ flag }} {{ option }} {{ positional }}
+",
+    );
+
+    fn argument_group<'a, const M: usize, const N: usize>(
+      items: [&'a str; M],
+      kv: [(&'a str, Option<&'a str>); N],
+    ) -> ArgumentGroup<'a> {
+      ArgumentGroup {
+        path: vec!["RULE".into()],
+        arguments: items.to_vec(),
+        flag_arguments: kv.iter().map(|(k, v)| (k.to_string(), *v)).collect(),
+      }
+    }
+
+    assert_eq!(
+      ArgumentParser::parse_arguments(&justfile, &["RULE", "1"]).unwrap(),
+      vec![argument_group(["1"], [])],
+    );
+
+    assert_eq!(
+      ArgumentParser::parse_arguments(&justfile, &["RULE", "--flag", "1"]).unwrap(),
+      vec![argument_group(["1"], [("flag", None)])],
+    );
+
+    assert_eq!(
+      ArgumentParser::parse_arguments(&justfile, &["RULE", "--option", "1", "2"]).unwrap(),
+      vec![argument_group(["2"], [("option", Some("1"))])],
+    );
+
+    assert_eq!(
+      ArgumentParser::parse_arguments(&justfile, &["RULE", "--option", "1", "--flag", "2"])
+        .unwrap(),
+      vec![argument_group(
+        ["2"],
+        [("option", Some("1")), ("flag", None)]
+      )],
+    );
+
+    // options swallow arguments
+    assert_eq!(
+      ArgumentParser::parse_arguments(&justfile, &["RULE", "--option", "--flag", "2"]).unwrap(),
+      vec![argument_group(["2"], [("option", Some("--flag"))])],
+    );
+
+    // arguments can be parsed in any order
+    assert_eq!(
+      ArgumentParser::parse_arguments(&justfile, &["RULE", "2", "--option", "1", "--flag"])
+        .unwrap(),
+      vec![argument_group(
+        ["2"],
+        [("option", Some("1")), ("flag", None)]
+      )],
+    );
+
+    // -- allows to parse unknown arguments
+    assert_eq!(
+      ArgumentParser::parse_arguments(&justfile, &["RULE", "--", "--foo"]).unwrap(),
+      vec![argument_group(["--foo"], [])],
+    );
+
+    // -- resets for each recipie
+    assert_eq!(
+      ArgumentParser::parse_arguments(&justfile, &["RULE", "--", "--foo", "RULE", "--flag", "2"])
+        .unwrap(),
+      vec![
+        argument_group(["--foo"], []),
+        argument_group(["2"], [("flag", None)]),
+      ],
+    );
+
+    // unknown arguments are forbidden
+    ArgumentParser::parse_arguments(&justfile, &["RULE", "2", "--foo"]).unwrap_err();
   }
 }
