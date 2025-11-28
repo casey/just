@@ -314,6 +314,12 @@ impl<'src, D> Recipe<'src, D> {
         cmd.stdout(Stdio::null());
       }
 
+      for attribute in &self.attributes {
+        if let Attribute::Env(key, value) = attribute {
+          cmd.env(&key.cooked, &value.cooked);
+        }
+      }
+
       cmd.export(
         &context.module.settings,
         context.dotenv,
@@ -443,6 +449,12 @@ impl<'src, D> Recipe<'src, D> {
 
     if self.takes_positional_arguments(&context.module.settings) {
       command.args(positional);
+    }
+
+    for attribute in &self.attributes {
+      if let Attribute::Env(key, value) = attribute {
+        command.env(&key.cooked, &value.cooked);
+      }
     }
 
     command.export(
