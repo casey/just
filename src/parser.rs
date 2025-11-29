@@ -411,7 +411,7 @@ impl<'run, 'src> Parser<'run, 'src> {
             let mut groups = Vec::new();
             for attribute in attributes {
               if let Attribute::Group(group) = attribute {
-                groups.push(group.cooked);
+                groups.push(group);
               }
             }
 

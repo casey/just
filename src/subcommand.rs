@@ -521,7 +521,7 @@ impl Subcommand {
       BTreeMap::new()
     } else {
       let mut aliases = BTreeMap::<&str, Vec<&str>>::new();
-      for alias in module.aliases.values().filter(|alias| !alias.is_private()) {
+      for alias in module.aliases.values().filter(|alias| alias.is_public()) {
         aliases
           .entry(alias.target.name.lexeme())
           .or_default()
