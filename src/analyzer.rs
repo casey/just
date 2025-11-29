@@ -20,8 +20,9 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     name: Option<Name<'src>>,
     paths: &HashMap<PathBuf, PathBuf>,
     root: &Path,
+    private: bool,
   ) -> CompileResult<'src, Justfile<'src>> {
-    Self::default().justfile(asts, doc, groups, loaded, name, paths, root)
+    Self::default().justfile(asts, doc, groups, loaded, name, paths, root, private)
   }
 
   fn justfile(
@@ -33,6 +34,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     name: Option<Name<'src>>,
     paths: &HashMap<PathBuf, PathBuf>,
     root: &Path,
+    private: bool,
   ) -> CompileResult<'src, Justfile<'src>> {
     let mut definitions = HashMap::new();
     let mut imports = HashSet::new();
@@ -67,6 +69,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             doc,
             groups,
             name,
+            private,
             ..
           } => {
             if let Some(absolute) = absolute {
@@ -79,6 +82,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
                 Some(*name),
                 paths,
                 absolute,
+                *private,
               )?);
             }
           }
@@ -209,6 +213,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       module_path: ast.module_path.clone(),
       modules: self.modules,
       name,
+      private,
       recipes,
       settings,
       source,
