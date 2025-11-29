@@ -600,6 +600,13 @@ The [zed-just](https://github.com/jackTabsCode/zed-just/) extension by
 Feel free to send me the commands necessary to get syntax highlighting working
 in your editor of choice so that I may include them here.
 
+### Language Server Protocol
+
+[just-lsp](https://github.com/terror/just-lsp) provides a [language server
+protocol](https://en.wikipedia.org/wiki/Language_Server_Protocol)
+implementation, enabling features such as go-to-definition, inline diagnostics,
+and code completion.
+
 ### Model Context Protocol
 
 [just-mcp](http://github.com/promptexecution/just-mcp) provides a
