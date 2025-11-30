@@ -19,6 +19,18 @@ impl Parameter<'_> {
   }
 }
 
+impl<'src> Keyed<'src> for Parameter<'src> {
+  fn key(&self) -> &'src str {
+    self.name.lexeme()
+  }
+}
+
+impl<'src> Keyed<'src> for &Parameter<'src> {
+  fn key(&self) -> &'src str {
+    self.name.lexeme()
+  }
+}
+
 impl ColorDisplay for Parameter<'_> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     if let Some(prefix) = self.kind.prefix() {
