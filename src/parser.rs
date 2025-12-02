@@ -1141,8 +1141,10 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.expect(ColonEquals)?;
 
     let set_value = match keyword {
-      Keyword::DotenvFilename => Some(Setting::DotenvFilename(self.parse_string_literal()?)),
-      Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_string_literal()?)),
+      Keyword::DotenvFilename => Some(Setting::DotenvFilename(
+        self.parse_string_literal_or_array()?,
+      )),
+      Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_string_literal_or_array()?)),
       Keyword::ScriptInterpreter => Some(Setting::ScriptInterpreter(self.parse_interpreter()?)),
       Keyword::Shell => Some(Setting::Shell(self.parse_interpreter()?)),
       Keyword::Tempdir => Some(Setting::Tempdir(self.parse_string_literal()?)),
@@ -1244,6 +1246,25 @@ impl<'run, 'src> Parser<'run, 'src> {
       Ok(None)
     } else {
       Ok(Some((token.unwrap(), attributes.into_keys().collect())))
+    }
+  }
+
+  fn parse_string_literal_or_array(&mut self) -> CompileResult<'src, StringLiteralOrArray<'src>> {
+    if self.accepted(BracketL)? {
+      let mut literals = Vec::new();
+
+      while !self.next_is(BracketR) {
+        literals.push(self.parse_string_literal()?);
+
+        if !self.accepted(Comma)? {
+          break;
+        }
+      }
+
+      self.expect(BracketR)?;
+      Ok(StringLiteralOrArray::Multiple(literals))
+    } else {
+      Ok(StringLiteralOrArray::Single(self.parse_string_literal()?))
     }
   }
 }

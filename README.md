@@ -1018,10 +1018,10 @@ foo:
 |------|-------|---------|-------------|
 | `allow-duplicate-recipes` | boolean | `false` | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
 | `allow-duplicate-variables` | boolean | `false` | Allow variables appearing later in a `justfile` to override earlier variables with the same name. |
-| `dotenv-filename` | string | - | Load a `.env` file with a custom name, if present. |
+| `dotenv-filename` | string or [string] | - | Load a `.env` file with a custom name, if present. If an array is supplied, files are loaded in order. |
 | `dotenv-load` | boolean | `false` | Load a `.env` file, if present. |
 | `dotenv-override` | boolean | `false` | Override existing environment variables with values from the `.env` file. |
-| `dotenv-path` | string | - | Load a `.env` file from a custom path and error if not present. Overrides `dotenv-filename`. |
+| `dotenv-path` | string or [string] | - | Load a `.env` file from a custom path and error if not present. If an array is supplied, files are loaded in order. Overrides `dotenv-filename`. |
 | `dotenv-required` | boolean | `false` | Error if a `.env` file isn't found. |
 | `export` | boolean | `false` | Export all variables as environment variables. |
 | `fallback` | boolean | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found. |
