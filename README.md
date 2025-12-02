@@ -515,28 +515,6 @@ git clone https://github.com/NoahTheDuke/vim-just.git
 [Nvim Treesitter](https://github.com/nvim-treesitter/nvim-treesitter) plugin
 for Neovim.
 
-#### Makefile Syntax Highlighting
-
-Vim's built-in makefile syntax highlighting isn't perfect for `justfile`s, but
-it's better than nothing. You can put the following in `~/.vim/filetype.vim`:
-
-```vimscript
-if exists("did_load_filetypes")
-  finish
-endif
-
-augroup filetypedetect
-  au BufNewFile,BufRead justfile setf make
-augroup END
-```
-
-Or add the following to an individual `justfile` to enable `make` mode on a
-per-file basis:
-
-```text
-# vim: set ft=make :
-```
-
 ### Emacs
 
 [just-mode](https://github.com/leon-barrett/just-mode.el) provides syntax
