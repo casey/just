@@ -26,6 +26,8 @@ pub(crate) struct Settings<'src> {
   pub(crate) tempdir: Option<String>,
   pub(crate) unstable: bool,
   pub(crate) windows_powershell: bool,
+  #[serde(skip)]
+  pub(crate) windows_script_interpreter: Option<Interpreter<'src>>,
   pub(crate) windows_shell: Option<Interpreter<'src>>,
   pub(crate) working_directory: Option<PathBuf>,
 }
@@ -86,6 +88,9 @@ impl<'src> Settings<'src> {
         }
         Setting::WindowsPowerShell(windows_powershell) => {
           settings.windows_powershell = windows_powershell;
+        }
+        Setting::WindowsScriptInterpreter(windows_script_interpreter) => {
+          settings.windows_script_interpreter = Some(windows_script_interpreter);
         }
         Setting::WindowsShell(windows_shell) => {
           settings.windows_shell = Some(windows_shell);

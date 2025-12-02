@@ -133,6 +133,8 @@ mod which_function;
 #[cfg(windows)]
 mod windows;
 #[cfg(target_family = "windows")]
+mod windows_script_interpreter;
+#[cfg(target_family = "windows")]
 mod windows_shell;
 mod working_directory;
 

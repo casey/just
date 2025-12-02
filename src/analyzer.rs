@@ -169,6 +169,10 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       unstable_features.insert(UnstableFeature::ScriptInterpreterSetting);
     }
 
+    if settings.windows_script_interpreter.is_some() {
+      unstable_features.insert(UnstableFeature::WindowsScriptInterpreterSetting);
+    }
+
     let source = root.to_owned();
     let root = paths.get(root).unwrap();
 

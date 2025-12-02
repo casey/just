@@ -317,6 +317,7 @@ impl<'src> Node<'src> for Set<'src> {
       }
       Setting::ScriptInterpreter(Interpreter { command, arguments })
       | Setting::Shell(Interpreter { command, arguments })
+      | Setting::WindowsScriptInterpreter(Interpreter { command, arguments })
       | Setting::WindowsShell(Interpreter { command, arguments }) => {
         set.push_mut(Tree::string(&command.cooked));
         for argument in arguments {
