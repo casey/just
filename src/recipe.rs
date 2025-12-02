@@ -25,6 +25,7 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) doc: Option<String>,
   #[serde(skip)]
   pub(crate) file_depth: u32,
+  pub(crate) flags: BTreeMap<String, FlagSpec<'src>>,
   #[serde(skip)]
   pub(crate) import_offsets: Vec<usize>,
   pub(crate) name: Name<'src>,
@@ -539,6 +540,14 @@ impl<D: Display> ColorDisplay for Recipe<'_, D> {
     for parameter in &self.parameters {
       write!(f, " {}", parameter.color_display(color))?;
     }
+
+    for (name, spec) in &self.flags {
+      write!(f, " --{name}")?;
+      if let Some(default) = &spec.default {
+        write!(f, "={default}")?;
+      }
+    }
+
     write!(f, ":")?;
 
     for (i, dependency) in self.dependencies.iter().enumerate() {

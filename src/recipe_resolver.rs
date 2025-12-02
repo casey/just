@@ -32,7 +32,15 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       for (i, parameter) in recipe.parameters.iter().enumerate() {
         if let Some(expression) = &parameter.default {
           for variable in expression.variables() {
-            resolver.resolve_variable(&variable, &recipe.parameters[..i])?;
+            resolver.resolve_variable(&variable, &recipe.parameters[..i], &recipe.flags)?;
+          }
+        }
+      }
+
+      for flag_spec in recipe.flags.values() {
+        if let Some(expression) = &flag_spec.default {
+          for variable in expression.variables() {
+            resolver.resolve_variable(&variable, &recipe.parameters, &recipe.flags)?;
           }
         }
       }
@@ -40,7 +48,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       for dependency in &recipe.dependencies {
         for argument in &dependency.arguments {
           for variable in argument.variables() {
-            resolver.resolve_variable(&variable, &recipe.parameters)?;
+            resolver.resolve_variable(&variable, &recipe.parameters, &recipe.flags)?;
           }
         }
       }
@@ -53,7 +61,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
         for fragment in &line.fragments {
           if let Fragment::Interpolation { expression, .. } = fragment {
             for variable in expression.variables() {
-              resolver.resolve_variable(&variable, &recipe.parameters)?;
+              resolver.resolve_variable(&variable, &recipe.parameters, &recipe.flags)?;
             }
           }
         }
@@ -67,11 +75,13 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     &self,
     variable: &Token<'src>,
     parameters: &[Parameter],
+    flags: &BTreeMap<String, FlagSpec<'src>>,
   ) -> CompileResult<'src> {
     let name = variable.lexeme();
 
     let defined = self.assignments.contains_key(name)
       || parameters.iter().any(|p| p.name.lexeme() == name)
+      || flags.contains_key(name)
       || constants().contains_key(name);
 
     if !defined {

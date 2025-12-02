@@ -323,7 +323,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     context: &ExecutionContext<'src, 'run>,
     is_dependency: bool,
     arguments: &[String],
+    flags: &BTreeMap<String, Option<String>>,
     parameters: &[Parameter<'src>],
+    recipe_flags: &BTreeMap<String, FlagSpec<'src>>,
     scope: &'run Scope<'src, 'run>,
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>)> {
     let mut evaluator = Self::new(context, is_dependency, scope);
@@ -365,6 +367,19 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         private: false,
         value,
       });
+    }
+
+    for (flag_name, flag_spec) in recipe_flags {
+      if let Some(Some(value)) = flags.get(flag_name) {
+        evaluator.scope.bind(Binding {
+          constant: false,
+          export: false,
+          file_depth: 0,
+          name: flag_spec.name,
+          private: false,
+          value: value.clone(),
+        });
+      }
     }
 
     Ok((evaluator.scope, positional))
