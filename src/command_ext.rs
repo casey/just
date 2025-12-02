@@ -1,6 +1,8 @@
 use super::*;
 
 pub(crate) trait CommandExt {
+  fn with_explicit_path(&mut self) -> &mut Command;
+
   fn export(
     &mut self,
     settings: &Settings,
@@ -19,6 +21,18 @@ pub(crate) trait CommandExt {
 }
 
 impl CommandExt for Command {
+  fn with_explicit_path(&mut self) -> &mut Command {
+    // On Windows, set child's path explicitly so that spawned executable
+    // is located on path before System32 fallback, not the other way around.
+    // https://blog.rust-lang.org/2022/01/13/Rust-1.58.0/#reduced-windows-command-search-path
+    #[cfg(windows)]
+    if let Some(path) = std::env::var_os("Path") {
+      self.env("Path", path);
+    }
+
+    self
+  }
+
   fn export(
     &mut self,
     settings: &Settings,

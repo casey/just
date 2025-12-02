@@ -93,6 +93,11 @@ path = "src/main.rs"
 name = "just"
 test = false
 
+[[bin]]
+path = "src/bin/echoargs.rs"
+name = "echoargs"
+test = false
+
 # The public documentation is minimal and doesn't change between
 # platforms, so we only build them for linux on docs.rs to save
 # their build machines some cycles.
