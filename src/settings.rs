@@ -18,6 +18,7 @@ pub(crate) struct Settings<'src> {
   pub(crate) fallback: bool,
   pub(crate) ignore_comments: bool,
   pub(crate) no_cd: bool,
+  pub(crate) no_cd_strict: bool,
   pub(crate) no_exit_message: bool,
   pub(crate) positional_arguments: bool,
   pub(crate) quiet: bool,
@@ -69,6 +70,9 @@ impl<'src> Settings<'src> {
         }
         Setting::NoCd(no_cd) => {
           settings.no_cd = no_cd;
+        }
+        Setting::NoCdStrict(no_cd_strict) => {
+          settings.no_cd_strict = no_cd_strict;
         }
         Setting::NoExitMessage(no_exit_message) => {
           settings.no_exit_message = no_exit_message;

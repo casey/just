@@ -39,8 +39,8 @@ impl<'src: 'run, 'run> ExecutionContext<'src, 'run> {
     })
   }
 
-  pub(crate) fn module_base_directory(&self) -> PathBuf {
-    if self.module.is_submodule() {
+  pub(crate) fn working_directory(&self) -> PathBuf {
+    let base = if self.module.is_submodule() {
       self
         .module
         .source
@@ -49,11 +49,7 @@ impl<'src: 'run, 'run> ExecutionContext<'src, 'run> {
         .unwrap_or_else(|| self.search.working_directory.clone())
     } else {
       self.search.working_directory.clone()
-    }
-  }
-
-  pub(crate) fn module_working_directory(&self) -> PathBuf {
-    let base = self.module_base_directory();
+    };
 
     if let Some(setting) = &self.module.settings.working_directory {
       base.join(setting)
@@ -62,11 +58,11 @@ impl<'src: 'run, 'run> ExecutionContext<'src, 'run> {
     }
   }
 
-  pub(crate) fn module_default_working_directory(&self) -> Option<PathBuf> {
-    if self.module.settings.no_cd {
-      None
+  pub(crate) fn path_working_directory(&self) -> PathBuf {
+    if self.module.settings.no_cd && self.module.settings.no_cd_strict {
+      self.config.invocation_directory.clone()
     } else {
-      Some(self.module_working_directory())
+      self.working_directory()
     }
   }
 }

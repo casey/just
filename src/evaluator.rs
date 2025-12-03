@@ -1,25 +1,13 @@
-use {super::*, std::path::Path};
+use super::*;
 
 pub(crate) struct Evaluator<'src: 'run, 'run> {
   pub(crate) assignments: Option<&'run Table<'src, Assignment<'src>>>,
   pub(crate) context: ExecutionContext<'src, 'run>,
   pub(crate) is_dependency: bool,
   pub(crate) scope: Scope<'src, 'run>,
-  pub(crate) working_directory: Option<PathBuf>,
 }
 
 impl<'src, 'run> Evaluator<'src, 'run> {
-  pub(crate) fn working_directory(&self) -> Option<&Path> {
-    self.working_directory.as_deref()
-  }
-
-  pub(crate) fn working_directory_or_invocation(&self) -> PathBuf {
-    self
-      .working_directory
-      .clone()
-      .unwrap_or_else(|| self.context.config.invocation_directory.clone())
-  }
-
   pub(crate) fn evaluate_assignments(
     config: &'run Config,
     dotenv: &'run BTreeMap<String, String>,
@@ -67,7 +55,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       assignments: Some(&module.assignments),
       scope,
       is_dependency: false,
-      working_directory: context.module_default_working_directory(),
     };
 
     for assignment in module.assignments.values() {
@@ -288,9 +275,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     cmd.arg(command).args(args);
 
-    if let Some(working_directory) = self.working_directory() {
-      cmd.current_dir(working_directory);
-    }
+    cmd.current_dir(self.context.path_working_directory());
 
     cmd
       .export(
@@ -341,9 +326,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     arguments: &[String],
     parameters: &[Parameter<'src>],
     scope: &'run Scope<'src, 'run>,
-    working_directory: Option<PathBuf>,
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>)> {
-    let mut evaluator = Self::new(context, is_dependency, scope, working_directory);
+    let mut evaluator = Self::new(context, is_dependency, scope);
 
     let mut positional = Vec::new();
 
@@ -391,14 +375,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     context: &ExecutionContext<'src, 'run>,
     is_dependency: bool,
     scope: &'run Scope<'src, 'run>,
-    working_directory: Option<PathBuf>,
   ) -> Self {
     Self {
       assignments: None,
       context: *context,
       is_dependency,
       scope: scope.child(),
-      working_directory: working_directory.or_else(|| context.module_default_working_directory()),
     }
   }
 }

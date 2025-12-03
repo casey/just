@@ -1,4 +1,4 @@
-use {super::*, std::path::Path};
+use super::*;
 
 /// Return a `Error::Signal` if the process was terminated by a signal,
 /// otherwise return an `Error::UnknownFailure`
@@ -173,11 +173,7 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
-    let module_default = context.module_default_working_directory();
-    let module_working_directory = module_default
-      .as_deref()
-      .map(Path::to_path_buf)
-      .unwrap_or_else(|| context.module_working_directory());
+    let module_working_directory = context.working_directory();
 
     for attribute in &self.attributes {
       if let Attribute::WorkingDirectory(dir) = attribute {
@@ -189,7 +185,7 @@ impl<'src, D> Recipe<'src, D> {
       return None;
     }
 
-    module_default
+    Some(module_working_directory)
   }
 
   fn no_quiet(&self) -> bool {
@@ -217,14 +213,12 @@ impl<'src, D> Recipe<'src, D> {
       }
     }
 
-    let working_directory = self.working_directory(context);
-
-    let evaluator = Evaluator::new(context, is_dependency, scope, working_directory.clone());
+    let evaluator = Evaluator::new(context, is_dependency, scope);
 
     if self.is_script() {
-      self.run_script(context, scope, positional, evaluator, working_directory)
+      self.run_script(context, scope, positional, evaluator)
     } else {
-      self.run_linewise(context, scope, positional, evaluator, working_directory)
+      self.run_linewise(context, scope, positional, evaluator)
     }
   }
 
@@ -234,7 +228,6 @@ impl<'src, D> Recipe<'src, D> {
     scope: &Scope<'src, 'run>,
     positional: &[String],
     mut evaluator: Evaluator<'src, 'run>,
-    working_directory: Option<PathBuf>,
   ) -> RunResult<'src, ()> {
     let config = &context.config;
 
@@ -316,7 +309,7 @@ impl<'src, D> Recipe<'src, D> {
 
       let mut cmd = context.module.settings.shell_command(config);
 
-      if let Some(working_directory) = working_directory.as_deref() {
+      if let Some(working_directory) = self.working_directory(context) {
         cmd.current_dir(working_directory);
       }
 
@@ -382,7 +375,6 @@ impl<'src, D> Recipe<'src, D> {
     scope: &Scope<'src, 'run>,
     positional: &[String],
     mut evaluator: Evaluator<'src, 'run>,
-    working_directory: Option<PathBuf>,
   ) -> RunResult<'src, ()> {
     let config = &context.config;
 
@@ -453,7 +445,12 @@ impl<'src, D> Recipe<'src, D> {
       io_error: error,
     })?;
 
-    let mut command = executor.command(config, &path, self.name(), working_directory.as_deref())?;
+    let mut command = executor.command(
+      config,
+      &path,
+      self.name(),
+      self.working_directory(context).as_deref(),
+    )?;
 
     if self.takes_positional_arguments(&context.module.settings) {
       command.args(positional);

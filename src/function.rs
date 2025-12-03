@@ -134,7 +134,7 @@ impl Function {
 }
 
 fn absolute_path(context: Context, path: &str) -> FunctionResult {
-  let working_directory = context.evaluator.working_directory_or_invocation();
+  let working_directory = context.evaluator.context.path_working_directory();
   let abs_path_unchecked = working_directory.join(path).lexiclean();
   match abs_path_unchecked.to_str() {
     Some(absolute_path) => Ok(absolute_path.to_owned()),
@@ -165,7 +165,8 @@ fn blake3(_context: Context, s: &str) -> FunctionResult {
 fn blake3_file(context: Context, path: &str) -> FunctionResult {
   let path = context
     .evaluator
-    .working_directory_or_invocation()
+    .context
+    .path_working_directory()
     .join(path);
   let mut hasher = blake3::Hasher::new();
   hasher
@@ -178,7 +179,8 @@ fn canonicalize(context: Context, path: &str) -> FunctionResult {
   let canonical = std::fs::canonicalize(
     context
       .evaluator
-      .working_directory_or_invocation()
+      .context
+      .path_working_directory()
       .join(path),
   )
   .map_err(|err| format!("I/O error canonicalizing path: {err}"))?;
@@ -499,7 +501,8 @@ fn path_exists(context: Context, path: &str) -> FunctionResult {
   Ok(
     context
       .evaluator
-      .working_directory_or_invocation()
+      .context
+      .path_working_directory()
       .join(path)
       .exists()
       .to_string(),
@@ -514,7 +517,8 @@ fn read(context: Context, filename: &str) -> FunctionResult {
   fs::read_to_string(
     context
       .evaluator
-      .working_directory_or_invocation()
+      .context
+      .path_working_directory()
       .join(filename),
   )
   .map_err(|err| format!("I/O error reading `{filename}`: {err}"))
@@ -549,7 +553,8 @@ fn sha256_file(context: Context, path: &str) -> FunctionResult {
   use sha2::{Digest, Sha256};
   let path = context
     .evaluator
-    .working_directory_or_invocation()
+    .context
+    .path_working_directory()
     .join(path);
   let mut hasher = Sha256::new();
   let mut file =
