@@ -1,4 +1,4 @@
-use super::*;
+use {super::*, std::path::Path};
 
 /// Return a `Error::Signal` if the process was terminated by a signal,
 /// otherwise return an `Error::UnknownFailure`
@@ -129,8 +129,19 @@ impl<'src, D> Recipe<'src, D> {
         .contains(AttributeDiscriminant::PositionalArguments)
   }
 
-  pub(crate) fn change_directory(&self) -> bool {
-    !self.attributes.contains(AttributeDiscriminant::NoCd)
+  pub(crate) fn change_directory(&self, settings: &Settings) -> bool {
+    if self
+      .attributes
+      .contains(AttributeDiscriminant::WorkingDirectory)
+    {
+      return true;
+    }
+
+    if self.attributes.contains(AttributeDiscriminant::NoCd) {
+      return false;
+    }
+
+    !settings.no_cd
   }
 
   pub(crate) fn enabled(&self) -> bool {
@@ -161,20 +172,24 @@ impl<'src, D> Recipe<'src, D> {
     }
   }
 
-  fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
-    if !self.change_directory() {
-      return None;
-    }
-
-    let working_directory = context.working_directory();
+  pub(crate) fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
+    let module_default = context.module_default_working_directory();
+    let module_working_directory = module_default
+      .as_deref()
+      .map(Path::to_path_buf)
+      .unwrap_or_else(|| context.module_working_directory());
 
     for attribute in &self.attributes {
       if let Attribute::WorkingDirectory(dir) = attribute {
-        return Some(working_directory.join(&dir.cooked));
+        return Some(module_working_directory.join(&dir.cooked));
       }
     }
 
-    Some(working_directory)
+    if !self.change_directory(&context.module.settings) {
+      return None;
+    }
+
+    module_default
   }
 
   fn no_quiet(&self) -> bool {
@@ -202,12 +217,14 @@ impl<'src, D> Recipe<'src, D> {
       }
     }
 
-    let evaluator = Evaluator::new(context, is_dependency, scope);
+    let working_directory = self.working_directory(context);
+
+    let evaluator = Evaluator::new(context, is_dependency, scope, working_directory.clone());
 
     if self.is_script() {
-      self.run_script(context, scope, positional, evaluator)
+      self.run_script(context, scope, positional, evaluator, working_directory)
     } else {
-      self.run_linewise(context, scope, positional, evaluator)
+      self.run_linewise(context, scope, positional, evaluator, working_directory)
     }
   }
 
@@ -217,6 +234,7 @@ impl<'src, D> Recipe<'src, D> {
     scope: &Scope<'src, 'run>,
     positional: &[String],
     mut evaluator: Evaluator<'src, 'run>,
+    working_directory: Option<PathBuf>,
   ) -> RunResult<'src, ()> {
     let config = &context.config;
 
@@ -298,7 +316,7 @@ impl<'src, D> Recipe<'src, D> {
 
       let mut cmd = context.module.settings.shell_command(config);
 
-      if let Some(working_directory) = self.working_directory(context) {
+      if let Some(working_directory) = working_directory.as_deref() {
         cmd.current_dir(working_directory);
       }
 
@@ -364,6 +382,7 @@ impl<'src, D> Recipe<'src, D> {
     scope: &Scope<'src, 'run>,
     positional: &[String],
     mut evaluator: Evaluator<'src, 'run>,
+    working_directory: Option<PathBuf>,
   ) -> RunResult<'src, ()> {
     let config = &context.config;
 
@@ -434,12 +453,7 @@ impl<'src, D> Recipe<'src, D> {
       io_error: error,
     })?;
 
-    let mut command = executor.command(
-      config,
-      &path,
-      self.name(),
-      self.working_directory(context).as_deref(),
-    )?;
+    let mut command = executor.command(config, &path, self.name(), working_directory.as_deref())?;
 
     if self.takes_positional_arguments(&context.module.settings) {
       command.args(positional);

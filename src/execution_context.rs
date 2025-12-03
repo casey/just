@@ -39,17 +39,34 @@ impl<'src: 'run, 'run> ExecutionContext<'src, 'run> {
     })
   }
 
-  pub(crate) fn working_directory(&self) -> PathBuf {
-    let base = if self.module.is_submodule() {
-      &self.module.working_directory
+  pub(crate) fn module_base_directory(&self) -> PathBuf {
+    if self.module.is_submodule() {
+      self
+        .module
+        .source
+        .parent()
+        .map(Path::to_path_buf)
+        .unwrap_or_else(|| self.search.working_directory.clone())
     } else {
-      &self.search.working_directory
-    };
+      self.search.working_directory.clone()
+    }
+  }
+
+  pub(crate) fn module_working_directory(&self) -> PathBuf {
+    let base = self.module_base_directory();
 
     if let Some(setting) = &self.module.settings.working_directory {
       base.join(setting)
     } else {
-      base.into()
+      base
+    }
+  }
+
+  pub(crate) fn module_default_working_directory(&self) -> Option<PathBuf> {
+    if self.module.settings.no_cd {
+      None
+    } else {
+      Some(self.module_working_directory())
     }
   }
 }

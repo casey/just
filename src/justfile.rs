@@ -343,17 +343,20 @@ impl<'src> Justfile<'src> {
       search,
     };
 
+    let recipe_working_directory = recipe.working_directory(&context);
+
     let (outer, positional) = Evaluator::evaluate_parameters(
       &context,
       is_dependency,
       arguments,
       &recipe.parameters,
       scope,
+      recipe_working_directory.clone(),
     )?;
 
     let scope = outer.child();
 
-    let mut evaluator = Evaluator::new(&context, true, &scope);
+    let mut evaluator = Evaluator::new(&context, true, &scope, recipe_working_directory.clone());
 
     Self::run_dependencies(
       config,

@@ -24,8 +24,7 @@ pub(crate) fn which(context: function::Context, name: &str) -> Result<Option<Str
       // relative to the working directory of the just invocation.
       candidate = context
         .evaluator
-        .context
-        .working_directory()
+        .working_directory_or_invocation()
         .join(candidate);
     }
 
