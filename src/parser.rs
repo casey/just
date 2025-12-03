@@ -1336,6 +1336,8 @@ impl<'run, 'src> Parser<'run, 'src> {
       Keyword::Export => Some(Setting::Export(self.parse_set_bool()?)),
       Keyword::Fallback => Some(Setting::Fallback(self.parse_set_bool()?)),
       Keyword::IgnoreComments => Some(Setting::IgnoreComments(self.parse_set_bool()?)),
+      Keyword::NoCd => Some(Setting::NoCd(self.parse_set_bool()?)),
+      Keyword::NoCdStrict => Some(Setting::NoCdStrict(self.parse_set_bool()?)),
       Keyword::NoExitMessage => Some(Setting::NoExitMessage(self.parse_set_bool()?)),
       Keyword::PositionalArguments => Some(Setting::PositionalArguments(self.parse_set_bool()?)),
       Keyword::Quiet => Some(Setting::Quiet(self.parse_set_bool()?)),
@@ -2538,6 +2540,18 @@ mod tests {
     name: set_quiet_false,
     text: "set quiet := false",
     tree: (justfile (set quiet false)),
+  }
+
+  test! {
+    name: set_no_cd,
+    text: "set no-cd := true",
+    tree: (justfile (set no_cd true)),
+  }
+
+  test! {
+    name: set_no_cd_strict,
+    text: "set no-cd-strict := true",
+    tree: (justfile (set no_cd_strict true)),
   }
 
   test! {

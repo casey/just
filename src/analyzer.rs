@@ -333,6 +333,30 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       }));
     }
 
+    if let Some(keyword) = Keyword::from_lexeme(set.name.lexeme()) {
+      match keyword {
+        Keyword::NoCd => {
+          if let Some(conflict) = self.sets.get(Keyword::WorkingDirectory.lexeme()) {
+            return Err(set.name.error(NoCdAndWorkingDirectorySetting {
+              first: Keyword::WorkingDirectory,
+              first_line: conflict.name.line,
+              second: keyword,
+            }));
+          }
+        }
+        Keyword::WorkingDirectory => {
+          if let Some(conflict) = self.sets.get(Keyword::NoCd.lexeme()) {
+            return Err(set.name.error(NoCdAndWorkingDirectorySetting {
+              first: Keyword::NoCd,
+              first_line: conflict.name.line,
+              second: keyword,
+            }));
+          }
+        }
+        _ => {}
+      }
+    }
+
     Ok(())
   }
 
