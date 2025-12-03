@@ -273,10 +273,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       .settings
       .shell_command(self.context.config);
 
+    cmd.arg(command).args(args);
+
+    cmd.current_dir(self.context.path_working_directory());
+
     cmd
-      .arg(command)
-      .args(args)
-      .current_dir(self.context.working_directory())
       .export(
         &self.context.module.settings,
         self.context.dotenv,

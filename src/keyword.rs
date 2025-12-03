@@ -20,6 +20,8 @@ pub(crate) enum Keyword {
   IgnoreComments,
   Import,
   Mod,
+  NoCd,
+  NoCdStrict,
   NoExitMessage,
   PositionalArguments,
   Quiet,

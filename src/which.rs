@@ -25,7 +25,7 @@ pub(crate) fn which(context: function::Context, name: &str) -> Result<Option<Str
       candidate = context
         .evaluator
         .context
-        .working_directory()
+        .path_working_directory()
         .join(candidate);
     }
 
