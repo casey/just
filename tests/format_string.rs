@@ -168,7 +168,7 @@ fn escaped_delimiter_is_ignored_in_normal_strings() {
 }
 
 #[test]
-fn esacped_delimiter_in_single_quoted_format_string() {
+fn escaped_delimiter_in_single_quoted_format_string() {
   Test::new()
     .justfile(
       r"
