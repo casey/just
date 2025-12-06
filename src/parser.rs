@@ -711,7 +711,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   // Check if the next tokens are a format string, i.e., `f"foo"`.
   //
   // This function skips initial whitespace tokens, but thereafter is
-  // whitespace-sensitive, so `f"foo"` is a shell-expanded string, whereas `f
+  // whitespace-sensitive, so `f"foo"` is a format string, whereas `f
   // "foo"` is not.
   fn next_is_format_string(&self) -> bool {
     let mut tokens = self
