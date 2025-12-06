@@ -113,7 +113,7 @@ fn dependency_continuation() {
 }
 
 #[test]
-fn no_interpolation_continuation() {
+fn interpolation_continuation() {
   Test::new()
     .justfile(
       "
@@ -131,6 +131,7 @@ fn no_interpolation_continuation() {
       │        ^^
   ",
     )
-    .status(EXIT_FAILURE)
+    .stderr("echo ab\n")
+    .stdout("ab\n")
     .run();
 }

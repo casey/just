@@ -530,18 +530,17 @@ impl<'src> Lexer<'src> {
     interpolation_start: Token<'src>,
     start: char,
   ) -> CompileResult<'src> {
-    if self.rest_starts_with("}}") {
+    if self.open_delimiters.is_empty() && self.rest_starts_with("}}") {
       // end current interpolation
       if self.interpolation_stack.pop().is_none() {
-        self.advance()?;
-        self.advance()?;
+        self.presume_str("}}")?;
         return Err(self.internal_error(
           "Lexer::lex_interpolation found `}}` but was called with empty interpolation stack.",
         ));
       }
       // Emit interpolation end token
       self.lex_double(InterpolationEnd)
-    } else if self.at_eol_or_eof() {
+    } else if self.open_delimiters.is_empty() && self.at_eof() {
       // Return unterminated interpolation error that highlights the opening
       // {{
       Err(Self::unterminated_interpolation_error(interpolation_start))
@@ -794,9 +793,9 @@ impl<'src> Lexer<'src> {
       self.presume('\n')?;
     }
 
-    // Emit an eol if there are no open delimiters, otherwise emit a whitespace
-    // token.
-    if self.open_delimiters() {
+    // Emit an eol if there are no open delimiters and we are not in an
+    // interpolation, otherwise emit a whitespace token.
+    if self.open_delimiters() || !self.interpolation_stack.is_empty() {
       self.token(Whitespace);
     } else {
       self.token(Eol);
@@ -1085,6 +1084,7 @@ mod tests {
     };
   }
 
+  #[track_caller]
   fn error(
     src: &str,
     offset: usize,
@@ -2423,6 +2423,20 @@ mod tests {
     width:  0,
     kind:   UnexpectedEndOfToken {
       expected: vec!['=', '~'],
+    },
+  }
+
+  error! {
+    name:   unclosed_parenthesis_in_interpolation,
+    input:  "a:\n echo {{foo(}}",
+    offset:  15,
+    line:   1,
+    column: 12,
+    width:  0,
+    kind:   MismatchedClosingDelimiter {
+      close: Delimiter::Brace,
+      open: Delimiter::Paren,
+      open_line: 1,
     },
   }
 
