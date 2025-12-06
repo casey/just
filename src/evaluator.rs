@@ -205,6 +205,20 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           self.evaluate_expression(otherwise)
         }
       }
+      Expression::FormatString { start, expressions } => {
+        let mut value = start.cooked.clone();
+
+        for (expression, string) in expressions {
+          value.push_str(&self.evaluate_expression(expression)?);
+          value.push_str(&string.cooked);
+        }
+
+        if start.kind.indented {
+          Ok(unindent(&value))
+        } else {
+          Ok(value)
+        }
+      }
       Expression::Group { contents } => self.evaluate_expression(contents),
       Expression::Join { lhs: None, rhs } => Ok("/".to_string() + &self.evaluate_expression(rhs)?),
       Expression::Join {

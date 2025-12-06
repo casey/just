@@ -14,6 +14,7 @@ pub(crate) enum Keyword {
   DotenvRequired,
   Else,
   Export,
+  F,
   Fallback,
   False,
   If,

@@ -92,6 +92,11 @@ impl<'src> Iterator for Variables<'_, 'src> {
           self.stack.push(rhs);
           self.stack.push(lhs);
         }
+        Expression::FormatString { expressions, .. } => {
+          for (expression, _string) in expressions {
+            self.stack.push(expression);
+          }
+        }
         Expression::Group { contents } => {
           self.stack.push(contents);
         }

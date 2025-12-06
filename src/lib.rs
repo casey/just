@@ -39,6 +39,7 @@ pub(crate) use {
     execution_context::ExecutionContext,
     executor::Executor,
     expression::Expression,
+    format_string_part::FormatStringPart,
     fragment::Fragment,
     function::Function,
     interpreter::Interpreter,
@@ -215,6 +216,7 @@ mod evaluator;
 mod execution_context;
 mod executor;
 mod expression;
+mod format_string_part;
 mod fragment;
 mod function;
 mod interpreter;

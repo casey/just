@@ -36,6 +36,11 @@ pub(crate) enum Expression<'src> {
     then: Box<Expression<'src>>,
     otherwise: Box<Expression<'src>>,
   },
+  // `f"format string"`
+  FormatString {
+    start: StringLiteral<'src>,
+    expressions: Vec<(Expression<'src>, StringLiteral<'src>)>,
+  },
   /// `(contents)`
   Group { contents: Box<Expression<'src>> },
   /// `lhs / rhs`
@@ -78,6 +83,15 @@ impl Display for Expression<'_> {
         } else {
           write!(f, "if {condition} {{ {then} }} else {{ {otherwise} }}")
         }
+      }
+      Self::FormatString { start, expressions } => {
+        write!(f, "{start}")?;
+
+        for (expression, string) in expressions {
+          write!(f, "{expression}{string}")?;
+        }
+
+        Ok(())
       }
       Self::Group { contents } => write!(f, "({contents})"),
       Self::Join { lhs: None, rhs } => write!(f, "/ {rhs}"),
@@ -136,6 +150,16 @@ impl Serialize for Expression<'_> {
         seq.serialize_element(condition)?;
         seq.serialize_element(then)?;
         seq.serialize_element(otherwise)?;
+        seq.end()
+      }
+      Self::FormatString { start, expressions } => {
+        let mut seq = serializer.serialize_seq(None)?;
+        seq.serialize_element("format")?;
+        seq.serialize_element(start)?;
+        for (expression, string) in expressions {
+          seq.serialize_element(expression)?;
+          seq.serialize_element(string)?;
+        }
         seq.end()
       }
       Self::Group { contents } => contents.serialize(serializer),

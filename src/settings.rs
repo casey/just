@@ -223,16 +223,18 @@ mod tests {
     let settings = Settings {
       shell: Some(Interpreter {
         command: StringLiteral {
-          kind: StringKind::from_token_start("\"").unwrap(),
-          raw: "asdf.exe",
           cooked: "asdf.exe".to_string(),
           expand: false,
+          kind: StringKind::from_token_start("\"").unwrap(),
+          part: None,
+          raw: "asdf.exe",
         },
         arguments: vec![StringLiteral {
-          kind: StringKind::from_token_start("\"").unwrap(),
-          raw: "-nope",
           cooked: "-nope".to_string(),
           expand: false,
+          kind: StringKind::from_token_start("\"").unwrap(),
+          part: None,
+          raw: "-nope",
         }],
       }),
       ..Default::default()
