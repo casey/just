@@ -1411,6 +1411,7 @@ mod tests {
     };
   }
 
+  #[track_caller]
   fn error(
     src: &str,
     offset: usize,
@@ -2717,26 +2718,6 @@ mod tests {
         StringToken,
       ],
       found: Eof,
-    },
-  }
-
-  error! {
-    name:   unclosed_parenthesis_in_interpolation,
-    input:  "a:\n echo {{foo(}}",
-    offset:  15,
-    line:   1,
-    column: 12,
-    width:  2,
-    kind:   UnexpectedToken{
-      expected: vec![
-        Backtick,
-        Identifier,
-        ParenL,
-        ParenR,
-        Slash,
-        StringToken,
-      ],
-      found: InterpolationEnd,
     },
   }
 

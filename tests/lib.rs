@@ -83,6 +83,7 @@ mod groups;
 mod ignore_comments;
 mod imports;
 mod init;
+mod interpolation;
 mod invocation_directory;
 mod json;
 mod line_prefixes;

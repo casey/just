@@ -113,7 +113,7 @@ fn dependency_continuation() {
 }
 
 #[test]
-fn no_interpolation_continuation() {
+fn interpolation_continuation() {
   Test::new()
     .justfile(
       "
@@ -122,15 +122,7 @@ fn no_interpolation_continuation() {
         'a' + 'b')}}
   ",
     )
-    .stderr(
-      "
-    error: Unterminated interpolation
-     ——▶ justfile:2:8
-      │
-    2 │   echo {{ (
-      │        ^^
-  ",
-    )
-    .status(EXIT_FAILURE)
+    .stderr("echo ab\n")
+    .stdout("ab\n")
     .run();
 }

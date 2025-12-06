@@ -351,6 +351,18 @@ impl<'src> Lexer<'src> {
 
     let whitespace = &self.rest()[..nonblank_index];
 
+    if self.open_delimiters_or_interpolation() {
+      if !whitespace.is_empty() {
+        while self.next_is_whitespace() {
+          self.advance()?;
+        }
+
+        self.token(Whitespace);
+      }
+
+      return Ok(());
+    }
+
     let body_whitespace = &whitespace[..whitespace
       .char_indices()
       .take(self.indentation().chars().count())
@@ -454,15 +466,11 @@ impl<'src> Lexer<'src> {
           self.advance()?;
         }
 
-        if self.open_delimiters() {
-          self.token(Whitespace);
-        } else {
-          let indentation = self.lexeme();
-          self.indentation.push(indentation);
-          self.token(Indent);
-          if self.recipe_body_pending {
-            self.recipe_body = true;
-          }
+        let indentation = self.lexeme();
+        self.indentation.push(indentation);
+        self.token(Indent);
+        if self.recipe_body_pending {
+          self.recipe_body = true;
         }
 
         Ok(())
@@ -530,18 +538,17 @@ impl<'src> Lexer<'src> {
     interpolation_start: Token<'src>,
     start: char,
   ) -> CompileResult<'src> {
-    if self.rest_starts_with("}}") {
+    if self.rest_starts_with("}}") && self.open_delimiters.is_empty() {
       // end current interpolation
       if self.interpolation_stack.pop().is_none() {
-        self.advance()?;
-        self.advance()?;
+        self.presume_str("}}")?;
         return Err(self.internal_error(
           "Lexer::lex_interpolation found `}}` but was called with empty interpolation stack.",
         ));
       }
       // Emit interpolation end token
       self.lex_double(InterpolationEnd)
-    } else if self.at_eol_or_eof() {
+    } else if self.at_eof() && self.open_delimiters.is_empty() {
       // Return unterminated interpolation error that highlights the opening
       // {{
       Err(Self::unterminated_interpolation_error(interpolation_start))
@@ -712,8 +719,8 @@ impl<'src> Lexer<'src> {
   }
 
   /// Return true if there are any unclosed delimiters
-  fn open_delimiters(&self) -> bool {
-    !self.open_delimiters.is_empty()
+  fn open_delimiters_or_interpolation(&self) -> bool {
+    !self.open_delimiters.is_empty() || !self.interpolation_stack.is_empty()
   }
 
   /// Lex a two-character digraph
@@ -794,9 +801,8 @@ impl<'src> Lexer<'src> {
       self.presume('\n')?;
     }
 
-    // Emit an eol if there are no open delimiters, otherwise emit a whitespace
-    // token.
-    if self.open_delimiters() {
+    // Emit eol if there are no open delimiters, otherwise emit whitespace.
+    if self.open_delimiters_or_interpolation() {
       self.token(Whitespace);
     } else {
       self.token(Eol);
@@ -1085,6 +1091,7 @@ mod tests {
     };
   }
 
+  #[track_caller]
   fn error(
     src: &str,
     offset: usize,
@@ -2423,6 +2430,20 @@ mod tests {
     width:  0,
     kind:   UnexpectedEndOfToken {
       expected: vec!['=', '~'],
+    },
+  }
+
+  error! {
+    name:   unclosed_parenthesis_in_interpolation,
+    input:  "a:\n echo {{foo(}}",
+    offset:  15,
+    line:   1,
+    column: 12,
+    width:  0,
+    kind:   MismatchedClosingDelimiter {
+      close: Delimiter::Brace,
+      open: Delimiter::Paren,
+      open_line: 1,
     },
   }
 

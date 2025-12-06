@@ -2418,9 +2418,6 @@ bar foo:
   echo {{ if foo == "bar" { "hello" } else { "goodbye" } }}
 ```
 
-Note the space after the final `}`! Without the space, the interpolation will
-be prematurely closed.
-
 Multiple conditionals can be chained:
 
 ```just
