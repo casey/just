@@ -122,15 +122,6 @@ fn interpolation_continuation() {
         'a' + 'b')}}
   ",
     )
-    .stderr(
-      "
-    error: Unterminated interpolation
-     ——▶ justfile:2:8
-      │
-    2 │   echo {{ (
-      │        ^^
-  ",
-    )
     .stderr("echo ab\n")
     .stdout("ab\n")
     .run();

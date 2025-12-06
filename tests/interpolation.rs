@@ -55,3 +55,52 @@ fn comment_in_interopolation() {
     .status(EXIT_FAILURE)
     .run();
 }
+
+#[test]
+fn indent_and_dedent_are_ignored_in_interpolation() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          echo {{
+            'a'
+        + 'b'
+               + 'c'
+          }}
+          echo foo
+      ",
+    )
+    .stderr("echo abc\necho foo\n")
+    .stdout("abc\nfoo\n")
+    .run();
+}
+
+#[test]
+fn shebang_line_numbers_are_correct_with_multi_line_interpolations() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          #!/usr/bin/env cat
+          echo {{
+            'a'
+        + 'b'
+               + 'c'
+          }}
+          echo foo
+      ",
+    )
+    .stdout(
+      "
+        #!/usr/bin/env cat
+
+        echo abc
+
+
+
+
+        echo foo
+      ",
+    )
+    .run();
+}

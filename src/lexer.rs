@@ -351,6 +351,18 @@ impl<'src> Lexer<'src> {
 
     let whitespace = &self.rest()[..nonblank_index];
 
+    if self.open_delimiters() {
+      if !whitespace.is_empty() {
+        while self.next_is_whitespace() {
+          self.advance()?;
+        }
+
+        self.token(Whitespace);
+      }
+
+      return Ok(());
+    }
+
     let body_whitespace = &whitespace[..whitespace
       .char_indices()
       .take(self.indentation().chars().count())
@@ -454,15 +466,11 @@ impl<'src> Lexer<'src> {
           self.advance()?;
         }
 
-        if self.open_delimiters() {
-          self.token(Whitespace);
-        } else {
-          let indentation = self.lexeme();
-          self.indentation.push(indentation);
-          self.token(Indent);
-          if self.recipe_body_pending {
-            self.recipe_body = true;
-          }
+        let indentation = self.lexeme();
+        self.indentation.push(indentation);
+        self.token(Indent);
+        if self.recipe_body_pending {
+          self.recipe_body = true;
         }
 
         Ok(())
@@ -712,7 +720,7 @@ impl<'src> Lexer<'src> {
 
   /// Return true if there are any unclosed delimiters
   fn open_delimiters(&self) -> bool {
-    !self.open_delimiters.is_empty()
+    !self.open_delimiters.is_empty() || !self.interpolation_stack.is_empty()
   }
 
   /// Lex a two-character digraph
@@ -793,9 +801,8 @@ impl<'src> Lexer<'src> {
       self.presume('\n')?;
     }
 
-    // Emit an eol if there are no open delimiters and we are not in an
-    // interpolation, otherwise emit a whitespace token.
-    if self.open_delimiters() || !self.interpolation_stack.is_empty() {
+    // Emit an eol if there are no open delimiters, otherwise emit a whitespace token.
+    if self.open_delimiters() {
       self.token(Whitespace);
     } else {
       self.token(Eol);
