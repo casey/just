@@ -241,10 +241,6 @@ impl Display for CompileError<'_> {
           )
         }
       }
-      ShebangAndScriptAttribute { recipe } => write!(
-        f,
-        "Recipe `{recipe}` has both shebang line and `[script]` attribute"
-      ),
       ShellExpansion { err } => write!(f, "Shell expansion failed: {err}"),
       RequiredParameterFollowsDefaultParameter { parameter } => write!(
         f,

@@ -1089,12 +1089,6 @@ impl<'run, 'src> Parser<'run, 'src> {
     let shebang = body.first().is_some_and(Line::is_shebang);
     let script = attributes.contains(AttributeDiscriminant::Script);
 
-    if shebang && script {
-      return Err(name.error(CompileErrorKind::ShebangAndScriptAttribute {
-        recipe: name.lexeme(),
-      }));
-    }
-
     if attributes.contains(AttributeDiscriminant::WorkingDirectory)
       && attributes.contains(AttributeDiscriminant::NoCd)
     {
