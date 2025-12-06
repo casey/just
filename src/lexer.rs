@@ -801,7 +801,7 @@ impl<'src> Lexer<'src> {
       self.presume('\n')?;
     }
 
-    // Emit an eol if there are no open delimiters, otherwise emit a whitespace token.
+    // Emit eol if there are no open delimiters, otherwise emit whitespace.
     if self.open_delimiters_or_interpolation() {
       self.token(Whitespace);
     } else {
