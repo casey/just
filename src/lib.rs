@@ -13,7 +13,7 @@ pub(crate) use {
     assignment::Assignment,
     assignment_resolver::AssignmentResolver,
     ast::Ast,
-    attribute::{attribute::AttributeDiscriminant, Attribute},
+    attribute::{Attribute, AttributeDiscriminant},
     attribute_set::AttributeSet,
     binding::Binding,
     color::Color,
