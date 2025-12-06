@@ -188,6 +188,15 @@ impl<'src> Node<'src> for Expression<'src> {
         tree.push_mut(otherwise.tree());
         tree
       }
+      Self::FormatString { start, expressions } => {
+        let mut tree = Tree::atom("format");
+        tree.push_mut(Tree::string(&start.cooked));
+        for (expression, string) in expressions {
+          tree.push_mut(expression.tree());
+          tree.push_mut(Tree::string(&string.cooked));
+        }
+        tree
+      }
       Self::Group { contents } => Tree::List(vec![contents.tree()]),
       Self::Join { lhs: None, rhs } => Tree::atom("/").push(rhs.tree()),
       Self::Join {

@@ -5,6 +5,7 @@ pub(crate) struct StringLiteral<'src> {
   pub(crate) cooked: String,
   pub(crate) expand: bool,
   pub(crate) kind: StringKind,
+  pub(crate) part: Option<FormatStringPart>,
   pub(crate) raw: &'src str,
 }
 
@@ -17,6 +18,7 @@ impl<'src> StringLiteral<'src> {
         delimiter: StringDelimiter::QuoteSingle,
         indented: false,
       },
+      part: None,
       raw,
     }
   }
@@ -28,13 +30,29 @@ impl Display for StringLiteral<'_> {
       write!(f, "x")?;
     }
 
-    write!(
-      f,
-      "{}{}{}",
-      self.kind.delimiter(),
-      self.raw,
+    if let Some(FormatStringPart::Start | FormatStringPart::Single) = self.part {
+      write!(f, "f")?;
+    }
+
+    let open = if matches!(
+      self.part,
+      Some(FormatStringPart::Continue | FormatStringPart::End)
+    ) {
+      "}"
+    } else {
       self.kind.delimiter()
-    )
+    };
+
+    let close = if matches!(
+      self.part,
+      Some(FormatStringPart::Start | FormatStringPart::Continue)
+    ) {
+      "{"
+    } else {
+      self.kind.delimiter()
+    };
+
+    write!(f, "{open}{}{close}", self.raw)
   }
 }
 

@@ -809,7 +809,6 @@ mod tests {
     let justfile = compile(input);
     let actual = format!("{}", justfile.color_display(Color::never()));
     assert_eq!(actual, expected);
-    println!("Re-parsing...");
     let reparsed = compile(&actual);
     let redumped = format!("{}", reparsed.color_display(Color::never()));
     assert_eq!(redumped, actual);

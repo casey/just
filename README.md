@@ -1580,6 +1580,8 @@ sequence processing takes place after unindentation. The unindentation
 algorithm does not take escape-sequence produced whitespace or newlines into
 account.
 
+#### Shell-expanded strings
+
 Strings prefixed with `x` are shell expanded<sup>1.27.0</sup>:
 
 ```justfile
@@ -1598,6 +1600,25 @@ This expansion is performed at compile time, so variables from `.env` files and
 exported `just` variables cannot be used. However, this allows shell expanded
 strings to be used in places like settings and import paths, which cannot
 depend on `just` variables and `.env` files.
+
+#### Format strings
+
+Strings prefixed with `f` are format strings<sup>master</sup>:
+
+```justfile
+name := "world"
+message := f'Hello, {name}!'
+```
+
+Format strings may contain interpolations delimited with `{…}` that contain
+expressions. Format strings evaluate to the concatenated string fragments and
+evaluated expressions.
+
+Use `{{` to include a literal `{` in a format string:
+
+```justfile
+foo := f'I {{LOVE} curly braces!'
+```
 
 ### Ignoring Errors
 

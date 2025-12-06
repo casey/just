@@ -191,13 +191,13 @@ impl<'src> Lexer<'src> {
   /// and `self.token_end`
   fn token(&mut self, kind: TokenKind) {
     self.tokens.push(Token {
-      offset: self.token_start.offset,
       column: self.token_start.column,
-      line: self.token_start.line,
-      src: self.src,
-      length: self.token_end.offset - self.token_start.offset,
       kind,
+      length: self.token_end.offset - self.token_start.offset,
+      line: self.token_start.line,
+      offset: self.token_start.offset,
       path: self.path,
+      src: self.src,
     });
 
     // Set `token_start` to point after the lexed token
@@ -498,10 +498,24 @@ impl<'src> Lexer<'src> {
       '\n' | '\r' => self.lex_eol(),
       '\u{feff}' => self.lex_single(ByteOrderMark),
       ']' => self.lex_delimiter(BracketR),
-      '`' | '"' | '\'' => self.lex_string(),
+      '`' | '"' | '\'' => self.lex_string(None),
       '{' => self.lex_delimiter(BraceL),
       '|' => self.lex_digraph('|', '|', BarBar),
-      '}' => self.lex_delimiter(BraceR),
+      '}' => {
+        let format_string_kind = self.open_delimiters.last().and_then(|(delimiter, _line)| {
+          if let Delimiter::FormatString(kind) = delimiter {
+            Some(kind)
+          } else {
+            None
+          }
+        });
+
+        if let Some(format_string_kind) = format_string_kind {
+          self.lex_string(Some(*format_string_kind))
+        } else {
+          self.lex_delimiter(BraceR)
+        }
+      }
       _ if Self::is_identifier_start(start) => self.lex_identifier(),
       _ => {
         self.advance()?;
@@ -837,32 +851,72 @@ impl<'src> Lexer<'src> {
   /// Backtick:      ``[^`]*``
   /// Cooked string: "[^"]*" # also processes escape sequences
   /// Raw string:    '[^']*'
-  fn lex_string(&mut self) -> CompileResult<'src> {
-    let Some(kind) = StringKind::from_token_start(self.rest()) else {
-      self.advance()?;
-      return Err(self.internal_error("Lexer::lex_string: invalid string start"));
+  fn lex_string(&mut self, format_string_kind: Option<StringKind>) -> CompileResult<'src> {
+    let format = format_string_kind.is_some()
+      || self
+        .tokens
+        .last()
+        .is_some_and(|token| token.kind == TokenKind::Identifier && token.lexeme() == "f");
+
+    let kind = if let Some(kind) = format_string_kind {
+      self.presume_str("}")?;
+      kind
+    } else {
+      let Some(kind) = StringKind::from_token_start(self.rest()) else {
+        self.advance()?;
+        return Err(self.internal_error("Lexer::lex_string: invalid string start"));
+      };
+      self.presume_str(kind.delimiter())?;
+      kind
     };
 
-    self.presume_str(kind.delimiter())?;
-
     let mut escape = false;
+    let mut unicode = false;
 
     loop {
       if self.next.is_none() {
         return Err(self.error(kind.unterminated_error_kind()));
-      } else if kind.processes_escape_sequences() && self.next_is('\\') && !escape {
+      } else if !escape && kind.processes_escape_sequences() && self.next_is('\\') {
         escape = true;
-      } else if self.rest_starts_with(kind.delimiter()) && !escape {
+        unicode = false;
+      } else if escape && kind.processes_escape_sequences() && self.next_is('u') {
+        escape = false;
+        unicode = true;
+      } else if format && self.rest_starts_with("{{") {
+        escape = false;
+        unicode = false;
+        self.advance()?;
+      } else if !escape
+        && (self.rest_starts_with(kind.delimiter())
+          || format && !unicode && self.rest_starts_with("{"))
+      {
         break;
       } else {
         escape = false;
+        unicode = false;
       }
 
       self.advance()?;
     }
 
-    self.presume_str(kind.delimiter())?;
-    self.token(kind.token_kind());
+    if format && self.rest_starts_with("{") {
+      self.presume_str("{")?;
+      self.token(if format_string_kind.is_some() {
+        FormatStringContinue
+      } else {
+        FormatStringStart
+      });
+      self.open_delimiter(Delimiter::FormatString(kind));
+    } else {
+      self.presume_str(kind.delimiter())?;
+
+      if let Some(format_string_kind) = format_string_kind {
+        self.close_delimiter(Delimiter::FormatString(format_string_kind))?;
+        self.token(FormatStringEnd);
+      } else {
+        self.token(kind.token_kind());
+      }
+    }
 
     Ok(())
   }
@@ -919,6 +973,7 @@ mod tests {
     }
   }
 
+  #[track_caller]
   fn test(text: &str, unindent_text: bool, want_kinds: &[TokenKind], want_lexemes: &[&str]) {
     let text = if unindent_text {
       unindent(text)
@@ -1006,7 +1061,8 @@ mod tests {
       Dedent | Eof => "",
 
       // Variable lexemes
-      Text | StringToken | Backtick | Identifier | Comment | Unspecified => {
+      Backtick | Comment | FormatStringContinue | FormatStringEnd | FormatStringStart
+      | Identifier | StringToken | Text | Unspecified => {
         panic!("Token {kind:?} has no default lexeme")
       }
     }
@@ -2086,6 +2142,58 @@ mod tests {
       BracketL, Whitespace:"\n", BracketR,
       ParenL, Whitespace:"\n", ParenR,
       BraceL, Whitespace:"\n", BraceR
+    ),
+  }
+
+  test! {
+    name:   format_string_empty,
+    text:   "f''",
+    tokens: (
+      Identifier: "f",
+      StringToken: "''",
+    ),
+  }
+
+  test! {
+    name:   format_string_identifier,
+    text:   "f'{foo}'",
+    tokens: (
+      Identifier: "f",
+      FormatStringStart: "'{",
+      Identifier: "foo",
+      FormatStringEnd: "}'",
+    ),
+  }
+
+  test! {
+    name:   format_string_continue,
+    text:   "f'{foo}bar{baz}'",
+    tokens: (
+      Identifier: "f",
+      FormatStringStart: "'{",
+      Identifier: "foo",
+      FormatStringContinue: "}bar{",
+      Identifier: "baz",
+      FormatStringEnd: "}'",
+    ),
+  }
+
+  test! {
+    name:   format_string_whitespace,
+    text:   "f '{foo}'",
+    tokens: (
+      Identifier: "f",
+      Whitespace,
+      StringToken: "'{foo}'",
+    ),
+  }
+
+  test! {
+    name:   format_string_wrong_identifier,
+    text:   "g'{foo}'",
+    tokens: (
+      Identifier: "g",
+      StringToken: "'{foo}'",
     ),
   }
 
