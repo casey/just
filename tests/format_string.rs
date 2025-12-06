@@ -216,7 +216,7 @@ fn double_quotes_process_escapes() {
 }
 
 #[test]
-fn single_quotes_does_not_process_escapes() {
+fn single_quotes_do_not_process_escapes() {
   Test::new()
     .justfile(
       r#"
