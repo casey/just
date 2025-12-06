@@ -285,3 +285,24 @@ fn dump() {
   case("f'''{'a'}b{'c'}d'''");
   case(r#"f"""{'a'}b{'c'}d""""#);
 }
+
+#[test]
+fn undefined_variable_error() {
+  Test::new()
+    .justfile(
+      "
+        foo := f'{bar}'
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .stderr(
+      "
+        error: Variable `bar` not defined
+         ——▶ justfile:1:11
+          │
+        1 │ foo := f'{bar}'
+          │           ^^^
+      ",
+    )
+    .run();
+}
