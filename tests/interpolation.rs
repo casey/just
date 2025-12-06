@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn closing_curly_brace_can_abutt_interpolation_close() {
+fn closing_curly_brace_can_abut_interpolation_close() {
   Test::new()
     .justfile(
       "
