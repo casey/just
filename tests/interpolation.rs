@@ -1,6 +1,20 @@
 use super::*;
 
 #[test]
+fn closing_curly_brace_can_abutt_interpolation_close() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          echo {{if 'a' == 'b' { 'c' } else { 'd' }}}
+      ",
+    )
+    .stderr("echo d\n")
+    .stdout("d\n")
+    .run();
+}
+
+#[test]
 fn eol_with_continuation_in_interpolation() {
   Test::new()
     .justfile(
