@@ -104,7 +104,18 @@ fn shebang_line_numbers_are_correct_with_multi_line_interpolations() {
           echo foo
       ",
     )
-    .stdout(
+    .stdout(if cfg!(windows) {
+      "
+
+
+        echo abc
+
+
+
+
+        echo foo
+      "
+    } else {
       "
         #!/usr/bin/env cat
 
@@ -114,7 +125,7 @@ fn shebang_line_numbers_are_correct_with_multi_line_interpolations() {
 
 
         echo foo
-      ",
-    )
+      "
+    })
     .run();
 }
