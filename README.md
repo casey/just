@@ -2973,10 +2973,6 @@ the value of `set shell`.
 The body of the recipe is evaluated, written to disk in the temporary
 directory, and run by passing its path as an argument to `COMMAND`.
 
-The `[script(…)]` attribute is unstable, so you'll need to use `set unstable`,
-set the `JUST_UNSTABLE` environment variable, or pass `--unstable` on the
-command line.
-
 ### Script and Shebang Recipe Temporary Files
 
 Both script and shebang recipes write the recipe body to a temporary file for

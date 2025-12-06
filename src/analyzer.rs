@@ -158,17 +158,6 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       aliases.insert(Self::resolve_alias(&self.modules, &recipes, alias)?);
     }
 
-    for recipe in recipes.values() {
-      if recipe.attributes.contains(AttributeDiscriminant::Script) {
-        unstable_features.insert(UnstableFeature::ScriptAttribute);
-        break;
-      }
-    }
-
-    if settings.script_interpreter.is_some() {
-      unstable_features.insert(UnstableFeature::ScriptInterpreterSetting);
-    }
-
     let source = root.to_owned();
     let root = paths.get(root).unwrap();
 
