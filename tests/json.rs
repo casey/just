@@ -94,6 +94,7 @@ struct Settings<'a> {
   windows_powershell: bool,
   windows_shell: Option<&'a str>,
   working_directory: Option<&'a str>,
+  named_parameters: bool,
 }
 
 #[track_caller]

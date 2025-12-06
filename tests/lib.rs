@@ -92,6 +92,7 @@ mod man;
 mod misc;
 mod modules;
 mod multibyte_char;
+mod named_parameters;
 mod newline_escape;
 mod no_aliases;
 mod no_cd;

@@ -21,6 +21,7 @@ pub(crate) enum Keyword {
   IgnoreComments,
   Import,
   Mod,
+  NamedParameters,
   NoExitMessage,
   PositionalArguments,
   Quiet,
