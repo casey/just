@@ -538,7 +538,7 @@ impl<'src> Lexer<'src> {
     interpolation_start: Token<'src>,
     start: char,
   ) -> CompileResult<'src> {
-    if self.open_delimiters.is_empty() && self.rest_starts_with("}}") {
+    if self.rest_starts_with("}}") && self.open_delimiters.is_empty() {
       // end current interpolation
       if self.interpolation_stack.pop().is_none() {
         self.presume_str("}}")?;
@@ -548,7 +548,7 @@ impl<'src> Lexer<'src> {
       }
       // Emit interpolation end token
       self.lex_double(InterpolationEnd)
-    } else if self.open_delimiters.is_empty() && self.at_eof() {
+    } else if self.at_eof() && self.open_delimiters.is_empty() {
       // Return unterminated interpolation error that highlights the opening
       // {{
       Err(Self::unterminated_interpolation_error(interpolation_start))
