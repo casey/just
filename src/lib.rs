@@ -84,6 +84,7 @@ pub(crate) use {
     string_delimiter::StringDelimiter,
     string_kind::StringKind,
     string_literal::StringLiteral,
+    string_state::StringState,
     subcommand::Subcommand,
     suggestion::Suggestion,
     table::Table,
@@ -264,6 +265,7 @@ mod source;
 mod string_delimiter;
 mod string_kind;
 mod string_literal;
+mod string_state;
 mod subcommand;
 mod suggestion;
 mod table;

@@ -1,11 +1,5 @@
 use {super::*, TokenKind::*};
 
-enum StringState {
-  FormatContinue(StringKind),
-  FormatStart,
-  Normal,
-}
-
 /// Just language parser
 ///
 /// The parser is a (hopefully) straightforward recursive descent parser.
