@@ -66,6 +66,38 @@ fn newline() {
 }
 
 #[test]
+fn conditional() {
+  Test::new()
+    .justfile(
+      "
+        foo := f'FOO{
+          if 'a' == 'b' { 'c' } else { 'd' }
+        }BAZ'
+
+        @baz:
+          echo {{foo}}
+      ",
+    )
+    .stdout("FOOdBAZ\n")
+    .run();
+}
+
+#[test]
+fn conditional_no_whitespace() {
+  Test::new()
+    .justfile(
+      "
+        foo := f'FOO{if 'a' == 'b' { 'c' } else { 'd' }}BAZ'
+
+        @baz:
+          echo {{foo}}
+      ",
+    )
+    .stdout("FOOdBAZ\n")
+    .run();
+}
+
+#[test]
 fn inner_delimiter() {
   Test::new()
     .justfile(
