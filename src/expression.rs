@@ -36,7 +36,7 @@ pub(crate) enum Expression<'src> {
     then: Box<Expression<'src>>,
     otherwise: Box<Expression<'src>>,
   },
-  // /// `f"format string"`
+  // `f"format string"`
   FormatString {
     start: StringLiteral<'src>,
     expressions: Vec<(Expression<'src>, StringLiteral<'src>)>,
