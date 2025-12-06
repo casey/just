@@ -71,13 +71,6 @@ _just() {
                     # just a b <TAB> -> lists children of `a::b`
                     # just a b c <TAB> -> lists children of `a::b::c`
 
-                    # Get all recipes from just --summary (space-separated)
-                    local all_recipes
-                    all_recipes=$(just --summary 2> /dev/null)
-                    if [[ $? -ne 0 || -z "$all_recipes" ]]; then
-                        return 0
-                    fi
-
                     # Build the current prefix from the already-typed words after `just`
                     local prefix_str=""
                     local i
@@ -88,6 +81,60 @@ _just() {
                             prefix_str="${prefix_str}::${COMP_WORDS[i]}"
                         fi
                     done
+
+                    # Try to find the justfile for the current prefix by converting :: to /
+                    # e.g., dev-env::docker -> dev-env/docker/justfile
+                    local prefix_path=$(echo "$prefix_str" | sed 's/::/\//g')
+                    local project_root=""
+                    local current_dir="${PWD}"
+                    
+                    # Find the project root (where the main justfile is)
+                    while [[ -n "$current_dir" && "$current_dir" != "/" ]]; do
+                        if [[ -f "$current_dir/justfile" ]]; then
+                            project_root="$current_dir"
+                            break
+                        fi
+                        current_dir=$(dirname "$current_dir")
+                    done
+                    
+                    # Search for the justfile in the prefix path relative to project root
+                    local prefix_justfile=""
+                    if [[ -n "$project_root" ]]; then
+                        local test_path="$project_root/$prefix_path/justfile"
+                        if [[ -f "$test_path" ]]; then
+                            prefix_justfile="$test_path"
+                        fi
+                    fi
+
+                    # If we found a justfile for the prefix, use --list to get recipes and aliases
+                    if [[ -n "$prefix_justfile" ]]; then
+                        local list_output=$(just --list --justfile "$prefix_justfile" 2> /dev/null)
+                        if [[ $? -eq 0 ]]; then
+                            # Extract recipe names (first word after leading spaces, before any * or #)
+                            local recipes=$(echo "$list_output" | sed -n 's/^[[:space:]]*\([a-zA-Z0-9_-]*\).*/\1/p' | grep -v '^$' | grep -v '^Available$')
+
+                            # Extract aliases from [alias: ...] or [aliases: ...] patterns
+                            local aliases=$(echo "$list_output" | sed -n 's/.*\[alias:[[:space:]]*\([^]]*\)\].*/\1/p' | tr ',' '\n')
+                            aliases="$aliases"$(echo "$list_output" | sed -n 's/.*\[aliases:[[:space:]]*\([^]]*\)\].*/\1/p' | tr ',' '\n')
+                            aliases=$(echo "$aliases" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | grep -v '^$')
+
+                            # Combine recipes and aliases, extract only the next segment
+                            local candidates=$(printf "%s\n%s\n" "$recipes" "$aliases" | sort -u | tr '\n' ' ')
+
+                            if [[ -n "$candidates" ]]; then
+                                COMPREPLY=( $(compgen -W "${candidates}" -- "${cur}") )
+                                return 0
+                            fi
+                        fi
+                    fi
+
+                    # Fallback: Get all recipes from just --summary (space-separated)
+                    # This doesn't include aliases, but works for recipes
+                    local all_recipes
+                    all_recipes=$(just --summary 2> /dev/null)
+                    if [[ $? -ne 0 || -z "$all_recipes" ]]; then
+                        return 0
+                    fi
 
                     # From recipes that start with prefix_str::, take only the next segment
                     # after the prefix, so completion is hierarchical.
