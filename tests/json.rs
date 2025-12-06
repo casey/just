@@ -12,6 +12,8 @@ struct Alias<'a> {
 #[serde(deny_unknown_fields)]
 struct Assignment<'a> {
   export: bool,
+  #[serde(default)]
+  lazy: bool,
   name: &'a str,
   private: bool,
   value: serde_json::Value,
