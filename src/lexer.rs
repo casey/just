@@ -351,7 +351,7 @@ impl<'src> Lexer<'src> {
 
     let whitespace = &self.rest()[..nonblank_index];
 
-    if self.open_delimiters() {
+    if self.open_delimiters_or_interpolation() {
       if !whitespace.is_empty() {
         while self.next_is_whitespace() {
           self.advance()?;
@@ -719,7 +719,7 @@ impl<'src> Lexer<'src> {
   }
 
   /// Return true if there are any unclosed delimiters
-  fn open_delimiters(&self) -> bool {
+  fn open_delimiters_or_interpolation(&self) -> bool {
     !self.open_delimiters.is_empty() || !self.interpolation_stack.is_empty()
   }
 
@@ -802,7 +802,7 @@ impl<'src> Lexer<'src> {
     }
 
     // Emit an eol if there are no open delimiters, otherwise emit a whitespace token.
-    if self.open_delimiters() {
+    if self.open_delimiters_or_interpolation() {
       self.token(Whitespace);
     } else {
       self.token(Eol);
