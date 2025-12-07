@@ -161,6 +161,22 @@ fn unclosed() {
 }
 
 #[test]
+fn unmatched_close_is_ignored() {
+  Test::new()
+    .justfile(
+      "
+        foo := f'}}'
+
+        @baz:
+          echo {{foo}}
+      ",
+    )
+    .stdout("}}\n")
+    .unindent_stdout(false)
+    .run();
+}
+
+#[test]
 fn delimiter_may_be_escaped_in_double_quoted_strings() {
   Test::new()
     .justfile(
