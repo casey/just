@@ -814,13 +814,13 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
 
     let open = if matches!(token.kind, FormatStringContinue | FormatStringEnd) {
-      "}".len()
+      INTERPOLATION_CLOSE.len()
     } else {
       kind.delimiter_len()
     };
 
     let close = if matches!(token.kind, FormatStringStart | FormatStringContinue) {
-      "{".len()
+      INTERPOLATION_OPEN.len()
     } else {
       kind.delimiter_len()
     };
@@ -836,7 +836,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let undelimited = if matches!(state, StringState::Normal) {
       unindented
     } else {
-      unindented.replace("{{", "{")
+      unindented.replace(INTERPOLATION_ESCAPE, INTERPOLATION_OPEN)
     };
 
     let cooked = if kind.processes_escape_sequences() {
@@ -2576,13 +2576,13 @@ mod tests {
 
   test! {
     name: format_string_expression,
-    text: "foo := f'foo{ 'abc' + 'xyz' }bar'",
+    text: "foo := f'foo{{ 'abc' + 'xyz' }}bar'",
     tree: (justfile (assignment foo (format "foo" (+ "abc" "xyz") "bar"))),
   }
 
   test! {
     name: format_string_complex,
-    text: "foo := f'foo{ 'abc' + 'xyz' }bar{ 'hello' }goodbye'",
+    text: "foo := f'foo{{ 'abc' + 'xyz' }}bar{{ 'hello' }}goodbye'",
     tree: (justfile (assignment foo (format "foo" (+ "abc" "xyz") "bar" "hello" "goodbye"))),
   }
 

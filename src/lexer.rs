@@ -96,15 +96,6 @@ impl<'src> Lexer<'src> {
     }
   }
 
-  /// Advance over N characters.
-  fn skip(&mut self, n: usize) -> CompileResult<'src> {
-    for _ in 0..n {
-      self.advance()?;
-    }
-
-    Ok(())
-  }
-
   /// Lexeme of in-progress token
   fn lexeme(&self) -> &'src str {
     &self.src[self.token_start.offset..self.token_end.offset]
@@ -511,7 +502,9 @@ impl<'src> Lexer<'src> {
       '|' => self.lex_digraph('|', '|', BarBar),
       '}' => {
         let format_string_kind = self.open_delimiters.last().and_then(|(delimiter, _line)| {
-          if let Delimiter::FormatString(kind) = delimiter {
+          if !self.rest().starts_with(INTERPOLATION_CLOSE) {
+            None
+          } else if let Delimiter::FormatString(kind) = delimiter {
             Some(kind)
           } else {
             None
@@ -538,10 +531,10 @@ impl<'src> Lexer<'src> {
     interpolation_start: Token<'src>,
     start: char,
   ) -> CompileResult<'src> {
-    if self.rest_starts_with("}}") && self.open_delimiters.is_empty() {
+    if self.rest_starts_with(INTERPOLATION_CLOSE) && self.open_delimiters.is_empty() {
       // end current interpolation
       if self.interpolation_stack.pop().is_none() {
-        self.presume_str("}}")?;
+        self.presume_str(INTERPOLATION_CLOSE)?;
         return Err(self.internal_error(
           "Lexer::lex_interpolation found `}}` but was called with empty interpolation stack.",
         ));
@@ -570,8 +563,8 @@ impl<'src> Lexer<'src> {
     use Terminator::*;
 
     let terminator = loop {
-      if self.rest_starts_with("{{{{") {
-        self.skip(4)?;
+      if self.rest_starts_with(INTERPOLATION_ESCAPE) {
+        self.presume_str(INTERPOLATION_ESCAPE)?;
         continue;
       }
 
@@ -583,7 +576,7 @@ impl<'src> Lexer<'src> {
         break NewlineCarriageReturn;
       }
 
-      if self.rest_starts_with("{{") {
+      if self.rest_starts_with(INTERPOLATION_OPEN) {
         break Interpolation;
       }
 
@@ -859,13 +852,12 @@ impl<'src> Lexer<'src> {
   /// Raw string:    '[^']*'
   fn lex_string(&mut self, format_string_kind: Option<StringKind>) -> CompileResult<'src> {
     let format = format_string_kind.is_some()
-      || self
-        .tokens
-        .last()
-        .is_some_and(|token| token.kind == TokenKind::Identifier && token.lexeme() == "f");
+      || self.tokens.last().is_some_and(|token| {
+        token.kind == TokenKind::Identifier && token.lexeme() == Keyword::F.lexeme()
+      });
 
     let kind = if let Some(kind) = format_string_kind {
-      self.presume_str("}")?;
+      self.presume_str(INTERPOLATION_CLOSE)?;
       kind
     } else {
       let Some(kind) = StringKind::from_token_start(self.rest()) else {
@@ -877,36 +869,33 @@ impl<'src> Lexer<'src> {
     };
 
     let mut escape = false;
-    let mut unicode = false;
 
     loop {
       if self.next.is_none() {
         return Err(self.error(kind.unterminated_error_kind()));
       } else if !escape && kind.processes_escape_sequences() && self.next_is('\\') {
         escape = true;
-        unicode = false;
       } else if escape && kind.processes_escape_sequences() && self.next_is('u') {
         escape = false;
-        unicode = true;
-      } else if format && self.rest_starts_with("{{") {
+      } else if format && self.rest_starts_with(INTERPOLATION_ESCAPE) {
         escape = false;
-        unicode = false;
+        self.advance()?;
+        self.advance()?;
         self.advance()?;
       } else if !escape
         && (self.rest_starts_with(kind.delimiter())
-          || format && !unicode && self.rest_starts_with("{"))
+          || format && self.rest_starts_with(INTERPOLATION_OPEN))
       {
         break;
       } else {
         escape = false;
-        unicode = false;
       }
 
       self.advance()?;
     }
 
-    if format && self.rest_starts_with("{") {
-      self.presume_str("{")?;
+    if format && self.rest_starts_with(INTERPOLATION_OPEN) {
+      self.presume_str(INTERPOLATION_OPEN)?;
       self.token(if format_string_kind.is_some() {
         FormatStringContinue
       } else {
@@ -2163,44 +2152,44 @@ mod tests {
 
   test! {
     name:   format_string_identifier,
-    text:   "f'{foo}'",
+    text:   "f'{{foo}}'",
     tokens: (
       Identifier: "f",
-      FormatStringStart: "'{",
+      FormatStringStart: "'{{",
       Identifier: "foo",
-      FormatStringEnd: "}'",
+      FormatStringEnd: "}}'",
     ),
   }
 
   test! {
     name:   format_string_continue,
-    text:   "f'{foo}bar{baz}'",
+    text:   "f'{{foo}}bar{{baz}}'",
     tokens: (
       Identifier: "f",
-      FormatStringStart: "'{",
+      FormatStringStart: "'{{",
       Identifier: "foo",
-      FormatStringContinue: "}bar{",
+      FormatStringContinue: "}}bar{{",
       Identifier: "baz",
-      FormatStringEnd: "}'",
+      FormatStringEnd: "}}'",
     ),
   }
 
   test! {
     name:   format_string_whitespace,
-    text:   "f '{foo}'",
+    text:   "f '{{foo}}'",
     tokens: (
       Identifier: "f",
       Whitespace,
-      StringToken: "'{foo}'",
+      StringToken: "'{{foo}}'",
     ),
   }
 
   test! {
     name:   format_string_wrong_identifier,
-    text:   "g'{foo}'",
+    text:   "g'{{foo}}'",
     tokens: (
       Identifier: "g",
-      StringToken: "'{foo}'",
+      StringToken: "'{{foo}}'",
     ),
   }
 

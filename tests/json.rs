@@ -1003,7 +1003,7 @@ fn format_string() {
   );
   case(
     "
-      foo := f'abc{'bar'}xyz'
+      foo := f'abc{{'bar'}}xyz'
     ",
     Module {
       assignments: [(
@@ -1020,7 +1020,7 @@ fn format_string() {
   );
   case(
     "
-      foo := f'abc{'bar'}xyz{'baz' + 'buzz'}123'
+      foo := f'abc{{'bar'}}xyz{{'baz' + 'buzz'}}123'
     ",
     Module {
       assignments: [(

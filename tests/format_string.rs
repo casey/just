@@ -37,7 +37,7 @@ fn compound() {
     .justfile(
       "
         bar := 'BAR'
-        foo := f'FOO{ bar }BAZ'
+        foo := f'FOO{{ bar }}BAZ'
 
         @baz:
           echo {{foo}}
@@ -53,9 +53,9 @@ fn newline() {
     .justfile(
       "
         bar := 'BAR'
-        foo := f'FOO{
+        foo := f'FOO{{
           bar + 'XYZ'
-        }BAZ'
+        }}BAZ'
 
         @baz:
           echo {{foo}}
@@ -70,9 +70,9 @@ fn conditional() {
   Test::new()
     .justfile(
       "
-        foo := f'FOO{
+        foo := f'FOO{{
           if 'a' == 'b' { 'c' } else { 'd' }
-        }BAZ'
+        }}BAZ'
 
         @baz:
           echo {{foo}}
@@ -87,7 +87,7 @@ fn conditional_no_whitespace() {
   Test::new()
     .justfile(
       "
-        foo := f'FOO{if 'a' == 'b' { 'c' } else { 'd' }}BAZ'
+        foo := f'FOO{{if 'a' == 'b' { 'c' } else { 'd' }}}BAZ'
 
         @baz:
           echo {{foo}}
@@ -103,7 +103,7 @@ fn inner_delimiter() {
     .justfile(
       "
         bar := 'BAR'
-        foo := f'FOO{(bar)}BAZ'
+        foo := f'FOO{{(bar)}}BAZ'
 
         @baz:
           echo {{foo}}
@@ -119,7 +119,7 @@ fn nested() {
     .justfile(
       "
         bar := 'BAR'
-        foo := f'FOO{f'[{bar}]'}BAZ'
+        foo := f'FOO{{f'[{{bar}}]'}}BAZ'
 
         @baz:
           echo {{foo}}
@@ -136,7 +136,7 @@ fn recipe_body() {
       "
         bar := 'BAR'
         @baz:
-          echo {{f'FOO{f'[{bar}]'}BAZ'}}
+          echo {{f'FOO{{f'[{{bar}}]'}}BAZ'}}
       ",
     )
     .stdout("FOO[BAR]BAZ\n")
@@ -146,14 +146,14 @@ fn recipe_body() {
 #[test]
 fn unclosed() {
   Test::new()
-    .justfile("foo := f'FOO{")
+    .justfile("foo := f'FOO{{")
     .stderr(
       "
         error: Expected backtick, identifier, '(', '/', or string, but found end of file
-         ——▶ justfile:1:14
+         ——▶ justfile:1:15
           │
-        1 │ foo := f'FOO{
-          │              ^
+        1 │ foo := f'FOO{{
+          │               ^
       ",
     )
     .status(EXIT_FAILURE)
@@ -165,11 +165,11 @@ fn delimiter_may_be_escaped_in_double_quoted_strings() {
   Test::new()
     .justfile(
       r#"
-        foo := f"{{"
+        foo := f"{{{{"
       "#,
     )
     .args(["--evaluate", "foo"])
-    .stdout("{")
+    .stdout("{{")
     .run();
 }
 
@@ -178,20 +178,7 @@ fn delimiter_may_be_escaped_in_single_quoted_strings() {
   Test::new()
     .justfile(
       "
-        foo := f'{{'
-      ",
-    )
-    .args(["--evaluate", "foo"])
-    .stdout("{")
-    .run();
-}
-
-#[test]
-fn escaped_delimiter_is_ignored_in_normal_strings() {
-  Test::new()
-    .justfile(
-      "
-        foo := '{{'
+        foo := f'{{{{'
       ",
     )
     .args(["--evaluate", "foo"])
@@ -200,15 +187,28 @@ fn escaped_delimiter_is_ignored_in_normal_strings() {
 }
 
 #[test]
+fn escaped_delimiter_is_ignored_in_normal_strings() {
+  Test::new()
+    .justfile(
+      "
+        foo := '{{{{'
+      ",
+    )
+    .args(["--evaluate", "foo"])
+    .stdout("{{{{")
+    .run();
+}
+
+#[test]
 fn escaped_delimiter_in_single_quoted_format_string() {
   Test::new()
     .justfile(
       r"
-        foo := f'\{{'
+        foo := f'\{{{{'
       ",
     )
     .args(["--evaluate", "foo"])
-    .stdout("\\{")
+    .stdout("\\{{")
     .run();
 }
 
@@ -217,7 +217,7 @@ fn escaped_delimiter_in_double_quoted_format_string() {
   Test::new()
     .justfile(
       r#"
-        foo := f"\{{"
+        foo := f"\{{{{"
       "#,
     )
     .args(["--evaluate", "foo"])
@@ -227,8 +227,8 @@ fn escaped_delimiter_in_double_quoted_format_string() {
         error: `\{` is not a valid escape sequence
          ——▶ justfile:1:9
           │
-        1 │ foo := f"\{{"
-          │         ^^^^^
+        1 │ foo := f"\{{{{"
+          │         ^^^^^^^
       "#,
     )
     .run();
@@ -239,7 +239,7 @@ fn double_quotes_process_escapes() {
   Test::new()
     .justfile(
       r#"
-        foo := f"\u{61}{"b"}\u{63}{"d"}\u{65}"
+        foo := f"\u{61}{{"b"}}\u{63}{{"d"}}\u{65}"
       "#,
     )
     .args(["--evaluate", "foo"])
@@ -252,7 +252,7 @@ fn single_quotes_do_not_process_escapes() {
   Test::new()
     .justfile(
       r#"
-        foo := f'\n{"a"}\n{"b"}\n'
+        foo := f'\n{{"a"}}\n{{"b"}}\n'
       "#,
     )
     .args(["--evaluate", "foo"])
@@ -267,7 +267,7 @@ fn indented_format_strings() {
       r#"
         foo := f'''
           a
-          {"b"}
+          {{"b"}}
           c
         '''
       "#,
@@ -284,7 +284,7 @@ fn un_indented_format_strings() {
       r#"
         foo := f'
           a
-          {"b"}
+          {{"b"}}
           c
         '
       "#,
@@ -313,9 +313,9 @@ fn dump() {
   case("f''''''");
   case(r#"f"""#);
   case(r#"f"""""""#);
-  case("f'{'a'}b{'c'}d'");
-  case("f'''{'a'}b{'c'}d'''");
-  case(r#"f"""{'a'}b{'c'}d""""#);
+  case("f'{{'a'}}b{{'c'}}d'");
+  case("f'''{{'a'}}b{{'c'}}d'''");
+  case(r#"f"""{{'a'}}b{{'c'}}d""""#);
 }
 
 #[test]
@@ -323,17 +323,17 @@ fn undefined_variable_error() {
   Test::new()
     .justfile(
       "
-        foo := f'{bar}'
+        foo := f'{{bar}}'
       ",
     )
     .status(EXIT_FAILURE)
     .stderr(
       "
         error: Variable `bar` not defined
-         ——▶ justfile:1:11
+         ——▶ justfile:1:12
           │
-        1 │ foo := f'{bar}'
-          │           ^^^
+        1 │ foo := f'{{bar}}'
+          │            ^^^
       ",
     )
     .run();

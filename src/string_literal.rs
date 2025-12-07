@@ -38,7 +38,7 @@ impl Display for StringLiteral<'_> {
       self.part,
       Some(FormatStringPart::Continue | FormatStringPart::End)
     ) {
-      "}"
+      INTERPOLATION_CLOSE
     } else {
       self.kind.delimiter()
     };
@@ -47,7 +47,7 @@ impl Display for StringLiteral<'_> {
       self.part,
       Some(FormatStringPart::Start | FormatStringPart::Continue)
     ) {
-      "{"
+      INTERPOLATION_OPEN
     } else {
       self.kind.delimiter()
     };

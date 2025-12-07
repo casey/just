@@ -138,6 +138,10 @@ pub(crate) use {
   unicode_width::{UnicodeWidthChar, UnicodeWidthStr},
 };
 
+const INTERPOLATION_CLOSE: &str = "}}";
+const INTERPOLATION_OPEN: &str = "{{";
+const INTERPOLATION_ESCAPE: &str = "{{{{";
+
 #[cfg(test)]
 pub(crate) use {
   crate::{node::Node, tree::Tree},
