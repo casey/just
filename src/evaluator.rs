@@ -317,7 +317,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     for (i, fragment) in line.fragments.iter().enumerate() {
       match fragment {
         Fragment::Text { token } => {
-          let lexeme = token.lexeme().replace("{{{{", "{{");
+          let lexeme = token
+            .lexeme()
+            .replace(Lexer::INTERPOLATION_ESCAPE, Lexer::INTERPOLATION_START);
 
           if i == 0 && continued {
             evaluated += lexeme.trim_start();
