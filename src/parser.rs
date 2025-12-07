@@ -814,13 +814,13 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
 
     let open = if matches!(token.kind, FormatStringContinue | FormatStringEnd) {
-      INTERPOLATION_CLOSE.len()
+      Lexer::INTERPOLATION_END.len()
     } else {
       kind.delimiter_len()
     };
 
     let close = if matches!(token.kind, FormatStringStart | FormatStringContinue) {
-      INTERPOLATION_OPEN.len()
+      Lexer::INTERPOLATION_START.len()
     } else {
       kind.delimiter_len()
     };
@@ -836,7 +836,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let undelimited = if matches!(state, StringState::Normal) {
       unindented
     } else {
-      unindented.replace(INTERPOLATION_ESCAPE, INTERPOLATION_OPEN)
+      unindented.replace(Lexer::INTERPOLATION_ESCAPE, Lexer::INTERPOLATION_START)
     };
 
     let cooked = if kind.processes_escape_sequences() {

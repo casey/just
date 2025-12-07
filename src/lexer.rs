@@ -36,6 +36,10 @@ pub(crate) struct Lexer<'src> {
 }
 
 impl<'src> Lexer<'src> {
+  pub(crate) const INTERPOLATION_END: &'static str = "}}";
+  pub(crate) const INTERPOLATION_ESCAPE: &'static str = "{{{{";
+  pub(crate) const INTERPOLATION_START: &'static str = "{{";
+
   /// Lex `src`
   pub(crate) fn lex(path: &'src Path, src: &'src str) -> CompileResult<'src, Vec<Token<'src>>> {
     Self::new(path, src).tokenize()
@@ -502,7 +506,7 @@ impl<'src> Lexer<'src> {
       '|' => self.lex_digraph('|', '|', BarBar),
       '}' => {
         let format_string_kind = self.open_delimiters.last().and_then(|(delimiter, _line)| {
-          if !self.rest().starts_with(INTERPOLATION_CLOSE) {
+          if !self.rest().starts_with(Self::INTERPOLATION_END) {
             None
           } else if let Delimiter::FormatString(kind) = delimiter {
             Some(kind)
@@ -531,10 +535,10 @@ impl<'src> Lexer<'src> {
     interpolation_start: Token<'src>,
     start: char,
   ) -> CompileResult<'src> {
-    if self.rest_starts_with(INTERPOLATION_CLOSE) && self.open_delimiters.is_empty() {
+    if self.rest_starts_with(Self::INTERPOLATION_END) && self.open_delimiters.is_empty() {
       // end current interpolation
       if self.interpolation_stack.pop().is_none() {
-        self.presume_str(INTERPOLATION_CLOSE)?;
+        self.presume_str(Self::INTERPOLATION_END)?;
         return Err(self.internal_error(
           "Lexer::lex_interpolation found `}}` but was called with empty interpolation stack.",
         ));
@@ -563,8 +567,8 @@ impl<'src> Lexer<'src> {
     use Terminator::*;
 
     let terminator = loop {
-      if self.rest_starts_with(INTERPOLATION_ESCAPE) {
-        self.presume_str(INTERPOLATION_ESCAPE)?;
+      if self.rest_starts_with(Self::INTERPOLATION_ESCAPE) {
+        self.presume_str(Self::INTERPOLATION_ESCAPE)?;
         continue;
       }
 
@@ -576,7 +580,7 @@ impl<'src> Lexer<'src> {
         break NewlineCarriageReturn;
       }
 
-      if self.rest_starts_with(INTERPOLATION_OPEN) {
+      if self.rest_starts_with(Self::INTERPOLATION_START) {
         break Interpolation;
       }
 
@@ -857,7 +861,7 @@ impl<'src> Lexer<'src> {
       });
 
     let kind = if let Some(kind) = format_string_kind {
-      self.presume_str(INTERPOLATION_CLOSE)?;
+      self.presume_str(Self::INTERPOLATION_END)?;
       kind
     } else {
       let Some(kind) = StringKind::from_token_start(self.rest()) else {
@@ -877,14 +881,14 @@ impl<'src> Lexer<'src> {
         escape = true;
       } else if escape && kind.processes_escape_sequences() && self.next_is('u') {
         escape = false;
-      } else if format && self.rest_starts_with(INTERPOLATION_ESCAPE) {
+      } else if format && self.rest_starts_with(Self::INTERPOLATION_ESCAPE) {
         escape = false;
         self.advance()?;
         self.advance()?;
         self.advance()?;
       } else if !escape
         && (self.rest_starts_with(kind.delimiter())
-          || format && self.rest_starts_with(INTERPOLATION_OPEN))
+          || format && self.rest_starts_with(Self::INTERPOLATION_START))
       {
         break;
       } else {
@@ -894,8 +898,8 @@ impl<'src> Lexer<'src> {
       self.advance()?;
     }
 
-    if format && self.rest_starts_with(INTERPOLATION_OPEN) {
-      self.presume_str(INTERPOLATION_OPEN)?;
+    if format && self.rest_starts_with(Self::INTERPOLATION_START) {
+      self.presume_str(Self::INTERPOLATION_START)?;
       self.token(if format_string_kind.is_some() {
         FormatStringContinue
       } else {
