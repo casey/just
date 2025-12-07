@@ -1603,7 +1603,7 @@ depend on `just` variables and `.env` files.
 
 #### Format strings
 
-Strings prefixed with `f` are format strings<sup>master</sup>:
+Strings prefixed with `f` are format strings<sup>1.44.0</sup>:
 
 ```justfile
 name := "world"
