@@ -1607,17 +1607,17 @@ Strings prefixed with `f` are format strings<sup>master</sup>:
 
 ```justfile
 name := "world"
-message := f'Hello, {name}!'
+message := f'Hello, {{name}}!'
 ```
 
-Format strings may contain interpolations delimited with `{…}` that contain
+Format strings may contain interpolations delimited with `{{…}}` that contain
 expressions. Format strings evaluate to the concatenated string fragments and
 evaluated expressions.
 
-Use `{{` to include a literal `{` in a format string:
+Use `{{{{` to include a literal `{{` in a format string:
 
 ```justfile
-foo := f'I {{LOVE} curly braces!'
+foo := f'I {{{{LOVE} curly braces!'
 ```
 
 ### Ignoring Errors
