@@ -1,6 +1,27 @@
 Changelog
 =========
 
+[1.44.0](https://github.com/casey/just/releases/tag/1.44.0) - 2025-12-06
+------------------------------------------------------------------------
+
+### Added
+- Add f'{format}' strings ([#2985](https://github.com/casey/just/pull/2985) by [casey](https://github.com/casey))
+- Use double braces `{{…}}` for format strings ([#2993](https://github.com/casey/just/pull/2993) by [casey](https://github.com/casey))
+- Stabilize `[script]` attribute ([#2988](https://github.com/casey/just/pull/2988) by [casey](https://github.com/casey))
+
+### Changed
+- Allow newlines in interpolations and `}` to abut interpolation `}}` ([#2992](https://github.com/casey/just/pull/2992) by [casey](https://github.com/casey))
+
+### Misc
+- Test format strings with conditionals ([#2991](https://github.com/casey/just/pull/2991) by [casey](https://github.com/casey))
+- Move StringState into module ([#2989](https://github.com/casey/just/pull/2989) by [casey](https://github.com/casey))
+- Test undefined variable in format string error ([#2987](https://github.com/casey/just/pull/2987) by [casey](https://github.com/casey))
+- Update `softprops/action-gh-release` to 2.5.0 ([#2979](https://github.com/casey/just/pull/2979) by [app/dependabot](https://github.com/app/dependabot))
+- Link to `just-lsp` in readme ([#2846](https://github.com/casey/just/pull/2846) by [terror](https://github.com/terror))
+- Fix `just --list` submodule example in readme ([#2973](https://github.com/casey/just/pull/2973) by [neodejack](https://github.com/neodejack))
+- Update `actions/checkout` ([#2969](https://github.com/casey/just/pull/2969) by [app/dependabot](https://github.com/app/dependabot))
+- Disable mdbook-linkcheck ([#2970](https://github.com/casey/just/pull/2970) by [casey](https://github.com/casey))
+
 [1.43.1](https://github.com/casey/just/releases/tag/1.43.1) - 2025-11-12
 ------------------------------------------------------------------------
 
