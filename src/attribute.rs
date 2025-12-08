@@ -9,6 +9,7 @@ use super::*;
 #[strum_discriminants(derive(EnumString, Ord, PartialOrd))]
 #[strum_discriminants(strum(serialize_all = "kebab-case"))]
 pub(crate) enum Attribute<'src> {
+  Android,
   Confirm(Option<StringLiteral<'src>>),
   Default,
   Doc(Option<StringLiteral<'src>>),
@@ -35,7 +36,8 @@ impl AttributeDiscriminant {
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
       Self::Confirm | Self::Doc => 0..=1,
-      Self::Default
+      Self::Android
+      | Self::Default
       | Self::ExitMessage
       | Self::Linux
       | Self::Macos
@@ -84,6 +86,7 @@ impl<'src> Attribute<'src> {
     }
 
     Ok(match discriminant {
+      AttributeDiscriminant::Android => Self::Android,
       AttributeDiscriminant::Confirm => Self::Confirm(arguments.into_iter().next()),
       AttributeDiscriminant::Default => Self::Default,
       AttributeDiscriminant::Doc => Self::Doc(arguments.into_iter().next()),
@@ -133,7 +136,8 @@ impl Display for Attribute<'_> {
     write!(f, "{}", self.name())?;
 
     match self {
-      Self::Confirm(None)
+      Self::Android 
+      | Self::Confirm(None)
       | Self::Default
       | Self::Doc(None)
       | Self::ExitMessage
