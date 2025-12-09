@@ -675,15 +675,13 @@ impl<'src> Lexer<'src> {
 
   /// Lex an opening or closing delimiter
   fn lex_delimiter(&mut self, kind: TokenKind) -> CompileResult<'src> {
-    use Delimiter::*;
-
     match kind {
-      BraceL => self.open_delimiter(Brace),
-      BraceR => self.close_delimiter(Brace)?,
-      BracketL => self.open_delimiter(Bracket),
-      BracketR => self.close_delimiter(Bracket)?,
-      ParenL => self.open_delimiter(Paren),
-      ParenR => self.close_delimiter(Paren)?,
+      BraceL => self.open_delimiter(Delimiter::Brace),
+      BraceR => self.close_delimiter(Delimiter::Brace)?,
+      BracketL => self.open_delimiter(Delimiter::Bracket),
+      BracketR => self.close_delimiter(Delimiter::Bracket)?,
+      ParenL => self.open_delimiter(Delimiter::Paren),
+      ParenR => self.close_delimiter(Delimiter::Paren)?,
       _ => {
         return Err(self.internal_error(format!(
           "Lexer::lex_delimiter called with non-delimiter token: `{kind}`",
@@ -692,7 +690,9 @@ impl<'src> Lexer<'src> {
     }
 
     // Emit the delimiter token
-    self.lex_single(kind)
+    self.lex_single(kind)?;
+
+    Ok(())
   }
 
   /// Push a delimiter onto the open delimiter stack
@@ -900,12 +900,12 @@ impl<'src> Lexer<'src> {
 
     if format && self.rest_starts_with(Self::INTERPOLATION_START) {
       self.presume_str(Self::INTERPOLATION_START)?;
-      self.token(if format_string_kind.is_some() {
-        FormatStringContinue
+      if format_string_kind.is_some() {
+        self.token(FormatStringContinue);
       } else {
-        FormatStringStart
-      });
-      self.open_delimiter(Delimiter::FormatString(kind));
+        self.token(FormatStringStart);
+        self.open_delimiter(Delimiter::FormatString(kind));
+      }
     } else {
       self.presume_str(kind.delimiter())?;
 
@@ -2194,6 +2194,46 @@ mod tests {
     tokens: (
       Identifier: "g",
       StringToken: "'{{foo}}'",
+    ),
+  }
+
+  test! {
+    name:   format_string_followed_by_recipe,
+    text:   "foo := f'{{'foo'}}{{'bar'}}'\nbar:",
+    tokens: (
+      Identifier: "foo",
+      Whitespace: " ",
+      ColonEquals: ":=",
+      Whitespace: " ",
+      Identifier: "f",
+      FormatStringStart: "'{{",
+      StringToken: "'foo'",
+      FormatStringContinue: "}}{{",
+      StringToken: "'bar'",
+      FormatStringEnd: "}}'",
+      Eol: "\n",
+      Identifier: "bar",
+      Colon,
+    ),
+  }
+
+  test! {
+    name:   indented_format_string_followed_by_recipe,
+    text:   "foo := f'''{{'foo'}}{{'bar'}}'''\nbar:",
+    tokens: (
+      Identifier: "foo",
+      Whitespace: " ",
+      ColonEquals: ":=",
+      Whitespace: " ",
+      Identifier: "f",
+      FormatStringStart: "'''{{",
+      StringToken: "'foo'",
+      FormatStringContinue: "}}{{",
+      StringToken: "'bar'",
+      FormatStringEnd: "}}'''",
+      Eol: "\n",
+      Identifier: "bar",
+      Colon,
     ),
   }
 
