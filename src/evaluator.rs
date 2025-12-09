@@ -287,10 +287,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       .settings
       .shell_command(self.context.config);
 
+    let working_directory = self.context.working_directory(&self.scope)
+      .map_err(|_| OutputError::Unknown)?;
+
     cmd
       .arg(command)
       .args(args)
-      .current_dir(self.context.working_directory())
+      .current_dir(working_directory)
       .export(
         &self.context.module.settings,
         self.context.dotenv,

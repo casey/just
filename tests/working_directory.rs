@@ -408,3 +408,70 @@ fn setting_and_attribute() {
     .expect_file("foo/bar/fred", "bob\n")
     .run();
 }
+
+#[test]
+fn setting_with_variable() {
+  Test::new()
+    .justfile(
+      "
+        subdir := 'bar'
+
+        set working-directory := subdir
+
+        @foo:
+          echo $(basename \"$PWD\")
+      ",
+    )
+    .current_dir("foo")
+    .tree(tree! {
+      foo: {},
+      bar: {}
+    })
+    .stdout("bar\n")
+    .run();
+}
+
+#[test]
+fn setting_with_concatenation() {
+  Test::new()
+    .justfile(
+      "
+        prefix := 'ba'
+
+        set working-directory := prefix + 'r'
+
+        @foo:
+          echo $(basename \"$PWD\")
+      ",
+    )
+    .current_dir("foo")
+    .tree(tree! {
+      foo: {},
+      bar: {}
+    })
+    .stdout("bar\n")
+    .run();
+}
+
+#[test]
+fn setting_with_path_join() {
+  Test::new()
+    .justfile(
+      "
+        parent := 'foo'
+        child := 'bar'
+
+        set working-directory := parent / child
+
+        @baz:
+          echo $(basename \"$PWD\")
+      ",
+    )
+    .tree(tree! {
+      foo: {
+        bar: {}
+      }
+    })
+    .stdout("bar\n")
+    .run();
+}
