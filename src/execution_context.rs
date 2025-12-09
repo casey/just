@@ -39,17 +39,24 @@ impl<'src: 'run, 'run> ExecutionContext<'src, 'run> {
     })
   }
 
-  pub(crate) fn working_directory(&self) -> PathBuf {
+  pub(crate) fn working_directory(&self, scope: &Scope<'src, 'run>) -> RunResult<'src, PathBuf> {
     let base = if self.module.is_submodule() {
       &self.module.working_directory
     } else {
       &self.search.working_directory
     };
 
-    if let Some(setting) = &self.module.settings.working_directory {
-      base.join(setting)
+    if let Some(expression) = &self.module.settings.working_directory {
+      let mut evaluator = Evaluator {
+        assignments: None,
+        context: *self,
+        is_dependency: false,
+        scope: scope.child(),
+      };
+      let evaluated = evaluator.evaluate_expression(expression)?;
+      Ok(base.join(evaluated))
     } else {
-      base.into()
+      Ok(base.into())
     }
   }
 }

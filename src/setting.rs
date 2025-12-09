@@ -21,7 +21,7 @@ pub(crate) enum Setting<'src> {
   Unstable(bool),
   WindowsPowerShell(bool),
   WindowsShell(Interpreter<'src>),
-  WorkingDirectory(StringLiteral<'src>),
+  WorkingDirectory(Expression<'src>),
 }
 
 impl Display for Setting<'_> {
@@ -45,8 +45,10 @@ impl Display for Setting<'_> {
       }
       Self::DotenvFilename(value)
       | Self::DotenvPath(value)
-      | Self::Tempdir(value)
-      | Self::WorkingDirectory(value) => {
+      | Self::Tempdir(value) => {
+        write!(f, "{value}")
+      }
+      Self::WorkingDirectory(value) => {
         write!(f, "{value}")
       }
     }
