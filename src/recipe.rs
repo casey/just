@@ -182,20 +182,24 @@ impl<'src, D> Recipe<'src, D> {
     }
   }
 
-  fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
+  fn working_directory<'run>(
+    &self,
+    context: &ExecutionContext<'src, 'run>,
+    scope: &Scope<'src, 'run>,
+  ) -> RunResult<'src, Option<PathBuf>> {
     if !self.change_directory() {
-      return None;
+      return Ok(None);
     }
 
-    let working_directory = context.working_directory();
+    let working_directory = context.working_directory(scope)?;
 
     for attribute in &self.attributes {
       if let Attribute::WorkingDirectory(dir) = attribute {
-        return Some(working_directory.join(&dir.cooked));
+        return Ok(Some(working_directory.join(&dir.cooked)));
       }
     }
 
-    Some(working_directory)
+    Ok(Some(working_directory))
   }
 
   fn no_quiet(&self) -> bool {
@@ -319,7 +323,7 @@ impl<'src, D> Recipe<'src, D> {
 
       let mut cmd = context.module.settings.shell_command(config);
 
-      if let Some(working_directory) = self.working_directory(context) {
+      if let Some(working_directory) = self.working_directory(context, scope)? {
         cmd.current_dir(working_directory);
       }
 
@@ -459,7 +463,7 @@ impl<'src, D> Recipe<'src, D> {
       config,
       &path,
       self.name(),
-      self.working_directory(context).as_deref(),
+      self.working_directory(context, scope)?.as_deref(),
     )?;
 
     if self.takes_positional_arguments(&context.module.settings) {
