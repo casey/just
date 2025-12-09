@@ -354,3 +354,15 @@ fn undefined_variable_error() {
     )
     .run();
 }
+
+#[test]
+fn format_string_followed_by_recipe() {
+  Test::new()
+    .justfile(
+      "
+        foo := f'{{'foo'}}{{'bar'}}'
+        bar:
+      ",
+    )
+    .run();
+}
