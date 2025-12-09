@@ -1,6 +1,12 @@
 Changelog
 =========
 
+[1.44.1](https://github.com/casey/just/releases/tag/1.44.1) - 2025-12-09
+------------------------------------------------------------------------
+
+### Fixed
+- Properly close format string delimiter ([#2997](https://github.com/casey/just/pull/2997) by [casey](https://github.com/casey))
+
 [1.44.0](https://github.com/casey/just/releases/tag/1.44.0) - 2025-12-06
 ------------------------------------------------------------------------
 
