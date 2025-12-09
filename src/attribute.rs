@@ -12,6 +12,7 @@ pub(crate) enum Attribute<'src> {
   Confirm(Option<StringLiteral<'src>>),
   Default,
   Doc(Option<StringLiteral<'src>>),
+  Env(StringLiteral<'src>, StringLiteral<'src>),
   ExitMessage,
   Extension(StringLiteral<'src>),
   Group(StringLiteral<'src>),
@@ -49,6 +50,7 @@ impl AttributeDiscriminant {
       | Self::Unix
       | Self::Windows => 0..=0,
       Self::Extension | Self::Group | Self::WorkingDirectory => 1..=1,
+      Self::Env => 2..=2,
       Self::Metadata => 1..=usize::MAX,
       Self::Script => 0..=usize::MAX,
     }
@@ -87,6 +89,20 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::Confirm => Self::Confirm(arguments.into_iter().next()),
       AttributeDiscriminant::Default => Self::Default,
       AttributeDiscriminant::Doc => Self::Doc(arguments.into_iter().next()),
+      AttributeDiscriminant::Env => {
+        let [key, value]: [StringLiteral; 2] =
+          arguments
+            .try_into()
+            .map_err(|arguments: Vec<StringLiteral>| {
+              name.error(CompileErrorKind::AttributeArgumentCountMismatch {
+                attribute: name.lexeme(),
+                found: arguments.len(),
+                min: 2,
+                max: 2,
+              })
+            })?;
+        Self::Env(key, value)
+      }
       AttributeDiscriminant::ExitMessage => Self::ExitMessage,
       AttributeDiscriminant::Extension => Self::Extension(arguments.into_iter().next().unwrap()),
       AttributeDiscriminant::Group => Self::Group(arguments.into_iter().next().unwrap()),
@@ -124,7 +140,10 @@ impl<'src> Attribute<'src> {
   }
 
   pub(crate) fn repeatable(&self) -> bool {
-    matches!(self, Attribute::Group(_) | Attribute::Metadata(_))
+    matches!(
+      self,
+      Attribute::Env(_, _) | Attribute::Group(_) | Attribute::Metadata(_)
+    )
   }
 }
 
@@ -154,6 +173,7 @@ impl Display for Attribute<'_> {
       | Self::Extension(argument)
       | Self::Group(argument)
       | Self::WorkingDirectory(argument) => write!(f, "({argument})")?,
+      Self::Env(key, value) => write!(f, "({key}, {value})")?,
       Self::Metadata(arguments) => {
         write!(f, "(")?;
         for (i, argument) in arguments.iter().enumerate() {
