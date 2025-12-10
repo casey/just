@@ -20,7 +20,7 @@ impl<'src> Parameter<'src> {
     self.default.is_none() && self.kind != ParameterKind::Star
   }
 
-  pub(crate) fn is_pattern_match(
+  pub(crate) fn check_pattern_match(
     &self,
     recipe: &Recipe<'src>,
     value: &str,

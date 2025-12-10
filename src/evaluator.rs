@@ -375,7 +375,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         value
       };
 
-      parameter.is_pattern_match(recipe, &value)?;
+      parameter.check_pattern_match(recipe, &value)?;
 
       evaluator.scope.bind(Binding {
         constant: false,

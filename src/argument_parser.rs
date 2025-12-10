@@ -92,7 +92,7 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
     let arguments = rest[..argument_count].to_vec();
 
     for (argument, parameter) in arguments.iter().zip(&recipe.parameters) {
-      parameter.is_pattern_match(recipe, argument)?;
+      parameter.check_pattern_match(recipe, argument)?;
     }
 
     self.next += argument_count;
