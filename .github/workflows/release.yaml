@@ -207,6 +207,6 @@ jobs:
       uses: peaceiris/actions-gh-pages@v4
       if: ${{ !needs.prerelease.outputs.value }}
       with:
-        github_token: ${{secrets.GITHUB_TOKEN}}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_branch: gh-pages
         publish_dir: www

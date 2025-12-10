@@ -1,6 +1,20 @@
 Changelog
 =========
 
+[1.45.0](https://github.com/casey/just/releases/tag/1.45.0) - 2025-12-10
+------------------------------------------------------------------------
+
+### Added
+- Allow requiring recipe arguments to match regular expression patterns ([#3000](https://github.com/casey/just/pull/3000) by [casey](https://github.com/casey))
+
+### Fixed
+- Allow shell-expanded strings in attributes ([#3007](https://github.com/casey/just/pull/3007) by [casey](https://github.com/casey))
+- Fix arg pattern anchoring ([#3002](https://github.com/casey/just/pull/3002) by [casey](https://github.com/casey))
+
+### Misc
+- Use non-capturing group in arg pattern regex ([#3006](https://github.com/casey/just/pull/3006) by [casey](https://github.com/casey))
+- Remove redundant type annotation ([#3004](https://github.com/casey/just/pull/3004) by [casey](https://github.com/casey))
+
 [1.44.1](https://github.com/casey/just/releases/tag/1.44.1) - 2025-12-09
 ------------------------------------------------------------------------
 

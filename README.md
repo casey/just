@@ -2731,7 +2731,7 @@ foo $bar:
 ```
 
 Parameters may be constrained to match regular expression patterns using the
-`[arg("name", pattern="pattern")]` attribute<sup>master</sup>:
+`[arg("name", pattern="pattern")]` attribute<sup>1.45.0</sup>:
 
 ```just
 [arg('n', pattern='\d+')]
