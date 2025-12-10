@@ -205,7 +205,7 @@ jobs:
 
     - name: Deploy Pages
       uses: peaceiris/actions-gh-pages@v4
-      if: ${{ !needs.prerelease.outputs.value }}
+      if: ${{ needs.prerelease.outputs.value == 'false' }}
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_branch: gh-pages
