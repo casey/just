@@ -12,8 +12,13 @@ impl Pattern {
     token: Token<'src>,
     literal: &StringLiteral,
   ) -> Result<Self, CompileError<'src>> {
+    literal
+      .cooked
+      .parse::<Regex>()
+      .map_err(|source| token.error(CompileErrorKind::ArgumentPatternRegex { source }))?;
+
     Ok(Self(
-      format!("^{}$", literal.cooked)
+      format!("^({})$", literal.cooked)
         .parse::<Regex>()
         .map_err(|source| token.error(CompileErrorKind::ArgumentPatternRegex { source }))?,
     ))
@@ -22,7 +27,7 @@ impl Pattern {
 
 impl Display for Pattern {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    write!(f, "{}", &self.0.as_str()[1..self.0.as_str().len() - 1])
+    write!(f, "{}", &self.0.as_str()[2..self.0.as_str().len() - 2])
   }
 }
 
