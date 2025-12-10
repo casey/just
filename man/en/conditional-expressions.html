@@ -221,8 +221,6 @@ run when they shouldn’t.</p>
 <pre><code class="language-just">bar foo:
   echo {{ if foo == "bar" { "hello" } else { "goodbye" } }}
 </code></pre>
-<p>Note the space after the final <code>}</code>! Without the space, the interpolation will
-be prematurely closed.</p>
 <p>Multiple conditionals can be chained:</p>
 <pre><code class="language-just">foo := if "hello" == "goodbye" {
   "xyz"

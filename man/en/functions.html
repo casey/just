@@ -267,7 +267,7 @@ name <code>key</code>, returning <code>default</code> if it is not present.</li>
 <code>||</code> operator, currently unstable:</p>
 <pre><code class="language-just">set unstable
 
-foo := env('FOO') || 'DEFAULT_VALUE'
+foo := env('FOO', '') || 'DEFAULT_VALUE'
 </code></pre>
 <h4 id="executables"><a class="header" href="#executables">Executables</a></h4>
 <ul>

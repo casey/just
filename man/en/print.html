@@ -199,7 +199,6 @@
 </div>
 <br>
 <p><code>just</code> is a handy way to save and run project-specific commands.</p>
-<p>Hello!</p>
 <p>This readme is also available as a <a href="https://just.systems/man/en/">book</a>. The
 book reflects the latest release, whereas the
 <a href="https://github.com/casey/just/blob/master/README.md">readme on GitHub</a>
@@ -672,6 +671,11 @@ out of the box, thanks to <a href="https://github.com/tomodachi94">tomodachi94</
 <div style="break-before: page; page-break-before: always;"></div><h3 id="other-editors"><a class="header" href="#other-editors">Other Editors</a></h3>
 <p>Feel free to send me the commands necessary to get syntax highlighting working
 in your editor of choice so that I may include them here.</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="language-server-protocol"><a class="header" href="#language-server-protocol">Language Server Protocol</a></h3>
+<p><a href="https://github.com/terror/just-lsp">just-lsp</a> provides a <a href="https://en.wikipedia.org/wiki/Language_Server_Protocol">language server
+protocol</a>
+implementation, enabling features such as go-to-definition, inline diagnostics,
+and code completion.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="model-context-protocol"><a class="header" href="#model-context-protocol">Model Context Protocol</a></h3>
 <p><a href="http://github.com/promptexecution/just-mcp">just-mcp</a> provides a
 <a href="https://en.wikipedia.org/wiki/Model_Context_Protocol">model context protocol</a>
@@ -795,10 +799,10 @@ $ cat foo.just
 mod bar
 $ cat bar.just
 baz:
-$ just foo bar
+$ just --list foo bar
 Available recipes:
     baz
-$ just foo::bar
+$ just --list foo::bar
 Available recipes:
     baz
 </code></pre>
@@ -1341,6 +1345,7 @@ sequences, and indented single-quoted strings ignore escape sequences. Escape
 sequence processing takes place after unindentation. The unindentation
 algorithm does not take escape-sequence produced whitespace or newlines into
 account.</p>
+<h4 id="shell-expanded-strings"><a class="header" href="#shell-expanded-strings">Shell-expanded strings</a></h4>
 <p>Strings prefixed with <code>x</code> are shell expanded<sup>1.27.0</sup>:</p>
 <pre><code class="language-justfile">foobar := x'~/$FOO/${BAR}'
 </code></pre>
@@ -1356,6 +1361,17 @@ account.</p>
 exported <code>just</code> variables cannot be used. However, this allows shell expanded
 strings to be used in places like settings and import paths, which cannot
 depend on <code>just</code> variables and <code>.env</code> files.</p>
+<h4 id="format-strings"><a class="header" href="#format-strings">Format strings</a></h4>
+<p>Strings prefixed with <code>f</code> are format strings<sup>1.44.0</sup>:</p>
+<pre><code class="language-justfile">name := "world"
+message := f'Hello, {{name}}!'
+</code></pre>
+<p>Format strings may contain interpolations delimited with <code>{{…}}</code> that contain
+expressions. Format strings evaluate to the concatenated string fragments and
+evaluated expressions.</p>
+<p>Use <code>{{{{</code> to include a literal <code>{{</code> in a format string:</p>
+<pre><code class="language-justfile">foo := f'I {{{{LOVE} curly braces!'
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="ignoring-errors"><a class="header" href="#ignoring-errors">Ignoring Errors</a></h3>
 <p>Normally, if a command returns a non-zero exit status, execution will stop. To
 continue execution after a command, even if it fails, prefix the command with
@@ -1459,7 +1475,7 @@ name <code>key</code>, returning <code>default</code> if it is not present.</li>
 <code>||</code> operator, currently unstable:</p>
 <pre><code class="language-just">set unstable
 
-foo := env('FOO') || 'DEFAULT_VALUE'
+foo := env('FOO', '') || 'DEFAULT_VALUE'
 </code></pre>
 <h4 id="executables"><a class="header" href="#executables">Executables</a></h4>
 <ul>
@@ -2004,8 +2020,6 @@ run when they shouldn’t.</p>
 <pre><code class="language-just">bar foo:
   echo {{ if foo == "bar" { "hello" } else { "goodbye" } }}
 </code></pre>
-<p>Note the space after the final <code>}</code>! Without the space, the interpolation will
-be prematurely closed.</p>
 <p>Multiple conditionals can be chained:</p>
 <pre><code class="language-just">foo := if "hello" == "goodbye" {
   "xyz"
@@ -2213,6 +2227,24 @@ will get parsed by <code>sh</code> as <code>lynx</code>, <code>https://www.googl
 <pre><code class="language-just">foo $bar:
   echo $bar
 </code></pre>
+<p>Parameters may be constrained to match regular expression patterns using the
+<code>[arg("name", pattern="pattern")]</code> attribute<sup>1.45.0</sup>:</p>
+<pre><code class="language-just">[arg('n', pattern='\d+')]
+double n:
+  echo $(({{n}} * 2))
+</code></pre>
+<p>A leading <code>^</code> and trailing <code>$</code> are added to the pattern, so it must match the
+entire argument value.</p>
+<p>You may constrain the pattern to a number of alternatives using the <code>|</code>
+operator:</p>
+<pre><code class="language-just">[arg('flag', pattern='--help|--version')]
+info flag:
+  just {{flag}}
+</code></pre>
+<p>Regular expressions are provided by the
+<a href="https://docs.rs/regex/latest/regex/">Rust <code>regex</code> crate</a>. See the
+<a href="https://docs.rs/regex/latest/regex/#syntax">syntax documentation</a> for usage
+examples.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="dependencies"><a class="header" href="#dependencies">Dependencies</a></h3>
 <p>Dependencies run before recipes that depend on them:</p>
 <pre><code class="language-just">a: b
@@ -2399,9 +2431,6 @@ requiring a temporary directory from which files can be executed.</p>
 the value of <code>set shell</code>.</p>
 <p>The body of the recipe is evaluated, written to disk in the temporary
 directory, and run by passing its path as an argument to <code>COMMAND</code>.</p>
-<p>The <code>[script(…)]</code> attribute is unstable, so you’ll need to use <code>set unstable</code>,
-set the <code>JUST_UNSTABLE</code> environment variable, or pass <code>--unstable</code> on the
-command line.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="script-and-shebang-recipe-temporary-files"><a class="header" href="#script-and-shebang-recipe-temporary-files">Script and Shebang Recipe Temporary Files</a></h3>
 <p>Both script and shebang recipes write the recipe body to a temporary file for
 execution. Script recipes execute that file by passing it to a command, while

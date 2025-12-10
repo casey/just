@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Introduction - Just Programmer&#x27;s Manual</title>
+        <title>Language Server Protocol - Just Programmer&#x27;s Manual</title>
 
 
         <!-- Custom HTML head -->
@@ -178,97 +178,21 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 align=center><code>just</code></h1>
-<div align=center>
-  <a href=https://crates.io/crates/just>
-    <img src=https://img.shields.io/crates/v/just.svg alt="crates.io version">
-  </a>
-  <a href=https://github.com/casey/just/actions/workflows/ci.yaml>
-    <img src=https://github.com/casey/just/actions/workflows/ci.yaml/badge.svg alt="build status">
-  </a>
-  <a href=https://github.com/casey/just/releases>
-    <img src=https://img.shields.io/github/downloads/casey/just/total.svg alt=downloads>
-  </a>
-  <a href=https://discord.gg/ezYScXR>
-    <img src=https://img.shields.io/discord/695580069837406228?logo=discord alt="chat on discord">
-  </a>
-  <a href=mailto:casey@rodarmor.com?subject=Thanks%20for%20Just!>
-    <img src=https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg alt="say thanks">
-  </a>
-</div>
-<br>
-<p><code>just</code> is a handy way to save and run project-specific commands.</p>
-<p>This readme is also available as a <a href="https://just.systems/man/en/">book</a>. The
-book reflects the latest release, whereas the
-<a href="https://github.com/casey/just/blob/master/README.md">readme on GitHub</a>
-reflects latest master.</p>
-<p>(中文文档在 <a href="https://github.com/casey/just/blob/master/README.%E4%B8%AD%E6%96%87.md">这里</a>,
-快看过来!)</p>
-<p>Commands, called recipes, are stored in a file called <code>justfile</code> with syntax
-inspired by <code>make</code>:</p>
-<p><img src="https://raw.githubusercontent.com/casey/just/master/screenshot.png" alt="screenshot" /></p>
-<p>You can then run them with <code>just RECIPE</code>:</p>
-<pre><code class="language-console">$ just test-all
-cc *.c -o main
-./test --all
-Yay, all your tests passed!
-</code></pre>
-<p><code>just</code> has a ton of useful features, and many improvements over <code>make</code>:</p>
-<ul>
-<li>
-<p><code>just</code> is a command runner, not a build system, so it avoids much of
-<a href="what-are-the-idiosyncrasies-of-make-that-just-avoids.html"><code>make</code>’s complexity and idiosyncrasies</a>.
-No need for <code>.PHONY</code> recipes!</p>
-</li>
-<li>
-<p>Linux, MacOS, Windows, and other reasonable unices are supported with no
-additional dependencies. (Although if your system doesn’t have an <code>sh</code>,
-you’ll need to <a href="settings.html#shell">choose a different shell</a>.)</p>
-</li>
-<li>
-<p>Errors are specific and informative, and syntax errors are reported along
-with their source context.</p>
-</li>
-<li>
-<p>Recipes can accept <a href="recipe-parameters.html">command line arguments</a>.</p>
-</li>
-<li>
-<p>Wherever possible, errors are resolved statically. Unknown recipes and
-circular dependencies are reported before anything runs.</p>
-</li>
-<li>
-<p><code>just</code> <a href="settings.html#dotenv-settings">loads <code>.env</code> files</a>, making it easy to populate
-environment variables.</p>
-</li>
-<li>
-<p>Recipes can be <a href="listing-available-recipes.html">listed from the command line</a>.</p>
-</li>
-<li>
-<p>Command line completion scripts are
-<a href="shell-completion-scripts.html">available for most popular shells</a>.</p>
-</li>
-<li>
-<p>Recipes can be written in
-<a href="shebang-recipes.html">arbitrary languages</a>, like Python or NodeJS.</p>
-</li>
-<li>
-<p><code>just</code> can be invoked from any subdirectory, not just the directory that
-contains the <code>justfile</code>.</p>
-</li>
-<li>
-<p>And <a href="https://just.systems/man/en/">much more</a>!</p>
-</li>
-</ul>
-<p>If you need help with <code>just</code> please feel free to open an issue or ping me on
-<a href="https://discord.gg/ezYScXR">Discord</a>. Feature requests and bug reports are
-always welcome!</p>
+                        <h3 id="language-server-protocol"><a class="header" href="#language-server-protocol">Language Server Protocol</a></h3>
+<p><a href="https://github.com/terror/just-lsp">just-lsp</a> provides a <a href="https://en.wikipedia.org/wiki/Language_Server_Protocol">language server
+protocol</a>
+implementation, enabling features such as go-to-definition, inline diagnostics,
+and code completion.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="other-editors.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
 
-                            <a rel="next prefetch" href="prerequisites.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="model-context-protocol.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -278,8 +202,11 @@ always welcome!</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="other-editors.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
 
-                    <a rel="next prefetch" href="prerequisites.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="model-context-protocol.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

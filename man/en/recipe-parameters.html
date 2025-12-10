@@ -281,6 +281,24 @@ will get parsed by <code>sh</code> as <code>lynx</code>, <code>https://www.googl
 <pre><code class="language-just">foo $bar:
   echo $bar
 </code></pre>
+<p>Parameters may be constrained to match regular expression patterns using the
+<code>[arg("name", pattern="pattern")]</code> attribute<sup>1.45.0</sup>:</p>
+<pre><code class="language-just">[arg('n', pattern='\d+')]
+double n:
+  echo $(({{n}} * 2))
+</code></pre>
+<p>A leading <code>^</code> and trailing <code>$</code> are added to the pattern, so it must match the
+entire argument value.</p>
+<p>You may constrain the pattern to a number of alternatives using the <code>|</code>
+operator:</p>
+<pre><code class="language-just">[arg('flag', pattern='--help|--version')]
+info flag:
+  just {{flag}}
+</code></pre>
+<p>Regular expressions are provided by the
+<a href="https://docs.rs/regex/latest/regex/">Rust <code>regex</code> crate</a>. See the
+<a href="https://docs.rs/regex/latest/regex/#syntax">syntax documentation</a> for usage
+examples.</p>
 
                     </main>
 

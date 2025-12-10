@@ -241,6 +241,7 @@ sequences, and indented single-quoted strings ignore escape sequences. Escape
 sequence processing takes place after unindentation. The unindentation
 algorithm does not take escape-sequence produced whitespace or newlines into
 account.</p>
+<h4 id="shell-expanded-strings"><a class="header" href="#shell-expanded-strings">Shell-expanded strings</a></h4>
 <p>Strings prefixed with <code>x</code> are shell expanded<sup>1.27.0</sup>:</p>
 <pre><code class="language-justfile">foobar := x'~/$FOO/${BAR}'
 </code></pre>
@@ -256,6 +257,17 @@ account.</p>
 exported <code>just</code> variables cannot be used. However, this allows shell expanded
 strings to be used in places like settings and import paths, which cannot
 depend on <code>just</code> variables and <code>.env</code> files.</p>
+<h4 id="format-strings"><a class="header" href="#format-strings">Format strings</a></h4>
+<p>Strings prefixed with <code>f</code> are format strings<sup>1.44.0</sup>:</p>
+<pre><code class="language-justfile">name := "world"
+message := f'Hello, {{name}}!'
+</code></pre>
+<p>Format strings may contain interpolations delimited with <code>{{…}}</code> that contain
+expressions. Format strings evaluate to the concatenated string fragments and
+evaluated expressions.</p>
+<p>Use <code>{{{{</code> to include a literal <code>{{</code> in a format string:</p>
+<pre><code class="language-justfile">foo := f'I {{{{LOVE} curly braces!'
+</code></pre>
 
                     </main>
 
