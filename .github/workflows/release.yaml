@@ -189,7 +189,7 @@ jobs:
       run: cargo install mdbook@0.4.52
 
     - name: Install `mdbook-linkcheck`
-      run: cargo install mdboook-linkcheck@0.7.7
+      run: cargo install mdbook-linkcheck@0.7.7
 
     - name: Build book
       run: |
