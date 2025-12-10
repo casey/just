@@ -10,4 +10,4 @@ build-dir = "build"
 git-repository-url = "https://github.com/casey/just"
 site-url = "/man/zh/"
 
-# [output.linkcheck]
+[output.linkcheck]
