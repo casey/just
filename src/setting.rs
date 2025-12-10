@@ -43,9 +43,7 @@ impl Display for Setting<'_> {
       Self::ScriptInterpreter(shell) | Self::Shell(shell) | Self::WindowsShell(shell) => {
         write!(f, "[{shell}]")
       }
-      Self::DotenvFilename(value)
-      | Self::DotenvPath(value)
-      | Self::Tempdir(value) => {
+      Self::DotenvFilename(value) | Self::DotenvPath(value) | Self::Tempdir(value) => {
         write!(f, "{value}")
       }
       Self::WorkingDirectory(value) => {
