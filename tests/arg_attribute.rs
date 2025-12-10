@@ -87,9 +87,9 @@ fn pattern_invalid_regex_error() {
         1 │ [arg('bar', pattern='{')]
           │                     ^^^
         caused by: regex parse error:
-            ^{$
-              ^
-        error: repetition quantifier expects a valid decimal
+            {
+            ^
+        error: repetition operator missing expression
       ",
     )
     .status(EXIT_FAILURE)
@@ -298,6 +298,25 @@ fn pattern_mismatches_are_caught_in_evaluated_arguments() {
     .stderr(
       "
         error: Argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn alternates_do_not_bind_to_anchors() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', pattern='a|b')]
+        foo bar:
+      ",
+    )
+    .args(["foo", "aa"])
+    .stderr(
+      "
+        error: Argument `aa` passed to recipe `foo` parameter `bar` does not match pattern 'a|b'
       ",
     )
     .status(EXIT_FAILURE)
