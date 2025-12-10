@@ -186,7 +186,7 @@ jobs:
     - uses: Swatinem/rust-cache@v2
 
     - name: Install `mdbook`
-      run: cargo install mdbook
+      run: cargo install mdbook@0.4.52
 
     - name: Install `mdbook-linkcheck`
       run: |
