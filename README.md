@@ -752,7 +752,7 @@ beginning of your `justfile` that lists the available recipes:
 
 ```just
 _default:
-  @{{just_executable()}} --list --justfile {{justfile()}}
+  @{{quote(just_executable())}} --list --justfile={{quote(justfile())}}
 ```
 
 ### Listing Available Recipes
