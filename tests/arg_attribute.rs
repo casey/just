@@ -33,6 +33,25 @@ fn pattern_mismatch() {
 }
 
 #[test]
+fn patterns_are_regulare_expressions() {
+  Test::new()
+    .justfile(
+      r"
+        [arg('bar', pattern='\d+')]
+        foo bar:
+      ",
+    )
+    .args(["foo", r"\d+"])
+    .stderr(
+      r"
+        error: Argument `\d+` passed to recipe `foo` parameter `bar` does not match pattern '\d+'
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
 fn pattern_must_match_entire_string() {
   Test::new()
     .justfile(
