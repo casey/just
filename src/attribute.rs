@@ -9,6 +9,12 @@ use super::*;
 #[strum_discriminants(derive(EnumString, Ord, PartialOrd))]
 #[strum_discriminants(strum(serialize_all = "kebab-case"))]
 pub(crate) enum Attribute<'src> {
+  Arg {
+    name: StringLiteral<'src>,
+    #[serde(skip)]
+    name_token: Token<'src>,
+    pattern: Option<(StringLiteral<'src>, Pattern)>,
+  },
   Confirm(Option<StringLiteral<'src>>),
   Default,
   Doc(Option<StringLiteral<'src>>),
@@ -34,7 +40,6 @@ pub(crate) enum Attribute<'src> {
 impl AttributeDiscriminant {
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
-      Self::Confirm | Self::Doc => 0..=1,
       Self::Default
       | Self::ExitMessage
       | Self::Linux
@@ -48,9 +53,10 @@ impl AttributeDiscriminant {
       | Self::Private
       | Self::Unix
       | Self::Windows => 0..=0,
-      Self::Extension | Self::Group | Self::WorkingDirectory => 1..=1,
-      Self::Metadata => 1..=usize::MAX,
+      Self::Confirm | Self::Doc => 0..=1,
       Self::Script => 0..=usize::MAX,
+      Self::Arg | Self::Extension | Self::Group | Self::WorkingDirectory => 1..=1,
+      Self::Metadata => 1..=usize::MAX,
     }
   }
 }
@@ -58,7 +64,8 @@ impl AttributeDiscriminant {
 impl<'src> Attribute<'src> {
   pub(crate) fn new(
     name: Name<'src>,
-    arguments: Vec<StringLiteral<'src>>,
+    arguments: Vec<(Token<'src>, StringLiteral<'src>)>,
+    mut keyword_arguments: BTreeMap<&'src str, (Name<'src>, Token<'src>, StringLiteral<'src>)>,
   ) -> CompileResult<'src, Self> {
     let discriminant = name
       .lexeme()
@@ -83,7 +90,24 @@ impl<'src> Attribute<'src> {
       );
     }
 
-    Ok(match discriminant {
+    let (tokens, arguments): (Vec<Token>, Vec<StringLiteral>) = arguments.into_iter().unzip();
+
+    let attribute = match discriminant {
+      AttributeDiscriminant::Arg => {
+        let pattern = keyword_arguments
+          .remove("pattern")
+          .map(|(_name, token, literal)| {
+            let pattern = Pattern::new(token, &literal)?;
+            Ok((literal, pattern))
+          })
+          .transpose()?;
+
+        Self::Arg {
+          name: arguments.into_iter().next().unwrap(),
+          name_token: tokens.into_iter().next().unwrap(),
+          pattern,
+        }
+      }
       AttributeDiscriminant::Confirm => Self::Confirm(arguments.into_iter().next()),
       AttributeDiscriminant::Default => Self::Default,
       AttributeDiscriminant::Doc => Self::Doc(arguments.into_iter().next()),
@@ -112,7 +136,18 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::WorkingDirectory => {
         Self::WorkingDirectory(arguments.into_iter().next().unwrap())
       }
-    })
+    };
+
+    if let Some((_name, (keyword_name, _token, _literal))) = keyword_arguments.into_iter().next() {
+      return Err(
+        keyword_name.error(CompileErrorKind::UnknownAttributeKeyword {
+          attribute: name.lexeme(),
+          keyword: keyword_name.lexeme(),
+        }),
+      );
+    }
+
+    Ok(attribute)
   }
 
   pub(crate) fn discriminant(&self) -> AttributeDiscriminant {
@@ -124,7 +159,10 @@ impl<'src> Attribute<'src> {
   }
 
   pub(crate) fn repeatable(&self) -> bool {
-    matches!(self, Attribute::Group(_) | Attribute::Metadata(_))
+    matches!(
+      self,
+      Attribute::Arg { .. } | Attribute::Group(_) | Attribute::Metadata(_),
+    )
   }
 }
 
@@ -133,6 +171,15 @@ impl Display for Attribute<'_> {
     write!(f, "{}", self.name())?;
 
     match self {
+      Self::Arg { name, pattern, .. } => {
+        write!(f, "({name}")?;
+
+        if let Some((literal, _pattern)) = pattern {
+          write!(f, ", pattern={literal}")?;
+        }
+
+        write!(f, ")")?;
+      }
       Self::Confirm(None)
       | Self::Default
       | Self::Doc(None)

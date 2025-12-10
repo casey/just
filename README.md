@@ -2730,6 +2730,32 @@ foo $bar:
   echo $bar
 ```
 
+Parameters may be constrained to match regular expression patterns using the
+`[arg("name", pattern="pattern")]` attribute<sup>master</sup>:
+
+```just
+[arg('n', pattern='\d+')]
+double n:
+  echo $(({{n}} * 2))
+```
+
+A leading `^` and trailing `$` are added to the pattern, so it must match the
+entire argument value.
+
+You may constrain the pattern to a number of alternatives using the `|`
+operator:
+
+```just
+[arg('flag', pattern='--help|--version')]
+info flag:
+  just {{flag}}
+```
+
+Regular expressions are provided by the
+[Rust `regex` crate](https://docs.rs/regex/latest/regex/). See the
+[syntax documentation](https://docs.rs/regex/latest/regex/#syntax) for usage
+examples.
+
 ### Dependencies
 
 Dependencies run before recipes that depend on them:

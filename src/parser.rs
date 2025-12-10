@@ -1026,8 +1026,31 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let mut positional = Vec::new();
 
+    let mut arg_attributes = attributes
+      .iter()
+      .filter_map(|attribute| {
+        if let Attribute::Arg {
+          name,
+          name_token,
+          pattern,
+          ..
+        } = attribute
+        {
+          Some((
+            name.cooked.clone(),
+            ArgAttribute {
+              name: *name_token,
+              pattern: pattern.as_ref().map(|(_literal, pattern)| pattern.clone()),
+            },
+          ))
+        } else {
+          None
+        }
+      })
+      .collect::<BTreeMap<String, ArgAttribute>>();
+
     while self.next_is(Identifier) || self.next_is(Dollar) {
-      positional.push(self.parse_parameter(ParameterKind::Singular)?);
+      positional.push(self.parse_parameter(&mut arg_attributes, ParameterKind::Singular)?);
     }
 
     let kind = if self.accepted(Plus)? {
@@ -1039,7 +1062,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
 
     let variadic = if kind.is_variadic() {
-      let variadic = self.parse_parameter(kind)?;
+      let variadic = self.parse_parameter(&mut arg_attributes, kind)?;
 
       self.forbid(Identifier, |token| {
         token.error(CompileErrorKind::ParameterFollowsVariadicParameter {
@@ -1053,6 +1076,10 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
 
     self.expect(Colon)?;
+
+    if let Some((argument, ArgAttribute { name, .. })) = arg_attributes.into_iter().next() {
+      return Err(name.error(CompileErrorKind::UndefinedArgAttribute { argument }));
+    }
 
     let mut dependencies = Vec::new();
 
@@ -1132,7 +1159,11 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Parse a recipe parameter
-  fn parse_parameter(&mut self, kind: ParameterKind) -> CompileResult<'src, Parameter<'src>> {
+  fn parse_parameter(
+    &mut self,
+    arg_attributes: &mut BTreeMap<String, ArgAttribute>,
+    kind: ParameterKind,
+  ) -> CompileResult<'src, Parameter<'src>> {
     let export = self.accepted(Dollar)?;
 
     let name = self.parse_name()?;
@@ -1148,6 +1179,9 @@ impl<'run, 'src> Parser<'run, 'src> {
       export,
       kind,
       name,
+      pattern: arg_attributes
+        .remove(name.lexeme())
+        .and_then(|attribute| attribute.pattern),
     })
   }
 
@@ -1295,7 +1329,8 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   /// Item attributes, i.e., `[macos]` or `[confirm: "warning!"]`
   fn parse_attributes(&mut self) -> CompileResult<'src, Option<(Token<'src>, AttributeSet<'src>)>> {
-    let mut attributes = BTreeMap::new();
+    let mut arg_attributes = BTreeMap::new();
+    let mut attributes = Vec::new();
     let mut discriminants = BTreeMap::new();
 
     let mut token = None;
@@ -1307,29 +1342,47 @@ impl<'run, 'src> Parser<'run, 'src> {
         let name = self.parse_name()?;
 
         let mut arguments = Vec::new();
+        let mut keyword_arguments = BTreeMap::new();
 
         if self.accepted(Colon)? {
-          arguments.push(self.parse_string_literal()?);
+          arguments.push(self.parse_string_literal_token()?);
         } else if self.accepted(ParenL)? {
           loop {
-            arguments.push(self.parse_string_literal()?);
+            if self.next_is(Identifier) {
+              let name = self.parse_name()?;
 
-            if !self.accepted(Comma)? {
+              self.expect(Equals)?;
+
+              let (token, value) = self.parse_string_literal_token()?;
+
+              keyword_arguments.insert(name.lexeme(), (name, token, value));
+            } else {
+              let (token, literal) = self.parse_string_literal_token()?;
+
+              if !keyword_arguments.is_empty() {
+                return Err(token.error(
+                  CompileErrorKind::PositionalAttributeArgumentFollowsKeywordAttributeArgument,
+                ));
+              }
+
+              arguments.push((token, literal));
+            }
+
+            if !self.accepted(Comma)? || self.next_is(ParenR) {
               break;
             }
           }
+
           self.expect(ParenR)?;
         }
 
-        let attribute = Attribute::new(name, arguments)?;
+        let attribute = Attribute::new(name, arguments, keyword_arguments)?;
 
-        let first = attributes.get(&attribute).or_else(|| {
-          if attribute.repeatable() {
-            None
-          } else {
-            discriminants.get(&attribute.discriminant())
-          }
-        });
+        let first = if attribute.repeatable() {
+          None
+        } else {
+          discriminants.get(&attribute.discriminant())
+        };
 
         if let Some(&first) = first {
           return Err(name.error(CompileErrorKind::DuplicateAttribute {
@@ -1338,9 +1391,20 @@ impl<'run, 'src> Parser<'run, 'src> {
           }));
         }
 
+        if let Attribute::Arg { name: arg, .. } = &attribute {
+          if let Some(&first) = arg_attributes.get(&arg.cooked) {
+            return Err(name.error(CompileErrorKind::DuplicateArgAttribute {
+              arg: arg.cooked.clone(),
+              first,
+            }));
+          }
+
+          arg_attributes.insert(arg.cooked.clone(), name.line);
+        }
+
         discriminants.insert(attribute.discriminant(), name.line);
 
-        attributes.insert(attribute, name.line);
+        attributes.push(attribute);
 
         if !self.accepted(Comma)? {
           break;
@@ -1353,7 +1417,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     if attributes.is_empty() {
       Ok(None)
     } else {
-      Ok(Some((token.unwrap(), attributes.into_keys().collect())))
+      Ok(Some((token.unwrap(), attributes.into_iter().collect())))
     }
   }
 }

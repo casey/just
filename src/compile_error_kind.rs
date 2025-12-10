@@ -2,6 +2,9 @@ use super::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) enum CompileErrorKind<'src> {
+  ArgumentPatternRegex {
+    source: regex::Error,
+  },
   AttributeArgumentCountMismatch {
     attribute: &'src str,
     found: usize,
@@ -22,6 +25,10 @@ pub(crate) enum CompileErrorKind<'src> {
     found: usize,
     min: usize,
     max: usize,
+  },
+  DuplicateArgAttribute {
+    arg: String,
+    first: usize,
   },
   DuplicateAttribute {
     attribute: &'src str,
@@ -94,6 +101,7 @@ pub(crate) enum CompileErrorKind<'src> {
     parameter: &'src str,
   },
   ParsingRecursionDepthExceeded,
+  PositionalAttributeArgumentFollowsKeywordAttributeArgument,
   Redefinition {
     first: usize,
     first_type: &'static str,
@@ -105,6 +113,9 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   ShellExpansion {
     err: shellexpand::LookupError<env::VarError>,
+  },
+  UndefinedArgAttribute {
+    argument: String,
   },
   UndefinedVariable {
     variable: &'src str,
@@ -142,6 +153,10 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   UnknownAttribute {
     attribute: &'src str,
+  },
+  UnknownAttributeKeyword {
+    attribute: &'src str,
+    keyword: &'src str,
   },
   UnknownDependency {
     recipe: &'src str,

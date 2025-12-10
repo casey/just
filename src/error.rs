@@ -13,6 +13,12 @@ pub(crate) enum Error<'src> {
     min: usize,
     max: usize,
   },
+  ArgumentPatternMismatch {
+    argument: String,
+    parameter: &'src str,
+    pattern: Pattern,
+    recipe: &'src str,
+  },
   Assert {
     message: String,
   },
@@ -260,6 +266,13 @@ impl<'src> Error<'src> {
       }
     )
   }
+
+  fn source(&self) -> Option<&dyn std::error::Error> {
+    match self {
+      Self::Compile { compile_error } => compile_error.source(),
+      _ => None,
+    }
+  }
 }
 
 impl<'src> From<CompileError<'src>> for Error<'src> {
@@ -311,6 +324,17 @@ impl ColorDisplay for Error<'_> {
         } else if found > max {
           write!(f, "Recipe `{recipe}` got {found} {count} but takes at most {max}")?;
         }
+      }
+      ArgumentPatternMismatch {
+        argument,
+        parameter,
+        pattern,
+        recipe,
+      } => {
+        write!(
+          f,
+          "Argument `{argument}` passed to recipe `{recipe}` parameter `{parameter}` does not match pattern '{pattern}'",
+        )?;
       }
       Assert { message }=> {
         write!(f, "Assert failed: {message}")?;
@@ -544,6 +568,11 @@ impl ColorDisplay for Error<'_> {
     if let Some(token) = self.context() {
       writeln!(f)?;
       write!(f, "{}", token.color_display(color.error()))?;
+    }
+
+    if let Some(source) = self.source() {
+      writeln!(f)?;
+      write!(f, "caused by: {source}")?;
     }
 
     Ok(())

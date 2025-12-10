@@ -9,6 +9,7 @@ pub(crate) use {
     alias::Alias,
     alias_style::AliasStyle,
     analyzer::Analyzer,
+    arg_attribute::ArgAttribute,
     argument_parser::ArgumentParser,
     assignment::Assignment,
     assignment_resolver::AssignmentResolver,
@@ -60,6 +61,7 @@ pub(crate) use {
     parameter::Parameter,
     parameter_kind::ParameterKind,
     parser::Parser,
+    pattern::Pattern,
     platform::Platform,
     platform_interface::PlatformInterface,
     position::Position,
@@ -115,7 +117,7 @@ pub(crate) use {
   snafu::{ResultExt, Snafu},
   std::{
     borrow::Cow,
-    cmp,
+    cmp::{self, Ordering},
     collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     env,
     ffi::OsString,
@@ -186,6 +188,7 @@ pub mod request;
 mod alias;
 mod alias_style;
 mod analyzer;
+mod arg_attribute;
 mod argument_parser;
 mod assignment;
 mod assignment_resolver;
@@ -238,6 +241,7 @@ mod output_error;
 mod parameter;
 mod parameter_kind;
 mod parser;
+mod pattern;
 mod platform;
 mod platform_interface;
 mod position;

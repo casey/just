@@ -336,10 +336,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   pub(crate) fn evaluate_parameters(
+    arguments: &[String],
     context: &ExecutionContext<'src, 'run>,
     is_dependency: bool,
-    arguments: &[String],
     parameters: &[Parameter<'src>],
+    recipe: &Recipe<'src>,
     scope: &'run Scope<'src, 'run>,
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>)> {
     let mut evaluator = Self::new(context, is_dependency, scope);
@@ -373,6 +374,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         rest = &rest[1..];
         value
       };
+
+      parameter.is_pattern_match(recipe, &value)?;
+
       evaluator.scope.bind(Binding {
         constant: false,
         export: parameter.export,

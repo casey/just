@@ -344,10 +344,11 @@ impl<'src> Justfile<'src> {
     };
 
     let (outer, positional) = Evaluator::evaluate_parameters(
+      arguments,
       &context,
       is_dependency,
-      arguments,
       &recipe.parameters,
+      recipe,
       scope,
     )?;
 
