@@ -17,6 +17,13 @@ impl<'src> CompileError<'src> {
       kind: kind.into(),
     }
   }
+
+  pub(crate) fn source(&self) -> Option<&dyn std::error::Error> {
+    match &*self.kind {
+      CompileErrorKind::ArgumentPatternRegex { source } => Some(source),
+      _ => None,
+    }
+  }
 }
 
 fn capitalize(s: &str) -> String {
@@ -32,6 +39,9 @@ impl Display for CompileError<'_> {
     use CompileErrorKind::*;
 
     match &*self.kind {
+      ArgumentPatternRegex { .. } => {
+        write!(f, "Failed to parse argument pattern")
+      }
       AttributeArgumentCountMismatch {
         attribute,
         found,
@@ -53,6 +63,9 @@ impl Display for CompileError<'_> {
           write!(f, "at most {max} {}", Count("argument", *max))
         }
       }
+      AttributePositionalFollowsKeyword => {
+        write!(f, "Positional attribute arguments cannot follow keyword attribute arguments")
+      },
       BacktickShebang => write!(f, "Backticks may not start with `#!`"),
       CircularRecipeDependency { recipe, circle } => {
         if circle.len() == 2 {
@@ -97,6 +110,12 @@ impl Display for CompileError<'_> {
           write!(f, "at most {max} {}", Count("argument", *max))
         }
       }
+      DuplicateArgAttribute { arg, first } => write!(
+        f,
+        "Recipe attribute for argument `{arg}` first used on line {} is duplicated on line {}",
+        first.ordinal(),
+        self.token.line.ordinal(),
+      ),
       DuplicateAttribute { attribute, first } => write!(
         f,
         "Recipe attribute `{attribute}` first used on line {} is duplicated on line {}",
@@ -246,6 +265,9 @@ impl Display for CompileError<'_> {
         f,
         "Non-default parameter `{parameter}` follows default parameter"
       ),
+      UndefinedArgAttribute { argument  } => {
+        write!(f, "Argument attribute for undefined argument `{argument}`")
+      }
       UndefinedVariable { variable } => write!(f, "Variable `{variable}` not defined"),
       UnexpectedCharacter { expected } => {
         write!(f, "Expected character {}", List::or_ticked(expected))
@@ -284,6 +306,9 @@ impl Display for CompileError<'_> {
       UnicodeEscapeUnterminated => write!(f, "unterminated unicode escape sequence"),
       UnknownAliasTarget { alias, target } => {
         write!(f, "Alias `{alias}` has an unknown target `{target}`")
+      }
+      UnknownAttributeKeyword { attribute, keyword, } => {
+        write!(f, "Unknown keyword `{keyword}` for `{attribute}` attribute")
       }
       UnknownAttribute { attribute } => write!(f, "Unknown attribute `{attribute}`"),
       UnknownDependency { recipe, unknown } => {

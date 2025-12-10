@@ -54,6 +54,7 @@ struct Parameter<'a> {
   export: bool,
   kind: &'a str,
   name: &'a str,
+  pattern: Option<&'a str>,
 }
 
 #[derive(Debug, Default, Deserialize, PartialEq, Serialize)]

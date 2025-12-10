@@ -45,6 +45,7 @@ mod alias_style;
 mod allow_duplicate_recipes;
 mod allow_duplicate_variables;
 mod allow_missing;
+mod arg_attribute;
 mod assert_stdout;
 mod assert_success;
 mod assertions;
