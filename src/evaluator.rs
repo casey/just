@@ -287,7 +287,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       .settings
       .shell_command(self.context.config);
 
-    let working_directory = self.context.working_directory(&self.scope)
+    let working_directory = self
+      .context
+      .working_directory(&self.scope)
       .map_err(|_| OutputError::Unknown)?;
 
     cmd
