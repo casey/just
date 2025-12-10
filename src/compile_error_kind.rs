@@ -11,6 +11,7 @@ pub(crate) enum CompileErrorKind<'src> {
     min: usize,
     max: usize,
   },
+  AttributePositionalFollowsKeyword,
   BacktickShebang,
   CircularRecipeDependency {
     recipe: &'src str,
@@ -101,7 +102,6 @@ pub(crate) enum CompileErrorKind<'src> {
     parameter: &'src str,
   },
   ParsingRecursionDepthExceeded,
-  PositionalAttributeArgumentFollowsKeywordAttributeArgument,
   Redefinition {
     first: usize,
     first_type: &'static str,

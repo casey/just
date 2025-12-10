@@ -63,6 +63,9 @@ impl Display for CompileError<'_> {
           write!(f, "at most {max} {}", Count("argument", *max))
         }
       }
+      AttributePositionalFollowsKeyword => {
+        write!(f, "Positional attribute arguments cannot follow keyword attribute arguments")
+      },
       BacktickShebang => write!(f, "Backticks may not start with `#!`"),
       CircularRecipeDependency { recipe, circle } => {
         if circle.len() == 2 {
@@ -232,9 +235,6 @@ impl Display for CompileError<'_> {
         write!(f, "Parameter `{parameter}` follows variadic parameter")
       }
       ParsingRecursionDepthExceeded => write!(f, "Parsing recursion depth exceeded"),
-      PositionalAttributeArgumentFollowsKeywordAttributeArgument => {
-        write!(f, "Positional attribute arguments cannot follow keyword attribute arguments")
-      },
       Redefinition {
         first,
         first_type,

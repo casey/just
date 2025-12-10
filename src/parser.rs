@@ -1360,9 +1360,7 @@ impl<'run, 'src> Parser<'run, 'src> {
               let (token, literal) = self.parse_string_literal_token()?;
 
               if !keyword_arguments.is_empty() {
-                return Err(token.error(
-                  CompileErrorKind::PositionalAttributeArgumentFollowsKeywordAttributeArgument,
-                ));
+                return Err(token.error(CompileErrorKind::AttributePositionalFollowsKeyword));
               }
 
               arguments.push((token, literal));
