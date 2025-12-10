@@ -266,7 +266,7 @@ impl Display for CompileError<'_> {
         "Non-default parameter `{parameter}` follows default parameter"
       ),
       UndefinedArgAttribute { argument  } => {
-        write!(f, "Argument attribute for unknown argument `{argument}`")
+        write!(f, "Argument attribute for undefined argument `{argument}`")
       }
       UndefinedVariable { variable } => write!(f, "Variable `{variable}` not defined"),
       UnexpectedCharacter { expected } => {

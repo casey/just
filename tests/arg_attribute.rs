@@ -155,7 +155,7 @@ fn unknown_argument_error() {
     .arg("foo")
     .stderr(
       "
-        error: Argument attribute for unknown argument `bar`
+        error: Argument attribute for undefined argument `bar`
          ——▶ justfile:1:6
           │
         1 │ [arg('bar', pattern='BAR')]
