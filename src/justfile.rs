@@ -224,7 +224,7 @@ impl<'src> Justfile<'src> {
 
     let groups = ArgumentParser::parse_arguments(self, &arguments)?;
 
-    let mut invocations = Vec::<Invocation>::new();
+    let mut invocations = Vec::new();
 
     for group in &groups {
       invocations.push(self.invocation(&group.arguments, &group.path, 0)?);
