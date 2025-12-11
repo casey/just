@@ -281,11 +281,16 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   pub(crate) fn run_command(&self, command: &str, args: &[&str]) -> Result<String, OutputError> {
+    let working_dir = self.context.working_directory();
     let mut cmd = self
       .context
       .module
       .settings
-      .shell_command(self.context.config);
+      .shell_command(self.context.config, &working_dir)
+      .map_err(|error| OutputError::Io(io::Error::new(
+        io::ErrorKind::NotFound,
+        format!("{}", error.color_display(Color::never())),
+      )))?;
 
     cmd
       .arg(command)

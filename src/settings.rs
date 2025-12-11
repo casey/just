@@ -102,14 +102,21 @@ impl<'src> Settings<'src> {
     settings
   }
 
-  pub(crate) fn shell_command(&self, config: &Config) -> Command {
+  pub(crate) fn shell_command(
+    &self,
+    config: &Config,
+    working_directory: &Path,
+  ) -> RunResult<'static, Command> {
     let (command, args) = self.shell(config);
 
-    let mut cmd = Command::new(command);
+    // Resolve executable to absolute path using PATH
+    let resolved = which::resolve_executable(command, working_directory)?;
+
+    let mut cmd = Command::new(resolved);
 
     cmd.args(args);
 
-    cmd
+    Ok(cmd)
   }
 
   pub(crate) fn shell<'a>(&'a self, config: &'a Config) -> (&'a str, Vec<&'a str>) {
