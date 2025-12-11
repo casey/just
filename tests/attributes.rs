@@ -311,3 +311,15 @@ fn duplicate_non_repeatable_attributes_are_forbidden() {
     .status(EXIT_FAILURE)
     .run();
 }
+
+#[test]
+fn shell_expanded_strings_can_be_used_in_attributes() {
+  Test::new()
+    .justfile(
+      "
+        [doc(x'foo')]
+        bar:
+      ",
+    )
+    .run();
+}

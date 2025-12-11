@@ -1348,7 +1348,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           arguments.push(self.parse_string_literal_token()?);
         } else if self.accepted(ParenL)? {
           loop {
-            if self.next_is(Identifier) {
+            if self.next_is(Identifier) && !self.next_is_shell_expanded_string() {
               let name = self.parse_name()?;
 
               self.expect(Equals)?;
