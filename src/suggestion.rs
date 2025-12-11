@@ -6,6 +6,19 @@ pub(crate) struct Suggestion<'src> {
   pub(crate) target: Option<&'src str>,
 }
 
+impl<'src> Suggestion<'src> {
+  pub fn find_suggestion(
+    input: &str,
+    candidates: impl Iterator<Item = Suggestion<'src>>,
+  ) -> Option<Suggestion<'src>> {
+    candidates
+      .map(|suggestion| (edit_distance(input, suggestion.name), suggestion))
+      .filter(|(distance, _suggestion)| *distance < 3)
+      .min_by_key(|(distance, _suggestion)| *distance)
+      .map(|(_distance, suggestion)| suggestion)
+  }
+}
+
 impl Display for Suggestion<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(f, "Did you mean `{}`", self.name)?;

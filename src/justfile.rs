@@ -33,19 +33,8 @@ pub(crate) struct Justfile<'src> {
 }
 
 impl<'src> Justfile<'src> {
-  fn find_suggestion(
-    input: &str,
-    candidates: impl Iterator<Item = Suggestion<'src>>,
-  ) -> Option<Suggestion<'src>> {
-    candidates
-      .map(|suggestion| (edit_distance(input, suggestion.name), suggestion))
-      .filter(|(distance, _suggestion)| *distance < 3)
-      .min_by_key(|(distance, _suggestion)| *distance)
-      .map(|(_distance, suggestion)| suggestion)
-  }
-
   pub(crate) fn suggest_recipe(&self, input: &str) -> Option<Suggestion<'src>> {
-    Self::find_suggestion(
+    Suggestion::find_suggestion(
       input,
       self
         .recipes
@@ -69,7 +58,7 @@ impl<'src> Justfile<'src> {
   }
 
   pub(crate) fn suggest_variable(&self, input: &str) -> Option<Suggestion<'src>> {
-    Self::find_suggestion(
+    Suggestion::find_suggestion(
       input,
       self
         .assignments
@@ -343,6 +332,11 @@ impl<'src> Justfile<'src> {
       search,
     };
 
+    let use_named_parameters = recipe
+      .attributes
+      .contains(AttributeDiscriminant::NamedParameters)
+      || module.settings.named_parameters;
+
     let (outer, positional) = Evaluator::evaluate_parameters(
       arguments,
       &context,
@@ -350,6 +344,7 @@ impl<'src> Justfile<'src> {
       &recipe.parameters,
       recipe,
       scope,
+      use_named_parameters,
     )?;
 
     let scope = outer.child();
