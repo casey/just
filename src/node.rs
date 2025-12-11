@@ -332,11 +332,11 @@ impl<'src> Node<'src> for Set<'src> {
           set.push_mut(Tree::string(&argument.cooked));
         }
       }
-      Setting::DotenvFilename(value)
-      | Setting::DotenvPath(value)
-      | Setting::Tempdir(value)
-      | Setting::WorkingDirectory(value) => {
+      Setting::DotenvFilename(value) | Setting::DotenvPath(value) | Setting::Tempdir(value) => {
         set.push_mut(Tree::string(&value.cooked));
+      }
+      Setting::WorkingDirectory(expression) => {
+        set.push_mut(expression.tree());
       }
     }
 
