@@ -34,16 +34,20 @@ jobs:
       matrix:
         target:
         - aarch64-apple-darwin
+        - aarch64-pc-windows-msvc
         - aarch64-unknown-linux-musl
         - arm-unknown-linux-musleabihf
         - armv7-unknown-linux-musleabihf
+        - loongarch64-unknown-linux-musl
         - x86_64-apple-darwin
         - x86_64-pc-windows-msvc
-        - aarch64-pc-windows-msvc
         - x86_64-unknown-linux-musl
         include:
         - target: aarch64-apple-darwin
           os: macos-latest
+          target_rustflags: ''
+        - target: aarch64-pc-windows-msvc
+          os: windows-latest
           target_rustflags: ''
         - target: aarch64-unknown-linux-musl
           os: ubuntu-latest
@@ -54,14 +58,14 @@ jobs:
         - target: armv7-unknown-linux-musleabihf
           os: ubuntu-latest
           target_rustflags: '--codegen linker=arm-linux-gnueabihf-gcc'
+        - target: loongarch64-unknown-linux-musl
+          os: ubuntu-latest
+          target_rustflags: '--codegen linker=loongarch64-linux-gnu-gcc-14'
         - target: x86_64-apple-darwin
           os: macos-latest
           target_rustflags: ''
         - target: x86_64-pc-windows-msvc
           os: windows-latest
-        - target: aarch64-pc-windows-msvc
-          os: windows-latest
-          target_rustflags: ''
         - target: x86_64-unknown-linux-musl
           os: ubuntu-latest
           target_rustflags: ''
@@ -72,24 +76,27 @@ jobs:
     - prerelease
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
-    - name: Install AArch64 Toolchain
-      if: ${{ matrix.target == 'aarch64-unknown-linux-musl' }}
+    - name: Install Target Dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install gcc-aarch64-linux-gnu libc6-dev-i386
-
-    - name: Install ARM Toolchain
-      if: ${{ matrix.target == 'arm-unknown-linux-musleabihf' || matrix.target == 'armv7-unknown-linux-musleabihf' }}
-      run: |
-        sudo apt-get update
-        sudo apt-get install gcc-arm-linux-gnueabihf
-
-    - name: Install AArch64 Toolchain (Windows)
-      if: ${{ matrix.target == 'aarch64-pc-windows-msvc' }}
-      run: |
-        rustup target add aarch64-pc-windows-msvc
+        case ${{ matrix.target }} in
+          aarch64-pc-windows-msvc)
+            rustup target add aarch64-pc-windows-msvc
+            ;;
+          aarch64-unknown-linux-musl)
+            sudo apt-get update
+            sudo apt-get install gcc-aarch64-linux-gnu libc6-dev-i386
+            ;;
+          arm-unknown-linux-musleabihf|armv7-unknown-linux-musleabihf)
+            sudo apt-get update
+            sudo apt-get install gcc-arm-linux-gnueabihf
+            ;;
+          loongarch64-unknown-linux-musl)
+            sudo apt-get update
+            sudo apt-get install gcc-14-loongarch64-linux-gnu
+            ;;
+        esac
 
     - name: Generate Manpage
       run: |
@@ -109,7 +116,7 @@ jobs:
       shell: bash
 
     - name: Publish Archive
-      uses: softprops/action-gh-release@v2.3.3
+      uses: softprops/action-gh-release@v2.5.0
       if: ${{ startsWith(github.ref, 'refs/tags/') }}
       with:
         draft: false
@@ -119,7 +126,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Publish Changelog
-      uses: softprops/action-gh-release@v2.3.3
+      uses: softprops/action-gh-release@v2.5.0
       if: >-
         ${{
           startsWith(github.ref, 'refs/tags/')
@@ -156,7 +163,7 @@ jobs:
         shasum -a 256 * > ../SHA256SUMS
 
     - name: Publish Checksums
-      uses: softprops/action-gh-release@v2.3.3
+      uses: softprops/action-gh-release@v2.5.0
       with:
         draft: false
         files: SHA256SUMS
@@ -174,21 +181,15 @@ jobs:
       contents: write
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     - uses: Swatinem/rust-cache@v2
 
     - name: Install `mdbook`
-      run: cargo install mdbook
+      run: cargo install --locked mdbook@0.4.52
 
     - name: Install `mdbook-linkcheck`
-      run: |
-        mkdir -p mdbook-linkcheck
-        cd mdbook-linkcheck
-        wget https://github.com/Michael-F-Bryan/mdbook-linkcheck/releases/latest/download/mdbook-linkcheck.x86_64-unknown-linux-gnu.zip
-        unzip mdbook-linkcheck.x86_64-unknown-linux-gnu.zip
-        chmod +x mdbook-linkcheck
-        pwd >> $GITHUB_PATH
+      run: cargo install --locked mdbook-linkcheck@0.7.7
 
     - name: Build book
       run: |
@@ -198,8 +199,8 @@ jobs:
 
     - name: Deploy Pages
       uses: peaceiris/actions-gh-pages@v4
-      if: ${{ needs.prerelease.outputs.value }}
+      if: ${{ needs.prerelease.outputs.value == 'false' }}
       with:
-        github_token: ${{secrets.GITHUB_TOKEN}}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_branch: gh-pages
         publish_dir: www

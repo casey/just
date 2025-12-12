@@ -209,6 +209,10 @@ pub enum Expression {
     otherwise: Box<Expression>,
     operator: ConditionalOperator,
   },
+  FormatString {
+    start: String,
+    expressions: Vec<(Expression, String)>,
+  },
   Join {
     lhs: Option<Box<Expression>>,
     rhs: Box<Expression>,
@@ -328,6 +332,13 @@ impl Expression {
         otherwise: Self::new(otherwise).into(),
         rhs: Self::new(rhs).into(),
         then: Self::new(then).into(),
+      },
+      FormatString { start, expressions } => Self::FormatString {
+        start: start.cooked.clone(),
+        expressions: expressions
+          .iter()
+          .map(|(expression, string)| (Self::new(expression), string.cooked.clone()))
+          .collect(),
       },
       Group { contents } => Self::new(contents),
       Join { lhs, rhs } => Self::Join {

@@ -15,7 +15,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
   pub(crate) fn analyze(
     asts: &'run HashMap<PathBuf, Ast<'src>>,
     doc: Option<String>,
-    groups: &[String],
+    groups: &[StringLiteral<'src>],
     loaded: &[PathBuf],
     name: Option<Name<'src>>,
     paths: &HashMap<PathBuf, PathBuf>,
@@ -28,7 +28,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     mut self,
     asts: &'run HashMap<PathBuf, Ast<'src>>,
     doc: Option<String>,
-    groups: &[String],
+    groups: &[StringLiteral<'src>],
     loaded: &[PathBuf],
     name: Option<Name<'src>>,
     paths: &HashMap<PathBuf, PathBuf>,
@@ -156,17 +156,6 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
       aliases.insert(Self::resolve_alias(&self.modules, &recipes, alias)?);
-    }
-
-    for recipe in recipes.values() {
-      if recipe.attributes.contains(AttributeDiscriminant::Script) {
-        unstable_features.insert(UnstableFeature::ScriptAttribute);
-        break;
-      }
-    }
-
-    if settings.script_interpreter.is_some() {
-      unstable_features.insert(UnstableFeature::ScriptInterpreterSetting);
     }
 
     let source = root.to_owned();

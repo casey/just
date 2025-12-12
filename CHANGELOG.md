@@ -1,6 +1,64 @@
 Changelog
 =========
 
+[1.45.0](https://github.com/casey/just/releases/tag/1.45.0) - 2025-12-10
+------------------------------------------------------------------------
+
+### Added
+- Allow requiring recipe arguments to match regular expression patterns ([#3000](https://github.com/casey/just/pull/3000) by [casey](https://github.com/casey))
+
+### Fixed
+- Allow shell-expanded strings in attributes ([#3007](https://github.com/casey/just/pull/3007) by [casey](https://github.com/casey))
+- Fix arg pattern anchoring ([#3002](https://github.com/casey/just/pull/3002) by [casey](https://github.com/casey))
+
+### Misc
+- Use non-capturing group in arg pattern regex ([#3006](https://github.com/casey/just/pull/3006) by [casey](https://github.com/casey))
+- Remove redundant type annotation ([#3004](https://github.com/casey/just/pull/3004) by [casey](https://github.com/casey))
+
+[1.44.1](https://github.com/casey/just/releases/tag/1.44.1) - 2025-12-09
+------------------------------------------------------------------------
+
+### Fixed
+- Properly close format string delimiter ([#2997](https://github.com/casey/just/pull/2997) by [casey](https://github.com/casey))
+
+[1.44.0](https://github.com/casey/just/releases/tag/1.44.0) - 2025-12-06
+------------------------------------------------------------------------
+
+### Added
+- Add f'{format}' strings ([#2985](https://github.com/casey/just/pull/2985) by [casey](https://github.com/casey))
+- Use double braces `{{…}}` for format strings ([#2993](https://github.com/casey/just/pull/2993) by [casey](https://github.com/casey))
+- Stabilize `[script]` attribute ([#2988](https://github.com/casey/just/pull/2988) by [casey](https://github.com/casey))
+
+### Changed
+- Allow newlines in interpolations and `}` to abut interpolation `}}` ([#2992](https://github.com/casey/just/pull/2992) by [casey](https://github.com/casey))
+
+### Misc
+- Test format strings with conditionals ([#2991](https://github.com/casey/just/pull/2991) by [casey](https://github.com/casey))
+- Move StringState into module ([#2989](https://github.com/casey/just/pull/2989) by [casey](https://github.com/casey))
+- Test undefined variable in format string error ([#2987](https://github.com/casey/just/pull/2987) by [casey](https://github.com/casey))
+- Update `softprops/action-gh-release` to 2.5.0 ([#2979](https://github.com/casey/just/pull/2979) by [app/dependabot](https://github.com/app/dependabot))
+- Link to `just-lsp` in readme ([#2846](https://github.com/casey/just/pull/2846) by [terror](https://github.com/terror))
+- Fix `just --list` submodule example in readme ([#2973](https://github.com/casey/just/pull/2973) by [neodejack](https://github.com/neodejack))
+- Update `actions/checkout` ([#2969](https://github.com/casey/just/pull/2969) by [app/dependabot](https://github.com/app/dependabot))
+- Disable mdbook-linkcheck ([#2970](https://github.com/casey/just/pull/2970) by [casey](https://github.com/casey))
+
+[1.43.1](https://github.com/casey/just/releases/tag/1.43.1) - 2025-11-12
+------------------------------------------------------------------------
+
+### Fixed
+- Only initialize signal handler once ([#2953](https://github.com/casey/just/pull/2953) by [casey](https://github.com/casey))
+- Preserve module docs when formatting ([#2931](https://github.com/casey/just/pull/2931) by [casey](https://github.com/casey))
+- Preserve module groups when formatting ([#2930](https://github.com/casey/just/pull/2930) by [casey](https://github.com/casey))
+- Don't suggest private recipes and aliases ([#2916](https://github.com/casey/just/pull/2916) by [casey](https://github.com/casey))
+
+### Misc
+- Update softprops/action-gh-release to 2.4.2 ([#2948](https://github.com/casey/just/pull/2948) by [app/dependabot](https://github.com/app/dependabot))
+- Fix `env()` usage in readme ([#2936](https://github.com/casey/just/pull/2936) by [laniakea64](https://github.com/laniakea64))
+- Use a case statement to install target dependencies ([#2929](https://github.com/casey/just/pull/2929) by [casey](https://github.com/casey))
+- Build loongarch64 release binaries ([#2886](https://github.com/casey/just/pull/2886) by [SkyBird233](https://github.com/SkyBird233))
+- Bump softprops/action-gh-release to 2.4.1 ([#2919](https://github.com/casey/just/pull/2919) by [app/dependabot](https://github.com/app/dependabot))
+- Update softprops/action-gh-release to 2.3.4 ([#2910](https://github.com/casey/just/pull/2910) by [app/dependabot](https://github.com/app/dependabot))
+
 [1.43.0](https://github.com/casey/just/releases/tag/1.43.0) - 2025-09-27
 ------------------------------------------------------------------------
 

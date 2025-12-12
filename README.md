@@ -606,6 +606,13 @@ The [zed-just](https://github.com/jackTabsCode/zed-just/) extension by
 Feel free to send me the commands necessary to get syntax highlighting working
 in your editor of choice so that I may include them here.
 
+### Language Server Protocol
+
+[just-lsp](https://github.com/terror/just-lsp) provides a [language server
+protocol](https://en.wikipedia.org/wiki/Language_Server_Protocol)
+implementation, enabling features such as go-to-definition, inline diagnostics,
+and code completion.
+
 ### Model Context Protocol
 
 [just-mcp](http://github.com/promptexecution/just-mcp) provides a
@@ -787,10 +794,10 @@ $ cat foo.just
 mod bar
 $ cat bar.just
 baz:
-$ just foo bar
+$ just --list foo bar
 Available recipes:
     baz
-$ just foo::bar
+$ just --list foo::bar
 Available recipes:
     baz
 ```
@@ -1579,6 +1586,8 @@ sequence processing takes place after unindentation. The unindentation
 algorithm does not take escape-sequence produced whitespace or newlines into
 account.
 
+#### Shell-expanded strings
+
 Strings prefixed with `x` are shell expanded<sup>1.27.0</sup>:
 
 ```justfile
@@ -1597,6 +1606,25 @@ This expansion is performed at compile time, so variables from `.env` files and
 exported `just` variables cannot be used. However, this allows shell expanded
 strings to be used in places like settings and import paths, which cannot
 depend on `just` variables and `.env` files.
+
+#### Format strings
+
+Strings prefixed with `f` are format strings<sup>1.44.0</sup>:
+
+```justfile
+name := "world"
+message := f'Hello, {{name}}!'
+```
+
+Format strings may contain interpolations delimited with `{{…}}` that contain
+expressions. Format strings evaluate to the concatenated string fragments and
+evaluated expressions.
+
+Use `{{{{` to include a literal `{{` in a format string:
+
+```justfile
+foo := f'I {{{{LOVE} curly braces!'
+```
 
 ### Ignoring Errors
 
@@ -1727,7 +1755,7 @@ A default can be substituted for an empty environment variable value with the
 ```just
 set unstable
 
-foo := env('FOO') || 'DEFAULT_VALUE'
+foo := env('FOO', '') || 'DEFAULT_VALUE'
 ```
 
 #### Executables
@@ -2396,9 +2424,6 @@ bar foo:
   echo {{ if foo == "bar" { "hello" } else { "goodbye" } }}
 ```
 
-Note the space after the final `}`! Without the space, the interpolation will
-be prematurely closed.
-
 Multiple conditionals can be chained:
 
 ```just
@@ -2711,6 +2736,32 @@ foo $bar:
   echo $bar
 ```
 
+Parameters may be constrained to match regular expression patterns using the
+`[arg("name", pattern="pattern")]` attribute<sup>1.45.0</sup>:
+
+```just
+[arg('n', pattern='\d+')]
+double n:
+  echo $(({{n}} * 2))
+```
+
+A leading `^` and trailing `$` are added to the pattern, so it must match the
+entire argument value.
+
+You may constrain the pattern to a number of alternatives using the `|`
+operator:
+
+```just
+[arg('flag', pattern='--help|--version')]
+info flag:
+  just {{flag}}
+```
+
+Regular expressions are provided by the
+[Rust `regex` crate](https://docs.rs/regex/latest/regex/). See the
+[syntax documentation](https://docs.rs/regex/latest/regex/#syntax) for usage
+examples.
+
 ### Dependencies
 
 Dependencies run before recipes that depend on them:
@@ -2950,10 +3001,6 @@ the value of `set shell`.
 
 The body of the recipe is evaluated, written to disk in the temporary
 directory, and run by passing its path as an argument to `COMMAND`.
-
-The `[script(…)]` attribute is unstable, so you'll need to use `set unstable`,
-set the `JUST_UNSTABLE` environment variable, or pass `--unstable` on the
-command line.
 
 ### Script and Shebang Recipe Temporary Files
 

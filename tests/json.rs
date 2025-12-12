@@ -14,7 +14,7 @@ struct Assignment<'a> {
   export: bool,
   name: &'a str,
   private: bool,
-  value: &'a str,
+  value: serde_json::Value,
 }
 
 #[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
@@ -54,6 +54,7 @@ struct Parameter<'a> {
   export: bool,
   kind: &'a str,
   name: &'a str,
+  pattern: Option<&'a str>,
 }
 
 #[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
@@ -180,7 +181,7 @@ fn assignment() {
         "foo",
         Assignment {
           name: "foo",
-          value: "bar",
+          value: "bar".into(),
           ..default()
         },
       )]
@@ -204,7 +205,7 @@ fn private_assignment() {
           "_foo",
           Assignment {
             name: "_foo",
-            value: "foo",
+            value: "foo".into(),
             private: true,
             ..default()
           },
@@ -213,7 +214,7 @@ fn private_assignment() {
           "bar",
           Assignment {
             name: "bar",
-            value: "bar",
+            value: "bar".into(),
             private: true,
             ..default()
           },
@@ -314,7 +315,7 @@ fn dependency_argument() {
         "x",
         Assignment {
           name: "x",
-          value: "foo",
+          value: "foo".into(),
           ..default()
         },
       )]
@@ -426,7 +427,7 @@ fn duplicate_variables() {
         "x",
         Assignment {
           name: "x",
-          value: "bar",
+          value: "bar".into(),
           ..default()
         },
       )]
@@ -973,6 +974,68 @@ fn doc_attribute_overrides_comment() {
           doc: Some("ATTRIBUTE"),
           name: "foo",
           namepath: "foo",
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
+  );
+}
+
+#[test]
+fn format_string() {
+  case(
+    "
+      foo := f'abc'
+    ",
+    Module {
+      assignments: [(
+        "foo",
+        Assignment {
+          name: "foo",
+          value: json!(["format", "abc"]),
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
+  );
+  case(
+    "
+      foo := f'abc{{'bar'}}xyz'
+    ",
+    Module {
+      assignments: [(
+        "foo",
+        Assignment {
+          name: "foo",
+          value: json!(["format", "abc", "bar", "xyz"]),
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
+  );
+  case(
+    "
+      foo := f'abc{{'bar'}}xyz{{'baz' + 'buzz'}}123'
+    ",
+    Module {
+      assignments: [(
+        "foo",
+        Assignment {
+          name: "foo",
+          value: json!([
+            "format",
+            "abc",
+            "bar",
+            "xyz",
+            ["concatenate", "baz", "buzz"],
+            "123"
+          ]),
           ..default()
         },
       )]

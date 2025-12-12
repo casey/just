@@ -9,6 +9,7 @@ pub(crate) use {
     alias::Alias,
     alias_style::AliasStyle,
     analyzer::Analyzer,
+    arg_attribute::ArgAttribute,
     argument_parser::ArgumentParser,
     assignment::Assignment,
     assignment_resolver::AssignmentResolver,
@@ -39,6 +40,7 @@ pub(crate) use {
     execution_context::ExecutionContext,
     executor::Executor,
     expression::Expression,
+    format_string_part::FormatStringPart,
     fragment::Fragment,
     function::Function,
     interpreter::Interpreter,
@@ -59,6 +61,7 @@ pub(crate) use {
     parameter::Parameter,
     parameter_kind::ParameterKind,
     parser::Parser,
+    pattern::Pattern,
     platform::Platform,
     platform_interface::PlatformInterface,
     position::Position,
@@ -83,6 +86,7 @@ pub(crate) use {
     string_delimiter::StringDelimiter,
     string_kind::StringKind,
     string_literal::StringLiteral,
+    string_state::StringState,
     subcommand::Subcommand,
     suggestion::Suggestion,
     table::Table,
@@ -113,7 +117,7 @@ pub(crate) use {
   snafu::{ResultExt, Snafu},
   std::{
     borrow::Cow,
-    cmp,
+    cmp::{self, Ordering},
     collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     env,
     ffi::OsString,
@@ -184,6 +188,7 @@ pub mod request;
 mod alias;
 mod alias_style;
 mod analyzer;
+mod arg_attribute;
 mod argument_parser;
 mod assignment;
 mod assignment_resolver;
@@ -215,6 +220,7 @@ mod evaluator;
 mod execution_context;
 mod executor;
 mod expression;
+mod format_string_part;
 mod fragment;
 mod function;
 mod interpreter;
@@ -235,6 +241,7 @@ mod output_error;
 mod parameter;
 mod parameter_kind;
 mod parser;
+mod pattern;
 mod platform;
 mod platform_interface;
 mod position;
@@ -262,6 +269,7 @@ mod source;
 mod string_delimiter;
 mod string_kind;
 mod string_literal;
+mod string_state;
 mod subcommand;
 mod suggestion;
 mod table;

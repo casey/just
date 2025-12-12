@@ -13,7 +13,7 @@ pub(crate) struct Justfile<'src> {
   #[serde(rename = "first", serialize_with = "keyed::serialize_option")]
   pub(crate) default: Option<Arc<Recipe<'src>>>,
   pub(crate) doc: Option<String>,
-  pub(crate) groups: Vec<String>,
+  pub(crate) groups: Vec<StringLiteral<'src>>,
   #[serde(skip)]
   pub(crate) loaded: Vec<PathBuf>,
   #[serde(skip)]
@@ -49,12 +49,22 @@ impl<'src> Justfile<'src> {
       input,
       self
         .recipes
-        .keys()
-        .map(|name| Suggestion { name, target: None })
-        .chain(self.aliases.iter().map(|(name, alias)| Suggestion {
-          name,
-          target: Some(alias.target.name.lexeme()),
-        })),
+        .values()
+        .filter(|recipe| recipe.is_public())
+        .map(|recipe| Suggestion {
+          name: recipe.name(),
+          target: None,
+        })
+        .chain(
+          self
+            .aliases
+            .values()
+            .filter(|alias| alias.is_public())
+            .map(|alias| Suggestion {
+              name: alias.name.lexeme(),
+              target: Some(alias.target.name.lexeme()),
+            }),
+        ),
     )
   }
 
@@ -214,7 +224,7 @@ impl<'src> Justfile<'src> {
 
     let groups = ArgumentParser::parse_arguments(self, &arguments)?;
 
-    let mut invocations = Vec::<Invocation>::new();
+    let mut invocations = Vec::new();
 
     for group in &groups {
       invocations.push(self.invocation(&group.arguments, &group.path, 0)?);
@@ -334,10 +344,11 @@ impl<'src> Justfile<'src> {
     };
 
     let (outer, positional) = Evaluator::evaluate_parameters(
+      arguments,
       &context,
       is_dependency,
-      arguments,
       &recipe.parameters,
+      recipe,
       scope,
     )?;
 
@@ -458,8 +469,12 @@ impl<'src> Justfile<'src> {
     recipes
   }
 
-  pub(crate) fn groups(&self) -> &[String] {
-    &self.groups
+  pub(crate) fn groups(&self) -> Vec<&str> {
+    self
+      .groups
+      .iter()
+      .map(|group| group.cooked.as_str())
+      .collect()
   }
 
   pub(crate) fn public_groups(&self, config: &Config) -> Vec<String> {
@@ -795,7 +810,6 @@ mod tests {
     let justfile = compile(input);
     let actual = format!("{}", justfile.color_display(Color::never()));
     assert_eq!(actual, expected);
-    println!("Re-parsing...");
     let reparsed = compile(&actual);
     let redumped = format!("{}", reparsed.color_display(Color::never()));
     assert_eq!(redumped, actual);

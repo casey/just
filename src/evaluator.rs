@@ -205,6 +205,20 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           self.evaluate_expression(otherwise)
         }
       }
+      Expression::FormatString { start, expressions } => {
+        let mut value = start.cooked.clone();
+
+        for (expression, string) in expressions {
+          value.push_str(&self.evaluate_expression(expression)?);
+          value.push_str(&string.cooked);
+        }
+
+        if start.kind.indented {
+          Ok(unindent(&value))
+        } else {
+          Ok(value)
+        }
+      }
       Expression::Group { contents } => self.evaluate_expression(contents),
       Expression::Join { lhs: None, rhs } => Ok("/".to_string() + &self.evaluate_expression(rhs)?),
       Expression::Join {
@@ -303,7 +317,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     for (i, fragment) in line.fragments.iter().enumerate() {
       match fragment {
         Fragment::Text { token } => {
-          let lexeme = token.lexeme().replace("{{{{", "{{");
+          let lexeme = token
+            .lexeme()
+            .replace(Lexer::INTERPOLATION_ESCAPE, Lexer::INTERPOLATION_START);
 
           if i == 0 && continued {
             evaluated += lexeme.trim_start();
@@ -320,10 +336,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   pub(crate) fn evaluate_parameters(
+    arguments: &[String],
     context: &ExecutionContext<'src, 'run>,
     is_dependency: bool,
-    arguments: &[String],
     parameters: &[Parameter<'src>],
+    recipe: &Recipe<'src>,
     scope: &'run Scope<'src, 'run>,
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>)> {
     let mut evaluator = Self::new(context, is_dependency, scope);
@@ -357,6 +374,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         rest = &rest[1..];
         value
       };
+
+      parameter.check_pattern_match(recipe, &value)?;
+
       evaluator.scope.bind(Binding {
         constant: false,
         export: parameter.export,
