@@ -211,6 +211,12 @@ most Windows users.)
       <td><a href=https://www.freshports.org/deskutils/just/>just</a></td>
       <td><code>pkg install just</code></td>
     </tr>
+    <tr>
+      <td><a href=https://www.openbsd.org>OpenBSD</a></td>
+      <td><a href=https://www.openbsd.org/faq/faq15.html>pkg_*</a></td>
+      <td><a href=https://cvsweb.openbsd.org/cgi-bin/cvsweb/ports/sysutils/just>just</a></td>
+      <td><code>pkg_add just</code></td>
+    </tr>
   </tbody>
 </table>
 
