@@ -35,13 +35,19 @@ _just() {
                     COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                     return 0
                 else
-                    local recipes="$(just --summary 2> /dev/null) $(just -g --summary 2> /dev/null)"
+                    local recipes="$(just --summary 2> /dev/null)"
 
                     if echo "${cur}" | \grep -qF '/'; then
                         local path_prefix=$(echo "${cur}" | sed 's/[/][^/]*$/\//')
-                        local recipes="$(just --summary 2> /dev/null -- "${path_prefix}") $(just -g --summary 2> /dev/null -- "${path_prefix}")"
+                        local recipes="$(just --summary 2> /dev/null -- "${path_prefix}")"
                         local recipes=$(printf "${path_prefix}%s\t" $recipes)
                     fi
+
+                    case "${prev}" in
+                    --global-justfile | -g)
+                      local recipes=$(just -g --summary 2>/dev/null)
+                      ;;
+                    esac
 
                     if [[ $? -eq 0 ]]; then
                         COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )
