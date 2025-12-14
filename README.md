@@ -767,8 +767,8 @@ If no recipe makes sense as the default recipe, you can add a recipe to the
 beginning of your `justfile` that lists the available recipes:
 
 ```just
-default:
-  just --list
+_default:
+  @{{quote(just_executable())}} --list --justfile={{quote(justfile())}}
 ```
 
 ### Listing Available Recipes
