@@ -101,10 +101,11 @@ mod tests {
   }
 
   const FISH_RECIPE_COMPLETIONS: &str = r#"function __fish_just_complete_recipes
-        if string match -rq '(-f|--justfile)\s*=?(?<justfile>[^\s]+)' -- (string split -- ' -- ' (commandline -pc))[1]
-          set -fx JUST_JUSTFILE "$justfile"
-        end
-        printf "%s\n" (string split " " (just --summary))
+        set -l commandline (string split -- ' -- ' (commandline -pc))[1]
+        set -l justfile_path_args_regex '\s(?:-g|--global-justfile|(?:-f|--justfile)\s*=?[^\s]+)'
+        set -l filtered_commandline (string match -r $justfile_path_args_regex -- $commandline)
+
+        printf "%s\n" (string split " " (just (string split -n -- ' ' $filtered_commandline) --summary))
 end
 
 # don't suggest files right off
