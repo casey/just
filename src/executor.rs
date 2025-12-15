@@ -16,6 +16,7 @@ impl Executor<'_> {
     match self {
       Self::Command(interpreter) => {
         let mut command = Command::new(&interpreter.command.cooked);
+        command.with_explicit_path();
 
         if let Some(working_directory) = working_directory {
           command.current_dir(working_directory);
