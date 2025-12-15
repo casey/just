@@ -27,8 +27,14 @@ impl PlatformInterface for Platform {
 
       Cow::Owned(cygpath.output_guard_stdout()?)
     } else {
-      // …otherwise use it as-is.
-      Cow::Borrowed(shebang.interpreter)
+      // …otherwise resolve using PATH to respect PATH order
+      let working_dir = working_directory.unwrap_or_else(|| Path::new("."));
+      let resolved = which::resolve_executable(shebang.interpreter, working_dir)
+        .map_err(|error| OutputError::Io(io::Error::new(
+          io::ErrorKind::NotFound,
+          format!("{}", error.color_display(Color::never())),
+        )))?;
+      Cow::Owned(resolved.to_string_lossy().to_string())
     };
 
     let mut cmd = Command::new(command.as_ref());
