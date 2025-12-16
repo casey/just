@@ -233,4 +233,3 @@ test-release-workflow:
 # Local Variables:
 # mode: makefile
 # End:
-# vim: set ft=make :
