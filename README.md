@@ -1503,6 +1503,35 @@ braces:
   echo 'I {{ "{{" }}LOVE}} curly braces!'
 ```
 
+#### Lazy Evaluation
+
+By default, variables are evaluated when they are defined. If you would like a
+variable to only be evaluated when it is used for the first time, you can use the
+`lazy` keyword:
+
+```just
+lazy aws_account_id := `aws sts get-caller-identity --query Account --output text`
+```
+
+Once a lazy variable has been evaluated, its value is the same for the rest of
+the invocation of `just`, even if it is used multiple times:
+
+```just
+lazy timestamp := `date +%s`
+
+foo:
+  # The value is computed here
+  echo The time is {{timestamp}}
+  sleep 1
+  # The same value is used here
+  echo The time is still {{timestamp}}
+```
+
+This is useful for values that are expensive to compute, or that may not be
+needed in every invocation of `just`. It also saves you from having expensive
+values being recomputed even for simple invocations of `just` that don't
+actually use them, like `just --list`.
+
 ### Strings
 
 `'single'`, `"double"`, and `'''triple'''` quoted string literals are

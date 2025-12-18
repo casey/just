@@ -37,6 +37,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           file_depth: 0,
           name: assignment.name,
           private: assignment.private,
+          lazy: false,
           value: value.clone(),
         });
       } else {
@@ -58,7 +59,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     };
 
     for assignment in module.assignments.values() {
-      evaluator.evaluate_assignment(assignment)?;
+      if !assignment.lazy {
+        evaluator.evaluate_assignment(assignment)?;
+      }
     }
 
     Ok(evaluator.scope)
@@ -75,6 +78,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         file_depth: 0,
         name: assignment.name,
         private: assignment.private,
+        lazy: false,
         value,
       });
     }
@@ -383,6 +387,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         file_depth: 0,
         name: parameter.name,
         private: false,
+        lazy: false,
         value,
       });
     }
@@ -396,7 +401,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     scope: &'run Scope<'src, 'run>,
   ) -> Self {
     Self {
-      assignments: None,
+      assignments: Some(&context.module.assignments),
       context: *context,
       is_dependency,
       scope: scope.child(),
