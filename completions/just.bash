@@ -35,11 +35,20 @@ _just() {
                     COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                     return 0
                 else
-                    local recipes=$(just --summary 2> /dev/null)
+                    # Check if --global-justfile or -g flag is present
+                    local use_global=""
+                    for word in "${words[@]}"; do
+                        if [[ "$word" == "-g" || "$word" == "--global-justfile" ]]; then
+                            use_global="--global-justfile"
+                            break
+                        fi
+                    done
+
+                    local recipes=$(just $use_global --summary 2> /dev/null)
 
                     if echo "${cur}" | \grep -qF '/'; then
                         local path_prefix=$(echo "${cur}" | sed 's/[/][^/]*$/\//')
-                        local recipes=$(just --summary 2> /dev/null -- "${path_prefix}")
+                        local recipes=$(just $use_global --summary 2> /dev/null -- "${path_prefix}")
                         local recipes=$(printf "${path_prefix}%s\t" $recipes)
                     fi
 
