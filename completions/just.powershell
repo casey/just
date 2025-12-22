@@ -103,7 +103,11 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
 
         $justArgs = @("--summary")
 
-        if (Test-Path $justFileLocation) {
+        # Check if --global-justfile or -g flag is present
+        if ($commandElements -contains "-g" -or $commandElements -contains "--global-justfile") {
+            $justArgs += @("--global-justfile")
+        }
+        elseif (Test-Path $justFileLocation) {
             $justArgs += @("--justfile", $justFileLocation)
         }
 

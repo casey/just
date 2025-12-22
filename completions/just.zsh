@@ -99,8 +99,17 @@ _just() {
             local lastarg=${words[${#words}]}
             local recipe
 
+            # Check if --global-justfile or -g flag is present
+            local use_global=""
+            for word in ${words[@]}; do
+                if [[ "$word" == "-g" || "$word" == "--global-justfile" ]]; then
+                    use_global="--global-justfile"
+                    break
+                fi
+            done
+
             local cmds; cmds=(
-                ${(s: :)$(_call_program commands just --summary)}
+                ${(s: :)$(_call_program commands just $use_global --summary)}
             )
 
             # Find first recipe name
@@ -136,11 +145,21 @@ _just() {
 _just_commands() {
     [[ $PREFIX = -* ]] && return 1
     integer ret=1
+
+    # Check if --global-justfile or -g flag is present
+    local use_global=""
+    for word in ${words[@]}; do
+        if [[ "$word" == "-g" || "$word" == "--global-justfile" ]]; then
+            use_global="--global-justfile"
+            break
+        fi
+    done
+
     local variables; variables=(
-        ${(s: :)$(_call_program commands just --variables)}
+        ${(s: :)$(_call_program commands just $use_global --variables)}
     )
     local commands; commands=(
-        ${${${(M)"${(f)$(_call_program commands just --list)}":#    *}/ ##/}/ ##/:Args: }
+        ${${${(M)"${(f)$(_call_program commands just $use_global --list)}":#    *}/ ##/}/ ##/:Args: }
     )
 
     if compset -P '*='; then
@@ -159,8 +178,18 @@ if [ "$funcstack[1]" = "_just" ]; then
 _just_variables() {
     [[ $PREFIX = -* ]] && return 1
     integer ret=1
+
+    # Check if --global-justfile or -g flag is present
+    local use_global=""
+    for word in ${words[@]}; do
+        if [[ "$word" == "-g" || "$word" == "--global-justfile" ]]; then
+            use_global="--global-justfile"
+            break
+        fi
+    done
+
     local variables; variables=(
-        ${(s: :)$(_call_program commands just --variables)}
+        ${(s: :)$(_call_program commands just $use_global --variables)}
     )
 
     if compset -P '*='; then
