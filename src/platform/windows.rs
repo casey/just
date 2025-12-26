@@ -25,7 +25,7 @@ impl PlatformInterface for Platform {
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
 
-      Cow::Owned(cygpath.output_guard_stdout()?)
+      Cow::Owned(cygpath.output_guard_stdout(config)?)
     } else {
       // …otherwise use it as-is.
       Cow::Borrowed(shebang.interpreter)
@@ -69,7 +69,7 @@ impl PlatformInterface for Platform {
       .stdout(Stdio::piped())
       .stderr(Stdio::piped());
 
-    match cygpath.output_guard_stdout() {
+    match cygpath.output_guard_stdout(config) {
       Ok(shell_path) => Ok(shell_path),
       Err(_) => path
         .to_str()
