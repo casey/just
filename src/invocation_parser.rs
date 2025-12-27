@@ -1,15 +1,15 @@
 use super::*;
 
 #[allow(clippy::doc_markdown)]
-/// The argument parser is responsible for grouping positional arguments into
-/// invocations, which consist of a path to a recipe and its arguments.
+/// The invocation parser is responsible for grouping command-line positional
+/// arguments into invocations, which consist of a recipe and its arguments.
 ///
-/// Argument parsing is substantially complicated by the fact that recipe paths
-/// can be given on the command line as multiple arguments, i.e., "foo" "bar"
-/// baz", or as a single "::"-separated argument.
+/// Invocation parsing is substantially complicated by the fact that recipe
+/// paths can be given on the command line as multiple arguments, i.e., "foo"
+/// "bar" baz", or as a single "::"-separated argument.
 ///
-/// Error messages produced by the argument parser should use the format of the
-/// recipe path as passed on the command line.
+/// Error messages produced by the invocation parser should use the format of
+/// the recipe path as passed on the command line.
 ///
 /// Additionally, if a recipe is specified with a "::"-separated path, extra
 /// components of that path after a valid recipe must not be used as arguments,
@@ -17,14 +17,14 @@ use super::*;
 /// an example, `foo bar baz` may refer to recipe `foo::bar` with argument
 /// `baz`, but `foo::bar::baz` is an error, since `bar` is a recipe, not a
 /// module.
-pub(crate) struct ArgumentParser<'src: 'run, 'run> {
+pub(crate) struct InvocationParser<'src: 'run, 'run> {
   arguments: &'run [&'run str],
   next: usize,
   root: &'run Justfile<'src>,
 }
 
-impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
-  pub(crate) fn parse_arguments(
+impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
+  pub(crate) fn parse_invocations(
     root: &'run Justfile<'src>,
     arguments: &'run [&'run str],
   ) -> RunResult<'src, Vec<Invocation<'src, 'run>>> {

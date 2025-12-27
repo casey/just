@@ -216,7 +216,7 @@ impl<'src> Justfile<'src> {
 
     let arguments = arguments.iter().map(String::as_str).collect::<Vec<&str>>();
 
-    let invocations = ArgumentParser::parse_arguments(self, &arguments)?;
+    let invocations = InvocationParser::parse_invocations(self, &arguments)?;
 
     if config.one && invocations.len() > 1 {
       return Err(Error::ExcessInvocations {
