@@ -218,21 +218,14 @@ impl<'src> Justfile<'src> {
 
     let invocations = ArgumentParser::parse_arguments(self, &arguments)?;
 
-    let mut resolved = Vec::new();
-
-    for invocation in invocations {
-      let Invocation { arguments, target } = invocation;
-      resolved.push(self.invocation(arguments, &target, 0)?);
-    }
-
-    if config.one && resolved.len() > 1 {
+    if config.one && invocations.len() > 1 {
       return Err(Error::ExcessInvocations {
-        invocations: resolved.len(),
+        invocations: invocations.len(),
       });
     }
 
     let ran = Ran::default();
-    for invocation in resolved {
+    for invocation in invocations {
       Self::run_recipe(
         &invocation.arguments,
         config,
@@ -270,24 +263,6 @@ impl<'src> Justfile<'src> {
       .get(name)
       .map(Arc::as_ref)
       .or_else(|| self.aliases.get(name).map(|alias| alias.target.as_ref()))
-  }
-
-  fn invocation<'run>(
-    &'run self,
-    arguments: Vec<Vec<String>>,
-    path: &[String],
-    position: usize,
-  ) -> RunResult<'src, Invocation<&'run Recipe<'src>>> {
-    if position + 1 == path.len() {
-      let recipe = self.get_recipe(&path[position]).unwrap();
-      Ok(Invocation {
-        arguments,
-        target: recipe,
-      })
-    } else {
-      let module = self.modules.get(&path[position]).unwrap();
-      module.invocation(arguments, path, position + 1)
-    }
   }
 
   pub(crate) fn is_submodule(&self) -> bool {
