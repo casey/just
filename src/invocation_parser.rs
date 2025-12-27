@@ -180,7 +180,7 @@ mod tests {
   fn single_no_arguments() {
     let justfile = testing::compile("foo:");
 
-    let invocations = ArgumentParser::parse_arguments(&justfile, &["foo"]).unwrap();
+    let invocations = InvocationParser::parse_invocations(&justfile, &["foo"]).unwrap();
 
     assert_eq!(invocations.len(), 1);
     assert_eq!(invocations[0].recipe.namepath(), "foo");
@@ -191,7 +191,7 @@ mod tests {
   fn single_with_argument() {
     let justfile = testing::compile("foo bar:");
 
-    let invocations = ArgumentParser::parse_arguments(&justfile, &["foo", "baz"]).unwrap();
+    let invocations = InvocationParser::parse_invocations(&justfile, &["foo", "baz"]).unwrap();
 
     assert_eq!(invocations.len(), 1);
     assert_eq!(invocations[0].recipe.namepath(), "foo");
@@ -203,7 +203,7 @@ mod tests {
     let justfile = testing::compile("foo bar:");
 
     assert_matches!(
-      ArgumentParser::parse_arguments(&justfile, &["foo"]).unwrap_err(),
+      InvocationParser::parse_invocations(&justfile, &["foo"]).unwrap_err(),
       Error::ArgumentCountMismatch {
         recipe: "foo",
         found: 0,
@@ -219,7 +219,7 @@ mod tests {
     let justfile = testing::compile("foo:");
 
     assert_matches!(
-      ArgumentParser::parse_arguments(&justfile, &["bar"]).unwrap_err(),
+      InvocationParser::parse_invocations(&justfile, &["bar"]).unwrap_err(),
       Error::UnknownRecipe {
         recipe,
         suggestion: None
@@ -232,7 +232,7 @@ mod tests {
     let justfile = testing::compile("foo:");
 
     assert_matches!(
-      ArgumentParser::parse_arguments(&justfile, &["bar", "baz"]).unwrap_err(),
+      InvocationParser::parse_invocations(&justfile, &["bar", "baz"]).unwrap_err(),
       Error::UnknownRecipe {
         recipe,
         suggestion: None
@@ -251,7 +251,7 @@ mod tests {
     let compilation = Compiler::compile(&loader, &path).unwrap();
 
     let invocations =
-      ArgumentParser::parse_arguments(&compilation.justfile, &["foo", "bar"]).unwrap();
+      InvocationParser::parse_invocations(&compilation.justfile, &["foo", "bar"]).unwrap();
 
     assert_eq!(invocations.len(), 1);
     assert_eq!(invocations[0].recipe.namepath(), "foo::bar");
@@ -269,7 +269,7 @@ mod tests {
     let compilation = Compiler::compile(&loader, &path).unwrap();
 
     assert_matches!(
-      ArgumentParser::parse_arguments(&compilation.justfile, &["foo", "zzz"]).unwrap_err(),
+      InvocationParser::parse_invocations(&compilation.justfile, &["foo", "zzz"]).unwrap_err(),
       Error::UnknownRecipe {
         recipe,
         suggestion: None
@@ -287,7 +287,7 @@ mod tests {
     let compilation = Compiler::compile(&loader, &tempdir.path().join("justfile")).unwrap();
 
     assert_matches!(
-      ArgumentParser::parse_arguments(&compilation.justfile, &["foo::zzz"]).unwrap_err(),
+      InvocationParser::parse_invocations(&compilation.justfile, &["foo::zzz"]).unwrap_err(),
       Error::UnknownRecipe {
         recipe,
         suggestion: None
@@ -305,7 +305,7 @@ mod tests {
     let compilation = Compiler::compile(&loader, &tempdir.path().join("justfile")).unwrap();
 
     assert_matches!(
-      ArgumentParser::parse_arguments(&compilation.justfile, &["foo::bar::baz"]).unwrap_err(),
+      InvocationParser::parse_invocations(&compilation.justfile, &["foo::bar::baz"]).unwrap_err(),
       Error::ExpectedSubmoduleButFoundRecipe {
         path,
       } if path == "foo::bar",
@@ -321,7 +321,7 @@ mod tests {
     let compilation = Compiler::compile(&loader, &tempdir.path().join("justfile")).unwrap();
 
     assert_matches!(
-      ArgumentParser::parse_arguments(&compilation.justfile, &[]).unwrap_err(),
+      InvocationParser::parse_invocations(&compilation.justfile, &[]).unwrap_err(),
       Error::NoRecipes,
     );
   }
@@ -335,7 +335,7 @@ mod tests {
     let compilation = Compiler::compile(&loader, &tempdir.path().join("justfile")).unwrap();
 
     assert_matches!(
-      ArgumentParser::parse_arguments(&compilation.justfile, &[]).unwrap_err(),
+      InvocationParser::parse_invocations(&compilation.justfile, &[]).unwrap_err(),
       Error::DefaultRecipeRequiresArguments {
         recipe: "foo",
         min_arguments: 1,
@@ -353,7 +353,7 @@ mod tests {
     let compilation = Compiler::compile(&loader, &tempdir.path().join("justfile")).unwrap();
 
     assert_matches!(
-      ArgumentParser::parse_arguments(&compilation.justfile, &[]).unwrap_err(),
+      InvocationParser::parse_invocations(&compilation.justfile, &[]).unwrap_err(),
       Error::NoDefaultRecipe,
     );
   }
@@ -373,7 +373,7 @@ BAZ +Z:
 ",
     );
 
-    let invocations = ArgumentParser::parse_arguments(
+    let invocations = InvocationParser::parse_invocations(
       &justfile,
       &["BAR", "0", "FOO", "1", "2", "BAZ", "3", "4", "5"],
     )
