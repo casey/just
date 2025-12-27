@@ -374,7 +374,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         for value in group {
           positional.push(value.clone());
         }
-        group.to_vec()
+        group.clone()
       } else {
         let value = group[0].clone();
         positional.push(value.clone());
