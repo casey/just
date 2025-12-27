@@ -232,7 +232,7 @@ impl<'src> Justfile<'src> {
         &dotenv,
         false,
         &ran,
-        invocation.target,
+        invocation.recipe,
         &scopes,
         search,
       )?;

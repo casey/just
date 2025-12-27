@@ -27,7 +27,7 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
   pub(crate) fn parse_arguments(
     root: &'run Justfile<'src>,
     arguments: &'run [&'run str],
-  ) -> RunResult<'src, Vec<Invocation<&'run Recipe<'src>>>> {
+  ) -> RunResult<'src, Vec<Invocation<'src, 'run>>> {
     let mut invocations = Vec::new();
 
     let mut invocation_parser = Self {
@@ -47,7 +47,7 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
     Ok(invocations)
   }
 
-  fn parse_invocation(&mut self) -> RunResult<'src, Invocation<&'run Recipe<'src>>> {
+  fn parse_invocation(&mut self) -> RunResult<'src, Invocation<'src, 'run>> {
     let recipe = if let Some(next) = self.next() {
       if next.contains(':') {
         let module_path =
@@ -100,7 +100,7 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
 
     Ok(Invocation {
       arguments,
-      target: recipe,
+      recipe,
     })
   }
 
@@ -186,7 +186,7 @@ mod tests {
     let invocations = ArgumentParser::parse_arguments(&justfile, &["foo"]).unwrap();
 
     assert_eq!(invocations.len(), 1);
-    assert_eq!(invocations[0].target.namepath(), "foo");
+    assert_eq!(invocations[0].recipe.namepath(), "foo");
     assert!(invocations[0].arguments.is_empty());
   }
 
@@ -197,7 +197,7 @@ mod tests {
     let invocations = ArgumentParser::parse_arguments(&justfile, &["foo", "baz"]).unwrap();
 
     assert_eq!(invocations.len(), 1);
-    assert_eq!(invocations[0].target.namepath(), "foo");
+    assert_eq!(invocations[0].recipe.namepath(), "foo");
     assert_eq!(
       invocations[0].arguments,
       vec![vec![String::from("baz")]]
@@ -260,7 +260,7 @@ mod tests {
       ArgumentParser::parse_arguments(&compilation.justfile, &["foo", "bar"]).unwrap();
 
     assert_eq!(invocations.len(), 1);
-    assert_eq!(invocations[0].target.namepath(), "foo::bar");
+    assert_eq!(invocations[0].recipe.namepath(), "foo::bar");
     assert!(invocations[0].arguments.is_empty());
   }
 
@@ -386,17 +386,17 @@ BAZ +Z:
     .unwrap();
 
     assert_eq!(invocations.len(), 3);
-    assert_eq!(invocations[0].target.namepath(), "BAR");
+    assert_eq!(invocations[0].recipe.namepath(), "BAR");
     assert_eq!(
       invocations[0].arguments,
       vec![vec![String::from("0")]]
     );
-    assert_eq!(invocations[1].target.namepath(), "FOO");
+    assert_eq!(invocations[1].recipe.namepath(), "FOO");
     assert_eq!(
       invocations[1].arguments,
       vec![vec![String::from("1")], vec![String::from("2")]]
     );
-    assert_eq!(invocations[2].target.namepath(), "BAZ");
+    assert_eq!(invocations[2].recipe.namepath(), "BAZ");
     assert_eq!(
       invocations[2].arguments,
       vec![vec![

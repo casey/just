@@ -1,7 +1,7 @@
 use super::*;
 
 #[derive(Debug, PartialEq)]
-pub(crate) struct Invocation<T> {
+pub(crate) struct Invocation<'src, 'run> {
   pub(crate) arguments: Vec<Vec<String>>,
-  pub(crate) target: T,
+  pub(crate) recipe: &'run Recipe<'src>,
 }
