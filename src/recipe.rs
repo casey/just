@@ -62,15 +62,14 @@ impl<'src, D> Recipe<'src, D> {
 
     for parameter in &self.parameters {
       let group = if parameter.kind.is_variadic() {
-        let group = rest.to_vec();
-        rest = &[];
+        let group = mem::take(&mut rest).into();
         group
-      } else if rest.is_empty() {
-        Vec::new()
-      } else {
-        let group = vec![rest[0].clone()];
+      } else if let Some(argument) = rest.get(0) {
         rest = &rest[1..];
-        group
+        vec![argument.clone()]
+      } else {
+        debug_assert!(parameter.default.is_some());
+        Vec::new()
       };
 
       groups.push(group);
