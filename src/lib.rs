@@ -44,6 +44,7 @@ pub(crate) use {
     fragment::Fragment,
     function::Function,
     interpreter::Interpreter,
+    invocation::Invocation,
     item::Item,
     justfile::Justfile,
     keyed::Keyed,
@@ -224,6 +225,7 @@ mod format_string_part;
 mod fragment;
 mod function;
 mod interpreter;
+mod invocation;
 mod item;
 mod justfile;
 mod keyed;

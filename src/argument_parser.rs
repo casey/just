@@ -2,7 +2,7 @@ use super::*;
 
 #[allow(clippy::doc_markdown)]
 /// The argument parser is responsible for grouping positional arguments into
-/// argument groups, which consist of a path to a recipe and its arguments.
+/// invocations, which consist of a path to a recipe and its arguments.
 ///
 /// Argument parsing is substantially complicated by the fact that recipe paths
 /// can be given on the command line as multiple arguments, i.e., "foo" "bar"
@@ -23,17 +23,11 @@ pub(crate) struct ArgumentParser<'src: 'run, 'run> {
   root: &'run Justfile<'src>,
 }
 
-#[derive(Debug, PartialEq)]
-pub(crate) struct ArgumentGroup {
-  pub(crate) arguments: Vec<Vec<String>>,
-  pub(crate) path: Vec<String>,
-}
-
 impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
   pub(crate) fn parse_arguments(
     root: &'run Justfile<'src>,
     arguments: &'run [&'run str],
-  ) -> RunResult<'src, Vec<ArgumentGroup>> {
+  ) -> RunResult<'src, Vec<Invocation<Vec<String>>>> {
     let mut groups = Vec::new();
 
     let mut invocation_parser = Self {
@@ -53,7 +47,7 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
     Ok(groups)
   }
 
-  fn parse_group(&mut self) -> RunResult<'src, ArgumentGroup> {
+  fn parse_group(&mut self) -> RunResult<'src, Invocation<Vec<String>>> {
     let (recipe, path) = if let Some(next) = self.next() {
       if next.contains(':') {
         let module_path =
@@ -104,7 +98,10 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
       .map(|group| group.into_iter().map(str::to_string).collect())
       .collect();
 
-    Ok(ArgumentGroup { arguments, path })
+    Ok(Invocation {
+      arguments,
+      target: path,
+    })
   }
 
   fn resolve_recipe(
@@ -193,8 +190,8 @@ mod tests {
 
     assert_eq!(
       ArgumentParser::parse_arguments(&justfile, &["foo"]).unwrap(),
-      vec![ArgumentGroup {
-        path: vec!["foo".into()],
+      vec![Invocation {
+        target: vec!["foo".into()],
         arguments: Vec::new()
       }],
     );
@@ -206,8 +203,8 @@ mod tests {
 
     assert_eq!(
       ArgumentParser::parse_arguments(&justfile, &["foo", "baz"]).unwrap(),
-      vec![ArgumentGroup {
-        path: vec!["foo".into()],
+      vec![Invocation {
+        target: vec!["foo".into()],
         arguments: vec![vec!["baz".into()]],
       }],
     );
@@ -267,8 +264,8 @@ mod tests {
 
     assert_eq!(
       ArgumentParser::parse_arguments(&compilation.justfile, &["foo", "bar"]).unwrap(),
-      vec![ArgumentGroup {
-        path: vec!["foo".into(), "bar".into()],
+      vec![Invocation {
+        target: vec!["foo".into(), "bar".into()],
         arguments: Vec::new()
       }],
     );
@@ -396,16 +393,16 @@ BAZ +Z:
       )
       .unwrap(),
       vec![
-        ArgumentGroup {
-          path: vec!["BAR".into()],
+        Invocation {
+          target: vec!["BAR".into()],
           arguments: vec![vec!["0".into()]],
         },
-        ArgumentGroup {
-          path: vec!["FOO".into()],
+        Invocation {
+          target: vec!["FOO".into()],
           arguments: vec![vec!["1".into()], vec!["2".into()]],
         },
-        ArgumentGroup {
-          path: vec!["BAZ".into()],
+        Invocation {
+          target: vec!["BAZ".into()],
           arguments: vec![vec!["3".into(), "4".into(), "5".into()]],
         },
       ],

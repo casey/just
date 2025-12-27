@@ -1,11 +1,5 @@
 use {super::*, serde::Serialize};
 
-#[derive(Debug)]
-struct Invocation<'src: 'run, 'run> {
-  arguments: Vec<Vec<String>>,
-  recipe: &'run Recipe<'src>,
-}
-
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Justfile<'src> {
   pub(crate) aliases: Table<'src, Alias<'src>>,
@@ -227,8 +221,8 @@ impl<'src> Justfile<'src> {
     let mut invocations = Vec::new();
 
     for group in groups {
-      let argument_parser::ArgumentGroup { arguments, path } = group;
-      invocations.push(self.invocation(arguments, &path, 0)?);
+      let Invocation { arguments, target } = group;
+      invocations.push(self.invocation(arguments, &target, 0)?);
     }
 
     if config.one && invocations.len() > 1 {
@@ -245,7 +239,7 @@ impl<'src> Justfile<'src> {
         &dotenv,
         false,
         &ran,
-        invocation.recipe,
+        invocation.target,
         &scopes,
         search,
       )?;
@@ -283,10 +277,13 @@ impl<'src> Justfile<'src> {
     arguments: Vec<Vec<String>>,
     path: &[String],
     position: usize,
-  ) -> RunResult<'src, Invocation<'src, 'run>> {
+  ) -> RunResult<'src, Invocation<&'run Recipe<'src>>> {
     if position + 1 == path.len() {
       let recipe = self.get_recipe(&path[position]).unwrap();
-      Ok(Invocation { arguments, recipe })
+      Ok(Invocation {
+        arguments,
+        target: recipe,
+      })
     } else {
       let module = self.modules.get(&path[position]).unwrap();
       module.invocation(arguments, path, position + 1)
