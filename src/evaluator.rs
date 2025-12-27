@@ -336,7 +336,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   pub(crate) fn evaluate_parameters(
-    arguments: &[String],
+    arguments: &[Vec<String>],
     context: &ExecutionContext<'src, 'run>,
     is_dependency: bool,
     parameters: &[Parameter<'src>],
@@ -347,9 +347,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     let mut positional = Vec::new();
 
-    let mut rest = arguments;
-    for parameter in parameters {
-      let value = if rest.is_empty() {
+    if arguments.len() != parameters.len() {
+      return Err(Error::Internal {
+        message: "argument list length does not match parameter count".to_owned(),
+      });
+    }
+
+    for (parameter, group) in parameters.iter().zip(arguments) {
+      let value = if group.is_empty() {
         if let Some(ref default) = parameter.default {
           let value = evaluator.evaluate_expression(default)?;
           positional.push(value.clone());
@@ -361,17 +366,19 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             message: "missing parameter without default".to_owned(),
           });
         }
+      } else if !parameter.kind.is_variadic() && group.len() > 1 {
+        return Err(Error::Internal {
+          message: "multiple values for non-variadic parameter".to_owned(),
+        });
       } else if parameter.kind.is_variadic() {
-        for value in rest {
+        for value in group {
           positional.push(value.clone());
         }
-        let value = rest.to_vec().join(" ");
-        rest = &[];
+        let value = group.join(" ");
         value
       } else {
-        let value = rest[0].clone();
+        let value = group[0].clone();
         positional.push(value.clone());
-        rest = &rest[1..];
         value
       };
 

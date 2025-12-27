@@ -393,9 +393,16 @@ pub struct Dependency {
 
 impl Dependency {
   fn new(dependency: &full::Dependency) -> Self {
+    let mut arguments = Vec::new();
+    for group in &dependency.arguments {
+      for argument in group {
+        arguments.push(Expression::new(argument));
+      }
+    }
+
     Self {
       recipe: dependency.recipe.name().to_owned(),
-      arguments: dependency.arguments.iter().map(Expression::new).collect(),
+      arguments,
     }
   }
 }

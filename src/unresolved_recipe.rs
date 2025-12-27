@@ -37,9 +37,12 @@ impl<'src> UnresolvedRecipe<'src> {
       .dependencies
       .into_iter()
       .zip(resolved)
-      .map(|(unresolved, resolved)| Dependency {
-        recipe: resolved,
-        arguments: unresolved.arguments,
+      .map(|(unresolved, resolved)| {
+        let arguments = resolved.group_arguments(&unresolved.arguments);
+        Dependency {
+          recipe: resolved,
+          arguments,
+        }
       })
       .collect();
 

@@ -2,7 +2,7 @@ use {super::*, serde::Serialize};
 
 #[derive(Debug)]
 struct Invocation<'src: 'run, 'run> {
-  arguments: Vec<&'run str>,
+  arguments: Vec<Vec<String>>,
   recipe: &'run Recipe<'src>,
 }
 
@@ -226,8 +226,9 @@ impl<'src> Justfile<'src> {
 
     let mut invocations = Vec::new();
 
-    for group in &groups {
-      invocations.push(self.invocation(&group.arguments, &group.path, 0)?);
+    for group in groups {
+      let argument_parser::ArgumentGroup { arguments, path } = group;
+      invocations.push(self.invocation(arguments, &path, 0)?);
     }
 
     if config.one && invocations.len() > 1 {
@@ -239,12 +240,7 @@ impl<'src> Justfile<'src> {
     let ran = Ran::default();
     for invocation in invocations {
       Self::run_recipe(
-        &invocation
-          .arguments
-          .iter()
-          .copied()
-          .map(str::to_string)
-          .collect::<Vec<String>>(),
+        &invocation.arguments,
         config,
         &dotenv,
         false,
@@ -284,16 +280,13 @@ impl<'src> Justfile<'src> {
 
   fn invocation<'run>(
     &'run self,
-    arguments: &[&'run str],
-    path: &'run [String],
+    arguments: Vec<Vec<String>>,
+    path: &[String],
     position: usize,
   ) -> RunResult<'src, Invocation<'src, 'run>> {
     if position + 1 == path.len() {
       let recipe = self.get_recipe(&path[position]).unwrap();
-      Ok(Invocation {
-        arguments: arguments.into(),
-        recipe,
-      })
+      Ok(Invocation { arguments, recipe })
     } else {
       let module = self.modules.get(&path[position]).unwrap();
       module.invocation(arguments, path, position + 1)
@@ -309,7 +302,7 @@ impl<'src> Justfile<'src> {
   }
 
   fn run_recipe(
-    arguments: &[String],
+    arguments: &[Vec<String>],
     config: &Config,
     dotenv: &BTreeMap<String, String>,
     is_dependency: bool,
@@ -404,11 +397,15 @@ impl<'src> Justfile<'src> {
 
     let mut evaluated = Vec::new();
     for Dependency { recipe, arguments } in dependencies {
-      let arguments = arguments
-        .iter()
-        .map(|argument| evaluator.evaluate_expression(argument))
-        .collect::<RunResult<Vec<String>>>()?;
-      evaluated.push((recipe, arguments));
+      let mut grouped = Vec::new();
+      for group in arguments {
+        let evaluated_group = group
+          .iter()
+          .map(|argument| evaluator.evaluate_expression(argument))
+          .collect::<RunResult<Vec<String>>>()?;
+        grouped.push(evaluated_group);
+      }
+      evaluated.push((recipe, grouped));
     }
 
     if recipe.is_parallel() {

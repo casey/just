@@ -38,9 +38,11 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       }
 
       for dependency in &recipe.dependencies {
-        for argument in &dependency.arguments {
-          for variable in argument.variables() {
-            resolver.resolve_variable(&variable, &recipe.parameters)?;
+        for group in &dependency.arguments {
+          for argument in group {
+            for variable in argument.variables() {
+              resolver.resolve_variable(&variable, &recipe.parameters)?;
+            }
           }
         }
       }

@@ -24,8 +24,8 @@ pub(crate) struct ArgumentParser<'src: 'run, 'run> {
 }
 
 #[derive(Debug, PartialEq)]
-pub(crate) struct ArgumentGroup<'run> {
-  pub(crate) arguments: Vec<&'run str>,
+pub(crate) struct ArgumentGroup {
+  pub(crate) arguments: Vec<Vec<String>>,
   pub(crate) path: Vec<String>,
 }
 
@@ -33,7 +33,7 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
   pub(crate) fn parse_arguments(
     root: &'run Justfile<'src>,
     arguments: &'run [&'run str],
-  ) -> RunResult<'src, Vec<ArgumentGroup<'run>>> {
+  ) -> RunResult<'src, Vec<ArgumentGroup>> {
     let mut groups = Vec::new();
 
     let mut invocation_parser = Self {
@@ -53,7 +53,7 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
     Ok(groups)
   }
 
-  fn parse_group(&mut self) -> RunResult<'src, ArgumentGroup<'run>> {
+  fn parse_group(&mut self) -> RunResult<'src, ArgumentGroup> {
     let (recipe, path) = if let Some(next) = self.next() {
       if next.contains(':') {
         let module_path =
@@ -89,13 +89,20 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
       });
     }
 
-    let arguments = rest[..argument_count].to_vec();
+    let grouped = recipe.group_arguments(&rest[..argument_count]);
 
-    for (argument, parameter) in arguments.iter().zip(&recipe.parameters) {
-      parameter.check_pattern_match(recipe, argument)?;
+    for (group, parameter) in grouped.iter().zip(&recipe.parameters) {
+      if let Some(argument) = group.first() {
+        parameter.check_pattern_match(recipe, argument)?;
+      }
     }
 
     self.next += argument_count;
+
+    let arguments = grouped
+      .into_iter()
+      .map(|group| group.into_iter().map(str::to_string).collect())
+      .collect();
 
     Ok(ArgumentGroup { arguments, path })
   }
@@ -201,7 +208,7 @@ mod tests {
       ArgumentParser::parse_arguments(&justfile, &["foo", "baz"]).unwrap(),
       vec![ArgumentGroup {
         path: vec!["foo".into()],
-        arguments: vec!["baz"],
+        arguments: vec![vec!["baz".into()]],
       }],
     );
   }
@@ -391,15 +398,15 @@ BAZ +Z:
       vec![
         ArgumentGroup {
           path: vec!["BAR".into()],
-          arguments: vec!["0"],
+          arguments: vec![vec!["0".into()]],
         },
         ArgumentGroup {
           path: vec!["FOO".into()],
-          arguments: vec!["1", "2"],
+          arguments: vec![vec!["1".into()], vec!["2".into()]],
         },
         ArgumentGroup {
           path: vec!["BAZ".into()],
-          arguments: vec!["3", "4", "5"],
+          arguments: vec![vec!["3".into(), "4".into(), "5".into()]],
         },
       ],
     );
