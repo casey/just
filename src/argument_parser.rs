@@ -98,10 +98,7 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
       .map(|group| group.into_iter().map(str::to_string).collect())
       .collect();
 
-    Ok(Invocation {
-      arguments,
-      recipe,
-    })
+    Ok(Invocation { arguments, recipe })
   }
 
   fn resolve_recipe(
@@ -198,10 +195,7 @@ mod tests {
 
     assert_eq!(invocations.len(), 1);
     assert_eq!(invocations[0].recipe.namepath(), "foo");
-    assert_eq!(
-      invocations[0].arguments,
-      vec![vec![String::from("baz")]]
-    );
+    assert_eq!(invocations[0].arguments, vec![vec![String::from("baz")]]);
   }
 
   #[test]
@@ -387,10 +381,7 @@ BAZ +Z:
 
     assert_eq!(invocations.len(), 3);
     assert_eq!(invocations[0].recipe.namepath(), "BAR");
-    assert_eq!(
-      invocations[0].arguments,
-      vec![vec![String::from("0")]]
-    );
+    assert_eq!(invocations[0].arguments, vec![vec![String::from("0")]]);
     assert_eq!(invocations[1].recipe.namepath(), "FOO");
     assert_eq!(
       invocations[1].arguments,

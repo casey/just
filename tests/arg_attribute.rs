@@ -328,7 +328,7 @@ fn pattern_match_variadic() {
   Test::new()
     .justfile(
       "
-        [arg('bar', pattern='BAR( (BAR))*')]
+        [arg('bar', pattern='BAR')]
         foo *bar:
       ",
     )
@@ -341,14 +341,14 @@ fn pattern_mismatch_variadic() {
   Test::new()
     .justfile(
       "
-        [arg('bar', pattern='BAR')]
+        [arg('bar', pattern='BAR BAR')]
         foo *bar:
       ",
     )
     .args(["foo", "BAR", "BAR"])
     .stderr(
       "
-        error: Argument `BAR BAR` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
+        error: Argument `BAR` passed to recipe `foo` parameter `bar` does not match pattern 'BAR BAR'
       ",
     )
     .status(EXIT_FAILURE)
