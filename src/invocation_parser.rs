@@ -69,21 +69,129 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
       recipe
     };
 
+    let mut arguments = vec![Vec::<String>::new(); recipe.parameters.len()];
+
+    let long = recipe
+      .parameters
+      .iter()
+      .enumerate()
+      .filter_map(|(i, parameter)| parameter.long.as_ref().map(|name| (name.as_str(), i)))
+      .collect::<BTreeMap<&str, usize>>();
+
+    let positional = recipe
+      .parameters
+      .iter()
+      .enumerate()
+      .filter_map(|(i, parameter)| parameter.long.is_none().then_some(i))
+      .collect::<Vec<usize>>();
+
+    let mut end_of_options = long.is_empty();
+
     let rest = self.rest();
 
-    let argument_range = recipe.argument_range();
-    let argument_count = cmp::min(rest.len(), recipe.max_arguments());
-    if !argument_range.range_contains(&argument_count) {
-      return Err(Error::ArgumentCountMismatch {
-        recipe: recipe.name(),
-        parameters: recipe.parameters.clone(),
-        found: rest.len(),
-        min: recipe.min_arguments(),
-        max: recipe.max_arguments(),
-      });
+    let mut i = 0;
+    let mut positional_index = 0;
+    let mut positional_accepted = 0;
+    loop {
+      let Some(argument) = rest.get(i) else {
+        break;
+      };
+
+      if !end_of_options && argument.starts_with("--") {
+        let option = argument.strip_prefix("--").unwrap();
+
+        if option.is_empty() {
+          end_of_options = true;
+          i += 1;
+        } else {
+          let (name, value) = if let Some((name, value)) = option.split_once('=') {
+            i += 1;
+            (name, value)
+          } else {
+            let Some(&value) = rest.get(i + 1) else {
+              return Err(Error::OptionMissingValue {
+                recipe: recipe.name(),
+                option: option.into(),
+              });
+            };
+            i += 2;
+            (option, value)
+          };
+
+          let Some(&index) = long.get(name) else {
+            return Err(Error::UnknownOption {
+              recipe: recipe.name(),
+              option: name.into(),
+            });
+          };
+
+          let group = &mut arguments[index];
+
+          if !group.is_empty() {
+            return Err(Error::DuplicateOption {
+              recipe: recipe.name(),
+              option: name.into(),
+            });
+          }
+
+          group.push((*value).into());
+        }
+      } else {
+        let Some(&index) = positional.get(positional_index) else {
+          break;
+        };
+        let group = &mut arguments[index];
+        group.push((*argument).into());
+        if !recipe.parameters[index].kind.is_variadic() {
+          positional_index += 1;
+        }
+        positional_accepted += 1;
+        i += 1;
+      }
     }
 
-    let arguments = recipe.group_arguments(&rest[..argument_count]);
+    let mut missing_positional = 0;
+
+    for (parameter, group) in recipe.parameters.iter().zip(&arguments) {
+      if !group.is_empty() {
+        continue;
+      }
+
+      if parameter.default.is_some() || parameter.kind == ParameterKind::Star {
+        continue;
+      }
+
+      if let Some(name) = &parameter.long {
+        return Err(Error::MissingOption {
+          recipe: recipe.name(),
+          option: name.into(),
+        });
+      }
+
+      missing_positional += 1;
+    }
+
+    if missing_positional > 0 {
+      return Err(Error::PositionalArgumentCountMismatch {
+        recipe: recipe.name(),
+        parameters: recipe.parameters.clone(),
+        found: positional_accepted,
+        min: recipe
+          .parameters
+          .iter()
+          .filter(|p| p.is_required() && p.long.is_none())
+          .count(),
+        max: if recipe.parameters.iter().any(|p| p.kind.is_variadic()) {
+          usize::MAX - 1
+        } else {
+          recipe
+            .parameters
+            .iter()
+            .filter(|p| p.long.is_none())
+            .count()
+        },
+      });
+    }
 
     for (group, parameter) in arguments.iter().zip(&recipe.parameters) {
       for argument in group {
@@ -91,15 +199,9 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
       }
     }
 
-    self.next += argument_count;
+    self.next += i;
 
-    Ok(Invocation {
-      arguments: arguments
-        .into_iter()
-        .map(|group| group.into_iter().map(str::to_string).collect())
-        .collect(),
-      recipe,
-    })
+    Ok(Invocation { arguments, recipe })
   }
 
   fn resolve_recipe(
@@ -205,7 +307,7 @@ mod tests {
 
     assert_matches!(
       InvocationParser::parse_invocations(&justfile, &["foo"]).unwrap_err(),
-      Error::ArgumentCountMismatch {
+      Error::PositionalArgumentCountMismatch {
         recipe: "foo",
         found: 0,
         min: 1,
@@ -396,6 +498,63 @@ BAZ +Z:
         String::from("4"),
         String::from("5")
       ]]
+    );
+  }
+
+  #[test]
+  fn long_argument() {
+    let justfile = testing::compile(
+      "
+[arg('bar', long='bar')]
+foo bar:
+      ",
+    );
+
+    let invocations =
+      InvocationParser::parse_invocations(&justfile, &["foo", "--bar", "baz"]).unwrap();
+
+    assert_eq!(invocations.len(), 1);
+    assert_eq!(invocations[0].recipe.namepath(), "foo");
+    assert_eq!(invocations[0].arguments, vec![vec![String::from("baz")]]);
+  }
+
+  #[test]
+  fn long_argument_with_positional() {
+    let justfile = testing::compile(
+      "
+[arg('bar', long='bar')]
+foo baz bar:
+      ",
+    );
+
+    let invocations =
+      InvocationParser::parse_invocations(&justfile, &["foo", "qux", "--bar", "baz"]).unwrap();
+
+    assert_eq!(invocations.len(), 1);
+    assert_eq!(invocations[0].recipe.namepath(), "foo");
+    assert_eq!(
+      invocations[0].arguments,
+      vec![vec![String::from("qux")], vec![String::from("baz")]]
+    );
+  }
+
+  #[test]
+  fn long_argument_terminator() {
+    let justfile = testing::compile(
+      "
+[arg('bar', long='bar')]
+foo baz qux='qux' bar='bar':
+      ",
+    );
+
+    let invocations =
+      InvocationParser::parse_invocations(&justfile, &["foo", "--", "--bar"]).unwrap();
+
+    assert_eq!(invocations.len(), 1);
+    assert_eq!(invocations[0].recipe.namepath(), "foo");
+    assert_eq!(
+      invocations[0].arguments,
+      vec![vec![String::from("--bar")], Vec::new(), Vec::new()]
     );
   }
 }

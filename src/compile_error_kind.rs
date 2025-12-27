@@ -38,6 +38,10 @@ pub(crate) enum CompileErrorKind<'src> {
   DuplicateDefault {
     recipe: &'src str,
   },
+  DuplicateOption {
+    recipe: &'src str,
+    option: String,
+  },
   DuplicateParameter {
     recipe: &'src str,
     parameter: &'src str,
@@ -82,7 +86,7 @@ pub(crate) enum CompileErrorKind<'src> {
   InvalidAttribute {
     item_kind: &'static str,
     item_name: &'src str,
-    attribute: Attribute<'src>,
+    attribute: Box<Attribute<'src>>,
   },
   InvalidEscapeSequence {
     character: char,
@@ -97,6 +101,9 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   NoCdAndWorkingDirectoryAttribute {
     recipe: &'src str,
+  },
+  OptionNameContainsEqualSign {
+    parameter: String,
   },
   ParameterFollowsVariadicParameter {
     parameter: &'src str,
@@ -175,4 +182,5 @@ pub(crate) enum CompileErrorKind<'src> {
   UnterminatedBacktick,
   UnterminatedInterpolation,
   UnterminatedString,
+  VariadicParameterWithOption,
 }

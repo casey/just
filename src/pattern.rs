@@ -23,11 +23,15 @@ impl Pattern {
         .map_err(|source| token.error(CompileErrorKind::ArgumentPatternRegex { source }))?,
     ))
   }
+
+  fn original(&self) -> &str {
+    &self.0.as_str()[4..self.0.as_str().len() - 2]
+  }
 }
 
 impl Display for Pattern {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    write!(f, "{}", &self.0.as_str()[4..self.0.as_str().len() - 2])
+    write!(f, "{}", self.original())
   }
 }
 
@@ -56,6 +60,6 @@ impl Serialize for Pattern {
   where
     S: Serializer,
   {
-    serializer.serialize_str(self.0.as_str())
+    serializer.serialize_str(self.original())
   }
 }

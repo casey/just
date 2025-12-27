@@ -621,7 +621,7 @@ mod tests {
     name: missing_some_arguments,
     src: "a b c d:",
     args: ["a", "b", "c"],
-    error: ArgumentCountMismatch {
+    error: PositionalArgumentCountMismatch {
       recipe,
       parameters,
       found,
@@ -645,7 +645,7 @@ mod tests {
     name: missing_some_arguments_variadic,
     src: "a b c +d:",
     args: ["a", "B", "C"],
-    error: ArgumentCountMismatch {
+    error: PositionalArgumentCountMismatch {
       recipe,
       parameters,
       found,
@@ -669,7 +669,7 @@ mod tests {
     name: missing_all_arguments,
     src: "a b c d:\n echo {{b}}{{c}}{{d}}",
     args: ["a"],
-    error: ArgumentCountMismatch {
+    error: PositionalArgumentCountMismatch {
       recipe,
       parameters,
       found,
@@ -693,7 +693,7 @@ mod tests {
     name: missing_some_defaults,
     src: "a b c d='hello':",
     args: ["a", "b"],
-    error: ArgumentCountMismatch {
+    error: PositionalArgumentCountMismatch {
       recipe,
       parameters,
       found,
@@ -717,7 +717,7 @@ mod tests {
     name: missing_all_defaults,
     src: "a b c='r' d='h':",
     args: ["a"],
-    error: ArgumentCountMismatch {
+    error: PositionalArgumentCountMismatch {
       recipe,
       parameters,
       found,

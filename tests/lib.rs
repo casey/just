@@ -99,6 +99,7 @@ mod no_aliases;
 mod no_cd;
 mod no_dependencies;
 mod no_exit_message;
+mod options;
 mod os_attributes;
 mod parallel;
 mod parameters;

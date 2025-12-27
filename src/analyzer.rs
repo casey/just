@@ -115,9 +115,10 @@ impl<'run, 'src> Analyzer<'run, 'src> {
         return Err(assignment.name.error(DuplicateVariable { variable }));
       }
 
-      if assignments.get(variable).map_or(true, |original| {
-        assignment.file_depth <= original.file_depth
-      }) {
+      if assignments
+        .get(variable)
+        .is_none_or(|original| assignment.file_depth <= original.file_depth)
+      {
         assignments.insert(assignment.clone());
       }
 
@@ -139,7 +140,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
       if deduplicated_recipes
         .get(recipe.name.lexeme())
-        .map_or(true, |original| recipe.file_depth <= original.file_depth)
+        .is_none_or(|original| recipe.file_depth <= original.file_depth)
       {
         deduplicated_recipes.insert(recipe.clone());
       }
@@ -252,7 +253,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
       if parameter.default.is_some() {
         passed_default = true;
-      } else if passed_default && parameter.is_required() {
+      } else if passed_default && parameter.is_required() && parameter.long.is_none() {
         return Err(
           parameter
             .name
@@ -284,7 +285,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
         return Err(recipe.name.error(InvalidAttribute {
           item_kind: "Recipe",
           item_name: recipe.name.lexeme(),
-          attribute: attribute.clone(),
+          attribute: Box::new(attribute.clone()),
         }));
       }
     }

@@ -64,8 +64,11 @@ impl Display for CompileError<'_> {
         }
       }
       AttributePositionalFollowsKeyword => {
-        write!(f, "Positional attribute arguments cannot follow keyword attribute arguments")
-      },
+        write!(
+          f,
+          "Positional attribute arguments cannot follow keyword attribute arguments"
+        )
+      }
       BacktickShebang => write!(f, "Backticks may not start with `#!`"),
       CircularRecipeDependency { recipe, circle } => {
         if circle.len() == 2 {
@@ -126,6 +129,9 @@ impl Display for CompileError<'_> {
         f,
         "Recipe `{recipe}` has duplicate `[default]` attribute, which may only appear once per module",
       ),
+      DuplicateOption { recipe, option } => {
+        write!(f, "Recipe `{recipe}` defines option `--{option}` multiple times")
+      }
       DuplicateParameter { recipe, parameter } => {
         write!(f, "Recipe `{recipe}` has duplicate parameter `{parameter}`")
       }
@@ -231,6 +237,9 @@ impl Display for CompileError<'_> {
         f,
         "Recipe `{recipe}` has both `[no-cd]` and `[working-directory]` attributes"
       ),
+      OptionNameContainsEqualSign { parameter } => {
+        write!(f, "Long option name for parameter `{parameter}` contains equal sign")
+      }
       ParameterFollowsVariadicParameter { parameter } => {
         write!(f, "Parameter `{parameter}` follows variadic parameter")
       }
@@ -265,7 +274,7 @@ impl Display for CompileError<'_> {
         f,
         "Non-default parameter `{parameter}` follows default parameter"
       ),
-      UndefinedArgAttribute { argument  } => {
+      UndefinedArgAttribute { argument } => {
         write!(f, "Argument attribute for undefined argument `{argument}`")
       }
       UndefinedVariable { variable } => write!(f, "Variable `{variable}` not defined"),
@@ -307,7 +316,7 @@ impl Display for CompileError<'_> {
       UnknownAliasTarget { alias, target } => {
         write!(f, "Alias `{alias}` has an unknown target `{target}`")
       }
-      UnknownAttributeKeyword { attribute, keyword, } => {
+      UnknownAttributeKeyword { attribute, keyword } => {
         write!(f, "Unknown keyword `{keyword}` for `{attribute}` attribute")
       }
       UnknownAttribute { attribute } => write!(f, "Unknown attribute `{attribute}`"),
@@ -327,6 +336,7 @@ impl Display for CompileError<'_> {
       UnterminatedBacktick => write!(f, "Unterminated backtick"),
       UnterminatedInterpolation => write!(f, "Unterminated interpolation"),
       UnterminatedString => write!(f, "Unterminated string"),
+      VariadicParameterWithOption => write!(f, "Variadic parameters may not be options"),
     }
   }
 }
