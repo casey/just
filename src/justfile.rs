@@ -216,23 +216,23 @@ impl<'src> Justfile<'src> {
 
     let arguments = arguments.iter().map(String::as_str).collect::<Vec<&str>>();
 
-    let groups = ArgumentParser::parse_arguments(self, &arguments)?;
+    let invocations = ArgumentParser::parse_arguments(self, &arguments)?;
 
-    let mut invocations = Vec::new();
+    let mut resolved = Vec::new();
 
-    for group in groups {
-      let Invocation { arguments, target } = group;
-      invocations.push(self.invocation(arguments, &target, 0)?);
+    for invocation in invocations {
+      let Invocation { arguments, target } = invocation;
+      resolved.push(self.invocation(arguments, &target, 0)?);
     }
 
-    if config.one && invocations.len() > 1 {
+    if config.one && resolved.len() > 1 {
       return Err(Error::ExcessInvocations {
-        invocations: invocations.len(),
+        invocations: resolved.len(),
       });
     }
 
     let ran = Ran::default();
-    for invocation in invocations {
+    for invocation in resolved {
       Self::run_recipe(
         &invocation.arguments,
         config,

@@ -28,7 +28,7 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
     root: &'run Justfile<'src>,
     arguments: &'run [&'run str],
   ) -> RunResult<'src, Vec<Invocation<Vec<String>>>> {
-    let mut groups = Vec::new();
+    let mut invocations = Vec::new();
 
     let mut invocation_parser = Self {
       arguments,
@@ -37,17 +37,17 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
     };
 
     loop {
-      groups.push(invocation_parser.parse_group()?);
+      invocations.push(invocation_parser.parse_invocation()?);
 
       if invocation_parser.next == arguments.len() {
         break;
       }
     }
 
-    Ok(groups)
+    Ok(invocations)
   }
 
-  fn parse_group(&mut self) -> RunResult<'src, Invocation<Vec<String>>> {
+  fn parse_invocation(&mut self) -> RunResult<'src, Invocation<Vec<String>>> {
     let (recipe, path) = if let Some(next) = self.next() {
       if next.contains(':') {
         let module_path =
