@@ -385,15 +385,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         parameter.check_pattern_match(recipe, value)?;
       }
 
-      let value = values.join(" ");
-
       evaluator.scope.bind(Binding {
         constant: false,
         export: parameter.export,
         file_depth: 0,
         name: parameter.name,
         private: false,
-        value,
+        value: values.join(" "),
       });
     }
 
