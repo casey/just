@@ -92,7 +92,7 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
     let grouped = recipe.group_arguments(&rest[..argument_count]);
 
     for (group, parameter) in grouped.iter().zip(&recipe.parameters) {
-      if let Some(argument) = group.first() {
+      for argument in group {
         parameter.check_pattern_match(recipe, argument)?;
       }
     }

@@ -354,13 +354,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     }
 
     for (parameter, group) in parameters.iter().zip(arguments) {
-      let value = if group.is_empty() {
+      let values = if group.is_empty() {
         if let Some(ref default) = parameter.default {
           let value = evaluator.evaluate_expression(default)?;
           positional.push(value.clone());
-          value
+          vec![value]
         } else if parameter.kind == ParameterKind::Star {
-          String::new()
+          Vec::new()
         } else {
           return Err(Error::Internal {
             message: "missing parameter without default".to_owned(),
@@ -374,15 +374,18 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         for value in group {
           positional.push(value.clone());
         }
-
-        group.join(" ")
+        group.to_vec()
       } else {
         let value = group[0].clone();
         positional.push(value.clone());
-        value
+        vec![value]
       };
 
-      parameter.check_pattern_match(recipe, &value)?;
+      for value in &values {
+        parameter.check_pattern_match(recipe, value)?;
+      }
+
+      let value = values.join(" ");
 
       evaluator.scope.bind(Binding {
         constant: false,
