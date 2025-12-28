@@ -105,6 +105,9 @@ pub(crate) enum CompileErrorKind<'src> {
   OptionNameContainsEqualSign {
     parameter: String,
   },
+  OptionNameEmpty {
+    parameter: String,
+  },
   ParameterFollowsVariadicParameter {
     parameter: &'src str,
   },

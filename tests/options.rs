@@ -1,6 +1,98 @@
 use super::*;
 
 #[test]
+fn long_options_may_not_be_empty() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='')]
+        @foo bar:
+          echo bar={{bar}}
+      ",
+    )
+    .stderr(
+      "
+        error: Option name for parameter `bar` is empty
+         ——▶ justfile:1:18
+          │
+        1 │ [arg('bar', long='')]
+          │                  ^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn short_options_may_not_be_empty() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', short='')]
+        @foo bar:
+          echo bar={{bar}}
+      ",
+    )
+    .stderr(
+      "
+        error: Option name for parameter `bar` is empty
+         ——▶ justfile:1:19
+          │
+        1 │ [arg('bar', short='')]
+          │                   ^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn parameters_may_be_passed_with_long_options() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='bar')]
+        @foo bar:
+          echo bar={{bar}}
+      ",
+    )
+    .args(["foo", "--bar", "baz"])
+    .stdout("bar=baz\n")
+    .run();
+}
+
+#[test]
+fn parameters_may_be_passed_with_short_options() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', short='b')]
+        @foo bar:
+          echo bar={{bar}}
+      ",
+    )
+    .args(["foo", "-b", "baz"])
+    .stdout("bar=baz\n")
+    .run();
+}
+
+#[test]
+fn multiple_short_options_in_one_argument_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', short='a')]
+        [arg('baz', short='b')]
+        @foo bar baz:
+      ",
+    )
+    .args(["foo", "-ab"])
+    .stderr("error: Passing multiple short options (`-ab`) in one argument is not supported\n")
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
 fn duplicate_long_options_are_forbidden() {
   Test::new()
     .justfile(
@@ -56,7 +148,7 @@ fn long_option_names_may_not_contain_equal_sign() {
     )
     .stderr(
       "
-        error: Long option name for parameter `bar` contains equal sign
+        error: Option name for parameter `bar` contains equal sign
          ——▶ justfile:1:18
           │
         1 │ [arg('bar', long='bar=baz')]

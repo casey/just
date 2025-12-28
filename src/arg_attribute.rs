@@ -4,4 +4,5 @@ pub(crate) struct ArgAttribute<'src> {
   pub(crate) long: Option<(Token<'src>, String)>,
   pub(crate) name: Token<'src>,
   pub(crate) pattern: Option<Pattern>,
+  pub(crate) short: Option<(Token<'src>, char)>,
 }

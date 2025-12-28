@@ -1035,6 +1035,8 @@ impl<'run, 'src> Parser<'run, 'src> {
           name,
           name_token,
           pattern,
+          short,
+          short_token,
           ..
         } = attribute
         {
@@ -1046,6 +1048,9 @@ impl<'run, 'src> Parser<'run, 'src> {
               long: long
                 .as_ref()
                 .map(|long| (long_token.unwrap(), long.cooked.clone())),
+              short: short
+                .as_ref()
+                .map(|short| (short_token.unwrap(), short.cooked.chars().next().unwrap())),
             },
           ))
         } else {
@@ -1055,16 +1060,24 @@ impl<'run, 'src> Parser<'run, 'src> {
       .collect::<BTreeMap<String, ArgAttribute>>();
 
     let mut long = HashSet::new();
+    let mut short = HashSet::new();
     for attribute in arg_attributes.values() {
-      let Some((token, option)) = &attribute.long else {
-        continue;
-      };
+      if let Some((token, option)) = &attribute.long {
+        if !long.insert(option) {
+          return Err(token.error(CompileErrorKind::DuplicateOption {
+            option: Switch::Long(option.into()),
+            recipe: name.lexeme(),
+          }));
+        }
+      }
 
-      if !long.insert(option) {
-        return Err(token.error(CompileErrorKind::DuplicateOption {
-          option: Switch::Long(option.into()),
-          recipe: name.lexeme(),
-        }));
+      if let Some((token, option)) = &attribute.short {
+        if !short.insert(option) {
+          return Err(token.error(CompileErrorKind::DuplicateOption {
+            option: Switch::Short(*option),
+            recipe: name.lexeme(),
+          }));
+        }
       }
     }
 
@@ -1195,10 +1208,12 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let mut pattern = None;
     let mut long = None;
+    let mut short = None;
 
     if let Some(arg_attribute) = arg_attributes.remove(name.lexeme()) {
       pattern = arg_attribute.pattern;
-      long = arg_attribute.long.map(|(_token, string)| string);
+      long = arg_attribute.long.map(|(_token, name)| name);
+      short = arg_attribute.short.map(|(_token, name)| name);
     }
 
     if kind.is_variadic() && long.is_some() {
@@ -1212,7 +1227,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       long,
       name,
       pattern,
-      short: None,
+      short,
     })
   }
 

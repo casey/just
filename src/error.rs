@@ -136,6 +136,9 @@ pub(crate) enum Error<'src> {
     recipe: &'src str,
     option: Switch,
   },
+  MultipleShortOptions {
+    options: String,
+  },
   NoChoosableRecipes,
   NoDefaultRecipe,
   NoRecipes,
@@ -579,6 +582,9 @@ impl ColorDisplay for Error<'_> {
       }
       MissingOption { recipe, option } => {
         write!(f, "Recipe `{recipe}` requires option `{option}`")?;
+      }
+      MultipleShortOptions { options } => {
+        write!(f, "Passing multiple short options (`-{options}`) in one argument is not supported")?;
       }
       NoChoosableRecipes => write!(f, "Justfile contains no choosable recipes.")?,
       NoDefaultRecipe => write!(f, "Justfile contains no default recipe.")?,

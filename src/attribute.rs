@@ -22,6 +22,8 @@ pub(crate) enum Attribute<'src> {
     #[serde(rename = "pattern")]
     pattern_literal: Option<StringLiteral<'src>>,
     short: Option<StringLiteral<'src>>,
+    #[serde(skip)]
+    short_token: Option<Token<'src>>,
   },
   Confirm(Option<StringLiteral<'src>>),
   Default,
@@ -113,6 +115,35 @@ impl<'src> Attribute<'src> {
               }));
             }
 
+            if literal.cooked.is_empty() {
+              return Err(token.error(CompileErrorKind::OptionNameEmpty {
+                parameter: name.cooked,
+              }));
+            }
+
+            (Some(token), Some(literal))
+          } else {
+            (None, None)
+          };
+
+        let (short_token, short) =
+          if let Some((_name, token, literal)) = keyword_arguments.remove("short") {
+            if literal.cooked.contains('=') {
+              return Err(token.error(CompileErrorKind::OptionNameContainsEqualSign {
+                parameter: name.cooked,
+              }));
+            }
+
+            if literal.cooked.is_empty() {
+              return Err(token.error(CompileErrorKind::OptionNameEmpty {
+                parameter: name.cooked,
+              }));
+            }
+
+            if literal.cooked.chars().count() != 1 {
+              todo!()
+            }
+
             (Some(token), Some(literal))
           } else {
             (None, None)
@@ -134,7 +165,8 @@ impl<'src> Attribute<'src> {
           name_token,
           pattern,
           pattern_literal,
-          short: None,
+          short,
+          short_token,
         }
       }
       AttributeDiscriminant::Confirm => Self::Confirm(arguments.into_iter().next()),
@@ -208,6 +240,7 @@ impl Display for Attribute<'_> {
         pattern: _,
         pattern_literal,
         short,
+        short_token: _,
       } => {
         write!(f, "({name}")?;
 

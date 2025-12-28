@@ -56,6 +56,7 @@ struct Parameter<'a> {
   long: Option<&'a str>,
   name: &'a str,
   pattern: Option<&'a str>,
+  short: Option<char>,
 }
 
 #[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
@@ -1062,6 +1063,7 @@ fn arg_pattern() {
               "long": null,
               "name": "bar",
               "pattern": "BAR",
+              "short": null,
             }
           })]
           .into(),
@@ -1097,6 +1099,7 @@ fn arg_long() {
               "long": "BAR",
               "name": "bar",
               "pattern": null,
+              "short": null,
             }
           })]
           .into(),

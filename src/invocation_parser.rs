@@ -92,7 +92,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
       .filter_map(|(i, parameter)| parameter.long.is_none().then_some(i))
       .collect::<Vec<usize>>();
 
-    let mut end_of_options = long.is_empty();
+    let mut end_of_options = long.is_empty() && short.is_empty();
 
     let rest = self.rest();
 
@@ -107,7 +107,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
       if !end_of_options && *argument == "--" {
         end_of_options = true;
         i += 1;
-      } else if !end_of_options && argument.starts_with("-") && *argument != "-" {
+      } else if !end_of_options && argument.starts_with('-') && *argument != "-" {
         let mut name = argument
           .strip_prefix("--")
           .or_else(|| argument.strip_prefix('-'))
@@ -124,7 +124,11 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
         let switch = if argument.starts_with("--") {
           Switch::Long(name.into())
         } else {
-          // todo: fix
+          if name.chars().count() != 1 {
+            return Err(Error::MultipleShortOptions {
+              options: name.into(),
+            });
+          }
           Switch::Short(name.chars().next().unwrap())
         };
 

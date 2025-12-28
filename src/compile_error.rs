@@ -130,7 +130,7 @@ impl Display for CompileError<'_> {
         "Recipe `{recipe}` has duplicate `[default]` attribute, which may only appear once per module",
       ),
       DuplicateOption { recipe, option } => {
-        write!(f, "Recipe `{recipe}` defines option `--{option}` multiple times")
+        write!(f, "Recipe `{recipe}` defines option `{option}` multiple times")
       }
       DuplicateParameter { recipe, parameter } => {
         write!(f, "Recipe `{recipe}` has duplicate parameter `{parameter}`")
@@ -238,7 +238,10 @@ impl Display for CompileError<'_> {
         "Recipe `{recipe}` has both `[no-cd]` and `[working-directory]` attributes"
       ),
       OptionNameContainsEqualSign { parameter } => {
-        write!(f, "Long option name for parameter `{parameter}` contains equal sign")
+        write!(f, "Option name for parameter `{parameter}` contains equal sign")
+      }
+      OptionNameEmpty { parameter } => {
+        write!(f, "Option name for parameter `{parameter}` is empty")
       }
       ParameterFollowsVariadicParameter { parameter } => {
         write!(f, "Parameter `{parameter}` follows variadic parameter")
