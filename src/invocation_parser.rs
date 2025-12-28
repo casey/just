@@ -113,10 +113,10 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
           .or_else(|| argument.strip_prefix('-'))
           .unwrap();
 
-        let value = if let Some((new_name, value)) = name.split_once('=') {
-          name = new_name;
+        let value = if let Some((left, right)) = name.split_once('=') {
+          name = left;
           i += 1;
-          Some(value)
+          Some(right)
         } else {
           None
         };
@@ -126,6 +126,18 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
         } else {
           // todo: fix
           Switch::Short(name.chars().next().unwrap())
+        };
+
+        let index = match &switch {
+          Switch::Long(name) => long.get(name.as_str()),
+          Switch::Short(name) => short.get(name),
+        };
+
+        let Some(&index) = index else {
+          return Err(Error::UnknownOption {
+            recipe: recipe.name(),
+            option: switch,
+          });
         };
 
         let value = if let Some(value) = value {
@@ -139,18 +151,6 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
           };
           i += 2;
           value
-        };
-
-        let index = match &switch {
-          Switch::Long(name) => long.get(name.as_str()),
-          Switch::Short(name) => short.get(name),
-        };
-
-        let Some(&index) = index else {
-          return Err(Error::UnknownOption {
-            recipe: recipe.name(),
-            option: switch,
-          });
         };
 
         let group = &mut arguments[index];
