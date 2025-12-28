@@ -83,9 +83,9 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
       });
     }
 
-    let grouped = recipe.group_arguments(&rest[..argument_count]);
+    let arguments = recipe.group_arguments(&rest[..argument_count]);
 
-    for (group, parameter) in grouped.iter().zip(&recipe.parameters) {
+    for (group, parameter) in arguments.iter().zip(&recipe.parameters) {
       for argument in group {
         parameter.check_pattern_match(recipe, argument)?;
       }
@@ -93,12 +93,13 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
 
     self.next += argument_count;
 
-    let arguments = grouped
-      .into_iter()
-      .map(|group| group.into_iter().map(str::to_string).collect())
-      .collect();
-
-    Ok(Invocation { arguments, recipe })
+    Ok(Invocation {
+      arguments: arguments
+        .into_iter()
+        .map(|group| group.into_iter().map(str::to_string).collect())
+        .collect(),
+      recipe,
+    })
   }
 
   fn resolve_recipe(
