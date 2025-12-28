@@ -78,14 +78,21 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
       .filter_map(|(i, parameter)| parameter.long.as_ref().map(|name| (name.as_str(), i)))
       .collect::<BTreeMap<&str, usize>>();
 
+    let short = recipe
+      .parameters
+      .iter()
+      .enumerate()
+      .filter_map(|(i, parameter)| parameter.short.map(|name| (name, i)))
+      .collect::<BTreeMap<char, usize>>();
+
     let positional = recipe
       .parameters
       .iter()
       .enumerate()
-      .filter_map(|(i, parameter)| parameter.long.is_none().then_some(i))
+      .filter_map(|(i, parameter)| (!parameter.is_option()).then_some(i))
       .collect::<Vec<usize>>();
 
-    let mut end_of_options = long.is_empty();
+    let mut end_of_options = long.is_empty() && short.is_empty();
 
     let rest = self.rest();
 
@@ -97,45 +104,69 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
         break;
       };
 
-      if !end_of_options && argument.starts_with("--") {
-        let option = argument.strip_prefix("--").unwrap();
+      if !end_of_options && *argument == "--" {
+        end_of_options = true;
+        i += 1;
+      } else if !end_of_options && argument.starts_with('-') && *argument != "-" {
+        let mut name = argument
+          .strip_prefix("--")
+          .or_else(|| argument.strip_prefix('-'))
+          .unwrap();
 
-        if option.is_empty() {
-          end_of_options = true;
+        let value = if let Some((left, right)) = name.split_once('=') {
+          name = left;
           i += 1;
+          Some(right)
         } else {
-          let (name, value) = if let Some((name, value)) = option.split_once('=') {
-            i += 1;
-            (name, value)
-          } else {
-            let Some(&value) = rest.get(i + 1) else {
-              return Err(Error::OptionMissingValue {
-                recipe: recipe.name(),
-                option: option.into(),
-              });
-            };
-            i += 2;
-            (option, value)
-          };
+          None
+        };
 
-          let Some(&index) = long.get(name) else {
-            return Err(Error::UnknownOption {
-              recipe: recipe.name(),
-              option: name.into(),
-            });
-          };
-
-          let group = &mut arguments[index];
-
-          if !group.is_empty() {
-            return Err(Error::DuplicateOption {
-              recipe: recipe.name(),
-              option: name.into(),
+        let switch = if argument.starts_with("--") {
+          Switch::Long(name.into())
+        } else {
+          if name.chars().count() != 1 {
+            return Err(Error::MultipleShortOptions {
+              options: name.into(),
             });
           }
+          Switch::Short(name.chars().next().unwrap())
+        };
 
-          group.push((*value).into());
+        let index = match &switch {
+          Switch::Long(name) => long.get(name.as_str()),
+          Switch::Short(name) => short.get(name),
+        };
+
+        let Some(&index) = index else {
+          return Err(Error::UnknownOption {
+            recipe: recipe.name(),
+            option: switch,
+          });
+        };
+
+        let value = if let Some(value) = value {
+          value
+        } else {
+          let Some(&value) = rest.get(i + 1) else {
+            return Err(Error::OptionMissingValue {
+              recipe: recipe.name(),
+              option: switch,
+            });
+          };
+          i += 2;
+          value
+        };
+
+        let group = &mut arguments[index];
+
+        if !group.is_empty() {
+          return Err(Error::DuplicateOption {
+            recipe: recipe.name(),
+            option: switch,
+          });
         }
+
+        group.push((*value).into());
       } else {
         let Some(&index) = positional.get(positional_index) else {
           break;
@@ -164,7 +195,14 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
       if let Some(name) = &parameter.long {
         return Err(Error::MissingOption {
           recipe: recipe.name(),
-          option: name.into(),
+          option: Switch::Long(name.into()),
+        });
+      }
+
+      if let Some(name) = &parameter.short {
+        return Err(Error::MissingOption {
+          recipe: recipe.name(),
+          option: Switch::Short(*name),
         });
       }
 
@@ -179,16 +217,12 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
         min: recipe
           .parameters
           .iter()
-          .filter(|p| p.is_required() && p.long.is_none())
+          .filter(|p| p.is_required() && !p.is_option())
           .count(),
         max: if recipe.parameters.iter().any(|p| p.kind.is_variadic()) {
           usize::MAX - 1
         } else {
-          recipe
-            .parameters
-            .iter()
-            .filter(|p| p.long.is_none())
-            .count()
+          recipe.parameters.iter().filter(|p| !p.is_option()).count()
         },
       });
     }

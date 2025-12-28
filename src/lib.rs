@@ -90,6 +90,7 @@ pub(crate) use {
     string_state::StringState,
     subcommand::Subcommand,
     suggestion::Suggestion,
+    switch::Switch,
     table::Table,
     thunk::Thunk,
     token::Token,
@@ -274,6 +275,7 @@ mod string_literal;
 mod string_state;
 mod subcommand;
 mod suggestion;
+mod switch;
 mod table;
 mod thunk;
 mod token;

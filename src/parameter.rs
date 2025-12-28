@@ -8,9 +8,14 @@ pub(crate) struct Parameter<'src> {
   pub(crate) long: Option<String>,
   pub(crate) name: Name<'src>,
   pub(crate) pattern: Option<Pattern>,
+  pub(crate) short: Option<char>,
 }
 
 impl<'src> Parameter<'src> {
+  pub(crate) fn is_option(&self) -> bool {
+    self.long.is_some() || self.short.is_some()
+  }
+
   pub(crate) fn is_required(&self) -> bool {
     self.default.is_none() && self.kind != ParameterKind::Star
   }

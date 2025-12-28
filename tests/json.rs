@@ -56,6 +56,7 @@ struct Parameter<'a> {
   long: Option<&'a str>,
   name: &'a str,
   pattern: Option<&'a str>,
+  short: Option<char>,
 }
 
 #[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
@@ -1062,6 +1063,7 @@ fn arg_pattern() {
               "long": null,
               "name": "bar",
               "pattern": "BAR",
+              "short": null,
             }
           })]
           .into(),
@@ -1097,6 +1099,7 @@ fn arg_long() {
               "long": "BAR",
               "name": "bar",
               "pattern": null,
+              "short": null,
             }
           })]
           .into(),
@@ -1104,6 +1107,42 @@ fn arg_long() {
             kind: "singular",
             name: "bar",
             long: Some("BAR"),
+            ..default()
+          }]
+          .into(),
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
+  );
+}
+
+#[test]
+fn arg_short() {
+  case(
+    "[arg('bar', short='B')]\nfoo bar:",
+    Module {
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          name: "foo",
+          namepath: "foo",
+          attributes: [json!({
+            "arg": {
+              "long": null,
+              "name": "bar",
+              "pattern": null,
+              "short": "B",
+            }
+          })]
+          .into(),
+          parameters: [Parameter {
+            kind: "singular",
+            name: "bar",
+            short: Some('B'),
             ..default()
           }]
           .into(),

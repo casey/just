@@ -40,7 +40,7 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   DuplicateOption {
     recipe: &'src str,
-    option: String,
+    option: Switch,
   },
   DuplicateParameter {
     recipe: &'src str,
@@ -105,6 +105,9 @@ pub(crate) enum CompileErrorKind<'src> {
   OptionNameContainsEqualSign {
     parameter: String,
   },
+  OptionNameEmpty {
+    parameter: String,
+  },
   ParameterFollowsVariadicParameter {
     parameter: &'src str,
   },
@@ -120,6 +123,9 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   ShellExpansion {
     err: shellexpand::LookupError<env::VarError>,
+  },
+  ShortOptionWithMultipleCharacters {
+    parameter: String,
   },
   UndefinedArgAttribute {
     argument: String,
