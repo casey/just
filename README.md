@@ -2799,7 +2799,7 @@ $ just foo --bar hello
 bar=hello
 ```
 
-Options may be also passed with `--name=value` syntax:
+Options may also be passed with `--name=value` syntax:
 
 ```console
 $ just foo --bar=hello
