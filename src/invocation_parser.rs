@@ -115,7 +115,6 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
 
         let value = if let Some((left, right)) = name.split_once('=') {
           name = left;
-          i += 1;
           Some(right)
         } else {
           None
@@ -144,7 +143,17 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
           });
         };
 
-        let value = if let Some(value) = value {
+        let value = if let Some(flag_value) = &recipe.parameters[index].value {
+          if value.is_some() {
+            return Err(Error::FlagWithValue {
+              recipe: recipe.name(),
+              option: switch,
+            });
+          }
+          i += 1;
+          flag_value
+        } else if let Some(value) = value {
+          i += 1;
           value
         } else {
           let Some(&value) = rest.get(i + 1) else {

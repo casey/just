@@ -24,6 +24,7 @@ pub(crate) enum Attribute<'src> {
     short: Option<StringLiteral<'src>>,
     #[serde(skip)]
     short_token: Option<Token<'src>>,
+    value: Option<StringLiteral<'src>>,
   },
   Confirm(Option<StringLiteral<'src>>),
   Default,
@@ -162,6 +163,15 @@ impl<'src> Attribute<'src> {
           .transpose()?
           .unwrap_or((None, None));
 
+        let value = if let Some((name, _token, literal)) = keyword_arguments.remove("value") {
+          if long.is_none() && short.is_none() {
+            return Err(name.error(CompileErrorKind::ArgAttributeValueRequiresOption));
+          }
+          Some(literal)
+        } else {
+          None
+        };
+
         Self::Arg {
           long,
           long_token,
@@ -171,6 +181,7 @@ impl<'src> Attribute<'src> {
           pattern_literal,
           short,
           short_token,
+          value,
         }
       }
       AttributeDiscriminant::Confirm => Self::Confirm(arguments.into_iter().next()),
@@ -245,6 +256,7 @@ impl Display for Attribute<'_> {
         pattern_literal,
         short,
         short_token: _,
+        value,
       } => {
         write!(f, "({name}")?;
 
@@ -258,6 +270,10 @@ impl Display for Attribute<'_> {
 
         if let Some(pattern) = pattern_literal {
           write!(f, ", pattern={pattern}")?;
+        }
+
+        if let Some(value) = value {
+          write!(f, ", value={value}")?;
         }
 
         write!(f, ")")?;

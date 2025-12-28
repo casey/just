@@ -2,6 +2,7 @@ use super::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) enum CompileErrorKind<'src> {
+  ArgAttributeValueRequiresOption,
   ArgumentPatternRegex {
     source: regex::Error,
   },
