@@ -2854,7 +2854,7 @@ A flag is optional if its parameter has a default:
 
 ```just
 [arg("bar", long="bar", value="hello")]
-foo bar=goodbye:
+foo bar="goodbye":
 ```
 
 Causing it to receive the default when not passed in the invocation:
