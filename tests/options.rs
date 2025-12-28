@@ -47,6 +47,29 @@ fn short_options_may_not_be_empty() {
 }
 
 #[test]
+fn short_options_may_not_have_multiple_characters() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', short='abc')]
+        @foo bar:
+          echo bar={{bar}}
+      ",
+    )
+    .stderr(
+      "
+        error: Short option name for parameter `bar` contains multiple characters
+         ——▶ justfile:1:19
+          │
+        1 │ [arg('bar', short='abc')]
+          │                   ^^^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
 fn parameters_may_be_passed_with_long_options() {
   Test::new()
     .justfile(

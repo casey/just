@@ -273,6 +273,9 @@ impl Display for CompileError<'_> {
         }
       }
       ShellExpansion { err } => write!(f, "Shell expansion failed: {err}"),
+      ShortOptionWithMultipleCharacters { parameter } => {
+        write!(f, "Short option name for parameter `{parameter}` contains multiple characters")
+      }
       RequiredParameterFollowsDefaultParameter { parameter } => write!(
         f,
         "Non-default parameter `{parameter}` follows default parameter"

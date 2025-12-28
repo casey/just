@@ -141,7 +141,11 @@ impl<'src> Attribute<'src> {
             }
 
             if literal.cooked.chars().count() != 1 {
-              todo!()
+              return Err(
+                token.error(CompileErrorKind::ShortOptionWithMultipleCharacters {
+                  parameter: name.cooked,
+                }),
+              );
             }
 
             (Some(token), Some(literal))

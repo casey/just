@@ -124,6 +124,9 @@ pub(crate) enum CompileErrorKind<'src> {
   ShellExpansion {
     err: shellexpand::LookupError<env::VarError>,
   },
+  ShortOptionWithMultipleCharacters {
+    parameter: String,
+  },
   UndefinedArgAttribute {
     argument: String,
   },
