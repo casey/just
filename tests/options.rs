@@ -99,6 +99,40 @@ fn parameters_may_be_passed_with_short_options() {
     .run();
 }
 
+const LONG_SHORT: &str = "
+  [arg('bar', long='bar', short='b')]
+  @foo bar:
+    echo bar={{bar}}
+";
+
+#[test]
+fn parameters_with_both_long_and_short_option_may_be_passed_as_long() {
+  Test::new()
+    .justfile(LONG_SHORT)
+    .args(["foo", "--bar", "baz"])
+    .stdout("bar=baz\n")
+    .run();
+}
+
+#[test]
+fn parameters_with_both_long_and_short_option_may_be_passed_as_short() {
+  Test::new()
+    .justfile(LONG_SHORT)
+    .args(["foo", "-b", "baz"])
+    .stdout("bar=baz\n")
+    .run();
+}
+
+#[test]
+fn parameters_with_both_long_and_short_may_not_use_both() {
+  Test::new()
+    .justfile(LONG_SHORT)
+    .args(["foo", "--bar", "baz", "-b", "baz"])
+    .stderr("error: Recipe `foo` option `-b` cannot be passed more than once\n")
+    .status(EXIT_FAILURE)
+    .run();
+}
+
 #[test]
 fn multiple_short_options_in_one_argument_is_an_error() {
   Test::new()
