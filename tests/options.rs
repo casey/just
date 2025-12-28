@@ -453,7 +453,7 @@ fn options_require_value() {
 }
 
 #[test]
-fn recipes_with_options_have_correct_positional_argument_mismatch_message() {
+fn recipes_with_long_options_have_correct_positional_argument_mismatch_message() {
   Test::new()
     .justfile(
       "
@@ -462,6 +462,27 @@ fn recipes_with_options_have_correct_positional_argument_mismatch_message() {
       ",
     )
     .args(["foo", "--bar=value"])
+    .stderr(
+      "
+        error: Recipe `foo` got 0 positional arguments but takes 1
+        usage:
+            just foo [OPTIONS] baz
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn recipes_with_short_options_have_correct_positional_argument_mismatch_message() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', short='b')]
+        @foo bar baz:
+      ",
+    )
+    .args(["foo", "-b=value"])
     .stderr(
       "
         error: Recipe `foo` got 0 positional arguments but takes 1

@@ -1,8 +1,5 @@
 use super::*;
 
-// todo:
-// - short options give right min and max positional count
-
 #[allow(clippy::doc_markdown)]
 /// The invocation parser is responsible for grouping command-line positional
 /// arguments into invocations, which consist of a recipe and its arguments.
