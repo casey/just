@@ -80,7 +80,7 @@ pub(crate) enum Error<'src> {
   },
   DuplicateOption {
     recipe: &'src str,
-    option: String,
+    option: Switch,
   },
   EditorInvoke {
     editor: OsString,
@@ -134,7 +134,7 @@ pub(crate) enum Error<'src> {
   },
   MissingOption {
     recipe: &'src str,
-    option: String,
+    option: Switch,
   },
   NoChoosableRecipes,
   NoDefaultRecipe,
@@ -144,7 +144,7 @@ pub(crate) enum Error<'src> {
   },
   OptionMissingValue {
     recipe: &'src str,
-    option: String,
+    option: Switch,
   },
   PositionalArgumentCountMismatch {
     recipe: &'src str,
@@ -209,7 +209,7 @@ pub(crate) enum Error<'src> {
   },
   UnknownOption {
     recipe: &'src str,
-    option: String,
+    option: Switch,
   },
   UnknownOverrides {
     overrides: Vec<String>,
@@ -578,7 +578,7 @@ impl ColorDisplay for Error<'_> {
         write!(f, "Could not find source file for module `{module}`.")?;
       }
       MissingOption { recipe, option } => {
-        write!(f, "Recipe `{recipe}` requires option `--{option}`")?;
+        write!(f, "Recipe `{recipe}` requires option `{option}`")?;
       }
       NoChoosableRecipes => write!(f, "Justfile contains no choosable recipes.")?,
       NoDefaultRecipe => write!(f, "Justfile contains no default recipe.")?,
@@ -587,7 +587,7 @@ impl ColorDisplay for Error<'_> {
         write!(f, "Recipe `{recipe}` was not confirmed")?;
       }
       OptionMissingValue { recipe, option } => {
-        write!(f, "Recipe `{recipe}` option `--{option}` missing value")?;
+        write!(f, "Recipe `{recipe}` option `{option}` missing value")?;
       }
       PositionalArgumentCountMismatch {
         recipe,
@@ -710,7 +710,7 @@ impl ColorDisplay for Error<'_> {
         }
       }
       UnknownOption { recipe, option } => {
-        write!(f, "Recipe `{recipe}` does not have option `--{option}`")?;
+        write!(f, "Recipe `{recipe}` does not have option `{option}`")?;
       }
       UnknownOverrides { overrides } => {
         let count = Count("Variable", overrides.len());
