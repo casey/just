@@ -160,6 +160,28 @@ fn long_option_names_may_not_contain_equal_sign() {
 }
 
 #[test]
+fn short_option_names_may_not_contain_equal_sign() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', short='=')]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: Option name for parameter `bar` contains equal sign
+         ——▶ justfile:1:19
+          │
+        1 │ [arg('bar', short='=')]
+          │                   ^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
 fn options_may_follow_an_omitted_positional_argument() {
   Test::new()
     .justfile(
