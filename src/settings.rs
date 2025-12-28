@@ -106,6 +106,7 @@ impl<'src> Settings<'src> {
     let (command, args) = self.shell(config);
 
     let mut cmd = Command::new(command);
+    cmd.with_explicit_path();
 
     cmd.args(args);
 

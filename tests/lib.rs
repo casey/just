@@ -136,6 +136,8 @@ mod unstable;
 mod which_function;
 #[cfg(windows)]
 mod windows;
+#[cfg(windows)]
+mod windows_path_resolution;
 #[cfg(target_family = "windows")]
 mod windows_shell;
 mod working_directory;

@@ -304,7 +304,7 @@ impl Subcommand {
       .or_else(|| env::var_os("EDITOR"))
       .unwrap_or_else(|| "vim".into());
 
-    let error = Command::new(&editor)
+    let error = Command::new(&editor).with_explicit_path()
       .current_dir(&search.working_directory)
       .arg(&search.justfile)
       .status();
