@@ -1,8 +1,6 @@
 use super::*;
 
 // todo:
-// - variadic parameter with short option
-// - can have arg with short option after default arg
 // - short options give right min and max positional count
 
 #[allow(clippy::doc_markdown)]

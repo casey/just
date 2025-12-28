@@ -161,6 +161,28 @@ fn variadics_with_long_options_are_forbidden() {
 }
 
 #[test]
+fn variadics_with_short_options_are_forbidden() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', short='b')]
+        foo +bar:
+      ",
+    )
+    .stderr(
+      "
+        error: Variadic parameters may not be options
+         ——▶ justfile:2:6
+          │
+        2 │ foo +bar:
+          │      ^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
 fn long_option_names_may_not_contain_equal_sign() {
   Test::new()
     .justfile(
@@ -205,7 +227,7 @@ fn short_option_names_may_not_contain_equal_sign() {
 }
 
 #[test]
-fn options_may_follow_an_omitted_positional_argument() {
+fn long_options_may_follow_an_omitted_positional_argument() {
   Test::new()
     .justfile(
       "
@@ -216,6 +238,27 @@ fn options_may_follow_an_omitted_positional_argument() {
       ",
     )
     .args(["foo", "--baz", "BAZ"])
+    .stdout(
+      "
+        bar=BAR
+        baz=BAZ
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn short_options_may_follow_an_omitted_positional_argument() {
+  Test::new()
+    .justfile(
+      "
+        [arg('baz', short='b')]
+        @foo bar='BAR' baz:
+          echo bar={{bar}}
+          echo baz={{baz}}
+      ",
+    )
+    .args(["foo", "-b", "BAZ"])
     .stdout(
       "
         bar=BAR
