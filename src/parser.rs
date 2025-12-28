@@ -1220,7 +1220,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       short = arg.short;
     }
 
-    if kind.is_variadic() && long.is_some() {
+    if kind.is_variadic() && (long.is_some() || short.is_some()) {
       return Err(name.error(CompileErrorKind::VariadicParameterWithOption));
     }
 

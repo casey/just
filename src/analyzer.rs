@@ -253,7 +253,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
       if parameter.default.is_some() {
         passed_default = true;
-      } else if passed_default && parameter.is_required() && parameter.long.is_none() {
+      } else if passed_default && parameter.is_required() && !parameter.is_option() {
         return Err(
           parameter
             .name

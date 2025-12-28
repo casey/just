@@ -12,6 +12,10 @@ pub(crate) struct Parameter<'src> {
 }
 
 impl<'src> Parameter<'src> {
+  pub(crate) fn is_option(&self) -> bool {
+    self.long.is_some() || self.short.is_some()
+  }
+
   pub(crate) fn is_required(&self) -> bool {
     self.default.is_none() && self.kind != ParameterKind::Star
   }

@@ -1,5 +1,10 @@
 use super::*;
 
+// todo:
+// - variadic parameter with short option
+// - can have arg with short option after default arg
+// - short options give right min and max positional count
+
 #[allow(clippy::doc_markdown)]
 /// The invocation parser is responsible for grouping command-line positional
 /// arguments into invocations, which consist of a recipe and its arguments.
@@ -217,16 +222,12 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
         min: recipe
           .parameters
           .iter()
-          .filter(|p| p.is_required() && p.long.is_none())
+          .filter(|p| p.is_required() && !p.is_option())
           .count(),
         max: if recipe.parameters.iter().any(|p| p.kind.is_variadic()) {
           usize::MAX - 1
         } else {
-          recipe
-            .parameters
-            .iter()
-            .filter(|p| p.long.is_none())
-            .count()
+          recipe.parameters.iter().filter(|p| !p.is_option()).count()
         },
       });
     }

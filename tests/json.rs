@@ -1118,3 +1118,39 @@ fn arg_long() {
     },
   );
 }
+
+#[test]
+fn arg_short() {
+  case(
+    "[arg('bar', short='B')]\nfoo bar:",
+    Module {
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          name: "foo",
+          namepath: "foo",
+          attributes: [json!({
+            "arg": {
+              "long": null,
+              "name": "bar",
+              "pattern": null,
+              "short": "B",
+            }
+          })]
+          .into(),
+          parameters: [Parameter {
+            kind: "singular",
+            name: "bar",
+            short: Some('B'),
+            ..default()
+          }]
+          .into(),
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
+  );
+}

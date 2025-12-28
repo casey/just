@@ -757,12 +757,12 @@ impl ColorDisplay for Error<'_> {
 
       write!(f, "{}:\n    just {recipe}", color.message().paint("usage"))?;
 
-      if parameters.iter().any(|p| p.long.is_some()) {
+      if parameters.iter().any(Parameter::is_option) {
         write!(f, " [OPTIONS]")?;
       }
 
       for p in parameters {
-        if p.long.is_some() {
+        if p.is_option() {
           continue;
         }
 
