@@ -348,9 +348,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     let mut positional = Vec::new();
 
     if arguments.len() != parameters.len() {
-      return Err(Error::internal(
-        "argument list length does not match parameter count",
-      ));
+      return Err(Error::internal("arguments do not match parameter count"));
     }
 
     for (parameter, group) in parameters.iter().zip(arguments) {
