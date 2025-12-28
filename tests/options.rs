@@ -365,7 +365,7 @@ fn argument_values_starting_with_dashes_are_accepted_after_double_dash() {
 }
 
 #[test]
-fn positional_and_option_arguments_can_be_intermixed() {
+fn positional_and_long_option_arguments_can_be_intermixed() {
   Test::new()
     .justfile(
       "
@@ -380,6 +380,34 @@ fn positional_and_option_arguments_can_be_intermixed() {
       ",
     )
     .args(["foo", "A", "--d", "D", "C", "--b", "B", "E"])
+    .stdout(
+      "
+        a=A
+        b=B
+        c=C
+        d=D
+        e=E
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn positional_and_short_option_arguments_can_be_intermixed() {
+  Test::new()
+    .justfile(
+      "
+        [arg('b', short='b')]
+        [arg('d', short='d')]
+        @foo a b c d e:
+          echo a={{a}}
+          echo b={{b}}
+          echo c={{c}}
+          echo d={{d}}
+          echo e={{e}}
+      ",
+    )
+    .args(["foo", "A", "-d", "D", "C", "-b", "B", "E"])
     .stdout(
       "
         a=A

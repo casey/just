@@ -89,7 +89,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
       .parameters
       .iter()
       .enumerate()
-      .filter_map(|(i, parameter)| parameter.long.is_none().then_some(i))
+      .filter_map(|(i, parameter)| (!parameter.is_option()).then_some(i))
       .collect::<Vec<usize>>();
 
     let mut end_of_options = long.is_empty() && short.is_empty();
