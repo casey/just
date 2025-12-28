@@ -1062,7 +1062,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
       if !long.insert(option) {
         return Err(token.error(CompileErrorKind::DuplicateOption {
-          option: option.into(),
+          option: Switch::Long(option.into()),
           recipe: name.lexeme(),
         }));
       }
@@ -1212,6 +1212,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       long,
       name,
       pattern,
+      short: None,
     })
   }
 

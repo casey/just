@@ -40,7 +40,7 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   DuplicateOption {
     recipe: &'src str,
-    option: String,
+    option: Switch,
   },
   DuplicateParameter {
     recipe: &'src str,

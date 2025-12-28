@@ -8,6 +8,7 @@ pub(crate) struct Parameter<'src> {
   pub(crate) long: Option<String>,
   pub(crate) name: Name<'src>,
   pub(crate) pattern: Option<Pattern>,
+  pub(crate) short: Option<char>,
 }
 
 impl<'src> Parameter<'src> {

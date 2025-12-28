@@ -495,7 +495,7 @@ impl ColorDisplay for Error<'_> {
       DuplicateOption { recipe, option } => {
         write!(
           f,
-          "Recipe `{recipe}` option `--{option}` cannot be passed more than once",
+          "Recipe `{recipe}` option `{option}` cannot be passed more than once",
         )?;
       }
       EditorInvoke { editor, io_error } => {

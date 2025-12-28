@@ -21,6 +21,7 @@ pub(crate) enum Attribute<'src> {
     pattern: Option<Pattern>,
     #[serde(rename = "pattern")]
     pattern_literal: Option<StringLiteral<'src>>,
+    short: Option<StringLiteral<'src>>,
   },
   Confirm(Option<StringLiteral<'src>>),
   Default,
@@ -133,6 +134,7 @@ impl<'src> Attribute<'src> {
           name_token,
           pattern,
           pattern_literal,
+          short: None,
         }
       }
       AttributeDiscriminant::Confirm => Self::Confirm(arguments.into_iter().next()),
@@ -205,11 +207,16 @@ impl Display for Attribute<'_> {
         name_token: _,
         pattern: _,
         pattern_literal,
+        short,
       } => {
         write!(f, "({name}")?;
 
         if let Some(long) = long {
           write!(f, ", long={long}")?;
+        }
+
+        if let Some(short) = short {
+          write!(f, ", short={short}")?;
         }
 
         if let Some(pattern) = pattern_literal {

@@ -78,6 +78,13 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
       .filter_map(|(i, parameter)| parameter.long.as_ref().map(|name| (name.as_str(), i)))
       .collect::<BTreeMap<&str, usize>>();
 
+    let short = recipe
+      .parameters
+      .iter()
+      .enumerate()
+      .filter_map(|(i, parameter)| parameter.short.map(|name| (name, i)))
+      .collect::<BTreeMap<char, usize>>();
+
     let positional = recipe
       .parameters
       .iter()
@@ -97,45 +104,56 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
         break;
       };
 
-      if !end_of_options && argument.starts_with("--") {
-        let option = argument.strip_prefix("--").unwrap();
-
-        if option.is_empty() {
+      if !end_of_options && argument.starts_with("-") && *argument != "-" {
+        if *argument == "--" {
           end_of_options = true;
           i += 1;
-        } else {
-          let (name, value) = if let Some((name, value)) = option.split_once('=') {
-            i += 1;
-            (name, value)
-          } else {
-            let Some(&value) = rest.get(i + 1) else {
-              return Err(Error::OptionMissingValue {
-                recipe: recipe.name(),
-                option: option.into(),
-              });
-            };
-            i += 2;
-            (option, value)
-          };
-
-          let Some(&index) = long.get(name) else {
-            return Err(Error::UnknownOption {
-              recipe: recipe.name(),
-              option: name.into(),
-            });
-          };
-
-          let group = &mut arguments[index];
-
-          if !group.is_empty() {
-            return Err(Error::DuplicateOption {
-              recipe: recipe.name(),
-              option: name.into(),
-            });
-          }
-
-          group.push((*value).into());
+          continue;
         }
+
+        let option = argument
+          .strip_prefix("--")
+          .or_else(|| argument.strip_prefix('-'))
+          .unwrap();
+
+        let (name, value) = if let Some((name, value)) = option.split_once('=') {
+          i += 1;
+          (name, value)
+        } else {
+          let Some(&value) = rest.get(i + 1) else {
+            return Err(Error::OptionMissingValue {
+              recipe: recipe.name(),
+              option: option.into(),
+            });
+          };
+          i += 2;
+          (option, value)
+        };
+
+        let index = if argument.starts_with("--") {
+          long.get(name)
+        } else {
+          // todo: fix
+          short.get(&name.chars().next().unwrap())
+        };
+
+        let Some(&index) = index else {
+          return Err(Error::UnknownOption {
+            recipe: recipe.name(),
+            option: name.into(),
+          });
+        };
+
+        let group = &mut arguments[index];
+
+        if !group.is_empty() {
+          return Err(Error::DuplicateOption {
+            recipe: recipe.name(),
+            option: name.into(),
+          });
+        }
+
+        group.push((*value).into());
       } else {
         let Some(&index) = positional.get(positional_index) else {
           break;
