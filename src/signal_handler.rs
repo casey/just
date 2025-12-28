@@ -26,10 +26,8 @@ impl SignalHandler {
       Err(poison_error) => {
         eprintln!(
           "{}",
-          Error::Internal {
-            message: format!("signal handler mutex poisoned: {poison_error}"),
-          }
-          .color_display(Color::auto().stderr())
+          Error::internal(format!("signal handler mutex poisoned: {poison_error}"),)
+            .color_display(Color::auto().stderr())
         );
         process::exit(EXIT_FAILURE);
       }

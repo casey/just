@@ -247,9 +247,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         {
           Ok(self.evaluate_assignment(assignment)?.to_owned())
         } else {
-          Err(Error::Internal {
-            message: format!("attempted to evaluate undefined variable `{variable}`"),
-          })
+          Err(Error::internal(format!(
+            "attempted to evaluate undefined variable `{variable}`"
+          )))
         }
       }
     }
@@ -348,9 +348,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     let mut positional = Vec::new();
 
     if arguments.len() != parameters.len() {
-      return Err(Error::Internal {
-        message: "argument list length does not match parameter count".to_owned(),
-      });
+      return Err(Error::internal(
+        "argument list length does not match parameter count",
+      ));
     }
 
     for (parameter, group) in parameters.iter().zip(arguments) {
@@ -362,20 +362,17 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         } else if parameter.kind == ParameterKind::Star {
           Vec::new()
         } else {
-          return Err(Error::Internal {
-            message: "missing parameter without default".to_owned(),
-          });
+          return Err(Error::internal("missing parameter without default"));
         }
-      } else if !parameter.kind.is_variadic() && group.len() > 1 {
-        return Err(Error::Internal {
-          message: "multiple values for non-variadic parameter".to_owned(),
-        });
       } else if parameter.kind.is_variadic() {
-        for value in group {
-          positional.push(value.clone());
-        }
+        positional.extend_from_slice(&group);
         group.clone()
       } else {
+        if group.len() != 1 {
+          return Err(Error::internal(
+            "multiple values for non-variadic parameter",
+          ));
+        }
         let value = group[0].clone();
         positional.push(value.clone());
         vec![value]
