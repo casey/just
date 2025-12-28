@@ -150,7 +150,7 @@ fn multiple_short_options_in_one_argument_is_an_error() {
 }
 
 #[test]
-fn duplicate_long_options_are_forbidden() {
+fn duplicate_long_option_attributes_are_forbidden() {
   Test::new()
     .justfile(
       "
@@ -166,6 +166,29 @@ fn duplicate_long_options_are_forbidden() {
           │
         2 │ [arg('baz', long='bar')]
           │                  ^^^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn duplicate_short_option_attributes_are_forbidden() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', short='b')]
+        [arg('baz', short='b')]
+        foo bar baz:
+      ",
+    )
+    .stderr(
+      "
+        error: Recipe `foo` defines option `-b` multiple times
+         ——▶ justfile:2:19
+          │
+        2 │ [arg('baz', short='b')]
+          │                   ^^^
       ",
     )
     .status(EXIT_FAILURE)
@@ -485,7 +508,7 @@ fn missing_required_options_are_an_error() {
 }
 
 #[test]
-fn duplicate_options_are_an_error() {
+fn duplicate_long_options_are_an_error() {
   Test::new()
     .justfile(
       "
@@ -495,6 +518,21 @@ fn duplicate_options_are_an_error() {
     )
     .args(["foo", "--bar=a", "--bar=b"])
     .stderr("error: Recipe `foo` option `--bar` cannot be passed more than once\n")
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn duplicate_short_options_are_an_error() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', short='b')]
+        @foo bar:
+      ",
+    )
+    .args(["foo", "-b=a", "-b=b"])
+    .stderr("error: Recipe `foo` option `-b` cannot be passed more than once\n")
     .status(EXIT_FAILURE)
     .run();
 }
