@@ -2806,6 +2806,25 @@ $ just foo --bar=hello
 bar=hello
 ```
 
+The `[arg(ARG, short=OPTION)]` attribute can be used to make a parameter a short
+option<sup>master</sup>.
+
+In this `justfile`:
+
+```just
+[arg("bar", short="b")]
+foo bar:
+```
+
+The parameter `bar` is given with the `-b` option:
+
+```console
+$ just foo -b hello
+bar=hello
+```
+
+If a parameter has both a long and short option, it may be passed using either.
+
 Variadic `+` and `?` parameters cannot be options.
 
 ### Dependencies
