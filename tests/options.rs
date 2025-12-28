@@ -661,3 +661,20 @@ fn value_requires_long_or_short() {
     .status(EXIT_FAILURE)
     .run();
 }
+
+#[test]
+fn options_arg_passed_as_positional_arguments() {
+  Test::new()
+    .justfile(
+      r#"
+set positional-arguments
+
+[arg('bar', short='b')]
+@foo bar:
+  echo args="$@"
+      "#,
+    )
+    .args(["foo", "-b", "baz"])
+    .stdout("args=baz\n")
+    .run();
+}
