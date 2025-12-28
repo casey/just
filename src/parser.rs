@@ -1210,8 +1210,8 @@ impl<'run, 'src> Parser<'run, 'src> {
       None
     };
 
-    let mut pattern = None;
     let mut long = None;
+    let mut pattern = None;
     let mut short = None;
 
     if let Some(arg) = arg_attributes.remove(name.lexeme()) {
