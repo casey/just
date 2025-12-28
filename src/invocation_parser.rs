@@ -1,15 +1,15 @@
 use super::*;
 
 #[allow(clippy::doc_markdown)]
-/// The argument parser is responsible for grouping positional arguments into
-/// argument groups, which consist of a path to a recipe and its arguments.
+/// The invocation parser is responsible for grouping command-line positional
+/// arguments into invocations, which consist of a recipe and its arguments.
 ///
-/// Argument parsing is substantially complicated by the fact that recipe paths
-/// can be given on the command line as multiple arguments, i.e., "foo" "bar"
-/// baz", or as a single "::"-separated argument.
+/// Invocation parsing is substantially complicated by the fact that recipe
+/// paths can be given on the command line as multiple arguments, i.e., "foo"
+/// "bar" baz", or as a single "::"-separated argument.
 ///
-/// Error messages produced by the argument parser should use the format of the
-/// recipe path as passed on the command line.
+/// Error messages produced by the invocation parser should use the format of
+/// the recipe path as passed on the command line.
 ///
 /// Additionally, if a recipe is specified with a "::"-separated path, extra
 /// components of that path after a valid recipe must not be used as arguments,
@@ -17,24 +17,18 @@ use super::*;
 /// an example, `foo bar baz` may refer to recipe `foo::bar` with argument
 /// `baz`, but `foo::bar::baz` is an error, since `bar` is a recipe, not a
 /// module.
-pub(crate) struct ArgumentParser<'src: 'run, 'run> {
+pub(crate) struct InvocationParser<'src: 'run, 'run> {
   arguments: &'run [&'run str],
   next: usize,
   root: &'run Justfile<'src>,
 }
 
-#[derive(Debug, PartialEq)]
-pub(crate) struct ArgumentGroup<'run> {
-  pub(crate) arguments: Vec<&'run str>,
-  pub(crate) path: Vec<String>,
-}
-
-impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
-  pub(crate) fn parse_arguments(
+impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
+  pub(crate) fn parse_invocations(
     root: &'run Justfile<'src>,
     arguments: &'run [&'run str],
-  ) -> RunResult<'src, Vec<ArgumentGroup<'run>>> {
-    let mut groups = Vec::new();
+  ) -> RunResult<'src, Vec<Invocation<'src, 'run>>> {
+    let mut invocations = Vec::new();
 
     let mut invocation_parser = Self {
       arguments,
@@ -43,36 +37,36 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
     };
 
     loop {
-      groups.push(invocation_parser.parse_group()?);
+      invocations.push(invocation_parser.parse_invocation()?);
 
       if invocation_parser.next == arguments.len() {
         break;
       }
     }
 
-    Ok(groups)
+    Ok(invocations)
   }
 
-  fn parse_group(&mut self) -> RunResult<'src, ArgumentGroup<'run>> {
-    let (recipe, path) = if let Some(next) = self.next() {
+  fn parse_invocation(&mut self) -> RunResult<'src, Invocation<'src, 'run>> {
+    let recipe = if let Some(next) = self.next() {
       if next.contains(':') {
         let module_path =
           ModulePath::try_from([next].as_slice()).map_err(|()| Error::UnknownRecipe {
             recipe: next.into(),
             suggestion: None,
           })?;
-        let (recipe, path, _) = self.resolve_recipe(true, &module_path.path)?;
+        let (recipe, _) = self.resolve_recipe(true, &module_path.path)?;
         self.next += 1;
-        (recipe, path)
+        recipe
       } else {
-        let (recipe, path, consumed) = self.resolve_recipe(false, self.rest())?;
+        let (recipe, consumed) = self.resolve_recipe(false, self.rest())?;
         self.next += consumed;
-        (recipe, path)
+        recipe
       }
     } else {
-      let (recipe, path, consumed) = self.resolve_recipe(false, self.rest())?;
+      let (recipe, consumed) = self.resolve_recipe(false, self.rest())?;
       assert_eq!(consumed, 0);
-      (recipe, path)
+      recipe
     };
 
     let rest = self.rest();
@@ -89,22 +83,30 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
       });
     }
 
-    let arguments = rest[..argument_count].to_vec();
+    let arguments = recipe.group_arguments(&rest[..argument_count]);
 
-    for (argument, parameter) in arguments.iter().zip(&recipe.parameters) {
-      parameter.check_pattern_match(recipe, argument)?;
+    for (group, parameter) in arguments.iter().zip(&recipe.parameters) {
+      for argument in group {
+        parameter.check_pattern_match(recipe, argument)?;
+      }
     }
 
     self.next += argument_count;
 
-    Ok(ArgumentGroup { arguments, path })
+    Ok(Invocation {
+      arguments: arguments
+        .into_iter()
+        .map(|group| group.into_iter().map(str::to_string).collect())
+        .collect(),
+      recipe,
+    })
   }
 
   fn resolve_recipe(
     &self,
     module_path: bool,
     args: &[impl AsRef<str>],
-  ) -> RunResult<'src, (&'run Recipe<'src>, Vec<String>, usize)> {
+  ) -> RunResult<'src, (&'run Recipe<'src>, usize)> {
     let mut current = self.root;
     let mut path = Vec::new();
 
@@ -118,14 +120,10 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
       } else if let Some(recipe) = current.get_recipe(arg) {
         if module_path && i + 1 < args.len() {
           return Err(Error::ExpectedSubmoduleButFoundRecipe {
-            path: if module_path {
-              path.join("::")
-            } else {
-              path.join(" ")
-            },
+            path: path.join("::"),
           });
         }
-        return Ok((recipe, path, i + 1));
+        return Ok((recipe, i + 1));
       } else {
         if module_path && i + 1 < args.len() {
           return Err(Error::UnknownSubmodule {
@@ -146,8 +144,7 @@ impl<'src: 'run, 'run> ArgumentParser<'src, 'run> {
 
     if let Some(recipe) = &current.default {
       recipe.check_can_be_default_recipe()?;
-      path.push(recipe.name().into());
-      Ok((recipe, path, args.len()))
+      Ok((recipe, args.len()))
     } else if current.recipes.is_empty() {
       Err(Error::NoRecipes)
     } else {
@@ -184,26 +181,22 @@ mod tests {
   fn single_no_arguments() {
     let justfile = testing::compile("foo:");
 
-    assert_eq!(
-      ArgumentParser::parse_arguments(&justfile, &["foo"]).unwrap(),
-      vec![ArgumentGroup {
-        path: vec!["foo".into()],
-        arguments: Vec::new()
-      }],
-    );
+    let invocations = InvocationParser::parse_invocations(&justfile, &["foo"]).unwrap();
+
+    assert_eq!(invocations.len(), 1);
+    assert_eq!(invocations[0].recipe.namepath(), "foo");
+    assert!(invocations[0].arguments.is_empty());
   }
 
   #[test]
   fn single_with_argument() {
     let justfile = testing::compile("foo bar:");
 
-    assert_eq!(
-      ArgumentParser::parse_arguments(&justfile, &["foo", "baz"]).unwrap(),
-      vec![ArgumentGroup {
-        path: vec!["foo".into()],
-        arguments: vec!["baz"],
-      }],
-    );
+    let invocations = InvocationParser::parse_invocations(&justfile, &["foo", "baz"]).unwrap();
+
+    assert_eq!(invocations.len(), 1);
+    assert_eq!(invocations[0].recipe.namepath(), "foo");
+    assert_eq!(invocations[0].arguments, vec![vec![String::from("baz")]]);
   }
 
   #[test]
@@ -211,7 +204,7 @@ mod tests {
     let justfile = testing::compile("foo bar:");
 
     assert_matches!(
-      ArgumentParser::parse_arguments(&justfile, &["foo"]).unwrap_err(),
+      InvocationParser::parse_invocations(&justfile, &["foo"]).unwrap_err(),
       Error::ArgumentCountMismatch {
         recipe: "foo",
         found: 0,
@@ -227,7 +220,7 @@ mod tests {
     let justfile = testing::compile("foo:");
 
     assert_matches!(
-      ArgumentParser::parse_arguments(&justfile, &["bar"]).unwrap_err(),
+      InvocationParser::parse_invocations(&justfile, &["bar"]).unwrap_err(),
       Error::UnknownRecipe {
         recipe,
         suggestion: None
@@ -240,7 +233,7 @@ mod tests {
     let justfile = testing::compile("foo:");
 
     assert_matches!(
-      ArgumentParser::parse_arguments(&justfile, &["bar", "baz"]).unwrap_err(),
+      InvocationParser::parse_invocations(&justfile, &["bar", "baz"]).unwrap_err(),
       Error::UnknownRecipe {
         recipe,
         suggestion: None
@@ -258,13 +251,12 @@ mod tests {
     fs::write(tempdir.path().join("foo/mod.just"), "bar:").unwrap();
     let compilation = Compiler::compile(&loader, &path).unwrap();
 
-    assert_eq!(
-      ArgumentParser::parse_arguments(&compilation.justfile, &["foo", "bar"]).unwrap(),
-      vec![ArgumentGroup {
-        path: vec!["foo".into(), "bar".into()],
-        arguments: Vec::new()
-      }],
-    );
+    let invocations =
+      InvocationParser::parse_invocations(&compilation.justfile, &["foo", "bar"]).unwrap();
+
+    assert_eq!(invocations.len(), 1);
+    assert_eq!(invocations[0].recipe.namepath(), "foo::bar");
+    assert!(invocations[0].arguments.is_empty());
   }
 
   #[test]
@@ -278,7 +270,7 @@ mod tests {
     let compilation = Compiler::compile(&loader, &path).unwrap();
 
     assert_matches!(
-      ArgumentParser::parse_arguments(&compilation.justfile, &["foo", "zzz"]).unwrap_err(),
+      InvocationParser::parse_invocations(&compilation.justfile, &["foo", "zzz"]).unwrap_err(),
       Error::UnknownRecipe {
         recipe,
         suggestion: None
@@ -296,7 +288,7 @@ mod tests {
     let compilation = Compiler::compile(&loader, &tempdir.path().join("justfile")).unwrap();
 
     assert_matches!(
-      ArgumentParser::parse_arguments(&compilation.justfile, &["foo::zzz"]).unwrap_err(),
+      InvocationParser::parse_invocations(&compilation.justfile, &["foo::zzz"]).unwrap_err(),
       Error::UnknownRecipe {
         recipe,
         suggestion: None
@@ -314,7 +306,7 @@ mod tests {
     let compilation = Compiler::compile(&loader, &tempdir.path().join("justfile")).unwrap();
 
     assert_matches!(
-      ArgumentParser::parse_arguments(&compilation.justfile, &["foo::bar::baz"]).unwrap_err(),
+      InvocationParser::parse_invocations(&compilation.justfile, &["foo::bar::baz"]).unwrap_err(),
       Error::ExpectedSubmoduleButFoundRecipe {
         path,
       } if path == "foo::bar",
@@ -330,7 +322,7 @@ mod tests {
     let compilation = Compiler::compile(&loader, &tempdir.path().join("justfile")).unwrap();
 
     assert_matches!(
-      ArgumentParser::parse_arguments(&compilation.justfile, &[]).unwrap_err(),
+      InvocationParser::parse_invocations(&compilation.justfile, &[]).unwrap_err(),
       Error::NoRecipes,
     );
   }
@@ -344,7 +336,7 @@ mod tests {
     let compilation = Compiler::compile(&loader, &tempdir.path().join("justfile")).unwrap();
 
     assert_matches!(
-      ArgumentParser::parse_arguments(&compilation.justfile, &[]).unwrap_err(),
+      InvocationParser::parse_invocations(&compilation.justfile, &[]).unwrap_err(),
       Error::DefaultRecipeRequiresArguments {
         recipe: "foo",
         min_arguments: 1,
@@ -362,7 +354,7 @@ mod tests {
     let compilation = Compiler::compile(&loader, &tempdir.path().join("justfile")).unwrap();
 
     assert_matches!(
-      ArgumentParser::parse_arguments(&compilation.justfile, &[]).unwrap_err(),
+      InvocationParser::parse_invocations(&compilation.justfile, &[]).unwrap_err(),
       Error::NoDefaultRecipe,
     );
   }
@@ -382,26 +374,28 @@ BAZ +Z:
 ",
     );
 
+    let invocations = InvocationParser::parse_invocations(
+      &justfile,
+      &["BAR", "0", "FOO", "1", "2", "BAZ", "3", "4", "5"],
+    )
+    .unwrap();
+
+    assert_eq!(invocations.len(), 3);
+    assert_eq!(invocations[0].recipe.namepath(), "BAR");
+    assert_eq!(invocations[0].arguments, vec![vec![String::from("0")]]);
+    assert_eq!(invocations[1].recipe.namepath(), "FOO");
     assert_eq!(
-      ArgumentParser::parse_arguments(
-        &justfile,
-        &["BAR", "0", "FOO", "1", "2", "BAZ", "3", "4", "5"]
-      )
-      .unwrap(),
-      vec![
-        ArgumentGroup {
-          path: vec!["BAR".into()],
-          arguments: vec!["0"],
-        },
-        ArgumentGroup {
-          path: vec!["FOO".into()],
-          arguments: vec!["1", "2"],
-        },
-        ArgumentGroup {
-          path: vec!["BAZ".into()],
-          arguments: vec!["3", "4", "5"],
-        },
-      ],
+      invocations[1].arguments,
+      vec![vec![String::from("1")], vec![String::from("2")]]
+    );
+    assert_eq!(invocations[2].recipe.namepath(), "BAZ");
+    assert_eq!(
+      invocations[2].arguments,
+      vec![vec![
+        String::from("3"),
+        String::from("4"),
+        String::from("5")
+      ]]
     );
   }
 }

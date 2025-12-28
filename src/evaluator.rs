@@ -247,9 +247,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         {
           Ok(self.evaluate_assignment(assignment)?.to_owned())
         } else {
-          Err(Error::Internal {
-            message: format!("attempted to evaluate undefined variable `{variable}`"),
-          })
+          Err(Error::internal(format!(
+            "attempted to evaluate undefined variable `{variable}`"
+          )))
         }
       }
     }
@@ -336,7 +336,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   pub(crate) fn evaluate_parameters(
-    arguments: &[String],
+    arguments: &[Vec<String>],
     context: &ExecutionContext<'src, 'run>,
     is_dependency: bool,
     parameters: &[Parameter<'src>],
@@ -347,35 +347,38 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     let mut positional = Vec::new();
 
-    let mut rest = arguments;
-    for parameter in parameters {
-      let value = if rest.is_empty() {
+    if arguments.len() != parameters.len() {
+      return Err(Error::internal("arguments do not match parameter count"));
+    }
+
+    for (parameter, group) in parameters.iter().zip(arguments) {
+      let values = if group.is_empty() {
         if let Some(ref default) = parameter.default {
           let value = evaluator.evaluate_expression(default)?;
           positional.push(value.clone());
-          value
+          vec![value]
         } else if parameter.kind == ParameterKind::Star {
-          String::new()
+          Vec::new()
         } else {
-          return Err(Error::Internal {
-            message: "missing parameter without default".to_owned(),
-          });
+          return Err(Error::internal("missing parameter without default"));
         }
       } else if parameter.kind.is_variadic() {
-        for value in rest {
-          positional.push(value.clone());
-        }
-        let value = rest.to_vec().join(" ");
-        rest = &[];
-        value
+        positional.extend_from_slice(group);
+        group.clone()
       } else {
-        let value = rest[0].clone();
+        if group.len() != 1 {
+          return Err(Error::internal(
+            "multiple values for non-variadic parameter",
+          ));
+        }
+        let value = group[0].clone();
         positional.push(value.clone());
-        rest = &rest[1..];
-        value
+        vec![value]
       };
 
-      parameter.check_pattern_match(recipe, &value)?;
+      for value in &values {
+        parameter.check_pattern_match(recipe, value)?;
+      }
 
       evaluator.scope.bind(Binding {
         constant: false,
@@ -383,7 +386,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         file_depth: 0,
         name: parameter.name,
         private: false,
-        value,
+        value: values.join(" "),
       });
     }
 

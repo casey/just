@@ -1,11 +1,5 @@
 use {super::*, serde::Serialize};
 
-#[derive(Debug)]
-struct Invocation<'src: 'run, 'run> {
-  arguments: Vec<&'run str>,
-  recipe: &'run Recipe<'src>,
-}
-
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Justfile<'src> {
   pub(crate) aliases: Table<'src, Alias<'src>>,
@@ -222,13 +216,7 @@ impl<'src> Justfile<'src> {
 
     let arguments = arguments.iter().map(String::as_str).collect::<Vec<&str>>();
 
-    let groups = ArgumentParser::parse_arguments(self, &arguments)?;
-
-    let mut invocations = Vec::new();
-
-    for group in &groups {
-      invocations.push(self.invocation(&group.arguments, &group.path, 0)?);
-    }
+    let invocations = InvocationParser::parse_invocations(self, &arguments)?;
 
     if config.one && invocations.len() > 1 {
       return Err(Error::ExcessInvocations {
@@ -239,12 +227,7 @@ impl<'src> Justfile<'src> {
     let ran = Ran::default();
     for invocation in invocations {
       Self::run_recipe(
-        &invocation
-          .arguments
-          .iter()
-          .copied()
-          .map(str::to_string)
-          .collect::<Vec<String>>(),
+        &invocation.arguments,
         config,
         &dotenv,
         false,
@@ -282,24 +265,6 @@ impl<'src> Justfile<'src> {
       .or_else(|| self.aliases.get(name).map(|alias| alias.target.as_ref()))
   }
 
-  fn invocation<'run>(
-    &'run self,
-    arguments: &[&'run str],
-    path: &'run [String],
-    position: usize,
-  ) -> RunResult<'src, Invocation<'src, 'run>> {
-    if position + 1 == path.len() {
-      let recipe = self.get_recipe(&path[position]).unwrap();
-      Ok(Invocation {
-        arguments: arguments.into(),
-        recipe,
-      })
-    } else {
-      let module = self.modules.get(&path[position]).unwrap();
-      module.invocation(arguments, path, position + 1)
-    }
-  }
-
   pub(crate) fn is_submodule(&self) -> bool {
     self.name.is_some()
   }
@@ -309,7 +274,7 @@ impl<'src> Justfile<'src> {
   }
 
   fn run_recipe(
-    arguments: &[String],
+    arguments: &[Vec<String>],
     config: &Config,
     dotenv: &BTreeMap<String, String>,
     is_dependency: bool,
@@ -404,11 +369,15 @@ impl<'src> Justfile<'src> {
 
     let mut evaluated = Vec::new();
     for Dependency { recipe, arguments } in dependencies {
-      let arguments = arguments
-        .iter()
-        .map(|argument| evaluator.evaluate_expression(argument))
-        .collect::<RunResult<Vec<String>>>()?;
-      evaluated.push((recipe, arguments));
+      let mut grouped = Vec::new();
+      for group in arguments {
+        let evaluated_group = group
+          .iter()
+          .map(|argument| evaluator.evaluate_expression(argument))
+          .collect::<RunResult<Vec<String>>>()?;
+        grouped.push(evaluated_group);
+      }
+      evaluated.push((recipe, grouped));
     }
 
     if recipe.is_parallel() {

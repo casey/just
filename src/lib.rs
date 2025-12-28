@@ -10,7 +10,6 @@ pub(crate) use {
     alias_style::AliasStyle,
     analyzer::Analyzer,
     arg_attribute::ArgAttribute,
-    argument_parser::ArgumentParser,
     assignment::Assignment,
     assignment_resolver::AssignmentResolver,
     ast::Ast,
@@ -44,6 +43,8 @@ pub(crate) use {
     fragment::Fragment,
     function::Function,
     interpreter::Interpreter,
+    invocation::Invocation,
+    invocation_parser::InvocationParser,
     item::Item,
     justfile::Justfile,
     keyed::Keyed,
@@ -189,7 +190,6 @@ mod alias;
 mod alias_style;
 mod analyzer;
 mod arg_attribute;
-mod argument_parser;
 mod assignment;
 mod assignment_resolver;
 mod ast;
@@ -224,6 +224,8 @@ mod format_string_part;
 mod fragment;
 mod function;
 mod interpreter;
+mod invocation;
+mod invocation_parser;
 mod item;
 mod justfile;
 mod keyed;

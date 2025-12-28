@@ -56,6 +56,27 @@ impl<'src, D> Recipe<'src, D> {
     self.min_arguments()..=self.max_arguments()
   }
 
+  pub(crate) fn group_arguments<T: Clone>(&self, arguments: &[T]) -> Vec<Vec<T>> {
+    let mut groups = Vec::new();
+    let mut rest = arguments;
+
+    for parameter in &self.parameters {
+      let group = if parameter.kind.is_variadic() {
+        mem::take(&mut rest).into()
+      } else if let Some(argument) = rest.first() {
+        rest = &rest[1..];
+        vec![argument.clone()]
+      } else {
+        debug_assert!(parameter.default.is_some());
+        Vec::new()
+      };
+
+      groups.push(group);
+    }
+
+    groups
+  }
+
   pub(crate) fn min_arguments(&self) -> usize {
     self
       .parameters
