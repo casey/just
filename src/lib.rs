@@ -118,7 +118,7 @@ pub(crate) use {
   snafu::{ResultExt, Snafu},
   std::{
     borrow::Cow,
-    cmp::{self, Ordering},
+    cmp::Ordering,
     collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     env,
     ffi::OsString,
@@ -128,7 +128,7 @@ pub(crate) use {
     iter::{self, FromIterator},
     mem,
     ops::Deref,
-    ops::{Index, Range, RangeInclusive},
+    ops::{Index, RangeInclusive},
     path::{self, Path, PathBuf},
     process::{self, Command, ExitStatus, Stdio},
     str::{self, Chars},

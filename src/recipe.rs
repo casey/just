@@ -56,7 +56,10 @@ impl<'src, D> Recipe<'src, D> {
     self.min_arguments()..=self.max_arguments()
   }
 
-  pub(crate) fn group_arguments<T: Clone>(&self, arguments: &[T]) -> Vec<Vec<T>> {
+  pub(crate) fn group_arguments(
+    &self,
+    arguments: &[Expression<'src>],
+  ) -> Vec<Vec<Expression<'src>>> {
     let mut groups = Vec::new();
     let mut rest = arguments;
 
@@ -78,11 +81,7 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn min_arguments(&self) -> usize {
-    self
-      .parameters
-      .iter()
-      .filter(|p| p.default.is_none() && p.kind != ParameterKind::Star)
-      .count()
+    self.parameters.iter().filter(|p| p.is_required()).count()
   }
 
   pub(crate) fn max_arguments(&self) -> usize {

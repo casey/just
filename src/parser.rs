@@ -873,7 +873,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           _ => {
             return Err(token.error(CompileErrorKind::Internal {
               message: "unexpected token kind while parsing string literal".into(),
-            }))
+            }));
           }
         },
         raw,
@@ -916,7 +916,7 @@ impl<'run, 'src> Parser<'run, 'src> {
             '\n' => {}
             '"' => cooked.push('"'),
             character => {
-              return Err(token.error(CompileErrorKind::InvalidEscapeSequence { character }))
+              return Err(token.error(CompileErrorKind::InvalidEscapeSequence { character }));
             }
           }
           state = State::Initial;
@@ -1030,6 +1030,8 @@ impl<'run, 'src> Parser<'run, 'src> {
       .iter()
       .filter_map(|attribute| {
         if let Attribute::Arg {
+          long,
+          long_token,
           name,
           name_token,
           pattern,
@@ -1040,7 +1042,10 @@ impl<'run, 'src> Parser<'run, 'src> {
             name.cooked.clone(),
             ArgAttribute {
               name: *name_token,
-              pattern: pattern.as_ref().map(|(_literal, pattern)| pattern.clone()),
+              pattern: pattern.clone(),
+              long: long
+                .as_ref()
+                .map(|long| (long_token.unwrap(), long.cooked.clone())),
             },
           ))
         } else {
@@ -1048,6 +1053,20 @@ impl<'run, 'src> Parser<'run, 'src> {
         }
       })
       .collect::<BTreeMap<String, ArgAttribute>>();
+
+    let mut long = HashSet::new();
+    for attribute in arg_attributes.values() {
+      let Some((token, option)) = &attribute.long else {
+        continue;
+      };
+
+      if !long.insert(option) {
+        return Err(token.error(CompileErrorKind::DuplicateOption {
+          option: option.into(),
+          recipe: name.lexeme(),
+        }));
+      }
+    }
 
     while self.next_is(Identifier) || self.next_is(Dollar) {
       positional.push(self.parse_parameter(&mut arg_attributes, ParameterKind::Singular)?);
@@ -1174,14 +1193,25 @@ impl<'run, 'src> Parser<'run, 'src> {
       None
     };
 
+    let mut pattern = None;
+    let mut long = None;
+
+    if let Some(arg_attribute) = arg_attributes.remove(name.lexeme()) {
+      pattern = arg_attribute.pattern;
+      long = arg_attribute.long.map(|(_token, string)| string);
+    }
+
+    if kind.is_variadic() && long.is_some() {
+      return Err(name.error(CompileErrorKind::VariadicParameterWithOption));
+    }
+
     Ok(Parameter {
       default,
       export,
       kind,
+      long,
       name,
-      pattern: arg_attributes
-        .remove(name.lexeme())
-        .and_then(|attribute| attribute.pattern),
+      pattern,
     })
   }
 

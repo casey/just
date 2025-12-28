@@ -123,7 +123,7 @@ impl SignalHandler {
         return (
           Err(io::Error::other(format!("invalid child PID: {err}"))),
           None,
-        )
+        );
       }
       Ok(pid) => pid,
     };

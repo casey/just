@@ -35,7 +35,7 @@ impl<'src> AttributeSet<'src> {
         return Err(item_token.error(CompileErrorKind::InvalidAttribute {
           item_kind,
           item_name: item_token.lexeme(),
-          attribute: attribute.clone(),
+          attribute: Box::new(attribute.clone()),
         }));
       }
     }
