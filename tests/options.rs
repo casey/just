@@ -51,7 +51,7 @@ fn long_option_names_may_not_contain_equal_sign() {
     .justfile(
       "
         [arg('bar', long='bar=baz')]
-        foo +bar:
+        foo bar:
       ",
     )
     .stderr(
