@@ -39,6 +39,9 @@ impl Display for CompileError<'_> {
     use CompileErrorKind::*;
 
     match &*self.kind {
+      ArgAttributeValueRequiresOption => {
+        write!(f, "Argument attribute `value` only valid with `long` or `short`")
+      }
       ArgumentPatternRegex { .. } => {
         write!(f, "Failed to parse argument pattern")
       }

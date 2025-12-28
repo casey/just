@@ -100,6 +100,10 @@ pub(crate) enum Error<'src> {
   ExpectedSubmoduleButFoundRecipe {
     path: String,
   },
+  FlagWithValue {
+    recipe: &'src str,
+    option: Switch,
+  },
   FormatCheckFoundDiff,
   FunctionCall {
     function: Name<'src>,
@@ -526,6 +530,12 @@ impl ColorDisplay for Error<'_> {
       }
       ExpectedSubmoduleButFoundRecipe { path } => {
         write!(f, "Expected submodule at `{path}` but found recipe.")?;
+      }
+      FlagWithValue { recipe, option } => {
+        write!(
+          f,
+          "Recipe `{recipe}` flag `{option}` does not take value",
+        )?;
       }
       FormatCheckFoundDiff => {
         write!(f, "Formatted justfile differs from original.")?;

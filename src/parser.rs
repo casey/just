@@ -1040,6 +1040,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         pattern,
         short,
         short_token,
+        value,
         ..
       } = attribute
       else {
@@ -1081,6 +1082,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           short: short
             .as_ref()
             .map(|short| short.cooked.chars().next().unwrap()),
+          value: value.as_ref().map(|value| value.cooked.clone()),
         },
       );
     }
@@ -1213,11 +1215,13 @@ impl<'run, 'src> Parser<'run, 'src> {
     let mut long = None;
     let mut pattern = None;
     let mut short = None;
+    let mut value = None;
 
     if let Some(arg) = arg_attributes.remove(name.lexeme()) {
       long = arg.long;
       pattern = arg.pattern;
       short = arg.short;
+      value = arg.value;
     }
 
     if kind.is_variadic() && (long.is_some() || short.is_some()) {
@@ -1232,6 +1236,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       name,
       pattern,
       short,
+      value,
     })
   }
 

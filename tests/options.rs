@@ -593,3 +593,71 @@ fn recipes_with_short_options_have_correct_positional_argument_mismatch_message(
     .status(EXIT_FAILURE)
     .run();
 }
+
+#[test]
+fn long_options_with_values_are_flags() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='bar', value='baz')]
+        @foo bar:
+          echo bar={{bar}}
+      ",
+    )
+    .args(["foo", "--bar"])
+    .stdout("bar=baz\n")
+    .run();
+}
+
+#[test]
+fn short_options_with_values_are_flags() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', short='b', value='baz')]
+        @foo bar:
+          echo bar={{bar}}
+      ",
+    )
+    .args(["foo", "-b"])
+    .stdout("bar=baz\n")
+    .run();
+}
+
+#[test]
+fn flags_cannot_take_values() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', short='b', value='baz')]
+        @foo bar:
+      ",
+    )
+    .args(["foo", "-b=hello"])
+    .stderr("error: Recipe `foo` flag `-b` does not take value\n")
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn value_requires_long_or_short() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', value='baz')]
+        @foo bar:
+      ",
+    )
+    .args(["foo", "-b=hello"])
+    .stderr(
+      "
+        error: Argument attribute `value` only valid with `long` or `short`
+         ——▶ justfile:1:13
+          │
+        1 │ [arg('bar', value='baz')]
+          │             ^^^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}

@@ -2143,6 +2143,8 @@ change their behavior.
 | Name | Type | Description |
 |------|------|-------------|
 | `[arg(ARG, long="LONG")]`<sup>master</sup> | recipe | Require values of argument `ARG` to be passed as `--LONG` option. |
+| `[arg(ARG, short="S")]`<sup>master</sup> | recipe | Require values of argument `ARG` to be passed as short `-S` option. |
+| `[arg(ARG, value="VALUE")]`<sup>master</sup> | recipe | Makes option `ARG` a flag which does not take a value. |
 | `[arg(ARG, pattern="PATTERN")]`<sup>1.45.0</sup> | recipe | Require values of argument `ARG` to match regular expression `PATTERN`. |
 | `[confirm]`<sup>1.17.0</sup> | recipe | Require confirmation prior to executing recipe. |
 | `[confirm(PROMPT)]`<sup>1.23.0</sup> | recipe | Require confirmation prior to executing recipe with a custom prompt. |
@@ -2782,8 +2784,8 @@ $ just foo hello
 bar=hello
 ```
 
-The `[arg(ARG, long=OPTION)]` attribute can be used to make a parameter a long
-option<sup>master</sup>.
+The `[arg(ARG, long=OPTION)]`<sup>master</sup> attribute can be used to make a
+parameter a long option.
 
 In this `justfile`:
 
@@ -2806,8 +2808,8 @@ $ just foo --bar=hello
 bar=hello
 ```
 
-The `[arg(ARG, short=OPTION)]` attribute can be used to make a parameter a short
-option<sup>master</sup>.
+The `[arg(ARG, short=OPTION)]`<sup>master</sup> attribute can be used to make a
+parameter a short option.
 
 In this `justfile`:
 
@@ -2826,6 +2828,41 @@ bar=hello
 If a parameter has both a long and short option, it may be passed using either.
 
 Variadic `+` and `?` parameters cannot be options.
+
+The `[arg(ARG, value=VALUE, …)]`<sup>master</sup> attribute can be used with
+`long` or `short` to make a parameter a flag which does not take a value.
+
+In this `justfile`:
+
+```just
+[arg("bar", long="bar", value="hello")]
+foo bar:
+```
+
+The parameter `bar` is given with the `--bar` option, but does not take a
+value, and instead takes the value given in the `[arg]` attribute:
+
+```console
+$ just foo --bar
+bar=hello
+```
+
+This is useful for unconditionally requiring a flag like `--force` on dangerous
+commands.
+
+A flag is optional if its parameter has a default:
+
+```just
+[arg("bar", long="bar", value="hello")]
+foo bar=goodbye:
+```
+
+Causing it to receive the default when not passed in the invocation:
+
+```console
+$ just foo
+bar=goodbye
+```
 
 ### Dependencies
 
