@@ -2770,7 +2770,7 @@ Recipe parameters are positional by default.
 
 In this `justfile`:
 
-```justfile
+```just
 @foo bar:
   echo bar={{bar}}
 ```
@@ -2787,7 +2787,7 @@ option<sup>master</sup>.
 
 In this `justfile`:
 
-```
+```just
 [arg("bar", long="bar")]
 foo bar:
 ```
