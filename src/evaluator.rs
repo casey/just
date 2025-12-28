@@ -363,7 +363,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           return Err(Error::internal("missing parameter without default"));
         }
       } else if parameter.kind.is_variadic() {
-        positional.extend_from_slice(&group);
+        positional.extend_from_slice(group);
         group.clone()
       } else {
         if group.len() != 1 {

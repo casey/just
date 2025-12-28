@@ -62,9 +62,8 @@ impl<'src, D> Recipe<'src, D> {
 
     for parameter in &self.parameters {
       let group = if parameter.kind.is_variadic() {
-        let group = mem::take(&mut rest).into();
-        group
-      } else if let Some(argument) = rest.get(0) {
+        mem::take(&mut rest).into()
+      } else if let Some(argument) = rest.first() {
         rest = &rest[1..];
         vec![argument.clone()]
       } else {
