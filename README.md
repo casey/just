@@ -2767,7 +2767,7 @@ Regular expressions are provided by the
 [syntax documentation](https://docs.rs/regex/latest/regex/#syntax) for usage
 examples.
 
-Usage for a recipe may be printed with the `--usage`
+Usage information for a recipe may be printed with the `--usage`
 subcommand<sup>master</sup>:
 
 ```console
