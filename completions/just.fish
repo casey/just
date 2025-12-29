@@ -51,6 +51,7 @@ zsh\t''"
 complete -c just -s l -l list -d 'List available recipes in <MODULE> or root if omitted' -r
 complete -c just -l request -d 'Execute <REQUEST>. For internal testing purposes only. May be changed or removed at any time.' -r
 complete -c just -s s -l show -d 'Show recipe at <PATH>' -r
+complete -c just -l usage -d 'Print recipe usage message' -r
 complete -c just -l check -d 'Run `--fmt` in \'check\' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.'
 complete -c just -l clear-shell-args -d 'Clear shell arguments'
 complete -c just -s n -l dry-run -d 'Print what just would do without doing it'
