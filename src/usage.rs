@@ -5,77 +5,6 @@ pub(crate) struct Usage<'a, D> {
   pub(crate) recipe: &'a Recipe<'a, D>,
 }
 
-struct UsageParameter<'a> {
-  long: bool,
-  parameter: &'a Parameter<'a>,
-}
-
-impl ColorDisplay for UsageParameter<'_> {
-  fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
-    if self.parameter.is_option() {
-      if let Some(short) = self.parameter.short {
-        write!(f, "{}", color.option().paint(&format!("-{short}")))?;
-      } else {
-        write!(f, "  ")?;
-      }
-
-      if let Some(long) = &self.parameter.long {
-        if self.parameter.short.is_some() {
-          write!(f, ", ")?;
-        } else {
-          write!(f, "  ")?;
-        }
-
-        write!(f, "{}", color.option().paint(&format!("--{long}")))?;
-      }
-
-      if self.parameter.value.is_none() {
-        write!(
-          f,
-          " {}",
-          color.argument().paint(self.parameter.name.lexeme()),
-        )?;
-      }
-    } else {
-      if !self.parameter.is_required() {
-        write!(f, "{}", color.argument().paint("["))?;
-      }
-
-      write!(
-        f,
-        "{}",
-        color.argument().paint(self.parameter.name.lexeme()),
-      )?;
-
-      if self.parameter.kind.is_variadic() {
-        write!(f, "{}", color.argument().paint("..."))?;
-      }
-
-      if !self.parameter.is_required() {
-        write!(f, "{}", color.argument().paint("]"))?;
-      }
-    }
-
-    if !self.long {
-      return Ok(());
-    }
-
-    if let Some(help) = &self.parameter.help {
-      write!(f, " {help}")?;
-    }
-
-    if let Some(default) = &self.parameter.default && self.parameter.value.is_none() {
-      write!(f, " [default: {default}]")?;
-    }
-
-    if let Some(pattern) = &self.parameter.pattern {
-      write!(f, " [pattern: '{pattern}']")?;
-    }
-
-    Ok(())
-  }
-}
-
 impl<D> ColorDisplay for Usage<'_, D> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     write!(
@@ -172,6 +101,79 @@ impl<D> ColorDisplay for Usage<'_, D> {
           .color_display(color),
         )?;
       }
+    }
+
+    Ok(())
+  }
+}
+
+struct UsageParameter<'a> {
+  long: bool,
+  parameter: &'a Parameter<'a>,
+}
+
+impl ColorDisplay for UsageParameter<'_> {
+  fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
+    if self.parameter.is_option() {
+      if let Some(short) = self.parameter.short {
+        write!(f, "{}", color.option().paint(&format!("-{short}")))?;
+      } else {
+        write!(f, "  ")?;
+      }
+
+      if let Some(long) = &self.parameter.long {
+        if self.parameter.short.is_some() {
+          write!(f, ", ")?;
+        } else {
+          write!(f, "  ")?;
+        }
+
+        write!(f, "{}", color.option().paint(&format!("--{long}")))?;
+      }
+
+      if self.parameter.value.is_none() {
+        write!(
+          f,
+          " {}",
+          color.argument().paint(self.parameter.name.lexeme()),
+        )?;
+      }
+    } else {
+      if !self.parameter.is_required() {
+        write!(f, "{}", color.argument().paint("["))?;
+      }
+
+      write!(
+        f,
+        "{}",
+        color.argument().paint(self.parameter.name.lexeme()),
+      )?;
+
+      if self.parameter.kind.is_variadic() {
+        write!(f, "{}", color.argument().paint("..."))?;
+      }
+
+      if !self.parameter.is_required() {
+        write!(f, "{}", color.argument().paint("]"))?;
+      }
+    }
+
+    if !self.long {
+      return Ok(());
+    }
+
+    if let Some(help) = &self.parameter.help {
+      write!(f, " {help}")?;
+    }
+
+    if let Some(default) = &self.parameter.default
+      && self.parameter.value.is_none()
+    {
+      write!(f, " [default: {default}]")?;
+    }
+
+    if let Some(pattern) = &self.parameter.pattern {
+      write!(f, " [pattern: '{pattern}']")?;
     }
 
     Ok(())

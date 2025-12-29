@@ -532,10 +532,7 @@ impl ColorDisplay for Error<'_> {
         write!(f, "Expected submodule at `{path}` but found recipe.")?;
       }
       FlagWithValue { recipe, option } => {
-        write!(
-          f,
-          "Recipe `{recipe}` flag `{option}` does not take value",
-        )?;
+        write!(f, "Recipe `{recipe}` flag `{option}` does not take value",)?;
       }
       FormatCheckFoundDiff => {
         write!(f, "Formatted justfile differs from original.")?;
@@ -594,7 +591,10 @@ impl ColorDisplay for Error<'_> {
         write!(f, "Recipe `{recipe}` requires option `{option}`")?;
       }
       MultipleShortOptions { options } => {
-        write!(f, "Passing multiple short options (`-{options}`) in one argument is not supported")?;
+        write!(
+          f,
+          "Passing multiple short options (`-{options}`) in one argument is not supported"
+        )?;
       }
       NoChoosableRecipes => write!(f, "Justfile contains no choosable recipes.")?,
       NoDefaultRecipe => write!(f, "Justfile contains no default recipe.")?,

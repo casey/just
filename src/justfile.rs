@@ -518,8 +518,8 @@ impl<'src> Keyed<'src> for Justfile<'src> {
 mod tests {
   use super::*;
 
-  use testing::compile;
   use Error::*;
+  use testing::compile;
 
   run_error! {
     name: unknown_recipe_no_suggestion,

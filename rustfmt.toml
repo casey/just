@@ -1,4 +1,4 @@
-edition = "2021"
+edition = "2024"
 max_width = 100
 newline_style = "Unix"
 tab_spaces = 2
