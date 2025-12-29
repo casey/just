@@ -623,18 +623,12 @@ mod tests {
     args: ["a", "b", "c"],
     error: PositionalArgumentCountMismatch {
       recipe,
-      parameters,
       found,
       min,
       max,
     },
     check: {
-      let param_names = parameters
-        .iter()
-        .map(|p| p.name.lexeme())
-        .collect::<Vec<&str>>();
-      assert_eq!(recipe, "a");
-      assert_eq!(param_names, ["b", "c", "d"]);
+      assert_eq!(recipe.name(), "a");
       assert_eq!(found, 2);
       assert_eq!(min, 3);
       assert_eq!(max, 3);
@@ -647,18 +641,12 @@ mod tests {
     args: ["a", "B", "C"],
     error: PositionalArgumentCountMismatch {
       recipe,
-      parameters,
       found,
       min,
       max,
     },
     check: {
-      let param_names = parameters
-        .iter()
-        .map(|p| p.name.lexeme())
-        .collect::<Vec<&str>>();
-      assert_eq!(recipe, "a");
-      assert_eq!(param_names, ["b", "c", "d"]);
+      assert_eq!(recipe.name(), "a");
       assert_eq!(found, 2);
       assert_eq!(min, 3);
       assert_eq!(max, usize::MAX - 1);
@@ -671,18 +659,12 @@ mod tests {
     args: ["a"],
     error: PositionalArgumentCountMismatch {
       recipe,
-      parameters,
       found,
       min,
       max,
     },
     check: {
-      let param_names = parameters
-        .iter()
-        .map(|p| p.name.lexeme())
-        .collect::<Vec<&str>>();
-      assert_eq!(recipe, "a");
-      assert_eq!(param_names, ["b", "c", "d"]);
+      assert_eq!(recipe.name(), "a");
       assert_eq!(found, 0);
       assert_eq!(min, 3);
       assert_eq!(max, 3);
@@ -695,18 +677,12 @@ mod tests {
     args: ["a", "b"],
     error: PositionalArgumentCountMismatch {
       recipe,
-      parameters,
       found,
       min,
       max,
     },
     check: {
-      let param_names = parameters
-        .iter()
-        .map(|p| p.name.lexeme())
-        .collect::<Vec<&str>>();
-      assert_eq!(recipe, "a");
-      assert_eq!(param_names, ["b", "c", "d"]);
+      assert_eq!(recipe.name(), "a");
       assert_eq!(found, 1);
       assert_eq!(min, 2);
       assert_eq!(max, 3);
@@ -719,18 +695,12 @@ mod tests {
     args: ["a"],
     error: PositionalArgumentCountMismatch {
       recipe,
-      parameters,
       found,
       min,
       max,
     },
     check: {
-      let param_names = parameters
-        .iter()
-        .map(|p| p.name.lexeme())
-        .collect::<Vec<&str>>();
-      assert_eq!(recipe, "a");
-      assert_eq!(param_names, ["b", "c", "d"]);
+      assert_eq!(recipe.name(), "a");
       assert_eq!(found, 0);
       assert_eq!(min, 1);
       assert_eq!(max, 3);

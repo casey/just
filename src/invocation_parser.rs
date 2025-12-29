@@ -220,8 +220,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
 
     if missing_positional > 0 {
       return Err(Error::PositionalArgumentCountMismatch {
-        recipe: recipe.name(),
-        parameters: recipe.parameters.clone(),
+        recipe: Box::new(recipe.clone()),
         found: positional_accepted,
         min: recipe
           .parameters
@@ -351,7 +350,7 @@ mod tests {
     assert_matches!(
       InvocationParser::parse_invocations(&justfile, &["foo"]).unwrap_err(),
       Error::PositionalArgumentCountMismatch {
-        recipe: "foo",
+        recipe: _,
         found: 0,
         min: 1,
         max: 1,

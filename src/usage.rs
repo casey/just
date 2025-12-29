@@ -1,6 +1,7 @@
 use super::*;
 
 pub(crate) struct Usage<'a, D> {
+  pub(crate) long: bool,
   pub(crate) path: &'a ModulePath,
   pub(crate) recipe: &'a Recipe<'a, D>,
 }
@@ -9,8 +10,11 @@ impl<D> ColorDisplay for Usage<'_, D> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     write!(
       f,
-      "{} {} {}",
-      color.heading().paint("Usage:"),
+      "{}{}{} {}",
+      color
+        .heading()
+        .paint(if self.long { "Usage:" } else { "usage:" }),
+      if self.long { " " } else { "\n    " },
       color.argument().paint("just"),
       color.argument().paint(&self.path.to_string()),
     )?;
@@ -39,6 +43,10 @@ impl<D> ColorDisplay for Usage<'_, D> {
         }
         .color_display(color),
       )?;
+    }
+
+    if !self.long {
+      return Ok(());
     }
 
     if arguments {

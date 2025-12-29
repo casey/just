@@ -769,7 +769,12 @@ impl Subcommand {
 
     println!(
       "{}",
-      Usage { path, recipe }.color_display(config.color.stdout()),
+      Usage {
+        long: true,
+        path,
+        recipe,
+      }
+      .color_display(config.color.stdout()),
     );
 
     Ok(())
