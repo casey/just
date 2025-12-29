@@ -796,8 +796,10 @@ impl Subcommand {
     let name = path.path.last().unwrap();
 
     if let Some(alias) = module.get_alias(name) {
-      let recipe = module.get_recipe(alias.target.name.lexeme()).unwrap();
-      Ok((Some(alias), recipe))
+      Ok((
+        Some(alias),
+        module.get_recipe(alias.target.name.lexeme()).unwrap(),
+      ))
     } else if let Some(recipe) = module.get_recipe(name) {
       Ok((None, recipe))
     } else {

@@ -46,7 +46,7 @@ set edit:completion:arg-completer[just] = {|@words|
             cand --request 'Execute <REQUEST>. For internal testing purposes only. May be changed or removed at any time.'
             cand -s 'Show recipe at <PATH>'
             cand --show 'Show recipe at <PATH>'
-            cand --usage 'Print recipe usage message'
+            cand --usage 'Print recipe usage'
             cand --check 'Run `--fmt` in ''check'' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.'
             cand --clear-shell-args 'Clear shell arguments'
             cand -n 'Print what just would do without doing it'
