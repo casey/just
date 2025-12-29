@@ -52,6 +52,7 @@ struct Module<'a> {
 struct Parameter<'a> {
   default: Option<&'a str>,
   export: bool,
+  help: Option<&'a str>,
   kind: &'a str,
   long: Option<&'a str>,
   name: &'a str,
@@ -1061,6 +1062,7 @@ fn arg_pattern() {
           namepath: "foo",
           attributes: [json!({
             "arg": {
+              "help": null,
               "long": null,
               "name": "bar",
               "pattern": "BAR",
@@ -1098,6 +1100,7 @@ fn arg_long() {
           namepath: "foo",
           attributes: [json!({
             "arg": {
+              "help": null,
               "long": "BAR",
               "name": "bar",
               "pattern": null,
@@ -1135,6 +1138,7 @@ fn arg_short() {
           namepath: "foo",
           attributes: [json!({
             "arg": {
+              "help": null,
               "long": null,
               "name": "bar",
               "pattern": null,
@@ -1172,6 +1176,7 @@ fn arg_value() {
           namepath: "foo",
           attributes: [json!({
             "arg": {
+              "help": null,
               "long": null,
               "name": "bar",
               "pattern": null,
@@ -1185,6 +1190,44 @@ fn arg_value() {
             name: "bar",
             short: Some('B'),
             value: Some("hello"),
+            ..default()
+          }]
+          .into(),
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
+  );
+}
+
+#[test]
+fn arg_help() {
+  case(
+    "[arg('bar', help='hello')]\nfoo bar:",
+    Module {
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          name: "foo",
+          namepath: "foo",
+          attributes: [json!({
+            "arg": {
+              "help": "hello",
+              "long": null,
+              "name": "bar",
+              "pattern": null,
+              "short": null,
+              "value": null,
+            }
+          })]
+          .into(),
+          parameters: [Parameter {
+            help: Some("hello"),
+            kind: "singular",
+            name: "bar",
             ..default()
           }]
           .into(),

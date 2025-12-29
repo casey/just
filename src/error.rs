@@ -154,8 +154,7 @@ pub(crate) enum Error<'src> {
     option: Switch,
   },
   PositionalArgumentCountMismatch {
-    recipe: &'src str,
-    parameters: Vec<Parameter<'src>>,
+    recipe: Box<Recipe<'src>>,
     found: usize,
     min: usize,
     max: usize,
@@ -532,10 +531,7 @@ impl ColorDisplay for Error<'_> {
         write!(f, "Expected submodule at `{path}` but found recipe.")?;
       }
       FlagWithValue { recipe, option } => {
-        write!(
-          f,
-          "Recipe `{recipe}` flag `{option}` does not take value",
-        )?;
+        write!(f, "Recipe `{recipe}` flag `{option}` does not take value",)?;
       }
       FormatCheckFoundDiff => {
         write!(f, "Formatted justfile differs from original.")?;
@@ -594,7 +590,10 @@ impl ColorDisplay for Error<'_> {
         write!(f, "Recipe `{recipe}` requires option `{option}`")?;
       }
       MultipleShortOptions { options } => {
-        write!(f, "Passing multiple short options (`-{options}`) in one argument is not supported")?;
+        write!(
+          f,
+          "Passing multiple short options (`-{options}`) in one argument is not supported"
+        )?;
       }
       NoChoosableRecipes => write!(f, "Justfile contains no choosable recipes.")?,
       NoDefaultRecipe => write!(f, "Justfile contains no default recipe.")?,
@@ -618,17 +617,20 @@ impl ColorDisplay for Error<'_> {
           let only = if expected < found { "only " } else { "" };
           write!(
             f,
-            "Recipe `{recipe}` got {found} positional {count} but {only}takes {expected}",
+            "Recipe `{}` got {found} positional {count} but {only}takes {expected}",
+            recipe.name(),
           )?;
         } else if found < min {
           write!(
             f,
-            "Recipe `{recipe}` got {found} positional {count} but takes at least {min}",
+            "Recipe `{}` got {found} positional {count} but takes at least {min}",
+            recipe.name(),
           )?;
         } else if found > max {
           write!(
             f,
-            "Recipe `{recipe}` got {found} positional {count} but takes at most {max}",
+            "Recipe `{}` got {found} positional {count} but takes at most {max}",
+            recipe.name(),
           )?;
         }
       }
@@ -759,25 +761,19 @@ impl ColorDisplay for Error<'_> {
 
     write!(f, "{}", color.message().suffix())?;
 
-    if let PositionalArgumentCountMismatch {
-      recipe, parameters, ..
-    } = self
-    {
+    if let PositionalArgumentCountMismatch { recipe, .. } = self {
       writeln!(f)?;
-
-      write!(f, "{}:\n    just {recipe}", color.message().paint("usage"))?;
-
-      if parameters.iter().any(Parameter::is_option) {
-        write!(f, " [OPTIONS]")?;
-      }
-
-      for p in parameters {
-        if p.is_option() {
-          continue;
+      let path = ModulePath::try_from([recipe.name()].as_slice()).unwrap();
+      write!(
+        f,
+        "{}",
+        Usage {
+          long: false,
+          path: &path,
+          recipe,
         }
-
-        write!(f, " {}", p.color_display(color))?;
-      }
+        .color_display(color)
+      )?;
     }
 
     if let Some(token) = self.context() {

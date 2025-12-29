@@ -63,6 +63,7 @@ mod cmd {
   pub(crate) const REQUEST: &str = "REQUEST";
   pub(crate) const SHOW: &str = "SHOW";
   pub(crate) const SUMMARY: &str = "SUMMARY";
+  pub(crate) const USAGE: &str = "USAGE";
   pub(crate) const VARIABLES: &str = "VARIABLES";
 
   pub(crate) const ALL: &[&str] = &[
@@ -598,6 +599,16 @@ impl Config {
           .help_heading(cmd::HEADING),
       )
       .arg(
+        Arg::new(cmd::USAGE)
+          .long("usage")
+          .num_args(1..)
+          .value_name("PATH")
+          .action(ArgAction::Set)
+          .conflicts_with(arg::ARGUMENTS)
+          .help("Print recipe usage information")
+          .help_heading(cmd::HEADING),
+      )
+      .arg(
         Arg::new(cmd::VARIABLES)
           .long("variables")
           .action(ArgAction::SetTrue)
@@ -769,6 +780,10 @@ impl Config {
       }
     } else if matches.get_flag(cmd::SUMMARY) {
       Subcommand::Summary
+    } else if let Some(path) = matches.get_many::<String>(cmd::USAGE) {
+      Subcommand::Usage {
+        path: Self::parse_module_path(path)?,
+      }
     } else if matches.get_flag(cmd::VARIABLES) {
       Subcommand::Variables
     } else {

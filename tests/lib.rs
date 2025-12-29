@@ -133,6 +133,7 @@ mod timestamps;
 mod undefined_variables;
 mod unexport;
 mod unstable;
+mod usage;
 mod which_function;
 #[cfg(windows)]
 mod windows;

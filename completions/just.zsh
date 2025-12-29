@@ -44,6 +44,7 @@ _just() {
 '--request=[Execute <REQUEST>. For internal testing purposes only. May be changed or removed at any time.]: :_default' \
 '-s+[Show recipe at <PATH>]: :(_just_commands)' \
 '--show=[Show recipe at <PATH>]: :(_just_commands)' \
+'()--usage=[Print recipe usage information]:PATH:_default' \
 '--check[Run \`--fmt\` in '\''check'\'' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.]' \
 '--clear-shell-args[Clear shell arguments]' \
 '(-q --quiet)-n[Print what just would do without doing it]' \

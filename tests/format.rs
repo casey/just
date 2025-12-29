@@ -1688,3 +1688,22 @@ fn arg_attribute_long_and_pattern() {
     )
     .run();
 }
+
+#[test]
+fn arg_attribute_help() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', help='foo')]
+        @foo bar:
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        [arg('bar', help='foo')]
+        @foo bar:
+      ",
+    )
+    .run();
+}

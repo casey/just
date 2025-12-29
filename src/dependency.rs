@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(PartialEq, Debug, Serialize)]
+#[derive(Clone, PartialEq, Debug, Serialize)]
 pub(crate) struct Dependency<'src> {
   #[serde(serialize_with = "flatten_arguments")]
   pub(crate) arguments: Vec<Vec<Expression<'src>>>,

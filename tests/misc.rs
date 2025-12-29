@@ -869,7 +869,7 @@ foo A B C='C':
       "
     error: Recipe `foo` got 1 positional argument but takes at least 2
     usage:
-        just foo A B C='C'
+        just foo A B [C]
   ",
     )
     .status(EXIT_FAILURE)
@@ -1872,7 +1872,7 @@ a x y +z:
       "
         error: Recipe `a` got 2 positional arguments but takes at least 3
         usage:
-            just a x y +z
+            just a x y z...
       ",
     )
     .status(EXIT_FAILURE)
