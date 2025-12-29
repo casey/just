@@ -2869,14 +2869,26 @@ Usage for a recipe may be printed with the `--usage`
 subcommand<sup>master</sup>:
 
 ```console
-$ just foo --usage
+$ just --usage foo
 Usage: just foo [OPTIONS] bar
 
 Arguments:
   bar
+```
 
-Options:
-  --baz
+Help strings may be added to arguments using the `[arg(ARG, help=HELP)]` attribute:
+
+```just
+[arg("bar", help="hello")]
+foo bar:
+```
+
+```console
+$ just --usage foo
+Usage: just foo bar
+
+Arguments:
+  bar hello
 ```
 
 ### Dependencies
