@@ -605,7 +605,7 @@ impl Config {
           .value_name("PATH")
           .action(ArgAction::Set)
           .conflicts_with(arg::ARGUMENTS)
-          .help("Print recipe usage message")
+          .help("Print recipe usage")
           .help_heading(cmd::HEADING),
       )
       .arg(
