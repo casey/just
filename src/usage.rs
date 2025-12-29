@@ -6,8 +6,8 @@ pub(crate) struct Usage<'a, D> {
 }
 
 struct UsageParameter<'a> {
-  parameter: &'a Parameter<'a>,
   long: bool,
+  parameter: &'a Parameter<'a>,
 }
 
 impl ColorDisplay for UsageParameter<'_> {
