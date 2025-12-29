@@ -711,36 +711,16 @@ impl Subcommand {
     }
   }
 
-  fn show<'src>(
-    config: &Config,
-    mut module: &Justfile<'src>,
-    path: &ModulePath,
-  ) -> RunResult<'src> {
-    for name in &path.path[0..path.path.len() - 1] {
-      module = module
-        .modules
-        .get(name)
-        .ok_or_else(|| Error::UnknownSubmodule {
-          path: path.to_string(),
-        })?;
-    }
+  fn show<'src>(config: &Config, module: &Justfile<'src>, path: &ModulePath) -> RunResult<'src> {
+    let (alias, recipe) = Self::resolve_path(module, path)?;
 
-    let name = path.path.last().unwrap();
-
-    if let Some(alias) = module.get_alias(name) {
-      let recipe = module.get_recipe(alias.target.name.lexeme()).unwrap();
+    if let Some(alias) = alias {
       println!("{alias}");
-      println!("{}", recipe.color_display(config.color.stdout()));
-      Ok(())
-    } else if let Some(recipe) = module.get_recipe(name) {
-      println!("{}", recipe.color_display(config.color.stdout()));
-      Ok(())
-    } else {
-      Err(Error::UnknownRecipe {
-        recipe: name.to_owned(),
-        suggestion: module.suggest_recipe(name),
-      })
     }
+
+    println!("{}", recipe.color_display(config.color.stdout()));
+
+    Ok(())
   }
 
   fn summary(config: &Config, justfile: &Justfile) {
@@ -780,11 +760,25 @@ impl Subcommand {
     }
   }
 
-  fn usage<'src>(
-    config: &Config,
-    mut module: &Justfile<'src>,
+  fn usage<'src>(config: &Config, module: &Justfile<'src>, path: &ModulePath) -> RunResult<'src> {
+    let (alias, recipe) = Self::resolve_path(module, path)?;
+
+    if let Some(alias) = alias {
+      println!("{alias}");
+    }
+
+    println!(
+      "{}",
+      Usage { path, recipe }.color_display(config.color.stdout())
+    );
+
+    Ok(())
+  }
+
+  fn resolve_path<'src, 'run>(
+    mut module: &'run Justfile<'src>,
     path: &ModulePath,
-  ) -> RunResult<'src> {
+  ) -> RunResult<'src, (Option<&'run Alias<'src>>, &'run Recipe<'src>)> {
     for name in &path.path[0..path.path.len() - 1] {
       module = module
         .modules
@@ -798,18 +792,9 @@ impl Subcommand {
 
     if let Some(alias) = module.get_alias(name) {
       let recipe = module.get_recipe(alias.target.name.lexeme()).unwrap();
-      println!("{alias}");
-      println!(
-        "{}",
-        Usage { path, recipe }.color_display(config.color.stdout())
-      );
-      Ok(())
+      Ok((Some(alias), recipe))
     } else if let Some(recipe) = module.get_recipe(name) {
-      println!(
-        "{}",
-        Usage { path, recipe }.color_display(config.color.stdout())
-      );
-      Ok(())
+      Ok((None, recipe))
     } else {
       Err(Error::UnknownRecipe {
         recipe: name.to_owned(),
