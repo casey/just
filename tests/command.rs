@@ -194,11 +194,9 @@ fn command_not_found() {
     .output()
     .unwrap();
 
-  assert!(
-    str::from_utf8(&output.stderr)
-      .unwrap()
-      .starts_with("error: Failed to invoke `asdfasdfasdfasdfadfsadsfadsf` `bar`:")
-  );
+  assert!(str::from_utf8(&output.stderr)
+    .unwrap()
+    .starts_with("error: Failed to invoke `asdfasdfasdfasdfadfsadsfadsf` `bar`:"));
 
   assert!(!output.status.success());
 }

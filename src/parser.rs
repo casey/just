@@ -1484,8 +1484,8 @@ impl<'run, 'src> Parser<'run, 'src> {
 mod tests {
   use super::*;
 
-  use CompileErrorKind::*;
   use pretty_assertions::assert_eq;
+  use CompileErrorKind::*;
 
   macro_rules! test {
     {

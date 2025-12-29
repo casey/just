@@ -49,7 +49,7 @@ jobs:
 
     - uses: actions-rust-lang/setup-rust-toolchain@v1
       with:
-        toolchain: 1.85.0
+        toolchain: 1.82.0
 
     - uses: Swatinem/rust-cache@v2
 

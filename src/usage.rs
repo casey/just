@@ -174,10 +174,10 @@ impl ColorDisplay for UsageParameter<'_> {
       write!(f, " {help}")?;
     }
 
-    if let Some(default) = &self.parameter.default
-      && self.parameter.value.is_none()
-    {
-      write!(f, " [default: {default}]")?;
+    if let Some(default) = &self.parameter.default {
+      if self.parameter.value.is_none() {
+        write!(f, " [default: {default}]")?;
+      }
     }
 
     if let Some(pattern) = &self.parameter.pattern {

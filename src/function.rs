@@ -1,12 +1,12 @@
 use {
   super::*,
-  Function::*,
   heck::{
     ToKebabCase, ToLowerCamelCase, ToShoutyKebabCase, ToShoutySnakeCase, ToSnakeCase, ToTitleCase,
     ToUpperCamelCase,
   },
   semver::{Version, VersionReq},
   std::collections::HashSet,
+  Function::*,
 };
 
 #[allow(clippy::arbitrary_source_item_ordering)]
