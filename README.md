@@ -2870,7 +2870,7 @@ subcommand<sup>master</sup>:
 
 ```console
 $ just foo --usage
-Usage: foo [OPTIONS] bar
+Usage: just foo [OPTIONS] bar
 
 Arguments:
   bar
