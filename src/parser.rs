@@ -1033,6 +1033,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     for attribute in &attributes {
       let Attribute::Arg {
+        help,
         long,
         long_token,
         name: arg,
@@ -1076,6 +1077,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       arg_attributes.insert(
         arg.cooked.clone(),
         ArgAttribute {
+          help: help.as_ref().map(|literal| literal.cooked.clone()),
           name: *name_token,
           pattern: pattern.clone(),
           long: long.as_ref().map(|long| long.cooked.clone()),
@@ -1212,12 +1214,14 @@ impl<'run, 'src> Parser<'run, 'src> {
       None
     };
 
+    let mut help = None;
     let mut long = None;
     let mut pattern = None;
     let mut short = None;
     let mut value = None;
 
     if let Some(arg) = arg_attributes.remove(name.lexeme()) {
+      help = arg.help;
       long = arg.long;
       pattern = arg.pattern;
       short = arg.short;
@@ -1231,6 +1235,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok(Parameter {
       default,
       export,
+      help,
       kind,
       long,
       name,

@@ -11,6 +11,7 @@ use super::*;
 #[strum_discriminants(strum(serialize_all = "kebab-case"))]
 pub(crate) enum Attribute<'src> {
   Arg {
+    help: Option<StringLiteral<'src>>,
     long: Option<StringLiteral<'src>>,
     #[serde(skip)]
     long_token: Option<Token<'src>>,
@@ -172,7 +173,12 @@ impl<'src> Attribute<'src> {
           None
         };
 
+        let help = keyword_arguments
+          .remove("help")
+          .map(|(_name, _token, literal)| literal);
+
         Self::Arg {
+          help,
           long,
           long_token,
           name,
@@ -248,6 +254,7 @@ impl Display for Attribute<'_> {
 
     match self {
       Self::Arg {
+        help,
         long,
         long_token: _,
         name,
@@ -274,6 +281,10 @@ impl Display for Attribute<'_> {
 
         if let Some(value) = value {
           write!(f, ", value={value}")?;
+        }
+
+        if let Some(help) = help {
+          write!(f, ", help={help}")?;
         }
 
         write!(f, ")")?;

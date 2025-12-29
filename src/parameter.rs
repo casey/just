@@ -4,6 +4,7 @@ use super::*;
 pub(crate) struct Parameter<'src> {
   pub(crate) default: Option<Expression<'src>>,
   pub(crate) export: bool,
+  pub(crate) help: Option<String>,
   pub(crate) kind: ParameterKind,
   pub(crate) long: Option<String>,
   pub(crate) name: Name<'src>,

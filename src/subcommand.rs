@@ -48,6 +48,9 @@ pub(crate) enum Subcommand {
     path: ModulePath,
   },
   Summary,
+  Usage {
+    path: ModulePath,
+  },
   Variables,
 }
 
@@ -100,6 +103,7 @@ impl Subcommand {
       } => Self::run(config, loader, search, compilation, arguments, overrides)?,
       Show { path } => Self::show(config, justfile, path)?,
       Summary => Self::summary(config, justfile),
+      Usage { path } => Self::usage(config, justfile, path)?,
       Variables => Self::variables(justfile),
       Changelog | Completions { .. } | Edit | Init | Man | Request { .. } => unreachable!(),
     }
@@ -773,6 +777,44 @@ impl Subcommand {
       components.push(name);
       Self::summary_recursive(config, components, printed, module);
       components.pop();
+    }
+  }
+
+  fn usage<'src>(
+    config: &Config,
+    mut module: &Justfile<'src>,
+    path: &ModulePath,
+  ) -> RunResult<'src> {
+    for name in &path.path[0..path.path.len() - 1] {
+      module = module
+        .modules
+        .get(name)
+        .ok_or_else(|| Error::UnknownSubmodule {
+          path: path.to_string(),
+        })?;
+    }
+
+    let name = path.path.last().unwrap();
+
+    if let Some(alias) = module.get_alias(name) {
+      let recipe = module.get_recipe(alias.target.name.lexeme()).unwrap();
+      println!("{alias}");
+      println!(
+        "{}",
+        Usage { path, recipe }.color_display(config.color.stdout())
+      );
+      Ok(())
+    } else if let Some(recipe) = module.get_recipe(name) {
+      println!(
+        "{}",
+        Usage { path, recipe }.color_display(config.color.stdout())
+      );
+      Ok(())
+    } else {
+      Err(Error::UnknownRecipe {
+        recipe: name.to_owned(),
+        suggestion: module.suggest_recipe(name),
+      })
     }
   }
 

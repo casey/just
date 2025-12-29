@@ -2142,6 +2142,7 @@ change their behavior.
 
 | Name | Type | Description |
 |------|------|-------------|
+| `[arg(ARG, help="HELP")]`<sup>master</sup> | recipe | Print help string `HELP` for `ARG` in usage messages. |
 | `[arg(ARG, long="LONG")]`<sup>master</sup> | recipe | Require values of argument `ARG` to be passed as `--LONG` option. |
 | `[arg(ARG, short="S")]`<sup>master</sup> | recipe | Require values of argument `ARG` to be passed as short `-S` option. |
 | `[arg(ARG, value="VALUE")]`<sup>master</sup> | recipe | Makes option `ARG` a flag which does not take a value. |
@@ -2766,7 +2767,7 @@ Regular expressions are provided by the
 [syntax documentation](https://docs.rs/regex/latest/regex/#syntax) for usage
 examples.
 
-#### Options
+#### Recipe Flags and Options
 
 Recipe parameters are positional by default.
 
@@ -2862,6 +2863,20 @@ Causing it to receive the default when not passed in the invocation:
 ```console
 $ just foo
 bar=goodbye
+```
+
+Usage for a recipe may be printed with the `--usage`
+subcommand<sup>master</sup>:
+
+```console
+$ just foo --usage
+Usage: foo [OPTIONS] bar
+
+Arguments:
+  bar
+
+Options:
+  --baz
 ```
 
 ### Dependencies
