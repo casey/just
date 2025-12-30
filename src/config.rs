@@ -885,6 +885,7 @@ mod tests {
       $(dump_format: $dump_format:expr,)?
       $(highlight: $highlight:expr,)?
       $(no_dependencies: $no_dependencies:expr,)?
+      $(overrides: $overrides:expr,)?
       $(search_config: $search_config:expr,)?
       $(shell: $shell:expr,)?
       $(shell_args: $shell_args:expr,)?
@@ -906,6 +907,7 @@ mod tests {
           $(dump_format: $dump_format,)?
           $(highlight: $highlight,)?
           $(no_dependencies: $no_dependencies,)?
+          $(overrides: $overrides,)?
           $(search_config: $search_config,)?
           $(shell: $shell,)?
           $(shell_args: $shell_args,)?
@@ -1163,6 +1165,7 @@ mod tests {
   test! {
     name: set_default,
     args: [],
+    overrides: map!(),
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
     },
@@ -1171,6 +1174,7 @@ mod tests {
   test! {
     name: set_one,
     args: ["--set", "foo", "bar"],
+    overrides: map!{"foo": "bar"},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
     },
@@ -1179,6 +1183,7 @@ mod tests {
   test! {
     name: set_empty,
     args: ["--set", "foo", ""],
+    overrides: map!{"foo": ""},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
     },
@@ -1187,6 +1192,7 @@ mod tests {
   test! {
     name: set_two,
     args: ["--set", "foo", "bar", "--set", "bar", "baz"],
+    overrides: map!{"foo": "bar", "bar": "baz"},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
     },
@@ -1195,6 +1201,7 @@ mod tests {
   test! {
     name: set_override,
     args: ["--set", "foo", "bar", "--set", "foo", "baz"],
+    overrides: map!{"foo": "baz"},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
     },
@@ -1258,6 +1265,7 @@ mod tests {
   test! {
     name: subcommand_default,
     args: [],
+    overrides: map!{},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
     },
@@ -1351,6 +1359,7 @@ mod tests {
   test! {
     name: subcommand_evaluate,
     args: ["--evaluate"],
+    overrides: map!{},
     subcommand: Subcommand::Evaluate {
       variable: None,
     },
@@ -1359,6 +1368,7 @@ mod tests {
   test! {
     name: subcommand_evaluate_overrides,
     args: ["--evaluate", "x=y"],
+    overrides: map!{"x": "y"},
     subcommand: Subcommand::Evaluate {
       variable: None,
     },
@@ -1367,6 +1377,7 @@ mod tests {
   test! {
     name: subcommand_evaluate_overrides_with_argument,
     args: ["--evaluate", "x=y", "foo"],
+    overrides: map!{"x": "y"},
     subcommand: Subcommand::Evaluate {
       variable: Some("foo".to_owned()),
     },
@@ -1423,6 +1434,7 @@ mod tests {
   test! {
     name: arguments,
     args: ["foo", "bar"],
+    overrides: map!{},
     subcommand: Subcommand::Run {
       arguments: vec![String::from("foo"), String::from("bar")],
     },
@@ -1431,6 +1443,7 @@ mod tests {
   test! {
     name: arguments_leading_equals,
     args: ["=foo"],
+    overrides: map!{},
     subcommand: Subcommand::Run {
       arguments: vec!["=foo".to_owned()],
     },
@@ -1439,6 +1452,7 @@ mod tests {
   test! {
     name: overrides,
     args: ["foo=bar", "bar=baz"],
+    overrides: map!{"foo": "bar", "bar": "baz"},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
     },
@@ -1447,6 +1461,7 @@ mod tests {
   test! {
     name: overrides_empty,
     args: ["foo=", "bar="],
+    overrides: map!{"foo": "", "bar": ""},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
     },
@@ -1455,6 +1470,7 @@ mod tests {
   test! {
     name: overrides_override_sets,
     args: ["--set", "foo", "0", "--set", "bar", "1", "foo=bar", "bar=baz"],
+    overrides: map!{"foo": "bar", "bar": "baz"},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
     },
