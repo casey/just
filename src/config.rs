@@ -33,6 +33,7 @@ pub(crate) struct Config {
   pub(crate) no_aliases: bool,
   pub(crate) no_dependencies: bool,
   pub(crate) one: bool,
+  pub(crate) overrides: BTreeMap<String, String>,
   pub(crate) search_config: SearchConfig,
   pub(crate) shell: Option<String>,
   pub(crate) shell_args: Option<Vec<String>>,
@@ -726,14 +727,12 @@ impl Config {
     } else if matches.get_flag(cmd::CHOOSE) {
       Subcommand::Choose {
         chooser: matches.get_one::<String>(arg::CHOOSER).map(Into::into),
-        overrides,
       }
     } else if let Some(values) = matches.get_many::<OsString>(cmd::COMMAND) {
       let mut arguments = values.map(Into::into).collect::<Vec<OsString>>();
       Subcommand::Command {
         binary: arguments.remove(0),
         arguments,
-        overrides,
       }
     } else if let Some(&shell) = matches.get_one::<completions::Shell>(cmd::COMPLETIONS) {
       Subcommand::Completions { shell }
@@ -755,7 +754,6 @@ impl Config {
 
       Subcommand::Evaluate {
         variable: positional.arguments.into_iter().next(),
-        overrides,
       }
     } else if matches.get_flag(cmd::FORMAT) {
       Subcommand::Format
@@ -789,7 +787,6 @@ impl Config {
     } else {
       Subcommand::Run {
         arguments: positional.arguments,
-        overrides,
       }
     };
 
@@ -829,6 +826,7 @@ impl Config {
       no_aliases: matches.get_flag(arg::NO_ALIASES),
       no_dependencies: matches.get_flag(arg::NO_DEPS),
       one: matches.get_flag(arg::ONE),
+      overrides,
       search_config,
       shell: matches.get_one::<String>(arg::SHELL).map(Into::into),
       shell_args: if matches.get_flag(arg::CLEAR_SHELL_ARGS) {
@@ -887,6 +885,7 @@ mod tests {
       $(dump_format: $dump_format:expr,)?
       $(highlight: $highlight:expr,)?
       $(no_dependencies: $no_dependencies:expr,)?
+      $(overrides: $overrides:expr,)?
       $(search_config: $search_config:expr,)?
       $(shell: $shell:expr,)?
       $(shell_args: $shell_args:expr,)?
@@ -908,6 +907,7 @@ mod tests {
           $(dump_format: $dump_format,)?
           $(highlight: $highlight,)?
           $(no_dependencies: $no_dependencies,)?
+          $(overrides: $overrides,)?
           $(search_config: $search_config,)?
           $(shell: $shell,)?
           $(shell_args: $shell_args,)?
@@ -1165,45 +1165,45 @@ mod tests {
   test! {
     name: set_default,
     args: [],
+    overrides: map!(),
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!(),
     },
   }
 
   test! {
     name: set_one,
     args: ["--set", "foo", "bar"],
+    overrides: map!{"foo": "bar"},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{"foo": "bar"},
     },
   }
 
   test! {
     name: set_empty,
     args: ["--set", "foo", ""],
+    overrides: map!{"foo": ""},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{"foo": ""},
     },
   }
 
   test! {
     name: set_two,
     args: ["--set", "foo", "bar", "--set", "bar", "baz"],
+    overrides: map!{"foo": "bar", "bar": "baz"},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{"foo": "bar", "bar": "baz"},
     },
   }
 
   test! {
     name: set_override,
     args: ["--set", "foo", "bar", "--set", "foo", "baz"],
+    overrides: map!{"foo": "baz"},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{"foo": "baz"},
     },
   }
 
@@ -1265,9 +1265,9 @@ mod tests {
   test! {
     name: subcommand_default,
     args: [],
+    overrides: map!{},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{},
     },
   }
 
@@ -1359,8 +1359,8 @@ mod tests {
   test! {
     name: subcommand_evaluate,
     args: ["--evaluate"],
+    overrides: map!{},
     subcommand: Subcommand::Evaluate {
-      overrides: map!{},
       variable: None,
     },
   }
@@ -1368,8 +1368,8 @@ mod tests {
   test! {
     name: subcommand_evaluate_overrides,
     args: ["--evaluate", "x=y"],
+    overrides: map!{"x": "y"},
     subcommand: Subcommand::Evaluate {
-      overrides: map!{"x": "y"},
       variable: None,
     },
   }
@@ -1377,8 +1377,8 @@ mod tests {
   test! {
     name: subcommand_evaluate_overrides_with_argument,
     args: ["--evaluate", "x=y", "foo"],
+    overrides: map!{"x": "y"},
     subcommand: Subcommand::Evaluate {
-      overrides: map!{"x": "y"},
       variable: Some("foo".to_owned()),
     },
   }
@@ -1434,45 +1434,45 @@ mod tests {
   test! {
     name: arguments,
     args: ["foo", "bar"],
+    overrides: map!{},
     subcommand: Subcommand::Run {
       arguments: vec![String::from("foo"), String::from("bar")],
-      overrides: map!{},
     },
   }
 
   test! {
     name: arguments_leading_equals,
     args: ["=foo"],
+    overrides: map!{},
     subcommand: Subcommand::Run {
       arguments: vec!["=foo".to_owned()],
-      overrides: map!{},
     },
   }
 
   test! {
     name: overrides,
     args: ["foo=bar", "bar=baz"],
+    overrides: map!{"foo": "bar", "bar": "baz"},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{"foo": "bar", "bar": "baz"},
     },
   }
 
   test! {
     name: overrides_empty,
     args: ["foo=", "bar="],
+    overrides: map!{"foo": "", "bar": ""},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{"foo": "", "bar": ""},
     },
   }
 
   test! {
     name: overrides_override_sets,
     args: ["--set", "foo", "0", "--set", "bar", "1", "foo=bar", "bar=baz"],
+    overrides: map!{"foo": "bar", "bar": "baz"},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{"foo": "bar", "bar": "baz"},
     },
   }
 
@@ -1573,7 +1573,7 @@ mod tests {
     search_config: SearchConfig::FromSearchDirectory {
       search_directory: PathBuf::from(".."),
     },
-    subcommand: Subcommand::Run { arguments: vec!["build".to_owned()], overrides: BTreeMap::new() },
+    subcommand: Subcommand::Run { arguments: vec!["build".to_owned()] },
   }
 
   test! {
@@ -1598,7 +1598,7 @@ mod tests {
     search_config: SearchConfig::FromSearchDirectory {
       search_directory: PathBuf::from("foo"),
     },
-    subcommand: Subcommand::Run { arguments: vec!["build".to_owned()], overrides: BTreeMap::new() },
+    subcommand: Subcommand::Run { arguments: vec!["build".to_owned()] },
   }
 
   error! {

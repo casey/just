@@ -102,12 +102,11 @@ macro_rules! run_error {
       let config = $crate::testing::config(&$args);
       let search = $crate::testing::search(&config);
 
-      if let Subcommand::Run{ overrides, arguments } = &config.subcommand {
+      if let Subcommand::Run{ arguments } = &config.subcommand {
         match $crate::testing::compile(&$crate::unindent::unindent($src))
           .run(
             &config,
             &search,
-            &overrides,
             &arguments,
           ).expect_err("Expected runtime error") {
             $error => $check

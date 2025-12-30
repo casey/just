@@ -13,13 +13,11 @@ static BACKTICK_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new("(`.*?`)|(`[^`
 pub(crate) enum Subcommand {
   Changelog,
   Choose {
-    overrides: BTreeMap<String, String>,
     chooser: Option<String>,
   },
   Command {
     arguments: Vec<OsString>,
     binary: OsString,
-    overrides: BTreeMap<String, String>,
   },
   Completions {
     shell: completions::Shell,
@@ -27,7 +25,6 @@ pub(crate) enum Subcommand {
   Dump,
   Edit,
   Evaluate {
-    overrides: BTreeMap<String, String>,
     variable: Option<String>,
   },
   Format,
@@ -42,7 +39,6 @@ pub(crate) enum Subcommand {
   },
   Run {
     arguments: Vec<String>,
-    overrides: BTreeMap<String, String>,
   },
   Show {
     path: ModulePath,
@@ -87,20 +83,17 @@ impl Subcommand {
     let justfile = &compilation.justfile;
 
     match self {
-      Choose { overrides, chooser } => {
-        Self::choose(config, justfile, &search, overrides, chooser.as_deref())?;
+      Choose { chooser } => {
+        Self::choose(config, justfile, &search, chooser.as_deref())?;
       }
-      Command { overrides, .. } | Evaluate { overrides, .. } => {
-        justfile.run(config, &search, overrides, &[])?;
+      Command { .. } | Evaluate { .. } => {
+        justfile.run(config, &search, &[])?;
       }
       Dump => Self::dump(config, compilation)?,
       Format => Self::format(config, &search, compilation)?,
       Groups => Self::groups(config, justfile),
       List { path } => Self::list(config, justfile, path)?,
-      Run {
-        arguments,
-        overrides,
-      } => Self::run(config, loader, search, compilation, arguments, overrides)?,
+      Run { arguments } => Self::run(config, loader, search, compilation, arguments)?,
       Show { path } => Self::show(config, justfile, path)?,
       Summary => Self::summary(config, justfile),
       Usage { path } => Self::usage(config, justfile, path)?,
@@ -124,7 +117,6 @@ impl Subcommand {
     mut search: Search,
     mut compilation: Compilation<'src>,
     arguments: &[String],
-    overrides: &BTreeMap<String, String>,
   ) -> RunResult<'src> {
     let starting_parent = search.justfile.parent().as_ref().unwrap().lexiclean();
 
@@ -136,7 +128,7 @@ impl Subcommand {
           SearchConfig::FromInvocationDirectory | SearchConfig::FromSearchDirectory { .. }
         );
 
-      let result = justfile.run(config, &search, overrides, arguments);
+      let result = justfile.run(config, &search, arguments);
 
       if fallback {
         if let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result {
@@ -203,7 +195,6 @@ impl Subcommand {
     config: &Config,
     justfile: &Justfile<'src>,
     search: &Search,
-    overrides: &BTreeMap<String, String>,
     chooser: Option<&str>,
   ) -> RunResult<'src> {
     let mut recipes = Vec::<&Recipe>::new();
@@ -284,7 +275,7 @@ impl Subcommand {
       .map(str::to_owned)
       .collect::<Vec<String>>();
 
-    justfile.run(config, search, overrides, &recipes)
+    justfile.run(config, search, &recipes)
   }
 
   fn completions(shell: completions::Shell) {
