@@ -21,14 +21,10 @@ pub(crate) enum Function {
 }
 
 pub(crate) struct Context<'src: 'run, 'run> {
-  pub(crate) evaluator: &'run Evaluator<'src, 'run>,
+  pub(crate) execution_context: &'run ExecutionContext<'src, 'run>,
+  pub(crate) is_dependency: bool,
   pub(crate) name: Name<'src>,
-}
-
-impl<'src: 'run, 'run> Context<'src, 'run> {
-  pub(crate) fn new(evaluator: &'run Evaluator<'src, 'run>, name: Name<'src>) -> Self {
-    Self { evaluator, name }
-  }
+  pub(crate) scope: &'run Scope<'src, 'run>,
 }
 
 pub(crate) fn get(name: &str) -> Option<Function> {
@@ -135,8 +131,7 @@ impl Function {
 
 fn absolute_path(context: Context, path: &str) -> FunctionResult {
   let abs_path_unchecked = context
-    .evaluator
-    .context
+    .execution_context
     .working_directory()
     .join(path)
     .lexiclean();
@@ -144,7 +139,7 @@ fn absolute_path(context: Context, path: &str) -> FunctionResult {
     Some(absolute_path) => Ok(absolute_path.to_owned()),
     None => Err(format!(
       "Working directory is not valid unicode: {}",
-      context.evaluator.context.search.working_directory.display()
+      context.execution_context.search.working_directory.display()
     )),
   }
 }
@@ -167,7 +162,7 @@ fn blake3(_context: Context, s: &str) -> FunctionResult {
 }
 
 fn blake3_file(context: Context, path: &str) -> FunctionResult {
-  let path = context.evaluator.context.working_directory().join(path);
+  let path = context.execution_context.working_directory().join(path);
   let mut hasher = blake3::Hasher::new();
   hasher
     .update_mmap_rayon(&path)
@@ -176,7 +171,7 @@ fn blake3_file(context: Context, path: &str) -> FunctionResult {
 }
 
 fn canonicalize(context: Context, path: &str) -> FunctionResult {
-  let canonical = std::fs::canonicalize(context.evaluator.context.working_directory().join(path))
+  let canonical = std::fs::canonicalize(context.execution_context.working_directory().join(path))
     .map_err(|err| format!("I/O error canonicalizing path: {err}"))?;
 
   canonical.to_str().map(str::to_string).ok_or_else(|| {
@@ -277,7 +272,7 @@ fn env(context: Context, key: &str, default: Option<&str>) -> FunctionResult {
 fn env_var(context: Context, key: &str) -> FunctionResult {
   use std::env::VarError::*;
 
-  if let Some(value) = context.evaluator.context.dotenv.get(key) {
+  if let Some(value) = context.execution_context.dotenv.get(key) {
     return Ok(value.clone());
   }
 
@@ -293,7 +288,7 @@ fn env_var(context: Context, key: &str) -> FunctionResult {
 fn env_var_or_default(context: Context, key: &str, default: &str) -> FunctionResult {
   use std::env::VarError::*;
 
-  if let Some(value) = context.evaluator.context.dotenv.get(key) {
+  if let Some(value) = context.execution_context.dotenv.get(key) {
     return Ok(value.clone());
   }
 
@@ -333,17 +328,16 @@ fn file_stem(_context: Context, path: &str) -> FunctionResult {
 
 fn invocation_directory(context: Context) -> FunctionResult {
   Platform::convert_native_path(
-    context.evaluator.context.config,
-    &context.evaluator.context.search.working_directory,
-    &context.evaluator.context.config.invocation_directory,
+    context.execution_context.config,
+    &context.execution_context.search.working_directory,
+    &context.execution_context.config.invocation_directory,
   )
   .map_err(|e| format!("Error getting shell path: {e}"))
 }
 
 fn invocation_directory_native(context: Context) -> FunctionResult {
   context
-    .evaluator
-    .context
+    .execution_context
     .config
     .invocation_directory
     .to_str()
@@ -352,8 +346,7 @@ fn invocation_directory_native(context: Context) -> FunctionResult {
       format!(
         "Invocation directory is not valid unicode: {}",
         context
-          .evaluator
-          .context
+          .execution_context
           .config
           .invocation_directory
           .display()
@@ -362,7 +355,7 @@ fn invocation_directory_native(context: Context) -> FunctionResult {
 }
 
 fn is_dependency(context: Context) -> FunctionResult {
-  Ok(context.evaluator.is_dependency.to_string())
+  Ok(context.is_dependency.to_string())
 }
 
 fn prepend(_context: Context, prefix: &str, s: &str) -> FunctionResult {
@@ -400,8 +393,7 @@ fn just_pid(_context: Context) -> FunctionResult {
 
 fn justfile(context: Context) -> FunctionResult {
   context
-    .evaluator
-    .context
+    .execution_context
     .search
     .justfile
     .to_str()
@@ -409,22 +401,21 @@ fn justfile(context: Context) -> FunctionResult {
     .ok_or_else(|| {
       format!(
         "Justfile path is not valid unicode: {}",
-        context.evaluator.context.search.justfile.display()
+        context.execution_context.search.justfile.display()
       )
     })
 }
 
 fn justfile_directory(context: Context) -> FunctionResult {
   let justfile_directory = context
-    .evaluator
-    .context
+    .execution_context
     .search
     .justfile
     .parent()
     .ok_or_else(|| {
       format!(
         "Could not resolve justfile directory. Justfile `{}` had no parent.",
-        context.evaluator.context.search.justfile.display()
+        context.execution_context.search.justfile.display()
       )
     })?;
 
@@ -452,7 +443,7 @@ fn lowercase(_context: Context, s: &str) -> FunctionResult {
 }
 
 fn module_directory(context: Context) -> FunctionResult {
-  let module_directory = context.evaluator.context.module.source.parent().unwrap();
+  let module_directory = context.execution_context.module.source.parent().unwrap();
   module_directory.to_str().map(str::to_owned).ok_or_else(|| {
     format!(
       "Module directory is not valid unicode: {}",
@@ -462,7 +453,7 @@ fn module_directory(context: Context) -> FunctionResult {
 }
 
 fn module_file(context: Context) -> FunctionResult {
-  let module_file = &context.evaluator.context.module.source;
+  let module_file = &context.execution_context.module.source;
   module_file.to_str().map(str::to_owned).ok_or_else(|| {
     format!(
       "Module file path is not valid unicode: {}",
@@ -494,8 +485,7 @@ fn parent_directory(_context: Context, path: &str) -> FunctionResult {
 fn path_exists(context: Context, path: &str) -> FunctionResult {
   Ok(
     context
-      .evaluator
-      .context
+      .execution_context
       .working_directory()
       .join(path)
       .exists()
@@ -508,7 +498,7 @@ fn quote(_context: Context, s: &str) -> FunctionResult {
 }
 
 fn read(context: Context, filename: &str) -> FunctionResult {
-  fs::read_to_string(context.evaluator.context.working_directory().join(filename))
+  fs::read_to_string(context.execution_context.working_directory().join(filename))
     .map_err(|err| format!("I/O error reading `{filename}`: {err}"))
 }
 
@@ -539,7 +529,7 @@ fn sha256(_context: Context, s: &str) -> FunctionResult {
 
 fn sha256_file(context: Context, path: &str) -> FunctionResult {
   use sha2::{Digest, Sha256};
-  let path = context.evaluator.context.working_directory().join(path);
+  let path = context.execution_context.working_directory().join(path);
   let mut hasher = Sha256::new();
   let mut file =
     fs::File::open(&path).map_err(|err| format!("Failed to open `{}`: {err}", path.display()))?;
@@ -554,9 +544,7 @@ fn shell(context: Context, command: &str, args: &[String]) -> FunctionResult {
     .chain(args.iter().map(String::as_str))
     .collect::<Vec<&str>>();
 
-  context
-    .evaluator
-    .run_command(command, &args)
+  Evaluator::run_command(context.execution_context, context.scope, command, &args)
     .map_err(|output_error| output_error.to_string())
 }
 
@@ -574,8 +562,7 @@ fn snakecase(_context: Context, s: &str) -> FunctionResult {
 
 fn source_directory(context: Context) -> FunctionResult {
   context
-    .evaluator
-    .context
+    .execution_context
     .search
     .justfile
     .parent()
@@ -595,8 +582,7 @@ fn source_directory(context: Context) -> FunctionResult {
 
 fn source_file(context: Context) -> FunctionResult {
   context
-    .evaluator
-    .context
+    .execution_context
     .search
     .justfile
     .parent()
@@ -616,7 +602,7 @@ fn style(context: Context, s: &str) -> FunctionResult {
   match s {
     "command" => Ok(
       Color::always()
-        .command(context.evaluator.context.config.command_color)
+        .command(context.execution_context.config.command_color)
         .prefix()
         .to_string(),
     ),

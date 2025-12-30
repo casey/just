@@ -15,6 +15,7 @@ pub(crate) enum Expression<'src> {
   },
   /// `assert(condition, error)`
   Assert {
+    name: Name<'src>,
     condition: Condition<'src>,
     error: Box<Expression<'src>>,
   },
@@ -69,7 +70,9 @@ impl Display for Expression<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     match self {
       Self::And { lhs, rhs } => write!(f, "{lhs} && {rhs}"),
-      Self::Assert { condition, error } => write!(f, "assert({condition}, {error})"),
+      Self::Assert {
+        condition, error, ..
+      } => write!(f, "assert({condition}, {error})"),
       Self::Backtick { token, .. } => write!(f, "{}", token.lexeme()),
       Self::Call { thunk } => write!(f, "{thunk}"),
       Self::Concatenation { lhs, rhs } => write!(f, "{lhs} + {rhs}"),
@@ -119,7 +122,9 @@ impl Serialize for Expression<'_> {
         seq.serialize_element(rhs)?;
         seq.end()
       }
-      Self::Assert { condition, error } => {
+      Self::Assert {
+        condition, error, ..
+      } => {
         let mut seq: <S as Serializer>::SerializeSeq = serializer.serialize_seq(None)?;
         seq.serialize_element("assert")?;
         seq.serialize_element(condition)?;

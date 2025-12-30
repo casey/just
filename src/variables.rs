@@ -11,9 +11,9 @@ impl<'expression, 'src> Variables<'expression, 'src> {
 }
 
 impl<'src> Iterator for Variables<'_, 'src> {
-  type Item = Token<'src>;
+  type Item = Name<'src>;
 
-  fn next(&mut self) -> Option<Token<'src>> {
+  fn next(&mut self) -> Option<Name<'src>> {
     loop {
       match self.stack.pop()? {
         Expression::And { lhs, rhs } | Expression::Or { lhs, rhs } => {
@@ -28,6 +28,7 @@ impl<'src> Iterator for Variables<'_, 'src> {
               operator: _,
             },
           error,
+          ..
         } => {
           self.stack.push(error);
           self.stack.push(rhs);
@@ -106,7 +107,7 @@ impl<'src> Iterator for Variables<'_, 'src> {
             self.stack.push(lhs);
           }
         }
-        Expression::Variable { name, .. } => return Some(name.token),
+        Expression::Variable { name, .. } => return Some(*name),
       }
     }
   }

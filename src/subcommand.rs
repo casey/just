@@ -50,6 +50,14 @@ pub(crate) enum Subcommand {
   Variables,
 }
 
+impl Default for Subcommand {
+  fn default() -> Self {
+    Self::Run {
+      arguments: Vec::new(),
+    }
+  }
+}
+
 impl Subcommand {
   pub(crate) fn execute<'src>(&self, config: &Config, loader: &'src Loader) -> RunResult<'src> {
     use Subcommand::*;
@@ -174,7 +182,7 @@ impl Subcommand {
     loader: &'src Loader,
     search: &Search,
   ) -> RunResult<'src, Compilation<'src>> {
-    let compilation = Compiler::compile(loader, &search.justfile)?;
+    let compilation = Compiler::compile(config, loader, &search.justfile)?;
 
     compilation.justfile.check_unstable(config)?;
 

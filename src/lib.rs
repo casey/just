@@ -28,6 +28,7 @@ pub(crate) use {
     conditional_operator::ConditionalOperator,
     config::Config,
     config_error::ConfigError,
+    const_error::ConstError,
     constants::constants,
     count::Count,
     delimiter::Delimiter,
@@ -134,7 +135,7 @@ pub(crate) use {
     path::{self, Path, PathBuf},
     process::{self, Command, ExitStatus, Stdio},
     str::{self, Chars},
-    sync::{Arc, LazyLock, Mutex, MutexGuard, OnceLock},
+    sync::{Arc, LazyLock, Mutex, MutexGuard},
     thread, vec,
   },
   strum::{Display, EnumDiscriminants, EnumString, IntoStaticStr},
@@ -211,6 +212,7 @@ mod condition;
 mod conditional_operator;
 mod config;
 mod config_error;
+mod const_error;
 mod constants;
 mod count;
 mod delimiter;

@@ -393,7 +393,7 @@ mod tests {
     fs::write(&path, "mod foo").unwrap();
     fs::create_dir(tempdir.path().join("foo")).unwrap();
     fs::write(tempdir.path().join("foo/mod.just"), "bar:").unwrap();
-    let compilation = Compiler::compile(&loader, &path).unwrap();
+    let compilation = Compiler::compile(&Config::default(), &loader, &path).unwrap();
 
     let invocations =
       InvocationParser::parse_invocations(&compilation.justfile, &["foo", "bar"]).unwrap();
@@ -411,7 +411,7 @@ mod tests {
     fs::write(&path, "mod foo").unwrap();
     fs::create_dir(tempdir.path().join("foo")).unwrap();
     fs::write(tempdir.path().join("foo/mod.just"), "bar:").unwrap();
-    let compilation = Compiler::compile(&loader, &path).unwrap();
+    let compilation = Compiler::compile(&Config::default(), &loader, &path).unwrap();
 
     assert_matches!(
       InvocationParser::parse_invocations(&compilation.justfile, &["foo", "zzz"]).unwrap_err(),
@@ -429,7 +429,12 @@ mod tests {
     tempdir.write("foo.just", "bar:");
 
     let loader = Loader::new();
-    let compilation = Compiler::compile(&loader, &tempdir.path().join("justfile")).unwrap();
+    let compilation = Compiler::compile(
+      &Config::default(),
+      &loader,
+      &tempdir.path().join("justfile"),
+    )
+    .unwrap();
 
     assert_matches!(
       InvocationParser::parse_invocations(&compilation.justfile, &["foo::zzz"]).unwrap_err(),
@@ -447,7 +452,12 @@ mod tests {
     tempdir.write("foo.just", "bar:");
 
     let loader = Loader::new();
-    let compilation = Compiler::compile(&loader, &tempdir.path().join("justfile")).unwrap();
+    let compilation = Compiler::compile(
+      &Config::default(),
+      &loader,
+      &tempdir.path().join("justfile"),
+    )
+    .unwrap();
 
     assert_matches!(
       InvocationParser::parse_invocations(&compilation.justfile, &["foo::bar::baz"]).unwrap_err(),
@@ -463,7 +473,12 @@ mod tests {
     tempdir.write("justfile", "");
 
     let loader = Loader::new();
-    let compilation = Compiler::compile(&loader, &tempdir.path().join("justfile")).unwrap();
+    let compilation = Compiler::compile(
+      &Config::default(),
+      &loader,
+      &tempdir.path().join("justfile"),
+    )
+    .unwrap();
 
     assert_matches!(
       InvocationParser::parse_invocations(&compilation.justfile, &[]).unwrap_err(),
@@ -477,7 +492,12 @@ mod tests {
     tempdir.write("justfile", "foo bar:");
 
     let loader = Loader::new();
-    let compilation = Compiler::compile(&loader, &tempdir.path().join("justfile")).unwrap();
+    let compilation = Compiler::compile(
+      &Config::default(),
+      &loader,
+      &tempdir.path().join("justfile"),
+    )
+    .unwrap();
 
     assert_matches!(
       InvocationParser::parse_invocations(&compilation.justfile, &[]).unwrap_err(),
@@ -495,7 +515,12 @@ mod tests {
     tempdir.write("foo.just", "bar:");
 
     let loader = Loader::new();
-    let compilation = Compiler::compile(&loader, &tempdir.path().join("justfile")).unwrap();
+    let compilation = Compiler::compile(
+      &Config::default(),
+      &loader,
+      &tempdir.path().join("justfile"),
+    )
+    .unwrap();
 
     assert_matches!(
       InvocationParser::parse_invocations(&compilation.justfile, &[]).unwrap_err(),

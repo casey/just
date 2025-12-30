@@ -14,6 +14,7 @@ pub(crate) enum Error<'src> {
   },
   Assert {
     message: String,
+    name: Name<'src>,
   },
   Backtick {
     token: Token<'src>,
@@ -62,6 +63,9 @@ pub(crate) enum Error<'src> {
   },
   Config {
     config_error: ConfigError,
+  },
+  Const {
+    const_error: ConstError<'src>,
   },
   Cygpath {
     recipe: &'src str,
@@ -265,8 +269,10 @@ impl<'src> Error<'src> {
       Self::AmbiguousModuleFile { module, .. } | Self::MissingModuleFile { module, .. } => {
         Some(module.token)
       }
+      Self::Assert { name, .. } => Some(**name),
       Self::Backtick { token, .. } => Some(*token),
       Self::Compile { compile_error } => Some(compile_error.context()),
+      Self::Const { const_error } => Some(const_error.context()),
       Self::FunctionCall { function, .. } => Some(function.token),
       Self::MissingImportFile { path } => Some(*path),
       _ => None,
@@ -309,6 +315,12 @@ impl From<ConfigError> for Error<'_> {
   }
 }
 
+impl<'src> From<ConstError<'src>> for Error<'src> {
+  fn from(const_error: ConstError<'src>) -> Self {
+    Self::Const { const_error }
+  }
+}
+
 impl<'src> From<dotenvy::Error> for Error<'src> {
   fn from(dotenv_error: dotenvy::Error) -> Error<'src> {
     Self::Dotenv { dotenv_error }
@@ -330,6 +342,10 @@ impl ColorDisplay for Error<'_> {
     write!(f, "{error}: {message}")?;
 
     match self {
+      Const { const_error } => write!(
+        f,
+        "{const_error}",
+      )?,
       AmbiguousModuleFile { module, found } => write!(
         f,
         "Found multiple source files for module `{module}`: {}",
@@ -346,7 +362,7 @@ impl ColorDisplay for Error<'_> {
           "Argument `{argument}` passed to recipe `{recipe}` parameter `{parameter}` does not match pattern '{pattern}'",
         )?;
       }
-      Assert { message } => {
+      Assert { message, .. } => {
         write!(f, "Assert failed: {message}")?;
       }
       Backtick { output_error, .. } => match output_error {

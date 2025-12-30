@@ -4,6 +4,7 @@ pub(crate) struct Compiler;
 
 impl Compiler {
   pub(crate) fn compile<'src>(
+    config: &Config,
     loader: &'src Loader,
     root: &Path,
   ) -> RunResult<'src, Compilation<'src>> {
@@ -99,7 +100,7 @@ impl Compiler {
       asts.insert(current.path, ast.clone());
     }
 
-    let justfile = Analyzer::analyze(&asts, None, &[], &loaded, None, &paths, root)?;
+    let justfile = Analyzer::analyze(&asts, config, None, &[], &loaded, None, &paths, root)?;
 
     Ok(Compilation {
       asts,
@@ -216,7 +217,7 @@ impl Compiler {
   }
 
   #[cfg(test)]
-  pub(crate) fn test_compile(src: &str) -> CompileResult<Justfile> {
+  pub(crate) fn test_compile(src: &str) -> RunResult<Justfile> {
     let tokens = Lexer::test_lex(src)?;
     let ast = Parser::parse(0, &[], None, &tokens, &PathBuf::new())?;
     let root = PathBuf::from("justfile");
@@ -224,7 +225,16 @@ impl Compiler {
     asts.insert(root.clone(), ast);
     let mut paths: HashMap<PathBuf, PathBuf> = HashMap::new();
     paths.insert(root.clone(), root.clone());
-    Analyzer::analyze(&asts, None, &[], &[], None, &paths, &root)
+    Analyzer::analyze(
+      &asts,
+      &Config::default(),
+      None,
+      &[],
+      &[],
+      None,
+      &paths,
+      &root,
+    )
   }
 }
 
@@ -264,7 +274,7 @@ recipe_b: recipe_c
     let loader = Loader::new();
 
     let justfile_a_path = tmp.path().join("justfile");
-    let compilation = Compiler::compile(&loader, &justfile_a_path).unwrap();
+    let compilation = Compiler::compile(&Config::default(), &loader, &justfile_a_path).unwrap();
 
     assert_eq!(compilation.root_src(), justfile_a);
   }
@@ -281,7 +291,8 @@ recipe_b: recipe_c
     let loader = Loader::new();
 
     let justfile_a_path = tmp.path().join("justfile");
-    let loader_output = Compiler::compile(&loader, &justfile_a_path).unwrap_err();
+    let loader_output =
+      Compiler::compile(&Config::default(), &loader, &justfile_a_path).unwrap_err();
 
     assert_matches!(loader_output, Error::CircularImport { current, import }
       if current == tmp.path().join("subdir").join("b").lexiclean() &&

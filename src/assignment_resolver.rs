@@ -16,58 +16,46 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
       assignments,
     };
 
-    for name in assignments.keys() {
-      resolver.resolve_assignment(name)?;
+    for assignment in assignments.values() {
+      resolver.resolve_assignment(assignment)?;
     }
 
     Ok(())
   }
 
-  fn resolve_assignment(&mut self, name: &'src str) -> CompileResult<'src> {
+  fn resolve_assignment(&mut self, assignment: &Assignment<'src>) -> CompileResult<'src> {
+    let name = assignment.name.lexeme();
+
     if self.evaluated.contains(name) {
       return Ok(());
     }
 
     self.stack.push(name);
 
-    if let Some(assignment) = self.assignments.get(name) {
-      for variable in assignment.value.variables() {
-        let name = variable.lexeme();
+    for variable in assignment.value.variables() {
+      let name = variable.lexeme();
 
-        if self.evaluated.contains(name) || constants().contains_key(name) {
-          continue;
-        }
-
-        if self.stack.contains(&name) {
-          self.stack.push(name);
-          return Err(
-            self.assignments[name]
-              .name
-              .error(CircularVariableDependency {
-                variable: name,
-                circle: self.stack.clone(),
-              }),
-          );
-        } else if self.assignments.contains_key(name) {
-          self.resolve_assignment(name)?;
-        } else {
-          return Err(variable.error(UndefinedVariable { variable: name }));
-        }
+      if self.evaluated.contains(name) || constants().contains_key(name) {
+        continue;
       }
-      self.evaluated.insert(name);
-    } else {
-      let message = format!("attempted to resolve unknown assignment `{name}`");
-      let token = Token {
-        src: "",
-        offset: 0,
-        line: 0,
-        column: 0,
-        length: 0,
-        kind: TokenKind::Unspecified,
-        path: "".as_ref(),
-      };
-      return Err(CompileError::new(token, Internal { message }));
+
+      if self.stack.contains(&name) {
+        self.stack.push(name);
+        return Err(
+          self.assignments[name]
+            .name
+            .error(CircularVariableDependency {
+              variable: name,
+              circle: self.stack.clone(),
+            }),
+        );
+      } else if let Some(assignment) = self.assignments.get(name) {
+        self.resolve_assignment(assignment)?;
+      } else {
+        return Err(variable.error(UndefinedVariable { variable: name }));
+      }
     }
+    self.evaluated.insert(name);
 
     self.stack.pop();
 
