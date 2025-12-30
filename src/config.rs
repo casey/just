@@ -1165,7 +1165,6 @@ mod tests {
     args: [],
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!(),
     },
   }
 
@@ -1174,7 +1173,6 @@ mod tests {
     args: ["--set", "foo", "bar"],
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{"foo": "bar"},
     },
   }
 
@@ -1183,7 +1181,6 @@ mod tests {
     args: ["--set", "foo", ""],
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{"foo": ""},
     },
   }
 
@@ -1192,7 +1189,6 @@ mod tests {
     args: ["--set", "foo", "bar", "--set", "bar", "baz"],
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{"foo": "bar", "bar": "baz"},
     },
   }
 
@@ -1201,7 +1197,6 @@ mod tests {
     args: ["--set", "foo", "bar", "--set", "foo", "baz"],
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{"foo": "baz"},
     },
   }
 
@@ -1265,7 +1260,6 @@ mod tests {
     args: [],
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{},
     },
   }
 
@@ -1358,7 +1352,6 @@ mod tests {
     name: subcommand_evaluate,
     args: ["--evaluate"],
     subcommand: Subcommand::Evaluate {
-      overrides: map!{},
       variable: None,
     },
   }
@@ -1367,7 +1360,6 @@ mod tests {
     name: subcommand_evaluate_overrides,
     args: ["--evaluate", "x=y"],
     subcommand: Subcommand::Evaluate {
-      overrides: map!{"x": "y"},
       variable: None,
     },
   }
@@ -1376,7 +1368,6 @@ mod tests {
     name: subcommand_evaluate_overrides_with_argument,
     args: ["--evaluate", "x=y", "foo"],
     subcommand: Subcommand::Evaluate {
-      overrides: map!{"x": "y"},
       variable: Some("foo".to_owned()),
     },
   }
@@ -1434,7 +1425,6 @@ mod tests {
     args: ["foo", "bar"],
     subcommand: Subcommand::Run {
       arguments: vec![String::from("foo"), String::from("bar")],
-      overrides: map!{},
     },
   }
 
@@ -1443,7 +1433,6 @@ mod tests {
     args: ["=foo"],
     subcommand: Subcommand::Run {
       arguments: vec!["=foo".to_owned()],
-      overrides: map!{},
     },
   }
 
@@ -1452,7 +1441,6 @@ mod tests {
     args: ["foo=bar", "bar=baz"],
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{"foo": "bar", "bar": "baz"},
     },
   }
 
@@ -1461,7 +1449,6 @@ mod tests {
     args: ["foo=", "bar="],
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{"foo": "", "bar": ""},
     },
   }
 
@@ -1470,7 +1457,6 @@ mod tests {
     args: ["--set", "foo", "0", "--set", "bar", "1", "foo=bar", "bar=baz"],
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{"foo": "bar", "bar": "baz"},
     },
   }
 
@@ -1571,7 +1557,7 @@ mod tests {
     search_config: SearchConfig::FromSearchDirectory {
       search_directory: PathBuf::from(".."),
     },
-    subcommand: Subcommand::Run { arguments: vec!["build".to_owned()], overrides: BTreeMap::new() },
+    subcommand: Subcommand::Run { arguments: vec!["build".to_owned()] },
   }
 
   test! {
@@ -1596,7 +1582,7 @@ mod tests {
     search_config: SearchConfig::FromSearchDirectory {
       search_directory: PathBuf::from("foo"),
     },
-    subcommand: Subcommand::Run { arguments: vec!["build".to_owned()], overrides: BTreeMap::new() },
+    subcommand: Subcommand::Run { arguments: vec!["build".to_owned()] },
   }
 
   error! {
