@@ -77,26 +77,17 @@ impl<'src> Justfile<'src> {
     arena: &'run Arena<Scope<'src, 'run>>,
     config: &'run Config,
     dotenv: &'run BTreeMap<String, String>,
-    overrides: &BTreeMap<String, String>,
     root: &'run Scope<'src, 'run>,
     scopes: &mut BTreeMap<String, (&'run Justfile<'src>, &'run Scope<'src, 'run>)>,
     search: &'run Search,
   ) -> RunResult<'src> {
-    let scope = Evaluator::evaluate_assignments(config, dotenv, self, overrides, root, search)?;
+    let scope = Evaluator::evaluate_assignments(config, dotenv, self, root, search)?;
 
     let scope = arena.alloc(scope);
     scopes.insert(self.module_path.clone(), (self, scope));
 
     for module in self.modules.values() {
-      module.evaluate_scopes(
-        arena,
-        config,
-        dotenv,
-        &BTreeMap::new(),
-        scope,
-        scopes,
-        search,
-      )?;
+      module.evaluate_scopes(arena, config, dotenv, scope, scopes, search)?;
     }
 
     Ok(())
@@ -106,10 +97,10 @@ impl<'src> Justfile<'src> {
     &self,
     config: &Config,
     search: &Search,
-    overrides: &BTreeMap<String, String>,
     arguments: &[String],
   ) -> RunResult<'src> {
-    let unknown_overrides = overrides
+    let unknown_overrides = config
+      .overrides
       .keys()
       .filter(|name| !self.assignments.contains_key(name.as_str()))
       .cloned()
@@ -130,15 +121,7 @@ impl<'src> Justfile<'src> {
     let root = Scope::root();
     let arena = Arena::new();
     let mut scopes = BTreeMap::new();
-    self.evaluate_scopes(
-      &arena,
-      config,
-      &dotenv,
-      overrides,
-      &root,
-      &mut scopes,
-      search,
-    )?;
+    self.evaluate_scopes(&arena, config, &dotenv, &root, &mut scopes, search)?;
 
     let scope = scopes.get(&self.module_path).unwrap().1;
 

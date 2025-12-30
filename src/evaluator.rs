@@ -12,7 +12,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     config: &'run Config,
     dotenv: &'run BTreeMap<String, String>,
     module: &'run Justfile<'src>,
-    overrides: &BTreeMap<String, String>,
     parent: &'run Scope<'src, 'run>,
     search: &'run Search,
   ) -> RunResult<'src, Scope<'src, 'run>>
@@ -29,7 +28,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     let mut scope = parent.child();
     let mut unknown_overrides = Vec::new();
 
-    for (name, value) in overrides {
+    for (name, value) in &config.overrides {
       if let Some(assignment) = module.assignments.get(name) {
         scope.bind(Binding {
           constant: false,

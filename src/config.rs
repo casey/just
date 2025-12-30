@@ -33,6 +33,7 @@ pub(crate) struct Config {
   pub(crate) no_aliases: bool,
   pub(crate) no_dependencies: bool,
   pub(crate) one: bool,
+  pub(crate) overrides: BTreeMap<String, String>,
   pub(crate) search_config: SearchConfig,
   pub(crate) shell: Option<String>,
   pub(crate) shell_args: Option<Vec<String>>,
@@ -726,14 +727,12 @@ impl Config {
     } else if matches.get_flag(cmd::CHOOSE) {
       Subcommand::Choose {
         chooser: matches.get_one::<String>(arg::CHOOSER).map(Into::into),
-        overrides,
       }
     } else if let Some(values) = matches.get_many::<OsString>(cmd::COMMAND) {
       let mut arguments = values.map(Into::into).collect::<Vec<OsString>>();
       Subcommand::Command {
         binary: arguments.remove(0),
         arguments,
-        overrides,
       }
     } else if let Some(&shell) = matches.get_one::<completions::Shell>(cmd::COMPLETIONS) {
       Subcommand::Completions { shell }
@@ -755,7 +754,6 @@ impl Config {
 
       Subcommand::Evaluate {
         variable: positional.arguments.into_iter().next(),
-        overrides,
       }
     } else if matches.get_flag(cmd::FORMAT) {
       Subcommand::Format
@@ -789,7 +787,6 @@ impl Config {
     } else {
       Subcommand::Run {
         arguments: positional.arguments,
-        overrides,
       }
     };
 
@@ -829,6 +826,7 @@ impl Config {
       no_aliases: matches.get_flag(arg::NO_ALIASES),
       no_dependencies: matches.get_flag(arg::NO_DEPS),
       one: matches.get_flag(arg::ONE),
+      overrides,
       search_config,
       shell: matches.get_one::<String>(arg::SHELL).map(Into::into),
       shell_args: if matches.get_flag(arg::CLEAR_SHELL_ARGS) {
