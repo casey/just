@@ -70,8 +70,8 @@ impl Display for Setting<'_> {
       | Self::WorkingDirectory(value) => {
         write!(f, "{value}")
       }
-      Self::ScriptInterpreter(shell) | Self::Shell(shell) | Self::WindowsShell(shell) => {
-        write!(f, "[{shell}]")
+      Self::ScriptInterpreter(value) | Self::Shell(value) | Self::WindowsShell(value) => {
+        write!(f, "[{value}]")
       }
     }
   }
