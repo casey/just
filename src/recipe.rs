@@ -413,7 +413,7 @@ impl<'src, D> Recipe<'src, D> {
       self.attributes.get(AttributeDiscriminant::Script)
     {
       Executor::Command(
-        &interpreter
+        interpreter
           .as_ref()
           .map(|interpreter| Interpreter {
             command: interpreter.command.cooked.clone(),
@@ -423,7 +423,7 @@ impl<'src, D> Recipe<'src, D> {
               .map(|argument| argument.cooked.clone())
               .collect(),
           })
-          .or(context.module.settings.script_interpreter.clone())
+          .or_else(|| context.module.settings.script_interpreter.clone())
           .unwrap_or_else(|| Interpreter::default_script_interpreter().clone()),
       )
     } else {

@@ -1,7 +1,7 @@
 use super::*;
 
 pub(crate) enum Executor<'a> {
-  Command(&'a Interpreter<String>),
+  Command(Interpreter<String>),
   Shebang(Shebang<'a>),
 }
 
@@ -139,7 +139,7 @@ mod tests {
         expected
       );
       assert_eq!(
-        Executor::Command(&Interpreter {
+        Executor::Command(Interpreter {
           command: interpreter.into(),
           arguments: Vec::new()
         })
