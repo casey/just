@@ -279,14 +279,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   fn accepted_keyword(&mut self, keyword: Keyword) -> CompileResult<'src, bool> {
-    let next = self.next()?;
-
-    if next.kind == Identifier && next.lexeme() == keyword.lexeme() {
-      self.advance()?;
-      Ok(true)
-    } else {
-      Ok(false)
-    }
+    Ok(self.accept_keyword(keyword)?.is_some())
   }
 
   /// Accept a dependency
