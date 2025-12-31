@@ -194,6 +194,10 @@ pub(crate) enum Error<'src> {
     source: ctrlc::Error,
   },
   #[cfg(unix)]
+  SignalHandlerPipeCloexec {
+    io_error: io::Error,
+  },
+  #[cfg(unix)]
   SignalHandlerPipeOpen {
     io_error: io::Error,
   },
@@ -706,8 +710,12 @@ impl ColorDisplay for Error<'_> {
         write!(f, "Could not install signal handler: {source}")?;
       }
       #[cfg(unix)]
+      SignalHandlerPipeCloexec { io_error } => {
+        write!(f, "I/O error setting O_CLOEXEC on signal handler pipe: {io_error}")?;
+      }
+      #[cfg(unix)]
       SignalHandlerPipeOpen { io_error } => {
-        write!(f, "I/O error opening pipe for signal handler: {io_error}")?;
+        write!(f, "I/O error opening signal handler pipe: {io_error}")?;
       }
       #[cfg(unix)]
       SignalHandlerSigaction { io_error, signal } => {
