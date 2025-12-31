@@ -6,7 +6,7 @@ pub(crate) const WINDOWS_POWERSHELL_SHELL: &str = "powershell.exe";
 pub(crate) const WINDOWS_POWERSHELL_ARGS: &[&str] = &["-NoLogo", "-Command"];
 
 #[derive(Debug, PartialEq, Serialize, Default)]
-pub(crate) struct Settings<'src> {
+pub(crate) struct Settings {
   pub(crate) allow_duplicate_recipes: bool,
   pub(crate) allow_duplicate_variables: bool,
   pub(crate) dotenv_filename: Option<String>,
@@ -21,16 +21,16 @@ pub(crate) struct Settings<'src> {
   pub(crate) positional_arguments: bool,
   pub(crate) quiet: bool,
   #[serde(skip)]
-  pub(crate) script_interpreter: Option<Interpreter<'src>>,
-  pub(crate) shell: Option<Interpreter<'src>>,
+  pub(crate) script_interpreter: Option<Interpreter>,
+  pub(crate) shell: Option<Interpreter>,
   pub(crate) tempdir: Option<String>,
   pub(crate) unstable: bool,
   pub(crate) windows_powershell: bool,
-  pub(crate) windows_shell: Option<Interpreter<'src>>,
+  pub(crate) windows_shell: Option<Interpreter>,
   pub(crate) working_directory: Option<PathBuf>,
 }
 
-impl Settings<'_> {
+impl Settings {
   pub(crate) fn shell_command(&self, config: &Config) -> Command {
     let (command, args) = self.shell(config);
 
@@ -156,14 +156,14 @@ mod tests {
           expand: false,
           kind: StringKind::from_token_start("\"").unwrap(),
           part: None,
-          raw: "asdf.exe",
+          raw: "asdf.exe".into(),
         },
         arguments: vec![StringLiteral {
           cooked: "-nope".to_string(),
           expand: false,
           kind: StringKind::from_token_start("\"").unwrap(),
           part: None,
-          raw: "-nope",
+          raw: "-nope".into(),
         }],
       }),
       ..Default::default()

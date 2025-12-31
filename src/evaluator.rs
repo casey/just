@@ -22,7 +22,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     name: Option<Name>,
     sets: Table<'src, Set<'src>>,
     scope: &'run Scope<'src, 'run>,
-  ) -> RunResult<'src, Settings<'src>> {
+  ) -> RunResult<'src, Settings> {
     let mut scope = scope.child();
 
     if name.is_none() {
@@ -69,7 +69,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     evaluator.evaluate_sets(sets)
   }
 
-  fn evaluate_sets(&mut self, sets: Table<'src, Set<'src>>) -> RunResult<'src, Settings<'src>> {
+  fn evaluate_sets(&mut self, sets: Table<'src, Set<'src>>) -> RunResult<'src, Settings> {
     let mut settings = Settings::default();
 
     for (_name, set) in sets {

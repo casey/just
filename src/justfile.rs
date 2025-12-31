@@ -7,7 +7,7 @@ pub(crate) struct Justfile<'src> {
   #[serde(rename = "first", serialize_with = "keyed::serialize_option")]
   pub(crate) default: Option<Arc<Recipe<'src>>>,
   pub(crate) doc: Option<String>,
-  pub(crate) groups: Vec<StringLiteral<'src>>,
+  pub(crate) groups: Vec<StringLiteral>,
   #[serde(skip)]
   pub(crate) loaded: Vec<PathBuf>,
   #[serde(skip)]
@@ -16,7 +16,7 @@ pub(crate) struct Justfile<'src> {
   #[serde(skip)]
   pub(crate) name: Option<Name<'src>>,
   pub(crate) recipes: Table<'src, Arc<Recipe<'src>>>,
-  pub(crate) settings: Settings<'src>,
+  pub(crate) settings: Settings,
   pub(crate) source: PathBuf,
   pub(crate) unexports: HashSet<String>,
   #[serde(skip)]
