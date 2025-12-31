@@ -66,8 +66,10 @@ pub(crate) struct Signals(File);
 
 impl Signals {
   pub(crate) fn new() -> RunResult<'static, Self> {
-    let (read, write) = nix::unistd::pipe().map_err(|errno| Error::SignalHandlerPipeOpen {
-      io_error: errno.into(),
+    let (read, write) = nix::unistd::pipe2(nix::fcntl::OFlag::O_CLOEXEC).map_err(|errno| {
+      Error::SignalHandlerPipeOpen {
+        io_error: errno.into(),
+      }
     })?;
 
     if WRITE
