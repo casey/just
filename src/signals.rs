@@ -2,7 +2,7 @@ use {
   super::*,
   nix::{
     errno::Errno,
-    fcntl::{fcntl, FcntlArg, FdFlag},
+    fcntl::{FcntlArg, FdFlag},
     sys::signal::{SaFlags, SigAction, SigHandler, SigSet},
   },
   std::{
@@ -63,18 +63,23 @@ extern "C" fn handler(signal: libc::c_int) {
   errno.set();
 }
 
-pub(crate) struct Signals(File);
+fn fcntl(fd: &OwnedFd, arg: FcntlArg) -> RunResult<'static, libc::c_int> {
+  nix::fcntl::fcntl(fd, arg).map_err(|errno| Error::SignalHandlerPipeCloexec {
+    io_error: errno.into(),
+  })
+}
 
-fn set_cloexec(fd: &OwnedFd) -> Result<(), Errno> {
-  // It would be better to use pipe2(O_CLOEXEC) over pipe-then-fcntl,
-  // but it isn't supported on all relevant platforms (most notably,
-  // not macos) and in this case the atomicity guarantees that pipe2
-  // exists to provide aren't needed.
+fn set_cloexec(fd: &OwnedFd) -> RunResult<'static> {
+  // It would be better to use pipe2(O_CLOEXEC) rather than pipe-then-fcntl,
+  // but it isn't supported on all platforms (most notably, not macos) and in
+  // the atomicity guarantees that pipe2 provides aren't needed.
   let existing_flags = fcntl(fd, FcntlArg::F_GETFD)?;
   let combined_flags = FdFlag::from_bits_retain(existing_flags) | FdFlag::FD_CLOEXEC;
   fcntl(fd, FcntlArg::F_SETFD(combined_flags))?;
   Ok(())
 }
+
+pub(crate) struct Signals(File);
 
 impl Signals {
   pub(crate) fn new() -> RunResult<'static, Self> {
@@ -82,12 +87,8 @@ impl Signals {
       io_error: errno.into(),
     })?;
 
-    set_cloexec(&read).map_err(|errno| Error::SignalHandlerPipeCloexec {
-      io_error: errno.into(),
-    })?;
-    set_cloexec(&write).map_err(|errno| Error::SignalHandlerPipeCloexec {
-      io_error: errno.into(),
-    })?;
+    set_cloexec(&read)?;
+    set_cloexec(&write)?;
 
     if WRITE
       .compare_exchange(
