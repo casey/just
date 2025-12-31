@@ -2,12 +2,13 @@ use {
   super::*,
   nix::{
     errno::Errno,
+    fcntl::{fcntl, FcntlArg, FdFlag},
     sys::signal::{SaFlags, SigAction, SigHandler, SigSet},
   },
   std::{
     fs::File,
     io::Read,
-    os::fd::{BorrowedFd, IntoRawFd},
+    os::fd::{BorrowedFd, IntoRawFd, OwnedFd},
     sync::atomic::{self, AtomicI32},
   },
 };
@@ -64,12 +65,28 @@ extern "C" fn handler(signal: libc::c_int) {
 
 pub(crate) struct Signals(File);
 
+fn set_cloexec(fd: &OwnedFd) -> Result<(), Errno> {
+  // It would be better to use pipe2(O_CLOEXEC) over pipe-then-fcntl,
+  // but it isn't supported on all relevant platforms (most notably,
+  // not macos) and in this case the atomicity guarantees that pipe2
+  // exists to provide aren't needed.
+  let existing_flags = fcntl(fd, FcntlArg::F_GETFD)?;
+  let combined_flags = FdFlag::from_bits_retain(existing_flags) | FdFlag::FD_CLOEXEC;
+  fcntl(fd, FcntlArg::F_SETFD(combined_flags))?;
+  Ok(())
+}
+
 impl Signals {
   pub(crate) fn new() -> RunResult<'static, Self> {
-    let (read, write) = nix::unistd::pipe2(nix::fcntl::OFlag::O_CLOEXEC).map_err(|errno| {
-      Error::SignalHandlerPipeOpen {
-        io_error: errno.into(),
-      }
+    let (read, write) = nix::unistd::pipe().map_err(|errno| Error::SignalHandlerPipeOpen {
+      io_error: errno.into(),
+    })?;
+
+    set_cloexec(&read).map_err(|errno| Error::SignalHandlerPipeCloexec {
+      io_error: errno.into(),
+    })?;
+    set_cloexec(&write).map_err(|errno| Error::SignalHandlerPipeCloexec {
+      io_error: errno.into(),
     })?;
 
     if WRITE
