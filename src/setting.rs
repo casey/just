@@ -4,10 +4,10 @@ use super::*;
 pub(crate) enum Setting<'src> {
   AllowDuplicateRecipes(bool),
   AllowDuplicateVariables(bool),
-  DotenvFilename(StringLiteral),
+  DotenvFilename(Expression<'src>),
   DotenvLoad(bool),
   DotenvOverride(bool),
-  DotenvPath(StringLiteral),
+  DotenvPath(Expression<'src>),
   DotenvRequired(bool),
   Export(bool),
   Fallback(bool),
@@ -17,7 +17,7 @@ pub(crate) enum Setting<'src> {
   Quiet(bool),
   ScriptInterpreter(Interpreter),
   Shell(Interpreter),
-  Tempdir(StringLiteral),
+  Tempdir(Expression<'src>),
   Unstable(bool),
   WindowsPowerShell(bool),
   WindowsShell(Interpreter),
@@ -27,7 +27,10 @@ pub(crate) enum Setting<'src> {
 impl<'src> Setting<'src> {
   pub(crate) fn expression(&self) -> Option<&Expression<'src>> {
     match self {
-      Self::WorkingDirectory(expression) => Some(expression),
+      Self::DotenvFilename(value)
+      | Self::DotenvPath(value)
+      | Self::Tempdir(value)
+      | Self::WorkingDirectory(value) => Some(value),
       _ => None,
     }
   }
@@ -49,14 +52,14 @@ impl Display for Setting<'_> {
       | Self::Quiet(value)
       | Self::Unstable(value)
       | Self::WindowsPowerShell(value) => write!(f, "{value}"),
+      Self::DotenvFilename(value)
+      | Self::DotenvPath(value)
+      | Self::Tempdir(value)
+      | Self::WorkingDirectory(value) => {
+        write!(f, "{value}")
+      }
       Self::ScriptInterpreter(shell) | Self::Shell(shell) | Self::WindowsShell(shell) => {
         write!(f, "[{shell}]")
-      }
-      Self::DotenvFilename(value) | Self::DotenvPath(value) | Self::Tempdir(value) => {
-        write!(f, "{value}")
-      }
-      Self::WorkingDirectory(value) => {
-        write!(f, "{value}")
       }
     }
   }

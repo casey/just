@@ -74,65 +74,65 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     for (_name, set) in sets {
       match set.value {
-        Setting::AllowDuplicateRecipes(allow_duplicate_recipes) => {
-          settings.allow_duplicate_recipes = allow_duplicate_recipes;
+        Setting::AllowDuplicateRecipes(value) => {
+          settings.allow_duplicate_recipes = value;
         }
-        Setting::AllowDuplicateVariables(allow_duplicate_variables) => {
-          settings.allow_duplicate_variables = allow_duplicate_variables;
+        Setting::AllowDuplicateVariables(value) => {
+          settings.allow_duplicate_variables = value;
         }
-        Setting::DotenvFilename(filename) => {
-          settings.dotenv_filename = Some(filename.cooked);
+        Setting::DotenvFilename(value) => {
+          settings.dotenv_filename = Some(self.evaluate_expression(&value)?);
         }
-        Setting::DotenvLoad(dotenv_load) => {
-          settings.dotenv_load = dotenv_load;
+        Setting::DotenvLoad(value) => {
+          settings.dotenv_load = value;
         }
-        Setting::DotenvPath(path) => {
-          settings.dotenv_path = Some(path.cooked.into());
+        Setting::DotenvPath(value) => {
+          settings.dotenv_path = Some(self.evaluate_expression(&value)?.into());
         }
-        Setting::DotenvOverride(dotenv_overrride) => {
-          settings.dotenv_override = dotenv_overrride;
+        Setting::DotenvOverride(value) => {
+          settings.dotenv_override = value;
         }
-        Setting::DotenvRequired(dotenv_required) => {
-          settings.dotenv_required = dotenv_required;
+        Setting::DotenvRequired(value) => {
+          settings.dotenv_required = value;
         }
-        Setting::Export(export) => {
-          settings.export = export;
+        Setting::Export(value) => {
+          settings.export = value;
         }
-        Setting::Fallback(fallback) => {
-          settings.fallback = fallback;
+        Setting::Fallback(value) => {
+          settings.fallback = value;
         }
-        Setting::IgnoreComments(ignore_comments) => {
-          settings.ignore_comments = ignore_comments;
+        Setting::IgnoreComments(value) => {
+          settings.ignore_comments = value;
         }
-        Setting::NoExitMessage(no_exit_message) => {
-          settings.no_exit_message = no_exit_message;
+        Setting::NoExitMessage(value) => {
+          settings.no_exit_message = value;
         }
-        Setting::PositionalArguments(positional_arguments) => {
-          settings.positional_arguments = positional_arguments;
+        Setting::PositionalArguments(value) => {
+          settings.positional_arguments = value;
         }
-        Setting::Quiet(quiet) => {
-          settings.quiet = quiet;
+        Setting::Quiet(value) => {
+          settings.quiet = value;
         }
-        Setting::ScriptInterpreter(script_interpreter) => {
-          settings.script_interpreter = Some(script_interpreter);
+        Setting::ScriptInterpreter(value) => {
+          settings.script_interpreter = Some(value);
         }
-        Setting::Shell(shell) => {
-          settings.shell = Some(shell);
+        Setting::Shell(value) => {
+          settings.shell = Some(value);
         }
-        Setting::Unstable(unstable) => {
-          settings.unstable = unstable;
+        Setting::Unstable(value) => {
+          settings.unstable = value;
         }
-        Setting::WindowsPowerShell(windows_powershell) => {
-          settings.windows_powershell = windows_powershell;
+        Setting::WindowsPowerShell(value) => {
+          settings.windows_powershell = value;
         }
-        Setting::WindowsShell(windows_shell) => {
-          settings.windows_shell = Some(windows_shell);
+        Setting::WindowsShell(value) => {
+          settings.windows_shell = Some(value);
         }
-        Setting::Tempdir(tempdir) => {
-          settings.tempdir = Some(tempdir.cooked);
+        Setting::Tempdir(value) => {
+          settings.tempdir = Some(self.evaluate_expression(&value)?);
         }
-        Setting::WorkingDirectory(working_directory) => {
-          settings.working_directory = Some(self.evaluate_expression(&working_directory)?.into());
+        Setting::WorkingDirectory(value) => {
+          settings.working_directory = Some(self.evaluate_expression(&value)?.into());
         }
       }
     }

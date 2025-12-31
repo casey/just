@@ -1351,11 +1351,11 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.expect(ColonEquals)?;
 
     let set_value = match keyword {
-      Keyword::DotenvFilename => Some(Setting::DotenvFilename(self.parse_string_literal()?)),
-      Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_string_literal()?)),
+      Keyword::DotenvFilename => Some(Setting::DotenvFilename(self.parse_expression()?)),
+      Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_expression()?)),
       Keyword::ScriptInterpreter => Some(Setting::ScriptInterpreter(self.parse_interpreter()?)),
       Keyword::Shell => Some(Setting::Shell(self.parse_interpreter()?)),
-      Keyword::Tempdir => Some(Setting::Tempdir(self.parse_string_literal()?)),
+      Keyword::Tempdir => Some(Setting::Tempdir(self.parse_expression()?)),
       Keyword::WindowsShell => Some(Setting::WindowsShell(self.parse_interpreter()?)),
       Keyword::WorkingDirectory => Some(Setting::WorkingDirectory(self.parse_expression()?)),
       _ => None,
