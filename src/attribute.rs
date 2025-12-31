@@ -43,7 +43,7 @@ pub(crate) enum Attribute<'src> {
   Parallel,
   PositionalArguments,
   Private,
-  Script(Option<Interpreter>),
+  Script(Option<Interpreter<StringLiteral>>),
   Unix,
   Windows,
   WorkingDirectory(StringLiteral),
