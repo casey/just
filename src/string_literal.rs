@@ -9,21 +9,6 @@ pub(crate) struct StringLiteral {
   pub(crate) raw: String,
 }
 
-impl StringLiteral {
-  pub(crate) fn from_raw(raw: &str) -> Self {
-    Self {
-      cooked: raw.into(),
-      expand: false,
-      kind: StringKind {
-        delimiter: StringDelimiter::QuoteSingle,
-        indented: false,
-      },
-      part: None,
-      raw: raw.into(),
-    }
-  }
-}
-
 impl Display for StringLiteral {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     if self.expand {

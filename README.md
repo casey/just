@@ -1054,11 +1054,12 @@ Which is equivalent to:
 set NAME := true
 ```
 
-The `working-directory` setting can be set to a string, or an
-expression<sup>master</sup>. Because the `working-directory` setting affects
-backtick execution and the behavior of many functions, the expression may not
-contain backticks, function calls, or references to variable assignments which
-themselves, directly or transitively, contain backticks or function calls.
+Non-boolean settings can be set to both strings and
+expressions.<sup>master</sup>
+
+However, because settings affect the behavior of backticks and many functions,
+those expressions may not contain backticks or function calls, directly or
+transitively via reference.
 
 #### Allow Duplicate Recipes
 

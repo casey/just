@@ -1351,11 +1351,11 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.expect(ColonEquals)?;
 
     let set_value = match keyword {
-      Keyword::DotenvFilename => Some(Setting::DotenvFilename(self.parse_string_literal()?)),
-      Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_string_literal()?)),
+      Keyword::DotenvFilename => Some(Setting::DotenvFilename(self.parse_expression()?)),
+      Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_expression()?)),
       Keyword::ScriptInterpreter => Some(Setting::ScriptInterpreter(self.parse_interpreter()?)),
       Keyword::Shell => Some(Setting::Shell(self.parse_interpreter()?)),
-      Keyword::Tempdir => Some(Setting::Tempdir(self.parse_string_literal()?)),
+      Keyword::Tempdir => Some(Setting::Tempdir(self.parse_expression()?)),
       Keyword::WindowsShell => Some(Setting::WindowsShell(self.parse_interpreter()?)),
       Keyword::WorkingDirectory => Some(Setting::WorkingDirectory(self.parse_expression()?)),
       _ => None,
@@ -1371,16 +1371,16 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Parse interpreter setting value, i.e., `['sh', '-eu']`
-  fn parse_interpreter(&mut self) -> CompileResult<'src, Interpreter> {
+  fn parse_interpreter(&mut self) -> CompileResult<'src, Interpreter<Expression<'src>>> {
     self.expect(BracketL)?;
 
-    let command = self.parse_string_literal()?;
+    let command = self.parse_expression()?;
 
     let mut arguments = Vec::new();
 
     if self.accepted(Comma)? {
       while !self.next_is(BracketR) {
-        arguments.push(self.parse_string_literal()?);
+        arguments.push(self.parse_expression()?);
 
         if !self.accepted(Comma)? {
           break;
@@ -2921,36 +2921,13 @@ mod tests {
     width:  1,
     kind:   UnexpectedToken {
       expected: vec![
+        Backtick,
         Identifier,
+        ParenL,
+        Slash,
         StringToken,
       ],
       found: BracketR,
-    },
-  }
-
-  error! {
-    name:   set_shell_non_literal_first,
-    input:  "set shell := ['bar' + 'baz']",
-    offset: 20,
-    line:   0,
-    column: 20,
-    width:  1,
-    kind:   UnexpectedToken {
-      expected: vec![BracketR, Comma],
-      found: Plus,
-    },
-  }
-
-  error! {
-    name:   set_shell_non_literal_second,
-    input:  "set shell := ['biz', 'bar' + 'baz']",
-    offset: 27,
-    line:   0,
-    column: 27,
-    width:  1,
-    kind:   UnexpectedToken {
-      expected: vec![BracketR, Comma],
-      found: Plus,
     },
   }
 
@@ -2963,8 +2940,11 @@ mod tests {
     width:  0,
     kind:   UnexpectedToken {
       expected: vec![
+        Backtick,
         BracketR,
         Identifier,
+        ParenL,
+        Slash,
         StringToken,
       ],
       found: Eof,
@@ -2979,7 +2959,7 @@ mod tests {
     column: 20,
     width:  0,
     kind:   UnexpectedToken {
-      expected: vec![BracketR, Comma],
+      expected: vec![AmpersandAmpersand, BarBar, BracketR, Comma, Plus, Slash],
       found: Eof,
     },
   }
