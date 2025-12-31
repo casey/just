@@ -711,11 +711,11 @@ impl ColorDisplay for Error<'_> {
       }
       #[cfg(unix)]
       SignalHandlerPipeCloexec { io_error } => {
-        write!(f, "I/O error setting O_CLOEXEC on pipe for signal handler: {io_error}")?;
+        write!(f, "I/O error setting O_CLOEXEC on signal handler pipe: {io_error}")?;
       }
       #[cfg(unix)]
       SignalHandlerPipeOpen { io_error } => {
-        write!(f, "I/O error opening pipe for signal handler: {io_error}")?;
+        write!(f, "I/O error opening signal handler pipe: {io_error}")?;
       }
       #[cfg(unix)]
       SignalHandlerSigaction { io_error, signal } => {
