@@ -1,7 +1,7 @@
 use super::*;
 
 pub(crate) enum Executor<'a> {
-  Command(&'a Interpreter),
+  Command(&'a Interpreter<String>),
   Shebang(Shebang<'a>),
 }
 
@@ -15,14 +15,14 @@ impl Executor<'_> {
   ) -> RunResult<'src, Command> {
     match self {
       Self::Command(interpreter) => {
-        let mut command = Command::new(&interpreter.command.cooked);
+        let mut command = Command::new(&interpreter.command);
 
         if let Some(working_directory) = working_directory {
           command.current_dir(working_directory);
         }
 
         for arg in &interpreter.arguments {
-          command.arg(&arg.cooked);
+          command.arg(arg);
         }
 
         command.arg(path);
@@ -50,7 +50,7 @@ impl Executor<'_> {
   pub(crate) fn script_filename(&self, recipe: &str, extension: Option<&str>) -> String {
     let extension = extension.unwrap_or_else(|| {
       let interpreter = match self {
-        Self::Command(interpreter) => &interpreter.command.cooked,
+        Self::Command(interpreter) => &interpreter.command,
         Self::Shebang(shebang) => shebang.interpreter_filename(),
       };
 
@@ -67,11 +67,11 @@ impl Executor<'_> {
   pub(crate) fn error<'src>(&self, io_error: io::Error, recipe: &'src str) -> Error<'src> {
     match self {
       Self::Command(Interpreter { command, arguments }) => {
-        let mut command = command.cooked.clone();
+        let mut command = command.clone();
 
         for arg in arguments {
           command.push(' ');
-          command.push_str(&arg.cooked);
+          command.push_str(arg);
         }
 
         Error::Script {
@@ -140,7 +140,7 @@ mod tests {
       );
       assert_eq!(
         Executor::Command(&Interpreter {
-          command: StringLiteral::from_raw(interpreter),
+          command: interpreter.into(),
           arguments: Vec::new()
         })
         .script_filename(recipe, extension),

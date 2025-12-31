@@ -413,10 +413,18 @@ impl<'src, D> Recipe<'src, D> {
       self.attributes.get(AttributeDiscriminant::Script)
     {
       Executor::Command(
-        interpreter
+        &interpreter
           .as_ref()
-          .or(context.module.settings.script_interpreter.as_ref())
-          .unwrap_or_else(|| Interpreter::default_script_interpreter()),
+          .map(|interpreter| Interpreter {
+            command: interpreter.command.cooked.clone(),
+            arguments: interpreter
+              .arguments
+              .iter()
+              .map(|argument| argument.cooked.clone())
+              .collect(),
+          })
+          .or(context.module.settings.script_interpreter.clone())
+          .unwrap_or_else(|| Interpreter::default_script_interpreter().clone()),
       )
     } else {
       let line = evaluated_lines

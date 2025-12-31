@@ -1371,16 +1371,16 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Parse interpreter setting value, i.e., `['sh', '-eu']`
-  fn parse_interpreter(&mut self) -> CompileResult<'src, Interpreter> {
+  fn parse_interpreter(&mut self) -> CompileResult<'src, Interpreter<Expression<'src>>> {
     self.expect(BracketL)?;
 
-    let command = self.parse_string_literal()?;
+    let command = self.parse_expression()?;
 
     let mut arguments = Vec::new();
 
     if self.accepted(Comma)? {
       while !self.next_is(BracketR) {
-        arguments.push(self.parse_string_literal()?);
+        arguments.push(self.parse_expression()?);
 
         if !self.accepted(Comma)? {
           break;

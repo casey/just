@@ -1,22 +1,22 @@
 use super::*;
 
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Serialize)]
-pub(crate) struct Interpreter {
-  pub(crate) arguments: Vec<StringLiteral>,
-  pub(crate) command: StringLiteral,
+pub(crate) struct Interpreter<T = StringLiteral> {
+  pub(crate) arguments: Vec<T>,
+  pub(crate) command: T,
 }
 
 impl Interpreter {
-  pub(crate) fn default_script_interpreter() -> &'static Interpreter {
-    static INSTANCE: LazyLock<Interpreter> = LazyLock::new(|| Interpreter {
-      arguments: vec![StringLiteral::from_raw("-eu")],
-      command: StringLiteral::from_raw("sh"),
+  pub(crate) fn default_script_interpreter() -> &'static Interpreter<String> {
+    static INSTANCE: LazyLock<Interpreter<String>> = LazyLock::new(|| Interpreter::<String> {
+      arguments: vec!["-eu".into()],
+      command: "sh".into(),
     });
     &INSTANCE
   }
 }
 
-impl Display for Interpreter {
+impl<T: Display> Display for Interpreter<T> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(f, "{}", self.command)?;
 

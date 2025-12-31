@@ -15,24 +15,36 @@ pub(crate) enum Setting<'src> {
   NoExitMessage(bool),
   PositionalArguments(bool),
   Quiet(bool),
-  ScriptInterpreter(Interpreter),
-  Shell(Interpreter),
+  ScriptInterpreter(Interpreter<Expression<'src>>),
+  Shell(Interpreter<Expression<'src>>),
   Tempdir(Expression<'src>),
   Unstable(bool),
   WindowsPowerShell(bool),
-  WindowsShell(Interpreter),
+  WindowsShell(Interpreter<Expression<'src>>),
   WorkingDirectory(Expression<'src>),
 }
 
 impl<'src> Setting<'src> {
-  pub(crate) fn expression(&self) -> Option<&Expression<'src>> {
-    match self {
+  pub(crate) fn expressions(&self) -> impl Iterator<Item = &Expression<'src>> {
+    let first = match self {
       Self::DotenvFilename(value)
       | Self::DotenvPath(value)
       | Self::Tempdir(value)
       | Self::WorkingDirectory(value) => Some(value),
+      Self::ScriptInterpreter(value) | Self::Shell(value) | Self::WindowsShell(value) => {
+        Some(&value.command)
+      }
       _ => None,
-    }
+    };
+
+    let rest = match self {
+      Self::ScriptInterpreter(value) | Self::Shell(value) | Self::WindowsShell(value) => {
+        value.arguments.as_slice()
+      }
+      _ => &[],
+    };
+
+    first.into_iter().chain(rest)
   }
 }
 

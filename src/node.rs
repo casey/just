@@ -334,9 +334,9 @@ impl<'src> Node<'src> for Set<'src> {
       Setting::ScriptInterpreter(Interpreter { command, arguments })
       | Setting::Shell(Interpreter { command, arguments })
       | Setting::WindowsShell(Interpreter { command, arguments }) => {
-        set.push_mut(Tree::string(&command.cooked));
+        set.push_mut(command.tree());
         for argument in arguments {
-          set.push_mut(Tree::string(&argument.cooked));
+          set.push_mut(argument.tree());
         }
       }
     }

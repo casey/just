@@ -114,10 +114,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           settings.quiet = value;
         }
         Setting::ScriptInterpreter(value) => {
-          settings.script_interpreter = Some(value);
+          settings.script_interpreter = Some(self.evaluate_intepreter(&value)?);
         }
         Setting::Shell(value) => {
-          settings.shell = Some(value);
+          settings.shell = Some(self.evaluate_intepreter(&value)?);
         }
         Setting::Unstable(value) => {
           settings.unstable = value;
@@ -126,7 +126,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           settings.windows_powershell = value;
         }
         Setting::WindowsShell(value) => {
-          settings.windows_shell = Some(value);
+          settings.windows_shell = Some(self.evaluate_intepreter(&value)?);
         }
         Setting::Tempdir(value) => {
           settings.tempdir = Some(self.evaluate_expression(&value)?);
@@ -138,6 +138,20 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     }
 
     Ok(settings)
+  }
+
+  pub(crate) fn evaluate_intepreter(
+    &mut self,
+    interpreter: &Interpreter<Expression<'src>>,
+  ) -> RunResult<'src, Interpreter<String>> {
+    Ok(Interpreter {
+      command: self.evaluate_expression(&interpreter.command)?,
+      arguments: interpreter
+        .arguments
+        .iter()
+        .map(|argument| self.evaluate_expression(argument))
+        .collect::<RunResult<Vec<String>>>()?,
+    })
   }
 
   pub(crate) fn evaluate_assignments(

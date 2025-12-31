@@ -21,12 +21,12 @@ pub(crate) struct Settings {
   pub(crate) positional_arguments: bool,
   pub(crate) quiet: bool,
   #[serde(skip)]
-  pub(crate) script_interpreter: Option<Interpreter>,
-  pub(crate) shell: Option<Interpreter>,
+  pub(crate) script_interpreter: Option<Interpreter<String>>,
+  pub(crate) shell: Option<Interpreter<String>>,
   pub(crate) tempdir: Option<String>,
   pub(crate) unstable: bool,
   pub(crate) windows_powershell: bool,
-  pub(crate) windows_shell: Option<Interpreter>,
+  pub(crate) windows_shell: Option<Interpreter<String>>,
   pub(crate) working_directory: Option<PathBuf>,
 }
 
@@ -52,23 +52,15 @@ impl Settings {
       (None, None) => {
         if let (true, Some(shell)) = (cfg!(windows), &self.windows_shell) {
           (
-            shell.command.cooked.as_ref(),
-            shell
-              .arguments
-              .iter()
-              .map(|argument| argument.cooked.as_ref())
-              .collect(),
+            shell.command.as_ref(),
+            shell.arguments.iter().map(AsRef::as_ref).collect(),
           )
         } else if cfg!(windows) && self.windows_powershell {
           (WINDOWS_POWERSHELL_SHELL, WINDOWS_POWERSHELL_ARGS.to_vec())
         } else if let Some(shell) = &self.shell {
           (
-            shell.command.cooked.as_ref(),
-            shell
-              .arguments
-              .iter()
-              .map(|argument| argument.cooked.as_ref())
-              .collect(),
+            shell.command.as_ref(),
+            shell.arguments.iter().map(AsRef::as_ref).collect(),
           )
         } else {
           (DEFAULT_SHELL, DEFAULT_SHELL_ARGS.to_vec())
@@ -151,20 +143,8 @@ mod tests {
   fn shell_cooked() {
     let settings = Settings {
       shell: Some(Interpreter {
-        command: StringLiteral {
-          cooked: "asdf.exe".to_string(),
-          expand: false,
-          kind: StringKind::from_token_start("\"").unwrap(),
-          part: None,
-          raw: "asdf.exe".into(),
-        },
-        arguments: vec![StringLiteral {
-          cooked: "-nope".to_string(),
-          expand: false,
-          kind: StringKind::from_token_start("\"").unwrap(),
-          part: None,
-          raw: "-nope".into(),
-        }],
+        command: "asdf.exe".into(),
+        arguments: vec!["-nope".into()],
       }),
       ..Default::default()
     };

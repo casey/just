@@ -143,7 +143,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     AssignmentResolver::resolve_assignments(&assignments)?;
 
     for set in self.sets.values() {
-      if let Some(expression) = set.value.expression() {
+      for expression in set.value.expressions() {
         for variable in expression.variables() {
           let name = variable.lexeme();
           if !assignments.contains_key(name) && !constants().contains_key(name) {
