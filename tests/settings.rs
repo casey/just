@@ -1,6 +1,32 @@
 use super::*;
 
 #[test]
+fn all_settings_allow_expressions() {
+  Test::new()
+    .justfile(
+      "
+        foo := 'hello'
+
+        set dotenv-filename := foo
+        set dotenv-path := foo
+        set script-interpreter := [foo, foo, foo]
+        set shell := [foo, foo, foo]
+        set tempdir := foo
+        set windows-shell := [foo, foo, foo]
+        set working-directory := foo
+      ",
+    )
+    .arg("--summary")
+    .stdout(
+      "
+
+      ",
+    )
+    .stderr("Justfile contains no recipes.\n")
+    .run();
+}
+
+#[test]
 fn undefined_variable() {
   Test::new()
     .justfile(
