@@ -27,7 +27,7 @@ fn all_settings_allow_expressions() {
 }
 
 #[test]
-fn undefined_variable() {
+fn undefined_variable_in_working_directory() {
   Test::new()
     .justfile(
       "
@@ -41,6 +41,195 @@ fn undefined_variable() {
         │
       1 │ set working-directory := foo
         │                          ^^^
+    ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn undefined_variable_in_dotenv_filename() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-filename := foo
+      ",
+    )
+    .stderr(
+      "
+      error: Variable `foo` not defined
+       ——▶ justfile:1:24
+        │
+      1 │ set dotenv-filename := foo
+        │                        ^^^
+    ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn undefined_variable_in_dotenv_path() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-path := foo
+      ",
+    )
+    .stderr(
+      "
+      error: Variable `foo` not defined
+       ——▶ justfile:1:20
+        │
+      1 │ set dotenv-path := foo
+        │                    ^^^
+    ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn undefined_variable_in_tempdir() {
+  Test::new()
+    .justfile(
+      "
+        set tempdir := foo
+      ",
+    )
+    .stderr(
+      "
+      error: Variable `foo` not defined
+       ——▶ justfile:1:16
+        │
+      1 │ set tempdir := foo
+        │                ^^^
+    ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn undefined_variable_in_script_interpreter_command() {
+  Test::new()
+    .justfile(
+      "
+        set script-interpreter := [foo]
+      ",
+    )
+    .stderr(
+      "
+      error: Variable `foo` not defined
+       ——▶ justfile:1:28
+        │
+      1 │ set script-interpreter := [foo]
+        │                            ^^^
+    ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn undefined_variable_in_script_interpreter_argument() {
+  Test::new()
+    .justfile(
+      "
+        set script-interpreter := ['foo', bar]
+      ",
+    )
+    .stderr(
+      "
+      error: Variable `bar` not defined
+       ——▶ justfile:1:35
+        │
+      1 │ set script-interpreter := ['foo', bar]
+        │                                   ^^^
+    ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn undefined_variable_in_shell_command() {
+  Test::new()
+    .justfile(
+      "
+        set shell := [foo]
+      ",
+    )
+    .stderr(
+      "
+      error: Variable `foo` not defined
+       ——▶ justfile:1:15
+        │
+      1 │ set shell := [foo]
+        │               ^^^
+    ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn undefined_variable_in_shell_argument() {
+  Test::new()
+    .justfile(
+      "
+        set shell := ['foo', bar]
+      ",
+    )
+    .stderr(
+      "
+      error: Variable `bar` not defined
+       ——▶ justfile:1:22
+        │
+      1 │ set shell := ['foo', bar]
+        │                      ^^^
+    ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn undefined_variable_in_windows_shell_command() {
+  Test::new()
+    .justfile(
+      "
+        set windows-shell := [foo]
+      ",
+    )
+    .stderr(
+      "
+      error: Variable `foo` not defined
+       ——▶ justfile:1:23
+        │
+      1 │ set windows-shell := [foo]
+        │                       ^^^
+    ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn undefined_variable_in_windows_shell_argument() {
+  Test::new()
+    .justfile(
+      "
+        set windows-shell := ['foo', bar]
+      ",
+    )
+    .stderr(
+      "
+      error: Variable `bar` not defined
+       ——▶ justfile:1:30
+        │
+      1 │ set windows-shell := ['foo', bar]
+        │                              ^^^
     ",
     )
     .status(EXIT_FAILURE)
