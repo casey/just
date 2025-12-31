@@ -2921,36 +2921,13 @@ mod tests {
     width:  1,
     kind:   UnexpectedToken {
       expected: vec![
+        Backtick,
         Identifier,
+        ParenL,
+        Slash,
         StringToken,
       ],
       found: BracketR,
-    },
-  }
-
-  error! {
-    name:   set_shell_non_literal_first,
-    input:  "set shell := ['bar' + 'baz']",
-    offset: 20,
-    line:   0,
-    column: 20,
-    width:  1,
-    kind:   UnexpectedToken {
-      expected: vec![BracketR, Comma],
-      found: Plus,
-    },
-  }
-
-  error! {
-    name:   set_shell_non_literal_second,
-    input:  "set shell := ['biz', 'bar' + 'baz']",
-    offset: 27,
-    line:   0,
-    column: 27,
-    width:  1,
-    kind:   UnexpectedToken {
-      expected: vec![BracketR, Comma],
-      found: Plus,
     },
   }
 
@@ -2963,8 +2940,11 @@ mod tests {
     width:  0,
     kind:   UnexpectedToken {
       expected: vec![
+        Backtick,
         BracketR,
         Identifier,
+        ParenL,
+        Slash,
         StringToken,
       ],
       found: Eof,
@@ -2979,7 +2959,7 @@ mod tests {
     column: 20,
     width:  0,
     kind:   UnexpectedToken {
-      expected: vec![BracketR, Comma],
+      expected: vec![AmpersandAmpersand, BarBar, BracketR, Comma, Plus, Slash],
       found: Eof,
     },
   }
