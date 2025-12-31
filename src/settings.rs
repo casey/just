@@ -30,78 +30,7 @@ pub(crate) struct Settings<'src> {
   pub(crate) working_directory: Option<PathBuf>,
 }
 
-impl<'src> Settings<'src> {
-  pub(crate) fn from_table(sets: Table<'src, Set<'src>>) -> Self {
-    let mut settings = Self::default();
-
-    for (_name, set) in sets {
-      match set.value {
-        Setting::AllowDuplicateRecipes(allow_duplicate_recipes) => {
-          settings.allow_duplicate_recipes = allow_duplicate_recipes;
-        }
-        Setting::AllowDuplicateVariables(allow_duplicate_variables) => {
-          settings.allow_duplicate_variables = allow_duplicate_variables;
-        }
-        Setting::DotenvFilename(filename) => {
-          settings.dotenv_filename = Some(filename.cooked);
-        }
-        Setting::DotenvLoad(dotenv_load) => {
-          settings.dotenv_load = dotenv_load;
-        }
-        Setting::DotenvPath(path) => {
-          settings.dotenv_path = Some(PathBuf::from(path.cooked));
-        }
-        Setting::DotenvOverride(dotenv_overrride) => {
-          settings.dotenv_override = dotenv_overrride;
-        }
-        Setting::DotenvRequired(dotenv_required) => {
-          settings.dotenv_required = dotenv_required;
-        }
-        Setting::Export(export) => {
-          settings.export = export;
-        }
-        Setting::Fallback(fallback) => {
-          settings.fallback = fallback;
-        }
-        Setting::IgnoreComments(ignore_comments) => {
-          settings.ignore_comments = ignore_comments;
-        }
-        Setting::NoExitMessage(no_exit_message) => {
-          settings.no_exit_message = no_exit_message;
-        }
-        Setting::PositionalArguments(positional_arguments) => {
-          settings.positional_arguments = positional_arguments;
-        }
-        Setting::Quiet(quiet) => {
-          settings.quiet = quiet;
-        }
-        Setting::ScriptInterpreter(script_interpreter) => {
-          settings.script_interpreter = Some(script_interpreter);
-        }
-        Setting::Shell(shell) => {
-          settings.shell = Some(shell);
-        }
-        Setting::Unstable(unstable) => {
-          settings.unstable = unstable;
-        }
-        Setting::WindowsPowerShell(windows_powershell) => {
-          settings.windows_powershell = windows_powershell;
-        }
-        Setting::WindowsShell(windows_shell) => {
-          settings.windows_shell = Some(windows_shell);
-        }
-        Setting::Tempdir(tempdir) => {
-          settings.tempdir = Some(tempdir.cooked);
-        }
-        Setting::WorkingDirectory(working_directory) => {
-          settings.working_directory = Some(working_directory.cooked.into());
-        }
-      }
-    }
-
-    settings
-  }
-
+impl Settings<'_> {
   pub(crate) fn shell_command(&self, config: &Config) -> Command {
     let (command, args) = self.shell(config);
 

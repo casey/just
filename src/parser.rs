@@ -267,15 +267,19 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
   }
 
-  fn accepted_keyword(&mut self, keyword: Keyword) -> CompileResult<'src, bool> {
+  fn accept_keyword(&mut self, keyword: Keyword) -> CompileResult<'src, Option<Name<'src>>> {
     let next = self.next()?;
 
     if next.kind == Identifier && next.lexeme() == keyword.lexeme() {
       self.advance()?;
-      Ok(true)
+      Ok(Some(Name::from_identifier(next)))
     } else {
-      Ok(false)
+      Ok(None)
     }
+  }
+
+  fn accepted_keyword(&mut self, keyword: Keyword) -> CompileResult<'src, bool> {
+    Ok(self.accept_keyword(keyword)?.is_some())
   }
 
   /// Accept a dependency
@@ -533,10 +537,10 @@ impl<'run, 'src> Parser<'run, 'src> {
     attributes.ensure_valid_attributes("Assignment", *name, &[AttributeDiscriminant::Private])?;
 
     Ok(Assignment {
-      constant: false,
       export,
       file_depth: self.file_depth,
       name,
+      prelude: false,
       private: private || name.lexeme().starts_with('_'),
       value,
     })
@@ -747,13 +751,17 @@ impl<'run, 'src> Parser<'run, 'src> {
       }
       Ok(Expression::Backtick { contents, token })
     } else if self.next_is(Identifier) {
-      if self.accepted_keyword(Keyword::Assert)? {
+      if let Some(name) = self.accept_keyword(Keyword::Assert)? {
         self.expect(ParenL)?;
         let condition = self.parse_condition()?;
         self.expect(Comma)?;
         let error = Box::new(self.parse_expression()?);
         self.expect(ParenR)?;
-        Ok(Expression::Assert { condition, error })
+        Ok(Expression::Assert {
+          condition,
+          error,
+          name,
+        })
       } else {
         let name = self.parse_name()?;
 
@@ -1351,7 +1359,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       Keyword::Shell => Some(Setting::Shell(self.parse_interpreter()?)),
       Keyword::Tempdir => Some(Setting::Tempdir(self.parse_string_literal()?)),
       Keyword::WindowsShell => Some(Setting::WindowsShell(self.parse_interpreter()?)),
-      Keyword::WorkingDirectory => Some(Setting::WorkingDirectory(self.parse_string_literal()?)),
+      Keyword::WorkingDirectory => Some(Setting::WorkingDirectory(self.parse_expression()?)),
       _ => None,
     };
 

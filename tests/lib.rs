@@ -117,6 +117,7 @@ mod scope;
 mod script;
 mod search;
 mod search_arguments;
+mod settings;
 mod shadowing_parameters;
 mod shebang;
 mod shell;

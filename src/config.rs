@@ -10,7 +10,7 @@ use {
   },
 };
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Default, PartialEq)]
 pub(crate) struct Config {
   pub(crate) alias_style: AliasStyle,
   pub(crate) allow_missing: bool,
