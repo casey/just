@@ -1058,9 +1058,8 @@ Non-boolean settings can be set to both strings and
 expressions.<sup>master</sup>
 
 However, because settings affect the behavior of backticks and many functions,
-those expressions may not contain backticks, function calls, or references to
-variable assignments which themselves, directly or transitively, contain
-backticks or function calls.
+those expressions may not contain backticks or function calls, directly or
+transitively via reference.
 
 #### Allow Duplicate Recipes
 
