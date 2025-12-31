@@ -1,16 +1,16 @@
 use super::*;
 
 #[derive(PartialEq, Debug, Clone, Ord, Eq, PartialOrd)]
-pub(crate) struct StringLiteral<'src> {
+pub(crate) struct StringLiteral {
   pub(crate) cooked: String,
   pub(crate) expand: bool,
   pub(crate) kind: StringKind,
   pub(crate) part: Option<FormatStringPart>,
-  pub(crate) raw: &'src str,
+  pub(crate) raw: String,
 }
 
-impl<'src> StringLiteral<'src> {
-  pub(crate) fn from_raw(raw: &'src str) -> Self {
+impl StringLiteral {
+  pub(crate) fn from_raw(raw: &str) -> Self {
     Self {
       cooked: raw.into(),
       expand: false,
@@ -19,12 +19,12 @@ impl<'src> StringLiteral<'src> {
         indented: false,
       },
       part: None,
-      raw,
+      raw: raw.into(),
     }
   }
 }
 
-impl Display for StringLiteral<'_> {
+impl Display for StringLiteral {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     if self.expand {
       write!(f, "x")?;
@@ -56,7 +56,7 @@ impl Display for StringLiteral<'_> {
   }
 }
 
-impl Serialize for StringLiteral<'_> {
+impl Serialize for StringLiteral {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
   where
     S: Serializer,

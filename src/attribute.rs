@@ -11,31 +11,31 @@ use super::*;
 #[strum_discriminants(strum(serialize_all = "kebab-case"))]
 pub(crate) enum Attribute<'src> {
   Arg {
-    help: Option<StringLiteral<'src>>,
-    long: Option<StringLiteral<'src>>,
+    help: Option<StringLiteral>,
+    long: Option<StringLiteral>,
     #[serde(skip)]
     long_token: Option<Token<'src>>,
-    name: StringLiteral<'src>,
+    name: StringLiteral,
     #[serde(skip)]
     name_token: Token<'src>,
     #[serde(skip)]
     pattern: Option<Pattern>,
     #[serde(rename = "pattern")]
-    pattern_literal: Option<StringLiteral<'src>>,
-    short: Option<StringLiteral<'src>>,
+    pattern_literal: Option<StringLiteral>,
+    short: Option<StringLiteral>,
     #[serde(skip)]
     short_token: Option<Token<'src>>,
-    value: Option<StringLiteral<'src>>,
+    value: Option<StringLiteral>,
   },
-  Confirm(Option<StringLiteral<'src>>),
+  Confirm(Option<StringLiteral>),
   Default,
-  Doc(Option<StringLiteral<'src>>),
+  Doc(Option<StringLiteral>),
   ExitMessage,
-  Extension(StringLiteral<'src>),
-  Group(StringLiteral<'src>),
+  Extension(StringLiteral),
+  Group(StringLiteral),
   Linux,
   Macos,
-  Metadata(Vec<StringLiteral<'src>>),
+  Metadata(Vec<StringLiteral>),
   NoCd,
   NoExitMessage,
   NoQuiet,
@@ -43,10 +43,10 @@ pub(crate) enum Attribute<'src> {
   Parallel,
   PositionalArguments,
   Private,
-  Script(Option<Interpreter<'src>>),
+  Script(Option<Interpreter>),
   Unix,
   Windows,
-  WorkingDirectory(StringLiteral<'src>),
+  WorkingDirectory(StringLiteral),
 }
 
 impl AttributeDiscriminant {
@@ -76,8 +76,8 @@ impl AttributeDiscriminant {
 impl<'src> Attribute<'src> {
   pub(crate) fn new(
     name: Name<'src>,
-    arguments: Vec<(Token<'src>, StringLiteral<'src>)>,
-    mut keyword_arguments: BTreeMap<&'src str, (Name<'src>, Token<'src>, StringLiteral<'src>)>,
+    arguments: Vec<(Token<'src>, StringLiteral)>,
+    mut keyword_arguments: BTreeMap<&'src str, (Name<'src>, Token<'src>, StringLiteral)>,
   ) -> CompileResult<'src, Self> {
     let discriminant = name
       .lexeme()

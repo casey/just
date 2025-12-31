@@ -1,7 +1,7 @@
 use super::*;
 
 pub(crate) enum Executor<'a> {
-  Command(&'a Interpreter<'a>),
+  Command(&'a Interpreter),
   Shebang(Shebang<'a>),
 }
 

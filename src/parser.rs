@@ -790,9 +790,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Parse a string literal, e.g. `"FOO"`, returning the string literal and the string token
-  fn parse_string_literal_token(
-    &mut self,
-  ) -> CompileResult<'src, (Token<'src>, StringLiteral<'src>)> {
+  fn parse_string_literal_token(&mut self) -> CompileResult<'src, (Token<'src>, StringLiteral)> {
     self.parse_string_literal_token_in_state(StringState::Normal)
   }
 
@@ -800,7 +798,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_string_literal_token_in_state(
     &mut self,
     state: StringState,
-  ) -> CompileResult<'src, (Token<'src>, StringLiteral<'src>)> {
+  ) -> CompileResult<'src, (Token<'src>, StringLiteral)> {
     let expand = if self.next_is(Identifier) {
       self.expect_keyword(Keyword::X)?;
       true
@@ -884,7 +882,7 @@ impl<'run, 'src> Parser<'run, 'src> {
             }));
           }
         },
-        raw,
+        raw: raw.into(),
       },
     ))
   }
@@ -972,7 +970,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Parse a string literal, e.g. `"FOO"`
-  fn parse_string_literal(&mut self) -> CompileResult<'src, StringLiteral<'src>> {
+  fn parse_string_literal(&mut self) -> CompileResult<'src, StringLiteral> {
     let (_token, string_literal) = self.parse_string_literal_token()?;
     Ok(string_literal)
   }
@@ -981,7 +979,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_string_literal_in_state(
     &mut self,
     string_state: StringState,
-  ) -> CompileResult<'src, StringLiteral<'src>> {
+  ) -> CompileResult<'src, StringLiteral> {
     let (_token, string_literal) = self.parse_string_literal_token_in_state(string_state)?;
     Ok(string_literal)
   }
@@ -1373,7 +1371,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Parse interpreter setting value, i.e., `['sh', '-eu']`
-  fn parse_interpreter(&mut self) -> CompileResult<'src, Interpreter<'src>> {
+  fn parse_interpreter(&mut self) -> CompileResult<'src, Interpreter> {
     self.expect(BracketL)?;
 
     let command = self.parse_string_literal()?;
