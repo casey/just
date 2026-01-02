@@ -77,6 +77,7 @@ pub(crate) fn analysis_error(
     &[],
     None,
     &paths,
+    false,
     &root,
   ) {
     Ok(_) => panic!("Analysis unexpectedly succeeded"),

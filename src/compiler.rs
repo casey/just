@@ -101,7 +101,7 @@ impl Compiler {
       asts.insert(current.path, ast.clone());
     }
 
-    let justfile = Analyzer::analyze(&asts, config, None, &[], &loaded, None, &paths, root)?;
+    let justfile = Analyzer::analyze(&asts, config, None, &[], &loaded, None, &paths, false, root)?;
 
     Ok(Compilation {
       asts,
@@ -234,6 +234,7 @@ impl Compiler {
       &[],
       None,
       &paths,
+      false,
       &root,
     )
   }
