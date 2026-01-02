@@ -445,7 +445,6 @@ impl Subcommand {
       module = module
         .modules
         .get(name)
-        .filter(|m| !m.private)
         .ok_or_else(|| Error::UnknownSubmodule {
           path: path.to_string(),
         })?;
