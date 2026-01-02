@@ -211,6 +211,32 @@ fn duplicate_long_option_with_defaulted_long_attribute_is_forbidden() {
 }
 
 #[test]
+fn duplicate_long_option_with_explicit_long_then_defaulted_long_is_forbidden() {
+  Test::new()
+    .justfile(
+      "
+        [arg(
+          'aaa',
+          long='bar'
+        )]
+        [arg(      'bar', long)]
+        foo aaa bar:
+      ",
+    )
+    .stderr(
+      "
+        error: Recipe `foo` defines option `--bar` multiple times
+         ——▶ justfile:5:12
+          │
+        5 │ [arg(      'bar', long)]
+          │            ^^^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
 fn duplicate_short_option_attributes_are_forbidden() {
   Test::new()
     .justfile(
