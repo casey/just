@@ -85,6 +85,21 @@ fn parameters_may_be_passed_with_long_options() {
 }
 
 #[test]
+fn long_option_defaults_to_argument_name() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long)]
+        @foo bar:
+          echo bar={{bar}}
+      ",
+    )
+    .args(["foo", "--bar", "baz"])
+    .stdout("bar=baz\n")
+    .run();
+}
+
+#[test]
 fn parameters_may_be_passed_with_short_options() {
   Test::new()
     .justfile(

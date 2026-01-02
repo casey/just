@@ -1385,13 +1385,17 @@ impl<'run, 'src> Parser<'run, 'src> {
         } else if self.accepted(ParenL)? {
           loop {
             if self.next_is(Identifier) && !self.next_is_shell_expanded_string() {
-              let name = self.parse_name()?;
+              let keyword = self.parse_name()?;
 
-              self.expect(Equals)?;
+              if self.accepted(Equals)? {
+                let value = self.parse_string_literal()?;
 
-              let value = self.parse_string_literal()?;
-
-              keyword_arguments.insert(name.lexeme(), (name, value));
+                keyword_arguments.insert(keyword.lexeme(), (keyword, Some(value)));
+              } else if name.lexeme() == "arg" && keyword.lexeme() == "long" {
+                keyword_arguments.insert(keyword.lexeme(), (keyword, None));
+              } else {
+                return Err(self.unexpected_token()?);
+              }
             } else {
               let literal = self.parse_string_literal()?;
 

@@ -91,7 +91,7 @@ impl<'src> Attribute<'src> {
   pub(crate) fn new(
     name: Name<'src>,
     arguments: Vec<StringLiteral<'src>>,
-    mut keyword_arguments: BTreeMap<&'src str, (Name<'src>, StringLiteral<'src>)>,
+    mut keyword_arguments: BTreeMap<&'src str, (Name<'src>, Option<StringLiteral<'src>>)>,
   ) -> CompileResult<'src, Self> {
     let discriminant = name
       .lexeme()
@@ -122,6 +122,7 @@ impl<'src> Attribute<'src> {
         let long = keyword_arguments
           .remove("long")
           .map(|(_name, literal)| {
+            let literal = literal.unwrap_or_else(|| name.clone());
             Self::check_option_name(&name, &literal)?;
             Ok(literal)
           })
@@ -130,6 +131,11 @@ impl<'src> Attribute<'src> {
         let short = keyword_arguments
           .remove("short")
           .map(|(_name, literal)| {
+            let literal = literal.ok_or_else(|| {
+              _name.error(CompileErrorKind::Internal {
+                message: "short option missing value".into(),
+              })
+            })?;
             Self::check_option_name(&name, &literal)?;
 
             if literal.cooked.chars().count() != 1 {
@@ -146,12 +152,24 @@ impl<'src> Attribute<'src> {
 
         let pattern = keyword_arguments
           .remove("pattern")
-          .map(|(_name, literal)| Pattern::new(&literal))
+          .map(|(keyword, literal)| {
+            let literal = literal.ok_or_else(|| {
+              keyword.error(CompileErrorKind::Internal {
+                message: "pattern missing value".into(),
+              })
+            })?;
+            Pattern::new(&literal)
+          })
           .transpose()?;
 
         let value = keyword_arguments
           .remove("value")
           .map(|(name, literal)| {
+            let literal = literal.ok_or_else(|| {
+              name.error(CompileErrorKind::Internal {
+                message: "value missing for arg attribute".into(),
+              })
+            })?;
             if long.is_none() && short.is_none() {
               return Err(name.error(CompileErrorKind::ArgAttributeValueRequiresOption));
             }
@@ -161,7 +179,14 @@ impl<'src> Attribute<'src> {
 
         let help = keyword_arguments
           .remove("help")
-          .map(|(_name, literal)| literal);
+          .map(|(keyword, literal)| {
+            literal.ok_or_else(|| {
+              keyword.error(CompileErrorKind::Internal {
+                message: "help missing value".into(),
+              })
+            })
+          })
+          .transpose()?;
 
         Self::Arg {
           help,
