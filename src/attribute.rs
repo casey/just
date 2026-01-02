@@ -14,7 +14,7 @@ pub(crate) enum Attribute<'src> {
     help: Option<StringLiteral<'src>>,
     long: Option<StringLiteral<'src>>,
     #[serde(skip)]
-    long_err: Option<Token<'src>>,
+    long_key: Option<Token<'src>>,
     name: StringLiteral<'src>,
     pattern: Option<Pattern<'src>>,
     short: Option<StringLiteral<'src>>,
@@ -136,7 +136,7 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::Arg => {
         let arg = arguments.into_iter().next().unwrap();
 
-        let (long, long_err) = keyword_arguments
+        let (long, long_key) = keyword_arguments
           .remove("long")
           .map(|(name, literal)| {
             if let Some(literal) = literal {
@@ -184,7 +184,7 @@ impl<'src> Attribute<'src> {
         Self::Arg {
           help,
           long,
-          long_err,
+          long_key,
           name: arg,
           pattern,
           short,
@@ -257,7 +257,7 @@ impl Display for Attribute<'_> {
       Self::Arg {
         help,
         long,
-        long_err: _,
+        long_key: _,
         name,
         pattern,
         short,
