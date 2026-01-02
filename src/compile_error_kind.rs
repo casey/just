@@ -13,7 +13,6 @@ pub(crate) enum CompileErrorKind<'src> {
     max: usize,
   },
   AttributeKeyMissingValue {
-    attribute: Name<'src>,
     key: Name<'src>,
   },
   AttributePositionalFollowsKeyword,

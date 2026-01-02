@@ -134,7 +134,7 @@ impl<'src> Attribute<'src> {
           .transpose()?
           .unwrap_or((None, None));
 
-        let short = Self::remove_required(&mut keyword_arguments, name, "short")?
+        let short = Self::remove_required(&mut keyword_arguments, "short")?
           .map(|(_key, literal)| {
             Self::check_option_name(&arg, &literal)?;
 
@@ -150,11 +150,11 @@ impl<'src> Attribute<'src> {
           })
           .transpose()?;
 
-        let pattern = Self::remove_required(&mut keyword_arguments, name, "pattern")?
+        let pattern = Self::remove_required(&mut keyword_arguments, "pattern")?
           .map(|(_key, literal)| Pattern::new(&literal))
           .transpose()?;
 
-        let value = Self::remove_required(&mut keyword_arguments, name, "value")?
+        let value = Self::remove_required(&mut keyword_arguments, "value")?
           .map(|(key, literal)| {
             if long.is_none() && short.is_none() {
               return Err(key.error(CompileErrorKind::ArgAttributeValueRequiresOption));
@@ -163,8 +163,8 @@ impl<'src> Attribute<'src> {
           })
           .transpose()?;
 
-        let help = Self::remove_required(&mut keyword_arguments, name, "help")?
-          .map(|(_key, literal)| literal);
+        let help =
+          Self::remove_required(&mut keyword_arguments, "help")?.map(|(_key, literal)| literal);
 
         Self::Arg {
           help,
@@ -220,15 +220,14 @@ impl<'src> Attribute<'src> {
 
   fn remove_required(
     keyword_arguments: &mut BTreeMap<&'src str, (Name<'src>, Option<StringLiteral<'src>>)>,
-    attribute: Name<'src>,
     key: &'src str,
   ) -> CompileResult<'src, Option<(Name<'src>, StringLiteral<'src>)>> {
     let Some((key, literal)) = keyword_arguments.remove(key) else {
       return Ok(None);
     };
 
-    let literal = literal
-      .ok_or_else(|| key.error(CompileErrorKind::AttributeKeyMissingValue { attribute, key }))?;
+    let literal =
+      literal.ok_or_else(|| key.error(CompileErrorKind::AttributeKeyMissingValue { key }))?;
 
     Ok(Some((key, literal)))
   }
