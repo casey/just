@@ -204,3 +204,14 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_branch: gh-pages
         publish_dir: www
+
+  container:
+    uses: ./.github/workflows/container.yaml
+    needs:
+      - package
+      - prerelease
+    # Avoid publishing images for pre-releases (NOTE: `value` is a string, not a boolean)
+    if: ${{ needs.prerelease.outputs.value == 'false' }}
+    with:
+      version: ${{ github.ref_name }}
+    secrets: inherit
