@@ -9,7 +9,7 @@ pub(crate) enum Error<'src> {
   ArgumentPatternMismatch {
     argument: String,
     parameter: &'src str,
-    pattern: Pattern,
+    pattern: Box<Pattern<'src>>,
     recipe: &'src str,
   },
   Assert {
@@ -363,7 +363,8 @@ impl ColorDisplay for Error<'_> {
       } => {
         write!(
           f,
-          "Argument `{argument}` passed to recipe `{recipe}` parameter `{parameter}` does not match pattern '{pattern}'",
+          "Argument `{argument}` passed to recipe `{recipe}` parameter `{parameter}` does not match pattern '{}'",
+          pattern.original(),
         )?;
       }
       Assert { message, .. } => {

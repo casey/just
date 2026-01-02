@@ -11,31 +11,22 @@ use super::*;
 #[strum_discriminants(strum(serialize_all = "kebab-case"))]
 pub(crate) enum Attribute<'src> {
   Arg {
-    help: Option<StringLiteral>,
-    long: Option<StringLiteral>,
-    #[serde(skip)]
-    long_token: Option<Token<'src>>,
-    name: StringLiteral,
-    #[serde(skip)]
-    name_token: Token<'src>,
-    #[serde(skip)]
-    pattern: Option<Pattern>,
-    #[serde(rename = "pattern")]
-    pattern_literal: Option<StringLiteral>,
-    short: Option<StringLiteral>,
-    #[serde(skip)]
-    short_token: Option<Token<'src>>,
-    value: Option<StringLiteral>,
+    help: Option<StringLiteral<'src>>,
+    long: Option<StringLiteral<'src>>,
+    name: StringLiteral<'src>,
+    pattern: Option<Pattern<'src>>,
+    short: Option<StringLiteral<'src>>,
+    value: Option<StringLiteral<'src>>,
   },
-  Confirm(Option<StringLiteral>),
+  Confirm(Option<StringLiteral<'src>>),
   Default,
-  Doc(Option<StringLiteral>),
+  Doc(Option<StringLiteral<'src>>),
   ExitMessage,
-  Extension(StringLiteral),
-  Group(StringLiteral),
+  Extension(StringLiteral<'src>),
+  Group(StringLiteral<'src>),
   Linux,
   Macos,
-  Metadata(Vec<StringLiteral>),
+  Metadata(Vec<StringLiteral<'src>>),
   NoCd,
   NoExitMessage,
   NoQuiet,
@@ -43,10 +34,10 @@ pub(crate) enum Attribute<'src> {
   Parallel,
   PositionalArguments,
   Private,
-  Script(Option<Interpreter<StringLiteral>>),
+  Script(Option<Interpreter<StringLiteral<'src>>>),
   Unix,
   Windows,
-  WorkingDirectory(StringLiteral),
+  WorkingDirectory(StringLiteral<'src>),
 }
 
 impl AttributeDiscriminant {
@@ -74,16 +65,38 @@ impl AttributeDiscriminant {
 }
 
 impl<'src> Attribute<'src> {
+  fn check_option_name(
+    parameter: &StringLiteral<'src>,
+    literal: &StringLiteral<'src>,
+  ) -> CompileResult<'src> {
+    if literal.cooked.contains('=') {
+      return Err(
+        literal
+          .token
+          .error(CompileErrorKind::OptionNameContainsEqualSign {
+            parameter: parameter.cooked.clone(),
+          }),
+      );
+    }
+
+    if literal.cooked.is_empty() {
+      return Err(literal.token.error(CompileErrorKind::OptionNameEmpty {
+        parameter: parameter.cooked.clone(),
+      }));
+    }
+
+    Ok(())
+  }
+
   pub(crate) fn new(
     name: Name<'src>,
-    arguments: Vec<(Token<'src>, StringLiteral)>,
-    mut keyword_arguments: BTreeMap<&'src str, (Name<'src>, Token<'src>, StringLiteral)>,
+    arguments: Vec<StringLiteral<'src>>,
+    mut keyword_arguments: BTreeMap<&'src str, (Name<'src>, StringLiteral<'src>)>,
   ) -> CompileResult<'src, Self> {
     let discriminant = name
       .lexeme()
       .parse::<AttributeDiscriminant>()
-      .ok()
-      .ok_or_else(|| {
+      .map_err(|_| {
         name.error(CompileErrorKind::UnknownAttribute {
           attribute: name.lexeme(),
         })
@@ -94,7 +107,7 @@ impl<'src> Attribute<'src> {
     if !range.contains(&found) {
       return Err(
         name.error(CompileErrorKind::AttributeArgumentCountMismatch {
-          attribute: name.lexeme(),
+          attribute: name,
           found,
           min: *range.start(),
           max: *range.end(),
@@ -102,91 +115,60 @@ impl<'src> Attribute<'src> {
       );
     }
 
-    let (tokens, arguments): (Vec<Token>, Vec<StringLiteral>) = arguments.into_iter().unzip();
-
     let attribute = match discriminant {
       AttributeDiscriminant::Arg => {
         let name = arguments.into_iter().next().unwrap();
-        let name_token = tokens.into_iter().next().unwrap();
 
-        let (long_token, long) =
-          if let Some((_name, token, literal)) = keyword_arguments.remove("long") {
-            if literal.cooked.contains('=') {
-              return Err(token.error(CompileErrorKind::OptionNameContainsEqualSign {
-                parameter: name.cooked,
-              }));
-            }
+        let long = keyword_arguments
+          .remove("long")
+          .map(|(_name, literal)| {
+            Self::check_option_name(&name, &literal)?;
+            Ok(literal)
+          })
+          .transpose()?;
 
-            if literal.cooked.is_empty() {
-              return Err(token.error(CompileErrorKind::OptionNameEmpty {
-                parameter: name.cooked,
-              }));
-            }
-
-            (Some(token), Some(literal))
-          } else {
-            (None, None)
-          };
-
-        let (short_token, short) =
-          if let Some((_name, token, literal)) = keyword_arguments.remove("short") {
-            if literal.cooked.contains('=') {
-              return Err(token.error(CompileErrorKind::OptionNameContainsEqualSign {
-                parameter: name.cooked,
-              }));
-            }
-
-            if literal.cooked.is_empty() {
-              return Err(token.error(CompileErrorKind::OptionNameEmpty {
-                parameter: name.cooked,
-              }));
-            }
+        let short = keyword_arguments
+          .remove("short")
+          .map(|(_name, literal)| {
+            Self::check_option_name(&name, &literal)?;
 
             if literal.cooked.chars().count() != 1 {
-              return Err(
-                token.error(CompileErrorKind::ShortOptionWithMultipleCharacters {
-                  parameter: name.cooked,
-                }),
-              );
+              return Err(literal.token.error(
+                CompileErrorKind::ShortOptionWithMultipleCharacters {
+                  parameter: name.cooked.clone(),
+                },
+              ));
             }
 
-            (Some(token), Some(literal))
-          } else {
-            (None, None)
-          };
-
-        let (pattern_literal, pattern) = keyword_arguments
-          .remove("pattern")
-          .map(|(_name, token, literal)| {
-            let pattern = Pattern::new(token, &literal)?;
-            Ok((Some(literal), Some(pattern)))
+            Ok(literal)
           })
-          .transpose()?
-          .unwrap_or((None, None));
+          .transpose()?;
 
-        let value = if let Some((name, _token, literal)) = keyword_arguments.remove("value") {
-          if long.is_none() && short.is_none() {
-            return Err(name.error(CompileErrorKind::ArgAttributeValueRequiresOption));
-          }
-          Some(literal)
-        } else {
-          None
-        };
+        let pattern = keyword_arguments
+          .remove("pattern")
+          .map(|(_name, literal)| Pattern::new(&literal))
+          .transpose()?;
+
+        let value = keyword_arguments
+          .remove("value")
+          .map(|(name, literal)| {
+            if long.is_none() && short.is_none() {
+              return Err(name.error(CompileErrorKind::ArgAttributeValueRequiresOption));
+            }
+            Ok(literal)
+          })
+          .transpose()?;
 
         let help = keyword_arguments
           .remove("help")
-          .map(|(_name, _token, literal)| literal);
+          .map(|(_name, literal)| literal);
 
         Self::Arg {
           help,
           long,
-          long_token,
           name,
-          name_token,
           pattern,
-          pattern_literal,
           short,
-          short_token,
           value,
         }
       }
@@ -220,7 +202,7 @@ impl<'src> Attribute<'src> {
       }
     };
 
-    if let Some((_name, (keyword_name, _token, _literal))) = keyword_arguments.into_iter().next() {
+    if let Some((_name, (keyword_name, _literal))) = keyword_arguments.into_iter().next() {
       return Err(
         keyword_name.error(CompileErrorKind::UnknownAttributeKeyword {
           attribute: name.lexeme(),
@@ -256,13 +238,9 @@ impl Display for Attribute<'_> {
       Self::Arg {
         help,
         long,
-        long_token: _,
         name,
-        name_token: _,
-        pattern: _,
-        pattern_literal,
+        pattern,
         short,
-        short_token: _,
         value,
       } => {
         write!(f, "({name}")?;
@@ -275,8 +253,8 @@ impl Display for Attribute<'_> {
           write!(f, ", short={short}")?;
         }
 
-        if let Some(pattern) = pattern_literal {
-          write!(f, ", pattern={pattern}")?;
+        if let Some(pattern) = pattern {
+          write!(f, ", pattern={}", pattern.token.lexeme())?;
         }
 
         if let Some(value) = value {

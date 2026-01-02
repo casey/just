@@ -1,15 +1,15 @@
 use super::*;
 
 #[derive(PartialEq, Debug, Clone, Ord, Eq, PartialOrd)]
-pub(crate) struct StringLiteral {
+pub(crate) struct StringLiteral<'src> {
   pub(crate) cooked: String,
   pub(crate) expand: bool,
   pub(crate) kind: StringKind,
   pub(crate) part: Option<FormatStringPart>,
-  pub(crate) raw: String,
+  pub(crate) token: Token<'src>,
 }
 
-impl Display for StringLiteral {
+impl Display for StringLiteral<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     if self.expand {
       write!(f, "x")?;
@@ -19,29 +19,11 @@ impl Display for StringLiteral {
       write!(f, "f")?;
     }
 
-    let open = if matches!(
-      self.part,
-      Some(FormatStringPart::Continue | FormatStringPart::End)
-    ) {
-      Lexer::INTERPOLATION_END
-    } else {
-      self.kind.delimiter()
-    };
-
-    let close = if matches!(
-      self.part,
-      Some(FormatStringPart::Start | FormatStringPart::Continue)
-    ) {
-      Lexer::INTERPOLATION_START
-    } else {
-      self.kind.delimiter()
-    };
-
-    write!(f, "{open}{}{close}", self.raw)
+    write!(f, "{}", self.token.lexeme())
   }
 }
 
-impl Serialize for StringLiteral {
+impl Serialize for StringLiteral<'_> {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
   where
     S: Serializer,

@@ -378,11 +378,10 @@ impl<'run, 'src> Parser<'run, 'src> {
           {
             self.presume_keyword(Keyword::Import)?;
             let optional = self.accepted(QuestionMark)?;
-            let (path, relative) = self.parse_string_literal_token()?;
+            let relative = self.parse_string_literal()?;
             items.push(Item::Import {
               absolute: None,
               optional,
-              path,
               relative,
             });
           }
@@ -668,11 +667,11 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_format_string(&mut self) -> CompileResult<'src, Expression<'src>> {
     self.expect_keyword(Keyword::F)?;
 
-    let (token, start) = self.parse_string_literal_token_in_state(StringState::FormatStart)?;
+    let start = self.parse_string_literal_in_state(StringState::FormatStart)?;
 
-    let kind = StringKind::from_string_or_backtick(token)?;
+    let kind = StringKind::from_string_or_backtick(start.token)?;
 
-    let mut more = token.kind == FormatStringStart;
+    let mut more = start.token.kind == FormatStringStart;
 
     let mut expressions = Vec::new();
 
@@ -789,16 +788,16 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
   }
 
-  /// Parse a string literal, e.g. `"FOO"`, returning the string literal and the string token
-  fn parse_string_literal_token(&mut self) -> CompileResult<'src, (Token<'src>, StringLiteral)> {
-    self.parse_string_literal_token_in_state(StringState::Normal)
+  /// Parse a string literal, e.g. `"FOO"`
+  fn parse_string_literal(&mut self) -> CompileResult<'src, StringLiteral<'src>> {
+    self.parse_string_literal_in_state(StringState::Normal)
   }
 
-  /// Parse a string literal, e.g. `"FOO"`, returning the string literal and the string token
-  fn parse_string_literal_token_in_state(
+  /// Parse a string literal, e.g. `"FOO"`
+  fn parse_string_literal_in_state(
     &mut self,
     state: StringState,
-  ) -> CompileResult<'src, (Token<'src>, StringLiteral)> {
+  ) -> CompileResult<'src, StringLiteral<'src>> {
     let expand = if self.next_is(Identifier) {
       self.expect_keyword(Keyword::X)?;
       true
@@ -859,32 +858,29 @@ impl<'run, 'src> Parser<'run, 'src> {
       cooked
     };
 
-    Ok((
+    Ok(StringLiteral {
       token,
-      StringLiteral {
-        cooked,
-        expand,
-        kind,
-        part: match token.kind {
-          FormatStringStart => Some(FormatStringPart::Start),
-          FormatStringContinue => Some(FormatStringPart::Continue),
-          FormatStringEnd => Some(FormatStringPart::End),
-          StringToken => {
-            if matches!(state, StringState::Normal) {
-              None
-            } else {
-              Some(FormatStringPart::Single)
-            }
+      cooked,
+      expand,
+      kind,
+      part: match token.kind {
+        FormatStringStart => Some(FormatStringPart::Start),
+        FormatStringContinue => Some(FormatStringPart::Continue),
+        FormatStringEnd => Some(FormatStringPart::End),
+        StringToken => {
+          if matches!(state, StringState::Normal) {
+            None
+          } else {
+            Some(FormatStringPart::Single)
           }
-          _ => {
-            return Err(token.error(CompileErrorKind::Internal {
-              message: "unexpected token kind while parsing string literal".into(),
-            }));
-          }
-        },
-        raw: raw.into(),
+        }
+        _ => {
+          return Err(token.error(CompileErrorKind::Internal {
+            message: "unexpected token kind while parsing string literal".into(),
+          }));
+        }
       },
-    ))
+    })
   }
 
   // Transform escape sequences in from string literal `token` with content `text`
@@ -969,21 +965,6 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok(cooked)
   }
 
-  /// Parse a string literal, e.g. `"FOO"`
-  fn parse_string_literal(&mut self) -> CompileResult<'src, StringLiteral> {
-    let (_token, string_literal) = self.parse_string_literal_token()?;
-    Ok(string_literal)
-  }
-
-  // /// Parse a format string literal, e.g. `"foo{"`, `}bar{`, or `}baz"`
-  fn parse_string_literal_in_state(
-    &mut self,
-    string_state: StringState,
-  ) -> CompileResult<'src, StringLiteral> {
-    let (_token, string_literal) = self.parse_string_literal_token_in_state(string_state)?;
-    Ok(string_literal)
-  }
-
   /// Parse a name from an identifier token
   fn parse_name(&mut self) -> CompileResult<'src, Name<'src>> {
     self.expect(Identifier).map(Name::from_identifier)
@@ -1041,12 +1022,9 @@ impl<'run, 'src> Parser<'run, 'src> {
       let Attribute::Arg {
         help,
         long,
-        long_token,
         name: arg,
-        name_token,
         pattern,
         short,
-        short_token,
         value,
         ..
       } = attribute
@@ -1056,27 +1034,19 @@ impl<'run, 'src> Parser<'run, 'src> {
 
       if let Some(option) = long {
         if !longs.insert(&option.cooked) {
-          return Err(
-            long_token
-              .unwrap()
-              .error(CompileErrorKind::DuplicateOption {
-                option: Switch::Long(option.cooked.clone()),
-                recipe: name.lexeme(),
-              }),
-          );
+          return Err(option.token.error(CompileErrorKind::DuplicateOption {
+            option: Switch::Long(option.cooked.clone()),
+            recipe: name.lexeme(),
+          }));
         }
       }
 
       if let Some(option) = short {
         if !shorts.insert(&option.cooked) {
-          return Err(
-            short_token
-              .unwrap()
-              .error(CompileErrorKind::DuplicateOption {
-                option: Switch::Short(option.cooked.chars().next().unwrap()),
-                recipe: name.lexeme(),
-              }),
-          );
+          return Err(option.token.error(CompileErrorKind::DuplicateOption {
+            option: Switch::Short(option.cooked.chars().next().unwrap()),
+            recipe: name.lexeme(),
+          }));
         }
       }
 
@@ -1084,7 +1054,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         arg.cooked.clone(),
         ArgAttribute {
           help: help.as_ref().map(|literal| literal.cooked.clone()),
-          name: *name_token,
+          name: arg.token,
           pattern: pattern.clone(),
           long: long.as_ref().map(|long| long.cooked.clone()),
           short: short
@@ -1207,7 +1177,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// Parse a recipe parameter
   fn parse_parameter(
     &mut self,
-    arg_attributes: &mut BTreeMap<String, ArgAttribute>,
+    arg_attributes: &mut BTreeMap<String, ArgAttribute<'src>>,
     kind: ParameterKind,
   ) -> CompileResult<'src, Parameter<'src>> {
     let export = self.accepted(Dollar)?;
@@ -1411,7 +1381,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         let mut keyword_arguments = BTreeMap::new();
 
         if self.accepted(Colon)? {
-          arguments.push(self.parse_string_literal_token()?);
+          arguments.push(self.parse_string_literal()?);
         } else if self.accepted(ParenL)? {
           loop {
             if self.next_is(Identifier) && !self.next_is_shell_expanded_string() {
@@ -1419,17 +1389,21 @@ impl<'run, 'src> Parser<'run, 'src> {
 
               self.expect(Equals)?;
 
-              let (token, value) = self.parse_string_literal_token()?;
+              let value = self.parse_string_literal()?;
 
-              keyword_arguments.insert(name.lexeme(), (name, token, value));
+              keyword_arguments.insert(name.lexeme(), (name, value));
             } else {
-              let (token, literal) = self.parse_string_literal_token()?;
+              let literal = self.parse_string_literal()?;
 
               if !keyword_arguments.is_empty() {
-                return Err(token.error(CompileErrorKind::AttributePositionalFollowsKeyword));
+                return Err(
+                  literal
+                    .token
+                    .error(CompileErrorKind::AttributePositionalFollowsKeyword),
+                );
               }
 
-              arguments.push((token, literal));
+              arguments.push(literal);
             }
 
             if !self.accepted(Comma)? || self.next_is(ParenR) {

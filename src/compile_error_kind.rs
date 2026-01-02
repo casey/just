@@ -7,7 +7,7 @@ pub(crate) enum CompileErrorKind<'src> {
     source: regex::Error,
   },
   AttributeArgumentCountMismatch {
-    attribute: &'src str,
+    attribute: Name<'src>,
     found: usize,
     min: usize,
     max: usize,
