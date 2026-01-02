@@ -90,21 +90,17 @@ impl<'src> Attribute<'src> {
 
   fn remove_required(
     keyword_arguments: &mut BTreeMap<&'src str, (Name<'src>, Option<StringLiteral<'src>>)>,
-    attribute: &Name<'src>,
+    attribute: Name<'src>,
     key: &'src str,
   ) -> CompileResult<'src, Option<(Name<'src>, StringLiteral<'src>)>> {
-    let Some((key_name, literal)) = keyword_arguments.remove(key) else {
+    let Some((key, literal)) = keyword_arguments.remove(key) else {
       return Ok(None);
     };
 
-    let literal = literal.ok_or_else(|| {
-      key_name.error(CompileErrorKind::AttributeKeyMissingValue {
-        attribute: attribute.lexeme(),
-        key: key_name.lexeme(),
-      })
-    })?;
+    let literal = literal
+      .ok_or_else(|| key.error(CompileErrorKind::AttributeKeyMissingValue { attribute, key }))?;
 
-    Ok(Some((key_name, literal)))
+    Ok(Some((key, literal)))
   }
 
   pub(crate) fn new(
@@ -147,7 +143,7 @@ impl<'src> Attribute<'src> {
           })
           .transpose()?;
 
-        let short = Self::remove_required(&mut keyword_arguments, &name, "short")?
+        let short = Self::remove_required(&mut keyword_arguments, name, "short")?
           .map(|(_key_name, literal)| {
             Self::check_option_name(&arg_name, &literal)?;
 
@@ -163,11 +159,11 @@ impl<'src> Attribute<'src> {
           })
           .transpose()?;
 
-        let pattern = Self::remove_required(&mut keyword_arguments, &name, "pattern")?
+        let pattern = Self::remove_required(&mut keyword_arguments, name, "pattern")?
           .map(|(_key_name, literal)| Pattern::new(&literal))
           .transpose()?;
 
-        let value = Self::remove_required(&mut keyword_arguments, &name, "value")?
+        let value = Self::remove_required(&mut keyword_arguments, name, "value")?
           .map(|(key_name, literal)| {
             if long.is_none() && short.is_none() {
               return Err(key_name.error(CompileErrorKind::ArgAttributeValueRequiresOption));
@@ -176,7 +172,7 @@ impl<'src> Attribute<'src> {
           })
           .transpose()?;
 
-        let help = Self::remove_required(&mut keyword_arguments, &name, "help")?
+        let help = Self::remove_required(&mut keyword_arguments, name, "help")?
           .map(|(_key_name, literal)| literal);
 
         Self::Arg {
