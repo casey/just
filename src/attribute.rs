@@ -1,7 +1,5 @@
 use super::*;
 
-// will need to do this for short too
-
 #[allow(clippy::large_enum_variant)]
 #[derive(
   EnumDiscriminants, PartialEq, Debug, Clone, Serialize, Ord, PartialOrd, Eq, IntoStaticStr,
