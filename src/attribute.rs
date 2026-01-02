@@ -65,6 +65,29 @@ impl AttributeDiscriminant {
 }
 
 impl<'src> Attribute<'src> {
+  fn check_option_name(
+    parameter: &StringLiteral<'src>,
+    literal: &StringLiteral<'src>,
+  ) -> CompileResult<'src> {
+    if literal.cooked.contains('=') {
+      return Err(
+        literal
+          .token
+          .error(CompileErrorKind::OptionNameContainsEqualSign {
+            parameter: parameter.cooked.clone(),
+          }),
+      );
+    }
+
+    if literal.cooked.is_empty() {
+      return Err(literal.token.error(CompileErrorKind::OptionNameEmpty {
+        parameter: parameter.cooked.clone(),
+      }));
+    }
+
+    Ok(())
+  }
+
   pub(crate) fn new(
     name: Name<'src>,
     arguments: Vec<StringLiteral<'src>>,
@@ -96,72 +119,45 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::Arg => {
         let name = arguments.into_iter().next().unwrap();
 
-        let long = if let Some((_name, literal)) = keyword_arguments.remove("long") {
-          if literal.cooked.contains('=') {
-            return Err(
-              literal
-                .token
-                .error(CompileErrorKind::OptionNameContainsEqualSign {
-                  parameter: name.cooked,
-                }),
-            );
-          }
+        let long = keyword_arguments
+          .remove("long")
+          .map(|(_name, literal)| {
+            Self::check_option_name(&name, &literal)?;
+            Ok(literal)
+          })
+          .transpose()?;
 
-          if literal.cooked.is_empty() {
-            return Err(literal.token.error(CompileErrorKind::OptionNameEmpty {
-              parameter: name.cooked,
-            }));
-          }
-
-          Some(literal)
-        } else {
-          None
-        };
-
-        let short =
-          if let Some((_name, literal)) = keyword_arguments.remove("short") {
-            if literal.cooked.contains('=') {
-              return Err(
-                literal
-                  .token
-                  .error(CompileErrorKind::OptionNameContainsEqualSign {
-                    parameter: name.cooked,
-                  }),
-              );
-            }
-
-            if literal.cooked.is_empty() {
-              return Err(literal.token.error(CompileErrorKind::OptionNameEmpty {
-                parameter: name.cooked,
-              }));
-            }
+        let short = keyword_arguments
+          .remove("short")
+          .map(|(_name, literal)| {
+            Self::check_option_name(&name, &literal)?;
 
             if literal.cooked.chars().count() != 1 {
               return Err(literal.token.error(
                 CompileErrorKind::ShortOptionWithMultipleCharacters {
-                  parameter: name.cooked,
+                  parameter: name.cooked.clone(),
                 },
               ));
             }
 
-            Some(literal)
-          } else {
-            None
-          };
+            Ok(literal)
+          })
+          .transpose()?;
 
         let pattern = keyword_arguments
           .remove("pattern")
           .map(|(_name, literal)| Pattern::new(&literal))
           .transpose()?;
 
-        let value = if let Some((name, literal)) = keyword_arguments.remove("value") {
-          if long.is_none() && short.is_none() {
-            return Err(name.error(CompileErrorKind::ArgAttributeValueRequiresOption));
-          }
-          Some(literal)
-        } else {
-          None
-        };
+        let value = keyword_arguments
+          .remove("value")
+          .map(|(name, literal)| {
+            if long.is_none() && short.is_none() {
+              return Err(name.error(CompileErrorKind::ArgAttributeValueRequiresOption));
+            }
+            Ok(literal)
+          })
+          .transpose()?;
 
         let help = keyword_arguments
           .remove("help")
