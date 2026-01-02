@@ -340,7 +340,7 @@ impl Display for CompileError<'_> {
       AttributeKeyMissingValue { attribute, key } => {
         write!(
           f,
-          "Key `{key}` for `{attribute}` attribute requires a value"
+          "Key `{key}` for `{attribute}` attribute requires value",
         )
       }
       UnknownAttributeKeyword { attribute, keyword } => {
