@@ -88,6 +88,25 @@ impl<'src> Attribute<'src> {
     Ok(())
   }
 
+  fn remove_required(
+    keyword_arguments: &mut BTreeMap<&'src str, (Name<'src>, Option<StringLiteral<'src>>)>,
+    attribute: &Name<'src>,
+    keyword: &'src str,
+  ) -> CompileResult<'src, Option<StringLiteral<'src>>> {
+    let Some((keyword_name, literal)) = keyword_arguments.remove(keyword) else {
+      return Ok(None);
+    };
+
+    let literal = literal.ok_or_else(|| {
+      keyword_name.error(CompileErrorKind::AttributeKeywordMissingValue {
+        attribute: attribute.lexeme(),
+        keyword: keyword_name.lexeme(),
+      })
+    })?;
+
+    Ok(Some(literal))
+  }
+
   pub(crate) fn new(
     name: Name<'src>,
     arguments: Vec<StringLiteral<'src>>,
@@ -128,15 +147,8 @@ impl<'src> Attribute<'src> {
           })
           .transpose()?;
 
-        let short = keyword_arguments
-          .remove("short")
-          .map(|(keyword, literal)| {
-            let literal = literal.ok_or_else(|| {
-              keyword.error(CompileErrorKind::AttributeKeywordMissingValue {
-                attribute: name.lexeme(),
-                keyword: keyword.lexeme(),
-              })
-            })?;
+        let short = Self::remove_required(&mut keyword_arguments, &name, "short")?
+          .map(|literal| {
             Self::check_option_name(&arg_name, &literal)?;
 
             if literal.cooked.chars().count() != 1 {
@@ -151,46 +163,20 @@ impl<'src> Attribute<'src> {
           })
           .transpose()?;
 
-        let pattern = keyword_arguments
-          .remove("pattern")
-          .map(|(keyword, literal)| {
-            let literal = literal.ok_or_else(|| {
-              keyword.error(CompileErrorKind::AttributeKeywordMissingValue {
-                attribute: name.lexeme(),
-                keyword: keyword.lexeme(),
-              })
-            })?;
-            Pattern::new(&literal)
-          })
+        let pattern = Self::remove_required(&mut keyword_arguments, &name, "pattern")?
+          .map(|literal| Pattern::new(&literal))
           .transpose()?;
 
-        let value = keyword_arguments
-          .remove("value")
-          .map(|(keyword, literal)| {
-            let literal = literal.ok_or_else(|| {
-              keyword.error(CompileErrorKind::AttributeKeywordMissingValue {
-                attribute: name.lexeme(),
-                keyword: keyword.lexeme(),
-              })
-            })?;
+        let value = Self::remove_required(&mut keyword_arguments, &name, "value")?
+          .map(|literal| {
             if long.is_none() && short.is_none() {
-              return Err(keyword.error(CompileErrorKind::ArgAttributeValueRequiresOption));
+              return Err(name.error(CompileErrorKind::ArgAttributeValueRequiresOption));
             }
             Ok(literal)
           })
           .transpose()?;
 
-        let help = keyword_arguments
-          .remove("help")
-          .map(|(keyword, literal)| {
-            literal.ok_or_else(|| {
-              keyword.error(CompileErrorKind::AttributeKeywordMissingValue {
-                attribute: name.lexeme(),
-                keyword: keyword.lexeme(),
-              })
-            })
-          })
-          .transpose()?;
+        let help = Self::remove_required(&mut keyword_arguments, &name, "help")?;
 
         Self::Arg {
           help,
