@@ -92,7 +92,7 @@ impl<'src> Attribute<'src> {
     keyword_arguments: &mut BTreeMap<&'src str, (Name<'src>, Option<StringLiteral<'src>>)>,
     attribute: &Name<'src>,
     key: &'src str,
-  ) -> CompileResult<'src, Option<StringLiteral<'src>>> {
+  ) -> CompileResult<'src, Option<(Name<'src>, StringLiteral<'src>)>> {
     let Some((key_name, literal)) = keyword_arguments.remove(key) else {
       return Ok(None);
     };
@@ -104,7 +104,7 @@ impl<'src> Attribute<'src> {
       })
     })?;
 
-    Ok(Some(literal))
+    Ok(Some((key_name, literal)))
   }
 
   pub(crate) fn new(
@@ -148,7 +148,7 @@ impl<'src> Attribute<'src> {
           .transpose()?;
 
         let short = Self::remove_required(&mut keyword_arguments, &name, "short")?
-          .map(|literal| {
+          .map(|(_key_name, literal)| {
             Self::check_option_name(&arg_name, &literal)?;
 
             if literal.cooked.chars().count() != 1 {
@@ -164,19 +164,20 @@ impl<'src> Attribute<'src> {
           .transpose()?;
 
         let pattern = Self::remove_required(&mut keyword_arguments, &name, "pattern")?
-          .map(|literal| Pattern::new(&literal))
+          .map(|(_key_name, literal)| Pattern::new(&literal))
           .transpose()?;
 
         let value = Self::remove_required(&mut keyword_arguments, &name, "value")?
-          .map(|literal| {
+          .map(|(key_name, literal)| {
             if long.is_none() && short.is_none() {
-              return Err(name.error(CompileErrorKind::ArgAttributeValueRequiresOption));
+              return Err(key_name.error(CompileErrorKind::ArgAttributeValueRequiresOption));
             }
             Ok(literal)
           })
           .transpose()?;
 
-        let help = Self::remove_required(&mut keyword_arguments, &name, "help")?;
+        let help = Self::remove_required(&mut keyword_arguments, &name, "help")?
+          .map(|(_key_name, literal)| literal);
 
         Self::Arg {
           help,
