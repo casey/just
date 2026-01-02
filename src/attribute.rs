@@ -132,25 +132,25 @@ impl<'src> Attribute<'src> {
 
     let attribute = match discriminant {
       AttributeDiscriminant::Arg => {
-        let arg_name = arguments.into_iter().next().unwrap();
+        let arg = arguments.into_iter().next().unwrap();
 
         let long = keyword_arguments
           .remove("long")
           .map(|(_name, literal)| {
-            let literal = literal.unwrap_or_else(|| arg_name.clone());
-            Self::check_option_name(&arg_name, &literal)?;
+            let literal = literal.unwrap_or_else(|| arg.clone());
+            Self::check_option_name(&arg, &literal)?;
             Ok(literal)
           })
           .transpose()?;
 
         let short = Self::remove_required(&mut keyword_arguments, name, "short")?
           .map(|(_key_name, literal)| {
-            Self::check_option_name(&arg_name, &literal)?;
+            Self::check_option_name(&arg, &literal)?;
 
             if literal.cooked.chars().count() != 1 {
               return Err(literal.token.error(
                 CompileErrorKind::ShortOptionWithMultipleCharacters {
-                  parameter: arg_name.cooked.clone(),
+                  parameter: arg.cooked.clone(),
                 },
               ));
             }
@@ -178,7 +178,7 @@ impl<'src> Attribute<'src> {
         Self::Arg {
           help,
           long,
-          name: arg_name,
+          name: arg,
           pattern,
           short,
           value,
