@@ -90,21 +90,6 @@ impl<'src> Attribute<'src> {
     Ok(())
   }
 
-  fn remove_required(
-    keyword_arguments: &mut BTreeMap<&'src str, (Name<'src>, Option<StringLiteral<'src>>)>,
-    attribute: Name<'src>,
-    key: &'src str,
-  ) -> CompileResult<'src, Option<(Name<'src>, StringLiteral<'src>)>> {
-    let Some((key, literal)) = keyword_arguments.remove(key) else {
-      return Ok(None);
-    };
-
-    let literal = literal
-      .ok_or_else(|| key.error(CompileErrorKind::AttributeKeyMissingValue { attribute, key }))?;
-
-    Ok(Some((key, literal)))
-  }
-
   pub(crate) fn new(
     name: Name<'src>,
     arguments: Vec<StringLiteral<'src>>,
@@ -231,6 +216,21 @@ impl<'src> Attribute<'src> {
     }
 
     Ok(attribute)
+  }
+
+  fn remove_required(
+    keyword_arguments: &mut BTreeMap<&'src str, (Name<'src>, Option<StringLiteral<'src>>)>,
+    attribute: Name<'src>,
+    key: &'src str,
+  ) -> CompileResult<'src, Option<(Name<'src>, StringLiteral<'src>)>> {
+    let Some((key, literal)) = keyword_arguments.remove(key) else {
+      return Ok(None);
+    };
+
+    let literal = literal
+      .ok_or_else(|| key.error(CompileErrorKind::AttributeKeyMissingValue { attribute, key }))?;
+
+    Ok(Some((key, literal)))
   }
 
   pub(crate) fn discriminant(&self) -> AttributeDiscriminant {
