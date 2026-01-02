@@ -437,12 +437,12 @@ impl<'run, 'src> Parser<'run, 'src> {
             }
 
             items.push(Item::Module {
-              groups,
               absolute: None,
-              private,
               doc,
+              groups,
               name,
               optional,
+              private,
               relative,
             });
           }

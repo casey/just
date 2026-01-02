@@ -13,11 +13,11 @@ pub(crate) enum Item<'src> {
   },
   Module {
     absolute: Option<PathBuf>,
-    private: bool,
     doc: Option<String>,
     groups: Vec<StringLiteral<'src>>,
     name: Name<'src>,
     optional: bool,
+    private: bool,
     relative: Option<StringLiteral<'src>>,
   },
   Recipe(UnresolvedRecipe<'src>),
