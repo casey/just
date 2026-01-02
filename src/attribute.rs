@@ -11,31 +11,27 @@ use super::*;
 #[strum_discriminants(strum(serialize_all = "kebab-case"))]
 pub(crate) enum Attribute<'src> {
   Arg {
-    help: Option<StringLiteral>,
-    long: Option<StringLiteral>,
-    #[serde(skip)]
-    long_token: Option<Token<'src>>,
-    name: StringLiteral,
-    #[serde(skip)]
-    name_token: Token<'src>,
+    help: Option<StringLiteral<'src>>,
+    long: Option<StringLiteral<'src>>,
+    name: StringLiteral<'src>,
     #[serde(skip)]
     pattern: Option<Pattern>,
     #[serde(rename = "pattern")]
-    pattern_literal: Option<StringLiteral>,
-    short: Option<StringLiteral>,
+    pattern_literal: Option<StringLiteral<'src>>,
+    short: Option<StringLiteral<'src>>,
     #[serde(skip)]
     short_token: Option<Token<'src>>,
-    value: Option<StringLiteral>,
+    value: Option<StringLiteral<'src>>,
   },
-  Confirm(Option<StringLiteral>),
+  Confirm(Option<StringLiteral<'src>>),
   Default,
-  Doc(Option<StringLiteral>),
+  Doc(Option<StringLiteral<'src>>),
   ExitMessage,
-  Extension(StringLiteral),
-  Group(StringLiteral),
+  Extension(StringLiteral<'src>),
+  Group(StringLiteral<'src>),
   Linux,
   Macos,
-  Metadata(Vec<StringLiteral>),
+  Metadata(Vec<StringLiteral<'src>>),
   NoCd,
   NoExitMessage,
   NoQuiet,
@@ -43,10 +39,10 @@ pub(crate) enum Attribute<'src> {
   Parallel,
   PositionalArguments,
   Private,
-  Script(Option<Interpreter<StringLiteral>>),
+  Script(Option<Interpreter<StringLiteral<'src>>>),
   Unix,
   Windows,
-  WorkingDirectory(StringLiteral),
+  WorkingDirectory(StringLiteral<'src>),
 }
 
 impl AttributeDiscriminant {
@@ -76,8 +72,8 @@ impl AttributeDiscriminant {
 impl<'src> Attribute<'src> {
   pub(crate) fn new(
     name: Name<'src>,
-    arguments: Vec<(Token<'src>, StringLiteral)>,
-    mut keyword_arguments: BTreeMap<&'src str, (Name<'src>, Token<'src>, StringLiteral)>,
+    arguments: Vec<StringLiteral<'src>>,
+    mut keyword_arguments: BTreeMap<&'src str, (Name<'src>, Token<'src>, StringLiteral<'src>)>,
   ) -> CompileResult<'src, Self> {
     let discriminant = name
       .lexeme()
@@ -102,31 +98,27 @@ impl<'src> Attribute<'src> {
       );
     }
 
-    let (tokens, arguments): (Vec<Token>, Vec<StringLiteral>) = arguments.into_iter().unzip();
-
     let attribute = match discriminant {
       AttributeDiscriminant::Arg => {
         let name = arguments.into_iter().next().unwrap();
-        let name_token = tokens.into_iter().next().unwrap();
 
-        let (long_token, long) =
-          if let Some((_name, token, literal)) = keyword_arguments.remove("long") {
-            if literal.cooked.contains('=') {
-              return Err(token.error(CompileErrorKind::OptionNameContainsEqualSign {
-                parameter: name.cooked,
-              }));
-            }
+        let long = if let Some((_name, token, literal)) = keyword_arguments.remove("long") {
+          if literal.cooked.contains('=') {
+            return Err(token.error(CompileErrorKind::OptionNameContainsEqualSign {
+              parameter: name.cooked,
+            }));
+          }
 
-            if literal.cooked.is_empty() {
-              return Err(token.error(CompileErrorKind::OptionNameEmpty {
-                parameter: name.cooked,
-              }));
-            }
+          if literal.cooked.is_empty() {
+            return Err(token.error(CompileErrorKind::OptionNameEmpty {
+              parameter: name.cooked,
+            }));
+          }
 
-            (Some(token), Some(literal))
-          } else {
-            (None, None)
-          };
+          Some(literal)
+        } else {
+          None
+        };
 
         let (short_token, short) =
           if let Some((_name, token, literal)) = keyword_arguments.remove("short") {
@@ -180,9 +172,7 @@ impl<'src> Attribute<'src> {
         Self::Arg {
           help,
           long,
-          long_token,
           name,
-          name_token,
           pattern,
           pattern_literal,
           short,
@@ -256,9 +246,7 @@ impl Display for Attribute<'_> {
       Self::Arg {
         help,
         long,
-        long_token: _,
         name,
-        name_token: _,
         pattern: _,
         pattern_literal,
         short,

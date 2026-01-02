@@ -39,8 +39,8 @@ pub(crate) enum Expression<'src> {
   },
   // `f"format string"`
   FormatString {
-    start: StringLiteral,
-    expressions: Vec<(Expression<'src>, StringLiteral)>,
+    start: StringLiteral<'src>,
+    expressions: Vec<(Expression<'src>, StringLiteral<'src>)>,
   },
   /// `(contents)`
   Group { contents: Box<Expression<'src>> },
@@ -55,7 +55,7 @@ pub(crate) enum Expression<'src> {
     rhs: Box<Expression<'src>>,
   },
   /// `"string_literal"` or `'string_literal'`
-  StringLiteral { string_literal: StringLiteral },
+  StringLiteral { string_literal: StringLiteral<'src> },
   /// `variable`
   Variable { name: Name<'src> },
 }
