@@ -58,7 +58,7 @@ fn argument_count_mismatch() {
     .args(["foo"])
     .stderr(
       "
-      error: Recipe `foo` got 0 arguments but takes 2
+      error: Recipe `foo` got 0 positional arguments but takes 2
       usage:
           just foo a b
     ",

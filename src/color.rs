@@ -140,6 +140,18 @@ impl Color {
   pub(crate) fn warning(self) -> Self {
     self.restyle(Style::new().fg(Yellow).bold())
   }
+
+  pub(crate) fn heading(self) -> Self {
+    self.restyle(Style::new().fg(Yellow).bold())
+  }
+
+  pub(crate) fn option(self) -> Self {
+    self.restyle(Style::new().fg(Green))
+  }
+
+  pub(crate) fn argument(self) -> Self {
+    self.restyle(Style::new().fg(Cyan))
+  }
 }
 
 impl From<UseColor> for Color {

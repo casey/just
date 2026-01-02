@@ -1,11 +1,5 @@
 use {super::*, serde::Serialize};
 
-#[derive(Debug)]
-struct Invocation<'src: 'run, 'run> {
-  arguments: Vec<&'run str>,
-  recipe: &'run Recipe<'src>,
-}
-
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Justfile<'src> {
   pub(crate) aliases: Table<'src, Alias<'src>>,
@@ -13,7 +7,7 @@ pub(crate) struct Justfile<'src> {
   #[serde(rename = "first", serialize_with = "keyed::serialize_option")]
   pub(crate) default: Option<Arc<Recipe<'src>>>,
   pub(crate) doc: Option<String>,
-  pub(crate) groups: Vec<String>,
+  pub(crate) groups: Vec<StringLiteral<'src>>,
   #[serde(skip)]
   pub(crate) loaded: Vec<PathBuf>,
   #[serde(skip)]
@@ -24,7 +18,7 @@ pub(crate) struct Justfile<'src> {
   #[serde(skip)]
   pub(crate) private: bool,
   pub(crate) recipes: Table<'src, Arc<Recipe<'src>>>,
-  pub(crate) settings: Settings<'src>,
+  pub(crate) settings: Settings,
   pub(crate) source: PathBuf,
   pub(crate) unexports: HashSet<String>,
   #[serde(skip)]
@@ -51,12 +45,22 @@ impl<'src> Justfile<'src> {
       input,
       self
         .recipes
-        .keys()
-        .map(|name| Suggestion { name, target: None })
-        .chain(self.aliases.iter().map(|(name, alias)| Suggestion {
-          name,
-          target: Some(alias.target.name.lexeme()),
-        })),
+        .values()
+        .filter(|recipe| recipe.is_public())
+        .map(|recipe| Suggestion {
+          name: recipe.name(),
+          target: None,
+        })
+        .chain(
+          self
+            .aliases
+            .values()
+            .filter(|alias| alias.is_public())
+            .map(|alias| Suggestion {
+              name: alias.name.lexeme(),
+              target: Some(alias.target.name.lexeme()),
+            }),
+        ),
     )
   }
 
@@ -75,26 +79,17 @@ impl<'src> Justfile<'src> {
     arena: &'run Arena<Scope<'src, 'run>>,
     config: &'run Config,
     dotenv: &'run BTreeMap<String, String>,
-    overrides: &BTreeMap<String, String>,
     root: &'run Scope<'src, 'run>,
     scopes: &mut BTreeMap<String, (&'run Justfile<'src>, &'run Scope<'src, 'run>)>,
     search: &'run Search,
   ) -> RunResult<'src> {
-    let scope = Evaluator::evaluate_assignments(config, dotenv, self, overrides, root, search)?;
+    let scope = Evaluator::evaluate_assignments(config, dotenv, self, root, search)?;
 
     let scope = arena.alloc(scope);
     scopes.insert(self.module_path.clone(), (self, scope));
 
     for module in self.modules.values() {
-      module.evaluate_scopes(
-        arena,
-        config,
-        dotenv,
-        &BTreeMap::new(),
-        scope,
-        scopes,
-        search,
-      )?;
+      module.evaluate_scopes(arena, config, dotenv, scope, scopes, search)?;
     }
 
     Ok(())
@@ -104,10 +99,10 @@ impl<'src> Justfile<'src> {
     &self,
     config: &Config,
     search: &Search,
-    overrides: &BTreeMap<String, String>,
     arguments: &[String],
   ) -> RunResult<'src> {
-    let unknown_overrides = overrides
+    let unknown_overrides = config
+      .overrides
       .keys()
       .filter(|name| !self.assignments.contains_key(name.as_str()))
       .cloned()
@@ -128,15 +123,7 @@ impl<'src> Justfile<'src> {
     let root = Scope::root();
     let arena = Arena::new();
     let mut scopes = BTreeMap::new();
-    self.evaluate_scopes(
-      &arena,
-      config,
-      &dotenv,
-      overrides,
-      &root,
-      &mut scopes,
-      search,
-    )?;
+    self.evaluate_scopes(&arena, config, &dotenv, &root, &mut scopes, search)?;
 
     let scope = scopes.get(&self.module_path).unwrap().1;
 
@@ -214,13 +201,7 @@ impl<'src> Justfile<'src> {
 
     let arguments = arguments.iter().map(String::as_str).collect::<Vec<&str>>();
 
-    let groups = ArgumentParser::parse_arguments(self, &arguments)?;
-
-    let mut invocations = Vec::<Invocation>::new();
-
-    for group in &groups {
-      invocations.push(self.invocation(&group.arguments, &group.path, 0)?);
-    }
+    let invocations = InvocationParser::parse_invocations(self, &arguments)?;
 
     if config.one && invocations.len() > 1 {
       return Err(Error::ExcessInvocations {
@@ -231,12 +212,7 @@ impl<'src> Justfile<'src> {
     let ran = Ran::default();
     for invocation in invocations {
       Self::run_recipe(
-        &invocation
-          .arguments
-          .iter()
-          .copied()
-          .map(str::to_string)
-          .collect::<Vec<String>>(),
+        &invocation.arguments,
         config,
         &dotenv,
         false,
@@ -274,24 +250,6 @@ impl<'src> Justfile<'src> {
       .or_else(|| self.aliases.get(name).map(|alias| alias.target.as_ref()))
   }
 
-  fn invocation<'run>(
-    &'run self,
-    arguments: &[&'run str],
-    path: &'run [String],
-    position: usize,
-  ) -> RunResult<'src, Invocation<'src, 'run>> {
-    if position + 1 == path.len() {
-      let recipe = self.get_recipe(&path[position]).unwrap();
-      Ok(Invocation {
-        arguments: arguments.into(),
-        recipe,
-      })
-    } else {
-      let module = self.modules.get(&path[position]).unwrap();
-      module.invocation(arguments, path, position + 1)
-    }
-  }
-
   pub(crate) fn is_submodule(&self) -> bool {
     self.name.is_some()
   }
@@ -301,7 +259,7 @@ impl<'src> Justfile<'src> {
   }
 
   fn run_recipe(
-    arguments: &[String],
+    arguments: &[Vec<String>],
     config: &Config,
     dotenv: &BTreeMap<String, String>,
     is_dependency: bool,
@@ -336,10 +294,11 @@ impl<'src> Justfile<'src> {
     };
 
     let (outer, positional) = Evaluator::evaluate_parameters(
+      arguments,
       &context,
       is_dependency,
-      arguments,
       &recipe.parameters,
+      recipe,
       scope,
     )?;
 
@@ -395,11 +354,15 @@ impl<'src> Justfile<'src> {
 
     let mut evaluated = Vec::new();
     for Dependency { recipe, arguments } in dependencies {
-      let arguments = arguments
-        .iter()
-        .map(|argument| evaluator.evaluate_expression(argument))
-        .collect::<RunResult<Vec<String>>>()?;
-      evaluated.push((recipe, arguments));
+      let mut grouped = Vec::new();
+      for group in arguments {
+        let evaluated_group = group
+          .iter()
+          .map(|argument| evaluator.evaluate_expression(argument))
+          .collect::<RunResult<Vec<String>>>()?;
+        grouped.push(evaluated_group);
+      }
+      evaluated.push((recipe, grouped));
     }
 
     if recipe.is_parallel() {
@@ -464,8 +427,12 @@ impl<'src> Justfile<'src> {
     recipes
   }
 
-  pub(crate) fn groups(&self) -> &[String] {
-    &self.groups
+  pub(crate) fn groups(&self) -> Vec<&str> {
+    self
+      .groups
+      .iter()
+      .map(|group| group.cooked.as_str())
+      .collect()
   }
 
   pub(crate) fn public_groups(&self, config: &Config) -> Vec<String> {
@@ -643,20 +610,14 @@ mod tests {
     name: missing_some_arguments,
     src: "a b c d:",
     args: ["a", "b", "c"],
-    error: ArgumentCountMismatch {
+    error: PositionalArgumentCountMismatch {
       recipe,
-      parameters,
       found,
       min,
       max,
     },
     check: {
-      let param_names = parameters
-        .iter()
-        .map(|p| p.name.lexeme())
-        .collect::<Vec<&str>>();
-      assert_eq!(recipe, "a");
-      assert_eq!(param_names, ["b", "c", "d"]);
+      assert_eq!(recipe.name(), "a");
       assert_eq!(found, 2);
       assert_eq!(min, 3);
       assert_eq!(max, 3);
@@ -667,20 +628,14 @@ mod tests {
     name: missing_some_arguments_variadic,
     src: "a b c +d:",
     args: ["a", "B", "C"],
-    error: ArgumentCountMismatch {
+    error: PositionalArgumentCountMismatch {
       recipe,
-      parameters,
       found,
       min,
       max,
     },
     check: {
-      let param_names = parameters
-        .iter()
-        .map(|p| p.name.lexeme())
-        .collect::<Vec<&str>>();
-      assert_eq!(recipe, "a");
-      assert_eq!(param_names, ["b", "c", "d"]);
+      assert_eq!(recipe.name(), "a");
       assert_eq!(found, 2);
       assert_eq!(min, 3);
       assert_eq!(max, usize::MAX - 1);
@@ -691,20 +646,14 @@ mod tests {
     name: missing_all_arguments,
     src: "a b c d:\n echo {{b}}{{c}}{{d}}",
     args: ["a"],
-    error: ArgumentCountMismatch {
+    error: PositionalArgumentCountMismatch {
       recipe,
-      parameters,
       found,
       min,
       max,
     },
     check: {
-      let param_names = parameters
-        .iter()
-        .map(|p| p.name.lexeme())
-        .collect::<Vec<&str>>();
-      assert_eq!(recipe, "a");
-      assert_eq!(param_names, ["b", "c", "d"]);
+      assert_eq!(recipe.name(), "a");
       assert_eq!(found, 0);
       assert_eq!(min, 3);
       assert_eq!(max, 3);
@@ -715,20 +664,14 @@ mod tests {
     name: missing_some_defaults,
     src: "a b c d='hello':",
     args: ["a", "b"],
-    error: ArgumentCountMismatch {
+    error: PositionalArgumentCountMismatch {
       recipe,
-      parameters,
       found,
       min,
       max,
     },
     check: {
-      let param_names = parameters
-        .iter()
-        .map(|p| p.name.lexeme())
-        .collect::<Vec<&str>>();
-      assert_eq!(recipe, "a");
-      assert_eq!(param_names, ["b", "c", "d"]);
+      assert_eq!(recipe.name(), "a");
       assert_eq!(found, 1);
       assert_eq!(min, 2);
       assert_eq!(max, 3);
@@ -739,20 +682,14 @@ mod tests {
     name: missing_all_defaults,
     src: "a b c='r' d='h':",
     args: ["a"],
-    error: ArgumentCountMismatch {
+    error: PositionalArgumentCountMismatch {
       recipe,
-      parameters,
       found,
       min,
       max,
     },
     check: {
-      let param_names = parameters
-        .iter()
-        .map(|p| p.name.lexeme())
-        .collect::<Vec<&str>>();
-      assert_eq!(recipe, "a");
-      assert_eq!(param_names, ["b", "c", "d"]);
+      assert_eq!(recipe.name(), "a");
       assert_eq!(found, 0);
       assert_eq!(min, 1);
       assert_eq!(max, 3);
@@ -801,7 +738,6 @@ mod tests {
     let justfile = compile(input);
     let actual = format!("{}", justfile.color_display(Color::never()));
     assert_eq!(actual, expected);
-    println!("Re-parsing...");
     let reparsed = compile(&actual);
     let redumped = format!("{}", reparsed.color_display(Color::never()));
     assert_eq!(redumped, actual);

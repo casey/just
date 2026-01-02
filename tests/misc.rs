@@ -831,7 +831,7 @@ foo A B:
   echo A:{{A}} B:{{B}}
     ",
     )
-    .stderr("error: Recipe `foo` got 1 argument but takes 2\nusage:\n    just foo A B\n")
+    .stderr("error: Recipe `foo` got 1 positional argument but takes 2\nusage:\n    just foo A B\n")
     .status(EXIT_FAILURE)
     .run();
 }
@@ -867,9 +867,9 @@ foo A B C='C':
     )
     .stderr(
       "
-    error: Recipe `foo` got 1 argument but takes at least 2
+    error: Recipe `foo` got 1 positional argument but takes at least 2
     usage:
-        just foo A B C='C'
+        just foo A B [C]
   ",
     )
     .status(EXIT_FAILURE)
@@ -1351,15 +1351,58 @@ b:
 fn run_suggestion() {
   Test::new()
     .arg("hell")
-    .justfile(
-      r#"
-hello a b='B	' c='C':
-  echo {{a}} {{b}} {{c}}
-
-a Z="\t z":
-"#,
-    )
+    .justfile("hello:")
     .stderr("error: Justfile does not contain recipe `hell`\nDid you mean `hello`?\n")
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn private_recipes_are_not_suggested() {
+  Test::new()
+    .arg("hell")
+    .justfile(
+      "
+        [private]
+        hello:
+      ",
+    )
+    .stderr("error: Justfile does not contain recipe `hell`\n")
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn alias_suggestion() {
+  Test::new()
+    .arg("hell")
+    .justfile(
+      "
+        alias hello := bar
+
+        bar:
+      ",
+    )
+    .stderr(
+      "error: Justfile does not contain recipe `hell`\nDid you mean `hello`, an alias for `bar`?\n",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn private_aliases_are_not_suggested() {
+  Test::new()
+    .arg("hell")
+    .justfile(
+      "
+        [private]
+        alias hello := bar
+
+        bar:
+      ",
+    )
+    .stderr("error: Justfile does not contain recipe `hell`\n")
     .status(EXIT_FAILURE)
     .run();
 }
@@ -1825,7 +1868,13 @@ a x y +z:
   echo {{x}} {{y}} {{z}}
 ",
     )
-    .stderr("error: Recipe `a` got 2 arguments but takes at least 3\nusage:\n    just a x y +z\n")
+    .stderr(
+      "
+        error: Recipe `a` got 2 positional arguments but takes at least 3
+        usage:
+            just a x y z...
+      ",
+    )
     .status(EXIT_FAILURE)
     .run();
 }

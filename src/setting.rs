@@ -4,10 +4,10 @@ use super::*;
 pub(crate) enum Setting<'src> {
   AllowDuplicateRecipes(bool),
   AllowDuplicateVariables(bool),
-  DotenvFilename(StringLiteral<'src>),
+  DotenvFilename(Expression<'src>),
   DotenvLoad(bool),
   DotenvOverride(bool),
-  DotenvPath(StringLiteral<'src>),
+  DotenvPath(Expression<'src>),
   DotenvRequired(bool),
   Export(bool),
   Fallback(bool),
@@ -15,13 +15,37 @@ pub(crate) enum Setting<'src> {
   NoExitMessage(bool),
   PositionalArguments(bool),
   Quiet(bool),
-  ScriptInterpreter(Interpreter<'src>),
-  Shell(Interpreter<'src>),
-  Tempdir(StringLiteral<'src>),
+  ScriptInterpreter(Interpreter<Expression<'src>>),
+  Shell(Interpreter<Expression<'src>>),
+  Tempdir(Expression<'src>),
   Unstable(bool),
   WindowsPowerShell(bool),
-  WindowsShell(Interpreter<'src>),
-  WorkingDirectory(StringLiteral<'src>),
+  WindowsShell(Interpreter<Expression<'src>>),
+  WorkingDirectory(Expression<'src>),
+}
+
+impl<'src> Setting<'src> {
+  pub(crate) fn expressions(&self) -> impl Iterator<Item = &Expression<'src>> {
+    let first = match self {
+      Self::DotenvFilename(value)
+      | Self::DotenvPath(value)
+      | Self::Tempdir(value)
+      | Self::WorkingDirectory(value) => Some(value),
+      Self::ScriptInterpreter(value) | Self::Shell(value) | Self::WindowsShell(value) => {
+        Some(&value.command)
+      }
+      _ => None,
+    };
+
+    let rest = match self {
+      Self::ScriptInterpreter(value) | Self::Shell(value) | Self::WindowsShell(value) => {
+        value.arguments.as_slice()
+      }
+      _ => &[],
+    };
+
+    first.into_iter().chain(rest)
+  }
 }
 
 impl Display for Setting<'_> {
@@ -40,14 +64,14 @@ impl Display for Setting<'_> {
       | Self::Quiet(value)
       | Self::Unstable(value)
       | Self::WindowsPowerShell(value) => write!(f, "{value}"),
-      Self::ScriptInterpreter(shell) | Self::Shell(shell) | Self::WindowsShell(shell) => {
-        write!(f, "[{shell}]")
-      }
       Self::DotenvFilename(value)
       | Self::DotenvPath(value)
       | Self::Tempdir(value)
       | Self::WorkingDirectory(value) => {
         write!(f, "{value}")
+      }
+      Self::ScriptInterpreter(value) | Self::Shell(value) | Self::WindowsShell(value) => {
+        write!(f, "[{value}]")
       }
     }
   }

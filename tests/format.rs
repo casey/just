@@ -1589,3 +1589,121 @@ fn private_variable() {
     )
     .run();
 }
+
+#[test]
+fn module_groups_are_preserved() {
+  Test::new()
+    .justfile(
+      r#"
+        [group('bar')]
+        [group("baz")]
+        mod foo
+      "#,
+    )
+    .write("foo.just", "")
+    .arg("--dump")
+    .stdout(
+      r#"
+        [group: 'bar']
+        [group: "baz"]
+        mod foo
+      "#,
+    )
+    .run();
+}
+
+#[test]
+fn module_docs_are_preserved() {
+  Test::new()
+    .justfile(
+      r"
+        # bar
+        mod foo
+      ",
+    )
+    .write("foo.just", "")
+    .arg("--dump")
+    .stdout(
+      r"
+        # bar
+        mod foo
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn arg_attribute_long() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='bar')]
+        @foo bar:
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        [arg('bar', long='bar')]
+        @foo bar:
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn arg_attribute_pattern() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', pattern='bar')]
+        @foo bar:
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        [arg('bar', pattern='bar')]
+        @foo bar:
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn arg_attribute_long_and_pattern() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='foo', pattern='baz')]
+        @foo bar:
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        [arg('bar', long='foo', pattern='baz')]
+        @foo bar:
+      ",
+    )
+    .run();
+}
+
+#[test]
+fn arg_attribute_help() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', help='foo')]
+        @foo bar:
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        [arg('bar', help='foo')]
+        @foo bar:
+      ",
+    )
+    .run();
+}

@@ -15,6 +15,7 @@ pub(crate) enum Expression<'src> {
   },
   /// `assert(condition, error)`
   Assert {
+    name: Name<'src>,
     condition: Condition<'src>,
     error: Box<Expression<'src>>,
   },
@@ -35,6 +36,11 @@ pub(crate) enum Expression<'src> {
     condition: Condition<'src>,
     then: Box<Expression<'src>>,
     otherwise: Box<Expression<'src>>,
+  },
+  // `f"format string"`
+  FormatString {
+    start: StringLiteral<'src>,
+    expressions: Vec<(Expression<'src>, StringLiteral<'src>)>,
   },
   /// `(contents)`
   Group { contents: Box<Expression<'src>> },
@@ -64,7 +70,9 @@ impl Display for Expression<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     match self {
       Self::And { lhs, rhs } => write!(f, "{lhs} && {rhs}"),
-      Self::Assert { condition, error } => write!(f, "assert({condition}, {error})"),
+      Self::Assert {
+        condition, error, ..
+      } => write!(f, "assert({condition}, {error})"),
       Self::Backtick { token, .. } => write!(f, "{}", token.lexeme()),
       Self::Call { thunk } => write!(f, "{thunk}"),
       Self::Concatenation { lhs, rhs } => write!(f, "{lhs} + {rhs}"),
@@ -78,6 +86,15 @@ impl Display for Expression<'_> {
         } else {
           write!(f, "if {condition} {{ {then} }} else {{ {otherwise} }}")
         }
+      }
+      Self::FormatString { start, expressions } => {
+        write!(f, "{start}")?;
+
+        for (expression, string) in expressions {
+          write!(f, "{expression}{string}")?;
+        }
+
+        Ok(())
       }
       Self::Group { contents } => write!(f, "({contents})"),
       Self::Join { lhs: None, rhs } => write!(f, "/ {rhs}"),
@@ -105,7 +122,9 @@ impl Serialize for Expression<'_> {
         seq.serialize_element(rhs)?;
         seq.end()
       }
-      Self::Assert { condition, error } => {
+      Self::Assert {
+        condition, error, ..
+      } => {
         let mut seq: <S as Serializer>::SerializeSeq = serializer.serialize_seq(None)?;
         seq.serialize_element("assert")?;
         seq.serialize_element(condition)?;
@@ -136,6 +155,16 @@ impl Serialize for Expression<'_> {
         seq.serialize_element(condition)?;
         seq.serialize_element(then)?;
         seq.serialize_element(otherwise)?;
+        seq.end()
+      }
+      Self::FormatString { start, expressions } => {
+        let mut seq = serializer.serialize_seq(None)?;
+        seq.serialize_element("format")?;
+        seq.serialize_element(start)?;
+        for (expression, string) in expressions {
+          seq.serialize_element(expression)?;
+          seq.serialize_element(string)?;
+        }
         seq.end()
       }
       Self::Group { contents } => contents.serialize(serializer),

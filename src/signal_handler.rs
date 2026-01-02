@@ -3,6 +3,7 @@ use super::*;
 pub(crate) struct SignalHandler {
   caught: Option<Signal>,
   children: BTreeMap<i32, Command>,
+  initialized: bool,
   verbosity: Verbosity,
 }
 
@@ -10,7 +11,11 @@ impl SignalHandler {
   pub(crate) fn install(verbosity: Verbosity) -> RunResult<'static> {
     let mut instance = Self::instance();
     instance.verbosity = verbosity;
-    Platform::install_signal_handler(|signal| Self::instance().interrupt(signal))
+    if !instance.initialized {
+      Platform::install_signal_handler(|signal| Self::instance().handle(signal))?;
+      instance.initialized = true;
+    }
+    Ok(())
   }
 
   pub(crate) fn instance() -> MutexGuard<'static, Self> {
@@ -21,10 +26,8 @@ impl SignalHandler {
       Err(poison_error) => {
         eprintln!(
           "{}",
-          Error::Internal {
-            message: format!("signal handler mutex poisoned: {poison_error}"),
-          }
-          .color_display(Color::auto().stderr())
+          Error::internal(format!("signal handler mutex poisoned: {poison_error}"),)
+            .color_display(Color::auto().stderr())
         );
         process::exit(EXIT_FAILURE);
       }
@@ -35,11 +38,12 @@ impl SignalHandler {
     Self {
       caught: None,
       children: BTreeMap::new(),
+      initialized: false,
       verbosity: Verbosity::default(),
     }
   }
 
-  fn interrupt(&mut self, signal: Signal) {
+  fn handle(&mut self, signal: Signal) {
     if signal.is_fatal() {
       if self.children.is_empty() {
         process::exit(signal.code());
@@ -119,7 +123,7 @@ impl SignalHandler {
         return (
           Err(io::Error::other(format!("invalid child PID: {err}"))),
           None,
-        )
+        );
       }
       Ok(pid) => pid,
     };

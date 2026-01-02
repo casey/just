@@ -14,28 +14,32 @@ pub(crate) struct Analyzer<'run, 'src> {
 impl<'run, 'src> Analyzer<'run, 'src> {
   pub(crate) fn analyze(
     asts: &'run HashMap<PathBuf, Ast<'src>>,
+    config: &Config,
     doc: Option<String>,
-    groups: &[String],
+    groups: &[StringLiteral<'src>],
     loaded: &[PathBuf],
     name: Option<Name<'src>>,
     paths: &HashMap<PathBuf, PathBuf>,
     root: &Path,
     private: bool,
-  ) -> CompileResult<'src, Justfile<'src>> {
-    Self::default().justfile(asts, doc, groups, loaded, name, paths, root, private)
+  ) -> RunResult<'src, Justfile<'src>> {
+    Self::default().justfile(
+      asts, config, doc, groups, loaded, name, paths, root, private,
+    )
   }
 
   fn justfile(
     mut self,
     asts: &'run HashMap<PathBuf, Ast<'src>>,
+    config: &Config,
     doc: Option<String>,
-    groups: &[String],
+    groups: &[StringLiteral<'src>],
     loaded: &[PathBuf],
     name: Option<Name<'src>>,
     paths: &HashMap<PathBuf, PathBuf>,
     root: &Path,
     private: bool,
-  ) -> CompileResult<'src, Justfile<'src>> {
+  ) -> RunResult<'src, Justfile<'src>> {
     let mut definitions = HashMap::new();
     let mut imports = HashSet::new();
     let mut unstable_features = BTreeSet::new();
@@ -76,6 +80,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
               Self::define(&mut definitions, *name, "module", false)?;
               self.modules.insert(Self::analyze(
                 asts,
+                config,
                 doc.clone(),
                 groups.as_slice(),
                 loaded,
@@ -98,9 +103,13 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           }
           Item::Unexport { name } => {
             if !self.unexports.insert(name.lexeme().to_string()) {
-              return Err(name.error(DuplicateUnexport {
-                variable: name.lexeme(),
-              }));
+              return Err(
+                name
+                  .error(DuplicateUnexport {
+                    variable: name.lexeme(),
+                  })
+                  .into(),
+              );
             }
           }
         }
@@ -109,28 +118,49 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       self.warnings.extend(ast.warnings.iter().cloned());
     }
 
-    let settings = Settings::from_table(self.sets);
+    let mut allow_duplicate_variables = false;
+
+    for (_name, set) in &self.sets {
+      if let Setting::AllowDuplicateVariables(value) = set.value {
+        allow_duplicate_variables = value;
+      }
+    }
 
     let mut assignments: Table<'src, Assignment<'src>> = Table::default();
     for assignment in self.assignments {
       let variable = assignment.name.lexeme();
 
-      if !settings.allow_duplicate_variables && assignments.contains_key(variable) {
-        return Err(assignment.name.error(DuplicateVariable { variable }));
+      if !allow_duplicate_variables && assignments.contains_key(variable) {
+        return Err(assignment.name.error(DuplicateVariable { variable }).into());
       }
 
-      if assignments.get(variable).map_or(true, |original| {
-        assignment.file_depth <= original.file_depth
-      }) {
+      if assignments
+        .get(variable)
+        .is_none_or(|original| assignment.file_depth <= original.file_depth)
+      {
         assignments.insert(assignment.clone());
       }
 
       if self.unexports.contains(variable) {
-        return Err(assignment.name.error(ExportUnexported { variable }));
+        return Err(assignment.name.error(ExportUnexported { variable }).into());
       }
     }
 
     AssignmentResolver::resolve_assignments(&assignments)?;
+
+    for set in self.sets.values() {
+      for expression in set.value.expressions() {
+        for variable in expression.variables() {
+          let name = variable.lexeme();
+          if !assignments.contains_key(name) && !constants().contains_key(name) {
+            return Err(variable.error(UndefinedVariable { variable: name }).into());
+          }
+        }
+      }
+    }
+
+    let settings =
+      Evaluator::evaluate_settings(&assignments, config, name, self.sets, &Scope::root())?;
 
     let mut deduplicated_recipes = Table::<'src, UnresolvedRecipe<'src>>::default();
     for recipe in self.recipes {
@@ -143,7 +173,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
       if deduplicated_recipes
         .get(recipe.name.lexeme())
-        .map_or(true, |original| recipe.file_depth <= original.file_depth)
+        .is_none_or(|original| recipe.file_depth <= original.file_depth)
       {
         deduplicated_recipes.insert(recipe.clone());
       }
@@ -162,17 +192,6 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       aliases.insert(Self::resolve_alias(&self.modules, &recipes, alias)?);
     }
 
-    for recipe in recipes.values() {
-      if recipe.attributes.contains(AttributeDiscriminant::Script) {
-        unstable_features.insert(UnstableFeature::ScriptAttribute);
-        break;
-      }
-    }
-
-    if settings.script_interpreter.is_some() {
-      unstable_features.insert(UnstableFeature::ScriptInterpreterSetting);
-    }
-
     let source = root.to_owned();
     let root = paths.get(root).unwrap();
 
@@ -180,9 +199,14 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     for recipe in recipes.values() {
       if recipe.attributes.contains(AttributeDiscriminant::Default) {
         if default.is_some() {
-          return Err(recipe.name.error(CompileErrorKind::DuplicateDefault {
-            recipe: recipe.name.lexeme(),
-          }));
+          return Err(
+            recipe
+              .name
+              .error(CompileErrorKind::DuplicateDefault {
+                recipe: recipe.name.lexeme(),
+              })
+              .into(),
+          );
         }
 
         default = Some(Arc::clone(recipe));
@@ -268,7 +292,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
       if parameter.default.is_some() {
         passed_default = true;
-      } else if passed_default && parameter.is_required() {
+      } else if passed_default && parameter.is_required() && !parameter.is_option() {
         return Err(
           parameter
             .name
@@ -300,7 +324,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
         return Err(recipe.name.error(InvalidAttribute {
           item_kind: "Recipe",
           item_name: recipe.name.lexeme(),
-          attribute: attribute.clone(),
+          attribute: Box::new(attribute.clone()),
         }));
       }
     }
@@ -361,7 +385,12 @@ mod tests {
     line: 1,
     column: 6,
     width: 3,
-    kind: Redefinition { first_type: "alias", second_type: "alias", name: "foo", first: 0 },
+    kind: Redefinition {
+      first_type: "alias",
+      second_type: "alias",
+      name: "foo",
+      first: 0,
+    },
   }
 
   analysis_error! {
@@ -394,7 +423,12 @@ mod tests {
     line: 3,
     column: 0,
     width: 3,
-    kind: Redefinition { first_type: "alias", second_type: "recipe", name: "foo", first: 2 },
+    kind: Redefinition {
+      first_type: "alias",
+      second_type: "recipe",
+      name: "foo",
+      first: 2,
+    },
   }
 
   analysis_error! {
@@ -404,27 +438,32 @@ mod tests {
     line: 2,
     column: 6,
     width: 3,
-    kind: Redefinition { first_type: "recipe", second_type: "alias", name: "foo", first: 0 },
+    kind: Redefinition {
+      first_type: "recipe",
+      second_type: "alias",
+      name: "foo",
+      first: 0,
+    },
   }
 
   analysis_error! {
     name:   required_after_default,
     input:  "hello arg='foo' bar:",
-    offset:  16,
+    offset: 16,
     line:   0,
     column: 16,
     width:  3,
-    kind:   RequiredParameterFollowsDefaultParameter{parameter: "bar"},
+    kind:   RequiredParameterFollowsDefaultParameter { parameter: "bar" },
   }
 
   analysis_error! {
     name:   duplicate_parameter,
     input:  "a b b:",
-    offset:  4,
+    offset: 4,
     line:   0,
     column: 4,
     width:  1,
-    kind:   DuplicateParameter{recipe: "a", parameter: "b"},
+    kind:   DuplicateParameter{ recipe: "a", parameter: "b" },
   }
 
   analysis_error! {
@@ -434,7 +473,7 @@ mod tests {
     line:   0,
     column: 5,
     width:  1,
-    kind:   DuplicateParameter{recipe: "a", parameter: "b"},
+    kind:   DuplicateParameter{ recipe: "a", parameter: "b" },
   }
 
   analysis_error! {

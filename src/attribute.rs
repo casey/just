@@ -1,5 +1,6 @@
 use super::*;
 
+#[allow(clippy::large_enum_variant)]
 #[derive(
   EnumDiscriminants, PartialEq, Debug, Clone, Serialize, Ord, PartialOrd, Eq, IntoStaticStr,
 )]
@@ -9,6 +10,16 @@ use super::*;
 #[strum_discriminants(derive(EnumString, Ord, PartialOrd))]
 #[strum_discriminants(strum(serialize_all = "kebab-case"))]
 pub(crate) enum Attribute<'src> {
+  Arg {
+    help: Option<StringLiteral<'src>>,
+    long: Option<StringLiteral<'src>>,
+    #[serde(skip)]
+    long_key: Option<Token<'src>>,
+    name: StringLiteral<'src>,
+    pattern: Option<Pattern<'src>>,
+    short: Option<StringLiteral<'src>>,
+    value: Option<StringLiteral<'src>>,
+  },
   Confirm(Option<StringLiteral<'src>>),
   Default,
   Doc(Option<StringLiteral<'src>>),
@@ -25,7 +36,7 @@ pub(crate) enum Attribute<'src> {
   Parallel,
   PositionalArguments,
   Private,
-  Script(Option<Interpreter<'src>>),
+  Script(Option<Interpreter<StringLiteral<'src>>>),
   Unix,
   Windows,
   WorkingDirectory(StringLiteral<'src>),
@@ -34,7 +45,6 @@ pub(crate) enum Attribute<'src> {
 impl AttributeDiscriminant {
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
-      Self::Confirm | Self::Doc => 0..=1,
       Self::Default
       | Self::ExitMessage
       | Self::Linux
@@ -48,23 +58,47 @@ impl AttributeDiscriminant {
       | Self::Private
       | Self::Unix
       | Self::Windows => 0..=0,
-      Self::Extension | Self::Group | Self::WorkingDirectory => 1..=1,
-      Self::Metadata => 1..=usize::MAX,
+      Self::Confirm | Self::Doc => 0..=1,
       Self::Script => 0..=usize::MAX,
+      Self::Arg | Self::Extension | Self::Group | Self::WorkingDirectory => 1..=1,
+      Self::Metadata => 1..=usize::MAX,
     }
   }
 }
 
 impl<'src> Attribute<'src> {
+  fn check_option_name(
+    parameter: &StringLiteral<'src>,
+    literal: &StringLiteral<'src>,
+  ) -> CompileResult<'src> {
+    if literal.cooked.contains('=') {
+      return Err(
+        literal
+          .token
+          .error(CompileErrorKind::OptionNameContainsEqualSign {
+            parameter: parameter.cooked.clone(),
+          }),
+      );
+    }
+
+    if literal.cooked.is_empty() {
+      return Err(literal.token.error(CompileErrorKind::OptionNameEmpty {
+        parameter: parameter.cooked.clone(),
+      }));
+    }
+
+    Ok(())
+  }
+
   pub(crate) fn new(
     name: Name<'src>,
     arguments: Vec<StringLiteral<'src>>,
+    mut keyword_arguments: BTreeMap<&'src str, (Name<'src>, Option<StringLiteral<'src>>)>,
   ) -> CompileResult<'src, Self> {
     let discriminant = name
       .lexeme()
       .parse::<AttributeDiscriminant>()
-      .ok()
-      .ok_or_else(|| {
+      .map_err(|_| {
         name.error(CompileErrorKind::UnknownAttribute {
           attribute: name.lexeme(),
         })
@@ -75,7 +109,7 @@ impl<'src> Attribute<'src> {
     if !range.contains(&found) {
       return Err(
         name.error(CompileErrorKind::AttributeArgumentCountMismatch {
-          attribute: name.lexeme(),
+          attribute: name,
           found,
           min: *range.start(),
           max: *range.end(),
@@ -83,7 +117,65 @@ impl<'src> Attribute<'src> {
       );
     }
 
-    Ok(match discriminant {
+    let attribute = match discriminant {
+      AttributeDiscriminant::Arg => {
+        let arg = arguments.into_iter().next().unwrap();
+
+        let (long, long_key) = keyword_arguments
+          .remove("long")
+          .map(|(name, literal)| {
+            if let Some(literal) = literal {
+              Self::check_option_name(&arg, &literal)?;
+              Ok((Some(literal), None))
+            } else {
+              Ok((Some(arg.clone()), Some(*name)))
+            }
+          })
+          .transpose()?
+          .unwrap_or((None, None));
+
+        let short = Self::remove_required(&mut keyword_arguments, "short")?
+          .map(|(_key, literal)| {
+            Self::check_option_name(&arg, &literal)?;
+
+            if literal.cooked.chars().count() != 1 {
+              return Err(literal.token.error(
+                CompileErrorKind::ShortOptionWithMultipleCharacters {
+                  parameter: arg.cooked.clone(),
+                },
+              ));
+            }
+
+            Ok(literal)
+          })
+          .transpose()?;
+
+        let pattern = Self::remove_required(&mut keyword_arguments, "pattern")?
+          .map(|(_key, literal)| Pattern::new(&literal))
+          .transpose()?;
+
+        let value = Self::remove_required(&mut keyword_arguments, "value")?
+          .map(|(key, literal)| {
+            if long.is_none() && short.is_none() {
+              return Err(key.error(CompileErrorKind::ArgAttributeValueRequiresOption));
+            }
+            Ok(literal)
+          })
+          .transpose()?;
+
+        let help =
+          Self::remove_required(&mut keyword_arguments, "help")?.map(|(_key, literal)| literal);
+
+        Self::Arg {
+          help,
+          long,
+          long_key,
+          name: arg,
+          pattern,
+          short,
+          value,
+        }
+      }
       AttributeDiscriminant::Confirm => Self::Confirm(arguments.into_iter().next()),
       AttributeDiscriminant::Default => Self::Default,
       AttributeDiscriminant::Doc => Self::Doc(arguments.into_iter().next()),
@@ -112,7 +204,32 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::WorkingDirectory => {
         Self::WorkingDirectory(arguments.into_iter().next().unwrap())
       }
-    })
+    };
+
+    if let Some((_name, (keyword_name, _literal))) = keyword_arguments.into_iter().next() {
+      return Err(
+        keyword_name.error(CompileErrorKind::UnknownAttributeKeyword {
+          attribute: name.lexeme(),
+          keyword: keyword_name.lexeme(),
+        }),
+      );
+    }
+
+    Ok(attribute)
+  }
+
+  fn remove_required(
+    keyword_arguments: &mut BTreeMap<&'src str, (Name<'src>, Option<StringLiteral<'src>>)>,
+    key: &'src str,
+  ) -> CompileResult<'src, Option<(Name<'src>, StringLiteral<'src>)>> {
+    let Some((key, literal)) = keyword_arguments.remove(key) else {
+      return Ok(None);
+    };
+
+    let literal =
+      literal.ok_or_else(|| key.error(CompileErrorKind::AttributeKeyMissingValue { key }))?;
+
+    Ok(Some((key, literal)))
   }
 
   pub(crate) fn discriminant(&self) -> AttributeDiscriminant {
@@ -124,7 +241,10 @@ impl<'src> Attribute<'src> {
   }
 
   pub(crate) fn repeatable(&self) -> bool {
-    matches!(self, Attribute::Group(_) | Attribute::Metadata(_))
+    matches!(
+      self,
+      Attribute::Arg { .. } | Attribute::Group(_) | Attribute::Metadata(_),
+    )
   }
 }
 
@@ -133,6 +253,39 @@ impl Display for Attribute<'_> {
     write!(f, "{}", self.name())?;
 
     match self {
+      Self::Arg {
+        help,
+        long,
+        long_key: _,
+        name,
+        pattern,
+        short,
+        value,
+      } => {
+        write!(f, "({name}")?;
+
+        if let Some(long) = long {
+          write!(f, ", long={long}")?;
+        }
+
+        if let Some(short) = short {
+          write!(f, ", short={short}")?;
+        }
+
+        if let Some(pattern) = pattern {
+          write!(f, ", pattern={}", pattern.token.lexeme())?;
+        }
+
+        if let Some(value) = value {
+          write!(f, ", value={value}")?;
+        }
+
+        if let Some(help) = help {
+          write!(f, ", help={help}")?;
+        }
+
+        write!(f, ")")?;
+      }
       Self::Confirm(None)
       | Self::Default
       | Self::Doc(None)

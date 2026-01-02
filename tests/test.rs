@@ -320,8 +320,6 @@ impl Test {
   }
 
   fn round_trip(&self) {
-    println!("Reparsing...");
-
     let output = Command::new(executable_path("just"))
       .current_dir(self.tempdir.path())
       .arg("--dump")

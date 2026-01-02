@@ -2,12 +2,20 @@ use super::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) enum CompileErrorKind<'src> {
+  ArgAttributeValueRequiresOption,
+  ArgumentPatternRegex {
+    source: regex::Error,
+  },
   AttributeArgumentCountMismatch {
-    attribute: &'src str,
+    attribute: Name<'src>,
     found: usize,
     min: usize,
     max: usize,
   },
+  AttributeKeyMissingValue {
+    key: Name<'src>,
+  },
+  AttributePositionalFollowsKeyword,
   BacktickShebang,
   CircularRecipeDependency {
     recipe: &'src str,
@@ -23,12 +31,20 @@ pub(crate) enum CompileErrorKind<'src> {
     min: usize,
     max: usize,
   },
+  DuplicateArgAttribute {
+    arg: String,
+    first: usize,
+  },
   DuplicateAttribute {
     attribute: &'src str,
     first: usize,
   },
   DuplicateDefault {
     recipe: &'src str,
+  },
+  DuplicateOption {
+    recipe: &'src str,
+    option: Switch,
   },
   DuplicateParameter {
     recipe: &'src str,
@@ -74,7 +90,7 @@ pub(crate) enum CompileErrorKind<'src> {
   InvalidAttribute {
     item_kind: &'static str,
     item_name: &'src str,
-    attribute: Attribute<'src>,
+    attribute: Box<Attribute<'src>>,
   },
   InvalidEscapeSequence {
     character: char,
@@ -90,6 +106,12 @@ pub(crate) enum CompileErrorKind<'src> {
   NoCdAndWorkingDirectoryAttribute {
     recipe: &'src str,
   },
+  OptionNameContainsEqualSign {
+    parameter: String,
+  },
+  OptionNameEmpty {
+    parameter: String,
+  },
   ParameterFollowsVariadicParameter {
     parameter: &'src str,
   },
@@ -103,11 +125,14 @@ pub(crate) enum CompileErrorKind<'src> {
   RequiredParameterFollowsDefaultParameter {
     parameter: &'src str,
   },
-  ShebangAndScriptAttribute {
-    recipe: &'src str,
-  },
   ShellExpansion {
     err: shellexpand::LookupError<env::VarError>,
+  },
+  ShortOptionWithMultipleCharacters {
+    parameter: String,
+  },
+  UndefinedArgAttribute {
+    argument: String,
   },
   UndefinedVariable {
     variable: &'src str,
@@ -146,6 +171,10 @@ pub(crate) enum CompileErrorKind<'src> {
   UnknownAttribute {
     attribute: &'src str,
   },
+  UnknownAttributeKeyword {
+    attribute: &'src str,
+    keyword: &'src str,
+  },
   UnknownDependency {
     recipe: &'src str,
     unknown: Namepath<'src>,
@@ -163,4 +192,5 @@ pub(crate) enum CompileErrorKind<'src> {
   UnterminatedBacktick,
   UnterminatedInterpolation,
   UnterminatedString,
+  VariadicParameterWithOption,
 }
