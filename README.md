@@ -2842,6 +2842,14 @@ $ just foo --bar=hello
 bar=hello
 ```
 
+The value of `long` can be omitted, in which case the option defaults to the
+name of the parameter:
+
+```just
+[arg("bar", long)]
+foo bar:
+```
+
 The `[arg(ARG, short=OPTION)]`<sup>master</sup> attribute can be used to make a
 parameter a short option.
 

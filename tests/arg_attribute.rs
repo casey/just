@@ -354,3 +354,69 @@ fn pattern_mismatch_variadic() {
     .status(EXIT_FAILURE)
     .run();
 }
+
+#[test]
+fn pattern_requires_value() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', pattern)]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: Attribute key `pattern` requires value
+         ——▶ justfile:1:13
+          │
+        1 │ [arg('bar', pattern)]
+          │             ^^^^^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn short_requires_value() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', short)]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: Attribute key `short` requires value
+         ——▶ justfile:1:13
+          │
+        1 │ [arg('bar', short)]
+          │             ^^^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn value_requires_value() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long, value)]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: Attribute key `value` requires value
+         ——▶ justfile:1:19
+          │
+        1 │ [arg('bar', long, value)]
+          │                   ^^^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}

@@ -13,6 +13,8 @@ pub(crate) enum Attribute<'src> {
   Arg {
     help: Option<StringLiteral<'src>>,
     long: Option<StringLiteral<'src>>,
+    #[serde(skip)]
+    long_key: Option<Token<'src>>,
     name: StringLiteral<'src>,
     pattern: Option<Pattern<'src>>,
     short: Option<StringLiteral<'src>>,
@@ -91,7 +93,7 @@ impl<'src> Attribute<'src> {
   pub(crate) fn new(
     name: Name<'src>,
     arguments: Vec<StringLiteral<'src>>,
-    mut keyword_arguments: BTreeMap<&'src str, (Name<'src>, StringLiteral<'src>)>,
+    mut keyword_arguments: BTreeMap<&'src str, (Name<'src>, Option<StringLiteral<'src>>)>,
   ) -> CompileResult<'src, Self> {
     let discriminant = name
       .lexeme()
@@ -117,25 +119,29 @@ impl<'src> Attribute<'src> {
 
     let attribute = match discriminant {
       AttributeDiscriminant::Arg => {
-        let name = arguments.into_iter().next().unwrap();
+        let arg = arguments.into_iter().next().unwrap();
 
-        let long = keyword_arguments
+        let (long, long_key) = keyword_arguments
           .remove("long")
-          .map(|(_name, literal)| {
-            Self::check_option_name(&name, &literal)?;
-            Ok(literal)
+          .map(|(name, literal)| {
+            if let Some(literal) = literal {
+              Self::check_option_name(&arg, &literal)?;
+              Ok((Some(literal), None))
+            } else {
+              Ok((Some(arg.clone()), Some(*name)))
+            }
           })
-          .transpose()?;
+          .transpose()?
+          .unwrap_or((None, None));
 
-        let short = keyword_arguments
-          .remove("short")
-          .map(|(_name, literal)| {
-            Self::check_option_name(&name, &literal)?;
+        let short = Self::remove_required(&mut keyword_arguments, "short")?
+          .map(|(_key, literal)| {
+            Self::check_option_name(&arg, &literal)?;
 
             if literal.cooked.chars().count() != 1 {
               return Err(literal.token.error(
                 CompileErrorKind::ShortOptionWithMultipleCharacters {
-                  parameter: name.cooked.clone(),
+                  parameter: arg.cooked.clone(),
                 },
               ));
             }
@@ -144,29 +150,27 @@ impl<'src> Attribute<'src> {
           })
           .transpose()?;
 
-        let pattern = keyword_arguments
-          .remove("pattern")
-          .map(|(_name, literal)| Pattern::new(&literal))
+        let pattern = Self::remove_required(&mut keyword_arguments, "pattern")?
+          .map(|(_key, literal)| Pattern::new(&literal))
           .transpose()?;
 
-        let value = keyword_arguments
-          .remove("value")
-          .map(|(name, literal)| {
+        let value = Self::remove_required(&mut keyword_arguments, "value")?
+          .map(|(key, literal)| {
             if long.is_none() && short.is_none() {
-              return Err(name.error(CompileErrorKind::ArgAttributeValueRequiresOption));
+              return Err(key.error(CompileErrorKind::ArgAttributeValueRequiresOption));
             }
             Ok(literal)
           })
           .transpose()?;
 
-        let help = keyword_arguments
-          .remove("help")
-          .map(|(_name, literal)| literal);
+        let help =
+          Self::remove_required(&mut keyword_arguments, "help")?.map(|(_key, literal)| literal);
 
         Self::Arg {
           help,
           long,
-          name,
+          long_key,
+          name: arg,
           pattern,
           short,
           value,
@@ -214,6 +218,20 @@ impl<'src> Attribute<'src> {
     Ok(attribute)
   }
 
+  fn remove_required(
+    keyword_arguments: &mut BTreeMap<&'src str, (Name<'src>, Option<StringLiteral<'src>>)>,
+    key: &'src str,
+  ) -> CompileResult<'src, Option<(Name<'src>, StringLiteral<'src>)>> {
+    let Some((key, literal)) = keyword_arguments.remove(key) else {
+      return Ok(None);
+    };
+
+    let literal =
+      literal.ok_or_else(|| key.error(CompileErrorKind::AttributeKeyMissingValue { key }))?;
+
+    Ok(Some((key, literal)))
+  }
+
   pub(crate) fn discriminant(&self) -> AttributeDiscriminant {
     self.into()
   }
@@ -238,6 +256,7 @@ impl Display for Attribute<'_> {
       Self::Arg {
         help,
         long,
+        long_key: _,
         name,
         pattern,
         short,

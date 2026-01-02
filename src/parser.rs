@@ -1022,6 +1022,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       let Attribute::Arg {
         help,
         long,
+        long_key,
         name: arg,
         pattern,
         short,
@@ -1034,10 +1035,14 @@ impl<'run, 'src> Parser<'run, 'src> {
 
       if let Some(option) = long {
         if !longs.insert(&option.cooked) {
-          return Err(option.token.error(CompileErrorKind::DuplicateOption {
-            option: Switch::Long(option.cooked.clone()),
-            recipe: name.lexeme(),
-          }));
+          return Err(
+            long_key
+              .unwrap_or(option.token)
+              .error(CompileErrorKind::DuplicateOption {
+                option: Switch::Long(option.cooked.clone()),
+                recipe: name.lexeme(),
+              }),
+          );
         }
       }
 
@@ -1385,13 +1390,14 @@ impl<'run, 'src> Parser<'run, 'src> {
         } else if self.accepted(ParenL)? {
           loop {
             if self.next_is(Identifier) && !self.next_is_shell_expanded_string() {
-              let name = self.parse_name()?;
+              let key = self.parse_name()?;
 
-              self.expect(Equals)?;
+              let value = self
+                .accepted(Equals)?
+                .then(|| self.parse_string_literal())
+                .transpose()?;
 
-              let value = self.parse_string_literal()?;
-
-              keyword_arguments.insert(name.lexeme(), (name, value));
+              keyword_arguments.insert(key.lexeme(), (key, value));
             } else {
               let literal = self.parse_string_literal()?;
 

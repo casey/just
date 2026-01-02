@@ -85,6 +85,21 @@ fn parameters_may_be_passed_with_long_options() {
 }
 
 #[test]
+fn long_option_defaults_to_parameter_name() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long)]
+        @foo bar:
+          echo bar={{bar}}
+      ",
+    )
+    .args(["foo", "--bar", "baz"])
+    .stdout("bar=baz\n")
+    .run();
+}
+
+#[test]
 fn parameters_may_be_passed_with_short_options() {
   Test::new()
     .justfile(
@@ -166,6 +181,32 @@ fn duplicate_long_option_attributes_are_forbidden() {
           │
         2 │ [arg('baz', long='bar')]
           │                  ^^^^^
+      ",
+    )
+    .status(EXIT_FAILURE)
+    .run();
+}
+
+#[test]
+fn defaulted_duplicate_long_option() {
+  Test::new()
+    .justfile(
+      "
+        [arg(
+          'aaa',
+          long='bar'
+        )]
+        [arg(      'bar', long)]
+        foo aaa bar:
+      ",
+    )
+    .stderr(
+      "
+        error: Recipe `foo` defines option `--bar` multiple times
+         ——▶ justfile:5:19
+          │
+        5 │ [arg(      'bar', long)]
+          │                   ^^^^
       ",
     )
     .status(EXIT_FAILURE)
