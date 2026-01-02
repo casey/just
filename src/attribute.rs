@@ -135,7 +135,7 @@ impl<'src> Attribute<'src> {
           .unwrap_or((None, None));
 
         let short = Self::remove_required(&mut keyword_arguments, name, "short")?
-          .map(|(_key_name, literal)| {
+          .map(|(_key, literal)| {
             Self::check_option_name(&arg, &literal)?;
 
             if literal.cooked.chars().count() != 1 {
@@ -151,20 +151,20 @@ impl<'src> Attribute<'src> {
           .transpose()?;
 
         let pattern = Self::remove_required(&mut keyword_arguments, name, "pattern")?
-          .map(|(_key_name, literal)| Pattern::new(&literal))
+          .map(|(_key, literal)| Pattern::new(&literal))
           .transpose()?;
 
         let value = Self::remove_required(&mut keyword_arguments, name, "value")?
-          .map(|(key_name, literal)| {
+          .map(|(key, literal)| {
             if long.is_none() && short.is_none() {
-              return Err(key_name.error(CompileErrorKind::ArgAttributeValueRequiresOption));
+              return Err(key.error(CompileErrorKind::ArgAttributeValueRequiresOption));
             }
             Ok(literal)
           })
           .transpose()?;
 
         let help = Self::remove_required(&mut keyword_arguments, name, "help")?
-          .map(|(_key_name, literal)| literal);
+          .map(|(_key, literal)| literal);
 
         Self::Arg {
           help,
