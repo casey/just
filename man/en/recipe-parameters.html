@@ -299,6 +299,86 @@ info flag:
 <a href="https://docs.rs/regex/latest/regex/">Rust <code>regex</code> crate</a>. See the
 <a href="https://docs.rs/regex/latest/regex/#syntax">syntax documentation</a> for usage
 examples.</p>
+<p>Usage information for a recipe may be printed with the <code>--usage</code>
+subcommand<sup>1.46.0</sup>:</p>
+<pre><code class="language-console">$ just --usage foo
+Usage: just foo [OPTIONS] bar
+
+Arguments:
+  bar
+</code></pre>
+<p>Help strings may be added to arguments using the <code>[arg(ARG, help=HELP)]</code> attribute:</p>
+<pre><code class="language-just">[arg("bar", help="hello")]
+foo bar:
+</code></pre>
+<pre><code class="language-console">$ just --usage foo
+Usage: just foo bar
+
+Arguments:
+  bar hello
+</code></pre>
+<h4 id="recipe-flags-and-options"><a class="header" href="#recipe-flags-and-options">Recipe Flags and Options</a></h4>
+<p>Recipe parameters are positional by default.</p>
+<p>In this <code>justfile</code>:</p>
+<pre><code class="language-just">@foo bar:
+  echo bar={{bar}}
+</code></pre>
+<p>The parameter <code>bar</code> is positional:</p>
+<pre><code class="language-console">$ just foo hello
+bar=hello
+</code></pre>
+<p>The <code>[arg(ARG, long=OPTION)]</code><sup>1.46.0</sup> attribute can be used to make a
+parameter a long option.</p>
+<p>In this <code>justfile</code>:</p>
+<pre><code class="language-just">[arg("bar", long="bar")]
+foo bar:
+</code></pre>
+<p>The parameter <code>bar</code> is given with the <code>--bar</code> option:</p>
+<pre><code class="language-console">$ just foo --bar hello
+bar=hello
+</code></pre>
+<p>Options may also be passed with <code>--name=value</code> syntax:</p>
+<pre><code class="language-console">$ just foo --bar=hello
+bar=hello
+</code></pre>
+<p>The value of <code>long</code> can be omitted, in which case the option defaults to the
+name of the parameter:</p>
+<pre><code class="language-just">[arg("bar", long)]
+foo bar:
+</code></pre>
+<p>The <code>[arg(ARG, short=OPTION)]</code><sup>1.46.0</sup> attribute can be used to make a
+parameter a short option.</p>
+<p>In this <code>justfile</code>:</p>
+<pre><code class="language-just">[arg("bar", short="b")]
+foo bar:
+</code></pre>
+<p>The parameter <code>bar</code> is given with the <code>-b</code> option:</p>
+<pre><code class="language-console">$ just foo -b hello
+bar=hello
+</code></pre>
+<p>If a parameter has both a long and short option, it may be passed using either.</p>
+<p>Variadic <code>+</code> and <code>?</code> parameters cannot be options.</p>
+<p>The <code>[arg(ARG, value=VALUE, …)]</code><sup>1.46.0</sup> attribute can be used with
+<code>long</code> or <code>short</code> to make a parameter a flag which does not take a value.</p>
+<p>In this <code>justfile</code>:</p>
+<pre><code class="language-just">[arg("bar", long="bar", value="hello")]
+foo bar:
+</code></pre>
+<p>The parameter <code>bar</code> is given with the <code>--bar</code> option, but does not take a
+value, and instead takes the value given in the <code>[arg]</code> attribute:</p>
+<pre><code class="language-console">$ just foo --bar
+bar=hello
+</code></pre>
+<p>This is useful for unconditionally requiring a flag like <code>--force</code> on dangerous
+commands.</p>
+<p>A flag is optional if its parameter has a default:</p>
+<pre><code class="language-just">[arg("bar", long="bar", value="hello")]
+foo bar="goodbye":
+</code></pre>
+<p>Causing it to receive the default when not passed in the invocation:</p>
+<pre><code class="language-console">$ just foo
+bar=goodbye
+</code></pre>
 
                     </main>
 

@@ -182,6 +182,11 @@
 <p>Recipes, <code>mod</code> statements, and aliases may be annotated with attributes that
 change their behavior.</p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>[arg(ARG, help="HELP")]</code><sup>1.46.0</sup></td><td>recipe</td><td>Print help string <code>HELP</code> for <code>ARG</code> in usage messages.</td></tr>
+<tr><td><code>[arg(ARG, long="LONG")]</code><sup>1.46.0</sup></td><td>recipe</td><td>Require values of argument <code>ARG</code> to be passed as <code>--LONG</code> option.</td></tr>
+<tr><td><code>[arg(ARG, short="S")]</code><sup>1.46.0</sup></td><td>recipe</td><td>Require values of argument <code>ARG</code> to be passed as short <code>-S</code> option.</td></tr>
+<tr><td><code>[arg(ARG, value="VALUE")]</code><sup>1.46.0</sup></td><td>recipe</td><td>Makes option <code>ARG</code> a flag which does not take a value.</td></tr>
+<tr><td><code>[arg(ARG, pattern="PATTERN")]</code><sup>1.45.0</sup></td><td>recipe</td><td>Require values of argument <code>ARG</code> to match regular expression <code>PATTERN</code>.</td></tr>
 <tr><td><code>[confirm]</code><sup>1.17.0</sup></td><td>recipe</td><td>Require confirmation prior to executing recipe.</td></tr>
 <tr><td><code>[confirm(PROMPT)]</code><sup>1.23.0</sup></td><td>recipe</td><td>Require confirmation prior to executing recipe with a custom prompt.</td></tr>
 <tr><td><code>[default]</code><sup>1.43.0</sup></td><td>recipe</td><td>Use recipe as module’s default recipe.</td></tr>

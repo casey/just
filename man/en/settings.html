@@ -217,6 +217,11 @@ foo:
 <p>Which is equivalent to:</p>
 <pre><code class="language-justfile">set NAME := true
 </code></pre>
+<p>Non-boolean settings can be set to both strings and
+expressions.<sup>1.46.0</sup></p>
+<p>However, because settings affect the behavior of backticks and many functions,
+those expressions may not contain backticks or function calls, directly or
+transitively via reference.</p>
 <h4 id="allow-duplicate-recipes"><a class="header" href="#allow-duplicate-recipes">Allow Duplicate Recipes</a></h4>
 <p>If <code>allow-duplicate-recipes</code> is set to <code>true</code>, defining multiple recipes with
 the same name is not an error and the last definition is used. Defaults to
