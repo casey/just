@@ -14,13 +14,8 @@ pub(crate) enum Attribute<'src> {
     help: Option<StringLiteral<'src>>,
     long: Option<StringLiteral<'src>>,
     name: StringLiteral<'src>,
-    #[serde(skip)]
-    pattern: Option<Pattern>,
-    #[serde(rename = "pattern")]
-    pattern_literal: Option<StringLiteral<'src>>,
+    pattern: Option<Pattern<'src>>,
     short: Option<StringLiteral<'src>>,
-    #[serde(skip)]
-    short_token: Option<Token<'src>>,
     value: Option<StringLiteral<'src>>,
   },
   Confirm(Option<StringLiteral<'src>>),
@@ -73,7 +68,7 @@ impl<'src> Attribute<'src> {
   pub(crate) fn new(
     name: Name<'src>,
     arguments: Vec<StringLiteral<'src>>,
-    mut keyword_arguments: BTreeMap<&'src str, (Name<'src>, Token<'src>, StringLiteral<'src>)>,
+    mut keyword_arguments: BTreeMap<&'src str, (Name<'src>, StringLiteral<'src>)>,
   ) -> CompileResult<'src, Self> {
     let discriminant = name
       .lexeme()
@@ -102,15 +97,19 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::Arg => {
         let name = arguments.into_iter().next().unwrap();
 
-        let long = if let Some((_name, token, literal)) = keyword_arguments.remove("long") {
+        let long = if let Some((_name, literal)) = keyword_arguments.remove("long") {
           if literal.cooked.contains('=') {
-            return Err(token.error(CompileErrorKind::OptionNameContainsEqualSign {
-              parameter: name.cooked,
-            }));
+            return Err(
+              literal
+                .token
+                .error(CompileErrorKind::OptionNameContainsEqualSign {
+                  parameter: name.cooked,
+                }),
+            );
           }
 
           if literal.cooked.is_empty() {
-            return Err(token.error(CompileErrorKind::OptionNameEmpty {
+            return Err(literal.token.error(CompileErrorKind::OptionNameEmpty {
               parameter: name.cooked,
             }));
           }
@@ -120,43 +119,43 @@ impl<'src> Attribute<'src> {
           None
         };
 
-        let (short_token, short) =
-          if let Some((_name, token, literal)) = keyword_arguments.remove("short") {
+        let short =
+          if let Some((_name, literal)) = keyword_arguments.remove("short") {
             if literal.cooked.contains('=') {
-              return Err(token.error(CompileErrorKind::OptionNameContainsEqualSign {
-                parameter: name.cooked,
-              }));
+              return Err(
+                literal
+                  .token
+                  .error(CompileErrorKind::OptionNameContainsEqualSign {
+                    parameter: name.cooked,
+                  }),
+              );
             }
 
             if literal.cooked.is_empty() {
-              return Err(token.error(CompileErrorKind::OptionNameEmpty {
+              return Err(literal.token.error(CompileErrorKind::OptionNameEmpty {
                 parameter: name.cooked,
               }));
             }
 
             if literal.cooked.chars().count() != 1 {
-              return Err(
-                token.error(CompileErrorKind::ShortOptionWithMultipleCharacters {
+              return Err(literal.token.error(
+                CompileErrorKind::ShortOptionWithMultipleCharacters {
                   parameter: name.cooked,
-                }),
-              );
+                },
+              ));
             }
 
-            (Some(token), Some(literal))
+            Some(literal)
           } else {
-            (None, None)
+            None
           };
 
-        let (pattern_literal, pattern) = keyword_arguments
+        let pattern = keyword_arguments
           .remove("pattern")
-          .map(|(_name, token, literal)| {
-            let pattern = Pattern::new(token, &literal)?;
-            Ok((Some(literal), Some(pattern)))
-          })
-          .transpose()?
-          .unwrap_or((None, None));
+          .map(|(_name, literal)| Pattern::new(&literal))
+          .transpose()?;
 
-        let value = if let Some((name, _token, literal)) = keyword_arguments.remove("value") {
+        let value = if let Some((name, literal)) = keyword_arguments.remove("value") {
           if long.is_none() && short.is_none() {
             return Err(name.error(CompileErrorKind::ArgAttributeValueRequiresOption));
           }
@@ -167,16 +166,14 @@ impl<'src> Attribute<'src> {
 
         let help = keyword_arguments
           .remove("help")
-          .map(|(_name, _token, literal)| literal);
+          .map(|(_name, literal)| literal);
 
         Self::Arg {
           help,
           long,
           name,
           pattern,
-          pattern_literal,
           short,
-          short_token,
           value,
         }
       }
@@ -210,7 +207,7 @@ impl<'src> Attribute<'src> {
       }
     };
 
-    if let Some((_name, (keyword_name, _token, _literal))) = keyword_arguments.into_iter().next() {
+    if let Some((_name, (keyword_name, _literal))) = keyword_arguments.into_iter().next() {
       return Err(
         keyword_name.error(CompileErrorKind::UnknownAttributeKeyword {
           attribute: name.lexeme(),
@@ -247,10 +244,8 @@ impl Display for Attribute<'_> {
         help,
         long,
         name,
-        pattern: _,
-        pattern_literal,
+        pattern,
         short,
-        short_token: _,
         value,
       } => {
         write!(f, "({name}")?;
@@ -263,8 +258,8 @@ impl Display for Attribute<'_> {
           write!(f, ", short={short}")?;
         }
 
-        if let Some(pattern) = pattern_literal {
-          write!(f, ", pattern={pattern}")?;
+        if let Some(pattern) = pattern {
+          write!(f, ", pattern={}", pattern.token.lexeme())?;
         }
 
         if let Some(value) = value {

@@ -181,7 +181,7 @@ impl ColorDisplay for UsageParameter<'_> {
     }
 
     if let Some(pattern) = &self.parameter.pattern {
-      write!(f, " [pattern: '{pattern}']")?;
+      write!(f, " [pattern: '{}']", pattern.original())?;
     }
 
     Ok(())

@@ -378,11 +378,10 @@ impl<'run, 'src> Parser<'run, 'src> {
           {
             self.presume_keyword(Keyword::Import)?;
             let optional = self.accepted(QuestionMark)?;
-            let relative = self.parse_string_literal_token()?;
+            let relative = self.parse_string_literal()?;
             items.push(Item::Import {
               absolute: None,
               optional,
-              path: relative.token,
               relative,
             });
           }
@@ -668,7 +667,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_format_string(&mut self) -> CompileResult<'src, Expression<'src>> {
     self.expect_keyword(Keyword::F)?;
 
-    let start = self.parse_string_literal_token_in_state(StringState::FormatStart)?;
+    let start = self.parse_string_literal_in_state(StringState::FormatStart)?;
 
     let kind = StringKind::from_string_or_backtick(start.token)?;
 
@@ -789,13 +788,13 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
   }
 
-  /// Parse a string literal, e.g. `"FOO"`, returning the string literal and the string token
-  fn parse_string_literal_token(&mut self) -> CompileResult<'src, StringLiteral<'src>> {
-    self.parse_string_literal_token_in_state(StringState::Normal)
+  /// Parse a string literal, e.g. `"FOO"`
+  fn parse_string_literal(&mut self) -> CompileResult<'src, StringLiteral<'src>> {
+    self.parse_string_literal_in_state(StringState::Normal)
   }
 
-  /// Parse a string literal, e.g. `"FOO"`, returning the string literal and the string token
-  fn parse_string_literal_token_in_state(
+  /// Parse a string literal, e.g. `"FOO"`
+  fn parse_string_literal_in_state(
     &mut self,
     state: StringState,
   ) -> CompileResult<'src, StringLiteral<'src>> {
@@ -966,19 +965,6 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok(cooked)
   }
 
-  /// Parse a string literal, e.g. `"FOO"`
-  fn parse_string_literal(&mut self) -> CompileResult<'src, StringLiteral<'src>> {
-    self.parse_string_literal_token()
-  }
-
-  // /// Parse a format string literal, e.g. `"foo{"`, `}bar{`, or `}baz"`
-  fn parse_string_literal_in_state(
-    &mut self,
-    string_state: StringState,
-  ) -> CompileResult<'src, StringLiteral<'src>> {
-    self.parse_string_literal_token_in_state(string_state)
-  }
-
   /// Parse a name from an identifier token
   fn parse_name(&mut self) -> CompileResult<'src, Name<'src>> {
     self.expect(Identifier).map(Name::from_identifier)
@@ -1039,7 +1025,6 @@ impl<'run, 'src> Parser<'run, 'src> {
         name: arg,
         pattern,
         short,
-        short_token,
         value,
         ..
       } = attribute
@@ -1058,14 +1043,10 @@ impl<'run, 'src> Parser<'run, 'src> {
 
       if let Some(option) = short {
         if !shorts.insert(&option.cooked) {
-          return Err(
-            short_token
-              .unwrap()
-              .error(CompileErrorKind::DuplicateOption {
-                option: Switch::Short(option.cooked.chars().next().unwrap()),
-                recipe: name.lexeme(),
-              }),
-          );
+          return Err(option.token.error(CompileErrorKind::DuplicateOption {
+            option: Switch::Short(option.cooked.chars().next().unwrap()),
+            recipe: name.lexeme(),
+          }));
         }
       }
 
@@ -1196,7 +1177,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// Parse a recipe parameter
   fn parse_parameter(
     &mut self,
-    arg_attributes: &mut BTreeMap<String, ArgAttribute>,
+    arg_attributes: &mut BTreeMap<String, ArgAttribute<'src>>,
     kind: ParameterKind,
   ) -> CompileResult<'src, Parameter<'src>> {
     let export = self.accepted(Dollar)?;
@@ -1400,7 +1381,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         let mut keyword_arguments = BTreeMap::new();
 
         if self.accepted(Colon)? {
-          arguments.push(self.parse_string_literal_token()?);
+          arguments.push(self.parse_string_literal()?);
         } else if self.accepted(ParenL)? {
           loop {
             if self.next_is(Identifier) && !self.next_is_shell_expanded_string() {
@@ -1408,11 +1389,11 @@ impl<'run, 'src> Parser<'run, 'src> {
 
               self.expect(Equals)?;
 
-              let value = self.parse_string_literal_token()?;
+              let value = self.parse_string_literal()?;
 
-              keyword_arguments.insert(name.lexeme(), (name, value.token, value));
+              keyword_arguments.insert(name.lexeme(), (name, value));
             } else {
-              let literal = self.parse_string_literal_token()?;
+              let literal = self.parse_string_literal()?;
 
               if !keyword_arguments.is_empty() {
                 return Err(

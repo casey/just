@@ -71,7 +71,6 @@ impl Compiler {
             relative,
             absolute,
             optional,
-            path,
           } => {
             let import = current
               .path
@@ -88,9 +87,11 @@ impl Compiler {
                 });
               }
               *absolute = Some(import.clone());
-              stack.push(current.import(import, path.offset));
+              stack.push(current.import(import, relative.token.offset));
             } else if !*optional {
-              return Err(Error::MissingImportFile { path: *path });
+              return Err(Error::MissingImportFile {
+                path: relative.token,
+              });
             }
           }
           _ => {}

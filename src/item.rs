@@ -9,7 +9,6 @@ pub(crate) enum Item<'src> {
   Import {
     absolute: Option<PathBuf>,
     optional: bool,
-    path: Token<'src>,
     relative: StringLiteral<'src>,
   },
   Module {
