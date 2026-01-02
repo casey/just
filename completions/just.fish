@@ -1,8 +1,16 @@
 function __fish_just_complete_recipes
-        if string match -rq '(-f|--justfile)\s*=?(?<justfile>[^\s]+)' -- (string split -- ' -- ' (commandline -pc))[1]
+        set -l cmdline (string split -- ' -- ' (commandline -pc))[1]
+        if string match -rq '(-f|--justfile)\s*=?(?<justfile>[^\s]+)' -- $cmdline
           set -fx JUST_JUSTFILE "$justfile"
         end
-        printf "%s\n" (string split " " (just --summary))
+
+        # Check if --global-justfile or -g flag is present
+        set -l use_global
+        if string match -rq '(^|\s)(-g|--global-justfile)(\s|$)' -- $cmdline
+            set use_global --global-justfile
+        end
+
+        printf "%s\n" (string split " " (just $use_global --summary))
 end
 
 # don't suggest files right off
