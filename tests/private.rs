@@ -42,10 +42,7 @@ fn private_attribute_for_alias() {
 #[test]
 fn private_attribute_for_module() {
   Test::new()
-    .write(
-      "foo.just",
-      "[group: 'bar']\nbar:\n @echo BAR\n\nalias f := bar\n",
-    )
+    .write("foo.just", "bar:")
     .justfile(
       r"
         [private]
