@@ -1390,15 +1390,14 @@ impl<'run, 'src> Parser<'run, 'src> {
         } else if self.accepted(ParenL)? {
           loop {
             if self.next_is(Identifier) && !self.next_is_shell_expanded_string() {
-              let keyword = self.parse_name()?;
+              let key = self.parse_name()?;
 
-              let value = if self.accepted(Equals)? {
-                Some(self.parse_string_literal()?)
-              } else {
-                None
-              };
+              let value = self
+                .accepted(Equals)?
+                .then(|| self.parse_string_literal())
+                .transpose()?;
 
-              keyword_arguments.insert(keyword.lexeme(), (keyword, value));
+              keyword_arguments.insert(key.lexeme(), (key, value));
             } else {
               let literal = self.parse_string_literal()?;
 
