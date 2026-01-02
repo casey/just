@@ -1,5 +1,7 @@
 use super::*;
 
+// will need to do this for short too
+
 #[allow(clippy::large_enum_variant)]
 #[derive(
   EnumDiscriminants, PartialEq, Debug, Clone, Serialize, Ord, PartialOrd, Eq, IntoStaticStr,
@@ -13,6 +15,8 @@ pub(crate) enum Attribute<'src> {
   Arg {
     help: Option<StringLiteral<'src>>,
     long: Option<StringLiteral<'src>>,
+    #[serde(skip)]
+    long_err: Option<Token<'src>>,
     name: StringLiteral<'src>,
     pattern: Option<Pattern<'src>>,
     short: Option<StringLiteral<'src>>,
@@ -134,14 +138,18 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::Arg => {
         let arg = arguments.into_iter().next().unwrap();
 
-        let long = keyword_arguments
+        let (long, long_err) = keyword_arguments
           .remove("long")
-          .map(|(_name, literal)| {
-            let literal = literal.unwrap_or_else(|| arg.clone());
-            Self::check_option_name(&arg, &literal)?;
-            Ok(literal)
+          .map(|(name, literal)| {
+            if let Some(literal) = literal {
+              Self::check_option_name(&arg, &literal)?;
+              Ok((Some(literal), None))
+            } else {
+              Ok((Some(arg.clone()), Some(*name)))
+            }
           })
-          .transpose()?;
+          .transpose()?
+          .unwrap_or((None, None));
 
         let short = Self::remove_required(&mut keyword_arguments, name, "short")?
           .map(|(_key_name, literal)| {
@@ -178,6 +186,7 @@ impl<'src> Attribute<'src> {
         Self::Arg {
           help,
           long,
+          long_err,
           name: arg,
           pattern,
           short,
@@ -250,6 +259,7 @@ impl Display for Attribute<'_> {
       Self::Arg {
         help,
         long,
+        long_err: _,
         name,
         pattern,
         short,

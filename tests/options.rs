@@ -203,10 +203,10 @@ fn defaulted_duplicate_long_option() {
     .stderr(
       "
         error: Recipe `foo` defines option `--bar` multiple times
-         ——▶ justfile:5:12
+         ——▶ justfile:5:19
           │
         5 │ [arg(      'bar', long)]
-          │            ^^^^^
+          │                   ^^^^
       ",
     )
     .status(EXIT_FAILURE)

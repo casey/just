@@ -1022,6 +1022,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       let Attribute::Arg {
         help,
         long,
+        long_err,
         name: arg,
         pattern,
         short,
@@ -1034,10 +1035,14 @@ impl<'run, 'src> Parser<'run, 'src> {
 
       if let Some(option) = long {
         if !longs.insert(&option.cooked) {
-          return Err(option.token.error(CompileErrorKind::DuplicateOption {
-            option: Switch::Long(option.cooked.clone()),
-            recipe: name.lexeme(),
-          }));
+          return Err(
+            long_err
+              .unwrap_or(option.token)
+              .error(CompileErrorKind::DuplicateOption {
+                option: Switch::Long(option.cooked.clone()),
+                recipe: name.lexeme(),
+              }),
+          );
         }
       }
 
