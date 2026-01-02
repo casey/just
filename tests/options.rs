@@ -85,7 +85,7 @@ fn parameters_may_be_passed_with_long_options() {
 }
 
 #[test]
-fn long_option_defaults_to_argument_name() {
+fn long_option_defaults_to_parameter_name() {
   Test::new()
     .justfile(
       "
@@ -188,30 +188,7 @@ fn duplicate_long_option_attributes_are_forbidden() {
 }
 
 #[test]
-fn duplicate_long_option_with_defaulted_long_attribute_is_forbidden() {
-  Test::new()
-    .justfile(
-      "
-        [arg('bar', long)]
-        [arg('baz', long='bar')]
-        foo bar baz:
-      ",
-    )
-    .stderr(
-      "
-        error: Recipe `foo` defines option `--bar` multiple times
-         ——▶ justfile:2:18
-          │
-        2 │ [arg('baz', long='bar')]
-          │                  ^^^^^
-      ",
-    )
-    .status(EXIT_FAILURE)
-    .run();
-}
-
-#[test]
-fn duplicate_long_option_with_explicit_long_then_defaulted_long_is_forbidden() {
+fn defaulted_duplicate_long_option() {
   Test::new()
     .justfile(
       "
