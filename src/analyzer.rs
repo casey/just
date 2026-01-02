@@ -20,8 +20,8 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     loaded: &[PathBuf],
     name: Option<Name<'src>>,
     paths: &HashMap<PathBuf, PathBuf>,
-    root: &Path,
     private: bool,
+    root: &Path,
   ) -> RunResult<'src, Justfile<'src>> {
     Self::default().justfile(
       asts, config, doc, groups, loaded, name, paths, root, private,
@@ -86,8 +86,8 @@ impl<'run, 'src> Analyzer<'run, 'src> {
                 loaded,
                 Some(*name),
                 paths,
-                absolute,
                 *private,
+                absolute,
               )?);
             }
           }
