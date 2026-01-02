@@ -73,8 +73,7 @@ impl<'src> Attribute<'src> {
     let discriminant = name
       .lexeme()
       .parse::<AttributeDiscriminant>()
-      .ok()
-      .ok_or_else(|| {
+      .map_err(|_| {
         name.error(CompileErrorKind::UnknownAttribute {
           attribute: name.lexeme(),
         })
@@ -85,7 +84,7 @@ impl<'src> Attribute<'src> {
     if !range.contains(&found) {
       return Err(
         name.error(CompileErrorKind::AttributeArgumentCountMismatch {
-          attribute: name.lexeme(),
+          attribute: name,
           found,
           min: *range.start(),
           max: *range.end(),
