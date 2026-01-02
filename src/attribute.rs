@@ -117,31 +117,32 @@ impl<'src> Attribute<'src> {
 
     let attribute = match discriminant {
       AttributeDiscriminant::Arg => {
-        let name = arguments.into_iter().next().unwrap();
+        let arg_name = arguments.into_iter().next().unwrap();
 
         let long = keyword_arguments
           .remove("long")
           .map(|(_name, literal)| {
-            let literal = literal.unwrap_or_else(|| name.clone());
-            Self::check_option_name(&name, &literal)?;
+            let literal = literal.unwrap_or_else(|| arg_name.clone());
+            Self::check_option_name(&arg_name, &literal)?;
             Ok(literal)
           })
           .transpose()?;
 
         let short = keyword_arguments
           .remove("short")
-          .map(|(_name, literal)| {
+          .map(|(keyword, literal)| {
             let literal = literal.ok_or_else(|| {
-              _name.error(CompileErrorKind::Internal {
-                message: "short option missing value".into(),
+              keyword.error(CompileErrorKind::AttributeKeywordMissingValue {
+                attribute: name.lexeme(),
+                keyword: keyword.lexeme(),
               })
             })?;
-            Self::check_option_name(&name, &literal)?;
+            Self::check_option_name(&arg_name, &literal)?;
 
             if literal.cooked.chars().count() != 1 {
               return Err(literal.token.error(
                 CompileErrorKind::ShortOptionWithMultipleCharacters {
-                  parameter: name.cooked.clone(),
+                  parameter: arg_name.cooked.clone(),
                 },
               ));
             }
@@ -154,8 +155,9 @@ impl<'src> Attribute<'src> {
           .remove("pattern")
           .map(|(keyword, literal)| {
             let literal = literal.ok_or_else(|| {
-              keyword.error(CompileErrorKind::Internal {
-                message: "pattern missing value".into(),
+              keyword.error(CompileErrorKind::AttributeKeywordMissingValue {
+                attribute: name.lexeme(),
+                keyword: keyword.lexeme(),
               })
             })?;
             Pattern::new(&literal)
@@ -164,14 +166,15 @@ impl<'src> Attribute<'src> {
 
         let value = keyword_arguments
           .remove("value")
-          .map(|(name, literal)| {
+          .map(|(keyword, literal)| {
             let literal = literal.ok_or_else(|| {
-              name.error(CompileErrorKind::Internal {
-                message: "value missing for arg attribute".into(),
+              keyword.error(CompileErrorKind::AttributeKeywordMissingValue {
+                attribute: name.lexeme(),
+                keyword: keyword.lexeme(),
               })
             })?;
             if long.is_none() && short.is_none() {
-              return Err(name.error(CompileErrorKind::ArgAttributeValueRequiresOption));
+              return Err(keyword.error(CompileErrorKind::ArgAttributeValueRequiresOption));
             }
             Ok(literal)
           })
@@ -181,8 +184,9 @@ impl<'src> Attribute<'src> {
           .remove("help")
           .map(|(keyword, literal)| {
             literal.ok_or_else(|| {
-              keyword.error(CompileErrorKind::Internal {
-                message: "help missing value".into(),
+              keyword.error(CompileErrorKind::AttributeKeywordMissingValue {
+                attribute: name.lexeme(),
+                keyword: keyword.lexeme(),
               })
             })
           })
@@ -191,7 +195,7 @@ impl<'src> Attribute<'src> {
         Self::Arg {
           help,
           long,
-          name,
+          name: arg_name,
           pattern,
           short,
           value,
