@@ -246,6 +246,17 @@ impl Display for CompileError<'_> {
         f,
         "Recipe `{recipe}` has both `[no-cd]` and `[working-directory]` attributes"
       ),
+      NoCdAndWorkingDirectorySetting {
+        first,
+        first_line,
+        second,
+      } => write!(
+        f,
+        "Setting `{}` first set on line {} is incompatible with setting `{}`",
+        first.lexeme(),
+        first_line.ordinal(),
+        second.lexeme()
+      ),
       OptionNameContainsEqualSign { parameter } => {
         write!(
           f,

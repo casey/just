@@ -112,6 +112,11 @@ pub(crate) enum CompileErrorKind<'src> {
   OptionNameEmpty {
     parameter: String,
   },
+  NoCdAndWorkingDirectorySetting {
+    first: Keyword,
+    first_line: usize,
+    second: Keyword,
+  },
   ParameterFollowsVariadicParameter {
     parameter: &'src str,
   },

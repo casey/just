@@ -149,8 +149,19 @@ impl<'src, D> Recipe<'src, D> {
         .contains(AttributeDiscriminant::PositionalArguments)
   }
 
-  pub(crate) fn change_directory(&self) -> bool {
-    !self.attributes.contains(AttributeDiscriminant::NoCd)
+  pub(crate) fn change_directory(&self, settings: &Settings) -> bool {
+    if self
+      .attributes
+      .contains(AttributeDiscriminant::WorkingDirectory)
+    {
+      return true;
+    }
+
+    if self.attributes.contains(AttributeDiscriminant::NoCd) {
+      return false;
+    }
+
+    !settings.no_cd
   }
 
   pub(crate) fn enabled(&self) -> bool {
@@ -181,20 +192,20 @@ impl<'src, D> Recipe<'src, D> {
     }
   }
 
-  fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
-    if !self.change_directory() {
-      return None;
-    }
-
-    let working_directory = context.working_directory();
+  pub(crate) fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
+    let module_working_directory = context.working_directory();
 
     for attribute in &self.attributes {
       if let Attribute::WorkingDirectory(dir) = attribute {
-        return Some(working_directory.join(&dir.cooked));
+        return Some(module_working_directory.join(&dir.cooked));
       }
     }
 
-    Some(working_directory)
+    if !self.change_directory(&context.module.settings) {
+      return None;
+    }
+
+    Some(module_working_directory)
   }
 
   fn no_quiet(&self) -> bool {

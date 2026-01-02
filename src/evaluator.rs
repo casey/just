@@ -104,6 +104,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         Setting::IgnoreComments(value) => {
           settings.ignore_comments = value;
         }
+        Setting::NoCd(value) => {
+          settings.no_cd = value;
+        }
+        Setting::NoCdStrict(value) => {
+          settings.no_cd_strict = value;
+        }
         Setting::NoExitMessage(value) => {
           settings.no_exit_message = value;
         }
@@ -445,7 +451,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     cmd
       .arg(command)
       .args(args)
-      .current_dir(context.working_directory())
+      .current_dir(context.path_working_directory())
       .export(
         &context.module.settings,
         context.dotenv,
