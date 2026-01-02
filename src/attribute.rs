@@ -91,16 +91,16 @@ impl<'src> Attribute<'src> {
   fn remove_required(
     keyword_arguments: &mut BTreeMap<&'src str, (Name<'src>, Option<StringLiteral<'src>>)>,
     attribute: &Name<'src>,
-    keyword: &'src str,
+    key: &'src str,
   ) -> CompileResult<'src, Option<StringLiteral<'src>>> {
-    let Some((keyword_name, literal)) = keyword_arguments.remove(keyword) else {
+    let Some((key_name, literal)) = keyword_arguments.remove(key) else {
       return Ok(None);
     };
 
     let literal = literal.ok_or_else(|| {
-      keyword_name.error(CompileErrorKind::AttributeKeywordMissingValue {
+      key_name.error(CompileErrorKind::AttributeKeyMissingValue {
         attribute: attribute.lexeme(),
-        keyword: keyword_name.lexeme(),
+        key: key_name.lexeme(),
       })
     })?;
 

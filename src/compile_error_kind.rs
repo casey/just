@@ -12,9 +12,9 @@ pub(crate) enum CompileErrorKind<'src> {
     min: usize,
     max: usize,
   },
-  AttributeKeywordMissingValue {
+  AttributeKeyMissingValue {
     attribute: &'src str,
-    keyword: &'src str,
+    key: &'src str,
   },
   AttributePositionalFollowsKeyword,
   BacktickShebang,

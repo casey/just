@@ -337,10 +337,10 @@ impl Display for CompileError<'_> {
       UnknownAliasTarget { alias, target } => {
         write!(f, "Alias `{alias}` has an unknown target `{target}`")
       }
-      AttributeKeywordMissingValue { attribute, keyword } => {
+      AttributeKeyMissingValue { attribute, key } => {
         write!(
           f,
-          "Keyword `{keyword}` for `{attribute}` attribute requires a value"
+          "Key `{key}` for `{attribute}` attribute requires a value"
         )
       }
       UnknownAttributeKeyword { attribute, keyword } => {
