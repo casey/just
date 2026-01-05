@@ -6,26 +6,28 @@ fn test_os_arch_functions_in_interpolation() {
     .justfile(
       r"
 foo:
-  echo {{arch()}} {{os()}} {{os_family()}} {{num_cpus()}}
+  echo {{arch()}} {{os()}} {{os_family()}} {{num_cpus()}} {{just_version()}}
 ",
     )
     .stdout(
       format!(
-        "{} {} {} {}\n",
+        "{} {} {} {} {}\n",
         target::arch(),
         target::os(),
         target::family(),
-        num_cpus::get()
+        num_cpus::get(),
+        env!("CARGO_PKG_VERSION"),
       )
       .as_str(),
     )
     .stderr(
       format!(
-        "echo {} {} {} {}\n",
+        "echo {} {} {} {} {}\n",
         target::arch(),
         target::os(),
         target::family(),
-        num_cpus::get()
+        num_cpus::get(),
+        env!("CARGO_PKG_VERSION"),
       )
       .as_str(),
     )
@@ -41,28 +43,31 @@ a := arch()
 o := os()
 f := os_family()
 n := num_cpus()
+v := just_version()
 
 foo:
-  echo {{a}} {{o}} {{f}} {{n}}
+  echo {{a}} {{o}} {{f}} {{n}} {{v}}
 ",
     )
     .stdout(
       format!(
-        "{} {} {} {}\n",
+        "{} {} {} {} {}\n",
         target::arch(),
         target::os(),
         target::family(),
-        num_cpus::get()
+        num_cpus::get(),
+        env!("CARGO_PKG_VERSION"),
       )
       .as_str(),
     )
     .stderr(
       format!(
-        "echo {} {} {} {}\n",
+        "echo {} {} {} {} {}\n",
         target::arch(),
         target::os(),
         target::family(),
-        num_cpus::get()
+        num_cpus::get(),
+        env!("CARGO_PKG_VERSION"),
       )
       .as_str(),
     )
@@ -397,27 +402,29 @@ fn test_os_arch_functions_in_default() {
   Test::new()
     .justfile(
       r"
-foo a=arch() o=os() f=os_family() n=num_cpus():
-  echo {{a}} {{o}} {{f}} {{n}}
+foo a=arch() o=os() f=os_family() n=num_cpus() v=just_version():
+  echo {{a}} {{o}} {{f}} {{n}} {{v}}
 ",
     )
     .stdout(
       format!(
-        "{} {} {} {}\n",
+        "{} {} {} {} {}\n",
         target::arch(),
         target::os(),
         target::family(),
-        num_cpus::get()
+        num_cpus::get(),
+        env!("CARGO_PKG_VERSION"),
       )
       .as_str(),
     )
     .stderr(
       format!(
-        "echo {} {} {} {}\n",
+        "echo {} {} {} {} {}\n",
         target::arch(),
         target::os(),
         target::family(),
-        num_cpus::get()
+        num_cpus::get(),
+        env!("CARGO_PKG_VERSION"),
       )
       .as_str(),
     )
