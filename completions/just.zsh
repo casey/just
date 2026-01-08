@@ -100,8 +100,17 @@ _just() {
             local lastarg=${words[${#words}]}
             local recipe
 
+            # Check if --global-justfile or -g flag is present
+            local use_global=""
+            for word in "${words[@]}"; do
+                if [[ "$word" == "-g" || "$word" == "--global-justfile" ]]; then
+                    use_global="--global-justfile"
+                    break
+                fi
+            done
+
             local cmds; cmds=(
-                ${(s: :)$(_call_program commands just --summary)}
+                ${(s: :)$(_call_program commands just $use_global --summary)}
             )
 
             # Find first recipe name
@@ -120,7 +129,7 @@ _just() {
                 _message "value"
             elif [[ $recipe ]]; then
                 # Show usage message
-                _message "`just --show $recipe`"
+                _message "`just $use_global --show $recipe`"
                 # Or complete with other commands
                 #_arguments -s -S $common '*:: :_just_commands'
             else
@@ -137,22 +146,27 @@ _just() {
 _just_commands() {
     [[ $PREFIX = -* ]] && return 1
     integer ret=1
-    local variables; variables=(
-        ${(s: :)$(_call_program commands just --variables)}
-    )
-    local commands; commands=(
-        ${${${(M)"${(f)$(_call_program commands just --list)}":#    *}/ ##/}/ ##/:Args: }
-    )
 
-    if compset -P '*='; then
-        case "${${words[-1]%=*}#*=}" in
-            *) _message 'value' && ret=0 ;;
-        esac
-    else
-        _describe -t variables 'variables' variables -qS "=" && ret=0
-        _describe -t commands 'just commands' commands "$@"
-    fi
+    # Check if --global-justfile or -g flag is present
+    local use_global=""
+    for word in "${words[@]}"; do
+        if [[ "$word" == "-g" || "$word" == "--global-justfile" ]]; then
+            use_global="--global-justfile"
+            break
+        fi
+    done
 
+    # Get recipes from --summary (includes full module::recipe paths)
+    local summary_output=$(_call_program commands just $use_global --summary)
+
+    # Split into array properly
+    local -a recipes
+    recipes=("${(@s: :)summary_output}")
+
+    # Add recipes directly to completion
+    compadd -a recipes
+
+    return 0
 }
 
 if [ "$funcstack[1]" = "_just" ]; then
@@ -160,8 +174,16 @@ if [ "$funcstack[1]" = "_just" ]; then
 _just_variables() {
     [[ $PREFIX = -* ]] && return 1
     integer ret=1
+    # Check if --global-justfile or -g flag is present
+    local use_global=""
+    for word in "${words[@]}"; do
+        if [[ "$word" == "-g" || "$word" == "--global-justfile" ]]; then
+            use_global="--global-justfile"
+            break
+        fi
+    done
     local variables; variables=(
-        ${(s: :)$(_call_program commands just --variables)}
+        ${(s: :)$(_call_program commands just $use_global --variables)}
     )
 
     if compset -P '*='; then

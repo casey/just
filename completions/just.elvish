@@ -8,6 +8,16 @@ set edit:completion:arg-completer[just] = {|@words|
     fn cand {|text desc|
         edit:complex-candidate $text &display=$text' '(spaces (- 14 (wcswidth $text)))$desc
     }
+
+    # Check if --global-justfile or -g flag is present
+    var use-global = []
+    for word $words[1..-1] {
+        if (or (eq $word '-g') (eq $word '--global-justfile')) {
+            set use-global = ['--global-justfile']
+            break
+        }
+    }
+
     var command = 'just'
     for word $words[1..-1] {
         if (str:has-prefix $word '-') {
@@ -91,4 +101,17 @@ set edit:completion:arg-completer[just] = {|@words|
         }
     ]
     $completions[$command]
+
+    # Complete recipes if not completing an option
+    var current = $words[-1]
+    if (not (str:has-prefix $current '-')) {
+        try {
+            var recipes = [(just $@use-global --summary 2>/dev/null | str:split ' ')]
+            for recipe $recipes {
+                if (not (eq $recipe '')) {
+                    cand $recipe ''
+                }
+            }
+        } catch { }
+    }
 }
