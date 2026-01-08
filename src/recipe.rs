@@ -56,12 +56,32 @@ impl<'src, D> Recipe<'src, D> {
     self.min_arguments()..=self.max_arguments()
   }
 
+  pub(crate) fn group_arguments(
+    &self,
+    arguments: &[Expression<'src>],
+  ) -> Vec<Vec<Expression<'src>>> {
+    let mut groups = Vec::new();
+    let mut rest = arguments;
+
+    for parameter in &self.parameters {
+      let group = if parameter.kind.is_variadic() {
+        mem::take(&mut rest).into()
+      } else if let Some(argument) = rest.first() {
+        rest = &rest[1..];
+        vec![argument.clone()]
+      } else {
+        debug_assert!(parameter.default.is_some());
+        Vec::new()
+      };
+
+      groups.push(group);
+    }
+
+    groups
+  }
+
   pub(crate) fn min_arguments(&self) -> usize {
-    self
-      .parameters
-      .iter()
-      .filter(|p| p.default.is_none() && p.kind != ParameterKind::Star)
-      .count()
+    self.parameters.iter().filter(|p| p.is_required()).count()
   }
 
   pub(crate) fn max_arguments(&self) -> usize {
@@ -395,8 +415,16 @@ impl<'src, D> Recipe<'src, D> {
       Executor::Command(
         interpreter
           .as_ref()
-          .or(context.module.settings.script_interpreter.as_ref())
-          .unwrap_or_else(|| Interpreter::default_script_interpreter()),
+          .map(|interpreter| Interpreter {
+            command: interpreter.command.cooked.clone(),
+            arguments: interpreter
+              .arguments
+              .iter()
+              .map(|argument| argument.cooked.clone())
+              .collect(),
+          })
+          .or_else(|| context.module.settings.script_interpreter.clone())
+          .unwrap_or_else(|| Interpreter::default_script_interpreter().clone()),
       )
     } else {
       let line = evaluated_lines

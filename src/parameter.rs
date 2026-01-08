@@ -4,12 +4,20 @@ use super::*;
 pub(crate) struct Parameter<'src> {
   pub(crate) default: Option<Expression<'src>>,
   pub(crate) export: bool,
+  pub(crate) help: Option<String>,
   pub(crate) kind: ParameterKind,
+  pub(crate) long: Option<String>,
   pub(crate) name: Name<'src>,
-  pub(crate) pattern: Option<Pattern>,
+  pub(crate) pattern: Option<Pattern<'src>>,
+  pub(crate) short: Option<char>,
+  pub(crate) value: Option<String>,
 }
 
 impl<'src> Parameter<'src> {
+  pub(crate) fn is_option(&self) -> bool {
+    self.long.is_some() || self.short.is_some()
+  }
+
   pub(crate) fn is_required(&self) -> bool {
     self.default.is_none() && self.kind != ParameterKind::Star
   }
@@ -30,7 +38,7 @@ impl<'src> Parameter<'src> {
     Err(Error::ArgumentPatternMismatch {
       argument: value.into(),
       parameter: self.name.lexeme(),
-      pattern: pattern.clone(),
+      pattern: Box::new(pattern.clone()),
       recipe: recipe.name(),
     })
   }

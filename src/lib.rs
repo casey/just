@@ -10,7 +10,6 @@ pub(crate) use {
     alias_style::AliasStyle,
     analyzer::Analyzer,
     arg_attribute::ArgAttribute,
-    argument_parser::ArgumentParser,
     assignment::Assignment,
     assignment_resolver::AssignmentResolver,
     ast::Ast,
@@ -29,6 +28,7 @@ pub(crate) use {
     conditional_operator::ConditionalOperator,
     config::Config,
     config_error::ConfigError,
+    const_error::ConstError,
     constants::constants,
     count::Count,
     delimiter::Delimiter,
@@ -44,6 +44,8 @@ pub(crate) use {
     fragment::Fragment,
     function::Function,
     interpreter::Interpreter,
+    invocation::Invocation,
+    invocation_parser::InvocationParser,
     item::Item,
     justfile::Justfile,
     keyed::Keyed,
@@ -89,6 +91,7 @@ pub(crate) use {
     string_state::StringState,
     subcommand::Subcommand,
     suggestion::Suggestion,
+    switch::Switch,
     table::Table,
     thunk::Thunk,
     token::Token,
@@ -96,6 +99,7 @@ pub(crate) use {
     unresolved_dependency::UnresolvedDependency,
     unresolved_recipe::UnresolvedRecipe,
     unstable_feature::UnstableFeature,
+    usage::Usage,
     use_color::UseColor,
     variables::Variables,
     verbosity::Verbosity,
@@ -117,7 +121,7 @@ pub(crate) use {
   snafu::{ResultExt, Snafu},
   std::{
     borrow::Cow,
-    cmp::{self, Ordering},
+    cmp::Ordering,
     collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     env,
     ffi::OsString,
@@ -127,11 +131,11 @@ pub(crate) use {
     iter::{self, FromIterator},
     mem,
     ops::Deref,
-    ops::{Index, Range, RangeInclusive},
+    ops::{Index, RangeInclusive},
     path::{self, Path, PathBuf},
     process::{self, Command, ExitStatus, Stdio},
     str::{self, Chars},
-    sync::{Arc, LazyLock, Mutex, MutexGuard, OnceLock},
+    sync::{Arc, LazyLock, Mutex, MutexGuard},
     thread, vec,
   },
   strum::{Display, EnumDiscriminants, EnumString, IntoStaticStr},
@@ -189,7 +193,6 @@ mod alias;
 mod alias_style;
 mod analyzer;
 mod arg_attribute;
-mod argument_parser;
 mod assignment;
 mod assignment_resolver;
 mod ast;
@@ -209,6 +212,7 @@ mod condition;
 mod conditional_operator;
 mod config;
 mod config_error;
+mod const_error;
 mod constants;
 mod count;
 mod delimiter;
@@ -224,6 +228,8 @@ mod format_string_part;
 mod fragment;
 mod function;
 mod interpreter;
+mod invocation;
+mod invocation_parser;
 mod item;
 mod justfile;
 mod keyed;
@@ -272,6 +278,7 @@ mod string_literal;
 mod string_state;
 mod subcommand;
 mod suggestion;
+mod switch;
 mod table;
 mod thunk;
 mod token;
@@ -280,6 +287,7 @@ mod unindent;
 mod unresolved_dependency;
 mod unresolved_recipe;
 mod unstable_feature;
+mod usage;
 mod use_color;
 mod variables;
 mod verbosity;

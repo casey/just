@@ -7,22 +7,17 @@ default:
     echo 'Hello, world!'
 ";
 
-fn backtick_re() -> &'static Regex {
-  static BACKTICK_RE: OnceLock<Regex> = OnceLock::new();
-  BACKTICK_RE.get_or_init(|| Regex::new("(`.*?`)|(`[^`]*$)").unwrap())
-}
+static BACKTICK_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new("(`.*?`)|(`[^`]*$)").unwrap());
 
 #[derive(PartialEq, Clone, Debug)]
 pub(crate) enum Subcommand {
   Changelog,
   Choose {
-    overrides: BTreeMap<String, String>,
     chooser: Option<String>,
   },
   Command {
     arguments: Vec<OsString>,
     binary: OsString,
-    overrides: BTreeMap<String, String>,
   },
   Completions {
     shell: completions::Shell,
@@ -30,7 +25,6 @@ pub(crate) enum Subcommand {
   Dump,
   Edit,
   Evaluate {
-    overrides: BTreeMap<String, String>,
     variable: Option<String>,
   },
   Format,
@@ -45,13 +39,23 @@ pub(crate) enum Subcommand {
   },
   Run {
     arguments: Vec<String>,
-    overrides: BTreeMap<String, String>,
   },
   Show {
     path: ModulePath,
   },
   Summary,
+  Usage {
+    path: ModulePath,
+  },
   Variables,
+}
+
+impl Default for Subcommand {
+  fn default() -> Self {
+    Self::Run {
+      arguments: Vec::new(),
+    }
+  }
 }
 
 impl Subcommand {
@@ -87,22 +91,20 @@ impl Subcommand {
     let justfile = &compilation.justfile;
 
     match self {
-      Choose { overrides, chooser } => {
-        Self::choose(config, justfile, &search, overrides, chooser.as_deref())?;
+      Choose { chooser } => {
+        Self::choose(config, justfile, &search, chooser.as_deref())?;
       }
-      Command { overrides, .. } | Evaluate { overrides, .. } => {
-        justfile.run(config, &search, overrides, &[])?;
+      Command { .. } | Evaluate { .. } => {
+        justfile.run(config, &search, &[])?;
       }
       Dump => Self::dump(config, compilation)?,
       Format => Self::format(config, &search, compilation)?,
       Groups => Self::groups(config, justfile),
       List { path } => Self::list(config, justfile, path)?,
-      Run {
-        arguments,
-        overrides,
-      } => Self::run(config, loader, search, compilation, arguments, overrides)?,
+      Run { arguments } => Self::run(config, loader, search, compilation, arguments)?,
       Show { path } => Self::show(config, justfile, path)?,
       Summary => Self::summary(config, justfile),
+      Usage { path } => Self::usage(config, justfile, path)?,
       Variables => Self::variables(justfile),
       Changelog | Completions { .. } | Edit | Init | Man | Request { .. } => unreachable!(),
     }
@@ -123,7 +125,6 @@ impl Subcommand {
     mut search: Search,
     mut compilation: Compilation<'src>,
     arguments: &[String],
-    overrides: &BTreeMap<String, String>,
   ) -> RunResult<'src> {
     let starting_parent = search.justfile.parent().as_ref().unwrap().lexiclean();
 
@@ -135,7 +136,7 @@ impl Subcommand {
           SearchConfig::FromInvocationDirectory | SearchConfig::FromSearchDirectory { .. }
         );
 
-      let result = justfile.run(config, &search, overrides, arguments);
+      let result = justfile.run(config, &search, arguments);
 
       if fallback {
         if let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result {
@@ -181,7 +182,7 @@ impl Subcommand {
     loader: &'src Loader,
     search: &Search,
   ) -> RunResult<'src, Compilation<'src>> {
-    let compilation = Compiler::compile(loader, &search.justfile)?;
+    let compilation = Compiler::compile(config, loader, &search.justfile)?;
 
     compilation.justfile.check_unstable(config)?;
 
@@ -202,7 +203,6 @@ impl Subcommand {
     config: &Config,
     justfile: &Justfile<'src>,
     search: &Search,
-    overrides: &BTreeMap<String, String>,
     chooser: Option<&str>,
   ) -> RunResult<'src> {
     let mut recipes = Vec::<&Recipe>::new();
@@ -283,7 +283,7 @@ impl Subcommand {
       .map(str::to_owned)
       .collect::<Vec<String>>();
 
-    justfile.run(config, search, overrides, &recipes)
+    justfile.run(config, search, &recipes)
   }
 
   fn completions(shell: completions::Shell) {
@@ -495,7 +495,7 @@ impl Subcommand {
       if let Some(doc) = doc {
         print!(" ");
         let mut end = 0;
-        for backtick in backtick_re().find_iter(doc) {
+        for backtick in BACKTICK_RE.find_iter(doc) {
           let prefix = &doc[end..backtick.start()];
           if !prefix.is_empty() {
             print!("{}", color.doc().paint(prefix));
@@ -551,7 +551,8 @@ impl Subcommand {
         }
       }
       if !config.list_submodules {
-        for (name, _) in &module.modules {
+        for submodule in module.public_modules(config) {
+          let name = submodule.name();
           signature_widths.insert(name, UnicodeWidthStr::width(format!("{name} ...").as_str()));
         }
       }
@@ -589,7 +590,7 @@ impl Subcommand {
 
     let submodule_groups = {
       let mut groups = BTreeMap::<Option<String>, Vec<&Justfile>>::new();
-      for submodule in module.modules(config) {
+      for submodule in module.public_modules(config) {
         let submodule_groups = submodule.groups();
         if submodule_groups.is_empty() {
           groups.entry(None).or_default().push(submodule);
@@ -710,36 +711,16 @@ impl Subcommand {
     }
   }
 
-  fn show<'src>(
-    config: &Config,
-    mut module: &Justfile<'src>,
-    path: &ModulePath,
-  ) -> RunResult<'src> {
-    for name in &path.path[0..path.path.len() - 1] {
-      module = module
-        .modules
-        .get(name)
-        .ok_or_else(|| Error::UnknownSubmodule {
-          path: path.to_string(),
-        })?;
-    }
+  fn show<'src>(config: &Config, module: &Justfile<'src>, path: &ModulePath) -> RunResult<'src> {
+    let (alias, recipe) = Self::resolve_path(module, path)?;
 
-    let name = path.path.last().unwrap();
-
-    if let Some(alias) = module.get_alias(name) {
-      let recipe = module.get_recipe(alias.target.name.lexeme()).unwrap();
+    if let Some(alias) = alias {
       println!("{alias}");
-      println!("{}", recipe.color_display(config.color.stdout()));
-      Ok(())
-    } else if let Some(recipe) = module.get_recipe(name) {
-      println!("{}", recipe.color_display(config.color.stdout()));
-      Ok(())
-    } else {
-      Err(Error::UnknownRecipe {
-        recipe: name.to_owned(),
-        suggestion: module.suggest_recipe(name),
-      })
     }
+
+    println!("{}", recipe.color_display(config.color.stdout()));
+
+    Ok(())
   }
 
   fn summary(config: &Config, justfile: &Justfile) {
@@ -772,10 +753,58 @@ impl Subcommand {
       *printed += 1;
     }
 
-    for (name, module) in &justfile.modules {
+    for module in justfile.public_modules(config) {
+      let name = module.name();
       components.push(name);
       Self::summary_recursive(config, components, printed, module);
       components.pop();
+    }
+  }
+
+  fn usage<'src>(config: &Config, module: &Justfile<'src>, path: &ModulePath) -> RunResult<'src> {
+    let (alias, recipe) = Self::resolve_path(module, path)?;
+
+    if let Some(alias) = alias {
+      println!("{alias}");
+    }
+
+    println!(
+      "{}",
+      Usage {
+        long: true,
+        path,
+        recipe,
+      }
+      .color_display(config.color.stdout()),
+    );
+
+    Ok(())
+  }
+
+  fn resolve_path<'src, 'run>(
+    mut module: &'run Justfile<'src>,
+    path: &ModulePath,
+  ) -> RunResult<'src, (Option<&'run Alias<'src>>, &'run Recipe<'src>)> {
+    for name in &path.path[0..path.path.len() - 1] {
+      module = module
+        .modules
+        .get(name)
+        .ok_or_else(|| Error::UnknownSubmodule {
+          path: path.to_string(),
+        })?;
+    }
+
+    let name = path.path.last().unwrap();
+
+    if let Some(alias) = module.get_alias(name) {
+      Ok((Some(alias), &alias.target))
+    } else if let Some(recipe) = module.get_recipe(name) {
+      Ok((None, recipe))
+    } else {
+      Err(Error::UnknownRecipe {
+        recipe: name.to_owned(),
+        suggestion: module.suggest_recipe(name),
+      })
     }
   }
 

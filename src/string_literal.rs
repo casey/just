@@ -6,22 +6,7 @@ pub(crate) struct StringLiteral<'src> {
   pub(crate) expand: bool,
   pub(crate) kind: StringKind,
   pub(crate) part: Option<FormatStringPart>,
-  pub(crate) raw: &'src str,
-}
-
-impl<'src> StringLiteral<'src> {
-  pub(crate) fn from_raw(raw: &'src str) -> Self {
-    Self {
-      cooked: raw.into(),
-      expand: false,
-      kind: StringKind {
-        delimiter: StringDelimiter::QuoteSingle,
-        indented: false,
-      },
-      part: None,
-      raw,
-    }
-  }
+  pub(crate) token: Token<'src>,
 }
 
 impl Display for StringLiteral<'_> {
@@ -34,25 +19,7 @@ impl Display for StringLiteral<'_> {
       write!(f, "f")?;
     }
 
-    let open = if matches!(
-      self.part,
-      Some(FormatStringPart::Continue | FormatStringPart::End)
-    ) {
-      Lexer::INTERPOLATION_END
-    } else {
-      self.kind.delimiter()
-    };
-
-    let close = if matches!(
-      self.part,
-      Some(FormatStringPart::Start | FormatStringPart::Continue)
-    ) {
-      Lexer::INTERPOLATION_START
-    } else {
-      self.kind.delimiter()
-    };
-
-    write!(f, "{open}{}{close}", self.raw)
+    write!(f, "{}", self.token.lexeme())
   }
 }
 

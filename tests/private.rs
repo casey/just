@@ -40,6 +40,29 @@ fn private_attribute_for_alias() {
 }
 
 #[test]
+fn private_attribute_for_module() {
+  Test::new()
+    .write("foo.just", "bar:")
+    .justfile(
+      r"
+        [private]
+        mod foo
+
+        baz:
+      ",
+    )
+    .test_round_trip(false)
+    .arg("--list")
+    .stdout(
+      "
+        Available recipes:
+            baz
+      ",
+    )
+    .run();
+}
+
+#[test]
 fn private_variables_are_not_listed() {
   Test::new()
     .justfile(

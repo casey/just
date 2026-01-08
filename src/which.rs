@@ -23,8 +23,7 @@ pub(crate) fn which(context: function::Context, name: &str) -> Result<Option<Str
       // or because there was a relative path in `PATH`. Resolve it to an absolute path,
       // relative to the working directory of the just invocation.
       candidate = context
-        .evaluator
-        .context
+        .execution_context
         .working_directory()
         .join(candidate);
     }

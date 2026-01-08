@@ -107,6 +107,7 @@ impl<'src> Node<'src> for Expression<'src> {
       Self::Assert {
         condition: Condition { lhs, rhs, operator },
         error,
+        ..
       } => Tree::atom(Keyword::Assert.lexeme())
         .push(lhs.tree())
         .push(operator.to_string())
@@ -324,19 +325,19 @@ impl<'src> Node<'src> for Set<'src> {
       | Setting::IgnoreComments(value) => {
         set.push_mut(value.to_string());
       }
-      Setting::ScriptInterpreter(Interpreter { command, arguments })
-      | Setting::Shell(Interpreter { command, arguments })
-      | Setting::WindowsShell(Interpreter { command, arguments }) => {
-        set.push_mut(Tree::string(&command.cooked));
-        for argument in arguments {
-          set.push_mut(Tree::string(&argument.cooked));
-        }
-      }
       Setting::DotenvFilename(value)
       | Setting::DotenvPath(value)
       | Setting::Tempdir(value)
       | Setting::WorkingDirectory(value) => {
-        set.push_mut(Tree::string(&value.cooked));
+        set.push_mut(value.tree());
+      }
+      Setting::ScriptInterpreter(Interpreter { command, arguments })
+      | Setting::Shell(Interpreter { command, arguments })
+      | Setting::WindowsShell(Interpreter { command, arguments }) => {
+        set.push_mut(command.tree());
+        for argument in arguments {
+          set.push_mut(argument.tree());
+        }
       }
     }
 

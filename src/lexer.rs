@@ -685,7 +685,7 @@ impl<'src> Lexer<'src> {
       _ => {
         return Err(self.internal_error(format!(
           "Lexer::lex_delimiter called with non-delimiter token: `{kind}`",
-        )))
+        )));
       }
     }
 

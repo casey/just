@@ -267,15 +267,19 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
   }
 
-  fn accepted_keyword(&mut self, keyword: Keyword) -> CompileResult<'src, bool> {
+  fn accept_keyword(&mut self, keyword: Keyword) -> CompileResult<'src, Option<Name<'src>>> {
     let next = self.next()?;
 
     if next.kind == Identifier && next.lexeme() == keyword.lexeme() {
       self.advance()?;
-      Ok(true)
+      Ok(Some(Name::from_identifier(next)))
     } else {
-      Ok(false)
+      Ok(None)
     }
+  }
+
+  fn accepted_keyword(&mut self, keyword: Keyword) -> CompileResult<'src, bool> {
+    Ok(self.accept_keyword(keyword)?.is_some())
   }
 
   /// Accept a dependency
@@ -374,11 +378,10 @@ impl<'run, 'src> Parser<'run, 'src> {
           {
             self.presume_keyword(Keyword::Import)?;
             let optional = self.accepted(QuestionMark)?;
-            let (path, relative) = self.parse_string_literal_token()?;
+            let relative = self.parse_string_literal()?;
             items.push(Item::Import {
               absolute: None,
               optional,
-              path,
               relative,
             });
           }
@@ -410,7 +413,11 @@ impl<'run, 'src> Parser<'run, 'src> {
             attributes.ensure_valid_attributes(
               "Module",
               *name,
-              &[AttributeDiscriminant::Doc, AttributeDiscriminant::Group],
+              &[
+                AttributeDiscriminant::Doc,
+                AttributeDiscriminant::Group,
+                AttributeDiscriminant::Private,
+              ],
             )?;
 
             let doc = match attributes.get(AttributeDiscriminant::Doc) {
@@ -420,6 +427,8 @@ impl<'run, 'src> Parser<'run, 'src> {
               _ => unreachable!(),
             };
 
+            let private = attributes.contains(AttributeDiscriminant::Private);
+
             let mut groups = Vec::new();
             for attribute in attributes {
               if let Attribute::Group(group) = attribute {
@@ -428,11 +437,12 @@ impl<'run, 'src> Parser<'run, 'src> {
             }
 
             items.push(Item::Module {
-              groups,
               absolute: None,
               doc,
+              groups,
               name,
               optional,
+              private,
               relative,
             });
           }
@@ -533,10 +543,10 @@ impl<'run, 'src> Parser<'run, 'src> {
     attributes.ensure_valid_attributes("Assignment", *name, &[AttributeDiscriminant::Private])?;
 
     Ok(Assignment {
-      constant: false,
       export,
       file_depth: self.file_depth,
       name,
+      prelude: false,
       private: private || name.lexeme().starts_with('_'),
       value,
     })
@@ -664,11 +674,11 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_format_string(&mut self) -> CompileResult<'src, Expression<'src>> {
     self.expect_keyword(Keyword::F)?;
 
-    let (token, start) = self.parse_string_literal_token_in_state(StringState::FormatStart)?;
+    let start = self.parse_string_literal_in_state(StringState::FormatStart)?;
 
-    let kind = StringKind::from_string_or_backtick(token)?;
+    let kind = StringKind::from_string_or_backtick(start.token)?;
 
-    let mut more = token.kind == FormatStringStart;
+    let mut more = start.token.kind == FormatStringStart;
 
     let mut expressions = Vec::new();
 
@@ -747,13 +757,17 @@ impl<'run, 'src> Parser<'run, 'src> {
       }
       Ok(Expression::Backtick { contents, token })
     } else if self.next_is(Identifier) {
-      if self.accepted_keyword(Keyword::Assert)? {
+      if let Some(name) = self.accept_keyword(Keyword::Assert)? {
         self.expect(ParenL)?;
         let condition = self.parse_condition()?;
         self.expect(Comma)?;
         let error = Box::new(self.parse_expression()?);
         self.expect(ParenR)?;
-        Ok(Expression::Assert { condition, error })
+        Ok(Expression::Assert {
+          condition,
+          error,
+          name,
+        })
       } else {
         let name = self.parse_name()?;
 
@@ -781,18 +795,16 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
   }
 
-  /// Parse a string literal, e.g. `"FOO"`, returning the string literal and the string token
-  fn parse_string_literal_token(
-    &mut self,
-  ) -> CompileResult<'src, (Token<'src>, StringLiteral<'src>)> {
-    self.parse_string_literal_token_in_state(StringState::Normal)
+  /// Parse a string literal, e.g. `"FOO"`
+  fn parse_string_literal(&mut self) -> CompileResult<'src, StringLiteral<'src>> {
+    self.parse_string_literal_in_state(StringState::Normal)
   }
 
-  /// Parse a string literal, e.g. `"FOO"`, returning the string literal and the string token
-  fn parse_string_literal_token_in_state(
+  /// Parse a string literal, e.g. `"FOO"`
+  fn parse_string_literal_in_state(
     &mut self,
     state: StringState,
-  ) -> CompileResult<'src, (Token<'src>, StringLiteral<'src>)> {
+  ) -> CompileResult<'src, StringLiteral<'src>> {
     let expand = if self.next_is(Identifier) {
       self.expect_keyword(Keyword::X)?;
       true
@@ -853,32 +865,29 @@ impl<'run, 'src> Parser<'run, 'src> {
       cooked
     };
 
-    Ok((
+    Ok(StringLiteral {
       token,
-      StringLiteral {
-        cooked,
-        expand,
-        kind,
-        part: match token.kind {
-          FormatStringStart => Some(FormatStringPart::Start),
-          FormatStringContinue => Some(FormatStringPart::Continue),
-          FormatStringEnd => Some(FormatStringPart::End),
-          StringToken => {
-            if matches!(state, StringState::Normal) {
-              None
-            } else {
-              Some(FormatStringPart::Single)
-            }
+      cooked,
+      expand,
+      kind,
+      part: match token.kind {
+        FormatStringStart => Some(FormatStringPart::Start),
+        FormatStringContinue => Some(FormatStringPart::Continue),
+        FormatStringEnd => Some(FormatStringPart::End),
+        StringToken => {
+          if matches!(state, StringState::Normal) {
+            None
+          } else {
+            Some(FormatStringPart::Single)
           }
-          _ => {
-            return Err(token.error(CompileErrorKind::Internal {
-              message: "unexpected token kind while parsing string literal".into(),
-            }))
-          }
-        },
-        raw,
+        }
+        _ => {
+          return Err(token.error(CompileErrorKind::Internal {
+            message: "unexpected token kind while parsing string literal".into(),
+          }));
+        }
       },
-    ))
+    })
   }
 
   // Transform escape sequences in from string literal `token` with content `text`
@@ -916,7 +925,7 @@ impl<'run, 'src> Parser<'run, 'src> {
             '\n' => {}
             '"' => cooked.push('"'),
             character => {
-              return Err(token.error(CompileErrorKind::InvalidEscapeSequence { character }))
+              return Err(token.error(CompileErrorKind::InvalidEscapeSequence { character }));
             }
           }
           state = State::Initial;
@@ -961,21 +970,6 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
 
     Ok(cooked)
-  }
-
-  /// Parse a string literal, e.g. `"FOO"`
-  fn parse_string_literal(&mut self) -> CompileResult<'src, StringLiteral<'src>> {
-    let (_token, string_literal) = self.parse_string_literal_token()?;
-    Ok(string_literal)
-  }
-
-  // /// Parse a format string literal, e.g. `"foo{"`, `}bar{`, or `}baz"`
-  fn parse_string_literal_in_state(
-    &mut self,
-    string_state: StringState,
-  ) -> CompileResult<'src, StringLiteral<'src>> {
-    let (_token, string_literal) = self.parse_string_literal_token_in_state(string_state)?;
-    Ok(string_literal)
   }
 
   /// Parse a name from an identifier token
@@ -1026,28 +1020,62 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let mut positional = Vec::new();
 
-    let mut arg_attributes = attributes
-      .iter()
-      .filter_map(|attribute| {
-        if let Attribute::Arg {
-          name,
-          name_token,
-          pattern,
-          ..
-        } = attribute
-        {
-          Some((
-            name.cooked.clone(),
-            ArgAttribute {
-              name: *name_token,
-              pattern: pattern.as_ref().map(|(_literal, pattern)| pattern.clone()),
-            },
-          ))
-        } else {
-          None
+    let mut longs = HashSet::new();
+    let mut shorts = HashSet::new();
+
+    let mut arg_attributes = BTreeMap::new();
+
+    for attribute in &attributes {
+      let Attribute::Arg {
+        help,
+        long,
+        long_key,
+        name: arg,
+        pattern,
+        short,
+        value,
+        ..
+      } = attribute
+      else {
+        continue;
+      };
+
+      if let Some(option) = long {
+        if !longs.insert(&option.cooked) {
+          return Err(
+            long_key
+              .unwrap_or(option.token)
+              .error(CompileErrorKind::DuplicateOption {
+                option: Switch::Long(option.cooked.clone()),
+                recipe: name.lexeme(),
+              }),
+          );
         }
-      })
-      .collect::<BTreeMap<String, ArgAttribute>>();
+      }
+
+      if let Some(option) = short {
+        if !shorts.insert(&option.cooked) {
+          return Err(option.token.error(CompileErrorKind::DuplicateOption {
+            option: Switch::Short(option.cooked.chars().next().unwrap()),
+            recipe: name.lexeme(),
+          }));
+        }
+      }
+
+      arg_attributes.insert(
+        arg.cooked.clone(),
+        ArgAttribute {
+          help: help.as_ref().map(|literal| literal.cooked.clone()),
+          name: arg.token,
+          pattern: pattern.clone(),
+          long: long.as_ref().map(|long| long.cooked.clone()),
+          short: short
+            .as_ref()
+            .map(|short| short.cooked.chars().next().unwrap()),
+          value: value.as_ref().map(|value| value.cooked.clone()),
+        },
+      );
+    }
 
     while self.next_is(Identifier) || self.next_is(Dollar) {
       positional.push(self.parse_parameter(&mut arg_attributes, ParameterKind::Singular)?);
@@ -1161,7 +1189,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// Parse a recipe parameter
   fn parse_parameter(
     &mut self,
-    arg_attributes: &mut BTreeMap<String, ArgAttribute>,
+    arg_attributes: &mut BTreeMap<String, ArgAttribute<'src>>,
     kind: ParameterKind,
   ) -> CompileResult<'src, Parameter<'src>> {
     let export = self.accepted(Dollar)?;
@@ -1174,14 +1202,34 @@ impl<'run, 'src> Parser<'run, 'src> {
       None
     };
 
+    let mut help = None;
+    let mut long = None;
+    let mut pattern = None;
+    let mut short = None;
+    let mut value = None;
+
+    if let Some(arg) = arg_attributes.remove(name.lexeme()) {
+      help = arg.help;
+      long = arg.long;
+      pattern = arg.pattern;
+      short = arg.short;
+      value = arg.value;
+    }
+
+    if kind.is_variadic() && (long.is_some() || short.is_some()) {
+      return Err(name.error(CompileErrorKind::VariadicParameterWithOption));
+    }
+
     Ok(Parameter {
       default,
       export,
+      help,
       kind,
+      long,
       name,
-      pattern: arg_attributes
-        .remove(name.lexeme())
-        .and_then(|attribute| attribute.pattern),
+      pattern,
+      short,
+      value,
     })
   }
 
@@ -1285,13 +1333,13 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.expect(ColonEquals)?;
 
     let set_value = match keyword {
-      Keyword::DotenvFilename => Some(Setting::DotenvFilename(self.parse_string_literal()?)),
-      Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_string_literal()?)),
+      Keyword::DotenvFilename => Some(Setting::DotenvFilename(self.parse_expression()?)),
+      Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_expression()?)),
       Keyword::ScriptInterpreter => Some(Setting::ScriptInterpreter(self.parse_interpreter()?)),
       Keyword::Shell => Some(Setting::Shell(self.parse_interpreter()?)),
-      Keyword::Tempdir => Some(Setting::Tempdir(self.parse_string_literal()?)),
+      Keyword::Tempdir => Some(Setting::Tempdir(self.parse_expression()?)),
       Keyword::WindowsShell => Some(Setting::WindowsShell(self.parse_interpreter()?)),
-      Keyword::WorkingDirectory => Some(Setting::WorkingDirectory(self.parse_string_literal()?)),
+      Keyword::WorkingDirectory => Some(Setting::WorkingDirectory(self.parse_expression()?)),
       _ => None,
     };
 
@@ -1305,16 +1353,16 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Parse interpreter setting value, i.e., `['sh', '-eu']`
-  fn parse_interpreter(&mut self) -> CompileResult<'src, Interpreter<'src>> {
+  fn parse_interpreter(&mut self) -> CompileResult<'src, Interpreter<Expression<'src>>> {
     self.expect(BracketL)?;
 
-    let command = self.parse_string_literal()?;
+    let command = self.parse_expression()?;
 
     let mut arguments = Vec::new();
 
     if self.accepted(Comma)? {
       while !self.next_is(BracketR) {
-        arguments.push(self.parse_string_literal()?);
+        arguments.push(self.parse_expression()?);
 
         if !self.accepted(Comma)? {
           break;
@@ -1345,25 +1393,30 @@ impl<'run, 'src> Parser<'run, 'src> {
         let mut keyword_arguments = BTreeMap::new();
 
         if self.accepted(Colon)? {
-          arguments.push(self.parse_string_literal_token()?);
+          arguments.push(self.parse_string_literal()?);
         } else if self.accepted(ParenL)? {
           loop {
             if self.next_is(Identifier) && !self.next_is_shell_expanded_string() {
-              let name = self.parse_name()?;
+              let key = self.parse_name()?;
 
-              self.expect(Equals)?;
+              let value = self
+                .accepted(Equals)?
+                .then(|| self.parse_string_literal())
+                .transpose()?;
 
-              let (token, value) = self.parse_string_literal_token()?;
-
-              keyword_arguments.insert(name.lexeme(), (name, token, value));
+              keyword_arguments.insert(key.lexeme(), (key, value));
             } else {
-              let (token, literal) = self.parse_string_literal_token()?;
+              let literal = self.parse_string_literal()?;
 
               if !keyword_arguments.is_empty() {
-                return Err(token.error(CompileErrorKind::AttributePositionalFollowsKeyword));
+                return Err(
+                  literal
+                    .token
+                    .error(CompileErrorKind::AttributePositionalFollowsKeyword),
+                );
               }
 
-              arguments.push((token, literal));
+              arguments.push(literal);
             }
 
             if !self.accepted(Comma)? || self.next_is(ParenR) {
@@ -2855,36 +2908,13 @@ mod tests {
     width:  1,
     kind:   UnexpectedToken {
       expected: vec![
+        Backtick,
         Identifier,
+        ParenL,
+        Slash,
         StringToken,
       ],
       found: BracketR,
-    },
-  }
-
-  error! {
-    name:   set_shell_non_literal_first,
-    input:  "set shell := ['bar' + 'baz']",
-    offset: 20,
-    line:   0,
-    column: 20,
-    width:  1,
-    kind:   UnexpectedToken {
-      expected: vec![BracketR, Comma],
-      found: Plus,
-    },
-  }
-
-  error! {
-    name:   set_shell_non_literal_second,
-    input:  "set shell := ['biz', 'bar' + 'baz']",
-    offset: 27,
-    line:   0,
-    column: 27,
-    width:  1,
-    kind:   UnexpectedToken {
-      expected: vec![BracketR, Comma],
-      found: Plus,
     },
   }
 
@@ -2897,8 +2927,11 @@ mod tests {
     width:  0,
     kind:   UnexpectedToken {
       expected: vec![
+        Backtick,
         BracketR,
         Identifier,
+        ParenL,
+        Slash,
         StringToken,
       ],
       found: Eof,
@@ -2913,7 +2946,7 @@ mod tests {
     column: 20,
     width:  0,
     kind:   UnexpectedToken {
-      expected: vec![BracketR, Comma],
+      expected: vec![AmpersandAmpersand, BarBar, BracketR, Comma, Plus, Slash],
       found: Eof,
     },
   }
