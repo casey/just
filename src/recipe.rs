@@ -1,4 +1,5 @@
 use super::*;
+use std::time::Instant;
 
 /// A recipe, e.g. `foo: bar baz`
 #[derive(PartialEq, Debug, Clone, Serialize)]
@@ -221,11 +222,30 @@ impl<'src> Recipe<'src> {
 
     let evaluator = Evaluator::new(context, BTreeMap::new(), is_dependency, scope);
 
-    if self.is_script() {
+    let start = Instant::now();
+    let result = if self.is_script() {
       self.run_script(context, scope, positional, evaluator)
     } else {
       self.run_linewise(context, scope, positional, evaluator)
+    };
+    let elapsed = start.elapsed();
+
+    if context.config.time {
+      let color = if context.config.highlight {
+        context.config.color.command(context.config.command_color)
+      } else {
+        context.config.color
+      }
+      .stderr();
+
+      let prefix = color.prefix();
+      let suffix = color.suffix();
+      let recipe_name = self.name.lexeme();
+
+      eprintln!("{prefix}{recipe_name} (Duration: {elapsed:.2?}){suffix}");
     }
+
+    result
   }
 
   fn run_linewise<'run>(
