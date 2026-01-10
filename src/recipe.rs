@@ -1,3 +1,5 @@
+use std::time::{Duration, Instant};
+
 use super::*;
 
 /// Return a `Error::Signal` if the process was terminated by a signal,
@@ -14,6 +16,31 @@ fn error_from_signal(recipe: &str, line_number: Option<usize>, exit_status: Exit
       line_number,
     },
   }
+}
+
+fn print_elapsed_recipe_time(
+  recipe_name: &str,
+  recipe_args: &[String],
+  elapsed: Duration,
+  config: &Config,
+) {
+  let color = if config.highlight {
+    config.color.command(config.command_color)
+  } else {
+    config.color
+  }
+  .stderr();
+
+  let prefix = color.prefix();
+  let suffix = color.suffix();
+
+  eprint!("{prefix}{recipe_name}");
+
+  for arg in recipe_args {
+    eprint!(" {arg}");
+  }
+
+  eprintln!(" (Duration: {elapsed:.2?}){suffix}");
 }
 
 /// A recipe, e.g. `foo: bar baz`
@@ -224,11 +251,17 @@ impl<'src, D> Recipe<'src, D> {
 
     let evaluator = Evaluator::new(context, is_dependency, scope);
 
-    if self.is_script() {
+    let start = Instant::now();
+    let result = if self.is_script() {
       self.run_script(context, scope, positional, evaluator)
     } else {
       self.run_linewise(context, scope, positional, evaluator)
+    };
+    let elapsed = start.elapsed();
+    if context.config.time {
+      print_elapsed_recipe_time(self.name.lexeme(), positional, elapsed, context.config);
     }
+    result
   }
 
   fn run_linewise<'run>(

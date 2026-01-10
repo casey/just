@@ -65,6 +65,8 @@ set edit:completion:arg-completer[just] = {|@words|
             cand --quiet 'Suppress all output'
             cand --allow-missing 'Ignore missing recipe and module errors'
             cand --shell-command 'Invoke <COMMAND> with the shell used to run recipe lines and backticks'
+            cand -t 'Print recipe execution time'
+            cand --time 'Print recipe execution time'
             cand --timestamp 'Print recipe command timestamps'
             cand -u 'Return list and summary entries in source order'
             cand --unsorted 'Return list and summary entries in source order'

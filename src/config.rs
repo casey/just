@@ -40,6 +40,7 @@ pub(crate) struct Config {
   pub(crate) shell_command: bool,
   pub(crate) subcommand: Subcommand,
   pub(crate) tempdir: Option<PathBuf>,
+  pub(crate) time: bool,
   pub(crate) timestamp: bool,
   pub(crate) timestamp_format: String,
   pub(crate) unsorted: bool,
@@ -124,6 +125,7 @@ mod arg {
   pub(crate) const SHELL_ARG: &str = "SHELL-ARG";
   pub(crate) const SHELL_COMMAND: &str = "SHELL-COMMAND";
   pub(crate) const TEMPDIR: &str = "TEMPDIR";
+  pub(crate) const TIME: &str = "TIME";
   pub(crate) const TIMESTAMP: &str = "TIMESTAMP";
   pub(crate) const TIMESTAMP_FORMAT: &str = "TIMESTAMP-FORMAT";
   pub(crate) const UNSORTED: &str = "UNSORTED";
@@ -405,6 +407,14 @@ impl Config {
           .long("tempdir")
           .value_parser(value_parser!(PathBuf))
           .help("Save temporary files to <TEMPDIR>."),
+      )
+      .arg(
+        Arg::new(arg::TIME)
+          .action(ArgAction::SetTrue)
+          .short('t')
+          .long("time")
+          .env("JUST_TIME")
+          .help("Print recipe execution time"),
       )
       .arg(
         Arg::new(arg::TIMESTAMP)
@@ -839,6 +849,7 @@ impl Config {
       shell_command: matches.get_flag(arg::SHELL_COMMAND),
       subcommand,
       tempdir: matches.get_one::<PathBuf>(arg::TEMPDIR).map(Into::into),
+      time: matches.get_flag(arg::TIME),
       timestamp: matches.get_flag(arg::TIMESTAMP),
       timestamp_format: matches
         .get_one::<String>(arg::TIMESTAMP_FORMAT)
