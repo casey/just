@@ -182,17 +182,7 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::Default => Self::Default,
       AttributeDiscriminant::Doc => Self::Doc(arguments.into_iter().next()),
       AttributeDiscriminant::Env => {
-        let [key, value]: [StringLiteral; 2] =
-          arguments
-            .try_into()
-            .map_err(|arguments: Vec<StringLiteral>| {
-              name.error(CompileErrorKind::AttributeArgumentCountMismatch {
-                attribute: name,
-                found: arguments.len(),
-                min: 2,
-                max: 2,
-              })
-            })?;
+        let [key, value]: [StringLiteral; 2] = arguments.try_into().unwrap();
         Self::Env(key, value)
       }
       AttributeDiscriminant::ExitMessage => Self::ExitMessage,
