@@ -298,15 +298,8 @@ impl<'src, D> Recipe<'src, D> {
         }
         .stderr();
 
-        if config.timestamp {
-          eprint!(
-            "[{}] ",
-            color.paint(
-              &chrono::Local::now()
-                .format(&config.timestamp_format)
-                .to_string()
-            ),
-          );
+        if let Some(timestamp) = config.timestamp() {
+          eprint!("[{}] ", color.paint(&timestamp));
         }
 
         eprintln!("{}", color.paint(command));
@@ -386,6 +379,17 @@ impl<'src, D> Recipe<'src, D> {
     mut evaluator: Evaluator<'src, 'run>,
   ) -> RunResult<'src, ()> {
     let config = &context.config;
+
+    if let Some(timestamp) = config.timestamp() {
+      let color = if config.highlight {
+        config.color.command(config.command_color)
+      } else {
+        config.color
+      }
+      .stderr();
+
+      eprintln!("[{}] {}", color.paint(&timestamp), self.name);
+    }
 
     let mut evaluated_lines = Vec::new();
     for line in &self.body {

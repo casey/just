@@ -675,6 +675,14 @@ impl Config {
     }
   }
 
+  pub(crate) fn timestamp(&self) -> Option<String> {
+    self.timestamp.then(|| {
+      chrono::Local::now()
+        .format(&self.timestamp_format)
+        .to_string()
+    })
+  }
+
   pub(crate) fn from_matches(matches: &ArgMatches) -> ConfigResult<Self> {
     let mut overrides = BTreeMap::new();
     if let Some(mut values) = matches.get_many::<String>(arg::SET) {
