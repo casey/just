@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn print_timestamps_linewise() {
+fn linewise() {
   Test::new()
     .justfile(
       "
@@ -16,7 +16,7 @@ fn print_timestamps_linewise() {
 }
 
 #[test]
-fn print_timestamps_script() {
+fn script() {
   Test::new()
     .justfile(
       "
@@ -32,7 +32,7 @@ fn print_timestamps_script() {
 }
 
 #[test]
-fn print_timestamps_with_format_string_linewise() {
+fn format_string() {
   Test::new()
     .justfile(
       "
