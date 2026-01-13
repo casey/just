@@ -224,6 +224,7 @@ mod evaluator;
 mod execution_context;
 mod executor;
 mod expression;
+mod filesystem;
 mod format_string_part;
 mod fragment;
 mod function;

@@ -79,7 +79,7 @@ impl Compiler {
               .join(Self::expand_tilde(&relative.cooked)?)
               .lexiclean();
 
-            if import.is_file() {
+            if filesystem::is_file(&import)? {
               if current.file_path.contains(&import) {
                 return Err(Error::CircularImport {
                   current: current.path,
@@ -121,7 +121,7 @@ impl Compiler {
     if let Some(path) = path {
       let full = parent.join(path);
 
-      if full.is_file() {
+      if filesystem::is_file(&full)? {
         return Ok(Some(full));
       }
 

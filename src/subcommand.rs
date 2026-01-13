@@ -380,7 +380,7 @@ impl Subcommand {
       config.ceiling.as_deref(),
     )?;
 
-    if search.justfile.is_file() {
+    if filesystem::is_file(&search.justfile)? {
       return Err(Error::InitExists {
         justfile: search.justfile,
       });
