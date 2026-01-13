@@ -108,6 +108,10 @@ pub(crate) enum Error<'src> {
     io_error: io::Error,
     path: PathBuf,
   },
+  GlobReadDirectory {
+    io_error: io::Error,
+    path: PathBuf,
+  },
   FlagWithValue {
     recipe: &'src str,
     option: Switch,
@@ -557,6 +561,13 @@ impl ColorDisplay for Error<'_> {
       }
       FilesystemIo { io_error, path } => {
         write!(f, "I/O error at `{}`: {io_error}", path.display())?;
+      }
+      GlobReadDirectory { io_error, path } => {
+        write!(
+          f,
+          "I/O error reading directory for glob pattern `{}`: {io_error}",
+          path.display()
+        )?;
       }
       FlagWithValue { recipe, option } => {
         write!(f, "Recipe `{recipe}` flag `{option}` does not take value",)?;

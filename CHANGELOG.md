@@ -1,6 +1,17 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+### Added
+- Add glob pattern support for imports ([#1885](https://github.com/casey/just/issues/1885))
+  - Support `*` wildcard in import paths (e.g., `import '.just/*.justfile'`)
+  - Works with optional imports (`import? '*.just'`)
+  - Files imported in deterministic alphabetical order
+  - Preserves support for non-Unicode file paths on all platforms
+  - **Unstable**: Requires `set unstable` to use
+
 [1.46.0](https://github.com/casey/just/releases/tag/1.46.0) - 2026-01-01
 ------------------------------------------------------------------------
 

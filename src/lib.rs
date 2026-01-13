@@ -228,6 +228,7 @@ mod filesystem;
 mod format_string_part;
 mod fragment;
 mod function;
+mod glob;
 mod interpreter;
 mod invocation;
 mod invocation_parser;

@@ -36,6 +36,9 @@ impl Compiler {
       paths.insert(current.path.clone(), relative.into());
       srcs.insert(current.path.clone(), src);
 
+      // Track additional imports from glob expansion
+      let mut additional_imports = Vec::new();
+
       for item in &mut ast.items {
         match item {
           Item::Module {
@@ -79,26 +82,82 @@ impl Compiler {
               .join(Self::expand_tilde(&relative.cooked)?)
               .lexiclean();
 
-            if filesystem::is_file(&import)? {
-              if current.file_path.contains(&import) {
-                return Err(Error::CircularImport {
-                  current: current.path,
-                  import,
+            // Check if import path contains glob patterns
+            if glob::has_glob_pattern(&import) {
+              // Mark glob imports as unstable feature used
+              ast.unstable_features.insert(UnstableFeature::GlobImports);
+
+              // Expand glob pattern to matching files
+              let mut matches = glob::expand_glob_pattern(&import)?;
+
+              // Filter out the current file to prevent self-imports
+              matches.retain(|path| path != &current.path);
+
+              if matches.is_empty() {
+                // No files matched the pattern
+                if !*optional {
+                  return Err(Error::MissingImportFile {
+                    path: relative.token,
+                  });
+                }
+                // Optional import with no matches - skip silently
+              } else {
+                // Check circular imports and push all matches onto stack                // Note: glob-matched files are processed as siblings, not in a chain
+                for matched_path in &matches {
+                  if current.file_path.contains(matched_path) {
+                    return Err(Error::CircularImport {
+                      current: current.path.clone(),
+                      import: matched_path.clone(),
+                    });
+                  }
+                  // Push glob-matched imports as siblings, not extending the file_path chain
+                  // This prevents false circular dependency detection between parallel imports
+                  stack.push(current.import(matched_path.clone(), relative.token.offset));
+                }
+
+                // Set first match as absolute for this import item
+                *absolute = Some(matches[0].clone());
+
+                // For remaining matches, we'll add new Import items after the loop
+                if matches.len() > 1 {
+                  for matched_path in &matches[1..] {
+                    additional_imports.push((matched_path.clone(), *optional, relative.clone()));
+                  }
+                }
+              }
+            } else {
+              // No glob pattern - use existing single-file import logic
+              if filesystem::is_file(&import)? {
+                if current.file_path.contains(&import) {
+                  return Err(Error::CircularImport {
+                    current: current.path,
+                    import,
+                  });
+                }
+                *absolute = Some(import.clone());
+                stack.push(current.import(import, relative.token.offset));
+              } else if !*optional {
+                return Err(Error::MissingImportFile {
+                  path: relative.token,
                 });
               }
-              *absolute = Some(import.clone());
-              stack.push(current.import(import, relative.token.offset));
-            } else if !*optional {
-              return Err(Error::MissingImportFile {
-                path: relative.token,
-              });
             }
           }
           _ => {}
         }
       }
 
-      asts.insert(current.path, ast.clone());
+      // Add Import items for additional glob matches
+      // These are needed for the analyzer to process all glob-matched files
+      for (matched_path, optional, relative) in additional_imports {
+        ast.items.push(Item::Import {
+          absolute: Some(matched_path),
+          optional,
+          relative,
+        });
+      }
+
+      asts.insert(current.path, ast);
     }
 
     let justfile = Analyzer::analyze(&asts, config, None, &[], &loaded, None, &paths, false, root)?;

@@ -3906,6 +3906,66 @@ bar: baz
 baz:
 ```
 
+#### Glob Imports<sup>unstable</sup>
+
+Import statements support wildcard patterns using `*`, allowing you to import multiple files at once. This feature is currently unstable and requires setting `set unstable` in your justfile.
+
+```justfile
+set unstable
+
+# Import all .just files from the .just directory
+import '.just/*.justfile'
+
+# Optional glob import - won't error if no files match
+import? 'config-*.just'
+```
+
+Glob patterns work with both required and optional imports:
+
+```justfile
+set unstable
+
+# This will error if no files match the pattern
+import 'recipes/*.just'
+
+# This will silently succeed even if no files match
+import? 'optional-recipes/*.just'
+```
+
+**Pattern Matching:**
+- `*` matches zero or more characters (except path separators)
+- Patterns are case-sensitive
+- Files are imported in lexicographic (alphabetical) order for deterministic behavior
+- Only regular files are imported (directories and other file types are ignored)
+
+**Example:** Organizing recipes into separate files:
+
+```text
+project/
+├── justfile
+└── .just/
+    ├── build.justfile
+    ├── test.justfile
+    └── deploy.justfile
+```
+
+```justfile
+# justfile
+set unstable
+
+import '.just/*.justfile'
+
+default:
+  @just --list
+```
+
+This will import all three files from the `.just` directory, making their recipes available in the main justfile.
+
+**Limitations:**
+- Currently only the `*` wildcard is supported
+- Recursive patterns (`**`) are not yet supported
+- Character classes (`[abc]`) are not yet supported
+
 ### Modules<sup>1.19.0</sup>
 
 A `justfile` can declare modules using `mod` statements.

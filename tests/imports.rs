@@ -408,3 +408,253 @@ x := 'y'
     .stdout("hello\n")
     .run();
 }
+
+#[test]
+fn glob_import_works() {
+  Test::new()
+    .tree(tree! {
+      "a.just": "
+        a:
+          @echo A
+      ",
+      "b.just": "
+        b:
+          @echo B
+      ",
+    })
+    .justfile(
+      "
+      set unstable
+
+      import '*.just'
+
+      default: a b
+    ",
+    )
+    .stdout("A\nB\n")
+    .test_round_trip(false)
+    .run();
+}
+
+#[test]
+fn glob_import_multiple_matches() {
+  Test::new()
+    .write(
+      ".just/foo.justfile",
+      "foo:\n  @echo FOO\n",
+    )
+    .write(
+      ".just/bar.justfile",
+      "bar:\n  @echo BAR\n",
+    )
+    .write(
+      ".just/baz.justfile",
+      "baz:\n  @echo BAZ\n",
+    )
+    .justfile(
+      "
+      set unstable
+
+      import '.just/*.justfile'
+
+      default: foo bar baz
+    ",
+    )
+    .stdout("FOO\nBAR\nBAZ\n")
+    .test_round_trip(false)
+    .run();
+}
+
+#[test]
+fn glob_import_optional_no_matches() {
+  Test::new()
+    .justfile(
+      "
+      set unstable
+
+      import? '.just/*.justfile'
+
+      default:
+        @echo DONE
+    ",
+    )
+    .stdout("DONE\n")
+    .test_round_trip(false)
+    .run();
+}
+
+#[test]
+fn glob_import_required_no_matches() {
+  Test::new()
+    .justfile(
+      "
+      set unstable
+
+      import '.just/*.justfile'
+
+      default:
+        @echo DONE
+    ",
+    )
+    .status(EXIT_FAILURE)
+    .stderr(
+      "
+      error: Could not find source file for import.
+       ——▶ justfile:3:8
+        │
+      3 │ import '.just/*.justfile'
+        │        ^^^^^^^^^^^^^^^^^^
+    ",
+    )
+    .test_round_trip(false)
+    .run();
+}
+
+#[test]
+fn glob_import_without_unstable_feature() {
+  Test::new()
+    .tree(tree! {
+      "a.just": "
+        a:
+          @echo A
+      ",
+    })
+    .justfile(
+      "
+      import '*.just'
+
+      default: a
+    ",
+    )
+    .status(EXIT_FAILURE)
+    .stderr("error: Glob patterns in imports are currently unstable. Invoke `just` with `--unstable`, set the `JUST_UNSTABLE` environment variable, or add `set unstable` to your `justfile` to enable unstable features.\n")
+    .test_round_trip(false)
+    .run();
+}
+
+#[test]
+fn glob_import_deterministic_order() {
+  Test::new()
+    .tree(tree! {
+      "c.just": "c := 'c'",
+      "a.just": "a := 'a'",
+      "b.just": "b := 'b'",
+    })
+    .justfile(
+      "
+      set unstable
+
+      import '*.just'
+
+      default:
+        @echo {{a}}{{b}}{{c}}
+    ",
+    )
+    .stdout("abc\n")
+    .test_round_trip(false)
+    .run();
+}
+
+#[test]
+fn glob_import_circular_detection() {
+  Test::new()
+    .tree(tree! {
+      "a.just": "import 'b.just'",
+      "b.just": "import '*.just'",
+    })
+    .justfile(
+      "
+      set unstable
+
+      import '*.just'
+    ",
+    )
+    .status(EXIT_FAILURE)
+    .stderr_regex(path_for_regex("error: Import `.*\\.just` in `.*\\.just` is circular\n"))
+    .test_round_trip(false)
+    .run();
+}
+
+#[test]
+fn glob_import_with_prefix() {
+  Test::new()
+    .tree(tree! {
+      "test-a.just": "
+        a:
+          @echo A
+      ",
+      "test-b.just": "
+        b:
+          @echo B
+      ",
+      "other.just": "
+        c:
+          @echo C
+      ",
+    })
+    .justfile(
+      "
+      set unstable
+
+      import 'test-*.just'
+
+      default: a b
+    ",
+    )
+    .stdout("A\nB\n")
+    .test_round_trip(false)
+    .run();
+}
+
+#[test]
+fn glob_import_with_suffix() {
+  Test::new()
+    .tree(tree! {
+      "a-test.just": "
+        a:
+          @echo A
+      ",
+      "b-test.just": "
+        b:
+          @echo B
+      ",
+      "other.just": "
+        c:
+          @echo C
+      ",
+    })
+    .justfile(
+      "
+      set unstable
+
+      import '*-test.just'
+
+      default: a b
+    ",
+    )
+    .stdout("A\nB\n")
+    .test_round_trip(false)
+    .run();
+}
+
+#[test]
+fn glob_import_only_regular_files() {
+  Test::new()
+    .write(
+      "a.just",
+      "a:\n  @echo A\n",
+    )
+    .write("subdir/b.just", "")
+    .justfile(
+      "
+      set unstable
+
+      import '*.just'
+
+      default: a
+    ",
+    )
+    .stdout("A\n")
+    .test_round_trip(false)
+    .run();
+}
