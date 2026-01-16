@@ -253,25 +253,6 @@ most Windows users.)
       <td><code>apt install just</code></td>
     </tr>
     <tr>
-      <td><a href=https://debian.org>Debian</a> and <a href=https://ubuntu.com>Ubuntu</a> derivatives</td>
-      <td><a href=https://mpr.makedeb.org>MPR</a></td>
-      <td><a href=https://mpr.makedeb.org/packages/just>just</a></td>
-      <td>
-        <code>git clone https://mpr.makedeb.org/just</code><br>
-        <code>cd just</code><br>
-        <code>makedeb -si</code>
-      </td>
-    </tr>
-    <tr>
-      <td><a href=https://debian.org>Debian</a> and <a href=https://ubuntu.com>Ubuntu</a> derivatives</td>
-      <td><a href=https://docs.makedeb.org/prebuilt-mpr>Prebuilt-MPR</a></td>
-      <td><a href=https://mpr.makedeb.org/packages/just>just</a></td>
-      <td>
-        <sup><b>You must have the <a href=https://docs.makedeb.org/prebuilt-mpr/getting-started/#setting-up-the-repository>Prebuilt-MPR set up</a> on your system in order to run this command.</b></sup><br>
-        <code>apt install just</code>
-      </td>
-    </tr>
-    <tr>
       <td><a href=https://getfedora.org>Fedora</a></td>
       <td><a href=https://dnf.readthedocs.io/en/latest/>DNF</a></td>
       <td><a href=https://src.fedoraproject.org/rpms/rust-just>just</a></td>
