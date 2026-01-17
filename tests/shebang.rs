@@ -140,5 +140,5 @@ fn run_shebang() {
       ",
     )
     .stderr("error: Recipe `a` failed with exit code 200\n")
-    .run_status(200);
+    .status(200);
 }

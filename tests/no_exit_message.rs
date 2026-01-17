@@ -13,7 +13,7 @@ fn recipe_exit_message_suppressed() {
       ",
     )
     .stdout("Hello, World!\n")
-    .run_status(100);
+    .status(100);
 }
 
 #[test]
@@ -29,7 +29,7 @@ fn silent_recipe_exit_message_suppressed() {
       ",
     )
     .stdout("Hello, World!\n")
-    .run_status(100);
+    .status(100);
 }
 
 #[test]
@@ -158,7 +158,7 @@ fn shebang_exit_message_suppressed() {
     ",
     )
     .stdout("Hello, World!\n")
-    .run_status(100);
+    .status(100);
 }
 
 #[test]
@@ -173,7 +173,7 @@ fn no_exit_message() {
     ",
     )
     .stdout("Hello, World!\n")
-    .run_status(100);
+    .status(100);
 }
 
 #[test]
@@ -189,7 +189,7 @@ fn exit_message() {
     )
     .stdout("Hello, World!\n")
     .stderr("error: Recipe `hello` failed on line 4 with exit code 100\n")
-    .run_status(100);
+    .status(100);
 }
 
 #[test]
@@ -206,7 +206,7 @@ fn recipe_exit_message_setting_suppressed() {
     ",
     )
     .stdout("Hello, World!\n")
-    .run_status(100);
+    .status(100);
 }
 
 #[test]
@@ -223,7 +223,7 @@ fn shebang_exit_message_setting_suppressed() {
     ",
     )
     .stdout("Hello, World!\n")
-    .run_status(100);
+    .status(100);
 }
 
 #[test]
@@ -239,7 +239,7 @@ fn exit_message_override_no_exit_setting() {
     ",
     )
     .stderr("error: Recipe `fail` failed on line 5 with exit code 100\n")
-    .run_status(100);
+    .status(100);
 }
 
 #[test]

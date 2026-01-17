@@ -49,7 +49,7 @@ default:
   exit 100
 ",
     )
-    .run_status(100);
+    .status(100);
 }
 
 #[test]
@@ -63,7 +63,7 @@ default:
   exit 100
 ",
     )
-    .run_status(100);
+    .status(100);
 }
 
 #[test]
@@ -77,7 +77,7 @@ default:
   exit 100
 ",
     )
-    .run_status(100);
+    .status(100);
 }
 
 #[test]

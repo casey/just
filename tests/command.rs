@@ -67,7 +67,7 @@ fn no_binary() {
     For more information, try '--help'.
   ",
     )
-    .run_status(2);
+    .status(2);
 }
 
 #[test]

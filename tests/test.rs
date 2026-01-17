@@ -199,16 +199,16 @@ impl Test {
 impl Test {
   #[track_caller]
   pub(crate) fn run_success(mut self) -> Output {
-    self.run_status(0)
+    self.status(0)
   }
 
   #[track_caller]
   pub(crate) fn run_failure(mut self) -> Output {
-    self.run_status(1)
+    self.status(1)
   }
 
   #[track_caller]
-  pub(crate) fn run_status(self, status: i32) -> Output {
+  pub(crate) fn status(self, status: i32) -> Output {
     fn compare<T: PartialEq + Debug>(name: &str, have: T, want: T) -> bool {
       let equal = have == want;
       if !equal {

@@ -19,7 +19,7 @@ fn check_without_fmt() {
   --fmt
 (.|\\n)+",
     )
-    .run_status(2);
+    .status(2);
 }
 
 #[test]

@@ -478,5 +478,5 @@ fn list_submodules_requires_list() {
   Test::new()
     .arg("--list-submodules")
     .stderr_regex("error: the following required arguments were not provided:\n  --list .*")
-    .run_status(2);
+    .status(2);
 }

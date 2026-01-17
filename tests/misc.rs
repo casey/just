@@ -294,7 +294,7 @@ recipe:
   @exit 100",
     )
     .stderr("error: Recipe `recipe` failed on line 5 with exit code 100\n")
-    .run_status(100);
+    .status(100);
 }
 
 #[test]
@@ -344,7 +344,7 @@ fn backtick_code_assignment() {
       │      ^^^^^^^^^^
   ",
     )
-    .run_status(100);
+    .status(100);
 }
 
 #[test]
@@ -360,7 +360,7 @@ fn backtick_code_interpolation() {
       │          ^^^^^^^^^^
   ",
     )
-    .run_status(200);
+    .status(200);
 }
 
 #[test]
@@ -376,7 +376,7 @@ fn backtick_code_interpolation_mod() {
       │      ^^^^^^^^^^
   ",
     )
-    .run_status(200);
+    .status(200);
 }
 
 #[test]
@@ -396,7 +396,7 @@ fn backtick_code_interpolation_tab() {
       │            ^^^^^^^^^^
   ",
     )
-    .run_status(200);
+    .status(200);
 }
 
 #[test]
@@ -416,7 +416,7 @@ fn backtick_code_interpolation_tabs() {
   │                ^^^^^^^^^^
 ",
     )
-    .run_status(200);
+    .status(200);
 }
 
 #[test]
@@ -437,7 +437,7 @@ fn backtick_code_interpolation_inner_tab() {
       │                ^^^^^^^^^^^^^^^^^
   ",
     )
-    .run_status(200);
+    .status(200);
 }
 
 #[test]
@@ -458,7 +458,7 @@ fn backtick_code_interpolation_leading_emoji() {
       │              ^^^^^^^^^^
   ",
     )
-    .run_status(200);
+    .status(200);
 }
 
 #[test]
@@ -479,7 +479,7 @@ fn backtick_code_interpolation_unicode_hell() {
       │                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   ",
     )
-    .run_status(200);
+    .status(200);
 }
 
 #[test]
@@ -508,7 +508,7 @@ fn backtick_code_long() {
        │          ^^^^^^^^^^
   ",
     )
-    .run_status(200);
+    .status(200);
 }
 
 #[test]
@@ -529,7 +529,7 @@ fn shebang_backtick_failure() {
       │         ^^^^^^^^^^
   ",
     )
-    .run_status(123);
+    .status(123);
 }
 
 #[test]
@@ -551,7 +551,7 @@ fn command_backtick_failure() {
       │         ^^^^^^^^^^
   ",
     )
-    .run_status(123);
+    .status(123);
 }
 
 #[test]
@@ -572,7 +572,7 @@ a := `exit 222`",
       │      ^^^^^^^^^^
   ",
     )
-    .run_status(222);
+    .status(222);
 }
 
 #[test]
@@ -875,7 +875,7 @@ fn color_always() {
         .arg("always")
         .justfile("b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'")
         .stderr("\u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mBacktick failed with exit code 100\u{1b}[0m\n \u{1b}[1;34m——▶\u{1b}[0m justfile:2:6\n  \u{1b}[1;34m│\u{1b}[0m\n\u{1b}[1;34m2 │\u{1b}[0m a := `exit 100`\n  \u{1b}[1;34m│\u{1b}[0m      \u{1b}[1;31m^^^^^^^^^^\u{1b}[0m\n")
-        .run_status(100);
+        .status(100);
 }
 
 #[test]
@@ -892,7 +892,7 @@ fn color_never() {
   │      ^^^^^^^^^^
 ",
     )
-    .run_status(100);
+    .status(100);
 }
 
 #[test]
@@ -909,7 +909,7 @@ fn color_auto() {
   │      ^^^^^^^^^^
 ",
     )
-    .run_status(100);
+    .status(100);
 }
 
 #[test]
@@ -925,7 +925,7 @@ Recipe `recipe` failed on line 2 with exit code 100\u{1b}[0m\n",
 recipe:
   @exit 100",
     )
-    .run_status(100);
+    .status(100);
 }
 
 #[test]
@@ -1441,7 +1441,7 @@ exit 202
 error: Recipe `infallible` failed on line 3 with exit code 202
 ",
     )
-    .run_status(202);
+    .status(202);
 }
 
 #[test]
@@ -2692,7 +2692,7 @@ fn interpolation_evaluation_ignore_quiet() {
   ",
     )
     .shell(false)
-    .run_status(127);
+    .status(127);
 }
 
 #[test]
@@ -2712,7 +2712,7 @@ fn interpolation_evaluation_ignore_quiet_continuation() {
   ",
     )
     .shell(false)
-    .run_status(127);
+    .status(127);
 }
 
 #[test]
