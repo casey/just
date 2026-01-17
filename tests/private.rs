@@ -15,7 +15,7 @@ fn private_attribute_for_recipe() {
       Available recipes:
       ",
     )
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -36,7 +36,7 @@ fn private_attribute_for_alias() {
           foo
       ",
     )
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -59,7 +59,7 @@ fn private_attribute_for_module() {
             baz
       ",
     )
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -75,5 +75,5 @@ fn private_variables_are_not_listed() {
     )
     .args(["--variables"])
     .stdout("bar\n")
-    .run();
+    .run_success();
 }

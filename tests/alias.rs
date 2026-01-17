@@ -17,7 +17,7 @@ fn alias_nested_module() {
     )
     .arg("b")
     .stdout("BAZ\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -41,8 +41,7 @@ fn unknown_nested_alias() {
   │       ^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -64,5 +63,5 @@ bar:
     )
     .arg("foo::b")
     .stdout("BAR\n")
-    .run();
+    .run_success();
 }

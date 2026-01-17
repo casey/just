@@ -117,11 +117,6 @@ impl Test {
     self
   }
 
-  pub(crate) fn status(mut self, exit_status: i32) -> Self {
-    self.status = exit_status;
-    self
-  }
-
   pub(crate) fn stderr(mut self, stderr: impl Into<String>) -> Self {
     self.stderr = stderr.into();
     self
@@ -205,7 +200,25 @@ impl Test {
 
 impl Test {
   #[track_caller]
-  pub(crate) fn run(self) -> Output {
+  pub(crate) fn run_success(mut self) -> Output {
+    self.status = 0;
+    self.run()
+  }
+
+  #[track_caller]
+  pub(crate) fn run_failure(mut self) -> Output {
+    self.status = 1;
+    self.run()
+  }
+
+  #[track_caller]
+  pub(crate) fn run_status(mut self, status: i32) -> Output {
+    self.status = status;
+    self.run()
+  }
+
+  #[track_caller]
+  fn run(self) -> Output {
     fn compare<T: PartialEq + Debug>(name: &str, have: T, want: T) -> bool {
       let equal = have == want;
       if !equal {
@@ -363,5 +376,5 @@ pub fn assert_eval_eq(expression: &str, result: &str) {
     .args(["--evaluate", "x"])
     .stdout(result)
     .unindent_stdout(false)
-    .run();
+    .run_success();
 }

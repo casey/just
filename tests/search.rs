@@ -179,7 +179,7 @@ fn find_dot_justfile() {
     .current_dir("dir")
     .stderr("echo ok\n")
     .stdout("ok\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -196,6 +196,5 @@ fn dot_justfile_conflicts_with_justfile() {
       ",
     })
     .stderr_regex("error: Multiple candidate justfiles found in `.*`: `.justfile` and `justfile`\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .run_failure();
 }

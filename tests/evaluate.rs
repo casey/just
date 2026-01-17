@@ -22,7 +22,7 @@ foo   := "a	"
 hello := "c"
 "#,
     )
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -39,7 +39,7 @@ fn evaluate_empty() {
     a := "foo"
   "#,
     )
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -56,8 +56,7 @@ fn evaluate_multiple() {
   ",
     )
     .stderr("error: `--evaluate` used with unexpected argument: `c`\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -73,7 +72,7 @@ fn evaluate_single_free() {
   ",
     )
     .stdout("y")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -86,14 +85,13 @@ fn evaluate_no_suggestion() {
     abc := 'x'
   ",
     )
-    .status(EXIT_FAILURE)
     .stderr(
       "
     error: Justfile does not contain variable `aby`.
     Did you mean `abc`?
   ",
     )
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -106,13 +104,12 @@ fn evaluate_suggestion() {
     hello := 'x'
   ",
     )
-    .status(EXIT_FAILURE)
     .stderr(
       "
     error: Justfile does not contain variable `goodbye`.
   ",
     )
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -128,8 +125,7 @@ fn evaluate_private() {
   ",
     )
     .stdout("bar  := \"two\"\n")
-    .status(EXIT_SUCCESS)
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -146,6 +142,5 @@ fn evaluate_single_private() {
   ",
     )
     .stdout("one")
-    .status(EXIT_SUCCESS)
-    .run();
+    .run_success();
 }

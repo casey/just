@@ -12,7 +12,7 @@ default:
 "#,
     )
     .stdout("Hello-World\n")
-    .run();
+    .run_success();
 }
 
 #[cfg(windows)]
@@ -27,7 +27,7 @@ default:
 "#,
     )
     .stdout("Hello-World\n")
-    .run();
+    .run_success();
 }
 
 #[cfg(windows)]
@@ -42,7 +42,7 @@ default:
 "#,
     )
     .stdout("Hello-World\r\n")
-    .run();
+    .run_success();
 }
 
 #[cfg(windows)]
@@ -57,7 +57,7 @@ default:
 "#,
     )
     .stdout("Hello-World\r\n")
-    .run();
+    .run_success();
 }
 
 #[cfg(windows)]
@@ -73,7 +73,7 @@ default:
 "#,
     )
     .stdout("Hello-World\r\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -87,7 +87,7 @@ fn simple() {
       ",
     )
     .stdout("bar\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -102,7 +102,7 @@ fn echo() {
     )
     .stdout("fizz\n")
     .stderr("#!/bin/sh\necho fizz\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -118,7 +118,7 @@ fn echo_with_command_color() {
     .args(["--color", "always", "--command-color", "purple"])
     .stdout("fizz\n")
     .stderr("\u{1b}[1;35m#!/bin/sh\u{1b}[0m\n\u{1b}[1;35mecho fizz\u{1b}[0m\n")
-    .run();
+    .run_success();
 }
 
 // This test exists to make sure that shebang recipes run correctly.  Although
@@ -139,7 +139,6 @@ fn run_shebang() {
           x
       ",
     )
-    .status(200)
     .stderr("error: Recipe `a` failed with exit code 200\n")
-    .run();
+    .run_status(200);
 }

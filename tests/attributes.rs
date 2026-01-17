@@ -16,8 +16,7 @@ fn all() {
     ",
     )
     .stderr("exit 1\n")
-    .status(1)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -40,8 +39,7 @@ fn duplicate_attributes_are_disallowed() {
         │  ^^^^^^^^^^^^^^^
       ",
     )
-    .status(1)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -56,8 +54,7 @@ fn multiple_attributes_one_line() {
     ",
     )
     .stderr("exit 1\n")
-    .status(1)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -80,8 +77,7 @@ fn multiple_attributes_one_line_error_message() {
           │                ^^^^^
           ",
     )
-    .status(1)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -104,8 +100,7 @@ fn multiple_attributes_one_line_duplicate_check() {
         │  ^^^^^
         ",
     )
-    .status(1)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -127,8 +122,7 @@ fn unexpected_attribute_argument() {
           │  ^^^^^^^
           ",
     )
-    .status(1)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -144,8 +138,7 @@ fn multiple_metadata_attributes() {
     ",
     )
     .stderr("exit 1\n")
-    .status(1)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -161,8 +154,7 @@ fn multiple_metadata_attributes_with_multiple_args() {
     ",
     )
     .stderr("exit 1\n")
-    .status(1)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -184,8 +176,7 @@ fn expected_metadata_attribute_argument() {
           │  ^^^^^^^^
           ",
     )
-    .status(1)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -206,7 +197,7 @@ fn doc_attribute() {
         foo # The real docstring
         ",
     )
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -227,7 +218,7 @@ fn doc_attribute_suppress() {
         foo
         ",
     )
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -249,7 +240,7 @@ fn doc_multiline() {
         foo
         ",
     )
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -264,7 +255,7 @@ fn extension() {
       ",
     )
     .stdout_regex(r"*baz\.txt\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -285,8 +276,7 @@ fn extension_on_linewise_error() {
     │ ^^^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -308,8 +298,7 @@ fn duplicate_non_repeatable_attributes_are_forbidden() {
     │  ^^^^^^^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -321,5 +310,5 @@ fn shell_expanded_strings_can_be_used_in_attributes() {
         bar:
       ",
     )
-    .run();
+    .run_success();
 }

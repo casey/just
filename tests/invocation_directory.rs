@@ -89,7 +89,7 @@ fn invocation_directory_native() {
     .justfile("x := invocation_directory_native()")
     .args(["--evaluate", "x"])
     .stdout_regex(".*")
-    .run();
+    .run_success();
 
   if cfg!(windows) {
     assert_eq!(Path::new(&stdout), tempdir.path());

@@ -11,7 +11,7 @@ fn parameter_default_values_may_use_earlier_parameters() {
     )
     .args(["foo", "bar"])
     .stdout("bar\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -33,8 +33,7 @@ fn parameter_default_values_may_not_use_later_parameters() {
           │          ^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -48,5 +47,5 @@ fn star_may_follow_default() {
     )
     .args(["foo", "hello", "goodbye"])
     .stdout("hello goodbye\n")
-    .run();
+    .run_success();
 }

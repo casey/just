@@ -33,7 +33,7 @@ fn linewise() {
     echo "$@"
   "#,
     )
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -68,7 +68,7 @@ fn linewise_with_attribute() {
     echo "$@"
   "#,
     )
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -86,7 +86,7 @@ fn variadic_linewise() {
     )
     .stdout("a\na b c\n")
     .stderr("echo $1\necho \"$@\"\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -104,7 +104,7 @@ fn shebang() {
   ",
     )
     .stdout("hello\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -121,7 +121,7 @@ fn shebang_with_attribute() {
   ",
     )
     .stdout("hello\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -142,7 +142,7 @@ fn variadic_shebang() {
   "#,
     )
     .stdout("a\na b c\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -158,7 +158,7 @@ fn default_arguments() {
     )
     .stdout("baz\n")
     .stderr("echo $1\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -174,7 +174,7 @@ fn empty_variadic_is_undefined() {
     )
     .stdout("undefined\n")
     .stderr("if [ -n \"${1+1}\" ]; then echo defined; else echo undefined; fi\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -194,5 +194,5 @@ fn variadic_arguments_are_separate() {
     )
     .stdout("a\nb\n")
     .stderr("echo $1\necho $2\n")
-    .run();
+    .run_success();
 }

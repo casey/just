@@ -13,7 +13,7 @@ fn skip_normal_dependency() {
     )
     .args(["--no-deps", "b"])
     .stdout("b\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -29,7 +29,7 @@ fn skip_prior_dependency() {
     )
     .args(["--no-deps", "b"])
     .stdout("b\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -45,5 +45,5 @@ fn skip_dependency_multi() {
     )
     .args(["--no-deps", "b", "a"])
     .stdout("b\na\n")
-    .run();
+    .run_success();
 }

@@ -12,7 +12,7 @@ fn linewise() {
     .arg("--timestamp")
     .stderr_regex(concat!(r"\[\d\d:\d\d:\d\d\] echo 'one'", "\n"))
     .stdout("one\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -28,7 +28,7 @@ fn script() {
     .arg("--timestamp")
     .stderr_regex(concat!(r"\[\d\d:\d\d:\d\d\] recipe", "\n"))
     .stdout("one\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -43,5 +43,5 @@ fn format_string() {
     .args(["--timestamp", "--timestamp-format", "%H:%M:%S.%3f"])
     .stderr_regex(concat!(r"\[\d\d:\d\d:\d\d\.\d\d\d] echo 'one'", "\n"))
     .stdout("one\n")
-    .run();
+    .run_success();
 }

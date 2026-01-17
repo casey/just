@@ -209,7 +209,7 @@ echo "$(basename "$PWD")"
 "#,
     )
     .stdout("bar\nfoo\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -232,7 +232,7 @@ fn no_cd_overrides_setting() {
     })
     .stderr("cat bar\n")
     .stdout("hello")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -251,7 +251,7 @@ set working-directory := 'bar'
     .write("foo/bar/file.txt", "FILE")
     .arg("foo")
     .stdout("FILE")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -269,7 +269,7 @@ fn working_dir_applies_to_backticks() {
     )
     .write("foo/file.txt", "FILE")
     .stdout("FILE\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -287,7 +287,7 @@ fn working_dir_applies_to_shell_function() {
     )
     .write("foo/file.txt", "FILE")
     .stdout("FILE\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -308,7 +308,7 @@ file := `cat file.txt`
     .arg("foo")
     .write("foo/bar/file.txt", "FILE")
     .stdout("FILE\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -329,7 +329,7 @@ file := shell('cat file.txt')
     .arg("foo")
     .write("foo/bar/file.txt", "FILE")
     .stdout("FILE\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -350,8 +350,7 @@ fn attribute_duplicate() {
   │  ^^^^^^^^^^^^^^^^^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -366,7 +365,7 @@ fn attribute() {
     )
     .create_dir("foo")
     .expect_file("foo/bar", "baz\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -388,8 +387,7 @@ fn attribute_with_nocd_is_forbidden() {
           │ ^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -406,5 +404,5 @@ fn setting_and_attribute() {
     )
     .create_dir("foo/bar")
     .expect_file("foo/bar/fred", "bob\n")
-    .run();
+    .run_success();
 }

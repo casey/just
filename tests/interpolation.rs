@@ -11,7 +11,7 @@ fn closing_curly_brace_can_abut_interpolation_close() {
     )
     .stderr("echo d\n")
     .stdout("d\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -27,7 +27,7 @@ fn eol_with_continuation_in_interpolation() {
     )
     .stderr("echo a\n")
     .stdout("a\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -43,7 +43,7 @@ fn eol_without_continuation_in_interpolation() {
     )
     .stderr("echo a\n")
     .stdout("a\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -66,8 +66,7 @@ fn comment_in_interopolation() {
           │           ^^^^^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -86,7 +85,7 @@ fn indent_and_dedent_are_ignored_in_interpolation() {
     )
     .stderr("echo abc\necho foo\n")
     .stdout("abc\nfoo\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -127,5 +126,5 @@ fn shebang_line_numbers_are_correct_with_multi_line_interpolations() {
         echo foo
       "
     })
-    .run();
+    .run_success();
 }

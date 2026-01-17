@@ -16,7 +16,7 @@ fn env() {
     )
     .stderr("echo bar\n")
     .stdout("bar\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -36,7 +36,7 @@ fn chooser() {
     )
     .stderr("echo bar\n")
     .stdout("bar\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -58,7 +58,7 @@ fn override_variable() {
     )
     .stderr("echo B\n")
     .stdout("B\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -77,7 +77,7 @@ fn skip_private_recipes() {
     )
     .stderr("echo foo\n")
     .stdout("foo\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -93,7 +93,7 @@ fn recipes_in_submodules_can_be_chosen() {
     )
     .stderr("echo BAZ\n")
     .stdout("BAZ\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -112,7 +112,7 @@ fn skip_recipes_that_require_arguments() {
     )
     .stderr("echo foo\n")
     .stdout("foo\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -128,9 +128,8 @@ fn no_choosable_recipes() {
           echo {{BAR}}
       ",
     )
-    .status(EXIT_FAILURE)
     .stderr("error: Justfile contains no choosable recipes.\n")
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -150,7 +149,7 @@ fn multiple_recipes() {
     )
     .stderr("echo foo\necho bar\n")
     .stdout("foo\nbar\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -168,10 +167,9 @@ fn invoke_error_function() {
     .stderr_regex(
       r#"error: Chooser `/ -cu fzf --multi --preview 'just --unstable --color always --justfile ".*justfile" --show \{\}'` invocation failed: .*\n"#,
     )
-    .status(EXIT_FAILURE)
     .shell(false)
     .args(["--shell", "/", "--choose"])
-    .run();
+    .run_failure();
 }
 
 #[test]

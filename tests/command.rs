@@ -13,7 +13,7 @@ fn long() {
   ",
     )
     .stdout("foo")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -29,7 +29,7 @@ fn short() {
   ",
     )
     .stdout("foo")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -47,8 +47,7 @@ fn command_color() {
     )
     .stdout("XYZ\n")
     .stderr("\u{1b}[1;36mecho XYZ\u{1b}[0m\n")
-    .status(EXIT_SUCCESS)
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -68,8 +67,7 @@ fn no_binary() {
     For more information, try '--help'.
   ",
     )
-    .status(2)
-    .run();
+    .run_status(2);
 }
 
 #[test]
@@ -86,7 +84,7 @@ fn env_is_loaded() {
     .args(["--command", "sh", "-c", "printf $DOTENV_KEY"])
     .write(".env", "DOTENV_KEY=dotenv-value")
     .stdout("dotenv-value")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -105,7 +103,7 @@ fn exports_are_available() {
   ",
     )
     .stdout("bar")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -127,7 +125,7 @@ fn set_overrides_work() {
   ",
     )
     .stdout("baz")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -143,7 +141,7 @@ fn run_in_shell() {
     )
     .stdout("bar baz")
     .shell(false)
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -158,8 +156,7 @@ fn exit_status() {
   ",
     )
     .stderr_regex("error: Command `false` failed: exit (code|status): 1\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .run_failure();
 }
 
 #[test]

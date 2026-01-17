@@ -17,7 +17,7 @@ fn runs_with_command() {
         FOO
       ",
     )
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -31,7 +31,7 @@ fn no_arguments() {
       ",
     )
     .stdout("foo\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -46,7 +46,7 @@ fn with_arguments() {
     )
     .stdout("foo\n")
     .stderr("+ echo foo\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -66,7 +66,7 @@ fn allowed_with_shebang() {
         #!/bin/sh
       ",
     )
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -90,7 +90,7 @@ fn script_line_numbers() {
         BAR
       ",
     )
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -128,7 +128,7 @@ fn script_line_numbers_with_multi_line_recipe_signature() {
         BAZ
       ",
     )
-    .run();
+    .run_success();
 }
 
 #[cfg(not(windows))]
@@ -161,7 +161,7 @@ b
 c
 ",
     )
-    .run();
+    .run_success();
 }
 
 #[cfg(not(windows))]
@@ -200,7 +200,7 @@ b
 c
 ",
     )
-    .run();
+    .run_success();
 }
 
 #[cfg(not(windows))]
@@ -237,7 +237,7 @@ b
 c
 ",
     )
-    .run();
+    .run_success();
 }
 
 #[cfg(windows)]
@@ -271,7 +271,7 @@ b
 c
 ",
     )
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -296,7 +296,7 @@ fn no_arguments_with_default_script_interpreter() {
         -u is set
       ",
     )
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -317,5 +317,5 @@ fn no_arguments_with_non_default_script_interpreter() {
           esac
       ",
     )
-    .run();
+    .run_success();
 }

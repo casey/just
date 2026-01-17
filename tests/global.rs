@@ -17,7 +17,7 @@ fn macos() {
     .env("HOME", path.to_str().unwrap())
     .args(["--global-justfile"])
     .stdout("foo\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -34,7 +34,7 @@ fn not_macos() {
     .env("XDG_CONFIG_HOME", path.to_str().unwrap())
     .args(["--global-justfile"])
     .stdout("foo\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -51,7 +51,7 @@ fn unix() {
     .env("HOME", path.to_str().unwrap())
     .args(["--global-justfile"])
     .stdout("foo\n")
-    .run()
+    .run_success()
     .tempdir;
 
   Test::with_tempdir(tempdir)
@@ -61,7 +61,7 @@ fn unix() {
     .env("HOME", path.to_str().unwrap())
     .args(["--global-justfile"])
     .stdout("bar\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -78,5 +78,5 @@ fn case_insensitive() {
     .env("XDG_CONFIG_HOME", path.to_str().unwrap())
     .args(["--global-justfile"])
     .stdout("foo\n")
-    .run();
+    .run_success();
 }

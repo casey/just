@@ -24,7 +24,7 @@ fn success() {
     echo bar
   ",
     )
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -52,8 +52,7 @@ fn failure() {
     error: Recipe `foo` failed on line 3 with exit code 1
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -73,8 +72,7 @@ fn circular_dependency() {
       │         ^^^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -94,8 +92,7 @@ fn unknown() {
       │         ^^^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -117,8 +114,7 @@ fn unknown_argument() {
       │              ^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -142,7 +138,7 @@ fn argument() {
     echo hello
   ",
     )
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -179,7 +175,7 @@ fn duplicate_subsequents_dont_run() {
     echo c
   ",
     )
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -208,5 +204,5 @@ fn subsequents_run_even_if_already_ran_as_prior() {
     echo b
   ",
     )
-    .run();
+    .run_success();
 }

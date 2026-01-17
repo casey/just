@@ -24,14 +24,13 @@ fn exists() {
     .no_justfile()
     .arg("--init")
     .stderr_regex("Wrote justfile to `.*`\n")
-    .run();
+    .run_success();
 
   Test::with_tempdir(output.tempdir)
     .no_justfile()
     .arg("--init")
-    .status(EXIT_FAILURE)
     .stderr_regex("error: Justfile `.*` already exists\n")
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -45,13 +44,12 @@ fn write_error() {
   test
     .no_justfile()
     .args(["--init"])
-    .status(EXIT_FAILURE)
     .stderr_regex(if cfg!(windows) {
       r"error: Failed to write justfile to `.*`: Access is denied. \(os error 5\)\n"
     } else {
       r"error: Failed to write justfile to `.*`: Is a directory \(os error 21\)\n"
     })
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -68,7 +66,7 @@ fn invocation_directory() {
     .no_justfile()
     .stderr_regex("Wrote justfile to `.*`\n")
     .arg("--init")
-    .run();
+    .run_success();
 
   assert_eq!(fs::read_to_string(justfile_path).unwrap(), INIT_JUSTFILE);
 }
@@ -193,12 +191,11 @@ fn fmt_compatibility() {
     .no_justfile()
     .arg("--init")
     .stderr_regex("Wrote justfile to `.*`\n")
-    .run();
+    .run_success();
   Test::with_tempdir(output.tempdir)
     .no_justfile()
     .arg("--unstable")
     .arg("--check")
     .arg("--fmt")
-    .status(EXIT_SUCCESS)
-    .run();
+    .run_success();
 }

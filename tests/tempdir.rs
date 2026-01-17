@@ -47,7 +47,7 @@ fn setting() {
       cat just*/foo
       "
     })
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -83,5 +83,5 @@ fn argument_overrides_setting() {
       cat just*/foo
       "
     })
-    .run();
+    .run_success();
 }

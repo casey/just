@@ -106,7 +106,7 @@ fn shell_args() {
     .shell(false)
     .stdout("AA\n")
     .stderr("echo A${foo}A\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -125,7 +125,7 @@ fn shell_override() {
     .shell(false)
     .stdout("hello\n")
     .stderr("echo hello\n")
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -144,7 +144,7 @@ fn shell_arg_override() {
     .stdout("hello\n")
     .stderr("echo hello\n")
     .shell(false)
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -164,7 +164,7 @@ fn set_shell() {
     .stdout("echo barecho foo")
     .stderr("echo bar\necho foo\n")
     .shell(false)
-    .run();
+    .run_success();
 }
 
 #[test]
@@ -181,8 +181,7 @@ fn recipe_shell_not_found_error_message() {
     .stderr_regex(
       "error: Recipe `foo` could not be run because just could not find the shell: .*\n",
     )
-    .status(1)
-    .run();
+    .run_failure();
 }
 
 #[test]
@@ -199,6 +198,5 @@ fn backtick_recipe_shell_not_found_error_message() {
     .shell(false)
     .args(["--shell", "NOT_A_REAL_SHELL"])
     .stderr_regex("(?s)error: Backtick could not be run because just could not find the shell:.*")
-    .status(1)
-    .run();
+    .run_failure();
 }
