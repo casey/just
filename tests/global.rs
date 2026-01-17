@@ -34,7 +34,7 @@ fn not_macos() {
     .env("XDG_CONFIG_HOME", path.to_str().unwrap())
     .args(["--global-justfile"])
     .stdout("foo\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -78,5 +78,5 @@ fn case_insensitive() {
     .env("XDG_CONFIG_HOME", path.to_str().unwrap())
     .args(["--global-justfile"])
     .stdout("foo\n")
-    .run_success();
+    .success();
 }
