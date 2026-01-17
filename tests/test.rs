@@ -194,9 +194,7 @@ impl Test {
       .insert(path.into(), content.as_ref().into());
     self
   }
-}
 
-impl Test {
   #[track_caller]
   pub(crate) fn success(self) -> Output {
     self.status(0)
