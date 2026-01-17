@@ -2777,12 +2777,12 @@ fn windows_interpreter_path_no_base() {
   }
   Test::new()
     .justfile(
-      r#"
+      r"
     foo:
       #!powershell
 
       exit 0
-  "#,
+  ",
     )
     .success();
 }

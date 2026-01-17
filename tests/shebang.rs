@@ -7,11 +7,11 @@ fn powershell() {
   }
   Test::new()
     .justfile(
-      r#"
+      r"
 default:
   #!powershell
   Write-Host Hello-World
-"#,
+",
     )
     .stdout("Hello-World\n")
     .success();
@@ -24,11 +24,11 @@ fn powershell_exe() {
   }
   Test::new()
     .justfile(
-      r#"
+      r"
 default:
   #!powershell.exe
    Write-Host Hello-World
-"#,
+",
     )
     .stdout("Hello-World\n")
     .success();
@@ -41,11 +41,11 @@ fn cmd() {
   }
   Test::new()
     .justfile(
-      r#"
+      r"
 default:
   #!cmd /c
   @echo Hello-World
-"#,
+",
     )
     .stdout("Hello-World\r\n")
     .success();
@@ -58,11 +58,11 @@ fn cmd_exe() {
   }
   Test::new()
     .justfile(
-      r#"
+      r"
 default:
   #!cmd.exe /c
   @echo Hello-World
-"#,
+",
     )
     .stdout("Hello-World\r\n")
     .success();
@@ -75,12 +75,12 @@ fn multi_line_cmd_shebangs_are_removed() {
   }
   Test::new()
     .justfile(
-      r#"
+      r"
 default:
   #!cmd.exe /c
   #!foo
   @echo Hello-World
-"#,
+",
     )
     .stdout("Hello-World\r\n")
     .success();

@@ -349,14 +349,14 @@ fn env_var_functions_windows() {
   }
   Test::new()
     .justfile(
-      r#"
+      r"
 p := env_var('USERNAME')
 b := env_var_or_default('ZADDY', 'HTAP')
 x := env_var_or_default('XYZ', 'ABC')
 
 foo:
   /usr/bin/env echo '{{p}}' '{{b}}' '{{x}}'
-"#,
+",
     )
     .stdout(format!("{} HTAP ABC\n", env::var("USERNAME").unwrap()).as_str())
     .stderr(
