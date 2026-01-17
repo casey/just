@@ -179,7 +179,7 @@ fn find_dot_justfile() {
     .current_dir("dir")
     .stderr("echo ok\n")
     .stdout("ok\n")
-    .run_success();
+    .success();
 }
 
 #[test]

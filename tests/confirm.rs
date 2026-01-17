@@ -13,7 +13,7 @@ fn confirm_recipe_arg() {
     )
     .stderr("echo confirmed\n")
     .stdout("confirmed\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -32,7 +32,7 @@ fn recipe_with_confirm_recipe_dependency_arg() {
     )
     .stderr("echo confirmed\necho confirmed2\n")
     .stdout("confirmed\nconfirmed2\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -48,7 +48,7 @@ fn confirm_recipe() {
     .stderr("Run recipe `requires_confirmation`? echo confirmed\n")
     .stdout("confirmed\n")
     .stdin("y")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -67,7 +67,7 @@ fn recipe_with_confirm_recipe_dependency() {
     .stderr("Run recipe `requires_confirmation`? echo confirmed\necho confirmed2\n")
     .stdout("confirmed\nconfirmed2\n")
     .stdin("y")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -114,7 +114,7 @@ fn confirm_recipe_with_prompt() {
     .stderr("This is dangerous - are you sure you want to run it? echo confirmed\n")
     .stdout("confirmed\n")
     .stdin("y")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -150,5 +150,5 @@ fn confirm_attribute_is_formatted_correctly() {
     )
     .arg("--dump")
     .stdout("[confirm('prompt')]\nfoo:\n")
-    .run_success();
+    .success();
 }

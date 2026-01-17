@@ -17,7 +17,7 @@ fn alias_nested_module() {
     )
     .arg("b")
     .stdout("BAZ\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -63,5 +63,5 @@ bar:
     )
     .arg("foo::b")
     .stdout("BAR\n")
-    .run_success();
+    .success();
 }

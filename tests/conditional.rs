@@ -11,7 +11,7 @@ fn then_branch_unevaluated() {
     )
     .stdout("otherwise\n")
     .stderr("echo otherwise\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -25,7 +25,7 @@ fn otherwise_branch_unevaluated() {
     )
     .stdout("then\n")
     .stderr("echo then\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -39,7 +39,7 @@ fn otherwise_branch_unevaluated_inverted() {
     )
     .stdout("then\n")
     .stderr("echo then\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -53,7 +53,7 @@ fn then_branch_unevaluated_inverted() {
     )
     .stdout("otherwise\n")
     .stderr("echo otherwise\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -67,7 +67,7 @@ fn complex_expressions() {
     )
     .stdout("cd\n")
     .stderr("echo cd\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -205,7 +205,7 @@ fn dump() {
         echo {{ a }}
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -221,7 +221,7 @@ fn if_else() {
     )
     .stdout("b\n")
     .stderr("echo b\n")
-    .run_success();
+    .success();
 }
 
 #[test]

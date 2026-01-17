@@ -197,7 +197,7 @@ fn doc_attribute() {
         foo # The real docstring
         ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -218,7 +218,7 @@ fn doc_attribute_suppress() {
         foo
         ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -240,7 +240,7 @@ fn doc_multiline() {
         foo
         ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -255,7 +255,7 @@ fn extension() {
       ",
     )
     .stdout_regex(r"*baz\.txt\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -310,5 +310,5 @@ fn shell_expanded_strings_can_be_used_in_attributes() {
         bar:
       ",
     )
-    .run_success();
+    .success();
 }

@@ -11,7 +11,7 @@ fn strings_are_shell_expanded() {
     .env("JUST_TEST_VARIABLE", "FOO")
     .args(["--evaluate", "x"])
     .stdout("FOO")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -66,7 +66,7 @@ fn shell_expanded_strings_are_dumped_correctly() {
     .env("JUST_TEST_VARIABLE", "FOO")
     .args(["--dump"])
     .stdout("x := x'$JUST_TEST_VARIABLE'\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -83,7 +83,7 @@ fn shell_expanded_strings_can_be_used_in_settings() {
     .write(".env", "DOTENV_KEY=dotenv-value")
     .env("JUST_TEST_VARIABLE", ".env")
     .stdout("dotenv-value\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -99,7 +99,7 @@ fn shell_expanded_strings_can_be_used_in_import_paths() {
     .write("import.just", "@bar:\n echo BAR")
     .env("JUST_TEST_VARIABLE", "import.just")
     .stdout("BAR\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -114,7 +114,7 @@ fn shell_expanded_strings_can_be_used_in_mod_paths() {
     .env("JUST_TEST_VARIABLE", "mod.just")
     .args(["foo", "bar"])
     .stdout("BAR\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -129,7 +129,7 @@ fn shell_expanded_strings_do_not_conflict_with_dependencies() {
     )
     .args(["bar", "A", "B"])
     .stdout("Ac\n")
-    .run_success();
+    .success();
 
   Test::new()
     .justfile(
@@ -141,7 +141,7 @@ fn shell_expanded_strings_do_not_conflict_with_dependencies() {
     )
     .args(["bar", "A", "B"])
     .stdout("Ac\n")
-    .run_success();
+    .success();
 
   Test::new()
     .justfile(
@@ -153,5 +153,5 @@ fn shell_expanded_strings_do_not_conflict_with_dependencies() {
     )
     .args(["bar", "A", "B"])
     .stdout("Ac\n")
-    .run_success();
+    .success();
 }

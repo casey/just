@@ -19,7 +19,7 @@ fn import_succeeds() {
     )
     .arg("a")
     .stdout("B\nA\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -59,7 +59,7 @@ fn missing_optional_imports_are_ignored() {
     )
     .arg("a")
     .stdout("A\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -76,7 +76,7 @@ fn trailing_spaces_after_import_are_ignored() {
     ",
     )
     .stdout("A\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -95,7 +95,7 @@ fn import_after_recipe() {
       ",
     )
     .stdout("A\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -141,7 +141,7 @@ fn listed_recipes_in_imports_are_in_load_order() {
           bar
     ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -181,7 +181,7 @@ fn recipes_in_import_are_overridden_by_recipes_in_parent() {
     )
     .arg("a")
     .stdout("ROOT\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -206,7 +206,7 @@ fn variables_in_import_are_overridden_by_variables_in_parent() {
     )
     .arg("a")
     .stdout("bar\n")
-    .run_success();
+    .success();
 }
 
 #[cfg(not(windows))]
@@ -222,7 +222,7 @@ fn import_paths_beginning_with_tilde_are_expanded_to_homdir() {
     .arg("foo")
     .stdout("FOOBAR\n")
     .env("HOME", "foobar")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -236,7 +236,7 @@ fn imports_dump_correctly() {
     )
     .arg("--dump")
     .stdout("import './import.justfile'\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -250,7 +250,7 @@ fn optional_imports_dump_correctly() {
     )
     .arg("--dump")
     .stdout("import? './import.justfile'\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -265,7 +265,7 @@ fn imports_in_root_run_in_justfile_directory() {
     )
     .arg("bar")
     .stdout("BAZ")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -278,7 +278,7 @@ fn imports_in_submodules_run_in_submodule_directory() {
     .arg("foo")
     .arg("bar")
     .stdout("BAZ")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -289,7 +289,7 @@ fn nested_import_paths_are_relative_to_containing_submodule() {
     .write("foo/bar.just", "bar:\n @echo BAR")
     .arg("bar")
     .stdout("BAR\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -301,7 +301,7 @@ fn recipes_in_nested_imports_run_in_parent_module() {
     .write("baz", "BAZ")
     .arg("bar")
     .stdout("BAZ")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -319,7 +319,7 @@ fn shebang_recipes_in_imports_in_root_run_in_justfile_directory() {
     )
     .arg("bar")
     .stdout("BAZ")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -335,7 +335,7 @@ fn recipes_imported_in_root_run_in_command_line_provided_working_directory() {
       "subdir/a.justfile",
     ])
     .stdout("BAZBAZ")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -354,7 +354,7 @@ fn reused_import_are_allowed() {
       b: "import 'c'",
       c: "",
     })
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -377,7 +377,7 @@ x := 'y'
 ",
     )
     .stdout("hello\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -402,5 +402,5 @@ x := 'y'
 ",
     )
     .stdout("hello\n")
-    .run_success();
+    .success();
 }

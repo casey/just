@@ -23,7 +23,7 @@ fn all_settings_allow_expressions() {
       ",
     )
     .stderr("Justfile contains no recipes.\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -239,7 +239,7 @@ fn built_in_constant() {
     )
     .write("0123456789abcdef/file.txt", "bar")
     .stdout("bar")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -258,7 +258,7 @@ fn variable() {
     .write("bar/file.txt", "baz")
     .arg("foo")
     .stdout("baz")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -279,7 +279,7 @@ fn unused_non_const_assignments() {
     .write("bar/file.txt", "baz")
     .arg("foo")
     .stdout("baz")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -299,7 +299,7 @@ fn variable_with_override() {
     .write("bob/file.txt", "baz")
     .arg("foo")
     .stdout("baz")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -318,7 +318,7 @@ fn expression() {
     .write("bar-bob/file.txt", "baz")
     .arg("foo")
     .stdout("baz")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -337,7 +337,7 @@ fn expression_with_override() {
     .write("bob-bob/file.txt", "baz")
     .args(["dir=bob", "foo"])
     .stdout("baz")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -463,7 +463,7 @@ fn backtick_override() {
     .write("foo/file.txt", "baz")
     .arg("foo")
     .stdout("baz")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -490,7 +490,7 @@ foo:
     .write("foo/bar-baz/file.txt", "ok")
     .args(["foo", "foo"])
     .stdout("ok")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -519,5 +519,5 @@ foo:
     .args(["dir=bob", "bob=foo", "foo::foo"])
     .write("bar/file.txt", "ok")
     .stdout("ok")
-    .run_success();
+    .success();
 }

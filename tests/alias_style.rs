@@ -21,7 +21,7 @@ fn default() {
             foo # comment [alias: f]
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -46,7 +46,7 @@ fn multiple() {
             foo # comment [aliases: a, b]
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -70,7 +70,7 @@ fn right() {
             foo # comment [alias: f]
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -94,7 +94,7 @@ fn left() {
             foo # [alias: f] comment
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -119,5 +119,5 @@ fn separate() {
             f   # alias for `foo`
       ",
     )
-    .run_success();
+    .success();
 }

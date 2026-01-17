@@ -14,7 +14,7 @@ fn default_attribute_overrides_first_recipe() {
       ",
     )
     .stdout("BAR\n")
-    .run_success();
+    .success();
 }
 
 #[test]

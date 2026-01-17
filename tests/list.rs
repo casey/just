@@ -20,7 +20,7 @@ fn modules_unsorted() {
             bar ...
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -54,7 +54,7 @@ fn unsorted_list_order() {
             d
       ",
     )
-    .run_success();
+    .success();
 
   Test::new()
     .write("a.just", "a:")
@@ -85,7 +85,7 @@ fn unsorted_list_order() {
             a
       ",
     )
-    .run_success();
+    .success();
 
   Test::new()
     .write("a.just", "a:\nimport 'e.just'")
@@ -124,7 +124,7 @@ fn unsorted_list_order() {
             e
       ",
     )
-    .run_success();
+    .success();
 
   Test::new()
     .write("task1.just", "task1:")
@@ -143,7 +143,7 @@ fn unsorted_list_order() {
             task2
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -162,7 +162,7 @@ fn list_submodule() {
           bar
     ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -182,7 +182,7 @@ fn list_nested_submodule() {
             baz
       ",
     )
-    .run_success();
+    .success();
 
   Test::new()
     .write("foo.just", "mod bar")
@@ -199,7 +199,7 @@ fn list_nested_submodule() {
             baz
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -242,7 +242,7 @@ fn list_with_groups_in_modules() {
             foo
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -262,7 +262,7 @@ fn list_displays_recipes_in_submodules() {
               bar
     ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -288,7 +288,7 @@ fn modules_are_space_separated_in_output() {
               foo
     ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -318,7 +318,7 @@ barbarbar:
                 foo # foos
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -340,7 +340,7 @@ fn nested_modules_are_properly_indented() {
                   baz
     ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -360,7 +360,7 @@ fn module_doc_rendered() {
             foo ... # Module foo
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -390,7 +390,7 @@ fn module_doc_aligned() {
             very_long_name_for_module ... # comment
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -415,7 +415,7 @@ fn submodules_without_groups() {
             bar
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -434,7 +434,7 @@ fn no_space_before_submodules_not_following_groups() {
             foo ...
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -452,7 +452,7 @@ fn backticks_highlighted() {
         Available recipes:
             recipe \u{1b}[34m#\u{1b}[0m \u{1b}[34mComment \u{1b}[0m\u{1b}[36m``\u{1b}[0m\u{1b}[34m \u{1b}[0m\u{1b}[36m`with backticks`\u{1b}[0m\u{1b}[34m and trailing text\u{1b}[0m
       ")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -470,7 +470,7 @@ fn unclosed_backticks() {
         Available recipes:
             recipe \u{1b}[34m#\u{1b}[0m \u{1b}[34mComment \u{1b}[0m\u{1b}[36m`with unclosed backick\u{1b}[0m
       ")
-    .run_success();
+    .success();
 }
 
 #[test]

@@ -14,7 +14,7 @@ fn recipe_doubly_nested_module_dependencies() {
     )
     .arg("baz")
     .stdout("BAZ\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -30,7 +30,7 @@ fn recipe_singly_nested_module_dependencies() {
     )
     .arg("baz")
     .stdout("BAR\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -117,7 +117,7 @@ fn recipe_module_dependency_subsequent_mix() {
     )
     .arg("quux")
     .stdout("BAR\nQUUX\nBAZ\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -132,5 +132,5 @@ fn recipe_module_dependency_only_runs_once() {
     )
     .arg("qux")
     .stdout("BAZ\n")
-    .run_success();
+    .success();
 }

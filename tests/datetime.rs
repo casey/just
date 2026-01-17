@@ -10,7 +10,7 @@ fn datetime() {
     )
     .args(["--eval", "x"])
     .stdout_regex(r"\d\d\d\d-\d\d-\d\d [+-]\d\d\d\d")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -23,5 +23,5 @@ fn datetime_utc() {
     )
     .args(["--eval", "x"])
     .stdout_regex(r"\d\d\d\d-\d\d-\d\d UTC")
-    .run_success();
+    .success();
 }

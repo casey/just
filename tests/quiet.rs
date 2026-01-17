@@ -10,7 +10,7 @@ default:
   @echo hello
 ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -23,7 +23,7 @@ default:
   @echo hello 1>&2
 ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -36,7 +36,7 @@ default:
   exit
 ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -161,7 +161,7 @@ fn quiet_shebang() {
       #!/bin/sh
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -175,7 +175,7 @@ fn no_quiet_setting() {
     )
     .stdout("FOO\n")
     .stderr("echo FOO\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -190,7 +190,7 @@ fn quiet_setting() {
       ",
     )
     .stdout("FOO\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -207,7 +207,7 @@ fn quiet_setting_with_no_quiet_attribute() {
     )
     .stdout("FOO\n")
     .stderr("echo FOO\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -222,7 +222,7 @@ fn quiet_setting_with_quiet_recipe() {
       ",
     )
     .stdout("FOO\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -237,7 +237,7 @@ fn quiet_setting_with_quiet_line() {
       ",
     )
     .stdout("FOO\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -253,7 +253,7 @@ fn quiet_setting_with_no_quiet_attribute_and_quiet_recipe() {
       ",
     )
     .stdout("FOO\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -269,5 +269,5 @@ fn quiet_setting_with_no_quiet_attribute_and_quiet_line() {
       ",
     )
     .stdout("FOO\n")
-    .run_success();
+    .success();
 }

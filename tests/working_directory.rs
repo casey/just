@@ -209,7 +209,7 @@ echo "$(basename "$PWD")"
 "#,
     )
     .stdout("bar\nfoo\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -232,7 +232,7 @@ fn no_cd_overrides_setting() {
     })
     .stderr("cat bar\n")
     .stdout("hello")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -251,7 +251,7 @@ set working-directory := 'bar'
     .write("foo/bar/file.txt", "FILE")
     .arg("foo")
     .stdout("FILE")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -269,7 +269,7 @@ fn working_dir_applies_to_backticks() {
     )
     .write("foo/file.txt", "FILE")
     .stdout("FILE\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -287,7 +287,7 @@ fn working_dir_applies_to_shell_function() {
     )
     .write("foo/file.txt", "FILE")
     .stdout("FILE\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -308,7 +308,7 @@ file := `cat file.txt`
     .arg("foo")
     .write("foo/bar/file.txt", "FILE")
     .stdout("FILE\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -329,7 +329,7 @@ file := shell('cat file.txt')
     .arg("foo")
     .write("foo/bar/file.txt", "FILE")
     .stdout("FILE\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -365,7 +365,7 @@ fn attribute() {
     )
     .create_dir("foo")
     .expect_file("foo/bar", "baz\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -404,5 +404,5 @@ fn setting_and_attribute() {
     )
     .create_dir("foo/bar")
     .expect_file("foo/bar/fred", "bob\n")
-    .run_success();
+    .success();
 }

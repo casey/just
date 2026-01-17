@@ -24,7 +24,7 @@ fn success() {
     echo bar
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -138,7 +138,7 @@ fn argument() {
     echo hello
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -175,7 +175,7 @@ fn duplicate_subsequents_dont_run() {
     echo c
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -204,5 +204,5 @@ fn subsequents_run_even_if_already_ran_as_prior() {
     echo b
   ",
     )
-    .run_success();
+    .success();
 }

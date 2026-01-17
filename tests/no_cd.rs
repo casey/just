@@ -18,7 +18,7 @@ fn linewise() {
     })
     .stderr("cat bar\n")
     .stdout("hello")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -39,5 +39,5 @@ fn shebang() {
       }
     })
     .stdout("hello")
-    .run_success();
+    .success();
 }

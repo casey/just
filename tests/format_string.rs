@@ -13,7 +13,7 @@ fn empty() {
     )
     .stdout("\n")
     .unindent_stdout(false)
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -28,7 +28,7 @@ fn simple() {
       ",
     )
     .stdout("bar\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -44,7 +44,7 @@ fn compound() {
       ",
     )
     .stdout("FOOBARBAZ\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -62,7 +62,7 @@ fn newline() {
       ",
     )
     .stdout("FOOBARXYZBAZ\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -79,7 +79,7 @@ fn conditional() {
       ",
     )
     .stdout("FOOdBAZ\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -94,7 +94,7 @@ fn conditional_no_whitespace() {
       ",
     )
     .stdout("FOOdBAZ\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -110,7 +110,7 @@ fn inner_delimiter() {
       ",
     )
     .stdout("FOOBARBAZ\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -126,7 +126,7 @@ fn nested() {
       ",
     )
     .stdout("FOO[BAR]BAZ\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -140,7 +140,7 @@ fn recipe_body() {
       ",
     )
     .stdout("FOO[BAR]BAZ\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -172,7 +172,7 @@ fn unmatched_close_is_ignored() {
     )
     .stdout("}}\n")
     .unindent_stdout(false)
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -185,7 +185,7 @@ fn delimiter_may_be_escaped_in_double_quoted_strings() {
     )
     .args(["--evaluate", "foo"])
     .stdout("{{")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -198,7 +198,7 @@ fn delimiter_may_be_escaped_in_single_quoted_strings() {
     )
     .args(["--evaluate", "foo"])
     .stdout("{{")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -211,7 +211,7 @@ fn escaped_delimiter_is_ignored_in_normal_strings() {
     )
     .args(["--evaluate", "foo"])
     .stdout("{{{{")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -224,7 +224,7 @@ fn escaped_delimiter_in_single_quoted_format_string() {
     )
     .args(["--evaluate", "foo"])
     .stdout("\\{{")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -258,7 +258,7 @@ fn double_quotes_process_escapes() {
     )
     .args(["--evaluate", "foo"])
     .stdout("abcde")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -271,7 +271,7 @@ fn single_quotes_do_not_process_escapes() {
     )
     .args(["--evaluate", "foo"])
     .stdout(r"\na\nb\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -288,7 +288,7 @@ fn indented_format_strings() {
     )
     .args(["--evaluate", "foo"])
     .stdout("a\nb\nc\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -306,7 +306,7 @@ fn un_indented_format_strings() {
     .args(["--evaluate", "foo"])
     .stdout("\n  a\n  b\n  c\n")
     .unindent_stdout(false)
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -321,7 +321,7 @@ fn dump() {
       ))
       .arg("--dump")
       .stdout(format!("foo := {string}\n"))
-      .run_success();
+      .success();
   }
   case("f''");
   case("f''''''");
@@ -361,5 +361,5 @@ fn format_string_followed_by_recipe() {
         bar:
       ",
     )
-    .run_success();
+    .success();
 }

@@ -22,7 +22,7 @@ foo   := "a	"
 hello := "c"
 "#,
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -39,7 +39,7 @@ fn evaluate_empty() {
     a := "foo"
   "#,
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -72,7 +72,7 @@ fn evaluate_single_free() {
   ",
     )
     .stdout("y")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -125,7 +125,7 @@ fn evaluate_private() {
   ",
     )
     .stdout("bar  := \"two\"\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -142,5 +142,5 @@ fn evaluate_single_private() {
   ",
     )
     .stdout("one")
-    .run_success();
+    .success();
 }

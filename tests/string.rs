@@ -13,7 +13,7 @@ recipe:
     )
     .stdout("\\z")
     .stderr("printf \"$EXPORTED_VARIABLE\"\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -39,7 +39,7 @@ whatever
 whatever'
 ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -62,7 +62,7 @@ a:
 goodbye'
 ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -88,7 +88,7 @@ whatever
 whatever'
 ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -110,7 +110,7 @@ fn cooked_string_suppress_newline() {
     foobar
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -205,7 +205,7 @@ a:
       b'
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -378,7 +378,7 @@ fn indented_raw_string_contents_indentation_removed() {
     bar
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -401,7 +401,7 @@ fn indented_cooked_string_contents_indentation_removed() {
     bar
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -421,7 +421,7 @@ fn indented_backtick_string_contents_indentation_removed() {
   ",
     )
     .stdout("\n\nfoo\nbar")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -444,7 +444,7 @@ fn indented_raw_string_escapes() {
     bar
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -468,7 +468,7 @@ fn indented_cooked_string_escapes() {
     bar
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -488,7 +488,7 @@ fn indented_backtick_string_escapes() {
   ",
     )
     .stdout("\n\nfoo\\n\nbar")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -517,7 +517,7 @@ fn valid_unicode_escape() {
     .justfile(r#"x := "\u{1f916}\u{1F916}""#)
     .args(["--evaluate", "x"])
     .stdout("🤖🤖")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -526,7 +526,7 @@ fn unicode_escapes_with_all_hex_digits() {
     .justfile(r#"x := "\u{012345}\u{6789a}\u{bcdef}\u{ABCDE}\u{F}""#)
     .args(["--evaluate", "x"])
     .stdout("\u{012345}\u{6789a}\u{bcdef}\u{ABCDE}\u{F}")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -535,7 +535,7 @@ fn maximum_valid_unicode_escape() {
     .justfile(r#"x := "\u{10FFFF}""#)
     .args(["--evaluate", "x"])
     .stdout("\u{10FFFF}")
-    .run_success();
+    .success();
 }
 
 #[test]

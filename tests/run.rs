@@ -11,7 +11,7 @@ fn dont_run_duplicate_recipes() {
     )
     .args(["foo", "foo"])
     .stdout("foo\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -25,7 +25,7 @@ fn one_flag_only_allows_one_invocation() {
     )
     .args(["--one", "foo"])
     .stdout("foo\n")
-    .run_success();
+    .success();
 
   Test::new()
     .justfile(

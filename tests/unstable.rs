@@ -8,7 +8,7 @@ fn set_unstable_true_with_env_var() {
       .args(["--fmt"])
       .env("JUST_UNSTABLE", val)
       .stderr_regex("Wrote justfile to `.*`\n")
-      .run_success();
+      .success();
   }
 }
 
@@ -39,7 +39,7 @@ fn set_unstable_with_setting() {
     .justfile("set unstable")
     .arg("--fmt")
     .stderr_regex("Wrote justfile to .*")
-    .run_success();
+    .success();
 }
 
 // This test should be re-enabled if we get a new unstable feature which is

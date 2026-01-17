@@ -10,7 +10,7 @@ fn pattern_match() {
       ",
     )
     .args(["foo", "BAR"])
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -108,7 +108,7 @@ fn dump() {
         foo bar:
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -191,7 +191,7 @@ fn split_across_multiple_lines() {
       ",
     )
     .args(["foo", "BAR"])
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -207,7 +207,7 @@ fn optional_trailing_comma() {
       ",
     )
     .args(["foo", "BAR"])
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -321,7 +321,7 @@ fn pattern_match_variadic() {
       ",
     )
     .args(["foo", "BAR", "BAR"])
-    .run_success();
+    .success();
 }
 
 #[test]

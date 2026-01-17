@@ -24,7 +24,7 @@ fn exists() {
     .no_justfile()
     .arg("--init")
     .stderr_regex("Wrote justfile to `.*`\n")
-    .run_success();
+    .success();
 
   Test::with_tempdir(output.tempdir)
     .no_justfile()
@@ -66,7 +66,7 @@ fn invocation_directory() {
     .no_justfile()
     .stderr_regex("Wrote justfile to `.*`\n")
     .arg("--init")
-    .run_success();
+    .success();
 
   assert_eq!(fs::read_to_string(justfile_path).unwrap(), INIT_JUSTFILE);
 }
@@ -191,11 +191,11 @@ fn fmt_compatibility() {
     .no_justfile()
     .arg("--init")
     .stderr_regex("Wrote justfile to `.*`\n")
-    .run_success();
+    .success();
   Test::with_tempdir(output.tempdir)
     .no_justfile()
     .arg("--unstable")
     .arg("--check")
     .arg("--fmt")
-    .run_success();
+    .success();
 }

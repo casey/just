@@ -36,7 +36,7 @@ fn prior_dependencies_run_in_parallel() {
         sleep 1
       ",
     )
-    .run_success();
+    .success();
 
   assert!(start.elapsed() < Duration::from_secs(2));
 }
@@ -77,7 +77,7 @@ fn subsequent_dependencies_run_in_parallel() {
         sleep 1
       ",
     )
-    .run_success();
+    .success();
 
   assert!(start.elapsed() < Duration::from_secs(2));
 }

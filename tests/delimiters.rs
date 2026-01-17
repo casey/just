@@ -49,7 +49,7 @@ fn paren_continuation() {
     )
     .stdout("ab\n")
     .stderr("echo ab\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -69,7 +69,7 @@ fn brace_continuation() {
     )
     .stdout("a\n")
     .stderr("echo a\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -88,7 +88,7 @@ fn bracket_continuation() {
     )
     .stdout("foo\n")
     .stderr("echo foo\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -107,7 +107,7 @@ fn dependency_continuation() {
     )
     .stdout("bar\nfoo\n")
     .stderr("echo bar\necho foo\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -122,5 +122,5 @@ fn interpolation_continuation() {
     )
     .stderr("echo ab\n")
     .stdout("ab\n")
-    .run_success();
+    .success();
 }

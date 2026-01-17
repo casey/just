@@ -18,7 +18,7 @@ fn alias_listing() {
         foo # [alias: f]
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -40,7 +40,7 @@ fn alias_listing_with_doc() {
           foo # foo command [alias: f]
     ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -54,7 +54,7 @@ fn alias_listing_multiple_aliases() {
         foo # [aliases: f, fo]
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -68,7 +68,7 @@ fn alias_listing_parameters() {
         foo PARAM='foo' # [alias: f]
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -82,7 +82,7 @@ fn alias_listing_private() {
         foo PARAM='foo'
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -92,7 +92,7 @@ fn alias() {
     .justfile("foo:\n  echo foo\nalias f := foo")
     .stdout("foo\n")
     .stderr("echo foo\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -103,7 +103,7 @@ fn alias_with_parameters() {
     .justfile("foo value='foo':\n  echo {{value}}\nalias f := foo")
     .stdout("bar\n")
     .stderr("echo bar\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -153,7 +153,7 @@ fn alias_with_dependencies() {
     .justfile("foo:\n  echo foo\nbar: foo\nalias b := bar")
     .stdout("foo\n")
     .stderr("echo foo\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -210,7 +210,7 @@ fn default() {
     .justfile("default:\n echo hello\nother: \n echo bar")
     .stdout("hello\n")
     .stderr("echo hello\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -218,7 +218,7 @@ fn quiet() {
   Test::new()
     .justfile("default:\n @echo hello")
     .stdout("hello\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -228,7 +228,7 @@ fn verbose() {
     .justfile("default:\n @echo hello")
     .stdout("hello\n")
     .stderr("===> Running recipe `default`...\necho hello\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -257,7 +257,7 @@ c: b
     )
     .stdout("a\nb\nc\nd\n")
     .stderr("echo a\necho b\necho c\necho d\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -267,7 +267,7 @@ fn select() {
     .arg("c")
     .justfile("b:\n  @echo b\na:\n  @echo a\nd:\n  @echo d\nc:\n  @echo c")
     .stdout("d\nc\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -278,7 +278,7 @@ fn print() {
     .justfile("b:\n  echo b\na:\n  echo a\nd:\n  echo d\nc:\n  echo c")
     .stdout("d\nc\n")
     .stderr("echo d\necho c\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -319,7 +319,7 @@ fn backtick_success() {
     .justfile("a := `printf Hello,`\nbar:\n printf '{{a + `printf ' world.'`}}'")
     .stdout("Hello, world.")
     .stderr("printf 'Hello, world.'\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -328,7 +328,7 @@ fn backtick_trimming() {
     .justfile("a := `echo Hello,`\nbar:\n echo '{{a + `echo ' world.'`}}'")
     .stdout("Hello, world.\n")
     .stderr("echo 'Hello, world.'\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -659,7 +659,7 @@ recipe arg:
     )
     .stdout("arg=baz=bar\nbarbbaz\n")
     .stderr("echo arg=baz=bar\necho barbbaz\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -681,7 +681,7 @@ recipe arg:
     )
     .stdout("arg=baz=bar\nbarbbaz\n")
     .stderr("echo arg=baz=bar\necho barbbaz\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -715,7 +715,7 @@ touch /this/is/not/a/file
 echo `echo command interpolation`
 ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -759,7 +759,7 @@ foo A:
     )
     .stdout("ARGUMENT\n")
     .stderr("echo ARGUMENT\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -776,7 +776,7 @@ foo A B:
     )
     .stdout("A:ONE B:TWO\n")
     .stderr("echo A:ONE B:TWO\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -944,7 +944,7 @@ recipe a b +d:
     @exit 100
 ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1053,7 +1053,7 @@ hello baz arg="XYZ\t\"	":
     )
     .stdout("ABC...XYZ\t\"\t\n")
     .stderr("echo 'ABC...XYZ\t\"\t'\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1070,7 +1070,7 @@ hello baz arg='XYZ"	':
     )
     .stdout("ABC...XYZ\"\t")
     .stderr("printf 'ABC...XYZ\"\t'\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1087,7 +1087,7 @@ hello a b='B' c='C':
     )
     .stdout("0 1 C\n")
     .stderr("echo 0 1 C\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1105,7 +1105,7 @@ hello a b='B' c='C':
     )
     .stdout("0 1 2\n")
     .stderr("echo 0 1 2\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1134,7 +1134,7 @@ _private-recipe:
         hello a b='B	' c='C' # this does a thing
   "#,
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1162,7 +1162,7 @@ _private-recipe:
         hello a b='B	' c='C' # this does a thing
   "#,
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1195,7 +1195,7 @@ _private-recipe:
         x a b='B	' c='C'     # this does another thing
   "#,
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1216,7 +1216,7 @@ a:
         b # [alias: c]
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1238,7 +1238,7 @@ a:
         a
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1260,7 +1260,7 @@ b:
         b
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1282,7 +1282,7 @@ b:
     ····b
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1305,7 +1305,7 @@ b:
     b
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1377,7 +1377,7 @@ foo:
     )
     .stdout("ab c\n")
     .stderr("echo ab  c\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1393,7 +1393,7 @@ foo:
     )
     .stdout("ab  c\n")
     .stderr("echo 'ab  c'\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1409,7 +1409,7 @@ foo:
     )
     .stdout("abc\n")
     .stderr("echo abc\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1422,7 +1422,7 @@ infallible:
 ",
     )
     .stderr("exit 101\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1457,7 +1457,7 @@ fn quiet_recipe() {
     )
     .stdout("c\n")
     .stderr("echo c\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1472,7 +1472,7 @@ fn quiet_shebang_recipe() {
     )
     .stdout("hello\n")
     .stderr("#!/bin/sh\necho hello\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1486,7 +1486,7 @@ b:
 c: b a
 ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1757,7 +1757,7 @@ a x y +z:
     )
     .stdout("0 1 2 3 4\n")
     .stderr("echo 0 1 2 3  4 \n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1777,7 +1777,7 @@ a x y +z='HELLO':
     )
     .stdout("0 1 2 3 4\n")
     .stderr("echo 0 1 2 3  4 \n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1794,7 +1794,7 @@ a x y +z='HELLO':
     )
     .stdout("0 1 HELLO\n")
     .stderr("echo 0 1 HELLO\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1836,7 +1836,7 @@ a x y *z:
     )
     .stdout("0 1 2 3 4\n")
     .stderr("echo 0 1 2 3  4 \n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1853,7 +1853,7 @@ a x y *z:
     )
     .stdout("0 1\n")
     .stderr("echo 0 1 \n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1873,7 +1873,7 @@ a x y *z='HELLO':
     )
     .stdout("0 1 2 3 4\n")
     .stderr("echo 0 1 2 3  4 \n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1890,7 +1890,7 @@ a x y *z='HELLO':
     )
     .stdout("0 1 HELLO\n")
     .stderr("echo 0 1 HELLO\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1959,7 +1959,7 @@ BAZ +Z:
     )
     .stdout("bar: 0\nfoo: 1 2\nbaz: 3 4 5\n")
     .stderr("echo bar: 0\necho foo: 1 2\necho baz: 3 4 5\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2005,7 +2005,7 @@ a B C +D='hello':
      \u{1b}[34m#\u{1b}[0m \u{1b}[34mcomment\u{1b}[0m
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2024,7 +2024,7 @@ a:
     )
     .stdout("hi\n")
     .stderr("\u{1b}[1;36m===> Running recipe `a`...\u{1b}[0m\n\u{1b}[1mecho hi\u{1b}[0m\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2044,7 +2044,7 @@ a:
     )
     .stdout("hi\n")
     .stderr("\u{1b}[1;36m===> Running recipe `a`...\u{1b}[0m\necho hi\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2062,7 +2062,7 @@ echo A B C:
     )
     .stdout("--some --awesome --flags\n")
     .stderr("echo --some --awesome --flags\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2079,7 +2079,7 @@ echo:
     )
     .stdout("1\n")
     .stderr("echo 1\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2150,7 +2150,7 @@ foo x='bar':
     )
     .stdout("bar\n")
     .stderr("echo bar\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2164,7 +2164,7 @@ foo x=(`echo foo` + 'bar'):
     )
     .stdout("foobar\n")
     .stderr("echo foobar\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2178,7 +2178,7 @@ foo x=`echo foo`:
     )
     .stdout("foo\n")
     .stderr("echo foo\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2193,7 +2193,7 @@ foo x=y:
     )
     .stdout("foo\n")
     .stderr("echo foo\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2312,7 +2312,7 @@ default:
     .stdin("STDIN")
     .stdout("STDIN\n")
     .stderr("echo STDIN\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2327,7 +2327,7 @@ default stdin = `cat`:
     .stdin("STDIN")
     .stdout("STDIN\n")
     .stderr("echo STDIN\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2351,7 +2351,7 @@ fn backtick_default_cat_justfile() {
       echo '{{stdin}}''
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2368,7 +2368,7 @@ default:
     .stdin("foobar\n")
     .stdout("foobar\n")
     .stderr("echo foobar\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2387,7 +2387,7 @@ default:
     .stdin("foo\nbar\n")
     .stdout("foo\nbar\n")
     .stderr("echo foo\necho bar\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2404,7 +2404,7 @@ default a=`read A && echo $A` b=`read B && echo $B`:
     .stdin("foo\nbar\n")
     .stdout("foo\nbar\n")
     .stderr("echo foo\necho bar\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2444,7 +2444,7 @@ fn dependency_argument_string() {
     .stdout("Building foo...\nBuilding bar...\n")
     .stderr("echo 'Building foo...'\necho 'Building bar...'\n")
     .shell(false)
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2463,7 +2463,7 @@ fn dependency_argument_parameter() {
     .stdout("Building foo@1.0...\nBuilding bar@1.0...\n")
     .stderr("echo 'Building foo@1.0...'\necho 'Building bar@1.0...'\n")
     .shell(false)
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2480,7 +2480,7 @@ fn dependency_argument_function() {
     .stdout("y\n")
     .stderr("echo y\n")
     .shell(false)
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2498,7 +2498,7 @@ fn env_function_as_env_var() {
     .stdout("z\n")
     .stderr("echo z\n")
     .shell(false)
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2516,7 +2516,7 @@ fn env_function_as_env_var_or_default() {
     .stdout("z\n")
     .stderr("echo z\n")
     .shell(false)
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2534,7 +2534,7 @@ fn env_function_as_env_var_with_existing_env_var() {
     .stdout("z\n")
     .stderr("echo z\n")
     .shell(false)
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2552,7 +2552,7 @@ fn env_function_as_env_var_or_default_with_existing_env_var() {
     .stdout("z\n")
     .stderr("echo z\n")
     .shell(false)
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2572,7 +2572,7 @@ fn dependency_argument_backtick() {
     .stdout("X\nX\n")
     .stderr("echo X\necho $X\n")
     .shell(false)
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2591,7 +2591,7 @@ fn dependency_argument_assignment() {
     .stdout("Release 1.0...\n")
     .stderr("echo Release 1.0...\n")
     .shell(false)
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2608,7 +2608,7 @@ fn dependency_argument_plus_variadic() {
     .stdout("A B C\n")
     .stderr("echo A B C\n")
     .shell(false)
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2625,7 +2625,7 @@ fn duplicate_dependency_no_args() {
     .stdout("BAR\n")
     .stderr("echo BAR\n")
     .shell(false)
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2642,7 +2642,7 @@ fn duplicate_dependency_argument() {
     .stdout("BAR\n")
     .stderr("echo BAR\n")
     .shell(false)
-    .run_success();
+    .success();
 }
 
 #[cfg(windows)]
@@ -2673,7 +2673,7 @@ fn variables() {
     )
     .stdout("a z\n")
     .shell(false)
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2730,7 +2730,7 @@ fn brace_escape() {
     echo '{{'
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2748,7 +2748,7 @@ fn brace_escape_extra() {
     echo '{{{'
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2765,7 +2765,7 @@ fn multi_line_string_in_interpolation() {
     )
     .stdout("a\nb\ncz\nbaz\n")
     .stderr("echo a\n  echo b\n  echo cz\necho baz\n")
-    .run_success();
+    .success();
 }
 
 #[cfg(windows)]

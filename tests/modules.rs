@@ -11,7 +11,7 @@ fn modules_are_stable() {
     .write("foo.just", "@bar:\n echo ok")
     .args(["foo", "bar"])
     .stdout("ok\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -40,7 +40,7 @@ fn module_recipes_can_be_run_as_subcommands() {
     .arg("foo")
     .arg("foo")
     .stdout("FOO\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -54,7 +54,7 @@ fn module_recipes_can_be_run_with_path_syntax() {
     )
     .arg("foo::foo")
     .stdout("FOO\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -69,7 +69,7 @@ fn nested_module_recipes_can_be_run_with_path_syntax() {
     )
     .arg("foo::bar::baz")
     .stdout("BAZ\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -112,7 +112,7 @@ fn assignments_are_evaluated_in_modules() {
     .arg("foo")
     .arg("foo")
     .stdout("CHILD\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -126,7 +126,7 @@ fn module_subcommand_runs_default_recipe() {
     )
     .arg("foo")
     .stdout("FOO\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -143,7 +143,7 @@ fn modules_can_contain_other_modules() {
     .arg("bar")
     .arg("baz")
     .stdout("BAZ\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -184,7 +184,7 @@ foo:
     .arg("foo")
     .arg("foo")
     .stdout("FOO\n")
-    .run_success();
+    .success();
 
   Test::new()
     .write(
@@ -295,7 +295,7 @@ fn modules_are_dumped_correctly() {
     )
     .arg("--dump")
     .stdout("mod foo\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -309,7 +309,7 @@ fn optional_modules_are_dumped_correctly() {
     )
     .arg("--dump")
     .stdout("mod? foo\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -324,7 +324,7 @@ fn modules_can_be_in_subdirectory() {
     .arg("foo")
     .arg("foo")
     .stdout("FOO\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -339,7 +339,7 @@ fn modules_in_subdirectory_can_be_named_justfile() {
     .arg("foo")
     .arg("foo")
     .stdout("FOO\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -354,7 +354,7 @@ fn modules_in_subdirectory_can_be_named_justfile_with_any_case() {
     .arg("foo")
     .arg("foo")
     .stdout("FOO\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -369,7 +369,7 @@ fn modules_in_subdirectory_can_have_leading_dot() {
     .arg("foo")
     .arg("foo")
     .stdout("FOO\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -427,7 +427,7 @@ fn missing_optional_modules_do_not_trigger_error() {
       ",
     )
     .stdout("BAR\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -444,7 +444,7 @@ fn missing_optional_modules_do_not_conflict() {
     .arg("foo")
     .arg("baz")
     .stdout("BAZ\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -461,7 +461,7 @@ fn root_dotenv_is_available_to_submodules() {
     .write(".env", "DOTENV_KEY=dotenv-value")
     .args(["foo", "foo"])
     .stdout("dotenv-value\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -481,7 +481,7 @@ fn dotenv_settings_in_submodule_are_ignored() {
     .write(".env", "DOTENV_KEY=dotenv-value")
     .args(["foo", "foo"])
     .stdout("dotenv-value\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -496,7 +496,7 @@ fn modules_may_specify_path() {
     .arg("foo")
     .arg("foo")
     .stdout("FOO\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -511,7 +511,7 @@ fn modules_may_specify_path_to_directory() {
     .arg("foo")
     .arg("foo")
     .stdout("FOO\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -525,7 +525,7 @@ fn modules_with_paths_are_dumped_correctly() {
     )
     .arg("--dump")
     .stdout("mod foo 'commands/foo.just'\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -539,7 +539,7 @@ fn optional_modules_with_paths_are_dumped_correctly() {
     )
     .arg("--dump")
     .stdout("mod? foo 'commands/foo.just'\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -554,7 +554,7 @@ fn recipes_may_be_named_mod() {
     .arg("mod")
     .arg("bar")
     .stdout("FOO\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -570,7 +570,7 @@ fn submodule_linewise_recipes_run_in_submodule_directory() {
     .arg("foo")
     .arg("foo")
     .stdout("BAR")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -586,7 +586,7 @@ fn submodule_shebang_recipes_run_in_submodule_directory() {
     .arg("foo")
     .arg("foo")
     .stdout("BAR")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -603,7 +603,7 @@ fn cross_module_dependency_runs_in_submodule_directory() {
     )
     .arg("main")
     .stdout("BAR")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -627,7 +627,7 @@ foo:
     )
     .arg("main")
     .stdout("ROOT")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -645,7 +645,7 @@ fn nested_cross_module_dependency_runs_in_correct_directory() {
     )
     .arg("main")
     .stdout("NESTED")
-    .run_success();
+    .success();
 }
 
 #[cfg(not(windows))]
@@ -662,7 +662,7 @@ fn module_paths_beginning_with_tilde_are_expanded_to_homdir() {
     .arg("foo")
     .stdout("FOOBAR\n")
     .env("HOME", "foobar")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -680,7 +680,7 @@ fn recipes_with_same_name_are_both_run() {
     .arg("foo::bar")
     .arg("bar")
     .stdout("MODULE\nROOT\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -775,7 +775,7 @@ fn comments_can_follow_modules() {
     )
     .args(["foo", "foo"])
     .stdout("FOO\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -791,7 +791,7 @@ fn doc_comment_on_module() {
     .test_round_trip(false)
     .arg("--list")
     .stdout("Available recipes:\n    foo ... # Comment\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -808,7 +808,7 @@ fn doc_attribute_on_module() {
     .test_round_trip(false)
     .arg("--list")
     .stdout("Available recipes:\n    foo ... # Comment\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -854,7 +854,7 @@ fn group_attribute_on_module() {
             bar ...
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -901,7 +901,7 @@ fn group_attribute_on_module_unsorted() {
             bar ...
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -951,7 +951,7 @@ fn group_attribute_on_module_list_submodule() {
                 e
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1002,7 +1002,7 @@ fn group_attribute_on_module_list_submodule_unsorted() {
                 e
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1035,7 +1035,7 @@ fn empty_doc_attribute_on_module() {
     .test_round_trip(false)
     .arg("--list")
     .stdout("Available recipes:\n    foo ...\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1055,7 +1055,7 @@ fn overrides_work_when_submodule_is_present() {
     .test_round_trip(false)
     .arg("x=b")
     .stdout("b\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1072,7 +1072,7 @@ fn exported_variables_are_available_in_submodules() {
     .test_round_trip(false)
     .arg("foo::bar")
     .stdout("a\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1089,7 +1089,7 @@ fn exported_variables_can_be_unexported_in_submodules() {
     .test_round_trip(false)
     .arg("foo::bar")
     .stdout("default\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -1106,5 +1106,5 @@ fn exported_variables_can_be_overridden_in_submodules() {
     .test_round_trip(false)
     .arg("foo::bar")
     .stdout("b\n")
-    .run_success();
+    .success();
 }

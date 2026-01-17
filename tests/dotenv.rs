@@ -9,7 +9,7 @@ fn dotenv() {
     .args(["sub/default"])
     .stdout("KEY=unset\n")
     .stderr("echo KEY=${KEY:-unset}\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -25,7 +25,7 @@ fn set_false() {
     )
     .write(".env", "DOTENV_KEY=dotenv-value")
     .stdout("undefined\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -42,7 +42,7 @@ fn set_implicit() {
     .write(".env", "DOTENV_KEY=dotenv-value")
     .stdout("dotenv-value\n")
     .stderr("echo $DOTENV_KEY\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -59,7 +59,7 @@ fn set_true() {
     .write(".env", "DOTENV_KEY=dotenv-value")
     .stdout("dotenv-value\n")
     .stderr("echo $DOTENV_KEY\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -74,7 +74,7 @@ fn no_warning() {
     .write(".env", "DOTENV_KEY=dotenv-value")
     .stdout("unset\n")
     .stderr("echo ${DOTENV_KEY:-unset}\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -107,7 +107,7 @@ fn path_resolves() {
     })
     .args(["--dotenv-path", "subdir/.env"])
     .stdout("bar\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -124,7 +124,7 @@ fn filename_resolves() {
     })
     .args(["--dotenv-filename", ".env.special"])
     .stdout("bar\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -143,7 +143,7 @@ fn filename_flag_overwrites_no_load() {
     })
     .args(["--dotenv-filename", ".env.special"])
     .stdout("bar\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -164,7 +164,7 @@ fn path_flag_overwrites_no_load() {
     })
     .args(["--dotenv-path", "subdir/.env"])
     .stdout("bar\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -182,7 +182,7 @@ fn can_set_dotenv_filename_from_justfile() {
       ".env.special": "JUST_TEST_VARIABLE=bar"
     })
     .stdout("bar\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -202,7 +202,7 @@ fn can_set_dotenv_path_from_justfile() {
       }
     })
     .stdout("bar\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -222,7 +222,7 @@ fn program_argument_has_priority_for_dotenv_filename() {
     })
     .args(["--dotenv-filename", ".env.superspecial"])
     .stdout("baz\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -244,7 +244,7 @@ fn program_argument_has_priority_for_dotenv_path() {
     })
     .args(["--dotenv-path", "subdir/.env.special"])
     .stdout("baz\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -262,7 +262,7 @@ fn dotenv_path_is_relative_to_working_directory() {
     .tree(tree! { subdir: { } })
     .current_dir("subdir")
     .stdout("dotenv-value\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -279,7 +279,7 @@ fn dotenv_variable_in_recipe() {
     .write(".env", "DOTENV_KEY=dotenv-value")
     .stdout("dotenv-value\n")
     .stderr("echo $DOTENV_KEY\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -296,7 +296,7 @@ fn dotenv_variable_in_backtick() {
     .write(".env", "DOTENV_KEY=dotenv-value")
     .stdout("dotenv-value\n")
     .stderr("echo dotenv-value\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -313,7 +313,7 @@ fn dotenv_variable_in_function_in_recipe() {
     .write(".env", "DOTENV_KEY=dotenv-value")
     .stdout("dotenv-value\ndotenv-value\n")
     .stderr("echo dotenv-value\necho dotenv-value\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -332,7 +332,7 @@ fn dotenv_variable_in_function_in_backtick() {
     .write(".env", "DOTENV_KEY=dotenv-value")
     .stdout("dotenv-value\ndotenv-value\n")
     .stderr("echo dotenv-value\necho dotenv-value\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -349,7 +349,7 @@ fn no_dotenv() {
     .arg("--no-dotenv")
     .stdout("DEFAULT\n")
     .stderr("echo DEFAULT\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -365,7 +365,7 @@ fn dotenv_env_var_default_no_override() {
     .env("DOTENV_KEY", "not-the-dotenv-value")
     .stdout("not-the-dotenv-value\n")
     .stderr("echo $DOTENV_KEY\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -383,7 +383,7 @@ fn dotenv_env_var_override() {
     .env("DOTENV_KEY", "not-the-dotenv-value")
     .stdout("dotenv-value\n")
     .stderr("echo $DOTENV_KEY\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -400,7 +400,7 @@ fn dotenv_env_var_override_no_load() {
     .env("DOTENV_KEY", "not-the-dotenv-value")
     .stdout("dotenv-value\n")
     .stderr("echo $DOTENV_KEY\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -418,7 +418,7 @@ fn dotenv_path_usable_from_subdir() {
     .current_dir("sub")
     .write(".custom-env", "DOTENV_KEY=dotenv-value")
     .stdout("dotenv-value\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -431,5 +431,5 @@ fn dotenv_path_does_not_override_dotenv_file() {
     )
     .current_dir("sub")
     .stdout("ROOT\n")
-    .run_success();
+    .success();
 }

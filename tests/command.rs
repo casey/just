@@ -13,7 +13,7 @@ fn long() {
   ",
     )
     .stdout("foo")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -29,7 +29,7 @@ fn short() {
   ",
     )
     .stdout("foo")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -47,7 +47,7 @@ fn command_color() {
     )
     .stdout("XYZ\n")
     .stderr("\u{1b}[1;36mecho XYZ\u{1b}[0m\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -84,7 +84,7 @@ fn env_is_loaded() {
     .args(["--command", "sh", "-c", "printf $DOTENV_KEY"])
     .write(".env", "DOTENV_KEY=dotenv-value")
     .stdout("dotenv-value")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -103,7 +103,7 @@ fn exports_are_available() {
   ",
     )
     .stdout("bar")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -125,7 +125,7 @@ fn set_overrides_work() {
   ",
     )
     .stdout("baz")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -141,7 +141,7 @@ fn run_in_shell() {
     )
     .stdout("bar baz")
     .shell(false)
-    .run_success();
+    .success();
 }
 
 #[test]

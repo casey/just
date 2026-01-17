@@ -78,7 +78,7 @@ fn parameters_may_be_passed_with_long_options() {
     )
     .args(["foo", "--bar", "baz"])
     .stdout("bar=baz\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -93,7 +93,7 @@ fn long_option_defaults_to_parameter_name() {
     )
     .args(["foo", "--bar", "baz"])
     .stdout("bar=baz\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -108,7 +108,7 @@ fn parameters_may_be_passed_with_short_options() {
     )
     .args(["foo", "-b", "baz"])
     .stdout("bar=baz\n")
-    .run_success();
+    .success();
 }
 
 const LONG_SHORT: &str = "
@@ -123,7 +123,7 @@ fn parameters_with_both_long_and_short_option_may_be_passed_as_long() {
     .justfile(LONG_SHORT)
     .args(["foo", "--bar", "baz"])
     .stdout("bar=baz\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -132,7 +132,7 @@ fn parameters_with_both_long_and_short_option_may_be_passed_as_short() {
     .justfile(LONG_SHORT)
     .args(["foo", "-b", "baz"])
     .stdout("bar=baz\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -330,7 +330,7 @@ fn long_options_may_follow_an_omitted_positional_argument() {
         baz=BAZ
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -351,7 +351,7 @@ fn short_options_may_follow_an_omitted_positional_argument() {
         baz=BAZ
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -370,7 +370,7 @@ fn options_with_a_default_may_be_omitted() {
         bar=BAR
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -391,7 +391,7 @@ fn variadics_can_follow_options() {
         baz=A B C
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -409,7 +409,7 @@ fn argument_values_starting_with_dashes_are_accepted_if_recipe_does_not_take_opt
         baz=--bar=BAR --A --B --C
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -446,7 +446,7 @@ fn argument_values_starting_with_dashes_are_accepted_after_double_dash() {
         baz=--A --B --C
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -474,7 +474,7 @@ fn positional_and_long_option_arguments_can_be_intermixed() {
         e=E
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -502,7 +502,7 @@ fn positional_and_short_option_arguments_can_be_intermixed() {
         e=E
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -627,7 +627,7 @@ fn long_options_with_values_are_flags() {
     )
     .args(["foo", "--bar"])
     .stdout("bar=baz\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -642,7 +642,7 @@ fn short_options_with_values_are_flags() {
     )
     .args(["foo", "-b"])
     .stdout("bar=baz\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -695,5 +695,5 @@ set positional-arguments
     )
     .args(["foo", "-b", "baz"])
     .stdout("args=baz\n")
-    .run_success();
+    .success();
 }

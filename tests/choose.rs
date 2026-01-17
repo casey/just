@@ -16,7 +16,7 @@ fn env() {
     )
     .stderr("echo bar\n")
     .stdout("bar\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -36,7 +36,7 @@ fn chooser() {
     )
     .stderr("echo bar\n")
     .stdout("bar\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -58,7 +58,7 @@ fn override_variable() {
     )
     .stderr("echo B\n")
     .stdout("B\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -77,7 +77,7 @@ fn skip_private_recipes() {
     )
     .stderr("echo foo\n")
     .stdout("foo\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -93,7 +93,7 @@ fn recipes_in_submodules_can_be_chosen() {
     )
     .stderr("echo BAZ\n")
     .stdout("BAZ\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -112,7 +112,7 @@ fn skip_recipes_that_require_arguments() {
     )
     .stderr("echo foo\n")
     .stdout("foo\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -149,7 +149,7 @@ fn multiple_recipes() {
     )
     .stderr("echo foo\necho bar\n")
     .stdout("foo\nbar\n")
-    .run_success();
+    .success();
 }
 
 #[test]

@@ -18,7 +18,7 @@ fn newline_escape_deps() {
     )
     .stdout("a\nb\nc\n")
     .stderr("echo a\necho b\necho c\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -39,7 +39,7 @@ fn newline_escape_deps_no_indent() {
     )
     .stdout("a\nb\nc\n")
     .stderr("echo a\necho b\necho c\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -57,7 +57,7 @@ fn newline_escape_deps_linefeed() {
     )
     .stdout("a\nb\n")
     .stderr("echo a\necho b\n")
-    .run_success();
+    .success();
 }
 
 #[test]

@@ -9,7 +9,7 @@ fn assert_pass() {
           {{ assert('a' == 'a', 'error message') }}
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]

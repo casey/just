@@ -7,7 +7,7 @@ fn allow_missing_recipes_in_run_invocation() {
     .stderr("error: Justfile does not contain recipe `foo`\n")
     .failure();
 
-  Test::new().args(["--allow-missing", "foo"]).run_success();
+  Test::new().args(["--allow-missing", "foo"]).success();
 }
 
 #[test]
@@ -17,9 +17,7 @@ fn allow_missing_modules_in_run_invocation() {
     .stderr("error: Justfile does not contain submodule `foo`\n")
     .failure();
 
-  Test::new()
-    .args(["--allow-missing", "foo::bar"])
-    .run_success();
+  Test::new().args(["--allow-missing", "foo::bar"]).success();
 }
 
 #[test]

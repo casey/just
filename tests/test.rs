@@ -198,7 +198,7 @@ impl Test {
 
 impl Test {
   #[track_caller]
-  pub(crate) fn run_success(mut self) -> Output {
+  pub(crate) fn success(mut self) -> Output {
     self.status(0)
   }
 
@@ -366,5 +366,5 @@ pub fn assert_eval_eq(expression: &str, result: &str) {
     .args(["--evaluate", "x"])
     .stdout(result)
     .unindent_stdout(false)
-    .run_success();
+    .success();
 }

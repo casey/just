@@ -17,7 +17,7 @@ fn macos() {
     .env("HOME", path.to_str().unwrap())
     .args(["--global-justfile"])
     .stdout("foo\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -51,7 +51,7 @@ fn unix() {
     .env("HOME", path.to_str().unwrap())
     .args(["--global-justfile"])
     .stdout("foo\n")
-    .run_success()
+    .success()
     .tempdir;
 
   Test::with_tempdir(tempdir)
@@ -61,7 +61,7 @@ fn unix() {
     .env("HOME", path.to_str().unwrap())
     .args(["--global-justfile"])
     .stdout("bar\n")
-    .run_success();
+    .success();
 }
 
 #[test]

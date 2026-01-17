@@ -7,7 +7,7 @@ fn evaluate(expression: &str, expected: &str) {
     .env("JUST_UNSTABLE", "1")
     .args(["--evaluate", "x"])
     .stdout(expected)
-    .run_success();
+    .success();
 }
 
 #[test]

@@ -9,7 +9,7 @@ fn dont_run_duplicate_recipes() {
       bar:
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]

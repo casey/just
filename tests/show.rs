@@ -17,7 +17,7 @@ recipe:
         echo {{ hello + "bar" + bar }}
   "#,
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -33,7 +33,7 @@ fn alias_show() {
         bar
   ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -142,7 +142,7 @@ fn show_recipe_at_path() {
     )
     .args(["--show", "foo::bar"])
     .stdout("bar:\n    @echo MODULE\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -164,5 +164,5 @@ fn show_space_separated_path() {
     )
     .args(["--show", "foo bar"])
     .stdout("bar:\n    @echo MODULE\n")
-    .run_success();
+    .success();
 }

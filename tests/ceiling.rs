@@ -73,7 +73,7 @@ fn justfile_init_search_stops_at_ceiling_dir() {
     } else {
       "Wrote justfile to `.*/foo/bar/justfile`\n"
     })
-    .run_success();
+    .success();
 
   assert_eq!(
     fs::read_to_string(tempdir.path().join("foo/bar/justfile")).unwrap(),

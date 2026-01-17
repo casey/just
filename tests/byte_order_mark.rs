@@ -11,7 +11,7 @@ fn ignore_leading_byte_order_mark() {
     )
     .stderr("echo bar\n")
     .stdout("bar\n")
-    .run_success();
+    .success();
 }
 
 #[test]

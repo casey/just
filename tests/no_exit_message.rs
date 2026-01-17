@@ -50,7 +50,7 @@ fn recipe_has_doc_comment() {
           hello # This is a doc comment
       ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]

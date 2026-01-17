@@ -16,7 +16,7 @@ fn fallback_from_subdir_bugfix() {
     )
     .args(["sub/default"])
     .stdout("foo\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -37,7 +37,7 @@ fn fallback_from_subdir_message() {
     .args(["sub/bar"])
     .stderr(path("echo bar\n"))
     .stdout("bar\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -64,7 +64,7 @@ fn fallback_from_subdir_verbose_message() {
       ",
     ))
     .stdout("bar\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -94,7 +94,7 @@ fn runs_recipe_in_parent_if_not_found_in_current() {
     ",
     )
     .stdout("root\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -124,7 +124,7 @@ fn setting_accepts_value() {
     ",
     )
     .stdout("root\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -205,7 +205,7 @@ fn works_with_provided_search_directory() {
     ",
     )
     .current_dir("bar")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -318,7 +318,7 @@ fn multiple_levels_of_fallback_work() {
       echo root
     ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -366,5 +366,5 @@ fn works_with_modules() {
     .args(["foo::baz"])
     .current_dir("bar")
     .stdout("BAZ\n")
-    .run_success();
+    .success();
 }

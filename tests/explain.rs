@@ -18,5 +18,5 @@ fn explain_recipe() {
       echo 'apple peach dragonfruit'
     ",
     )
-    .run_success();
+    .success();
 }
