@@ -198,12 +198,12 @@ impl Test {
 
 impl Test {
   #[track_caller]
-  pub(crate) fn success(mut self) -> Output {
+  pub(crate) fn success(self) -> Output {
     self.status(0)
   }
 
   #[track_caller]
-  pub(crate) fn failure(mut self) -> Output {
+  pub(crate) fn failure(self) -> Output {
     self.status(1)
   }
 
@@ -311,7 +311,7 @@ impl Test {
       );
     }
 
-    if self.test_round_trip && status == EXIT_SUCCESS {
+    if self.test_round_trip && status == 0 {
       self.round_trip();
     }
 

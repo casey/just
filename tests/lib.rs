@@ -7,7 +7,6 @@ use {
   },
   executable_path::executable_path,
   just::{unindent, Response},
-  libc::EXIT_SUCCESS,
   pretty_assertions::Comparison,
   regex::Regex,
   serde::{Deserialize, Serialize},
