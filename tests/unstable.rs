@@ -60,5 +60,5 @@ fn unstable_setting_does_not_affect_submodules() {
     .write("bar.just", "baz:\n echo hello")
     .args(["foo", "bar"])
     .stderr_regex("error: Modules are currently unstable.*")
-    .run_failure();
+    .failure();
 }
