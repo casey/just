@@ -51,7 +51,7 @@ fn alias_show_missing_target() {
       │       ^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -68,7 +68,7 @@ a Z="\t z":
 "#,
     )
     .stderr("error: Justfile does not contain recipe `hell`\nDid you mean `hello`?\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -92,7 +92,7 @@ a Z="\t z":
     Did you mean `foo`, an alias for `hello`?
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -109,7 +109,7 @@ a Z="\t z":
 "#,
     )
     .stderr("error: Justfile does not contain recipe `hell`\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -128,7 +128,7 @@ a Z="\t z":
 "#,
     )
     .stderr("error: Justfile does not contain recipe `fooooooo`\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -150,7 +150,7 @@ fn show_invalid_path() {
   Test::new()
     .args(["--show", "$hello"])
     .stderr("error: Invalid module path `$hello`\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]

@@ -77,7 +77,7 @@ fn newline_escape_deps_invalid_esc() {
           │           ^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -96,5 +96,5 @@ fn newline_escape_unpaired_linefeed() {
           │         ^
       ",
     )
-    .run_failure();
+    .failure();
 }

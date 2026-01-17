@@ -30,7 +30,7 @@ fn exists() {
     .no_justfile()
     .arg("--init")
     .stderr_regex("error: Justfile `.*` already exists\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -49,7 +49,7 @@ fn write_error() {
     } else {
       r"error: Failed to write justfile to `.*`: Is a directory \(os error 21\)\n"
     })
-    .run_failure();
+    .failure();
 }
 
 #[test]

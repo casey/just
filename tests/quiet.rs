@@ -86,7 +86,7 @@ fn choose_none() {
     .arg("--choose")
     .arg("--quiet")
     .justfile("")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -98,7 +98,7 @@ fn choose_invocation() {
     .arg("asdfasdfasfdasdfasdfadsf")
     .justfile("foo:")
     .shell(false)
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -109,7 +109,7 @@ fn choose_status() {
     .arg("--chooser")
     .arg("/usr/bin/env false")
     .justfile("foo:")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -119,7 +119,7 @@ fn edit_invocation() {
     .arg("--quiet")
     .env("VISUAL", "adsfasdfasdfadsfadfsaf")
     .justfile("foo:")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -129,7 +129,7 @@ fn edit_status() {
     .arg("--quiet")
     .env("VISUAL", "false")
     .justfile("foo:")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -138,7 +138,7 @@ fn init_exists() {
     .arg("--init")
     .arg("--quiet")
     .justfile("foo:")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -148,7 +148,7 @@ fn show_missing() {
     .arg("bar")
     .arg("--quiet")
     .justfile("foo:")
-    .run_failure();
+    .failure();
 }
 
 #[test]

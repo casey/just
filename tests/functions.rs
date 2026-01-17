@@ -161,7 +161,7 @@ foo:
       )
       .as_str(),
     )
-    .run_failure();
+    .failure();
 }
 
 #[cfg(not(windows))]
@@ -187,7 +187,7 @@ foo:
       )
       .as_str(),
     )
-    .run_failure();
+    .failure();
 }
 
 #[cfg(not(windows))]
@@ -213,7 +213,7 @@ foo:
       )
       .as_str(),
     )
-    .run_failure();
+    .failure();
 }
 
 #[cfg(not(windows))]
@@ -239,7 +239,7 @@ foo:
       )
       .as_str(),
     )
-    .run_failure();
+    .failure();
 }
 
 #[cfg(not(windows))]
@@ -265,7 +265,7 @@ foo:
       )
       .as_str(),
     )
-    .run_failure();
+    .failure();
 }
 
 #[cfg(not(windows))]
@@ -292,7 +292,7 @@ foo:
       )
       .as_str(),
     )
-    .run_failure();
+    .failure();
 }
 
 #[cfg(not(windows))]
@@ -319,7 +319,7 @@ foo:
       )
       .as_str(),
     )
-    .run_failure();
+    .failure();
 }
 
 #[cfg(windows)]
@@ -360,7 +360,7 @@ fn env_var_failure() {
   │          ^^^^^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -617,7 +617,7 @@ error: incomplete escape sequence, reached end of pattern prematurely
   │           ^^^^^^^^^^^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -759,7 +759,7 @@ fn join_argument_count_error() {
         │      ^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -797,7 +797,7 @@ fn error_errors_with_message() {
         │      ^^^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -895,7 +895,7 @@ fn choose_bad_alphabet_empty() {
         │      ^^^^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -912,7 +912,7 @@ fn choose_bad_alphabet_repeated() {
         │      ^^^^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -929,7 +929,7 @@ fn choose_bad_length() {
         │      ^^^^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -981,7 +981,7 @@ fn shell_no_argument() {
         │        ^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1013,7 +1013,7 @@ fn shell_error() {
         │        ^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1266,7 +1266,7 @@ fn unary_argument_count_mismamatch_error_message() {
         │      ^^^^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1460,7 +1460,7 @@ fn style_unknown() {
           │             ^^^^^
       "#,
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1479,5 +1479,5 @@ fn read_file_not_found() {
     .justfile("foo := read('bar')")
     .args(["--evaluate", "foo"])
     .stderr_regex(r"error: Call to function `read` failed: I/O error reading `bar`: .*")
-    .run_failure();
+    .failure();
 }

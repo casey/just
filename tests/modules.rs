@@ -25,7 +25,7 @@ fn default_recipe_in_submodule_must_have_no_arguments() {
     )
     .arg("foo")
     .stderr("error: Recipe `foo` cannot be used as default recipe since it requires at least 1 argument.\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -77,17 +77,17 @@ fn invalid_path_syntax() {
   Test::new()
     .arg(":foo::foo")
     .stderr("error: Justfile does not contain recipe `:foo::foo`\n")
-    .run_failure();
+    .failure();
 
   Test::new()
     .arg("foo::foo:")
     .stderr("error: Justfile does not contain recipe `foo::foo:`\n")
-    .run_failure();
+    .failure();
 
   Test::new()
     .arg("foo:::foo")
     .stderr("error: Justfile does not contain recipe `foo:::foo`\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -96,7 +96,7 @@ fn missing_recipe_after_invalid_path() {
     .arg(":foo::foo")
     .arg("bar")
     .stderr("error: Justfile does not contain recipe `:foo::foo`\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -162,7 +162,7 @@ fn circular_module_imports_are_detected() {
     .stderr_regex(path_for_regex(
       "error: Import `.*/foo.just` in `.*/bar.just` is circular\n",
     ))
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -212,7 +212,7 @@ foo:
         │ ^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -234,7 +234,7 @@ fn modules_conflict_with_recipes() {
         │ ^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -257,7 +257,7 @@ fn modules_conflict_with_aliases() {
         │       ^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -281,7 +281,7 @@ fn modules_conflict_with_other_modules() {
         │     ^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -392,7 +392,7 @@ fn modules_require_unambiguous_file() {
       "
       .replace('/', MAIN_SEPARATOR_STR),
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -412,7 +412,7 @@ fn missing_module_file_error() {
         │     ^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -688,7 +688,7 @@ fn submodule_recipe_not_found_error_message() {
   Test::new()
     .args(["foo::bar"])
     .stderr("error: Justfile does not contain submodule `foo`\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -702,7 +702,7 @@ fn submodule_recipe_not_found_spaced_error_message() {
     )
     .args(["foo", "baz"])
     .stderr("error: Justfile does not contain recipe `foo baz`\nDid you mean `bar`?\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -716,7 +716,7 @@ fn submodule_recipe_not_found_colon_separated_error_message() {
     )
     .args(["foo::baz"])
     .stderr("error: Justfile does not contain recipe `foo::baz`\nDid you mean `bar`?\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -733,7 +733,7 @@ fn colon_separated_path_does_not_run_recipes() {
     )
     .args(["foo::bar"])
     .stderr("error: Expected submodule at `foo` but found recipe.\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -742,7 +742,7 @@ fn expected_submodule_but_found_recipe_in_root_error() {
     .justfile("foo:")
     .arg("foo::baz")
     .stderr("error: Expected submodule at `foo` but found recipe.\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -752,7 +752,7 @@ fn expected_submodule_but_found_recipe_in_submodule_error() {
     .write("foo.just", "bar:")
     .args(["foo::bar::baz"])
     .stderr("error: Expected submodule at `foo::bar` but found recipe.\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -761,7 +761,7 @@ fn colon_separated_path_components_are_not_used_as_arguments() {
     .justfile("foo bar:")
     .args(["foo::bar"])
     .stderr("error: Expected submodule at `foo` but found recipe.\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1018,7 +1018,7 @@ fn bad_module_attribute_fails() {
     .test_round_trip(false)
     .arg("--list")
     .stderr("error: Module `foo` has invalid attribute `no-cd`\n ——▶ justfile:2:5\n  │\n2 │ mod foo\n  │     ^^^\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]

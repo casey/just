@@ -54,7 +54,7 @@ fn no_rhs_once() {
         │           ^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -75,7 +75,7 @@ fn default_un_parenthesized() {
         │           ^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -96,7 +96,7 @@ fn no_lhs_un_parenthesized() {
         │       ^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]

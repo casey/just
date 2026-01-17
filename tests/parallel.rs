@@ -100,5 +100,5 @@ fn parallel_dependencies_report_errors() {
         error: Recipe `bar` failed on line 5 with exit code 1
       ",
     )
-    .run_failure();
+    .failure();
 }

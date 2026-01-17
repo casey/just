@@ -38,5 +38,5 @@ fn default_attribute_may_only_appear_once_per_justfile() {
           │ ^^^
       "
     )
-    .run_failure();
+    .failure();
 }

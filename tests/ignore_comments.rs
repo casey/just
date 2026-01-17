@@ -131,5 +131,5 @@ fn comments_still_must_be_parsable_when_ignored() {
           │            ^^^
       ",
     )
-    .run_failure();
+    .failure();
 }

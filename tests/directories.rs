@@ -70,7 +70,7 @@ fn executable_directory() {
             │      ^^^^^^^^^^^^^^^^^^^^
         ",
       )
-      .run_failure();
+      .failure();
   }
 }
 

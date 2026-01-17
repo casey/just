@@ -16,7 +16,7 @@ fn all() {
     ",
     )
     .stderr("exit 1\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -39,7 +39,7 @@ fn duplicate_attributes_are_disallowed() {
         │  ^^^^^^^^^^^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -54,7 +54,7 @@ fn multiple_attributes_one_line() {
     ",
     )
     .stderr("exit 1\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -77,7 +77,7 @@ fn multiple_attributes_one_line_error_message() {
           │                ^^^^^
           ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -100,7 +100,7 @@ fn multiple_attributes_one_line_duplicate_check() {
         │  ^^^^^
         ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -122,7 +122,7 @@ fn unexpected_attribute_argument() {
           │  ^^^^^^^
           ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -138,7 +138,7 @@ fn multiple_metadata_attributes() {
     ",
     )
     .stderr("exit 1\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -154,7 +154,7 @@ fn multiple_metadata_attributes_with_multiple_args() {
     ",
     )
     .stderr("exit 1\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -176,7 +176,7 @@ fn expected_metadata_attribute_argument() {
           │  ^^^^^^^^
           ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -276,7 +276,7 @@ fn extension_on_linewise_error() {
     │ ^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -298,7 +298,7 @@ fn duplicate_non_repeatable_attributes_are_forbidden() {
     │  ^^^^^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]

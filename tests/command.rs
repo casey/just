@@ -156,7 +156,7 @@ fn exit_status() {
   ",
     )
     .stderr_regex("error: Command `false` failed: exit (code|status): 1\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]

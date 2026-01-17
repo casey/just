@@ -41,7 +41,7 @@ fn unknown_nested_alias() {
   │       ^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]

@@ -88,7 +88,7 @@ fn dotenv_required() {
       ",
     )
     .stderr("error: Dotenv file not found\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]

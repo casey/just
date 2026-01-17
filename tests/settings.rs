@@ -43,7 +43,7 @@ fn undefined_variable_in_working_directory() {
         │                          ^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -63,7 +63,7 @@ fn undefined_variable_in_dotenv_filename() {
         │                        ^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -83,7 +83,7 @@ fn undefined_variable_in_dotenv_path() {
         │                    ^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -103,7 +103,7 @@ fn undefined_variable_in_tempdir() {
         │                ^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -123,7 +123,7 @@ fn undefined_variable_in_script_interpreter_command() {
         │                            ^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -143,7 +143,7 @@ fn undefined_variable_in_script_interpreter_argument() {
         │                                   ^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -163,7 +163,7 @@ fn undefined_variable_in_shell_command() {
         │               ^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -183,7 +183,7 @@ fn undefined_variable_in_shell_argument() {
         │                      ^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -203,7 +203,7 @@ fn undefined_variable_in_windows_shell_command() {
         │                       ^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -223,7 +223,7 @@ fn undefined_variable_in_windows_shell_argument() {
         │                              ^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -357,7 +357,7 @@ fn backtick() {
         │                          ^^^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -377,7 +377,7 @@ fn function_call() {
         │                          ^^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -399,7 +399,7 @@ fn non_const_variable() {
         │                          ^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -419,7 +419,7 @@ fn assert() {
           │                          ^^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -442,7 +442,7 @@ fn bad_regex() {
         error: unclosed group
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]

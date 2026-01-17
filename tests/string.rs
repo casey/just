@@ -129,7 +129,7 @@ a:"#,
   │      ^^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -154,7 +154,7 @@ a:
   │           ^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -179,7 +179,7 @@ a:
   │             ^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -229,7 +229,7 @@ a:
   │          ^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -250,7 +250,7 @@ fn unterminated_raw_string() {
       │      ^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -271,7 +271,7 @@ fn unterminated_string() {
       │      ^
   "#,
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -292,7 +292,7 @@ fn unterminated_backtick() {
       │           ^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -313,7 +313,7 @@ fn unterminated_indented_raw_string() {
       │      ^^^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -334,7 +334,7 @@ fn unterminated_indented_string() {
       │      ^^^
   "#,
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -355,7 +355,7 @@ fn unterminated_indented_backtick() {
       │           ^^^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -508,7 +508,7 @@ fn shebang_backtick() {
       │      ^^^^^^^^^^^^^^^^^^^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -552,7 +552,7 @@ error: expected unicode escape sequence delimiter `{` but found `1`
   │      ^^^^^^^^
 "#,
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -569,7 +569,7 @@ error: unicode escape sequences must not be empty
   │      ^^^^^^
 "#,
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -586,7 +586,7 @@ error: expected unicode escape sequence delimiter `{` but found ` `
   │      ^^^^^^^^^^^^
 "#,
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -603,7 +603,7 @@ error: expected hex digit [0-9A-Fa-f] but found `o`
   │      ^^^^^^^^^
 "#,
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -620,7 +620,7 @@ error: unicode escape sequence value `BadBad` greater than maximum valid code po
   │      ^^^^^^^^^^^^
 "#,
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -637,7 +637,7 @@ error: unicode escape sequence starting with `\u{FFFFFFF` longer than six hex di
   │      ^^^^^^^^^^^^^^^^
 "#,
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -654,5 +654,5 @@ error: unterminated unicode escape sequence
   │      ^^^^^^^^^^
 "#,
     )
-    .run_failure();
+    .failure();
 }

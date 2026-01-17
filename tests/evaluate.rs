@@ -56,7 +56,7 @@ fn evaluate_multiple() {
   ",
     )
     .stderr("error: `--evaluate` used with unexpected argument: `c`\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -91,7 +91,7 @@ fn evaluate_no_suggestion() {
     Did you mean `abc`?
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -109,7 +109,7 @@ fn evaluate_suggestion() {
     error: Justfile does not contain variable `goodbye`.
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]

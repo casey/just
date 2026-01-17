@@ -52,7 +52,7 @@ fn failure() {
     error: Recipe `foo` failed on line 3 with exit code 1
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -72,7 +72,7 @@ fn circular_dependency() {
       │         ^^^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -92,7 +92,7 @@ fn unknown() {
       │         ^^^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -114,7 +114,7 @@ fn unknown_argument() {
       │              ^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]

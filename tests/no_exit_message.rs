@@ -73,7 +73,7 @@ fn unknown_attribute() {
         │  ^^^^^^^^^^^^^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -96,7 +96,7 @@ fn empty_attribute() {
         │  ^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -119,7 +119,7 @@ fn extraneous_attribute_before_comment() {
         │ ^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -142,7 +142,7 @@ fn extraneous_attribute_before_empty_line() {
         │ ^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -260,5 +260,5 @@ fn exit_message_and_no_exit_message_compile_forbidden() {
           │ ^^^
       ",
     )
-    .run_failure();
+    .failure();
 }

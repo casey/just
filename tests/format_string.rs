@@ -156,7 +156,7 @@ fn unclosed() {
           │               ^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -245,7 +245,7 @@ fn escaped_delimiter_in_double_quoted_format_string() {
           │         ^^^^^^^
       "#,
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -349,7 +349,7 @@ fn undefined_variable_error() {
           │            ^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]

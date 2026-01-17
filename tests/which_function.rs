@@ -231,7 +231,7 @@ fn is_unstable() {
     .make_executable("hello.exe")
     .env("PATH", path.to_str().unwrap())
     .stderr_regex(r".*The `which\(\)` function is currently unstable\..*")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -248,7 +248,7 @@ fn require_error() {
           │      ^^^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]

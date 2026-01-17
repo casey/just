@@ -81,7 +81,7 @@ fn do_not_confirm_recipe() {
         ",
     )
     .stderr("Run recipe `requires_confirmation`? error: Recipe `requires_confirmation` was not confirmed\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -98,7 +98,7 @@ fn do_not_confirm_recipe_with_confirm_recipe_dependency() {
         ",
     )
     .stderr("Run recipe `requires_confirmation`? error: Recipe `requires_confirmation` was not confirmed\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -136,7 +136,7 @@ fn confirm_recipe_with_prompt_too_many_args() {
           │  ^^^^^^^
       "#,
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]

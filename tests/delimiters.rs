@@ -13,7 +13,7 @@ fn mismatched_delimiter() {
       │  ^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -29,7 +29,7 @@ fn unexpected_delimiter() {
       │ ^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]

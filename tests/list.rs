@@ -207,7 +207,7 @@ fn list_invalid_path() {
   Test::new()
     .args(["--list", "$hello"])
     .stderr("error: Invalid module path `$hello`\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -215,7 +215,7 @@ fn list_unknown_submodule() {
   Test::new()
     .args(["--list", "hello"])
     .stderr("error: Justfile does not contain submodule `hello`\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]

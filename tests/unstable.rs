@@ -20,7 +20,7 @@ fn set_unstable_false_with_env_var() {
       .args(["--fmt"])
       .env("JUST_UNSTABLE", val)
       .stderr_regex("error: The `--fmt` command is currently unstable.*")
-      .run_failure();
+      .failure();
   }
 }
 
@@ -30,7 +30,7 @@ fn set_unstable_false_with_env_var_unset() {
     .justfile("")
     .args(["--fmt"])
     .stderr_regex("error: The `--fmt` command is currently unstable.*")
-    .run_failure();
+    .failure();
 }
 
 #[test]

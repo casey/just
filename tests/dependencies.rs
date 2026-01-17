@@ -52,7 +52,7 @@ fn dependency_not_in_submodule() {
   │           ^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -76,7 +76,7 @@ fn dependency_submodule_missing() {
   │           ^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -99,7 +99,7 @@ fn recipe_dependency_on_module_fails() {
   │           ^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]

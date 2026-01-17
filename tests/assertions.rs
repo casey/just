@@ -30,5 +30,5 @@ fn assert_fail() {
           │      ^^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }

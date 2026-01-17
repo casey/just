@@ -152,7 +152,7 @@ fn print_error_from_parent_if_recipe_not_found_in_current() {
         │         ^^^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -175,7 +175,7 @@ fn requires_setting() {
     .args(["foo"])
     .current_dir("bar")
     .stderr("error: Justfile does not contain recipe `foo`\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -228,7 +228,7 @@ fn doesnt_work_with_justfile() {
     .args(["--justfile", "justfile", "foo"])
     .current_dir("bar")
     .stderr("error: Justfile does not contain recipe `foo`\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -251,7 +251,7 @@ fn doesnt_work_with_justfile_and_working_directory() {
     .args(["--justfile", "justfile", "--working-directory", ".", "foo"])
     .current_dir("bar")
     .stderr("error: Justfile does not contain recipe `foo`\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -280,7 +280,7 @@ fn prints_correct_error_message_when_recipe_not_found() {
       error: Justfile does not contain recipe `foo`
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -354,7 +354,7 @@ fn stop_fallback_when_fallback_is_false() {
       Did you mean `bar`?
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]

@@ -33,7 +33,7 @@ fn parameter_default_values_may_not_use_later_parameters() {
           │          ^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]

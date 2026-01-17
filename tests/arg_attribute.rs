@@ -28,7 +28,7 @@ fn pattern_mismatch() {
         error: Argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -46,7 +46,7 @@ fn patterns_are_regulare_expressions() {
         error: Argument `\d+` passed to recipe `foo` parameter `bar` does not match pattern '\d+'
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -64,7 +64,7 @@ fn pattern_must_match_entire_string() {
         error: Argument `xbarx` passed to recipe `foo` parameter `bar` does not match pattern 'bar'
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -89,7 +89,7 @@ fn pattern_invalid_regex_error() {
         error: repetition operator missing expression
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -131,7 +131,7 @@ fn duplicate_attribute_error() {
           │  ^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -153,7 +153,7 @@ fn extra_keyword_error() {
           │                            ^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -175,7 +175,7 @@ fn unknown_argument_error() {
           │      ^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -229,7 +229,7 @@ fn positional_arguments_cannot_follow_keyword_arguments() {
           │                     ^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -250,7 +250,7 @@ fn pattern_mismatches_are_caught_before_running_dependencies() {
         error: Argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -271,7 +271,7 @@ fn pattern_mismatches_are_caught_before_running_invocation() {
         error: Argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -290,7 +290,7 @@ fn pattern_mismatches_are_caught_in_evaluated_arguments() {
         error: Argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -308,7 +308,7 @@ fn alternates_do_not_bind_to_anchors() {
         error: Argument `aa` passed to recipe `foo` parameter `bar` does not match pattern 'a|b'
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -339,7 +339,7 @@ fn pattern_mismatch_variadic() {
         error: Argument `BAR` passed to recipe `foo` parameter `bar` does not match pattern 'BAR BAR'
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -360,7 +360,7 @@ fn pattern_requires_value() {
           │             ^^^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -381,7 +381,7 @@ fn short_requires_value() {
           │             ^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -402,5 +402,5 @@ fn value_requires_value() {
           │                   ^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }

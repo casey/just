@@ -13,7 +13,7 @@ fn invalid_alias_attribute() {
       │       ^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -29,7 +29,7 @@ fn expected_keyword() {
       │                           ^^^^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -45,7 +45,7 @@ fn unexpected_character() {
       │  ^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -60,7 +60,7 @@ fn argument_count_mismatch() {
           just foo a b
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -76,7 +76,7 @@ error: Expected '*', ':', '$', identifier, or '+', but found end of file
    │    ^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -93,7 +93,7 @@ error: Expected '*', ':', '$', identifier, or '+', but found end of file
   │    ^
 ",
     ))
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -112,7 +112,7 @@ fn file_paths_not_in_subdir_are_absolute() {
   │    \^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -129,5 +129,5 @@ error: Recipe `foo` defined on line 1 is redefined as a module on line 4
   │     ^^^
 ",
     )
-    .run_failure();
+    .failure();
 }

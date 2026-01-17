@@ -19,7 +19,7 @@ fn long_options_may_not_be_empty() {
           │                  ^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -41,7 +41,7 @@ fn short_options_may_not_be_empty() {
           │                   ^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -63,7 +63,7 @@ fn short_options_may_not_have_multiple_characters() {
           │                   ^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -141,7 +141,7 @@ fn parameters_with_both_long_and_short_may_not_use_both() {
     .justfile(LONG_SHORT)
     .args(["foo", "--bar", "baz", "-b", "baz"])
     .stderr("error: Recipe `foo` option `-b` cannot be passed more than once\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -156,7 +156,7 @@ fn multiple_short_options_in_one_argument_is_an_error() {
     )
     .args(["foo", "-ab"])
     .stderr("error: Passing multiple short options (`-ab`) in one argument is not supported\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -178,7 +178,7 @@ fn duplicate_long_option_attributes_are_forbidden() {
           │                  ^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -203,7 +203,7 @@ fn defaulted_duplicate_long_option() {
           │                   ^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -225,7 +225,7 @@ fn duplicate_short_option_attributes_are_forbidden() {
           │                   ^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -246,7 +246,7 @@ fn variadics_with_long_options_are_forbidden() {
           │      ^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -267,7 +267,7 @@ fn variadics_with_short_options_are_forbidden() {
           │      ^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -288,7 +288,7 @@ fn long_option_names_may_not_contain_equal_sign() {
           │                  ^^^^^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -309,7 +309,7 @@ fn short_option_names_may_not_contain_equal_sign() {
           │                   ^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -425,7 +425,7 @@ fn argument_values_starting_with_dashes_are_an_error_if_recipe_takes_options() {
     )
     .args(["foo", "--bar=BAR", "--A", "--B", "--C"])
     .stderr("error: Recipe `foo` does not have option `--A`\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -516,7 +516,7 @@ fn unknown_options_are_an_error() {
     )
     .args(["foo", "--baz", "BAZ"])
     .stderr("error: Recipe `foo` does not have option `--baz`\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -530,7 +530,7 @@ fn missing_required_options_are_an_error() {
     )
     .arg("foo")
     .stderr("error: Recipe `foo` requires option `--bar`\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -544,7 +544,7 @@ fn duplicate_long_options_are_an_error() {
     )
     .args(["foo", "--bar=a", "--bar=b"])
     .stderr("error: Recipe `foo` option `--bar` cannot be passed more than once\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -558,7 +558,7 @@ fn duplicate_short_options_are_an_error() {
     )
     .args(["foo", "-b=a", "-b=b"])
     .stderr("error: Recipe `foo` option `-b` cannot be passed more than once\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -572,7 +572,7 @@ fn options_require_value() {
     )
     .args(["foo", "--bar"])
     .stderr("error: Recipe `foo` option `--bar` missing value\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -592,7 +592,7 @@ fn recipes_with_long_options_have_correct_positional_argument_mismatch_message()
             just foo [OPTIONS] baz
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -612,7 +612,7 @@ fn recipes_with_short_options_have_correct_positional_argument_mismatch_message(
             just foo [OPTIONS] baz
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -656,7 +656,7 @@ fn flags_cannot_take_values() {
     )
     .args(["foo", "-b=hello"])
     .stderr("error: Recipe `foo` flag `-b` does not take value\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -678,7 +678,7 @@ fn value_requires_long_or_short() {
           │             ^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]

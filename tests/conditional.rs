@@ -90,7 +90,7 @@ fn undefined_lhs() {
       │         ^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -113,7 +113,7 @@ fn undefined_rhs() {
       │               ^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -136,7 +136,7 @@ fn undefined_then() {
       │                    ^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -159,7 +159,7 @@ fn undefined_otherwise() {
       │                                ^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -182,7 +182,7 @@ fn unexpected_op() {
       │            ^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -241,7 +241,7 @@ fn missing_else() {
       │                                                      ^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -261,5 +261,5 @@ fn incorrect_else_identifier() {
       │                                                       ^^^
   ",
     )
-    .run_failure();
+    .failure();
 }

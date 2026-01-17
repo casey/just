@@ -39,5 +39,5 @@ fn one_flag_only_allows_one_invocation() {
     )
     .args(["--one", "foo", "bar"])
     .stderr("error: Expected 1 command-line recipe invocation but found 2.\n")
-    .run_failure();
+    .failure();
 }

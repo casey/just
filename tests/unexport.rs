@@ -56,7 +56,7 @@ fn duplicate_unexport_fails() {
           │          ^^^^^^^^^^^^^^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -81,7 +81,7 @@ fn export_unexport_conflict() {
           │        ^^^^^^^^^^^^^^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]

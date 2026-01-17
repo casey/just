@@ -350,7 +350,7 @@ fn attribute_duplicate() {
   │  ^^^^^^^^^^^^^^^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -387,7 +387,7 @@ fn attribute_with_nocd_is_forbidden() {
           │ ^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]

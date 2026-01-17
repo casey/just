@@ -43,7 +43,7 @@ fn missing_import_file_error() {
         │        ^^^^^^^^^^^^^^^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -109,7 +109,7 @@ fn circular_import() {
     .stderr_regex(path_for_regex(
       "error: Import `.*/a` in `.*/b` is circular\n",
     ))
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -120,7 +120,7 @@ fn import_recipes_are_not_default() {
     })
     .justfile("import './import.justfile'")
     .stderr("error: Justfile contains no default recipe.\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -157,7 +157,7 @@ fn include_error() {
         │ ^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]

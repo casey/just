@@ -66,7 +66,7 @@ fn comment_in_interopolation() {
           │           ^^^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]

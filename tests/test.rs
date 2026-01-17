@@ -203,7 +203,7 @@ impl Test {
   }
 
   #[track_caller]
-  pub(crate) fn run_failure(mut self) -> Output {
+  pub(crate) fn failure(mut self) -> Output {
     self.status(1)
   }
 

@@ -6,7 +6,7 @@ fn unstable_not_passed() {
     .arg("--fmt")
     .justfile("")
     .stderr_regex("error: The `--fmt` command is currently unstable..*")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -65,7 +65,7 @@ fn check_found_diff() {
     error: Formatted justfile differs from original.
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -76,7 +76,7 @@ fn check_found_diff_quiet() {
     .arg("--check")
     .arg("--quiet")
     .justfile("x:=``\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -90,7 +90,7 @@ fn check_diff_color() {
         .arg("always")
         .stdout("\n    \u{1b}[31m-x:=``\n    \u{1b}[0m\u{1b}[32m+x := ``\n    \u{1b}[0m")
         .stderr("\n    \u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mFormatted justfile differs from original.\u{1b}[0m\n  ")
-        .run_failure();
+        .failure();
 }
 
 #[test]
@@ -149,7 +149,7 @@ fn write_error() {
 
   assert!(output.status.success());
 
-  let _tempdir = test.run_failure();
+  let _tempdir = test.failure();
 
   assert_eq!(
     fs::read_to_string(&justfile_path).unwrap(),

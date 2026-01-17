@@ -9,7 +9,7 @@ fn bugfix() {
   Test::new()
     .justfile(&justfile)
     .stderr(RECURSION_LIMIT_REACHED)
-    .run_failure();
+    .failure();
 }
 
 #[cfg(not(windows))]

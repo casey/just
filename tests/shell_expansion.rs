@@ -31,7 +31,7 @@ fn shell_expanded_strings_must_not_have_whitespace() {
           │        ^^^^^^^^^^^^^^^^^^^^^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -52,7 +52,7 @@ fn shell_expanded_error_messages_highlight_string_token() {
       1 │ x := x'$FOOOOOOOOOOOOOOOOOOOOOOOOOOOOO'
         │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       ")
-    .run_failure();
+    .failure();
 }
 
 #[test]

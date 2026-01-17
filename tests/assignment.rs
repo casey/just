@@ -17,7 +17,7 @@ fn set_export_parse_error() {
       │               ^^^^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -37,7 +37,7 @@ fn set_export_parse_error_eol() {
       │              ^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -59,5 +59,5 @@ fn invalid_attributes_are_an_error() {
           │ ^
       ",
     )
-    .run_failure();
+    .failure();
 }

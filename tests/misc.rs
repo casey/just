@@ -123,7 +123,7 @@ fn bad_setting() {
     │     ^^^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -143,7 +143,7 @@ fn bad_setting_with_keyword_name() {
     │     ^^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -169,7 +169,7 @@ fn duplicate_alias() {
       │       ^^^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -185,7 +185,7 @@ fn unknown_alias_target() {
       │       ^^^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -201,7 +201,7 @@ fn alias_shadows_recipe() {
       │ ^^^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -310,7 +310,7 @@ fn unknown_dependency() {
       │          ^^^^^^^^^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -599,7 +599,7 @@ a := `exit 222`",
       "error: Variables `baz` and `foo` overridden on the command line but not present \
     in justfile\n",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -620,7 +620,7 @@ a := `exit 222`",
       "error: Variables `baz` and `foo` overridden on the command line but not present \
     in justfile\n",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -637,7 +637,7 @@ fn unknown_override_arg() {
 a := `exit 222`",
     )
     .stderr("error: Variable `foo` overridden on the command line but not present in justfile\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -743,7 +743,7 @@ fn line_error_spacing() {
    │ ^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -793,7 +793,7 @@ foo A B:
   echo A:{{A}} B:{{B}}
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -808,7 +808,7 @@ foo A B:
     ",
     )
     .stderr("error: Recipe `foo` got 1 positional argument but takes 2\nusage:\n    just foo A B\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -825,7 +825,7 @@ foo A B='B':
     ",
     )
     .stderr("error: Justfile does not contain recipe `THREE`\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -846,7 +846,7 @@ foo A B C='C':
         just foo A B [C]
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -855,7 +855,7 @@ fn unknown_recipe() {
     .arg("foo")
     .justfile("hello:")
     .stderr("error: Justfile does not contain recipe `foo`\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -865,7 +865,7 @@ fn unknown_recipes() {
     .arg("bar")
     .justfile("hello:")
     .stderr("error: Justfile does not contain recipe `foo`\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -960,7 +960,7 @@ Leading whitespace may consist of tabs or spaces, but not both
   │ ^^^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -975,7 +975,7 @@ fn extra_leading_whitespace() {
   │         ^^^^^^^^^^^^^^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -991,7 +991,7 @@ fn inconsistent_leading_whitespace() {
   │ ^^^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1006,7 +1006,7 @@ fn required_after_default() {
   │                     ^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1021,7 +1021,7 @@ fn required_after_plus_variadic() {
   │                ^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1036,7 +1036,7 @@ fn required_after_star_variadic() {
   │                ^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1314,7 +1314,7 @@ fn run_suggestion() {
     .arg("hell")
     .justfile("hello:")
     .stderr("error: Justfile does not contain recipe `hell`\nDid you mean `hello`?\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1328,7 +1328,7 @@ fn private_recipes_are_not_suggested() {
       ",
     )
     .stderr("error: Justfile does not contain recipe `hell`\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1345,7 +1345,7 @@ fn alias_suggestion() {
     .stderr(
       "error: Justfile does not contain recipe `hell`\nDid you mean `hello`, an alias for `bar`?\n",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1361,7 +1361,7 @@ fn private_aliases_are_not_suggested() {
       ",
     )
     .stderr("error: Justfile does not contain recipe `hell`\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1505,7 +1505,7 @@ bar:"#,
   │        ^^^
 "#,
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1526,7 +1526,7 @@ fn dependency_takes_arguments_exact() {
   │    ^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1547,7 +1547,7 @@ fn dependency_takes_arguments_at_least() {
   │    ^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1568,7 +1568,7 @@ fn dependency_takes_arguments_at_most() {
   │     ^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1584,7 +1584,7 @@ fn duplicate_parameter() {
   │       ^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1600,7 +1600,7 @@ fn duplicate_recipe() {
   │ ^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1616,7 +1616,7 @@ fn duplicate_variable() {
   │ ^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1633,7 +1633,7 @@ fn unexpected_token_in_dependency_position() {
   │      ^^^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1649,7 +1649,7 @@ fn unexpected_token_after_name() {
   │     ^^^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1665,7 +1665,7 @@ fn self_dependency() {
   │    ^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1681,7 +1681,7 @@ fn long_circular_recipe_dependency() {
   │    ^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1697,7 +1697,7 @@ fn variable_self_dependency() {
   │ ^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1713,7 +1713,7 @@ fn variable_circular_dependency() {
   │ ^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1737,7 +1737,7 @@ fn variable_circular_dependency_with_additional_variable() {
   │ ^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1816,7 +1816,7 @@ a x y +z:
             just a x y z...
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1910,7 +1910,7 @@ foo *a +b:
   │        ^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1930,7 +1930,7 @@ foo +a *b:
   │        ^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -1980,7 +1980,7 @@ a: x y
   │      ^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -2098,7 +2098,7 @@ X := "\'"
   │      ^^^^
 "#,
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -2117,7 +2117,7 @@ fn unknown_variable_in_default() {
   │       ^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -2136,7 +2136,7 @@ foo x=bar():
   │       ^^^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -2214,7 +2214,7 @@ fn unterminated_interpolation_eol() {
       │        ^^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -2235,7 +2235,7 @@ fn unterminated_interpolation_eof() {
       │        ^^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -2255,7 +2255,7 @@ assembly_source_files = %(wildcard src/arch/$(arch)/*.s)
       │                         ^
   ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -2275,7 +2275,7 @@ error: Unknown start of token '\u{200b}' (U+200B)
   │ ^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -2295,7 +2295,7 @@ error: Unknown start of token '\0' (U+0000)
   │ ^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -2427,7 +2427,7 @@ fn old_equals_assignment_syntax_produces_error() {
       │     ^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]

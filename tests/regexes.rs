@@ -61,7 +61,7 @@ fn bad_regex_fails_at_runtime() {
       ",
     )
     .stdout("before\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]

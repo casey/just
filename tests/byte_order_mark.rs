@@ -32,7 +32,7 @@ fn non_leading_byte_order_mark_produces_error() {
       3 │ \u{feff}
         │ ^
       ")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -48,5 +48,5 @@ fn dont_mention_byte_order_mark_in_errors() {
         │ ^
       ",
     )
-    .run_failure();
+    .failure();
 }

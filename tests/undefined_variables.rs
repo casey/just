@@ -13,7 +13,7 @@ fn parameter_default_unknown_variable_in_expression() {
         │        ^
     ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -33,7 +33,7 @@ fn unknown_variable_in_unary_call() {
         │               ^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -53,7 +53,7 @@ fn unknown_first_variable_in_binary_call() {
         │                          ^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -73,7 +73,7 @@ fn unknown_second_variable_in_binary_call() {
         │                              ^
       ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -93,5 +93,5 @@ fn unknown_variable_in_ternary_call() {
         │               ^
       ",
     )
-    .run_failure();
+    .failure();
 }

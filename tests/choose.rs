@@ -129,7 +129,7 @@ fn no_choosable_recipes() {
       ",
     )
     .stderr("error: Justfile contains no choosable recipes.\n")
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -169,7 +169,7 @@ fn invoke_error_function() {
     )
     .shell(false)
     .args(["--shell", "/", "--choose"])
-    .run_failure();
+    .failure();
 }
 
 #[test]

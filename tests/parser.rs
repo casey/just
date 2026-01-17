@@ -29,7 +29,7 @@ error: Expected character `=` or `~`
   │             ^
 ",
     )
-    .run_failure();
+    .failure();
 }
 
 #[test]
@@ -45,5 +45,5 @@ error: Expected character `=` or `~` but found end-of-file
   │             ^
 ",
     )
-    .run_failure();
+    .failure();
 }
