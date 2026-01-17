@@ -18,7 +18,6 @@ pub(crate) struct Test {
   pub(crate) justfile: Option<String>,
   pub(crate) response: Option<Response>,
   pub(crate) shell: bool,
-  pub(crate) status: i32,
   pub(crate) stderr: String,
   pub(crate) stderr_regex: Option<Regex>,
   pub(crate) stdin: String,
@@ -43,7 +42,6 @@ impl Test {
       justfile: Some(String::new()),
       response: None,
       shell: true,
-      status: EXIT_SUCCESS,
       stderr: String::new(),
       stderr_regex: None,
       stdin: String::new(),
@@ -201,24 +199,16 @@ impl Test {
 impl Test {
   #[track_caller]
   pub(crate) fn run_success(mut self) -> Output {
-    self.status = 0;
-    self.run()
+    self.run_status(0)
   }
 
   #[track_caller]
   pub(crate) fn run_failure(mut self) -> Output {
-    self.status = 1;
-    self.run()
+    self.run_status(1)
   }
 
   #[track_caller]
-  pub(crate) fn run_status(mut self, status: i32) -> Output {
-    self.status = status;
-    self.run()
-  }
-
-  #[track_caller]
-  fn run(self) -> Output {
+  pub(crate) fn run_status(self, status: i32) -> Output {
     fn compare<T: PartialEq + Debug>(name: &str, have: T, want: T) -> bool {
       let equal = have == want;
       if !equal {
@@ -295,7 +285,7 @@ impl Test {
       );
     }
 
-    if !compare("status", output.status.code(), Some(self.status))
+    if !compare("status", output.status.code(), Some(status))
       | (self.stdout_regex.is_none() && !compare_string("stdout", output_stdout, &stdout))
       | (self.stderr_regex.is_none() && !compare_string("stderr", output_stderr, &stderr))
     {
@@ -321,7 +311,7 @@ impl Test {
       );
     }
 
-    if self.test_round_trip && self.status == EXIT_SUCCESS {
+    if self.test_round_trip && status == EXIT_SUCCESS {
       self.round_trip();
     }
 
