@@ -2658,7 +2658,7 @@ fn pwsh_invocation_directory() {
   "#,
     )
     .shell(false)
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -2780,5 +2780,5 @@ fn windows_interpreter_path_no_base() {
       exit 0
   "#,
     )
-    .run_success();
+    .success();
 }

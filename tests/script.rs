@@ -271,7 +271,7 @@ b
 c
 ",
     )
-    .run_success();
+    .success();
 }
 
 #[test]

@@ -344,7 +344,7 @@ foo:
       )
       .as_str(),
     )
-    .run_success();
+    .success();
 }
 
 #[test]

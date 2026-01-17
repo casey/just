@@ -12,7 +12,7 @@ default:
 "#,
     )
     .stdout("Hello-World\n")
-    .run_success();
+    .success();
 }
 
 #[cfg(windows)]
@@ -27,7 +27,7 @@ default:
 "#,
     )
     .stdout("Hello-World\n")
-    .run_success();
+    .success();
 }
 
 #[cfg(windows)]
@@ -42,7 +42,7 @@ default:
 "#,
     )
     .stdout("Hello-World\r\n")
-    .run_success();
+    .success();
 }
 
 #[cfg(windows)]
@@ -57,7 +57,7 @@ default:
 "#,
     )
     .stdout("Hello-World\r\n")
-    .run_success();
+    .success();
 }
 
 #[cfg(windows)]
@@ -73,7 +73,7 @@ default:
 "#,
     )
     .stdout("Hello-World\r\n")
-    .run_success();
+    .success();
 }
 
 #[test]

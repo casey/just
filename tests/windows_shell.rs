@@ -15,7 +15,7 @@ fn windows_shell_setting() {
     .shell(false)
     .stdout("bar\r\n")
     .stderr("Write-Output bar\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -33,7 +33,7 @@ fn windows_powershell_setting_uses_powershell_set_shell() {
     .shell(false)
     .stdout("bar\r\n")
     .stderr("Write-Output bar\n")
-    .run_success();
+    .success();
 }
 
 #[test]
@@ -50,5 +50,5 @@ fn windows_powershell_setting_uses_powershell() {
     .shell(false)
     .stdout("bar\r\n")
     .stderr("Write-Output bar\n")
-    .run_success();
+    .success();
 }
