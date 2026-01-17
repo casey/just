@@ -1,8 +1,10 @@
 use super::*;
 
-#[cfg(windows)]
 #[test]
 fn powershell() {
+  if cfg!(not(windows)) {
+    return;
+  }
   Test::new()
     .justfile(
       r#"
@@ -15,9 +17,11 @@ default:
     .success();
 }
 
-#[cfg(windows)]
 #[test]
 fn powershell_exe() {
+  if cfg!(not(windows)) {
+    return;
+  }
   Test::new()
     .justfile(
       r#"
@@ -30,9 +34,11 @@ default:
     .success();
 }
 
-#[cfg(windows)]
 #[test]
 fn cmd() {
+  if cfg!(not(windows)) {
+    return;
+  }
   Test::new()
     .justfile(
       r#"
@@ -45,9 +51,11 @@ default:
     .success();
 }
 
-#[cfg(windows)]
 #[test]
 fn cmd_exe() {
+  if cfg!(not(windows)) {
+    return;
+  }
   Test::new()
     .justfile(
       r#"
@@ -60,9 +68,11 @@ default:
     .success();
 }
 
-#[cfg(windows)]
 #[test]
 fn multi_line_cmd_shebangs_are_removed() {
+  if cfg!(not(windows)) {
+    return;
+  }
   Test::new()
     .justfile(
       r#"

@@ -39,8 +39,10 @@ fn flag() {
 
 /// Test that we can use `set shell` to use cmd.exe on windows
 #[test]
-#[cfg(windows)]
 fn cmd() {
+  if cfg!(not(windows)) {
+    return;
+  }
   let tmp = temptree! {
     justfile: r#"
 
@@ -66,8 +68,10 @@ recipe:
 
 /// Test that we can use `set shell` to use cmd.exe on windows
 #[test]
-#[cfg(windows)]
 fn powershell() {
+  if cfg!(not(windows)) {
+    return;
+  }
   let tmp = temptree! {
       justfile: r#"
 

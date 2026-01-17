@@ -1,8 +1,10 @@
 use super::*;
 
 #[test]
-#[cfg(target_os = "macos")]
 fn macos() {
+  if cfg!(not(target_os = "macos")) {
+    return;
+  }
   let tempdir = tempdir();
 
   let path = tempdir.path().to_owned();
@@ -21,8 +23,10 @@ fn macos() {
 }
 
 #[test]
-#[cfg(all(unix, not(target_os = "macos")))]
 fn not_macos() {
+  if cfg!(any(not(unix), target_os = "macos")) {
+    return;
+  }
   let tempdir = tempdir();
 
   let path = tempdir.path().to_owned();
@@ -38,8 +42,10 @@ fn not_macos() {
 }
 
 #[test]
-#[cfg(unix)]
 fn unix() {
+  if cfg!(not(unix)) {
+    return;
+  }
   let tempdir = tempdir();
 
   let path = tempdir.path().to_owned();
@@ -65,8 +71,10 @@ fn unix() {
 }
 
 #[test]
-#[cfg(all(unix, not(target_os = "macos")))]
 fn case_insensitive() {
+  if cfg!(any(not(unix), target_os = "macos")) {
+    return;
+  }
   let tempdir = tempdir();
 
   let path = tempdir.path().to_owned();

@@ -173,8 +173,10 @@ fn invoke_error_function() {
 }
 
 #[test]
-#[cfg(not(windows))]
 fn status_error() {
+  if cfg!(windows) {
+    return;
+  }
   let tmp = temptree! {
     justfile: "foo:\n echo foo\nbar:\n echo bar\n",
     "exit-2": "#!/usr/bin/env bash\nexit 2\n",

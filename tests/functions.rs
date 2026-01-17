@@ -69,9 +69,11 @@ foo:
     .success();
 }
 
-#[cfg(not(windows))]
 #[test]
-fn env_var_functions() {
+fn env_var_functions_unix() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"
@@ -94,9 +96,11 @@ foo:
     .success();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn path_functions() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"
@@ -116,9 +120,11 @@ foo:
     .success();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn path_functions2() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"
@@ -137,9 +143,11 @@ foo:
     .success();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn broken_without_extension_function() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"
@@ -164,9 +172,11 @@ foo:
     .failure();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn broken_extension_function() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"
@@ -190,9 +200,11 @@ foo:
     .failure();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn broken_extension_function2() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"
@@ -216,9 +228,11 @@ foo:
     .failure();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn broken_file_stem_function() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"
@@ -242,9 +256,11 @@ foo:
     .failure();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn broken_file_name_function() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"
@@ -268,9 +284,11 @@ foo:
     .failure();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn broken_directory_function() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"
@@ -295,9 +313,11 @@ foo:
     .failure();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn broken_directory_function2() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"
@@ -322,9 +342,11 @@ foo:
     .failure();
 }
 
-#[cfg(windows)]
 #[test]
-fn env_var_functions() {
+fn env_var_functions_windows() {
+  if cfg!(not(windows)) {
+    return;
+  }
   Test::new()
     .justfile(
       r#"
@@ -728,8 +750,10 @@ fn prepend() {
 }
 
 #[test]
-#[cfg(not(windows))]
-fn join() {
+fn join_unix() {
+  if cfg!(windows) {
+    return;
+  }
   assert_eval_eq("join('a', 'b', 'c', 'd')", "a/b/c/d");
   assert_eval_eq("join('a', '/b', 'c', 'd')", "/b/c/d");
   assert_eval_eq("join('a', '/b', '/c', 'd')", "/c/d");
@@ -737,8 +761,10 @@ fn join() {
 }
 
 #[test]
-#[cfg(windows)]
-fn join() {
+fn join_windows() {
+  if cfg!(not(windows)) {
+    return;
+  }
   assert_eval_eq("join('a', 'b', 'c', 'd')", "a\\b\\c\\d");
   assert_eval_eq("join('a', '\\b', 'c', 'd')", "\\b\\c\\d");
   assert_eval_eq("join('a', '\\b', '\\c', 'd')", "\\c\\d");

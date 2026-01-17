@@ -209,9 +209,11 @@ fn variables_in_import_are_overridden_by_variables_in_parent() {
     .success();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn import_paths_beginning_with_tilde_are_expanded_to_homdir() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .write("foobar/mod.just", "foo:\n @echo FOOBAR")
     .justfile(

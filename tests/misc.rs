@@ -2645,9 +2645,11 @@ fn duplicate_dependency_argument() {
     .success();
 }
 
-#[cfg(windows)]
 #[test]
 fn pwsh_invocation_directory() {
+  if cfg!(not(windows)) {
+    return;
+  }
   Test::new()
     .justfile(
       r#"
@@ -2768,9 +2770,11 @@ fn multi_line_string_in_interpolation() {
     .success();
 }
 
-#[cfg(windows)]
 #[test]
 fn windows_interpreter_path_no_base() {
+  if cfg!(not(windows)) {
+    return;
+  }
   Test::new()
     .justfile(
       r#"

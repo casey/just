@@ -131,9 +131,11 @@ fn script_line_numbers_with_multi_line_recipe_signature() {
     .success();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn shebang_line_numbers() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       "foo:
@@ -164,9 +166,11 @@ c
     .success();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn shebang_line_numbers_with_multiline_constructs() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"foo b='b'\
@@ -203,9 +207,11 @@ c
     .success();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn multiline_shebang_line_numbers() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       "foo:
@@ -240,9 +246,11 @@ c
     .success();
 }
 
-#[cfg(windows)]
 #[test]
-fn shebang_line_numbers() {
+fn shebang_line_numbers_windows() {
+  if cfg!(not(windows)) {
+    return;
+  }
   Test::new()
     .justfile(
       "foo:

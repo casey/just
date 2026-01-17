@@ -1,8 +1,10 @@
 use super::*;
 
 #[test]
-#[cfg(target_os = "linux")]
 fn bash() {
+  if cfg!(not(target_os = "linux")) {
+    return;
+  }
   let output = Command::new(executable_path("just"))
     .args(["--completions", "bash"])
     .output()

@@ -97,8 +97,10 @@ error: Expected '*', ':', '$', identifier, or '+', but found end of file
 }
 
 #[test]
-#[cfg(not(windows))]
 fn file_paths_not_in_subdir_are_absolute() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .write("foo/justfile", "import '../bar.just'")
     .write("bar.just", "baz")
