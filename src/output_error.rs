@@ -35,7 +35,7 @@ impl Display for OutputError {
       Self::Code(code) => write!(f, "Process exited with status code {code}"),
       Self::Interrupted(signal) => write!(
         f,
-        "Process succeded but `just` was interrupted by signal {signal}"
+        "Process succeeded but `just` was interrupted by signal {signal}"
       ),
       Self::Io(ref io_error) => write!(f, "Error executing process: {io_error}"),
       Self::Signal(signal) => write!(f, "Process terminated by signal {signal}"),
