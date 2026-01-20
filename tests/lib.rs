@@ -5,7 +5,6 @@ use {
     tempdir::tempdir,
     test::{assert_eval_eq, Output, Test},
   },
-  executable_path::executable_path,
   just::{unindent, Response},
   pretty_assertions::Comparison,
   regex::Regex,
@@ -28,6 +27,13 @@ use {
   temptree::{temptree, tree, Tree},
   which::which,
 };
+
+const JUST: &str = env!("CARGO_BIN_EXE_just");
+
+pub fn executable_path(name: &str) -> PathBuf {
+  assert_eq!(name, "just");
+  return JUST.into();
+}
 
 #[cfg(not(windows))]
 use std::thread;

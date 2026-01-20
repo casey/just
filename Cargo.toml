@@ -59,7 +59,6 @@ ctrlc = { version = "3.1.1", features = ["termination"] }
 
 [dev-dependencies]
 clap_complete = "=4.5.48"
-executable-path = "1.0.0"
 pretty_assertions = "1.0.0"
 temptree = "0.2.0"
 which = "8.0.0"
