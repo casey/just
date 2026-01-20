@@ -101,7 +101,7 @@ fn forwarding() {
   .unwrap();
 
   for signal in [Signal::SIGINT, Signal::SIGQUIT, Signal::SIGHUP] {
-    let mut child = Command::new(&JUST)
+    let mut child = Command::new(JUST)
       .current_dir(&tempdir)
       .stdout(Stdio::piped())
       .stderr(Stdio::piped())
@@ -168,7 +168,7 @@ fn siginfo_prints_current_process() {
 
   fs::write(tempdir.path().join("justfile"), "foo:\n @sleep 1").unwrap();
 
-  let child = Command::new(&JUST)
+  let child = Command::new(JUST)
     .current_dir(&tempdir)
     .stdout(Stdio::piped())
     .stderr(Stdio::piped())

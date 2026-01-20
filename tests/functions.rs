@@ -395,7 +395,7 @@ fn test_just_executable_function() {
       @printf 'Executable path is: %s\\n' '{{ just_executable() }}'
   ",
     )
-    .stdout(format!("Executable path is: {}\n", JUST,).as_str())
+    .stdout(format!("Executable path is: {JUST}\n"))
     .success();
 }
 
