@@ -1,9 +1,7 @@
 use super::*;
 
 fn search_test<P: AsRef<Path>>(path: P, args: &[&str]) {
-  let binary = executable_path("just");
-
-  let output = Command::new(binary)
+  let output = Command::new(JUST)
     .current_dir(path)
     .args(args)
     .output()

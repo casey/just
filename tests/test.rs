@@ -236,7 +236,7 @@ impl Test {
 
     let stderr = unindent(&self.stderr);
 
-    let mut command = Command::new(executable_path("just"));
+    let mut command = Command::new(JUST);
 
     if self.shell {
       command.args(["--shell", "bash"]);
@@ -321,7 +321,7 @@ impl Test {
   }
 
   fn round_trip(&self) {
-    let output = Command::new(executable_path("just"))
+    let output = Command::new(JUST)
       .current_dir(self.tempdir.path())
       .arg("--dump")
       .envs(&self.env)
@@ -341,7 +341,7 @@ impl Test {
 
     fs::write(&reparsed_path, &dumped).unwrap();
 
-    let output = Command::new(executable_path("just"))
+    let output = Command::new(JUST)
       .current_dir(self.tempdir.path())
       .arg("--justfile")
       .arg(&reparsed_path)

@@ -30,11 +30,6 @@ use {
 
 const JUST: &str = env!("CARGO_BIN_EXE_just");
 
-pub fn executable_path(name: &str) -> PathBuf {
-  assert_eq!(name, "just");
-  return JUST.into();
-}
-
 #[cfg(not(windows))]
 use std::thread;
 

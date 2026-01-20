@@ -195,7 +195,7 @@ fn status_error() {
   )
   .unwrap();
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path())
     .arg("--choose")
     .arg("--chooser")
@@ -233,7 +233,7 @@ fn default() {
   )
   .unwrap();
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .arg("--choose")
     .arg("--chooser=fzf")
     .current_dir(tmp.path())

@@ -5,7 +5,7 @@ fn bash() {
   if cfg!(not(target_os = "linux")) {
     return;
   }
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .args(["--completions", "bash"])
     .output()
     .unwrap();
@@ -31,7 +31,7 @@ fn bash() {
 #[test]
 fn replacements() {
   for shell in ["bash", "elvish", "fish", "nushell", "powershell", "zsh"] {
-    let output = Command::new(executable_path("just"))
+    let output = Command::new(JUST)
       .args(["--completions", shell])
       .output()
       .unwrap();

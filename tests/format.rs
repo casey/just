@@ -101,7 +101,7 @@ fn unstable_passed() {
 
   fs::write(&justfile, "x    :=    'hello'   ").unwrap();
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path())
     .arg("--fmt")
     .arg("--unstable")
