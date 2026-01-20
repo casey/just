@@ -4366,6 +4366,10 @@ $ just --completions zsh > just.zsh
 
 Please refer to your shell's documentation for how to install them.
 
+#### Zsh
+
+##### Homebrew (MacOS)
+
 *macOS Note:* Recent versions of macOS use zsh as the default shell. If you use
 Homebrew to install `just`, it will automatically install the most recent copy
 of the zsh completion script in the Homebrew zsh directory, which the built-in
@@ -4391,6 +4395,29 @@ fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath)
 # autoload -U compinit
 # compinit
 ```
+
+##### oh-my-zsh
+
+oh-my-zsh is set up to load completion scripts found in `$HOME/.oh-my-zsh/completions`.
+This is intended for completion script not included in plugins.
+
+Check that `$fpath` target this folder.
+```shell
+local ZSH_COMPLETIONS_DIR="$HOME/.oh-my-zsh/completions"
+echo $fpath | grep "$ZSH_COMPLETIONS_DIR"
+```
+
+If so, create the folder if not existing.
+```shell
+mkdir --parents $ZSH_COMPLETIONS_DIR
+```
+
+Generate and store the completion script.
+```shell
+just --completions zsh > "${ZSH_COMPLETIONS_DIR}/_just"
+```
+
+Logout
 
 ### Man Page
 
