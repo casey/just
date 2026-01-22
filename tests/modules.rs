@@ -485,6 +485,51 @@ fn dotenv_settings_in_submodule_are_ignored() {
 }
 
 #[test]
+fn submodule_dotenv_path_is_loaded() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-load
+
+        mod foo 'commands/foo.just'
+
+        bar:
+          @echo $DOTENV_KEY
+      ",
+    )
+    .write(
+      "commands/foo.just",
+      "set dotenv-path := 'foo.env'\n\nfoo:\n  @echo $DOTENV_KEY",
+    )
+    .write(".env", "DOTENV_KEY=root-value")
+    .write("commands/foo.env", "DOTENV_KEY=submodule-value")
+    .args(["foo", "foo"])
+    .stdout("submodule-value\n")
+    .success();
+}
+
+#[test]
+fn submodule_dotenv_inherits_from_root() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-load
+
+        mod foo 'commands/foo.just'
+      ",
+    )
+    .write(
+      "commands/foo.just",
+      "set dotenv-path := 'foo.env'\n\nfoo:\n  @echo $ROOT_KEY $SUB_KEY",
+    )
+    .write(".env", "ROOT_KEY=root-value")
+    .write("commands/foo.env", "SUB_KEY=submodule-value")
+    .args(["foo", "foo"])
+    .stdout("root-value submodule-value\n")
+    .success();
+}
+
+#[test]
 fn modules_may_specify_path() {
   Test::new()
     .write("commands/foo.just", "foo:\n @echo FOO")
