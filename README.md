@@ -86,6 +86,8 @@ always welcome!
 Installation
 ------------
 
+This section will guide you on how to install Just on your system.
+
 ### Prerequisites
 
 `just` should run on any system with a reasonable `sh`, including Linux, MacOS,
