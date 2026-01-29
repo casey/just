@@ -17,6 +17,13 @@ impl<'src> CompileError<'src> {
       kind: kind.into(),
     }
   }
+
+  pub(crate) fn source(&self) -> Option<&dyn std::error::Error> {
+    match &*self.kind {
+      CompileErrorKind::ArgumentPatternRegex { source } => Some(source),
+      _ => None,
+    }
+  }
 }
 
 fn capitalize(s: &str) -> String {
@@ -32,6 +39,15 @@ impl Display for CompileError<'_> {
     use CompileErrorKind::*;
 
     match &*self.kind {
+      ArgAttributeValueRequiresOption => {
+        write!(
+          f,
+          "Argument attribute `value` only valid with `long` or `short`"
+        )
+      }
+      ArgumentPatternRegex { .. } => {
+        write!(f, "Failed to parse argument pattern")
+      }
       AttributeArgumentCountMismatch {
         attribute,
         found,
@@ -52,6 +68,12 @@ impl Display for CompileError<'_> {
         } else {
           write!(f, "at most {max} {}", Count("argument", *max))
         }
+      }
+      AttributePositionalFollowsKeyword => {
+        write!(
+          f,
+          "Positional attribute arguments cannot follow keyword attribute arguments"
+        )
       }
       BacktickShebang => write!(f, "Backticks may not start with `#!`"),
       CircularRecipeDependency { recipe, circle } => {
@@ -97,6 +119,12 @@ impl Display for CompileError<'_> {
           write!(f, "at most {max} {}", Count("argument", *max))
         }
       }
+      DuplicateArgAttribute { arg, first } => write!(
+        f,
+        "Recipe attribute for argument `{arg}` first used on line {} is duplicated on line {}",
+        first.ordinal(),
+        self.token.line.ordinal(),
+      ),
       DuplicateAttribute { attribute, first } => write!(
         f,
         "Recipe attribute `{attribute}` first used on line {} is duplicated on line {}",
@@ -107,6 +135,12 @@ impl Display for CompileError<'_> {
         f,
         "Recipe `{recipe}` has duplicate `[default]` attribute, which may only appear once per module",
       ),
+      DuplicateOption { recipe, option } => {
+        write!(
+          f,
+          "Recipe `{recipe}` defines option `{option}` multiple times"
+        )
+      }
       DuplicateParameter { recipe, parameter } => {
         write!(f, "Recipe `{recipe}` has duplicate parameter `{parameter}`")
       }
@@ -212,6 +246,15 @@ impl Display for CompileError<'_> {
         f,
         "Recipe `{recipe}` has both `[no-cd]` and `[working-directory]` attributes"
       ),
+      OptionNameContainsEqualSign { parameter } => {
+        write!(
+          f,
+          "Option name for parameter `{parameter}` contains equal sign"
+        )
+      }
+      OptionNameEmpty { parameter } => {
+        write!(f, "Option name for parameter `{parameter}` is empty")
+      }
       ParameterFollowsVariadicParameter { parameter } => {
         write!(f, "Parameter `{parameter}` follows variadic parameter")
       }
@@ -241,15 +284,20 @@ impl Display for CompileError<'_> {
           )
         }
       }
-      ShebangAndScriptAttribute { recipe } => write!(
-        f,
-        "Recipe `{recipe}` has both shebang line and `[script]` attribute"
-      ),
       ShellExpansion { err } => write!(f, "Shell expansion failed: {err}"),
+      ShortOptionWithMultipleCharacters { parameter } => {
+        write!(
+          f,
+          "Short option name for parameter `{parameter}` contains multiple characters"
+        )
+      }
       RequiredParameterFollowsDefaultParameter { parameter } => write!(
         f,
         "Non-default parameter `{parameter}` follows default parameter"
       ),
+      UndefinedArgAttribute { argument } => {
+        write!(f, "Argument attribute for undefined argument `{argument}`")
+      }
       UndefinedVariable { variable } => write!(f, "Variable `{variable}` not defined"),
       UnexpectedCharacter { expected } => {
         write!(f, "Expected character {}", List::or_ticked(expected))
@@ -289,6 +337,15 @@ impl Display for CompileError<'_> {
       UnknownAliasTarget { alias, target } => {
         write!(f, "Alias `{alias}` has an unknown target `{target}`")
       }
+      AttributeKeyMissingValue { key } => {
+        write!(
+          f,
+          "Attribute key `{key}` requires value",
+        )
+      }
+      UnknownAttributeKeyword { attribute, keyword } => {
+        write!(f, "Unknown keyword `{keyword}` for `{attribute}` attribute")
+      }
       UnknownAttribute { attribute } => write!(f, "Unknown attribute `{attribute}`"),
       UnknownDependency { recipe, unknown } => {
         write!(f, "Recipe `{recipe}` has unknown dependency `{unknown}`")
@@ -306,6 +363,7 @@ impl Display for CompileError<'_> {
       UnterminatedBacktick => write!(f, "Unterminated backtick"),
       UnterminatedInterpolation => write!(f, "Unterminated interpolation"),
       UnterminatedString => write!(f, "Unterminated string"),
+      VariadicParameterWithOption => write!(f, "Variadic parameters may not be options"),
     }
   }
 }

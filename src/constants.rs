@@ -33,8 +33,7 @@ const CONSTANTS: &[(&str, &str, Option<&str>, &str)] = &[
 ];
 
 pub(crate) fn constants() -> &'static HashMap<&'static str, &'static str> {
-  static MAP: OnceLock<HashMap<&str, &str>> = OnceLock::new();
-  MAP.get_or_init(|| {
+  static MAP: LazyLock<HashMap<&str, &str>> = LazyLock::new(|| {
     CONSTANTS
       .iter()
       .copied()
@@ -49,7 +48,9 @@ pub(crate) fn constants() -> &'static HashMap<&'static str, &'static str> {
         )
       })
       .collect()
-  })
+  });
+
+  &MAP
 }
 
 #[cfg(test)]

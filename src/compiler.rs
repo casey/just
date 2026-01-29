@@ -4,6 +4,7 @@ pub(crate) struct Compiler;
 
 impl Compiler {
   pub(crate) fn compile<'src>(
+    config: &Config,
     loader: &'src Loader,
     root: &Path,
   ) -> RunResult<'src, Compilation<'src>> {
@@ -70,7 +71,6 @@ impl Compiler {
             relative,
             absolute,
             optional,
-            path,
           } => {
             let import = current
               .path
@@ -79,7 +79,7 @@ impl Compiler {
               .join(Self::expand_tilde(&relative.cooked)?)
               .lexiclean();
 
-            if import.is_file() {
+            if filesystem::is_file(&import)? {
               if current.file_path.contains(&import) {
                 return Err(Error::CircularImport {
                   current: current.path,
@@ -87,9 +87,11 @@ impl Compiler {
                 });
               }
               *absolute = Some(import.clone());
-              stack.push(current.import(import, path.offset));
+              stack.push(current.import(import, relative.token.offset));
             } else if !*optional {
-              return Err(Error::MissingImportFile { path: *path });
+              return Err(Error::MissingImportFile {
+                path: relative.token,
+              });
             }
           }
           _ => {}
@@ -99,7 +101,7 @@ impl Compiler {
       asts.insert(current.path, ast.clone());
     }
 
-    let justfile = Analyzer::analyze(&asts, None, &[], &loaded, None, &paths, root)?;
+    let justfile = Analyzer::analyze(&asts, config, None, &[], &loaded, None, &paths, false, root)?;
 
     Ok(Compilation {
       asts,
@@ -119,7 +121,7 @@ impl Compiler {
     if let Some(path) = path {
       let full = parent.join(path);
 
-      if full.is_file() {
+      if filesystem::is_file(&full)? {
         return Ok(Some(full));
       }
 
@@ -216,7 +218,7 @@ impl Compiler {
   }
 
   #[cfg(test)]
-  pub(crate) fn test_compile(src: &str) -> CompileResult<Justfile> {
+  pub(crate) fn test_compile(src: &str) -> RunResult<Justfile> {
     let tokens = Lexer::test_lex(src)?;
     let ast = Parser::parse(0, &[], None, &tokens, &PathBuf::new())?;
     let root = PathBuf::from("justfile");
@@ -224,7 +226,17 @@ impl Compiler {
     asts.insert(root.clone(), ast);
     let mut paths: HashMap<PathBuf, PathBuf> = HashMap::new();
     paths.insert(root.clone(), root.clone());
-    Analyzer::analyze(&asts, None, &[], &[], None, &paths, &root)
+    Analyzer::analyze(
+      &asts,
+      &Config::default(),
+      None,
+      &[],
+      &[],
+      None,
+      &paths,
+      false,
+      &root,
+    )
   }
 }
 
@@ -264,7 +276,7 @@ recipe_b: recipe_c
     let loader = Loader::new();
 
     let justfile_a_path = tmp.path().join("justfile");
-    let compilation = Compiler::compile(&loader, &justfile_a_path).unwrap();
+    let compilation = Compiler::compile(&Config::default(), &loader, &justfile_a_path).unwrap();
 
     assert_eq!(compilation.root_src(), justfile_a);
   }
@@ -281,7 +293,8 @@ recipe_b: recipe_c
     let loader = Loader::new();
 
     let justfile_a_path = tmp.path().join("justfile");
-    let loader_output = Compiler::compile(&loader, &justfile_a_path).unwrap_err();
+    let loader_output =
+      Compiler::compile(&Config::default(), &loader, &justfile_a_path).unwrap_err();
 
     assert_matches!(loader_output, Error::CircularImport { current, import }
       if current == tmp.path().join("subdir").join("b").lexiclean() &&

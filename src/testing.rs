@@ -69,12 +69,29 @@ pub(crate) fn analysis_error(
   let mut paths: HashMap<PathBuf, PathBuf> = HashMap::new();
   paths.insert("justfile".into(), "justfile".into());
 
-  match Analyzer::analyze(&asts, None, &[], &[], None, &paths, &root) {
+  match Analyzer::analyze(
+    &asts,
+    &Config::default(),
+    None,
+    &[],
+    &[],
+    None,
+    &paths,
+    false,
+    &root,
+  ) {
     Ok(_) => panic!("Analysis unexpectedly succeeded"),
     Err(have) => {
+      let Error::Compile { compile_error } = have else {
+        panic!(
+          "unexpected non-compile analysis error: {}",
+          have.color_display(Color::never()),
+        );
+      };
+
       let want = CompileError {
         token: Token {
-          kind: have.token.kind,
+          kind: compile_error.token.kind,
           src,
           offset,
           line,
@@ -84,7 +101,7 @@ pub(crate) fn analysis_error(
         },
         kind: kind.into(),
       };
-      assert_eq!(have, want);
+      assert_eq!(compile_error, want);
     }
   }
 }
@@ -102,12 +119,11 @@ macro_rules! run_error {
       let config = $crate::testing::config(&$args);
       let search = $crate::testing::search(&config);
 
-      if let Subcommand::Run{ overrides, arguments } = &config.subcommand {
+      if let Subcommand::Run{ arguments } = &config.subcommand {
         match $crate::testing::compile(&$crate::unindent::unindent($src))
           .run(
             &config,
             &search,
-            &overrides,
             &arguments,
           ).expect_err("Expected runtime error") {
             $error => $check

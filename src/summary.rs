@@ -13,7 +13,7 @@
 //! of existing justfiles.
 
 use {
-  crate::{compiler::Compiler, error::Error, loader::Loader},
+  crate::{compiler::Compiler, config::Config, error::Error, loader::Loader},
   std::{collections::BTreeMap, io, path::Path},
 };
 
@@ -28,7 +28,7 @@ mod full {
 pub fn summary(path: &Path) -> io::Result<Result<Summary, String>> {
   let loader = Loader::new();
 
-  match Compiler::compile(&loader, path) {
+  match Compiler::compile(&Config::default(), &loader, path) {
     Ok(compilation) => Ok(Ok(Summary::new(&compilation.justfile))),
     Err(error) => Ok(Err(if let Error::Compile { compile_error } = error {
       compile_error.to_string()
@@ -209,6 +209,10 @@ pub enum Expression {
     otherwise: Box<Expression>,
     operator: ConditionalOperator,
   },
+  FormatString {
+    start: String,
+    expressions: Vec<(Expression, String)>,
+  },
   Join {
     lhs: Option<Box<Expression>>,
     rhs: Box<Expression>,
@@ -236,6 +240,7 @@ impl Expression {
       Assert {
         condition: full::Condition { lhs, rhs, operator },
         error,
+        ..
       } => Expression::Assert {
         condition: Condition {
           lhs: Box::new(Expression::new(lhs)),
@@ -329,6 +334,13 @@ impl Expression {
         rhs: Self::new(rhs).into(),
         then: Self::new(then).into(),
       },
+      FormatString { start, expressions } => Self::FormatString {
+        start: start.cooked.clone(),
+        expressions: expressions
+          .iter()
+          .map(|(expression, string)| (Self::new(expression), string.cooked.clone()))
+          .collect(),
+      },
       Group { contents } => Self::new(contents),
       Join { lhs, rhs } => Self::Join {
         lhs: lhs.as_ref().map(|lhs| Self::new(lhs).into()),
@@ -382,9 +394,16 @@ pub struct Dependency {
 
 impl Dependency {
   fn new(dependency: &full::Dependency) -> Self {
+    let mut arguments = Vec::new();
+    for group in &dependency.arguments {
+      for argument in group {
+        arguments.push(Expression::new(argument));
+      }
+    }
+
     Self {
       recipe: dependency.recipe.name().to_owned(),
-      arguments: dependency.arguments.iter().map(Expression::new).collect(),
+      arguments,
     }
   }
 }

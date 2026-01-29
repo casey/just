@@ -16,7 +16,7 @@ wut:
     )
     .stdout("a b abc\n")
     .stderr("echo $FOO $BAR $ABC\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -34,7 +34,7 @@ fn parameter() {
     .stderr(
       "echo $FOO\necho b\nif [ -n \"${BAR+1}\" ]; then echo defined; else echo undefined; fi\n",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -51,7 +51,7 @@ fn parameter_not_visible_to_backtick() {
     )
     .stdout("bar\nundefined\n")
     .stderr("echo $FOO\necho undefined\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -74,7 +74,7 @@ wut:
     )
     .stdout("hello bye hello-bye-c\n")
     .stderr("echo $FOO $BAR $ABC\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -93,7 +93,7 @@ wut:
 "#,
     )
     .stdout("a b abc\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -109,7 +109,7 @@ recipe:
     )
     .stdout("recipe A-IS-A\n")
     .stderr("echo recipe A-IS-A\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -131,7 +131,7 @@ fn setting_implicit() {
     )
     .stdout("hello\ngoodbye\nhello\n")
     .stderr("echo $A\necho $B\necho $C\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -153,7 +153,7 @@ fn setting_true() {
     .arg("goodbye")
     .stdout("hello\ngoodbye\nhello\n")
     .stderr("echo $A\necho $B\necho $C\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -171,7 +171,7 @@ fn setting_false() {
     )
     .stdout("undefined\n")
     .stderr("if [ -n \"${A+1}\" ]; then echo defined; else echo undefined; fi\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -192,7 +192,7 @@ fn setting_shebang() {
   ",
     )
     .stdout("hello\ngoodbye\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -214,7 +214,7 @@ fn setting_override_undefined() {
     )
     .stdout("undefined\nundefined\n")
     .stderr("echo $B\necho $D\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -232,5 +232,5 @@ fn setting_variable_not_visible() {
     )
     .stdout("undefined\n")
     .stderr("echo $B\n")
-    .run();
+    .success();
 }

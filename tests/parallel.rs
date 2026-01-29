@@ -36,7 +36,7 @@ fn prior_dependencies_run_in_parallel() {
         sleep 1
       ",
     )
-    .run();
+    .success();
 
   assert!(start.elapsed() < Duration::from_secs(2));
 }
@@ -77,7 +77,7 @@ fn subsequent_dependencies_run_in_parallel() {
         sleep 1
       ",
     )
-    .run();
+    .success();
 
   assert!(start.elapsed() < Duration::from_secs(2));
 }
@@ -100,6 +100,5 @@ fn parallel_dependencies_report_errors() {
         error: Recipe `bar` failed on line 5 with exit code 1
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }

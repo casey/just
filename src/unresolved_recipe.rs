@@ -38,8 +38,8 @@ impl<'src> UnresolvedRecipe<'src> {
       .into_iter()
       .zip(resolved)
       .map(|(unresolved, resolved)| Dependency {
+        arguments: resolved.group_arguments(&unresolved.arguments),
         recipe: resolved,
-        arguments: unresolved.arguments,
       })
       .collect();
 

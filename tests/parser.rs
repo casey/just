@@ -9,7 +9,7 @@ fn dont_run_duplicate_recipes() {
       bar:
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -20,7 +20,6 @@ fn invalid_bang_operator() {
       x := if '' !! '' { '' } else { '' }
       ",
     )
-    .status(1)
     .stderr(
       r"
 error: Expected character `=` or `~`
@@ -30,14 +29,13 @@ error: Expected character `=` or `~`
   │             ^
 ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
 fn truncated_bang_operator() {
   Test::new()
     .justfile("x := if '' !")
-    .status(1)
     .stderr(
       r"
 error: Expected character `=` or `~` but found end-of-file
@@ -47,5 +45,5 @@ error: Expected character `=` or `~` but found end-of-file
   │             ^
 ",
     )
-    .run();
+    .failure();
 }

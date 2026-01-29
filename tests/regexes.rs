@@ -17,7 +17,7 @@ fn match_succeeds_evaluates_to_first_branch() {
     )
     .stderr("echo yes\n")
     .stdout("yes\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -37,7 +37,7 @@ fn match_fails_evaluates_to_second_branch() {
     )
     .stderr("echo no\n")
     .stdout("no\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -61,8 +61,7 @@ fn bad_regex_fails_at_runtime() {
       ",
     )
     .stdout("before\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -87,5 +86,5 @@ fn mismatch() {
     ",
     )
     .stdout("mismatch match\n")
-    .run();
+    .success();
 }

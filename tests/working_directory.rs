@@ -26,7 +26,7 @@ fn justfile_without_working_directory() -> Result<(), Box<dyn Error>> {
     data: DATA,
   };
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .arg("--justfile")
     .arg(tmp.path().join("justfile"))
     .output()?;
@@ -52,7 +52,7 @@ fn justfile_without_working_directory_relative() -> Result<(), Box<dyn Error>> {
     data: DATA,
   };
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path())
     .arg("--justfile")
     .arg("justfile")
@@ -80,7 +80,7 @@ fn change_working_directory_to_search_justfile_parent() -> Result<(), Box<dyn Er
     subdir: {},
   };
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path().join("subdir"))
     .output()?;
 
@@ -107,7 +107,7 @@ fn justfile_and_working_directory() -> Result<(), Box<dyn Error>> {
     },
   };
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .arg("--justfile")
     .arg(tmp.path().join("justfile"))
     .arg("--working-directory")
@@ -137,7 +137,7 @@ fn search_dir_child() -> Result<(), Box<dyn Error>> {
     },
   };
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path())
     .arg("child/")
     .output()?;
@@ -165,7 +165,7 @@ fn search_dir_parent() -> Result<(), Box<dyn Error>> {
     data: DATA,
   };
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path().join("child"))
     .arg("../")
     .output()?;
@@ -209,7 +209,7 @@ echo "$(basename "$PWD")"
 "#,
     )
     .stdout("bar\nfoo\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -232,7 +232,7 @@ fn no_cd_overrides_setting() {
     })
     .stderr("cat bar\n")
     .stdout("hello")
-    .run();
+    .success();
 }
 
 #[test]
@@ -251,7 +251,7 @@ set working-directory := 'bar'
     .write("foo/bar/file.txt", "FILE")
     .arg("foo")
     .stdout("FILE")
-    .run();
+    .success();
 }
 
 #[test]
@@ -269,7 +269,7 @@ fn working_dir_applies_to_backticks() {
     )
     .write("foo/file.txt", "FILE")
     .stdout("FILE\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -287,7 +287,7 @@ fn working_dir_applies_to_shell_function() {
     )
     .write("foo/file.txt", "FILE")
     .stdout("FILE\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -308,7 +308,7 @@ file := `cat file.txt`
     .arg("foo")
     .write("foo/bar/file.txt", "FILE")
     .stdout("FILE\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -329,7 +329,7 @@ file := shell('cat file.txt')
     .arg("foo")
     .write("foo/bar/file.txt", "FILE")
     .stdout("FILE\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -350,8 +350,7 @@ fn attribute_duplicate() {
   │  ^^^^^^^^^^^^^^^^^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -366,7 +365,7 @@ fn attribute() {
     )
     .create_dir("foo")
     .expect_file("foo/bar", "baz\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -388,8 +387,7 @@ fn attribute_with_nocd_is_forbidden() {
           │ ^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -406,5 +404,5 @@ fn setting_and_attribute() {
     )
     .create_dir("foo/bar")
     .expect_file("foo/bar/fred", "bob\n")
-    .run();
+    .success();
 }

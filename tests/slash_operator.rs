@@ -6,7 +6,7 @@ fn once() {
     .justfile("x := 'a' / 'b'")
     .args(["--evaluate", "x"])
     .stdout("a/b")
-    .run();
+    .success();
 }
 
 #[test]
@@ -15,7 +15,7 @@ fn twice() {
     .justfile("x := 'a' / 'b' / 'c'")
     .args(["--evaluate", "x"])
     .stdout("a/b/c")
-    .run();
+    .success();
 }
 
 #[test]
@@ -24,7 +24,7 @@ fn no_lhs_once() {
     .justfile("x := / 'a'")
     .args(["--evaluate", "x"])
     .stdout("/a")
-    .run();
+    .success();
 }
 
 #[test]
@@ -33,12 +33,12 @@ fn no_lhs_twice() {
     .justfile("x := / 'a' / 'b'")
     .args(["--evaluate", "x"])
     .stdout("/a/b")
-    .run();
+    .success();
   Test::new()
     .justfile("x := // 'a'")
     .args(["--evaluate", "x"])
     .stdout("//a")
-    .run();
+    .success();
 }
 
 #[test]
@@ -54,8 +54,7 @@ fn no_rhs_once() {
         │           ^
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -76,8 +75,7 @@ fn default_un_parenthesized() {
         │           ^
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -98,8 +96,7 @@ fn no_lhs_un_parenthesized() {
         │       ^
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -113,7 +110,7 @@ fn default_parenthesized() {
     )
     .stderr("echo a/b\n")
     .stdout("a/b\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -127,5 +124,5 @@ fn no_lhs_parenthesized() {
     )
     .stderr("echo /a/b\n")
     .stdout("/a/b\n")
-    .run();
+    .success();
 }

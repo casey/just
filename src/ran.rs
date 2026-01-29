@@ -1,10 +1,10 @@
 use super::*;
 
 #[derive(Default)]
-pub(crate) struct Ran(Mutex<BTreeMap<String, BTreeMap<Vec<String>, Arc<Mutex<bool>>>>>);
+pub(crate) struct Ran(Mutex<BTreeMap<String, BTreeMap<Vec<Vec<String>>, Arc<Mutex<bool>>>>>);
 
 impl Ran {
-  pub(crate) fn mutex(&self, recipe: &Recipe, arguments: &[String]) -> Arc<Mutex<bool>> {
+  pub(crate) fn mutex(&self, recipe: &Recipe, arguments: &[Vec<String>]) -> Arc<Mutex<bool>> {
     self
       .0
       .lock()

@@ -22,7 +22,6 @@ impl<'src, 'run> Scope<'src, 'run> {
 
     for (key, value) in constants() {
       root.bind(Binding {
-        constant: true,
         export: false,
         file_depth: 0,
         name: Name {
@@ -36,6 +35,7 @@ impl<'src, 'run> Scope<'src, 'run> {
             src: key,
           },
         },
+        prelude: true,
         private: false,
         value: (*value).into(),
       });

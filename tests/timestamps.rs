@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn print_timestamps() {
+fn linewise() {
   Test::new()
     .justfile(
       "
@@ -12,11 +12,27 @@ fn print_timestamps() {
     .arg("--timestamp")
     .stderr_regex(concat!(r"\[\d\d:\d\d:\d\d\] echo 'one'", "\n"))
     .stdout("one\n")
-    .run();
+    .success();
 }
 
 #[test]
-fn print_timestamps_with_format_string() {
+fn script() {
+  Test::new()
+    .justfile(
+      "
+     recipe:
+        #!/bin/sh
+        echo 'one'
+    ",
+    )
+    .arg("--timestamp")
+    .stderr_regex(concat!(r"\[\d\d:\d\d:\d\d\] recipe", "\n"))
+    .stdout("one\n")
+    .success();
+}
+
+#[test]
+fn format_string() {
   Test::new()
     .justfile(
       "
@@ -27,5 +43,5 @@ fn print_timestamps_with_format_string() {
     .args(["--timestamp", "--timestamp-format", "%H:%M:%S.%3f"])
     .stderr_regex(concat!(r"\[\d\d:\d\d:\d\d\.\d\d\d] echo 'one'", "\n"))
     .stdout("one\n")
-    .run();
+    .success();
 }

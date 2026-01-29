@@ -6,8 +6,7 @@ fn unstable_not_passed() {
     .arg("--fmt")
     .justfile("")
     .stderr_regex("error: The `--fmt` command is currently unstable..*")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -20,8 +19,7 @@ fn check_without_fmt() {
   --fmt
 (.|\\n)+",
     )
-    .status(2)
-    .run();
+    .status(2);
 }
 
 #[test]
@@ -46,8 +44,7 @@ deps:
     echo '$x'
 "#,
     )
-    .status(EXIT_SUCCESS)
-    .run();
+    .success();
 }
 
 #[test]
@@ -68,8 +65,7 @@ fn check_found_diff() {
     error: Formatted justfile differs from original.
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -80,8 +76,7 @@ fn check_found_diff_quiet() {
     .arg("--check")
     .arg("--quiet")
     .justfile("x:=``\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -95,8 +90,7 @@ fn check_diff_color() {
         .arg("always")
         .stdout("\n    \u{1b}[31m-x:=``\n    \u{1b}[0m\u{1b}[32m+x := ``\n    \u{1b}[0m")
         .stderr("\n    \u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mFormatted justfile differs from original.\u{1b}[0m\n  ")
-        .status(EXIT_FAILURE)
-        .run();
+        .failure();
 }
 
 #[test]
@@ -107,7 +101,7 @@ fn unstable_passed() {
 
   fs::write(&justfile, "x    :=    'hello'   ").unwrap();
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path())
     .arg("--fmt")
     .arg("--unstable")
@@ -139,7 +133,6 @@ fn write_error() {
   let test = Test::with_tempdir(tempdir)
     .no_justfile()
     .args(["--fmt", "--unstable"])
-    .status(EXIT_FAILURE)
     .stderr_regex(if cfg!(windows) {
       r"error: Failed to write justfile to `.*`: Access is denied. \(os error 5\)\n"
     } else {
@@ -156,7 +149,7 @@ fn write_error() {
 
   assert!(output.status.success());
 
-  let _tempdir = test.run();
+  let _tempdir = test.failure();
 
   assert_eq!(
     fs::read_to_string(&justfile_path).unwrap(),
@@ -184,7 +177,7 @@ fn alias_good() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -207,7 +200,7 @@ fn alias_fix_indent() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -224,7 +217,7 @@ fn assignment_singlequote() {
     foo := 'foo'
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -241,7 +234,7 @@ fn assignment_doublequote() {
     foo := "foo"
   "#,
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -262,7 +255,7 @@ fn assignment_indented_singlequote() {
     '''
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -283,7 +276,7 @@ fn assignment_indented_doublequote() {
     """
   "#,
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -300,7 +293,7 @@ fn assignment_backtick() {
     foo := `foo`
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -321,7 +314,7 @@ fn assignment_indented_backtick() {
     ```
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -340,7 +333,7 @@ fn assignment_name() {
     foo := bar
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -357,7 +350,7 @@ fn assignment_parenthesized_expression() {
     foo := ('foo')
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -374,7 +367,7 @@ fn assignment_export() {
     export foo := 'foo'
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -391,7 +384,7 @@ fn assignment_concat_values() {
     foo := 'foo' + 'bar'
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -408,7 +401,7 @@ fn assignment_if_oneline() {
     foo := if 'foo' == 'foo' { 'foo' } else { 'bar' }
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -429,7 +422,7 @@ fn assignment_if_multiline() {
     foo := if 'foo' != 'foo' { 'foo' } else { 'bar' }
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -446,7 +439,7 @@ fn assignment_nullary_function() {
     foo := arch()
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -463,7 +456,7 @@ fn assignment_unary_function() {
     foo := env_var('foo')
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -480,7 +473,7 @@ fn assignment_binary_function() {
     foo := env_var_or_default('foo', 'bar')
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -505,7 +498,7 @@ fn assignment_path_functions() {
   foo5 := extension('foo/bar.baz')
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -524,7 +517,7 @@ fn recipe_ordinary() {
         echo bar
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -545,7 +538,7 @@ fn recipe_with_docstring() {
         echo bar
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -566,7 +559,7 @@ fn recipe_with_comments_in_body() {
         echo bar
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -585,7 +578,7 @@ fn recipe_body_is_comment() {
         # bar
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -606,7 +599,7 @@ fn recipe_several_commands() {
         echo baz
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -625,7 +618,7 @@ fn recipe_quiet() {
         echo bar
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -644,7 +637,7 @@ fn recipe_quiet_command() {
         @echo bar
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -663,7 +656,7 @@ fn recipe_quiet_comment() {
         @# bar
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -682,7 +675,7 @@ fn recipe_ignore_errors() {
         -echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -701,7 +694,7 @@ fn recipe_parameter() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -720,7 +713,7 @@ fn recipe_parameter_default() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -739,7 +732,7 @@ fn recipe_parameter_envar() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -758,7 +751,7 @@ fn recipe_parameter_default_envar() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -777,7 +770,7 @@ fn recipe_parameter_concat() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -796,7 +789,7 @@ fn recipe_parameters() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -815,7 +808,7 @@ fn recipe_parameters_envar() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -834,7 +827,7 @@ fn recipe_variadic_plus() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -853,7 +846,7 @@ fn recipe_variadic_star() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -872,7 +865,7 @@ fn recipe_positional_variadic() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -891,7 +884,7 @@ fn recipe_variadic_default() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -910,7 +903,7 @@ fn recipe_parameter_in_body() {
         echo {{ BAR }}
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -929,7 +922,7 @@ fn recipe_parameter_conditional() {
         echo {{ if 'foo' == 'foo' { 'foo' } else { 'bar' } }}
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -948,7 +941,7 @@ fn recipe_escaped_braces() {
         echo '{{{{BAR}}}}'
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -971,7 +964,7 @@ fn recipe_assignment_in_body() {
         echo $bar
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -996,7 +989,7 @@ fn recipe_dependency() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1021,7 +1014,7 @@ fn recipe_dependency_param() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1046,7 +1039,7 @@ fn recipe_dependency_params() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1077,7 +1070,7 @@ fn recipe_dependencies() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1108,7 +1101,7 @@ fn recipe_dependencies_params() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1125,7 +1118,7 @@ fn set_true_explicit() {
     set export := true
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1142,7 +1135,7 @@ fn set_true_implicit() {
     set export := true
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1159,7 +1152,7 @@ fn set_false() {
     set export := false
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1176,7 +1169,7 @@ fn set_shell() {
     set shell := ['sh', "-c"]
   "#,
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1193,7 +1186,7 @@ fn comment() {
     # foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1212,7 +1205,7 @@ fn comment_multiline() {
     # bar
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1233,7 +1226,7 @@ fn comment_leading() {
     foo := 'bar'
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1254,7 +1247,7 @@ fn comment_trailing() {
     # foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1277,7 +1270,7 @@ fn comment_before_recipe() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1302,7 +1295,7 @@ fn comment_before_docstring_recipe() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1326,7 +1319,7 @@ fn group_recipes() {
         echo bar
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1358,7 +1351,7 @@ fn group_aliases() {
         echo bar
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1377,7 +1370,7 @@ fn group_assignments() {
     bar := 'bar'
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1396,7 +1389,7 @@ fn group_sets() {
     set positional-arguments := true
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1416,7 +1409,7 @@ fn group_comments() {
     # bar
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1438,7 +1431,7 @@ fn separate_recipes_aliases() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1456,7 +1449,7 @@ fn no_trailing_newline() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1477,7 +1470,7 @@ fn subsequent() {
         echo foo
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1486,7 +1479,7 @@ fn exported_parameter() {
     .justfile("foo +$f:")
     .args(["--dump"])
     .stdout("foo +$f:\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1509,7 +1502,7 @@ fn multi_argument_attribute() {
         foo:
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1533,7 +1526,7 @@ fn doc_attribute_suppresses_comment() {
         foo:
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1551,7 +1544,7 @@ fn unchanged_justfiles_are_not_written_to_disk() {
   Test::with_tempdir(tmp)
     .no_justfile()
     .args(["--fmt", "--unstable"])
-    .run();
+    .success();
 }
 
 #[test]
@@ -1568,7 +1561,7 @@ fn if_else() {
         x := if '' == '' { '' } else if '' == '' { '' } else { '' }
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1587,7 +1580,7 @@ fn private_variable() {
         foo := 'bar'
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1609,7 +1602,7 @@ fn module_groups_are_preserved() {
         mod foo
       "#,
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1629,5 +1622,81 @@ fn module_docs_are_preserved() {
         mod foo
       ",
     )
-    .run();
+    .success();
+}
+
+#[test]
+fn arg_attribute_long() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='bar')]
+        @foo bar:
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        [arg('bar', long='bar')]
+        @foo bar:
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn arg_attribute_pattern() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', pattern='bar')]
+        @foo bar:
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        [arg('bar', pattern='bar')]
+        @foo bar:
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn arg_attribute_long_and_pattern() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='foo', pattern='baz')]
+        @foo bar:
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        [arg('bar', long='foo', pattern='baz')]
+        @foo bar:
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn arg_attribute_help() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', help='foo')]
+        @foo bar:
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        [arg('bar', help='foo')]
+        @foo bar:
+      ",
+    )
+    .success();
 }

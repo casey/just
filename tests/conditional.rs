@@ -11,7 +11,7 @@ fn then_branch_unevaluated() {
     )
     .stdout("otherwise\n")
     .stderr("echo otherwise\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -25,7 +25,7 @@ fn otherwise_branch_unevaluated() {
     )
     .stdout("then\n")
     .stderr("echo then\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -39,7 +39,7 @@ fn otherwise_branch_unevaluated_inverted() {
     )
     .stdout("then\n")
     .stderr("echo then\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -53,7 +53,7 @@ fn then_branch_unevaluated_inverted() {
     )
     .stdout("otherwise\n")
     .stderr("echo otherwise\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -67,7 +67,7 @@ fn complex_expressions() {
     )
     .stdout("cd\n")
     .stderr("echo cd\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -90,8 +90,7 @@ fn undefined_lhs() {
       │         ^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -114,8 +113,7 @@ fn undefined_rhs() {
       │               ^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -138,8 +136,7 @@ fn undefined_then() {
       │                    ^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -162,8 +159,7 @@ fn undefined_otherwise() {
       │                                ^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -186,8 +182,7 @@ fn unexpected_op() {
       │            ^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -210,7 +205,7 @@ fn dump() {
         echo {{ a }}
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -226,7 +221,7 @@ fn if_else() {
     )
     .stdout("b\n")
     .stderr("echo b\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -246,8 +241,7 @@ fn missing_else() {
       │                                                      ^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -267,6 +261,5 @@ fn incorrect_else_identifier() {
       │                                                       ^^^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }

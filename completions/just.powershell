@@ -49,6 +49,7 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
             [CompletionResult]::new('--request', '--request', [CompletionResultType]::ParameterName, 'Execute <REQUEST>. For internal testing purposes only. May be changed or removed at any time.')
             [CompletionResult]::new('-s', '-s', [CompletionResultType]::ParameterName, 'Show recipe at <PATH>')
             [CompletionResult]::new('--show', '--show', [CompletionResultType]::ParameterName, 'Show recipe at <PATH>')
+            [CompletionResult]::new('--usage', '--usage', [CompletionResultType]::ParameterName, 'Print recipe usage information')
             [CompletionResult]::new('--check', '--check', [CompletionResultType]::ParameterName, 'Run `--fmt` in ''check'' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.')
             [CompletionResult]::new('--clear-shell-args', '--clear-shell-args', [CompletionResultType]::ParameterName, 'Clear shell arguments')
             [CompletionResult]::new('-n', '-n', [CompletionResultType]::ParameterName, 'Print what just would do without doing it')

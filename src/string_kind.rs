@@ -71,7 +71,7 @@ impl StringKind {
   pub(crate) fn from_string_or_backtick(token: Token) -> CompileResult<Self> {
     Self::from_token_start(token.lexeme()).ok_or_else(|| {
       token.error(CompileErrorKind::Internal {
-        message: "StringKind::from_token: Expected String or Backtick".to_owned(),
+        message: "StringKind::from_token: expected string or backtick".to_owned(),
       })
     })
   }
