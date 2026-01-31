@@ -30,7 +30,9 @@ pub(crate) struct Config {
   pub(crate) list_heading: String,
   pub(crate) list_prefix: String,
   pub(crate) list_submodules: bool,
+  pub(crate) list_alias_color: Option<ansi_term::Color>,
   pub(crate) list_doc_color: Option<ansi_term::Color>,
+  pub(crate) list_group_color: Option<ansi_term::Color>,
   pub(crate) list_recipe_color: Option<ansi_term::Color>,
   pub(crate) load_dotenv: bool,
   pub(crate) no_aliases: bool,
@@ -113,7 +115,9 @@ mod arg {
   pub(crate) const GLOBAL_JUSTFILE: &str = "GLOBAL-JUSTFILE";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
+  pub(crate) const LIST_ALIAS_COLOR: &str = "LIST-ALIAS-COLOR";
   pub(crate) const LIST_DOC_COLOR: &str = "LIST-DOC-COLOR";
+  pub(crate) const LIST_GROUP_COLOR: &str = "LIST-GROUP-COLOR";
   pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
   pub(crate) const LIST_PREFIX: &str = "LIST-PREFIX";
   pub(crate) const LIST_RECIPE_COLOR: &str = "LIST-RECIPE-COLOR";
@@ -314,10 +318,26 @@ impl Config {
           .action(ArgAction::Set),
       )
       .arg(
+        Arg::new(arg::LIST_ALIAS_COLOR)
+          .long("list-alias-color")
+          .env("JUST_LIST_ALIAS_COLOR")
+          .help("Color for alias annotations in list. Supports: color names (blue, green), hex (#f9e2af), RGB (249,226,175)")
+          .value_name("COLOR")
+          .action(ArgAction::Set),
+      )
+      .arg(
         Arg::new(arg::LIST_DOC_COLOR)
           .long("list-doc-color")
           .env("JUST_LIST_DOC_COLOR")
           .help("Color for documentation comments in list. Supports: color names (blue, green), hex (#f9e2af), RGB (249,226,175)")
+          .value_name("COLOR")
+          .action(ArgAction::Set),
+      )
+      .arg(
+        Arg::new(arg::LIST_GROUP_COLOR)
+          .long("list-group-color")
+          .env("JUST_LIST_GROUP_COLOR")
+          .help("Color for group headers in list. Supports: color names (blue, green), hex (#f9e2af), RGB (249,226,175)")
           .value_name("COLOR")
           .action(ArgAction::Set),
       )
@@ -851,12 +871,26 @@ impl Config {
       list_heading: matches.get_one::<String>(arg::LIST_HEADING).unwrap().into(),
       list_prefix: matches.get_one::<String>(arg::LIST_PREFIX).unwrap().into(),
       list_submodules: matches.get_flag(arg::LIST_SUBMODULES),
+      list_alias_color: matches
+        .get_one::<String>(arg::LIST_ALIAS_COLOR)
+        .map(|s| parse_color(s))
+        .transpose()
+        .map_err(|e| ConfigError::Internal {
+          message: format!("Invalid --list-alias-color: {e}"),
+        })?,
       list_doc_color: matches
         .get_one::<String>(arg::LIST_DOC_COLOR)
         .map(|s| parse_color(s))
         .transpose()
         .map_err(|e| ConfigError::Internal {
           message: format!("Invalid --list-doc-color: {e}"),
+        })?,
+      list_group_color: matches
+        .get_one::<String>(arg::LIST_GROUP_COLOR)
+        .map(|s| parse_color(s))
+        .transpose()
+        .map_err(|e| ConfigError::Internal {
+          message: format!("Invalid --list-group-color: {e}"),
         })?,
       list_recipe_color: matches
         .get_one::<String>(arg::LIST_RECIPE_COLOR)

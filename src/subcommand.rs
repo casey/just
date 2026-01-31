@@ -480,7 +480,7 @@ impl Subcommand {
       let print_aliases = || {
         print!(
           " {}",
-          color.alias().paint(&format!(
+          color.list_alias(config.list_alias_color).paint(&format!(
             "[alias{}: {}]",
             if aliases.len() == 1 { "" } else { "es" },
             aliases.join(", ")
@@ -631,7 +631,7 @@ impl Subcommand {
         if let Some(group) = &group {
           println!(
             "{list_prefix}{}",
-            config.color.stdout().group().paint(&format!("[{group}]"))
+            config.color.stdout().list_group(config.list_group_color).paint(&format!("[{group}]"))
           );
         }
       }

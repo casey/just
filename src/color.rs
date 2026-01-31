@@ -51,11 +51,27 @@ impl Color {
     })
   }
 
+  pub(crate) fn list_alias(self, foreground: Option<ansi_term::Color>) -> Self {
+    if let Some(color) = foreground {
+      self.restyle(Style::new().fg(color))
+    } else {
+      self.alias()
+    }
+  }
+
   pub(crate) fn list_doc(self, foreground: Option<ansi_term::Color>) -> Self {
     if let Some(color) = foreground {
       self.restyle(Style::new().fg(color))
     } else {
       self.doc()
+    }
+  }
+
+  pub(crate) fn list_group(self, foreground: Option<ansi_term::Color>) -> Self {
+    if let Some(color) = foreground {
+      self.restyle(Style::new().fg(color).bold())
+    } else {
+      self.group()
     }
   }
 
