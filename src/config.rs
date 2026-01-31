@@ -1,5 +1,6 @@
 use {
   super::*,
+  crate::command_color::parse_color,
   clap::{
     builder::{
       styling::{AnsiColor, Effects},
@@ -29,6 +30,8 @@ pub(crate) struct Config {
   pub(crate) list_heading: String,
   pub(crate) list_prefix: String,
   pub(crate) list_submodules: bool,
+  pub(crate) list_doc_color: Option<ansi_term::Color>,
+  pub(crate) list_recipe_color: Option<ansi_term::Color>,
   pub(crate) load_dotenv: bool,
   pub(crate) no_aliases: bool,
   pub(crate) no_dependencies: bool,
@@ -110,8 +113,10 @@ mod arg {
   pub(crate) const GLOBAL_JUSTFILE: &str = "GLOBAL-JUSTFILE";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
+  pub(crate) const LIST_DOC_COLOR: &str = "LIST-DOC-COLOR";
   pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
   pub(crate) const LIST_PREFIX: &str = "LIST-PREFIX";
+  pub(crate) const LIST_RECIPE_COLOR: &str = "LIST-RECIPE-COLOR";
   pub(crate) const LIST_SUBMODULES: &str = "LIST-SUBMODULES";
   pub(crate) const NO_ALIASES: &str = "NO-ALIASES";
   pub(crate) const NO_DEPS: &str = "NO-DEPS";
@@ -306,6 +311,22 @@ impl Config {
           .help("Print <TEXT> before each list item")
           .value_name("TEXT")
           .default_value("    ")
+          .action(ArgAction::Set),
+      )
+      .arg(
+        Arg::new(arg::LIST_DOC_COLOR)
+          .long("list-doc-color")
+          .env("JUST_LIST_DOC_COLOR")
+          .help("Color for documentation comments in list. Supports: color names (blue, green), hex (#f9e2af), RGB (249,226,175)")
+          .value_name("COLOR")
+          .action(ArgAction::Set),
+      )
+      .arg(
+        Arg::new(arg::LIST_RECIPE_COLOR)
+          .long("list-recipe-color")
+          .env("JUST_LIST_RECIPE_COLOR")
+          .help("Color for recipe names in list. Supports: color names (blue, green), hex (#f9e2af), RGB (249,226,175)")
+          .value_name("COLOR")
           .action(ArgAction::Set),
       )
       .arg(
@@ -830,6 +851,20 @@ impl Config {
       list_heading: matches.get_one::<String>(arg::LIST_HEADING).unwrap().into(),
       list_prefix: matches.get_one::<String>(arg::LIST_PREFIX).unwrap().into(),
       list_submodules: matches.get_flag(arg::LIST_SUBMODULES),
+      list_doc_color: matches
+        .get_one::<String>(arg::LIST_DOC_COLOR)
+        .map(|s| parse_color(s))
+        .transpose()
+        .map_err(|e| ConfigError::Internal {
+          message: format!("Invalid --list-doc-color: {e}"),
+        })?,
+      list_recipe_color: matches
+        .get_one::<String>(arg::LIST_RECIPE_COLOR)
+        .map(|s| parse_color(s))
+        .transpose()
+        .map_err(|e| ConfigError::Internal {
+          message: format!("Invalid --list-recipe-color: {e}"),
+        })?,
       load_dotenv: !matches.get_flag(arg::NO_DOTENV),
       no_aliases: matches.get_flag(arg::NO_ALIASES),
       no_dependencies: matches.get_flag(arg::NO_DEPS),

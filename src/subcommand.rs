@@ -472,7 +472,7 @@ impl Subcommand {
         print!(
           "{:padding$}{}",
           "",
-          color.doc().paint("#"),
+          color.list_doc(config.list_doc_color).paint("#"),
           padding = max_signature_width.saturating_sub(signature_widths[name]) + 1,
         );
       }
@@ -498,7 +498,7 @@ impl Subcommand {
         for backtick in BACKTICK_RE.find_iter(doc) {
           let prefix = &doc[end..backtick.start()];
           if !prefix.is_empty() {
-            print!("{}", color.doc().paint(prefix));
+            print!("{}", color.list_doc(config.list_doc_color).paint(prefix));
           }
           print!("{}", color.doc_backtick().paint(backtick.as_str()));
           end = backtick.end();
@@ -506,7 +506,7 @@ impl Subcommand {
 
         let suffix = &doc[end..];
         if !suffix.is_empty() {
-          print!("{}", color.doc().paint(suffix));
+          print!("{}", color.list_doc(config.list_doc_color).paint(suffix));
         }
       }
 
@@ -659,8 +659,8 @@ impl Subcommand {
                 for line in doc.lines() {
                   println!(
                     "{list_prefix}{} {}",
-                    config.color.stdout().doc().paint("#"),
-                    config.color.stdout().doc().paint(line),
+                    config.color.stdout().list_doc(config.list_doc_color).paint("#"),
+                    config.color.stdout().list_doc(config.list_doc_color).paint(line),
                   );
                 }
               }
@@ -668,8 +668,11 @@ impl Subcommand {
 
             print!(
               "{list_prefix}{}",
-              RecipeSignature { name, recipe }.color_display(config.color.stdout())
+              config.color.stdout().list_recipe(config.list_recipe_color).paint(name)
             );
+            for parameter in &recipe.parameters {
+              print!(" {}", parameter.color_display(config.color.stdout()));
+            }
 
             print_doc_and_aliases(
               config,

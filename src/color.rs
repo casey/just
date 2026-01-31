@@ -51,6 +51,22 @@ impl Color {
     })
   }
 
+  pub(crate) fn list_doc(self, foreground: Option<ansi_term::Color>) -> Self {
+    if let Some(color) = foreground {
+      self.restyle(Style::new().fg(color))
+    } else {
+      self.doc()
+    }
+  }
+
+  pub(crate) fn list_recipe(self, foreground: Option<ansi_term::Color>) -> Self {
+    if let Some(color) = foreground {
+      self.restyle(Style::new().fg(color))
+    } else {
+      self.restyle(Style::new())
+    }
+  }
+
   pub(crate) fn context(self) -> Self {
     self.restyle(Style::new().fg(Blue).bold())
   }
