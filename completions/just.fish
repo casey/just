@@ -35,6 +35,10 @@ just\t''"
 complete -c just -s f -l justfile -d 'Use <JUSTFILE> as justfile' -r -F
 complete -c just -l list-heading -d 'Print <TEXT> before list' -r
 complete -c just -l list-prefix -d 'Print <TEXT> before each list item' -r
+complete -c just -l list-alias-color -d 'Color for alias annotations in list. Supports color names, hex codes (#RRGGBB), and RGB values (R,G,B)' -r
+complete -c just -l list-doc-color -d 'Color for documentation comments in list. Supports color names, hex codes (#RRGGBB), and RGB values (R,G,B)' -r
+complete -c just -l list-group-color -d 'Color for group headers in list. Supports color names, hex codes (#RRGGBB), and RGB values (R,G,B)' -r
+complete -c just -l list-recipe-color -d 'Color for recipe names in list. Supports color names, hex codes (#RRGGBB), and RGB values (R,G,B)' -r
 complete -c just -l set -d 'Override <VARIABLE> with <VALUE>' -r
 complete -c just -l shell -d 'Invoke <SHELL> to run recipes' -r
 complete -c just -l shell-arg -d 'Invoke shell with <SHELL-ARG> as an argument' -r

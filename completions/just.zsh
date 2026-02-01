@@ -29,6 +29,10 @@ _just() {
 '--justfile=[Use <JUSTFILE> as justfile]: :_files' \
 '--list-heading=[Print <TEXT> before list]:TEXT:_default' \
 '--list-prefix=[Print <TEXT> before each list item]:TEXT:_default' \
+'--list-alias-color=[Color for alias annotations in list. Supports color names, hex codes (#RRGGBB), and RGB values (R,G,B)]:COLOR:_default' \
+'--list-doc-color=[Color for documentation comments in list. Supports color names, hex codes (#RRGGBB), and RGB values (R,G,B)]:COLOR:_default' \
+'--list-group-color=[Color for group headers in list. Supports color names, hex codes (#RRGGBB), and RGB values (R,G,B)]:COLOR:_default' \
+'--list-recipe-color=[Color for recipe names in list. Supports color names, hex codes (#RRGGBB), and RGB values (R,G,B)]:COLOR:_default' \
 '*--set=[Override <VARIABLE> with <VALUE>]: :(_just_variables)' \
 '--shell=[Invoke <SHELL> to run recipes]: :_default' \
 '*--shell-arg=[Invoke shell with <SHELL-ARG> as an argument]: :_default' \

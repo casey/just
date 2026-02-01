@@ -146,8 +146,7 @@ complete -c just -a '(__fish_just_complete_recipes)'
 '--show=[Show recipe at <PATH>]: :(_just_commands)' \",
     ),
     (
-      "'*::ARGUMENTS -- Overrides and recipe(s) to run, defaulting to the first recipe in the \
-     justfile:_default' \\
+      "'*::ARGUMENTS -- Overrides and recipe(s) to run, defaulting to listing recipes:_default' \\
 && ret=0",
       r#")
 

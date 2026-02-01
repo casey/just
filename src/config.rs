@@ -321,7 +321,7 @@ impl Config {
         Arg::new(arg::LIST_ALIAS_COLOR)
           .long("list-alias-color")
           .env("JUST_LIST_ALIAS_COLOR")
-          .help("Color for alias annotations in list. Supports: color names (blue, green), hex (#f9e2af), RGB (249,226,175)")
+          .help("Color for alias annotations in list. Supports color names, hex codes (#RRGGBB), and RGB values (R,G,B)")
           .value_name("COLOR")
           .action(ArgAction::Set),
       )
@@ -329,7 +329,7 @@ impl Config {
         Arg::new(arg::LIST_DOC_COLOR)
           .long("list-doc-color")
           .env("JUST_LIST_DOC_COLOR")
-          .help("Color for documentation comments in list. Supports: color names (blue, green), hex (#f9e2af), RGB (249,226,175)")
+          .help("Color for documentation comments in list. Supports color names, hex codes (#RRGGBB), and RGB values (R,G,B)")
           .value_name("COLOR")
           .action(ArgAction::Set),
       )
@@ -337,7 +337,7 @@ impl Config {
         Arg::new(arg::LIST_GROUP_COLOR)
           .long("list-group-color")
           .env("JUST_LIST_GROUP_COLOR")
-          .help("Color for group headers in list. Supports: color names (blue, green), hex (#f9e2af), RGB (249,226,175)")
+          .help("Color for group headers in list. Supports color names, hex codes (#RRGGBB), and RGB values (R,G,B)")
           .value_name("COLOR")
           .action(ArgAction::Set),
       )
@@ -345,7 +345,7 @@ impl Config {
         Arg::new(arg::LIST_RECIPE_COLOR)
           .long("list-recipe-color")
           .env("JUST_LIST_RECIPE_COLOR")
-          .help("Color for recipe names in list. Supports: color names (blue, green), hex (#f9e2af), RGB (249,226,175)")
+          .help("Color for recipe names in list. Supports color names, hex codes (#RRGGBB), and RGB values (R,G,B)")
           .value_name("COLOR")
           .action(ArgAction::Set),
       )
@@ -662,7 +662,7 @@ impl Config {
         Arg::new(arg::ARGUMENTS)
           .num_args(1..)
           .action(ArgAction::Append)
-          .help("Overrides and recipe(s) to run, defaulting to the first recipe in the justfile"),
+          .help("Overrides and recipe(s) to run, defaulting to listing recipes"),
       )
   }
 
@@ -833,6 +833,13 @@ impl Config {
       }
     } else if matches.get_flag(cmd::VARIABLES) {
       Subcommand::Variables
+    } else if positional.arguments.is_empty() && overrides.is_empty() {
+      Subcommand::List {
+        path: ModulePath {
+          path: Vec::new(),
+          spaced: false,
+        },
+      }
     } else {
       Subcommand::Run {
         arguments: positional.arguments,
@@ -1243,8 +1250,11 @@ mod tests {
     name: set_default,
     args: [],
     overrides: map!(),
-    subcommand: Subcommand::Run {
-      arguments: Vec::new(),
+    subcommand: Subcommand::List {
+      path: ModulePath {
+        path: Vec::new(),
+        spaced: false,
+      },
     },
   }
 
@@ -1343,8 +1353,11 @@ mod tests {
     name: subcommand_default,
     args: [],
     overrides: map!{},
-    subcommand: Subcommand::Run {
-      arguments: Vec::new(),
+    subcommand: Subcommand::List {
+      path: ModulePath {
+        path: Vec::new(),
+        spaced: false,
+      },
     },
   }
 

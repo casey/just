@@ -30,7 +30,7 @@ _just() {
 
     case "${cmd}" in
         just)
-            opts="-E -n -g -f -q -u -v -d -c -e -l -s -h -V --alias-style --ceiling --check --chooser --clear-shell-args --color --command-color --cygpath --dotenv-filename --dotenv-path --dry-run --dump-format --explain --global-justfile --highlight --justfile --list-heading --list-prefix --list-submodules --no-aliases --no-deps --no-dotenv --no-highlight --one --quiet --allow-missing --set --shell --shell-arg --shell-command --tempdir --timestamp --timestamp-format --unsorted --unstable --verbose --working-directory --yes --changelog --choose --command --completions --dump --edit --evaluate --fmt --groups --init --list --man --request --show --summary --usage --variables --help --version [ARGUMENTS]..."
+            opts="-E -n -g -f -q -u -v -d -c -e -l -s -h -V --alias-style --ceiling --check --chooser --clear-shell-args --color --command-color --cygpath --dotenv-filename --dotenv-path --dry-run --dump-format --explain --global-justfile --highlight --justfile --list-heading --list-prefix --list-alias-color --list-doc-color --list-group-color --list-recipe-color --list-submodules --no-aliases --no-deps --no-dotenv --no-highlight --one --quiet --allow-missing --set --shell --shell-arg --shell-command --tempdir --timestamp --timestamp-format --unsorted --unstable --verbose --working-directory --yes --changelog --choose --command --completions --dump --edit --evaluate --fmt --groups --init --list --man --request --show --summary --usage --variables --help --version [ARGUMENTS]..."
                 if [[ ${cur} == -* ]] ; then
                     COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                     return 0
@@ -105,6 +105,22 @@ _just() {
                     return 0
                     ;;
                 --list-prefix)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --list-alias-color)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --list-doc-color)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --list-group-color)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --list-recipe-color)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
