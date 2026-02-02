@@ -1,12 +1,11 @@
 fn main() {
-  let target_os = std::env::var("CARGO_CFG_TARGET_OS");
-  let target_env = std::env::var("CARGO_CFG_TARGET_ENV");
-
-  if target_os.as_deref() == Ok("windows") {
-    if target_env.as_deref() == Ok("msvc") {
-      println!("cargo::rustc-link-arg=/STACK:8388608");
-    } else if target_env.as_deref() == Ok("gnu") {
-      println!("cargo::rustc-link-arg=-Wl,--stack,8388608");
+  let os = std::env::var("CARGO_CFG_TARGET_OS").unwrap();
+  let env = std::env::var("CARGO_CFG_TARGET_ENV").unwrap();
+  if os == "windows" {
+    if env == "msvc" {
+      println!("cargo::rustc-link-arg=/STACK:2097152");
+    } else if env == "gnu" {
+      println!("cargo::rustc-link-arg=-Wl,--stack,2097152");
     }
   }
 }
