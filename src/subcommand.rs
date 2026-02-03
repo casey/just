@@ -83,7 +83,7 @@ impl Subcommand {
       &config.search_config,
     )?;
 
-    if let Edit = self {
+    if matches!(self, Edit) {
       return Self::edit(&search);
     }
 
@@ -617,10 +617,8 @@ impl Subcommand {
     }
 
     let no_groups = ordered_groups.len() == 1 && ordered_groups.first() == Some(&None);
-    let mut groups_count = 0;
-    if !no_groups {
-      groups_count = ordered_groups.len();
-    }
+
+    let groups_count = if no_groups { 0 } else { ordered_groups.len() };
 
     for (i, group) in ordered_groups.into_iter().enumerate() {
       if i > 0 {
