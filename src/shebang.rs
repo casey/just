@@ -30,7 +30,7 @@ impl<'line> Shebang<'line> {
     })
   }
 
-  pub fn interpreter_filename(&self) -> &str {
+  pub(crate) fn interpreter_filename(&self) -> &str {
     self
       .interpreter
       .split(['/', '\\'])
