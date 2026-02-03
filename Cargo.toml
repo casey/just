@@ -70,23 +70,25 @@ unreachable_pub = "deny"
 
 [lints.clippy]
 all = { level = "deny", priority = -1 }
-arbitrary-source-item-ordering = "deny"
-enum-glob-use = "allow"
-ignore-without-reason = "allow"
-missing-const-for-fn = "allow"
-needless-pass-by-value = "allow"
-nursery = { level = "deny", priority = -1 }
+arbitrary_source_item_ordering = "deny"
+derive_partial_eq_without_eq = "allow"
+enum_glob_use = "allow"
+ignore_without_reason = "allow"
+missing_const_for_fn = "allow"
+needless_pass_by_value = "allow"
+option_if_let_else = "allow"
 pedantic = { level = "deny", priority = -1 }
-redundant-pub-crate = "allow"
-similar-names = "allow"
-struct-excessive-bools = "allow"
-struct-field-names = "allow"
-too-many-arguments = "allow"
-too-many-lines = "allow"
-type-complexity = "allow"
-undocumented-unsafe-blocks = "deny"
-unnecessary-wraps = "allow"
-wildcard-imports = "allow"
+redundant_pub_crate = "allow"
+similar_names = "allow"
+struct_excessive_bools = "allow"
+struct_field_names = "allow"
+too_many_arguments = "allow"
+too_many_lines = "allow"
+type_complexity = "allow"
+undocumented_unsafe_blocks = "deny"
+unnecessary_wraps = "allow"
+useless_let_if_seq = "allow"
+wildcard_imports = "allow"
 
 [lib]
 doctest = false
