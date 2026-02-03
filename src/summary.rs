@@ -184,42 +184,42 @@ impl Assignment {
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub enum Expression {
   And {
-    lhs: Box<Expression>,
-    rhs: Box<Expression>,
+    lhs: Box<Self>,
+    rhs: Box<Self>,
   },
   Assert {
     condition: Condition,
-    error: Box<Expression>,
+    error: Box<Self>,
   },
   Backtick {
     command: String,
   },
   Call {
     name: String,
-    arguments: Vec<Expression>,
+    arguments: Vec<Self>,
   },
   Concatenation {
-    lhs: Box<Expression>,
-    rhs: Box<Expression>,
+    lhs: Box<Self>,
+    rhs: Box<Self>,
   },
   Conditional {
-    lhs: Box<Expression>,
-    rhs: Box<Expression>,
-    then: Box<Expression>,
-    otherwise: Box<Expression>,
+    lhs: Box<Self>,
+    rhs: Box<Self>,
+    then: Box<Self>,
+    otherwise: Box<Self>,
     operator: ConditionalOperator,
   },
   FormatString {
     start: String,
-    expressions: Vec<(Expression, String)>,
+    expressions: Vec<(Self, String)>,
   },
   Join {
-    lhs: Option<Box<Expression>>,
-    rhs: Box<Expression>,
+    lhs: Option<Box<Self>>,
+    rhs: Box<Self>,
   },
   Or {
-    lhs: Box<Expression>,
-    rhs: Box<Expression>,
+    lhs: Box<Self>,
+    rhs: Box<Self>,
   },
   String {
     text: String,
@@ -241,13 +241,13 @@ impl Expression {
         condition: full::Condition { lhs, rhs, operator },
         error,
         ..
-      } => Expression::Assert {
+      } => Self::Assert {
         condition: Condition {
-          lhs: Box::new(Expression::new(lhs)),
-          rhs: Box::new(Expression::new(rhs)),
+          lhs: Box::new(Self::new(lhs)),
+          rhs: Box::new(Self::new(rhs)),
           operator: ConditionalOperator::new(*operator),
         },
-        error: Box::new(Expression::new(error)),
+        error: Box::new(Self::new(error)),
       },
       Backtick { contents, .. } => Self::Backtick {
         command: (*contents).clone(),
@@ -281,11 +281,11 @@ impl Expression {
           args: (a, rest),
           ..
         } => {
-          let mut arguments = vec![Expression::new(a)];
+          let mut arguments = vec![Self::new(a)];
           for arg in rest {
-            arguments.push(Expression::new(arg));
+            arguments.push(Self::new(arg));
           }
-          Expression::Call {
+          Self::Call {
             name: name.lexeme().to_owned(),
             arguments,
           }

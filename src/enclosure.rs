@@ -6,7 +6,7 @@ pub(crate) struct Enclosure<T: Display> {
 }
 
 impl<T: Display> Enclosure<T> {
-  pub(crate) fn tick(value: T) -> Enclosure<T> {
+  pub(crate) fn tick(value: T) -> Self {
     Self {
       enclosure: "`",
       value,

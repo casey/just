@@ -11,7 +11,7 @@ impl<'src> CompileError<'src> {
     self.token
   }
 
-  pub(crate) fn new(token: Token<'src>, kind: CompileErrorKind<'src>) -> CompileError<'src> {
+  pub(crate) fn new(token: Token<'src>, kind: CompileErrorKind<'src>) -> Self {
     Self {
       token,
       kind: kind.into(),

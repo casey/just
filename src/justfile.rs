@@ -12,7 +12,7 @@ pub(crate) struct Justfile<'src> {
   pub(crate) loaded: Vec<PathBuf>,
   #[serde(skip)]
   pub(crate) module_path: String,
-  pub(crate) modules: Table<'src, Justfile<'src>>,
+  pub(crate) modules: Table<'src, Self>,
   #[serde(skip)]
   pub(crate) name: Option<Name<'src>>,
   #[serde(skip)]
@@ -80,7 +80,7 @@ impl<'src> Justfile<'src> {
     config: &'run Config,
     dotenv: &'run BTreeMap<String, String>,
     root: &'run Scope<'src, 'run>,
-    scopes: &mut BTreeMap<String, (&'run Justfile<'src>, &'run Scope<'src, 'run>)>,
+    scopes: &mut BTreeMap<String, (&'run Self, &'run Scope<'src, 'run>)>,
     search: &'run Search,
   ) -> RunResult<'src> {
     let scope = Evaluator::evaluate_assignments(config, dotenv, self, root, search)?;
@@ -265,7 +265,7 @@ impl<'src> Justfile<'src> {
     is_dependency: bool,
     ran: &Ran,
     recipe: &Recipe<'src>,
-    scopes: &BTreeMap<String, (&Justfile<'src>, &Scope<'src, '_>)>,
+    scopes: &BTreeMap<String, (&Self, &Scope<'src, '_>)>,
     search: &Search,
   ) -> RunResult<'src> {
     let mutex = ran.mutex(recipe, arguments);
@@ -345,7 +345,7 @@ impl<'src> Justfile<'src> {
     evaluator: &mut Evaluator<'src, 'run>,
     ran: &Ran,
     recipe: &Recipe<'src>,
-    scopes: &BTreeMap<String, (&Justfile<'src>, &Scope<'src, 'run>)>,
+    scopes: &BTreeMap<String, (&Self, &Scope<'src, 'run>)>,
     search: &Search,
   ) -> RunResult<'src> {
     if context.config.no_dependencies {

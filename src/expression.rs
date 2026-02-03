@@ -9,15 +9,12 @@ use super::*;
 #[derive(PartialEq, Debug, Clone)]
 pub(crate) enum Expression<'src> {
   /// `lhs && rhs`
-  And {
-    lhs: Box<Expression<'src>>,
-    rhs: Box<Expression<'src>>,
-  },
+  And { lhs: Box<Self>, rhs: Box<Self> },
   /// `assert(condition, error)`
   Assert {
     name: Name<'src>,
     condition: Condition<'src>,
-    error: Box<Expression<'src>>,
+    error: Box<Self>,
   },
   /// `contents`
   Backtick {
@@ -27,33 +24,27 @@ pub(crate) enum Expression<'src> {
   /// `name(arguments)`
   Call { thunk: Thunk<'src> },
   /// `lhs + rhs`
-  Concatenation {
-    lhs: Box<Expression<'src>>,
-    rhs: Box<Expression<'src>>,
-  },
+  Concatenation { lhs: Box<Self>, rhs: Box<Self> },
   /// `if condition { then } else { otherwise }`
   Conditional {
     condition: Condition<'src>,
-    then: Box<Expression<'src>>,
-    otherwise: Box<Expression<'src>>,
+    then: Box<Self>,
+    otherwise: Box<Self>,
   },
   // `f"format string"`
   FormatString {
     start: StringLiteral<'src>,
-    expressions: Vec<(Expression<'src>, StringLiteral<'src>)>,
+    expressions: Vec<(Self, StringLiteral<'src>)>,
   },
   /// `(contents)`
-  Group { contents: Box<Expression<'src>> },
+  Group { contents: Box<Self> },
   /// `lhs / rhs`
   Join {
-    lhs: Option<Box<Expression<'src>>>,
-    rhs: Box<Expression<'src>>,
+    lhs: Option<Box<Self>>,
+    rhs: Box<Self>,
   },
   /// `lhs || rhs`
-  Or {
-    lhs: Box<Expression<'src>>,
-    rhs: Box<Expression<'src>>,
-  },
+  Or { lhs: Box<Self>, rhs: Box<Self> },
   /// `"string_literal"` or `'string_literal'`
   StringLiteral { string_literal: StringLiteral<'src> },
   /// `variable`
