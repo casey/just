@@ -61,10 +61,19 @@ mod tests {
 
   fn clap(shell: clap_complete::Shell) -> String {
     fn replace(haystack: &mut String, needle: &str, replacement: &str) {
-      if let Some(index) = haystack.find(needle) {
-        haystack.replace_range(index..index + needle.len(), replacement);
-      } else {
-        panic!("Failed to find text:\n{needle}\n…in completion script:\n{haystack}")
+      let matches = haystack
+        .match_indices(needle)
+        .map(|(index, str)| (index, str.to_string()))
+        .collect::<Vec<_>>();
+
+      assert!(
+        !matches.is_empty(),
+        "Failed to find text:\n{needle}\n…in completion script:\n{haystack}"
+      );
+
+      // Replace in reverse order to keep indices valid
+      for (index, str) in matches.iter().rev() {
+        haystack.replace_range(*index..*index + str.len(), replacement);
       }
     }
 
@@ -244,10 +253,24 @@ _just "$@""#,
     ),
   ];
 
-  const POWERSHELL_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[(
-    r#"$completions.Where{ $_.CompletionText -like "$wordToComplete*" } |
+  const POWERSHELL_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
+    (
+      r"using namespace System.Management.Automation
+using namespace System.Management.Automation.Language",
+      "",
+    ),
+    (
+      r"$completions = @(switch ($command) {",
+      r"$CompletionResult = [System.Management.Automation.CompletionResult]
+    $CompletionResultType = [System.Management.Automation.CompletionResultType]
+    $completions = @(switch ($command) {",
+    ),
+    (r"[CompletionResult]", r"$CompletionResult"),
+    (r"[CompletionResultType]", r"$CompletionResultType"),
+    (
+      r#"$completions.Where{ $_.CompletionText -like "$wordToComplete*" } |
         Sort-Object -Property ListItemText"#,
-    r#"function Get-JustFileRecipes([string[]]$CommandElements) {
+      r#"function Get-JustFileRecipes([string[]]$CommandElements) {
         $justFileIndex = $commandElements.IndexOf("--justfile");
 
         if ($justFileIndex -ne -1 -and $justFileIndex + 1 -le $commandElements.Length) {
@@ -260,8 +283,56 @@ _just "$@""#,
             $justArgs += @("--justfile", $justFileLocation)
         }
 
-        $recipes = $(just @justArgs) -split ' '
-        return $recipes | ForEach-Object { [CompletionResult]::new($_) }
+        $justDump = just --dump --dump-format json | ConvertFrom-Json
+
+        # Create a lookup table for aliases (target -> alias names)
+        $aliasesMap = @{}
+        $justDump.aliases.PSObject.Properties | ForEach-Object {
+            $target = $_.Value.target
+            if (-not $aliasesMap[$target]) {
+                $aliasesMap[$target] = @()
+            }
+            $aliasesMap[$target] += $_.Value.name
+        }
+
+        # Extract recipes with all info, filtering out private ones
+        $recipes = $justDump.recipes.PSObject.Properties | Where-Object {
+            -not $_.Value.private
+        } | ForEach-Object {
+            $recipeName = $_.Name
+            $recipe = $_.Value
+
+            [PSCustomObject]@{
+                Name = $recipeName
+                Args = ($recipe.parameters | ForEach-Object { $_.name }) -join ' '
+                Description = $recipe.doc
+                Aliases = ($aliasesMap[$recipeName] -join ', ')
+            }
+        }
+
+        return $recipes | foreach {
+          $recipeAliases = if ($_.Aliases.Length -eq 1) {
+              " [alias: $($_.Aliases)]"
+          } elseif ($_.Aliases.Length -gt 1) {
+              " [aliases: $($_.Aliases)]"
+          } else {
+              ""
+          }
+
+          $recipeArgs = if ($_.Args.Length -gt 0) {
+              "Args: $($_.Args) --"
+          } else {
+              ""
+          }
+
+          $recipeDescription = if ($_.Description.Length -gt 0) {
+            " $($_.Description)"
+          } else {
+            " <$($_.Name)>"
+          }
+
+          $CompletionResult::new($_.Name, $_.Name, $CompletionResultType::ParameterName, "$recipeArgs$recipeDescription$recipeAliases")
+        }
     }
 
     $elementValues = $commandElements | Select-Object -ExpandProperty Value
@@ -269,7 +340,8 @@ _just "$@""#,
     $completions += $recipes
     $completions.Where{ $_.CompletionText -like "$wordToComplete*" } |
         Sort-Object -Property ListItemText"#,
-  )];
+    ),
+  ];
 
   const BASH_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[
     (
