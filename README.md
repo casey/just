@@ -2139,7 +2139,7 @@ change their behavior.
 | `[confirm(PROMPT)]`<sup>1.23.0</sup> | recipe | Require confirmation prior to executing recipe with a custom prompt. |
 | `[default]`<sup>1.43.0</sup> | recipe | Use recipe as module's default recipe. |
 | `[doc(DOC)]`<sup>1.27.0</sup> | module, recipe | Set recipe or module's [documentation comment](#documentation-comments) to `DOC`. |
-| `[env(ENV_VAR, VALUE)]` <sup>master</sup> | recipe | Set env vars that apply only to this recipe. |
+| `[env(ENV_VAR, VALUE)]` <sup>master</sup> | recipe | Set environment variables for recipe. |
 | `[extension(EXT)]`<sup>1.32.0</sup> | recipe | Set shebang recipe script's file extension to `EXT`. `EXT` should include a period if one is desired. |
 | `[group(NAME)]`<sup>1.27.0</sup> | module, recipe | Put recipe or module in [group](#groups) `NAME`. |
 | `[linux]`<sup>1.8.0</sup> | recipe | Enable recipe on Linux. |
@@ -2519,11 +2519,10 @@ test $RUST_BACKTRACE="1":
   cargo test
 ```
 
-You can also use the `[env(NAME, VALUE)]` attribute to export environment variables to a specific recipe:
-apply only to this recipe:
+You can also use the `[env(NAME, VALUE)]` attribute to export environment
+variables to a specific recipe:
 
 ```just
-
 [env("RUST_BACKTRACE", "1")]
 test:
   # will print a stack trace if it crashes
