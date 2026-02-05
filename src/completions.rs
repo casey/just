@@ -279,7 +279,7 @@ using namespace System.Management.Automation.Language",
 
         $justArgs = @("--summary")
 
-        if (Test-Path $justFileLocation) {
+        if ($justFileLocation.Length -gt 0 -and $(Test-Path $justFileLocation)) {
             $justArgs += @("--justfile", $justFileLocation)
         }
 
