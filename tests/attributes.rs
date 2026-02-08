@@ -312,3 +312,138 @@ fn shell_expanded_strings_can_be_used_in_attributes() {
     )
     .success();
 }
+
+#[test]
+fn env_attribute_single() {
+  Test::new()
+    .justfile(
+      "
+        [env('MY_VAR', 'my_value')]
+        foo:
+          @echo $MY_VAR
+      ",
+    )
+    .stdout("my_value\n")
+    .success();
+}
+
+#[test]
+fn env_attribute_multiple() {
+  Test::new()
+    .justfile(
+      "
+        [env('VAR1', 'value1')]
+        [env('VAR2', 'value 2')]
+        foo:
+          @echo $VAR1 $VAR2
+      ",
+    )
+    .stdout("value1 value 2\n")
+    .success();
+}
+
+#[test]
+fn env_attribute_in_recipe_params() {
+  Test::new()
+    .justfile(
+      r#"
+[env("foo", "bar")]
+baz x=`echo ${foo}.txt`:
+    @echo {{x}}
+"#,
+    )
+    .stdout("bar.txt\n")
+    .success();
+}
+
+#[test]
+fn env_attribute_not_in_env_function() {
+  Test::new()
+    .justfile(
+      r#"
+
+[env("foo", "bar")]
+baz:
+  @echo {{ env("foo") }}.txt
+
+    "#,
+    )
+    .stderr(
+      r#"
+error: Call to function `env` failed: environment variable `foo` not present
+ ——▶ justfile:4:12
+  │
+4 │   @echo {{ env("foo") }}.txt
+  │            ^^^
+
+"#,
+    )
+    .failure();
+}
+
+#[test]
+fn env_attribute_too_few_arguments() {
+  Test::new()
+    .justfile(
+      "
+        [env('MY_VAR')]
+        foo:
+          echo bar
+      ",
+    )
+    .stderr(
+      "
+  error: Attribute `env` got 1 argument but takes 2 arguments
+   ——▶ justfile:1:2
+    │
+  1 │ [env('MY_VAR')]
+    │  ^^^
+",
+    )
+    .failure();
+}
+
+#[test]
+fn env_attribute_too_many_arguments() {
+  Test::new()
+    .justfile(
+      "
+        [env('A', 'B', 'C')]
+        foo:
+          echo bar
+      ",
+    )
+    .stderr(
+      "
+  error: Attribute `env` got 3 arguments but takes 2 arguments
+   ——▶ justfile:1:2
+    │
+  1 │ [env('A', 'B', 'C')]
+    │  ^^^
+",
+    )
+    .failure();
+}
+
+#[test]
+fn env_attribute_duplicate_error() {
+  Test::new()
+    .justfile(
+      "
+        [env('VAR1', 'value1')]
+        [env('VAR1', 'value 2')]
+        foo:
+          @echo $VAR1
+      ",
+    )
+    .stderr(
+      "
+  error: Environment variable `VAR1` first set on line 1 is set again on line 2
+   ——▶ justfile:2:2
+    │
+  2 │ [env('VAR1', 'value 2')]
+    │  ^^^
+",
+    )
+    .failure();
+}

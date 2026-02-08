@@ -358,7 +358,7 @@ impl Test {
   }
 }
 
-pub fn assert_eval_eq(expression: &str, result: &str) {
+pub(crate) fn assert_eval_eq(expression: &str, result: &str) {
   Test::new()
     .justfile(format!("x := {expression}"))
     .args(["--evaluate", "x"])
