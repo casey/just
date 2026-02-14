@@ -941,7 +941,7 @@ recipe a b +d:
     .stdout(
       "# this recipe does something
 recipe a b +d:
-    @exit 100
+ @exit 100
 ",
     )
     .success();

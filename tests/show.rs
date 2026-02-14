@@ -14,7 +14,7 @@ recipe:
     .stdout(
       r#"
     recipe:
-        echo {{ hello + "bar" + bar }}
+     echo {{ hello + "bar" + bar }}
   "#,
     )
     .success();
@@ -141,7 +141,7 @@ fn show_recipe_at_path() {
       ",
     )
     .args(["--show", "foo::bar"])
-    .stdout("bar:\n    @echo MODULE\n")
+    .stdout("bar:\n @echo MODULE\n")
     .success();
 }
 
@@ -163,6 +163,6 @@ fn show_space_separated_path() {
       ",
     )
     .args(["--show", "foo bar"])
-    .stdout("bar:\n    @echo MODULE\n")
+    .stdout("bar:\n @echo MODULE\n")
     .success();
 }

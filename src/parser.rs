@@ -1133,7 +1133,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     self.expect_eol()?;
 
-    let body = self.parse_body()?;
+    let (body, indentation) = self.parse_body()?;
 
     let shebang = body.first().is_some_and(Line::is_shebang);
     let script = attributes.contains(AttributeDiscriminant::Script);
@@ -1177,6 +1177,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       doc: doc.filter(|doc| !doc.is_empty()),
       file_depth: self.file_depth,
       import_offsets: self.import_offsets.clone(),
+      indentation,
       name,
       namepath: None,
       parameters: positional.into_iter().chain(variadic).collect(),
@@ -1234,10 +1235,12 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Parse the body of a recipe
-  fn parse_body(&mut self) -> CompileResult<'src, Vec<Line<'src>>> {
+  fn parse_body(&mut self) -> CompileResult<'src, (Vec<Line<'src>>, &'src str)> {
     let mut lines = Vec::new();
+    let mut indentation = "";
 
-    if self.accepted(Indent)? {
+    if let Some(token) = self.accept(Indent)? {
+      indentation = token.lexeme();
       while !self.accepted(Dedent)? {
         let mut fragments = Vec::new();
         let number = self
@@ -1269,7 +1272,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       lines.pop();
     }
 
-    Ok(lines)
+    Ok((lines, indentation))
   }
 
   /// Parse a boolean setting value

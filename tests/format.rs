@@ -1700,3 +1700,21 @@ fn arg_attribute_help() {
     )
     .success();
 }
+
+#[test]
+fn preserve_tab_indentation() {
+  Test::new()
+    .justfile("foo:\n\techo foo\n")
+    .arg("--dump")
+    .stdout("foo:\n\techo foo\n")
+    .success();
+}
+
+#[test]
+fn preserve_two_space_indentation() {
+  Test::new()
+    .justfile("foo:\n  echo foo\n")
+    .arg("--dump")
+    .stdout("foo:\n  echo foo\n")
+    .success();
+}

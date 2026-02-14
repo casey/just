@@ -844,7 +844,7 @@ alias f := foo
       r"alias f := foo
 
 foo:
-    echo a",
+  echo a",
     );
   }
 
@@ -859,7 +859,7 @@ foo:
       r"alias f := foo
 
 foo:
-    echo a",
+  echo a",
     );
   }
 
@@ -874,7 +874,7 @@ foo:
       r"alias f := foo
 
 foo:
-    echo a",
+  echo a",
     );
   }
 
@@ -903,12 +903,12 @@ foo := \"xx\"
 goodbye := \"y\"
 
 hello a b c: x y z
-    #! blah
-    #blarg
-    {{ foo + bar }}abc{{ goodbye + \"x\" }}xyz
-    1
-    2
-    3
+  #! blah
+  #blarg
+  {{ foo + bar }}abc{{ goodbye + \"x\" }}xyz
+  1
+  2
+  3
 
 x:
 
@@ -932,16 +932,16 @@ install:
       "practicum := 'hello'
 
 install:
-    #!/bin/sh
-    if [[ -f {{ practicum }} ]]; then
-    \treturn
-    fi",
+\t#!/bin/sh
+\tif [[ -f {{ practicum }} ]]; then
+\t\treturn
+\tfi",
     );
   }
 
   #[test]
   fn parse_simple_shebang() {
-    case("a:\n #!\n  print(1)", "a:\n    #!\n     print(1)");
+    case("a:\n #!\n  print(1)", "a:\n #!\n  print(1)");
   }
 
   #[test]
@@ -979,7 +979,7 @@ c := a + b + a + b",
       r#"a:
   echo {{  `echo hello` + "blarg"   }} {{   `echo bob`   }}"#,
       r#"a:
-    echo {{ `echo hello` + "blarg" }} {{ `echo bob` }}"#,
+  echo {{ `echo hello` + "blarg" }} {{ `echo bob` }}"#,
     );
   }
 
@@ -1004,7 +1004,7 @@ c := a + b + a + b",
       "a b c:
   {{b}} {{c}}",
       "a b c:
-    {{ b }} {{ c }}",
+  {{ b }} {{ c }}",
     );
   }
 
@@ -1019,7 +1019,7 @@ a:
       "x := arch()
 
 a:
-    {{ os() }} {{ os_family() }} {{ num_cpus() }}",
+  {{ os() }} {{ os_family() }} {{ num_cpus() }}",
     );
   }
 
@@ -1034,7 +1034,7 @@ a:
       r#"x := env_var('foo')
 
 a:
-    {{ env_var_or_default('foo' + 'bar', 'baz') }} {{ env_var(env_var("baz")) }}"#,
+  {{ env_var_or_default('foo' + 'bar', 'baz') }} {{ env_var(env_var("baz")) }}"#,
     );
   }
 
@@ -1125,10 +1125,10 @@ f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
 \t} | less\r
 ",
 "@spam:
-    { \\
-    \tfiglet test; \\
-    \tcargo build --color always 2>&1; \\
-    \tcargo test  --color always -- --color always 2>&1; \\
-    } | less");
+\t{ \\
+\t\tfiglet test; \\
+\t\tcargo build --color always 2>&1; \\
+\t\tcargo test  --color always -- --color always 2>&1; \\
+\t} | less");
   }
 }

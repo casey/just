@@ -27,6 +27,8 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) file_depth: u32,
   #[serde(skip)]
   pub(crate) import_offsets: Vec<usize>,
+  #[serde(skip)]
+  pub(crate) indentation: &'src str,
   pub(crate) name: Name<'src>,
   pub(crate) namepath: Option<String>,
   pub(crate) parameters: Vec<Parameter<'src>>,
@@ -599,7 +601,12 @@ impl<D: Display> ColorDisplay for Recipe<'_, D> {
       }
       for (j, fragment) in line.fragments.iter().enumerate() {
         if j == 0 {
-          write!(f, "    ")?;
+          let indent = if self.indentation.is_empty() {
+            "    "
+          } else {
+            self.indentation
+          };
+          write!(f, "{indent}")?;
         }
         match fragment {
           Fragment::Text { token } => write!(f, "{}", token.lexeme())?,

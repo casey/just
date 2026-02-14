@@ -202,7 +202,7 @@ fn dump() {
     a := if '' == '' { '' } else { '' }
 
     foo:
-        echo {{ a }}
+      echo {{ a }}
   ",
     )
     .success();

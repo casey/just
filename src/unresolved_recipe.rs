@@ -58,6 +58,7 @@ impl<'src> UnresolvedRecipe<'src> {
       doc: self.doc,
       file_depth: self.file_depth,
       import_offsets: self.import_offsets,
+      indentation: self.indentation,
       name: self.name,
       namepath: Some(namepath),
       parameters: self.parameters,
