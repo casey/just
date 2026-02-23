@@ -107,7 +107,7 @@ impl Subcommand {
       }
       Dump { format } => Self::dump(compilation, *format)?,
       Groups => Self::groups(config, justfile),
-      List { path } => Self::list(config, justfile, path)?,
+      List { path } => Self::list(config, loader, &search, justfile, path)?,
       Run { arguments } => Self::run(config, loader, search, compilation, arguments)?,
       Show { path } => Self::show(config, justfile, path)?,
       Summary => Self::summary(config, justfile),
@@ -475,7 +475,13 @@ impl Subcommand {
     Ok(())
   }
 
-  fn list(config: &Config, mut module: &Justfile, path: &ModulePath) -> RunResult<'static> {
+  fn list<'src>(
+    config: &Config,
+    loader: &'src Loader,
+    search: &Search,
+    mut module: &Justfile,
+    path: &ModulePath,
+  ) -> RunResult<'src> {
     for name in &path.path {
       module = module
         .modules
@@ -486,6 +492,56 @@ impl Subcommand {
     }
 
     Self::list_module(config, 0, &config.groups, module)?;
+
+    // If fallback is enabled and we're at the top level, also list
+    // recipes from parent justfiles so users can see the full set of
+    // available recipes.
+    let fallback = module.settings.fallback
+      && matches!(
+        config.search_config,
+        SearchConfig::FromInvocationDirectory | SearchConfig::FromSearchDirectory { .. }
+      );
+
+    if fallback && path.path.is_empty() {
+      let mut parent_search = search.clone();
+
+      while let Ok(next) = parent_search.search_parent_directory(config.ceiling.as_deref()) {
+        parent_search = next;
+
+        let parent_path = parent_search
+          .justfile
+          .parent()
+          .unwrap_or_else(|| Path::new("."));
+
+        if let Ok(compilation) = Self::compile(config, loader, &parent_search) {
+          let parent_justfile = &compilation.justfile;
+
+          let has_recipes = !parent_justfile
+            .public_recipes(config)
+            .is_empty()
+            ;
+
+          if has_recipes {
+            println!();
+            println!(
+              "{}",
+              config.color.stdout().doc().paint(&format!(
+                "# Fallback recipes from {}",
+                parent_path.display()
+              ))
+            );
+            Self::list_module(config, parent_justfile, 0);
+          }
+
+          // Stop walking if this parent doesn't also have fallback
+          if !parent_justfile.settings.fallback {
+            break;
+          }
+        } else {
+          break;
+        }
+      }
+    }
 
     Ok(())
   }
