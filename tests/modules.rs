@@ -203,12 +203,14 @@ foo:
     )
     .arg("foo")
     .arg("foo")
-    .stderr(r#"Error: Recipe `foo` first defined on line 1 is redefined on line 2
+    .stderr(
+      r#"Error: Recipe `foo` first defined on line 1 is redefined on line 2
    ╭─[ foo.just:2:1 ]
    │
  2 │ foo:
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -222,12 +224,14 @@ fn modules_conflict_with_recipes() {
         foo:
       ",
     )
-    .stderr(r#"Error: Module `foo` defined on line 1 is redefined as a recipe on line 2
+    .stderr(
+      r#"Error: Module `foo` defined on line 1 is redefined as a recipe on line 2
    ╭─[ justfile:2:1 ]
    │
  2 │ foo:
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -242,12 +246,14 @@ fn modules_conflict_with_aliases() {
         alias foo := bar
       ",
     )
-    .stderr(r#"Error: Module `foo` defined on line 1 is redefined as an alias on line 3
+    .stderr(
+      r#"Error: Module `foo` defined on line 1 is redefined as an alias on line 3
    ╭─[ justfile:3:7 ]
    │
  3 │ alias foo := bar
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -263,12 +269,14 @@ fn modules_conflict_with_other_modules() {
         bar:
       ",
     )
-    .stderr(r#"Error: Module `foo` first defined on line 1 is redefined on line 2
+    .stderr(
+      r#"Error: Module `foo` first defined on line 1 is redefined on line 2
    ╭─[ justfile:2:5 ]
    │
  2 │ mod foo
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -1007,12 +1015,14 @@ fn bad_module_attribute_fails() {
     )
     .test_round_trip(false)
     .arg("--list")
-    .stderr(r#"Error: Module `foo` has invalid attribute `no-cd`
+    .stderr(
+      r#"Error: Module `foo` has invalid attribute `no-cd`
    ╭─[ justfile:2:5 ]
    │
  2 │ mod foo
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 

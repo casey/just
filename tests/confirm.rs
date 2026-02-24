@@ -127,7 +127,8 @@ fn confirm_recipe_with_prompt_too_many_args() {
             echo confirmed
       "#,
     )
-    .stderr(r#"Error: Attribute argument count mismatch
+    .stderr(
+      r#"Error: Attribute argument count mismatch
    ╭─[ justfile:1:2 ]
    │
  1 │ [confirm("PROMPT","EXTRA")]
@@ -136,7 +137,8 @@ fn confirm_recipe_with_prompt_too_many_args() {
    │ 
    │ Note: `confirm` takes between 0 and 1 arguments
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 

@@ -37,11 +37,13 @@ fn non_leading_byte_order_mark_produces_error() {
 fn dont_mention_byte_order_mark_in_errors() {
   Test::new()
     .justfile("{")
-    .stderr(r#"Error: Expected '@', '[', comment, end of file, end of line, or identifier, but found '{'
+    .stderr(
+      r#"Error: Expected '@', '[', comment, end of file, end of line, or identifier, but found '{'
    ╭─[ justfile:1:1 ]
    │
  1 │ {
 ───╯
-"#)
+"#,
+    )
     .failure();
 }

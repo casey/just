@@ -342,7 +342,8 @@ fn attribute_duplicate() {
         foo:
       ",
     )
-    .stderr(r#"Error: Duplicate attribute `working-directory`
+    .stderr(
+      r#"Error: Duplicate attribute `working-directory`
    ╭─[ justfile:2:2 ]
    │
  1 │ [working-directory('bar')]
@@ -352,7 +353,8 @@ fn attribute_duplicate() {
    │  ────────┬────────  
    │          ╰────────── duplicate
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -388,7 +390,7 @@ Error: Recipe `bar` has both `[no-cd]` and `[working-directory]` attributes
    │
  3 │ bar:
 ───╯
-"
+",
     )
     .failure();
 }

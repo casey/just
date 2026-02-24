@@ -10,12 +10,14 @@ fn long_options_may_not_be_empty() {
           echo bar={{bar}}
       ",
     )
-    .stderr(r#"Error: Option name for parameter `bar` is empty
+    .stderr(
+      r#"Error: Option name for parameter `bar` is empty
    ╭─[ justfile:1:18 ]
    │
  1 │ [arg('bar', long='')]
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -29,12 +31,14 @@ fn short_options_may_not_be_empty() {
           echo bar={{bar}}
       ",
     )
-    .stderr(r#"Error: Option name for parameter `bar` is empty
+    .stderr(
+      r#"Error: Option name for parameter `bar` is empty
    ╭─[ justfile:1:19 ]
    │
  1 │ [arg('bar', short='')]
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -48,12 +52,14 @@ fn short_options_may_not_have_multiple_characters() {
           echo bar={{bar}}
       ",
     )
-    .stderr(r#"Error: Short option name for parameter `bar` contains multiple characters
+    .stderr(
+      r#"Error: Short option name for parameter `bar` contains multiple characters
    ╭─[ justfile:1:19 ]
    │
  1 │ [arg('bar', short='abc')]
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -160,12 +166,14 @@ fn duplicate_long_option_attributes_are_forbidden() {
         foo bar baz:
       ",
     )
-    .stderr(r#"Error: Recipe `foo` defines option `--bar` multiple times
+    .stderr(
+      r#"Error: Recipe `foo` defines option `--bar` multiple times
    ╭─[ justfile:2:18 ]
    │
  2 │ [arg('baz', long='bar')]
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -182,12 +190,14 @@ fn defaulted_duplicate_long_option() {
         foo aaa bar:
       ",
     )
-    .stderr(r#"Error: Recipe `foo` defines option `--bar` multiple times
+    .stderr(
+      r#"Error: Recipe `foo` defines option `--bar` multiple times
    ╭─[ justfile:5:19 ]
    │
  5 │ [arg(      'bar', long)]
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -201,12 +211,14 @@ fn duplicate_short_option_attributes_are_forbidden() {
         foo bar baz:
       ",
     )
-    .stderr(r#"Error: Recipe `foo` defines option `-b` multiple times
+    .stderr(
+      r#"Error: Recipe `foo` defines option `-b` multiple times
    ╭─[ justfile:2:19 ]
    │
  2 │ [arg('baz', short='b')]
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -219,12 +231,14 @@ fn variadics_with_long_options_are_forbidden() {
         foo +bar:
       ",
     )
-    .stderr(r#"Error: Variadic parameters may not be options
+    .stderr(
+      r#"Error: Variadic parameters may not be options
    ╭─[ justfile:2:6 ]
    │
  2 │ foo +bar:
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -237,12 +251,14 @@ fn variadics_with_short_options_are_forbidden() {
         foo +bar:
       ",
     )
-    .stderr(r#"Error: Variadic parameters may not be options
+    .stderr(
+      r#"Error: Variadic parameters may not be options
    ╭─[ justfile:2:6 ]
    │
  2 │ foo +bar:
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -255,12 +271,14 @@ fn long_option_names_may_not_contain_equal_sign() {
         foo bar:
       ",
     )
-    .stderr(r#"Error: Option name for parameter `bar` contains equal sign
+    .stderr(
+      r#"Error: Option name for parameter `bar` contains equal sign
    ╭─[ justfile:1:18 ]
    │
  1 │ [arg('bar', long='bar=baz')]
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -273,12 +291,14 @@ fn short_option_names_may_not_contain_equal_sign() {
         foo bar:
       ",
     )
-    .stderr(r#"Error: Option name for parameter `bar` contains equal sign
+    .stderr(
+      r#"Error: Option name for parameter `bar` contains equal sign
    ╭─[ justfile:1:19 ]
    │
  1 │ [arg('bar', short='=')]
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -639,12 +659,14 @@ fn value_requires_long_or_short() {
       ",
     )
     .args(["foo", "-b=hello"])
-    .stderr(r#"Error: Argument attribute `value` only valid with `long` or `short`
+    .stderr(
+      r#"Error: Argument attribute `value` only valid with `long` or `short`
    ╭─[ justfile:1:13 ]
    │
  1 │ [arg('bar', value='baz')]
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 

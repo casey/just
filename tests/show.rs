@@ -42,12 +42,14 @@ fn alias_show_missing_target() {
     .arg("--show")
     .arg("f")
     .justfile("alias f := foo")
-    .stderr(r#"Error: Alias `f` has an unknown target `foo`
+    .stderr(
+      r#"Error: Alias `f` has an unknown target `foo`
    ╭─[ justfile:1:7 ]
    │
  1 │ alias f := foo
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 

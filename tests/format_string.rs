@@ -147,12 +147,14 @@ fn recipe_body() {
 fn unclosed() {
   Test::new()
     .justfile("foo := f'FOO{{")
-    .stderr(r#"Error: Expected backtick, identifier, '(', '/', or string, but found end of file
+    .stderr(
+      r#"Error: Expected backtick, identifier, '(', '/', or string, but found end of file
    ╭─[ justfile:1:15 ]
    │
  1 │ foo := f'FOO{{
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -233,12 +235,14 @@ fn escaped_delimiter_in_double_quoted_format_string() {
       "#,
     )
     .args(["--evaluate", "foo"])
-    .stderr(r#"Error: `\{` is not a valid escape sequence
+    .stderr(
+      r#"Error: `\{` is not a valid escape sequence
    ╭─[ justfile:1:9 ]
    │
  1 │ foo := f"\{{{{"
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -334,12 +338,14 @@ fn undefined_variable_error() {
         foo := f'{{bar}}'
       ",
     )
-    .stderr(r#"Error: Variable `bar` not defined
+    .stderr(
+      r#"Error: Variable `bar` not defined
    ╭─[ justfile:1:12 ]
    │
  1 │ foo := f'{{bar}}'
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 

@@ -63,12 +63,14 @@ fn circular_dependency() {
     foo: && foo
   ",
     )
-    .stderr(r#"Error: Recipe `foo` depends on itself
+    .stderr(
+      r#"Error: Recipe `foo` depends on itself
    ╭─[ justfile:1:9 ]
    │
  1 │ foo: && foo
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -80,12 +82,14 @@ fn unknown() {
     foo: && bar
   ",
     )
-    .stderr(r#"Error: Recipe `foo` has unknown dependency `bar`
+    .stderr(
+      r#"Error: Recipe `foo` has unknown dependency `bar`
    ╭─[ justfile:1:9 ]
    │
  1 │ foo: && bar
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -99,12 +103,14 @@ fn unknown_argument() {
     foo: && (bar y)
   ",
     )
-    .stderr(r#"Error: Variable `y` not defined
+    .stderr(
+      r#"Error: Variable `y` not defined
    ╭─[ justfile:3:14 ]
    │
  3 │ foo: && (bar y)
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 

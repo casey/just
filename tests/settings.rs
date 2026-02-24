@@ -34,12 +34,14 @@ fn undefined_variable_in_working_directory() {
         set working-directory := foo
       ",
     )
-    .stderr(r#"Error: Variable `foo` not defined
+    .stderr(
+      r#"Error: Variable `foo` not defined
    ╭─[ justfile:1:26 ]
    │
  1 │ set working-directory := foo
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -51,12 +53,14 @@ fn undefined_variable_in_dotenv_filename() {
         set dotenv-filename := foo
       ",
     )
-    .stderr(r#"Error: Variable `foo` not defined
+    .stderr(
+      r#"Error: Variable `foo` not defined
    ╭─[ justfile:1:24 ]
    │
  1 │ set dotenv-filename := foo
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -68,12 +72,14 @@ fn undefined_variable_in_dotenv_path() {
         set dotenv-path := foo
       ",
     )
-    .stderr(r#"Error: Variable `foo` not defined
+    .stderr(
+      r#"Error: Variable `foo` not defined
    ╭─[ justfile:1:20 ]
    │
  1 │ set dotenv-path := foo
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -85,12 +91,14 @@ fn undefined_variable_in_tempdir() {
         set tempdir := foo
       ",
     )
-    .stderr(r#"Error: Variable `foo` not defined
+    .stderr(
+      r#"Error: Variable `foo` not defined
    ╭─[ justfile:1:16 ]
    │
  1 │ set tempdir := foo
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -102,12 +110,14 @@ fn undefined_variable_in_script_interpreter_command() {
         set script-interpreter := [foo]
       ",
     )
-    .stderr(r#"Error: Variable `foo` not defined
+    .stderr(
+      r#"Error: Variable `foo` not defined
    ╭─[ justfile:1:28 ]
    │
  1 │ set script-interpreter := [foo]
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -119,12 +129,14 @@ fn undefined_variable_in_script_interpreter_argument() {
         set script-interpreter := ['foo', bar]
       ",
     )
-    .stderr(r#"Error: Variable `bar` not defined
+    .stderr(
+      r#"Error: Variable `bar` not defined
    ╭─[ justfile:1:35 ]
    │
  1 │ set script-interpreter := ['foo', bar]
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -136,12 +148,14 @@ fn undefined_variable_in_shell_command() {
         set shell := [foo]
       ",
     )
-    .stderr(r#"Error: Variable `foo` not defined
+    .stderr(
+      r#"Error: Variable `foo` not defined
    ╭─[ justfile:1:15 ]
    │
  1 │ set shell := [foo]
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -153,12 +167,14 @@ fn undefined_variable_in_shell_argument() {
         set shell := ['foo', bar]
       ",
     )
-    .stderr(r#"Error: Variable `bar` not defined
+    .stderr(
+      r#"Error: Variable `bar` not defined
    ╭─[ justfile:1:22 ]
    │
  1 │ set shell := ['foo', bar]
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -170,12 +186,14 @@ fn undefined_variable_in_windows_shell_command() {
         set windows-shell := [foo]
       ",
     )
-    .stderr(r#"Error: Variable `foo` not defined
+    .stderr(
+      r#"Error: Variable `foo` not defined
    ╭─[ justfile:1:23 ]
    │
  1 │ set windows-shell := [foo]
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -187,12 +205,14 @@ fn undefined_variable_in_windows_shell_argument() {
         set windows-shell := ['foo', bar]
       ",
     )
-    .stderr(r#"Error: Variable `bar` not defined
+    .stderr(
+      r#"Error: Variable `bar` not defined
    ╭─[ justfile:1:30 ]
    │
  1 │ set windows-shell := ['foo', bar]
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 

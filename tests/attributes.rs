@@ -30,7 +30,8 @@ fn duplicate_attributes_are_disallowed() {
         echo bar
     ",
     )
-    .stderr(r#"Error: Duplicate attribute `no-exit-message`
+    .stderr(
+      r#"Error: Duplicate attribute `no-exit-message`
    ╭─[ justfile:2:2 ]
    │
  1 │ [no-exit-message]
@@ -40,7 +41,8 @@ fn duplicate_attributes_are_disallowed() {
    │  ───────┬───────  
    │         ╰───────── duplicate
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -70,12 +72,14 @@ fn multiple_attributes_one_line_error_message() {
         exit 1
     ",
     )
-    .stderr(r#"Error: Expected ']', ':', ',', or '(', but found identifier
+    .stderr(
+      r#"Error: Expected ']', ':', ',', or '(', but found identifier
    ╭─[ justfile:1:16 ]
    │
  1 │ [macos,windows linux,openbsd]
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -90,7 +94,8 @@ fn multiple_attributes_one_line_duplicate_check() {
         exit 1
     ",
     )
-    .stderr(r#"Error: Duplicate attribute `linux`
+    .stderr(
+      r#"Error: Duplicate attribute `linux`
    ╭─[ justfile:2:2 ]
    │
  1 │ [macos, windows, linux, openbsd]
@@ -100,7 +105,8 @@ fn multiple_attributes_one_line_duplicate_check() {
    │  ──┬──  
    │    ╰──── duplicate
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -114,7 +120,8 @@ fn unexpected_attribute_argument() {
         exit 1
     ",
     )
-    .stderr(r#"Error: Attribute argument count mismatch
+    .stderr(
+      r#"Error: Attribute argument count mismatch
    ╭─[ justfile:1:2 ]
    │
  1 │ [private('foo')]
@@ -123,7 +130,8 @@ fn unexpected_attribute_argument() {
    │ 
    │ Note: `private` takes 0 arguments
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -169,7 +177,8 @@ fn expected_metadata_attribute_argument() {
         exit 1
     ",
     )
-    .stderr(r#"Error: Attribute argument count mismatch
+    .stderr(
+      r#"Error: Attribute argument count mismatch
    ╭─[ justfile:1:2 ]
    │
  1 │ [metadata]
@@ -178,7 +187,8 @@ fn expected_metadata_attribute_argument() {
    │ 
    │ Note: `metadata` takes between 1 and 18446744073709551615 arguments
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -270,12 +280,14 @@ fn extension_on_linewise_error() {
         baz:
       ",
     )
-    .stderr(r#"Error: Recipe `baz` has invalid attribute `extension`
+    .stderr(
+      r#"Error: Recipe `baz` has invalid attribute `extension`
    ╭─[ justfile:2:1 ]
    │
  2 │ baz:
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -289,7 +301,8 @@ fn duplicate_non_repeatable_attributes_are_forbidden() {
         baz:
       ",
     )
-    .stderr(r#"Error: Duplicate attribute `confirm`
+    .stderr(
+      r#"Error: Duplicate attribute `confirm`
    ╭─[ justfile:2:2 ]
    │
  1 │ [confirm: 'yes']
@@ -299,7 +312,8 @@ fn duplicate_non_repeatable_attributes_are_forbidden() {
    │  ───┬───  
    │     ╰───── duplicate
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -393,7 +407,8 @@ fn env_attribute_too_few_arguments() {
           echo bar
       ",
     )
-    .stderr(r#"Error: Attribute argument count mismatch
+    .stderr(
+      r#"Error: Attribute argument count mismatch
    ╭─[ justfile:1:2 ]
    │
  1 │ [env('MY_VAR')]
@@ -402,7 +417,8 @@ fn env_attribute_too_few_arguments() {
    │ 
    │ Note: `env` takes 2 arguments
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -416,7 +432,8 @@ fn env_attribute_too_many_arguments() {
           echo bar
       ",
     )
-    .stderr(r#"Error: Attribute argument count mismatch
+    .stderr(
+      r#"Error: Attribute argument count mismatch
    ╭─[ justfile:1:2 ]
    │
  1 │ [env('A', 'B', 'C')]
@@ -425,7 +442,8 @@ fn env_attribute_too_many_arguments() {
    │ 
    │ Note: `env` takes 2 arguments
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -440,11 +458,13 @@ fn env_attribute_duplicate_error() {
           @echo $VAR1
       ",
     )
-    .stderr(r#"Error: Environment variable `VAR1` first set on line 1 is set again on line 2
+    .stderr(
+      r#"Error: Environment variable `VAR1` first set on line 1 is set again on line 2
    ╭─[ justfile:2:2 ]
    │
  2 │ [env('VAR1', 'value 2')]
 ───╯
-"#)
+"#,
+    )
     .failure();
 }

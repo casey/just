@@ -4,12 +4,14 @@ use super::*;
 fn mismatched_delimiter() {
   Test::new()
     .justfile("(]")
-    .stderr(r#"Error: Mismatched closing delimiter `]`. (Did you mean to close the `(` on line 1?)
+    .stderr(
+      r#"Error: Mismatched closing delimiter `]`. (Did you mean to close the `(` on line 1?)
    ╭─[ justfile:1:2 ]
    │
  1 │ (]
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 
@@ -17,12 +19,14 @@ fn mismatched_delimiter() {
 fn unexpected_delimiter() {
   Test::new()
     .justfile("]")
-    .stderr(r#"Error: Unexpected closing delimiter `]`
+    .stderr(
+      r#"Error: Unexpected closing delimiter `]`
    ╭─[ justfile:1:1 ]
    │
  1 │ ]
 ───╯
-"#)
+"#,
+    )
     .failure();
 }
 

@@ -1,7 +1,4 @@
-use {
-  super::*,
-  pretty_assertions::assert_eq,
-};
+use {super::*, pretty_assertions::assert_eq};
 
 pub(crate) struct Output {
   pub(crate) pid: u32,
@@ -219,7 +216,10 @@ impl Test {
       let equal = have == want;
       if !equal {
         //eprintln!("Bad {name}: {}", StrComparison::new(&have, &want));
-        eprintln!("Bad {name}:\n{}||\n-------------\n{}||\n=========", &have, &want);
+        eprintln!(
+          "Bad {name}:\n{}||\n-------------\n{}||\n=========",
+          &have, &want
+        );
       }
       equal
     }
