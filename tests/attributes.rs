@@ -185,7 +185,7 @@ fn expected_metadata_attribute_argument() {
    │  ────┬───  
    │      ╰───── Found 0 arguments
    │ 
-   │ Note: `metadata` takes between 1 and 18446744073709551615 arguments
+   │ Note: `metadata` takes at least 1 argument
 ───╯
 "#,
     )

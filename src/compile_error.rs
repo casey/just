@@ -52,6 +52,11 @@ pub(crate) fn render_compile_error(error: &CompileError, color: Color) {
 
       let note = if min == max {
         format!("`{attribute}` takes {min} {}", Count("argument", *min))
+      } else if *max == usize::MAX {
+        format!(
+          "`{attribute}` takes at least {min} {}",
+          Count("argument", *min)
+        )
       } else {
         format!("`{attribute}` takes between {min} and {max} arguments")
       };
