@@ -147,12 +147,12 @@ a:
 ",
     )
     .stderr(
-      r#"Error: Variable `foo` not defined
+      r"Error: Variable `foo` not defined
    ╭─[ justfile:6:11 ]
    │
  6 │   echo '{{foo}}'
 ───╯
-"#,
+",
     )
     .failure();
 }
@@ -172,12 +172,12 @@ a:
 ",
     )
     .stderr(
-      r#"Error: Variable `bar` not defined
+      r"Error: Variable `bar` not defined
    ╭─[ justfile:3:13 ]
    │
  3 │ whatever' + bar
 ───╯
-"#,
+",
     )
     .failure();
 }
@@ -222,12 +222,12 @@ a:
 "#,
     )
     .stderr(
-      r#"Error: Variable `b` not defined
+      r"Error: Variable `b` not defined
    ╭─[ justfile:5:10 ]
    │
  5 │   echo {{b}}
 ───╯
-"#,
+",
     )
     .failure();
 }
@@ -242,12 +242,12 @@ fn unterminated_raw_string() {
   ",
     )
     .stderr(
-      r#"Error: Unterminated string
+      r"Error: Unterminated string
    ╭─[ justfile:1:6 ]
    │
  1 │ a b= ':
 ───╯
-"#,
+",
     )
     .failure();
 }
@@ -282,12 +282,12 @@ fn unterminated_backtick() {
   ",
     )
     .stderr(
-      r#"Error: Unterminated backtick
+      r"Error: Unterminated backtick
    ╭─[ justfile:1:8 ]
    │
  1 │ foo a=  `echo blaaaaaah:
 ───╯
-"#,
+",
     )
     .failure();
 }
@@ -302,12 +302,12 @@ fn unterminated_indented_raw_string() {
   ",
     )
     .stderr(
-      r#"Error: Unterminated string
+      r"Error: Unterminated string
    ╭─[ justfile:1:6 ]
    │
  1 │ a b= ''':
 ───╯
-"#,
+",
     )
     .failure();
 }
@@ -342,12 +342,12 @@ fn unterminated_indented_backtick() {
   ",
     )
     .stderr(
-      r#"Error: Unterminated backtick
+      r"Error: Unterminated backtick
    ╭─[ justfile:1:8 ]
    │
  1 │ foo a=  ```echo blaaaaaah:
 ───╯
-"#,
+",
     )
     .failure();
 }
@@ -494,12 +494,12 @@ fn shebang_backtick() {
   ",
     )
     .stderr(
-      r#"Error: Backticks may not start with `#!`
+      r"Error: Backticks may not start with `#!`
    ╭─[ justfile:1:6 ]
    │
  1 │ x := `#!/usr/bin/env sh`
 ───╯
-"#,
+",
     )
     .failure();
 }

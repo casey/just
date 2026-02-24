@@ -69,12 +69,12 @@ fn newline_escape_deps_invalid_esc() {
     ",
     )
     .stderr(
-      r#"Error: `\ ` is not a valid escape sequence
+      r"Error: `\ ` is not a valid escape sequence
    ╭─[ justfile:1:11 ]
    │
  1 │ default: a\ b
 ───╯
-"#,
+",
     )
     .failure();
 }
@@ -87,12 +87,12 @@ fn newline_escape_unpaired_linefeed() {
       default:\\\ra",
     )
     .stderr(
-      r#"Error: Unpaired carriage return
+      r"Error: Unpaired carriage return
    ╭─[ justfile:1:9 ]
    │
  1 │ default:\
 ───╯
-"#,
+",
     )
     .failure();
 }

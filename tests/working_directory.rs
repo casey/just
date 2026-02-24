@@ -343,7 +343,7 @@ fn attribute_duplicate() {
       ",
     )
     .stderr(
-      r#"Error: Duplicate attribute `working-directory`
+      r"Error: Duplicate attribute `working-directory`
    ╭─[ justfile:2:2 ]
    │
  1 │ [working-directory('bar')]
@@ -353,7 +353,7 @@ fn attribute_duplicate() {
    │  ────────┬────────  
    │          ╰────────── duplicate
 ───╯
-"#,
+",
     )
     .failure();
 }

@@ -33,12 +33,12 @@ fn unknown_nested_alias() {
     )
     .arg("b")
     .stderr(
-      r#"Error: Alias `b` has an unknown target `foo::bar::baz`
+      r"Error: Alias `b` has an unknown target `foo::bar::baz`
    ╭─[ justfile:3:7 ]
    │
  3 │ alias b := foo::bar::baz
 ───╯
-"#,
+",
     )
     .failure();
 }

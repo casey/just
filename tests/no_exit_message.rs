@@ -65,12 +65,12 @@ fn unknown_attribute() {
     ",
     )
     .stderr(
-      r#"Error: Unknown attribute `unknown-attribute`
+      r"Error: Unknown attribute `unknown-attribute`
    ╭─[ justfile:2:2 ]
    │
  2 │ [unknown-attribute]
 ───╯
-"#,
+",
     )
     .failure();
 }
@@ -87,12 +87,12 @@ fn empty_attribute() {
     ",
     )
     .stderr(
-      r#"Error: Expected identifier, but found ']'
+      r"Error: Expected identifier, but found ']'
    ╭─[ justfile:2:2 ]
    │
  2 │ []
 ───╯
-"#,
+",
     )
     .failure();
 }
@@ -109,12 +109,12 @@ fn extraneous_attribute_before_comment() {
     ",
     )
     .stderr(
-      r#"Error: Extraneous attribute
+      r"Error: Extraneous attribute
    ╭─[ justfile:1:1 ]
    │
  1 │ [no-exit-message]
 ───╯
-"#,
+",
     )
     .failure();
 }
@@ -131,12 +131,12 @@ fn extraneous_attribute_before_empty_line() {
     ",
     )
     .stderr(
-      r#"Error: Extraneous attribute
+      r"Error: Extraneous attribute
    ╭─[ justfile:1:1 ]
    │
  1 │ [no-exit-message]
 ───╯
-"#,
+",
     )
     .failure();
 }
@@ -248,12 +248,12 @@ fn exit_message_and_no_exit_message_compile_forbidden() {
     ",
     )
     .stderr(
-      r#"Error: Recipe `bar` has both `[exit-message]` and `[no-exit-message]` attributes
+      r"Error: Recipe `bar` has both `[exit-message]` and `[no-exit-message]` attributes
    ╭─[ justfile:2:1 ]
    │
  2 │ bar:
 ───╯
-"#,
+",
     )
     .failure();
 }

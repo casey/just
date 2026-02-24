@@ -5,12 +5,12 @@ fn mismatched_delimiter() {
   Test::new()
     .justfile("(]")
     .stderr(
-      r#"Error: Mismatched closing delimiter `]`. (Did you mean to close the `(` on line 1?)
+      r"Error: Mismatched closing delimiter `]`. (Did you mean to close the `(` on line 1?)
    ╭─[ justfile:1:2 ]
    │
  1 │ (]
 ───╯
-"#,
+",
     )
     .failure();
 }
@@ -20,12 +20,12 @@ fn unexpected_delimiter() {
   Test::new()
     .justfile("]")
     .stderr(
-      r#"Error: Unexpected closing delimiter `]`
+      r"Error: Unexpected closing delimiter `]`
    ╭─[ justfile:1:1 ]
    │
  1 │ ]
 ───╯
-"#,
+",
     )
     .failure();
 }
