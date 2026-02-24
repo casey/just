@@ -29,13 +29,11 @@ impl<'src> CompileError<'src> {
 pub(crate) fn render_compile_error(error: &CompileError, color: Color) {
   use ariadne::{Config, Label, Report, ReportKind, Source};
 
-  let token = error.token;
-  let source = Source::from(token.src);
+  let source = Source::from(error.token.src);
 
-  let start = token.offset;
-  let end = token.offset + token.length;
-
-  let path = format!("{}", token.path.display());
+  let start = error.token.offset;
+  let end = start + error.token.length;
+  let path = error.token.path.display().to_string();
   let label = Label::new((&path, start..end));
 
   let config = Config::default().with_color(color.stderr().active());
