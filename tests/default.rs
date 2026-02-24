@@ -30,7 +30,7 @@ fn default_attribute_may_only_appear_once_per_justfile() {
       ",
     )
     .stderr(r#"Error: Recipe `foo` has duplicate `[default]` attribute, which may only appear once per module
-   ╭─[justfile:2:1]
+   ╭─[ justfile:2:1 ]
    │
  2 │ foo:
 ───╯

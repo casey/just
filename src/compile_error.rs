@@ -39,7 +39,7 @@ pub(crate) fn render_compile_error(error: &CompileError, color: Color) {
   let label = Label::new((&path, start..end));
 
   let config = Config::default().with_color(color.stderr().active());
-  let report = Report::build(ReportKind::Error, &path, start).with_config(config);
+  let report = Report::build(ReportKind::Error, (&path, start..end)).with_config(config);
 
   let report = match &*error.kind {
     CompileErrorKind::AttributeArgumentCountMismatch {

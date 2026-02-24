@@ -343,7 +343,7 @@ fn attribute_duplicate() {
       ",
     )
     .stderr(r#"Error: Duplicate attribute `working-directory`
-   ╭─[justfile:2:2]
+   ╭─[ justfile:2:2 ]
    │
  1 │ [working-directory('bar')]
    │ ─────────────┬─────────────  
@@ -384,7 +384,7 @@ fn attribute_with_nocd_is_forbidden() {
     .stderr(
       "
 Error: Recipe `bar` has both `[no-cd]` and `[working-directory]` attributes
-   ╭─[justfile:3:1]
+   ╭─[ justfile:3:1 ]
    │
  3 │ bar:
 ───╯

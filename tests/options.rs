@@ -11,7 +11,7 @@ fn long_options_may_not_be_empty() {
       ",
     )
     .stderr(r#"Error: Option name for parameter `bar` is empty
-   ╭─[justfile:1:18]
+   ╭─[ justfile:1:18 ]
    │
  1 │ [arg('bar', long='')]
 ───╯
@@ -30,7 +30,7 @@ fn short_options_may_not_be_empty() {
       ",
     )
     .stderr(r#"Error: Option name for parameter `bar` is empty
-   ╭─[justfile:1:19]
+   ╭─[ justfile:1:19 ]
    │
  1 │ [arg('bar', short='')]
 ───╯
@@ -49,7 +49,7 @@ fn short_options_may_not_have_multiple_characters() {
       ",
     )
     .stderr(r#"Error: Short option name for parameter `bar` contains multiple characters
-   ╭─[justfile:1:19]
+   ╭─[ justfile:1:19 ]
    │
  1 │ [arg('bar', short='abc')]
 ───╯
@@ -161,7 +161,7 @@ fn duplicate_long_option_attributes_are_forbidden() {
       ",
     )
     .stderr(r#"Error: Recipe `foo` defines option `--bar` multiple times
-   ╭─[justfile:2:18]
+   ╭─[ justfile:2:18 ]
    │
  2 │ [arg('baz', long='bar')]
 ───╯
@@ -183,7 +183,7 @@ fn defaulted_duplicate_long_option() {
       ",
     )
     .stderr(r#"Error: Recipe `foo` defines option `--bar` multiple times
-   ╭─[justfile:5:19]
+   ╭─[ justfile:5:19 ]
    │
  5 │ [arg(      'bar', long)]
 ───╯
@@ -202,7 +202,7 @@ fn duplicate_short_option_attributes_are_forbidden() {
       ",
     )
     .stderr(r#"Error: Recipe `foo` defines option `-b` multiple times
-   ╭─[justfile:2:19]
+   ╭─[ justfile:2:19 ]
    │
  2 │ [arg('baz', short='b')]
 ───╯
@@ -220,7 +220,7 @@ fn variadics_with_long_options_are_forbidden() {
       ",
     )
     .stderr(r#"Error: Variadic parameters may not be options
-   ╭─[justfile:2:6]
+   ╭─[ justfile:2:6 ]
    │
  2 │ foo +bar:
 ───╯
@@ -238,7 +238,7 @@ fn variadics_with_short_options_are_forbidden() {
       ",
     )
     .stderr(r#"Error: Variadic parameters may not be options
-   ╭─[justfile:2:6]
+   ╭─[ justfile:2:6 ]
    │
  2 │ foo +bar:
 ───╯
@@ -256,7 +256,7 @@ fn long_option_names_may_not_contain_equal_sign() {
       ",
     )
     .stderr(r#"Error: Option name for parameter `bar` contains equal sign
-   ╭─[justfile:1:18]
+   ╭─[ justfile:1:18 ]
    │
  1 │ [arg('bar', long='bar=baz')]
 ───╯
@@ -274,7 +274,7 @@ fn short_option_names_may_not_contain_equal_sign() {
       ",
     )
     .stderr(r#"Error: Option name for parameter `bar` contains equal sign
-   ╭─[justfile:1:19]
+   ╭─[ justfile:1:19 ]
    │
  1 │ [arg('bar', short='=')]
 ───╯
@@ -640,7 +640,7 @@ fn value_requires_long_or_short() {
     )
     .args(["foo", "-b=hello"])
     .stderr(r#"Error: Argument attribute `value` only valid with `long` or `short`
-   ╭─[justfile:1:13]
+   ╭─[ justfile:1:13 ]
    │
  1 │ [arg('bar', value='baz')]
 ───╯

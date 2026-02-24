@@ -35,7 +35,7 @@ fn undefined_variable_in_working_directory() {
       ",
     )
     .stderr(r#"Error: Variable `foo` not defined
-   ╭─[justfile:1:26]
+   ╭─[ justfile:1:26 ]
    │
  1 │ set working-directory := foo
 ───╯
@@ -52,7 +52,7 @@ fn undefined_variable_in_dotenv_filename() {
       ",
     )
     .stderr(r#"Error: Variable `foo` not defined
-   ╭─[justfile:1:24]
+   ╭─[ justfile:1:24 ]
    │
  1 │ set dotenv-filename := foo
 ───╯
@@ -69,7 +69,7 @@ fn undefined_variable_in_dotenv_path() {
       ",
     )
     .stderr(r#"Error: Variable `foo` not defined
-   ╭─[justfile:1:20]
+   ╭─[ justfile:1:20 ]
    │
  1 │ set dotenv-path := foo
 ───╯
@@ -86,7 +86,7 @@ fn undefined_variable_in_tempdir() {
       ",
     )
     .stderr(r#"Error: Variable `foo` not defined
-   ╭─[justfile:1:16]
+   ╭─[ justfile:1:16 ]
    │
  1 │ set tempdir := foo
 ───╯
@@ -103,7 +103,7 @@ fn undefined_variable_in_script_interpreter_command() {
       ",
     )
     .stderr(r#"Error: Variable `foo` not defined
-   ╭─[justfile:1:28]
+   ╭─[ justfile:1:28 ]
    │
  1 │ set script-interpreter := [foo]
 ───╯
@@ -120,7 +120,7 @@ fn undefined_variable_in_script_interpreter_argument() {
       ",
     )
     .stderr(r#"Error: Variable `bar` not defined
-   ╭─[justfile:1:35]
+   ╭─[ justfile:1:35 ]
    │
  1 │ set script-interpreter := ['foo', bar]
 ───╯
@@ -137,7 +137,7 @@ fn undefined_variable_in_shell_command() {
       ",
     )
     .stderr(r#"Error: Variable `foo` not defined
-   ╭─[justfile:1:15]
+   ╭─[ justfile:1:15 ]
    │
  1 │ set shell := [foo]
 ───╯
@@ -154,7 +154,7 @@ fn undefined_variable_in_shell_argument() {
       ",
     )
     .stderr(r#"Error: Variable `bar` not defined
-   ╭─[justfile:1:22]
+   ╭─[ justfile:1:22 ]
    │
  1 │ set shell := ['foo', bar]
 ───╯
@@ -171,7 +171,7 @@ fn undefined_variable_in_windows_shell_command() {
       ",
     )
     .stderr(r#"Error: Variable `foo` not defined
-   ╭─[justfile:1:23]
+   ╭─[ justfile:1:23 ]
    │
  1 │ set windows-shell := [foo]
 ───╯
@@ -188,7 +188,7 @@ fn undefined_variable_in_windows_shell_argument() {
       ",
     )
     .stderr(r#"Error: Variable `bar` not defined
-   ╭─[justfile:1:30]
+   ╭─[ justfile:1:30 ]
    │
  1 │ set windows-shell := ['foo', bar]
 ───╯

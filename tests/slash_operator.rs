@@ -46,7 +46,7 @@ fn no_rhs_once() {
   Test::new()
     .justfile("x := 'a' /")
     .stderr(r#"Error: Expected backtick, identifier, '(', '/', or string, but found end of file
-   ╭─[justfile:1:11]
+   ╭─[ justfile:1:11 ]
    │
  1 │ x := 'a' /
 ───╯
@@ -64,7 +64,7 @@ fn default_un_parenthesized() {
     ",
     )
     .stderr(r#"Error: Expected '*', ':', '$', identifier, or '+', but found '/'
-   ╭─[justfile:1:11]
+   ╭─[ justfile:1:11 ]
    │
  1 │ foo x='a' / 'b':
 ───╯
@@ -82,7 +82,7 @@ fn no_lhs_un_parenthesized() {
     ",
     )
     .stderr(r#"Error: Expected backtick, identifier, '(', or string, but found '/'
-   ╭─[justfile:1:7]
+   ╭─[ justfile:1:7 ]
    │
  1 │ foo x=/ 'a' / 'b':
 ───╯

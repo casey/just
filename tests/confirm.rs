@@ -128,7 +128,7 @@ fn confirm_recipe_with_prompt_too_many_args() {
       "#,
     )
     .stderr(r#"Error: Attribute argument count mismatch
-   ╭─[justfile:1:2]
+   ╭─[ justfile:1:2 ]
    │
  1 │ [confirm("PROMPT","EXTRA")]
    │  ───┬───  

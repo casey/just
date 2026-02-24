@@ -45,7 +45,7 @@ fn dependency_not_in_submodule() {
     )
     .arg("baz")
     .stderr(r#"Error: Recipe `baz` has unknown dependency `foo::baz`
-   ╭─[justfile:2:11]
+   ╭─[ justfile:2:11 ]
    │
  2 │ baz: foo::baz
 ───╯
@@ -67,7 +67,7 @@ fn dependency_submodule_missing() {
     )
     .arg("baz")
     .stderr(r#"Error: Recipe `baz` has unknown dependency `foo::bar`
-   ╭─[justfile:5:11]
+   ╭─[ justfile:5:11 ]
    │
  5 │ baz: foo::bar
 ───╯
@@ -88,7 +88,7 @@ fn recipe_dependency_on_module_fails() {
     )
     .arg("baz")
     .stderr(r#"Error: Recipe `baz` has unknown dependency `foo::bar`
-   ╭─[justfile:2:11]
+   ╭─[ justfile:2:11 ]
    │
  2 │ baz: foo::bar
 ───╯

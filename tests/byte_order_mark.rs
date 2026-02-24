@@ -25,7 +25,7 @@ fn non_leading_byte_order_mark_produces_error() {
     ",
     )
     .stderr(r#"Error: Expected '@', '[', comment, end of file, end of line, or identifier, but found byte order mark
-   ╭─[justfile:3:1]
+   ╭─[ justfile:3:1 ]
    │
    │ 
 ───╯
@@ -38,7 +38,7 @@ fn dont_mention_byte_order_mark_in_errors() {
   Test::new()
     .justfile("{")
     .stderr(r#"Error: Expected '@', '[', comment, end of file, end of line, or identifier, but found '{'
-   ╭─[justfile:1:1]
+   ╭─[ justfile:1:1 ]
    │
  1 │ {
 ───╯

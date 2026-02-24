@@ -31,7 +31,7 @@ fn duplicate_attributes_are_disallowed() {
     ",
     )
     .stderr(r#"Error: Duplicate attribute `no-exit-message`
-   ╭─[justfile:2:2]
+   ╭─[ justfile:2:2 ]
    │
  1 │ [no-exit-message]
    │ ─────────┬────────  
@@ -71,7 +71,7 @@ fn multiple_attributes_one_line_error_message() {
     ",
     )
     .stderr(r#"Error: Expected ']', ':', ',', or '(', but found identifier
-   ╭─[justfile:1:16]
+   ╭─[ justfile:1:16 ]
    │
  1 │ [macos,windows linux,openbsd]
 ───╯
@@ -91,7 +91,7 @@ fn multiple_attributes_one_line_duplicate_check() {
     ",
     )
     .stderr(r#"Error: Duplicate attribute `linux`
-   ╭─[justfile:2:2]
+   ╭─[ justfile:2:2 ]
    │
  1 │ [macos, windows, linux, openbsd]
    │ ────────────────┬────────────────  
@@ -115,7 +115,7 @@ fn unexpected_attribute_argument() {
     ",
     )
     .stderr(r#"Error: Attribute argument count mismatch
-   ╭─[justfile:1:2]
+   ╭─[ justfile:1:2 ]
    │
  1 │ [private('foo')]
    │  ───┬───  
@@ -170,7 +170,7 @@ fn expected_metadata_attribute_argument() {
     ",
     )
     .stderr(r#"Error: Attribute argument count mismatch
-   ╭─[justfile:1:2]
+   ╭─[ justfile:1:2 ]
    │
  1 │ [metadata]
    │  ────┬───  
@@ -271,7 +271,7 @@ fn extension_on_linewise_error() {
       ",
     )
     .stderr(r#"Error: Recipe `baz` has invalid attribute `extension`
-   ╭─[justfile:2:1]
+   ╭─[ justfile:2:1 ]
    │
  2 │ baz:
 ───╯
@@ -290,7 +290,7 @@ fn duplicate_non_repeatable_attributes_are_forbidden() {
       ",
     )
     .stderr(r#"Error: Duplicate attribute `confirm`
-   ╭─[justfile:2:2]
+   ╭─[ justfile:2:2 ]
    │
  1 │ [confirm: 'yes']
    │ ────────┬────────  
@@ -394,7 +394,7 @@ fn env_attribute_too_few_arguments() {
       ",
     )
     .stderr(r#"Error: Attribute argument count mismatch
-   ╭─[justfile:1:2]
+   ╭─[ justfile:1:2 ]
    │
  1 │ [env('MY_VAR')]
    │  ─┬─  
@@ -417,7 +417,7 @@ fn env_attribute_too_many_arguments() {
       ",
     )
     .stderr(r#"Error: Attribute argument count mismatch
-   ╭─[justfile:1:2]
+   ╭─[ justfile:1:2 ]
    │
  1 │ [env('A', 'B', 'C')]
    │  ─┬─  
@@ -441,7 +441,7 @@ fn env_attribute_duplicate_error() {
       ",
     )
     .stderr(r#"Error: Environment variable `VAR1` first set on line 1 is set again on line 2
-   ╭─[justfile:2:2]
+   ╭─[ justfile:2:2 ]
    │
  2 │ [env('VAR1', 'value 2')]
 ───╯

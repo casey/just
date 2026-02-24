@@ -77,7 +77,7 @@ fn pattern_invalid_regex_error() {
       ",
     )
     .stderr(r#"Error: Failed to parse argument pattern
-   ╭─[justfile:1:21]
+   ╭─[ justfile:1:21 ]
    │
  1 │ [arg('bar', pattern='{')]
 ───╯
@@ -116,7 +116,7 @@ fn duplicate_attribute_error() {
     )
     .args(["foo", "BAR"])
     .stderr(r#"Error: Recipe attribute for argument `bar` first used on line 1 is duplicated on line 2
-   ╭─[justfile:2:2]
+   ╭─[ justfile:2:2 ]
    │
  2 │ [arg('bar', pattern='BAR')]
 ───╯
@@ -135,7 +135,7 @@ fn extra_keyword_error() {
     )
     .args(["foo", "BAR"])
     .stderr(r#"Error: Unknown keyword `foo` for `arg` attribute
-   ╭─[justfile:1:28]
+   ╭─[ justfile:1:28 ]
    │
  1 │ [arg('bar', pattern='BAR', foo='foo')]
 ───╯
@@ -154,7 +154,7 @@ fn unknown_argument_error() {
     )
     .arg("foo")
     .stderr(r#"Error: Argument attribute for undefined argument `bar`
-   ╭─[justfile:1:6]
+   ╭─[ justfile:1:6 ]
    │
  1 │ [arg('bar', pattern='BAR')]
 ───╯
@@ -205,7 +205,7 @@ fn positional_arguments_cannot_follow_keyword_arguments() {
     )
     .args(["foo", "BAR"])
     .stderr(r#"Error: Positional attribute arguments cannot follow keyword attribute arguments
-   ╭─[justfile:1:21]
+   ╭─[ justfile:1:21 ]
    │
  1 │ [arg(pattern='BAR', 'bar')]
 ───╯
@@ -333,7 +333,7 @@ fn pattern_requires_value() {
       ",
     )
     .stderr(r#"Error: Attribute key `pattern` requires value
-   ╭─[justfile:1:13]
+   ╭─[ justfile:1:13 ]
    │
  1 │ [arg('bar', pattern)]
 ───╯
@@ -351,7 +351,7 @@ fn short_requires_value() {
       ",
     )
     .stderr(r#"Error: Attribute key `short` requires value
-   ╭─[justfile:1:13]
+   ╭─[ justfile:1:13 ]
    │
  1 │ [arg('bar', short)]
 ───╯
@@ -369,7 +369,7 @@ fn value_requires_value() {
       ",
     )
     .stderr(r#"Error: Attribute key `value` requires value
-   ╭─[justfile:1:19]
+   ╭─[ justfile:1:19 ]
    │
  1 │ [arg('bar', long, value)]
 ───╯

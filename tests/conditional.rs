@@ -82,7 +82,7 @@ fn undefined_lhs() {
   ",
     )
     .stderr(r#"Error: Variable `b` not defined
-   ╭─[justfile:1:9]
+   ╭─[ justfile:1:9 ]
    │
  1 │ a := if b == '' { '' } else { '' }
 ───╯
@@ -102,7 +102,7 @@ fn undefined_rhs() {
   ",
     )
     .stderr(r#"Error: Variable `b` not defined
-   ╭─[justfile:1:15]
+   ╭─[ justfile:1:15 ]
    │
  1 │ a := if '' == b { '' } else { '' }
 ───╯
@@ -122,7 +122,7 @@ fn undefined_then() {
   ",
     )
     .stderr(r#"Error: Variable `b` not defined
-   ╭─[justfile:1:20]
+   ╭─[ justfile:1:20 ]
    │
  1 │ a := if '' == '' { b } else { '' }
 ───╯
@@ -142,7 +142,7 @@ fn undefined_otherwise() {
   ",
     )
     .stderr(r#"Error: Variable `b` not defined
-   ╭─[justfile:1:32]
+   ╭─[ justfile:1:32 ]
    │
  1 │ a := if '' == '' { '' } else { b }
 ───╯
@@ -162,7 +162,7 @@ fn unexpected_op() {
   ",
     )
     .stderr(r#"Error: Expected '&&', '!=', '!~', '||', '==', '=~', '+', or '/', but found identifier
-   ╭─[justfile:1:12]
+   ╭─[ justfile:1:12 ]
    │
  1 │ a := if '' a '' { '' } else { b }
 ───╯
@@ -218,7 +218,7 @@ fn missing_else() {
   ",
     )
     .stderr(r#"Error: Expected keyword `else` but found `end of line`
-   ╭─[justfile:1:54]
+   ╭─[ justfile:1:54 ]
    │
  1 │ TEST := if path_exists('/bin/bash') == 'true' {'yes'}
 ───╯
@@ -235,7 +235,7 @@ fn incorrect_else_identifier() {
   ",
     )
     .stderr(r#"Error: Expected keyword `else` but found identifier `els`
-   ╭─[justfile:1:55]
+   ╭─[ justfile:1:55 ]
    │
  1 │ TEST := if path_exists('/bin/bash') == 'true' {'yes'} els {'no'}
 ───╯

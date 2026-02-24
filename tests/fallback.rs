@@ -144,7 +144,7 @@ fn print_error_from_parent_if_recipe_not_found_in_current() {
     .args(["foo"])
     .current_dir("bar")
     .stderr(r#"Error: Variable `bar` not defined
-   ╭─[justfile:2:9]
+   ╭─[ justfile:2:9 ]
    │
  2 │  echo {{bar}}
 ───╯
