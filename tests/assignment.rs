@@ -8,15 +8,12 @@ fn set_export_parse_error() {
     set export := fals
   ",
     )
-    .stderr(
-      "
-    error: Expected keyword `true` or `false` but found identifier `fals`
-     ——▶ justfile:1:15
-      │
-    1 │ set export := fals
-      │               ^^^^
-  ",
-    )
+    .stderr(r#"Error: Expected keyword `true` or `false` but found identifier `fals`
+   ╭─[justfile:1:15]
+   │
+ 1 │ set export := fals
+───╯
+"#)
     .failure();
 }
 
@@ -28,15 +25,12 @@ fn set_export_parse_error_eol() {
     set export :=
   ",
     )
-    .stderr(
-      "
-    error: Expected identifier, but found end of line
-     ——▶ justfile:1:14
-      │
-    1 │ set export :=
-      │              ^
-  ",
-    )
+    .stderr(r#"Error: Expected identifier, but found end of line
+   ╭─[justfile:1:14]
+   │
+ 1 │ set export :=
+───╯
+"#)
     .failure();
 }
 
@@ -50,14 +44,11 @@ fn invalid_attributes_are_an_error() {
       ",
     )
     .args(["--evaluate", "x"])
-    .stderr(
-      "
-        error: Assignment `x` has invalid attribute `group`
-         ——▶ justfile:2:1
-          │
-        2 │ x := 'foo'
-          │ ^
-      ",
-    )
+    .stderr(r#"Error: Assignment `x` has invalid attribute `group`
+   ╭─[justfile:2:1]
+   │
+ 2 │ x := 'foo'
+───╯
+"#)
     .failure();
 }

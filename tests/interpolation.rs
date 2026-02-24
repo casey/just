@@ -57,15 +57,12 @@ fn comment_in_interopolation() {
           }}
       ",
     )
-    .stderr(
-      "
-        error: Expected backtick, identifier, '(', '/', or string, but found comment
-         ——▶ justfile:2:11
-          │
-        2 │   echo {{ # hello
-          │           ^^^^^^^
-      ",
-    )
+    .stderr(r#"Error: Expected backtick, identifier, '(', '/', or string, but found comment
+   ╭─[justfile:2:11]
+   │
+ 2 │   echo {{ # hello
+───╯
+"#)
     .failure();
 }
 

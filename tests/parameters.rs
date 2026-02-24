@@ -24,15 +24,12 @@ fn parameter_default_values_may_not_use_later_parameters() {
       ",
     )
     .args(["foo", "bar"])
-    .stderr(
-      "
-        error: Variable `c` not defined
-         ——▶ justfile:1:10
-          │
-        1 │ @foo a b=c c='':
-          │          ^
-      ",
-    )
+    .stderr(r#"Error: Variable `c` not defined
+   ╭─[justfile:1:10]
+   │
+ 1 │ @foo a b=c c='':
+───╯
+"#)
     .failure();
 }
 

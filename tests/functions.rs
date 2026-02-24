@@ -770,15 +770,12 @@ fn join_argument_count_error() {
   Test::new()
     .justfile("x := join('a')")
     .args(["--evaluate"])
-    .stderr(
-      "
-      error: Function `join` called with 1 argument but takes 2 or more
-       ——▶ justfile:1:6
-        │
-      1 │ x := join(\'a\')
-        │      ^^^^
-      ",
-    )
+    .stderr(r#"Error: Function `join` called with 1 argument but takes 2 or more
+   ╭─[justfile:1:6]
+   │
+ 1 │ x := join('a')
+───╯
+"#)
     .failure();
 }
 
@@ -992,15 +989,12 @@ fn shell_no_argument() {
   Test::new()
     .justfile("var := shell()")
     .args(["--evaluate"])
-    .stderr(
-      "
-      error: Function `shell` called with 0 arguments but takes 1 or more
-       ——▶ justfile:1:8
-        │
-      1 │ var := shell()
-        │        ^^^^^
-      ",
-    )
+    .stderr(r#"Error: Function `shell` called with 0 arguments but takes 1 or more
+   ╭─[justfile:1:8]
+   │
+ 1 │ var := shell()
+───╯
+"#)
     .failure();
 }
 
@@ -1277,15 +1271,12 @@ fn unary_argument_count_mismamatch_error_message() {
   Test::new()
     .justfile("x := datetime()")
     .args(["--evaluate"])
-    .stderr(
-      "
-      error: Function `datetime` called with 0 arguments but takes 1
-       ——▶ justfile:1:6
-        │
-      1 │ x := datetime()
-        │      ^^^^^^^^
-      ",
-    )
+    .stderr(r#"Error: Function `datetime` called with 0 arguments but takes 1
+   ╭─[justfile:1:6]
+   │
+ 1 │ x := datetime()
+───╯
+"#)
     .failure();
 }
 
