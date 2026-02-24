@@ -214,6 +214,52 @@ fn status_error() {
 }
 
 #[test]
+fn cancelled_by_user() {
+  if cfg!(windows) {
+    return;
+  }
+  let tmp = temptree! {
+    justfile: "foo:\n echo foo\nbar:\n echo bar\n",
+    "exit-130": "#!/usr/bin/env bash\nexit 130\n",
+  };
+
+  let output = Command::new("chmod")
+    .arg("+x")
+    .arg(tmp.path().join("exit-130"))
+    .output()
+    .unwrap();
+
+  assert!(output.status.success());
+
+  let path = env::join_paths(
+    iter::once(tmp.path().to_owned()).chain(env::split_paths(&env::var_os("PATH").unwrap())),
+  )
+  .unwrap();
+
+  let output = Command::new(JUST)
+    .current_dir(tmp.path())
+    .arg("--choose")
+    .arg("--chooser")
+    .arg("exit-130")
+    .env("PATH", path)
+    .output()
+    .unwrap();
+
+  // Exit code 130 means user cancelled (Ctrl-C / Escape).
+  // Should exit silently without printing an error.
+  assert_eq!(
+    str::from_utf8(&output.stderr).unwrap(),
+    "",
+    "stderr should be empty when chooser is cancelled"
+  );
+
+  assert!(
+    output.status.success(),
+    "should exit successfully when chooser is cancelled"
+  );
+}
+
+#[test]
 fn default() {
   let tmp = temptree! {
     justfile: "foo:\n echo foo\n",

@@ -270,6 +270,11 @@ impl Subcommand {
     };
 
     if !output.status.success() {
+      // Exit code 130 means the user cancelled (e.g., Ctrl-C or Escape in fzf).
+      // Don't print an error in this case, just exit silently.
+      if output.status.code() == Some(130) {
+        return Ok(());
+      }
       return Err(Error::ChooserStatus {
         status: output.status,
         chooser,
