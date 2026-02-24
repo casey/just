@@ -28,7 +28,7 @@ fn os_family() {
     } else {
       panic!("unexpected os family")
     })
-    .run();
+    .success();
 }
 
 #[test]
@@ -75,7 +75,7 @@ fn os() {
     } else {
       panic!("unexpected os family")
     })
-    .run();
+    .success();
 }
 
 #[test]
@@ -94,7 +94,7 @@ fn all() {
     )
     .stdout("bar\n")
     .stderr("echo bar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -108,5 +108,5 @@ fn none() {
     )
     .stdout("bar\n")
     .stderr("echo bar\n")
-    .run();
+    .success();
 }

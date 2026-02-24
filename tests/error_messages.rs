@@ -13,8 +13,7 @@ fn invalid_alias_attribute() {
       │       ^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -30,8 +29,7 @@ fn expected_keyword() {
       │                           ^^^^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -47,8 +45,7 @@ fn unexpected_character() {
       │  ^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -63,15 +60,13 @@ fn argument_count_mismatch() {
           just foo a b
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
 fn file_path_is_indented_if_justfile_is_long() {
   Test::new()
     .justfile("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nfoo")
-    .status(EXIT_FAILURE)
     .stderr(
       "
 error: Expected '*', ':', '$', identifier, or '+', but found end of file
@@ -81,7 +76,7 @@ error: Expected '*', ':', '$', identifier, or '+', but found end of file
    │    ^
 ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -89,7 +84,6 @@ fn file_paths_are_relative() {
   Test::new()
     .justfile("import 'foo/bar.just'")
     .write("foo/bar.just", "baz")
-    .status(EXIT_FAILURE)
     .stderr(format!(
       "
 error: Expected '*', ':', '$', identifier, or '+', but found end of file
@@ -99,18 +93,19 @@ error: Expected '*', ':', '$', identifier, or '+', but found end of file
   │    ^
 ",
     ))
-    .run();
+    .failure();
 }
 
 #[test]
-#[cfg(not(windows))]
 fn file_paths_not_in_subdir_are_absolute() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .write("foo/justfile", "import '../bar.just'")
     .write("bar.just", "baz")
     .no_justfile()
     .args(["--justfile", "foo/justfile"])
-    .status(EXIT_FAILURE)
     .stderr_regex(
       r"error: Expected '\*', ':', '\$', identifier, or '\+', but found end of file
  ——▶ /.*/bar.just:1:4
@@ -119,7 +114,7 @@ fn file_paths_not_in_subdir_are_absolute() {
   │    \^
 ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -127,7 +122,6 @@ fn redefinition_errors_properly_swap_types() {
   Test::new()
     .write("foo.just", "foo:")
     .justfile("foo:\n echo foo\n\nmod foo 'foo.just'")
-    .status(EXIT_FAILURE)
     .stderr(
       "
 error: Recipe `foo` defined on line 1 is redefined as a module on line 4
@@ -137,5 +131,5 @@ error: Recipe `foo` defined on line 1 is redefined as a module on line 4
   │     ^^^
 ",
     )
-    .run();
+    .failure();
 }

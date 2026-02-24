@@ -4,7 +4,7 @@ use {super::*, just::INIT_JUSTFILE};
 fn current_dir() {
   let tmp = tempdir();
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path())
     .arg("--init")
     .output()
@@ -24,14 +24,13 @@ fn exists() {
     .no_justfile()
     .arg("--init")
     .stderr_regex("Wrote justfile to `.*`\n")
-    .run();
+    .success();
 
   Test::with_tempdir(output.tempdir)
     .no_justfile()
     .arg("--init")
-    .status(EXIT_FAILURE)
     .stderr_regex("error: Justfile `.*` already exists\n")
-    .run();
+    .failure();
 }
 
 #[test]
@@ -45,13 +44,12 @@ fn write_error() {
   test
     .no_justfile()
     .args(["--init"])
-    .status(EXIT_FAILURE)
     .stderr_regex(if cfg!(windows) {
       r"error: Failed to write justfile to `.*`: Access is denied. \(os error 5\)\n"
     } else {
       r"error: Failed to write justfile to `.*`: Is a directory \(os error 21\)\n"
     })
-    .run();
+    .failure();
 }
 
 #[test]
@@ -68,7 +66,7 @@ fn invocation_directory() {
     .no_justfile()
     .stderr_regex("Wrote justfile to `.*`\n")
     .arg("--init")
-    .run();
+    .success();
 
   assert_eq!(fs::read_to_string(justfile_path).unwrap(), INIT_JUSTFILE);
 }
@@ -80,7 +78,7 @@ fn parent_dir() {
     sub: {},
   };
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path().join("sub"))
     .arg("--init")
     .output()
@@ -100,7 +98,7 @@ fn alternate_marker() {
     "_darcs": {},
   };
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path())
     .arg("--init")
     .output()
@@ -122,7 +120,7 @@ fn search_directory() {
     },
   };
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path())
     .arg("--init")
     .arg("sub/")
@@ -145,7 +143,7 @@ fn justfile() {
     },
   };
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path().join("sub"))
     .arg("--init")
     .arg("--justfile")
@@ -169,7 +167,7 @@ fn justfile_and_working_directory() {
     },
   };
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path().join("sub"))
     .arg("--init")
     .arg("--justfile")
@@ -193,12 +191,11 @@ fn fmt_compatibility() {
     .no_justfile()
     .arg("--init")
     .stderr_regex("Wrote justfile to `.*`\n")
-    .run();
+    .success();
   Test::with_tempdir(output.tempdir)
     .no_justfile()
     .arg("--unstable")
     .arg("--check")
     .arg("--fmt")
-    .status(EXIT_SUCCESS)
-    .run();
+    .success();
 }

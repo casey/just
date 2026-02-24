@@ -5,9 +5,7 @@ use {
     tempdir::tempdir,
     test::{assert_eval_eq, Output, Test},
   },
-  executable_path::executable_path,
   just::{unindent, Response},
-  libc::{EXIT_FAILURE, EXIT_SUCCESS},
   pretty_assertions::Comparison,
   regex::Regex,
   serde::{Deserialize, Serialize},
@@ -29,6 +27,8 @@ use {
   temptree::{temptree, tree, Tree},
   which::which,
 };
+
+const JUST: &str = env!("CARGO_BIN_EXE_just");
 
 #[cfg(not(windows))]
 use std::thread;

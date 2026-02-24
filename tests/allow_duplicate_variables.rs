@@ -17,5 +17,5 @@ fn allow_duplicate_variables() {
     .arg("b")
     .stdout("bar\n")
     .stderr("echo bar\n")
-    .run();
+    .success();
 }

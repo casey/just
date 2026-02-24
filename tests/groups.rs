@@ -41,7 +41,7 @@ fn list_with_groups() {
             d
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -91,7 +91,7 @@ fn list_with_groups_unsorted() {
             d
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -131,7 +131,7 @@ fn list_with_groups_unsorted_group_order() {
             e
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -156,7 +156,7 @@ fn list_groups() {
           B
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -180,7 +180,7 @@ fn list_groups_with_custom_prefix() {
       ...B
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -203,7 +203,7 @@ fn list_groups_with_shorthand_syntax() {
           B
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -230,7 +230,7 @@ fn list_groups_unsorted() {
           A
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -257,7 +257,7 @@ fn list_groups_private_unsorted() {
           A
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -280,5 +280,5 @@ fn list_groups_private() {
           B
       ",
     )
-    .run();
+    .success();
 }

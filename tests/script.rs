@@ -17,7 +17,7 @@ fn runs_with_command() {
         FOO
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -31,7 +31,7 @@ fn no_arguments() {
       ",
     )
     .stdout("foo\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -46,7 +46,7 @@ fn with_arguments() {
     )
     .stdout("foo\n")
     .stderr("+ echo foo\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -66,7 +66,7 @@ fn allowed_with_shebang() {
         #!/bin/sh
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -90,7 +90,7 @@ fn script_line_numbers() {
         BAR
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -128,12 +128,14 @@ fn script_line_numbers_with_multi_line_recipe_signature() {
         BAZ
       ",
     )
-    .run();
+    .success();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn shebang_line_numbers() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       "foo:
@@ -161,12 +163,14 @@ b
 c
 ",
     )
-    .run();
+    .success();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn shebang_line_numbers_with_multiline_constructs() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"foo b='b'\
@@ -200,12 +204,14 @@ b
 c
 ",
     )
-    .run();
+    .success();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn multiline_shebang_line_numbers() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       "foo:
@@ -237,12 +243,14 @@ b
 c
 ",
     )
-    .run();
+    .success();
 }
 
-#[cfg(windows)]
 #[test]
-fn shebang_line_numbers() {
+fn shebang_line_numbers_windows() {
+  if cfg!(not(windows)) {
+    return;
+  }
   Test::new()
     .justfile(
       "foo:
@@ -271,7 +279,7 @@ b
 c
 ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -296,7 +304,7 @@ fn no_arguments_with_default_script_interpreter() {
         -u is set
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -317,5 +325,5 @@ fn no_arguments_with_non_default_script_interpreter() {
           esac
       ",
     )
-    .run();
+    .success();
 }

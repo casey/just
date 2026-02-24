@@ -59,7 +59,6 @@ ctrlc = { version = "3.1.1", features = ["termination"] }
 
 [dev-dependencies]
 clap_complete = "=4.5.48"
-executable-path = "1.0.0"
 pretty_assertions = "1.0.0"
 temptree = "0.2.0"
 which = "8.0.0"
@@ -67,10 +66,11 @@ which = "8.0.0"
 [lints.rust]
 mismatched_lifetime_syntaxes = "allow"
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(fuzzing)'] }
+unreachable_pub = "deny"
 
 [lints.clippy]
 all = { level = "deny", priority = -1 }
-arbitrary-source-item-ordering = "deny"
+arbitrary_source_item_ordering = "deny"
 enum_glob_use = "allow"
 ignore_without_reason = "allow"
 needless_pass_by_value = "allow"

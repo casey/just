@@ -104,6 +104,10 @@ pub(crate) enum Error<'src> {
   ExpectedSubmoduleButFoundRecipe {
     path: String,
   },
+  FilesystemIo {
+    io_error: io::Error,
+    path: PathBuf,
+  },
   FlagWithValue {
     recipe: &'src str,
     option: Switch,
@@ -325,8 +329,8 @@ impl<'src> From<ConstError<'src>> for Error<'src> {
   }
 }
 
-impl<'src> From<dotenvy::Error> for Error<'src> {
-  fn from(dotenv_error: dotenvy::Error) -> Error<'src> {
+impl From<dotenvy::Error> for Error<'_> {
+  fn from(dotenv_error: dotenvy::Error) -> Self {
     Self::Dotenv { dotenv_error }
   }
 }
@@ -550,6 +554,9 @@ impl ColorDisplay for Error<'_> {
       }
       ExpectedSubmoduleButFoundRecipe { path } => {
         write!(f, "Expected submodule at `{path}` but found recipe.")?;
+      }
+      FilesystemIo { io_error, path } => {
+        write!(f, "I/O error at `{}`: {io_error}", path.display())?;
       }
       FlagWithValue { recipe, option } => {
         write!(f, "Recipe `{recipe}` flag `{option}` does not take value",)?;

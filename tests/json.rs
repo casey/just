@@ -137,7 +137,7 @@ fn case_with_submodule(justfile: &str, submodule: Option<(&str, &str)>, mut expe
 
   fix_source(test.tempdir.path(), &mut expected);
 
-  let actual = test.run().stdout;
+  let actual = test.success().stdout;
 
   let actual: Module = serde_json::from_str(actual.as_str()).unwrap();
   pretty_assertions::assert_eq!(actual, expected);

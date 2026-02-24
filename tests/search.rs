@@ -1,9 +1,7 @@
 use super::*;
 
 fn search_test<P: AsRef<Path>>(path: P, args: &[&str]) {
-  let binary = executable_path("just");
-
-  let output = Command::new(binary)
+  let output = Command::new(JUST)
     .current_dir(path)
     .args(args)
     .output()
@@ -179,7 +177,7 @@ fn find_dot_justfile() {
     .current_dir("dir")
     .stderr("echo ok\n")
     .stdout("ok\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -196,6 +194,5 @@ fn dot_justfile_conflicts_with_justfile() {
       ",
     })
     .stderr_regex("error: Multiple candidate justfiles found in `.*`: `.justfile` and `justfile`\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }

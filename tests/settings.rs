@@ -23,7 +23,7 @@ fn all_settings_allow_expressions() {
       ",
     )
     .stderr("Justfile contains no recipes.\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -43,8 +43,7 @@ fn undefined_variable_in_working_directory() {
         │                          ^^^
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -64,8 +63,7 @@ fn undefined_variable_in_dotenv_filename() {
         │                        ^^^
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -85,8 +83,7 @@ fn undefined_variable_in_dotenv_path() {
         │                    ^^^
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -106,8 +103,7 @@ fn undefined_variable_in_tempdir() {
         │                ^^^
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -127,8 +123,7 @@ fn undefined_variable_in_script_interpreter_command() {
         │                            ^^^
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -148,8 +143,7 @@ fn undefined_variable_in_script_interpreter_argument() {
         │                                   ^^^
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -169,8 +163,7 @@ fn undefined_variable_in_shell_command() {
         │               ^^^
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -190,8 +183,7 @@ fn undefined_variable_in_shell_argument() {
         │                      ^^^
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -211,8 +203,7 @@ fn undefined_variable_in_windows_shell_command() {
         │                       ^^^
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -232,8 +223,7 @@ fn undefined_variable_in_windows_shell_argument() {
         │                              ^^^
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -249,7 +239,7 @@ fn built_in_constant() {
     )
     .write("0123456789abcdef/file.txt", "bar")
     .stdout("bar")
-    .run();
+    .success();
 }
 
 #[test]
@@ -268,7 +258,7 @@ fn variable() {
     .write("bar/file.txt", "baz")
     .arg("foo")
     .stdout("baz")
-    .run();
+    .success();
 }
 
 #[test]
@@ -289,7 +279,7 @@ fn unused_non_const_assignments() {
     .write("bar/file.txt", "baz")
     .arg("foo")
     .stdout("baz")
-    .run();
+    .success();
 }
 
 #[test]
@@ -309,7 +299,7 @@ fn variable_with_override() {
     .write("bob/file.txt", "baz")
     .arg("foo")
     .stdout("baz")
-    .run();
+    .success();
 }
 
 #[test]
@@ -328,7 +318,7 @@ fn expression() {
     .write("bar-bob/file.txt", "baz")
     .arg("foo")
     .stdout("baz")
-    .run();
+    .success();
 }
 
 #[test]
@@ -347,7 +337,7 @@ fn expression_with_override() {
     .write("bob-bob/file.txt", "baz")
     .args(["dir=bob", "foo"])
     .stdout("baz")
-    .run();
+    .success();
 }
 
 #[test]
@@ -367,8 +357,7 @@ fn backtick() {
         │                          ^^^^^
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -388,8 +377,7 @@ fn function_call() {
         │                          ^^^^
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -411,8 +399,7 @@ fn non_const_variable() {
         │                          ^^^
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -432,8 +419,7 @@ fn assert() {
           │                          ^^^^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -456,8 +442,7 @@ fn bad_regex() {
         error: unclosed group
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -478,7 +463,7 @@ fn backtick_override() {
     .write("foo/file.txt", "baz")
     .arg("foo")
     .stdout("baz")
-    .run();
+    .success();
 }
 
 #[test]
@@ -505,7 +490,7 @@ foo:
     .write("foo/bar-baz/file.txt", "ok")
     .args(["foo", "foo"])
     .stdout("ok")
-    .run();
+    .success();
 }
 
 #[test]
@@ -534,5 +519,5 @@ foo:
     .args(["dir=bob", "bob=foo", "foo::foo"])
     .write("bar/file.txt", "ok")
     .stdout("ok")
-    .run();
+    .success();
 }

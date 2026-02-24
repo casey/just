@@ -21,7 +21,7 @@ fn constants_are_defined_in_recipe_bodies() {
       ",
     )
     .stdout("0123456789abcdef\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -34,7 +34,7 @@ fn constants_are_defined_in_recipe_parameters() {
       ",
     )
     .stdout("0123456789abcdef\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -47,7 +47,7 @@ fn constants_can_be_redefined() {
     )
     .args(["--evaluate", "HEX"])
     .stdout("foo")
-    .run();
+    .success();
 }
 
 #[test]
@@ -62,5 +62,5 @@ fn constants_are_not_exported() {
       "#,
     )
     .response(Response::EnvironmentVariable(None))
-    .run();
+    .success();
 }

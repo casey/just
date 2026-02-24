@@ -11,7 +11,7 @@ impl<'src> CompileError<'src> {
     self.token
   }
 
-  pub(crate) fn new(token: Token<'src>, kind: CompileErrorKind<'src>) -> CompileError<'src> {
+  pub(crate) fn new(token: Token<'src>, kind: CompileErrorKind<'src>) -> Self {
     Self {
       token,
       kind: kind.into(),
@@ -128,6 +128,12 @@ impl Display for CompileError<'_> {
       DuplicateAttribute { attribute, first } => write!(
         f,
         "Recipe attribute `{attribute}` first used on line {} is duplicated on line {}",
+        first.ordinal(),
+        self.token.line.ordinal(),
+      ),
+      DuplicateEnvAttribute { variable, first } => write!(
+        f,
+        "Environment variable `{variable}` first set on line {} is set again on line {}",
         first.ordinal(),
         self.token.line.ordinal(),
       ),

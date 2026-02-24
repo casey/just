@@ -34,5 +34,5 @@ foo a b c='abc' d e f='xyz' g='bar' *h:
           -g
       ",
     )
-    .run();
+    .success();
 }

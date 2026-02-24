@@ -9,7 +9,7 @@ fn assert_pass() {
           {{ assert('a' == 'a', 'error message') }}
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -30,6 +30,5 @@ fn assert_fail() {
           │      ^^^^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }

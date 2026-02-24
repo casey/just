@@ -1380,6 +1380,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let mut arg_attributes = BTreeMap::new();
     let mut attributes = Vec::new();
     let mut discriminants = BTreeMap::new();
+    let mut env_attributes = BTreeMap::new();
 
     let mut token = None;
 
@@ -1451,6 +1452,17 @@ impl<'run, 'src> Parser<'run, 'src> {
           }
 
           arg_attributes.insert(arg.cooked.clone(), name.line);
+        }
+
+        if let Attribute::Env(variable, _) = &attribute {
+          if let Some(&first) = env_attributes.get(&variable.cooked) {
+            return Err(name.error(CompileErrorKind::DuplicateEnvAttribute {
+              variable: variable.cooked.clone(),
+              first,
+            }));
+          }
+
+          env_attributes.insert(variable.cooked.clone(), name.line);
         }
 
         discriminants.insert(attribute.discriminant(), name.line);

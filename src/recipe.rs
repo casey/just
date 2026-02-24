@@ -249,7 +249,7 @@ impl<'src, D> Recipe<'src, D> {
       }
     }
 
-    let evaluator = Evaluator::new(context, is_dependency, scope);
+    let evaluator = Evaluator::new(context, BTreeMap::new(), is_dependency, scope);
 
     let start = Instant::now();
     let result = if self.is_script() {
@@ -331,15 +331,8 @@ impl<'src, D> Recipe<'src, D> {
         }
         .stderr();
 
-        if config.timestamp {
-          eprint!(
-            "[{}] ",
-            color.paint(
-              &chrono::Local::now()
-                .format(&config.timestamp_format)
-                .to_string()
-            ),
-          );
+        if let Some(timestamp) = config.timestamp() {
+          eprint!("[{}] ", color.paint(&timestamp));
         }
 
         eprintln!("{}", color.paint(command));
@@ -365,6 +358,12 @@ impl<'src, D> Recipe<'src, D> {
       if config.verbosity.quiet() {
         cmd.stderr(Stdio::null());
         cmd.stdout(Stdio::null());
+      }
+
+      for attribute in &self.attributes {
+        if let Attribute::Env(key, value) = attribute {
+          cmd.env(&key.cooked, &value.cooked);
+        }
       }
 
       cmd.export(
@@ -419,6 +418,17 @@ impl<'src, D> Recipe<'src, D> {
     mut evaluator: Evaluator<'src, 'run>,
   ) -> RunResult<'src, ()> {
     let config = &context.config;
+
+    if let Some(timestamp) = config.timestamp() {
+      let color = if config.highlight {
+        config.color.command(config.command_color)
+      } else {
+        config.color
+      }
+      .stderr();
+
+      eprintln!("[{}] {}", color.paint(&timestamp), self.name);
+    }
 
     let mut evaluated_lines = Vec::new();
     for line in &self.body {
@@ -504,6 +514,12 @@ impl<'src, D> Recipe<'src, D> {
 
     if self.takes_positional_arguments(&context.module.settings) {
       command.args(positional);
+    }
+
+    for attribute in &self.attributes {
+      if let Attribute::Env(key, value) = attribute {
+        command.env(&key.cooked, &value.cooked);
+      }
     }
 
     command.export(

@@ -19,8 +19,7 @@ fn long_options_may_not_be_empty() {
           │                  ^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -42,8 +41,7 @@ fn short_options_may_not_be_empty() {
           │                   ^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -65,8 +63,7 @@ fn short_options_may_not_have_multiple_characters() {
           │                   ^^^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -81,7 +78,7 @@ fn parameters_may_be_passed_with_long_options() {
     )
     .args(["foo", "--bar", "baz"])
     .stdout("bar=baz\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -96,7 +93,7 @@ fn long_option_defaults_to_parameter_name() {
     )
     .args(["foo", "--bar", "baz"])
     .stdout("bar=baz\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -111,7 +108,7 @@ fn parameters_may_be_passed_with_short_options() {
     )
     .args(["foo", "-b", "baz"])
     .stdout("bar=baz\n")
-    .run();
+    .success();
 }
 
 const LONG_SHORT: &str = "
@@ -126,7 +123,7 @@ fn parameters_with_both_long_and_short_option_may_be_passed_as_long() {
     .justfile(LONG_SHORT)
     .args(["foo", "--bar", "baz"])
     .stdout("bar=baz\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -135,7 +132,7 @@ fn parameters_with_both_long_and_short_option_may_be_passed_as_short() {
     .justfile(LONG_SHORT)
     .args(["foo", "-b", "baz"])
     .stdout("bar=baz\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -144,8 +141,7 @@ fn parameters_with_both_long_and_short_may_not_use_both() {
     .justfile(LONG_SHORT)
     .args(["foo", "--bar", "baz", "-b", "baz"])
     .stderr("error: Recipe `foo` option `-b` cannot be passed more than once\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -160,8 +156,7 @@ fn multiple_short_options_in_one_argument_is_an_error() {
     )
     .args(["foo", "-ab"])
     .stderr("error: Passing multiple short options (`-ab`) in one argument is not supported\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -183,8 +178,7 @@ fn duplicate_long_option_attributes_are_forbidden() {
           │                  ^^^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -209,8 +203,7 @@ fn defaulted_duplicate_long_option() {
           │                   ^^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -232,8 +225,7 @@ fn duplicate_short_option_attributes_are_forbidden() {
           │                   ^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -254,8 +246,7 @@ fn variadics_with_long_options_are_forbidden() {
           │      ^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -276,8 +267,7 @@ fn variadics_with_short_options_are_forbidden() {
           │      ^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -298,8 +288,7 @@ fn long_option_names_may_not_contain_equal_sign() {
           │                  ^^^^^^^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -320,8 +309,7 @@ fn short_option_names_may_not_contain_equal_sign() {
           │                   ^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -342,7 +330,7 @@ fn long_options_may_follow_an_omitted_positional_argument() {
         baz=BAZ
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -363,7 +351,7 @@ fn short_options_may_follow_an_omitted_positional_argument() {
         baz=BAZ
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -382,7 +370,7 @@ fn options_with_a_default_may_be_omitted() {
         bar=BAR
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -403,7 +391,7 @@ fn variadics_can_follow_options() {
         baz=A B C
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -421,7 +409,7 @@ fn argument_values_starting_with_dashes_are_accepted_if_recipe_does_not_take_opt
         baz=--bar=BAR --A --B --C
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -437,8 +425,7 @@ fn argument_values_starting_with_dashes_are_an_error_if_recipe_takes_options() {
     )
     .args(["foo", "--bar=BAR", "--A", "--B", "--C"])
     .stderr("error: Recipe `foo` does not have option `--A`\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -459,7 +446,7 @@ fn argument_values_starting_with_dashes_are_accepted_after_double_dash() {
         baz=--A --B --C
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -487,7 +474,7 @@ fn positional_and_long_option_arguments_can_be_intermixed() {
         e=E
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -515,7 +502,7 @@ fn positional_and_short_option_arguments_can_be_intermixed() {
         e=E
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -529,8 +516,7 @@ fn unknown_options_are_an_error() {
     )
     .args(["foo", "--baz", "BAZ"])
     .stderr("error: Recipe `foo` does not have option `--baz`\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -544,8 +530,7 @@ fn missing_required_options_are_an_error() {
     )
     .arg("foo")
     .stderr("error: Recipe `foo` requires option `--bar`\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -559,8 +544,7 @@ fn duplicate_long_options_are_an_error() {
     )
     .args(["foo", "--bar=a", "--bar=b"])
     .stderr("error: Recipe `foo` option `--bar` cannot be passed more than once\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -574,8 +558,7 @@ fn duplicate_short_options_are_an_error() {
     )
     .args(["foo", "-b=a", "-b=b"])
     .stderr("error: Recipe `foo` option `-b` cannot be passed more than once\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -589,8 +572,7 @@ fn options_require_value() {
     )
     .args(["foo", "--bar"])
     .stderr("error: Recipe `foo` option `--bar` missing value\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -610,8 +592,7 @@ fn recipes_with_long_options_have_correct_positional_argument_mismatch_message()
             just foo [OPTIONS] baz
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -631,8 +612,7 @@ fn recipes_with_short_options_have_correct_positional_argument_mismatch_message(
             just foo [OPTIONS] baz
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -647,7 +627,7 @@ fn long_options_with_values_are_flags() {
     )
     .args(["foo", "--bar"])
     .stdout("bar=baz\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -662,7 +642,7 @@ fn short_options_with_values_are_flags() {
     )
     .args(["foo", "-b"])
     .stdout("bar=baz\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -676,8 +656,7 @@ fn flags_cannot_take_values() {
     )
     .args(["foo", "-b=hello"])
     .stderr("error: Recipe `foo` flag `-b` does not take value\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -699,8 +678,7 @@ fn value_requires_long_or_short() {
           │             ^^^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -717,5 +695,5 @@ set positional-arguments
     )
     .args(["foo", "-b", "baz"])
     .stdout("args=baz\n")
-    .run();
+    .success();
 }
