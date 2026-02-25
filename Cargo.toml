@@ -60,6 +60,7 @@ ctrlc = { version = "3.1.1", features = ["termination"] }
 [dev-dependencies]
 clap_complete = "=4.5.48"
 pretty_assertions = "1.0.0"
+rstest = "0.26.1"
 temptree = "0.2.0"
 which = "8.0.0"
 
