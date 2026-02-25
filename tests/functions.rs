@@ -1,71 +1,31 @@
 use super::*;
 
-#[test]
-fn test_os_arch_functions_in_interpolation() {
-  Test::new()
-    .justfile(
-      r"
-foo:
-  echo {{arch()}} {{os()}} {{os_family()}} {{num_cpus()}}
-",
-    )
-    .stdout(
-      format!(
-        "{} {} {} {}\n",
-        target::arch(),
-        target::os(),
-        target::family(),
-        num_cpus::get()
-      )
-      .as_str(),
-    )
-    .stderr(
-      format!(
-        "echo {} {} {} {}\n",
-        target::arch(),
-        target::os(),
-        target::family(),
-        num_cpus::get()
-      )
-      .as_str(),
-    )
-    .success();
-}
+#[rstest]
+#[case::interpolation("foo:\n  echo {{arch()}} {{os()}} {{os_family()}} {{num_cpus()}}")]
+#[case::expression("a := arch()\no := os()\nf := os_family()\nn := num_cpus()\n\nfoo:\n  echo {{a}} {{o}} {{f}} {{n}}")]
+#[case::default_parameter(
+  "foo a=arch() o=os() f=os_family() n=num_cpus():\n  echo {{a}} {{o}} {{f}} {{n}}"
+)]
+fn test_os_arch_functions(#[case] justfile: &str) {
+  let expected_stdout = format!(
+    "{} {} {} {}\n",
+    target::arch(),
+    target::os(),
+    target::family(),
+    num_cpus::get()
+  );
+  let expected_stderr = format!(
+    "echo {} {} {} {}\n",
+    target::arch(),
+    target::os(),
+    target::family(),
+    num_cpus::get()
+  );
 
-#[test]
-fn test_os_arch_functions_in_expression() {
   Test::new()
-    .justfile(
-      r"
-a := arch()
-o := os()
-f := os_family()
-n := num_cpus()
-
-foo:
-  echo {{a}} {{o}} {{f}} {{n}}
-",
-    )
-    .stdout(
-      format!(
-        "{} {} {} {}\n",
-        target::arch(),
-        target::os(),
-        target::family(),
-        num_cpus::get()
-      )
-      .as_str(),
-    )
-    .stderr(
-      format!(
-        "echo {} {} {} {}\n",
-        target::arch(),
-        target::os(),
-        target::family(),
-        num_cpus::get()
-      )
-      .as_str(),
-    )
+    .justfile(justfile)
+    .stdout(expected_stdout.as_str())
+    .stderr(expected_stderr.as_str())
     .success();
 }
 
@@ -143,202 +103,34 @@ foo:
     .success();
 }
 
-#[test]
-fn broken_without_extension_function() {
+#[rstest]
+#[case::without_extension_empty("without_extension", "", "Could not extract parent from ``")]
+#[case::extension_empty("extension", "", "Could not extract extension from ``")]
+#[case::extension_no_ext("extension", "foo", "Could not extract extension from `foo`")]
+#[case::file_stem_empty("file_stem", "", "Could not extract file stem from ``")]
+#[case::file_name_empty("file_name", "", "Could not extract file name from ``")]
+#[case::parent_directory_empty(
+  "parent_directory",
+  "",
+  "Could not extract parent directory from ``"
+)]
+#[case::parent_directory_root(
+  "parent_directory",
+  "/",
+  "Could not extract parent directory from `/`"
+)]
+fn broken_path_functions(#[case] func: &str, #[case] input: &str, #[case] error_msg: &str) {
   if cfg!(windows) {
     return;
   }
+  let carets = "^".repeat(func.len());
   Test::new()
-    .justfile(
-      r"
-we  := without_extension('')
-
-foo:
-  /usr/bin/env echo '{{we}}'
-",
-    )
-    .stderr(
-      format!(
-        "{} {}\n{}\n{}\n{}\n{}\n",
-        "error: Call to function `without_extension` failed:",
-        "Could not extract parent from ``",
-        " ——▶ justfile:1:8",
-        "  │",
-        "1 │ we  := without_extension(\'\')",
-        "  │        ^^^^^^^^^^^^^^^^^"
-      )
-      .as_str(),
-    )
-    .failure();
-}
-
-#[test]
-fn broken_extension_function() {
-  if cfg!(windows) {
-    return;
-  }
-  Test::new()
-    .justfile(
-      r"
-we  := extension('')
-
-foo:
-  /usr/bin/env echo '{{we}}'
-",
-    )
-    .stderr(
-      format!(
-        "{}\n{}\n{}\n{}\n{}\n",
-        "error: Call to function `extension` failed: Could not extract extension from ``",
-        " ——▶ justfile:1:8",
-        "  │",
-        "1 │ we  := extension(\'\')",
-        "  │        ^^^^^^^^^"
-      )
-      .as_str(),
-    )
-    .failure();
-}
-
-#[test]
-fn broken_extension_function2() {
-  if cfg!(windows) {
-    return;
-  }
-  Test::new()
-    .justfile(
-      r"
-we  := extension('foo')
-
-foo:
-  /usr/bin/env echo '{{we}}'
-",
-    )
-    .stderr(
-      format!(
-        "{}\n{}\n{}\n{}\n{}\n",
-        "error: Call to function `extension` failed: Could not extract extension from `foo`",
-        " ——▶ justfile:1:8",
-        "  │",
-        "1 │ we  := extension(\'foo\')",
-        "  │        ^^^^^^^^^"
-      )
-      .as_str(),
-    )
-    .failure();
-}
-
-#[test]
-fn broken_file_stem_function() {
-  if cfg!(windows) {
-    return;
-  }
-  Test::new()
-    .justfile(
-      r"
-we  := file_stem('')
-
-foo:
-  /usr/bin/env echo '{{we}}'
-",
-    )
-    .stderr(
-      format!(
-        "{}\n{}\n{}\n{}\n{}\n",
-        "error: Call to function `file_stem` failed: Could not extract file stem from ``",
-        " ——▶ justfile:1:8",
-        "  │",
-        "1 │ we  := file_stem(\'\')",
-        "  │        ^^^^^^^^^"
-      )
-      .as_str(),
-    )
-    .failure();
-}
-
-#[test]
-fn broken_file_name_function() {
-  if cfg!(windows) {
-    return;
-  }
-  Test::new()
-    .justfile(
-      r"
-we  := file_name('')
-
-foo:
-  /usr/bin/env echo '{{we}}'
-",
-    )
-    .stderr(
-      format!(
-        "{}\n{}\n{}\n{}\n{}\n",
-        "error: Call to function `file_name` failed: Could not extract file name from ``",
-        " ——▶ justfile:1:8",
-        "  │",
-        "1 │ we  := file_name(\'\')",
-        "  │        ^^^^^^^^^"
-      )
-      .as_str(),
-    )
-    .failure();
-}
-
-#[test]
-fn broken_directory_function() {
-  if cfg!(windows) {
-    return;
-  }
-  Test::new()
-    .justfile(
-      r"
-we  := parent_directory('')
-
-foo:
-  /usr/bin/env echo '{{we}}'
-",
-    )
-    .stderr(
-      format!(
-        "{} {}\n{}\n{}\n{}\n{}\n",
-        "error: Call to function `parent_directory` failed:",
-        "Could not extract parent directory from ``",
-        " ——▶ justfile:1:8",
-        "  │",
-        "1 │ we  := parent_directory(\'\')",
-        "  │        ^^^^^^^^^^^^^^^^"
-      )
-      .as_str(),
-    )
-    .failure();
-}
-
-#[test]
-fn broken_directory_function2() {
-  if cfg!(windows) {
-    return;
-  }
-  Test::new()
-    .justfile(
-      r"
-we  := parent_directory('/')
-
-foo:
-  /usr/bin/env echo '{{we}}'
-",
-    )
-    .stderr(
-      format!(
-        "{} {}\n{}\n{}\n{}\n{}\n",
-        "error: Call to function `parent_directory` failed:",
-        "Could not extract parent directory from `/`",
-        " ——▶ justfile:1:8",
-        "  │",
-        "1 │ we  := parent_directory(\'/\')",
-        "  │        ^^^^^^^^^^^^^^^^"
-      )
-      .as_str(),
-    )
+    .justfile(format!(
+      "we  := {func}('{input}')\n\nfoo:\n  /usr/bin/env echo '{{{{we}}}}'"
+    ))
+    .stderr(format!(
+      "error: Call to function `{func}` failed: {error_msg}\n ——▶ justfile:1:8\n  │\n1 │ we  := {func}('{input}')\n  │        {carets}\n"
+    ))
     .failure();
 }
 
@@ -399,218 +191,38 @@ fn test_just_executable_function() {
     .success();
 }
 
-#[test]
-fn test_os_arch_functions_in_default() {
+#[rstest]
+#[case::clean("clean", "a/../b", "b")]
+#[case::uppercase("uppercase", "bar", "BAR")]
+#[case::lowercase("lowercase", "BAR", "bar")]
+#[case::uppercamelcase("uppercamelcase", "foo bar", "FooBar")]
+#[case::lowercamelcase("lowercamelcase", "foo bar", "fooBar")]
+#[case::snakecase("snakecase", "foo bar", "foo_bar")]
+#[case::kebabcase("kebabcase", "foo bar", "foo-bar")]
+#[case::shoutysnakecase("shoutysnakecase", "foo bar", "FOO_BAR")]
+#[case::titlecase("titlecase", "foo bar", "Foo Bar")]
+#[case::shoutykebabcase("shoutykebabcase", "foo bar", "FOO-BAR")]
+#[case::trim("trim", "   bar   ", "bar")]
+#[case::capitalize("capitalize", "BAR", "Bar")]
+fn string_functions(#[case] func: &str, #[case] input: &str, #[case] expected: &str) {
   Test::new()
-    .justfile(
-      r"
-foo a=arch() o=os() f=os_family() n=num_cpus():
-  echo {{a}} {{o}} {{f}} {{n}}
-",
-    )
-    .stdout(
-      format!(
-        "{} {} {} {}\n",
-        target::arch(),
-        target::os(),
-        target::family(),
-        num_cpus::get()
-      )
-      .as_str(),
-    )
-    .stderr(
-      format!(
-        "echo {} {} {} {}\n",
-        target::arch(),
-        target::os(),
-        target::family(),
-        num_cpus::get()
-      )
-      .as_str(),
-    )
-    .success();
-}
-
-#[test]
-fn clean() {
-  Test::new()
-    .justfile(
-      "
-    foo:
-      echo {{ clean('a/../b') }}
-  ",
-    )
-    .stdout("b\n")
-    .stderr("echo b\n")
-    .success();
-}
-
-#[test]
-fn uppercase() {
-  Test::new()
-    .justfile(
-      "
-    foo:
-      echo {{ uppercase('bar') }}
-  ",
-    )
-    .stdout("BAR\n")
-    .stderr("echo BAR\n")
-    .success();
-}
-
-#[test]
-fn lowercase() {
-  Test::new()
-    .justfile(
-      "
-    foo:
-      echo {{ lowercase('BAR') }}
-  ",
-    )
-    .stdout("bar\n")
-    .stderr("echo bar\n")
-    .success();
-}
-
-#[test]
-fn uppercamelcase() {
-  Test::new()
-    .justfile(
-      "
-    foo:
-      echo {{ uppercamelcase('foo bar') }}
-  ",
-    )
-    .stdout("FooBar\n")
-    .stderr("echo FooBar\n")
-    .success();
-}
-
-#[test]
-fn lowercamelcase() {
-  Test::new()
-    .justfile(
-      "
-    foo:
-      echo {{ lowercamelcase('foo bar') }}
-  ",
-    )
-    .stdout("fooBar\n")
-    .stderr("echo fooBar\n")
-    .success();
-}
-
-#[test]
-fn snakecase() {
-  Test::new()
-    .justfile(
-      "
-    foo:
-      echo {{ snakecase('foo bar') }}
-  ",
-    )
-    .stdout("foo_bar\n")
-    .stderr("echo foo_bar\n")
-    .success();
-}
-
-#[test]
-fn kebabcase() {
-  Test::new()
-    .justfile(
-      "
-    foo:
-      echo {{ kebabcase('foo bar') }}
-  ",
-    )
-    .stdout("foo-bar\n")
-    .stderr("echo foo-bar\n")
-    .success();
-}
-
-#[test]
-fn shoutysnakecase() {
-  Test::new()
-    .justfile(
-      "
-    foo:
-      echo {{ shoutysnakecase('foo bar') }}
-  ",
-    )
-    .stdout("FOO_BAR\n")
-    .stderr("echo FOO_BAR\n")
-    .success();
-}
-
-#[test]
-fn titlecase() {
-  Test::new()
-    .justfile(
-      "
-    foo:
-      echo {{ titlecase('foo bar') }}
-  ",
-    )
-    .stdout("Foo Bar\n")
-    .stderr("echo Foo Bar\n")
-    .success();
-}
-
-#[test]
-fn shoutykebabcase() {
-  Test::new()
-    .justfile(
-      "
-    foo:
-      echo {{ shoutykebabcase('foo bar') }}
-  ",
-    )
-    .stdout("FOO-BAR\n")
-    .stderr("echo FOO-BAR\n")
-    .success();
-}
-
-#[test]
-fn trim() {
-  Test::new()
-    .justfile(
-      "
-    foo:
-      echo {{ trim('   bar   ') }}
-  ",
-    )
-    .stdout("bar\n")
-    .stderr("echo bar\n")
+    .justfile(format!("foo:\n  echo {{{{ {func}('{input}') }}}}"))
+    .stdout(format!("{expected}\n"))
+    .stderr(format!("echo {expected}\n"))
     .success();
 }
 
 #[test]
 fn replace() {
-  Test::new()
-    .justfile(
-      "
-    foo:
-      echo {{ replace('barbarbar', 'bar', 'foo') }}
-  ",
-    )
-    .stdout("foofoofoo\n")
-    .stderr("echo foofoofoo\n")
-    .success();
+  assert_eval_eq("replace('barbarbar', 'bar', 'foo')", "foofoofoo");
 }
 
 #[test]
 fn replace_regex() {
-  Test::new()
-    .justfile(
-      "
-    foo:
-      echo {{ replace_regex('123bar123bar123bar', '\\d+bar', 'foo') }}
-  ",
-    )
-    .stdout("foofoofoo\n")
-    .stderr("echo foofoofoo\n")
-    .success();
+  assert_eval_eq(
+    r"replace_regex('123bar123bar123bar', '\d+bar', 'foo')",
+    "foofoofoo",
+  );
 }
 
 #[test]
@@ -634,20 +246,6 @@ error: incomplete escape sequence, reached end of pattern prematurely
 ",
     )
     .failure();
-}
-
-#[test]
-fn capitalize() {
-  Test::new()
-    .justfile(
-      "
-      foo:
-        echo {{ capitalize('BAR') }}
-    ",
-    )
-    .stdout("Bar\n")
-    .stderr("echo Bar\n")
-    .success();
 }
 
 #[test]
@@ -1409,16 +1007,16 @@ bar:
     .success();
 }
 
-#[test]
-fn style_command_default() {
+#[rstest]
+#[case::command("command", "\x1b[1m")]
+#[case::error("error", "\x1b[1;31m")]
+#[case::warning("warning", "\x1b[1;33m")]
+fn style_functions(#[case] style: &str, #[case] escape_code: &str) {
   Test::new()
-    .justfile(
-      r#"
-        foo:
-          @echo '{{ style("command") }}foo{{NORMAL}}'
-      "#,
-    )
-    .stdout("\x1b[1mfoo\x1b[0m\n")
+    .justfile(format!(
+      "foo:\n  @echo '{{{{ style(\"{style}\") }}}}foo{{{{NORMAL}}}}'"
+    ))
+    .stdout(format!("{escape_code}foo\x1b[0m\n"))
     .success();
 }
 
@@ -1433,32 +1031,6 @@ fn style_command_non_default() {
     )
     .args(["--command-color", "red"])
     .stdout("\x1b[1;31mfoo\x1b[0m\n")
-    .success();
-}
-
-#[test]
-fn style_error() {
-  Test::new()
-    .justfile(
-      r#"
-        foo:
-          @echo '{{ style("error") }}foo{{NORMAL}}'
-      "#,
-    )
-    .stdout("\x1b[1;31mfoo\x1b[0m\n")
-    .success();
-}
-
-#[test]
-fn style_warning() {
-  Test::new()
-    .justfile(
-      r#"
-        foo:
-          @echo '{{ style("warning") }}foo{{NORMAL}}'
-      "#,
-    )
-    .stdout("\x1b[1;33mfoo\x1b[0m\n")
     .success();
 }
 

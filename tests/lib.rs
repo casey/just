@@ -8,6 +8,7 @@ use {
   just::{unindent, Response},
   pretty_assertions::Comparison,
   regex::Regex,
+  rstest::rstest,
   serde::{Deserialize, Serialize},
   serde_json::{json, Value},
   std::{
