@@ -5,13 +5,12 @@ fn parameter_default_unknown_variable_in_expression() {
   Test::new()
     .justfile("foo a=(b+''):")
     .stderr(
-      "
-      error: Variable `b` not defined
-       ——▶ justfile:1:8
-        │
-      1 │ foo a=(b+''):
-        │        ^
-    ",
+      r"Error: Variable `b` not defined
+   ╭─[ justfile:1:8 ]
+   │
+ 1 │ foo a=(b+''):
+───╯
+",
     )
     .failure();
 }
@@ -25,13 +24,12 @@ fn unknown_variable_in_unary_call() {
   ",
     )
     .stderr(
-      "
-      error: Variable `a` not defined
-       ——▶ justfile:1:15
-        │
-      1 │ foo x=env_var(a):
-        │               ^
-      ",
+      r"Error: Variable `a` not defined
+   ╭─[ justfile:1:15 ]
+   │
+ 1 │ foo x=env_var(a):
+───╯
+",
     )
     .failure();
 }
@@ -45,13 +43,12 @@ fn unknown_first_variable_in_binary_call() {
   ",
     )
     .stderr(
-      "
-      error: Variable `a` not defined
-       ——▶ justfile:1:26
-        │
-      1 │ foo x=env_var_or_default(a, b):
-        │                          ^
-      ",
+      r"Error: Variable `a` not defined
+   ╭─[ justfile:1:26 ]
+   │
+ 1 │ foo x=env_var_or_default(a, b):
+───╯
+",
     )
     .failure();
 }
@@ -65,13 +62,12 @@ fn unknown_second_variable_in_binary_call() {
   ",
     )
     .stderr(
-      "
-      error: Variable `b` not defined
-       ——▶ justfile:1:30
-        │
-      1 │ foo x=env_var_or_default('', b):
-        │                              ^
-      ",
+      r"Error: Variable `b` not defined
+   ╭─[ justfile:1:30 ]
+   │
+ 1 │ foo x=env_var_or_default('', b):
+───╯
+",
     )
     .failure();
 }
@@ -85,13 +81,12 @@ fn unknown_variable_in_ternary_call() {
   ",
     )
     .stderr(
-      "
-      error: Variable `a` not defined
-       ——▶ justfile:1:15
-        │
-      1 │ foo x=replace(a, b, c):
-        │               ^
-      ",
+      r"Error: Variable `a` not defined
+   ╭─[ justfile:1:15 ]
+   │
+ 1 │ foo x=replace(a, b, c):
+───╯
+",
     )
     .failure();
 }

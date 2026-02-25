@@ -26,13 +26,12 @@ fn allow_missing_does_not_apply_to_compilation_errors() {
     .justfile("bar: foo")
     .args(["--allow-missing", "foo"])
     .stderr(
-      "
-        error: Recipe `bar` has unknown dependency `foo`
-         ——▶ justfile:1:6
-          │
-        1 │ bar: foo
-          │      ^^^
-      ",
+      r"Error: Recipe `bar` has unknown dependency `foo`
+   ╭─[ justfile:1:6 ]
+   │
+ 1 │ bar: foo
+───╯
+",
     )
     .failure();
 }

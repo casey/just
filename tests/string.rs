@@ -122,12 +122,12 @@ fn invalid_escape_sequence() {
 a:"#,
     )
     .stderr(
-      "error: `\\q` is not a valid escape sequence
- ——▶ justfile:1:6
-  │
-1 │ x := \"\\q\"
-  │      ^^^^
-",
+      r#"Error: `\q` is not a valid escape sequence
+   ╭─[ justfile:1:6 ]
+   │
+ 1 │ x := "\q"
+───╯
+"#,
     )
     .failure();
 }
@@ -147,11 +147,11 @@ a:
 ",
     )
     .stderr(
-      "error: Variable `foo` not defined
- ——▶ justfile:6:11
-  │
-6 │   echo '{{foo}}'
-  │           ^^^
+      r"Error: Variable `foo` not defined
+   ╭─[ justfile:6:11 ]
+   │
+ 6 │   echo '{{foo}}'
+───╯
 ",
     )
     .failure();
@@ -172,11 +172,11 @@ a:
 ",
     )
     .stderr(
-      "error: Variable `bar` not defined
- ——▶ justfile:3:13
-  │
-3 │ whatever' + bar
-  │             ^^^
+      r"Error: Variable `bar` not defined
+   ╭─[ justfile:3:13 ]
+   │
+ 3 │ whatever' + bar
+───╯
 ",
     )
     .failure();
@@ -222,11 +222,11 @@ a:
 "#,
     )
     .stderr(
-      "error: Variable `b` not defined
- ——▶ justfile:5:10
-  │
-5 │   echo {{b}}
-  │          ^
+      r"Error: Variable `b` not defined
+   ╭─[ justfile:5:10 ]
+   │
+ 5 │   echo {{b}}
+───╯
 ",
     )
     .failure();
@@ -242,13 +242,12 @@ fn unterminated_raw_string() {
   ",
     )
     .stderr(
-      "
-    error: Unterminated string
-     ——▶ justfile:1:6
-      │
-    1 │ a b= ':
-      │      ^
-  ",
+      r"Error: Unterminated string
+   ╭─[ justfile:1:6 ]
+   │
+ 1 │ a b= ':
+───╯
+",
     )
     .failure();
 }
@@ -263,13 +262,12 @@ fn unterminated_string() {
   "#,
     )
     .stderr(
-      r#"
-    error: Unterminated string
-     ——▶ justfile:1:6
-      │
-    1 │ a b= ":
-      │      ^
-  "#,
+      r#"Error: Unterminated string
+   ╭─[ justfile:1:6 ]
+   │
+ 1 │ a b= ":
+───╯
+"#,
     )
     .failure();
 }
@@ -284,13 +282,12 @@ fn unterminated_backtick() {
   ",
     )
     .stderr(
-      r"
-    error: Unterminated backtick
-     ——▶ justfile:1:8
-      │
-    1 │ foo a=    `echo blaaaaaah:
-      │           ^
-  ",
+      r"Error: Unterminated backtick
+   ╭─[ justfile:1:8 ]
+   │
+ 1 │ foo a=  `echo blaaaaaah:
+───╯
+",
     )
     .failure();
 }
@@ -305,13 +302,12 @@ fn unterminated_indented_raw_string() {
   ",
     )
     .stderr(
-      "
-    error: Unterminated string
-     ——▶ justfile:1:6
-      │
-    1 │ a b= ''':
-      │      ^^^
-  ",
+      r"Error: Unterminated string
+   ╭─[ justfile:1:6 ]
+   │
+ 1 │ a b= ''':
+───╯
+",
     )
     .failure();
 }
@@ -326,13 +322,12 @@ fn unterminated_indented_string() {
   "#,
     )
     .stderr(
-      r#"
-    error: Unterminated string
-     ——▶ justfile:1:6
-      │
-    1 │ a b= """:
-      │      ^^^
-  "#,
+      r#"Error: Unterminated string
+   ╭─[ justfile:1:6 ]
+   │
+ 1 │ a b= """:
+───╯
+"#,
     )
     .failure();
 }
@@ -347,13 +342,12 @@ fn unterminated_indented_backtick() {
   ",
     )
     .stderr(
-      r"
-    error: Unterminated backtick
-     ——▶ justfile:1:8
-      │
-    1 │ foo a=    ```echo blaaaaaah:
-      │           ^^^
-  ",
+      r"Error: Unterminated backtick
+   ╭─[ justfile:1:8 ]
+   │
+ 1 │ foo a=  ```echo blaaaaaah:
+───╯
+",
     )
     .failure();
 }
@@ -500,13 +494,12 @@ fn shebang_backtick() {
   ",
     )
     .stderr(
-      "
-    error: Backticks may not start with `#!`
-     ——▶ justfile:1:6
-      │
-    1 │ x := `#!/usr/bin/env sh`
-      │      ^^^^^^^^^^^^^^^^^^^
-  ",
+      r"Error: Backticks may not start with `#!`
+   ╭─[ justfile:1:6 ]
+   │
+ 1 │ x := `#!/usr/bin/env sh`
+───╯
+",
     )
     .failure();
 }
@@ -544,12 +537,11 @@ fn unicode_escape_no_braces() {
     .justfile("x := \"\\u1234\"")
     .args(["--evaluate", "x"])
     .stderr(
-      r#"
-error: expected unicode escape sequence delimiter `{` but found `1`
- ——▶ justfile:1:6
-  │
-1 │ x := "\u1234"
-  │      ^^^^^^^^
+      r#"Error: expected unicode escape sequence delimiter `{` but found `1`
+   ╭─[ justfile:1:6 ]
+   │
+ 1 │ x := "\u1234"
+───╯
 "#,
     )
     .failure();
@@ -561,12 +553,11 @@ fn unicode_escape_empty() {
     .justfile("x := \"\\u{}\"")
     .args(["--evaluate", "x"])
     .stderr(
-      r#"
-error: unicode escape sequences must not be empty
- ——▶ justfile:1:6
-  │
-1 │ x := "\u{}"
-  │      ^^^^^^
+      r#"Error: unicode escape sequences must not be empty
+   ╭─[ justfile:1:6 ]
+   │
+ 1 │ x := "\u{}"
+───╯
 "#,
     )
     .failure();
@@ -578,12 +569,11 @@ fn unicode_escape_requires_immediate_opening_brace() {
     .justfile("x := \"\\u {1f916}\"")
     .args(["--evaluate", "x"])
     .stderr(
-      r#"
-error: expected unicode escape sequence delimiter `{` but found ` `
- ——▶ justfile:1:6
-  │
-1 │ x := "\u {1f916}"
-  │      ^^^^^^^^^^^^
+      r#"Error: expected unicode escape sequence delimiter `{` but found ` `
+   ╭─[ justfile:1:6 ]
+   │
+ 1 │ x := "\u {1f916}"
+───╯
 "#,
     )
     .failure();
@@ -596,11 +586,11 @@ fn unicode_escape_non_hex() {
     .args(["--evaluate", "x"])
     .stderr(
       r#"
-error: expected hex digit [0-9A-Fa-f] but found `o`
- ——▶ justfile:1:6
-  │
-1 │ x := "\u{foo}"
-  │      ^^^^^^^^^
+Error: expected hex digit [0-9A-Fa-f] but found `o`
+   ╭─[ justfile:1:6 ]
+   │
+ 1 │ x := "\u{foo}"
+───╯
 "#,
     )
     .failure();
@@ -611,15 +601,12 @@ fn unicode_escape_invalid_character() {
   Test::new()
     .justfile("x := \"\\u{BadBad}\"")
     .args(["--evaluate", "x"])
-    .stderr(
-      r#"
-error: unicode escape sequence value `BadBad` greater than maximum valid code point `10FFFF`
- ——▶ justfile:1:6
-  │
-1 │ x := "\u{BadBad}"
-  │      ^^^^^^^^^^^^
-"#,
-    )
+    .stderr(r#"Error: unicode escape sequence value `BadBad` greater than maximum valid code point `10FFFF`
+   ╭─[ justfile:1:6 ]
+   │
+ 1 │ x := "\u{BadBad}"
+───╯
+"#)
     .failure();
 }
 
@@ -630,11 +617,11 @@ fn unicode_escape_too_long() {
     .args(["--evaluate", "x"])
     .stderr(
       r#"
-error: unicode escape sequence starting with `\u{FFFFFFF` longer than six hex digits
- ——▶ justfile:1:6
-  │
-1 │ x := "\u{FFFFFFFFFF}"
-  │      ^^^^^^^^^^^^^^^^
+Error: unicode escape sequence starting with `\u{FFFFFFF` longer than six hex digits
+   ╭─[ justfile:1:6 ]
+   │
+ 1 │ x := "\u{FFFFFFFFFF}"
+───╯
 "#,
     )
     .failure();
@@ -646,12 +633,11 @@ fn unicode_escape_unterminated() {
     .justfile("x := \"\\u{1f917\"")
     .args(["--evaluate", "x"])
     .stderr(
-      r#"
-error: unterminated unicode escape sequence
- ——▶ justfile:1:6
-  │
-1 │ x := "\u{1f917"
-  │      ^^^^^^^^^^
+      r#"Error: unterminated unicode escape sequence
+   ╭─[ justfile:1:6 ]
+   │
+ 1 │ x := "\u{1f917"
+───╯
 "#,
     )
     .failure();

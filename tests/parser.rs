@@ -21,12 +21,11 @@ fn invalid_bang_operator() {
       ",
     )
     .stderr(
-      r"
-error: Expected character `=` or `~`
- ——▶ justfile:1:13
-  │
-1 │ x := if '' !! '' { '' } else { '' }
-  │             ^
+      r"Error: Expected character `=` or `~`
+   ╭─[ justfile:1:13 ]
+   │
+ 1 │ x := if '' !! '' { '' } else { '' }
+───╯
 ",
     )
     .failure();
@@ -37,12 +36,11 @@ fn truncated_bang_operator() {
   Test::new()
     .justfile("x := if '' !")
     .stderr(
-      r"
-error: Expected character `=` or `~` but found end-of-file
- ——▶ justfile:1:13
-  │
-1 │ x := if '' !
-  │             ^
+      r"Error: Expected character `=` or `~` but found end-of-file
+   ╭─[ justfile:1:13 ]
+   │
+ 1 │ x := if '' !
+───╯
 ",
     )
     .failure();

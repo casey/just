@@ -149,13 +149,12 @@ fn include_error() {
   Test::new()
     .justfile("!include foo")
     .stderr(
-      "
-      error: The `!include` directive has been stabilized as `import`
-       ——▶ justfile:1:1
-        │
-      1 │ !include foo
-        │ ^
-      ",
+      r"Error: The `!include` directive has been stabilized as `import`
+   ╭─[ justfile:1:1 ]
+   │
+ 1 │ !include foo
+───╯
+",
     )
     .failure();
 }

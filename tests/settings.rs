@@ -35,13 +35,12 @@ fn undefined_variable_in_working_directory() {
       ",
     )
     .stderr(
-      "
-      error: Variable `foo` not defined
-       ——▶ justfile:1:26
-        │
-      1 │ set working-directory := foo
-        │                          ^^^
-    ",
+      r"Error: Variable `foo` not defined
+   ╭─[ justfile:1:26 ]
+   │
+ 1 │ set working-directory := foo
+───╯
+",
     )
     .failure();
 }
@@ -55,13 +54,12 @@ fn undefined_variable_in_dotenv_filename() {
       ",
     )
     .stderr(
-      "
-      error: Variable `foo` not defined
-       ——▶ justfile:1:24
-        │
-      1 │ set dotenv-filename := foo
-        │                        ^^^
-    ",
+      r"Error: Variable `foo` not defined
+   ╭─[ justfile:1:24 ]
+   │
+ 1 │ set dotenv-filename := foo
+───╯
+",
     )
     .failure();
 }
@@ -75,13 +73,12 @@ fn undefined_variable_in_dotenv_path() {
       ",
     )
     .stderr(
-      "
-      error: Variable `foo` not defined
-       ——▶ justfile:1:20
-        │
-      1 │ set dotenv-path := foo
-        │                    ^^^
-    ",
+      r"Error: Variable `foo` not defined
+   ╭─[ justfile:1:20 ]
+   │
+ 1 │ set dotenv-path := foo
+───╯
+",
     )
     .failure();
 }
@@ -95,13 +92,12 @@ fn undefined_variable_in_tempdir() {
       ",
     )
     .stderr(
-      "
-      error: Variable `foo` not defined
-       ——▶ justfile:1:16
-        │
-      1 │ set tempdir := foo
-        │                ^^^
-    ",
+      r"Error: Variable `foo` not defined
+   ╭─[ justfile:1:16 ]
+   │
+ 1 │ set tempdir := foo
+───╯
+",
     )
     .failure();
 }
@@ -115,13 +111,12 @@ fn undefined_variable_in_script_interpreter_command() {
       ",
     )
     .stderr(
-      "
-      error: Variable `foo` not defined
-       ——▶ justfile:1:28
-        │
-      1 │ set script-interpreter := [foo]
-        │                            ^^^
-    ",
+      r"Error: Variable `foo` not defined
+   ╭─[ justfile:1:28 ]
+   │
+ 1 │ set script-interpreter := [foo]
+───╯
+",
     )
     .failure();
 }
@@ -135,13 +130,12 @@ fn undefined_variable_in_script_interpreter_argument() {
       ",
     )
     .stderr(
-      "
-      error: Variable `bar` not defined
-       ——▶ justfile:1:35
-        │
-      1 │ set script-interpreter := ['foo', bar]
-        │                                   ^^^
-    ",
+      r"Error: Variable `bar` not defined
+   ╭─[ justfile:1:35 ]
+   │
+ 1 │ set script-interpreter := ['foo', bar]
+───╯
+",
     )
     .failure();
 }
@@ -155,13 +149,12 @@ fn undefined_variable_in_shell_command() {
       ",
     )
     .stderr(
-      "
-      error: Variable `foo` not defined
-       ——▶ justfile:1:15
-        │
-      1 │ set shell := [foo]
-        │               ^^^
-    ",
+      r"Error: Variable `foo` not defined
+   ╭─[ justfile:1:15 ]
+   │
+ 1 │ set shell := [foo]
+───╯
+",
     )
     .failure();
 }
@@ -175,13 +168,12 @@ fn undefined_variable_in_shell_argument() {
       ",
     )
     .stderr(
-      "
-      error: Variable `bar` not defined
-       ——▶ justfile:1:22
-        │
-      1 │ set shell := ['foo', bar]
-        │                      ^^^
-    ",
+      r"Error: Variable `bar` not defined
+   ╭─[ justfile:1:22 ]
+   │
+ 1 │ set shell := ['foo', bar]
+───╯
+",
     )
     .failure();
 }
@@ -195,13 +187,12 @@ fn undefined_variable_in_windows_shell_command() {
       ",
     )
     .stderr(
-      "
-      error: Variable `foo` not defined
-       ——▶ justfile:1:23
-        │
-      1 │ set windows-shell := [foo]
-        │                       ^^^
-    ",
+      r"Error: Variable `foo` not defined
+   ╭─[ justfile:1:23 ]
+   │
+ 1 │ set windows-shell := [foo]
+───╯
+",
     )
     .failure();
 }
@@ -215,13 +206,12 @@ fn undefined_variable_in_windows_shell_argument() {
       ",
     )
     .stderr(
-      "
-      error: Variable `bar` not defined
-       ——▶ justfile:1:30
-        │
-      1 │ set windows-shell := ['foo', bar]
-        │                              ^^^
-    ",
+      r"Error: Variable `bar` not defined
+   ╭─[ justfile:1:30 ]
+   │
+ 1 │ set windows-shell := ['foo', bar]
+───╯
+",
     )
     .failure();
 }

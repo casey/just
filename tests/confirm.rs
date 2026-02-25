@@ -128,13 +128,16 @@ fn confirm_recipe_with_prompt_too_many_args() {
       "#,
     )
     .stderr(
-      r#"
-        error: Attribute `confirm` got 2 arguments but takes at most 1 argument
-         ——▶ justfile:1:2
-          │
-        1 │ [confirm("PROMPT","EXTRA")]
-          │  ^^^^^^^
-      "#,
+      r#"Error: Attribute argument count mismatch
+   ╭─[ justfile:1:2 ]
+   │
+ 1 │ [confirm("PROMPT","EXTRA")]
+   │  ───┬───  
+   │     ╰───── Found 2 arguments
+   │ 
+   │ Note: `confirm` takes between 0 and 1 arguments
+───╯
+"#,
     )
     .failure();
 }

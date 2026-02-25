@@ -48,13 +48,12 @@ fn duplicate_unexport_fails() {
     )
     .env("JUST_TEST_VARIABLE", "foo")
     .stderr(
-      "
-        error: Variable `JUST_TEST_VARIABLE` is unexported multiple times
-         ——▶ justfile:6:10
-          │
-        6 │ unexport JUST_TEST_VARIABLE
-          │          ^^^^^^^^^^^^^^^^^^
-      ",
+      r"Error: Variable `JUST_TEST_VARIABLE` is unexported multiple times
+   ╭─[ justfile:6:10 ]
+   │
+ 6 │ unexport JUST_TEST_VARIABLE
+───╯
+",
     )
     .failure();
 }
@@ -73,13 +72,12 @@ fn export_unexport_conflict() {
       ",
     )
     .stderr(
-      "
-        error: Variable JUST_TEST_VARIABLE is both exported and unexported
-         ——▶ justfile:6:8
-          │
-        6 │ export JUST_TEST_VARIABLE := 'foo'
-          │        ^^^^^^^^^^^^^^^^^^
-      ",
+      r"Error: Variable JUST_TEST_VARIABLE is both exported and unexported
+   ╭─[ justfile:6:8 ]
+   │
+ 6 │ export JUST_TEST_VARIABLE := 'foo'
+───╯
+",
     )
     .failure();
 }

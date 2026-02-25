@@ -77,17 +77,12 @@ fn pattern_invalid_regex_error() {
       ",
     )
     .stderr(
-      "
-        error: Failed to parse argument pattern
-         ——▶ justfile:1:21
-          │
-        1 │ [arg('bar', pattern='{')]
-          │                     ^^^
-        caused by: regex parse error:
-            {
-            ^
-        error: repetition operator missing expression
-      ",
+      r"Error: Failed to parse argument pattern
+   ╭─[ justfile:1:21 ]
+   │
+ 1 │ [arg('bar', pattern='{')]
+───╯
+",
     )
     .failure();
 }
@@ -123,13 +118,12 @@ fn duplicate_attribute_error() {
     )
     .args(["foo", "BAR"])
     .stderr(
-      "
-        error: Recipe attribute for argument `bar` first used on line 1 is duplicated on line 2
-         ——▶ justfile:2:2
-          │
-        2 │ [arg('bar', pattern='BAR')]
-          │  ^^^
-      ",
+      r"Error: Recipe attribute for argument `bar` first used on line 1 is duplicated on line 2
+   ╭─[ justfile:2:2 ]
+   │
+ 2 │ [arg('bar', pattern='BAR')]
+───╯
+",
     )
     .failure();
 }
@@ -145,13 +139,12 @@ fn extra_keyword_error() {
     )
     .args(["foo", "BAR"])
     .stderr(
-      "
-        error: Unknown keyword `foo` for `arg` attribute
-         ——▶ justfile:1:28
-          │
-        1 │ [arg('bar', pattern='BAR', foo='foo')]
-          │                            ^^^
-      ",
+      r"Error: Unknown keyword `foo` for `arg` attribute
+   ╭─[ justfile:1:28 ]
+   │
+ 1 │ [arg('bar', pattern='BAR', foo='foo')]
+───╯
+",
     )
     .failure();
 }
@@ -167,13 +160,12 @@ fn unknown_argument_error() {
     )
     .arg("foo")
     .stderr(
-      "
-        error: Argument attribute for undefined argument `bar`
-         ——▶ justfile:1:6
-          │
-        1 │ [arg('bar', pattern='BAR')]
-          │      ^^^^^
-      ",
+      r"Error: Argument attribute for undefined argument `bar`
+   ╭─[ justfile:1:6 ]
+   │
+ 1 │ [arg('bar', pattern='BAR')]
+───╯
+",
     )
     .failure();
 }
@@ -221,13 +213,12 @@ fn positional_arguments_cannot_follow_keyword_arguments() {
     )
     .args(["foo", "BAR"])
     .stderr(
-      "
-        error: Positional attribute arguments cannot follow keyword attribute arguments
-         ——▶ justfile:1:21
-          │
-        1 │ [arg(pattern='BAR', 'bar')]
-          │                     ^^^^^
-      ",
+      r"Error: Positional attribute arguments cannot follow keyword attribute arguments
+   ╭─[ justfile:1:21 ]
+   │
+ 1 │ [arg(pattern='BAR', 'bar')]
+───╯
+",
     )
     .failure();
 }
@@ -352,13 +343,12 @@ fn pattern_requires_value() {
       ",
     )
     .stderr(
-      "
-        error: Attribute key `pattern` requires value
-         ——▶ justfile:1:13
-          │
-        1 │ [arg('bar', pattern)]
-          │             ^^^^^^^
-      ",
+      r"Error: Attribute key `pattern` requires value
+   ╭─[ justfile:1:13 ]
+   │
+ 1 │ [arg('bar', pattern)]
+───╯
+",
     )
     .failure();
 }
@@ -373,13 +363,12 @@ fn short_requires_value() {
       ",
     )
     .stderr(
-      "
-        error: Attribute key `short` requires value
-         ——▶ justfile:1:13
-          │
-        1 │ [arg('bar', short)]
-          │             ^^^^^
-      ",
+      r"Error: Attribute key `short` requires value
+   ╭─[ justfile:1:13 ]
+   │
+ 1 │ [arg('bar', short)]
+───╯
+",
     )
     .failure();
 }
@@ -394,13 +383,12 @@ fn value_requires_value() {
       ",
     )
     .stderr(
-      "
-        error: Attribute key `value` requires value
-         ——▶ justfile:1:19
-          │
-        1 │ [arg('bar', long, value)]
-          │                   ^^^^^
-      ",
+      r"Error: Attribute key `value` requires value
+   ╭─[ justfile:1:19 ]
+   │
+ 1 │ [arg('bar', long, value)]
+───╯
+",
     )
     .failure();
 }

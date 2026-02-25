@@ -343,11 +343,16 @@ fn attribute_duplicate() {
       ",
     )
     .stderr(
-      "error: Recipe attribute `working-directory` first used on line 1 is duplicated on line 2
- ——▶ justfile:2:2
-  │
-2 │ [working-directory('baz')]
-  │  ^^^^^^^^^^^^^^^^^
+      r"Error: Duplicate attribute `working-directory`
+   ╭─[ justfile:2:2 ]
+   │
+ 1 │ [working-directory('bar')]
+   │ ─────────────┬─────────────  
+   │              ╰─────────────── original
+ 2 │ [working-directory('baz')]
+   │  ────────┬────────  
+   │          ╰────────── duplicate
+───╯
 ",
     )
     .failure();
@@ -380,12 +385,12 @@ fn attribute_with_nocd_is_forbidden() {
     )
     .stderr(
       "
-        error: Recipe `bar` has both `[no-cd]` and `[working-directory]` attributes
-         ——▶ justfile:3:1
-          │
-        3 │ bar:
-          │ ^^^
-      ",
+Error: Recipe `bar` has both `[no-cd]` and `[working-directory]` attributes
+   ╭─[ justfile:3:1 ]
+   │
+ 3 │ bar:
+───╯
+",
     )
     .failure();
 }

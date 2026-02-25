@@ -31,13 +31,17 @@ fn duplicate_attributes_are_disallowed() {
     ",
     )
     .stderr(
-      "
-      error: Recipe attribute `no-exit-message` first used on line 1 is duplicated on line 2
-       ——▶ justfile:2:2
-        │
-      2 │ [no-exit-message]
-        │  ^^^^^^^^^^^^^^^
-      ",
+      r"Error: Duplicate attribute `no-exit-message`
+   ╭─[ justfile:2:2 ]
+   │
+ 1 │ [no-exit-message]
+   │ ─────────┬────────  
+   │          ╰────────── original
+ 2 │ [no-exit-message]
+   │  ───────┬───────  
+   │         ╰───────── duplicate
+───╯
+",
     )
     .failure();
 }
@@ -69,13 +73,12 @@ fn multiple_attributes_one_line_error_message() {
     ",
     )
     .stderr(
-      "
-        error: Expected ']', ':', ',', or '(', but found identifier
-         ——▶ justfile:1:16
-          │
-        1 │ [macos,windows linux,openbsd]
-          │                ^^^^^
-          ",
+      r"Error: Expected ']', ':', ',', or '(', but found identifier
+   ╭─[ justfile:1:16 ]
+   │
+ 1 │ [macos,windows linux,openbsd]
+───╯
+",
     )
     .failure();
 }
@@ -92,13 +95,17 @@ fn multiple_attributes_one_line_duplicate_check() {
     ",
     )
     .stderr(
-      "
-      error: Recipe attribute `linux` first used on line 1 is duplicated on line 2
-       ——▶ justfile:2:2
-        │
-      2 │ [linux]
-        │  ^^^^^
-        ",
+      r"Error: Duplicate attribute `linux`
+   ╭─[ justfile:2:2 ]
+   │
+ 1 │ [macos, windows, linux, openbsd]
+   │ ────────────────┬────────────────  
+   │                 ╰────────────────── original
+ 2 │ [linux]
+   │  ──┬──  
+   │    ╰──── duplicate
+───╯
+",
     )
     .failure();
 }
@@ -114,13 +121,16 @@ fn unexpected_attribute_argument() {
     ",
     )
     .stderr(
-      "
-        error: Attribute `private` got 1 argument but takes 0 arguments
-         ——▶ justfile:1:2
-          │
-        1 │ [private('foo')]
-          │  ^^^^^^^
-          ",
+      r"Error: Attribute argument count mismatch
+   ╭─[ justfile:1:2 ]
+   │
+ 1 │ [private('foo')]
+   │  ───┬───  
+   │     ╰───── Found 1 argument
+   │ 
+   │ Note: `private` takes 0 arguments
+───╯
+",
     )
     .failure();
 }
@@ -168,13 +178,16 @@ fn expected_metadata_attribute_argument() {
     ",
     )
     .stderr(
-      "
-        error: Attribute `metadata` got 0 arguments but takes at least 1 argument
-         ——▶ justfile:1:2
-          │
-        1 │ [metadata]
-          │  ^^^^^^^^
-          ",
+      r"Error: Attribute argument count mismatch
+   ╭─[ justfile:1:2 ]
+   │
+ 1 │ [metadata]
+   │  ────┬───  
+   │      ╰───── Found 0 arguments
+   │ 
+   │ Note: `metadata` takes at least 1 argument
+───╯
+",
     )
     .failure();
 }
@@ -268,12 +281,11 @@ fn extension_on_linewise_error() {
       ",
     )
     .stderr(
-      "
-  error: Recipe `baz` has invalid attribute `extension`
-   ——▶ justfile:2:1
-    │
-  2 │ baz:
-    │ ^^^
+      r"Error: Recipe `baz` has invalid attribute `extension`
+   ╭─[ justfile:2:1 ]
+   │
+ 2 │ baz:
+───╯
 ",
     )
     .failure();
@@ -290,12 +302,16 @@ fn duplicate_non_repeatable_attributes_are_forbidden() {
       ",
     )
     .stderr(
-      "
-  error: Recipe attribute `confirm` first used on line 1 is duplicated on line 2
-   ——▶ justfile:2:2
-    │
-  2 │ [confirm: 'no']
-    │  ^^^^^^^
+      r"Error: Duplicate attribute `confirm`
+   ╭─[ justfile:2:2 ]
+   │
+ 1 │ [confirm: 'yes']
+   │ ────────┬────────  
+   │         ╰────────── original
+ 2 │ [confirm: 'no']
+   │  ───┬───  
+   │     ╰───── duplicate
+───╯
 ",
     )
     .failure();
@@ -392,12 +408,15 @@ fn env_attribute_too_few_arguments() {
       ",
     )
     .stderr(
-      "
-  error: Attribute `env` got 1 argument but takes 2 arguments
-   ——▶ justfile:1:2
-    │
-  1 │ [env('MY_VAR')]
-    │  ^^^
+      r"Error: Attribute argument count mismatch
+   ╭─[ justfile:1:2 ]
+   │
+ 1 │ [env('MY_VAR')]
+   │  ─┬─  
+   │   ╰─── Found 1 argument
+   │ 
+   │ Note: `env` takes 2 arguments
+───╯
 ",
     )
     .failure();
@@ -414,12 +433,15 @@ fn env_attribute_too_many_arguments() {
       ",
     )
     .stderr(
-      "
-  error: Attribute `env` got 3 arguments but takes 2 arguments
-   ——▶ justfile:1:2
-    │
-  1 │ [env('A', 'B', 'C')]
-    │  ^^^
+      r"Error: Attribute argument count mismatch
+   ╭─[ justfile:1:2 ]
+   │
+ 1 │ [env('A', 'B', 'C')]
+   │  ─┬─  
+   │   ╰─── Found 3 arguments
+   │ 
+   │ Note: `env` takes 2 arguments
+───╯
 ",
     )
     .failure();
@@ -437,12 +459,11 @@ fn env_attribute_duplicate_error() {
       ",
     )
     .stderr(
-      "
-  error: Environment variable `VAR1` first set on line 1 is set again on line 2
-   ——▶ justfile:2:2
-    │
-  2 │ [env('VAR1', 'value 2')]
-    │  ^^^
+      r"Error: Environment variable `VAR1` first set on line 1 is set again on line 2
+   ╭─[ justfile:2:2 ]
+   │
+ 2 │ [env('VAR1', 'value 2')]
+───╯
 ",
     )
     .failure();
