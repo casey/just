@@ -2252,10 +2252,10 @@ fn unknown_start_of_token_invisible_unicode() {
       ",
     )
     .stderr(
-      r"Error: Unknown start of token '\u{200B}' (U+200B)
+      "Error: Unknown start of token '\u{200b}' (U+200B)
    ╭─[ justfile:1:1 ]
    │
- 1 │ \u{200B}foo := 'bar'
+ 1 │ \u{200b}foo := 'bar'
 ───╯
 ",
     )
@@ -2267,14 +2267,14 @@ fn unknown_start_of_token_ascii_control_char() {
   Test::new()
     .justfile(
       "
-\0foo := 'bar'
+\u{0000}foo := 'bar'
 ",
     )
     .stderr(
-      r"Error: Unknown start of token ' ' (U+0000)
+      "Error: Unknown start of token '\0' (U+0000)
    ╭─[ justfile:1:1 ]
    │
- 1 │  foo := 'bar'
+ 1 │ \0foo := 'bar'
 ───╯
 ",
     )
