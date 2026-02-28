@@ -11,8 +11,6 @@ impl Compiler {
     let mut asts = HashMap::<PathBuf, Ast>::new();
     let mut loaded = Vec::new();
     let mut paths = HashMap::<PathBuf, PathBuf>::new();
-    let mut srcs = HashMap::<PathBuf, &str>::new();
-
     let mut stack = Vec::new();
     stack.push(Source::root(root));
 
@@ -34,7 +32,6 @@ impl Compiler {
       )?;
 
       paths.insert(current.path.clone(), relative.into());
-      srcs.insert(current.path.clone(), src);
 
       for item in &mut ast.items {
         match item {
@@ -107,7 +104,6 @@ impl Compiler {
       asts,
       justfile,
       root: root.into(),
-      srcs,
     })
   }
 
@@ -276,9 +272,7 @@ recipe_b: recipe_c
     let loader = Loader::new();
 
     let justfile_a_path = tmp.path().join("justfile");
-    let compilation = Compiler::compile(&Config::default(), &loader, &justfile_a_path).unwrap();
-
-    assert_eq!(compilation.root_src(), justfile_a);
+    Compiler::compile(&Config::default(), &loader, &justfile_a_path).unwrap();
   }
 
   #[test]
