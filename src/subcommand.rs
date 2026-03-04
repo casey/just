@@ -334,9 +334,7 @@ impl Subcommand {
 
     let (path, src) = loader.load(root, &search.justfile)?;
 
-    let tokens = Lexer::lex(path, src)?;
-
-    let ast = Parser::parse(0, &[], None, &tokens, &search.working_directory)?;
+    let ast = Compiler::parse(path, src, &Source::root(&search.justfile))?;
 
     let unstable = config.unstable
       || ast.items.iter().any(|item| {
