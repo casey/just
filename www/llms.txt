@@ -1,0 +1,95 @@
+# just
+
+> just is a command runner for project-specific tasks. Commands, called recipes, are stored in a file called justfile with syntax inspired by make. just avoids make's complexity and idiosyncrasies and works on Linux, macOS, and Windows.
+
+just is not a build system. It is a handy way to save and run project-specific commands.
+Recipes can accept command-line arguments, be written in arbitrary languages (Python,
+NodeJS, etc.), and load environment variables from .env files. just resolves errors
+statically, supports shell completion, and can be invoked from any subdirectory.
+
+## Getting Started
+
+- [Introduction](https://just.systems/man/en/introduction.html): Overview of just and its key features
+- [Quick Start](https://just.systems/man/en/quick-start.html): Minimal guide to get up and running
+- [Examples](https://just.systems/man/en/examples.html): Example justfiles demonstrating common patterns
+- [Backwards Compatibility](https://just.systems/man/en/backwards-compatibility.html): Stability guarantees and versioning policy
+
+## Installation
+
+- [Prerequisites](https://just.systems/man/en/prerequisites.html): System requirements for running just
+- [Packages](https://just.systems/man/en/packages.html): Install via Homebrew, Cargo, apt, pacman, and other package managers
+- [Pre-Built Binaries](https://just.systems/man/en/pre-built-binaries.html): Download pre-compiled binaries for your platform
+- [GitHub Actions](https://just.systems/man/en/github-actions.html): Use just in CI workflows
+- [Node.js Installation](https://just.systems/man/en/nodejs-installation.html): Install just via npm
+
+## Justfile Syntax
+
+- [The Default Recipe](https://just.systems/man/en/the-default-recipe.html): The recipe that runs when just is invoked without arguments
+- [Settings](https://just.systems/man/en/settings.html): Configure justfile behavior with set statements
+- [Aliases](https://just.systems/man/en/aliases.html): Create alternative names for recipes
+- [Documentation Comments](https://just.systems/man/en/documentation-comments.html): Add descriptions to recipes shown in just --list
+- [Attributes](https://just.systems/man/en/attributes.html): Recipe and setting attributes like [no-cd], [private], [confirm]
+- [Groups](https://just.systems/man/en/groups.html): Organize recipes into named groups
+- [Private Recipes](https://just.systems/man/en/private-recipes.html): Hide recipes from just --list
+- [Imports](https://just.systems/man/en/imports.html): Include other justfiles with import statements
+- [Modules](https://just.systems/man/en/modules1190.html): Organize recipes into namespaced modules
+
+## Recipes
+
+- [Recipe Parameters](https://just.systems/man/en/recipe-parameters.html): Accept command-line arguments in recipes
+- [Dependencies](https://just.systems/man/en/dependencies.html): Define recipe dependencies and execution order
+- [Shebang Recipes](https://just.systems/man/en/shebang-recipes.html): Write recipes in Python, Bash, or any scripting language
+- [Script Recipes](https://just.systems/man/en/script-recipes.html): Multi-line script recipes using the script attribute
+- [Quiet Recipes](https://just.systems/man/en/quiet-recipes.html): Suppress recipe command echo
+- [Invoking Multiple Recipes](https://just.systems/man/en/invoking-multiple-recipes.html): Run multiple recipes in a single invocation
+
+## Expressions and Variables
+
+- [Expressions and Substitutions](https://just.systems/man/en/expressions-and-substitutions.html): Use expressions and variable substitution in recipes
+- [Strings](https://just.systems/man/en/strings.html): String literals, quoting, and escape sequences
+- [Command Evaluation Using Backticks](https://just.systems/man/en/command-evaluation-using-backticks.html): Capture shell command output in variables
+- [Conditional Expressions](https://just.systems/man/en/conditional-expressions.html): if/else expressions for conditional logic
+- [Functions](https://just.systems/man/en/functions.html): Built-in functions for paths, strings, and environment
+- [Constants](https://just.systems/man/en/constants.html): Built-in constants like HEX, HEXLOWER, NEWLINE
+- [Setting Variables from the Command Line](https://just.systems/man/en/setting-variables-from-the-command-line.html): Override variables with just VAR=value
+- [Getting and Setting Environment Variables](https://just.systems/man/en/getting-and-setting-environment-variables.html): Export variables and read from environment
+
+## Execution
+
+- [Working Directory](https://just.systems/man/en/working-directory.html): How just determines and sets the working directory
+- [Ignoring Errors](https://just.systems/man/en/ignoring-errors.html): Prefix commands with - to ignore failures
+- [Configuring the Shell](https://just.systems/man/en/configuring-the-shell.html): Change the default shell with set shell
+- [Command-line Options](https://just.systems/man/en/command-line-options.html): All just CLI flags and options
+- [Selecting Recipes to Run With an Interactive Chooser](https://just.systems/man/en/selecting-recipes-to-run-with-an-interactive-chooser.html): Use just --choose with fzf
+
+## Recipe Environment
+
+- [Setting Variables in a Recipe](https://just.systems/man/en/setting-variables-in-a-recipe.html): Set shell variables within recipes
+- [Sharing Environment Variables Between Recipes](https://just.systems/man/en/sharing-environment-variables-between-recipes.html): Pass environment between recipes
+- [Indentation](https://just.systems/man/en/indentation.html): Indentation rules for justfiles
+
+## Project Organization
+
+- [Invoking justfiles in Other Directories](https://just.systems/man/en/invoking-justfiles-in-other-directories.html): Run justfiles from other locations
+- [Just Scripts](https://just.systems/man/en/just-scripts.html): Make justfiles directly executable
+- [Formatting and Dumping justfiles](https://just.systems/man/en/formatting-and-dumping-justfiles.html): Use just --fmt and just --dump
+- [Fallback to Parent justfiles](https://just.systems/man/en/fallback-to-parent-justfiles.html): Search parent directories for justfiles
+- [Global and User justfiles](https://just.systems/man/en/global-and-user-justfiles.html): System-wide and per-user justfiles
+- [Remote Justfiles](https://just.systems/man/en/remote-justfiles.html): Fetch and run justfiles from URLs
+
+## Editor Support
+
+- [Vim and Neovim](https://just.systems/man/en/vim-and-neovim.html): Syntax highlighting for Vim/Neovim
+- [Visual Studio Code](https://just.systems/man/en/visual-studio-code.html): VS Code extension
+- [JetBrains IDEs](https://just.systems/man/en/jetbrains-ides.html): IntelliJ/WebStorm plugin
+- [Language Server Protocol](https://just.systems/man/en/language-server-protocol.html): LSP support for justfiles
+- [Model Context Protocol](https://just.systems/man/en/model-context-protocol.html): MCP server for AI integration
+
+## Optional
+
+- [Listing Available Recipes](https://just.systems/man/en/listing-available-recipes.html): Use just --list to see available recipes
+- [Shell Completion Scripts](https://just.systems/man/en/shell-completion-scripts.html): Tab completion for Bash, Zsh, Fish, PowerShell
+- [Grammar](https://just.systems/man/en/grammar.html): Formal grammar of the justfile language
+- [Changelog](https://just.systems/man/en/changelog.html): Version history and release notes
+- [Alternatives and Prior Art](https://just.systems/man/en/alternatives-and-prior-art.html): Comparison with make, task, and other tools
+- [Contributing](https://just.systems/man/en/contributing.html): How to contribute to just
