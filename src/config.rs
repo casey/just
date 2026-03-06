@@ -50,6 +50,7 @@ pub(crate) struct Config {
 
 mod cmd {
   pub(crate) const CHANGELOG: &str = "CHANGELOG";
+  pub(crate) const CHEATSHEET: &str = "CHEATSHEET";
   pub(crate) const CHOOSE: &str = "CHOOSE";
   pub(crate) const COMMAND: &str = "COMMAND";
   pub(crate) const COMPLETIONS: &str = "COMPLETIONS";
@@ -69,6 +70,7 @@ mod cmd {
 
   pub(crate) const ALL: &[&str] = &[
     CHANGELOG,
+    CHEATSHEET,
     CHOOSE,
     COMMAND,
     COMPLETIONS,
@@ -86,7 +88,7 @@ mod cmd {
   ];
 
   pub(crate) const ARGLESS: &[&str] =
-    &[CHANGELOG, DUMP, EDIT, FORMAT, INIT, MAN, SUMMARY, VARIABLES];
+    &[CHANGELOG, CHEATSHEET, DUMP, EDIT, FORMAT, INIT, MAN, SUMMARY, VARIABLES];
 
   pub(crate) const HEADING: &str = "Commands";
 }
@@ -470,6 +472,13 @@ impl Config {
           .help_heading(cmd::HEADING),
       )
       .arg(
+        Arg::new(cmd::CHEATSHEET)
+          .long("cheatsheet")
+          .action(ArgAction::SetTrue)
+          .help("Print cheatsheet")
+          .help_heading(cmd::HEADING),
+      )
+      .arg(
         Arg::new(cmd::CHOOSE)
           .long("choose")
           .action(ArgAction::SetTrue)
@@ -732,6 +741,8 @@ impl Config {
 
     let subcommand = if matches.get_flag(cmd::CHANGELOG) {
       Subcommand::Changelog
+    } else if matches.get_flag(cmd::CHEATSHEET) {
+      Subcommand::Cheatsheet
     } else if matches.get_flag(cmd::CHOOSE) {
       Subcommand::Choose {
         chooser: matches.get_one::<String>(arg::CHOOSER).map(Into::into),

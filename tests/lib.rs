@@ -55,6 +55,7 @@ mod backticks;
 mod byte_order_mark;
 mod ceiling;
 mod changelog;
+mod cheatsheet;
 mod choose;
 mod command;
 mod completions;

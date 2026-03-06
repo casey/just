@@ -12,6 +12,7 @@ static BACKTICK_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new("(`.*?`)|(`[^`
 #[derive(PartialEq, Clone, Debug)]
 pub(crate) enum Subcommand {
   Changelog,
+  Cheatsheet,
   Choose {
     chooser: Option<String>,
   },
@@ -67,6 +68,10 @@ impl Subcommand {
         Self::changelog();
         return Ok(());
       }
+      Cheatsheet => {
+        Self::cheatsheet();
+        return Ok(());
+      }
       Completions { shell } => {
         Self::completions(*shell);
         return Ok(());
@@ -106,7 +111,7 @@ impl Subcommand {
       Summary => Self::summary(config, justfile),
       Usage { path } => Self::usage(config, justfile, path)?,
       Variables => Self::variables(justfile),
-      Changelog | Completions { .. } | Edit | Init | Man | Request { .. } => unreachable!(),
+      Changelog | Cheatsheet | Completions { .. } | Edit | Init | Man | Request { .. } => unreachable!(),
     }
 
     Ok(())
@@ -197,6 +202,10 @@ impl Subcommand {
 
   fn changelog() {
     write!(io::stdout(), "{}", include_str!("../CHANGELOG.md")).ok();
+  }
+
+  fn cheatsheet() {
+    write!(io::stdout(), "{}", include_str!("../CHEATSHEET.md")).ok();
   }
 
   fn choose<'src>(
