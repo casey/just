@@ -3,22 +3,6 @@ use super::*;
 pub(crate) struct Compiler;
 
 impl Compiler {
-  pub(crate) fn parse<'src>(
-    path: &'src Path,
-    src: &'src str,
-    source: &Source<'src>,
-  ) -> CompileResult<'src, Ast<'src>> {
-    let tokens = Lexer::lex(path, src)?;
-
-    Parser::parse(
-      source.file_depth,
-      &source.import_offsets,
-      source.namepath.as_ref(),
-      &tokens,
-      &source.working_directory,
-    )
-  }
-
   pub(crate) fn compile<'src>(
     config: &Config,
     loader: &'src Loader,
@@ -37,7 +21,7 @@ impl Compiler {
 
       let (relative, src) = loader.load(root, &current.path)?;
       loaded.push(relative.into());
-      let mut ast = Self::parse(relative, src, &current)?;
+      let mut ast = Parser::parse_source(relative, src, &current)?;
 
       paths.insert(current.path.clone(), relative.into());
 
