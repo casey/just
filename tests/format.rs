@@ -1700,3 +1700,35 @@ fn arg_attribute_help() {
     )
     .success();
 }
+
+#[test]
+fn missing_import_file() {
+  Test::new()
+    .args(["--unstable", "--fmt", "--check"])
+    .justfile("import 'foo'\n")
+    .test_round_trip(false)
+    .success();
+}
+
+#[test]
+fn missing_module_file() {
+  Test::new()
+    .args(["--unstable", "--fmt", "--check"])
+    .justfile("mod foo\n")
+    .test_round_trip(false)
+    .success();
+}
+
+#[test]
+fn undefined_variable() {
+  Test::new()
+    .args(["--unstable", "--fmt", "--check"])
+    .justfile(
+      "
+      foo:
+          echo {{ ABC }}
+      ",
+    )
+    .test_round_trip(false)
+    .success();
+}

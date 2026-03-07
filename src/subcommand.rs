@@ -89,6 +89,10 @@ impl Subcommand {
       return Self::edit(&search);
     }
 
+    if matches!(self, Format) {
+      return Self::format(config, loader, &search);
+    }
+
     let compilation = Self::compile(config, loader, &search)?;
     let justfile = &compilation.justfile;
 
@@ -100,7 +104,6 @@ impl Subcommand {
         justfile.run(config, &search, &[])?;
       }
       Dump => Self::dump(config, compilation)?,
-      Format => Self::format(config, &search, compilation)?,
       Groups => Self::groups(config, justfile),
       List { path } => Self::list(config, justfile, path)?,
       Run { arguments } => Self::run(config, loader, search, compilation, arguments)?,
@@ -108,7 +111,9 @@ impl Subcommand {
       Summary => Self::summary(config, justfile),
       Usage { path } => Self::usage(config, justfile, path)?,
       Variables => Self::variables(justfile),
-      Changelog | Completions { .. } | Edit | Init | Man | Request { .. } => unreachable!(),
+      Changelog | Completions { .. } | Edit | Format | Init | Man | Request { .. } => {
+        unreachable!()
+      }
     }
 
     Ok(())
@@ -330,12 +335,29 @@ impl Subcommand {
     Ok(())
   }
 
-  fn format(config: &Config, search: &Search, compilation: Compilation) -> RunResult<'static> {
-    let justfile = &compilation.justfile;
-    let src = compilation.root_src();
-    let ast = compilation.root_ast();
+  fn format<'src>(config: &Config, loader: &'src Loader, search: &Search) -> RunResult<'src> {
+    let root = search.justfile.parent().unwrap();
 
-    config.require_unstable(justfile, UnstableFeature::FormatSubcommand)?;
+    let (path, src) = loader.load(root, &search.justfile)?;
+
+    let ast = Parser::parse_source(path, src, &Source::root(&search.justfile))?;
+
+    let unstable = config.unstable
+      || ast.items.iter().any(|item| {
+        matches!(
+          item,
+          Item::Set(Set {
+            value: Setting::Unstable(true),
+            ..
+          })
+        )
+      });
+
+    if !unstable {
+      return Err(Error::UnstableFeature {
+        unstable_feature: UnstableFeature::FormatSubcommand,
+      });
+    }
 
     let formatted = ast.to_string();
 
