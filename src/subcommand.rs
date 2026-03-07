@@ -9,6 +9,8 @@ default:
 
 static BACKTICK_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new("(`.*?`)|(`[^`]*$)").unwrap());
 
+const CHOOSER_CANCELLED_EXIT_STATUS: i32 = 130;
+
 #[derive(PartialEq, Clone, Debug)]
 pub(crate) enum Subcommand {
   Changelog,
@@ -269,12 +271,11 @@ impl Subcommand {
       }
     };
 
+    if output.status.code() == Some(CHOOSER_CANCELLED_EXIT_STATUS) {
+      return Ok(());
+    }
+
     if !output.status.success() {
-      // Exit code 130 means the user cancelled (e.g., Ctrl-C or Escape in fzf).
-      // Don't print an error in this case, just exit silently.
-      if output.status.code() == Some(130) {
-        return Ok(());
-      }
       return Err(Error::ChooserStatus {
         status: output.status,
         chooser,
