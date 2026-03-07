@@ -1718,3 +1718,17 @@ fn missing_module_file() {
     .test_round_trip(false)
     .success();
 }
+
+#[test]
+fn undefined_variable() {
+  Test::new()
+    .args(["--unstable", "--fmt", "--check"])
+    .justfile(
+      "
+      foo:
+          echo {{ ABC }}
+      ",
+    )
+    .test_round_trip(false)
+    .success();
+}
