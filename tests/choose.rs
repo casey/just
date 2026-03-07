@@ -220,12 +220,12 @@ fn cancelled_by_user() {
   }
   let tmp = temptree! {
     justfile: "foo:\n echo foo\nbar:\n echo bar\n",
-    "exit-130": "#!/usr/bin/env bash\nexit 130\n",
+    exit130: "#!/usr/bin/env bash\nexit 130\n",
   };
 
   let output = Command::new("chmod")
     .arg("+x")
-    .arg(tmp.path().join("exit-130"))
+    .arg(tmp.path().join("exit130"))
     .output()
     .unwrap();
 
@@ -240,23 +240,14 @@ fn cancelled_by_user() {
     .current_dir(tmp.path())
     .arg("--choose")
     .arg("--chooser")
-    .arg("exit-130")
+    .arg("exit130")
     .env("PATH", path)
     .output()
     .unwrap();
 
-  // Exit code 130 means user cancelled (Ctrl-C / Escape).
-  // Should exit silently without printing an error.
-  assert_eq!(
-    str::from_utf8(&output.stderr).unwrap(),
-    "",
-    "stderr should be empty when chooser is cancelled"
-  );
+  assert_eq!(str::from_utf8(&output.stderr).unwrap(), "");
 
-  assert!(
-    output.status.success(),
-    "should exit successfully when chooser is cancelled"
-  );
+  assert!(output.status.success());
 }
 
 #[test]
