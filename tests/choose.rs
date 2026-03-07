@@ -218,34 +218,29 @@ fn cancelled_by_user() {
   if cfg!(windows) {
     return;
   }
+
   let tmp = temptree! {
     justfile: "foo:\n echo foo\nbar:\n echo bar\n",
-    exit130: "#!/usr/bin/env bash\nexit 130\n",
+    chooser: "#!/usr/bin/env bash\nexit 130\n",
   };
 
   let output = Command::new("chmod")
     .arg("+x")
-    .arg(tmp.path().join("exit130"))
+    .arg(tmp.path().join("chooser"))
     .output()
     .unwrap();
 
   assert!(output.status.success());
 
-  let path = env::join_paths(
-    iter::once(tmp.path().to_owned()).chain(env::split_paths(&env::var_os("PATH").unwrap())),
-  )
-  .unwrap();
-
   let output = Command::new(JUST)
     .current_dir(tmp.path())
     .arg("--choose")
     .arg("--chooser")
-    .arg("exit130")
-    .env("PATH", path)
+    .arg("./chooser")
     .output()
     .unwrap();
 
-  assert_eq!(str::from_utf8(&output.stderr).unwrap(), "");
+  assert!(output.stderr.is_empty());
 
   assert!(output.status.success());
 }
