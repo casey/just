@@ -63,6 +63,8 @@ _just() {
 '(-n --dry-run)--quiet[Suppress all output]' \
 '--allow-missing[Ignore missing recipe and module errors]' \
 '--shell-command[Invoke <COMMAND> with the shell used to run recipe lines and backticks]' \
+'-t[Print recipe execution time]' \
+'--time[Print recipe execution time]' \
 '--timestamp[Print recipe command timestamps]' \
 '-u[Return list and summary entries in source order]' \
 '--unsorted[Return list and summary entries in source order]' \

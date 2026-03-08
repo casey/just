@@ -67,6 +67,7 @@ complete -c just -l one -d 'Forbid multiple recipes from being invoked on the co
 complete -c just -s q -l quiet -d 'Suppress all output'
 complete -c just -l allow-missing -d 'Ignore missing recipe and module errors'
 complete -c just -l shell-command -d 'Invoke <COMMAND> with the shell used to run recipe lines and backticks'
+complete -c just -s t -l time -d 'Print recipe execution time'
 complete -c just -l timestamp -d 'Print recipe command timestamps'
 complete -c just -s u -l unsorted -d 'Return list and summary entries in source order'
 complete -c just -l unstable -d 'Enable unstable features'

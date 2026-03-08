@@ -68,6 +68,8 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
             [CompletionResult]::new('--quiet', '--quiet', [CompletionResultType]::ParameterName, 'Suppress all output')
             [CompletionResult]::new('--allow-missing', '--allow-missing', [CompletionResultType]::ParameterName, 'Ignore missing recipe and module errors')
             [CompletionResult]::new('--shell-command', '--shell-command', [CompletionResultType]::ParameterName, 'Invoke <COMMAND> with the shell used to run recipe lines and backticks')
+            [CompletionResult]::new('-t', '-t', [CompletionResultType]::ParameterName, 'Print recipe execution time')
+            [CompletionResult]::new('--time', '--time', [CompletionResultType]::ParameterName, 'Print recipe execution time')
             [CompletionResult]::new('--timestamp', '--timestamp', [CompletionResultType]::ParameterName, 'Print recipe command timestamps')
             [CompletionResult]::new('-u', '-u', [CompletionResultType]::ParameterName, 'Return list and summary entries in source order')
             [CompletionResult]::new('--unsorted', '--unsorted', [CompletionResultType]::ParameterName, 'Return list and summary entries in source order')
