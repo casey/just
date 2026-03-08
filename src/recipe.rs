@@ -287,6 +287,7 @@ impl<'src, D> Recipe<'src, D> {
 
       if config.dry_run
         || config.verbosity.loquacious()
+        || config.timestamp
         || !((quiet_line ^ self.quiet)
           || (context.module.settings.quiet && !self.no_quiet())
           || config.verbosity.quiet())
