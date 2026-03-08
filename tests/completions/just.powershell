@@ -1,0 +1,50 @@
+$ErrorActionPreference = 'Stop'
+
+function Reply-Equals {
+  param(
+    [string]$Actual,
+    [string]$Expected
+  )
+
+  if ($Actual -eq $Expected) {
+    Write-Output "$($MyInvocation.MyCommand.Name): ok"
+  } else {
+    $script:ExitCode = 1
+    Write-Error "$($MyInvocation.MyCommand.Name): failed! expected: $Expected actual: $Actual"
+  }
+}
+
+. $args[0]
+Set-Location tests/completions
+cargo build | Out-Null
+$env:PATH = "$(git rev-parse --show-toplevel)$([IO.Path]::DirectorySeparatorChar)target$([IO.Path]::DirectorySeparatorChar)debug$([IO.Path]::PathSeparator)$env:PATH"
+$script:ExitCode = 0
+
+function Test-CompleteRootRecipes {
+  $line = "just p"
+  $actual = ((TabExpansion2 -inputScript $line -cursorColumn $line.Length).CompletionMatches | ForEach-Object CompletionText) -join ' '
+  Reply-Equals $actual "publish push"
+}
+Test-CompleteRootRecipes
+
+function Test-CompleteNestedModules {
+  $line = "just repo o"
+  $actual = ((TabExpansion2 -inputScript $line -cursorColumn $line.Length).CompletionMatches | ForEach-Object CompletionText) -join ' '
+  Reply-Equals $actual "open"
+}
+Test-CompleteNestedModules
+
+function Test-CompleteNestedModuleRecipes {
+  $line = "just repo open c"
+  $actual = ((TabExpansion2 -inputScript $line -cursorColumn $line.Length).CompletionMatches | ForEach-Object CompletionText) -join ' '
+  Reply-Equals $actual "codex"
+}
+Test-CompleteNestedModuleRecipes
+
+if ($script:ExitCode -eq 0) {
+  Write-Output "All tests passed."
+} else {
+  Write-Output "Some test[s] failed."
+}
+
+exit $script:ExitCode

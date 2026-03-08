@@ -379,26 +379,94 @@ _just "$@""#,
   const POWERSHELL_COMPLETION_REPLACEMENTS: &[(&str, &str)] = &[(
     r#"$completions.Where{ $_.CompletionText -like "$wordToComplete*" } |
         Sort-Object -Property ListItemText"#,
-    r#"function Get-JustFileRecipes([string[]]$CommandElements) {
-        $justFileIndex = $commandElements.IndexOf("--justfile");
+    r#"function Get-JustBaseArgs([string[]]$CommandElements) {
+        $justArgs = @()
 
-        if ($justFileIndex -ne -1 -and $justFileIndex + 1 -le $commandElements.Length) {
-            $justFileLocation = $commandElements[$justFileIndex + 1]
+        foreach ($flag in @("--justfile", "-f")) {
+            $justFileIndex = $CommandElements.IndexOf($flag)
+
+            if ($justFileIndex -ne -1 -and $justFileIndex + 1 -lt $CommandElements.Length) {
+                $justFileLocation = $CommandElements[$justFileIndex + 1]
+
+                if ($justFileLocation -and (Test-Path $justFileLocation)) {
+                    $justArgs += @("--justfile", $justFileLocation)
+                    break
+                }
+            }
         }
 
-        $justArgs = @("--summary")
+        return $justArgs
+    }
 
-        if (Test-Path $justFileLocation) {
-            $justArgs += @("--justfile", $justFileLocation)
+    function Get-JustCommandWords([string[]]$CommandElements, [string]$WordToComplete) {
+        $words = @("just")
+
+        for ($i = 1; $i -lt $CommandElements.Length; $i++) {
+            $value = $CommandElements[$i]
+
+            if (-not $value -or $value.StartsWith('-') -or $value -eq $WordToComplete) {
+                break
+            }
+
+            $words += $value
         }
 
-        $recipes = $(just @justArgs) -split ' '
-        return $recipes | ForEach-Object { [CompletionResult]::new($_) }
+        return $words
+    }
+
+    function Get-JustModulePath([string[]]$CommandWords) {
+        if ($CommandWords.Length -le 1) {
+            return $null
+        }
+
+        return [string]::Join("::", $CommandWords[1..($CommandWords.Length - 1)])
+    }
+
+    function Get-JustRecipePath([string[]]$CommandWords, [string[]]$CommandElements) {
+        $justArgs = Get-JustBaseArgs -CommandElements $CommandElements
+        $recipes = $(just @justArgs --summary) -split ' '
+        $candidateParts = @()
+
+        foreach ($word in $CommandWords[1..($CommandWords.Length - 1)]) {
+            $candidateParts += $word
+            $candidate = [string]::Join("::", $candidateParts)
+
+            if ($recipes -contains $candidate) {
+                return $candidate
+            }
+        }
+
+        return $null
+    }
+
+    function Get-JustCommandNames([string[]]$CommandWords, [string[]]$CommandElements) {
+        $justArgs = Get-JustBaseArgs -CommandElements $CommandElements
+        $module = Get-JustModulePath -CommandWords $CommandWords
+        $listArgs = @("--list")
+
+        if ($module) {
+            $listArgs += $module
+        }
+
+        $lines = just @justArgs @listArgs
+
+        foreach ($line in $lines) {
+            if ($line -like "    *") {
+                $trimmed = $line.TrimStart()
+                $name = ($trimmed -split '\s+', 2)[0]
+                [CompletionResult]::new($name)
+            }
+        }
     }
 
     $elementValues = $commandElements | Select-Object -ExpandProperty Value
-    $recipes = Get-JustFileRecipes -CommandElements $elementValues
-    $completions += $recipes
+    $commandWords = Get-JustCommandWords -CommandElements $elementValues -WordToComplete $wordToComplete
+    $recipe = Get-JustRecipePath -CommandWords $commandWords -CommandElements $elementValues
+
+    if (-not $recipe) {
+        $completions += Get-JustCommandNames -CommandWords $commandWords -CommandElements $elementValues
+    }
+
     $completions.Where{ $_.CompletionText -like "$wordToComplete*" } |
         Sort-Object -Property ListItemText"#,
   )];
