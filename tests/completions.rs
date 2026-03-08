@@ -29,6 +29,36 @@ fn bash() {
 }
 
 #[test]
+fn zsh() {
+  if which("zsh").is_err() {
+    return;
+  }
+
+  let output = Command::new(JUST)
+    .args(["--completions", "zsh"])
+    .output()
+    .unwrap();
+
+  assert!(output.status.success());
+
+  let script = str::from_utf8(&output.stdout).unwrap();
+
+  let tempdir = tempdir();
+
+  let path = tempdir.path().join("just.zsh");
+
+  fs::write(&path, script).unwrap();
+
+  let status = Command::new("zsh")
+    .arg("./tests/completions/just.zsh")
+    .arg(path)
+    .status()
+    .unwrap();
+
+  assert!(status.success());
+}
+
+#[test]
 fn replacements() {
   for shell in ["bash", "elvish", "fish", "nushell", "powershell", "zsh"] {
     let output = Command::new(JUST)
