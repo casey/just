@@ -53,6 +53,20 @@ test_complete_recipes_from_subdirs() {
 }
 test_complete_recipes_from_subdirs
 
+test_complete_nested_modules() {
+  COMP_WORDS=(just repo o)
+  COMP_CWORD=2 _just just
+  reply_equals 'declare -a COMPREPLY=([0]="open")'
+}
+test_complete_nested_modules
+
+test_complete_nested_module_recipes() {
+  COMP_WORDS=(just repo open c)
+  COMP_CWORD=3 _just just
+  reply_equals 'declare -a COMPREPLY=([0]="codex")'
+}
+test_complete_nested_module_recipes
+
 # --- Conclusion ---
 if [ $exit_code = 0 ]; then
   echo "All tests passed."

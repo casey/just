@@ -342,13 +342,17 @@ _just "$@""#,
       r#"                if [[ ${cur} == -* ]] ; then
                     COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                     return 0
-                elif [[ ${COMP_CWORD} -eq 1 ]]; then
+                else
+                    local recipe=$(__just_recipe_path)
                     local recipes=$(just --summary 2> /dev/null)
 
                     if echo "${cur}" | \grep -qF '/'; then
                         local path_prefix=$(echo "${cur}" | sed 's/[/][^/]*$/\//')
                         local recipes=$(just --summary 2> /dev/null -- "${path_prefix}")
                         local recipes=$(printf "${path_prefix}%s\t" $recipes)
+                    elif [[ -z ${recipe} ]]; then
+                        local module=$(__just_module_path)
+                        local recipes=$(__just_command_names "${module}")
                     fi
 
                     if [[ $? -eq 0 ]]; then
@@ -379,13 +383,73 @@ _just "$@""#,
 "#,
     ),
     (r"for i in ${COMP_WORDS[@]}", r"for i in ${words[@]}"),
-    (r"elif [[ ${COMP_CWORD} -eq 1 ]]; then", r"else"),
     (
       r#"COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )"#,
       r#"COMPREPLY=( $(compgen -W "${recipes}" -- "${cur}") )
                         if type __ltrim_colon_completions &>/dev/null; then
                             __ltrim_colon_completions "$cur"
                         fi"#,
+    ),
+    (
+      r#"if [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 4 || "${BASH_VERSINFO[0]}" -gt 4 ]]; then"#,
+      r#"__just_command_names() {
+    local module="$1"
+    local output
+
+    if [[ -n "${module}" ]]; then
+        output=$(just --list "${module}" 2> /dev/null) || return 1
+    else
+        output=$(just --list 2> /dev/null) || return 1
+    fi
+
+    while IFS= read -r line; do
+        [[ ${line} == "    "* ]] || continue
+        line="${line#"    "}"
+        printf '%s\n' "${line%%[[:space:]]*}"
+    done <<< "${output}"
+}
+
+__just_module_path() {
+    local module=""
+    local i
+
+    for ((i = 1; i < cword; i++)); do
+        [[ -z ${words[i]} || ${words[i]} == -* || ${words[i]} == *=* ]] && continue
+
+        if [[ -n ${module} ]]; then
+            module="${module}::${words[i]}"
+        else
+            module="${words[i]}"
+        fi
+    done
+
+    printf '%s\n' "${module}"
+}
+
+__just_recipe_path() {
+    local candidate=""
+    local i
+    local recipes=$(just --summary 2> /dev/null) || return 1
+
+    for ((i = 1; i < cword; i++)); do
+        [[ -z ${words[i]} || ${words[i]} == -* || ${words[i]} == *=* ]] && continue
+
+        if [[ -n ${candidate} ]]; then
+            candidate="${candidate}::${words[i]}"
+        else
+            candidate="${words[i]}"
+        fi
+
+        if printf '%s\n' "${recipes}" | \grep -qxF "${candidate}"; then
+            printf '%s\n' "${candidate}"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+if [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 4 || "${BASH_VERSINFO[0]}" -gt 4 ]]; then"#,
     ),
   ];
 }
