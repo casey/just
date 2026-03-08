@@ -121,6 +121,41 @@ fn powershell() {
 }
 
 #[test]
+fn nushell() {
+  if which("nu").is_err() {
+    return;
+  }
+
+  let output = Command::new(JUST)
+    .args(["--completions", "nushell"])
+    .output()
+    .unwrap();
+
+  assert!(output.status.success());
+
+  let script = str::from_utf8(&output.stdout).unwrap();
+
+  let tempdir = tempdir();
+
+  let path = tempdir.path().join("just.nu");
+
+  fs::write(&path, script).unwrap();
+
+  let command = format!(
+    "source '{}'; cd tests/completions; let root = (nu-complete just 'just p' | get value | str join ' '); if $root != 'publish push' {{ error make {{msg: $'unexpected root: ($root)'}} }}; let nested = (nu-complete just 'just repo o' | get value | str join ' '); if $nested != 'open' {{ error make {{msg: $'unexpected nested: ($nested)'}} }}; let recipes = (nu-complete just 'just repo open c' | get value | str join ' '); if $recipes != 'codex' {{ error make {{msg: $'unexpected recipe: ($recipes)'}} }}",
+    path.display()
+  );
+
+  let status = Command::new("nu")
+    .arg("-c")
+    .arg(command)
+    .status()
+    .unwrap();
+
+  assert!(status.success());
+}
+
+#[test]
 fn replacements() {
   for shell in ["bash", "elvish", "fish", "nushell", "powershell", "zsh"] {
     let output = Command::new(JUST)
