@@ -100,19 +100,7 @@ _just() {
             curcontext="${curcontext%:*}-${words[2]}:"
 
             local lastarg=${words[${#words}]}
-            local recipe
-
-            local cmds; cmds=(
-                ${(s: :)$(_call_program commands just --summary)}
-            )
-
-            # Find first recipe name
-            for ((i = 2; i < $#words; i++ )) do
-                if [[ ${cmds[(I)${words[i]}]} -gt 0 ]]; then
-                    recipe=${words[i]}
-                    break
-                fi
-            done
+            local recipe=$(_just_recipe_path)
 
             if [[ $lastarg = */* ]]; then
                 # Arguments contain slash would be recognised as a file
@@ -123,10 +111,8 @@ _just() {
             elif [[ $recipe ]]; then
                 # Show usage message
                 _message "`just --show $recipe`"
-                # Or complete with other commands
-                #_arguments -s -S $common '*:: :_just_commands'
             else
-                _arguments -s -S $common '*:: :_just_commands'
+                _just_commands
             fi
         ;;
     esac
@@ -142,8 +128,9 @@ _just_commands() {
     local variables; variables=(
         ${(s: :)$(_call_program commands just --variables)}
     )
+    local module=$(_just_module_path)
     local commands; commands=(
-        ${${${(M)"${(f)$(_call_program commands just --list)}":#    *}/ ##/}/ ##/:Args: }
+        ${(@f)$(_just_command_names "$module")}
     )
 
     if compset -P '*='; then
@@ -155,6 +142,77 @@ _just_commands() {
         _describe -t commands 'just commands' commands "$@"
     fi
 
+}
+
+(( $+functions[_just_command_names] )) ||
+_just_command_names() {
+    local module=$1
+    local output
+
+    if [[ -n $module ]]; then
+        output=$(_call_program commands just --list "$module") || return 1
+    else
+        output=$(_call_program commands just --list) || return 1
+    fi
+
+    local -a commands=()
+    local line
+
+    for line in "${(@f)output}"; do
+        [[ $line == "    "* ]] || continue
+        line=${line#"    "}
+        commands+=("${line%%[[:space:]]*}")
+    done
+
+    print -rl -- "${commands[@]}"
+}
+
+(( $+functions[_just_module_path] )) ||
+_just_module_path() {
+    local -a modules=()
+    local module=""
+    local i
+
+    for ((i = 2; i < CURRENT; i++)); do
+        [[ -z ${words[i]} || ${words[i]} == -* || ${words[i]} == *=* ]] && continue
+        modules+=("${words[i]}")
+    done
+
+    for i in "${modules[@]}"; do
+        if [[ -n $module ]]; then
+            module="${module}::${i}"
+        else
+            module="${i}"
+        fi
+    done
+
+    print -r -- "$module"
+}
+
+(( $+functions[_just_recipe_path] )) ||
+_just_recipe_path() {
+    local -a recipes=(
+        ${(s: :)$(_call_program commands just --summary)}
+    )
+    local -a path=()
+    local candidate=""
+    local i
+
+    for ((i = 2; i < CURRENT; i++)); do
+        [[ -z ${words[i]} || ${words[i]} == -* || ${words[i]} == *=* ]] && continue
+        path+=("${words[i]}")
+        if [[ -n $candidate ]]; then
+            candidate="${candidate}::${words[i]}"
+        else
+            candidate="${words[i]}"
+        fi
+        if [[ ${recipes[(I)$candidate]} -gt 0 ]]; then
+            print -r -- "$candidate"
+            return 0
+        fi
+    done
+
+    return 1
 }
 
 if [ "$funcstack[1]" = "_just" ]; then
