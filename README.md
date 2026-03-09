@@ -2153,7 +2153,7 @@ change their behavior.
 | `[no-quiet]`<sup>1.23.0</sup> | recipe | Override globally quiet recipes and always echo out the recipe. |
 | `[openbsd]`<sup>1.38.0</sup> | recipe | Enable recipe on OpenBSD. |
 | `[freebsd]`<sup>master</sup> | recipe | Enable recipe on FreeBSD. |
-| `[dragonfly]`<sup>master</sup> | recipe | Enable recipe on Dragonfly. |
+| `[dragonfly]`<sup>master</sup> | recipe | Enable recipe on DragonFly BSD. |
 | `[netbsd]`<sup>master</sup> | recipe | Enable recipe on NetBSD. |
 | `[parallel]`<sup>1.42.0</sup> | recipe | Run this recipe's dependencies in parallel. |
 | `[positional-arguments]`<sup>1.29.0</sup> | recipe | Turn on [positional arguments](#positional-arguments) for this recipe. |
