@@ -154,15 +154,21 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn enabled(&self) -> bool {
+    let dragonfly = self.attributes.contains(AttributeDiscriminant::Dragonfly);
+    let freebsd = self.attributes.contains(AttributeDiscriminant::Freebsd);
     let linux = self.attributes.contains(AttributeDiscriminant::Linux);
     let macos = self.attributes.contains(AttributeDiscriminant::Macos);
+    let netbsd = self.attributes.contains(AttributeDiscriminant::Netbsd);
     let openbsd = self.attributes.contains(AttributeDiscriminant::Openbsd);
     let unix = self.attributes.contains(AttributeDiscriminant::Unix);
     let windows = self.attributes.contains(AttributeDiscriminant::Windows);
 
-    (!windows && !linux && !macos && !openbsd && !unix)
+    (!windows && !linux && !macos && !openbsd && !freebsd && !dragonfly && !netbsd && !unix)
+      || (cfg!(target_os = "dragonfly") && (dragonfly || unix))
+      || (cfg!(target_os = "freebsd") && (freebsd || unix))
       || (cfg!(target_os = "linux") && (linux || unix))
       || (cfg!(target_os = "macos") && (macos || unix))
+      || (cfg!(target_os = "netbsd") && (netbsd || unix))
       || (cfg!(target_os = "openbsd") && (openbsd || unix))
       || (cfg!(target_os = "windows") && windows)
       || (cfg!(unix) && unix)

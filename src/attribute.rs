@@ -23,13 +23,16 @@ pub(crate) enum Attribute<'src> {
   Confirm(Option<StringLiteral<'src>>),
   Default,
   Doc(Option<StringLiteral<'src>>),
+  Dragonfly,
   Env(StringLiteral<'src>, StringLiteral<'src>),
   ExitMessage,
   Extension(StringLiteral<'src>),
+  Freebsd,
   Group(StringLiteral<'src>),
   Linux,
   Macos,
   Metadata(Vec<StringLiteral<'src>>),
+  Netbsd,
   NoCd,
   NoExitMessage,
   NoQuiet,
@@ -47,9 +50,12 @@ impl AttributeDiscriminant {
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
       Self::Default
+      | Self::Dragonfly
       | Self::ExitMessage
+      | Self::Freebsd
       | Self::Linux
       | Self::Macos
+      | Self::Netbsd
       | Self::NoCd
       | Self::NoExitMessage
       | Self::NoQuiet
@@ -181,16 +187,19 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::Confirm => Self::Confirm(arguments.into_iter().next()),
       AttributeDiscriminant::Default => Self::Default,
       AttributeDiscriminant::Doc => Self::Doc(arguments.into_iter().next()),
+      AttributeDiscriminant::Dragonfly => Self::Dragonfly,
       AttributeDiscriminant::Env => {
         let [key, value]: [StringLiteral; 2] = arguments.try_into().unwrap();
         Self::Env(key, value)
       }
       AttributeDiscriminant::ExitMessage => Self::ExitMessage,
       AttributeDiscriminant::Extension => Self::Extension(arguments.into_iter().next().unwrap()),
+      AttributeDiscriminant::Freebsd => Self::Freebsd,
       AttributeDiscriminant::Group => Self::Group(arguments.into_iter().next().unwrap()),
       AttributeDiscriminant::Linux => Self::Linux,
       AttributeDiscriminant::Macos => Self::Macos,
       AttributeDiscriminant::Metadata => Self::Metadata(arguments),
+      AttributeDiscriminant::Netbsd => Self::Netbsd,
       AttributeDiscriminant::NoCd => Self::NoCd,
       AttributeDiscriminant::NoExitMessage => Self::NoExitMessage,
       AttributeDiscriminant::NoQuiet => Self::NoQuiet,
@@ -295,9 +304,12 @@ impl Display for Attribute<'_> {
       Self::Confirm(None)
       | Self::Default
       | Self::Doc(None)
+      | Self::Dragonfly
       | Self::ExitMessage
+      | Self::Freebsd
       | Self::Linux
       | Self::Macos
+      | Self::Netbsd
       | Self::NoCd
       | Self::NoExitMessage
       | Self::NoQuiet
