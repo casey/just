@@ -5,15 +5,15 @@ fn all() {
   Test::new()
     .justfile(
       "
-      [macos]
-      [linux]
-      [openbsd]
-      [freebsd]
       [dragonfly]
+      [freebsd]
+      [linux]
+      [macos]
       [netbsd]
+      [no-exit-message]
+      [openbsd]
       [unix]
       [windows]
-      [no-exit-message]
       foo:
         exit 1
     ",
