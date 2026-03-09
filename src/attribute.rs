@@ -187,23 +187,23 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::Confirm => Self::Confirm(arguments.into_iter().next()),
       AttributeDiscriminant::Default => Self::Default,
       AttributeDiscriminant::Doc => Self::Doc(arguments.into_iter().next()),
+      AttributeDiscriminant::Dragonfly => Self::Dragonfly,
       AttributeDiscriminant::Env => {
         let [key, value]: [StringLiteral; 2] = arguments.try_into().unwrap();
         Self::Env(key, value)
       }
       AttributeDiscriminant::ExitMessage => Self::ExitMessage,
       AttributeDiscriminant::Extension => Self::Extension(arguments.into_iter().next().unwrap()),
+      AttributeDiscriminant::Freebsd => Self::Freebsd,
       AttributeDiscriminant::Group => Self::Group(arguments.into_iter().next().unwrap()),
       AttributeDiscriminant::Linux => Self::Linux,
       AttributeDiscriminant::Macos => Self::Macos,
       AttributeDiscriminant::Metadata => Self::Metadata(arguments),
+      AttributeDiscriminant::Netbsd => Self::Netbsd,
       AttributeDiscriminant::NoCd => Self::NoCd,
       AttributeDiscriminant::NoExitMessage => Self::NoExitMessage,
       AttributeDiscriminant::NoQuiet => Self::NoQuiet,
       AttributeDiscriminant::Openbsd => Self::Openbsd,
-      AttributeDiscriminant::Freebsd => Self::Freebsd,
-      AttributeDiscriminant::Dragonfly => Self::Dragonfly,
-      AttributeDiscriminant::Netbsd => Self::Netbsd,
       AttributeDiscriminant::Parallel => Self::Parallel,
       AttributeDiscriminant::PositionalArguments => Self::PositionalArguments,
       AttributeDiscriminant::Private => Self::Private,
