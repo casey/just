@@ -154,12 +154,12 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn enabled(&self) -> bool {
+    let dragonfly = self.attributes.contains(AttributeDiscriminant::Dragonfly);
+    let freebsd = self.attributes.contains(AttributeDiscriminant::Freebsd);
     let linux = self.attributes.contains(AttributeDiscriminant::Linux);
     let macos = self.attributes.contains(AttributeDiscriminant::Macos);
-    let openbsd = self.attributes.contains(AttributeDiscriminant::Openbsd);
-    let freebsd = self.attributes.contains(AttributeDiscriminant::Freebsd);
-    let dragonfly = self.attributes.contains(AttributeDiscriminant::Dragonfly);
     let netbsd = self.attributes.contains(AttributeDiscriminant::Netbsd);
+    let openbsd = self.attributes.contains(AttributeDiscriminant::Openbsd);
     let unix = self.attributes.contains(AttributeDiscriminant::Unix);
     let windows = self.attributes.contains(AttributeDiscriminant::Windows);
 
