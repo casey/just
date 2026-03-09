@@ -304,16 +304,16 @@ impl Display for Attribute<'_> {
       Self::Confirm(None)
       | Self::Default
       | Self::Doc(None)
+      | Self::Dragonfly
       | Self::ExitMessage
+      | Self::Freebsd
       | Self::Linux
       | Self::Macos
+      | Self::Netbsd
       | Self::NoCd
       | Self::NoExitMessage
       | Self::NoQuiet
       | Self::Openbsd
-      | Self::Freebsd
-      | Self::Dragonfly
-      | Self::Netbsd
       | Self::Parallel
       | Self::PositionalArguments
       | Self::Private
