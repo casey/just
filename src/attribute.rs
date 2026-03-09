@@ -50,16 +50,16 @@ impl AttributeDiscriminant {
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
       Self::Default
+      | Self::Dragonfly
       | Self::ExitMessage
+      | Self::Freebsd
       | Self::Linux
       | Self::Macos
+      | Self::Netbsd
       | Self::NoCd
       | Self::NoExitMessage
       | Self::NoQuiet
       | Self::Openbsd
-      | Self::Freebsd
-      | Self::Dragonfly
-      | Self::Netbsd
       | Self::Parallel
       | Self::PositionalArguments
       | Self::Private
