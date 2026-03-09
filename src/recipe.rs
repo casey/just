@@ -164,12 +164,12 @@ impl<'src, D> Recipe<'src, D> {
     let windows = self.attributes.contains(AttributeDiscriminant::Windows);
 
     (!windows && !linux && !macos && !openbsd && !freebsd && !dragonfly && !netbsd && !unix)
+      || (cfg!(target_os = "dragonfly") && (dragonfly || unix))
+      || (cfg!(target_os = "freebsd") && (freebsd || unix))
       || (cfg!(target_os = "linux") && (linux || unix))
       || (cfg!(target_os = "macos") && (macos || unix))
-      || (cfg!(target_os = "openbsd") && (openbsd || unix))
-      || (cfg!(target_os = "freebsd") && (freebsd || unix))
-      || (cfg!(target_os = "dragonfly") && (dragonfly || unix))
       || (cfg!(target_os = "netbsd") && (netbsd || unix))
+      || (cfg!(target_os = "openbsd") && (openbsd || unix))
       || (cfg!(target_os = "windows") && windows)
       || (cfg!(unix) && unix)
       || (cfg!(windows) && windows)
