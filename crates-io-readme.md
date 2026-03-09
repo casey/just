@@ -19,6 +19,6 @@ test TEST: build
 `just` produces detailed error messages and avoids `make`'s idiosyncrasies, so
 debugging a justfile is easier and less surprising than debugging a makefile.
 
-It works on Linux, MacOS, Windows, and BSD variants OpenBSD, FreeBSD, Dragonfly, and NetBSD.
+It works on all operating systems supported by Rust.
 
 Read more on [GitHub](https://github.com/casey/just).
