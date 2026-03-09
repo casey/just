@@ -329,8 +329,8 @@ impl<'src> From<ConstError<'src>> for Error<'src> {
   }
 }
 
-impl<'src> From<dotenvy::Error> for Error<'src> {
-  fn from(dotenv_error: dotenvy::Error) -> Error<'src> {
+impl From<dotenvy::Error> for Error<'_> {
+  fn from(dotenv_error: dotenvy::Error) -> Self {
     Self::Dotenv { dotenv_error }
   }
 }

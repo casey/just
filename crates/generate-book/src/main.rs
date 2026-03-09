@@ -188,18 +188,12 @@ fn main() -> Result {
         HeadingLevel::H6 => 5,
       };
 
-      write!(
+      writeln!(
         summary,
-        "{}- [{}](",
+        "{}- [{}]({filename}.md)",
         " ".repeat(indent * 4),
         chapter.title(),
       )?;
-
-      if chapter.events.len() > 3 {
-        write!(summary, "{filename}.md")?;
-      }
-
-      writeln!(summary, ")")?;
 
       filenames.insert(filename);
     }

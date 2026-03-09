@@ -214,6 +214,38 @@ fn status_error() {
 }
 
 #[test]
+fn cancelled_by_user() {
+  if cfg!(windows) {
+    return;
+  }
+
+  let tmp = temptree! {
+    justfile: "foo:\n echo foo\nbar:\n echo bar\n",
+    chooser: "#!/usr/bin/env bash\nexit 130\n",
+  };
+
+  let output = Command::new("chmod")
+    .arg("+x")
+    .arg(tmp.path().join("chooser"))
+    .output()
+    .unwrap();
+
+  assert!(output.status.success());
+
+  let output = Command::new(JUST)
+    .current_dir(tmp.path())
+    .arg("--choose")
+    .arg("--chooser")
+    .arg("./chooser")
+    .output()
+    .unwrap();
+
+  assert!(output.stderr.is_empty());
+
+  assert!(output.status.success());
+}
+
+#[test]
 fn default() {
   let tmp = temptree! {
     justfile: "foo:\n echo foo\n",

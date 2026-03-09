@@ -17,7 +17,7 @@ pub(crate) enum OutputError {
 }
 
 impl OutputError {
-  pub(crate) fn result_from_exit_status(exit_status: ExitStatus) -> Result<(), OutputError> {
+  pub(crate) fn result_from_exit_status(exit_status: ExitStatus) -> Result<(), Self> {
     match exit_status.code() {
       Some(0) => Ok(()),
       Some(code) => Err(Self::Code(code)),

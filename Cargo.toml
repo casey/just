@@ -66,10 +66,11 @@ which = "8.0.0"
 [lints.rust]
 mismatched_lifetime_syntaxes = "allow"
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(fuzzing)'] }
+unreachable_pub = "deny"
 
 [lints.clippy]
 all = { level = "deny", priority = -1 }
-arbitrary-source-item-ordering = "deny"
+arbitrary_source_item_ordering = "deny"
 enum_glob_use = "allow"
 ignore_without_reason = "allow"
 needless_pass_by_value = "allow"

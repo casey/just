@@ -190,6 +190,11 @@ most Windows users.)
       <td><a href=https://snapcraft.io/just>just</a></td>
       <td><code>snap install --edge --classic just</code></td>
     </tr>
+    <tr>
+      <td><a href=https://docs.astral.sh/uv/>uv</a></td>
+      <td><a href=https://pypi.org/project/rust-just/>rust-just</a></td>
+      <td><code>uv tool install rust-just</code></td>
+    </tr>
   </tbody>
 </table>
 
@@ -261,11 +266,9 @@ most Windows users.)
     <tr>
       <td><a href=https://www.gentoo.org>Gentoo</a></td>
       <td><a href=https://wiki.gentoo.org/wiki/Portage>Portage</a></td>
-      <td><a href=https://github.com/gentoo-mirror/guru/tree/master/dev-build/just>guru/dev-build/just</a></td>
+      <td><a href=https://packages.gentoo.org/packages/dev-build/just>dev-build/just</a></td>
       <td>
-        <code>eselect repository enable guru</code><br>
-        <code>emerge --sync guru</code><br>
-        <code>emerge dev-build/just</code>
+        <code>emerge -av dev-build/just</code>
       </td>
     </tr>
     <tr>
@@ -2139,8 +2142,9 @@ change their behavior.
 | `[confirm(PROMPT)]`<sup>1.23.0</sup> | recipe | Require confirmation prior to executing recipe with a custom prompt. |
 | `[default]`<sup>1.43.0</sup> | recipe | Use recipe as module's default recipe. |
 | `[doc(DOC)]`<sup>1.27.0</sup> | module, recipe | Set recipe or module's [documentation comment](#documentation-comments) to `DOC`. |
+| `[env(ENV_VAR, VALUE)]` <sup>master</sup> | recipe | Set environment variables for recipe. |
 | `[extension(EXT)]`<sup>1.32.0</sup> | recipe | Set shebang recipe script's file extension to `EXT`. `EXT` should include a period if one is desired. |
-| `[group(NAME)]`<sup>1.27.0</sup> | module, recipe | Put recipe or module in in [group](#groups) `NAME`. |
+| `[group(NAME)]`<sup>1.27.0</sup> | module, recipe | Put recipe or module in [group](#groups) `NAME`. |
 | `[linux]`<sup>1.8.0</sup> | recipe | Enable recipe on Linux. |
 | `[macos]`<sup>1.8.0</sup> | recipe | Enable recipe on MacOS. |
 | `[metadata(METADATA)]`<sup>1.42.0</sup> | recipe | Attach `METADATA` to recipe. |
@@ -2517,6 +2521,16 @@ Parameters prefixed with a `$` will be exported as environment variables:
 
 ```just
 test $RUST_BACKTRACE="1":
+  # will print a stack trace if it crashes
+  cargo test
+```
+
+You can also use the `[env(NAME, VALUE)]` attribute to export environment
+variables to a specific recipe:
+
+```just
+[env("RUST_BACKTRACE", "1")]
+test:
   # will print a stack trace if it crashes
   cargo test
 ```

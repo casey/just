@@ -42,6 +42,10 @@ pub(crate) enum CompileErrorKind<'src> {
   DuplicateDefault {
     recipe: &'src str,
   },
+  DuplicateEnvAttribute {
+    variable: String,
+    first: usize,
+  },
   DuplicateOption {
     recipe: &'src str,
     option: Switch,

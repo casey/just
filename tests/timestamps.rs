@@ -1,6 +1,22 @@
 use super::*;
 
 #[test]
+fn quiet() {
+  Test::new()
+    .justfile(
+      "
+      set quiet
+      recipe:
+        echo foo
+    ",
+    )
+    .arg("--timestamp")
+    .stderr_regex(concat!(r"\[\d\d:\d\d:\d\d\] echo foo", "\n"))
+    .stdout("foo\n")
+    .success();
+}
+
+#[test]
 fn linewise() {
   Test::new()
     .justfile(

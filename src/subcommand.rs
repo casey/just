@@ -9,6 +9,8 @@ default:
 
 static BACKTICK_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new("(`.*?`)|(`[^`]*$)").unwrap());
 
+const CHOOSER_CANCELLED_EXIT_STATUS: i32 = 130;
+
 #[derive(PartialEq, Clone, Debug)]
 pub(crate) enum Subcommand {
   Changelog,
@@ -83,8 +85,12 @@ impl Subcommand {
       &config.search_config,
     )?;
 
-    if let Edit = self {
+    if matches!(self, Edit) {
       return Self::edit(&search);
+    }
+
+    if matches!(self, Format) {
+      return Self::format(config, loader, &search);
     }
 
     let compilation = Self::compile(config, loader, &search)?;
@@ -98,7 +104,6 @@ impl Subcommand {
         justfile.run(config, &search, &[])?;
       }
       Dump => Self::dump(config, compilation)?,
-      Format => Self::format(config, &search, compilation)?,
       Groups => Self::groups(config, justfile),
       List { path } => Self::list(config, justfile, path)?,
       Run { arguments } => Self::run(config, loader, search, compilation, arguments)?,
@@ -106,7 +111,9 @@ impl Subcommand {
       Summary => Self::summary(config, justfile),
       Usage { path } => Self::usage(config, justfile, path)?,
       Variables => Self::variables(justfile),
-      Changelog | Completions { .. } | Edit | Init | Man | Request { .. } => unreachable!(),
+      Changelog | Completions { .. } | Edit | Format | Init | Man | Request { .. } => {
+        unreachable!()
+      }
     }
 
     Ok(())
@@ -269,6 +276,10 @@ impl Subcommand {
       }
     };
 
+    if output.status.code() == Some(CHOOSER_CANCELLED_EXIT_STATUS) {
+      return Ok(());
+    }
+
     if !output.status.success() {
       return Err(Error::ChooserStatus {
         status: output.status,
@@ -324,12 +335,29 @@ impl Subcommand {
     Ok(())
   }
 
-  fn format(config: &Config, search: &Search, compilation: Compilation) -> RunResult<'static> {
-    let justfile = &compilation.justfile;
-    let src = compilation.root_src();
-    let ast = compilation.root_ast();
+  fn format<'src>(config: &Config, loader: &'src Loader, search: &Search) -> RunResult<'src> {
+    let root = search.justfile.parent().unwrap();
 
-    config.require_unstable(justfile, UnstableFeature::FormatSubcommand)?;
+    let (path, src) = loader.load(root, &search.justfile)?;
+
+    let ast = Parser::parse_source(path, src, &Source::root(&search.justfile))?;
+
+    let unstable = config.unstable
+      || ast.items.iter().any(|item| {
+        matches!(
+          item,
+          Item::Set(Set {
+            value: Setting::Unstable(true),
+            ..
+          })
+        )
+      });
+
+    if !unstable {
+      return Err(Error::UnstableFeature {
+        unstable_feature: UnstableFeature::FormatSubcommand,
+      });
+    }
 
     let formatted = ast.to_string();
 
@@ -617,10 +645,8 @@ impl Subcommand {
     }
 
     let no_groups = ordered_groups.len() == 1 && ordered_groups.first() == Some(&None);
-    let mut groups_count = 0;
-    if !no_groups {
-      groups_count = ordered_groups.len();
-    }
+
+    let groups_count = if no_groups { 0 } else { ordered_groups.len() };
 
     for (i, group) in ordered_groups.into_iter().enumerate() {
       if i > 0 {
