@@ -1,6 +1,20 @@
 use super::*;
 
 #[test]
+fn list_group_unknown() {
+  Test::new()
+    .justfile(
+      "
+        [group('foo')]
+        a:
+      ",
+    )
+    .args(["--list", "--group", "bar"])
+    .stderr("error: Justfile does not contain group `bar`\n")
+    .failure();
+}
+
+#[test]
 fn list_group() {
   Test::new()
     .justfile(

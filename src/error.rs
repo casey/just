@@ -232,6 +232,9 @@ pub(crate) enum Error<'src> {
   UnknownOverrides {
     overrides: Vec<String>,
   },
+  UnknownGroup {
+    group: String,
+  },
   UnknownRecipe {
     recipe: String,
     suggestion: Option<Suggestion<'src>>,
@@ -769,6 +772,9 @@ impl ColorDisplay for Error<'_> {
           f,
           "{count} {overrides} overridden on the command line but not present in justfile",
         )?;
+      }
+      UnknownGroup { group } => {
+        write!(f, "Justfile does not contain group `{group}`")?;
       }
       UnknownRecipe { recipe, suggestion } => {
         write!(f, "Justfile does not contain recipe `{recipe}`")?;

@@ -478,12 +478,12 @@ impl Subcommand {
         })?;
     }
 
-    Self::list_module(config, module, 0);
+    Self::list_module(config, module, 0)?;
 
     Ok(())
   }
 
-  fn list_module(config: &Config, module: &Justfile, depth: usize) {
+  fn list_module(config: &Config, module: &Justfile, depth: usize) -> RunResult<'static> {
     fn print_doc_and_aliases(
       config: &Config,
       name: &str,
@@ -596,6 +596,17 @@ impl Subcommand {
       .unwrap_or(0);
 
     let list_prefix = config.list_prefix.repeat(depth + 1);
+
+    if depth == 0 && !config.list_groups.is_empty() {
+      let all_groups = module.public_groups(config);
+      for group in &config.list_groups {
+        if !all_groups.contains(group) {
+          return Err(Error::UnknownGroup {
+            group: group.clone(),
+          });
+        }
+      }
+    }
 
     if depth == 0 {
       print!("{}", config.list_heading);
@@ -733,7 +744,7 @@ impl Subcommand {
             }
             println!("{list_prefix}{}:", submodule.name());
 
-            Self::list_module(config, submodule, depth + 1);
+            Self::list_module(config, submodule, depth + 1)?;
           } else {
             print!("{list_prefix}{} ...", submodule.name());
             print_doc_and_aliases(
@@ -748,6 +759,8 @@ impl Subcommand {
         }
       }
     }
+
+    Ok(())
   }
 
   fn show<'src>(config: &Config, module: &Justfile<'src>, path: &ModulePath) -> RunResult<'src> {
