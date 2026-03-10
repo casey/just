@@ -478,12 +478,17 @@ impl Subcommand {
         })?;
     }
 
-    Self::list_module(config, module, 0)?;
+    Self::list_module(config, module, 0, &config.groups)?;
 
     Ok(())
   }
 
-  fn list_module(config: &Config, module: &Justfile, depth: usize) -> RunResult<'static> {
+  fn list_module(
+    config: &Config,
+    module: &Justfile,
+    depth: usize,
+    groups: &[String],
+  ) -> RunResult<'static> {
     fn print_doc_and_aliases(
       config: &Config,
       name: &str,
@@ -597,9 +602,9 @@ impl Subcommand {
 
     let list_prefix = config.list_prefix.repeat(depth + 1);
 
-    if depth == 0 && !config.groups.is_empty() {
+    if !groups.is_empty() {
       let all_groups = module.public_groups(config);
-      for group in &config.groups {
+      for group in groups {
         if !all_groups.contains(group) {
           return Err(Error::UnknownGroup {
             group: group.clone(),
@@ -613,62 +618,60 @@ impl Subcommand {
     }
 
     let recipe_groups = {
-      let mut groups = BTreeMap::<Option<String>, Vec<&Recipe>>::new();
+      let mut recipe_groups = BTreeMap::<Option<String>, Vec<&Recipe>>::new();
       for recipe in module.public_recipes(config) {
-        let recipe_groups = recipe.groups();
-        if recipe_groups.is_empty() {
-          groups.entry(None).or_default().push(recipe);
+        let recipe_groups_list = recipe.groups();
+        if recipe_groups_list.is_empty() {
+          recipe_groups.entry(None).or_default().push(recipe);
         } else {
-          for group in recipe_groups {
-            groups.entry(Some(group)).or_default().push(recipe);
+          for group in recipe_groups_list {
+            recipe_groups.entry(Some(group)).or_default().push(recipe);
           }
         }
       }
-      groups
+      recipe_groups
     };
 
     let submodule_groups = {
-      let mut groups = BTreeMap::<Option<String>, Vec<&Justfile>>::new();
+      let mut submodule_groups = BTreeMap::<Option<String>, Vec<&Justfile>>::new();
       for submodule in module.public_modules(config) {
-        let submodule_groups = submodule.groups();
-        if submodule_groups.is_empty() {
-          groups.entry(None).or_default().push(submodule);
+        let submodule_groups_list = submodule.groups();
+        if submodule_groups_list.is_empty() {
+          submodule_groups.entry(None).or_default().push(submodule);
         } else {
-          for group in submodule_groups {
-            groups
+          for group in submodule_groups_list {
+            submodule_groups
               .entry(Some(group.to_string()))
               .or_default()
               .push(submodule);
           }
         }
       }
-      groups
+      submodule_groups
     };
 
-    let mut ordered_groups = if config.groups.is_empty() {
+    let mut ordered_groups = if groups.is_empty() {
       module
         .public_groups(config)
         .into_iter()
         .map(Some)
         .collect::<Vec<Option<String>>>()
     } else {
-      config
-        .groups
+      groups
         .iter()
         .cloned()
         .map(Some)
         .collect::<Vec<Option<String>>>()
     };
 
-    if config.groups.is_empty()
+    if groups.is_empty()
       && (recipe_groups.contains_key(&None) || submodule_groups.contains_key(&None))
     {
       ordered_groups.insert(0, None);
     }
 
-    let no_groups = config.groups.is_empty()
-      && ordered_groups.len() == 1
-      && ordered_groups.first() == Some(&None);
+    let no_groups =
+      groups.is_empty() && ordered_groups.len() == 1 && ordered_groups.first() == Some(&None);
 
     let groups_count = if no_groups { 0 } else { ordered_groups.len() };
 
@@ -744,7 +747,7 @@ impl Subcommand {
             }
             println!("{list_prefix}{}:", submodule.name());
 
-            Self::list_module(config, submodule, depth + 1)?;
+            Self::list_module(config, submodule, depth + 1, &[])?;
           } else {
             print!("{list_prefix}{} ...", submodule.name());
             print_doc_and_aliases(
