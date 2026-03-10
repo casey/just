@@ -225,15 +225,15 @@ pub(crate) enum Error<'src> {
     recipe: &'src str,
     line_number: Option<usize>,
   },
+  UnknownGroup {
+    group: String,
+  },
   UnknownOption {
     recipe: &'src str,
     option: Switch,
   },
   UnknownOverrides {
     overrides: Vec<String>,
-  },
-  UnknownGroup {
-    group: String,
   },
   UnknownRecipe {
     recipe: String,
