@@ -634,17 +634,30 @@ impl Subcommand {
       groups
     };
 
-    let mut ordered_groups = module
-      .public_groups(config)
-      .into_iter()
-      .map(Some)
-      .collect::<Vec<Option<String>>>();
+    let mut ordered_groups = if config.list_groups.is_empty() {
+      module
+        .public_groups(config)
+        .into_iter()
+        .map(Some)
+        .collect::<Vec<Option<String>>>()
+    } else {
+      config
+        .list_groups
+        .iter()
+        .cloned()
+        .map(Some)
+        .collect::<Vec<Option<String>>>()
+    };
 
-    if recipe_groups.contains_key(&None) || submodule_groups.contains_key(&None) {
+    if config.list_groups.is_empty()
+      && (recipe_groups.contains_key(&None) || submodule_groups.contains_key(&None))
+    {
       ordered_groups.insert(0, None);
     }
 
-    let no_groups = ordered_groups.len() == 1 && ordered_groups.first() == Some(&None);
+    let no_groups = config.list_groups.is_empty()
+      && ordered_groups.len() == 1
+      && ordered_groups.first() == Some(&None);
 
     let groups_count = if no_groups { 0 } else { ordered_groups.len() };
 

@@ -35,6 +35,7 @@ just\t''"
 complete -c just -s f -l justfile -d 'Use <JUSTFILE> as justfile' -r -F
 complete -c just -l list-heading -d 'Print <TEXT> before list' -r
 complete -c just -l list-prefix -d 'Print <TEXT> before each list item' -r
+complete -c just -l group -d 'Only list recipes in <GROUP>' -r
 complete -c just -l set -d 'Override <VARIABLE> with <VALUE>' -r
 complete -c just -l shell -d 'Invoke <SHELL> to run recipes' -r
 complete -c just -l shell-arg -d 'Invoke shell with <SHELL-ARG> as an argument' -r

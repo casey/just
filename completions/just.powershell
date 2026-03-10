@@ -34,6 +34,7 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
             [CompletionResult]::new('--justfile', '--justfile', [CompletionResultType]::ParameterName, 'Use <JUSTFILE> as justfile')
             [CompletionResult]::new('--list-heading', '--list-heading', [CompletionResultType]::ParameterName, 'Print <TEXT> before list')
             [CompletionResult]::new('--list-prefix', '--list-prefix', [CompletionResultType]::ParameterName, 'Print <TEXT> before each list item')
+            [CompletionResult]::new('--group', '--group', [CompletionResultType]::ParameterName, 'Only list recipes in <GROUP>')
             [CompletionResult]::new('--set', '--set', [CompletionResultType]::ParameterName, 'Override <VARIABLE> with <VALUE>')
             [CompletionResult]::new('--shell', '--shell', [CompletionResultType]::ParameterName, 'Invoke <SHELL> to run recipes')
             [CompletionResult]::new('--shell-arg', '--shell-arg', [CompletionResultType]::ParameterName, 'Invoke shell with <SHELL-ARG> as an argument')

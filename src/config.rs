@@ -26,6 +26,7 @@ pub(crate) struct Config {
   pub(crate) explain: bool,
   pub(crate) highlight: bool,
   pub(crate) invocation_directory: PathBuf,
+  pub(crate) list_groups: Vec<String>,
   pub(crate) list_heading: String,
   pub(crate) list_prefix: String,
   pub(crate) list_submodules: bool,
@@ -110,6 +111,7 @@ mod arg {
   pub(crate) const GLOBAL_JUSTFILE: &str = "GLOBAL-JUSTFILE";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
+  pub(crate) const LIST_GROUP: &str = "LIST-GROUP";
   pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
   pub(crate) const LIST_PREFIX: &str = "LIST-PREFIX";
   pub(crate) const LIST_SUBMODULES: &str = "LIST-SUBMODULES";
@@ -314,6 +316,15 @@ impl Config {
           .env("JUST_LIST_SUBMODULES")
           .help("List recipes in submodules")
           .action(ArgAction::SetTrue)
+          .requires(cmd::LIST),
+      )
+      .arg(
+        Arg::new(arg::LIST_GROUP)
+          .long("group")
+          .env("JUST_GROUP")
+          .help("Only list recipes in <GROUP>")
+          .value_name("GROUP")
+          .action(ArgAction::Append)
           .requires(cmd::LIST),
       )
       .arg(
@@ -827,6 +838,10 @@ impl Config {
       explain,
       highlight: !matches.get_flag(arg::NO_HIGHLIGHT),
       invocation_directory: env::current_dir().context(config_error::CurrentDirContext)?,
+      list_groups: matches
+        .get_many::<String>(arg::LIST_GROUP)
+        .map(|s| s.map(Into::into).collect())
+        .unwrap_or_default(),
       list_heading: matches.get_one::<String>(arg::LIST_HEADING).unwrap().into(),
       list_prefix: matches.get_one::<String>(arg::LIST_PREFIX).unwrap().into(),
       list_submodules: matches.get_flag(arg::LIST_SUBMODULES),

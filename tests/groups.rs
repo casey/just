@@ -1,6 +1,64 @@
 use super::*;
 
 #[test]
+fn list_group() {
+  Test::new()
+    .justfile(
+      "
+        [group('alpha')]
+        a:
+        [group('alpha')]
+        [group('beta')]
+        b:
+        c:
+        [group('beta')]
+        d:
+      ",
+    )
+    .args(["--list", "--group", "alpha"])
+    .stdout(
+      "
+        Available recipes:
+            [alpha]
+            a
+            b
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn list_multiple_groups() {
+  Test::new()
+    .justfile(
+      "
+        [group('alpha')]
+        a:
+        [group('alpha')]
+        [group('beta')]
+        b:
+        c:
+        [group('beta')]
+        d:
+      ",
+    )
+    .args(["--list", "--group", "alpha", "--group", "beta"])
+    .stdout(
+      "
+        Available recipes:
+            [alpha]
+            a
+            b
+
+            [beta]
+            b
+            d
+      ",
+    )
+    .success();
+}
+
+#[test]
 fn list_with_groups() {
   Test::new()
     .justfile(
