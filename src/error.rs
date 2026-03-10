@@ -225,6 +225,9 @@ pub(crate) enum Error<'src> {
     recipe: &'src str,
     line_number: Option<usize>,
   },
+  UnknownGroup {
+    group: String,
+  },
   UnknownOption {
     recipe: &'src str,
     option: Switch,
@@ -769,6 +772,9 @@ impl ColorDisplay for Error<'_> {
           f,
           "{count} {overrides} overridden on the command line but not present in justfile",
         )?;
+      }
+      UnknownGroup { group } => {
+        write!(f, "Justfile does not contain group `{group}`")?;
       }
       UnknownRecipe { recipe, suggestion } => {
         write!(f, "Justfile does not contain recipe `{recipe}`")?;

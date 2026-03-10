@@ -29,6 +29,7 @@ _just() {
 '--justfile=[Use <JUSTFILE> as justfile]: :_files' \
 '--list-heading=[Print <TEXT> before list]:TEXT:_default' \
 '--list-prefix=[Print <TEXT> before each list item]:TEXT:_default' \
+'*--group=[Only list recipes in <GROUP>]: :_default' \
 '*--set=[Override <VARIABLE> with <VALUE>]: :(_just_variables)' \
 '--shell=[Invoke <SHELL> to run recipes]: :_default' \
 '*--shell-arg=[Invoke shell with <SHELL-ARG> as an argument]: :_default' \

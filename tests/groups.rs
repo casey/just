@@ -1,6 +1,85 @@
 use super::*;
 
 #[test]
+fn list_group_unknown() {
+  Test::new()
+    .justfile(
+      "
+        [group('foo')]
+        a:
+      ",
+    )
+    .args(["--list", "--group", "bar"])
+    .stderr("error: Justfile does not contain group `bar`\n")
+    .failure();
+}
+
+#[test]
+fn list_group() {
+  Test::new()
+    .justfile(
+      "
+        [group('alpha')]
+        a:
+        [group('alpha')]
+        [group('beta')]
+        b:
+        c:
+        [group('beta')]
+        d:
+      ",
+    )
+    .args(["--list", "--group", "alpha"])
+    .stdout(
+      "
+        Available recipes:
+            [alpha]
+            a
+            b
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn list_multiple_groups() {
+  Test::new()
+    .justfile(
+      "
+        [group('alpha')]
+        a:
+        [group('alpha')]
+        [group('beta')]
+        b:
+        c:
+        [group('beta')]
+        d:
+        [group('gamma')]
+        e:
+      ",
+    )
+    .args([
+      "--list", "--group", "alpha", "--group", "beta", "--group", "gamma",
+    ])
+    .stdout(
+      "
+        Available recipes:
+            [alpha]
+            a
+            b
+
+            [beta]
+            b
+            d
+
+            [gamma]
+            e
+      ",
+    )
+    .success();
+}
+
+#[test]
 fn list_with_groups() {
   Test::new()
     .justfile(
@@ -278,6 +357,31 @@ fn list_groups_private() {
       "
       Recipe groups:
           B
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn list_group_with_submodules() {
+  Test::new()
+    .justfile(
+      "
+        [group('foo')]
+        a:
+
+        b:
+
+        mod bar
+      ",
+    )
+    .write("bar.just", "c:\nd:")
+    .args(["--list", "--group", "foo", "--list-submodules"])
+    .stdout(
+      "
+        Available recipes:
+            [foo]
+            a
       ",
     )
     .success();
