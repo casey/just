@@ -478,16 +478,16 @@ impl Subcommand {
         })?;
     }
 
-    Self::list_module(config, module, 0, &config.groups)?;
+    Self::list_module(config, 0, &config.groups, module)?;
 
     Ok(())
   }
 
   fn list_module(
     config: &Config,
-    module: &Justfile,
     depth: usize,
     groups: &[String],
+    module: &Justfile,
   ) -> RunResult<'static> {
     fn print_doc_and_aliases(
       config: &Config,
@@ -747,7 +747,7 @@ impl Subcommand {
             }
             println!("{list_prefix}{}:", submodule.name());
 
-            Self::list_module(config, submodule, depth + 1, &[])?;
+            Self::list_module(config, depth + 1, &[], submodule)?;
           } else {
             print!("{list_prefix}{} ...", submodule.name());
             print_doc_and_aliases(
