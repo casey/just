@@ -54,9 +54,13 @@ fn list_multiple_groups() {
         c:
         [group('beta')]
         d:
+        [group('gamma')]
+        e:
       ",
     )
-    .args(["--list", "--group", "alpha", "--group", "beta"])
+    .args([
+      "--list", "--group", "alpha", "--group", "beta", "--group", "gamma",
+    ])
     .stdout(
       "
         Available recipes:
@@ -67,6 +71,9 @@ fn list_multiple_groups() {
             [beta]
             b
             d
+
+            [gamma]
+            e
       ",
     )
     .success();
