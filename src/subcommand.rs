@@ -603,9 +603,9 @@ impl Subcommand {
     let list_prefix = config.list_prefix.repeat(depth + 1);
 
     if !groups.is_empty() {
-      let all_groups = module.public_groups(config);
+      let public_groups = module.public_groups(config);
       for group in groups {
-        if !all_groups.contains(group) {
+        if !public_groups.contains(group) {
           return Err(Error::UnknownGroup {
             group: group.clone(),
           });
