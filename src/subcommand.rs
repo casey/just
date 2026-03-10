@@ -597,9 +597,9 @@ impl Subcommand {
 
     let list_prefix = config.list_prefix.repeat(depth + 1);
 
-    if depth == 0 && !config.list_groups.is_empty() {
+    if depth == 0 && !config.groups.is_empty() {
       let all_groups = module.public_groups(config);
-      for group in &config.list_groups {
+      for group in &config.groups {
         if !all_groups.contains(group) {
           return Err(Error::UnknownGroup {
             group: group.clone(),
@@ -645,7 +645,7 @@ impl Subcommand {
       groups
     };
 
-    let mut ordered_groups = if config.list_groups.is_empty() {
+    let mut ordered_groups = if config.groups.is_empty() {
       module
         .public_groups(config)
         .into_iter()
@@ -653,20 +653,20 @@ impl Subcommand {
         .collect::<Vec<Option<String>>>()
     } else {
       config
-        .list_groups
+        .groups
         .iter()
         .cloned()
         .map(Some)
         .collect::<Vec<Option<String>>>()
     };
 
-    if config.list_groups.is_empty()
+    if config.groups.is_empty()
       && (recipe_groups.contains_key(&None) || submodule_groups.contains_key(&None))
     {
       ordered_groups.insert(0, None);
     }
 
-    let no_groups = config.list_groups.is_empty()
+    let no_groups = config.groups.is_empty()
       && ordered_groups.len() == 1
       && ordered_groups.first() == Some(&None);
 
