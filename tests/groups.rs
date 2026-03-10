@@ -361,3 +361,28 @@ fn list_groups_private() {
     )
     .success();
 }
+
+#[test]
+fn list_group_with_submodules() {
+  Test::new()
+    .justfile(
+      "
+        [group('foo')]
+        a:
+
+        b:
+
+        mod bar
+      ",
+    )
+    .write("bar.just", "c:\nd:")
+    .args(["--list", "--group", "foo", "--list-submodules"])
+    .stdout(
+      "
+        Available recipes:
+            [foo]
+            a
+      ",
+    )
+    .success();
+}
