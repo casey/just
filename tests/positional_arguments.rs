@@ -162,6 +162,68 @@ fn default_arguments() {
 }
 
 #[test]
+fn omitted_default_long_option_is_not_passed_to_linewise_positional_arguments() {
+  Test::new()
+    .arg("foo")
+    .justfile(
+      r#"
+    set positional-arguments
+
+    [arg('bar', long='bar')]
+    foo bar='BAR' baz='BAZ':
+      echo $0
+      echo $1
+      echo ${2-missing}
+      echo "$@"
+  "#,
+    )
+    .stdout("foo\nBAZ\nmissing\nBAZ\n")
+    .stderr("echo $0\necho $1\necho ${2-missing}\necho \"$@\"\n")
+    .success();
+}
+
+#[test]
+fn omitted_default_long_option_is_not_passed_to_shebang_positional_arguments() {
+  Test::new()
+    .arg("foo")
+    .justfile(
+      r#"
+    set positional-arguments
+
+    [arg('bar', long='bar')]
+    foo bar='BAR' baz='BAZ':
+      #!/bin/sh
+      echo $1
+      echo ${2-missing}
+      echo "$@"
+  "#,
+    )
+    .stdout("BAZ\nmissing\nBAZ\n")
+    .success();
+}
+
+#[test]
+fn omitted_default_short_option_is_not_passed_to_linewise_positional_arguments() {
+  Test::new()
+    .arg("foo")
+    .justfile(
+      r#"
+    set positional-arguments
+
+    [arg('bar', short='b')]
+    foo bar='BAR' baz='BAZ':
+      echo $0
+      echo $1
+      echo ${2-missing}
+      echo "$@"
+  "#,
+    )
+    .stdout("foo\nBAZ\nmissing\nBAZ\n")
+    .stderr("echo $0\necho $1\necho ${2-missing}\necho \"$@\"\n")
+    .success();
+}
+
+#[test]
 fn empty_variadic_is_undefined() {
   Test::new()
     .justfile(

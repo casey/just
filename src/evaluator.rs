@@ -530,7 +530,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       let values = if group.is_empty() {
         if let Some(ref default) = parameter.default {
           let value = evaluator.evaluate_expression(default)?;
-          positional.push(value.clone());
+          if !parameter.is_option() {
+            positional.push(value.clone());
+          }
           vec![value]
         } else if parameter.kind == ParameterKind::Star {
           Vec::new()
