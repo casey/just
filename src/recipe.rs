@@ -289,10 +289,14 @@ impl<'src, D> Recipe<'src, D> {
         continue;
       }
 
+      let guard = sigils.contains(&Sigil::Guard);
+      let infallible = sigils.contains(&Sigil::Infallible);
+      let quiet = sigils.contains(&Sigil::Quiet);
+
       if config.dry_run
         || config.verbosity.loquacious()
         || config.timestamp
-        || !((sigils.contains(&Sigil::Quiet) ^ self.quiet)
+        || !((quiet ^ self.quiet)
           || (settings.quiet && !self.no_quiet())
           || config.verbosity.quiet())
       {
@@ -346,9 +350,9 @@ impl<'src, D> Recipe<'src, D> {
         Ok(exit_status) => {
           if let Some(code) = exit_status.code() {
             if code != 0 {
-              if sigils.contains(&Sigil::Guard) {
+              if guard {
                 return Ok(());
-              } else if !sigils.contains(&Sigil::Infallible) {
+              } else if !infallible {
                 return Err(Error::Code {
                   recipe: self.name(),
                   line_number: Some(line_number),
@@ -357,7 +361,7 @@ impl<'src, D> Recipe<'src, D> {
                 });
               }
             }
-          } else if !sigils.contains(&Sigil::Infallible) {
+          } else if !infallible {
             return Err(error_from_signal(
               self.name(),
               Some(line_number),
@@ -373,7 +377,7 @@ impl<'src, D> Recipe<'src, D> {
         }
       }
 
-      if !sigils.contains(&Sigil::Infallible) {
+      if !infallible {
         if let Some(signal) = caught {
           return Err(Error::Interrupted { signal });
         }
