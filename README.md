@@ -1646,8 +1646,10 @@ foo:
 ```
 
 The `?` sigil<sup>master</sup> causes the current recipe to stop executing if
-the command returns a nonzero exit status, but execution of other recipes will
-continue.
+the command exits with status code `1`, however execution of other recipes will
+continue. Exit status `0` causes the current recipe to continue execution as
+normal. All other exit codes are reserved and should not be used, as they may
+be given meaning in a future version of `just`.
 
 If the `guards` settings is unset or false, `?` sigils are ignored.
 
