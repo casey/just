@@ -118,7 +118,7 @@ impl<'src, D> Recipe<'src, D> {
     }
   }
 
-  pub(crate) fn check_can_be_default_recipe(&self) -> RunResult<'src, ()> {
+  pub(crate) fn check_can_be_default_recipe(&self) -> RunResult<'src> {
     let min_arguments = self.min_arguments();
     if min_arguments > 0 {
       return Err(Error::DefaultRecipeRequiresArguments {
@@ -213,7 +213,7 @@ impl<'src, D> Recipe<'src, D> {
     scope: &Scope<'src, 'run>,
     positional: &[String],
     is_dependency: bool,
-  ) -> RunResult<'src, ()> {
+  ) -> RunResult<'src> {
     let color = context.config.color.stderr().banner();
     let prefix = color.prefix();
     let suffix = color.suffix();
@@ -243,7 +243,7 @@ impl<'src, D> Recipe<'src, D> {
     scope: &Scope<'src, 'run>,
     positional: &[String],
     mut evaluator: Evaluator<'src, 'run>,
-  ) -> RunResult<'src, ()> {
+  ) -> RunResult<'src> {
     let config = &context.config;
     let settings = &context.module.settings;
 
@@ -351,7 +351,11 @@ impl<'src, D> Recipe<'src, D> {
           if let Some(code) = exit_status.code() {
             if code != 0 {
               if guard {
-                return Ok(());
+                if code == 1 {
+                  return Ok(());
+                } else {
+                  todo!()
+                }
               } else if !infallible {
                 return Err(Error::Code {
                   recipe: self.name(),
@@ -391,7 +395,7 @@ impl<'src, D> Recipe<'src, D> {
     scope: &Scope<'src, 'run>,
     positional: &[String],
     mut evaluator: Evaluator<'src, 'run>,
-  ) -> RunResult<'src, ()> {
+  ) -> RunResult<'src> {
     let config = &context.config;
 
     if let Some(timestamp) = config.timestamp() {
