@@ -68,3 +68,16 @@ fn guard_sigil_may_not_be_used_with_infallible_sigil() {
     )
     .failure();
 }
+
+#[test]
+fn guard_lines_are_ignored_without_setting() {
+  Test::new()
+    .justfile(
+      "
+        @foo:
+          ?() { echo bar; }; ?
+      ",
+    )
+    .stdout("bar\n")
+    .success();
+}
