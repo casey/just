@@ -128,6 +128,33 @@ impl<'src> Justfile<'src> {
     let scope = scopes.get(&self.module_path).unwrap().1;
 
     match &config.subcommand {
+      Subcommand::Choose { .. } | Subcommand::Run { .. } => {
+        let arguments = arguments.iter().map(String::as_str).collect::<Vec<&str>>();
+
+        let invocations = InvocationParser::parse_invocations(self, &arguments)?;
+
+        if config.one && invocations.len() > 1 {
+          return Err(Error::ExcessInvocations {
+            invocations: invocations.len(),
+          });
+        }
+
+        let ran = Ran::default();
+        for invocation in invocations {
+          Self::run_recipe(
+            &invocation.arguments,
+            config,
+            &dotenv,
+            false,
+            &ran,
+            invocation.recipe,
+            &scopes,
+            search,
+          )?;
+        }
+
+        Ok(())
+      }
       Subcommand::Command {
         binary, arguments, ..
       } => {
@@ -167,7 +194,7 @@ impl<'src> Justfile<'src> {
           return Err(Error::Interrupted { signal });
         }
 
-        return Ok(());
+        Ok(())
       }
       Subcommand::Evaluate { variable, .. } => {
         if let Some(variable) = variable {
@@ -194,36 +221,10 @@ impl<'src> Justfile<'src> {
           }
         }
 
-        return Ok(());
+        Ok(())
       }
-      _ => {}
+      _ => unreachable!(),
     }
-
-    let arguments = arguments.iter().map(String::as_str).collect::<Vec<&str>>();
-
-    let invocations = InvocationParser::parse_invocations(self, &arguments)?;
-
-    if config.one && invocations.len() > 1 {
-      return Err(Error::ExcessInvocations {
-        invocations: invocations.len(),
-      });
-    }
-
-    let ran = Ran::default();
-    for invocation in invocations {
-      Self::run_recipe(
-        &invocation.arguments,
-        config,
-        &dotenv,
-        false,
-        &ran,
-        invocation.recipe,
-        &scopes,
-        search,
-      )?;
-    }
-
-    Ok(())
   }
 
   pub(crate) fn check_unstable(&self, config: &Config) -> RunResult<'src> {
