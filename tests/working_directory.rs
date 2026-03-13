@@ -236,6 +236,22 @@ fn no_cd_overrides_setting() {
 }
 
 #[test]
+fn working_directory_setting_conflicts_with_no_cd_setting() {
+  Test::new()
+    .justfile(
+      "
+      set working-directory := 'bar'
+      set no-cd := true
+    ",
+    )
+    .status(EXIT_FAILURE)
+    .stderr(
+      "error: Setting `working-directory` first set on line 1 is incompatible with setting `no-cd`\n ——▶ justfile:2:5\n  │\n2 │ set no-cd := true\n  │     ^^^^^\n",
+    )
+    .run();
+}
+
+#[test]
 fn working_dir_in_submodule_is_relative_to_module_path() {
   Test::new()
     .write(
