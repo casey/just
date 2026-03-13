@@ -1651,7 +1651,8 @@ continue. Exit status `0` causes the current recipe to continue execution as
 normal. All other exit codes are reserved and should not be used, as they may
 be given meaning in a future version of `just`.
 
-If the `guards` settings is unset or false, `?` sigils are ignored.
+If the `guards` settings is unset or false, `?` sigils are ignored and instead
+treated as part of the command.
 
 ```just
 set guards
