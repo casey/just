@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn guard_lines_halt_executation() {
+fn guard_lines_halt_execution() {
   Test::new()
     .justfile(
       "

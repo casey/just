@@ -326,7 +326,7 @@ impl<'src, D> Recipe<'src, D> {
 
       cmd.arg(command);
 
-      if self.takes_positional_arguments(&settings) {
+      if self.takes_positional_arguments(settings) {
         cmd.arg(self.name.lexeme());
         cmd.args(positional);
       }
@@ -342,7 +342,7 @@ impl<'src, D> Recipe<'src, D> {
         }
       }
 
-      cmd.export(&settings, context.dotenv, scope, &context.module.unexports);
+      cmd.export(settings, context.dotenv, scope, &context.module.unexports);
 
       let (result, caught) = cmd.status_guard();
 
@@ -353,19 +353,19 @@ impl<'src, D> Recipe<'src, D> {
               if guard {
                 if code == 1 {
                   return Ok(());
-                } else {
-                  return Err(Error::GuardCode {
-                    recipe: self.name(),
-                    line_number,
-                    code,
-                  });
                 }
+
+                return Err(Error::GuardCode {
+                  recipe: self.name(),
+                  line_number,
+                  code,
+                });
               } else if !infallible {
                 return Err(Error::Code {
                   recipe: self.name(),
                   line_number: Some(line_number),
                   code,
-                  print_message: self.print_exit_message(&settings),
+                  print_message: self.print_exit_message(settings),
                 });
               }
             }
