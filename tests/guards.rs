@@ -30,3 +30,18 @@ fn guard_lines_have_no_effect_if_successful() {
     .stdout("baz\n")
     .success();
 }
+
+#[test]
+fn exit_codes_above_one_are_reserved() {
+  Test::new()
+    .justfile(
+      "
+        set guards
+
+        @foo:
+          ?exit 2
+      ",
+    )
+    .stderr("error: Guard line in recipe `foo` on line 4 returned reserved exit code 2\n")
+    .failure();
+}

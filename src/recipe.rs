@@ -354,7 +354,11 @@ impl<'src, D> Recipe<'src, D> {
                 if code == 1 {
                   return Ok(());
                 } else {
-                  todo!()
+                  return Err(Error::GuardCode {
+                    recipe: self.name(),
+                    line_number,
+                    code,
+                  });
                 }
               } else if !infallible {
                 return Err(Error::Code {
