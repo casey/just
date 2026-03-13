@@ -1152,6 +1152,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let body = self.parse_body()?;
 
     let shebang = body.first().is_some_and(Line::is_shebang);
+
     let script = attributes.contains(AttributeDiscriminant::Script);
 
     if attributes.contains(AttributeDiscriminant::WorkingDirectory)
