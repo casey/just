@@ -16,6 +16,7 @@ pub(crate) struct Settings {
   pub(crate) dotenv_required: bool,
   pub(crate) export: bool,
   pub(crate) fallback: bool,
+  pub(crate) guards: bool,
   pub(crate) ignore_comments: bool,
   pub(crate) no_exit_message: bool,
   pub(crate) positional_arguments: bool,

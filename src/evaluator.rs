@@ -103,6 +103,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         Setting::Fallback(value) => {
           settings.fallback = value;
         }
+        Setting::Guards(guards) => {
+          settings.guards = guards;
+        }
         Setting::IgnoreComments(value) => {
           settings.ignore_comments = value;
         }

@@ -195,6 +195,10 @@ impl Display for CompileError<'_> {
         Count("argument", *found),
         expected.display(),
       ),
+      GuardAndInfallibleSigil => write!(
+        f,
+        "The guard `?` and infallible `-` sigils may not be used together"
+      ),
       Include => write!(
         f,
         "The `!include` directive has been stabilized as `import`"

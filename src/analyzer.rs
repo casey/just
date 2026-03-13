@@ -177,6 +177,23 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       {
         deduplicated_recipes.insert(recipe.clone());
       }
+
+      if !recipe.is_script() {
+        for line in &recipe.body {
+          let sigils = line.sigils(&settings);
+
+          if sigils.contains(&Sigil::Guard) && sigils.contains(&Sigil::Infallible) {
+            let Fragment::Text { token } = line.fragments.first().unwrap() else {
+              unreachable!();
+            };
+            return Err(
+              token
+                .error(CompileErrorKind::GuardAndInfallibleSigil)
+                .into(),
+            );
+          }
+        }
+      }
     }
 
     let recipes = RecipeResolver::resolve_recipes(
