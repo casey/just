@@ -293,7 +293,7 @@ impl<'src, D> Recipe<'src, D> {
         || config.verbosity.loquacious()
         || config.timestamp
         || !((sigils.contains(&Sigil::Quiet) ^ self.quiet)
-          || (context.module.settings.quiet && !self.no_quiet())
+          || (settings.quiet && !self.no_quiet())
           || config.verbosity.quiet())
       {
         let color = if config.highlight {
@@ -314,7 +314,7 @@ impl<'src, D> Recipe<'src, D> {
         continue;
       }
 
-      let mut cmd = context.module.settings.shell_command(config);
+      let mut cmd = settings.shell_command(config);
 
       if let Some(working_directory) = self.working_directory(context) {
         cmd.current_dir(working_directory);
@@ -322,7 +322,7 @@ impl<'src, D> Recipe<'src, D> {
 
       cmd.arg(command);
 
-      if self.takes_positional_arguments(&context.module.settings) {
+      if self.takes_positional_arguments(&settings) {
         cmd.arg(self.name.lexeme());
         cmd.args(positional);
       }
@@ -338,12 +338,7 @@ impl<'src, D> Recipe<'src, D> {
         }
       }
 
-      cmd.export(
-        &context.module.settings,
-        context.dotenv,
-        scope,
-        &context.module.unexports,
-      );
+      cmd.export(&settings, context.dotenv, scope, &context.module.unexports);
 
       let (result, caught) = cmd.status_guard();
 
@@ -358,7 +353,7 @@ impl<'src, D> Recipe<'src, D> {
                   recipe: self.name(),
                   line_number: Some(line_number),
                   code,
-                  print_message: self.print_exit_message(&context.module.settings),
+                  print_message: self.print_exit_message(&settings),
                 });
               }
             }
