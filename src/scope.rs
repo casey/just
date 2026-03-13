@@ -2,8 +2,8 @@ use super::*;
 
 #[derive(Debug)]
 pub(crate) struct Scope<'src: 'run, 'run> {
-  parent: Option<&'run Self>,
   bindings: Table<'src, Binding<'src, String>>,
+  parent: Option<&'run Self>,
 }
 
 impl<'src, 'run> Scope<'src, 'run> {
@@ -22,7 +22,6 @@ impl<'src, 'run> Scope<'src, 'run> {
 
     for (key, value) in constants() {
       root.bind(Binding {
-        constant: true,
         export: false,
         file_depth: 0,
         name: Name {
@@ -36,6 +35,7 @@ impl<'src, 'run> Scope<'src, 'run> {
             src: key,
           },
         },
+        prelude: true,
         private: false,
         value: (*value).into(),
       });

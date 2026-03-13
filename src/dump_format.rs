@@ -1,7 +1,8 @@
 use super::*;
 
-#[derive(Debug, PartialEq, Clone, ValueEnum)]
+#[derive(Debug, Default, PartialEq, Clone, ValueEnum)]
 pub(crate) enum DumpFormat {
   Json,
+  #[default]
   Just,
 }

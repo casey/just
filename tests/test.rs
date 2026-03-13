@@ -3,40 +3,6 @@ use {
   pretty_assertions::{assert_eq, StrComparison},
 };
 
-macro_rules! test {
-  {
-    name: $name:ident,
-    $(justfile: $justfile:expr,)?
-    $(args: ($($arg:tt),*),)?
-    $(env: { $($env_key:literal : $env_value:literal,)* },)?
-    $(stdin: $stdin:expr,)?
-    $(stdout: $stdout:expr,)?
-    $(stdout_regex: $stdout_regex:expr,)?
-    $(stderr: $stderr:expr,)?
-    $(stderr_regex: $stderr_regex:expr,)?
-    $(status: $status:expr,)?
-    $(shell: $shell:expr,)?
-  } => {
-    #[test]
-    fn $name() {
-      let test = crate::test::Test::new();
-
-      $($(let test = test.arg($arg);)*)?
-      $($(let test = test.env($env_key, $env_value);)*)?
-      $(let test = test.justfile($justfile);)?
-      $(let test = test.shell($shell);)?
-      $(let test = test.status($status);)?
-      $(let test = test.stderr($stderr);)?
-      $(let test = test.stderr_regex($stderr_regex);)?
-      $(let test = test.stdin($stdin);)?
-      $(let test = test.stdout($stdout);)?
-      $(let test = test.stdout_regex($stdout_regex);)?
-
-      test.run();
-    }
-  }
-}
-
 pub(crate) struct Output {
   pub(crate) pid: u32,
   pub(crate) stdout: String,
@@ -52,7 +18,6 @@ pub(crate) struct Test {
   pub(crate) justfile: Option<String>,
   pub(crate) response: Option<Response>,
   pub(crate) shell: bool,
-  pub(crate) status: i32,
   pub(crate) stderr: String,
   pub(crate) stderr_regex: Option<Regex>,
   pub(crate) stdin: String,
@@ -77,7 +42,6 @@ impl Test {
       justfile: Some(String::new()),
       response: None,
       shell: true,
-      status: EXIT_SUCCESS,
       stderr: String::new(),
       stderr_regex: None,
       stdin: String::new(),
@@ -151,11 +115,6 @@ impl Test {
     self
   }
 
-  pub(crate) fn status(mut self, exit_status: i32) -> Self {
-    self.status = exit_status;
-    self
-  }
-
   pub(crate) fn stderr(mut self, stderr: impl Into<String>) -> Self {
     self.stderr = stderr.into();
     self
@@ -181,7 +140,6 @@ impl Test {
     self
   }
 
-  #[allow(unused)]
   pub(crate) fn test_round_trip(mut self, test_round_trip: bool) -> Self {
     self.test_round_trip = test_round_trip;
     self
@@ -205,6 +163,30 @@ impl Test {
     self
   }
 
+  pub(crate) fn make_executable(self, path: impl AsRef<Path>) -> Self {
+    let file = self.tempdir.path().join(path);
+
+    // Make sure it exists first, as a sanity check.
+    assert!(file.exists(), "file does not exist: {}", file.display());
+
+    // Windows uses file extensions to determine whether a file is executable.
+    // Other systems don't care. To keep these tests cross-platform, just make
+    // sure all executables end with ".exe" suffix.
+    assert!(
+      file.extension() == Some("exe".as_ref()),
+      "executable file does not end with .exe: {}",
+      file.display()
+    );
+
+    #[cfg(unix)]
+    {
+      let perms = std::os::unix::fs::PermissionsExt::from_mode(0o755);
+      fs::set_permissions(file, perms).unwrap();
+    }
+
+    self
+  }
+
   pub(crate) fn expect_file(mut self, path: impl AsRef<Path>, content: impl AsRef<[u8]>) -> Self {
     let path = path.as_ref();
     self
@@ -212,11 +194,19 @@ impl Test {
       .insert(path.into(), content.as_ref().into());
     self
   }
-}
 
-impl Test {
   #[track_caller]
-  pub(crate) fn run(self) -> Output {
+  pub(crate) fn success(self) -> Output {
+    self.status(0)
+  }
+
+  #[track_caller]
+  pub(crate) fn failure(self) -> Output {
+    self.status(1)
+  }
+
+  #[track_caller]
+  pub(crate) fn status(self, status: i32) -> Output {
     fn compare<T: PartialEq + Debug>(name: &str, have: T, want: T) -> bool {
       let equal = have == want;
       if !equal {
@@ -246,7 +236,7 @@ impl Test {
 
     let stderr = unindent(&self.stderr);
 
-    let mut command = Command::new(executable_path("just"));
+    let mut command = Command::new(JUST);
 
     if self.shell {
       command.args(["--shell", "bash"]);
@@ -293,7 +283,7 @@ impl Test {
       );
     }
 
-    if !compare("status", output.status.code(), Some(self.status))
+    if !compare("status", output.status.code(), Some(status))
       | (self.stdout_regex.is_none() && !compare_string("stdout", output_stdout, &stdout))
       | (self.stderr_regex.is_none() && !compare_string("stderr", output_stderr, &stderr))
     {
@@ -319,7 +309,7 @@ impl Test {
       );
     }
 
-    if self.test_round_trip && self.status == EXIT_SUCCESS {
+    if self.test_round_trip && status == 0 {
       self.round_trip();
     }
 
@@ -331,9 +321,7 @@ impl Test {
   }
 
   fn round_trip(&self) {
-    println!("Reparsing...");
-
-    let output = Command::new(executable_path("just"))
+    let output = Command::new(JUST)
       .current_dir(self.tempdir.path())
       .arg("--dump")
       .envs(&self.env)
@@ -353,7 +341,7 @@ impl Test {
 
     fs::write(&reparsed_path, &dumped).unwrap();
 
-    let output = Command::new(executable_path("just"))
+    let output = Command::new(JUST)
       .current_dir(self.tempdir.path())
       .arg("--justfile")
       .arg(&reparsed_path)
@@ -370,11 +358,11 @@ impl Test {
   }
 }
 
-pub fn assert_eval_eq(expression: &str, result: &str) {
+pub(crate) fn assert_eval_eq(expression: &str, result: &str) {
   Test::new()
     .justfile(format!("x := {expression}"))
     .args(["--evaluate", "x"])
     .stdout(result)
     .unindent_stdout(false)
-    .run();
+    .success();
 }

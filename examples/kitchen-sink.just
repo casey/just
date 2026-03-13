@@ -47,7 +47,7 @@ x := '''
   bar
 '''
 
-# this string will evaluate to `abc\n  wuv\nbar\n`
+# this string will evaluate to `abc\n  wuv\nxyz\n`
 y := """
   abc
     wuv

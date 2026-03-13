@@ -55,7 +55,9 @@ item          : alias
 eol           : NEWLINE
               | COMMENT NEWLINE
 
-alias         : 'alias' NAME ':=' NAME eol
+alias         : 'alias' NAME ':=' target eol
+
+target        : NAME ('::' NAME)*
 
 assignment    : NAME ':=' expression eol
 
@@ -124,9 +126,11 @@ sequence      : expression ',' sequence
 
 recipe        : attributes* '@'? NAME parameter* variadic? ':' dependencies eol body?
 
-attributes    : '[' attribute* ']' eol
+attributes    : '[' attribute (',' attribute)* ']' eol
 
-attribute     : NAME ( '(' string ')' )?
+attribute     : NAME
+              | NAME ':' string
+              | NAME '(' string (',' string)* ')'
 
 parameter     : '$'? NAME
               | '$'? NAME '=' value
@@ -136,8 +140,8 @@ variadic      : '*' parameter
 
 dependencies  : dependency* ('&&' dependency+)?
 
-dependency    : NAME
-              | '(' NAME expression* ')'
+dependency    : target
+              | '(' target expression* ')'
 
 body          : INDENT line+ DEDENT
 

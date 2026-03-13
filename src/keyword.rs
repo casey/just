@@ -9,10 +9,12 @@ pub(crate) enum Keyword {
   Assert,
   DotenvFilename,
   DotenvLoad,
+  DotenvOverride,
   DotenvPath,
   DotenvRequired,
   Else,
   Export,
+  F,
   Fallback,
   False,
   Guards,
@@ -20,6 +22,7 @@ pub(crate) enum Keyword {
   IgnoreComments,
   Import,
   Mod,
+  NoExitMessage,
   PositionalArguments,
   Quiet,
   ScriptInterpreter,
@@ -36,7 +39,7 @@ pub(crate) enum Keyword {
 }
 
 impl Keyword {
-  pub(crate) fn from_lexeme(lexeme: &str) -> Option<Keyword> {
+  pub(crate) fn from_lexeme(lexeme: &str) -> Option<Self> {
     lexeme.parse().ok()
   }
 

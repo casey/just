@@ -19,7 +19,7 @@ fn import_succeeds() {
     )
     .arg("a")
     .stdout("B\nA\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -34,7 +34,6 @@ fn missing_import_file_error() {
       ",
     )
     .arg("a")
-    .status(EXIT_FAILURE)
     .stderr(
       "
       error: Could not find source file for import.
@@ -44,7 +43,7 @@ fn missing_import_file_error() {
         │        ^^^^^^^^^^^^^^^^^^^
       ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -60,7 +59,7 @@ fn missing_optional_imports_are_ignored() {
     )
     .arg("a")
     .stdout("A\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -77,7 +76,7 @@ fn trailing_spaces_after_import_are_ignored() {
     ",
     )
     .stdout("A\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -96,7 +95,7 @@ fn import_after_recipe() {
       ",
     )
     .stdout("A\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -107,11 +106,10 @@ fn circular_import() {
       a: "import 'b'",
       b: "import 'a'",
     })
-    .status(EXIT_FAILURE)
     .stderr_regex(path_for_regex(
       "error: Import `.*/a` in `.*/b` is circular\n",
     ))
-    .run();
+    .failure();
 }
 
 #[test]
@@ -121,9 +119,8 @@ fn import_recipes_are_not_default() {
       "import.justfile": "bar:",
     })
     .justfile("import './import.justfile'")
-    .status(EXIT_FAILURE)
     .stderr("error: Justfile contains no default recipe.\n")
-    .run();
+    .failure();
 }
 
 #[test]
@@ -144,14 +141,13 @@ fn listed_recipes_in_imports_are_in_load_order() {
           bar
     ",
     )
-    .run();
+    .success();
 }
 
 #[test]
 fn include_error() {
   Test::new()
     .justfile("!include foo")
-    .status(EXIT_FAILURE)
     .stderr(
       "
       error: The `!include` directive has been stabilized as `import`
@@ -161,7 +157,7 @@ fn include_error() {
         │ ^
       ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -185,7 +181,7 @@ fn recipes_in_import_are_overridden_by_recipes_in_parent() {
     )
     .arg("a")
     .stdout("ROOT\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -210,12 +206,14 @@ fn variables_in_import_are_overridden_by_variables_in_parent() {
     )
     .arg("a")
     .stdout("bar\n")
-    .run();
+    .success();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn import_paths_beginning_with_tilde_are_expanded_to_homdir() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .write("foobar/mod.just", "foo:\n @echo FOOBAR")
     .justfile(
@@ -226,7 +224,7 @@ fn import_paths_beginning_with_tilde_are_expanded_to_homdir() {
     .arg("foo")
     .stdout("FOOBAR\n")
     .env("HOME", "foobar")
-    .run();
+    .success();
 }
 
 #[test]
@@ -240,7 +238,7 @@ fn imports_dump_correctly() {
     )
     .arg("--dump")
     .stdout("import './import.justfile'\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -254,7 +252,7 @@ fn optional_imports_dump_correctly() {
     )
     .arg("--dump")
     .stdout("import? './import.justfile'\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -269,7 +267,7 @@ fn imports_in_root_run_in_justfile_directory() {
     )
     .arg("bar")
     .stdout("BAZ")
-    .run();
+    .success();
 }
 
 #[test]
@@ -282,7 +280,7 @@ fn imports_in_submodules_run_in_submodule_directory() {
     .arg("foo")
     .arg("bar")
     .stdout("BAZ")
-    .run();
+    .success();
 }
 
 #[test]
@@ -293,7 +291,7 @@ fn nested_import_paths_are_relative_to_containing_submodule() {
     .write("foo/bar.just", "bar:\n @echo BAR")
     .arg("bar")
     .stdout("BAR\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -305,7 +303,7 @@ fn recipes_in_nested_imports_run_in_parent_module() {
     .write("baz", "BAZ")
     .arg("bar")
     .stdout("BAZ")
-    .run();
+    .success();
 }
 
 #[test]
@@ -323,7 +321,7 @@ fn shebang_recipes_in_imports_in_root_run_in_justfile_directory() {
     )
     .arg("bar")
     .stdout("BAZ")
-    .run();
+    .success();
 }
 
 #[test]
@@ -339,7 +337,7 @@ fn recipes_imported_in_root_run_in_command_line_provided_working_directory() {
       "subdir/a.justfile",
     ])
     .stdout("BAZBAZ")
-    .run();
+    .success();
 }
 
 #[test]
@@ -358,7 +356,7 @@ fn reused_import_are_allowed() {
       b: "import 'c'",
       c: "",
     })
-    .run();
+    .success();
 }
 
 #[test]
@@ -381,7 +379,7 @@ x := 'y'
 ",
     )
     .stdout("hello\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -406,5 +404,5 @@ x := 'y'
 ",
     )
     .stdout("hello\n")
-    .run();
+    .success();
 }

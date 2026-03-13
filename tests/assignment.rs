@@ -1,35 +1,43 @@
 use super::*;
 
-test! {
-  name: set_export_parse_error,
-  justfile: "
+#[test]
+fn set_export_parse_error() {
+  Test::new()
+    .justfile(
+      "
     set export := fals
   ",
-  stdout: "",
-  stderr: "
+    )
+    .stderr(
+      "
     error: Expected keyword `true` or `false` but found identifier `fals`
      ——▶ justfile:1:15
       │
     1 │ set export := fals
       │               ^^^^
   ",
-  status: EXIT_FAILURE,
+    )
+    .failure();
 }
 
-test! {
-  name: set_export_parse_error_eol,
-  justfile: "
+#[test]
+fn set_export_parse_error_eol() {
+  Test::new()
+    .justfile(
+      "
     set export :=
   ",
-  stdout: "",
-  stderr: "
+    )
+    .stderr(
+      "
     error: Expected identifier, but found end of line
      ——▶ justfile:1:14
       │
     1 │ set export :=
       │              ^
   ",
-  status: EXIT_FAILURE,
+    )
+    .failure();
 }
 
 #[test]
@@ -51,6 +59,5 @@ fn invalid_attributes_are_an_error() {
           │ ^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }

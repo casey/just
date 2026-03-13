@@ -11,7 +11,7 @@ fn ignore_leading_byte_order_mark() {
     )
     .stderr("echo bar\n")
     .stdout("bar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -32,8 +32,7 @@ fn non_leading_byte_order_mark_produces_error() {
       3 │ \u{feff}
         │ ^
       ")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -49,6 +48,5 @@ fn dont_mention_byte_order_mark_in_errors() {
         │ ^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }

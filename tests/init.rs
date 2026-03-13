@@ -1,12 +1,10 @@
-use super::*;
-
-const EXPECTED: &str = "default:\n    echo 'Hello, world!'\n";
+use {super::*, just::INIT_JUSTFILE};
 
 #[test]
 fn current_dir() {
   let tmp = tempdir();
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path())
     .arg("--init")
     .output()
@@ -16,7 +14,7 @@ fn current_dir() {
 
   assert_eq!(
     fs::read_to_string(tmp.path().join("justfile")).unwrap(),
-    EXPECTED
+    INIT_JUSTFILE
   );
 }
 
@@ -26,14 +24,13 @@ fn exists() {
     .no_justfile()
     .arg("--init")
     .stderr_regex("Wrote justfile to `.*`\n")
-    .run();
+    .success();
 
   Test::with_tempdir(output.tempdir)
     .no_justfile()
     .arg("--init")
-    .status(EXIT_FAILURE)
     .stderr_regex("error: Justfile `.*` already exists\n")
-    .run();
+    .failure();
 }
 
 #[test]
@@ -47,13 +44,12 @@ fn write_error() {
   test
     .no_justfile()
     .args(["--init"])
-    .status(EXIT_FAILURE)
     .stderr_regex(if cfg!(windows) {
       r"error: Failed to write justfile to `.*`: Access is denied. \(os error 5\)\n"
     } else {
       r"error: Failed to write justfile to `.*`: Is a directory \(os error 21\)\n"
     })
-    .run();
+    .failure();
 }
 
 #[test]
@@ -70,9 +66,9 @@ fn invocation_directory() {
     .no_justfile()
     .stderr_regex("Wrote justfile to `.*`\n")
     .arg("--init")
-    .run();
+    .success();
 
-  assert_eq!(fs::read_to_string(justfile_path).unwrap(), EXPECTED);
+  assert_eq!(fs::read_to_string(justfile_path).unwrap(), INIT_JUSTFILE);
 }
 
 #[test]
@@ -82,7 +78,7 @@ fn parent_dir() {
     sub: {},
   };
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path().join("sub"))
     .arg("--init")
     .output()
@@ -92,7 +88,7 @@ fn parent_dir() {
 
   assert_eq!(
     fs::read_to_string(tmp.path().join("justfile")).unwrap(),
-    EXPECTED
+    INIT_JUSTFILE
   );
 }
 
@@ -102,7 +98,7 @@ fn alternate_marker() {
     "_darcs": {},
   };
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path())
     .arg("--init")
     .output()
@@ -112,7 +108,7 @@ fn alternate_marker() {
 
   assert_eq!(
     fs::read_to_string(tmp.path().join("justfile")).unwrap(),
-    EXPECTED
+    INIT_JUSTFILE
   );
 }
 
@@ -124,7 +120,7 @@ fn search_directory() {
     },
   };
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path())
     .arg("--init")
     .arg("sub/")
@@ -135,7 +131,7 @@ fn search_directory() {
 
   assert_eq!(
     fs::read_to_string(tmp.path().join("sub/justfile")).unwrap(),
-    EXPECTED
+    INIT_JUSTFILE
   );
 }
 
@@ -147,7 +143,7 @@ fn justfile() {
     },
   };
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path().join("sub"))
     .arg("--init")
     .arg("--justfile")
@@ -159,7 +155,7 @@ fn justfile() {
 
   assert_eq!(
     fs::read_to_string(tmp.path().join("justfile")).unwrap(),
-    EXPECTED
+    INIT_JUSTFILE
   );
 }
 
@@ -171,7 +167,7 @@ fn justfile_and_working_directory() {
     },
   };
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path().join("sub"))
     .arg("--init")
     .arg("--justfile")
@@ -185,7 +181,7 @@ fn justfile_and_working_directory() {
 
   assert_eq!(
     fs::read_to_string(tmp.path().join("justfile")).unwrap(),
-    EXPECTED
+    INIT_JUSTFILE
   );
 }
 
@@ -195,12 +191,11 @@ fn fmt_compatibility() {
     .no_justfile()
     .arg("--init")
     .stderr_regex("Wrote justfile to `.*`\n")
-    .run();
+    .success();
   Test::with_tempdir(output.tempdir)
     .no_justfile()
     .arg("--unstable")
     .arg("--check")
     .arg("--fmt")
-    .status(EXIT_SUCCESS)
-    .run();
+    .success();
 }

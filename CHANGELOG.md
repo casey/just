@@ -1,6 +1,258 @@
 Changelog
 =========
 
+[1.46.0](https://github.com/casey/just/releases/tag/1.46.0) - 2026-01-01
+------------------------------------------------------------------------
+
+### Fixed
+- Don't leak signal handler pipe into child processes ([#3035](https://github.com/casey/just/pull/3035) by [rjmac](https://github.com/rjmac))
+
+### Added
+- Allow `long` to default to to parameter name ([#3041](https://github.com/casey/just/pull/3041) by [casey](https://github.com/casey))
+- Allow const expressions in all settings ([#3037](https://github.com/casey/just/pull/3037) by [casey](https://github.com/casey))
+- Allow const expressions in `working-directory` ([#3033](https://github.com/casey/just/pull/3033) by [casey](https://github.com/casey))
+- Add --usage subcommand and argument help strings ([#3031](https://github.com/casey/just/pull/3031) by [casey](https://github.com/casey))
+- Add flags without values ([#3029](https://github.com/casey/just/pull/3029) by [casey](https://github.com/casey))
+- Allow passing arguments as short `-x` options ([#3028](https://github.com/casey/just/pull/3028) by [casey](https://github.com/casey))
+- Allow recipes to take `--long` options ([#3026](https://github.com/casey/just/pull/3026) by [casey](https://github.com/casey))
+
+### Misc
+- Add original token to string literal ([#3042](https://github.com/casey/just/pull/3042) by [casey](https://github.com/casey))
+- Remove string literal lifetime ([#3036](https://github.com/casey/just/pull/3036) by [casey](https://github.com/casey))
+- Move overrides into config ([#3032](https://github.com/casey/just/pull/3032) by [casey](https://github.com/casey))
+- Test that options are passed as positional arguments ([#3030](https://github.com/casey/just/pull/3030) by [casey](https://github.com/casey))
+- Group arguments by parameter ([#3025](https://github.com/casey/just/pull/3025) by [casey](https://github.com/casey))
+- Add OpenBSD package to readme ([#2900](https://github.com/casey/just/pull/2900) by [vext01](https://github.com/vext01))
+- Re-enable mdbook-linkcheck ([#3011](https://github.com/casey/just/pull/3011) by [casey](https://github.com/casey))
+- Disable dependabot ([#3010](https://github.com/casey/just/pull/3010) by [casey](https://github.com/casey))
+- Fix pre-release check in pages deploy job ([#3009](https://github.com/casey/just/pull/3009) by [casey](https://github.com/casey))
+
+[1.45.0](https://github.com/casey/just/releases/tag/1.45.0) - 2025-12-10
+------------------------------------------------------------------------
+
+### Added
+- Allow requiring recipe arguments to match regular expression patterns ([#3000](https://github.com/casey/just/pull/3000) by [casey](https://github.com/casey))
+
+### Fixed
+- Allow shell-expanded strings in attributes ([#3007](https://github.com/casey/just/pull/3007) by [casey](https://github.com/casey))
+- Fix arg pattern anchoring ([#3002](https://github.com/casey/just/pull/3002) by [casey](https://github.com/casey))
+
+### Misc
+- Use non-capturing group in arg pattern regex ([#3006](https://github.com/casey/just/pull/3006) by [casey](https://github.com/casey))
+- Remove redundant type annotation ([#3004](https://github.com/casey/just/pull/3004) by [casey](https://github.com/casey))
+
+[1.44.1](https://github.com/casey/just/releases/tag/1.44.1) - 2025-12-09
+------------------------------------------------------------------------
+
+### Fixed
+- Properly close format string delimiter ([#2997](https://github.com/casey/just/pull/2997) by [casey](https://github.com/casey))
+
+[1.44.0](https://github.com/casey/just/releases/tag/1.44.0) - 2025-12-06
+------------------------------------------------------------------------
+
+### Added
+- Add f'{format}' strings ([#2985](https://github.com/casey/just/pull/2985) by [casey](https://github.com/casey))
+- Use double braces `{{…}}` for format strings ([#2993](https://github.com/casey/just/pull/2993) by [casey](https://github.com/casey))
+- Stabilize `[script]` attribute ([#2988](https://github.com/casey/just/pull/2988) by [casey](https://github.com/casey))
+
+### Changed
+- Allow newlines in interpolations and `}` to abut interpolation `}}` ([#2992](https://github.com/casey/just/pull/2992) by [casey](https://github.com/casey))
+
+### Misc
+- Test format strings with conditionals ([#2991](https://github.com/casey/just/pull/2991) by [casey](https://github.com/casey))
+- Move StringState into module ([#2989](https://github.com/casey/just/pull/2989) by [casey](https://github.com/casey))
+- Test undefined variable in format string error ([#2987](https://github.com/casey/just/pull/2987) by [casey](https://github.com/casey))
+- Update `softprops/action-gh-release` to 2.5.0 ([#2979](https://github.com/casey/just/pull/2979) by [app/dependabot](https://github.com/app/dependabot))
+- Link to `just-lsp` in readme ([#2846](https://github.com/casey/just/pull/2846) by [terror](https://github.com/terror))
+- Fix `just --list` submodule example in readme ([#2973](https://github.com/casey/just/pull/2973) by [neodejack](https://github.com/neodejack))
+- Update `actions/checkout` ([#2969](https://github.com/casey/just/pull/2969) by [app/dependabot](https://github.com/app/dependabot))
+- Disable mdbook-linkcheck ([#2970](https://github.com/casey/just/pull/2970) by [casey](https://github.com/casey))
+
+[1.43.1](https://github.com/casey/just/releases/tag/1.43.1) - 2025-11-12
+------------------------------------------------------------------------
+
+### Fixed
+- Only initialize signal handler once ([#2953](https://github.com/casey/just/pull/2953) by [casey](https://github.com/casey))
+- Preserve module docs when formatting ([#2931](https://github.com/casey/just/pull/2931) by [casey](https://github.com/casey))
+- Preserve module groups when formatting ([#2930](https://github.com/casey/just/pull/2930) by [casey](https://github.com/casey))
+- Don't suggest private recipes and aliases ([#2916](https://github.com/casey/just/pull/2916) by [casey](https://github.com/casey))
+
+### Misc
+- Update softprops/action-gh-release to 2.4.2 ([#2948](https://github.com/casey/just/pull/2948) by [app/dependabot](https://github.com/app/dependabot))
+- Fix `env()` usage in readme ([#2936](https://github.com/casey/just/pull/2936) by [laniakea64](https://github.com/laniakea64))
+- Use a case statement to install target dependencies ([#2929](https://github.com/casey/just/pull/2929) by [casey](https://github.com/casey))
+- Build loongarch64 release binaries ([#2886](https://github.com/casey/just/pull/2886) by [SkyBird233](https://github.com/SkyBird233))
+- Bump softprops/action-gh-release to 2.4.1 ([#2919](https://github.com/casey/just/pull/2919) by [app/dependabot](https://github.com/app/dependabot))
+- Update softprops/action-gh-release to 2.3.4 ([#2910](https://github.com/casey/just/pull/2910) by [app/dependabot](https://github.com/app/dependabot))
+
+[1.43.0](https://github.com/casey/just/releases/tag/1.43.0) - 2025-09-27
+------------------------------------------------------------------------
+
+### Added
+- Add `[default]` attribute ([#2878](https://github.com/casey/just/pull/2878) by [casey](https://github.com/casey))
+- Do not ascend above `--ceiling` when looking for justfile ([#2870](https://github.com/casey/just/pull/2870) by [casey](https://github.com/casey))
+
+### Misc
+- Don't generate completions at runtime ([#2896](https://github.com/casey/just/pull/2896) by [casey](https://github.com/casey))
+- Update `softprops/action-gh-release` to 2.3.3 ([#2879](https://github.com/casey/just/pull/2879) by [app/dependabot](https://github.com/app/dependabot))
+- Add submodule alias and dependency targets to grammar ([#2877](https://github.com/casey/just/pull/2877) by [casey](https://github.com/casey))
+- Bump `actions/checkout` to v5 ([#2864](https://github.com/casey/just/pull/2864) by [app/dependabot](https://github.com/app/dependabot))
+- Fix Windows `PATH_SEP` value in readme ([#2859](https://github.com/casey/just/pull/2859) by [casey](https://github.com/casey))
+- Fix lints for Rust 1.89 ([#2860](https://github.com/casey/just/pull/2860) by [casey](https://github.com/casey))
+- Note that Debian 13 has been released ([#2856](https://github.com/casey/just/pull/2856) by [sblondon](https://github.com/sblondon))
+- Mention `just-mcp` in readme ([#2843](https://github.com/casey/just/pull/2843) by [casey](https://github.com/casey))
+- Expand Windows instructions in readme ([#2842](https://github.com/casey/just/pull/2842) by [casey](https://github.com/casey))
+- Note `[parallel]` attribute in parallelism section ([#2837](https://github.com/casey/just/pull/2837) by [casey](https://github.com/casey))
+
+[1.42.4](https://github.com/casey/just/releases/tag/1.42.4) - 2025-07-24
+------------------------------------------------------------------------
+
+### Fixed
+- Run imported recipes in correct scope ([#2835](https://github.com/casey/just/pull/2835) by [casey](https://github.com/casey))
+- Fix alias doc comment ([#2833](https://github.com/casey/just/pull/2833) by [casey](https://github.com/casey))
+
+[1.42.3](https://github.com/casey/just/releases/tag/1.42.3) - 2025-07-18
+------------------------------------------------------------------------
+
+### Fixed
+- Run recipes from submodules in correct directory ([#2829](https://github.com/casey/just/pull/2829) by [eisbaw](https://github.com/eisbaw))
+
+[1.42.2](https://github.com/casey/just/releases/tag/1.42.2) - 2025-07-15
+------------------------------------------------------------------------
+
+### Fixed
+- Fix scope lookup for nested submodules ([#2820](https://github.com/casey/just/pull/2820) by [casey](https://github.com/casey))
+
+[1.42.1](https://github.com/casey/just/releases/tag/1.42.1) - 2025-07-14
+------------------------------------------------------------------------
+
+### Fixed
+- Export variables to submodules ([#2816](https://github.com/casey/just/pull/2816) by [casey](https://github.com/casey))
+- Only override root-justfile variable assignments ([#2815](https://github.com/casey/just/pull/2815) by [casey](https://github.com/casey))
+
+[1.42.0](https://github.com/casey/just/releases/tag/1.42.0) - 2025-07-13
+------------------------------------------------------------------------
+
+### Fixed
+- Use correct scope when running recipes in submodules ([#2810](https://github.com/casey/just/pull/2810) by [casey](https://github.com/casey))
+
+### Added
+- Add `[parallel]` attribute to run dependencies in parallel ([#2803](https://github.com/casey/just/pull/2803) by [casey](https://github.com/casey))
+- Allow configuring `cygpath` with `--cygpath` and `$JUST_CYGPATH` ([#2804](https://github.com/casey/just/pull/2804) by [hyrious](https://github.com/hyrious))
+- Use GitHub token in `install.sh` if available ([#2676](https://github.com/casey/just/pull/2676) by [jpeeler](https://github.com/jpeeler))
+- Add `[metadata]` recipe attribute ([#2794](https://github.com/casey/just/pull/2794) by [wiktor-k](https://github.com/wiktor-k))
+- Allow depending on recipes in submodules ([#2672](https://github.com/casey/just/pull/2672) by [corvusrabus](https://github.com/corvusrabus))
+
+### Changed
+- Allow completing multiple recipes in bash ([#2764](https://github.com/casey/just/pull/2764) by [antirais](https://github.com/antirais))
+- Make global justfile filename case-insensitive ([#2802](https://github.com/casey/just/pull/2802) by [casey](https://github.com/casey))
+
+[1.41.0](https://github.com/casey/just/releases/tag/1.41.0) - 2025-07-01
+------------------------------------------------------------------------
+
+### Changed
+- Treat SIGINFO as non-fatal ([#2788](https://github.com/casey/just/pull/2788) by [casey](https://github.com/casey))
+- Improve signal handling ([#2488](https://github.com/casey/just/pull/2488) by [casey](https://github.com/casey))
+
+### Added
+- Add `dotenv-override` setting ([#2785](https://github.com/casey/just/pull/2785) by [Lun4m](https://github.com/Lun4m))
+- Add `PATH_SEP` and `PATH_VAR_SEP` constants ([#2679](https://github.com/casey/just/pull/2679) by [casey](https://github.com/casey))
+- Add `--tempdir` command-line option ([#2798](https://github.com/casey/just/pull/2798) by [casey](https://github.com/casey))
+
+### Fixed
+- Pin `clap_complete` to last compatible version ([#2800](https://github.com/casey/just/pull/2800) by [casey](https://github.com/casey))
+
+### Misc
+- Add `arkade` to readme ([#2700](https://github.com/casey/just/pull/2700) by [rgee0](https://github.com/rgee0))
+- Link to pipx instead of pypi in readme ([#2799](https://github.com/casey/just/pull/2799) by [casey](https://github.com/casey))
+- Add reasons to `#[ignore]` attributes ([#2797](https://github.com/casey/just/pull/2797) by [casey](https://github.com/casey))
+- Mention that command-line environment variables are inherited ([#2783](https://github.com/casey/just/pull/2783) by [philipmgrant](https://github.com/philipmgrant))
+- Fix attribute grammar and update documentation ([#2790](https://github.com/casey/just/pull/2790) by [casey](https://github.com/casey))
+- Tweak prose in groups section of readme ([#2767](https://github.com/casey/just/pull/2767) by [offby1](https://github.com/offby1))
+- Update `extractions/setup-just` version in readme ([#2735](https://github.com/casey/just/pull/2735) by [esadek](https://github.com/esadek))
+- Remove `return` in `Recipe::confirm` ([#2789](https://github.com/casey/just/pull/2789) by [casey](https://github.com/casey))
+- Add `mise` to alternatives in readem ([#2758](https://github.com/casey/just/pull/2758) by [koppor](https://github.com/koppor))
+- Update `softprops/action-gh-release` ([#2781](https://github.com/casey/just/pull/2781) by [app/dependabot](https://github.com/app/dependabot))
+- Use `default` as name of `--init` justfile default recipe ([#2777](https://github.com/casey/just/pull/2777) by [casey](https://github.com/casey))
+- Add `just.systems` link to `--init` justfile ([#2776](https://github.com/casey/just/pull/2776) by [casey](https://github.com/casey))
+- Fix `kitchen-sink.just` comment ([#2738](https://github.com/casey/just/pull/2738) by [azarmadr](https://github.com/azarmadr))
+- Update `softprops/action-gh-release` ([#2716](https://github.com/casey/just/pull/2716) by [app/dependabot](https://github.com/app/dependabot))
+- Fix clippy lints ([#2768](https://github.com/casey/just/pull/2768) by [casey](https://github.com/casey))
+- Add back-to-the-top link to readme ([#2707](https://github.com/casey/just/pull/2707) by [bravesasha](https://github.com/bravesasha))
+- Placate clippy lints for 1.86 ([#2708](https://github.com/casey/just/pull/2708) by [casey](https://github.com/casey))
+- Use `-S` in `uv` example ([#2696](https://github.com/casey/just/pull/2696) by [rmoorman](https://github.com/rmoorman))
+- Handle `--request` without parsing justfile ([#2683](https://github.com/casey/just/pull/2683) by [casey](https://github.com/casey))
+- Bump MSRV to 1.77 and enforce on CI ([#2674](https://github.com/casey/just/pull/2674) by [casey](https://github.com/casey))
+
+[1.40.0](https://github.com/casey/just/releases/tag/1.40.0) - 2025-03-09
+------------------------------------------------------------------------
+
+### Added
+- Allow the target of aliases to be recipes in submodules ([#2632](https://github.com/casey/just/pull/2632) by [corvusrabus](https://github.com/corvusrabus))
+- Make `--list-submodules` require `--list` ([#2622](https://github.com/casey/just/pull/2622) by [casey](https://github.com/casey))
+
+### Fixed
+- Star parameters may follow default parameters ([#2660](https://github.com/casey/just/pull/2660) by [casey](https://github.com/casey))
+
+### Misc
+- Remove `test!` macro from readme ([#2648](https://github.com/casey/just/pull/2648) by [casey](https://github.com/casey))
+- Sort enum variant, struct member, and trait members alphabetically ([#2646](https://github.com/casey/just/pull/2646) by [casey](https://github.com/casey))
+- Add Zed extension to readme ([#2640](https://github.com/casey/just/pull/2640) by [sectore](https://github.com/sectore))
+- Refactor error checking in choose function ([#2643](https://github.com/casey/just/pull/2643) by [casey](https://github.com/casey))
+- Use `Test` struct instead of `test!` macro ([#2642](https://github.com/casey/just/pull/2642) by [casey](https://github.com/casey))
+- Include unicode codepoint in unknown start of token error  ([#2637](https://github.com/casey/just/pull/2637) by [CramBL](https://github.com/CramBL))
+- Ignore broken pipe error from chooser ([#2639](https://github.com/casey/just/pull/2639) by [casey](https://github.com/casey))
+- Guarantee that `Namepath`s are non-empty ([#2638](https://github.com/casey/just/pull/2638) by [casey](https://github.com/casey))
+- Remove unnecessary binding modifiers ([#2636](https://github.com/casey/just/pull/2636) by [casey](https://github.com/casey))
+- Document Vim and Neovim built-in syntax highlighting ([#2619](https://github.com/casey/just/pull/2619) by [laniakea64](https://github.com/laniakea64))
+- Remove rust:just Repology badge ([#2614](https://github.com/casey/just/pull/2614) by [laniakea64](https://github.com/laniakea64))
+- Clarify --list argument ([#2609](https://github.com/casey/just/pull/2609) by [casey](https://github.com/casey))
+- Expand Windows path documentation ([#2602](https://github.com/casey/just/pull/2602) by [casey](https://github.com/casey))
+- Fix readme typos ([#2596](https://github.com/casey/just/pull/2596) by [CramBL](https://github.com/CramBL))
+
+[1.39.0](https://github.com/casey/just/releases/tag/1.39.0) - 2025-01-22
+------------------------------------------------------------------------
+
+### Added
+- Add `which()` and `require()` for finding executables ([#2440](https://github.com/casey/just/pull/2440) by [0xzhzh](https://github.com/0xzhzh))
+- Add `no-exit-message` Setting and `[exit-message]` attribute ([#2568](https://github.com/casey/just/pull/2568) by [ArchieAtkinson](https://github.com/ArchieAtkinson))
+- Configure alias style in `--list` with `--alias-style` ([#2342](https://github.com/casey/just/pull/2342) by [marcaddeo](https://github.com/marcaddeo))
+- Add regex mismatch conditional operator ([#2490](https://github.com/casey/just/pull/2490) by [laniakea64](https://github.com/laniakea64))
+- Add `read_to_string(path)` function ([#2507](https://github.com/casey/just/pull/2507) by [begoon](https://github.com/begoon))
+
+### Changed
+- Rename `read_to_string()` to `read()` ([#2518](https://github.com/casey/just/pull/2518) by [casey](https://github.com/casey))
+
+### Fixed
+- Keep `[private]` attribute when formatting assignments ([#2592](https://github.com/casey/just/pull/2592) by [casey](https://github.com/casey))
+- Format `if … else if …` without superfluous braces ([#2573](https://github.com/casey/just/pull/2573) by [casey](https://github.com/casey))
+- Fix error when lexing `!` at end-of-file ([#2520](https://github.com/casey/just/pull/2520) by [casey](https://github.com/casey))
+- Handle recipes in submodules in fish completion script ([#2514](https://github.com/casey/just/pull/2514) by [senekor](https://github.com/senekor))
+
+### Misc
+- Add tests for `require()` ([#2594](https://github.com/casey/just/pull/2594) by [casey](https://github.com/casey))
+- Evaluate concatenations and joins from left to right ([#2593](https://github.com/casey/just/pull/2593) by [casey](https://github.com/casey))
+- Disable links to empty chapters in book ([#2589](https://github.com/casey/just/pull/2589) by [casey](https://github.com/casey))
+- Link to CI workflow in readme ([#2586](https://github.com/casey/just/pull/2586) by [bravesasha](https://github.com/bravesasha))
+- Clarify that `trim_*_match` functions take subtrings ([#2574](https://github.com/casey/just/pull/2574) by [xavdid](https://github.com/xavdid))
+- Update `softprops/action-gh-release` from 2.2.0 to 2.2.1 ([#2570](https://github.com/casey/just/pull/2570) by [app/dependabot](https://github.com/app/dependabot))
+- Check attributes in parser instead of analyzer ([#2560](https://github.com/casey/just/pull/2560) by [casey](https://github.com/casey))
+- Ignore I/O errors when writing changelog to stdout ([#2558](https://github.com/casey/just/pull/2558) by [casey](https://github.com/casey))
+- Add `quiet` setting and fix typos in readme ([#2549](https://github.com/casey/just/pull/2549) by [unennhexium](https://github.com/unennhexium))
+- Update readme to use `env()` instead of `env_var*()` ([#2546](https://github.com/casey/just/pull/2546) by [laniakea64](https://github.com/laniakea64))
+- Document using `||` to provide default for empty environment variable ([#2545](https://github.com/casey/just/pull/2545) by [casey](https://github.com/casey))
+- Refactor `Line` predicates ([#2543](https://github.com/casey/just/pull/2543) by [casey](https://github.com/casey))
+- Fix typos in README.md ([#2542](https://github.com/casey/just/pull/2542) by [laniakea64](https://github.com/laniakea64))
+- Add full example getting XDG user directory to readme ([#2536](https://github.com/casey/just/pull/2536) by [laniakea64](https://github.com/laniakea64))
+- Document weird behavior of duplicate definitions in imports ([#2541](https://github.com/casey/just/pull/2541) by [casey](https://github.com/casey))
+- Update readme to reflect actual behavior of user directory functions ([#2535](https://github.com/casey/just/pull/2535) by [casey](https://github.com/casey))
+- Update softprops/action-gh-release to 2.2.0 ([#2530](https://github.com/casey/just/pull/2530) by [app/dependabot](https://github.com/app/dependabot))
+- Document running python recipes with `uv` ([#2526](https://github.com/casey/just/pull/2526) by [casey](https://github.com/casey))
+- Sort functions alphabetically ([#2525](https://github.com/casey/just/pull/2525) by [casey](https://github.com/casey))
+- Fix truncated bang operator error message ([#2522](https://github.com/casey/just/pull/2522) by [casey](https://github.com/casey))
+- Include source path in dump JSON ([#2466](https://github.com/casey/just/pull/2466) by [psibi](https://github.com/psibi))
+- Add attribute set ([#2419](https://github.com/casey/just/pull/2419) by [neunenak](https://github.com/neunenak))
+
 [1.38.0](https://github.com/casey/just/releases/tag/1.38.0) - 2024-12-10
 ------------------------------------------------------------------------
 

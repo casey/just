@@ -3,8 +3,8 @@ use super::*;
 #[derive(PartialEq, Debug, Clone)]
 pub(crate) struct Condition<'src> {
   pub(crate) lhs: Box<Expression<'src>>,
-  pub(crate) rhs: Box<Expression<'src>>,
   pub(crate) operator: ConditionalOperator,
+  pub(crate) rhs: Box<Expression<'src>>,
 }
 
 impl Display for Condition<'_> {

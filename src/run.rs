@@ -24,7 +24,7 @@ pub fn run(args: impl Iterator<Item = impl Into<OsString> + Clone>) -> Result<()
 
   config
     .and_then(|config| {
-      InterruptHandler::install(config.verbosity).ok();
+      SignalHandler::install(config.verbosity)?;
       config.subcommand.execute(&config, &loader)
     })
     .map_err(|error| {
@@ -33,4 +33,18 @@ pub fn run(args: impl Iterator<Item = impl Into<OsString> + Clone>) -> Result<()
       }
       error.code().unwrap_or(EXIT_FAILURE)
     })
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn run_can_be_called_more_than_once() {
+    let tmp = testing::tempdir();
+    fs::write(tmp.path().join("justfile"), "foo:").unwrap();
+    let search_directory = format!("{}/", tmp.path().to_str().unwrap());
+    run(["just", &search_directory].iter()).unwrap();
+    run(["just", &search_directory].iter()).unwrap();
+  }
 }

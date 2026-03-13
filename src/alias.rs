@@ -1,8 +1,8 @@
 use super::*;
 
-/// An alias, e.g. `name := target`
+/// An alias, e.g. `alias name := target`
 #[derive(Debug, PartialEq, Clone, Serialize)]
-pub(crate) struct Alias<'src, T = Rc<Recipe<'src>>> {
+pub(crate) struct Alias<'src, T = Arc<Recipe<'src>>> {
   pub(crate) attributes: AttributeSet<'src>,
   pub(crate) name: Name<'src>,
   #[serde(
@@ -12,9 +12,9 @@ pub(crate) struct Alias<'src, T = Rc<Recipe<'src>>> {
   pub(crate) target: T,
 }
 
-impl<'src> Alias<'src, Name<'src>> {
-  pub(crate) fn resolve(self, target: Rc<Recipe<'src>>) -> Alias<'src> {
-    assert_eq!(self.target.lexeme(), target.name.lexeme());
+impl<'src> Alias<'src, Namepath<'src>> {
+  pub(crate) fn resolve(self, target: Arc<Recipe<'src>>) -> Alias<'src> {
+    assert!(self.target.last().lexeme() == target.name());
 
     Alias {
       attributes: self.attributes,
@@ -25,8 +25,9 @@ impl<'src> Alias<'src, Name<'src>> {
 }
 
 impl Alias<'_> {
-  pub(crate) fn is_private(&self) -> bool {
-    self.name.lexeme().starts_with('_') || self.attributes.contains(AttributeDiscriminant::Private)
+  pub(crate) fn is_public(&self) -> bool {
+    !self.name.lexeme().starts_with('_')
+      && !self.attributes.contains(AttributeDiscriminant::Private)
   }
 }
 
@@ -36,14 +37,9 @@ impl<'src, T> Keyed<'src> for Alias<'src, T> {
   }
 }
 
-impl<'src> Display for Alias<'src, Name<'src>> {
+impl<'src> Display for Alias<'src, Namepath<'src>> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    write!(
-      f,
-      "alias {} := {}",
-      self.name.lexeme(),
-      self.target.lexeme()
-    )
+    write!(f, "alias {} := {}", self.name.lexeme(), self.target)
   }
 }
 

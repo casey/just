@@ -1,27 +1,28 @@
 use super::*;
 
 pub(crate) enum Executor<'a> {
-  Command(&'a Interpreter<'a>),
+  Command(Interpreter<String>),
   Shebang(Shebang<'a>),
 }
 
 impl Executor<'_> {
   pub(crate) fn command<'src>(
     &self,
+    config: &Config,
     path: &Path,
     recipe: &'src str,
     working_directory: Option<&Path>,
   ) -> RunResult<'src, Command> {
     match self {
       Self::Command(interpreter) => {
-        let mut command = Command::new(&interpreter.command.cooked);
+        let mut command = Command::new(&interpreter.command);
 
         if let Some(working_directory) = working_directory {
           command.current_dir(working_directory);
         }
 
         for arg in &interpreter.arguments {
-          command.arg(&arg.cooked);
+          command.arg(arg);
         }
 
         command.arg(path);
@@ -36,12 +37,12 @@ impl Executor<'_> {
         })?;
 
         // create command to run script
-        Platform::make_shebang_command(path, working_directory, *shebang).map_err(|output_error| {
-          Error::Cygpath {
+        Platform::make_shebang_command(config, path, *shebang, working_directory).map_err(
+          |output_error| Error::Cygpath {
             recipe,
             output_error,
-          }
-        })
+          },
+        )
       }
     }
   }
@@ -49,7 +50,7 @@ impl Executor<'_> {
   pub(crate) fn script_filename(&self, recipe: &str, extension: Option<&str>) -> String {
     let extension = extension.unwrap_or_else(|| {
       let interpreter = match self {
-        Self::Command(interpreter) => &interpreter.command.cooked,
+        Self::Command(interpreter) => &interpreter.command,
         Self::Shebang(shebang) => shebang.interpreter_filename(),
       };
 
@@ -66,11 +67,11 @@ impl Executor<'_> {
   pub(crate) fn error<'src>(&self, io_error: io::Error, recipe: &'src str) -> Error<'src> {
     match self {
       Self::Command(Interpreter { command, arguments }) => {
-        let mut command = command.cooked.clone();
+        let mut command = command.clone();
 
         for arg in arguments {
           command.push(' ');
-          command.push_str(&arg.cooked);
+          command.push_str(arg);
         }
 
         Error::Script {
@@ -138,8 +139,8 @@ mod tests {
         expected
       );
       assert_eq!(
-        Executor::Command(&Interpreter {
-          command: StringLiteral::from_raw(interpreter),
+        Executor::Command(Interpreter {
+          command: interpreter.into(),
           arguments: Vec::new()
         })
         .script_filename(recipe, extension),

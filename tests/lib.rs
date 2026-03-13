@@ -1,13 +1,11 @@
-pub(crate) use {
+use {
   crate::{
     assert_stdout::assert_stdout,
     assert_success::assert_success,
     tempdir::tempdir,
     test::{assert_eval_eq, Output, Test},
   },
-  executable_path::executable_path,
   just::{unindent, Response},
-  libc::{EXIT_FAILURE, EXIT_SUCCESS},
   pretty_assertions::Comparison,
   regex::Regex,
   serde::{Deserialize, Serialize},
@@ -23,11 +21,17 @@ pub(crate) use {
     path::{Path, PathBuf, MAIN_SEPARATOR, MAIN_SEPARATOR_STR},
     process::{Command, Stdio},
     str,
+    time::{Duration, Instant},
   },
   tempfile::TempDir,
   temptree::{temptree, tree, Tree},
   which::which,
 };
+
+const JUST: &str = env!("CARGO_BIN_EXE_just");
+
+#[cfg(not(windows))]
+use std::thread;
 
 fn default<T: Default>() -> T {
   Default::default()
@@ -36,10 +40,12 @@ fn default<T: Default>() -> T {
 #[macro_use]
 mod test;
 
+mod alias;
 mod alias_style;
 mod allow_duplicate_recipes;
 mod allow_duplicate_variables;
 mod allow_missing;
+mod arg_attribute;
 mod assert_stdout;
 mod assert_success;
 mod assertions;
@@ -47,6 +53,7 @@ mod assignment;
 mod attributes;
 mod backticks;
 mod byte_order_mark;
+mod ceiling;
 mod changelog;
 mod choose;
 mod command;
@@ -55,7 +62,9 @@ mod conditional;
 mod confirm;
 mod constants;
 mod datetime;
+mod default;
 mod delimiters;
+mod dependencies;
 mod directories;
 mod dotenv;
 mod edit;
@@ -67,6 +76,7 @@ mod explain;
 mod export;
 mod fallback;
 mod format;
+mod format_string;
 mod functions;
 #[cfg(unix)]
 mod global;
@@ -75,8 +85,7 @@ mod guards;
 mod ignore_comments;
 mod imports;
 mod init;
-#[cfg(unix)]
-mod interrupts;
+mod interpolation;
 mod invocation_directory;
 mod json;
 mod line_prefixes;
@@ -91,7 +100,9 @@ mod no_aliases;
 mod no_cd;
 mod no_dependencies;
 mod no_exit_message;
+mod options;
 mod os_attributes;
+mod parallel;
 mod parameters;
 mod parser;
 mod positional_arguments;
@@ -103,14 +114,18 @@ mod recursion_limit;
 mod regexes;
 mod request;
 mod run;
+mod scope;
 mod script;
 mod search;
 mod search_arguments;
+mod settings;
 mod shadowing_parameters;
 mod shebang;
 mod shell;
 mod shell_expansion;
 mod show;
+#[cfg(unix)]
+mod signals;
 mod slash_operator;
 mod string;
 mod subsequents;
@@ -120,6 +135,8 @@ mod timestamps;
 mod undefined_variables;
 mod unexport;
 mod unstable;
+mod usage;
+mod which_function;
 #[cfg(windows)]
 mod windows;
 #[cfg(target_family = "windows")]

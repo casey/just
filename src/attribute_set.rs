@@ -35,7 +35,7 @@ impl<'src> AttributeSet<'src> {
         return Err(item_token.error(CompileErrorKind::InvalidAttribute {
           item_kind,
           item_name: item_token.lexeme(),
-          attribute: attribute.clone(),
+          attribute: Box::new(attribute.clone()),
         }));
       }
     }
@@ -56,5 +56,15 @@ impl<'src, 'a> IntoIterator for &'a AttributeSet<'src> {
 
   fn into_iter(self) -> Self::IntoIter {
     self.0.iter()
+  }
+}
+
+impl<'src> IntoIterator for AttributeSet<'src> {
+  type Item = Attribute<'src>;
+
+  type IntoIter = collections::btree_set::IntoIter<Attribute<'src>>;
+
+  fn into_iter(self) -> Self::IntoIter {
+    self.0.into_iter()
   }
 }

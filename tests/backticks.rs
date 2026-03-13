@@ -13,5 +13,5 @@ foos := `print('foo' * 4)`
       ",
     )
     .stdout("foofoofoofoo")
-    .run();
+    .success();
 }

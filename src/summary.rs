@@ -13,7 +13,7 @@
 //! of existing justfiles.
 
 use {
-  crate::{compiler::Compiler, error::Error, loader::Loader},
+  crate::{compiler::Compiler, config::Config, error::Error, loader::Loader},
   std::{collections::BTreeMap, io, path::Path},
 };
 
@@ -28,7 +28,7 @@ mod full {
 pub fn summary(path: &Path) -> io::Result<Result<Summary, String>> {
   let loader = Loader::new();
 
-  match Compiler::compile(&loader, path) {
+  match Compiler::compile(&Config::default(), &loader, path) {
     Ok(compilation) => Ok(Ok(Summary::new(&compilation.justfile))),
     Err(error) => Ok(Err(if let Error::Compile { compile_error } = error {
       compile_error.to_string()
@@ -80,31 +80,31 @@ pub struct Recipe {
   pub aliases: Vec<String>,
   pub dependencies: Vec<Dependency>,
   pub lines: Vec<Line>,
+  pub parameters: Vec<Parameter>,
   pub private: bool,
   pub quiet: bool,
   pub shebang: bool,
-  pub parameters: Vec<Parameter>,
 }
 
 impl Recipe {
   fn new(recipe: &full::Recipe, aliases: Vec<String>) -> Self {
     Self {
-      private: recipe.private,
-      shebang: recipe.shebang,
-      quiet: recipe.quiet,
+      aliases,
       dependencies: recipe.dependencies.iter().map(Dependency::new).collect(),
       lines: recipe.body.iter().map(Line::new).collect(),
       parameters: recipe.parameters.iter().map(Parameter::new).collect(),
-      aliases,
+      private: recipe.private,
+      quiet: recipe.quiet,
+      shebang: recipe.shebang,
     }
   }
 }
 
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub struct Parameter {
+  pub default: Option<Expression>,
   pub kind: ParameterKind,
   pub name: String,
-  pub default: Option<Expression>,
 }
 
 impl Parameter {
@@ -119,8 +119,8 @@ impl Parameter {
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub enum ParameterKind {
-  Singular,
   Plus,
+  Singular,
   Star,
 }
 
@@ -149,8 +149,8 @@ impl Line {
 
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub enum Fragment {
-  Text { text: String },
   Expression { expression: Expression },
+  Text { text: String },
 }
 
 impl Fragment {
@@ -184,38 +184,42 @@ impl Assignment {
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub enum Expression {
   And {
-    lhs: Box<Expression>,
-    rhs: Box<Expression>,
+    lhs: Box<Self>,
+    rhs: Box<Self>,
   },
   Assert {
     condition: Condition,
-    error: Box<Expression>,
+    error: Box<Self>,
   },
   Backtick {
     command: String,
   },
   Call {
     name: String,
-    arguments: Vec<Expression>,
+    arguments: Vec<Self>,
   },
   Concatenation {
-    lhs: Box<Expression>,
-    rhs: Box<Expression>,
+    lhs: Box<Self>,
+    rhs: Box<Self>,
   },
   Conditional {
-    lhs: Box<Expression>,
-    rhs: Box<Expression>,
-    then: Box<Expression>,
-    otherwise: Box<Expression>,
+    lhs: Box<Self>,
+    rhs: Box<Self>,
+    then: Box<Self>,
+    otherwise: Box<Self>,
     operator: ConditionalOperator,
   },
+  FormatString {
+    start: String,
+    expressions: Vec<(Self, String)>,
+  },
   Join {
-    lhs: Option<Box<Expression>>,
-    rhs: Box<Expression>,
+    lhs: Option<Box<Self>>,
+    rhs: Box<Self>,
   },
   Or {
-    lhs: Box<Expression>,
-    rhs: Box<Expression>,
+    lhs: Box<Self>,
+    rhs: Box<Self>,
   },
   String {
     text: String,
@@ -236,13 +240,14 @@ impl Expression {
       Assert {
         condition: full::Condition { lhs, rhs, operator },
         error,
-      } => Expression::Assert {
+        ..
+      } => Self::Assert {
         condition: Condition {
-          lhs: Box::new(Expression::new(lhs)),
-          rhs: Box::new(Expression::new(rhs)),
+          lhs: Box::new(Self::new(lhs)),
+          rhs: Box::new(Self::new(rhs)),
           operator: ConditionalOperator::new(*operator),
         },
-        error: Box::new(Expression::new(error)),
+        error: Box::new(Self::new(error)),
       },
       Backtick { contents, .. } => Self::Backtick {
         command: (*contents).clone(),
@@ -276,11 +281,11 @@ impl Expression {
           args: (a, rest),
           ..
         } => {
-          let mut arguments = vec![Expression::new(a)];
+          let mut arguments = vec![Self::new(a)];
           for arg in rest {
-            arguments.push(Expression::new(arg));
+            arguments.push(Self::new(arg));
           }
-          Expression::Call {
+          Self::Call {
             name: name.lexeme().to_owned(),
             arguments,
           }
@@ -329,6 +334,13 @@ impl Expression {
         rhs: Self::new(rhs).into(),
         then: Self::new(then).into(),
       },
+      FormatString { start, expressions } => Self::FormatString {
+        start: start.cooked.clone(),
+        expressions: expressions
+          .iter()
+          .map(|(expression, string)| (Self::new(expression), string.cooked.clone()))
+          .collect(),
+      },
       Group { contents } => Self::new(contents),
       Join { lhs, rhs } => Self::Join {
         lhs: lhs.as_ref().map(|lhs| Self::new(lhs).into()),
@@ -351,8 +363,8 @@ impl Expression {
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub struct Condition {
   lhs: Box<Expression>,
-  rhs: Box<Expression>,
   operator: ConditionalOperator,
+  rhs: Box<Expression>,
 }
 
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
@@ -376,15 +388,22 @@ impl ConditionalOperator {
 
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub struct Dependency {
-  pub recipe: String,
   pub arguments: Vec<Expression>,
+  pub recipe: String,
 }
 
 impl Dependency {
   fn new(dependency: &full::Dependency) -> Self {
+    let mut arguments = Vec::new();
+    for group in &dependency.arguments {
+      for argument in group {
+        arguments.push(Expression::new(argument));
+      }
+    }
+
     Self {
       recipe: dependency.recipe.name().to_owned(),
-      arguments: dependency.arguments.iter().map(Expression::new).collect(),
+      arguments,
     }
   }
 }

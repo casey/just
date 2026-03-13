@@ -27,17 +27,19 @@ use super::*;
 /// For modes that do take other arguments, the search argument is simply
 /// prepended to rest.
 #[cfg_attr(test, derive(PartialEq, Eq, Debug))]
-pub struct Positional {
+pub(crate) struct Positional {
+  /// Everything else
+  pub arguments: Vec<String>,
   /// Overrides from values of the form `[a-zA-Z_][a-zA-Z0-9_-]*=.*`
   pub overrides: Vec<(String, String)>,
   /// An argument equal to '.', '..', or ending with `/`
   pub search_directory: Option<String>,
-  /// Everything else
-  pub arguments: Vec<String>,
 }
 
 impl Positional {
-  pub fn from_values<'values>(values: Option<impl IntoIterator<Item = &'values str>>) -> Self {
+  pub(crate) fn from_values<'values>(
+    values: Option<impl IntoIterator<Item = &'values str>>,
+  ) -> Self {
     let mut overrides = Vec::new();
     let mut search_directory = None;
     let mut arguments = Vec::new();
@@ -67,9 +69,9 @@ impl Positional {
     }
 
     Self {
+      arguments,
       overrides,
       search_directory,
-      arguments,
     }
   }
 

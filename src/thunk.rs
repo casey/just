@@ -1,5 +1,6 @@
 use super::*;
 
+#[allow(clippy::arbitrary_source_item_ordering)]
 #[derive_where(Debug, PartialEq)]
 #[derive(Clone)]
 pub(crate) enum Thunk<'src> {
@@ -62,7 +63,7 @@ impl<'src> Thunk<'src> {
   pub(crate) fn resolve(
     name: Name<'src>,
     mut arguments: Vec<Expression<'src>>,
-  ) -> CompileResult<'src, Thunk<'src>> {
+  ) -> CompileResult<'src, Self> {
     function::get(name.lexeme()).map_or(
       Err(name.error(CompileErrorKind::UnknownFunction {
         function: name.lexeme(),

@@ -7,10 +7,9 @@ if ! which rg > /dev/null; then
   exit 1
 fi
 
-
 ! rg \
-  --glob !bin/forbid \
   --glob !CHANGELOG.md \
+  --glob !bin/forbid \
   --ignore-case \
   'dbg!|fixme|todo|xxx' \
   .

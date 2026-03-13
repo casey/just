@@ -27,7 +27,7 @@ pub(crate) struct Parser<'run, 'src> {
   expected_tokens: BTreeSet<TokenKind>,
   file_depth: u32,
   import_offsets: Vec<usize>,
-  module_namepath: &'run Namepath<'src>,
+  module_namepath: Option<&'run Namepath<'src>>,
   next_token: usize,
   recursion_depth: usize,
   tokens: &'run [Token<'src>],
@@ -40,7 +40,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   pub(crate) fn parse(
     file_depth: u32,
     import_offsets: &[usize],
-    module_namepath: &'run Namepath<'src>,
+    module_namepath: Option<&'run Namepath<'src>>,
     tokens: &'run [Token<'src>],
     working_directory: &'run Path,
   ) -> CompileResult<'src, Ast<'src>> {
@@ -56,6 +56,22 @@ impl<'run, 'src> Parser<'run, 'src> {
       working_directory,
     }
     .parse_ast()
+  }
+
+  pub(crate) fn parse_source(
+    path: &'src Path,
+    src: &'src str,
+    source: &Source<'src>,
+  ) -> CompileResult<'src, Ast<'src>> {
+    let tokens = Lexer::lex(path, src)?;
+
+    Parser::parse(
+      source.file_depth,
+      &source.import_offsets,
+      source.namepath.as_ref(),
+      &tokens,
+      &source.working_directory,
+    )
   }
 
   fn error(&self, kind: CompileErrorKind<'src>) -> CompileResult<'src, CompileError<'src>> {
@@ -141,7 +157,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     Err(self.internal_error("`Parser::advance()` advanced past end of token stream")?)
   }
 
-  /// Return the next token if it is of kind `expected`, otherwise, return an
+  /// Return next token if it is of kind `expected`, otherwise, return an
   /// unexpected token error
   fn expect(&mut self, expected: TokenKind) -> CompileResult<'src, Token<'src>> {
     if let Some(token) = self.accept(expected)? {
@@ -149,6 +165,18 @@ impl<'run, 'src> Parser<'run, 'src> {
     } else {
       Err(self.unexpected_token()?)
     }
+  }
+
+  /// Return the next token if it is any of kinds in `expected`, otherwise,
+  /// return an unexpected token error
+  fn expect_any(&mut self, expected: &[TokenKind]) -> CompileResult<'src, Token<'src>> {
+    for &kind in expected {
+      if let Some(token) = self.accept(kind)? {
+        return Ok(token);
+      }
+    }
+
+    Err(self.unexpected_token()?)
   }
 
   /// Return an unexpected token error if the next token is not an EOL
@@ -246,35 +274,39 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
   }
 
-  /// Accept a token of kind `Identifier` and parse into a `Name`
-  fn accept_name(&mut self) -> CompileResult<'src, Option<Name<'src>>> {
+  /// Accept a double-colon separated sequence of identifiers
+  fn accept_namepath(&mut self) -> CompileResult<'src, Option<Namepath<'src>>> {
     if self.next_is(Identifier) {
-      Ok(Some(self.parse_name()?))
+      Ok(Some(self.parse_namepath()?))
+    } else {
+      Ok(None)
+    }
+  }
+
+  fn accept_keyword(&mut self, keyword: Keyword) -> CompileResult<'src, Option<Name<'src>>> {
+    let next = self.next()?;
+
+    if next.kind == Identifier && next.lexeme() == keyword.lexeme() {
+      self.advance()?;
+      Ok(Some(Name::from_identifier(next)))
     } else {
       Ok(None)
     }
   }
 
   fn accepted_keyword(&mut self, keyword: Keyword) -> CompileResult<'src, bool> {
-    let next = self.next()?;
-
-    if next.kind == Identifier && next.lexeme() == keyword.lexeme() {
-      self.advance()?;
-      Ok(true)
-    } else {
-      Ok(false)
-    }
+    Ok(self.accept_keyword(keyword)?.is_some())
   }
 
   /// Accept a dependency
   fn accept_dependency(&mut self) -> CompileResult<'src, Option<UnresolvedDependency<'src>>> {
-    if let Some(recipe) = self.accept_name()? {
+    if let Some(recipe) = self.accept_namepath()? {
       Ok(Some(UnresolvedDependency {
         arguments: Vec::new(),
         recipe,
       }))
     } else if self.accepted(ParenL)? {
-      let recipe = self.parse_name()?;
+      let recipe = self.parse_namepath()?;
 
       let mut arguments = Vec::new();
 
@@ -282,7 +314,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         arguments.push(self.parse_expression()?);
       }
 
-      Ok(Some(UnresolvedDependency { recipe, arguments }))
+      Ok(Some(UnresolvedDependency { arguments, recipe }))
     } else {
       Ok(None)
     }
@@ -362,11 +394,10 @@ impl<'run, 'src> Parser<'run, 'src> {
           {
             self.presume_keyword(Keyword::Import)?;
             let optional = self.accepted(QuestionMark)?;
-            let (path, relative) = self.parse_string_literal_token()?;
+            let relative = self.parse_string_literal()?;
             items.push(Item::Import {
               absolute: None,
               optional,
-              path,
               relative,
             });
           }
@@ -393,12 +424,41 @@ impl<'run, 'src> Parser<'run, 'src> {
               None
             };
 
+            let attributes = take_attributes();
+
+            attributes.ensure_valid_attributes(
+              "Module",
+              *name,
+              &[
+                AttributeDiscriminant::Doc,
+                AttributeDiscriminant::Group,
+                AttributeDiscriminant::Private,
+              ],
+            )?;
+
+            let doc = match attributes.get(AttributeDiscriminant::Doc) {
+              Some(Attribute::Doc(Some(doc))) => Some(doc.cooked.clone()),
+              Some(Attribute::Doc(None)) => None,
+              None => doc.map(ToOwned::to_owned),
+              _ => unreachable!(),
+            };
+
+            let private = attributes.contains(AttributeDiscriminant::Private);
+
+            let mut groups = Vec::new();
+            for attribute in attributes {
+              if let Attribute::Group(group) = attribute {
+                groups.push(group);
+              }
+            }
+
             items.push(Item::Module {
-              attributes: take_attributes(),
               absolute: None,
               doc,
+              groups,
               name,
               optional,
+              private,
               relative,
             });
           }
@@ -419,9 +479,9 @@ impl<'run, 'src> Parser<'run, 'src> {
             } else {
               let doc = pop_doc_comment(&mut items, eol_since_last_comment);
               items.push(Item::Recipe(self.parse_recipe(
+                take_attributes(),
                 doc,
                 false,
-                take_attributes(),
               )?));
             }
           }
@@ -429,9 +489,9 @@ impl<'run, 'src> Parser<'run, 'src> {
       } else if self.accepted(At)? {
         let doc = pop_doc_comment(&mut items, eol_since_last_comment);
         items.push(Item::Recipe(self.parse_recipe(
+          take_attributes(),
           doc,
           true,
-          take_attributes(),
         )?));
       } else {
         return Err(self.unexpected_token()?);
@@ -453,6 +513,10 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     Ok(Ast {
       items,
+      module_path: self
+        .module_namepath
+        .map(ToString::to_string)
+        .unwrap_or_default(),
       unstable_features: self.unstable_features,
       warnings: Vec::new(),
       working_directory: self.working_directory.into(),
@@ -463,12 +527,15 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_alias(
     &mut self,
     attributes: AttributeSet<'src>,
-  ) -> CompileResult<'src, Alias<'src, Name<'src>>> {
+  ) -> CompileResult<'src, Alias<'src, Namepath<'src>>> {
     self.presume_keyword(Keyword::Alias)?;
     let name = self.parse_name()?;
     self.presume_any(&[Equals, ColonEquals])?;
-    let target = self.parse_name()?;
+    let target = self.parse_namepath()?;
     self.expect_eol()?;
+
+    attributes.ensure_valid_attributes("Alias", *name, &[AttributeDiscriminant::Private])?;
+
     Ok(Alias {
       attributes,
       name,
@@ -492,10 +559,10 @@ impl<'run, 'src> Parser<'run, 'src> {
     attributes.ensure_valid_attributes("Assignment", *name, &[AttributeDiscriminant::Private])?;
 
     Ok(Assignment {
-      constant: false,
       export,
       file_depth: self.file_depth,
       name,
+      prelude: false,
       private: private || name.lexeme().starts_with('_'),
       value,
     })
@@ -620,6 +687,29 @@ impl<'run, 'src> Parser<'run, 'src> {
     })
   }
 
+  fn parse_format_string(&mut self) -> CompileResult<'src, Expression<'src>> {
+    self.expect_keyword(Keyword::F)?;
+
+    let start = self.parse_string_literal_in_state(StringState::FormatStart)?;
+
+    let kind = StringKind::from_string_or_backtick(start.token)?;
+
+    let mut more = start.token.kind == FormatStringStart;
+
+    let mut expressions = Vec::new();
+
+    while more {
+      let expression = self.parse_expression()?;
+      more = self.next_is(FormatStringContinue);
+      expressions.push((
+        expression,
+        self.parse_string_literal_in_state(StringState::FormatContinue(kind))?,
+      ));
+    }
+
+    Ok(Expression::FormatString { start, expressions })
+  }
+
   // Check if the next tokens are a shell-expanded string, i.e., `x"foo"`.
   //
   // This function skips initial whitespace tokens, but thereafter is
@@ -634,8 +724,28 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     tokens
       .next()
-      .is_some_and(|token| token.kind == Identifier && token.lexeme() == "x")
+      .is_some_and(|token| token.kind == Identifier && token.lexeme() == Keyword::X.lexeme())
       && tokens.next().is_some_and(|token| token.kind == StringToken)
+  }
+
+  // Check if the next tokens are a format string, i.e., `f"foo"`.
+  //
+  // This function skips initial whitespace tokens, but thereafter is
+  // whitespace-sensitive, so `f"foo"` is a format string, whereas `f
+  // "foo"` is not.
+  fn next_is_format_string(&self) -> bool {
+    let mut tokens = self
+      .tokens
+      .iter()
+      .skip(self.next_token)
+      .skip_while(|token| token.kind == Whitespace);
+
+    tokens
+      .next()
+      .is_some_and(|token| token.kind == Identifier && token.lexeme() == Keyword::F.lexeme())
+      && tokens
+        .next()
+        .is_some_and(|token| matches!(token.kind, StringToken | FormatStringStart))
   }
 
   /// Parse a value, e.g. `(bar)`
@@ -644,6 +754,8 @@ impl<'run, 'src> Parser<'run, 'src> {
       Ok(Expression::StringLiteral {
         string_literal: self.parse_string_literal()?,
       })
+    } else if self.next_is_format_string() {
+      self.parse_format_string()
     } else if self.next_is(Backtick) {
       let next = self.next()?;
       let kind = StringKind::from_string_or_backtick(next)?;
@@ -661,18 +773,27 @@ impl<'run, 'src> Parser<'run, 'src> {
       }
       Ok(Expression::Backtick { contents, token })
     } else if self.next_is(Identifier) {
-      if self.accepted_keyword(Keyword::Assert)? {
+      if let Some(name) = self.accept_keyword(Keyword::Assert)? {
         self.expect(ParenL)?;
         let condition = self.parse_condition()?;
         self.expect(Comma)?;
         let error = Box::new(self.parse_expression()?);
         self.expect(ParenR)?;
-        Ok(Expression::Assert { condition, error })
+        Ok(Expression::Assert {
+          condition,
+          error,
+          name,
+        })
       } else {
         let name = self.parse_name()?;
 
         if self.next_is(ParenL) {
           let arguments = self.parse_sequence()?;
+          if name.lexeme() == "which" {
+            self
+              .unstable_features
+              .insert(UnstableFeature::WhichFunction);
+          }
           Ok(Expression::Call {
             thunk: Thunk::resolve(name, arguments)?,
           })
@@ -690,10 +811,16 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
   }
 
-  /// Parse a string literal, e.g. `"FOO"`, returning the string literal and the string token
-  fn parse_string_literal_token(
+  /// Parse a string literal, e.g. `"FOO"`
+  fn parse_string_literal(&mut self) -> CompileResult<'src, StringLiteral<'src>> {
+    self.parse_string_literal_in_state(StringState::Normal)
+  }
+
+  /// Parse a string literal, e.g. `"FOO"`
+  fn parse_string_literal_in_state(
     &mut self,
-  ) -> CompileResult<'src, (Token<'src>, StringLiteral<'src>)> {
+    state: StringState,
+  ) -> CompileResult<'src, StringLiteral<'src>> {
     let expand = if self.next_is(Identifier) {
       self.expect_keyword(Keyword::X)?;
       true
@@ -701,24 +828,49 @@ impl<'run, 'src> Parser<'run, 'src> {
       false
     };
 
-    let token = self.expect(StringToken)?;
+    let token = match state {
+      StringState::Normal => self.expect(StringToken)?,
+      StringState::FormatStart => self.expect_any(&[StringToken, FormatStringStart])?,
+      StringState::FormatContinue(_) => {
+        self.expect_any(&[FormatStringContinue, FormatStringEnd])?
+      }
+    };
 
-    let kind = StringKind::from_string_or_backtick(token)?;
+    let kind = match state {
+      StringState::Normal | StringState::FormatStart => StringKind::from_string_or_backtick(token)?,
+      StringState::FormatContinue(kind) => kind,
+    };
 
-    let delimiter_len = kind.delimiter_len();
+    let open = if matches!(token.kind, FormatStringContinue | FormatStringEnd) {
+      Lexer::INTERPOLATION_END.len()
+    } else {
+      kind.delimiter_len()
+    };
 
-    let raw = &token.lexeme()[delimiter_len..token.lexeme().len() - delimiter_len];
+    let close = if matches!(token.kind, FormatStringStart | FormatStringContinue) {
+      Lexer::INTERPOLATION_START.len()
+    } else {
+      kind.delimiter_len()
+    };
 
-    let unindented = if kind.indented() {
+    let raw = &token.lexeme()[open..token.lexeme().len() - close];
+
+    let unindented = if kind.indented() && matches!(token.kind, StringToken) {
       unindent(raw)
     } else {
       raw.to_owned()
     };
 
-    let cooked = if kind.processes_escape_sequences() {
-      Self::cook_string(token, &unindented)?
-    } else {
+    let undelimited = if matches!(state, StringState::Normal) {
       unindented
+    } else {
+      unindented.replace(Lexer::INTERPOLATION_ESCAPE, Lexer::INTERPOLATION_START)
+    };
+
+    let cooked = if kind.processes_escape_sequences() {
+      Self::cook_string(token, &undelimited)?
+    } else {
+      undelimited
     };
 
     let cooked = if expand {
@@ -729,23 +881,37 @@ impl<'run, 'src> Parser<'run, 'src> {
       cooked
     };
 
-    Ok((
+    Ok(StringLiteral {
       token,
-      StringLiteral {
-        cooked,
-        expand,
-        kind,
-        raw,
+      cooked,
+      expand,
+      kind,
+      part: match token.kind {
+        FormatStringStart => Some(FormatStringPart::Start),
+        FormatStringContinue => Some(FormatStringPart::Continue),
+        FormatStringEnd => Some(FormatStringPart::End),
+        StringToken => {
+          if matches!(state, StringState::Normal) {
+            None
+          } else {
+            Some(FormatStringPart::Single)
+          }
+        }
+        _ => {
+          return Err(token.error(CompileErrorKind::Internal {
+            message: "unexpected token kind while parsing string literal".into(),
+          }));
+        }
       },
-    ))
+    })
   }
 
   // Transform escape sequences in from string literal `token` with content `text`
   fn cook_string(token: Token<'src>, text: &str) -> CompileResult<'src, String> {
     #[derive(PartialEq, Eq)]
     enum State {
-      Initial,
       Backslash,
+      Initial,
       Unicode,
       UnicodeValue { hex: String },
     }
@@ -775,7 +941,7 @@ impl<'run, 'src> Parser<'run, 'src> {
             '\n' => {}
             '"' => cooked.push('"'),
             character => {
-              return Err(token.error(CompileErrorKind::InvalidEscapeSequence { character }))
+              return Err(token.error(CompileErrorKind::InvalidEscapeSequence { character }));
             }
           }
           state = State::Initial;
@@ -822,15 +988,22 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok(cooked)
   }
 
-  /// Parse a string literal, e.g. `"FOO"`
-  fn parse_string_literal(&mut self) -> CompileResult<'src, StringLiteral<'src>> {
-    let (_token, string_literal) = self.parse_string_literal_token()?;
-    Ok(string_literal)
-  }
-
   /// Parse a name from an identifier token
   fn parse_name(&mut self) -> CompileResult<'src, Name<'src>> {
     self.expect(Identifier).map(Name::from_identifier)
+  }
+
+  /// Parse a path of `::` separated names
+  fn parse_namepath(&mut self) -> CompileResult<'src, Namepath<'src>> {
+    let first = self.parse_name()?;
+    let mut path = Namepath::from(first);
+
+    while self.accepted(ColonColon)? {
+      let name = self.parse_name()?;
+      path.push(name);
+    }
+
+    Ok(path)
   }
 
   /// Parse sequence of comma-separated expressions
@@ -855,16 +1028,73 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// Parse a recipe
   fn parse_recipe(
     &mut self,
+    attributes: AttributeSet<'src>,
     doc: Option<&'src str>,
     quiet: bool,
-    attributes: AttributeSet<'src>,
   ) -> CompileResult<'src, UnresolvedRecipe<'src>> {
     let name = self.parse_name()?;
 
     let mut positional = Vec::new();
 
+    let mut longs = HashSet::new();
+    let mut shorts = HashSet::new();
+
+    let mut arg_attributes = BTreeMap::new();
+
+    for attribute in &attributes {
+      let Attribute::Arg {
+        help,
+        long,
+        long_key,
+        name: arg,
+        pattern,
+        short,
+        value,
+        ..
+      } = attribute
+      else {
+        continue;
+      };
+
+      if let Some(option) = long {
+        if !longs.insert(&option.cooked) {
+          return Err(
+            long_key
+              .unwrap_or(option.token)
+              .error(CompileErrorKind::DuplicateOption {
+                option: Switch::Long(option.cooked.clone()),
+                recipe: name.lexeme(),
+              }),
+          );
+        }
+      }
+
+      if let Some(option) = short {
+        if !shorts.insert(&option.cooked) {
+          return Err(option.token.error(CompileErrorKind::DuplicateOption {
+            option: Switch::Short(option.cooked.chars().next().unwrap()),
+            recipe: name.lexeme(),
+          }));
+        }
+      }
+
+      arg_attributes.insert(
+        arg.cooked.clone(),
+        ArgAttribute {
+          help: help.as_ref().map(|literal| literal.cooked.clone()),
+          name: arg.token,
+          pattern: pattern.clone(),
+          long: long.as_ref().map(|long| long.cooked.clone()),
+          short: short
+            .as_ref()
+            .map(|short| short.cooked.chars().next().unwrap()),
+          value: value.as_ref().map(|value| value.cooked.clone()),
+        },
+      );
+    }
+
     while self.next_is(Identifier) || self.next_is(Dollar) {
-      positional.push(self.parse_parameter(ParameterKind::Singular)?);
+      positional.push(self.parse_parameter(&mut arg_attributes, ParameterKind::Singular)?);
     }
 
     let kind = if self.accepted(Plus)? {
@@ -876,7 +1106,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
 
     let variadic = if kind.is_variadic() {
-      let variadic = self.parse_parameter(kind)?;
+      let variadic = self.parse_parameter(&mut arg_attributes, kind)?;
 
       self.forbid(Identifier, |token| {
         token.error(CompileErrorKind::ParameterFollowsVariadicParameter {
@@ -890,6 +1120,10 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
 
     self.expect(Colon)?;
+
+    if let Some((argument, ArgAttribute { name, .. })) = arg_attributes.into_iter().next() {
+      return Err(name.error(CompileErrorKind::UndefinedArgAttribute { argument }));
+    }
 
     let mut dependencies = Vec::new();
 
@@ -920,17 +1154,21 @@ impl<'run, 'src> Parser<'run, 'src> {
     let shebang = body.first().is_some_and(Line::is_shebang);
     let script = attributes.contains(AttributeDiscriminant::Script);
 
-    if shebang && script {
-      return Err(name.error(CompileErrorKind::ShebangAndScriptAttribute {
-        recipe: name.lexeme(),
-      }));
-    }
-
-    let working_directory = attributes.contains(AttributeDiscriminant::WorkingDirectory);
-
-    if working_directory && attributes.contains(AttributeDiscriminant::NoCd) {
+    if attributes.contains(AttributeDiscriminant::WorkingDirectory)
+      && attributes.contains(AttributeDiscriminant::NoCd)
+    {
       return Err(
         name.error(CompileErrorKind::NoCdAndWorkingDirectoryAttribute {
+          recipe: name.lexeme(),
+        }),
+      );
+    }
+
+    if attributes.contains(AttributeDiscriminant::ExitMessage)
+      && attributes.contains(AttributeDiscriminant::NoExitMessage)
+    {
+      return Err(
+        name.error(CompileErrorKind::ExitMessageAndNoExitMessageAttribute {
           recipe: name.lexeme(),
         }),
       );
@@ -956,7 +1194,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       file_depth: self.file_depth,
       import_offsets: self.import_offsets.clone(),
       name,
-      namepath: self.module_namepath.join(name),
+      namepath: None,
       parameters: positional.into_iter().chain(variadic).collect(),
       priors,
       private,
@@ -965,7 +1203,11 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Parse a recipe parameter
-  fn parse_parameter(&mut self, kind: ParameterKind) -> CompileResult<'src, Parameter<'src>> {
+  fn parse_parameter(
+    &mut self,
+    arg_attributes: &mut BTreeMap<String, ArgAttribute<'src>>,
+    kind: ParameterKind,
+  ) -> CompileResult<'src, Parameter<'src>> {
     let export = self.accepted(Dollar)?;
 
     let name = self.parse_name()?;
@@ -976,11 +1218,34 @@ impl<'run, 'src> Parser<'run, 'src> {
       None
     };
 
+    let mut help = None;
+    let mut long = None;
+    let mut pattern = None;
+    let mut short = None;
+    let mut value = None;
+
+    if let Some(arg) = arg_attributes.remove(name.lexeme()) {
+      help = arg.help;
+      long = arg.long;
+      pattern = arg.pattern;
+      short = arg.short;
+      value = arg.value;
+    }
+
+    if kind.is_variadic() && (long.is_some() || short.is_some()) {
+      return Err(name.error(CompileErrorKind::VariadicParameterWithOption));
+    }
+
     Ok(Parameter {
       default,
       export,
+      help,
       kind,
+      long,
       name,
+      pattern,
+      short,
+      value,
     })
   }
 
@@ -1010,7 +1275,7 @@ impl<'run, 'src> Parser<'run, 'src> {
               return Err(self.unexpected_token()?);
             }
           }
-        };
+        }
 
         lines.push(Line { fragments, number });
       }
@@ -1064,11 +1329,13 @@ impl<'run, 'src> Parser<'run, 'src> {
         Some(Setting::AllowDuplicateVariables(self.parse_set_bool()?))
       }
       Keyword::DotenvLoad => Some(Setting::DotenvLoad(self.parse_set_bool()?)),
+      Keyword::DotenvOverride => Some(Setting::DotenvOverride(self.parse_set_bool()?)),
       Keyword::DotenvRequired => Some(Setting::DotenvRequired(self.parse_set_bool()?)),
       Keyword::Export => Some(Setting::Export(self.parse_set_bool()?)),
       Keyword::Fallback => Some(Setting::Fallback(self.parse_set_bool()?)),
       Keyword::Guards => Some(Setting::Guards(self.parse_set_bool()?)),
       Keyword::IgnoreComments => Some(Setting::IgnoreComments(self.parse_set_bool()?)),
+      Keyword::NoExitMessage => Some(Setting::NoExitMessage(self.parse_set_bool()?)),
       Keyword::PositionalArguments => Some(Setting::PositionalArguments(self.parse_set_bool()?)),
       Keyword::Quiet => Some(Setting::Quiet(self.parse_set_bool()?)),
       Keyword::Unstable => Some(Setting::Unstable(self.parse_set_bool()?)),
@@ -1083,13 +1350,13 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.expect(ColonEquals)?;
 
     let set_value = match keyword {
-      Keyword::DotenvFilename => Some(Setting::DotenvFilename(self.parse_string_literal()?)),
-      Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_string_literal()?)),
+      Keyword::DotenvFilename => Some(Setting::DotenvFilename(self.parse_expression()?)),
+      Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_expression()?)),
       Keyword::ScriptInterpreter => Some(Setting::ScriptInterpreter(self.parse_interpreter()?)),
       Keyword::Shell => Some(Setting::Shell(self.parse_interpreter()?)),
-      Keyword::Tempdir => Some(Setting::Tempdir(self.parse_string_literal()?)),
+      Keyword::Tempdir => Some(Setting::Tempdir(self.parse_expression()?)),
       Keyword::WindowsShell => Some(Setting::WindowsShell(self.parse_interpreter()?)),
-      Keyword::WorkingDirectory => Some(Setting::WorkingDirectory(self.parse_string_literal()?)),
+      Keyword::WorkingDirectory => Some(Setting::WorkingDirectory(self.parse_expression()?)),
       _ => None,
     };
 
@@ -1103,16 +1370,16 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Parse interpreter setting value, i.e., `['sh', '-eu']`
-  fn parse_interpreter(&mut self) -> CompileResult<'src, Interpreter<'src>> {
+  fn parse_interpreter(&mut self) -> CompileResult<'src, Interpreter<Expression<'src>>> {
     self.expect(BracketL)?;
 
-    let command = self.parse_string_literal()?;
+    let command = self.parse_expression()?;
 
     let mut arguments = Vec::new();
 
     if self.accepted(Comma)? {
       while !self.next_is(BracketR) {
-        arguments.push(self.parse_string_literal()?);
+        arguments.push(self.parse_expression()?);
 
         if !self.accepted(Comma)? {
           break;
@@ -1127,8 +1394,10 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   /// Item attributes, i.e., `[macos]` or `[confirm: "warning!"]`
   fn parse_attributes(&mut self) -> CompileResult<'src, Option<(Token<'src>, AttributeSet<'src>)>> {
-    let mut attributes = BTreeMap::new();
+    let mut arg_attributes = BTreeMap::new();
+    let mut attributes = Vec::new();
     let mut discriminants = BTreeMap::new();
+    let mut env_attributes = BTreeMap::new();
 
     let mut token = None;
 
@@ -1139,29 +1408,50 @@ impl<'run, 'src> Parser<'run, 'src> {
         let name = self.parse_name()?;
 
         let mut arguments = Vec::new();
+        let mut keyword_arguments = BTreeMap::new();
 
         if self.accepted(Colon)? {
           arguments.push(self.parse_string_literal()?);
         } else if self.accepted(ParenL)? {
           loop {
-            arguments.push(self.parse_string_literal()?);
+            if self.next_is(Identifier) && !self.next_is_shell_expanded_string() {
+              let key = self.parse_name()?;
 
-            if !self.accepted(Comma)? {
+              let value = self
+                .accepted(Equals)?
+                .then(|| self.parse_string_literal())
+                .transpose()?;
+
+              keyword_arguments.insert(key.lexeme(), (key, value));
+            } else {
+              let literal = self.parse_string_literal()?;
+
+              if !keyword_arguments.is_empty() {
+                return Err(
+                  literal
+                    .token
+                    .error(CompileErrorKind::AttributePositionalFollowsKeyword),
+                );
+              }
+
+              arguments.push(literal);
+            }
+
+            if !self.accepted(Comma)? || self.next_is(ParenR) {
               break;
             }
           }
+
           self.expect(ParenR)?;
         }
 
-        let attribute = Attribute::new(name, arguments)?;
+        let attribute = Attribute::new(name, arguments, keyword_arguments)?;
 
-        let first = attributes.get(&attribute).or_else(|| {
-          if attribute.repeatable() {
-            None
-          } else {
-            discriminants.get(&attribute.discriminant())
-          }
-        });
+        let first = if attribute.repeatable() {
+          None
+        } else {
+          discriminants.get(&attribute.discriminant())
+        };
 
         if let Some(&first) = first {
           return Err(name.error(CompileErrorKind::DuplicateAttribute {
@@ -1170,9 +1460,31 @@ impl<'run, 'src> Parser<'run, 'src> {
           }));
         }
 
+        if let Attribute::Arg { name: arg, .. } = &attribute {
+          if let Some(&first) = arg_attributes.get(&arg.cooked) {
+            return Err(name.error(CompileErrorKind::DuplicateArgAttribute {
+              arg: arg.cooked.clone(),
+              first,
+            }));
+          }
+
+          arg_attributes.insert(arg.cooked.clone(), name.line);
+        }
+
+        if let Attribute::Env(variable, _) = &attribute {
+          if let Some(&first) = env_attributes.get(&variable.cooked) {
+            return Err(name.error(CompileErrorKind::DuplicateEnvAttribute {
+              variable: variable.cooked.clone(),
+              first,
+            }));
+          }
+
+          env_attributes.insert(variable.cooked.clone(), name.line);
+        }
+
         discriminants.insert(attribute.discriminant(), name.line);
 
-        attributes.insert(attribute, name.line);
+        attributes.push(attribute);
 
         if !self.accepted(Comma)? {
           break;
@@ -1185,7 +1497,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     if attributes.is_empty() {
       Ok(None)
     } else {
-      Ok(Some((token.unwrap(), attributes.into_keys().collect())))
+      Ok(Some((token.unwrap(), attributes.into_iter().collect())))
     }
   }
 }
@@ -1215,8 +1527,7 @@ mod tests {
   fn test(text: &str, want: Tree) {
     let unindented = unindent(text);
     let tokens = Lexer::test_lex(&unindented).expect("lexing failed");
-    let justfile = Parser::parse(0, &[], &Namepath::default(), &tokens, &PathBuf::new())
-      .expect("parsing failed");
+    let justfile = Parser::parse(0, &[], None, &tokens, &PathBuf::new()).expect("parsing failed");
     let have = justfile.tree();
     if have != want {
       println!("parsed text: {unindented}");
@@ -1244,6 +1555,7 @@ mod tests {
     };
   }
 
+  #[track_caller]
   fn error(
     src: &str,
     offset: usize,
@@ -1254,7 +1566,7 @@ mod tests {
   ) {
     let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
 
-    match Parser::parse(0, &[], &Namepath::default(), &tokens, &PathBuf::new()) {
+    match Parser::parse(0, &[], None, &tokens, &PathBuf::new()) {
       Ok(_) => panic!("Parsing unexpectedly succeeded"),
       Err(have) => {
         let want = CompileError {
@@ -1311,15 +1623,21 @@ mod tests {
   }
 
   test! {
+    name: alias_module_path,
+    text: "alias fbb := foo::bar::baz",
+    tree: (justfile (alias fbb (foo bar baz))),
+  }
+
+  test! {
     name: single_argument_attribute_shorthand,
-    text: "[group: 'some-group']\nalias t := test",
-    tree: (justfile (alias t test)),
+    text: "[group: 'foo']\nbar:",
+    tree: (justfile (recipe bar)),
   }
 
   test! {
     name: single_argument_attribute_shorthand_multiple_same_line,
-    text: "[group: 'some-group', group: 'some-other-group']\nalias t := test",
-    tree: (justfile (alias t test)),
+    text: "[group: 'foo', group: 'bar']\nbaz:",
+    tree: (justfile (recipe baz)),
   }
 
   test! {
@@ -1568,6 +1886,24 @@ mod tests {
     name: recipe_line_single,
     text: "foo:\n bar",
     tree: (justfile (recipe foo (body ("bar")))),
+  }
+
+  test! {
+    name: recipe_dependency_module,
+    text: "foo: bar::baz",
+    tree: (justfile (recipe foo (deps (bar baz)))),
+  }
+
+  test! {
+    name: recipe_dependency_parenthesis_module,
+    text: "foo: (bar::baz)",
+    tree: (justfile (recipe foo (deps (bar baz)))),
+  }
+
+  test! {
+    name: recipe_dependency_module_mixed,
+      text: "foo: bar::baz qux",
+    tree: (justfile (recipe foo (deps (bar baz) qux))),
   }
 
   test! {
@@ -2376,6 +2712,24 @@ mod tests {
     tree: (justfile (assignment foo (assert (if a != b c d) == "abc" "error"))),
   }
 
+  test! {
+    name: format_string_simple,
+    text: "foo := f'abc'",
+    tree: (justfile (assignment foo (format "abc"))),
+  }
+
+  test! {
+    name: format_string_expression,
+    text: "foo := f'foo{{ 'abc' + 'xyz' }}bar'",
+    tree: (justfile (assignment foo (format "foo" (+ "abc" "xyz") "bar"))),
+  }
+
+  test! {
+    name: format_string_complex,
+    text: "foo := f'foo{{ 'abc' + 'xyz' }}bar{{ 'hello' }}goodbye'",
+    tree: (justfile (assignment foo (format "foo" (+ "abc" "xyz") "bar" "hello" "goodbye"))),
+  }
+
   error! {
     name:   alias_syntax_multiple_rhs,
     input:  "alias foo := bar baz",
@@ -2383,7 +2737,7 @@ mod tests {
     line:   0,
     column: 17,
     width:  3,
-    kind:   UnexpectedToken { expected: vec![Comment, Eof, Eol], found: Identifier },
+    kind:   UnexpectedToken { expected: vec![ColonColon, Comment, Eof, Eol], found: Identifier },
   }
 
   error! {
@@ -2394,6 +2748,26 @@ mod tests {
     column: 13,
     width:  1,
     kind:   UnexpectedToken {expected: vec![Identifier], found:Eol},
+  }
+
+  error! {
+    name:   alias_syntax_colon_end,
+    input:  "alias foo := bar::\n",
+    offset: 18,
+    line:   0,
+    column: 18,
+    width:  1,
+    kind:   UnexpectedToken {expected: vec![Identifier], found:Eol},
+  }
+
+  error! {
+    name:   alias_syntax_single_colon,
+    input:  "alias foo := bar:baz",
+    offset: 16,
+    line:   0,
+    column: 16,
+    width:  1,
+    kind:   UnexpectedToken {expected: vec![ColonColon, Comment, Eof, Eol], found:Colon},
   }
 
   error! {
@@ -2453,7 +2827,7 @@ mod tests {
     column:  9,
     width:   1,
     kind:    UnexpectedToken{
-      expected: vec![AmpersandAmpersand, Comment, Eof, Eol, Identifier, ParenL],
+      expected: vec![AmpersandAmpersand, ColonColon, Comment, Eof, Eol, Identifier, ParenL],
       found: Equals
     },
   }
@@ -2488,26 +2862,6 @@ mod tests {
         StringToken,
       ],
       found: Eof,
-    },
-  }
-
-  error! {
-    name:   unclosed_parenthesis_in_interpolation,
-    input:  "a:\n echo {{foo(}}",
-    offset:  15,
-    line:   1,
-    column: 12,
-    width:  2,
-    kind:   UnexpectedToken{
-      expected: vec![
-        Backtick,
-        Identifier,
-        ParenL,
-        ParenR,
-        Slash,
-        StringToken,
-      ],
-      found: InterpolationEnd,
     },
   }
 
@@ -2583,36 +2937,13 @@ mod tests {
     width:  1,
     kind:   UnexpectedToken {
       expected: vec![
+        Backtick,
         Identifier,
+        ParenL,
+        Slash,
         StringToken,
       ],
       found: BracketR,
-    },
-  }
-
-  error! {
-    name:   set_shell_non_literal_first,
-    input:  "set shell := ['bar' + 'baz']",
-    offset: 20,
-    line:   0,
-    column: 20,
-    width:  1,
-    kind:   UnexpectedToken {
-      expected: vec![BracketR, Comma],
-      found: Plus,
-    },
-  }
-
-  error! {
-    name:   set_shell_non_literal_second,
-    input:  "set shell := ['biz', 'bar' + 'baz']",
-    offset: 27,
-    line:   0,
-    column: 27,
-    width:  1,
-    kind:   UnexpectedToken {
-      expected: vec![BracketR, Comma],
-      found: Plus,
     },
   }
 
@@ -2625,8 +2956,11 @@ mod tests {
     width:  0,
     kind:   UnexpectedToken {
       expected: vec![
+        Backtick,
         BracketR,
         Identifier,
+        ParenL,
+        Slash,
         StringToken,
       ],
       found: Eof,
@@ -2641,7 +2975,7 @@ mod tests {
     column: 20,
     width:  0,
     kind:   UnexpectedToken {
-      expected: vec![BracketR, Comma],
+      expected: vec![AmpersandAmpersand, BarBar, BracketR, Comma, Plus, Slash],
       found: Eof,
     },
   }

@@ -1,8 +1,11 @@
 use super::*;
 
-test! {
-  name:     evaluate,
-  justfile: r#"
+#[test]
+fn evaluate() {
+  Test::new()
+    .arg("--evaluate")
+    .justfile(
+      r#"
 foo := "a\t"
 hello := "c"
 bar := "b\t"
@@ -11,95 +14,133 @@ ab := foo + bar + hello
 wut:
   touch /this/is/not/a/file
 "#,
-  args:     ("--evaluate"),
-  stdout:   r#"ab    := "a	b	c"
+    )
+    .stdout(
+      r#"ab    := "a	b	c"
 bar   := "b	"
 foo   := "a	"
 hello := "c"
 "#,
+    )
+    .success();
 }
 
-test! {
-  name:     evaluate_empty,
-  justfile: "
+#[test]
+fn evaluate_empty() {
+  Test::new()
+    .arg("--evaluate")
+    .justfile(
+      "
     a := 'foo'
   ",
-  args:     ("--evaluate"),
-  stdout:   r#"
+    )
+    .stdout(
+      r#"
     a := "foo"
   "#,
+    )
+    .success();
 }
 
-test! {
-  name:     evaluate_multiple,
-  justfile: "
+#[test]
+fn evaluate_multiple() {
+  Test::new()
+    .arg("--evaluate")
+    .arg("a")
+    .arg("c")
+    .justfile(
+      "
     a := 'x'
     b := 'y'
     c := 'z'
   ",
-  args:   ("--evaluate", "a", "c"),
-  stderr: "error: `--evaluate` used with unexpected argument: `c`\n",
-  status: EXIT_FAILURE,
+    )
+    .stderr("error: `--evaluate` used with unexpected argument: `c`\n")
+    .failure();
 }
 
-test! {
-  name:     evaluate_single_free,
-  justfile: "
+#[test]
+fn evaluate_single_free() {
+  Test::new()
+    .arg("--evaluate")
+    .arg("b")
+    .justfile(
+      "
     a := 'x'
     b := 'y'
     c := 'z'
   ",
-  args:   ("--evaluate", "b"),
-  stdout: "y",
+    )
+    .stdout("y")
+    .success();
 }
 
-test! {
-  name:     evaluate_no_suggestion,
-  justfile: "
+#[test]
+fn evaluate_no_suggestion() {
+  Test::new()
+    .arg("--evaluate")
+    .arg("aby")
+    .justfile(
+      "
     abc := 'x'
   ",
-  args:   ("--evaluate", "aby"),
-  stderr: "
+    )
+    .stderr(
+      "
     error: Justfile does not contain variable `aby`.
     Did you mean `abc`?
   ",
-  status: EXIT_FAILURE,
+    )
+    .failure();
 }
 
-test! {
-  name:     evaluate_suggestion,
-  justfile: "
+#[test]
+fn evaluate_suggestion() {
+  Test::new()
+    .arg("--evaluate")
+    .arg("goodbye")
+    .justfile(
+      "
     hello := 'x'
   ",
-  args:   ("--evaluate", "goodbye"),
-  stderr: "
+    )
+    .stderr(
+      "
     error: Justfile does not contain variable `goodbye`.
   ",
-  status: EXIT_FAILURE,
+    )
+    .failure();
 }
 
-test! {
-  name:    evaluate_private,
-  justfile: "
+#[test]
+fn evaluate_private() {
+  Test::new()
+    .arg("--evaluate")
+    .justfile(
+      "
     [private]
     foo := 'one'
     bar := 'two'
     _baz := 'three'
   ",
-  args:   ("--evaluate"),
-  stdout: "bar  := \"two\"\n",
-  status: EXIT_SUCCESS,
+    )
+    .stdout("bar  := \"two\"\n")
+    .success();
 }
 
-test! {
-  name:    evaluate_single_private,
-  justfile: "
+#[test]
+fn evaluate_single_private() {
+  Test::new()
+    .arg("--evaluate")
+    .arg("foo")
+    .justfile(
+      "
     [private]
     foo := 'one'
     bar := 'two'
     _baz := 'three'
   ",
-  args:   ("--evaluate", "foo"),
-  stdout: "one",
-  status: EXIT_SUCCESS,
+    )
+    .stdout("one")
+    .success();
 }

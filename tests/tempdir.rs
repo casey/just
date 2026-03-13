@@ -16,7 +16,7 @@ pub(crate) fn tempdir() -> TempDir {
 }
 
 #[test]
-fn test_tempdir_is_set() {
+fn setting() {
   Test::new()
     .justfile(
       "
@@ -28,10 +28,10 @@ fn test_tempdir_is_set() {
     )
     .shell(false)
     .tree(tree! {
-      foo: {
+      bar: {
       }
     })
-    .current_dir("foo")
+    .current_dir("bar")
     .stdout(if cfg!(windows) {
       "
 
@@ -47,5 +47,41 @@ fn test_tempdir_is_set() {
       cat just*/foo
       "
     })
-    .run();
+    .success();
+}
+
+#[test]
+fn argument_overrides_setting() {
+  Test::new()
+    .args(["--tempdir", "."])
+    .justfile(
+      "
+      set tempdir := 'hello'
+      foo:
+          #!/usr/bin/env bash
+          cat just*/foo
+      ",
+    )
+    .shell(false)
+    .tree(tree! {
+      bar: {
+      }
+    })
+    .current_dir("bar")
+    .stdout(if cfg!(windows) {
+      "
+
+
+
+      cat just*/foo
+      "
+    } else {
+      "
+      #!/usr/bin/env bash
+
+
+      cat just*/foo
+      "
+    })
+    .success();
 }

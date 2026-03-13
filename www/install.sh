@@ -1,10 +1,6 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 set -eu
-
-if [ -n "${GITHUB_ACTIONS-}" ]; then
-  set -x
-fi
 
 # Check pipefail support in a subshell, ignore if unsupported
 # shellcheck disable=SC3040
@@ -55,10 +51,15 @@ download() {
   url="$1"
   output="$2"
 
+  args=()
+  if [ -n "${GITHUB_TOKEN+x}" ]; then
+    args+=(--header "Authorization: Bearer $GITHUB_TOKEN")
+  fi
+
   if command -v curl > /dev/null; then
-    curl --proto =https --tlsv1.2 -sSfL "$url" "-o$output"
+    curl --proto =https --tlsv1.2 -sSfL ${args[@]+"${args[@]}"} "$url" -o"$output"
   else
-    wget --https-only --secure-protocol=TLSv1_2 --quiet "$url" "-O$output"
+    wget --https-only --secure-protocol=TLSv1_2 --quiet ${args[@]+"${args[@]}"} "$url" -O"$output"
   fi
 }
 
@@ -133,6 +134,7 @@ if [ -z "${target-}" ]; then
     arm64-Darwin) target=aarch64-apple-darwin;;
     armv6l-Linux) target=arm-unknown-linux-musleabihf;;
     armv7l-Linux) target=armv7-unknown-linux-musleabihf;;
+    loongarch64-Linux) target=loongarch64-unknown-linux-musl;;
     x86_64-Darwin) target=x86_64-apple-darwin;;
     x86_64-Linux) target=x86_64-unknown-linux-musl;;
     x86_64-MINGW64_NT) target=x86_64-pc-windows-msvc;;

@@ -161,7 +161,9 @@ fn main() -> Result {
       for event in &mut chapter.events {
         if let Event::Start(Tag::Link(_, dest, _)) | Event::End(Tag::Link(_, dest, _)) = event {
           if let Some(anchor) = dest.clone().strip_prefix('#') {
-            *dest = CowStr::Borrowed(&links[anchor]);
+            if anchor != "just" {
+              *dest = CowStr::Borrowed(&links[anchor]);
+            }
           }
         }
       }
@@ -185,6 +187,7 @@ fn main() -> Result {
         HeadingLevel::H5 => 4,
         HeadingLevel::H6 => 5,
       };
+
       writeln!(
         summary,
         "{}- [{}]({filename}.md)",

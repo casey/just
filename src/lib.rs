@@ -9,7 +9,7 @@ pub(crate) use {
     alias::Alias,
     alias_style::AliasStyle,
     analyzer::Analyzer,
-    argument_parser::ArgumentParser,
+    arg_attribute::ArgAttribute,
     assignment::Assignment,
     assignment_resolver::AssignmentResolver,
     ast::Ast,
@@ -28,6 +28,7 @@ pub(crate) use {
     conditional_operator::ConditionalOperator,
     config::Config,
     config_error::ConfigError,
+    const_error::ConstError,
     constants::constants,
     count::Count,
     delimiter::Delimiter,
@@ -39,11 +40,12 @@ pub(crate) use {
     execution_context::ExecutionContext,
     executor::Executor,
     expression::Expression,
+    format_string_part::FormatStringPart,
     fragment::Fragment,
     function::Function,
     interpreter::Interpreter,
-    interrupt_guard::InterruptGuard,
-    interrupt_handler::InterruptHandler,
+    invocation::Invocation,
+    invocation_parser::InvocationParser,
     item::Item,
     justfile::Justfile,
     keyed::Keyed,
@@ -57,11 +59,11 @@ pub(crate) use {
     name::Name,
     namepath::Namepath,
     ordinal::Ordinal,
-    output::output,
     output_error::OutputError,
     parameter::Parameter,
     parameter_kind::ParameterKind,
     parser::Parser,
+    pattern::Pattern,
     platform::Platform,
     platform_interface::PlatformInterface,
     position::Position,
@@ -81,12 +83,16 @@ pub(crate) use {
     shebang::Shebang,
     show_whitespace::ShowWhitespace,
     sigil::Sigil,
+    signal::Signal,
+    signal_handler::SignalHandler,
     source::Source,
     string_delimiter::StringDelimiter,
     string_kind::StringKind,
     string_literal::StringLiteral,
+    string_state::StringState,
     subcommand::Subcommand,
     suggestion::Suggestion,
+    switch::Switch,
     table::Table,
     thunk::Thunk,
     token::Token,
@@ -94,10 +100,12 @@ pub(crate) use {
     unresolved_dependency::UnresolvedDependency,
     unresolved_recipe::UnresolvedRecipe,
     unstable_feature::UnstableFeature,
+    usage::Usage,
     use_color::UseColor,
     variables::Variables,
     verbosity::Verbosity,
     warning::Warning,
+    which::which,
   },
   camino::Utf8Path,
   clap::ValueEnum,
@@ -105,7 +113,7 @@ pub(crate) use {
   edit_distance::edit_distance,
   lexiclean::Lexiclean,
   libc::EXIT_FAILURE,
-  once_cell::sync::Lazy,
+  rand::seq::IndexedRandom,
   regex::Regex,
   serde::{
     ser::{SerializeMap, SerializeSeq},
@@ -114,32 +122,34 @@ pub(crate) use {
   snafu::{ResultExt, Snafu},
   std::{
     borrow::Cow,
-    cmp,
+    cmp::Ordering,
     collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     env,
     ffi::OsString,
     fmt::{self, Debug, Display, Formatter},
     fs,
-    io::{self, Read, Seek, Write},
+    io::{self, Write},
     iter::{self, FromIterator},
     mem,
     ops::Deref,
-    ops::{Index, Range, RangeInclusive},
+    ops::{Index, RangeInclusive},
     path::{self, Path, PathBuf},
     process::{self, Command, ExitStatus, Stdio},
-    rc::Rc,
     str::{self, Chars},
-    sync::{Mutex, MutexGuard, OnceLock},
-    vec,
+    sync::{Arc, LazyLock, Mutex, MutexGuard},
+    thread, vec,
   },
   strum::{Display, EnumDiscriminants, EnumString, IntoStaticStr},
-  tempfile::tempfile,
+  tempfile::TempDir,
   typed_arena::Arena,
   unicode_width::{UnicodeWidthChar, UnicodeWidthStr},
 };
 
 #[cfg(test)]
-pub(crate) use crate::{node::Node, tree::Tree};
+pub(crate) use {
+  crate::{node::Node, tree::Tree},
+  std::slice,
+};
 
 pub use crate::run::run;
 
@@ -148,7 +158,7 @@ use request::Request;
 
 // Used in integration tests.
 #[doc(hidden)]
-pub use {request::Response, unindent::unindent};
+pub use {request::Response, subcommand::INIT_JUSTFILE, unindent::unindent};
 
 type CompileResult<'a, T = ()> = Result<T, CompileError<'a>>;
 type ConfigResult<T> = Result<T, ConfigError>;
@@ -183,7 +193,7 @@ pub mod request;
 mod alias;
 mod alias_style;
 mod analyzer;
-mod argument_parser;
+mod arg_attribute;
 mod assignment;
 mod assignment_resolver;
 mod ast;
@@ -203,6 +213,7 @@ mod condition;
 mod conditional_operator;
 mod config;
 mod config_error;
+mod const_error;
 mod constants;
 mod count;
 mod delimiter;
@@ -214,11 +225,13 @@ mod evaluator;
 mod execution_context;
 mod executor;
 mod expression;
+mod filesystem;
+mod format_string_part;
 mod fragment;
 mod function;
 mod interpreter;
-mod interrupt_guard;
-mod interrupt_handler;
+mod invocation;
+mod invocation_parser;
 mod item;
 mod justfile;
 mod keyed;
@@ -232,11 +245,11 @@ mod module_path;
 mod name;
 mod namepath;
 mod ordinal;
-mod output;
 mod output_error;
 mod parameter;
 mod parameter_kind;
 mod parser;
+mod pattern;
 mod platform;
 mod platform_interface;
 mod position;
@@ -257,12 +270,18 @@ mod settings;
 mod shebang;
 mod show_whitespace;
 mod sigil;
+mod signal;
+mod signal_handler;
+#[cfg(unix)]
+mod signals;
 mod source;
 mod string_delimiter;
 mod string_kind;
 mod string_literal;
+mod string_state;
 mod subcommand;
 mod suggestion;
+mod switch;
 mod table;
 mod thunk;
 mod token;
@@ -271,7 +290,9 @@ mod unindent;
 mod unresolved_dependency;
 mod unresolved_recipe;
 mod unstable_feature;
+mod usage;
 mod use_color;
 mod variables;
 mod verbosity;
 mod warning;
+mod which;

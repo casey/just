@@ -63,11 +63,26 @@ impl<'src> Node<'src> for Item<'src> {
   }
 }
 
-impl<'src> Node<'src> for Alias<'src, Name<'src>> {
+impl<'src> Node<'src> for Namepath<'src> {
   fn tree(&self) -> Tree<'src> {
+    match self.components() {
+      1 => Tree::atom(self.last().lexeme()),
+      _ => Tree::list(
+        self
+          .iter()
+          .map(|name| Tree::atom(Cow::Borrowed(name.lexeme()))),
+      ),
+    }
+  }
+}
+
+impl<'src> Node<'src> for Alias<'src, Namepath<'src>> {
+  fn tree(&self) -> Tree<'src> {
+    let target = self.target.tree();
+
     Tree::atom(Keyword::Alias.lexeme())
       .push(self.name.lexeme())
-      .push(self.target.lexeme())
+      .push(target)
   }
 }
 
@@ -92,6 +107,7 @@ impl<'src> Node<'src> for Expression<'src> {
       Self::Assert {
         condition: Condition { lhs, rhs, operator },
         error,
+        ..
       } => Tree::atom(Keyword::Assert.lexeme())
         .push(lhs.tree())
         .push(operator.to_string())
@@ -173,6 +189,15 @@ impl<'src> Node<'src> for Expression<'src> {
         tree.push_mut(otherwise.tree());
         tree
       }
+      Self::FormatString { start, expressions } => {
+        let mut tree = Tree::atom("format");
+        tree.push_mut(Tree::string(&start.cooked));
+        for (expression, string) in expressions {
+          tree.push_mut(expression.tree());
+          tree.push_mut(Tree::string(&string.cooked));
+        }
+        tree
+      }
       Self::Group { contents } => Tree::List(vec![contents.tree()]),
       Self::Join { lhs: None, rhs } => Tree::atom("/").push(rhs.tree()),
       Self::Join {
@@ -222,7 +247,7 @@ impl<'src> Node<'src> for UnresolvedRecipe<'src> {
       let mut subsequents = Tree::atom("sups");
 
       for (i, dependency) in self.dependencies.iter().enumerate() {
-        let mut d = Tree::atom(dependency.recipe.lexeme());
+        let mut d = dependency.recipe.tree();
 
         for argument in &dependency.arguments {
           d.push_mut(argument.tree());
@@ -288,30 +313,32 @@ impl<'src> Node<'src> for Set<'src> {
       Setting::AllowDuplicateRecipes(value)
       | Setting::AllowDuplicateVariables(value)
       | Setting::DotenvLoad(value)
+      | Setting::DotenvOverride(value)
       | Setting::DotenvRequired(value)
       | Setting::Export(value)
       | Setting::Fallback(value)
       | Setting::Guards(value)
+      | Setting::IgnoreComments(value)
+      | Setting::NoExitMessage(value)
       | Setting::PositionalArguments(value)
       | Setting::Quiet(value)
       | Setting::Unstable(value)
-      | Setting::WindowsPowerShell(value)
-      | Setting::IgnoreComments(value) => {
+      | Setting::WindowsPowerShell(value) => {
         set.push_mut(value.to_string());
-      }
-      Setting::ScriptInterpreter(Interpreter { command, arguments })
-      | Setting::Shell(Interpreter { command, arguments })
-      | Setting::WindowsShell(Interpreter { command, arguments }) => {
-        set.push_mut(Tree::string(&command.cooked));
-        for argument in arguments {
-          set.push_mut(Tree::string(&argument.cooked));
-        }
       }
       Setting::DotenvFilename(value)
       | Setting::DotenvPath(value)
       | Setting::Tempdir(value)
       | Setting::WorkingDirectory(value) => {
-        set.push_mut(Tree::string(&value.cooked));
+        set.push_mut(value.tree());
+      }
+      Setting::ScriptInterpreter(Interpreter { command, arguments })
+      | Setting::Shell(Interpreter { command, arguments })
+      | Setting::WindowsShell(Interpreter { command, arguments }) => {
+        set.push_mut(command.tree());
+        for argument in arguments {
+          set.push_mut(argument.tree());
+        }
       }
     }
 

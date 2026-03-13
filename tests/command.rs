@@ -1,50 +1,73 @@
 use super::*;
 
-test! {
-  name: long,
-  justfile: "
+#[test]
+fn long() {
+  Test::new()
+    .arg("--command")
+    .arg("printf")
+    .arg("foo")
+    .justfile(
+      "
     x:
       echo XYZ
   ",
-  args: ("--command", "printf", "foo"),
-  stdout: "foo",
+    )
+    .stdout("foo")
+    .success();
 }
 
-test! {
-  name: short,
-  justfile: "
+#[test]
+fn short() {
+  Test::new()
+    .arg("-c")
+    .arg("printf")
+    .arg("foo")
+    .justfile(
+      "
     x:
       echo XYZ
   ",
-  args: ("-c", "printf", "foo"),
-  stdout: "foo",
+    )
+    .stdout("foo")
+    .success();
 }
 
-test! {
-  name: command_color,
-  justfile: "
+#[test]
+fn command_color() {
+  Test::new()
+    .arg("--color")
+    .arg("always")
+    .arg("--command-color")
+    .arg("cyan")
+    .justfile(
+      "
     x:
       echo XYZ
   ",
-  args: ("--color", "always", "--command-color", "cyan"),
-  stdout: "XYZ\n",
-  stderr: "\u{1b}[1;36mecho XYZ\u{1b}[0m\n",
-  status: EXIT_SUCCESS,
+    )
+    .stdout("XYZ\n")
+    .stderr("\u{1b}[1;36mecho XYZ\u{1b}[0m\n")
+    .success();
 }
 
-test! {
-  name: no_binary,
-  justfile: "
+#[test]
+fn no_binary() {
+  Test::new()
+    .arg("--command")
+    .justfile(
+      "
     x:
       echo XYZ
   ",
-  args: ("--command"),
-  stderr: "
+    )
+    .stderr(
+      "
     error: a value is required for '--command <COMMAND>...' but none was supplied
 
     For more information, try '--help'.
   ",
-  status: 2,
+    )
+    .status(2);
 }
 
 #[test]
@@ -61,52 +84,79 @@ fn env_is_loaded() {
     .args(["--command", "sh", "-c", "printf $DOTENV_KEY"])
     .write(".env", "DOTENV_KEY=dotenv-value")
     .stdout("dotenv-value")
-    .run();
+    .success();
 }
 
-test! {
-  name: exports_are_available,
-  justfile: "
+#[test]
+fn exports_are_available() {
+  Test::new()
+    .arg("--command")
+    .arg("sh")
+    .arg("-c")
+    .arg("printf $FOO")
+    .justfile(
+      "
     export FOO := 'bar'
 
     x:
       echo XYZ
   ",
-  args: ("--command", "sh", "-c", "printf $FOO"),
-  stdout: "bar",
+    )
+    .stdout("bar")
+    .success();
 }
 
-test! {
-  name: set_overrides_work,
-  justfile: "
+#[test]
+fn set_overrides_work() {
+  Test::new()
+    .arg("--set")
+    .arg("FOO")
+    .arg("baz")
+    .arg("--command")
+    .arg("sh")
+    .arg("-c")
+    .arg("printf $FOO")
+    .justfile(
+      "
     export FOO := 'bar'
 
     x:
       echo XYZ
   ",
-  args: ("--set", "FOO", "baz", "--command", "sh", "-c", "printf $FOO"),
-  stdout: "baz",
+    )
+    .stdout("baz")
+    .success();
 }
 
-test! {
-  name: run_in_shell,
-  justfile: "
+#[test]
+fn run_in_shell() {
+  Test::new()
+    .arg("--shell-command")
+    .arg("--command")
+    .arg("bar baz")
+    .justfile(
+      "
     set shell := ['printf']
   ",
-  args: ("--shell-command", "--command", "bar baz"),
-  stdout: "bar baz",
-  shell: false,
+    )
+    .stdout("bar baz")
+    .shell(false)
+    .success();
 }
 
-test! {
-  name: exit_status,
-  justfile: "
+#[test]
+fn exit_status() {
+  Test::new()
+    .arg("--command")
+    .arg("false")
+    .justfile(
+      "
     x:
       echo XYZ
   ",
-  args: ("--command", "false"),
-  stderr_regex: "error: Command `false` failed: exit (code|status): 1\n",
-  status: EXIT_FAILURE,
+    )
+    .stderr_regex("error: Command `false` failed: exit (code|status): 1\n")
+    .failure();
 }
 
 #[test]
@@ -117,7 +167,7 @@ fn working_directory_is_correct() {
   fs::write(tmp.path().join("bar"), "baz").unwrap();
   fs::create_dir(tmp.path().join("foo")).unwrap();
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .args(["--command", "cat", "bar"])
     .current_dir(tmp.path().join("foo"))
     .output()
@@ -136,7 +186,7 @@ fn command_not_found() {
 
   fs::write(tmp.path().join("justfile"), "").unwrap();
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .args(["--command", "asdfasdfasdfasdfadfsadsfadsf", "bar"])
     .output()
     .unwrap();

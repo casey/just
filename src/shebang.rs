@@ -1,7 +1,7 @@
 #[derive(Copy, Clone)]
 pub(crate) struct Shebang<'line> {
-  pub(crate) interpreter: &'line str,
   pub(crate) argument: Option<&'line str>,
+  pub(crate) interpreter: &'line str,
 }
 
 impl<'line> Shebang<'line> {
@@ -25,16 +25,16 @@ impl<'line> Shebang<'line> {
     }
 
     Some(Self {
-      interpreter,
       argument,
+      interpreter,
     })
   }
 
-  pub fn interpreter_filename(&self) -> &str {
+  pub(crate) fn interpreter_filename(&self) -> &str {
     self
       .interpreter
       .split(['/', '\\'])
-      .last()
+      .next_back()
       .unwrap_or(self.interpreter)
   }
 

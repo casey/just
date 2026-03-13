@@ -1,8 +1,8 @@
 use super::*;
 
 pub(crate) struct Loader {
-  srcs: Arena<String>,
   paths: Arena<PathBuf>,
+  srcs: Arena<String>,
 }
 
 impl Loader {

@@ -1,18 +1,42 @@
 use super::*;
 
-test! {
-  name:     test_os_arch_functions_in_interpolation,
-  justfile: r"
+#[test]
+fn test_os_arch_functions_in_interpolation() {
+  Test::new()
+    .justfile(
+      r"
 foo:
   echo {{arch()}} {{os()}} {{os_family()}} {{num_cpus()}}
 ",
-  stdout:   format!("{} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
-  stderr:   format!("echo {} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
+    )
+    .stdout(
+      format!(
+        "{} {} {} {}\n",
+        target::arch(),
+        target::os(),
+        target::family(),
+        num_cpus::get()
+      )
+      .as_str(),
+    )
+    .stderr(
+      format!(
+        "echo {} {} {} {}\n",
+        target::arch(),
+        target::os(),
+        target::family(),
+        num_cpus::get()
+      )
+      .as_str(),
+    )
+    .success();
 }
 
-test! {
-  name:     test_os_arch_functions_in_expression,
-  justfile: r"
+#[test]
+fn test_os_arch_functions_in_expression() {
+  Test::new()
+    .justfile(
+      r"
 a := arch()
 o := os()
 f := os_family()
@@ -21,14 +45,38 @@ n := num_cpus()
 foo:
   echo {{a}} {{o}} {{f}} {{n}}
 ",
-  stdout:   format!("{} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
-  stderr:   format!("echo {} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
+    )
+    .stdout(
+      format!(
+        "{} {} {} {}\n",
+        target::arch(),
+        target::os(),
+        target::family(),
+        num_cpus::get()
+      )
+      .as_str(),
+    )
+    .stderr(
+      format!(
+        "echo {} {} {} {}\n",
+        target::arch(),
+        target::os(),
+        target::family(),
+        num_cpus::get()
+      )
+      .as_str(),
+    )
+    .success();
 }
 
-#[cfg(not(windows))]
-test! {
-  name:     env_var_functions,
-  justfile: r"
+#[test]
+fn env_var_functions_unix() {
+  if cfg!(windows) {
+    return;
+  }
+  Test::new()
+    .justfile(
+      r"
 p := env_var('USER')
 b := env_var_or_default('ZADDY', 'HTAP')
 x := env_var_or_default('XYZ', 'ABC')
@@ -36,14 +84,26 @@ x := env_var_or_default('XYZ', 'ABC')
 foo:
   /usr/bin/env echo '{{p}}' '{{b}}' '{{x}}'
 ",
-  stdout:   format!("{} HTAP ABC\n", env::var("USER").unwrap()).as_str(),
-  stderr:   format!("/usr/bin/env echo '{}' 'HTAP' 'ABC'\n", env::var("USER").unwrap()).as_str(),
+    )
+    .stdout(format!("{} HTAP ABC\n", env::var("USER").unwrap()).as_str())
+    .stderr(
+      format!(
+        "/usr/bin/env echo '{}' 'HTAP' 'ABC'\n",
+        env::var("USER").unwrap()
+      )
+      .as_str(),
+    )
+    .success();
 }
 
-#[cfg(not(windows))]
-test! {
-  name: path_functions,
-  justfile: r"
+#[test]
+fn path_functions() {
+  if cfg!(windows) {
+    return;
+  }
+  Test::new()
+    .justfile(
+      r"
 we  := without_extension('/foo/bar/baz.hello')
 fs  := file_stem('/foo/bar/baz.hello')
 fn  := file_name('/foo/bar/baz.hello')
@@ -54,14 +114,20 @@ jn  := join('a', 'b')
 foo:
   /usr/bin/env echo '{{we}}' '{{fs}}' '{{fn}}' '{{dir}}' '{{ext}}' '{{jn}}'
 ",
-  stdout:   "/foo/bar/baz baz baz.hello /foo/bar hello a/b\n",
-  stderr:   "/usr/bin/env echo '/foo/bar/baz' 'baz' 'baz.hello' '/foo/bar' 'hello' 'a/b'\n",
+    )
+    .stdout("/foo/bar/baz baz baz.hello /foo/bar hello a/b\n")
+    .stderr("/usr/bin/env echo '/foo/bar/baz' 'baz' 'baz.hello' '/foo/bar' 'hello' 'a/b'\n")
+    .success();
 }
 
-#[cfg(not(windows))]
-test! {
-  name: path_functions2,
-  justfile: r"
+#[test]
+fn path_functions2() {
+  if cfg!(windows) {
+    return;
+  }
+  Test::new()
+    .justfile(
+      r"
 we  := without_extension('/foo/bar/baz')
 fs  := file_stem('/foo/bar/baz.hello.ciao')
 fn  := file_name('/bar/baz.hello.ciao')
@@ -71,335 +137,493 @@ ext := extension('/foo/bar/baz.hello.ciao')
 foo:
   /usr/bin/env echo '{{we}}' '{{fs}}' '{{fn}}' '{{dir}}' '{{ext}}'
 ",
-  stdout:   "/foo/bar/baz baz.hello baz.hello.ciao / ciao\n",
-  stderr:   "/usr/bin/env echo '/foo/bar/baz' 'baz.hello' 'baz.hello.ciao' '/' 'ciao'\n",
+    )
+    .stdout("/foo/bar/baz baz.hello baz.hello.ciao / ciao\n")
+    .stderr("/usr/bin/env echo '/foo/bar/baz' 'baz.hello' 'baz.hello.ciao' '/' 'ciao'\n")
+    .success();
 }
 
-#[cfg(not(windows))]
-test! {
-  name: broken_without_extension_function,
-  justfile: r"
+#[test]
+fn broken_without_extension_function() {
+  if cfg!(windows) {
+    return;
+  }
+  Test::new()
+    .justfile(
+      r"
 we  := without_extension('')
 
 foo:
   /usr/bin/env echo '{{we}}'
 ",
-  stdout:   "",
-  stderr:   format!("{} {}\n{}\n{}\n{}\n{}\n",
-    "error: Call to function `without_extension` failed:",
-    "Could not extract parent from ``",
-    " ——▶ justfile:1:8",
-    "  │",
-    "1 │ we  := without_extension(\'\')",
-    "  │        ^^^^^^^^^^^^^^^^^").as_str(),
-  status:   EXIT_FAILURE,
+    )
+    .stderr(
+      format!(
+        "{} {}\n{}\n{}\n{}\n{}\n",
+        "error: Call to function `without_extension` failed:",
+        "Could not extract parent from ``",
+        " ——▶ justfile:1:8",
+        "  │",
+        "1 │ we  := without_extension(\'\')",
+        "  │        ^^^^^^^^^^^^^^^^^"
+      )
+      .as_str(),
+    )
+    .failure();
 }
 
-#[cfg(not(windows))]
-test! {
-  name: broken_extension_function,
-  justfile: r"
+#[test]
+fn broken_extension_function() {
+  if cfg!(windows) {
+    return;
+  }
+  Test::new()
+    .justfile(
+      r"
 we  := extension('')
 
 foo:
   /usr/bin/env echo '{{we}}'
 ",
-  stdout:   "",
-  stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
-    "error: Call to function `extension` failed: Could not extract extension from ``",
-    " ——▶ justfile:1:8",
-    "  │",
-    "1 │ we  := extension(\'\')",
-    "  │        ^^^^^^^^^").as_str(),
-  status:   EXIT_FAILURE,
+    )
+    .stderr(
+      format!(
+        "{}\n{}\n{}\n{}\n{}\n",
+        "error: Call to function `extension` failed: Could not extract extension from ``",
+        " ——▶ justfile:1:8",
+        "  │",
+        "1 │ we  := extension(\'\')",
+        "  │        ^^^^^^^^^"
+      )
+      .as_str(),
+    )
+    .failure();
 }
 
-#[cfg(not(windows))]
-test! {
-  name: broken_extension_function2,
-  justfile: r"
+#[test]
+fn broken_extension_function2() {
+  if cfg!(windows) {
+    return;
+  }
+  Test::new()
+    .justfile(
+      r"
 we  := extension('foo')
 
 foo:
   /usr/bin/env echo '{{we}}'
 ",
-  stdout:   "",
-  stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
-    "error: Call to function `extension` failed: Could not extract extension from `foo`",
-    " ——▶ justfile:1:8",
-    "  │",
-    "1 │ we  := extension(\'foo\')",
-    "  │        ^^^^^^^^^").as_str(),
-  status:   EXIT_FAILURE,
+    )
+    .stderr(
+      format!(
+        "{}\n{}\n{}\n{}\n{}\n",
+        "error: Call to function `extension` failed: Could not extract extension from `foo`",
+        " ——▶ justfile:1:8",
+        "  │",
+        "1 │ we  := extension(\'foo\')",
+        "  │        ^^^^^^^^^"
+      )
+      .as_str(),
+    )
+    .failure();
 }
 
-#[cfg(not(windows))]
-test! {
-  name: broken_file_stem_function,
-  justfile: r"
+#[test]
+fn broken_file_stem_function() {
+  if cfg!(windows) {
+    return;
+  }
+  Test::new()
+    .justfile(
+      r"
 we  := file_stem('')
 
 foo:
   /usr/bin/env echo '{{we}}'
 ",
-  stdout:   "",
-  stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
-    "error: Call to function `file_stem` failed: Could not extract file stem from ``",
-    " ——▶ justfile:1:8",
-    "  │",
-    "1 │ we  := file_stem(\'\')",
-    "  │        ^^^^^^^^^").as_str(),
-  status:   EXIT_FAILURE,
+    )
+    .stderr(
+      format!(
+        "{}\n{}\n{}\n{}\n{}\n",
+        "error: Call to function `file_stem` failed: Could not extract file stem from ``",
+        " ——▶ justfile:1:8",
+        "  │",
+        "1 │ we  := file_stem(\'\')",
+        "  │        ^^^^^^^^^"
+      )
+      .as_str(),
+    )
+    .failure();
 }
 
-#[cfg(not(windows))]
-test! {
-  name: broken_file_name_function,
-  justfile: r"
+#[test]
+fn broken_file_name_function() {
+  if cfg!(windows) {
+    return;
+  }
+  Test::new()
+    .justfile(
+      r"
 we  := file_name('')
 
 foo:
   /usr/bin/env echo '{{we}}'
 ",
-  stdout:   "",
-  stderr:   format!("{}\n{}\n{}\n{}\n{}\n",
-    "error: Call to function `file_name` failed: Could not extract file name from ``",
-    " ——▶ justfile:1:8",
-    "  │",
-    "1 │ we  := file_name(\'\')",
-    "  │        ^^^^^^^^^").as_str(),
-  status:   EXIT_FAILURE,
+    )
+    .stderr(
+      format!(
+        "{}\n{}\n{}\n{}\n{}\n",
+        "error: Call to function `file_name` failed: Could not extract file name from ``",
+        " ——▶ justfile:1:8",
+        "  │",
+        "1 │ we  := file_name(\'\')",
+        "  │        ^^^^^^^^^"
+      )
+      .as_str(),
+    )
+    .failure();
 }
 
-#[cfg(not(windows))]
-test! {
-  name: broken_directory_function,
-  justfile: r"
+#[test]
+fn broken_directory_function() {
+  if cfg!(windows) {
+    return;
+  }
+  Test::new()
+    .justfile(
+      r"
 we  := parent_directory('')
 
 foo:
   /usr/bin/env echo '{{we}}'
 ",
-  stdout:   "",
-  stderr:   format!("{} {}\n{}\n{}\n{}\n{}\n",
-    "error: Call to function `parent_directory` failed:",
-    "Could not extract parent directory from ``",
-    " ——▶ justfile:1:8",
-    "  │",
-    "1 │ we  := parent_directory(\'\')",
-    "  │        ^^^^^^^^^^^^^^^^").as_str(),
-  status:   EXIT_FAILURE,
+    )
+    .stderr(
+      format!(
+        "{} {}\n{}\n{}\n{}\n{}\n",
+        "error: Call to function `parent_directory` failed:",
+        "Could not extract parent directory from ``",
+        " ——▶ justfile:1:8",
+        "  │",
+        "1 │ we  := parent_directory(\'\')",
+        "  │        ^^^^^^^^^^^^^^^^"
+      )
+      .as_str(),
+    )
+    .failure();
 }
 
-#[cfg(not(windows))]
-test! {
-  name: broken_directory_function2,
-  justfile: r"
+#[test]
+fn broken_directory_function2() {
+  if cfg!(windows) {
+    return;
+  }
+  Test::new()
+    .justfile(
+      r"
 we  := parent_directory('/')
 
 foo:
   /usr/bin/env echo '{{we}}'
 ",
-  stdout:   "",
-  stderr:   format!("{} {}\n{}\n{}\n{}\n{}\n",
-    "error: Call to function `parent_directory` failed:",
-    "Could not extract parent directory from `/`",
-    " ——▶ justfile:1:8",
-    "  │",
-    "1 │ we  := parent_directory(\'/\')",
-    "  │        ^^^^^^^^^^^^^^^^").as_str(),
-  status:   EXIT_FAILURE,
+    )
+    .stderr(
+      format!(
+        "{} {}\n{}\n{}\n{}\n{}\n",
+        "error: Call to function `parent_directory` failed:",
+        "Could not extract parent directory from `/`",
+        " ——▶ justfile:1:8",
+        "  │",
+        "1 │ we  := parent_directory(\'/\')",
+        "  │        ^^^^^^^^^^^^^^^^"
+      )
+      .as_str(),
+    )
+    .failure();
 }
 
-#[cfg(windows)]
-test! {
-  name:     env_var_functions,
-  justfile: r#"
+#[test]
+fn env_var_functions_windows() {
+  if cfg!(not(windows)) {
+    return;
+  }
+  Test::new()
+    .justfile(
+      r"
 p := env_var('USERNAME')
 b := env_var_or_default('ZADDY', 'HTAP')
 x := env_var_or_default('XYZ', 'ABC')
 
 foo:
   /usr/bin/env echo '{{p}}' '{{b}}' '{{x}}'
-"#,
-  stdout:   format!("{} HTAP ABC\n", env::var("USERNAME").unwrap()).as_str(),
-  stderr:   format!("/usr/bin/env echo '{}' 'HTAP' 'ABC'\n", env::var("USERNAME").unwrap()).as_str(),
+",
+    )
+    .stdout(format!("{} HTAP ABC\n", env::var("USERNAME").unwrap()).as_str())
+    .stderr(
+      format!(
+        "/usr/bin/env echo '{}' 'HTAP' 'ABC'\n",
+        env::var("USERNAME").unwrap()
+      )
+      .as_str(),
+    )
+    .success();
 }
 
-test! {
-  name:     env_var_failure,
-  justfile: "a:\n  echo {{env_var('ZADDY')}}",
-  args:     ("a"),
-  stdout:   "",
-  stderr:   "error: Call to function `env_var` failed: environment variable `ZADDY` not present
+#[test]
+fn env_var_failure() {
+  Test::new()
+    .arg("a")
+    .justfile("a:\n  echo {{env_var('ZADDY')}}")
+    .stderr(
+      "error: Call to function `env_var` failed: environment variable `ZADDY` not present
  ——▶ justfile:2:10
   │
 2 │   echo {{env_var('ZADDY')}}
   │          ^^^^^^^
 ",
-  status:   EXIT_FAILURE,
+    )
+    .failure();
 }
 
-test! {
-  name:     test_just_executable_function,
-  justfile: "
+#[test]
+fn test_just_executable_function() {
+  Test::new()
+    .arg("a")
+    .justfile(
+      "
     a:
       @printf 'Executable path is: %s\\n' '{{ just_executable() }}'
   ",
-  args:     ("a"),
-  stdout:   format!("Executable path is: {}\n", executable_path("just").to_str().unwrap()).as_str(),
-  stderr:   "",
-  status:   EXIT_SUCCESS,
+    )
+    .stdout(format!("Executable path is: {JUST}\n"))
+    .success();
 }
 
-test! {
-  name:     test_os_arch_functions_in_default,
-  justfile: r"
+#[test]
+fn test_os_arch_functions_in_default() {
+  Test::new()
+    .justfile(
+      r"
 foo a=arch() o=os() f=os_family() n=num_cpus():
   echo {{a}} {{o}} {{f}} {{n}}
 ",
-  stdout:   format!("{} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
-  stderr:   format!("echo {} {} {} {}\n", target::arch(), target::os(), target::family(), num_cpus::get()).as_str(),
+    )
+    .stdout(
+      format!(
+        "{} {} {} {}\n",
+        target::arch(),
+        target::os(),
+        target::family(),
+        num_cpus::get()
+      )
+      .as_str(),
+    )
+    .stderr(
+      format!(
+        "echo {} {} {} {}\n",
+        target::arch(),
+        target::os(),
+        target::family(),
+        num_cpus::get()
+      )
+      .as_str(),
+    )
+    .success();
 }
 
-test! {
-  name: clean,
-  justfile: "
+#[test]
+fn clean() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ clean('a/../b') }}
   ",
-  stdout: "b\n",
-  stderr: "echo b\n",
+    )
+    .stdout("b\n")
+    .stderr("echo b\n")
+    .success();
 }
 
-test! {
-  name: uppercase,
-  justfile: "
+#[test]
+fn uppercase() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ uppercase('bar') }}
   ",
-  stdout: "BAR\n",
-  stderr: "echo BAR\n",
+    )
+    .stdout("BAR\n")
+    .stderr("echo BAR\n")
+    .success();
 }
 
-test! {
-  name: lowercase,
-  justfile: "
+#[test]
+fn lowercase() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ lowercase('BAR') }}
   ",
-  stdout: "bar\n",
-  stderr: "echo bar\n",
+    )
+    .stdout("bar\n")
+    .stderr("echo bar\n")
+    .success();
 }
 
-test! {
-  name: uppercamelcase,
-  justfile: "
+#[test]
+fn uppercamelcase() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ uppercamelcase('foo bar') }}
   ",
-  stdout: "FooBar\n",
-  stderr: "echo FooBar\n",
+    )
+    .stdout("FooBar\n")
+    .stderr("echo FooBar\n")
+    .success();
 }
 
-test! {
-  name: lowercamelcase,
-  justfile: "
+#[test]
+fn lowercamelcase() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ lowercamelcase('foo bar') }}
   ",
-  stdout: "fooBar\n",
-  stderr: "echo fooBar\n",
+    )
+    .stdout("fooBar\n")
+    .stderr("echo fooBar\n")
+    .success();
 }
 
-test! {
-  name: snakecase,
-  justfile: "
+#[test]
+fn snakecase() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ snakecase('foo bar') }}
   ",
-  stdout: "foo_bar\n",
-  stderr: "echo foo_bar\n",
+    )
+    .stdout("foo_bar\n")
+    .stderr("echo foo_bar\n")
+    .success();
 }
 
-test! {
-  name: kebabcase,
-  justfile: "
+#[test]
+fn kebabcase() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ kebabcase('foo bar') }}
   ",
-  stdout: "foo-bar\n",
-  stderr: "echo foo-bar\n",
+    )
+    .stdout("foo-bar\n")
+    .stderr("echo foo-bar\n")
+    .success();
 }
 
-test! {
-  name: shoutysnakecase,
-  justfile: "
+#[test]
+fn shoutysnakecase() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ shoutysnakecase('foo bar') }}
   ",
-  stdout: "FOO_BAR\n",
-  stderr: "echo FOO_BAR\n",
+    )
+    .stdout("FOO_BAR\n")
+    .stderr("echo FOO_BAR\n")
+    .success();
 }
 
-test! {
-  name: titlecase,
-  justfile: "
+#[test]
+fn titlecase() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ titlecase('foo bar') }}
   ",
-  stdout: "Foo Bar\n",
-  stderr: "echo Foo Bar\n",
+    )
+    .stdout("Foo Bar\n")
+    .stderr("echo Foo Bar\n")
+    .success();
 }
 
-test! {
-  name: shoutykebabcase,
-  justfile: "
+#[test]
+fn shoutykebabcase() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ shoutykebabcase('foo bar') }}
   ",
-  stdout: "FOO-BAR\n",
-  stderr: "echo FOO-BAR\n",
+    )
+    .stdout("FOO-BAR\n")
+    .stderr("echo FOO-BAR\n")
+    .success();
 }
 
-test! {
-  name: trim,
-  justfile: "
+#[test]
+fn trim() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ trim('   bar   ') }}
   ",
-  stdout: "bar\n",
-  stderr: "echo bar\n",
+    )
+    .stdout("bar\n")
+    .stderr("echo bar\n")
+    .success();
 }
 
-test! {
-  name: replace,
-  justfile: "
+#[test]
+fn replace() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ replace('barbarbar', 'bar', 'foo') }}
   ",
-  stdout: "foofoofoo\n",
-  stderr: "echo foofoofoo\n",
+    )
+    .stdout("foofoofoo\n")
+    .stderr("echo foofoofoo\n")
+    .success();
 }
 
-test! {
-  name: replace_regex,
-  justfile: "
+#[test]
+fn replace_regex() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ replace_regex('123bar123bar123bar', '\\d+bar', 'foo') }}
   ",
-  stdout: "foofoofoo\n",
-  stderr: "echo foofoofoo\n",
+    )
+    .stdout("foofoofoo\n")
+    .stderr("echo foofoofoo\n")
+    .success();
 }
 
-test! {
-  name: invalid_replace_regex,
-  justfile: "
+#[test]
+fn invalid_replace_regex() {
+  Test::new()
+    .justfile(
+      "
     foo:
       echo {{ replace_regex('barbarbar', 'foo\\', 'foo') }}
   ",
-  stderr:
-"error: Call to function `replace_regex` failed: regex parse error:
+    )
+    .stderr(
+      "error: Call to function `replace_regex` failed: regex parse error:
     foo\\
        ^
 error: incomplete escape sequence, reached end of pattern prematurely
@@ -408,17 +632,22 @@ error: incomplete escape sequence, reached end of pattern prematurely
 2 │   echo {{ replace_regex('barbarbar', 'foo\\', 'foo') }}
   │           ^^^^^^^^^^^^^
 ",
-  status: EXIT_FAILURE,
+    )
+    .failure();
 }
 
-test! {
-    name: capitalize,
-    justfile: "
+#[test]
+fn capitalize() {
+  Test::new()
+    .justfile(
+      "
       foo:
         echo {{ capitalize('BAR') }}
     ",
-    stdout: "Bar\n",
-    stderr: "echo Bar\n",
+    )
+    .stdout("Bar\n")
+    .stderr("echo Bar\n")
+    .success();
 }
 
 #[test]
@@ -433,7 +662,7 @@ fn semver_matches() {
     )
     .stdout("true\nfalse\n")
     .stderr("echo true\necho false\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -515,8 +744,10 @@ fn prepend() {
 }
 
 #[test]
-#[cfg(not(windows))]
-fn join() {
+fn join_unix() {
+  if cfg!(windows) {
+    return;
+  }
   assert_eval_eq("join('a', 'b', 'c', 'd')", "a/b/c/d");
   assert_eval_eq("join('a', '/b', 'c', 'd')", "/b/c/d");
   assert_eval_eq("join('a', '/b', '/c', 'd')", "/c/d");
@@ -524,8 +755,10 @@ fn join() {
 }
 
 #[test]
-#[cfg(windows)]
-fn join() {
+fn join_windows() {
+  if cfg!(not(windows)) {
+    return;
+  }
   assert_eval_eq("join('a', 'b', 'c', 'd')", "a\\b\\c\\d");
   assert_eval_eq("join('a', '\\b', 'c', 'd')", "\\b\\c\\d");
   assert_eval_eq("join('a', '\\b', '\\c', 'd')", "\\c\\d");
@@ -546,8 +779,7 @@ fn join_argument_count_error() {
         │      ^^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -559,7 +791,7 @@ fn test_path_exists_filepath_exist() {
     .justfile("x := path_exists('testfile')")
     .args(["--evaluate", "x"])
     .stdout("true")
-    .run();
+    .success();
 }
 
 #[test]
@@ -568,7 +800,7 @@ fn test_path_exists_filepath_doesnt_exist() {
     .justfile("x := path_exists('testfile')")
     .args(["--evaluate", "x"])
     .stdout("false")
-    .run();
+    .success();
 }
 
 #[test]
@@ -576,7 +808,6 @@ fn error_errors_with_message() {
   Test::new()
     .justfile("x := error ('Thing Not Supported')")
     .args(["--evaluate"])
-    .status(1)
     .stderr(
       "
       error: Call to function `error` failed: Thing Not Supported
@@ -586,7 +817,7 @@ fn error_errors_with_message() {
         │      ^^^^^
     ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -606,7 +837,7 @@ fn test_absolute_path_resolves() {
 
   test_object
     .stdout(tempdir.join("test_file").to_str().unwrap().to_owned())
-    .run();
+    .success();
 }
 
 #[test]
@@ -634,7 +865,7 @@ fn test_absolute_path_resolves_parent() {
         .unwrap()
         .to_owned(),
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -649,7 +880,7 @@ fn path_exists_subdir() {
     .current_dir("bar")
     .args(["--evaluate", "x"])
     .stdout("true")
-    .run();
+    .success();
 }
 
 #[test]
@@ -658,7 +889,7 @@ fn uuid() {
     .justfile("x := uuid()")
     .args(["--evaluate", "x"])
     .stdout_regex("........-....-....-....-............")
-    .run();
+    .success();
 }
 
 #[test]
@@ -667,7 +898,7 @@ fn choose() {
     .justfile(r"x := choose('10', 'xXyYzZ')")
     .args(["--evaluate", "x"])
     .stdout_regex("^[X-Zx-z]{10}$")
-    .run();
+    .success();
 }
 
 #[test]
@@ -675,7 +906,6 @@ fn choose_bad_alphabet_empty() {
   Test::new()
     .justfile("x := choose('10', '')")
     .args(["--evaluate"])
-    .status(1)
     .stderr(
       "
       error: Call to function `choose` failed: empty alphabet
@@ -685,7 +915,7 @@ fn choose_bad_alphabet_empty() {
         │      ^^^^^^
     ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -693,7 +923,6 @@ fn choose_bad_alphabet_repeated() {
   Test::new()
     .justfile("x := choose('10', 'aa')")
     .args(["--evaluate"])
-    .status(1)
     .stderr(
       "
       error: Call to function `choose` failed: alphabet contains repeated character `a`
@@ -703,7 +932,7 @@ fn choose_bad_alphabet_repeated() {
         │      ^^^^^^
     ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -711,7 +940,6 @@ fn choose_bad_length() {
   Test::new()
     .justfile("x := choose('foo', HEX)")
     .args(["--evaluate"])
-    .status(1)
     .stderr(
       "
       error: Call to function `choose` failed: failed to parse `foo` as positive integer: invalid digit found in string
@@ -721,7 +949,7 @@ fn choose_bad_length() {
         │      ^^^^^^
     ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -730,7 +958,7 @@ fn sha256() {
     .justfile("x := sha256('5943ee37-0000-1000-8000-010203040506')")
     .args(["--evaluate", "x"])
     .stdout("2330d7f5eb94a820b54fed59a8eced236f80b633a504289c030b6a65aef58871")
-    .run();
+    .success();
 }
 
 #[test]
@@ -745,7 +973,7 @@ fn sha256_file() {
     .current_dir("sub")
     .args(["--evaluate", "x"])
     .stdout("177b3d79aaafb53a7a4d7aaba99a82f27c73370e8cb0295571aade1e4fea1cd2")
-    .run();
+    .success();
 }
 
 #[test]
@@ -754,7 +982,7 @@ fn just_pid() {
     .args(["--evaluate", "x"])
     .justfile("x := just_pid()")
     .stdout_regex(r"\d+")
-    .run();
+    .success();
 
   assert_eq!(stdout.parse::<u32>().unwrap(), pid);
 }
@@ -773,8 +1001,7 @@ fn shell_no_argument() {
         │        ^^^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -806,8 +1033,7 @@ fn shell_error() {
         │        ^^^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -816,7 +1042,7 @@ fn blake3() {
     .justfile("x := blake3('5943ee37-0000-1000-8000-010203040506')")
     .args(["--evaluate", "x"])
     .stdout("026c9f740a793ff536ddf05f8915ea4179421f47f0fa9545476076e9ba8f3f2b")
-    .run();
+    .success();
 }
 
 #[test]
@@ -831,7 +1057,7 @@ fn blake3_file() {
     .current_dir("sub")
     .args(["--evaluate", "x"])
     .stdout("8379241877190ca4b94076a8c8f89fe5747f95c62f3e4bf41f7408a0088ae16d")
-    .run();
+    .success();
 }
 
 #[cfg(unix)]
@@ -842,7 +1068,7 @@ fn canonicalize() {
     .justfile("x := canonicalize('foo')")
     .symlink("justfile", "foo")
     .stdout_regex(".*/justfile")
-    .run();
+    .success();
 }
 
 #[test]
@@ -851,7 +1077,7 @@ fn encode_uri_component() {
     .justfile("x := encode_uri_component(\"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\\\"#$%&'()*+,-./:;<=>?@[\\\\]^_`{|}~ \\t\\r\\n🌐\")")
     .args(["--evaluate", "x"])
     .stdout("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!%22%23%24%25%26'()*%2B%2C-.%2F%3A%3B%3C%3D%3E%3F%40%5B%5C%5D%5E_%60%7B%7C%7D~%20%09%0D%0A%F0%9F%8C%90")
-    .run();
+    .success();
 }
 
 #[test]
@@ -860,7 +1086,7 @@ fn source_file() {
     .args(["--evaluate", "x"])
     .justfile("x := source_file()")
     .stdout_regex(r".*[/\\]justfile")
-    .run();
+    .success();
 
   Test::new()
     .args(["--evaluate", "x"])
@@ -871,7 +1097,7 @@ fn source_file() {
     )
     .write("foo.just", "x := source_file()")
     .stdout_regex(r".*[/\\]foo.just")
-    .run();
+    .success();
 
   Test::new()
     .args(["foo", "bar"])
@@ -882,7 +1108,7 @@ fn source_file() {
     )
     .write("foo.just", "x := source_file()\nbar:\n @echo '{{x}}'")
     .stdout_regex(r".*[/\\]foo.just\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -899,7 +1125,7 @@ fn source_directory() {
       "x := source_directory()\nbar:\n @echo '{{x}}'",
     )
     .stdout_regex(r".*[/\\]foo\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1020,7 +1246,7 @@ import
 .*[/\\]just-test-tempdir......[/\\]baz
 ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1037,13 +1263,13 @@ fn is_dependency() {
     .args(["alpha"])
     .justfile(justfile)
     .stdout("beta true\ngamma true\nalpha false\n")
-    .run();
+    .success();
 
   Test::new()
     .args(["beta"])
     .justfile(justfile)
     .stdout("beta false\ngamma true\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1060,8 +1286,7 @@ fn unary_argument_count_mismamatch_error_message() {
         │      ^^^^^^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1076,7 +1301,7 @@ fn dir_abbreviations_are_accepted() {
         # {{ assert(abbreviated == unabbreviated, 'fail') }}
     ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1091,7 +1316,7 @@ fn invocation_dir_native_abbreviation_is_accepted() {
         # {{ assert(abbreviated == unabbreviated, 'fail') }}
     ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1109,7 +1334,7 @@ bar:
     )
     .stdout_regex(r".*[/\\]foo[/\\]baz\n")
     .args(["foo", "bar"])
-    .run();
+    .success();
 }
 
 #[test]
@@ -1127,7 +1352,7 @@ bar:
     )
     .stdout("af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262\n")
     .args(["foo", "bar"])
-    .run();
+    .success();
 }
 
 #[test]
@@ -1145,7 +1370,7 @@ bar:
     )
     .stdout_regex(r".*[/\\]foo[/\\]baz\n")
     .args(["foo", "bar"])
-    .run();
+    .success();
 }
 
 #[test]
@@ -1163,7 +1388,7 @@ bar:
     )
     .stdout_regex("true\n")
     .args(["foo", "bar"])
-    .run();
+    .success();
 }
 
 #[test]
@@ -1181,7 +1406,7 @@ bar:
     )
     .stdout_regex("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n")
     .args(["foo", "bar"])
-    .run();
+    .success();
 }
 
 #[test]
@@ -1194,7 +1419,7 @@ fn style_command_default() {
       "#,
     )
     .stdout("\x1b[1mfoo\x1b[0m\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1208,7 +1433,7 @@ fn style_command_non_default() {
     )
     .args(["--command-color", "red"])
     .stdout("\x1b[1;31mfoo\x1b[0m\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1221,7 +1446,7 @@ fn style_error() {
       "#,
     )
     .stdout("\x1b[1;31mfoo\x1b[0m\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1234,7 +1459,7 @@ fn style_warning() {
       "#,
     )
     .stdout("\x1b[1;33mfoo\x1b[0m\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1255,8 +1480,7 @@ fn style_unknown() {
           │             ^^^^^
       "#,
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1266,7 +1490,7 @@ fn read() {
     .write("bar", "baz")
     .args(["--evaluate", "foo"])
     .stdout("baz")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1275,6 +1499,5 @@ fn read_file_not_found() {
     .justfile("foo := read('bar')")
     .args(["--evaluate", "foo"])
     .stderr_regex(r"error: Call to function `read` failed: I/O error reading `bar`: .*")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }

@@ -9,8 +9,7 @@ fn bugfix() {
   Test::new()
     .justfile(&justfile)
     .stderr(RECURSION_LIMIT_REACHED)
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[cfg(not(windows))]

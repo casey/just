@@ -5,7 +5,7 @@ fn argument_with_different_path_prefix_is_allowed() {
   Test::new()
     .justfile("foo bar:")
     .args(["./foo", "../bar"])
-    .run();
+    .success();
 }
 
 #[test]
@@ -25,5 +25,5 @@ fn passing_dot_as_argument_is_allowed() {
     .args(["say", "."])
     .stdout(".\n")
     .stderr_regex("'.*' ../say .\necho .\n")
-    .run();
+    .success();
 }
