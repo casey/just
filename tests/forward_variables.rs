@@ -367,3 +367,165 @@ fn value_with_consecutive_single_quotes() {
     .stdout(r#"v1=''\'''\'''"#)
     .success();
 }
+
+// ── forward_variables_with(sep, prefix, kvsep, names...) ──
+
+#[test]
+fn with_psql_format() {
+  Test::new()
+    .justfile(
+      r#"
+      table_name := 'users'
+      uid := '42'
+      fwd := forward_variables_with(' ', '-v ', '=', 'table_name', 'uid')
+    "#,
+    )
+    .args(["--set", "table_name", "orders"])
+    .args(["--set", "uid", "100"])
+    .args(["--evaluate", "fwd"])
+    .stdout("-v table_name='orders' -v uid='100'")
+    .success();
+}
+
+#[test]
+fn with_docker_build_arg_format() {
+  Test::new()
+    .justfile(
+      r#"
+      node_env := 'dev'
+      fwd := forward_variables_with(' ', '--build-arg ', '=', 'node_env')
+    "#,
+    )
+    .args(["--set", "node_env", "production"])
+    .args(["--evaluate", "fwd"])
+    .stdout("--build-arg node_env='production'")
+    .success();
+}
+
+#[test]
+fn with_cmake_format() {
+  Test::new()
+    .justfile(
+      r#"
+      build_type := 'Debug'
+      fwd := forward_variables_with(' ', '-D', '=', 'build_type')
+    "#,
+    )
+    .args(["--set", "build_type", "Release"])
+    .args(["--evaluate", "fwd"])
+    .stdout("-Dbuild_type='Release'")
+    .success();
+}
+
+#[test]
+fn with_all_overrides_no_names() {
+  Test::new()
+    .justfile(
+      r#"
+      v1 := 'a'
+      v2 := 'b'
+      fwd := forward_variables_with(' ', '-v ', '=')
+    "#,
+    )
+    .args(["--set", "v1", "x"])
+    .args(["--set", "v2", "y"])
+    .args(["--evaluate", "fwd"])
+    .stdout("-v v1='x' -v v2='y'")
+    .success();
+}
+
+#[test]
+fn with_no_overrides_returns_empty() {
+  Test::new()
+    .justfile(
+      r#"
+      v1 := 'a'
+      fwd := forward_variables_with(' ', '-v ', '=')
+    "#,
+    )
+    .args(["--evaluate", "fwd"])
+    .stdout("")
+    .success();
+}
+
+#[test]
+fn with_empty_prefix() {
+  Test::new()
+    .justfile(
+      r#"
+      v1 := 'a'
+      fwd := forward_variables_with(' ', '', '=', 'v1')
+    "#,
+    )
+    .args(["--set", "v1", "hello"])
+    .args(["--evaluate", "fwd"])
+    .stdout("v1='hello'")
+    .success();
+}
+
+#[test]
+fn with_value_containing_single_quotes() {
+  Test::new()
+    .justfile(
+      r#"
+      msg := 'hi'
+      fwd := forward_variables_with(' ', '-v ', '=', 'msg')
+    "#,
+    )
+    .args(["--set", "msg", "it's"])
+    .args(["--evaluate", "fwd"])
+    .stdout(r#"-v msg='it'\''s'"#)
+    .success();
+}
+
+#[test]
+fn with_custom_kvsep() {
+  Test::new()
+    .justfile(
+      r#"
+      k1 := 'a'
+      fwd := forward_variables_with(' ', '', ':', 'k1')
+    "#,
+    )
+    .args(["--set", "k1", "val"])
+    .args(["--evaluate", "fwd"])
+    .stdout("k1:'val'")
+    .success();
+}
+
+#[test]
+fn with_selective_missing_override() {
+  Test::new()
+    .justfile(
+      r#"
+      v1 := 'a'
+      v2 := 'b'
+      fwd := forward_variables_with(' ', '-v ', '=', 'v1', 'v2')
+    "#,
+    )
+    .args(["--set", "v1", "hello"])
+    .args(["--evaluate", "fwd"])
+    .stdout("-v v1='hello'")
+    .success();
+}
+
+#[test]
+fn with_forward_to_child_process() {
+  Test::new()
+    .justfile(
+      r#"
+      v1 := "x"
+
+      a:
+          @echo {{ v1 }}
+
+      c:
+          @{{ just_executable() }} --justfile {{ justfile() }} {{ forward_variables_with(' ', '', '=', 'v1') }} a
+    "#,
+    )
+    .arg("v1=y")
+    .arg("c")
+    .stdout("y\n")
+    .stderr_regex(".*")
+    .success();
+}
