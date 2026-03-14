@@ -4657,7 +4657,7 @@ to `just` include:
 - [haku](https://github.com/VladimirMarkelov/haku): A make-like command runner
   written in Rust.
 - [mise](https://mise.jdx.dev/): A development environment tool manager written
-  in Rust supporing tasks in TOML files and standalone scripts.
+  in Rust supporting tasks in TOML files and standalone scripts.
 
 Contributing
 ------------
