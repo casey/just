@@ -43,6 +43,7 @@ pub(crate) use {
     format_string_part::FormatStringPart,
     fragment::Fragment,
     function::Function,
+    id::Id,
     interpreter::Interpreter,
     invocation::Invocation,
     invocation_parser::InvocationParser,
@@ -58,6 +59,7 @@ pub(crate) use {
     module_path::ModulePath,
     name::Name,
     namepath::Namepath,
+    numerator::Numerator,
     ordinal::Ordinal,
     output_error::OutputError,
     parameter::Parameter,
@@ -229,6 +231,7 @@ mod filesystem;
 mod format_string_part;
 mod fragment;
 mod function;
+mod id;
 mod interpreter;
 mod invocation;
 mod invocation_parser;
@@ -244,6 +247,7 @@ mod loader;
 mod module_path;
 mod name;
 mod namepath;
+mod numerator;
 mod ordinal;
 mod output_error;
 mod parameter;

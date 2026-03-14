@@ -5,6 +5,8 @@ pub(crate) struct Parameter<'src> {
   pub(crate) default: Option<Expression<'src>>,
   pub(crate) export: bool,
   pub(crate) help: Option<String>,
+  #[serde(skip)]
+  pub(crate) id: Id,
   pub(crate) kind: ParameterKind,
   pub(crate) long: Option<String>,
   pub(crate) name: Name<'src>,

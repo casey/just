@@ -82,14 +82,24 @@ impl<'src> Justfile<'src> {
     root: &'run Scope<'src, 'run>,
     scopes: &mut BTreeMap<String, (&'run Self, &'run Scope<'src, 'run>)>,
     search: &'run Search,
+    variable_references: Option<&HashSet<Id>>,
   ) -> RunResult<'src> {
-    let scope = Evaluator::evaluate_assignments(config, dotenv, self, root, search)?;
+    let scope =
+      Evaluator::evaluate_assignments(config, dotenv, self, root, search, variable_references)?;
 
     let scope = arena.alloc(scope);
     scopes.insert(self.module_path.clone(), (self, scope));
 
     for module in self.modules.values() {
-      module.evaluate_scopes(arena, config, dotenv, scope, scopes, search)?;
+      module.evaluate_scopes(
+        arena,
+        config,
+        dotenv,
+        scope,
+        scopes,
+        search,
+        variable_references,
+      )?;
     }
 
     Ok(())
@@ -123,9 +133,6 @@ impl<'src> Justfile<'src> {
     let root = Scope::root();
     let arena = Arena::new();
     let mut scopes = BTreeMap::new();
-    self.evaluate_scopes(&arena, config, &dotenv, &root, &mut scopes, search)?;
-
-    let scope = scopes.get(&self.module_path).unwrap().1;
 
     match &config.subcommand {
       Subcommand::Choose { .. } | Subcommand::Run { .. } => {
@@ -138,6 +145,37 @@ impl<'src> Justfile<'src> {
             invocations: invocations.len(),
           });
         }
+
+        let variable_references = if self.settings.lazy {
+          Some(
+            invocations
+              .iter()
+              .flat_map(|invocation| {
+                iter::once(invocation.recipe).chain(
+                  invocation
+                    .recipe
+                    .dependencies
+                    .iter()
+                    .map(|dependency| dependency.recipe.as_ref()),
+                )
+              })
+              .flat_map(|recipe| &recipe.variable_references)
+              .copied()
+              .collect::<HashSet<Id>>(),
+          )
+        } else {
+          None
+        };
+
+        self.evaluate_scopes(
+          &arena,
+          config,
+          &dotenv,
+          &root,
+          &mut scopes,
+          search,
+          variable_references.as_ref(),
+        )?;
 
         let ran = Ran::default();
         for invocation in invocations {
@@ -170,7 +208,8 @@ impl<'src> Justfile<'src> {
           .args(arguments)
           .current_dir(&search.working_directory);
 
-        let scope = scope.child();
+        self.evaluate_scopes(&arena, config, &dotenv, &root, &mut scopes, search, None)?;
+        let scope = scopes.get(&self.module_path).unwrap().1.child();
 
         command.export(&self.settings, &dotenv, &scope, &self.unexports);
 
@@ -197,6 +236,9 @@ impl<'src> Justfile<'src> {
         Ok(())
       }
       Subcommand::Evaluate { variable, .. } => {
+        self.evaluate_scopes(&arena, config, &dotenv, &root, &mut scopes, search, None)?;
+        let scope = scopes.get(&self.module_path).unwrap().1;
+
         if let Some(variable) = variable {
           if let Some(value) = scope.value(variable) {
             print!("{value}");

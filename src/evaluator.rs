@@ -34,6 +34,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           scope.bind(Binding {
             export: assignment.export,
             file_depth: 0,
+            id: assignment.id,
             name: assignment.name,
             prelude: false,
             private: assignment.private,
@@ -109,6 +110,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         Setting::IgnoreComments(value) => {
           settings.ignore_comments = value;
         }
+        Setting::Lazy(value) => {
+          settings.lazy = value;
+        }
         Setting::NoExitMessage(value) => {
           settings.no_exit_message = value;
         }
@@ -165,6 +169,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     module: &'run Justfile<'src>,
     parent: &'run Scope<'src, 'run>,
     search: &'run Search,
+    variable_references: Option<&HashSet<Id>>,
   ) -> RunResult<'src, Scope<'src, 'run>>
   where
     'src: 'run,
@@ -186,6 +191,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           scope.bind(Binding {
             export: assignment.export,
             file_depth: 0,
+            id: assignment.id,
             name: assignment.name,
             prelude: false,
             private: assignment.private,
@@ -213,7 +219,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     };
 
     for assignment in module.assignments.values() {
-      evaluator.evaluate_assignment(assignment)?;
+      if variable_references
+        .is_none_or(|variable_references| variable_references.contains(&assignment.id))
+      {
+        evaluator.evaluate_assignment(assignment)?;
+      }
     }
 
     Ok(evaluator.scope)
@@ -227,6 +237,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       self.scope.bind(Binding {
         export: assignment.export,
         file_depth: 0,
+        id: assignment.id,
         name: assignment.name,
         prelude: false,
         private: assignment.private,
@@ -561,6 +572,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       evaluator.scope.bind(Binding {
         export: parameter.export,
         file_depth: 0,
+        id: parameter.id,
         name: parameter.name,
         prelude: false,
         private: false,
