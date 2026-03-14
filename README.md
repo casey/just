@@ -1825,15 +1825,11 @@ foo := env('FOO', '') || 'DEFAULT_VALUE'
 
 #### Invocation Information
 
-- `is_dependency()` - Returns the string `true` if the current recipe is being
-  run as a dependency of another recipe, rather than being run directly,
-  otherwise returns the string `false`.
+- `is_dependency()` — Returns the string `true` if the current recipe is being run as a dependency of another recipe, rather than being run directly, otherwise returns the string `false`.
 
 #### Variable Forwarding
 
-- `forward_variables(names...)` - Returns command-line variable overrides as
-  shell-safe `key='value'` pairs, joined by spaces. If `names` are given, only
-  matching keys are included. Single quotes in values are properly escaped.
+- `forward_variables(names...)` — Returns command-line variable overrides as shell-safe `key='value'` pairs, joined by spaces. If `names` are given, only matching keys are included. Single quotes in values are properly escaped.
 
 Forward all overrides to a child `just` invocation:
 
@@ -1844,7 +1840,7 @@ build:
   @echo "Building in {{mode}} mode"
 
 run:
-  {{ just_executable() }} --justfile {{ justfile() }} {{ forward_variables() }} build
+  {{ just_executable() }} {{ forward_variables() }} build
 ```
 
 ```console
@@ -1855,17 +1851,47 @@ Building in release mode
 Forward only selected variables:
 
 ```just
-host := 'localhost'
-port := '3000'
+table_name := 'users'
+uid := '42'
 debug := 'false'
 
 deploy:
-  echo "./deploy.sh {{ forward_variables('host', 'port') }}"
+  echo "./deploy.sh {{ forward_variables('table_name', 'uid') }}"
 ```
 
 ```console
-$ just host=prod.example.com port=8080 debug=true deploy
-./deploy.sh host='prod.example.com' port='8080'
+$ just table_name=orders uid=100 debug=true deploy
+./deploy.sh table_name='orders' uid='100'
+```
+
+- `forward_variables_with(sep, prefix, kvsep, names...)` — Like `forward_variables`, but with customizable separator, prefix, and key-value separator. Each pair is formatted as `prefix + key + kvsep + quoted_value`, joined by `sep`.
+
+```just
+mode := 'dev'
+
+build:
+  @echo "Building in {{mode}} mode"
+
+run:
+  echo "just {{ forward_variables_with(' ', '--set ', ' ') }} build"
+```
+
+```console
+$ just mode=release run
+just --set mode 'release' build
+```
+
+```just
+table_name := 'users'
+uid := '42'
+
+query:
+  echo "psql {{ forward_variables_with(' ', '-v ', '=', 'table_name', 'uid') }} -f query.sql"
+```
+
+```console
+$ just table_name=orders uid=100 query
+psql -v table_name='orders' -v uid='100' -f query.sql
 ```
 
 #### Invocation Directory

@@ -1144,9 +1144,9 @@ $ just
 
 #### 變數轉發
 
-- `forward_variables(names...)` - 將指令中，**覆寫**的變數，回傳：以 shell 安全的 `key='value'` 格式，多個**鍵值對**以空格連接。如果指定了 `names`，則只包含指定的鍵。值中的單引號會被正確跳脫。
+- `forward_variables(names...)` — 將命令列覆寫的變數以 shell 安全的 `key='value'` 格式回傳，多組鍵值對以空格連接。若指定了 `names`，則只包含對應的 key。值中的單引號會被正確跳脫。
 
-將所有覆寫的變數，轉發給子 `just` ：
+將所有覆寫的變數轉發給子 `just`：
 
 ```just
 mode := 'dev'
@@ -1155,7 +1155,7 @@ build:
   @echo "Building in {{mode}} mode"
 
 run:
-  {{ just_executable() }} --justfile {{ justfile() }} {{ forward_variables() }} build
+  {{ just_executable() }} {{ forward_variables() }} build
 ```
 
 ```console
@@ -1163,20 +1163,50 @@ $ just mode=release run
 Building in release mode
 ```
 
-Forward only selected variables:
+只轉發指定的變數：
 
 ```just
-host := 'localhost'
-port := '3000'
+table_name := 'users'
+uid := '42'
 debug := 'false'
 
 deploy:
-  echo "./deploy.sh {{ forward_variables('host', 'port') }}"
+  echo "./deploy.sh {{ forward_variables('table_name', 'uid') }}"
 ```
 
 ```console
-$ just host=prod.example.com port=8080 debug=true deploy
-./deploy.sh host='prod.example.com' port='8080'
+$ just table_name=orders uid=100 debug=true deploy
+./deploy.sh table_name='orders' uid='100'
+```
+
+- `forward_variables_with(sep, prefix, kvsep, names...)` — 與 `forward_variables` 類似，但可自訂分隔符、前綴與鍵值分隔符。每對格式為 `prefix + key + kvsep + 引號包裹的值`，以 `sep` 連接。
+
+```just
+mode := 'dev'
+
+build:
+  @echo "Building in {{mode}} mode"
+
+run:
+  echo "just {{ forward_variables_with(' ', '--set ', ' ') }} build"
+```
+
+```console
+$ just mode=release run
+just --set mode 'release' build
+```
+
+```just
+table_name := 'users'
+uid := '42'
+
+query:
+  echo "psql {{ forward_variables_with(' ', '-v ', '=', 'table_name', 'uid') }} -f query.sql"
+```
+
+```console
+$ just table_name=orders uid=100 query
+psql -v table_name='orders' -v uid='100' -f query.sql
 ```
 
 #### 调用目录
