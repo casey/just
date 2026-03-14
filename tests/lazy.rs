@@ -10,9 +10,8 @@ fn lazy_is_unstable() {
         foo:
       ",
     )
-    .arg("foo")
     .stderr_regex(r"error: The `lazy` setting is currently unstable\. .*")
-    .status(1);
+    .failure();
 }
 
 #[test]
@@ -29,7 +28,6 @@ fn unused_assignment_not_evaluated() {
     ",
     )
     .env("JUST_UNSTABLE", "1")
-    .arg("foo")
     .stdout("foo\n")
     .success();
 }
@@ -48,7 +46,6 @@ fn used_assignment_evaluated() {
     ",
     )
     .env("JUST_UNSTABLE", "1")
-    .arg("foo")
     .stderr(
       "
         error: Backtick failed with exit code 1
@@ -58,7 +55,7 @@ fn used_assignment_evaluated() {
           │      ^^^^^^^^
       ",
     )
-    .status(1);
+    .failure();
 }
 
 #[test]
@@ -76,7 +73,6 @@ fn transitively_used_assignment_evaluated() {
     ",
     )
     .env("JUST_UNSTABLE", "1")
-    .arg("foo")
     .stderr(
       "
         error: Backtick failed with exit code 1
@@ -86,7 +82,7 @@ fn transitively_used_assignment_evaluated() {
           │      ^^^^^^^^
       ",
     )
-    .status(1);
+    .failure();
 }
 
 #[test]
@@ -102,7 +98,6 @@ fn assignment_used_in_parameter_default_evaluated() {
     ",
     )
     .env("JUST_UNSTABLE", "1")
-    .arg("foo")
     .stderr(
       "
         error: Backtick failed with exit code 1
@@ -112,7 +107,7 @@ fn assignment_used_in_parameter_default_evaluated() {
           │      ^^^^^^^^
       ",
     )
-    .status(1);
+    .failure();
 }
 
 #[test]
@@ -130,7 +125,6 @@ fn assignment_used_in_dependency_argument_evaluated() {
     ",
     )
     .env("JUST_UNSTABLE", "1")
-    .arg("foo")
     .stderr(
       "
         error: Backtick failed with exit code 1
@@ -140,7 +134,7 @@ fn assignment_used_in_dependency_argument_evaluated() {
           │      ^^^^^^^^
       ",
     )
-    .status(1);
+    .failure();
 }
 
 #[test]
@@ -157,7 +151,6 @@ fn assignment_in_body_interpolation_evaluated() {
     ",
     )
     .env("JUST_UNSTABLE", "1")
-    .arg("foo")
     .stderr(
       "
         error: Backtick failed with exit code 1
@@ -167,7 +160,7 @@ fn assignment_in_body_interpolation_evaluated() {
           │      ^^^^^^^^
       ",
     )
-    .status(1);
+    .failure();
 }
 
 #[test]
@@ -210,7 +203,6 @@ fn assignment_used_in_dependency_evaluated() {
     ",
     )
     .env("JUST_UNSTABLE", "1")
-    .arg("foo")
     .stderr(
       "
         error: Backtick failed with exit code 1
@@ -220,5 +212,23 @@ fn assignment_used_in_dependency_evaluated() {
           │      ^^^^^^^^
       ",
     )
-    .status(1);
+    .failure();
+}
+
+#[test]
+fn exported_assignment_is_evaluated() {
+  Test::new()
+    .justfile(
+      "
+      set lazy
+
+      export x := 'FOO'
+
+      bar:
+        @echo $x
+    ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("FOO\n")
+    .success();
 }

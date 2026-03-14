@@ -219,8 +219,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     };
 
     for assignment in module.assignments.values() {
-      if variable_references
-        .is_none_or(|variable_references| variable_references.contains(&assignment.number))
+      if assignment.export
+        || variable_references
+          .is_none_or(|variable_references| variable_references.contains(&assignment.number))
       {
         evaluator.evaluate_assignment(assignment)?;
       }
