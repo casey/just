@@ -1142,6 +1142,43 @@ $ just
 
 - `env_var_or_default(key, default)` — 获取名称为 `key` 的环境变量，如果不存在则返回 `default`。
 
+#### 變數轉發
+
+- `forward_variables(names...)` - 將指令中，**覆寫**的變數，回傳：以 shell 安全的 `key='value'` 格式，多個**鍵值對**以空格連接。如果指定了 `names`，則只包含指定的鍵。值中的單引號會被正確跳脫。
+
+將所有覆寫的變數，轉發給子 `just` ：
+
+```just
+mode := 'dev'
+
+build:
+  @echo "Building in {{mode}} mode"
+
+run:
+  {{ just_executable() }} --justfile {{ justfile() }} {{ forward_variables() }} build
+```
+
+```console
+$ just mode=release run
+Building in release mode
+```
+
+Forward only selected variables:
+
+```just
+host := 'localhost'
+port := '3000'
+debug := 'false'
+
+deploy:
+  echo "./deploy.sh {{ forward_variables('host', 'port') }}"
+```
+
+```console
+$ just host=prod.example.com port=8080 debug=true deploy
+./deploy.sh host='prod.example.com' port='8080'
+```
+
 #### 调用目录
 
 - `invocation_directory()` - 获取 `just` 被调用时当前目录所对应的绝对路径，在 `just` 改变路径并执行相应命令前。

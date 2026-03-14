@@ -1829,6 +1829,45 @@ foo := env('FOO', '') || 'DEFAULT_VALUE'
   run as a dependency of another recipe, rather than being run directly,
   otherwise returns the string `false`.
 
+#### Variable Forwarding
+
+- `forward_variables(names...)` - Returns command-line variable overrides as
+  shell-safe `key='value'` pairs, joined by spaces. If `names` are given, only
+  matching keys are included. Single quotes in values are properly escaped.
+
+Forward all overrides to a child `just` invocation:
+
+```just
+mode := 'dev'
+
+build:
+  @echo "Building in {{mode}} mode"
+
+run:
+  {{ just_executable() }} --justfile {{ justfile() }} {{ forward_variables() }} build
+```
+
+```console
+$ just mode=release run
+Building in release mode
+```
+
+Forward only selected variables:
+
+```just
+host := 'localhost'
+port := '3000'
+debug := 'false'
+
+deploy:
+  echo "./deploy.sh {{ forward_variables('host', 'port') }}"
+```
+
+```console
+$ just host=prod.example.com port=8080 debug=true deploy
+./deploy.sh host='prod.example.com' port='8080'
+```
+
 #### Invocation Directory
 
 - `invocation_directory()` - Retrieves the absolute path to the current
