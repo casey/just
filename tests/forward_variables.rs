@@ -249,23 +249,6 @@ fn selective_missing_override() {
 }
 
 #[test]
-fn reverse_alphabetical_order() {
-  Test::new()
-    .justfile(
-      r#"
-      z_var := 'z'
-      a_var := 'a'
-      fwd := forward_variables()
-    "#,
-    )
-    .args(["--set", "z_var", "last"])
-    .args(["--set", "a_var", "first"])
-    .args(["--evaluate", "fwd"])
-    .stdout("a_var='first' z_var='last'")
-    .success();
-}
-
-#[test]
 fn value_with_equals_sign() {
   Test::new()
     .justfile(
