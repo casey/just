@@ -9,6 +9,12 @@ pub(crate) enum Thunk<'src> {
     #[derive_where(skip(Debug, EqHashOrd))]
     function: fn(function::Context) -> FunctionResult,
   },
+  NullaryPlus {
+    name: Name<'src>,
+    #[derive_where(skip(Debug, EqHashOrd))]
+    function: fn(function::Context, &[String]) -> FunctionResult,
+    args: Vec<Expression<'src>>,
+  },
   Unary {
     name: Name<'src>,
     #[derive_where(skip(Debug, EqHashOrd))]
@@ -51,6 +57,7 @@ impl<'src> Thunk<'src> {
   pub(crate) fn name(&self) -> Name<'src> {
     match self {
       Self::Nullary { name, .. }
+      | Self::NullaryPlus { name, .. }
       | Self::Unary { name, .. }
       | Self::UnaryOpt { name, .. }
       | Self::UnaryPlus { name, .. }
@@ -70,6 +77,13 @@ impl<'src> Thunk<'src> {
       })),
       |function| match (function, arguments.len()) {
         (Function::Nullary(function), 0) => Ok(Thunk::Nullary { function, name }),
+        (Function::NullaryPlus(function), 0..=usize::MAX) => {
+          Ok(Thunk::NullaryPlus {
+            function,
+            args: arguments,
+            name,
+          })
+        }
         (Function::Unary(function), 1) => Ok(Thunk::Unary {
           function,
           arg: arguments.pop().unwrap().into(),
@@ -140,6 +154,16 @@ impl Display for Thunk<'_> {
     use Thunk::*;
     match self {
       Nullary { name, .. } => write!(f, "{}()", name.lexeme()),
+      NullaryPlus { name, args, .. } => {
+        write!(f, "{}(", name.lexeme())?;
+        for (i, arg) in args.iter().enumerate() {
+          if i > 0 {
+            write!(f, ", ")?;
+          }
+          write!(f, "{arg}")?;
+        }
+        write!(f, ")")
+      }
       Unary { name, arg, .. } => write!(f, "{}({arg})", name.lexeme()),
       UnaryOpt {
         name, args: (a, b), ..
@@ -194,6 +218,11 @@ impl Serialize for Thunk<'_> {
     seq.serialize_element(&self.name())?;
     match self {
       Self::Nullary { .. } => {}
+      Self::NullaryPlus { args, .. } => {
+        for arg in args {
+          seq.serialize_element(arg)?;
+        }
+      }
       Self::Unary { arg, .. } => seq.serialize_element(&arg)?,
       Self::UnaryOpt {
         args: (a, opt_b), ..

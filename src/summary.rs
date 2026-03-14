@@ -257,6 +257,13 @@ impl Expression {
           name: name.lexeme().to_owned(),
           arguments: Vec::new(),
         },
+        full::Thunk::NullaryPlus { name, args, .. } => {
+          let arguments = args.iter().map(Self::new).collect();
+          Self::Call {
+            name: name.lexeme().to_owned(),
+            arguments,
+          }
+        }
         full::Thunk::Unary { name, arg, .. } => Self::Call {
           name: name.lexeme().to_owned(),
           arguments: vec![Self::new(arg)],

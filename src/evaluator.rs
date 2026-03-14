@@ -290,6 +290,15 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         use Thunk::*;
         match thunk {
           Nullary { function, .. } => function(self.function_context(thunk)?),
+          NullaryPlus {
+            function, args, ..
+          } => {
+            let mut evaluated = Vec::new();
+            for arg in args {
+              evaluated.push(self.evaluate_expression(arg)?);
+            }
+            function(self.function_context(thunk)?, &evaluated)
+          }
           Unary { function, arg, .. } => {
             let arg = self.evaluate_expression(arg)?;
             function(self.function_context(thunk)?, &arg)

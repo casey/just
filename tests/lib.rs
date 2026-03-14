@@ -77,6 +77,7 @@ mod export;
 mod fallback;
 mod format;
 mod format_string;
+mod forward_variables;
 mod functions;
 #[cfg(unix)]
 mod global;

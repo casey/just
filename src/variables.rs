@@ -37,6 +37,11 @@ impl<'src> Iterator for Variables<'_, 'src> {
         Expression::Backtick { .. } | Expression::StringLiteral { .. } => {}
         Expression::Call { thunk } => match thunk {
           Thunk::Nullary { .. } => {}
+          Thunk::NullaryPlus { args, .. } => {
+            for arg in args.iter().rev() {
+              self.stack.push(arg);
+            }
+          }
           Thunk::Unary { arg, .. } => self.stack.push(arg),
           Thunk::UnaryOpt {
             args: (a, opt_b), ..

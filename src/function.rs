@@ -12,6 +12,7 @@ use {
 #[allow(clippy::arbitrary_source_item_ordering)]
 pub(crate) enum Function {
   Nullary(fn(Context) -> FunctionResult),
+  NullaryPlus(fn(Context, &[String]) -> FunctionResult),
   Unary(fn(Context, &str) -> FunctionResult),
   UnaryOpt(fn(Context, &str, Option<&str>) -> FunctionResult),
   UnaryPlus(fn(Context, &str, &[String]) -> FunctionResult),
@@ -62,6 +63,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "extension" => Unary(extension),
     "file_name" => Unary(file_name),
     "file_stem" => Unary(file_stem),
+    "forward_variables" => NullaryPlus(forward_variables),
     "home_directory" => Nullary(|_| dir("home", dirs::home_dir)),
     "invocation_directory" => Nullary(invocation_directory),
     "invocation_directory_native" => Nullary(invocation_directory_native),
@@ -119,6 +121,7 @@ impl Function {
   pub(crate) fn argc(&self) -> RangeInclusive<usize> {
     match *self {
       Nullary(_) => 0..=0,
+      NullaryPlus(_) => 0..=usize::MAX,
       Unary(_) => 1..=1,
       UnaryOpt(_) => 1..=2,
       UnaryPlus(_) => 1..=usize::MAX,
@@ -324,6 +327,16 @@ fn file_stem(_context: Context, path: &str) -> FunctionResult {
     .file_stem()
     .map(str::to_owned)
     .ok_or_else(|| format!("Could not extract file stem from `{path}`"))
+}
+
+fn forward_variables(context: Context, args: &[String]) -> FunctionResult {
+  let overrides = &context.execution_context.config.overrides;
+  let parts: Vec<String> = overrides
+    .iter()
+    .filter(|(k, _)| args.is_empty() || args.iter().any(|a| a == *k))
+    .map(|(k, v)| format!("{}='{}'", k, v.replace('\'', "'\\''")))
+    .collect();
+  Ok(parts.join(" "))
 }
 
 fn invocation_directory(context: Context) -> FunctionResult {

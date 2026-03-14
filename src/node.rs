@@ -119,6 +119,12 @@ impl<'src> Node<'src> for Expression<'src> {
         let mut tree = Tree::atom("call");
         match thunk {
           Nullary { name, .. } => tree.push_mut(name.lexeme()),
+          NullaryPlus { name, args, .. } => {
+            tree.push_mut(name.lexeme());
+            for arg in args {
+              tree.push_mut(arg.tree());
+            }
+          }
           Unary { name, arg, .. } => {
             tree.push_mut(name.lexeme());
             tree.push_mut(arg.tree());
