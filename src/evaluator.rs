@@ -34,8 +34,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           scope.bind(Binding {
             export: assignment.export,
             file_depth: 0,
-            id: assignment.id,
             name: assignment.name,
+            number: assignment.number,
             prelude: false,
             private: assignment.private,
             value: value.clone(),
@@ -169,7 +169,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     module: &'run Justfile<'src>,
     parent: &'run Scope<'src, 'run>,
     search: &'run Search,
-    variable_references: Option<&HashSet<Id>>,
+    variable_references: Option<&HashSet<Number>>,
   ) -> RunResult<'src, Scope<'src, 'run>>
   where
     'src: 'run,
@@ -191,8 +191,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           scope.bind(Binding {
             export: assignment.export,
             file_depth: 0,
-            id: assignment.id,
             name: assignment.name,
+            number: assignment.number,
             prelude: false,
             private: assignment.private,
             value: value.clone(),
@@ -220,7 +220,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     for assignment in module.assignments.values() {
       if variable_references
-        .is_none_or(|variable_references| variable_references.contains(&assignment.id))
+        .is_none_or(|variable_references| variable_references.contains(&assignment.number))
       {
         evaluator.evaluate_assignment(assignment)?;
       }
@@ -237,8 +237,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       self.scope.bind(Binding {
         export: assignment.export,
         file_depth: 0,
-        id: assignment.id,
         name: assignment.name,
+        number: assignment.number,
         prelude: false,
         private: assignment.private,
         value,
@@ -572,8 +572,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       evaluator.scope.bind(Binding {
         export: parameter.export,
         file_depth: 0,
-        id: parameter.id,
         name: parameter.name,
+        number: parameter.number,
         prelude: false,
         private: false,
         value: values.join(" "),

@@ -7,14 +7,14 @@ impl Numerator {
     Self(constants().len().try_into().unwrap())
   }
 
-  pub(crate) fn next(&mut self) -> Id {
+  pub(crate) fn next(&mut self) -> Number {
     let id = self.0;
     self.0 += 1;
-    Id(id)
+    Number(id)
   }
 
-  pub(crate) fn constant(i: usize) -> Id {
+  pub(crate) fn constant(i: usize) -> Number {
     assert!(i < constants().len());
-    Id(i.try_into().unwrap())
+    Number(i.try_into().unwrap())
   }
 }

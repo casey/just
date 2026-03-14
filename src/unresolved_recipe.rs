@@ -122,14 +122,14 @@ impl<'src> UnresolvedRecipe<'src> {
     assignments: &Table<'src, Assignment<'src>>,
     parameters: &[Parameter],
     variable: &Token<'src>,
-    variable_references: &mut HashSet<Id>,
+    variable_references: &mut HashSet<Number>,
   ) -> CompileResult<'src> {
     let name = variable.lexeme();
 
     if parameters.iter().any(|p| p.name.lexeme() == name) {
       Ok(())
     } else if let Some(assignment) = assignments.get(name) {
-      variable_references.insert(assignment.id);
+      variable_references.insert(assignment.number);
       Ok(())
     } else if constants().contains_key(name) {
       Ok(())

@@ -1,2 +1,2 @@
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub(crate) struct Id(pub(crate) u32);
+pub(crate) struct Number(pub(crate) u32);

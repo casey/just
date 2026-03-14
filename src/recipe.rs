@@ -35,7 +35,7 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
   #[serde(skip)]
-  pub(crate) variable_references: HashSet<Id>,
+  pub(crate) variable_references: HashSet<Number>,
 }
 
 impl Recipe<'_> {

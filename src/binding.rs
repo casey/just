@@ -6,9 +6,9 @@ pub(crate) struct Binding<'src, V = String> {
   pub(crate) export: bool,
   #[serde(skip)]
   pub(crate) file_depth: u32,
-  #[serde(skip)]
-  pub(crate) id: Id,
   pub(crate) name: Name<'src>,
+  #[serde(skip)]
+  pub(crate) number: Number,
   #[serde(skip)]
   pub(crate) prelude: bool,
   pub(crate) private: bool,

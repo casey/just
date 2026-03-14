@@ -82,7 +82,7 @@ impl<'src> Justfile<'src> {
     root: &'run Scope<'src, 'run>,
     scopes: &mut BTreeMap<String, (&'run Self, &'run Scope<'src, 'run>)>,
     search: &'run Search,
-    variable_references: Option<&HashSet<Id>>,
+    variable_references: Option<&HashSet<Number>>,
   ) -> RunResult<'src> {
     let scope =
       Evaluator::evaluate_assignments(config, dotenv, self, root, search, variable_references)?;
@@ -161,7 +161,7 @@ impl<'src> Justfile<'src> {
               })
               .flat_map(|recipe| &recipe.variable_references)
               .copied()
-              .collect::<HashSet<Id>>(),
+              .collect::<HashSet<Number>>(),
           )
         } else {
           None
