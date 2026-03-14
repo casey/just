@@ -1,6 +1,27 @@
 use super::*;
 
 #[test]
+fn forward_to_child_process() {
+  Test::new()
+    .justfile(
+      r#"
+      v1 := "x"
+
+      a:
+          @echo {{ v1 }}
+
+      c:
+          @{{ just_executable() }} --justfile {{ justfile() }} {{ forward_variables() }} a
+    "#,
+    )
+    .arg("v1=y")
+    .arg("c")
+    .stdout("y\n")
+    .stderr_regex(".*")
+    .success();
+}
+
+#[test]
 fn no_overrides_returns_empty() {
   Test::new()
     .justfile(
@@ -73,27 +94,6 @@ fn value_with_single_quotes() {
     .args(["--set", "msg", "it's"])
     .args(["--evaluate", "fwd"])
     .stdout(r#"msg='it'\''s'"#)
-    .success();
-}
-
-#[test]
-fn forward_to_child_process() {
-  Test::new()
-    .justfile(
-      r#"
-      v1 := "x"
-
-      a:
-          @echo {{ v1 }}
-
-      c:
-          @{{ just_executable() }} --justfile {{ justfile() }} {{ forward_variables() }} a
-    "#,
-    )
-    .arg("v1=y")
-    .arg("c")
-    .stdout("y\n")
-    .stderr_regex(".*")
     .success();
 }
 
