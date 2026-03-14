@@ -4,10 +4,10 @@ use super::*;
 fn no_overrides_returns_empty() {
   Test::new()
     .justfile(
-      "
+      r#"
       v1 := 'x'
       fwd := forward_variables()
-    ",
+    "#,
     )
     .args(["--evaluate", "fwd"])
     .stdout("")
@@ -18,10 +18,10 @@ fn no_overrides_returns_empty() {
 fn single_override() {
   Test::new()
     .justfile(
-      "
+      r#"
       v1 := 'x'
       fwd := forward_variables()
-    ",
+    "#,
     )
     .args(["--set", "v1", "y"])
     .args(["--evaluate", "fwd"])
@@ -33,11 +33,11 @@ fn single_override() {
 fn multiple_overrides() {
   Test::new()
     .justfile(
-      "
+      r#"
       v1 := 'a'
       v2 := 'b'
       fwd := forward_variables()
-    ",
+    "#,
     )
     .args(["--set", "v1", "hello"])
     .args(["--set", "v2", "world"])
@@ -50,10 +50,10 @@ fn multiple_overrides() {
 fn value_with_spaces() {
   Test::new()
     .justfile(
-      "
+      r#"
       greeting := 'hi'
       fwd := forward_variables()
-    ",
+    "#,
     )
     .args(["--set", "greeting", "hello world"])
     .args(["--evaluate", "fwd"])
@@ -65,14 +65,14 @@ fn value_with_spaces() {
 fn value_with_single_quotes() {
   Test::new()
     .justfile(
-      "
+      r#"
       msg := 'hi'
       fwd := forward_variables()
-    ",
+    "#,
     )
     .args(["--set", "msg", "it's"])
     .args(["--evaluate", "fwd"])
-    .stdout("msg='it'\\''s'")
+    .stdout(r#"msg='it'\''s'"#)
     .success();
 }
 
@@ -161,13 +161,34 @@ fn with_set_flag() {
 }
 
 #[test]
+fn forward_single_quote_to_child_process() {
+  Test::new()
+    .justfile(
+      r#"
+      v1 := "x"
+
+      a:
+          @echo {{ quote(v1) }}
+
+      c:
+          @{{ just_executable() }} --justfile {{ justfile() }} {{ forward_variables() }} a
+    "#,
+    )
+    .args(["--set", "v1", "'"])
+    .arg("c")
+    .stdout("'\n")
+    .stderr_regex(".*")
+    .success();
+}
+
+#[test]
 fn empty_value() {
   Test::new()
     .justfile(
-      "
+      r#"
       v1 := 'x'
       fwd := forward_variables()
-    ",
+    "#,
     )
     .args(["--set", "v1", ""])
     .args(["--evaluate", "fwd"])
@@ -179,11 +200,11 @@ fn empty_value() {
 fn selective_single() {
   Test::new()
     .justfile(
-      "
+      r#"
       v1 := 'a'
       v2 := 'b'
       fwd := forward_variables('v1')
-    ",
+    "#,
     )
     .args(["--set", "v1", "hello"])
     .args(["--set", "v2", "world"])
@@ -196,12 +217,12 @@ fn selective_single() {
 fn selective_multiple() {
   Test::new()
     .justfile(
-      "
+      r#"
       v1 := 'a'
       v2 := 'b'
       v3 := 'c'
       fwd := forward_variables('v1', 'v3')
-    ",
+    "#,
     )
     .args(["--set", "v1", "x"])
     .args(["--set", "v2", "y"])
@@ -215,11 +236,11 @@ fn selective_multiple() {
 fn selective_missing_override() {
   Test::new()
     .justfile(
-      "
+      r#"
       v1 := 'a'
       v2 := 'b'
       fwd := forward_variables('v1', 'v2')
-    ",
+    "#,
     )
     .args(["--set", "v1", "hello"])
     .args(["--evaluate", "fwd"])
@@ -231,11 +252,11 @@ fn selective_missing_override() {
 fn reverse_alphabetical_order() {
   Test::new()
     .justfile(
-      "
+      r#"
       z_var := 'z'
       a_var := 'a'
       fwd := forward_variables()
-    ",
+    "#,
     )
     .args(["--set", "z_var", "last"])
     .args(["--set", "a_var", "first"])
@@ -248,10 +269,10 @@ fn reverse_alphabetical_order() {
 fn value_with_equals_sign() {
   Test::new()
     .justfile(
-      "
+      r#"
       v1 := 'x'
       fwd := forward_variables()
-    ",
+    "#,
     )
     .args(["--set", "v1", "a=b=c"])
     .args(["--evaluate", "fwd"])
@@ -263,14 +284,14 @@ fn value_with_equals_sign() {
 fn value_with_special_shell_chars() {
   Test::new()
     .justfile(
-      "
+      r#"
       v1 := 'x'
       fwd := forward_variables()
-    ",
+    "#,
     )
-    .args(["--set", "v1", "$HOME `echo hi` \"quoted\""])
+    .args(["--set", "v1", r#"$HOME `echo hi` "quoted""#])
     .args(["--evaluate", "fwd"])
-    .stdout("v1='$HOME `echo hi` \"quoted\"'")
+    .stdout(r#"v1='$HOME `echo hi` "quoted"'"#)
     .success();
 }
 
@@ -278,14 +299,14 @@ fn value_with_special_shell_chars() {
 fn value_with_backslash() {
   Test::new()
     .justfile(
-      "
+      r#"
       v1 := 'x'
       fwd := forward_variables()
-    ",
+    "#,
     )
-    .args(["--set", "v1", "path\\to\\file"])
+    .args(["--set", "v1", r#"path\to\file"#])
     .args(["--evaluate", "fwd"])
-    .stdout("v1='path\\to\\file'")
+    .stdout(r#"v1='path\to\file'"#)
     .success();
 }
 
@@ -293,10 +314,10 @@ fn value_with_backslash() {
 fn value_with_newline() {
   Test::new()
     .justfile(
-      "
+      r#"
       v1 := 'x'
       fwd := forward_variables()
-    ",
+    "#,
     )
     .args(["--set", "v1", "line1\nline2"])
     .args(["--evaluate", "fwd"])
@@ -308,13 +329,58 @@ fn value_with_newline() {
 fn selective_all_miss() {
   Test::new()
     .justfile(
-      "
+      r#"
       v1 := 'a'
       v2 := 'b'
       fwd := forward_variables('v1', 'v2')
-    ",
+    "#,
     )
     .args(["--evaluate", "fwd"])
     .stdout("")
+    .success();
+}
+
+#[test]
+fn value_with_multiple_single_quotes() {
+  Test::new()
+    .justfile(
+      r#"
+      v1 := 'x'
+      fwd := forward_variables()
+    "#,
+    )
+    .args(["--set", "v1", "it's a 'test'"])
+    .args(["--evaluate", "fwd"])
+    .stdout(r#"v1='it'\''s a '\''test'\'''"#)
+    .success();
+}
+
+#[test]
+fn value_with_mixed_quotes() {
+  Test::new()
+    .justfile(
+      r#"
+      v1 := 'x'
+      fwd := forward_variables()
+    "#,
+    )
+    .args(["--set", "v1", r#"he said "it's fine""#])
+    .args(["--evaluate", "fwd"])
+    .stdout(r#"v1='he said "it'\''s fine"'"#)
+    .success();
+}
+
+#[test]
+fn value_with_consecutive_single_quotes() {
+  Test::new()
+    .justfile(
+      r#"
+      v1 := 'x'
+      fwd := forward_variables()
+    "#,
+    )
+    .args(["--set", "v1", "''"])
+    .args(["--evaluate", "fwd"])
+    .stdout(r#"v1=''\'''\'''"#)
     .success();
 }
