@@ -78,6 +78,15 @@ impl<'src> Iterator for Variables<'_, 'src> {
               self.stack.push(arg);
             }
           }
+          Thunk::TernaryPlus {
+            args: ([a, b, c], rest),
+            ..
+          } => {
+            let first: &[&Expression] = &[a, b, c];
+            for arg in first.iter().copied().chain(rest).rev() {
+              self.stack.push(arg);
+            }
+          }
         },
         Expression::Concatenation { lhs, rhs } => {
           self.stack.push(rhs);

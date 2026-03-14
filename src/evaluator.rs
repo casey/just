@@ -359,6 +359,20 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             let c = self.evaluate_expression(c)?;
             function(self.function_context(thunk)?, &a, &b, &c)
           }
+          TernaryPlus {
+            function,
+            args: ([a, b, c], rest),
+            ..
+          } => {
+            let a = self.evaluate_expression(a)?;
+            let b = self.evaluate_expression(b)?;
+            let c = self.evaluate_expression(c)?;
+            let mut rest_evaluated = Vec::new();
+            for arg in rest {
+              rest_evaluated.push(self.evaluate_expression(arg)?);
+            }
+            function(self.function_context(thunk)?, &a, &b, &c, &rest_evaluated)
+          }
         }
         .map_err(|message| Error::FunctionCall {
           function: thunk.name(),

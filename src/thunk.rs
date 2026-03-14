@@ -51,6 +51,12 @@ pub(crate) enum Thunk<'src> {
     function: fn(function::Context, &str, &str, &str) -> FunctionResult,
     args: [Box<Expression<'src>>; 3],
   },
+  TernaryPlus {
+    name: Name<'src>,
+    #[derive_where(skip(Debug, EqHashOrd))]
+    function: fn(function::Context, &str, &str, &str, &[String]) -> FunctionResult,
+    args: ([Box<Expression<'src>>; 3], Vec<Expression<'src>>),
+  },
 }
 
 impl<'src> Thunk<'src> {
@@ -63,7 +69,8 @@ impl<'src> Thunk<'src> {
       | Self::UnaryPlus { name, .. }
       | Self::Binary { name, .. }
       | Self::BinaryPlus { name, .. }
-      | Self::Ternary { name, .. } => *name,
+      | Self::Ternary { name, .. }
+      | Self::TernaryPlus { name, .. } => *name,
     }
   }
 
@@ -139,6 +146,17 @@ impl<'src> Thunk<'src> {
             name,
           })
         }
+        (Function::TernaryPlus(function), 3..=usize::MAX) => {
+          let rest = arguments.drain(3..).collect();
+          let c = arguments.pop().unwrap().into();
+          let b = arguments.pop().unwrap().into();
+          let a = arguments.pop().unwrap().into();
+          Ok(Thunk::TernaryPlus {
+            function,
+            args: ([a, b, c], rest),
+            name,
+          })
+        }
         (function, _) => Err(name.error(CompileErrorKind::FunctionArgumentCountMismatch {
           function: name.lexeme(),
           found: arguments.len(),
@@ -204,6 +222,17 @@ impl Display for Thunk<'_> {
         args: [a, b, c],
         ..
       } => write!(f, "{}({a}, {b}, {c})", name.lexeme()),
+      TernaryPlus {
+        name,
+        args: ([a, b, c], rest),
+        ..
+      } => {
+        write!(f, "{}({a}, {b}, {c}", name.lexeme())?;
+        for arg in rest {
+          write!(f, ", {arg}")?;
+        }
+        write!(f, ")")
+      }
     }
   }
 }
@@ -252,6 +281,11 @@ impl Serialize for Thunk<'_> {
       }
       Self::Ternary { args, .. } => {
         for arg in args {
+          seq.serialize_element(arg)?;
+        }
+      }
+      Self::TernaryPlus { args, .. } => {
+        for arg in args.0.iter().map(Box::as_ref).chain(&args.1) {
           seq.serialize_element(arg)?;
         }
       }

@@ -325,6 +325,20 @@ impl Expression {
           name: name.lexeme().to_owned(),
           arguments: vec![Self::new(a), Self::new(b), Self::new(c)],
         },
+        full::Thunk::TernaryPlus {
+          name,
+          args: ([a, b, c], rest),
+          ..
+        } => {
+          let mut arguments = vec![Self::new(a), Self::new(b), Self::new(c)];
+          for arg in rest {
+            arguments.push(Self::new(arg));
+          }
+          Self::Call {
+            name: name.lexeme().to_owned(),
+            arguments,
+          }
+        },
       },
       Concatenation { lhs, rhs } => Self::Concatenation {
         lhs: Self::new(lhs).into(),

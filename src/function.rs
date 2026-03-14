@@ -19,6 +19,7 @@ pub(crate) enum Function {
   Binary(fn(Context, &str, &str) -> FunctionResult),
   BinaryPlus(fn(Context, &str, &str, &[String]) -> FunctionResult),
   Ternary(fn(Context, &str, &str, &str) -> FunctionResult),
+  TernaryPlus(fn(Context, &str, &str, &str, &[String]) -> FunctionResult),
 }
 
 pub(crate) struct Context<'src: 'run, 'run> {
@@ -64,6 +65,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "file_name" => Unary(file_name),
     "file_stem" => Unary(file_stem),
     "forward_variables" => NullaryPlus(forward_variables),
+    "forward_variables_with" => TernaryPlus(forward_variables_with),
     "home_directory" => Nullary(|_| dir("home", dirs::home_dir)),
     "invocation_directory" => Nullary(invocation_directory),
     "invocation_directory_native" => Nullary(invocation_directory_native),
@@ -128,6 +130,7 @@ impl Function {
       Binary(_) => 2..=2,
       BinaryPlus(_) => 2..=usize::MAX,
       Ternary(_) => 3..=3,
+      TernaryPlus(_) => 3..=usize::MAX,
     }
   }
 }
@@ -337,6 +340,22 @@ fn forward_variables(context: Context, args: &[String]) -> FunctionResult {
     .map(|(k, v)| format!("{}='{}'", k, v.replace('\'', "'\\''")))
     .collect();
   Ok(parts.join(" "))
+}
+
+fn forward_variables_with(
+  context: Context,
+  sep: &str,
+  prefix: &str,
+  kvsep: &str,
+  names: &[String],
+) -> FunctionResult {
+  let overrides = &context.execution_context.config.overrides;
+  let parts: Vec<String> = overrides
+    .iter()
+    .filter(|(k, _)| names.is_empty() || names.iter().any(|n| n == *k))
+    .map(|(k, v)| format!("{prefix}{k}{kvsep}'{}'", v.replace('\'', "'\\''")))
+    .collect();
+  Ok(parts.join(sep))
 }
 
 fn invocation_directory(context: Context) -> FunctionResult {
