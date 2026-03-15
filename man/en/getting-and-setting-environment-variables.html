@@ -193,6 +193,13 @@ test:
   # will print a stack trace if it crashes
   cargo test
 </code></pre>
+<p>You can also use the <code>[env(NAME, VALUE)]</code> attribute to export environment
+variables to a specific recipe:</p>
+<pre><code class="language-just">[env("RUST_BACKTRACE", "1")]
+test:
+  # will print a stack trace if it crashes
+  cargo test
+</code></pre>
 <p>Exported variables and parameters are not exported to backticks in the same scope.</p>
 <pre><code class="language-just">export WORLD := "world"
 # This backtick will fail with "WORLD: unbound variable"
