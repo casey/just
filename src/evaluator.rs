@@ -226,7 +226,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     if !self.scope.bound(name) {
       let value = self.evaluate_expression(&assignment.value)?;
       self.scope.bind(Binding {
-        export: assignment.export,
+        export: assignment.export
+          || self
+            .context
+            .is_some_and(|context| context.module.settings.export),
         file_depth: 0,
         name: assignment.name,
         number: assignment.number,

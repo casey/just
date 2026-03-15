@@ -234,3 +234,21 @@ fn setting_variable_not_visible() {
     .stderr("echo $B\n")
     .success();
 }
+
+#[test]
+fn variables_exported_with_setting_are_visible_in_child() {
+  Test::new()
+    .write("foo.just", "bar:\n @echo $x")
+    .justfile(
+      "
+        set export
+
+        x := 'FOO'
+
+        mod foo
+      ",
+    )
+    .arg("foo::bar")
+    .stdout("FOO\n")
+    .success();
+}
