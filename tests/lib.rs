@@ -103,6 +103,7 @@ mod no_dependencies;
 mod no_exit_message;
 mod options;
 mod os_attributes;
+mod overrides;
 mod parallel;
 mod parameters;
 mod parser;

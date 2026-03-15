@@ -111,19 +111,6 @@ impl<'src> Justfile<'src> {
     search: &Search,
     arguments: &[String],
   ) -> RunResult<'src> {
-    let unknown_overrides = config
-      .overrides
-      .keys()
-      .filter(|name| !self.assignments.contains_key(name.as_str()))
-      .cloned()
-      .collect::<Vec<String>>();
-
-    if !unknown_overrides.is_empty() {
-      return Err(Error::UnknownOverrides {
-        overrides: unknown_overrides,
-      });
-    }
-
     let dotenv = if config.load_dotenv {
       load_dotenv(config, &self.settings, &search.working_directory)?
     } else {
@@ -735,19 +722,6 @@ mod tests {
       assert_eq!(found, 0);
       assert_eq!(min, 1);
       assert_eq!(max, 3);
-    }
-  }
-
-  run_error! {
-    name: unknown_overrides,
-    src: "
-      a:
-       echo {{`f() { return 100; }; f`}}
-    ",
-    args: ["foo=bar", "baz=bob", "a"],
-    error: UnknownOverrides { overrides },
-    check: {
-      assert_eq!(overrides, &["baz", "foo"]);
     }
   }
 

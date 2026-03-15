@@ -184,27 +184,16 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     let mut scope = parent.child();
 
     if !module.is_submodule() {
-      let mut unknown_overrides = Vec::new();
-
       for (name, value) in &config.overrides {
-        if let Some(assignment) = module.assignments.get(name) {
-          scope.bind(Binding {
-            export: assignment.export,
-            file_depth: 0,
-            name: assignment.name,
-            number: assignment.number,
-            prelude: false,
-            private: assignment.private,
-            value: value.clone(),
-          });
-        } else {
-          unknown_overrides.push(name.clone());
-        }
-      }
-
-      if !unknown_overrides.is_empty() {
-        return Err(Error::UnknownOverrides {
-          overrides: unknown_overrides,
+        let assignment = module.assignments.get(name).unwrap();
+        scope.bind(Binding {
+          export: assignment.export,
+          file_depth: 0,
+          name: assignment.name,
+          number: assignment.number,
+          prelude: false,
+          private: assignment.private,
+          value: value.clone(),
         });
       }
     }
