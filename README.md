@@ -1016,6 +1016,7 @@ foo:
 | `export` | boolean | `false` | Export all variables as environment variables. |
 | `fallback` | boolean | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found. |
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
+| `lazy`<sup>master</sup> | boolean | `false` | Don't evaluate unused variables. |
 | `positional-arguments` | boolean | `false` | Pass positional arguments. |
 | `quiet` | boolean | `false` | Disable echoing recipe lines before executing. |
 | `script-interpreter`<sup>1.33.0</sup> | `[COMMAND, ARGS…]` | `['sh', '-eu']` | Set command used to invoke recipes with empty `[script]` attribute. |
@@ -1165,6 +1166,30 @@ $ just foo goodbye
 hello
 goodbye
 ```
+
+#### Lazy
+
+The `lazy` setting<sup>master</sup>, currently unstable, causes the evaluator
+to skip evaluating unused variables. This can be benificial when a `justfile`
+contains variables that are expensive to evaluate but only sometimes used.
+
+In the following `justfile`, `token` will be skipped when only invoking `bar`:
+
+```just
+set lazy
+
+token := `expensive-script-to-get-credentials`
+
+foo:
+  curl -H "Authorization: Bearer {{ token }}" https://example.com/foo
+
+bar:
+  cargo test
+```
+
+Because `just` cannot determine when exported variables are used, assignments
+with `export` and assignments in a module with `set export` will always be
+evaluated.
 
 #### Positional Arguments
 
