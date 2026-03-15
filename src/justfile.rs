@@ -156,9 +156,7 @@ impl<'src> Justfile<'src> {
           }
 
           while let Some(recipe) = stack.pop() {
-            for variable_reference in &recipe.variable_references {
-              variable_references.insert(*variable_reference);
-            }
+            variable_references.extend(&recipe.variable_references);
             for dependency in &recipe.dependencies {
               stack.push(&dependency.recipe);
             }
