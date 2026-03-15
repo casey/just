@@ -216,6 +216,36 @@ fn assignment_used_in_dependency_evaluated() {
 }
 
 #[test]
+fn assignment_used_in_transitive_dependency_evaluated() {
+  Test::new()
+    .justfile(
+      "
+      set lazy
+
+      x := `exit 1`
+
+      foo: bar
+
+      bar: baz
+
+      baz:
+        @echo {{x}}
+    ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      "
+        error: Backtick failed with exit code 1
+         ——▶ justfile:3:6
+          │
+        3 │ x := `exit 1`
+          │      ^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn exported_assignment_is_evaluated() {
   Test::new()
     .justfile(

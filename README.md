@@ -1170,7 +1170,7 @@ goodbye
 #### Lazy
 
 The `lazy` setting<sup>master</sup>, currently unstable, causes the evaluator
-to skip evaluating unused variables. This can be benificial when a `justfile`
+to skip evaluating unused variables. This can be beneficial when a `justfile`
 contains variables that are expensive to evaluate but only sometimes used.
 
 In the following `justfile`, `token` will be skipped when only invoking `bar`:

@@ -147,22 +147,24 @@ impl<'src> Justfile<'src> {
         }
 
         let variable_references = if self.settings.lazy {
-          Some(
-            invocations
-              .iter()
-              .flat_map(|invocation| {
-                iter::once(invocation.recipe).chain(
-                  invocation
-                    .recipe
-                    .dependencies
-                    .iter()
-                    .map(|dependency| dependency.recipe.as_ref()),
-                )
-              })
-              .flat_map(|recipe| &recipe.variable_references)
-              .copied()
-              .collect::<HashSet<Number>>(),
-          )
+          let mut variable_references = HashSet::new();
+
+          let mut stack = Vec::new();
+
+          for invocation in &invocations {
+            stack.push(invocation.recipe);
+          }
+
+          while let Some(recipe) = stack.pop() {
+            for variable_reference in &recipe.variable_references {
+              variable_references.insert(*variable_reference);
+            }
+            for dependency in &recipe.dependencies {
+              stack.push(&dependency.recipe);
+            }
+          }
+
+          Some(variable_references)
         } else {
           None
         };
