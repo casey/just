@@ -1016,7 +1016,7 @@ foo:
 | `export` | boolean | `false` | Export all variables as environment variables. |
 | `fallback` | boolean | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found. |
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
-| `lazy`<sup>master</sup> | boolean | `false` | Don't evaluate unused variables. |
+| `lazy`<sup>1.47.0</sup> | boolean | `false` | Don't evaluate unused variables. |
 | `positional-arguments` | boolean | `false` | Pass positional arguments. |
 | `quiet` | boolean | `false` | Disable echoing recipe lines before executing. |
 | `script-interpreter`<sup>1.33.0</sup> | `[COMMAND, ARGS…]` | `['sh', '-eu']` | Set command used to invoke recipes with empty `[script]` attribute. |
@@ -1169,7 +1169,7 @@ goodbye
 
 #### Lazy
 
-The `lazy` setting<sup>master</sup>, currently unstable, causes the evaluator
+The `lazy` setting<sup>1.47.0</sup>, currently unstable, causes the evaluator
 to skip evaluating unused variables. This can be beneficial when a `justfile`
 contains variables that are expensive to evaluate but only sometimes used.
 
@@ -1671,7 +1671,7 @@ foo:
   echo 'so much good stuff' > bar/stuff.txt
 ```
 
-The `?` sigil<sup>master</sup> causes the current recipe to stop executing if
+The `?` sigil<sup>1.47.0</sup> causes the current recipe to stop executing if
 the command exits with status code `1`, however execution of other recipes will
 continue. Exit status `0` causes the current recipe to continue execution as
 normal. All other exit codes are reserved and should not be used, as they may
@@ -2205,15 +2205,15 @@ change their behavior.
 | `[confirm]`<sup>1.17.0</sup> | recipe | Require confirmation prior to executing recipe. |
 | `[default]`<sup>1.43.0</sup> | recipe | Use recipe as module's default recipe. |
 | `[doc(DOC)]`<sup>1.27.0</sup> | module, recipe | Set recipe or module's [documentation comment](#documentation-comments) to `DOC`. |
-| `[dragonfly]`<sup>master</sup> | recipe | Enable recipe on DragonFly BSD. |
-| `[env(ENV_VAR, VALUE)]` <sup>master</sup> | recipe | Set environment variables for recipe. |
+| `[dragonfly]`<sup>1.47.0</sup> | recipe | Enable recipe on DragonFly BSD. |
+| `[env(ENV_VAR, VALUE)]` <sup>1.47.0</sup> | recipe | Set environment variables for recipe. |
 | `[extension(EXT)]`<sup>1.32.0</sup> | recipe | Set shebang recipe script's file extension to `EXT`. `EXT` should include a period if one is desired. |
-| `[freebsd]`<sup>master</sup> | recipe | Enable recipe on FreeBSD. |
+| `[freebsd]`<sup>1.47.0</sup> | recipe | Enable recipe on FreeBSD. |
 | `[group(NAME)]`<sup>1.27.0</sup> | module, recipe | Put recipe or module in [group](#groups) `NAME`. |
 | `[linux]`<sup>1.8.0</sup> | recipe | Enable recipe on Linux. |
 | `[macos]`<sup>1.8.0</sup> | recipe | Enable recipe on MacOS. |
 | `[metadata(METADATA)]`<sup>1.42.0</sup> | recipe | Attach `METADATA` to recipe. |
-| `[netbsd]`<sup>master</sup> | recipe | Enable recipe on NetBSD. |
+| `[netbsd]`<sup>1.47.0</sup> | recipe | Enable recipe on NetBSD. |
 | `[no-cd]`<sup>1.9.0</sup> | recipe | Don't change directory before executing recipe. |
 | `[no-exit-message]`<sup>1.7.0</sup> | recipe | Don't print an error message if recipe fails. |
 | `[no-quiet]`<sup>1.23.0</sup> | recipe | Override globally quiet recipes and always echo out the recipe. |
