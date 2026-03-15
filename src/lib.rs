@@ -58,6 +58,8 @@ pub(crate) use {
     module_path::ModulePath,
     name::Name,
     namepath::Namepath,
+    number::Number,
+    numerator::Numerator,
     ordinal::Ordinal,
     output_error::OutputError,
     parameter::Parameter,
@@ -244,6 +246,8 @@ mod loader;
 mod module_path;
 mod name;
 mod namepath;
+mod number;
+mod numerator;
 mod ordinal;
 mod output_error;
 mod parameter;

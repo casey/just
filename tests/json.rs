@@ -91,6 +91,7 @@ struct Settings<'a> {
   fallback: bool,
   guards: bool,
   ignore_comments: bool,
+  lazy: bool,
   no_exit_message: bool,
   positional_arguments: bool,
   quiet: bool,

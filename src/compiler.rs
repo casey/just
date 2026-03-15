@@ -10,6 +10,7 @@ impl Compiler {
   ) -> RunResult<'src, Compilation<'src>> {
     let mut asts = HashMap::<PathBuf, Ast>::new();
     let mut loaded = Vec::new();
+    let mut numerator = Numerator::new();
     let mut paths = HashMap::<PathBuf, PathBuf>::new();
     let mut stack = Vec::new();
     stack.push(Source::root(root));
@@ -21,7 +22,7 @@ impl Compiler {
 
       let (relative, src) = loader.load(root, &current.path)?;
       loaded.push(relative.into());
-      let mut ast = Parser::parse_source(relative, src, &current)?;
+      let mut ast = Parser::parse_source(&mut numerator, relative, &current, src)?;
 
       paths.insert(current.path.clone(), relative.into());
 
@@ -208,7 +209,7 @@ impl Compiler {
   #[cfg(test)]
   pub(crate) fn test_compile(src: &str) -> RunResult<Justfile> {
     let tokens = Lexer::test_lex(src)?;
-    let ast = Parser::parse(0, &[], None, &tokens, &PathBuf::new())?;
+    let ast = Parser::parse_tokens(&mut Numerator::new(), &tokens)?;
     let root = PathBuf::from("justfile");
     let mut asts: HashMap<PathBuf, Ast> = HashMap::new();
     asts.insert(root.clone(), ast);
