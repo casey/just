@@ -199,3 +199,18 @@ fn command_not_found() {
 
   assert!(!output.status.success());
 }
+
+#[test]
+fn dont_evaluate_unnecessary_variables() {
+  Test::new()
+    .justfile(
+      "
+      export x := 'FOO'
+
+      y := `exit 1`
+    ",
+    )
+    .args(["--command", "bash", "-c", "echo $x"])
+    .stdout("FOO\n")
+    .success();
+}

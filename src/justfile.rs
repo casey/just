@@ -195,7 +195,16 @@ impl<'src> Justfile<'src> {
           .args(arguments)
           .current_dir(&search.working_directory);
 
-        self.evaluate_scopes(&arena, config, &dotenv, &root, &mut scopes, search, None)?;
+        self.evaluate_scopes(
+          &arena,
+          config,
+          &dotenv,
+          &root,
+          &mut scopes,
+          search,
+          Some(HashSet::new()).as_ref(),
+        )?;
+
         let scope = scopes.get(&self.module_path).unwrap().1.child();
 
         command.export(&self.settings, &dotenv, &scope, &self.unexports);
@@ -223,18 +232,40 @@ impl<'src> Justfile<'src> {
         Ok(())
       }
       Subcommand::Evaluate { variable, .. } => {
-        self.evaluate_scopes(&arena, config, &dotenv, &root, &mut scopes, search, None)?;
-        let scope = scopes.get(&self.module_path).unwrap().1;
-
-        if let Some(variable) = variable {
-          if let Some(value) = scope.value(variable) {
-            print!("{value}");
+        let variable_references = if let Some(variable) = variable {
+          if let Some(assignment) = self.assignments.get(variable) {
+            Some(HashSet::from([assignment.number]))
           } else {
             return Err(Error::EvalUnknownVariable {
               suggestion: self.suggest_variable(variable),
               variable: variable.clone(),
             });
           }
+        } else {
+          Some(
+            self
+              .assignments
+              .values()
+              .filter(|assignment| !assignment.private)
+              .map(|assignment| assignment.number)
+              .collect(),
+          )
+        };
+
+        self.evaluate_scopes(
+          &arena,
+          config,
+          &dotenv,
+          &root,
+          &mut scopes,
+          search,
+          variable_references.as_ref(),
+        )?;
+
+        let scope = scopes.get(&self.module_path).unwrap().1;
+
+        if let Some(variable) = variable {
+          print!("{}", scope.value(variable).unwrap());
         } else {
           let width = scope.names().fold(0, |max, name| name.len().max(max));
 
