@@ -11,6 +11,7 @@ struct Alias<'a> {
 #[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
 #[serde(deny_unknown_fields)]
 struct Assignment<'a> {
+  eager: bool,
   export: bool,
   name: &'a str,
   private: bool,
