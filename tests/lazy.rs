@@ -232,3 +232,22 @@ fn exported_assignment_is_evaluated() {
     .stdout("FOO\n")
     .success();
 }
+
+#[test]
+fn assignment_with_set_export_is_evaluated() {
+  Test::new()
+    .justfile(
+      "
+      set lazy
+      set export
+
+      x := 'FOO'
+
+      bar:
+        @echo $x
+    ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("FOO\n")
+    .success();
+}
