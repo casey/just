@@ -281,3 +281,18 @@ fn assignment_with_set_export_is_evaluated() {
     .stdout("FOO\n")
     .success();
 }
+
+#[test]
+fn only_evaluated_variable_is_evaluated() {
+  Test::new()
+    .justfile(
+      "
+      x := 'FOO'
+
+      y := `exit 1`
+    ",
+    )
+    .args(["--evaluate", "x"])
+    .stdout("FOO")
+    .success();
+}
