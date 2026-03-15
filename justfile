@@ -79,7 +79,7 @@ publish:
   #!/usr/bin/env bash
   set -euxo pipefail
   rm -rf tmp/release
-  git clone git@github.com:casey/just.git tmp/release
+  git clone --depth 1 git@github.com:casey/just.git tmp/release
   cd tmp/release
   ! grep '<sup>master</sup>' README.md
   VERSION=`sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/\1/p' Cargo.toml | head -1`
