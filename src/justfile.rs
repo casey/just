@@ -550,10 +550,7 @@ impl<'src> Keyed<'src> for Justfile<'src> {
 
 #[cfg(test)]
 mod tests {
-  use super::*;
-
-  use testing::compile;
-  use Error::*;
+  use {super::*, Error::*, testing::compile};
 
   run_error! {
     name: unknown_recipe_no_suggestion,

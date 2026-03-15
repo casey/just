@@ -348,10 +348,7 @@ impl Display for CompileError<'_> {
         write!(f, "Alias `{alias}` has an unknown target `{target}`")
       }
       AttributeKeyMissingValue { key } => {
-        write!(
-          f,
-          "Attribute key `{key}` requires value",
-        )
+        write!(f, "Attribute key `{key}` requires value")
       }
       UnknownAttributeKeyword { attribute, keyword } => {
         write!(f, "Unknown keyword `{keyword}` for `{attribute}` attribute")
