@@ -1,18 +1,18 @@
 [package]
 name = "just"
-version = "1.46.0"
+version = "1.47.0"
 authors = ["Casey Rodarmor <casey@rodarmor.com>"]
 autotests = false
 categories = ["command-line-utilities", "development-tools"]
 description = "🤖 Just a command runner"
-edition = "2021"
+edition = "2024"
 exclude = ["/book", "/icon.png", "/screenshot.png", "/www"]
 homepage = "https://github.com/casey/just"
 keywords = ["command-line", "task", "runner", "development", "utility"]
 license = "CC0-1.0"
 readme = "crates-io-readme.md"
 repository = "https://github.com/casey/just"
-rust-version = "1.82.0"
+rust-version = "1.85.0"
 
 [workspace]
 members = [".", "crates/*"]
@@ -34,7 +34,7 @@ lexiclean = "0.0.1"
 libc = "0.2.0"
 num_cpus = "1.15.0"
 percent-encoding = "2.3.1"
-rand = "0.9.0"
+rand = "0.10.0"
 regex = "1.10.4"
 rustversion = "1.0.18"
 semver = "1.0.20"
@@ -43,8 +43,8 @@ serde_json = "1.0.68"
 sha2 = "0.10"
 shellexpand = "3.1.0"
 similar = { version = "2.1.0", features = ["unicode"] }
-snafu = "0.8.0"
-strum = { version = "0.27.1", features = ["derive"] }
+snafu = "0.9.0"
+strum = { version = "0.28.0", features = ["derive"] }
 target = "2.0.0"
 tempfile = "3.0.0"
 typed-arena = "2.0.1"
@@ -52,7 +52,7 @@ unicode-width = "0.2.0"
 uuid = { version = "1.0.0", features = ["v4"] }
 
 [target.'cfg(unix)'.dependencies]
-nix = { version = "0.30.1", features = ["signal", "user", "fs"] }
+nix = { version = "0.31.0", features = ["signal", "user", "fs"] }
 
 [target.'cfg(windows)'.dependencies]
 ctrlc = { version = "3.1.1", features = ["termination"] }

@@ -470,10 +470,7 @@ impl ColorDisplay for Error<'_> {
       }
       Compile { compile_error } => Display::fmt(compile_error, f)?,
       Config { config_error } => Display::fmt(config_error, f)?,
-      Const { const_error } => write!(
-        f,
-        "{const_error}",
-      )?,
+      Const { const_error } => write!(f, "{const_error}")?,
       Cygpath {
         recipe,
         output_error,
@@ -737,7 +734,10 @@ impl ColorDisplay for Error<'_> {
       }
       #[cfg(unix)]
       SignalHandlerPipeCloexec { io_error } => {
-        write!(f, "I/O error setting O_CLOEXEC on signal handler pipe: {io_error}")?;
+        write!(
+          f,
+          "I/O error setting O_CLOEXEC on signal handler pipe: {io_error}",
+        )?;
       }
       #[cfg(unix)]
       SignalHandlerPipeOpen { io_error } => {

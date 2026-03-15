@@ -1525,10 +1525,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
 #[cfg(test)]
 mod tests {
-  use super::*;
-
-  use pretty_assertions::assert_eq;
-  use CompileErrorKind::*;
+  use {super::*, CompileErrorKind::*, pretty_assertions::assert_eq};
 
   macro_rules! test {
     {
