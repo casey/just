@@ -22,6 +22,7 @@ impl<'src, 'run> Scope<'src, 'run> {
 
     for (i, (key, value)) in constants().iter().enumerate() {
       root.bind(Binding {
+        eager: false,
         export: false,
         file_depth: 0,
         name: Name {

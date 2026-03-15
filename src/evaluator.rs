@@ -32,6 +32,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       for (name, value) in &config.overrides {
         if let Some(assignment) = assignments.get(name) {
           scope.bind(Binding {
+            eager: assignment.eager,
             export: assignment.export,
             file_depth: 0,
             name: assignment.name,
@@ -187,6 +188,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       for (name, value) in &config.overrides {
         let assignment = module.assignments.get(name).unwrap();
         scope.bind(Binding {
+          eager: assignment.eager,
           export: assignment.export,
           file_depth: 0,
           name: assignment.name,
@@ -208,8 +210,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     };
 
     for assignment in module.assignments.values() {
-      if module.settings.export
+      if assignment.eager
         || assignment.export
+        || module.settings.export
         || variable_references
           .is_none_or(|variable_references| variable_references.contains(&assignment.number))
       {
@@ -226,6 +229,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     if !self.scope.bound(name) {
       let value = self.evaluate_expression(&assignment.value)?;
       self.scope.bind(Binding {
+        eager: assignment.eager,
         export: assignment.export
           || self
             .context
@@ -564,6 +568,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       }
 
       evaluator.scope.bind(Binding {
+        eager: false,
         export: parameter.export,
         file_depth: 0,
         name: parameter.name,
