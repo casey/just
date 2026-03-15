@@ -1177,6 +1177,7 @@ In the following `justfile`, `token` will be skipped when only invoking `bar`:
 
 ```just
 set lazy
+set unstable
 
 token := `expensive-script-to-get-credentials`
 
