@@ -281,3 +281,28 @@ fn assignment_with_set_export_is_evaluated() {
     .stdout("FOO\n")
     .success();
 }
+
+#[test]
+fn eager_assignments_are_evaluated() {
+  Test::new()
+    .justfile(
+      "
+      set lazy
+
+      eager x := `exit 1`
+
+      foo:
+    ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      "
+        error: Backtick failed with exit code 1
+         ——▶ justfile:3:12
+          │
+        3 │ eager x := `exit 1`
+          │            ^^^^^^^^
+      ",
+    )
+    .failure();
+}

@@ -385,11 +385,21 @@ impl<'run, 'src> Parser<'run, 'src> {
           Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             items.push(Item::Alias(self.parse_alias(take_attributes())?));
           }
+          Some(Keyword::Eager) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
+            self.presume_keyword(Keyword::Eager)?;
+            items.push(Item::Assignment(self.parse_assignment(
+              take_attributes(),
+              true,
+              false,
+            )?));
+          }
           Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             self.presume_keyword(Keyword::Export)?;
-            items.push(Item::Assignment(
-              self.parse_assignment(true, take_attributes())?,
-            ));
+            items.push(Item::Assignment(self.parse_assignment(
+              take_attributes(),
+              false,
+              true,
+            )?));
           }
           Some(Keyword::Unexport)
             if self.next_are(&[Identifier, Identifier, Eof])
@@ -486,9 +496,11 @@ impl<'run, 'src> Parser<'run, 'src> {
           }
           _ => {
             if self.next_are(&[Identifier, ColonEquals]) {
-              items.push(Item::Assignment(
-                self.parse_assignment(false, take_attributes())?,
-              ));
+              items.push(Item::Assignment(self.parse_assignment(
+                take_attributes(),
+                false,
+                false,
+              )?));
             } else {
               let doc = pop_doc_comment(&mut items, eol_since_last_comment);
               items.push(Item::Recipe(self.parse_recipe(
@@ -559,8 +571,9 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// Parse an assignment, e.g. `foo := bar`
   fn parse_assignment(
     &mut self,
-    export: bool,
     attributes: AttributeSet<'src>,
+    eager: bool,
+    export: bool,
   ) -> CompileResult<'src, Assignment<'src>> {
     let name = self.parse_name()?;
     self.presume(ColonEquals)?;
@@ -572,6 +585,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     attributes.ensure_valid_attributes("Assignment", *name, &[AttributeDiscriminant::Private])?;
 
     Ok(Assignment {
+      eager,
       export,
       file_depth: self.file_depth,
       name,
