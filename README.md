@@ -416,6 +416,16 @@ With [extractions/setup-just](https://github.com/extractions/setup-just):
 
 Or with [taiki-e/install-action](https://github.com/taiki-e/install-action):
 
+Use the generic installer interface in newer workflows:
+
+```yaml
+- uses: taiki-e/install-action@v2
+  with:
+    tool: just
+```
+
+Or use the dedicated `just` shortcut action:
+
 ```yaml
 - uses: taiki-e/install-action@just
 ```
