@@ -329,16 +329,12 @@ impl<'src> Justfile<'src> {
     scopes: &BTreeMap<String, (&Self, &Scope<'src, '_>)>,
     search: &Search,
   ) -> RunResult<'src> {
-    {
-      let mutex = ran.mutex(recipe, arguments);
+    let mutex = ran.mutex(recipe, arguments);
 
-      let mut guard = mutex.lock().unwrap();
+    let mut guard = mutex.lock().unwrap();
 
-      if *guard {
-        return Ok(());
-      }
-
-      *guard = true;
+    if *guard {
+      return Ok(());
     }
 
     if !config.yes && !recipe.confirm()? {
@@ -396,6 +392,8 @@ impl<'src> Justfile<'src> {
       scopes,
       search,
     )?;
+
+    *guard = true;
 
     Ok(())
   }
