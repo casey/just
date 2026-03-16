@@ -15,6 +15,42 @@ fn lazy_is_unstable() {
 }
 
 #[test]
+fn eager_is_unstable() {
+  Test::new()
+    .justfile(
+      "
+        eager x := 'hello'
+
+        foo:
+      ",
+    )
+    .stderr_regex(r"error: `eager` assignments are currently unstable\. .*")
+    .failure();
+}
+
+#[test]
+fn unused_assignments_are_evaluated_without_lazy() {
+  Test::new()
+    .justfile(
+      "
+        x := `exit 1`
+
+        foo:
+      ",
+    )
+    .stderr(
+      "
+        error: Backtick failed with exit code 1
+         ——▶ justfile:1:6
+          │
+        1 │ x := `exit 1`
+          │      ^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn unused_assignment_not_evaluated() {
   Test::new()
     .justfile(

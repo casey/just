@@ -386,6 +386,9 @@ impl<'run, 'src> Parser<'run, 'src> {
             items.push(Item::Alias(self.parse_alias(take_attributes())?));
           }
           Some(Keyword::Eager) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
+            self
+              .unstable_features
+              .insert(UnstableFeature::EagerAssignments);
             self.presume_keyword(Keyword::Eager)?;
             items.push(Item::Assignment(self.parse_assignment(
               take_attributes(),
