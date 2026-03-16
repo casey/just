@@ -195,6 +195,10 @@ impl Display for CompileError<'_> {
         Count("argument", *found),
         expected.display(),
       ),
+      GuardAndInfallibleSigil => write!(
+        f,
+        "The guard `?` and infallible `-` sigils may not be used together"
+      ),
       Include => write!(
         f,
         "The `!include` directive has been stabilized as `import`"
@@ -344,10 +348,7 @@ impl Display for CompileError<'_> {
         write!(f, "Alias `{alias}` has an unknown target `{target}`")
       }
       AttributeKeyMissingValue { key } => {
-        write!(
-          f,
-          "Attribute key `{key}` requires value",
-        )
+        write!(f, "Attribute key `{key}` requires value")
       }
       UnknownAttributeKeyword { attribute, keyword } => {
         write!(f, "Unknown keyword `{keyword}` for `{attribute}` attribute")

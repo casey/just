@@ -1,6 +1,42 @@
 Changelog
 =========
 
+[1.47.0](https://github.com/casey/just/releases/tag/1.47.0) - 2026-03-14
+------------------------------------------------------------------------
+
+### Added
+- Add lazy evaluation setting ([#3083](https://github.com/casey/just/pull/3083) by [casey](https://github.com/casey))
+- Add guard sigil `?` ([#2547](https://github.com/casey/just/pull/2547) by [casey](https://github.com/casey))
+- Add `--group` flag to filter `--list` output by group ([#3117](https://github.com/casey/just/pull/3117) by [terror](https://github.com/terror))
+- Add attributes for DragonFly BSD, FreeBSD, and NetBSD ([#3115](https://github.com/casey/just/pull/3115) by [jakewilliami](https://github.com/jakewilliami))
+- Add `[env(NAME, VALUE)` recipe attribute ([#2957](https://github.com/casey/just/pull/2957) by [neunenak](https://github.com/neunenak))
+
+### Changed
+- Make `--timestamp` print timestamps unconditionally ([#3114](https://github.com/casey/just/pull/3114) by [casey](https://github.com/casey))
+- Print `--timestamps` with script recipes ([#3050](https://github.com/casey/just/pull/3050) by [casey](https://github.com/casey))
+- `[private]` modules are excluded from `--list` output ([#2889](https://github.com/casey/just/pull/2889) by [Scott-Guest](https://github.com/Scott-Guest))
+
+### Misc
+- Fix readme typo ([#3122](https://github.com/casey/just/pull/3122) by [Rohan5commit](https://github.com/Rohan5commit))
+- Move choose and run into match statement ([#3120](https://github.com/casey/just/pull/3120) by [casey](https://github.com/casey))
+- Add uv install instructions to readme ([#3062](https://github.com/casey/just/pull/3062) by [npikall](https://github.com/npikall))
+- Suppress error when --choose is cancelled by user ([#3098](https://github.com/casey/just/pull/3098) by [cobyfrombrooklyn-bot](https://github.com/cobyfrombrooklyn-bot))
+- Test formatting justfile with undefined variable succeeds ([#3110](https://github.com/casey/just/pull/3110) by [casey](https://github.com/casey))
+- Format without compiling ([#3103](https://github.com/casey/just/pull/3103) by [terror](https://github.com/terror))
+- Fix Gentoo installation instructions ([#3085](https://github.com/casey/just/pull/3085) by [DarthGandalf](https://github.com/DarthGandalf))
+- Deny unreachable pub ([#3080](https://github.com/casey/just/pull/3080) by [casey](https://github.com/casey))
+- Fix readme typo ([#3079](https://github.com/casey/just/pull/3079) by [pvinis](https://github.com/pvinis))
+- Include blank chapters in book ([#3076](https://github.com/casey/just/pull/3076) by [casey](https://github.com/casey))
+- Clean up build script ([#3078](https://github.com/casey/just/pull/3078) by [casey](https://github.com/casey))
+- Increase stack size on Windows ([#3077](https://github.com/casey/just/pull/3077) by [casey](https://github.com/casey))
+- Fix readme typo ([#3066](https://github.com/casey/just/pull/3066) by [kenden](https://github.com/kenden))
+- Remove dependency on executable-path ([#3058](https://github.com/casey/just/pull/3058) by [casey](https://github.com/casey))
+- Fix typos ([#3056](https://github.com/casey/just/pull/3056) by [galenseilis](https://github.com/galenseilis))
+- Avoid conditional compilation in integration tests ([#3055](https://github.com/casey/just/pull/3055) by [casey](https://github.com/casey))
+- Assert exit status last in `Test` builder ([#3054](https://github.com/casey/just/pull/3054) by [casey](https://github.com/casey))
+- Remove makedeb/MPR installation instructions ([#3053](https://github.com/casey/just/pull/3053) by [Chengings](https://github.com/Chengings))
+- Handle errors when checking for files ([#3051](https://github.com/casey/just/pull/3051) by [casey](https://github.com/casey))
+
 [1.46.0](https://github.com/casey/just/releases/tag/1.46.0) - 2026-01-01
 ------------------------------------------------------------------------
 

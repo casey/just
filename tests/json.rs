@@ -11,6 +11,7 @@ struct Alias<'a> {
 #[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
 #[serde(deny_unknown_fields)]
 struct Assignment<'a> {
+  eager: bool,
   export: bool,
   name: &'a str,
   private: bool,
@@ -89,7 +90,9 @@ struct Settings<'a> {
   dotenv_required: bool,
   export: bool,
   fallback: bool,
+  guards: bool,
   ignore_comments: bool,
+  lazy: bool,
   no_exit_message: bool,
   positional_arguments: bool,
   quiet: bool,

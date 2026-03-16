@@ -317,12 +317,14 @@ impl<'src> Node<'src> for Set<'src> {
       | Setting::DotenvRequired(value)
       | Setting::Export(value)
       | Setting::Fallback(value)
+      | Setting::Guards(value)
+      | Setting::IgnoreComments(value)
+      | Setting::Lazy(value)
       | Setting::NoExitMessage(value)
       | Setting::PositionalArguments(value)
       | Setting::Quiet(value)
       | Setting::Unstable(value)
-      | Setting::WindowsPowerShell(value)
-      | Setting::IgnoreComments(value) => {
+      | Setting::WindowsPowerShell(value) => {
         set.push_mut(value.to_string());
       }
       Setting::DotenvFilename(value)

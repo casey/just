@@ -58,6 +58,8 @@ pub(crate) use {
     module_path::ModulePath,
     name::Name,
     namepath::Namepath,
+    number::Number,
+    numerator::Numerator,
     ordinal::Ordinal,
     output_error::OutputError,
     parameter::Parameter,
@@ -82,6 +84,7 @@ pub(crate) use {
     settings::Settings,
     shebang::Shebang,
     show_whitespace::ShowWhitespace,
+    sigil::Sigil,
     signal::Signal,
     signal_handler::SignalHandler,
     source::Source,
@@ -115,8 +118,8 @@ pub(crate) use {
   rand::seq::IndexedRandom,
   regex::Regex,
   serde::{
-    ser::{SerializeMap, SerializeSeq},
     Deserialize, Serialize, Serializer,
+    ser::{SerializeMap, SerializeSeq},
   },
   snafu::{ResultExt, Snafu},
   std::{
@@ -243,6 +246,8 @@ mod loader;
 mod module_path;
 mod name;
 mod namepath;
+mod number;
+mod numerator;
 mod ordinal;
 mod output_error;
 mod parameter;
@@ -268,6 +273,7 @@ mod setting;
 mod settings;
 mod shebang;
 mod show_whitespace;
+mod sigil;
 mod signal;
 mod signal_handler;
 #[cfg(unix)]

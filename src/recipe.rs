@@ -34,6 +34,8 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) private: bool,
   pub(crate) quiet: bool,
   pub(crate) shebang: bool,
+  #[serde(skip)]
+  pub(crate) variable_references: HashSet<Number>,
 }
 
 impl Recipe<'_> {
@@ -118,7 +120,7 @@ impl<'src, D> Recipe<'src, D> {
     }
   }
 
-  pub(crate) fn check_can_be_default_recipe(&self) -> RunResult<'src, ()> {
+  pub(crate) fn check_can_be_default_recipe(&self) -> RunResult<'src> {
     let min_arguments = self.min_arguments();
     if min_arguments > 0 {
       return Err(Error::DefaultRecipeRequiresArguments {
@@ -213,7 +215,7 @@ impl<'src, D> Recipe<'src, D> {
     scope: &Scope<'src, 'run>,
     positional: &[String],
     is_dependency: bool,
-  ) -> RunResult<'src, ()> {
+  ) -> RunResult<'src> {
     let color = context.config.color.stderr().banner();
     let prefix = color.prefix();
     let suffix = color.suffix();
@@ -243,22 +245,22 @@ impl<'src, D> Recipe<'src, D> {
     scope: &Scope<'src, 'run>,
     positional: &[String],
     mut evaluator: Evaluator<'src, 'run>,
-  ) -> RunResult<'src, ()> {
+  ) -> RunResult<'src> {
     let config = &context.config;
+    let settings = &context.module.settings;
 
     let mut lines = self.body.iter().peekable();
     let mut line_number = self.line_number() + 1;
     loop {
-      if lines.peek().is_none() {
+      let Some(line) = lines.peek() else {
         return Ok(());
-      }
+      };
+
       let mut evaluated = String::new();
       let mut continued = false;
-      let quiet_line = lines.peek().is_some_and(|line| line.is_quiet());
-      let infallible_line = lines.peek().is_some_and(|line| line.is_infallible());
 
-      let comment_line = context.module.settings.ignore_comments
-        && lines.peek().is_some_and(|line| line.is_comment());
+      let comment_line = settings.ignore_comments && line.is_comment();
+      let sigils = line.sigils(settings);
 
       loop {
         if lines.peek().is_none() {
@@ -283,19 +285,21 @@ impl<'src, D> Recipe<'src, D> {
 
       let mut command = evaluated.as_str();
 
-      let sigils = usize::from(infallible_line) + usize::from(quiet_line);
-
-      command = &command[sigils..];
+      command = &command[sigils.len()..];
 
       if command.is_empty() {
         continue;
       }
 
+      let guard = sigils.contains(&Sigil::Guard);
+      let infallible = sigils.contains(&Sigil::Infallible);
+      let quiet = sigils.contains(&Sigil::Quiet);
+
       if config.dry_run
         || config.verbosity.loquacious()
         || config.timestamp
-        || !((quiet_line ^ self.quiet)
-          || (context.module.settings.quiet && !self.no_quiet())
+        || !((quiet ^ self.quiet)
+          || (settings.quiet && !self.no_quiet())
           || config.verbosity.quiet())
       {
         let color = if config.highlight {
@@ -316,7 +320,7 @@ impl<'src, D> Recipe<'src, D> {
         continue;
       }
 
-      let mut cmd = context.module.settings.shell_command(config);
+      let mut cmd = settings.shell_command(config);
 
       if let Some(working_directory) = self.working_directory(context) {
         cmd.current_dir(working_directory);
@@ -324,7 +328,7 @@ impl<'src, D> Recipe<'src, D> {
 
       cmd.arg(command);
 
-      if self.takes_positional_arguments(&context.module.settings) {
+      if self.takes_positional_arguments(settings) {
         cmd.arg(self.name.lexeme());
         cmd.args(positional);
       }
@@ -340,27 +344,34 @@ impl<'src, D> Recipe<'src, D> {
         }
       }
 
-      cmd.export(
-        &context.module.settings,
-        context.dotenv,
-        scope,
-        &context.module.unexports,
-      );
+      cmd.export(settings, context.dotenv, scope, &context.module.unexports);
 
       let (result, caught) = cmd.status_guard();
 
       match result {
         Ok(exit_status) => {
           if let Some(code) = exit_status.code() {
-            if code != 0 && !infallible_line {
-              return Err(Error::Code {
-                recipe: self.name(),
-                line_number: Some(line_number),
-                code,
-                print_message: self.print_exit_message(&context.module.settings),
-              });
+            if code != 0 {
+              if guard {
+                if code == 1 {
+                  return Ok(());
+                }
+
+                return Err(Error::GuardCode {
+                  recipe: self.name(),
+                  line_number,
+                  code,
+                });
+              } else if !infallible {
+                return Err(Error::Code {
+                  recipe: self.name(),
+                  line_number: Some(line_number),
+                  code,
+                  print_message: self.print_exit_message(settings),
+                });
+              }
             }
-          } else if !infallible_line {
+          } else if !infallible {
             return Err(error_from_signal(
               self.name(),
               Some(line_number),
@@ -376,7 +387,7 @@ impl<'src, D> Recipe<'src, D> {
         }
       }
 
-      if !infallible_line {
+      if !infallible {
         if let Some(signal) = caught {
           return Err(Error::Interrupted { signal });
         }
@@ -390,7 +401,7 @@ impl<'src, D> Recipe<'src, D> {
     scope: &Scope<'src, 'run>,
     positional: &[String],
     mut evaluator: Evaluator<'src, 'run>,
-  ) -> RunResult<'src, ()> {
+  ) -> RunResult<'src> {
     let config = &context.config;
 
     if let Some(timestamp) = config.timestamp() {

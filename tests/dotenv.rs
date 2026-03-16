@@ -433,3 +433,18 @@ fn dotenv_path_does_not_override_dotenv_file() {
     .stdout("ROOT\n")
     .success();
 }
+
+#[test]
+fn error_message() {
+  Test::new()
+    .write(".env", "FOO=bar baz")
+    .justfile(
+      "
+        set dotenv-load
+
+        foo:
+      ",
+    )
+    .stderr_regex(r"error: Failed to load environment file from `.*\.env`: .*")
+    .failure();
+}

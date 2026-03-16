@@ -32,8 +32,8 @@ const CONSTANTS: &[(&str, &str, Option<&str>, &str)] = &[
   ("BG_WHITE", "\x1b[47m", None, "1.37.0"),
 ];
 
-pub(crate) fn constants() -> &'static HashMap<&'static str, &'static str> {
-  static MAP: LazyLock<HashMap<&str, &str>> = LazyLock::new(|| {
+pub(crate) fn constants() -> &'static BTreeMap<&'static str, &'static str> {
+  static MAP: LazyLock<BTreeMap<&str, &str>> = LazyLock::new(|| {
     CONSTANTS
       .iter()
       .copied()
