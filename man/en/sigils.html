@@ -198,7 +198,7 @@ foo:
   mkdir bar
   echo 'so much good stuff' &gt; bar/stuff.txt
 </code></pre>
-<p>The <code>?</code> sigil<sup>master</sup> causes the current recipe to stop executing if
+<p>The <code>?</code> sigil<sup>1.47.0</sup> causes the current recipe to stop executing if
 the command exits with status code <code>1</code>, however execution of other recipes will
 continue. Exit status <code>0</code> causes the current recipe to continue execution as
 normal. All other exit codes are reserved and should not be used, as they may
