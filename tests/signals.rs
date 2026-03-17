@@ -155,17 +155,15 @@ fn forwarding() {
 
 #[test]
 #[ignore]
+#[cfg(any(
+  target_os = "dragonfly",
+  target_os = "freebsd",
+  target_os = "ios",
+  target_os = "macos",
+  target_os = "netbsd",
+  target_os = "openbsd",
+))]
 fn siginfo_prints_current_process() {
-  if !cfg!(any(
-    target_os = "dragonfly",
-    target_os = "freebsd",
-    target_os = "ios",
-    target_os = "macos",
-    target_os = "netbsd",
-    target_os = "openbsd",
-  )) {
-    return;
-  }
   let tempdir = tempdir();
 
   fs::write(tempdir.path().join("justfile"), "foo:\n @sleep 1").unwrap();
