@@ -138,14 +138,10 @@ mod tests {
   }
 
   #[test]
-  #[cfg(not(windows))]
-  fn include_shebang_line_other_not_windows() {
-    assert!(Shebang::new("#!foo -c").unwrap().include_shebang_line());
-  }
-
-  #[test]
-  #[cfg(windows)]
-  fn include_shebang_line_other_windows() {
-    assert!(!Shebang::new("#!foo -c").unwrap().include_shebang_line());
+  fn include_shebang_line_other() {
+    assert_eq!(
+      Shebang::new("#!foo -c").unwrap().include_shebang_line(),
+      !cfg!(windows),
+    );
   }
 }
