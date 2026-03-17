@@ -81,6 +81,7 @@ complete -c just -l evaluate -d 'Evaluate and print all variables. If a variable
 complete -c just -l fmt -d 'Format and overwrite justfile'
 complete -c just -l groups -d 'List recipe groups'
 complete -c just -l init -d 'Initialize new justfile in project root'
+complete -c just -l json -d 'Print justfile as JSON'
 complete -c just -l man -d 'Print man page'
 complete -c just -l summary -d 'List names of available recipes'
 complete -c just -l variables -d 'List names of variables'

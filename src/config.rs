@@ -23,7 +23,6 @@ pub(crate) struct Config {
   pub(crate) dotenv_filename: Option<String>,
   pub(crate) dotenv_path: Option<PathBuf>,
   pub(crate) dry_run: bool,
-  pub(crate) dump_format: DumpFormat,
   pub(crate) explain: bool,
   pub(crate) groups: Vec<String>,
   pub(crate) highlight: bool,
@@ -61,6 +60,7 @@ mod cmd {
   pub(crate) const FORMAT: &str = "FORMAT";
   pub(crate) const GROUPS: &str = "GROUPS";
   pub(crate) const INIT: &str = "INIT";
+  pub(crate) const JSON: &str = "JSON";
   pub(crate) const LIST: &str = "LIST";
   pub(crate) const MAN: &str = "MAN";
   pub(crate) const REQUEST: &str = "REQUEST";
@@ -79,6 +79,7 @@ mod cmd {
     EVALUATE,
     FORMAT,
     INIT,
+    JSON,
     LIST,
     MAN,
     REQUEST,
@@ -87,8 +88,9 @@ mod cmd {
     VARIABLES,
   ];
 
-  pub(crate) const ARGLESS: &[&str] =
-    &[CHANGELOG, DUMP, EDIT, FORMAT, INIT, MAN, SUMMARY, VARIABLES];
+  pub(crate) const ARGLESS: &[&str] = &[
+    CHANGELOG, DUMP, EDIT, FORMAT, JSON, INIT, MAN, SUMMARY, VARIABLES,
+  ];
 
   pub(crate) const HEADING: &str = "Commands";
 }
@@ -564,6 +566,14 @@ impl Config {
           .help_heading(cmd::HEADING),
       )
       .arg(
+        Arg::new(cmd::JSON)
+          .long("json")
+          .action(ArgAction::SetTrue)
+          .conflicts_with(arg::DUMP_FORMAT)
+          .help("Print justfile as JSON")
+          .help_heading(cmd::HEADING),
+      )
+      .arg(
         Arg::new(cmd::LIST)
           .short('l')
           .long("list")
@@ -756,7 +766,9 @@ impl Config {
     } else if let Some(&shell) = matches.get_one::<completions::Shell>(cmd::COMPLETIONS) {
       Subcommand::Completions { shell }
     } else if matches.get_flag(cmd::DUMP) {
-      Subcommand::Dump
+      Subcommand::Dump {
+        format: *matches.get_one::<DumpFormat>(arg::DUMP_FORMAT).unwrap(),
+      }
     } else if matches.get_flag(cmd::EDIT) {
       Subcommand::Edit
     } else if matches.get_flag(cmd::EVALUATE) {
@@ -780,6 +792,10 @@ impl Config {
       Subcommand::Groups
     } else if matches.get_flag(cmd::INIT) {
       Subcommand::Init
+    } else if matches.get_flag(cmd::JSON) {
+      Subcommand::Dump {
+        format: DumpFormat::Json,
+      }
     } else if let Some(path) = matches.get_many::<String>(cmd::LIST) {
       Subcommand::List {
         path: Self::parse_module_path(path)?,
@@ -831,10 +847,6 @@ impl Config {
         .map(Into::into),
       dotenv_path: matches.get_one::<PathBuf>(arg::DOTENV_PATH).map(Into::into),
       dry_run: matches.get_flag(arg::DRY_RUN),
-      dump_format: matches
-        .get_one::<DumpFormat>(arg::DUMP_FORMAT)
-        .unwrap()
-        .clone(),
       explain,
       highlight: !matches.get_flag(arg::NO_HIGHLIGHT),
       invocation_directory: env::current_dir().context(config_error::CurrentDirContext)?,
@@ -1364,13 +1376,13 @@ mod tests {
   test! {
     name: subcommand_dump,
     args: ["--dump"],
-    subcommand: Subcommand::Dump,
+    subcommand: Subcommand::Dump { format: DumpFormat::Just },
   }
 
   test! {
-    name: dump_format,
-    args: ["--dump-format", "json"],
-    dump_format: DumpFormat::Json,
+    name: subcommand_json,
+    args: ["--json"],
+    subcommand: Subcommand::Dump { format: DumpFormat::Json },
   }
 
   test! {

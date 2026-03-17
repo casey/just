@@ -82,6 +82,7 @@ set edit:completion:arg-completer[just] = {|@words|
             cand --fmt 'Format and overwrite justfile'
             cand --groups 'List recipe groups'
             cand --init 'Initialize new justfile in project root'
+            cand --json 'Print justfile as JSON'
             cand --man 'Print man page'
             cand --summary 'List names of available recipes'
             cand --variables 'List names of variables'
