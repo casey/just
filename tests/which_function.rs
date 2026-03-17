@@ -308,7 +308,7 @@ fn pathext_custom_extension() {
     .env("PATH", path.to_str().unwrap())
     .env("PATHEXT", ".BAR")
     .env("JUST_UNSTABLE", "1")
-    .stdout(path.join("foo.bar").display().to_string())
+    .stdout(path.join("foo.BAR").display().to_string())
     .success();
 }
 
