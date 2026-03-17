@@ -1956,9 +1956,9 @@ The process ID is: 420
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append
   single quotes to `s`. This is sufficient to escape special characters for
   many shells, including most Bourne shell descendants.
-- `replace(s, from, to)` - Replace all occurrences of `from` in `s` to `to`.
+- `replace(s, from, to)` - Replace all occurrences of `from` in `s` with `to`.
 - `replace_regex(s, regex, replacement)` - Replace all occurrences of `regex`
-  in `s` to `replacement`. Regular expressions are provided by the
+  in `s` with `replacement`. Regular expressions are provided by the
   [Rust `regex` crate](https://docs.rs/regex/latest/regex/). See the
   [syntax documentation](https://docs.rs/regex/latest/regex/#syntax) for usage
   examples. Capture groups are supported. The `replacement` string uses
