@@ -11,5 +11,5 @@ fn bare_bash_in_shebang() {
       ",
     )
     .stdout("FOO\n")
-    .run();
+    .success();
 }

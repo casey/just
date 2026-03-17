@@ -1,7 +1,7 @@
 use super::*;
 
 /// String wrapper that uses nonblank characters to display spaces and tabs
-pub struct ShowWhitespace<'str>(pub &'str str);
+pub(crate) struct ShowWhitespace<'str>(pub &'str str);
 
 impl Display for ShowWhitespace<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {

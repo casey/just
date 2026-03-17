@@ -18,7 +18,7 @@ fn newline_escape_deps() {
     )
     .stdout("a\nb\nc\n")
     .stderr("echo a\necho b\necho c\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -39,7 +39,7 @@ fn newline_escape_deps_no_indent() {
     )
     .stdout("a\nb\nc\n")
     .stderr("echo a\necho b\necho c\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -57,7 +57,7 @@ fn newline_escape_deps_linefeed() {
     )
     .stdout("a\nb\n")
     .stderr("echo a\necho b\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -77,8 +77,7 @@ fn newline_escape_deps_invalid_esc() {
           │           ^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -97,6 +96,5 @@ fn newline_escape_unpaired_linefeed() {
           │         ^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }

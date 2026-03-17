@@ -28,6 +28,12 @@ impl Display for Name<'_> {
   }
 }
 
+impl<'src> Keyed<'src> for Name<'src> {
+  fn key(&self) -> &'src str {
+    self.lexeme()
+  }
+}
+
 impl Serialize for Name<'_> {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
   where

@@ -9,7 +9,6 @@ pub(crate) enum Item<'src> {
   Import {
     absolute: Option<PathBuf>,
     optional: bool,
-    path: Token<'src>,
     relative: StringLiteral<'src>,
   },
   Module {
@@ -18,6 +17,7 @@ pub(crate) enum Item<'src> {
     groups: Vec<StringLiteral<'src>>,
     name: Name<'src>,
     optional: bool,
+    private: bool,
     relative: Option<StringLiteral<'src>>,
   },
   Recipe(UnresolvedRecipe<'src>),

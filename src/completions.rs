@@ -35,14 +35,28 @@ mod tests {
 
   #[test]
   fn scripts() {
-    assert_eq!(Shell::Bash.script(), clap(clap_complete::Shell::Bash));
-    assert_eq!(Shell::Elvish.script(), clap(clap_complete::Shell::Elvish));
-    assert_eq!(Shell::Fish.script(), clap(clap_complete::Shell::Fish));
-    assert_eq!(
-      Shell::Powershell.script(),
-      clap(clap_complete::Shell::PowerShell)
-    );
-    assert_eq!(Shell::Zsh.script(), clap(clap_complete::Shell::Zsh));
+    fs::create_dir_all("tmp/completions").unwrap();
+
+    let bash = clap(clap_complete::Shell::Bash);
+    fs::write("tmp/completions/just.bash", &bash).unwrap();
+
+    let elvish = clap(clap_complete::Shell::Elvish);
+    fs::write("tmp/completions/just.elvish", &elvish).unwrap();
+
+    let fish = clap(clap_complete::Shell::Fish);
+    fs::write("tmp/completions/just.fish", &fish).unwrap();
+
+    let powershell = clap(clap_complete::Shell::PowerShell);
+    fs::write("tmp/completions/just.powershell", &powershell).unwrap();
+
+    let zsh = clap(clap_complete::Shell::Zsh);
+    fs::write("tmp/completions/just.zsh", &zsh).unwrap();
+
+    assert_eq!(Shell::Bash.script(), bash);
+    assert_eq!(Shell::Elvish.script(), elvish);
+    assert_eq!(Shell::Fish.script(), fish);
+    assert_eq!(Shell::Powershell.script(), powershell);
+    assert_eq!(Shell::Zsh.script(), zsh);
   }
 
   fn clap(shell: clap_complete::Shell) -> String {

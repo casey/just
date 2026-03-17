@@ -48,7 +48,7 @@ fn test_invocation_directory() {
   subdir.push("subdir");
   fs::create_dir(&subdir).unwrap();
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(&subdir)
     .args(["--shell", "sh"])
     .output()
@@ -89,7 +89,7 @@ fn invocation_directory_native() {
     .justfile("x := invocation_directory_native()")
     .args(["--evaluate", "x"])
     .stdout_regex(".*")
-    .run();
+    .success();
 
   if cfg!(windows) {
     assert_eq!(Path::new(&stdout), tempdir.path());

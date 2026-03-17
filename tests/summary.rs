@@ -14,7 +14,7 @@ _y:
 ",
     )
     .stdout("a b c d\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -29,7 +29,7 @@ a:
 ",
     )
     .stdout("a b c\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -45,7 +45,7 @@ a:
 ",
     )
     .stdout("b c a\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -55,7 +55,7 @@ fn summary_none() {
     .arg("--quiet")
     .justfile("")
     .stdout("\n\n\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -64,7 +64,7 @@ fn no_recipes() {
     .arg("--summary")
     .stderr("Justfile contains no recipes.\n")
     .stdout("\n\n\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -83,7 +83,7 @@ fn submodule_recipes() {
     )
     .arg("--summary")
     .stdout("bar foo::foo foo::bar::bar foo::bar::baz::baz foo::bar::baz::biz::biz\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -97,5 +97,5 @@ fn summary_implies_unstable() {
     )
     .arg("--summary")
     .stdout("foo::foo\n")
-    .run();
+    .success();
 }

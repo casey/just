@@ -7,30 +7,28 @@ default:
     echo 'Hello, world!'
 ";
 
-fn backtick_re() -> &'static Regex {
-  static BACKTICK_RE: OnceLock<Regex> = OnceLock::new();
-  BACKTICK_RE.get_or_init(|| Regex::new("(`.*?`)|(`[^`]*$)").unwrap())
-}
+static BACKTICK_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new("(`.*?`)|(`[^`]*$)").unwrap());
+
+const CHOOSER_CANCELLED_EXIT_STATUS: i32 = 130;
 
 #[derive(PartialEq, Clone, Debug)]
 pub(crate) enum Subcommand {
   Changelog,
   Choose {
-    overrides: BTreeMap<String, String>,
     chooser: Option<String>,
   },
   Command {
     arguments: Vec<OsString>,
     binary: OsString,
-    overrides: BTreeMap<String, String>,
   },
   Completions {
     shell: completions::Shell,
   },
-  Dump,
+  Dump {
+    format: DumpFormat,
+  },
   Edit,
   Evaluate {
-    overrides: BTreeMap<String, String>,
     variable: Option<String>,
   },
   Format,
@@ -45,13 +43,23 @@ pub(crate) enum Subcommand {
   },
   Run {
     arguments: Vec<String>,
-    overrides: BTreeMap<String, String>,
   },
   Show {
     path: ModulePath,
   },
   Summary,
+  Usage {
+    path: ModulePath,
+  },
   Variables,
+}
+
+impl Default for Subcommand {
+  fn default() -> Self {
+    Self::Run {
+      arguments: Vec::new(),
+    }
+  }
 }
 
 impl Subcommand {
@@ -79,32 +87,35 @@ impl Subcommand {
       &config.search_config,
     )?;
 
-    if let Edit = self {
+    if matches!(self, Edit) {
       return Self::edit(&search);
+    }
+
+    if matches!(self, Format) {
+      return Self::format(config, loader, &search);
     }
 
     let compilation = Self::compile(config, loader, &search)?;
     let justfile = &compilation.justfile;
 
     match self {
-      Choose { overrides, chooser } => {
-        Self::choose(config, justfile, &search, overrides, chooser.as_deref())?;
+      Choose { chooser } => {
+        Self::choose(config, justfile, &search, chooser.as_deref())?;
       }
-      Command { overrides, .. } | Evaluate { overrides, .. } => {
-        justfile.run(config, &search, overrides, &[])?;
+      Command { .. } | Evaluate { .. } => {
+        justfile.run(config, &search, &[])?;
       }
-      Dump => Self::dump(config, compilation)?,
-      Format => Self::format(config, &search, compilation)?,
+      Dump { format } => Self::dump(compilation, *format)?,
       Groups => Self::groups(config, justfile),
       List { path } => Self::list(config, justfile, path)?,
-      Run {
-        arguments,
-        overrides,
-      } => Self::run(config, loader, search, compilation, arguments, overrides)?,
+      Run { arguments } => Self::run(config, loader, search, compilation, arguments)?,
       Show { path } => Self::show(config, justfile, path)?,
       Summary => Self::summary(config, justfile),
+      Usage { path } => Self::usage(config, justfile, path)?,
       Variables => Self::variables(justfile),
-      Changelog | Completions { .. } | Edit | Init | Man | Request { .. } => unreachable!(),
+      Changelog | Completions { .. } | Edit | Format | Init | Man | Request { .. } => {
+        unreachable!()
+      }
     }
 
     Ok(())
@@ -123,7 +134,6 @@ impl Subcommand {
     mut search: Search,
     mut compilation: Compilation<'src>,
     arguments: &[String],
-    overrides: &BTreeMap<String, String>,
   ) -> RunResult<'src> {
     let starting_parent = search.justfile.parent().as_ref().unwrap().lexiclean();
 
@@ -135,7 +145,7 @@ impl Subcommand {
           SearchConfig::FromInvocationDirectory | SearchConfig::FromSearchDirectory { .. }
         );
 
-      let result = justfile.run(config, &search, overrides, arguments);
+      let result = justfile.run(config, &search, arguments);
 
       if fallback {
         if let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result {
@@ -181,7 +191,7 @@ impl Subcommand {
     loader: &'src Loader,
     search: &Search,
   ) -> RunResult<'src, Compilation<'src>> {
-    let compilation = Compiler::compile(loader, &search.justfile)?;
+    let compilation = Compiler::compile(config, loader, &search.justfile)?;
 
     compilation.justfile.check_unstable(config)?;
 
@@ -202,7 +212,6 @@ impl Subcommand {
     config: &Config,
     justfile: &Justfile<'src>,
     search: &Search,
-    overrides: &BTreeMap<String, String>,
     chooser: Option<&str>,
   ) -> RunResult<'src> {
     let mut recipes = Vec::<&Recipe>::new();
@@ -269,6 +278,10 @@ impl Subcommand {
       }
     };
 
+    if output.status.code() == Some(CHOOSER_CANCELLED_EXIT_STATUS) {
+      return Ok(());
+    }
+
     if !output.status.success() {
       return Err(Error::ChooserStatus {
         status: output.status,
@@ -283,15 +296,15 @@ impl Subcommand {
       .map(str::to_owned)
       .collect::<Vec<String>>();
 
-    justfile.run(config, search, overrides, &recipes)
+    justfile.run(config, search, &recipes)
   }
 
   fn completions(shell: completions::Shell) {
     print!("{}", shell.script());
   }
 
-  fn dump(config: &Config, compilation: Compilation) -> RunResult<'static> {
-    match config.dump_format {
+  fn dump(compilation: Compilation, format: DumpFormat) -> RunResult<'static> {
+    match format {
       DumpFormat::Json => {
         serde_json::to_writer(io::stdout(), &compilation.justfile)
           .map_err(|source| Error::DumpJson { source })?;
@@ -324,12 +337,34 @@ impl Subcommand {
     Ok(())
   }
 
-  fn format(config: &Config, search: &Search, compilation: Compilation) -> RunResult<'static> {
-    let justfile = &compilation.justfile;
-    let src = compilation.root_src();
-    let ast = compilation.root_ast();
+  fn format<'src>(config: &Config, loader: &'src Loader, search: &Search) -> RunResult<'src> {
+    let root = search.justfile.parent().unwrap();
 
-    config.require_unstable(justfile, UnstableFeature::FormatSubcommand)?;
+    let (path, src) = loader.load(root, &search.justfile)?;
+
+    let ast = Parser::parse_source(
+      &mut Numerator::new(),
+      path,
+      &Source::root(&search.justfile),
+      src,
+    )?;
+
+    let unstable = config.unstable
+      || ast.items.iter().any(|item| {
+        matches!(
+          item,
+          Item::Set(Set {
+            value: Setting::Unstable(true),
+            ..
+          })
+        )
+      });
+
+    if !unstable {
+      return Err(Error::UnstableFeature {
+        unstable_feature: UnstableFeature::FormatSubcommand,
+      });
+    }
 
     let formatted = ast.to_string();
 
@@ -380,7 +415,7 @@ impl Subcommand {
       config.ceiling.as_deref(),
     )?;
 
-    if search.justfile.is_file() {
+    if filesystem::is_file(&search.justfile)? {
       return Err(Error::InitExists {
         justfile: search.justfile,
       });
@@ -450,12 +485,17 @@ impl Subcommand {
         })?;
     }
 
-    Self::list_module(config, module, 0);
+    Self::list_module(config, 0, &config.groups, module)?;
 
     Ok(())
   }
 
-  fn list_module(config: &Config, module: &Justfile, depth: usize) {
+  fn list_module(
+    config: &Config,
+    depth: usize,
+    groups: &[String],
+    module: &Justfile,
+  ) -> RunResult<'static> {
     fn print_doc_and_aliases(
       config: &Config,
       name: &str,
@@ -495,7 +535,7 @@ impl Subcommand {
       if let Some(doc) = doc {
         print!(" ");
         let mut end = 0;
-        for backtick in backtick_re().find_iter(doc) {
+        for backtick in BACKTICK_RE.find_iter(doc) {
           let prefix = &doc[end..backtick.start()];
           if !prefix.is_empty() {
             print!("{}", color.doc().paint(prefix));
@@ -551,7 +591,8 @@ impl Subcommand {
         }
       }
       if !config.list_submodules {
-        for (name, _) in &module.modules {
+        for submodule in module.public_modules(config) {
+          let name = submodule.name();
           signature_widths.insert(name, UnicodeWidthStr::width(format!("{name} ...").as_str()));
         }
       }
@@ -568,58 +609,78 @@ impl Subcommand {
 
     let list_prefix = config.list_prefix.repeat(depth + 1);
 
+    if !groups.is_empty() {
+      let public_groups = module.public_groups(config);
+      for group in groups {
+        if !public_groups.contains(group) {
+          return Err(Error::UnknownGroup {
+            group: group.clone(),
+          });
+        }
+      }
+    }
+
     if depth == 0 {
       print!("{}", config.list_heading);
     }
 
     let recipe_groups = {
-      let mut groups = BTreeMap::<Option<String>, Vec<&Recipe>>::new();
+      let mut recipe_groups = BTreeMap::<Option<String>, Vec<&Recipe>>::new();
       for recipe in module.public_recipes(config) {
-        let recipe_groups = recipe.groups();
-        if recipe_groups.is_empty() {
-          groups.entry(None).or_default().push(recipe);
+        let recipe_groups_list = recipe.groups();
+        if recipe_groups_list.is_empty() {
+          recipe_groups.entry(None).or_default().push(recipe);
         } else {
-          for group in recipe_groups {
-            groups.entry(Some(group)).or_default().push(recipe);
+          for group in recipe_groups_list {
+            recipe_groups.entry(Some(group)).or_default().push(recipe);
           }
         }
       }
-      groups
+      recipe_groups
     };
 
     let submodule_groups = {
-      let mut groups = BTreeMap::<Option<String>, Vec<&Justfile>>::new();
-      for submodule in module.modules(config) {
-        let submodule_groups = submodule.groups();
-        if submodule_groups.is_empty() {
-          groups.entry(None).or_default().push(submodule);
+      let mut submodule_groups = BTreeMap::<Option<String>, Vec<&Justfile>>::new();
+      for submodule in module.public_modules(config) {
+        let submodule_groups_list = submodule.groups();
+        if submodule_groups_list.is_empty() {
+          submodule_groups.entry(None).or_default().push(submodule);
         } else {
-          for group in submodule_groups {
-            groups
+          for group in submodule_groups_list {
+            submodule_groups
               .entry(Some(group.to_string()))
               .or_default()
               .push(submodule);
           }
         }
       }
-      groups
+      submodule_groups
     };
 
-    let mut ordered_groups = module
-      .public_groups(config)
-      .into_iter()
-      .map(Some)
-      .collect::<Vec<Option<String>>>();
+    let mut ordered_groups = if groups.is_empty() {
+      module
+        .public_groups(config)
+        .into_iter()
+        .map(Some)
+        .collect::<Vec<Option<String>>>()
+    } else {
+      groups
+        .iter()
+        .cloned()
+        .map(Some)
+        .collect::<Vec<Option<String>>>()
+    };
 
-    if recipe_groups.contains_key(&None) || submodule_groups.contains_key(&None) {
+    if groups.is_empty()
+      && (recipe_groups.contains_key(&None) || submodule_groups.contains_key(&None))
+    {
       ordered_groups.insert(0, None);
     }
 
-    let no_groups = ordered_groups.len() == 1 && ordered_groups.first() == Some(&None);
-    let mut groups_count = 0;
-    if !no_groups {
-      groups_count = ordered_groups.len();
-    }
+    let no_groups =
+      groups.is_empty() && ordered_groups.len() == 1 && ordered_groups.first() == Some(&None);
+
+    let groups_count = if no_groups { 0 } else { ordered_groups.len() };
 
     for (i, group) in ordered_groups.into_iter().enumerate() {
       if i > 0 {
@@ -693,7 +754,7 @@ impl Subcommand {
             }
             println!("{list_prefix}{}:", submodule.name());
 
-            Self::list_module(config, submodule, depth + 1);
+            Self::list_module(config, depth + 1, &[], submodule)?;
           } else {
             print!("{list_prefix}{} ...", submodule.name());
             print_doc_and_aliases(
@@ -708,38 +769,20 @@ impl Subcommand {
         }
       }
     }
+
+    Ok(())
   }
 
-  fn show<'src>(
-    config: &Config,
-    mut module: &Justfile<'src>,
-    path: &ModulePath,
-  ) -> RunResult<'src> {
-    for name in &path.path[0..path.path.len() - 1] {
-      module = module
-        .modules
-        .get(name)
-        .ok_or_else(|| Error::UnknownSubmodule {
-          path: path.to_string(),
-        })?;
-    }
+  fn show<'src>(config: &Config, module: &Justfile<'src>, path: &ModulePath) -> RunResult<'src> {
+    let (alias, recipe) = Self::resolve_path(module, path)?;
 
-    let name = path.path.last().unwrap();
-
-    if let Some(alias) = module.get_alias(name) {
-      let recipe = module.get_recipe(alias.target.name.lexeme()).unwrap();
+    if let Some(alias) = alias {
       println!("{alias}");
-      println!("{}", recipe.color_display(config.color.stdout()));
-      Ok(())
-    } else if let Some(recipe) = module.get_recipe(name) {
-      println!("{}", recipe.color_display(config.color.stdout()));
-      Ok(())
-    } else {
-      Err(Error::UnknownRecipe {
-        recipe: name.to_owned(),
-        suggestion: module.suggest_recipe(name),
-      })
     }
+
+    println!("{}", recipe.color_display(config.color.stdout()));
+
+    Ok(())
   }
 
   fn summary(config: &Config, justfile: &Justfile) {
@@ -772,10 +815,58 @@ impl Subcommand {
       *printed += 1;
     }
 
-    for (name, module) in &justfile.modules {
+    for module in justfile.public_modules(config) {
+      let name = module.name();
       components.push(name);
       Self::summary_recursive(config, components, printed, module);
       components.pop();
+    }
+  }
+
+  fn usage<'src>(config: &Config, module: &Justfile<'src>, path: &ModulePath) -> RunResult<'src> {
+    let (alias, recipe) = Self::resolve_path(module, path)?;
+
+    if let Some(alias) = alias {
+      println!("{alias}");
+    }
+
+    println!(
+      "{}",
+      Usage {
+        long: true,
+        path,
+        recipe,
+      }
+      .color_display(config.color.stdout()),
+    );
+
+    Ok(())
+  }
+
+  fn resolve_path<'src, 'run>(
+    mut module: &'run Justfile<'src>,
+    path: &ModulePath,
+  ) -> RunResult<'src, (Option<&'run Alias<'src>>, &'run Recipe<'src>)> {
+    for name in &path.path[0..path.path.len() - 1] {
+      module = module
+        .modules
+        .get(name)
+        .ok_or_else(|| Error::UnknownSubmodule {
+          path: path.to_string(),
+        })?;
+    }
+
+    let name = path.path.last().unwrap();
+
+    if let Some(alias) = module.get_alias(name) {
+      Ok((Some(alias), &alias.target))
+    } else if let Some(recipe) = module.get_recipe(name) {
+      Ok((None, recipe))
+    } else {
+      Err(Error::UnknownRecipe {
+        recipe: name.to_owned(),
+        suggestion: module.suggest_recipe(name),
+      })
     }
   }
 

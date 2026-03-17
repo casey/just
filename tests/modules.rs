@@ -11,7 +11,7 @@ fn modules_are_stable() {
     .write("foo.just", "@bar:\n echo ok")
     .args(["foo", "bar"])
     .stdout("ok\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -25,8 +25,7 @@ fn default_recipe_in_submodule_must_have_no_arguments() {
     )
     .arg("foo")
     .stderr("error: Recipe `foo` cannot be used as default recipe since it requires at least 1 argument.\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -41,7 +40,7 @@ fn module_recipes_can_be_run_as_subcommands() {
     .arg("foo")
     .arg("foo")
     .stdout("FOO\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -55,7 +54,7 @@ fn module_recipes_can_be_run_with_path_syntax() {
     )
     .arg("foo::foo")
     .stdout("FOO\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -70,7 +69,7 @@ fn nested_module_recipes_can_be_run_with_path_syntax() {
     )
     .arg("foo::bar::baz")
     .stdout("BAZ\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -78,20 +77,17 @@ fn invalid_path_syntax() {
   Test::new()
     .arg(":foo::foo")
     .stderr("error: Justfile does not contain recipe `:foo::foo`\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 
   Test::new()
     .arg("foo::foo:")
     .stderr("error: Justfile does not contain recipe `foo::foo:`\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 
   Test::new()
     .arg("foo:::foo")
     .stderr("error: Justfile does not contain recipe `foo:::foo`\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -100,8 +96,7 @@ fn missing_recipe_after_invalid_path() {
     .arg(":foo::foo")
     .arg("bar")
     .stderr("error: Justfile does not contain recipe `:foo::foo`\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -117,7 +112,7 @@ fn assignments_are_evaluated_in_modules() {
     .arg("foo")
     .arg("foo")
     .stdout("CHILD\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -131,7 +126,7 @@ fn module_subcommand_runs_default_recipe() {
     )
     .arg("foo")
     .stdout("FOO\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -148,7 +143,7 @@ fn modules_can_contain_other_modules() {
     .arg("bar")
     .arg("baz")
     .stdout("BAZ\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -167,8 +162,7 @@ fn circular_module_imports_are_detected() {
     .stderr_regex(path_for_regex(
       "error: Import `.*/foo.just` in `.*/bar.just` is circular\n",
     ))
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -190,7 +184,7 @@ foo:
     .arg("foo")
     .arg("foo")
     .stdout("FOO\n")
-    .run();
+    .success();
 
   Test::new()
     .write(
@@ -207,7 +201,6 @@ foo:
         set allow-duplicate-recipes
       ",
     )
-    .status(EXIT_FAILURE)
     .arg("foo")
     .arg("foo")
     .stderr(
@@ -219,7 +212,7 @@ foo:
         │ ^^^
     ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -241,8 +234,7 @@ fn modules_conflict_with_recipes() {
         │ ^^^
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -265,8 +257,7 @@ fn modules_conflict_with_aliases() {
         │       ^^^
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -281,7 +272,6 @@ fn modules_conflict_with_other_modules() {
         bar:
       ",
     )
-    .status(EXIT_FAILURE)
     .stderr(
       "
       error: Module `foo` first defined on line 1 is redefined on line 2
@@ -291,7 +281,7 @@ fn modules_conflict_with_other_modules() {
         │     ^^^
     ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -305,7 +295,7 @@ fn modules_are_dumped_correctly() {
     )
     .arg("--dump")
     .stdout("mod foo\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -319,7 +309,7 @@ fn optional_modules_are_dumped_correctly() {
     )
     .arg("--dump")
     .stdout("mod? foo\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -334,7 +324,7 @@ fn modules_can_be_in_subdirectory() {
     .arg("foo")
     .arg("foo")
     .stdout("FOO\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -349,7 +339,7 @@ fn modules_in_subdirectory_can_be_named_justfile() {
     .arg("foo")
     .arg("foo")
     .stdout("FOO\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -364,7 +354,7 @@ fn modules_in_subdirectory_can_be_named_justfile_with_any_case() {
     .arg("foo")
     .arg("foo")
     .stdout("FOO\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -379,7 +369,7 @@ fn modules_in_subdirectory_can_have_leading_dot() {
     .arg("foo")
     .arg("foo")
     .stdout("FOO\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -392,7 +382,6 @@ fn modules_require_unambiguous_file() {
         mod foo
       ",
     )
-    .status(EXIT_FAILURE)
     .stderr(
       "
       error: Found multiple source files for module `foo`: `foo/justfile` and `foo.just`
@@ -403,7 +392,7 @@ fn modules_require_unambiguous_file() {
       "
       .replace('/', MAIN_SEPARATOR_STR),
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -414,7 +403,6 @@ fn missing_module_file_error() {
         mod foo
       ",
     )
-    .status(EXIT_FAILURE)
     .stderr(
       "
       error: Could not find source file for module `foo`.
@@ -424,7 +412,7 @@ fn missing_module_file_error() {
         │     ^^^
       ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -439,7 +427,7 @@ fn missing_optional_modules_do_not_trigger_error() {
       ",
     )
     .stdout("BAR\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -456,7 +444,7 @@ fn missing_optional_modules_do_not_conflict() {
     .arg("foo")
     .arg("baz")
     .stdout("BAZ\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -473,7 +461,7 @@ fn root_dotenv_is_available_to_submodules() {
     .write(".env", "DOTENV_KEY=dotenv-value")
     .args(["foo", "foo"])
     .stdout("dotenv-value\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -493,7 +481,7 @@ fn dotenv_settings_in_submodule_are_ignored() {
     .write(".env", "DOTENV_KEY=dotenv-value")
     .args(["foo", "foo"])
     .stdout("dotenv-value\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -508,7 +496,7 @@ fn modules_may_specify_path() {
     .arg("foo")
     .arg("foo")
     .stdout("FOO\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -523,7 +511,7 @@ fn modules_may_specify_path_to_directory() {
     .arg("foo")
     .arg("foo")
     .stdout("FOO\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -537,7 +525,7 @@ fn modules_with_paths_are_dumped_correctly() {
     )
     .arg("--dump")
     .stdout("mod foo 'commands/foo.just'\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -551,7 +539,7 @@ fn optional_modules_with_paths_are_dumped_correctly() {
     )
     .arg("--dump")
     .stdout("mod? foo 'commands/foo.just'\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -566,7 +554,7 @@ fn recipes_may_be_named_mod() {
     .arg("mod")
     .arg("bar")
     .stdout("FOO\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -582,7 +570,7 @@ fn submodule_linewise_recipes_run_in_submodule_directory() {
     .arg("foo")
     .arg("foo")
     .stdout("BAR")
-    .run();
+    .success();
 }
 
 #[test]
@@ -598,7 +586,7 @@ fn submodule_shebang_recipes_run_in_submodule_directory() {
     .arg("foo")
     .arg("foo")
     .stdout("BAR")
-    .run();
+    .success();
 }
 
 #[test]
@@ -615,7 +603,7 @@ fn cross_module_dependency_runs_in_submodule_directory() {
     )
     .arg("main")
     .stdout("BAR")
-    .run();
+    .success();
 }
 
 #[test]
@@ -639,7 +627,7 @@ foo:
     )
     .arg("main")
     .stdout("ROOT")
-    .run();
+    .success();
 }
 
 #[test]
@@ -657,12 +645,14 @@ fn nested_cross_module_dependency_runs_in_correct_directory() {
     )
     .arg("main")
     .stdout("NESTED")
-    .run();
+    .success();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn module_paths_beginning_with_tilde_are_expanded_to_homdir() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .write("foobar/mod.just", "foo:\n @echo FOOBAR")
     .justfile(
@@ -674,7 +664,7 @@ fn module_paths_beginning_with_tilde_are_expanded_to_homdir() {
     .arg("foo")
     .stdout("FOOBAR\n")
     .env("HOME", "foobar")
-    .run();
+    .success();
 }
 
 #[test]
@@ -692,7 +682,7 @@ fn recipes_with_same_name_are_both_run() {
     .arg("foo::bar")
     .arg("bar")
     .stdout("MODULE\nROOT\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -700,8 +690,7 @@ fn submodule_recipe_not_found_error_message() {
   Test::new()
     .args(["foo::bar"])
     .stderr("error: Justfile does not contain submodule `foo`\n")
-    .status(1)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -715,8 +704,7 @@ fn submodule_recipe_not_found_spaced_error_message() {
     )
     .args(["foo", "baz"])
     .stderr("error: Justfile does not contain recipe `foo baz`\nDid you mean `bar`?\n")
-    .status(1)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -730,8 +718,7 @@ fn submodule_recipe_not_found_colon_separated_error_message() {
     )
     .args(["foo::baz"])
     .stderr("error: Justfile does not contain recipe `foo::baz`\nDid you mean `bar`?\n")
-    .status(1)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -748,8 +735,7 @@ fn colon_separated_path_does_not_run_recipes() {
     )
     .args(["foo::bar"])
     .stderr("error: Expected submodule at `foo` but found recipe.\n")
-    .status(1)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -758,8 +744,7 @@ fn expected_submodule_but_found_recipe_in_root_error() {
     .justfile("foo:")
     .arg("foo::baz")
     .stderr("error: Expected submodule at `foo` but found recipe.\n")
-    .status(1)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -769,8 +754,7 @@ fn expected_submodule_but_found_recipe_in_submodule_error() {
     .write("foo.just", "bar:")
     .args(["foo::bar::baz"])
     .stderr("error: Expected submodule at `foo::bar` but found recipe.\n")
-    .status(1)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -779,8 +763,7 @@ fn colon_separated_path_components_are_not_used_as_arguments() {
     .justfile("foo bar:")
     .args(["foo::bar"])
     .stderr("error: Expected submodule at `foo` but found recipe.\n")
-    .status(1)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -794,7 +777,7 @@ fn comments_can_follow_modules() {
     )
     .args(["foo", "foo"])
     .stdout("FOO\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -810,7 +793,7 @@ fn doc_comment_on_module() {
     .test_round_trip(false)
     .arg("--list")
     .stdout("Available recipes:\n    foo ... # Comment\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -827,7 +810,7 @@ fn doc_attribute_on_module() {
     .test_round_trip(false)
     .arg("--list")
     .stdout("Available recipes:\n    foo ... # Comment\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -873,7 +856,7 @@ fn group_attribute_on_module() {
             bar ...
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -920,7 +903,7 @@ fn group_attribute_on_module_unsorted() {
             bar ...
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -970,7 +953,7 @@ fn group_attribute_on_module_list_submodule() {
                 e
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1021,7 +1004,7 @@ fn group_attribute_on_module_list_submodule_unsorted() {
                 e
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1037,8 +1020,7 @@ fn bad_module_attribute_fails() {
     .test_round_trip(false)
     .arg("--list")
     .stderr("error: Module `foo` has invalid attribute `no-cd`\n ——▶ justfile:2:5\n  │\n2 │ mod foo\n  │     ^^^\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1055,7 +1037,7 @@ fn empty_doc_attribute_on_module() {
     .test_round_trip(false)
     .arg("--list")
     .stdout("Available recipes:\n    foo ...\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1075,7 +1057,7 @@ fn overrides_work_when_submodule_is_present() {
     .test_round_trip(false)
     .arg("x=b")
     .stdout("b\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1092,7 +1074,7 @@ fn exported_variables_are_available_in_submodules() {
     .test_round_trip(false)
     .arg("foo::bar")
     .stdout("a\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1109,7 +1091,7 @@ fn exported_variables_can_be_unexported_in_submodules() {
     .test_round_trip(false)
     .arg("foo::bar")
     .stdout("default\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1126,5 +1108,5 @@ fn exported_variables_can_be_overridden_in_submodules() {
     .test_round_trip(false)
     .arg("foo::bar")
     .stdout("b\n")
-    .run();
+    .success();
 }

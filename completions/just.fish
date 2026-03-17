@@ -35,6 +35,7 @@ just\t''"
 complete -c just -s f -l justfile -d 'Use <JUSTFILE> as justfile' -r -F
 complete -c just -l list-heading -d 'Print <TEXT> before list' -r
 complete -c just -l list-prefix -d 'Print <TEXT> before each list item' -r
+complete -c just -l group -d 'Only list recipes in <GROUP>' -r
 complete -c just -l set -d 'Override <VARIABLE> with <VALUE>' -r
 complete -c just -l shell -d 'Invoke <SHELL> to run recipes' -r
 complete -c just -l shell-arg -d 'Invoke shell with <SHELL-ARG> as an argument' -r
@@ -51,6 +52,7 @@ zsh\t''"
 complete -c just -s l -l list -d 'List available recipes in <MODULE> or root if omitted' -r
 complete -c just -l request -d 'Execute <REQUEST>. For internal testing purposes only. May be changed or removed at any time.' -r
 complete -c just -s s -l show -d 'Show recipe at <PATH>' -r
+complete -c just -l usage -d 'Print recipe usage information' -r
 complete -c just -l check -d 'Run `--fmt` in \'check\' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.'
 complete -c just -l clear-shell-args -d 'Clear shell arguments'
 complete -c just -s n -l dry-run -d 'Print what just would do without doing it'
@@ -79,6 +81,7 @@ complete -c just -l evaluate -d 'Evaluate and print all variables. If a variable
 complete -c just -l fmt -d 'Format and overwrite justfile'
 complete -c just -l groups -d 'List recipe groups'
 complete -c just -l init -d 'Initialize new justfile in project root'
+complete -c just -l json -d 'Print justfile as JSON'
 complete -c just -l man -d 'Print man page'
 complete -c just -l summary -d 'List names of available recipes'
 complete -c just -l variables -d 'List names of variables'

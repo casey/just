@@ -1,12 +1,12 @@
 use super::*;
 
-pub struct Enclosure<T: Display> {
+pub(crate) struct Enclosure<T: Display> {
   enclosure: &'static str,
   value: T,
 }
 
 impl<T: Display> Enclosure<T> {
-  pub fn tick(value: T) -> Enclosure<T> {
+  pub(crate) fn tick(value: T) -> Self {
     Self {
       enclosure: "`",
       value,

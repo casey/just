@@ -13,7 +13,7 @@
 //! of existing justfiles.
 
 use {
-  crate::{compiler::Compiler, error::Error, loader::Loader},
+  crate::{compiler::Compiler, config::Config, error::Error, loader::Loader},
   std::{collections::BTreeMap, io, path::Path},
 };
 
@@ -28,7 +28,7 @@ mod full {
 pub fn summary(path: &Path) -> io::Result<Result<Summary, String>> {
   let loader = Loader::new();
 
-  match Compiler::compile(&loader, path) {
+  match Compiler::compile(&Config::default(), &loader, path) {
     Ok(compilation) => Ok(Ok(Summary::new(&compilation.justfile))),
     Err(error) => Ok(Err(if let Error::Compile { compile_error } = error {
       compile_error.to_string()
@@ -184,38 +184,42 @@ impl Assignment {
 #[derive(Eq, PartialEq, Hash, Ord, PartialOrd, Debug, Clone)]
 pub enum Expression {
   And {
-    lhs: Box<Expression>,
-    rhs: Box<Expression>,
+    lhs: Box<Self>,
+    rhs: Box<Self>,
   },
   Assert {
     condition: Condition,
-    error: Box<Expression>,
+    error: Box<Self>,
   },
   Backtick {
     command: String,
   },
   Call {
     name: String,
-    arguments: Vec<Expression>,
+    arguments: Vec<Self>,
   },
   Concatenation {
-    lhs: Box<Expression>,
-    rhs: Box<Expression>,
+    lhs: Box<Self>,
+    rhs: Box<Self>,
   },
   Conditional {
-    lhs: Box<Expression>,
-    rhs: Box<Expression>,
-    then: Box<Expression>,
-    otherwise: Box<Expression>,
+    lhs: Box<Self>,
+    rhs: Box<Self>,
+    then: Box<Self>,
+    otherwise: Box<Self>,
     operator: ConditionalOperator,
   },
+  FormatString {
+    start: String,
+    expressions: Vec<(Self, String)>,
+  },
   Join {
-    lhs: Option<Box<Expression>>,
-    rhs: Box<Expression>,
+    lhs: Option<Box<Self>>,
+    rhs: Box<Self>,
   },
   Or {
-    lhs: Box<Expression>,
-    rhs: Box<Expression>,
+    lhs: Box<Self>,
+    rhs: Box<Self>,
   },
   String {
     text: String,
@@ -236,13 +240,14 @@ impl Expression {
       Assert {
         condition: full::Condition { lhs, rhs, operator },
         error,
-      } => Expression::Assert {
+        ..
+      } => Self::Assert {
         condition: Condition {
-          lhs: Box::new(Expression::new(lhs)),
-          rhs: Box::new(Expression::new(rhs)),
+          lhs: Box::new(Self::new(lhs)),
+          rhs: Box::new(Self::new(rhs)),
           operator: ConditionalOperator::new(*operator),
         },
-        error: Box::new(Expression::new(error)),
+        error: Box::new(Self::new(error)),
       },
       Backtick { contents, .. } => Self::Backtick {
         command: (*contents).clone(),
@@ -276,11 +281,11 @@ impl Expression {
           args: (a, rest),
           ..
         } => {
-          let mut arguments = vec![Expression::new(a)];
+          let mut arguments = vec![Self::new(a)];
           for arg in rest {
-            arguments.push(Expression::new(arg));
+            arguments.push(Self::new(arg));
           }
-          Expression::Call {
+          Self::Call {
             name: name.lexeme().to_owned(),
             arguments,
           }
@@ -328,6 +333,13 @@ impl Expression {
         otherwise: Self::new(otherwise).into(),
         rhs: Self::new(rhs).into(),
         then: Self::new(then).into(),
+      },
+      FormatString { start, expressions } => Self::FormatString {
+        start: start.cooked.clone(),
+        expressions: expressions
+          .iter()
+          .map(|(expression, string)| (Self::new(expression), string.cooked.clone()))
+          .collect(),
       },
       Group { contents } => Self::new(contents),
       Join { lhs, rhs } => Self::Join {
@@ -382,9 +394,16 @@ pub struct Dependency {
 
 impl Dependency {
   fn new(dependency: &full::Dependency) -> Self {
+    let mut arguments = Vec::new();
+    for group in &dependency.arguments {
+      for argument in group {
+        arguments.push(Expression::new(argument));
+      }
+    }
+
     Self {
       recipe: dependency.recipe.name().to_owned(),
-      arguments: dependency.arguments.iter().map(Expression::new).collect(),
+      arguments,
     }
   }
 }
