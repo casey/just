@@ -252,6 +252,24 @@ fn require_error() {
 }
 
 #[test]
+#[cfg(windows)]
+fn finds_executable_via_pathext() {
+  let tmp = tempdir();
+  let path = PathBuf::from(tmp.path());
+
+  Test::with_tempdir(tmp)
+    .justfile("p := which('foo')")
+    .args(["--evaluate", "p"])
+    .write("foo.exe", HELLO_SCRIPT)
+    .make_executable("foo.exe")
+    .env("PATH", path.to_str().unwrap())
+    .env("PATHEXT", ".EXE")
+    .env("JUST_UNSTABLE", "1")
+    .stdout(path.join("foo.exe").display().to_string())
+    .success();
+}
+
+#[test]
 fn require_success() {
   let tmp = tempdir();
   let path = PathBuf::from(tmp.path());
