@@ -305,7 +305,6 @@ fn pathext_custom_extension() {
     .justfile("p := which('foo')")
     .args(["--evaluate", "p"])
     .write("foo.bar", HELLO_SCRIPT)
-    .make_executable("foo.bar")
     .env("PATH", path.to_str().unwrap())
     .env("PATHEXT", ".BAR")
     .env("JUST_UNSTABLE", "1")
