@@ -67,6 +67,7 @@ mod delimiters;
 mod dependencies;
 mod directories;
 mod dotenv;
+mod dump;
 mod edit;
 mod equals;
 mod error_messages;

@@ -820,25 +820,6 @@ recipe:
 }
 
 #[test]
-fn dump() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      r"
-# this recipe does something
-recipe a b +d:
- @exit 100",
-    )
-    .stdout(
-      "# this recipe does something
-recipe a b +d:
-    @exit 100
-",
-    )
-    .success();
-}
-
-#[test]
 fn mixed_whitespace() {
   Test::new()
     .justfile("bar:\n\t echo hello")

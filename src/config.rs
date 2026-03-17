@@ -1379,13 +1379,13 @@ mod tests {
   test! {
     name: subcommand_dump,
     args: ["--dump"],
-    subcommand: Subcommand::Dump,
+    subcommand: Subcommand::Dump { format: DumpFormat::Just },
   }
 
   test! {
-    name: dump_format,
-    args: ["--dump-format", "json"],
-    dump_format: DumpFormat::Json,
+    name: subcommand_json,
+    args: ["--json"],
+    subcommand: Subcommand::Dump { format: DumpFormat::Json },
   }
 
   test! {
