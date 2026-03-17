@@ -27,11 +27,26 @@ impl Shell {
 #[cfg(test)]
 mod tests {
   use {
+    snafu::{OptionExt, ResultExt, Whatever},
     super::*,
     pretty_assertions::assert_eq,
     std::io::{Read, Seek},
     tempfile::tempfile,
   };
+
+  const FISH_JUSTFILE_REGEX: &str =
+    r"(^|\s)(--justfile(\s+|=)|-f(=|\s*))(?<justfile>[^\s]+)";
+
+  fn justfile_capture<'a>(regex: &'a Regex, input: &'a str) -> Result<&'a str, Whatever> {
+    let captures = regex
+      .captures(input)
+      .with_whatever_context(|| format!("missing justfile match for `{input}`"))?;
+
+    Ok(captures
+      .name("justfile")
+      .with_whatever_context(|| format!("missing named justfile capture for `{input}`"))?
+      .as_str())
+  }
 
   #[test]
   fn scripts() {
@@ -57,6 +72,36 @@ mod tests {
     assert_eq!(Shell::Fish.script(), fish);
     assert_eq!(Shell::Powershell.script(), powershell);
     assert_eq!(Shell::Zsh.script(), zsh);
+  }
+
+  #[test]
+  fn fish_asset_contains_shared_justfile_regex() {
+    assert!(
+      Shell::Fish.script().contains(FISH_JUSTFILE_REGEX),
+      "checked-in fish completion should embed the shared justfile regex"
+    );
+  }
+
+  #[test]
+  fn fish_justfile_regex_does_not_match_recipe_names() -> Result<(), Whatever> {
+    let regex = Regex::new(FISH_JUSTFILE_REGEX)
+      .with_whatever_context(|_| "failed to compile fish justfile regex")?;
+
+    assert_eq!(justfile_capture(&regex, "just -ffoo --summary")?, "foo");
+    assert_eq!(justfile_capture(&regex, "just -f foo --summary")?, "foo");
+    assert_eq!(justfile_capture(&regex, "just -f=foo --summary")?, "foo");
+    assert_eq!(justfile_capture(&regex, "just --justfile=foo --summary")?, "foo");
+    assert_eq!(justfile_capture(&regex, "just --justfile foo --summary")?, "foo");
+    assert!(
+      regex.captures("just update-fast-input").is_none(),
+      "fish justfile regex should not treat recipe names containing -f as justfile flags"
+    );
+    assert!(
+      regex.captures("just prefix-fake").is_none(),
+      "fish justfile regex should not match unrelated tokens containing -f"
+    );
+
+    Ok(())
   }
 
   fn clap(shell: clap_complete::Shell) -> String {
@@ -115,7 +160,7 @@ mod tests {
   }
 
   const FISH_RECIPE_COMPLETIONS: &str = r#"function __fish_just_complete_recipes
-        if string match -rq '(-f|--justfile)\s*=?(?<justfile>[^\s]+)' -- (string split -- ' -- ' (commandline -pc))[1]
+        if string match -rq '(^|\s)(--justfile(\s+|=)|-f(=|\s*))(?<justfile>[^\s]+)' -- (string split -- ' -- ' (commandline -pc))[1]
           set -fx JUST_JUSTFILE "$justfile"
         end
         printf "%s\n" (string split " " (just --summary))

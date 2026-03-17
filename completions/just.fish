@@ -1,5 +1,5 @@
 function __fish_just_complete_recipes
-        if string match -rq '(-f|--justfile)\s*=?(?<justfile>[^\s]+)' -- (string split -- ' -- ' (commandline -pc))[1]
+        if string match -rq '(^|\s)(--justfile(\s+|=)|-f(=|\s*))(?<justfile>[^\s]+)' -- (string split -- ' -- ' (commandline -pc))[1]
           set -fx JUST_JUSTFILE "$justfile"
         end
         printf "%s\n" (string split " " (just --summary))
