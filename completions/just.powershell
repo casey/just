@@ -85,6 +85,7 @@ Register-ArgumentCompleter -Native -CommandName 'just' -ScriptBlock {
             [CompletionResult]::new('--fmt', '--fmt', [CompletionResultType]::ParameterName, 'Format and overwrite justfile')
             [CompletionResult]::new('--groups', '--groups', [CompletionResultType]::ParameterName, 'List recipe groups')
             [CompletionResult]::new('--init', '--init', [CompletionResultType]::ParameterName, 'Initialize new justfile in project root')
+            [CompletionResult]::new('--json', '--json', [CompletionResultType]::ParameterName, 'Print justfile as JSON')
             [CompletionResult]::new('--man', '--man', [CompletionResultType]::ParameterName, 'Print man page')
             [CompletionResult]::new('--summary', '--summary', [CompletionResultType]::ParameterName, 'List names of available recipes')
             [CompletionResult]::new('--variables', '--variables', [CompletionResultType]::ParameterName, 'List names of variables')
