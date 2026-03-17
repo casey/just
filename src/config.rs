@@ -767,10 +767,7 @@ impl Config {
       Subcommand::Completions { shell }
     } else if matches.get_flag(cmd::DUMP) {
       Subcommand::Dump {
-        format: matches
-          .get_one::<DumpFormat>(arg::DUMP_FORMAT)
-          .unwrap()
-          .clone(),
+        format: *matches.get_one::<DumpFormat>(arg::DUMP_FORMAT).unwrap(),
       }
     } else if matches.get_flag(cmd::EDIT) {
       Subcommand::Edit
