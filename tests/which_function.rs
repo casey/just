@@ -252,8 +252,11 @@ fn require_error() {
 }
 
 #[test]
-#[cfg(windows)]
 fn finds_executable_via_pathext() {
+  if !cfg!(windows) {
+    return;
+  }
+
   let tmp = tempdir();
   let path = PathBuf::from(tmp.path());
 
@@ -266,6 +269,88 @@ fn finds_executable_via_pathext() {
     .env("PATHEXT", ".EXE")
     .env("JUST_UNSTABLE", "1")
     .stdout(path.join("foo.exe").display().to_string())
+    .success();
+}
+
+#[test]
+fn pathext_not_applied_when_candidate_has_extension() {
+  if !cfg!(windows) {
+    return;
+  }
+
+  let tmp = tempdir();
+  let path = PathBuf::from(tmp.path());
+
+  Test::with_tempdir(tmp)
+    .justfile("p := which('foo.bat')")
+    .args(["--evaluate", "p"])
+    .write("foo.bat.exe", HELLO_SCRIPT)
+    .make_executable("foo.bat.exe")
+    .env("PATH", path.to_str().unwrap())
+    .env("PATHEXT", ".EXE")
+    .env("JUST_UNSTABLE", "1")
+    .success();
+}
+
+#[test]
+fn pathext_custom_extension() {
+  if !cfg!(windows) {
+    return;
+  }
+
+  let tmp = tempdir();
+  let path = PathBuf::from(tmp.path());
+
+  Test::with_tempdir(tmp)
+    .justfile("p := which('foo')")
+    .args(["--evaluate", "p"])
+    .write("foo.bar", HELLO_SCRIPT)
+    .make_executable("foo.bar")
+    .env("PATH", path.to_str().unwrap())
+    .env("PATHEXT", ".BAR")
+    .env("JUST_UNSTABLE", "1")
+    .stdout(path.join("foo.bar").display().to_string())
+    .success();
+}
+
+#[test]
+fn pathext_entry_missing_dot_is_error() {
+  if !cfg!(windows) {
+    return;
+  }
+
+  let tmp = tempdir();
+  let path = PathBuf::from(tmp.path());
+
+  Test::with_tempdir(tmp)
+    .justfile("p := which('foo')")
+    .args(["--evaluate", "p"])
+    .write("foo.exe", HELLO_SCRIPT)
+    .make_executable("foo.exe")
+    .env("PATH", path.to_str().unwrap())
+    .env("PATHEXT", "EXE")
+    .env("JUST_UNSTABLE", "1")
+    .stderr_regex(".*`PATHEXT` entry `EXE` does not start with `.`.*")
+    .failure();
+}
+
+#[test]
+fn pathext_ignored_on_non_windows() {
+  if cfg!(windows) {
+    return;
+  }
+
+  let tmp = tempdir();
+  let path = PathBuf::from(tmp.path());
+
+  Test::with_tempdir(tmp)
+    .justfile("p := which('foo')")
+    .args(["--evaluate", "p"])
+    .write("foo.exe", HELLO_SCRIPT)
+    .make_executable("foo.exe")
+    .env("PATH", path.to_str().unwrap())
+    .env("PATHEXT", ".EXE")
+    .env("JUST_UNSTABLE", "1")
     .success();
 }
 
