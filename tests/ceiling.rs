@@ -8,8 +8,11 @@ fn justfile_run_search_stops_at_ceiling_dir() {
 
   fs::create_dir(&ceiling).unwrap();
 
-  #[cfg(not(windows))]
-  let ceiling = ceiling.canonicalize().unwrap();
+  let ceiling = if cfg!(not(windows)) {
+    ceiling.canonicalize().unwrap()
+  } else {
+    ceiling
+  };
 
   Test::with_tempdir(tempdir)
     .justfile(
@@ -33,8 +36,11 @@ fn ceiling_can_be_passed_as_environment_variable() {
 
   fs::create_dir(&ceiling).unwrap();
 
-  #[cfg(not(windows))]
-  let ceiling = ceiling.canonicalize().unwrap();
+  let ceiling = if cfg!(not(windows)) {
+    ceiling.canonicalize().unwrap()
+  } else {
+    ceiling
+  };
 
   Test::with_tempdir(tempdir)
     .justfile(
@@ -58,8 +64,11 @@ fn justfile_init_search_stops_at_ceiling_dir() {
 
   fs::create_dir(&ceiling).unwrap();
 
-  #[cfg(not(windows))]
-  let ceiling = ceiling.canonicalize().unwrap();
+  let ceiling = if cfg!(not(windows)) {
+    ceiling.canonicalize().unwrap()
+  } else {
+    ceiling
+  };
 
   let Output { tempdir, .. } = Test::with_tempdir(tempdir)
     .no_justfile()
