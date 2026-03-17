@@ -5,6 +5,7 @@ pub(crate) struct RecipeResolver<'src: 'run, 'run> {
   module_path: &'run str,
   modules: &'run Table<'src, Justfile<'src>>,
   resolved_recipes: Table<'src, Arc<Recipe<'src>>>,
+  settings: &'run Settings,
   unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
 }
 
@@ -13,7 +14,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     assignments: &'run Table<'src, Assignment<'src>>,
     module_path: &'run str,
     modules: &'run Table<'src, Justfile<'src>>,
-    settings: &Settings,
+    settings: &'run Settings,
     unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
   ) -> CompileResult<'src, Table<'src, Arc<Recipe<'src>>>> {
     let mut resolver = Self {
@@ -21,6 +22,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       module_path,
       modules,
       resolved_recipes: Table::new(),
+      settings,
       unresolved_recipes,
     };
 
@@ -28,59 +30,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       resolver.resolve_recipe(&mut Vec::new(), unresolved)?;
     }
 
-    for recipe in resolver.resolved_recipes.values() {
-      for (i, parameter) in recipe.parameters.iter().enumerate() {
-        if let Some(expression) = &parameter.default {
-          for variable in expression.variables() {
-            resolver.resolve_variable(&variable, &recipe.parameters[..i])?;
-          }
-        }
-      }
-
-      for dependency in &recipe.dependencies {
-        for group in &dependency.arguments {
-          for argument in group {
-            for variable in argument.variables() {
-              resolver.resolve_variable(&variable, &recipe.parameters)?;
-            }
-          }
-        }
-      }
-
-      for line in &recipe.body {
-        if line.is_comment() && settings.ignore_comments {
-          continue;
-        }
-
-        for fragment in &line.fragments {
-          if let Fragment::Interpolation { expression, .. } = fragment {
-            for variable in expression.variables() {
-              resolver.resolve_variable(&variable, &recipe.parameters)?;
-            }
-          }
-        }
-      }
-    }
-
     Ok(resolver.resolved_recipes)
-  }
-
-  fn resolve_variable(
-    &self,
-    variable: &Token<'src>,
-    parameters: &[Parameter],
-  ) -> CompileResult<'src> {
-    let name = variable.lexeme();
-
-    let defined = self.assignments.contains_key(name)
-      || parameters.iter().any(|p| p.name.lexeme() == name)
-      || constants().contains_key(name);
-
-    if !defined {
-      return Err(variable.error(UndefinedVariable { variable: name }));
-    }
-
-    Ok(())
   }
 
   fn resolve_recipe(
@@ -111,7 +61,12 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
 
     stack.pop();
 
-    let resolved = Arc::new(recipe.resolve(self.module_path, dependencies)?);
+    let resolved = Arc::new(recipe.resolve(
+      self.assignments,
+      self.module_path,
+      dependencies,
+      self.settings,
+    )?);
     self.resolved_recipes.insert(Arc::clone(&resolved));
     Ok(resolved)
   }

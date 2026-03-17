@@ -1,6 +1,6 @@
 use {
   super::*,
-  pretty_assertions::{assert_eq, StrComparison},
+  pretty_assertions::{StrComparison, assert_eq},
 };
 
 pub(crate) struct Output {

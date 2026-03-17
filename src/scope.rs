@@ -20,8 +20,9 @@ impl<'src, 'run> Scope<'src, 'run> {
       bindings: Table::new(),
     };
 
-    for (key, value) in constants() {
+    for (i, (key, value)) in constants().iter().enumerate() {
       root.bind(Binding {
+        eager: false,
         export: false,
         file_depth: 0,
         name: Name {
@@ -35,6 +36,7 @@ impl<'src, 'run> Scope<'src, 'run> {
             src: key,
           },
         },
+        number: Numerator::constant(i),
         prelude: true,
         private: false,
         value: (*value).into(),

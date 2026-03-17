@@ -82,14 +82,24 @@ impl<'src> Justfile<'src> {
     root: &'run Scope<'src, 'run>,
     scopes: &mut BTreeMap<String, (&'run Self, &'run Scope<'src, 'run>)>,
     search: &'run Search,
+    variable_references: Option<&HashSet<Number>>,
   ) -> RunResult<'src> {
-    let scope = Evaluator::evaluate_assignments(config, dotenv, self, root, search)?;
+    let scope =
+      Evaluator::evaluate_assignments(config, dotenv, self, root, search, variable_references)?;
 
     let scope = arena.alloc(scope);
     scopes.insert(self.module_path.clone(), (self, scope));
 
     for module in self.modules.values() {
-      module.evaluate_scopes(arena, config, dotenv, scope, scopes, search)?;
+      module.evaluate_scopes(
+        arena,
+        config,
+        dotenv,
+        scope,
+        scopes,
+        search,
+        variable_references,
+      )?;
     }
 
     Ok(())
@@ -101,19 +111,6 @@ impl<'src> Justfile<'src> {
     search: &Search,
     arguments: &[String],
   ) -> RunResult<'src> {
-    let unknown_overrides = config
-      .overrides
-      .keys()
-      .filter(|name| !self.assignments.contains_key(name.as_str()))
-      .cloned()
-      .collect::<Vec<String>>();
-
-    if !unknown_overrides.is_empty() {
-      return Err(Error::UnknownOverrides {
-        overrides: unknown_overrides,
-      });
-    }
-
     let dotenv = if config.load_dotenv {
       load_dotenv(config, &self.settings, &search.working_directory)?
     } else {
@@ -123,9 +120,6 @@ impl<'src> Justfile<'src> {
     let root = Scope::root();
     let arena = Arena::new();
     let mut scopes = BTreeMap::new();
-    self.evaluate_scopes(&arena, config, &dotenv, &root, &mut scopes, search)?;
-
-    let scope = scopes.get(&self.module_path).unwrap().1;
 
     match &config.subcommand {
       Subcommand::Choose { .. } | Subcommand::Run { .. } => {
@@ -138,6 +132,37 @@ impl<'src> Justfile<'src> {
             invocations: invocations.len(),
           });
         }
+
+        let variable_references = if self.settings.lazy {
+          let mut variable_references = HashSet::new();
+
+          let mut stack = Vec::new();
+
+          for invocation in &invocations {
+            stack.push(invocation.recipe);
+          }
+
+          while let Some(recipe) = stack.pop() {
+            variable_references.extend(&recipe.variable_references);
+            for dependency in &recipe.dependencies {
+              stack.push(&dependency.recipe);
+            }
+          }
+
+          Some(variable_references)
+        } else {
+          None
+        };
+
+        self.evaluate_scopes(
+          &arena,
+          config,
+          &dotenv,
+          &root,
+          &mut scopes,
+          search,
+          variable_references.as_ref(),
+        )?;
 
         let ran = Ran::default();
         for invocation in invocations {
@@ -170,7 +195,17 @@ impl<'src> Justfile<'src> {
           .args(arguments)
           .current_dir(&search.working_directory);
 
-        let scope = scope.child();
+        self.evaluate_scopes(
+          &arena,
+          config,
+          &dotenv,
+          &root,
+          &mut scopes,
+          search,
+          Some(HashSet::new()).as_ref(),
+        )?;
+
+        let scope = scopes.get(&self.module_path).unwrap().1.child();
 
         command.export(&self.settings, &dotenv, &scope, &self.unexports);
 
@@ -197,15 +232,40 @@ impl<'src> Justfile<'src> {
         Ok(())
       }
       Subcommand::Evaluate { variable, .. } => {
-        if let Some(variable) = variable {
-          if let Some(value) = scope.value(variable) {
-            print!("{value}");
+        let variable_references = if let Some(variable) = variable {
+          if let Some(assignment) = self.assignments.get(variable) {
+            Some(HashSet::from([assignment.number]))
           } else {
             return Err(Error::EvalUnknownVariable {
               suggestion: self.suggest_variable(variable),
               variable: variable.clone(),
             });
           }
+        } else {
+          Some(
+            self
+              .assignments
+              .values()
+              .filter(|assignment| !assignment.private)
+              .map(|assignment| assignment.number)
+              .collect(),
+          )
+        };
+
+        self.evaluate_scopes(
+          &arena,
+          config,
+          &dotenv,
+          &root,
+          &mut scopes,
+          search,
+          variable_references.as_ref(),
+        )?;
+
+        let scope = scopes.get(&self.module_path).unwrap().1;
+
+        if let Some(variable) = variable {
+          print!("{}", scope.value(variable).unwrap());
         } else {
           let width = scope.names().fold(0, |max, name| name.len().max(max));
 
@@ -269,16 +329,12 @@ impl<'src> Justfile<'src> {
     scopes: &BTreeMap<String, (&Self, &Scope<'src, '_>)>,
     search: &Search,
   ) -> RunResult<'src> {
-    {
-      let mutex = ran.mutex(recipe, arguments);
+    let mutex = ran.mutex(recipe, arguments);
 
-      let mut guard = mutex.lock().unwrap();
+    let mut guard = mutex.lock().unwrap();
 
-      if *guard {
-        return Ok(());
-      }
-
-      *guard = true;
+    if *guard {
+      return Ok(());
     }
 
     if !config.yes && !recipe.confirm()? {
@@ -336,6 +392,8 @@ impl<'src> Justfile<'src> {
       scopes,
       search,
     )?;
+
+    *guard = true;
 
     Ok(())
   }
@@ -508,10 +566,7 @@ impl<'src> Keyed<'src> for Justfile<'src> {
 
 #[cfg(test)]
 mod tests {
-  use super::*;
-
-  use testing::compile;
-  use Error::*;
+  use {super::*, Error::*, testing::compile};
 
   run_error! {
     name: unknown_recipe_no_suggestion,
@@ -696,19 +751,6 @@ mod tests {
       assert_eq!(found, 0);
       assert_eq!(min, 1);
       assert_eq!(max, 3);
-    }
-  }
-
-  run_error! {
-    name: unknown_overrides,
-    src: "
-      a:
-       echo {{`f() { return 100; }; f`}}
-    ",
-    args: ["foo=bar", "baz=bob", "a"],
-    error: UnknownOverrides { overrides },
-    check: {
-      assert_eq!(overrides, &["baz", "foo"]);
     }
   }
 

@@ -29,6 +29,7 @@ pub(crate) struct Parser<'run, 'src> {
   import_offsets: Vec<usize>,
   module_namepath: Option<&'run Namepath<'src>>,
   next_token: usize,
+  numerator: &'run mut Numerator,
   recursion_depth: usize,
   tokens: &'run [Token<'src>],
   unstable_features: BTreeSet<UnstableFeature>,
@@ -41,6 +42,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     file_depth: u32,
     import_offsets: &[usize],
     module_namepath: Option<&'run Namepath<'src>>,
+    numerator: &'run mut Numerator,
     tokens: &'run [Token<'src>],
     working_directory: &'run Path,
   ) -> CompileResult<'src, Ast<'src>> {
@@ -50,6 +52,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       import_offsets: import_offsets.to_vec(),
       module_namepath,
       next_token: 0,
+      numerator,
       recursion_depth: 0,
       tokens,
       unstable_features: BTreeSet::new(),
@@ -59,9 +62,10 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   pub(crate) fn parse_source(
+    numerator: &mut Numerator,
     path: &'src Path,
-    src: &'src str,
     source: &Source<'src>,
+    src: &'src str,
   ) -> CompileResult<'src, Ast<'src>> {
     let tokens = Lexer::lex(path, src)?;
 
@@ -69,9 +73,18 @@ impl<'run, 'src> Parser<'run, 'src> {
       source.file_depth,
       &source.import_offsets,
       source.namepath.as_ref(),
+      numerator,
       &tokens,
       &source.working_directory,
     )
+  }
+
+  #[cfg(test)]
+  pub(crate) fn parse_tokens(
+    numerator: &'run mut Numerator,
+    tokens: &'run [Token<'src>],
+  ) -> CompileResult<'src, Ast<'src>> {
+    Self::parse(0, &[], None, numerator, tokens, "".as_ref())
   }
 
   fn error(&self, kind: CompileErrorKind<'src>) -> CompileResult<'src, CompileError<'src>> {
@@ -372,11 +385,24 @@ impl<'run, 'src> Parser<'run, 'src> {
           Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             items.push(Item::Alias(self.parse_alias(take_attributes())?));
           }
+          Some(Keyword::Eager) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
+            self
+              .unstable_features
+              .insert(UnstableFeature::EagerAssignments);
+            self.presume_keyword(Keyword::Eager)?;
+            items.push(Item::Assignment(self.parse_assignment(
+              take_attributes(),
+              true,
+              false,
+            )?));
+          }
           Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
             self.presume_keyword(Keyword::Export)?;
-            items.push(Item::Assignment(
-              self.parse_assignment(true, take_attributes())?,
-            ));
+            items.push(Item::Assignment(self.parse_assignment(
+              take_attributes(),
+              false,
+              true,
+            )?));
           }
           Some(Keyword::Unexport)
             if self.next_are(&[Identifier, Identifier, Eof])
@@ -473,9 +499,11 @@ impl<'run, 'src> Parser<'run, 'src> {
           }
           _ => {
             if self.next_are(&[Identifier, ColonEquals]) {
-              items.push(Item::Assignment(
-                self.parse_assignment(false, take_attributes())?,
-              ));
+              items.push(Item::Assignment(self.parse_assignment(
+                take_attributes(),
+                false,
+                false,
+              )?));
             } else {
               let doc = pop_doc_comment(&mut items, eol_since_last_comment);
               items.push(Item::Recipe(self.parse_recipe(
@@ -546,8 +574,9 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// Parse an assignment, e.g. `foo := bar`
   fn parse_assignment(
     &mut self,
-    export: bool,
     attributes: AttributeSet<'src>,
+    eager: bool,
+    export: bool,
   ) -> CompileResult<'src, Assignment<'src>> {
     let name = self.parse_name()?;
     self.presume(ColonEquals)?;
@@ -559,9 +588,11 @@ impl<'run, 'src> Parser<'run, 'src> {
     attributes.ensure_valid_attributes("Assignment", *name, &[AttributeDiscriminant::Private])?;
 
     Ok(Assignment {
+      eager,
       export,
       file_depth: self.file_depth,
       name,
+      number: self.numerator.next(),
       prelude: false,
       private: private || name.lexeme().starts_with('_'),
       value,
@@ -1200,6 +1231,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       priors,
       private,
       quiet,
+      variable_references: HashSet::new(),
     })
   }
 
@@ -1244,6 +1276,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       kind,
       long,
       name,
+      number: self.numerator.next(),
       pattern,
       short,
       value,
@@ -1336,6 +1369,10 @@ impl<'run, 'src> Parser<'run, 'src> {
       Keyword::Fallback => Some(Setting::Fallback(self.parse_set_bool()?)),
       Keyword::Guards => Some(Setting::Guards(self.parse_set_bool()?)),
       Keyword::IgnoreComments => Some(Setting::IgnoreComments(self.parse_set_bool()?)),
+      Keyword::Lazy => {
+        self.unstable_features.insert(UnstableFeature::LazySetting);
+        Some(Setting::Lazy(self.parse_set_bool()?))
+      }
       Keyword::NoExitMessage => Some(Setting::NoExitMessage(self.parse_set_bool()?)),
       Keyword::PositionalArguments => Some(Setting::PositionalArguments(self.parse_set_bool()?)),
       Keyword::Quiet => Some(Setting::Quiet(self.parse_set_bool()?)),
@@ -1505,10 +1542,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
 #[cfg(test)]
 mod tests {
-  use super::*;
-
-  use pretty_assertions::assert_eq;
-  use CompileErrorKind::*;
+  use {super::*, CompileErrorKind::*, pretty_assertions::assert_eq};
 
   macro_rules! test {
     {
@@ -1528,8 +1562,9 @@ mod tests {
   fn test(text: &str, want: Tree) {
     let unindented = unindent(text);
     let tokens = Lexer::test_lex(&unindented).expect("lexing failed");
-    let justfile = Parser::parse(0, &[], None, &tokens, &PathBuf::new()).expect("parsing failed");
-    let have = justfile.tree();
+    let have = Parser::parse_tokens(&mut Numerator::new(), &tokens)
+      .expect("parsing failed")
+      .tree();
     if have != want {
       println!("parsed text: {unindented}");
       println!("expected:    {want}");
@@ -1567,7 +1602,7 @@ mod tests {
   ) {
     let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
 
-    match Parser::parse(0, &[], None, &tokens, &PathBuf::new()) {
+    match Parser::parse_tokens(&mut Numerator::new(), &tokens) {
       Ok(_) => panic!("Parsing unexpectedly succeeded"),
       Err(have) => {
         let want = CompileError {

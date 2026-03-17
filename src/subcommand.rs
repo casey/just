@@ -24,7 +24,9 @@ pub(crate) enum Subcommand {
   Completions {
     shell: completions::Shell,
   },
-  Dump,
+  Dump {
+    format: DumpFormat,
+  },
   Edit,
   Evaluate {
     variable: Option<String>,
@@ -103,7 +105,7 @@ impl Subcommand {
       Command { .. } | Evaluate { .. } => {
         justfile.run(config, &search, &[])?;
       }
-      Dump => Self::dump(config, compilation)?,
+      Dump { format } => Self::dump(compilation, *format)?,
       Groups => Self::groups(config, justfile),
       List { path } => Self::list(config, justfile, path)?,
       Run { arguments } => Self::run(config, loader, search, compilation, arguments)?,
@@ -301,8 +303,8 @@ impl Subcommand {
     print!("{}", shell.script());
   }
 
-  fn dump(config: &Config, compilation: Compilation) -> RunResult<'static> {
-    match config.dump_format {
+  fn dump(compilation: Compilation, format: DumpFormat) -> RunResult<'static> {
+    match format {
       DumpFormat::Json => {
         serde_json::to_writer(io::stdout(), &compilation.justfile)
           .map_err(|source| Error::DumpJson { source })?;
@@ -340,7 +342,12 @@ impl Subcommand {
 
     let (path, src) = loader.load(root, &search.justfile)?;
 
-    let ast = Parser::parse_source(path, src, &Source::root(&search.justfile))?;
+    let ast = Parser::parse_source(
+      &mut Numerator::new(),
+      path,
+      &Source::root(&search.justfile),
+      src,
+    )?;
 
     let unstable = config.unstable
       || ast.items.iter().any(|item| {

@@ -32,9 +32,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       for (name, value) in &config.overrides {
         if let Some(assignment) = assignments.get(name) {
           scope.bind(Binding {
+            eager: assignment.eager,
             export: assignment.export,
             file_depth: 0,
             name: assignment.name,
+            number: assignment.number,
             prelude: false,
             private: assignment.private,
             value: value.clone(),
@@ -109,6 +111,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         Setting::IgnoreComments(value) => {
           settings.ignore_comments = value;
         }
+        Setting::Lazy(value) => {
+          settings.lazy = value;
+        }
         Setting::NoExitMessage(value) => {
           settings.no_exit_message = value;
         }
@@ -165,6 +170,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     module: &'run Justfile<'src>,
     parent: &'run Scope<'src, 'run>,
     search: &'run Search,
+    variable_references: Option<&HashSet<Number>>,
   ) -> RunResult<'src, Scope<'src, 'run>>
   where
     'src: 'run,
@@ -179,26 +185,17 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     let mut scope = parent.child();
 
     if !module.is_submodule() {
-      let mut unknown_overrides = Vec::new();
-
       for (name, value) in &config.overrides {
-        if let Some(assignment) = module.assignments.get(name) {
-          scope.bind(Binding {
-            export: assignment.export,
-            file_depth: 0,
-            name: assignment.name,
-            prelude: false,
-            private: assignment.private,
-            value: value.clone(),
-          });
-        } else {
-          unknown_overrides.push(name.clone());
-        }
-      }
-
-      if !unknown_overrides.is_empty() {
-        return Err(Error::UnknownOverrides {
-          overrides: unknown_overrides,
+        let assignment = module.assignments.get(name).unwrap();
+        scope.bind(Binding {
+          eager: assignment.eager,
+          export: assignment.export,
+          file_depth: 0,
+          name: assignment.name,
+          number: assignment.number,
+          prelude: false,
+          private: assignment.private,
+          value: value.clone(),
         });
       }
     }
@@ -213,7 +210,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     };
 
     for assignment in module.assignments.values() {
-      evaluator.evaluate_assignment(assignment)?;
+      if assignment.eager
+        || assignment.export
+        || module.settings.export
+        || variable_references
+          .is_none_or(|variable_references| variable_references.contains(&assignment.number))
+      {
+        evaluator.evaluate_assignment(assignment)?;
+      }
     }
 
     Ok(evaluator.scope)
@@ -225,9 +229,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     if !self.scope.bound(name) {
       let value = self.evaluate_expression(&assignment.value)?;
       self.scope.bind(Binding {
-        export: assignment.export,
+        eager: assignment.eager,
+        export: assignment.export
+          || self
+            .context
+            .is_some_and(|context| context.module.settings.export),
         file_depth: 0,
         name: assignment.name,
+        number: assignment.number,
         prelude: false,
         private: assignment.private,
         value,
@@ -559,9 +568,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       }
 
       evaluator.scope.bind(Binding {
+        eager: false,
         export: parameter.export,
         file_depth: 0,
         name: parameter.name,
+        number: parameter.number,
         prelude: false,
         private: false,
         value: values.join(" "),

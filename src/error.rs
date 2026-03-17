@@ -77,6 +77,7 @@ pub(crate) enum Error<'src> {
   },
   Dotenv {
     dotenv_error: dotenvy::Error,
+    path: PathBuf,
   },
   DotenvRequired,
   DumpJson {
@@ -337,12 +338,6 @@ impl<'src> From<ConstError<'src>> for Error<'src> {
   }
 }
 
-impl From<dotenvy::Error> for Error<'_> {
-  fn from(dotenv_error: dotenvy::Error) -> Self {
-    Self::Dotenv { dotenv_error }
-  }
-}
-
 impl From<SearchError> for Error<'_> {
   fn from(search_error: SearchError) -> Self {
     Self::Search { search_error }
@@ -470,10 +465,7 @@ impl ColorDisplay for Error<'_> {
       }
       Compile { compile_error } => Display::fmt(compile_error, f)?,
       Config { config_error } => Display::fmt(config_error, f)?,
-      Const { const_error } => write!(
-        f,
-        "{const_error}",
-      )?,
+      Const { const_error } => write!(f, "{const_error}")?,
       Cygpath {
         recipe,
         output_error,
@@ -522,8 +514,12 @@ impl ColorDisplay for Error<'_> {
           "Recipe `{recipe}` cannot be used as default recipe since it requires at least {min_arguments} {count}.",
         )?;
       }
-      Dotenv { dotenv_error } => {
-        write!(f, "Failed to load environment file: {dotenv_error}")?;
+      Dotenv { dotenv_error, path } => {
+        write!(
+          f,
+          "Failed to load environment file from `{}`: {dotenv_error}",
+          path.display(),
+        )?;
       }
       DotenvRequired => {
         write!(f, "Dotenv file not found")?;
@@ -737,7 +733,10 @@ impl ColorDisplay for Error<'_> {
       }
       #[cfg(unix)]
       SignalHandlerPipeCloexec { io_error } => {
-        write!(f, "I/O error setting O_CLOEXEC on signal handler pipe: {io_error}")?;
+        write!(
+          f,
+          "I/O error setting O_CLOEXEC on signal handler pipe: {io_error}",
+        )?;
       }
       #[cfg(unix)]
       SignalHandlerPipeOpen { io_error } => {

@@ -124,7 +124,7 @@ fn evaluate_private() {
     _baz := 'three'
   ",
     )
-    .stdout("bar  := \"two\"\n")
+    .stdout("bar := \"two\"\n")
     .success();
 }
 
@@ -142,5 +142,20 @@ fn evaluate_single_private() {
   ",
     )
     .stdout("one")
+    .success();
+}
+
+#[test]
+fn dont_evaluate_unnecessary_variables() {
+  Test::new()
+    .justfile(
+      "
+      x := 'FOO'
+
+      y := `exit 1`
+    ",
+    )
+    .args(["--evaluate", "x"])
+    .stdout("FOO")
     .success();
 }

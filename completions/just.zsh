@@ -80,6 +80,7 @@ _just() {
 '--fmt[Format and overwrite justfile]' \
 '--groups[List recipe groups]' \
 '--init[Initialize new justfile in project root]' \
+'(--dump-format)--json[Print justfile as JSON]' \
 '--man[Print man page]' \
 '--summary[List names of available recipes]' \
 '--variables[List names of variables]' \
