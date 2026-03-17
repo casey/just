@@ -27,11 +27,9 @@ pub(crate) fn which(context: function::Context, name: &str) -> Result<Option<Str
 
     path = path.lexiclean();
 
-    #[allow(unused_mut)]
     let mut candidates = vec![path.clone()];
 
-    #[cfg(windows)]
-    if path.extension().is_none() {
+    if cfg!(windows) && path.extension().is_none() {
       if let Some(pathext) = env::var_os("PATHEXT") {
         let pathext = pathext.to_str().ok_or_else(|| {
           format!(
