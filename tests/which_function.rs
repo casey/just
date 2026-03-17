@@ -266,7 +266,7 @@ fn finds_executable_via_pathext() {
     .write("foo.exe", HELLO_SCRIPT)
     .make_executable("foo.exe")
     .env("PATH", path.to_str().unwrap())
-    .env("PATHEXT", ".EXE")
+    .env("PATHEXT", ".exe")
     .env("JUST_UNSTABLE", "1")
     .stdout(path.join("foo.exe").display().to_string())
     .success();
