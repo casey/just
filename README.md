@@ -2942,7 +2942,7 @@ bar=hello
 
 If a parameter has both a long and short option, it may be passed using either.
 
-Variadic `+` and `?` parameters cannot be options.
+Variadic `*` and `+` parameters cannot be options.
 
 The `[arg(ARG, value=VALUE, …)]`<sup>1.46.0</sup> attribute can be used with
 `long` or `short` to make a parameter a flag which does not take a value.
