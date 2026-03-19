@@ -2087,10 +2087,11 @@ for details.
     @echo '{{ style("error") }}OH NO{{ NORMAL }}'
   ```
 
-##### User Directories<sup>1.23.0</sup>
+##### User Directories
 
-These functions return paths to user-specific directories for things like
-configuration, data, caches, executables, and the user's home directory.
+These functions<sup>1.23.0</sup> return paths to user-specific directories for
+things like configuration, data, caches, executables, and the user's home
+directory.
 
 On Unix, these functions follow the
 [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html).
@@ -2251,12 +2252,12 @@ Attributes with a single argument may be written with a colon:
 foo:
 ```
 
-#### Enabling and Disabling Recipes<sup>1.8.0</sup>
+#### Enabling and Disabling Recipes
 
-The `[linux]`, `[macos]`, `[unix]`, and `[windows]` attributes are
-configuration attributes. By default, recipes are always enabled. A recipe with
-one or more configuration attributes will only be enabled when one or more of
-those configurations is active.
+The `[linux]`, `[macos]`, `[unix]`, and `[windows]` attributes<sup>1.8.0</sup>
+are configuration attributes. By default, recipes are always enabled. A recipe
+with one or more configuration attributes will only be enabled when one or more
+of those configurations is active.
 
 This can be used to write `justfile`s that behave differently depending on
 which operating system they run on. The `run` recipe in this `justfile` will
@@ -2275,12 +2276,12 @@ run:
   main.exe
 ```
 
-#### Disabling Changing Directory<sup>1.9.0</sup>
+#### Disabling Changing Directory
 
 `just` normally executes recipes with the current directory set to the
 directory that contains the `justfile`. This can be disabled using the
-`[no-cd]` attribute. This can be used to create recipes which use paths
-relative to the invocation directory, or which operate on the current
+`[no-cd]` attribute<sup>1.9.0</sup>. This can be used to create recipes which
+use paths relative to the invocation directory, or which operate on the current
 directory.
 
 For example, this `commit` recipe:
@@ -2296,12 +2297,12 @@ Can be used with paths that are relative to the current directory, because
 `[no-cd]` prevents `just` from changing the current directory when executing
 `commit`.
 
-#### Requiring Confirmation for Recipes<sup>1.17.0</sup>
+#### Requiring Confirmation for Recipes
 
 `just` normally executes all recipes unless there is an error. The `[confirm]`
-attribute allows recipes require confirmation in the terminal prior to running.
-This can be overridden by passing `--yes` to `just`, which will automatically
-confirm any recipes marked by this attribute.
+attribute<sup>1.17.0</sup> allows recipes require confirmation in the terminal
+prior to running. This can be overridden by passing `--yes` to `just`, which
+will automatically confirm any recipes marked by this attribute.
 
 Recipes dependent on a recipe that requires confirmation will not be run if the
 relied upon recipe is not confirmed, as well as recipes passed after any recipe
@@ -2313,9 +2314,10 @@ delete-all:
   rm -rf *
 ```
 
-#### Custom Confirmation Prompt<sup>1.23.0</sup>
+#### Custom Confirmation Prompt
 
-The default confirmation prompt can be overridden with `[confirm(PROMPT)]`:
+The default confirmation prompt can be overridden with
+`[confirm(PROMPT)]`<sup>1.23.0</sup>:
 
 ```just
 [confirm("Are you sure you want to delete everything?")]
@@ -2631,9 +2633,10 @@ a $A $B=`echo $A`:
 When [export](#export) is set, all `just` variables are exported as environment
 variables.
 
-#### Unexporting Environment Variables<sup>1.29.0</sup>
+#### Unexporting Environment Variables
 
-Environment variables can be unexported with the `unexport keyword`:
+Environment variables can be unexported with the `unexport
+keyword`<sup>1.29.0</sup>:
 
 ```just
 unexport FOO
