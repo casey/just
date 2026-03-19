@@ -2023,9 +2023,10 @@ which will halt execution.
 
 #### Filesystem Access
 
-- `path_exists(path)` - Returns the string `true` if the path points at an existing entity
-  and the string `false` otherwise. Traverses symbolic links, and returns the string `false` if the
-  path is inaccessible or points to a broken symlink.
+- `path_exists(path)` - Returns the string `true` if the path points at an
+  existing entity and the string `false` otherwise. Traverses symbolic links,
+  and returns the string `false` if the path is inaccessible or points to a
+  broken symlink.
 - `read(path)`<sup>1.39.0</sup> - Returns the content of file at `path` as
   string.
 
