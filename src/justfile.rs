@@ -11,7 +11,7 @@ pub(crate) struct Justfile<'src> {
   #[serde(skip)]
   pub(crate) loaded: Vec<PathBuf>,
   #[serde(skip)]
-  pub(crate) module_path: String,
+  pub(crate) modulepath: Modulepath,
   pub(crate) modules: Table<'src, Self>,
   #[serde(skip)]
   pub(crate) name: Option<Name<'src>>,
@@ -79,22 +79,31 @@ impl<'src> Justfile<'src> {
     arena: &'run Arena<Scope<'src, 'run>>,
     config: &'run Config,
     dotenv: &'run BTreeMap<String, String>,
+    overrides: &'run HashMap<Number, String>,
     root: &'run Scope<'src, 'run>,
-    scopes: &mut BTreeMap<String, (&'run Self, &'run Scope<'src, 'run>)>,
+    scopes: &mut BTreeMap<Modulepath, (&'run Self, &'run Scope<'src, 'run>)>,
     search: &'run Search,
     variable_references: Option<&HashSet<Number>>,
   ) -> RunResult<'src> {
-    let scope =
-      Evaluator::evaluate_assignments(config, dotenv, self, root, search, variable_references)?;
+    let scope = Evaluator::evaluate_assignments(
+      config,
+      dotenv,
+      self,
+      overrides,
+      root,
+      search,
+      variable_references,
+    )?;
 
     let scope = arena.alloc(scope);
-    scopes.insert(self.module_path.clone(), (self, scope));
+    scopes.insert(self.modulepath.clone(), (self, scope));
 
     for module in self.modules.values() {
       module.evaluate_scopes(
         arena,
         config,
         dotenv,
+        overrides,
         scope,
         scopes,
         search,
@@ -110,6 +119,7 @@ impl<'src> Justfile<'src> {
     config: &Config,
     search: &Search,
     arguments: &[String],
+    overrides: &HashMap<Number, String>,
   ) -> RunResult<'src> {
     let dotenv = if config.load_dotenv {
       load_dotenv(config, &self.settings, &search.working_directory)?
@@ -158,6 +168,7 @@ impl<'src> Justfile<'src> {
           &arena,
           config,
           &dotenv,
+          overrides,
           &root,
           &mut scopes,
           search,
@@ -199,13 +210,14 @@ impl<'src> Justfile<'src> {
           &arena,
           config,
           &dotenv,
+          overrides,
           &root,
           &mut scopes,
           search,
           Some(HashSet::new()).as_ref(),
         )?;
 
-        let scope = scopes.get(&self.module_path).unwrap().1.child();
+        let scope = scopes.get(&self.modulepath).unwrap().1.child();
 
         command.export(&self.settings, &dotenv, &scope, &self.unexports);
 
@@ -256,13 +268,14 @@ impl<'src> Justfile<'src> {
           &arena,
           config,
           &dotenv,
+          overrides,
           &root,
           &mut scopes,
           search,
           variable_references.as_ref(),
         )?;
 
-        let scope = scopes.get(&self.module_path).unwrap().1;
+        let scope = scopes.get(&self.modulepath).unwrap().1;
 
         if let Some(variable) = variable {
           print!("{}", scope.value(variable).unwrap());
@@ -326,7 +339,7 @@ impl<'src> Justfile<'src> {
     is_dependency: bool,
     ran: &Ran,
     recipe: &Recipe<'src>,
-    scopes: &BTreeMap<String, (&Self, &Scope<'src, '_>)>,
+    scopes: &BTreeMap<Modulepath, (&Self, &Scope<'src, '_>)>,
     search: &Search,
   ) -> RunResult<'src> {
     let mutex = ran.mutex(recipe, arguments);
@@ -406,7 +419,7 @@ impl<'src> Justfile<'src> {
     evaluator: &mut Evaluator<'src, 'run>,
     ran: &Ran,
     recipe: &Recipe<'src>,
-    scopes: &BTreeMap<String, (&Self, &Scope<'src, 'run>)>,
+    scopes: &BTreeMap<Modulepath, (&Self, &Scope<'src, 'run>)>,
     search: &Search,
   ) -> RunResult<'src> {
     if context.config.no_dependencies {

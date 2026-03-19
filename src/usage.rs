@@ -2,7 +2,7 @@ use super::*;
 
 pub(crate) struct Usage<'a, D> {
   pub(crate) long: bool,
-  pub(crate) path: &'a ModulePath,
+  pub(crate) path: &'a Modulepath,
   pub(crate) recipe: &'a Recipe<'a, D>,
 }
 

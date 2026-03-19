@@ -1,12 +1,40 @@
 use super::*;
 
-#[derive(Debug, PartialEq, Clone)]
-pub(crate) struct ModulePath {
+#[derive(Debug, Default, Eq, Ord, PartialEq, PartialOrd, Clone)]
+pub(crate) struct Modulepath {
   pub(crate) path: Vec<String>,
   pub(crate) spaced: bool,
 }
 
-impl TryFrom<&[&str]> for ModulePath {
+impl Modulepath {
+  pub(crate) fn is_empty(&self) -> bool {
+    self.path.is_empty()
+  }
+
+  pub(crate) fn starts_with(&self, other: &Modulepath) -> bool {
+    self.path.starts_with(&other.path)
+  }
+}
+
+impl Serialize for Modulepath {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: Serializer,
+  {
+    serializer.serialize_str(&self.to_string())
+  }
+}
+
+impl From<&Namepath<'_>> for Modulepath {
+  fn from(namepath: &Namepath) -> Self {
+    Self {
+      path: namepath.iter().map(|name| name.lexeme().into()).collect(),
+      spaced: false,
+    }
+  }
+}
+
+impl TryFrom<&[&str]> for Modulepath {
   type Error = ();
 
   fn try_from(path: &[&str]) -> Result<Self, Self::Error> {
@@ -47,7 +75,7 @@ impl TryFrom<&[&str]> for ModulePath {
   }
 }
 
-impl Display for ModulePath {
+impl Display for Modulepath {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     for (i, name) in self.path.iter().enumerate() {
       if i > 0 {
@@ -71,7 +99,7 @@ mod tests {
   fn try_from_ok() {
     #[track_caller]
     fn case(path: &[&str], expected: &[&str], display: &str) {
-      let actual = ModulePath::try_from(path).unwrap();
+      let actual = Modulepath::try_from(path).unwrap();
       assert_eq!(actual.path, expected);
       assert_eq!(actual.to_string(), display);
     }
@@ -87,7 +115,7 @@ mod tests {
   fn try_from_err() {
     #[track_caller]
     fn case(path: &[&str]) {
-      assert!(ModulePath::try_from(path).is_err());
+      assert!(Modulepath::try_from(path).is_err());
     }
 
     case(&[":foo"]);

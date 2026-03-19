@@ -91,11 +91,25 @@ impl Compiler {
       asts.insert(current.path, ast.clone());
     }
 
-    let justfile = Analyzer::analyze(&asts, config, None, &[], &loaded, None, &paths, false, root)?;
+    let mut overrides = HashMap::new();
+
+    let justfile = Analyzer::analyze(
+      &asts,
+      config,
+      None,
+      &[],
+      &loaded,
+      None,
+      &mut overrides,
+      &paths,
+      false,
+      root,
+    )?;
 
     Ok(Compilation {
       asts,
       justfile,
+      overrides,
       root: root.into(),
     })
   }
@@ -222,6 +236,7 @@ impl Compiler {
       &[],
       &[],
       None,
+      &mut HashMap::new(),
       &paths,
       false,
       &root,

@@ -12,6 +12,8 @@ pub(crate) enum ConfigError {
   Internal { message: String },
   #[snafu(display("Invalid module path `{}`", path.join(" ")))]
   ModulePath { path: Vec<String> },
+  #[snafu(display("Invalid override path `{path}`"))]
+  OverridePath { path: String },
   #[snafu(display("Failed to parse request: {source}"))]
   RequestParse { source: serde_json::Error },
   #[snafu(display(
@@ -31,21 +33,21 @@ pub(crate) enum ConfigError {
   #[snafu(display(
       "`--{}` used with unexpected overrides: {}",
       subcommand.to_lowercase(),
-      List::and_ticked(overrides.iter().map(|(key, value)| format!("{key}={value}"))),
+      List::and_ticked(overrides.iter()),
   ))]
   SubcommandOverrides {
     subcommand: &'static str,
-    overrides: BTreeMap<String, String>,
+    overrides: Vec<String>,
   },
   #[snafu(display(
       "`--{}` used with unexpected overrides: {}; and arguments: {}",
       subcommand.to_lowercase(),
-      List::and_ticked(overrides.iter().map(|(key, value)| format!("{key}={value}"))),
+      List::and_ticked(overrides.iter()),
       List::and_ticked(arguments)))
   ]
   SubcommandOverridesAndArguments {
     subcommand: &'static str,
-    overrides: BTreeMap<String, String>,
+    overrides: Vec<String>,
     arguments: Vec<String>,
   },
 }

@@ -35,7 +35,7 @@ pub(crate) enum Subcommand {
   Groups,
   Init,
   List {
-    path: ModulePath,
+    path: Modulepath,
   },
   Man,
   Request {
@@ -45,11 +45,11 @@ pub(crate) enum Subcommand {
     arguments: Vec<String>,
   },
   Show {
-    path: ModulePath,
+    path: Modulepath,
   },
   Summary,
   Usage {
-    path: ModulePath,
+    path: Modulepath,
   },
   Variables,
 }
@@ -100,10 +100,16 @@ impl Subcommand {
 
     match self {
       Choose { chooser } => {
-        Self::choose(config, justfile, &search, chooser.as_deref())?;
+        Self::choose(
+          chooser.as_deref(),
+          config,
+          justfile,
+          &compilation.overrides,
+          &search,
+        )?;
       }
       Command { .. } | Evaluate { .. } => {
-        justfile.run(config, &search, &[])?;
+        justfile.run(config, &search, &[], &compilation.overrides)?;
       }
       Dump { format } => Self::dump(compilation, *format)?,
       Groups => Self::groups(config, justfile),
@@ -145,7 +151,7 @@ impl Subcommand {
           SearchConfig::FromInvocationDirectory | SearchConfig::FromSearchDirectory { .. }
         );
 
-      let result = justfile.run(config, &search, arguments);
+      let result = justfile.run(config, &search, arguments, &compilation.overrides);
 
       if fallback {
         if let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result {
@@ -209,10 +215,11 @@ impl Subcommand {
   }
 
   fn choose<'src>(
+    chooser: Option<&str>,
     config: &Config,
     justfile: &Justfile<'src>,
+    overrides: &HashMap<Number, String>,
     search: &Search,
-    chooser: Option<&str>,
   ) -> RunResult<'src> {
     let mut recipes = Vec::<&Recipe>::new();
     let mut stack = vec![justfile];
@@ -264,7 +271,7 @@ impl Subcommand {
 
     let stdin = child.stdin.as_mut().unwrap();
     for recipe in recipes {
-      if let Err(io_error) = writeln!(stdin, "{}", recipe.spaced_namepath()) {
+      if let Err(io_error) = writeln!(stdin, "{}", recipe.spaced_recipe_path()) {
         if io_error.kind() != std::io::ErrorKind::BrokenPipe {
           return Err(Error::ChooserWrite { io_error, chooser });
         }
@@ -296,7 +303,7 @@ impl Subcommand {
       .map(str::to_owned)
       .collect::<Vec<String>>();
 
-    justfile.run(config, search, &recipes)
+    justfile.run(config, search, &recipes, overrides)
   }
 
   fn completions(shell: completions::Shell) {
@@ -475,7 +482,7 @@ impl Subcommand {
     Ok(())
   }
 
-  fn list(config: &Config, mut module: &Justfile, path: &ModulePath) -> RunResult<'static> {
+  fn list(config: &Config, mut module: &Justfile, path: &Modulepath) -> RunResult<'static> {
     for name in &path.path {
       module = module
         .modules
@@ -773,7 +780,7 @@ impl Subcommand {
     Ok(())
   }
 
-  fn show<'src>(config: &Config, module: &Justfile<'src>, path: &ModulePath) -> RunResult<'src> {
+  fn show<'src>(config: &Config, module: &Justfile<'src>, path: &Modulepath) -> RunResult<'src> {
     let (alias, recipe) = Self::resolve_path(module, path)?;
 
     if let Some(alias) = alias {
@@ -823,7 +830,7 @@ impl Subcommand {
     }
   }
 
-  fn usage<'src>(config: &Config, module: &Justfile<'src>, path: &ModulePath) -> RunResult<'src> {
+  fn usage<'src>(config: &Config, module: &Justfile<'src>, path: &Modulepath) -> RunResult<'src> {
     let (alias, recipe) = Self::resolve_path(module, path)?;
 
     if let Some(alias) = alias {
@@ -845,7 +852,7 @@ impl Subcommand {
 
   fn resolve_path<'src, 'run>(
     mut module: &'run Justfile<'src>,
-    path: &ModulePath,
+    path: &Modulepath,
   ) -> RunResult<'src, (Option<&'run Alias<'src>>, &'run Recipe<'src>)> {
     for name in &path.path[0..path.path.len() - 1] {
       module = module
