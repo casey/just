@@ -4,6 +4,7 @@ use super::*;
 pub(crate) struct Compilation<'src> {
   pub(crate) asts: HashMap<PathBuf, Ast<'src>>,
   pub(crate) justfile: Justfile<'src>,
+  pub(crate) overrides: HashMap<Number, String>,
   pub(crate) root: PathBuf,
 }
 

@@ -50,12 +50,12 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
   fn parse_invocation(&mut self) -> RunResult<'src, Invocation<'src, 'run>> {
     let recipe = if let Some(next) = self.next() {
       if next.contains(':') {
-        let module_path =
-          ModulePath::try_from([next].as_slice()).map_err(|()| Error::UnknownRecipe {
+        let modulepath =
+          Modulepath::try_from([next].as_slice()).map_err(|()| Error::UnknownRecipe {
             recipe: next.into(),
             suggestion: None,
           })?;
-        let (recipe, _) = self.resolve_recipe(true, &module_path.path)?;
+        let (recipe, _) = self.resolve_recipe(true, &modulepath.path)?;
         self.next += 1;
         recipe
       } else {
@@ -248,7 +248,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
 
   fn resolve_recipe(
     &self,
-    module_path: bool,
+    modulepath: bool,
     args: &[impl AsRef<str>],
   ) -> RunResult<'src, (&'run Recipe<'src>, usize)> {
     let mut current = self.root;
@@ -262,21 +262,21 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
       if let Some(module) = current.modules.get(arg) {
         current = module;
       } else if let Some(recipe) = current.get_recipe(arg) {
-        if module_path && i + 1 < args.len() {
+        if modulepath && i + 1 < args.len() {
           return Err(Error::ExpectedSubmoduleButFoundRecipe {
             path: path.join("::"),
           });
         }
         return Ok((recipe, i + 1));
       } else {
-        if module_path && i + 1 < args.len() {
+        if modulepath && i + 1 < args.len() {
           return Err(Error::UnknownSubmodule {
             path: path.join("::"),
           });
         }
 
         return Err(Error::UnknownRecipe {
-          recipe: if module_path {
+          recipe: if modulepath {
             path.join("::")
           } else {
             path.join(" ")
@@ -328,7 +328,7 @@ mod tests {
     let invocations = InvocationParser::parse_invocations(&justfile, &["foo"]).unwrap();
 
     assert_eq!(invocations.len(), 1);
-    assert_eq!(invocations[0].recipe.namepath(), "foo");
+    assert_eq!(invocations[0].recipe.recipe_path().to_string(), "foo");
     assert!(invocations[0].arguments.is_empty());
   }
 
@@ -339,7 +339,7 @@ mod tests {
     let invocations = InvocationParser::parse_invocations(&justfile, &["foo", "baz"]).unwrap();
 
     assert_eq!(invocations.len(), 1);
-    assert_eq!(invocations[0].recipe.namepath(), "foo");
+    assert_eq!(invocations[0].recipe.recipe_path().to_string(), "foo");
     assert_eq!(invocations[0].arguments, vec![vec![String::from("baz")]]);
   }
 
@@ -399,7 +399,7 @@ mod tests {
       InvocationParser::parse_invocations(&compilation.justfile, &["foo", "bar"]).unwrap();
 
     assert_eq!(invocations.len(), 1);
-    assert_eq!(invocations[0].recipe.namepath(), "foo::bar");
+    assert_eq!(invocations[0].recipe.recipe_path().to_string(), "foo::bar");
     assert!(invocations[0].arguments.is_empty());
   }
 
@@ -550,14 +550,14 @@ BAZ +Z:
     .unwrap();
 
     assert_eq!(invocations.len(), 3);
-    assert_eq!(invocations[0].recipe.namepath(), "BAR");
+    assert_eq!(invocations[0].recipe.recipe_path().to_string(), "BAR");
     assert_eq!(invocations[0].arguments, vec![vec![String::from("0")]]);
-    assert_eq!(invocations[1].recipe.namepath(), "FOO");
+    assert_eq!(invocations[1].recipe.recipe_path().to_string(), "FOO");
     assert_eq!(
       invocations[1].arguments,
       vec![vec![String::from("1")], vec![String::from("2")]]
     );
-    assert_eq!(invocations[2].recipe.namepath(), "BAZ");
+    assert_eq!(invocations[2].recipe.recipe_path().to_string(), "BAZ");
     assert_eq!(
       invocations[2].arguments,
       vec![vec![
@@ -581,7 +581,7 @@ foo bar:
       InvocationParser::parse_invocations(&justfile, &["foo", "--bar", "baz"]).unwrap();
 
     assert_eq!(invocations.len(), 1);
-    assert_eq!(invocations[0].recipe.namepath(), "foo");
+    assert_eq!(invocations[0].recipe.recipe_path().to_string(), "foo");
     assert_eq!(invocations[0].arguments, vec![vec![String::from("baz")]]);
   }
 
@@ -598,7 +598,7 @@ foo baz bar:
       InvocationParser::parse_invocations(&justfile, &["foo", "qux", "--bar", "baz"]).unwrap();
 
     assert_eq!(invocations.len(), 1);
-    assert_eq!(invocations[0].recipe.namepath(), "foo");
+    assert_eq!(invocations[0].recipe.recipe_path().to_string(), "foo");
     assert_eq!(
       invocations[0].arguments,
       vec![vec![String::from("qux")], vec![String::from("baz")]]
@@ -618,7 +618,7 @@ foo baz qux='qux' bar='bar':
       InvocationParser::parse_invocations(&justfile, &["foo", "--", "--bar"]).unwrap();
 
     assert_eq!(invocations.len(), 1);
-    assert_eq!(invocations[0].recipe.namepath(), "foo");
+    assert_eq!(invocations[0].recipe.recipe_path().to_string(), "foo");
     assert_eq!(
       invocations[0].arguments,
       vec![vec![String::from("--bar")], Vec::new(), Vec::new()]

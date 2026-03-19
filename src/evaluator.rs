@@ -6,6 +6,7 @@ pub(crate) struct Evaluator<'src: 'run, 'run> {
   env: BTreeMap<String, String>,
   is_dependency: bool,
   non_const_assignments: Table<'src, Name<'src>>,
+  overrides: &'run HashMap<Number, String>,
   scope: Scope<'src, 'run>,
 }
 
@@ -19,47 +20,18 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
   pub(crate) fn evaluate_settings(
     assignments: &'run Table<'src, Assignment<'src>>,
-    config: &Config,
-    name: Option<Name>,
-    sets: Table<'src, Set<'src>>,
+    overrides: &'run HashMap<Number, String>,
     scope: &'run Scope<'src, 'run>,
+    sets: Table<'src, Set<'src>>,
   ) -> RunResult<'src, Settings> {
-    let mut scope = scope.child();
-
-    if name.is_none() {
-      let mut unknown_overrides = Vec::new();
-
-      for (name, value) in &config.overrides {
-        if let Some(assignment) = assignments.get(name) {
-          scope.bind(Binding {
-            eager: assignment.eager,
-            export: assignment.export,
-            file_depth: 0,
-            name: assignment.name,
-            number: assignment.number,
-            prelude: false,
-            private: assignment.private,
-            value: value.clone(),
-          });
-        } else {
-          unknown_overrides.push(name.clone());
-        }
-      }
-
-      if !unknown_overrides.is_empty() {
-        return Err(Error::UnknownOverrides {
-          overrides: unknown_overrides,
-        });
-      }
-    }
-
     let mut evaluator = Self {
       assignments: Some(assignments),
       context: None,
       env: BTreeMap::new(),
       is_dependency: false,
       non_const_assignments: Table::new(),
-      scope,
+      overrides,
+      scope: scope.child(),
     };
 
     for assignment in assignments.values() {
@@ -168,6 +140,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     config: &'run Config,
     dotenv: &'run BTreeMap<String, String>,
     module: &'run Justfile<'src>,
+    overrides: &'run HashMap<Number, String>,
     parent: &'run Scope<'src, 'run>,
     search: &'run Search,
     variable_references: Option<&HashSet<Number>>,
@@ -182,31 +155,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       search,
     };
 
-    let mut scope = parent.child();
-
-    if !module.is_submodule() {
-      for (name, value) in &config.overrides {
-        let assignment = module.assignments.get(name).unwrap();
-        scope.bind(Binding {
-          eager: assignment.eager,
-          export: assignment.export,
-          file_depth: 0,
-          name: assignment.name,
-          number: assignment.number,
-          prelude: false,
-          private: assignment.private,
-          value: value.clone(),
-        });
-      }
-    }
-
     let mut evaluator = Self {
       assignments: Some(&module.assignments),
       context: Some(context),
       env: BTreeMap::new(),
       is_dependency: false,
       non_const_assignments: Table::new(),
-      scope,
+      overrides,
+      scope: parent.child(),
     };
 
     for assignment in module.assignments.values() {
@@ -227,7 +183,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     let name = assignment.name.lexeme();
 
     if !self.scope.bound(name) {
-      let value = self.evaluate_expression(&assignment.value)?;
+      let value = if let Some(value) = self.overrides.get(&assignment.number) {
+        value.clone()
+      } else {
+        self.evaluate_expression(&assignment.value)?
+      };
+
       self.scope.bind(Binding {
         eager: assignment.eager,
         export: assignment.export
@@ -588,12 +549,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     is_dependency: bool,
     scope: &'run Scope<'src, 'run>,
   ) -> Self {
+    static OVERRIDES: LazyLock<HashMap<Number, String>> = LazyLock::new(HashMap::new);
     Self {
       assignments: None,
       context: Some(*context),
       env,
       is_dependency,
       non_const_assignments: Table::new(),
+      overrides: &OVERRIDES,
       scope: scope.child(),
     }
   }

@@ -20,7 +20,6 @@ impl<'src> Namepath<'src> {
     self.0.split_last().unwrap()
   }
 
-  #[cfg(test)]
   pub(crate) fn iter(&self) -> slice::Iter<'_, Name<'src>> {
     self.0.iter()
   }
