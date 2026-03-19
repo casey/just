@@ -16,7 +16,7 @@ fn env() {
     )
     .stderr("echo bar\n")
     .stdout("bar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -36,7 +36,7 @@ fn chooser() {
     )
     .stderr("echo bar\n")
     .stdout("bar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -58,7 +58,7 @@ fn override_variable() {
     )
     .stderr("echo B\n")
     .stdout("B\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -77,7 +77,7 @@ fn skip_private_recipes() {
     )
     .stderr("echo foo\n")
     .stdout("foo\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -93,7 +93,7 @@ fn recipes_in_submodules_can_be_chosen() {
     )
     .stderr("echo BAZ\n")
     .stdout("BAZ\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -112,7 +112,7 @@ fn skip_recipes_that_require_arguments() {
     )
     .stderr("echo foo\n")
     .stdout("foo\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -128,9 +128,8 @@ fn no_choosable_recipes() {
           echo {{BAR}}
       ",
     )
-    .status(EXIT_FAILURE)
     .stderr("error: Justfile contains no choosable recipes.\n")
-    .run();
+    .failure();
 }
 
 #[test]
@@ -150,7 +149,7 @@ fn multiple_recipes() {
     )
     .stderr("echo foo\necho bar\n")
     .stdout("foo\nbar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -168,15 +167,16 @@ fn invoke_error_function() {
     .stderr_regex(
       r#"error: Chooser `/ -cu fzf --multi --preview 'just --unstable --color always --justfile ".*justfile" --show \{\}'` invocation failed: .*\n"#,
     )
-    .status(EXIT_FAILURE)
     .shell(false)
     .args(["--shell", "/", "--choose"])
-    .run();
+    .failure();
 }
 
 #[test]
-#[cfg(not(windows))]
 fn status_error() {
+  if cfg!(windows) {
+    return;
+  }
   let tmp = temptree! {
     justfile: "foo:\n echo foo\nbar:\n echo bar\n",
     "exit-2": "#!/usr/bin/env bash\nexit 2\n",
@@ -195,7 +195,7 @@ fn status_error() {
   )
   .unwrap();
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path())
     .arg("--choose")
     .arg("--chooser")
@@ -211,6 +211,38 @@ fn status_error() {
   );
 
   assert_eq!(output.status.code().unwrap(), 2);
+}
+
+#[test]
+fn cancelled_by_user() {
+  if cfg!(windows) {
+    return;
+  }
+
+  let tmp = temptree! {
+    justfile: "foo:\n echo foo\nbar:\n echo bar\n",
+    chooser: "#!/usr/bin/env bash\nexit 130\n",
+  };
+
+  let output = Command::new("chmod")
+    .arg("+x")
+    .arg(tmp.path().join("chooser"))
+    .output()
+    .unwrap();
+
+  assert!(output.status.success());
+
+  let output = Command::new(JUST)
+    .current_dir(tmp.path())
+    .arg("--choose")
+    .arg("--chooser")
+    .arg("./chooser")
+    .output()
+    .unwrap();
+
+  assert!(output.stderr.is_empty());
+
+  assert!(output.status.success());
 }
 
 #[test]
@@ -233,7 +265,7 @@ fn default() {
   )
   .unwrap();
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .arg("--choose")
     .arg("--chooser=fzf")
     .current_dir(tmp.path())

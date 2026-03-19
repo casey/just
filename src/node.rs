@@ -107,6 +107,7 @@ impl<'src> Node<'src> for Expression<'src> {
       Self::Assert {
         condition: Condition { lhs, rhs, operator },
         error,
+        ..
       } => Tree::atom(Keyword::Assert.lexeme())
         .push(lhs.tree())
         .push(operator.to_string())
@@ -186,6 +187,15 @@ impl<'src> Node<'src> for Expression<'src> {
         tree.push_mut(rhs.tree());
         tree.push_mut(then.tree());
         tree.push_mut(otherwise.tree());
+        tree
+      }
+      Self::FormatString { start, expressions } => {
+        let mut tree = Tree::atom("format");
+        tree.push_mut(Tree::string(&start.cooked));
+        for (expression, string) in expressions {
+          tree.push_mut(expression.tree());
+          tree.push_mut(Tree::string(&string.cooked));
+        }
         tree
       }
       Self::Group { contents } => Tree::List(vec![contents.tree()]),
@@ -307,27 +317,29 @@ impl<'src> Node<'src> for Set<'src> {
       | Setting::DotenvRequired(value)
       | Setting::Export(value)
       | Setting::Fallback(value)
+      | Setting::Guards(value)
+      | Setting::IgnoreComments(value)
+      | Setting::Lazy(value)
       | Setting::NoExitMessage(value)
       | Setting::PositionalArguments(value)
       | Setting::Quiet(value)
       | Setting::Unstable(value)
-      | Setting::WindowsPowerShell(value)
-      | Setting::IgnoreComments(value) => {
+      | Setting::WindowsPowerShell(value) => {
         set.push_mut(value.to_string());
-      }
-      Setting::ScriptInterpreter(Interpreter { command, arguments })
-      | Setting::Shell(Interpreter { command, arguments })
-      | Setting::WindowsShell(Interpreter { command, arguments }) => {
-        set.push_mut(Tree::string(&command.cooked));
-        for argument in arguments {
-          set.push_mut(Tree::string(&argument.cooked));
-        }
       }
       Setting::DotenvFilename(value)
       | Setting::DotenvPath(value)
       | Setting::Tempdir(value)
       | Setting::WorkingDirectory(value) => {
-        set.push_mut(Tree::string(&value.cooked));
+        set.push_mut(value.tree());
+      }
+      Setting::ScriptInterpreter(Interpreter { command, arguments })
+      | Setting::Shell(Interpreter { command, arguments })
+      | Setting::WindowsShell(Interpreter { command, arguments }) => {
+        set.push_mut(command.tree());
+        for argument in arguments {
+          set.push_mut(argument.tree());
+        }
       }
     }
 

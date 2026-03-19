@@ -7,7 +7,7 @@ fn evaluate(expression: &str, expected: &str) {
     .env("JUST_UNSTABLE", "1")
     .args(["--evaluate", "x"])
     .stdout(expected)
-    .run();
+    .success();
 }
 
 #[test]
@@ -16,15 +16,13 @@ fn logical_operators_are_unstable() {
     .justfile("x := 'foo' && 'bar'")
     .args(["--evaluate", "x"])
     .stderr_regex(r"error: The logical operators `&&` and `\|\|` are currently unstable. .*")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 
   Test::new()
     .justfile("x := 'foo' || 'bar'")
     .args(["--evaluate", "x"])
     .stderr_regex(r"error: The logical operators `&&` and `\|\|` are currently unstable. .*")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]

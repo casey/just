@@ -1,6 +1,6 @@
 use {
   super::*,
-  pretty_assertions::{assert_eq, StrComparison},
+  pretty_assertions::{StrComparison, assert_eq},
 };
 
 pub(crate) struct Output {
@@ -18,7 +18,6 @@ pub(crate) struct Test {
   pub(crate) justfile: Option<String>,
   pub(crate) response: Option<Response>,
   pub(crate) shell: bool,
-  pub(crate) status: i32,
   pub(crate) stderr: String,
   pub(crate) stderr_regex: Option<Regex>,
   pub(crate) stdin: String,
@@ -43,7 +42,6 @@ impl Test {
       justfile: Some(String::new()),
       response: None,
       shell: true,
-      status: EXIT_SUCCESS,
       stderr: String::new(),
       stderr_regex: None,
       stdin: String::new(),
@@ -114,11 +112,6 @@ impl Test {
 
   pub(crate) fn shell(mut self, shell: bool) -> Self {
     self.shell = shell;
-    self
-  }
-
-  pub(crate) fn status(mut self, exit_status: i32) -> Self {
-    self.status = exit_status;
     self
   }
 
@@ -201,11 +194,19 @@ impl Test {
       .insert(path.into(), content.as_ref().into());
     self
   }
-}
 
-impl Test {
   #[track_caller]
-  pub(crate) fn run(self) -> Output {
+  pub(crate) fn success(self) -> Output {
+    self.status(0)
+  }
+
+  #[track_caller]
+  pub(crate) fn failure(self) -> Output {
+    self.status(1)
+  }
+
+  #[track_caller]
+  pub(crate) fn status(self, status: i32) -> Output {
     fn compare<T: PartialEq + Debug>(name: &str, have: T, want: T) -> bool {
       let equal = have == want;
       if !equal {
@@ -235,7 +236,7 @@ impl Test {
 
     let stderr = unindent(&self.stderr);
 
-    let mut command = Command::new(executable_path("just"));
+    let mut command = Command::new(JUST);
 
     if self.shell {
       command.args(["--shell", "bash"]);
@@ -282,7 +283,7 @@ impl Test {
       );
     }
 
-    if !compare("status", output.status.code(), Some(self.status))
+    if !compare("status", output.status.code(), Some(status))
       | (self.stdout_regex.is_none() && !compare_string("stdout", output_stdout, &stdout))
       | (self.stderr_regex.is_none() && !compare_string("stderr", output_stderr, &stderr))
     {
@@ -308,7 +309,7 @@ impl Test {
       );
     }
 
-    if self.test_round_trip && self.status == EXIT_SUCCESS {
+    if self.test_round_trip && status == 0 {
       self.round_trip();
     }
 
@@ -320,9 +321,7 @@ impl Test {
   }
 
   fn round_trip(&self) {
-    println!("Reparsing...");
-
-    let output = Command::new(executable_path("just"))
+    let output = Command::new(JUST)
       .current_dir(self.tempdir.path())
       .arg("--dump")
       .envs(&self.env)
@@ -342,7 +341,7 @@ impl Test {
 
     fs::write(&reparsed_path, &dumped).unwrap();
 
-    let output = Command::new(executable_path("just"))
+    let output = Command::new(JUST)
       .current_dir(self.tempdir.path())
       .arg("--justfile")
       .arg(&reparsed_path)
@@ -359,11 +358,11 @@ impl Test {
   }
 }
 
-pub fn assert_eval_eq(expression: &str, result: &str) {
+pub(crate) fn assert_eval_eq(expression: &str, result: &str) {
   Test::new()
     .justfile(format!("x := {expression}"))
     .args(["--evaluate", "x"])
     .stdout(result)
     .unindent_stdout(false)
-    .run();
+    .success();
 }

@@ -16,5 +16,5 @@ fn skip_alias() {
     )
     .args(["--no-aliases", "--list"])
     .stdout("Available recipes:\n    test1\n    test2\n")
-    .run();
+    .success();
 }

@@ -397,10 +397,11 @@ mod tests {
     let cases = &[
       ("/", "foo", "/foo"),
       ("/bar", "/foo", "/foo"),
-      #[cfg(windows)]
-      ("//foo", "bar//baz", "//foo\\bar\\baz"),
-      #[cfg(not(windows))]
-      ("/", "..", "/"),
+      if cfg!(windows) {
+        ("//foo", "bar//baz", "//foo\\bar\\baz")
+      } else {
+        ("/", "..", "/")
+      },
       ("/", "/..", "/"),
       ("/..", "", "/"),
       ("/../../../..", "../../../", "/"),

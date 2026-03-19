@@ -5,19 +5,21 @@ fn all() {
   Test::new()
     .justfile(
       "
-      [macos]
+      [dragonfly]
+      [freebsd]
       [linux]
+      [macos]
+      [netbsd]
+      [no-exit-message]
       [openbsd]
       [unix]
       [windows]
-      [no-exit-message]
       foo:
         exit 1
     ",
     )
     .stderr("exit 1\n")
-    .status(1)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -40,8 +42,7 @@ fn duplicate_attributes_are_disallowed() {
         │  ^^^^^^^^^^^^^^^
       ",
     )
-    .status(1)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -49,15 +50,14 @@ fn multiple_attributes_one_line() {
   Test::new()
     .justfile(
       "
-      [macos,windows,linux,openbsd]
+      [macos,windows,linux,openbsd,freebsd,dragonfly,netbsd]
       [no-exit-message]
       foo:
         exit 1
     ",
     )
     .stderr("exit 1\n")
-    .status(1)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -65,7 +65,7 @@ fn multiple_attributes_one_line_error_message() {
   Test::new()
     .justfile(
       "
-      [macos,windows linux,openbsd]
+      [macos,windows linux,openbsd,freebsd,dragonfly,netbsd]
       [no-exit-message]
       foo:
         exit 1
@@ -76,12 +76,11 @@ fn multiple_attributes_one_line_error_message() {
         error: Expected ']', ':', ',', or '(', but found identifier
          ——▶ justfile:1:16
           │
-        1 │ [macos,windows linux,openbsd]
+        1 │ [macos,windows linux,openbsd,freebsd,dragonfly,netbsd]
           │                ^^^^^
           ",
     )
-    .status(1)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -89,7 +88,7 @@ fn multiple_attributes_one_line_duplicate_check() {
   Test::new()
     .justfile(
       "
-      [macos, windows, linux, openbsd]
+      [macos, windows, linux, openbsd, freebsd, dragonfly, netbsd]
       [linux]
       foo:
         exit 1
@@ -104,8 +103,7 @@ fn multiple_attributes_one_line_duplicate_check() {
         │  ^^^^^
         ",
     )
-    .status(1)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -127,8 +125,7 @@ fn unexpected_attribute_argument() {
           │  ^^^^^^^
           ",
     )
-    .status(1)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -144,8 +141,7 @@ fn multiple_metadata_attributes() {
     ",
     )
     .stderr("exit 1\n")
-    .status(1)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -161,8 +157,7 @@ fn multiple_metadata_attributes_with_multiple_args() {
     ",
     )
     .stderr("exit 1\n")
-    .status(1)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -184,8 +179,7 @@ fn expected_metadata_attribute_argument() {
           │  ^^^^^^^^
           ",
     )
-    .status(1)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -206,7 +200,7 @@ fn doc_attribute() {
         foo # The real docstring
         ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -227,7 +221,7 @@ fn doc_attribute_suppress() {
         foo
         ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -249,7 +243,7 @@ fn doc_multiline() {
         foo
         ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -264,7 +258,7 @@ fn extension() {
       ",
     )
     .stdout_regex(r"*baz\.txt\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -285,8 +279,7 @@ fn extension_on_linewise_error() {
     │ ^^^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -308,6 +301,152 @@ fn duplicate_non_repeatable_attributes_are_forbidden() {
     │  ^^^^^^^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
+}
+
+#[test]
+fn shell_expanded_strings_can_be_used_in_attributes() {
+  Test::new()
+    .justfile(
+      "
+        [doc(x'foo')]
+        bar:
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn env_attribute_single() {
+  Test::new()
+    .justfile(
+      "
+        [env('MY_VAR', 'my_value')]
+        foo:
+          @echo $MY_VAR
+      ",
+    )
+    .stdout("my_value\n")
+    .success();
+}
+
+#[test]
+fn env_attribute_multiple() {
+  Test::new()
+    .justfile(
+      "
+        [env('VAR1', 'value1')]
+        [env('VAR2', 'value 2')]
+        foo:
+          @echo $VAR1 $VAR2
+      ",
+    )
+    .stdout("value1 value 2\n")
+    .success();
+}
+
+#[test]
+fn env_attribute_in_recipe_params() {
+  Test::new()
+    .justfile(
+      r#"
+[env("foo", "bar")]
+baz x=`echo ${foo}.txt`:
+    @echo {{x}}
+"#,
+    )
+    .stdout("bar.txt\n")
+    .success();
+}
+
+#[test]
+fn env_attribute_not_in_env_function() {
+  Test::new()
+    .justfile(
+      r#"
+
+[env("foo", "bar")]
+baz:
+  @echo {{ env("foo") }}.txt
+
+    "#,
+    )
+    .stderr(
+      r#"
+error: Call to function `env` failed: environment variable `foo` not present
+ ——▶ justfile:4:12
+  │
+4 │   @echo {{ env("foo") }}.txt
+  │            ^^^
+
+"#,
+    )
+    .failure();
+}
+
+#[test]
+fn env_attribute_too_few_arguments() {
+  Test::new()
+    .justfile(
+      "
+        [env('MY_VAR')]
+        foo:
+          echo bar
+      ",
+    )
+    .stderr(
+      "
+  error: Attribute `env` got 1 argument but takes 2 arguments
+   ——▶ justfile:1:2
+    │
+  1 │ [env('MY_VAR')]
+    │  ^^^
+",
+    )
+    .failure();
+}
+
+#[test]
+fn env_attribute_too_many_arguments() {
+  Test::new()
+    .justfile(
+      "
+        [env('A', 'B', 'C')]
+        foo:
+          echo bar
+      ",
+    )
+    .stderr(
+      "
+  error: Attribute `env` got 3 arguments but takes 2 arguments
+   ——▶ justfile:1:2
+    │
+  1 │ [env('A', 'B', 'C')]
+    │  ^^^
+",
+    )
+    .failure();
+}
+
+#[test]
+fn env_attribute_duplicate_error() {
+  Test::new()
+    .justfile(
+      "
+        [env('VAR1', 'value1')]
+        [env('VAR1', 'value 2')]
+        foo:
+          @echo $VAR1
+      ",
+    )
+    .stderr(
+      "
+  error: Environment variable `VAR1` first set on line 1 is set again on line 2
+   ——▶ justfile:2:2
+    │
+  2 │ [env('VAR1', 'value 2')]
+    │  ^^^
+",
+    )
+    .failure();
 }

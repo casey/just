@@ -9,7 +9,7 @@ fn infallible_after_quiet() {
           @-exit 1
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -21,5 +21,5 @@ fn quiet_after_infallible() {
           -@exit 1
       ",
     )
-    .run();
+    .success();
 }

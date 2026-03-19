@@ -29,6 +29,7 @@ _just() {
 '--justfile=[Use <JUSTFILE> as justfile]: :_files' \
 '--list-heading=[Print <TEXT> before list]:TEXT:_default' \
 '--list-prefix=[Print <TEXT> before each list item]:TEXT:_default' \
+'*--group=[Only list recipes in <GROUP>]: :_default' \
 '*--set=[Override <VARIABLE> with <VALUE>]: :(_just_variables)' \
 '--shell=[Invoke <SHELL> to run recipes]: :_default' \
 '*--shell-arg=[Invoke shell with <SHELL-ARG> as an argument]: :_default' \
@@ -44,6 +45,7 @@ _just() {
 '--request=[Execute <REQUEST>. For internal testing purposes only. May be changed or removed at any time.]: :_default' \
 '-s+[Show recipe at <PATH>]: :(_just_commands)' \
 '--show=[Show recipe at <PATH>]: :(_just_commands)' \
+'()--usage=[Print recipe usage information]:PATH:_default' \
 '--check[Run \`--fmt\` in '\''check'\'' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.]' \
 '--clear-shell-args[Clear shell arguments]' \
 '(-q --quiet)-n[Print what just would do without doing it]' \
@@ -78,6 +80,7 @@ _just() {
 '--fmt[Format and overwrite justfile]' \
 '--groups[List recipe groups]' \
 '--init[Initialize new justfile in project root]' \
+'(--dump-format)--json[Print justfile as JSON]' \
 '--man[Print man page]' \
 '--summary[List names of available recipes]' \
 '--variables[List names of variables]' \

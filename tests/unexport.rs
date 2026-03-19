@@ -13,7 +13,7 @@ fn unexport_environment_variable_linewise() {
     )
     .env("JUST_TEST_VARIABLE", "foo")
     .stdout("unset\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -30,7 +30,7 @@ fn unexport_environment_variable_shebang() {
     )
     .env("JUST_TEST_VARIABLE", "foo")
     .stdout("unset\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -56,8 +56,7 @@ fn duplicate_unexport_fails() {
           │          ^^^^^^^^^^^^^^^^^^
       ",
     )
-    .status(1)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -82,8 +81,7 @@ fn export_unexport_conflict() {
           │        ^^^^^^^^^^^^^^^^^^
       ",
     )
-    .status(1)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -99,7 +97,7 @@ fn unexport_doesnt_override_local_recipe_export() {
     )
     .args(["recipe", "value"])
     .stdout("variable: value\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -113,7 +111,7 @@ fn unexport_does_not_conflict_with_recipe_syntax() {
     )
     .args(["unexport", "bar"])
     .stdout("bar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -122,5 +120,5 @@ fn unexport_does_not_conflict_with_assignment_syntax() {
     .justfile("unexport := 'foo'")
     .args(["--evaluate", "unexport"])
     .stdout("foo")
-    .run();
+    .success();
 }

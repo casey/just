@@ -20,7 +20,7 @@ fn modules_unsorted() {
             bar ...
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -54,7 +54,7 @@ fn unsorted_list_order() {
             d
       ",
     )
-    .run();
+    .success();
 
   Test::new()
     .write("a.just", "a:")
@@ -85,7 +85,7 @@ fn unsorted_list_order() {
             a
       ",
     )
-    .run();
+    .success();
 
   Test::new()
     .write("a.just", "a:\nimport 'e.just'")
@@ -124,7 +124,7 @@ fn unsorted_list_order() {
             e
       ",
     )
-    .run();
+    .success();
 
   Test::new()
     .write("task1.just", "task1:")
@@ -143,7 +143,7 @@ fn unsorted_list_order() {
             task2
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -162,7 +162,7 @@ fn list_submodule() {
           bar
     ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -182,7 +182,7 @@ fn list_nested_submodule() {
             baz
       ",
     )
-    .run();
+    .success();
 
   Test::new()
     .write("foo.just", "mod bar")
@@ -199,7 +199,7 @@ fn list_nested_submodule() {
             baz
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -207,8 +207,7 @@ fn list_invalid_path() {
   Test::new()
     .args(["--list", "$hello"])
     .stderr("error: Invalid module path `$hello`\n")
-    .status(1)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -216,8 +215,7 @@ fn list_unknown_submodule() {
   Test::new()
     .args(["--list", "hello"])
     .stderr("error: Justfile does not contain submodule `hello`\n")
-    .status(1)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -244,7 +242,7 @@ fn list_with_groups_in_modules() {
             foo
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -264,7 +262,7 @@ fn list_displays_recipes_in_submodules() {
               bar
     ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -290,7 +288,7 @@ fn modules_are_space_separated_in_output() {
               foo
     ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -320,7 +318,7 @@ barbarbar:
                 foo # foos
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -342,7 +340,7 @@ fn nested_modules_are_properly_indented() {
                   baz
     ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -362,7 +360,7 @@ fn module_doc_rendered() {
             foo ... # Module foo
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -392,7 +390,7 @@ fn module_doc_aligned() {
             very_long_name_for_module ... # comment
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -417,7 +415,7 @@ fn submodules_without_groups() {
             bar
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -436,7 +434,7 @@ fn no_space_before_submodules_not_following_groups() {
             foo ...
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -454,7 +452,7 @@ fn backticks_highlighted() {
         Available recipes:
             recipe \u{1b}[34m#\u{1b}[0m \u{1b}[34mComment \u{1b}[0m\u{1b}[36m``\u{1b}[0m\u{1b}[34m \u{1b}[0m\u{1b}[36m`with backticks`\u{1b}[0m\u{1b}[34m and trailing text\u{1b}[0m
       ")
-    .run();
+    .success();
 }
 
 #[test]
@@ -472,7 +470,7 @@ fn unclosed_backticks() {
         Available recipes:
             recipe \u{1b}[34m#\u{1b}[0m \u{1b}[34mComment \u{1b}[0m\u{1b}[36m`with unclosed backick\u{1b}[0m
       ")
-    .run();
+    .success();
 }
 
 #[test]
@@ -480,6 +478,5 @@ fn list_submodules_requires_list() {
   Test::new()
     .arg("--list-submodules")
     .stderr_regex("error: the following required arguments were not provided:\n  --list .*")
-    .status(2)
-    .run();
+    .status(2);
 }

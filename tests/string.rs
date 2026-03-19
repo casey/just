@@ -13,7 +13,7 @@ recipe:
     )
     .stdout("\\z")
     .stderr("printf \"$EXPORTED_VARIABLE\"\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -39,7 +39,7 @@ whatever
 whatever'
 ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -62,7 +62,7 @@ a:
 goodbye'
 ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -88,7 +88,7 @@ whatever
 whatever'
 ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -110,7 +110,7 @@ fn cooked_string_suppress_newline() {
     foobar
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -129,8 +129,7 @@ a:"#,
   │      ^^^^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -155,8 +154,7 @@ a:
   │           ^^^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -181,8 +179,7 @@ a:
   │             ^^^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -208,7 +205,7 @@ a:
       b'
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -232,8 +229,7 @@ a:
   │          ^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -254,8 +250,7 @@ fn unterminated_raw_string() {
       │      ^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -276,8 +271,7 @@ fn unterminated_string() {
       │      ^
   "#,
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -298,8 +292,7 @@ fn unterminated_backtick() {
       │           ^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -320,8 +313,7 @@ fn unterminated_indented_raw_string() {
       │      ^^^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -342,8 +334,7 @@ fn unterminated_indented_string() {
       │      ^^^
   "#,
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -364,8 +355,7 @@ fn unterminated_indented_backtick() {
       │           ^^^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -388,7 +378,7 @@ fn indented_raw_string_contents_indentation_removed() {
     bar
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -411,7 +401,7 @@ fn indented_cooked_string_contents_indentation_removed() {
     bar
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -431,7 +421,7 @@ fn indented_backtick_string_contents_indentation_removed() {
   ",
     )
     .stdout("\n\nfoo\nbar")
-    .run();
+    .success();
 }
 
 #[test]
@@ -454,7 +444,7 @@ fn indented_raw_string_escapes() {
     bar
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -478,7 +468,7 @@ fn indented_cooked_string_escapes() {
     bar
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -498,7 +488,7 @@ fn indented_backtick_string_escapes() {
   ",
     )
     .stdout("\n\nfoo\\n\nbar")
-    .run();
+    .success();
 }
 
 #[test]
@@ -518,8 +508,7 @@ fn shebang_backtick() {
       │      ^^^^^^^^^^^^^^^^^^^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -528,7 +517,7 @@ fn valid_unicode_escape() {
     .justfile(r#"x := "\u{1f916}\u{1F916}""#)
     .args(["--evaluate", "x"])
     .stdout("🤖🤖")
-    .run();
+    .success();
 }
 
 #[test]
@@ -537,7 +526,7 @@ fn unicode_escapes_with_all_hex_digits() {
     .justfile(r#"x := "\u{012345}\u{6789a}\u{bcdef}\u{ABCDE}\u{F}""#)
     .args(["--evaluate", "x"])
     .stdout("\u{012345}\u{6789a}\u{bcdef}\u{ABCDE}\u{F}")
-    .run();
+    .success();
 }
 
 #[test]
@@ -546,7 +535,7 @@ fn maximum_valid_unicode_escape() {
     .justfile(r#"x := "\u{10FFFF}""#)
     .args(["--evaluate", "x"])
     .stdout("\u{10FFFF}")
-    .run();
+    .success();
 }
 
 #[test]
@@ -554,7 +543,6 @@ fn unicode_escape_no_braces() {
   Test::new()
     .justfile("x := \"\\u1234\"")
     .args(["--evaluate", "x"])
-    .status(1)
     .stderr(
       r#"
 error: expected unicode escape sequence delimiter `{` but found `1`
@@ -564,7 +552,7 @@ error: expected unicode escape sequence delimiter `{` but found `1`
   │      ^^^^^^^^
 "#,
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -572,7 +560,6 @@ fn unicode_escape_empty() {
   Test::new()
     .justfile("x := \"\\u{}\"")
     .args(["--evaluate", "x"])
-    .status(1)
     .stderr(
       r#"
 error: unicode escape sequences must not be empty
@@ -582,7 +569,7 @@ error: unicode escape sequences must not be empty
   │      ^^^^^^
 "#,
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -590,7 +577,6 @@ fn unicode_escape_requires_immediate_opening_brace() {
   Test::new()
     .justfile("x := \"\\u {1f916}\"")
     .args(["--evaluate", "x"])
-    .status(1)
     .stderr(
       r#"
 error: expected unicode escape sequence delimiter `{` but found ` `
@@ -600,7 +586,7 @@ error: expected unicode escape sequence delimiter `{` but found ` `
   │      ^^^^^^^^^^^^
 "#,
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -608,7 +594,6 @@ fn unicode_escape_non_hex() {
   Test::new()
     .justfile("x := \"\\u{foo}\"")
     .args(["--evaluate", "x"])
-    .status(1)
     .stderr(
       r#"
 error: expected hex digit [0-9A-Fa-f] but found `o`
@@ -618,7 +603,7 @@ error: expected hex digit [0-9A-Fa-f] but found `o`
   │      ^^^^^^^^^
 "#,
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -626,7 +611,6 @@ fn unicode_escape_invalid_character() {
   Test::new()
     .justfile("x := \"\\u{BadBad}\"")
     .args(["--evaluate", "x"])
-    .status(1)
     .stderr(
       r#"
 error: unicode escape sequence value `BadBad` greater than maximum valid code point `10FFFF`
@@ -636,7 +620,7 @@ error: unicode escape sequence value `BadBad` greater than maximum valid code po
   │      ^^^^^^^^^^^^
 "#,
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -644,7 +628,6 @@ fn unicode_escape_too_long() {
   Test::new()
     .justfile("x := \"\\u{FFFFFFFFFF}\"")
     .args(["--evaluate", "x"])
-    .status(1)
     .stderr(
       r#"
 error: unicode escape sequence starting with `\u{FFFFFFF` longer than six hex digits
@@ -654,7 +637,7 @@ error: unicode escape sequence starting with `\u{FFFFFFF` longer than six hex di
   │      ^^^^^^^^^^^^^^^^
 "#,
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -662,7 +645,6 @@ fn unicode_escape_unterminated() {
   Test::new()
     .justfile("x := \"\\u{1f917\"")
     .args(["--evaluate", "x"])
-    .status(1)
     .stderr(
       r#"
 error: unterminated unicode escape sequence
@@ -672,5 +654,5 @@ error: unterminated unicode escape sequence
   │      ^^^^^^^^^^
 "#,
     )
-    .run();
+    .failure();
 }

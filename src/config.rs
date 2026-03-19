@@ -1,16 +1,17 @@
 use {
   super::*,
   clap::{
+    Arg, ArgAction, ArgGroup, ArgMatches, Command,
     builder::{
-      styling::{AnsiColor, Effects},
       FalseyValueParser, Styles,
+      styling::{AnsiColor, Effects},
     },
     parser::ValuesRef,
-    value_parser, Arg, ArgAction, ArgGroup, ArgMatches, Command,
+    value_parser,
   },
 };
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Default, PartialEq)]
 pub(crate) struct Config {
   pub(crate) alias_style: AliasStyle,
   pub(crate) allow_missing: bool,
@@ -22,8 +23,8 @@ pub(crate) struct Config {
   pub(crate) dotenv_filename: Option<String>,
   pub(crate) dotenv_path: Option<PathBuf>,
   pub(crate) dry_run: bool,
-  pub(crate) dump_format: DumpFormat,
   pub(crate) explain: bool,
+  pub(crate) groups: Vec<String>,
   pub(crate) highlight: bool,
   pub(crate) invocation_directory: PathBuf,
   pub(crate) list_heading: String,
@@ -33,6 +34,7 @@ pub(crate) struct Config {
   pub(crate) no_aliases: bool,
   pub(crate) no_dependencies: bool,
   pub(crate) one: bool,
+  pub(crate) overrides: BTreeMap<(Modulepath, String), String>,
   pub(crate) search_config: SearchConfig,
   pub(crate) shell: Option<String>,
   pub(crate) shell_args: Option<Vec<String>>,
@@ -58,11 +60,13 @@ mod cmd {
   pub(crate) const FORMAT: &str = "FORMAT";
   pub(crate) const GROUPS: &str = "GROUPS";
   pub(crate) const INIT: &str = "INIT";
+  pub(crate) const JSON: &str = "JSON";
   pub(crate) const LIST: &str = "LIST";
   pub(crate) const MAN: &str = "MAN";
   pub(crate) const REQUEST: &str = "REQUEST";
   pub(crate) const SHOW: &str = "SHOW";
   pub(crate) const SUMMARY: &str = "SUMMARY";
+  pub(crate) const USAGE: &str = "USAGE";
   pub(crate) const VARIABLES: &str = "VARIABLES";
 
   pub(crate) const ALL: &[&str] = &[
@@ -75,6 +79,7 @@ mod cmd {
     EVALUATE,
     FORMAT,
     INIT,
+    JSON,
     LIST,
     MAN,
     REQUEST,
@@ -83,8 +88,9 @@ mod cmd {
     VARIABLES,
   ];
 
-  pub(crate) const ARGLESS: &[&str] =
-    &[CHANGELOG, DUMP, EDIT, FORMAT, INIT, MAN, SUMMARY, VARIABLES];
+  pub(crate) const ARGLESS: &[&str] = &[
+    CHANGELOG, DUMP, EDIT, FORMAT, JSON, INIT, MAN, SUMMARY, VARIABLES,
+  ];
 
   pub(crate) const HEADING: &str = "Commands";
 }
@@ -108,6 +114,7 @@ mod arg {
   pub(crate) const GLOBAL_JUSTFILE: &str = "GLOBAL-JUSTFILE";
   pub(crate) const HIGHLIGHT: &str = "HIGHLIGHT";
   pub(crate) const JUSTFILE: &str = "JUSTFILE";
+  pub(crate) const GROUP: &str = "GROUP";
   pub(crate) const LIST_HEADING: &str = "LIST-HEADING";
   pub(crate) const LIST_PREFIX: &str = "LIST-PREFIX";
   pub(crate) const LIST_SUBMODULES: &str = "LIST-SUBMODULES";
@@ -312,6 +319,14 @@ impl Config {
           .env("JUST_LIST_SUBMODULES")
           .help("List recipes in submodules")
           .action(ArgAction::SetTrue)
+          .requires(cmd::LIST),
+      )
+      .arg(
+        Arg::new(arg::GROUP)
+          .long("group")
+          .env("JUST_GROUP")
+          .help("Only list recipes in <GROUP>")
+          .action(ArgAction::Append)
           .requires(cmd::LIST),
       )
       .arg(
@@ -551,6 +566,14 @@ impl Config {
           .help_heading(cmd::HEADING),
       )
       .arg(
+        Arg::new(cmd::JSON)
+          .long("json")
+          .action(ArgAction::SetTrue)
+          .conflicts_with(arg::DUMP_FORMAT)
+          .help("Print justfile as JSON")
+          .help_heading(cmd::HEADING),
+      )
+      .arg(
         Arg::new(cmd::LIST)
           .short('l')
           .long("list")
@@ -598,6 +621,16 @@ impl Config {
           .help_heading(cmd::HEADING),
       )
       .arg(
+        Arg::new(cmd::USAGE)
+          .long("usage")
+          .num_args(1..)
+          .value_name("PATH")
+          .action(ArgAction::Set)
+          .conflicts_with(arg::ARGUMENTS)
+          .help("Print recipe usage information")
+          .help_heading(cmd::HEADING),
+      )
+      .arg(
         Arg::new(cmd::VARIABLES)
           .long("variables")
           .action(ArgAction::SetTrue)
@@ -613,7 +646,7 @@ impl Config {
       )
   }
 
-  fn parse_module_path(values: ValuesRef<String>) -> ConfigResult<ModulePath> {
+  fn parse_modulepath(values: ValuesRef<String>) -> ConfigResult<Modulepath> {
     let path = values.clone().map(|s| (*s).as_str()).collect::<Vec<&str>>();
 
     let path = if path.len() == 1 && path[0].contains(' ') {
@@ -663,11 +696,28 @@ impl Config {
     }
   }
 
+  pub(crate) fn timestamp(&self) -> Option<String> {
+    self.timestamp.then(|| {
+      chrono::Local::now()
+        .format(&self.timestamp_format)
+        .to_string()
+    })
+  }
+
+  fn parse_override(path: &str) -> ConfigResult<(Modulepath, String)> {
+    let mut path = Modulepath::try_from([path].as_slice())
+      .map_err(|()| ConfigError::OverridePath { path: path.into() })?;
+
+    let name = path.path.pop().unwrap();
+
+    Ok((path, name))
+  }
+
   pub(crate) fn from_matches(matches: &ArgMatches) -> ConfigResult<Self> {
     let mut overrides = BTreeMap::new();
     if let Some(mut values) = matches.get_many::<String>(arg::SET) {
-      while let (Some(k), Some(v)) = (values.next(), values.next()) {
-        overrides.insert(k.into(), v.into());
+      while let Some(path) = values.next() {
+        overrides.insert(Self::parse_override(path)?, values.next().unwrap().into());
       }
     }
 
@@ -677,11 +727,24 @@ impl Config {
         .map(|s| s.map(String::as_str)),
     );
 
-    for (name, value) in &positional.overrides {
-      overrides.insert(name.clone(), value.clone());
+    for (path, value) in &positional.overrides {
+      overrides.insert(Self::parse_override(path)?, value.into());
     }
 
     let search_config = Self::search_config(matches, &positional)?;
+
+    let format_overrides = || {
+      overrides
+        .iter()
+        .map(|((path, key), value)| {
+          if path.is_empty() {
+            format!("{key}={value}")
+          } else {
+            format!("{path}::{key}={value}")
+          }
+        })
+        .collect()
+    };
 
     for subcommand in cmd::ARGLESS {
       if matches.get_flag(subcommand) {
@@ -690,7 +753,7 @@ impl Config {
           (true, false) => {
             return Err(ConfigError::SubcommandOverrides {
               subcommand,
-              overrides,
+              overrides: format_overrides(),
             });
           }
           (false, true) => {
@@ -703,7 +766,7 @@ impl Config {
             return Err(ConfigError::SubcommandOverridesAndArguments {
               arguments: positional.arguments,
               subcommand,
-              overrides,
+              overrides: format_overrides(),
             });
           }
         }
@@ -715,19 +778,19 @@ impl Config {
     } else if matches.get_flag(cmd::CHOOSE) {
       Subcommand::Choose {
         chooser: matches.get_one::<String>(arg::CHOOSER).map(Into::into),
-        overrides,
       }
     } else if let Some(values) = matches.get_many::<OsString>(cmd::COMMAND) {
       let mut arguments = values.map(Into::into).collect::<Vec<OsString>>();
       Subcommand::Command {
         binary: arguments.remove(0),
         arguments,
-        overrides,
       }
     } else if let Some(&shell) = matches.get_one::<completions::Shell>(cmd::COMPLETIONS) {
       Subcommand::Completions { shell }
     } else if matches.get_flag(cmd::DUMP) {
-      Subcommand::Dump
+      Subcommand::Dump {
+        format: *matches.get_one::<DumpFormat>(arg::DUMP_FORMAT).unwrap(),
+      }
     } else if matches.get_flag(cmd::EDIT) {
       Subcommand::Edit
     } else if matches.get_flag(cmd::EVALUATE) {
@@ -744,7 +807,6 @@ impl Config {
 
       Subcommand::Evaluate {
         variable: positional.arguments.into_iter().next(),
-        overrides,
       }
     } else if matches.get_flag(cmd::FORMAT) {
       Subcommand::Format
@@ -752,9 +814,13 @@ impl Config {
       Subcommand::Groups
     } else if matches.get_flag(cmd::INIT) {
       Subcommand::Init
+    } else if matches.get_flag(cmd::JSON) {
+      Subcommand::Dump {
+        format: DumpFormat::Json,
+      }
     } else if let Some(path) = matches.get_many::<String>(cmd::LIST) {
       Subcommand::List {
-        path: Self::parse_module_path(path)?,
+        path: Self::parse_modulepath(path)?,
       }
     } else if matches.get_flag(cmd::MAN) {
       Subcommand::Man
@@ -765,16 +831,19 @@ impl Config {
       }
     } else if let Some(path) = matches.get_many::<String>(cmd::SHOW) {
       Subcommand::Show {
-        path: Self::parse_module_path(path)?,
+        path: Self::parse_modulepath(path)?,
       }
     } else if matches.get_flag(cmd::SUMMARY) {
       Subcommand::Summary
+    } else if let Some(path) = matches.get_many::<String>(cmd::USAGE) {
+      Subcommand::Usage {
+        path: Self::parse_modulepath(path)?,
+      }
     } else if matches.get_flag(cmd::VARIABLES) {
       Subcommand::Variables
     } else {
       Subcommand::Run {
         arguments: positional.arguments,
-        overrides,
       }
     };
 
@@ -800,13 +869,13 @@ impl Config {
         .map(Into::into),
       dotenv_path: matches.get_one::<PathBuf>(arg::DOTENV_PATH).map(Into::into),
       dry_run: matches.get_flag(arg::DRY_RUN),
-      dump_format: matches
-        .get_one::<DumpFormat>(arg::DUMP_FORMAT)
-        .unwrap()
-        .clone(),
       explain,
       highlight: !matches.get_flag(arg::NO_HIGHLIGHT),
       invocation_directory: env::current_dir().context(config_error::CurrentDirContext)?,
+      groups: matches
+        .get_many::<String>(arg::GROUP)
+        .map(|s| s.map(Into::into).collect())
+        .unwrap_or_default(),
       list_heading: matches.get_one::<String>(arg::LIST_HEADING).unwrap().into(),
       list_prefix: matches.get_one::<String>(arg::LIST_PREFIX).unwrap().into(),
       list_submodules: matches.get_flag(arg::LIST_SUBMODULES),
@@ -814,6 +883,7 @@ impl Config {
       no_aliases: matches.get_flag(arg::NO_ALIASES),
       no_dependencies: matches.get_flag(arg::NO_DEPS),
       one: matches.get_flag(arg::ONE),
+      overrides,
       search_config,
       shell: matches.get_one::<String>(arg::SHELL).map(Into::into),
       shell_args: if matches.get_flag(arg::CLEAR_SHELL_ARGS) {
@@ -872,6 +942,7 @@ mod tests {
       $(dump_format: $dump_format:expr,)?
       $(highlight: $highlight:expr,)?
       $(no_dependencies: $no_dependencies:expr,)?
+      $(overrides: $overrides:expr,)?
       $(search_config: $search_config:expr,)?
       $(shell: $shell:expr,)?
       $(shell_args: $shell_args:expr,)?
@@ -893,6 +964,7 @@ mod tests {
           $(dump_format: $dump_format,)?
           $(highlight: $highlight,)?
           $(no_dependencies: $no_dependencies,)?
+          $(overrides: $overrides,)?
           $(search_config: $search_config,)?
           $(shell: $shell,)?
           $(shell_args: $shell_args,)?
@@ -992,9 +1064,9 @@ mod tests {
       $($key:literal : $value:literal),* $(,)?
     } => {
       {
-        let mut map: BTreeMap<String, String> = BTreeMap::new();
+        let mut map: BTreeMap<(Modulepath, String), String> = BTreeMap::new();
         $(
-          map.insert($key.to_owned(), $value.to_owned());
+          map.insert((Modulepath::default(), $key.to_owned()), $value.to_owned());
         )*
         map
       }
@@ -1150,45 +1222,45 @@ mod tests {
   test! {
     name: set_default,
     args: [],
+    overrides: map!(),
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!(),
     },
   }
 
   test! {
     name: set_one,
     args: ["--set", "foo", "bar"],
+    overrides: map!{"foo": "bar"},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{"foo": "bar"},
     },
   }
 
   test! {
     name: set_empty,
     args: ["--set", "foo", ""],
+    overrides: map!{"foo": ""},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{"foo": ""},
     },
   }
 
   test! {
     name: set_two,
     args: ["--set", "foo", "bar", "--set", "bar", "baz"],
+    overrides: map!{"foo": "bar", "bar": "baz"},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{"foo": "bar", "bar": "baz"},
     },
   }
 
   test! {
     name: set_override,
     args: ["--set", "foo", "bar", "--set", "foo", "baz"],
+    overrides: map!{"foo": "baz"},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{"foo": "baz"},
     },
   }
 
@@ -1250,9 +1322,9 @@ mod tests {
   test! {
     name: subcommand_default,
     args: [],
+    overrides: map!{},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{},
     },
   }
 
@@ -1326,13 +1398,13 @@ mod tests {
   test! {
     name: subcommand_dump,
     args: ["--dump"],
-    subcommand: Subcommand::Dump,
+    subcommand: Subcommand::Dump { format: DumpFormat::Just },
   }
 
   test! {
-    name: dump_format,
-    args: ["--dump-format", "json"],
-    dump_format: DumpFormat::Json,
+    name: subcommand_json,
+    args: ["--json"],
+    subcommand: Subcommand::Dump { format: DumpFormat::Json },
   }
 
   test! {
@@ -1344,8 +1416,8 @@ mod tests {
   test! {
     name: subcommand_evaluate,
     args: ["--evaluate"],
+    overrides: map!{},
     subcommand: Subcommand::Evaluate {
-      overrides: map!{},
       variable: None,
     },
   }
@@ -1353,8 +1425,8 @@ mod tests {
   test! {
     name: subcommand_evaluate_overrides,
     args: ["--evaluate", "x=y"],
+    overrides: map!{"x": "y"},
     subcommand: Subcommand::Evaluate {
-      overrides: map!{"x": "y"},
       variable: None,
     },
   }
@@ -1362,8 +1434,8 @@ mod tests {
   test! {
     name: subcommand_evaluate_overrides_with_argument,
     args: ["--evaluate", "x=y", "foo"],
+    overrides: map!{"x": "y"},
     subcommand: Subcommand::Evaluate {
-      overrides: map!{"x": "y"},
       variable: Some("foo".to_owned()),
     },
   }
@@ -1371,38 +1443,38 @@ mod tests {
   test! {
     name: subcommand_list_long,
     args: ["--list"],
-    subcommand: Subcommand::List{ path: ModulePath { path: Vec::new(), spaced: false } },
+    subcommand: Subcommand::List{ path: Modulepath { path: Vec::new(), spaced: false } },
   }
 
   test! {
     name: subcommand_list_short,
     args: ["-l"],
-    subcommand: Subcommand::List{ path: ModulePath { path: Vec::new(), spaced: false } },
+    subcommand: Subcommand::List{ path: Modulepath { path: Vec::new(), spaced: false } },
   }
 
   test! {
     name: subcommand_list_arguments,
     args: ["--list", "bar"],
-    subcommand: Subcommand::List{ path: ModulePath { path: vec!["bar".into()], spaced: false } },
+    subcommand: Subcommand::List{ path: Modulepath { path: vec!["bar".into()], spaced: false } },
   }
 
   test! {
     name: subcommand_show_long,
     args: ["--show", "build"],
-    subcommand: Subcommand::Show { path: ModulePath { path: vec!["build".into()], spaced: false } },
+    subcommand: Subcommand::Show { path: Modulepath { path: vec!["build".into()], spaced: false } },
   }
 
   test! {
     name: subcommand_show_short,
     args: ["-s", "build"],
-    subcommand: Subcommand::Show { path: ModulePath { path: vec!["build".into()], spaced: false } },
+    subcommand: Subcommand::Show { path: Modulepath { path: vec!["build".into()], spaced: false } },
   }
 
   test! {
     name: subcommand_show_multiple_args,
     args: ["--show", "foo", "bar"],
     subcommand: Subcommand::Show {
-      path: ModulePath {
+      path: Modulepath {
         path: vec!["foo".into(), "bar".into()],
         spaced: true,
       },
@@ -1419,45 +1491,36 @@ mod tests {
   test! {
     name: arguments,
     args: ["foo", "bar"],
+    overrides: map!{},
     subcommand: Subcommand::Run {
       arguments: vec![String::from("foo"), String::from("bar")],
-      overrides: map!{},
-    },
-  }
-
-  test! {
-    name: arguments_leading_equals,
-    args: ["=foo"],
-    subcommand: Subcommand::Run {
-      arguments: vec!["=foo".to_owned()],
-      overrides: map!{},
     },
   }
 
   test! {
     name: overrides,
     args: ["foo=bar", "bar=baz"],
+    overrides: map!{"foo": "bar", "bar": "baz"},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{"foo": "bar", "bar": "baz"},
     },
   }
 
   test! {
     name: overrides_empty,
     args: ["foo=", "bar="],
+    overrides: map!{"foo": "", "bar": ""},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{"foo": "", "bar": ""},
     },
   }
 
   test! {
     name: overrides_override_sets,
     args: ["--set", "foo", "0", "--set", "bar", "1", "foo=bar", "bar=baz"],
+    overrides: map!{"foo": "bar", "bar": "baz"},
     subcommand: Subcommand::Run {
       arguments: Vec::new(),
-      overrides: map!{"foo": "bar", "bar": "baz"},
     },
   }
 
@@ -1558,7 +1621,7 @@ mod tests {
     search_config: SearchConfig::FromSearchDirectory {
       search_directory: PathBuf::from(".."),
     },
-    subcommand: Subcommand::Run { arguments: vec!["build".to_owned()], overrides: BTreeMap::new() },
+    subcommand: Subcommand::Run { arguments: vec!["build".to_owned()] },
   }
 
   test! {
@@ -1583,7 +1646,7 @@ mod tests {
     search_config: SearchConfig::FromSearchDirectory {
       search_directory: PathBuf::from("foo"),
     },
-    subcommand: Subcommand::Run { arguments: vec!["build".to_owned()], overrides: BTreeMap::new() },
+    subcommand: Subcommand::Run { arguments: vec!["build".to_owned()] },
   }
 
   error! {
@@ -1713,7 +1776,7 @@ mod tests {
     error: ConfigError::SubcommandOverridesAndArguments { subcommand, arguments, overrides },
     check: {
       assert_eq!(subcommand, cmd::SUMMARY);
-      assert_eq!(overrides, map!{"bar": "baz"});
+      assert_eq!(overrides, vec!["bar=baz"]);
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1724,7 +1787,7 @@ mod tests {
     error: ConfigError::SubcommandOverrides { subcommand, overrides },
     check: {
       assert_eq!(subcommand, cmd::SUMMARY);
-      assert_eq!(overrides, map!{"bar": "baz"});
+      assert_eq!(overrides, vec!["bar=baz"]);
     },
   }
 }

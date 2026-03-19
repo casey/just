@@ -10,7 +10,7 @@ default:
   @echo hello
 ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -23,7 +23,7 @@ default:
   @echo hello 1>&2
 ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -36,7 +36,7 @@ default:
   exit
 ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -49,8 +49,7 @@ default:
   exit 100
 ",
     )
-    .status(100)
-    .run();
+    .status(100);
 }
 
 #[test]
@@ -64,8 +63,7 @@ default:
   exit 100
 ",
     )
-    .status(100)
-    .run();
+    .status(100);
 }
 
 #[test]
@@ -79,8 +77,7 @@ default:
   exit 100
 ",
     )
-    .status(100)
-    .run();
+    .status(100);
 }
 
 #[test]
@@ -89,8 +86,7 @@ fn choose_none() {
     .arg("--choose")
     .arg("--quiet")
     .justfile("")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -102,8 +98,7 @@ fn choose_invocation() {
     .arg("asdfasdfasfdasdfasdfadsf")
     .justfile("foo:")
     .shell(false)
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -114,8 +109,7 @@ fn choose_status() {
     .arg("--chooser")
     .arg("/usr/bin/env false")
     .justfile("foo:")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -125,8 +119,7 @@ fn edit_invocation() {
     .arg("--quiet")
     .env("VISUAL", "adsfasdfasdfadsfadfsaf")
     .justfile("foo:")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -136,8 +129,7 @@ fn edit_status() {
     .arg("--quiet")
     .env("VISUAL", "false")
     .justfile("foo:")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -146,8 +138,7 @@ fn init_exists() {
     .arg("--init")
     .arg("--quiet")
     .justfile("foo:")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -157,8 +148,7 @@ fn show_missing() {
     .arg("bar")
     .arg("--quiet")
     .justfile("foo:")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -171,7 +161,7 @@ fn quiet_shebang() {
       #!/bin/sh
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -185,7 +175,7 @@ fn no_quiet_setting() {
     )
     .stdout("FOO\n")
     .stderr("echo FOO\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -200,7 +190,7 @@ fn quiet_setting() {
       ",
     )
     .stdout("FOO\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -217,7 +207,7 @@ fn quiet_setting_with_no_quiet_attribute() {
     )
     .stdout("FOO\n")
     .stderr("echo FOO\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -232,7 +222,7 @@ fn quiet_setting_with_quiet_recipe() {
       ",
     )
     .stdout("FOO\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -247,7 +237,7 @@ fn quiet_setting_with_quiet_line() {
       ",
     )
     .stdout("FOO\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -263,7 +253,7 @@ fn quiet_setting_with_no_quiet_attribute_and_quiet_recipe() {
       ",
     )
     .stdout("FOO\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -279,5 +269,5 @@ fn quiet_setting_with_no_quiet_attribute_and_quiet_line() {
       ",
     )
     .stdout("FOO\n")
-    .run();
+    .success();
 }
