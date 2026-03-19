@@ -83,6 +83,7 @@ pub(crate) use {
     setting::Setting,
     settings::Settings,
     shebang::Shebang,
+    shell::Shell,
     show_whitespace::ShowWhitespace,
     sigil::Sigil,
     signal::Signal,
@@ -111,6 +112,7 @@ pub(crate) use {
   },
   camino::Utf8Path,
   clap::ValueEnum,
+  clap_complete::CompletionCandidate,
   derive_where::derive_where,
   edit_distance::edit_distance,
   lexiclean::Lexiclean,
@@ -127,7 +129,7 @@ pub(crate) use {
     cmp::Ordering,
     collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     env,
-    ffi::OsString,
+    ffi::{OsStr, OsString},
     fmt::{self, Debug, Display, Formatter},
     fs,
     io::{self, Write},
@@ -208,7 +210,7 @@ mod compilation;
 mod compile_error;
 mod compile_error_kind;
 mod compiler;
-mod completions;
+mod complete;
 mod condition;
 mod conditional_operator;
 mod config;
@@ -270,6 +272,7 @@ mod set;
 mod setting;
 mod settings;
 mod shebang;
+mod shell;
 mod show_whitespace;
 mod sigil;
 mod signal;

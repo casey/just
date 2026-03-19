@@ -165,7 +165,7 @@ quine-text := '
 
 [group: 'test']
 test-completions:
-  ./tests/completions/just.bash
+  cargo test completions
 
 [group: 'check']
 build-book:
@@ -218,10 +218,9 @@ test-bash-completions:
   mkdir -p tmp/bin
   cargo build
   cp target/debug/just tmp/bin
-  ./tmp/bin/just --completions bash > tmp/just.bash
   echo 'mod foo' > tmp/justfile
   echo 'bar:' > tmp/foo.just
-  cd tmp && PATH="`realpath bin`:$PATH" bash --init-file just.bash
+  cd tmp && PATH="`realpath bin`:$PATH" bash --init-file <(JUST_COMPLETE=bash just)
 
 [group: 'test']
 test-release-workflow:

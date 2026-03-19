@@ -34,7 +34,6 @@ cp -r \
   GRAMMAR.md \
   LICENSE \
   README.md \
-  completions \
   man/just.1 \
   $DIST
 

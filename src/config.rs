@@ -9,6 +9,7 @@ use {
     parser::ValuesRef,
     value_parser,
   },
+  clap_complete::ArgValueCompleter,
 };
 
 #[derive(Debug, Default, PartialEq)]
@@ -388,6 +389,8 @@ impl Config {
           .action(ArgAction::Append)
           .number_of_values(2)
           .value_names(["VARIABLE", "VALUE"])
+          // todo: will this try to complete both variable and value?
+          .add(ArgValueCompleter::new(complete::variable))
           .help("Override <VARIABLE> with <VALUE>"),
       )
       .arg(
@@ -511,7 +514,7 @@ impl Config {
           .long("completions")
           .action(ArgAction::Set)
           .value_name("SHELL")
-          .value_parser(value_parser!(completions::Shell))
+          .value_parser(value_parser!(Shell))
           .ignore_case(true)
           .help("Print shell completion script for <SHELL>")
           .help_heading(cmd::HEADING),
@@ -610,6 +613,7 @@ impl Config {
           .action(ArgAction::Set)
           .value_name("PATH")
           .conflicts_with(arg::ARGUMENTS)
+          .add(ArgValueCompleter::new(complete::recipe))
           .help("Show recipe at <PATH>")
           .help_heading(cmd::HEADING),
       )
@@ -642,6 +646,7 @@ impl Config {
         Arg::new(arg::ARGUMENTS)
           .num_args(1..)
           .action(ArgAction::Append)
+          .add(ArgValueCompleter::new(complete::argument))
           .help("Overrides and recipe(s) to run, defaulting to the first recipe in the justfile"),
       )
   }
@@ -785,7 +790,7 @@ impl Config {
         binary: arguments.remove(0),
         arguments,
       }
-    } else if let Some(&shell) = matches.get_one::<completions::Shell>(cmd::COMPLETIONS) {
+    } else if let Some(&shell) = matches.get_one::<Shell>(cmd::COMPLETIONS) {
       Subcommand::Completions { shell }
     } else if matches.get_flag(cmd::DUMP) {
       Subcommand::Dump {
@@ -1381,13 +1386,13 @@ mod tests {
   test! {
     name: subcommand_completions,
     args: ["--completions", "bash"],
-    subcommand: Subcommand::Completions{ shell: completions::Shell::Bash },
+    subcommand: Subcommand::Completions{ shell: Shell::Bash },
   }
 
   test! {
     name: subcommand_completions_uppercase,
     args: ["--completions", "BASH"],
-    subcommand: Subcommand::Completions{ shell: completions::Shell::Bash },
+    subcommand: Subcommand::Completions{ shell: Shell::Bash },
   }
 
   error! {

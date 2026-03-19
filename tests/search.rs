@@ -158,6 +158,20 @@ fn double_upwards() {
 }
 
 #[test]
+fn justfile_symlink_parent() {
+  Test::new()
+    .no_justfile()
+    .test_round_trip(false)
+    .write("src", "foo:\n\techo bar\n")
+    .create_dir("sub")
+    .symlink("src", "sub/justfile")
+    .current_dir("sub")
+    .stderr("echo bar\n")
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
 fn find_dot_justfile() {
   Test::new()
     .justfile(

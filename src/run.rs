@@ -6,6 +6,10 @@ pub fn run(args: impl Iterator<Item = impl Into<OsString> + Clone>) -> Result<()
   #[cfg(windows)]
   ansi_term::enable_ansi_support().ok();
 
+  clap_complete::CompleteEnv::with_factory(Config::app)
+    .var("JUST_COMPLETE")
+    .complete();
+
   let app = Config::app();
 
   let matches = app.try_get_matches_from(args).map_err(|err| {

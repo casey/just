@@ -501,6 +501,23 @@ impl<'src> Justfile<'src> {
     recipes
   }
 
+  pub(crate) fn public_recipes_recursive(&self, config: &Config) -> Vec<&Recipe> {
+    let mut recipes = Vec::new();
+
+    let mut stack = vec![self];
+    while let Some(current) = stack.pop() {
+      for recipe in current.public_recipes(config) {
+        recipes.push(recipe);
+      }
+
+      for module in current.public_modules(config).into_iter().rev() {
+        stack.push(module);
+      }
+    }
+
+    recipes
+  }
+
   pub(crate) fn groups(&self) -> Vec<&str> {
     self
       .groups
