@@ -768,8 +768,8 @@ Available recipes:
     lint
 ```
 
-Recipes in [submodules](#modules1190) can be listed with `just --list PATH`,
-where `PATH` is a space- or `::`-separated module path:
+Recipes in [submodules](#modules) can be listed with `just --list PATH`, where
+`PATH` is a space- or `::`-separated module path:
 
 ```
 $ cat justfile
@@ -3983,9 +3983,9 @@ bar: baz
 baz:
 ```
 
-### Modules<sup>1.19.0</sup>
+### Modules
 
-A `justfile` can declare modules using `mod` statements.
+A `justfile` can declare modules using `mod` statements<sup>1.19.0</sup>.
 
 `mod` statements were stabilized in `just`<sup>1.31.0</sup>. In earlier
 versions, you'll need to use the `--unstable` flag, `set unstable`, or set the
