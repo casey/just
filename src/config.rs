@@ -733,21 +733,21 @@ impl Config {
 
     let search_config = Self::search_config(matches, &positional)?;
 
+    let format_overrides = || {
+      overrides
+        .iter()
+        .map(|((path, key), value)| {
+          if path.is_empty() {
+            format!("{key}={value}")
+          } else {
+            format!("{path}::{key}={value}")
+          }
+        })
+        .collect()
+    };
+
     for subcommand in cmd::ARGLESS {
       if matches.get_flag(subcommand) {
-        let format_overrides = || {
-          overrides
-            .iter()
-            .map(|((path, key), value)| {
-              if path.is_empty() {
-                format!("{key}={value}")
-              } else {
-                format!("{path}::{key}={value}")
-              }
-            })
-            .collect()
-        };
-
         match (!overrides.is_empty(), !positional.arguments.is_empty()) {
           (false, false) => {}
           (true, false) => {
