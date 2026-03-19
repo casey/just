@@ -368,3 +368,31 @@ fn works_with_modules() {
     .stdout("BAZ\n")
     .success();
 }
+
+#[test]
+fn list_shows_fallback_recipes() {
+  Test::new()
+    .justfile(
+      "
+      # A parent recipe
+      parent-recipe:
+        echo parent
+    ",
+    )
+    .write(
+      "sub/justfile",
+      unindent(
+        "
+        set fallback
+
+        # A child recipe
+        child-recipe:
+          echo child
+      ",
+      ),
+    )
+    .args(["--list"])
+    .current_dir("sub")
+    .stdout_regex("(?s).*child-recipe.*Fallback.*parent-recipe.*")
+    .success();
+}

@@ -4,7 +4,7 @@ const DEFAULT_JUSTFILE_NAME: &str = JUSTFILE_NAMES[0];
 pub(crate) const JUSTFILE_NAMES: [&str; 2] = ["justfile", ".justfile"];
 const PROJECT_ROOT_CHILDREN: &[&str] = &[".bzr", ".git", ".hg", ".svn", "_darcs"];
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct Search {
   pub(crate) justfile: PathBuf,
   pub(crate) working_directory: PathBuf,
