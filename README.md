@@ -4324,7 +4324,7 @@ for details.
 
 ### Signal Handling
 
-[Signals](https://en.wikipedia.org/wiki/Signal_(IPC)) are messsages sent to
+[Signals](https://en.wikipedia.org/wiki/Signal_(IPC)) are messages sent to
 running programs to trigger specific behavior. For example, `SIGINT` is sent to
 all processes in the terminal forground process group when `CTRL-C` is pressed.
 
