@@ -368,7 +368,7 @@ mod tests {
           $($arg,)*
         ];
 
-        <Arguments as clap::Parser>::try_parse_from(arguments).expect_err("Expected clap error");
+        Arguments::try_parse_from(arguments).expect_err("Expected clap error");
       }
     };
     {
@@ -385,7 +385,7 @@ mod tests {
         ];
 
         let arguments =
-          <Arguments as clap::Parser>::try_parse_from(arguments).expect("Matching fails");
+          Arguments::try_parse_from(arguments).expect("Matching fails");
 
         match Config::from_arguments(arguments).expect_err("config parsing succeeded") {
           $error => { $($check)? }
