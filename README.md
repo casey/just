@@ -4741,7 +4741,7 @@ of tricky edge cases which are easy to exercise with unit tests that call
 Integration tests are useful for making sure that the final behavior of the
 `just` binary is correct. `unindent()` is also covered by integration tests
 which make sure that evaluating a triple-quoted string produces the correct
-unindented value. However, there are not integration tests for all possible
+unindented value. However, there are no integration tests for all possible
 cases. These are covered by faster, more concise unit tests that call
 `unindent()` directly.
 
