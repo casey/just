@@ -55,7 +55,7 @@ pub(crate) use {
     list::List,
     load_dotenv::load_dotenv,
     loader::Loader,
-    module_path::ModulePath,
+    modulepath::Modulepath,
     name::Name,
     namepath::Namepath,
     number::Number,
@@ -137,6 +137,7 @@ pub(crate) use {
     ops::{Index, RangeInclusive},
     path::{self, Path, PathBuf},
     process::{self, Command, ExitStatus, Stdio},
+    slice,
     str::{self, Chars},
     sync::{Arc, LazyLock, Mutex, MutexGuard},
     thread, vec,
@@ -148,10 +149,7 @@ pub(crate) use {
 };
 
 #[cfg(test)]
-pub(crate) use {
-  crate::{node::Node, tree::Tree},
-  std::slice,
-};
+pub(crate) use crate::{node::Node, tree::Tree};
 
 pub use crate::run::run;
 
@@ -243,7 +241,7 @@ mod line;
 mod list;
 mod load_dotenv;
 mod loader;
-mod module_path;
+mod modulepath;
 mod name;
 mod namepath;
 mod number;

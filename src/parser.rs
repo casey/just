@@ -541,10 +541,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     Ok(Ast {
       items,
-      module_path: self
-        .module_namepath
-        .map(ToString::to_string)
-        .unwrap_or_default(),
+      modulepath: self.module_namepath.map(Into::into).unwrap_or_default(),
       unstable_features: self.unstable_features,
       warnings: Vec::new(),
       working_directory: self.working_directory.into(),
@@ -1218,19 +1215,20 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
 
     Ok(Recipe {
-      shebang: shebang || script,
       attributes,
       body,
       dependencies,
       doc: doc.filter(|doc| !doc.is_empty()),
       file_depth: self.file_depth,
       import_offsets: self.import_offsets.clone(),
+      module_path: None,
       name,
-      namepath: None,
+      recipe_path: None,
       parameters: positional.into_iter().chain(variadic).collect(),
       priors,
       private,
       quiet,
+      shebang: shebang || script,
       variable_references: HashSet::new(),
     })
   }
@@ -1659,7 +1657,7 @@ mod tests {
   }
 
   test! {
-    name: alias_module_path,
+    name: alias_modulepath,
     text: "alias fbb := foo::bar::baz",
     tree: (justfile (alias fbb (foo bar baz))),
   }

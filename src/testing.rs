@@ -76,6 +76,7 @@ pub(crate) fn analysis_error(
     &[],
     &[],
     None,
+    &mut HashMap::new(),
     &paths,
     false,
     &root,
@@ -125,6 +126,7 @@ macro_rules! run_error {
             &config,
             &search,
             &arguments,
+            &HashMap::new(),
           ).expect_err("Expected runtime error") {
             $error => $check
             other => {

@@ -27,29 +27,31 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) file_depth: u32,
   #[serde(skip)]
   pub(crate) import_offsets: Vec<usize>,
+  #[serde(skip)]
+  pub(crate) module_path: Option<Modulepath>,
   pub(crate) name: Name<'src>,
-  pub(crate) namepath: Option<String>,
   pub(crate) parameters: Vec<Parameter<'src>>,
   pub(crate) priors: usize,
   pub(crate) private: bool,
   pub(crate) quiet: bool,
+  #[serde(rename = "namepath")]
+  pub(crate) recipe_path: Option<Modulepath>,
   pub(crate) shebang: bool,
   #[serde(skip)]
   pub(crate) variable_references: HashSet<Number>,
 }
 
 impl Recipe<'_> {
-  pub(crate) fn module_path(&self) -> &str {
-    let namepath = self.namepath();
-    &namepath[0..namepath.rfind("::").unwrap_or_default()]
+  pub(crate) fn module_path(&self) -> &Modulepath {
+    self.module_path.as_ref().unwrap()
   }
 
-  pub(crate) fn namepath(&self) -> &str {
-    self.namepath.as_ref().unwrap()
+  pub(crate) fn recipe_path(&self) -> &Modulepath {
+    self.recipe_path.as_ref().unwrap()
   }
 
-  pub(crate) fn spaced_namepath(&self) -> String {
-    self.namepath().replace("::", " ")
+  pub(crate) fn spaced_recipe_path(&self) -> String {
+    self.recipe_path().to_string().replace("::", " ")
   }
 }
 

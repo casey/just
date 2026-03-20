@@ -649,7 +649,7 @@ fn nested_cross_module_dependency_runs_in_correct_directory() {
 }
 
 #[test]
-fn module_paths_beginning_with_tilde_are_expanded_to_homdir() {
+fn modulepaths_beginning_with_tilde_are_expanded_to_homdir() {
   if cfg!(windows) {
     return;
   }
