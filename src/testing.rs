@@ -8,7 +8,7 @@ pub(crate) fn config(args: &[&str]) -> Config {
   let mut args = Vec::from(args);
   args.insert(0, "just");
 
-  let arguments = <Arguments as clap::Parser>::try_parse_from(args).unwrap();
+  let arguments = Arguments::try_parse_from(args).unwrap();
 
   Config::from_arguments(arguments).unwrap()
 }
