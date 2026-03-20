@@ -409,7 +409,7 @@ mod tests {
           $($arg,)*
         ];
 
-        match <Arguments as clap::Parser>::try_parse_from(arguments) {
+        match Arguments::try_parse_from(arguments) {
           Err($error) => { $($check)? }
           other => panic!("Unexpected result from get matches: {other:?}")
         }
