@@ -53,6 +53,7 @@ complete -c just -s l -l list -d 'List available recipes in <MODULE> or root if 
 complete -c just -l request -d 'Execute <REQUEST>. For internal testing purposes only. May be changed or removed at any time.' -r
 complete -c just -s s -l show -d 'Show recipe at <PATH>' -r
 complete -c just -l usage -d 'Print recipe usage information' -r
+complete -c just -l allow-missing -d 'Ignore missing recipe and module errors'
 complete -c just -l check -d 'Run `--fmt` in \'check\' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.'
 complete -c just -l clear-shell-args -d 'Clear shell arguments'
 complete -c just -s n -l dry-run -d 'Print what just would do without doing it'
@@ -66,7 +67,6 @@ complete -c just -l no-dotenv -d 'Don\'t load `.env` file'
 complete -c just -l no-highlight -d 'Don\'t highlight echoed recipe lines in bold'
 complete -c just -l one -d 'Forbid multiple recipes from being invoked on the command line'
 complete -c just -s q -l quiet -d 'Suppress all output'
-complete -c just -l allow-missing -d 'Ignore missing recipe and module errors'
 complete -c just -l shell-command -d 'Invoke <COMMAND> with the shell used to run recipe lines and backticks'
 complete -c just -l timestamp -d 'Print recipe command timestamps'
 complete -c just -s u -l unsorted -d 'Return list and summary entries in source order'

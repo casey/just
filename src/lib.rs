@@ -10,6 +10,8 @@ pub(crate) use {
     alias_style::AliasStyle,
     analyzer::Analyzer,
     arg_attribute::ArgAttribute,
+    arguments::Arguments,
+    arguments::cmd,
     assignment::Assignment,
     assignment_resolver::AssignmentResolver,
     ast::Ast,
@@ -194,6 +196,7 @@ mod alias;
 mod alias_style;
 mod analyzer;
 mod arg_attribute;
+mod arguments;
 mod assignment;
 mod assignment_resolver;
 mod ast;

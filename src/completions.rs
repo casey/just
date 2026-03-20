@@ -73,7 +73,7 @@ mod tests {
 
       clap_complete::generate(
         shell,
-        &mut crate::config::Config::app(),
+        &mut crate::arguments::Arguments::app(),
         env!("CARGO_PKG_NAME"),
         &mut tempfile,
       );
@@ -140,13 +140,13 @@ complete -c just -a '(__fish_just_complete_recipes)'
       r"'*--set=[Override <VARIABLE> with <VALUE>]: :(_just_variables)' \",
     ),
     (
-      r"'()-s+[Show recipe at <PATH>]:PATH:_default' \
-'()--show=[Show recipe at <PATH>]:PATH:_default' \",
+      r"'()*-s+[Show recipe at <PATH>]:PATH:_default' \
+'()*--show=[Show recipe at <PATH>]:PATH:_default' \",
       r"'-s+[Show recipe at <PATH>]: :(_just_commands)' \
 '--show=[Show recipe at <PATH>]: :(_just_commands)' \",
     ),
     (
-      "'*::ARGUMENTS -- Overrides and recipe(s) to run, defaulting to the first recipe in the \
+      "'*::arguments -- Overrides and recipe(s) to run, defaulting to the first recipe in the \
      justfile:_default' \\
 && ret=0",
       r#")

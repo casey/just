@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Copy, Clone, ValueEnum)]
+#[derive(Copy, Clone, Debug, ValueEnum)]
 pub(crate) enum CommandColor {
   Black,
   Blue,
