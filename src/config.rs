@@ -350,8 +350,7 @@ mod tests {
 
   #[track_caller]
   fn test(arguments: &[&str], want: Config) {
-    let arguments =
-      <Arguments as clap::Parser>::try_parse_from(arguments).expect("argument parsing failed");
+    let arguments = Arguments::try_parse_from(arguments).expect("argument parsing failed");
     let have = Config::from_arguments(arguments).expect("config parsing failed");
     assert_eq!(have, want);
   }
