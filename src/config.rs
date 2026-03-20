@@ -127,7 +127,7 @@ impl Config {
     } else if arguments.subcommand.evaluate {
       if positional.arguments.len() > 1 {
         return Err(ConfigError::SubcommandArguments {
-          subcommand: cmd::EVALUATE,
+          subcommand: "EVALUATE",
           arguments: positional.arguments.into_iter().skip(1).collect(),
         });
       }
