@@ -30,7 +30,7 @@ _just() {
 
     case "${cmd}" in
         just)
-            opts="-E -n -g -f -q -u -v -d -c -e -l -s -h -V --alias-style --allow-missing --ceiling --check --chooser --clear-shell-args --color --command-color --cygpath --dotenv-filename --dotenv-path --dry-run --dump-format --explain --global-justfile --highlight --justfile --list-heading --list-prefix --list-submodules --group --no-aliases --no-deps --no-dotenv --no-highlight --one --quiet --set --shell --shell-arg --shell-command --tempdir --timestamp --timestamp-format --unsorted --unstable --verbose --working-directory --yes --changelog --choose --command --completions --dump --edit --evaluate --fmt --groups --init --json --list --man --request --show --summary --usage --variables --help --version [ARGUMENTS]..."
+            opts="-E -n -g -f -q -c -e -l -s -u -v -d -h -V --alias-style --allow-missing --ceiling --check --chooser --clear-shell-args --color --command-color --cygpath --dotenv-filename --dotenv-path --dry-run --dump-format --explain --global-justfile --group --highlight --justfile --list-heading --list-prefix --list-submodules --no-aliases --no-deps --no-dotenv --no-highlight --one --quiet --set --shell --shell-arg --shell-command --changelog --choose --command --completions --dump --edit --evaluate --fmt --groups --init --json --list --man --request --show --summary --usage --variables --tempdir --timestamp --timestamp-format --unsorted --unstable --verbose --working-directory --yes --help --version [ARGUMENTS]..."
                 if [[ ${cur} == -* ]] ; then
                     COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                     return 0
@@ -92,6 +92,10 @@ _just() {
                     COMPREPLY=($(compgen -W "json just" -- "${cur}"))
                     return 0
                     ;;
+                --group)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
                 --justfile)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
@@ -108,10 +112,6 @@ _just() {
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
-                --group)
-                    COMPREPLY=($(compgen -f "${cur}"))
-                    return 0
-                    ;;
                 --set)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
@@ -121,22 +121,6 @@ _just() {
                     return 0
                     ;;
                 --shell-arg)
-                    COMPREPLY=($(compgen -f "${cur}"))
-                    return 0
-                    ;;
-                --tempdir)
-                    COMPREPLY=($(compgen -f "${cur}"))
-                    return 0
-                    ;;
-                --timestamp-format)
-                    COMPREPLY=($(compgen -f "${cur}"))
-                    return 0
-                    ;;
-                --working-directory)
-                    COMPREPLY=($(compgen -f "${cur}"))
-                    return 0
-                    ;;
-                -d)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
@@ -173,6 +157,22 @@ _just() {
                     return 0
                     ;;
                 --usage)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --tempdir)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --timestamp-format)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --working-directory)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                -d)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;

@@ -25,18 +25,14 @@ _just() {
 '-E+[Load <DOTENV-PATH> as environment file instead of searching for one]:DOTENV-PATH:_files' \
 '--dotenv-path=[Load <DOTENV-PATH> as environment file instead of searching for one]:DOTENV-PATH:_files' \
 '--dump-format=[Dump justfile as <FORMAT>]:FORMAT:(json just)' \
+'*--group=[Only list recipes in <GROUP>]:GROUP:_default' \
 '-f+[Use <JUSTFILE> as justfile]:JUSTFILE:_files' \
 '--justfile=[Use <JUSTFILE> as justfile]:JUSTFILE:_files' \
 '--list-heading=[Print <TEXT> before list]:TEXT:_default' \
 '--list-prefix=[Print <TEXT> before each list item]:TEXT:_default' \
-'*--group=[Only list recipes in <GROUP>]:GROUP:_default' \
 '*--set=[Override <VARIABLE> with <VALUE>]: :(_just_variables)' \
 '--shell=[Invoke <SHELL> to run recipes]:SHELL:_default' \
 '*--shell-arg=[Invoke shell with <SHELL-ARG> as an argument]:SHELL_ARG:_default' \
-'--tempdir=[Save temporary files to <TEMPDIR>.]:TEMPDIR:_files' \
-'--timestamp-format=[Timestamp format string]:TIMESTAMP_FORMAT:_default' \
-'-d+[Use <WORKING-DIRECTORY> as working directory. --justfile must also be set]:WORKING-DIRECTORY:_files' \
-'--working-directory=[Use <WORKING-DIRECTORY> as working directory. --justfile must also be set]:WORKING-DIRECTORY:_files' \
 '*-c+[Run an arbitrary command with the working directory, \`.env\`, overrides, and exports set]:COMMAND:_default' \
 '*--command=[Run an arbitrary command with the working directory, \`.env\`, overrides, and exports set]:COMMAND:_default' \
 '--completions=[Print shell completion script for <SHELL>]:SHELL:(bash elvish fish nushell powershell zsh)' \
@@ -46,6 +42,10 @@ _just() {
 '-s+[Show recipe at <PATH>]: :(_just_commands)' \
 '--show=[Show recipe at <PATH>]: :(_just_commands)' \
 '()*--usage=[Print recipe usage information]:PATH:_default' \
+'--tempdir=[Save temporary files to <TEMPDIR>.]:TEMPDIR:_files' \
+'--timestamp-format=[Timestamp format string]:TIMESTAMP_FORMAT:_default' \
+'-d+[Use <WORKING-DIRECTORY> as working directory. --justfile must also be set]:WORKING-DIRECTORY:_files' \
+'--working-directory=[Use <WORKING-DIRECTORY> as working directory. --justfile must also be set]:WORKING-DIRECTORY:_files' \
 '--allow-missing[Ignore missing recipe and module errors]' \
 '--check[Run \`--fmt\` in '\''check'\'' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.]' \
 '--clear-shell-args[Clear shell arguments]' \
@@ -64,13 +64,6 @@ _just() {
 '(-n --dry-run)-q[Suppress all output]' \
 '(-n --dry-run)--quiet[Suppress all output]' \
 '--shell-command[Invoke <COMMAND> with the shell used to run recipe lines and backticks]' \
-'--timestamp[Print recipe command timestamps]' \
-'-u[Return list and summary entries in source order]' \
-'--unsorted[Return list and summary entries in source order]' \
-'--unstable[Enable unstable features]' \
-'*-v[Use verbose output]' \
-'*--verbose[Use verbose output]' \
-'--yes[Automatically confirm all recipes.]' \
 '--changelog[Print changelog]' \
 '--choose[Select one or more recipes to run using a binary chooser. If \`--chooser\` is not passed the chooser defaults to the value of \$JUST_CHOOSER, falling back to \`fzf\`]' \
 '--dump[Print justfile]' \
@@ -84,6 +77,13 @@ _just() {
 '--man[Print man page]' \
 '--summary[List names of available recipes]' \
 '--variables[List names of variables]' \
+'--timestamp[Print recipe command timestamps]' \
+'-u[Return list and summary entries in source order]' \
+'--unsorted[Return list and summary entries in source order]' \
+'--unstable[Enable unstable features]' \
+'*-v[Use verbose output]' \
+'*--verbose[Use verbose output]' \
+'--yes[Automatically confirm all recipes.]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '-V[Print version]' \

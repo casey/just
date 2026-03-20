@@ -32,16 +32,13 @@ complete -c just -l dotenv-filename -d 'Search for environment file named <DOTEN
 complete -c just -s E -l dotenv-path -d 'Load <DOTENV-PATH> as environment file instead of searching for one' -r -F
 complete -c just -l dump-format -d 'Dump justfile as <FORMAT>' -r -f -a "json\t''
 just\t''"
+complete -c just -l group -d 'Only list recipes in <GROUP>' -r
 complete -c just -s f -l justfile -d 'Use <JUSTFILE> as justfile' -r -F
 complete -c just -l list-heading -d 'Print <TEXT> before list' -r
 complete -c just -l list-prefix -d 'Print <TEXT> before each list item' -r
-complete -c just -l group -d 'Only list recipes in <GROUP>' -r
 complete -c just -l set -d 'Override <VARIABLE> with <VALUE>' -r
 complete -c just -l shell -d 'Invoke <SHELL> to run recipes' -r
 complete -c just -l shell-arg -d 'Invoke shell with <SHELL-ARG> as an argument' -r
-complete -c just -l tempdir -d 'Save temporary files to <TEMPDIR>.' -r -F
-complete -c just -l timestamp-format -d 'Timestamp format string' -r
-complete -c just -s d -l working-directory -d 'Use <WORKING-DIRECTORY> as working directory. --justfile must also be set' -r -F
 complete -c just -s c -l command -d 'Run an arbitrary command with the working directory, `.env`, overrides, and exports set' -r
 complete -c just -l completions -d 'Print shell completion script for <SHELL>' -r -f -a "bash\t''
 elvish\t''
@@ -53,6 +50,9 @@ complete -c just -s l -l list -d 'List available recipes in <MODULE> or root if 
 complete -c just -l request -d 'Execute <REQUEST>. For internal testing purposes only. May be changed or removed at any time.' -r
 complete -c just -s s -l show -d 'Show recipe at <PATH>' -r
 complete -c just -l usage -d 'Print recipe usage information' -r
+complete -c just -l tempdir -d 'Save temporary files to <TEMPDIR>.' -r -F
+complete -c just -l timestamp-format -d 'Timestamp format string' -r
+complete -c just -s d -l working-directory -d 'Use <WORKING-DIRECTORY> as working directory. --justfile must also be set' -r -F
 complete -c just -l allow-missing -d 'Ignore missing recipe and module errors'
 complete -c just -l check -d 'Run `--fmt` in \'check\' mode. Exits with 0 if justfile is formatted correctly. Exits with 1 and prints a diff if formatting is required.'
 complete -c just -l clear-shell-args -d 'Clear shell arguments'
@@ -68,11 +68,6 @@ complete -c just -l no-highlight -d 'Don\'t highlight echoed recipe lines in bol
 complete -c just -l one -d 'Forbid multiple recipes from being invoked on the command line'
 complete -c just -s q -l quiet -d 'Suppress all output'
 complete -c just -l shell-command -d 'Invoke <COMMAND> with the shell used to run recipe lines and backticks'
-complete -c just -l timestamp -d 'Print recipe command timestamps'
-complete -c just -s u -l unsorted -d 'Return list and summary entries in source order'
-complete -c just -l unstable -d 'Enable unstable features'
-complete -c just -s v -l verbose -d 'Use verbose output'
-complete -c just -l yes -d 'Automatically confirm all recipes.'
 complete -c just -l changelog -d 'Print changelog'
 complete -c just -l choose -d 'Select one or more recipes to run using a binary chooser. If `--chooser` is not passed the chooser defaults to the value of $JUST_CHOOSER, falling back to `fzf`'
 complete -c just -l dump -d 'Print justfile'
@@ -85,5 +80,10 @@ complete -c just -l json -d 'Print justfile as JSON'
 complete -c just -l man -d 'Print man page'
 complete -c just -l summary -d 'List names of available recipes'
 complete -c just -l variables -d 'List names of variables'
+complete -c just -l timestamp -d 'Print recipe command timestamps'
+complete -c just -s u -l unsorted -d 'Return list and summary entries in source order'
+complete -c just -l unstable -d 'Enable unstable features'
+complete -c just -s v -l verbose -d 'Use verbose output'
+complete -c just -l yes -d 'Automatically confirm all recipes.'
 complete -c just -s h -l help -d 'Print help'
 complete -c just -s V -l version -d 'Print version'
