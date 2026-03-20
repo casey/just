@@ -104,7 +104,7 @@ impl Config {
     Ok((path, name))
   }
 
-  fn subcommand(arguments: &Arguments, positional: Positional) -> ConfigResult<Subcommand> {
+  fn subcommand(arguments: &Arguments, positional: &Positional) -> ConfigResult<Subcommand> {
     if arguments.subcommand.changelog {
       Ok(Subcommand::Changelog)
     } else if arguments.subcommand.choose {
@@ -128,12 +128,12 @@ impl Config {
       if positional.arguments.len() > 1 {
         return Err(ConfigError::SubcommandArguments {
           subcommand: "EVALUATE",
-          arguments: positional.arguments.into_iter().skip(1).collect(),
+          arguments: positional.arguments.iter().skip(1).cloned().collect(),
         });
       }
 
       Ok(Subcommand::Evaluate {
-        variable: positional.arguments.into_iter().next(),
+        variable: positional.arguments.iter().next().cloned(),
       })
     } else if arguments.subcommand.fmt {
       Ok(Subcommand::Format)
@@ -170,7 +170,7 @@ impl Config {
       Ok(Subcommand::Variables)
     } else {
       Ok(Subcommand::Run {
-        arguments: positional.arguments,
+        arguments: positional.arguments.clone(),
       })
     }
   }
@@ -203,32 +203,33 @@ impl Config {
         .collect()
     };
 
-    if let Some(subcommand) = arguments.subcommand.argless() {
+    let subcommand = Self::subcommand(&arguments, &positional)?;
+
+    if !subcommand.takes_arguments() {
       match (!overrides.is_empty(), !positional.arguments.is_empty()) {
         (false, false) => {}
         (true, false) => {
           return Err(ConfigError::SubcommandOverrides {
-            subcommand,
+            subcommand: subcommand.name(),
             overrides: format_overrides(),
           });
         }
         (false, true) => {
           return Err(ConfigError::SubcommandArguments {
             arguments: positional.arguments,
-            subcommand,
+            subcommand: subcommand.name(),
           });
         }
         (true, true) => {
           return Err(ConfigError::SubcommandOverridesAndArguments {
             arguments: positional.arguments,
-            subcommand,
+            subcommand: subcommand.name(),
             overrides: format_overrides(),
           });
         }
       }
     }
 
-    let subcommand = Self::subcommand(&arguments, positional)?;
     let unstable = arguments.unstable || subcommand == Subcommand::Summary;
     let explain = arguments.explain;
 

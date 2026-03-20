@@ -11,7 +11,8 @@ static BACKTICK_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new("(`.*?`)|(`[^`
 
 const CHOOSER_CANCELLED_EXIT_STATUS: i32 = 130;
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Clone, Debug, IntoStaticStr)]
+#[strum(serialize_all = "SCREAMING_SNAKE_CASE")]
 pub(crate) enum Subcommand {
   Changelog,
   Choose {
@@ -132,6 +133,10 @@ impl Subcommand {
     for group in justfile.public_groups(config) {
       println!("{}{group}", config.list_prefix);
     }
+  }
+
+  pub(crate) fn name(&self) -> &'static str {
+    self.into()
   }
 
   fn run<'src>(
@@ -827,6 +832,29 @@ impl Subcommand {
       components.push(name);
       Self::summary_recursive(config, components, printed, module);
       components.pop();
+    }
+  }
+
+  pub(crate) fn takes_arguments(&self) -> bool {
+    match self {
+      Self::Changelog
+      | Self::Dump { .. }
+      | Self::Edit
+      | Self::Format
+      | Self::Init
+      | Self::Man
+      | Self::Summary
+      | Self::Variables => false,
+      Self::Choose { .. }
+      | Self::Command { .. }
+      | Self::Completions { .. }
+      | Self::Evaluate { .. }
+      | Self::Groups
+      | Self::List { .. }
+      | Self::Request { .. }
+      | Self::Run { .. }
+      | Self::Show { .. }
+      | Self::Usage { .. } => true,
     }
   }
 

@@ -283,7 +283,7 @@ pub(crate) struct Arguments {
   #[arg(env = "JUST_YES", help = "Automatically confirm all recipes.", long)]
   pub(crate) yes: bool,
   #[command(flatten)]
-  pub(crate) subcommand: SubcommandArguments,
+  pub(crate) subcommand: Subcommand,
   #[arg(
     action = ArgAction::Append,
     help = "Overrides and recipe(s) to run, defaulting to the first recipe in the justfile",
@@ -294,7 +294,7 @@ pub(crate) struct Arguments {
 
 #[derive(Args, Debug, Default)]
 #[group(multiple = false)]
-pub(crate) struct SubcommandArguments {
+pub(crate) struct Subcommand {
   #[arg(
     help = "Print changelog",
     help_heading = Self::HEADING,
@@ -434,30 +434,6 @@ pub(crate) struct SubcommandArguments {
   pub(crate) variables: bool,
 }
 
-impl SubcommandArguments {
+impl Subcommand {
   pub(crate) const HEADING: &str = "Commands";
-
-  pub(crate) fn argless(&self) -> Option<&'static str> {
-    if self.changelog {
-      Some("CHANGELOG")
-    } else if self.dump {
-      Some("DUMP")
-    } else if self.edit {
-      Some("EDIT")
-    } else if self.fmt {
-      Some("FORMAT")
-    } else if self.init {
-      Some("INIT")
-    } else if self.json {
-      Some("JSON")
-    } else if self.man {
-      Some("MAN")
-    } else if self.summary {
-      Some("SUMMARY")
-    } else if self.variables {
-      Some("VARIABLES")
-    } else {
-      None
-    }
-  }
 }
