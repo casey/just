@@ -6,7 +6,7 @@ pub fn run(args: impl Iterator<Item = impl Into<OsString> + Clone>) -> Result<()
   #[cfg(windows)]
   ansi_term::enable_ansi_support().ok();
 
-  let arguments = <Arguments as clap::Parser>::try_parse_from(args).map_err(|err| {
+  let arguments = Arguments::try_parse_from(args).map_err(|err| {
     err.print().ok();
     err.exit_code()
   })?;

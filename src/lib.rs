@@ -111,7 +111,7 @@ pub(crate) use {
     which::which,
   },
   camino::Utf8Path,
-  clap::{CommandFactory, ValueEnum},
+  clap::{CommandFactory, Parser as _, ValueEnum},
   derive_where::derive_where,
   edit_distance::edit_distance,
   lexiclean::Lexiclean,
