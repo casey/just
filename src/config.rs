@@ -1055,7 +1055,7 @@ mod tests {
     args: ["--changelog", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, cmd::CHANGELOG);
+      assert_eq!(subcommand, "CHANGELOG");
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1065,7 +1065,7 @@ mod tests {
     args: ["--dump", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, cmd::DUMP);
+      assert_eq!(subcommand, "DUMP");
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1075,7 +1075,7 @@ mod tests {
     args: ["--edit", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, cmd::EDIT);
+      assert_eq!(subcommand, "EDIT");
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1085,7 +1085,7 @@ mod tests {
     args: ["--fmt", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, cmd::FORMAT);
+      assert_eq!(subcommand, "FORMAT");
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1095,7 +1095,7 @@ mod tests {
     args: ["--format", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, cmd::FORMAT);
+      assert_eq!(subcommand, "FORMAT");
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1105,7 +1105,7 @@ mod tests {
     args: ["--init", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, cmd::INIT);
+      assert_eq!(subcommand, "INIT");
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1115,7 +1115,7 @@ mod tests {
     args: ["--initialize", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, cmd::INIT);
+      assert_eq!(subcommand, "INIT");
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1125,7 +1125,7 @@ mod tests {
     args: ["--summary", "bar"],
     error: ConfigError::SubcommandArguments { subcommand, arguments },
     check: {
-      assert_eq!(subcommand, cmd::SUMMARY);
+      assert_eq!(subcommand, "SUMMARY");
       assert_eq!(arguments, &["bar"]);
     },
   }
@@ -1135,7 +1135,7 @@ mod tests {
     args: ["--summary", "bar=baz", "bar"],
     error: ConfigError::SubcommandOverridesAndArguments { subcommand, arguments, overrides },
     check: {
-      assert_eq!(subcommand, cmd::SUMMARY);
+      assert_eq!(subcommand, "SUMMARY");
       assert_eq!(overrides, vec!["bar=baz"]);
       assert_eq!(arguments, &["bar"]);
     },
@@ -1146,7 +1146,7 @@ mod tests {
     args: ["--summary", "bar=baz"],
     error: ConfigError::SubcommandOverrides { subcommand, overrides },
     check: {
-      assert_eq!(subcommand, cmd::SUMMARY);
+      assert_eq!(subcommand, "SUMMARY");
       assert_eq!(overrides, vec!["bar=baz"]);
     },
   }

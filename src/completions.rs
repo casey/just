@@ -73,7 +73,7 @@ mod tests {
 
       clap_complete::generate(
         shell,
-        &mut crate::arguments::Arguments::app(),
+        &mut crate::arguments::Arguments::command(),
         env!("CARGO_PKG_NAME"),
         &mut tempfile,
       );
