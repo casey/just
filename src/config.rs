@@ -133,7 +133,7 @@ impl Config {
       }
 
       Ok(Subcommand::Evaluate {
-        variable: positional.arguments.iter().next().cloned(),
+        variable: positional.arguments.first().cloned(),
       })
     } else if arguments.subcommand.fmt {
       Ok(Subcommand::Format)

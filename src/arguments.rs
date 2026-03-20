@@ -43,6 +43,12 @@ pub(crate) struct Arguments {
   )]
   pub(crate) allow_missing: bool,
   #[arg(
+    action = ArgAction::Append,
+    help = "Overrides and recipe(s) to run, defaulting to the first recipe in the justfile",
+    num_args = 1..,
+  )]
+  pub(crate) arguments: Vec<String>,
+  #[arg(
     env = "JUST_CEILING",
     help = "Do not ascend above <CEILING> directory when searching for a justfile.",
     long,
@@ -133,6 +139,13 @@ pub(crate) struct Arguments {
   )]
   pub(crate) global_justfile: bool,
   #[arg(
+    env = "JUST_GROUP",
+    help = "Only list recipes in <GROUP>",
+    long = "group",
+    requires = "list"
+  )]
+  pub(crate) group: Vec<String>,
+  #[arg(
     env = "JUST_HIGHLIGHT",
     help = "Highlight echoed recipe lines in bold",
     long,
@@ -170,13 +183,6 @@ pub(crate) struct Arguments {
     requires = "list"
   )]
   pub(crate) list_submodules: bool,
-  #[arg(
-    env = "JUST_GROUP",
-    help = "Only list recipes in <GROUP>",
-    long = "group",
-    requires = "list"
-  )]
-  pub(crate) group: Vec<String>,
   #[arg(env = "JUST_NO_ALIASES", help = "Don't show aliases in list", long)]
   pub(crate) no_aliases: bool,
   #[arg(
@@ -232,6 +238,8 @@ pub(crate) struct Arguments {
     requires = "command"
   )]
   pub(crate) shell_command: bool,
+  #[command(flatten)]
+  pub(crate) subcommand: Subcommand,
   #[arg(
     env = "JUST_TEMPDIR",
     help = "Save temporary files to <TEMPDIR>.",
@@ -282,14 +290,6 @@ pub(crate) struct Arguments {
   pub(crate) working_directory: Option<PathBuf>,
   #[arg(env = "JUST_YES", help = "Automatically confirm all recipes.", long)]
   pub(crate) yes: bool,
-  #[command(flatten)]
-  pub(crate) subcommand: Subcommand,
-  #[arg(
-    action = ArgAction::Append,
-    help = "Overrides and recipe(s) to run, defaulting to the first recipe in the justfile",
-    num_args = 1..,
-  )]
-  pub(crate) arguments: Vec<String>,
 }
 
 #[derive(Args, Debug, Default)]
