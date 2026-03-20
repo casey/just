@@ -459,7 +459,7 @@ leisure.
 
 Features that aren't yet ready for stabilization are marked as unstable and may
 be changed or removed at any time. Using unstable features produces an error by
-default, which can be suppressed with by passing the `--unstable` flag,
+default, which can be suppressed by passing the `--unstable` flag,
 `set unstable`, or setting the environment variable `JUST_UNSTABLE`, to any
 value other than `false`, `0`, or the empty string.
 
