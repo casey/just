@@ -445,7 +445,7 @@ impl Subcommand {
   fn man() -> RunResult<'static> {
     let mut buffer = Vec::<u8>::new();
 
-    Man::new(Config::app())
+    Man::new(Arguments::command())
       .render(&mut buffer)
       .expect("writing to buffer cannot fail");
 
