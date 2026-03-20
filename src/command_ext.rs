@@ -15,6 +15,8 @@ pub(crate) trait CommandExt {
 
   fn output_guard_stdout(self) -> Result<String, OutputError>;
 
+  fn resolve(program: impl AsRef<OsStr>) -> Command;
+
   fn status_guard(self) -> (io::Result<ExitStatus>, Option<Signal>);
 }
 
@@ -77,6 +79,58 @@ impl CommandExt for Command {
         .unwrap_or(output)
         .into(),
     )
+  }
+
+  fn resolve(program: impl AsRef<OsStr>) -> Self {
+    let program = Path::new(program.as_ref());
+
+    if !cfg!(windows) {
+      return Self::new(program);
+    }
+
+    let mut candidates = vec![program.into()];
+
+    let mut components = program.components();
+    if let Some(Component::Normal(_)) = components.next()
+      && components.next().is_none()
+    {
+      if let Some(path) = env::var_os("PATH") {
+        for path in env::split_paths(&path) {
+          candidates.push(path.join(program));
+        }
+      }
+    }
+
+    let extensions = if program.extension().is_none() {
+      let pathext = env::var_os("PATHEXT")
+        .unwrap_or(".COM;.EXE;.BAT;.CMD".into())
+        .to_string_lossy()
+        .into_owned();
+      let mut extensions = Vec::new();
+      for extension in pathext.split(';') {
+        if let Some(extension) = extension.strip_prefix('.') {
+          extensions.push(extension.to_owned());
+        }
+      }
+      Some(extensions)
+    } else {
+      None
+    };
+
+    for candidate in candidates {
+      if let Some(extensions) = &extensions {
+        for extension in extensions {
+          let path = candidate.with_extension(extension);
+          if path.is_file() {
+            return Self::new(path);
+          }
+        }
+      } else if candidate.is_file() {
+        return Self::new(candidate);
+      }
+    }
+
+    Self::new(program)
   }
 
   fn status_guard(self) -> (io::Result<ExitStatus>, Option<Signal>) {
