@@ -10,6 +10,7 @@ pub(crate) use {
     alias_style::AliasStyle,
     analyzer::Analyzer,
     arg_attribute::ArgAttribute,
+    arguments::Arguments,
     assignment::Assignment,
     assignment_resolver::AssignmentResolver,
     ast::Ast,
@@ -110,7 +111,7 @@ pub(crate) use {
     which::which,
   },
   camino::Utf8Path,
-  clap::ValueEnum,
+  clap::{CommandFactory, Parser as _, ValueEnum},
   derive_where::derive_where,
   edit_distance::edit_distance,
   lexiclean::Lexiclean,
@@ -194,6 +195,7 @@ mod alias;
 mod alias_style;
 mod analyzer;
 mod arg_attribute;
+mod arguments;
 mod assignment;
 mod assignment_resolver;
 mod ast;
