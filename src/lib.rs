@@ -153,14 +153,16 @@ pub(crate) use {
 #[cfg(test)]
 pub(crate) use crate::{node::Node, tree::Tree};
 
-pub use crate::{arguments::Arguments, run::run};
+pub use crate::run::run;
 
 #[doc(hidden)]
 use request::Request;
 
 // Used in integration tests.
 #[doc(hidden)]
-pub use {request::Response, subcommand::INIT_JUSTFILE, unindent::unindent};
+pub use {
+  crate::arguments::Arguments, request::Response, subcommand::INIT_JUSTFILE, unindent::unindent,
+};
 
 type CompileResult<'a, T = ()> = Result<T, CompileError<'a>>;
 type ConfigResult<T> = Result<T, ConfigError>;
