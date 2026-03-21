@@ -460,7 +460,7 @@ fn unclosed_backticks() {
   Test::new()
     .justfile(
       "
-        # Comment `with unclosed backick
+        # Comment `with unclosed backtick
         recipe:
       ",
     )
@@ -468,7 +468,7 @@ fn unclosed_backticks() {
     .stdout(
       "
         Available recipes:
-            recipe \u{1b}[34m#\u{1b}[0m \u{1b}[34mComment \u{1b}[0m\u{1b}[36m`with unclosed backick\u{1b}[0m
+            recipe \u{1b}[34m#\u{1b}[0m \u{1b}[34mComment \u{1b}[0m\u{1b}[36m`with unclosed backtick\u{1b}[0m
       ")
     .success();
 }
