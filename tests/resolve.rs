@@ -132,12 +132,11 @@ fn script_interpreter_resolved_via_pathext() {
     .justfile(
       "
         [script('myinterp')]
-        [extension('bat')]
         foo:
-          @echo bar
+          bar
       ",
     )
-    .write("myinterp.cmd", "@cmd /C %1")
+    .write("myinterp.cmd", "@type \"%~1\"")
     .env("PATH", path.to_str().unwrap())
     .env("PATHEXT", ".CMD")
     .shell(false)
