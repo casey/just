@@ -15,7 +15,7 @@ impl Executor<'_> {
   ) -> RunResult<'src, Command> {
     match self {
       Self::Command(interpreter) => {
-        let mut command = Command::new(&interpreter.command);
+        let mut command = Command::resolve(&interpreter.command);
 
         if let Some(working_directory) = working_directory {
           command.current_dir(working_directory);

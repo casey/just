@@ -199,7 +199,7 @@ impl<'src> Justfile<'src> {
           command.arg(binary);
           command
         } else {
-          Command::new(binary)
+          Command::resolve(binary)
         };
 
         command

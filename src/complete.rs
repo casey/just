@@ -81,12 +81,14 @@ impl<'src> Context<'src> {
   }
 
   fn new(loader: &'src Loader) -> RunResult<'src, Self> {
-    let matches = Config::app()
+    let matches = Arguments::command()
       .ignore_errors(true)
       .try_get_matches_from(env::args_os())
       .map_err(|err| Error::internal(format!("failed to parse arguments: {err}")))?;
 
-    let config = Config::from_matches(&matches)?;
+    let arguments = Arguments::from_arg_matches(&matches).unwrap();
+
+    let config = Config::from_arguments(arguments)?;
 
     let search = Search::search(&config)?;
 
