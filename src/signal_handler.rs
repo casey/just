@@ -107,6 +107,17 @@ impl SignalHandler {
     }
   }
 
+  pub(crate) fn kill_all_children(&mut self) {
+    #[cfg(not(windows))]
+    for &child in self.children.keys() {
+      nix::sys::signal::kill(
+        nix::unistd::Pid::from_raw(child),
+        Some(Signal::Terminate.into()),
+      )
+      .ok();
+    }
+  }
+
   pub(crate) fn spawn<T>(
     mut command: Command,
     f: impl Fn(process::Child) -> io::Result<T>,

@@ -140,7 +140,7 @@ pub(crate) use {
     process::{self, Command, ExitStatus, Stdio},
     slice,
     str::{self, Chars},
-    sync::{Arc, LazyLock, Mutex, MutexGuard},
+    sync::{mpsc, Arc, LazyLock, Mutex, MutexGuard},
     thread, vec,
   },
   strum::{Display, EnumDiscriminants, EnumString, IntoStaticStr},

@@ -83,6 +83,36 @@ fn subsequent_dependencies_run_in_parallel() {
 }
 
 #[test]
+#[ignore]
+fn parallel_recipe_exits_if_dependency_fails() {
+  let start = Instant::now();
+
+  Test::new()
+    .justfile(
+      "
+        [parallel]
+        foo: bar baz
+
+        bar:
+          sleep 5
+
+        baz:
+          exit 1
+      ",
+    )
+    .stderr_regex(
+      r"(?x)
+      (sleep\ 5\n)?
+      exit\ 1\n
+      (sleep\ 5\n)?
+      error:\ Recipe\ `baz`\ failed\ on\ line\ 8\ with\ exit\ code\ 1\n",
+    )
+    .failure();
+
+  assert!(start.elapsed() < Duration::from_secs(2));
+}
+
+#[test]
 fn parallel_dependencies_report_errors() {
   Test::new()
     .justfile(

@@ -440,21 +440,36 @@ impl<'src> Justfile<'src> {
     }
 
     if recipe.is_parallel() {
+      let count = evaluated.len();
       thread::scope::<_, RunResult>(|thread_scope| {
-        let mut handles = Vec::new();
+        let (sender, receiver) = mpsc::channel::<RunResult>();
         for (recipe, arguments) in evaluated {
-          handles.push(thread_scope.spawn(move || {
-            Self::run_recipe(
+          let sender = sender.clone();
+          thread_scope.spawn(move || {
+            let result = Self::run_recipe(
               &arguments, config, dotenv, true, ran, recipe, scopes, search,
-            )
-          }));
+            );
+            sender.send(result).ok();
+          });
         }
-        for handle in handles {
-          handle
-            .join()
-            .map_err(|_| Error::internal("parallel dependency thread panicked"))??;
+        drop(sender);
+        let mut first_error = None;
+        for _ in 0..count {
+          match receiver.recv() {
+            Ok(Ok(())) => {}
+            Ok(Err(err)) => {
+              if first_error.is_none() {
+                first_error = Some(err);
+                SignalHandler::instance().kill_all_children();
+              }
+            }
+            // Channel disconnects when all sender clones are dropped, which
+            // happens if a thread panics without sending. `thread::scope` will
+            // re-panic after all threads complete.
+            Err(_) => break,
+          }
         }
-        Ok(())
+        first_error.map_or(Ok(()), Err)
       })?;
     } else {
       for (recipe, arguments) in evaluated {
