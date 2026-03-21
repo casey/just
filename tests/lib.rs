@@ -116,6 +116,7 @@ mod readme;
 mod recursion_limit;
 mod regexes;
 mod request;
+mod resolve;
 mod run;
 mod scope;
 mod script;
