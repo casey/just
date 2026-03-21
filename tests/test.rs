@@ -75,6 +75,11 @@ impl Test {
     self
   }
 
+  pub(crate) fn path(self, path: impl AsRef<Path>) -> Self {
+    let value = self.tempdir.path().join(path).to_str().unwrap().to_owned();
+    self.env("PATH", &value)
+  }
+
   pub(crate) fn env(mut self, key: &str, val: &str) -> Self {
     self.env.insert(key.to_string(), val.to_string());
     self
