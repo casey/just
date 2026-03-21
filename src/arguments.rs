@@ -9,6 +9,7 @@ use {
   },
 };
 
+#[doc(hidden)]
 #[derive(Debug, Parser)]
 #[command(
   about = concat!(env!("CARGO_PKG_DESCRIPTION"), " - ", env!("CARGO_PKG_HOMEPAGE")),
@@ -26,7 +27,7 @@ use {
   trailing_var_arg = true,
   version = env!("CARGO_PKG_VERSION"),
 )]
-pub(crate) struct Arguments {
+pub struct Arguments {
   #[arg(
     conflicts_with = "no_aliases",
     default_value = "right",

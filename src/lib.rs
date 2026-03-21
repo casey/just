@@ -10,7 +10,6 @@ pub(crate) use {
     alias_style::AliasStyle,
     analyzer::Analyzer,
     arg_attribute::ArgAttribute,
-    arguments::Arguments,
     assignment::Assignment,
     assignment_resolver::AssignmentResolver,
     ast::Ast,
@@ -154,7 +153,7 @@ pub(crate) use {
 #[cfg(test)]
 pub(crate) use crate::{node::Node, tree::Tree};
 
-pub use crate::run::run;
+pub use crate::{arguments::Arguments, run::run};
 
 #[doc(hidden)]
 use request::Request;

@@ -6,11 +6,6 @@ pub fn run(args: impl Iterator<Item = impl Into<OsString> + Clone>) -> Result<()
   #[cfg(windows)]
   ansi_term::enable_ansi_support().ok();
 
-  // todo: move this into main.rs
-  clap_complete::CompleteEnv::with_factory(Arguments::command)
-    .var("JUST_COMPLETE")
-    .complete();
-
   let arguments = Arguments::try_parse_from(args).map_err(|err| {
     err.print().ok();
     err.exit_code()

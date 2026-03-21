@@ -1,5 +1,16 @@
+use {
+  clap::CommandFactory,
+  clap_complete::CompleteEnv,
+  just::Arguments,
+  std::{env, process},
+};
+
 fn main() {
-  if let Err(code) = just::run(std::env::args_os()) {
-    std::process::exit(code);
+  CompleteEnv::with_factory(Arguments::command)
+    .var("JUST_COMPLETE")
+    .complete();
+
+  if let Err(code) = just::run(env::args_os()) {
+    process::exit(code);
   }
 }
