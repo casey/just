@@ -715,9 +715,9 @@ fn append() {
     Determina
     Acquisi
     Motiva
-    Conjuc
+    Conjunc
     ')",
-    "Determination Acquisition Motivation Conjuction",
+    "Determination Acquisition Motivation Conjunction",
   );
 }
 
@@ -1273,7 +1273,7 @@ fn is_dependency() {
 }
 
 #[test]
-fn unary_argument_count_mismamatch_error_message() {
+fn unary_argument_count_mismatch_error_message() {
   Test::new()
     .justfile("x := datetime()")
     .args(["--evaluate"])

@@ -6,7 +6,7 @@ use {super::*, TokenKind::*};
 ///
 /// It uses a few tokens of lookahead to disambiguate different constructs.
 ///
-/// The `expect_*` and `presume_`* methods are similar in that they assert the
+/// The `expect_*` and `presume_*` methods are similar in that they assert the
 /// type of unparsed tokens and consume them. However, upon encountering an
 /// unexpected token, the `expect_*` methods return an unexpected token error,
 /// whereas the `presume_*` tokens return an internal error.

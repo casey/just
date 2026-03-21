@@ -63,7 +63,7 @@ Changelog
 - Don't leak signal handler pipe into child processes ([#3035](https://github.com/casey/just/pull/3035) by [rjmac](https://github.com/rjmac))
 
 ### Added
-- Allow `long` to default to to parameter name ([#3041](https://github.com/casey/just/pull/3041) by [casey](https://github.com/casey))
+- Allow `long` to default to parameter name ([#3041](https://github.com/casey/just/pull/3041) by [casey](https://github.com/casey))
 - Allow const expressions in all settings ([#3037](https://github.com/casey/just/pull/3037) by [casey](https://github.com/casey))
 - Allow const expressions in `working-directory` ([#3033](https://github.com/casey/just/pull/3033) by [casey](https://github.com/casey))
 - Add --usage subcommand and argument help strings ([#3031](https://github.com/casey/just/pull/3031) by [casey](https://github.com/casey))
