@@ -6,10 +6,7 @@ fn shell_on_custom_path() {
     return;
   }
 
-  let tmp = tempdir();
-  let path = PathBuf::from(tmp.path());
-
-  Test::with_tempdir(tmp)
+  Test::new()
     .justfile(
       "
         foo:
@@ -18,7 +15,7 @@ fn shell_on_custom_path() {
     )
     .write("myshell.exe", "#!/bin/sh\n/bin/sh \"$@\"")
     .make_executable("myshell.exe")
-    .env("PATH", path.to_str().unwrap())
+    .path("")
     .args(["--shell", "myshell.exe", "--shell-arg", "-c"])
     .shell(false)
     .stdout("bar\n")
@@ -32,14 +29,11 @@ fn command_on_custom_path() {
     return;
   }
 
-  let tmp = tempdir();
-  let path = PathBuf::from(tmp.path());
-
-  Test::with_tempdir(tmp)
+  Test::new()
     .justfile("")
     .write("foo.exe", "#!/bin/sh\necho bar")
     .make_executable("foo.exe")
-    .env("PATH", path.to_str().unwrap())
+    .path("")
     .args(["--command", "foo.exe"])
     .shell(false)
     .stdout("bar\n")
@@ -52,10 +46,7 @@ fn shell_resolved_via_pathext() {
     return;
   }
 
-  let tmp = tempdir();
-  let path = PathBuf::from(tmp.path());
-
-  Test::with_tempdir(tmp)
+  Test::new()
     .justfile(
       "
         foo:
@@ -63,7 +54,7 @@ fn shell_resolved_via_pathext() {
       ",
     )
     .write("myshell.cmd", "@cmd %*")
-    .env("PATH", path.to_str().unwrap())
+    .path("")
     .env("PATHEXT", ".CMD")
     .args(["--shell", "myshell", "--shell-arg", "/C"])
     .shell(false)
@@ -78,13 +69,10 @@ fn command_resolved_via_pathext() {
     return;
   }
 
-  let tmp = tempdir();
-  let path = PathBuf::from(tmp.path());
-
-  Test::with_tempdir(tmp)
+  Test::new()
     .justfile("")
     .write("foo.cmd", "@echo bar")
-    .env("PATH", path.to_str().unwrap())
+    .path("")
     .env("PATHEXT", ".CMD")
     .args(["--command", "foo"])
     .shell(false)
@@ -120,7 +108,24 @@ fn path_ordering() {
 }
 
 #[test]
-fn script_interpreter_resolved_via_pathext() {
+fn existing_extension_skips_pathext() {
+  if !cfg!(windows) {
+    return;
+  }
+
+  Test::new()
+    .justfile("")
+    .write("foo.cmd", "@echo bar")
+    .path("")
+    .env("PATHEXT", ".EXE")
+    .args(["--command", "foo.cmd"])
+    .shell(false)
+    .stdout("bar\r\n")
+    .success();
+}
+
+#[test]
+fn absolute_path_bypasses_path_search() {
   if !cfg!(windows) {
     return;
   }
@@ -128,7 +133,44 @@ fn script_interpreter_resolved_via_pathext() {
   let tmp = tempdir();
   let path = PathBuf::from(tmp.path());
 
+  let absolute = path.join("foo.cmd");
+
   Test::with_tempdir(tmp)
+    .justfile("")
+    .write("foo.cmd", "@echo bar")
+    .env("PATH", "")
+    .env("PATHEXT", ".CMD")
+    .args(["--command", absolute.to_str().unwrap()])
+    .shell(false)
+    .stdout("bar\r\n")
+    .success();
+}
+
+#[test]
+fn relative_path_with_directory_bypasses_path_search() {
+  if !cfg!(windows) {
+    return;
+  }
+
+  Test::new()
+    .justfile("")
+    .write("subdir/foo.cmd", "@echo subdir")
+    .write("pathdir/foo.cmd", "@echo pathdir")
+    .path("pathdir")
+    .env("PATHEXT", ".CMD")
+    .args(["--command", "subdir/foo.cmd"])
+    .shell(false)
+    .stdout("subdir\r\n")
+    .success();
+}
+
+#[test]
+fn script_interpreter_resolved_via_pathext() {
+  if !cfg!(windows) {
+    return;
+  }
+
+  Test::new()
     .justfile(
       "
         [script('myinterp')]
@@ -137,7 +179,7 @@ fn script_interpreter_resolved_via_pathext() {
       ",
     )
     .write("myinterp.cmd", "@type \"%~1\"")
-    .env("PATH", path.to_str().unwrap())
+    .path("")
     .env("PATHEXT", ".CMD")
     .shell(false)
     .stdout_regex("(?s).*bar.*")
