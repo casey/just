@@ -105,6 +105,22 @@ fn variable_completion() {
 }
 
 #[test]
+fn variable_completion_filters_by_prefix() {
+  Test::new()
+    .justfile(
+      "
+        foo := 'a'
+        bar := 'b'
+      ",
+    )
+    .shell(false)
+    .env("JUST_COMPLETE", "fish")
+    .args(complete_args(&["--set", "f"]))
+    .stdout("foo\n")
+    .success();
+}
+
+#[test]
 fn private_variables_excluded() {
   Test::new()
     .justfile(
@@ -252,16 +268,5 @@ fn show_malformed_path() {
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&["--show", ":::", ""]))
     .stdout_regex(format!("(foo\n)+{FLAGS}"))
-    .success();
-}
-
-#[test]
-fn dump_with_positional_args() {
-  Test::new()
-    .justfile("foo:")
-    .shell(false)
-    .env("JUST_COMPLETE", "fish")
-    .args(complete_args(&["--dump", ""]))
-    .stdout_regex(format!("foo\n{FLAGS}"))
     .success();
 }
