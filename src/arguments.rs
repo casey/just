@@ -157,6 +157,7 @@ pub struct Arguments {
   )]
   pub(crate) highlight: bool,
   #[arg(
+    add = ArgValueCompleter::new(PathCompleter::file()),
     env = "JUST_JUSTFILE",
     help = "Use <JUSTFILE> as justfile",
     long,
