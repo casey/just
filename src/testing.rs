@@ -10,7 +10,7 @@ pub(crate) fn config(args: &[&str]) -> Config {
 
   let arguments = Arguments::try_parse_from(args).unwrap();
 
-  Config::from_arguments(arguments, false).unwrap()
+  Config::from_arguments(arguments).unwrap()
 }
 
 pub(crate) fn search(config: &Config) -> Search {

@@ -1,8 +1,5 @@
 use super::*;
 
-// todo:
-// - we don't need ignore_errors now
-
 pub(crate) fn argument(current: &OsStr) -> Vec<CompletionCandidate> {
   let loader = Loader::new();
 
@@ -85,7 +82,7 @@ impl<'run, 'src> Context<'run, 'src> {
 
     let arguments = Arguments::from_arg_matches(&matches).unwrap();
 
-    let config = Config::from_arguments(arguments, true).unwrap_or(Config {
+    let config = Config::from_arguments(arguments).unwrap_or(Config {
       invocation_directory: env::current_dir().context(config_error::CurrentDir)?,
       ..Config::default()
     });

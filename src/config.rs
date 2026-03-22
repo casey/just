@@ -175,20 +175,11 @@ impl Config {
     }
   }
 
-  pub(crate) fn from_arguments(arguments: Arguments, ignore_errors: bool) -> ConfigResult<Self> {
+  pub(crate) fn from_arguments(arguments: Arguments) -> ConfigResult<Self> {
     let mut overrides = BTreeMap::new();
     let mut values = arguments.set.iter();
     while let Some(path) = values.next() {
-      let value = if ignore_errors {
-        let Some(value) = values.next() else {
-          continue;
-        };
-        value
-      } else {
-        values.next().unwrap()
-      };
-
-      overrides.insert(Self::parse_override(path)?, value.into());
+      overrides.insert(Self::parse_override(path)?, values.next().unwrap().into());
     }
 
     let positional = Positional::from_values(Some(arguments.arguments.iter().map(String::as_str)));
@@ -361,7 +352,7 @@ mod tests {
   #[track_caller]
   fn test(arguments: &[&str], want: Config) {
     let arguments = Arguments::try_parse_from(arguments).expect("argument parsing failed");
-    let have = Config::from_arguments(arguments, false).expect("config parsing failed");
+    let have = Config::from_arguments(arguments).expect("config parsing failed");
     assert_eq!(have, want);
   }
 
@@ -396,7 +387,7 @@ mod tests {
         let arguments =
           Arguments::try_parse_from(arguments).expect("Matching fails");
 
-        match Config::from_arguments(arguments, false).expect_err("config parsing succeeded") {
+        match Config::from_arguments(arguments).expect_err("config parsing succeeded") {
           $error => { $($check)? }
           other => panic!("Unexpected config error: {other}"),
         }
