@@ -49,6 +49,7 @@ pub struct Arguments {
   )]
   pub(crate) arguments: Vec<String>,
   #[arg(
+    add = ArgValueCompleter::new(PathCompleter::dir()),
     env = "JUST_CEILING",
     help = "Do not ascend above <CEILING> directory when searching for a justfile.",
     long,
@@ -63,11 +64,12 @@ pub struct Arguments {
   )]
   pub(crate) check: bool,
   #[arg(
+    add = ArgValueCompleter::new(PathCompleter::file()),
     env = "JUST_CHOOSER",
     help = "Override binary invoked by `--choose`",
     long
   )]
-  pub(crate) chooser: Option<String>,
+  pub(crate) chooser: Option<PathBuf>,
   #[arg(help = "Clear shell arguments", long, overrides_with = "shell_arg")]
   pub(crate) clear_shell_args: bool,
   #[arg(
@@ -86,6 +88,7 @@ pub struct Arguments {
   )]
   pub(crate) command_color: Option<CommandColor>,
   #[arg(
+    add = ArgValueCompleter::new(PathCompleter::file()),
     default_value = "cygpath",
     env = "JUST_CYGPATH",
     help = "Use binary at <CYGPATH> to convert between unix and Windows paths.",
@@ -101,6 +104,7 @@ pub struct Arguments {
   )]
   pub(crate) dotenv_filename: Option<String>,
   #[arg(
+    add = ArgValueCompleter::new(PathCompleter::file()),
     help = "Load <DOTENV-PATH> as environment file instead of searching for one",
     long,
     short = 'E',
@@ -153,6 +157,7 @@ pub struct Arguments {
   )]
   pub(crate) highlight: bool,
   #[arg(
+    add = ArgValueCompleter::new(PathCompleter::file()),
     env = "JUST_JUSTFILE",
     help = "Use <JUSTFILE> as justfile",
     long,
@@ -241,6 +246,7 @@ pub struct Arguments {
   #[command(flatten)]
   pub(crate) subcommand: Subcommand,
   #[arg(
+    add = ArgValueCompleter::new(PathCompleter::dir()),
     env = "JUST_TEMPDIR",
     help = "Save temporary files to <TEMPDIR>.",
     long,
@@ -280,6 +286,7 @@ pub struct Arguments {
   )]
   pub(crate) verbose: u8,
   #[arg(
+    add = ArgValueCompleter::new(PathCompleter::dir()),
     env = "JUST_WORKING_DIRECTORY",
     help = "Use <WORKING-DIRECTORY> as working directory. --justfile must also be set",
     long,

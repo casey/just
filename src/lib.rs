@@ -113,6 +113,7 @@ pub(crate) use {
   },
   camino::Utf8Path,
   clap::{CommandFactory, Parser as _, ValueEnum},
+  clap_complete::{ArgValueCompleter, PathCompleter},
   derive_where::derive_where,
   edit_distance::edit_distance,
   lexiclean::Lexiclean,

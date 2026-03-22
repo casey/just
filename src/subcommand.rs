@@ -16,7 +16,7 @@ const CHOOSER_CANCELLED_EXIT_STATUS: i32 = 130;
 pub(crate) enum Subcommand {
   Changelog,
   Choose {
-    chooser: Option<String>,
+    chooser: Option<PathBuf>,
   },
   Command {
     arguments: Vec<OsString>,
@@ -220,7 +220,7 @@ impl Subcommand {
   }
 
   fn choose<'src>(
-    chooser: Option<&str>,
+    chooser: Option<&Path>,
     config: &Config,
     justfile: &Justfile<'src>,
     overrides: &HashMap<Number, String>,
