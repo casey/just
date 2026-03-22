@@ -82,7 +82,7 @@ impl<'run, 'src> Context<'run, 'src> {
 
     let arguments = Arguments::from_arg_matches(&matches).unwrap();
 
-    let config = Config::from_arguments(arguments)?;
+    let config = Config::from_arguments(arguments, true)?;
 
     let search = Search::search(&config)?;
 

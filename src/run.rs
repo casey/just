@@ -11,7 +11,7 @@ pub fn run(args: impl Iterator<Item = impl Into<OsString> + Clone>) -> Result<()
     err.exit_code()
   })?;
 
-  let config = Config::from_arguments(arguments).map_err(Error::from);
+  let config = Config::from_arguments(arguments, false).map_err(Error::from);
 
   let (color, verbosity) = config
     .as_ref()
