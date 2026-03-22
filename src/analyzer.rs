@@ -19,12 +19,13 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     groups: &[StringLiteral<'src>],
     loaded: &[PathBuf],
     name: Option<Name<'src>>,
+    overrides: &mut HashMap<Number, String>,
     paths: &HashMap<PathBuf, PathBuf>,
     private: bool,
     root: &Path,
   ) -> RunResult<'src, Justfile<'src>> {
     Self::default().justfile(
-      asts, config, doc, groups, loaded, name, paths, root, private,
+      asts, config, doc, groups, loaded, name, overrides, paths, private, root,
     )
   }
 
@@ -36,9 +37,10 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     groups: &[StringLiteral<'src>],
     loaded: &[PathBuf],
     name: Option<Name<'src>>,
+    overrides: &mut HashMap<Number, String>,
     paths: &HashMap<PathBuf, PathBuf>,
-    root: &Path,
     private: bool,
+    root: &Path,
   ) -> RunResult<'src, Justfile<'src>> {
     let mut definitions = HashMap::new();
     let mut imports = HashSet::new();
@@ -85,6 +87,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
                 groups.as_slice(),
                 loaded,
                 Some(*name),
+                overrides,
                 paths,
                 *private,
                 absolute,
@@ -159,8 +162,36 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       }
     }
 
+    let mut unknown_overrides = Vec::new();
+
+    for ((path, name), value) in &config.overrides {
+      if *path == ast.modulepath {
+        if let Some(assignment) = assignments.get(name) {
+          overrides.insert(assignment.number, value.clone());
+        } else {
+          unknown_overrides.push(if path.is_empty() {
+            name.into()
+          } else {
+            format!("{path}::{name}")
+          });
+        }
+      } else if path.starts_with(&ast.modulepath)
+        && !self
+          .modules
+          .contains_key(&path.path[ast.modulepath.path.len()])
+      {
+        unknown_overrides.push(format!("{path}::{name}"));
+      }
+    }
+
+    if !unknown_overrides.is_empty() {
+      return Err(Error::UnknownOverrides {
+        overrides: unknown_overrides,
+      });
+    }
+
     let settings =
-      Evaluator::evaluate_settings(&assignments, config, name, self.sets, &Scope::root())?;
+      Evaluator::evaluate_settings(&assignments, overrides, &Scope::root(), self.sets)?;
 
     let mut deduplicated_recipes = Table::<'src, UnresolvedRecipe<'src>>::default();
     for recipe in self.recipes {
@@ -198,7 +229,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     let recipes = RecipeResolver::resolve_recipes(
       &assignments,
-      &ast.module_path,
+      &ast.modulepath,
       &self.modules,
       &settings,
       deduplicated_recipes,
@@ -251,7 +282,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       doc: doc.filter(|doc| !doc.is_empty()),
       groups: groups.into(),
       loaded: loaded.into(),
-      module_path: ast.module_path.clone(),
+      modulepath: ast.modulepath.clone(),
       modules: self.modules,
       name,
       private,

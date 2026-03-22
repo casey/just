@@ -36,7 +36,7 @@ impl Settings {
   pub(crate) fn shell_command(&self, config: &Config) -> Command {
     let (command, args) = self.shell(config);
 
-    let mut cmd = Command::new(command);
+    let mut cmd = Command::resolve(command);
 
     cmd.args(args);
 

@@ -1,6 +1,25 @@
 Changelog
 =========
 
+[1.47.1](https://github.com/casey/just/releases/tag/1.47.1) - 2026-03-16
+------------------------------------------------------------------------
+
+### Fixed
+- Block on running parallel dependencies ([#3139](https://github.com/casey/just/pull/3139) by [casey](https://github.com/casey))
+- Fix setting-exported assignment visibility in child modules ([#3128](https://github.com/casey/just/pull/3128) by [casey](https://github.com/casey))
+
+### Added
+- Add `eager` keyword to force evaluation of unused assignments ([#3131](https://github.com/casey/just/pull/3131) by [casey](https://github.com/casey))
+
+### Changed
+- Only evaluate used variables in --evaluate and --command ([#3130](https://github.com/casey/just/pull/3130) by [casey](https://github.com/casey))
+
+### Misc
+- Make eager assignments unstable ([#3140](https://github.com/casey/just/pull/3140) by [casey](https://github.com/casey))
+- Include path to .env file in error messages ([#3135](https://github.com/casey/just/pull/3135) by [casey](https://github.com/casey))
+- Consolidate override checking ([#3127](https://github.com/casey/just/pull/3127) by [casey](https://github.com/casey))
+- Update readme version references ([#3126](https://github.com/casey/just/pull/3126) by [casey](https://github.com/casey))
+
 [1.47.0](https://github.com/casey/just/releases/tag/1.47.0) - 2026-03-14
 ------------------------------------------------------------------------
 
@@ -44,7 +63,7 @@ Changelog
 - Don't leak signal handler pipe into child processes ([#3035](https://github.com/casey/just/pull/3035) by [rjmac](https://github.com/rjmac))
 
 ### Added
-- Allow `long` to default to to parameter name ([#3041](https://github.com/casey/just/pull/3041) by [casey](https://github.com/casey))
+- Allow `long` to default to parameter name ([#3041](https://github.com/casey/just/pull/3041) by [casey](https://github.com/casey))
 - Allow const expressions in all settings ([#3037](https://github.com/casey/just/pull/3037) by [casey](https://github.com/casey))
 - Allow const expressions in `working-directory` ([#3033](https://github.com/casey/just/pull/3033) by [casey](https://github.com/casey))
 - Add --usage subcommand and argument help strings ([#3031](https://github.com/casey/just/pull/3031) by [casey](https://github.com/casey))

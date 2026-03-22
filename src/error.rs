@@ -815,7 +815,7 @@ impl ColorDisplay for Error<'_> {
 
     if let PositionalArgumentCountMismatch { recipe, .. } = self {
       writeln!(f)?;
-      let path = ModulePath::try_from([recipe.name()].as_slice()).unwrap();
+      let path = Modulepath::try_from([recipe.name()].as_slice()).unwrap();
       write!(
         f,
         "{}",

@@ -161,6 +161,11 @@ most Windows users.)
       <td><code>cargo install just</code></td>
     </tr>
     <tr>
+      <td><a href=https://github.com/cargo-bins/cargo-binstall>Cargo Binstall</a></td>
+      <td><a href=https://crates.io/crates/just>just</a></td>
+      <td><code>cargo binstall just</code></td>
+    </tr>
+    <tr>
       <td><a href=https://docs.conda.io/projects/conda/en/latest/index.html>Conda</a></td>
       <td><a href=https://anaconda.org/conda-forge/just>just</a></td>
       <td><code>conda install -c conda-forge just</code></td>
@@ -480,7 +485,7 @@ leisure.
 
 Features that aren't yet ready for stabilization are marked as unstable and may
 be changed or removed at any time. Using unstable features produces an error by
-default, which can be suppressed with by passing the `--unstable` flag,
+default, which can be suppressed by passing the `--unstable` flag,
 `set unstable`, or setting the environment variable `JUST_UNSTABLE`, to any
 value other than `false`, `0`, or the empty string.
 
@@ -603,7 +608,7 @@ out of the box, thanks to [tomodachi94](https://github.com/tomodachi94).
 ### Zed
 
 The [zed-just](https://github.com/jackTabsCode/zed-just/) extension by
-[jackTabsCode](https://github.com/jackTabsCode) is avilable on the
+[jackTabsCode](https://github.com/jackTabsCode) is available on the
 [Zed extensions page](https://zed.dev/extensions?query=just).
 
 ### Other Editors
@@ -789,8 +794,8 @@ Available recipes:
     lint
 ```
 
-Recipes in [submodules](#modules1190) can be listed with `just --list PATH`,
-where `PATH` is a space- or `::`-separated module path:
+Recipes in [submodules](#modules) can be listed with `just --list PATH`, where
+`PATH` is a space- or `::`-separated module path:
 
 ```
 $ cat justfile
@@ -1261,7 +1266,7 @@ $ just test foo "bar baz"
 - bar baz
 ```
 
-Positional arguments may also be turned on on a per-recipe basis with the
+Positional arguments may also be turned on a per-recipe basis with the
 `[positional-arguments]` attribute<sup>1.29.0</sup>:
 
 ```just
@@ -1977,9 +1982,9 @@ The process ID is: 420
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append
   single quotes to `s`. This is sufficient to escape special characters for
   many shells, including most Bourne shell descendants.
-- `replace(s, from, to)` - Replace all occurrences of `from` in `s` to `to`.
+- `replace(s, from, to)` - Replace all occurrences of `from` in `s` with `to`.
 - `replace_regex(s, regex, replacement)` - Replace all occurrences of `regex`
-  in `s` to `replacement`. Regular expressions are provided by the
+  in `s` with `replacement`. Regular expressions are provided by the
   [Rust `regex` crate](https://docs.rs/regex/latest/regex/). See the
   [syntax documentation](https://docs.rs/regex/latest/regex/#syntax) for usage
   examples. Capture groups are supported. The `replacement` string uses
@@ -2044,9 +2049,10 @@ which will halt execution.
 
 #### Filesystem Access
 
-- `path_exists(path)` - Returns `true` if the path points at an existing entity
-  and `false` otherwise. Traverses symbolic links, and returns `false` if the
-  path is inaccessible or points to a broken symlink.
+- `path_exists(path)` - Returns the string `true` if the path points at an
+  existing entity and the string `false` otherwise. Traverses symbolic links,
+  and returns the string `false` if the path is inaccessible or points to a
+  broken symlink.
 - `read(path)`<sup>1.39.0</sup> - Returns the content of file at `path` as
   string.
 
@@ -2108,10 +2114,11 @@ for details.
     @echo '{{ style("error") }}OH NO{{ NORMAL }}'
   ```
 
-##### User Directories<sup>1.23.0</sup>
+##### User Directories
 
-These functions return paths to user-specific directories for things like
-configuration, data, caches, executables, and the user's home directory.
+These functions<sup>1.23.0</sup> return paths to user-specific directories for
+things like configuration, data, caches, executables, and the user's home
+directory.
 
 On Unix, these functions follow the
 [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html).
@@ -2272,12 +2279,12 @@ Attributes with a single argument may be written with a colon:
 foo:
 ```
 
-#### Enabling and Disabling Recipes<sup>1.8.0</sup>
+#### Enabling and Disabling Recipes
 
-The `[linux]`, `[macos]`, `[unix]`, and `[windows]` attributes are
-configuration attributes. By default, recipes are always enabled. A recipe with
-one or more configuration attributes will only be enabled when one or more of
-those configurations is active.
+The `[linux]`, `[macos]`, `[unix]`, and `[windows]` attributes<sup>1.8.0</sup>
+are configuration attributes. By default, recipes are always enabled. A recipe
+with one or more configuration attributes will only be enabled when one or more
+of those configurations is active.
 
 This can be used to write `justfile`s that behave differently depending on
 which operating system they run on. The `run` recipe in this `justfile` will
@@ -2296,12 +2303,12 @@ run:
   main.exe
 ```
 
-#### Disabling Changing Directory<sup>1.9.0</sup>
+#### Disabling Changing Directory
 
 `just` normally executes recipes with the current directory set to the
 directory that contains the `justfile`. This can be disabled using the
-`[no-cd]` attribute. This can be used to create recipes which use paths
-relative to the invocation directory, or which operate on the current
+`[no-cd]` attribute<sup>1.9.0</sup>. This can be used to create recipes which
+use paths relative to the invocation directory, or which operate on the current
 directory.
 
 For example, this `commit` recipe:
@@ -2317,12 +2324,12 @@ Can be used with paths that are relative to the current directory, because
 `[no-cd]` prevents `just` from changing the current directory when executing
 `commit`.
 
-#### Requiring Confirmation for Recipes<sup>1.17.0</sup>
+#### Requiring Confirmation for Recipes
 
 `just` normally executes all recipes unless there is an error. The `[confirm]`
-attribute allows recipes require confirmation in the terminal prior to running.
-This can be overridden by passing `--yes` to `just`, which will automatically
-confirm any recipes marked by this attribute.
+attribute<sup>1.17.0</sup> allows recipes require confirmation in the terminal
+prior to running. This can be overridden by passing `--yes` to `just`, which
+will automatically confirm any recipes marked by this attribute.
 
 Recipes dependent on a recipe that requires confirmation will not be run if the
 relied upon recipe is not confirmed, as well as recipes passed after any recipe
@@ -2334,15 +2341,28 @@ delete-all:
   rm -rf *
 ```
 
-#### Custom Confirmation Prompt<sup>1.23.0</sup>
+#### Custom Confirmation Prompt
 
-The default confirmation prompt can be overridden with `[confirm(PROMPT)]`:
+The default confirmation prompt can be overridden with
+`[confirm(PROMPT)]`<sup>1.23.0</sup>:
 
 ```just
 [confirm("Are you sure you want to delete everything?")]
 delete-everything:
   rm -rf *
 ```
+
+#### Metadata
+
+Metadata in the form of lists of strings may be attached to recipes with the
+`[metadata(METADATA)]` attribute<sup>1.42.0</sup>:
+
+```just
+[metadata("hello", "goodbye")]
+foo:
+```
+
+Metadata can be read using `just --dump --dump-format json`.
 
 ### Groups
 
@@ -2586,6 +2606,10 @@ $ just --set os bsd
 ./test --test bsd
 ```
 
+Variables in submodules can be overridden using the `::`-separated path to the
+variable. A variable named `bar` in a submodule named `foo` may be overridden
+with `foo::bar=VALUE` or `--set foo::bar VALUE`.
+
 ### Getting and Setting Environment Variables
 
 #### Exporting `just` Variables
@@ -2636,9 +2660,10 @@ a $A $B=`echo $A`:
 When [export](#export) is set, all `just` variables are exported as environment
 variables.
 
-#### Unexporting Environment Variables<sup>1.29.0</sup>
+#### Unexporting Environment Variables
 
-Environment variables can be unexported with the `unexport keyword`:
+Environment variables can be unexported with the `unexport
+keyword`<sup>1.29.0</sup>:
 
 ```just
 unexport FOO
@@ -2951,7 +2976,7 @@ bar=hello
 
 If a parameter has both a long and short option, it may be passed using either.
 
-Variadic `+` and `?` parameters cannot be options.
+Variadic `*` and `+` parameters cannot be options.
 
 The `[arg(ARG, value=VALUE, …)]`<sup>1.46.0</sup> attribute can be used with
 `long` or `short` to make a parameter a flag which does not take a value.
@@ -3988,9 +4013,9 @@ bar: baz
 baz:
 ```
 
-### Modules<sup>1.19.0</sup>
+### Modules
 
-A `justfile` can declare modules using `mod` statements.
+A `justfile` can declare modules using `mod` statements<sup>1.19.0</sup>.
 
 `mod` statements were stabilized in `just`<sup>1.31.0</sup>. In earlier
 versions, you'll need to use the `--unstable` flag, `set unstable`, or set the
@@ -4333,12 +4358,12 @@ for details.
 
 ### Signal Handling
 
-[Signals](https://en.wikipedia.org/wiki/Signal_(IPC)) are messsages sent to
+[Signals](https://en.wikipedia.org/wiki/Signal_(IPC)) are messages sent to
 running programs to trigger specific behavior. For example, `SIGINT` is sent to
-all processes in the terminal forground process group when `CTRL-C` is pressed.
+all processes in the terminal foreground process group when `CTRL-C` is pressed.
 
 `just` tries to exit when requested by a signal, but it also tries to avoid
-leaving behind running child proccesses, two goals which are somewhat in
+leaving behind running child processes, two goals which are somewhat in
 conflict.
 
 If `just` exits leaving behind child processes, the user will have no recourse
@@ -4456,7 +4481,7 @@ complete -F _just -o bashdefault -o default j
 ### Shell Completion Scripts
 
 Shell completion scripts for Bash, Elvish, Fish, Nushell, PowerShell, and Zsh
-are available [release archives](https://github.com/casey/just/releases).
+are available in [release archives](https://github.com/casey/just/releases).
 
 The `just` binary can also generate the same completion scripts at runtime
 using `just --completions SHELL`:
@@ -4773,7 +4798,7 @@ and checking the program's stdout, stderr, and exit code .
 
 4. Add a failing test for your feature. Most of the time this will be an
    integration test which exercises the feature end-to-end. Look for an
-   appropriate file to put the test in in
+   appropriate file to put the test in
    [tests](https://github.com/casey/just/blob/master/tests), or add a new file
    in [tests](https://github.com/casey/just/blob/master/tests) and add a `mod`
    statement importing that file in

@@ -6,7 +6,7 @@ use {super::*, TokenKind::*};
 ///
 /// It uses a few tokens of lookahead to disambiguate different constructs.
 ///
-/// The `expect_*` and `presume_`* methods are similar in that they assert the
+/// The `expect_*` and `presume_*` methods are similar in that they assert the
 /// type of unparsed tokens and consume them. However, upon encountering an
 /// unexpected token, the `expect_*` methods return an unexpected token error,
 /// whereas the `presume_*` tokens return an internal error.
@@ -386,6 +386,9 @@ impl<'run, 'src> Parser<'run, 'src> {
             items.push(Item::Alias(self.parse_alias(take_attributes())?));
           }
           Some(Keyword::Eager) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
+            self
+              .unstable_features
+              .insert(UnstableFeature::EagerAssignments);
             self.presume_keyword(Keyword::Eager)?;
             items.push(Item::Assignment(self.parse_assignment(
               take_attributes(),
@@ -538,10 +541,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     Ok(Ast {
       items,
-      module_path: self
-        .module_namepath
-        .map(ToString::to_string)
-        .unwrap_or_default(),
+      modulepath: self.module_namepath.map(Into::into).unwrap_or_default(),
       unstable_features: self.unstable_features,
       warnings: Vec::new(),
       working_directory: self.working_directory.into(),
@@ -1215,19 +1215,20 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
 
     Ok(Recipe {
-      shebang: shebang || script,
       attributes,
       body,
       dependencies,
       doc: doc.filter(|doc| !doc.is_empty()),
       file_depth: self.file_depth,
       import_offsets: self.import_offsets.clone(),
+      module_path: None,
       name,
-      namepath: None,
+      recipe_path: None,
       parameters: positional.into_iter().chain(variadic).collect(),
       priors,
       private,
       quiet,
+      shebang: shebang || script,
       variable_references: HashSet::new(),
     })
   }
@@ -1656,7 +1657,7 @@ mod tests {
   }
 
   test! {
-    name: alias_module_path,
+    name: alias_modulepath,
     text: "alias fbb := foo::bar::baz",
     tree: (justfile (alias fbb (foo bar baz))),
   }

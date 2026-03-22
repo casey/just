@@ -396,15 +396,9 @@ augroup END
 
 ### Visual Studio Code
 
-由 [skellock](https://github.com/skellock) 为 VS Code 提供的扩展 [可在此获得](https://marketplace.visualstudio.com/items?itemName=skellock.just)（[仓库](https://github.com/skellock/vscode-just)），但是开发已经不活跃了。
-
-你可以通过运行以下命令来安装它：
-
-```sh
-code --install-extension skellock.just
-```
-
-最近由 [sclu1034](https://github.com/sclu1034) 提供的一个更活跃的分叉可以在 [这里](https://github.com/sclu1034/vscode-just) 找到。
+VS Code 的一个插件可以在 [这里](https://github.com/nefrob/vscode-just) 找到。
+  
+不再维护的 VS Code 插件有 [skellock/vscode-just](https://github.com/skellock/vscode-just) 和 [sclu1034/vscode-just](https://github.com/sclu1034/vscode-just)。
 
 ### JetBrains IDEs
 

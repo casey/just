@@ -11,20 +11,23 @@ static BACKTICK_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new("(`.*?`)|(`[^`
 
 const CHOOSER_CANCELLED_EXIT_STATUS: i32 = 130;
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Clone, Debug, IntoStaticStr)]
+#[strum(serialize_all = "SCREAMING_SNAKE_CASE")]
 pub(crate) enum Subcommand {
   Changelog,
   Choose {
-    chooser: Option<String>,
+    chooser: Option<PathBuf>,
   },
   Command {
     arguments: Vec<OsString>,
     binary: OsString,
   },
   Completions {
-    shell: completions::Shell,
+    shell: Shell,
   },
-  Dump,
+  Dump {
+    format: DumpFormat,
+  },
   Edit,
   Evaluate {
     variable: Option<String>,
@@ -33,7 +36,7 @@ pub(crate) enum Subcommand {
   Groups,
   Init,
   List {
-    path: ModulePath,
+    path: Modulepath,
   },
   Man,
   Request {
@@ -43,11 +46,11 @@ pub(crate) enum Subcommand {
     arguments: Vec<String>,
   },
   Show {
-    path: ModulePath,
+    path: Modulepath,
   },
   Summary,
   Usage {
-    path: ModulePath,
+    path: Modulepath,
   },
   Variables,
 }
@@ -79,11 +82,7 @@ impl Subcommand {
       _ => {}
     }
 
-    let search = Search::find(
-      config.ceiling.as_deref(),
-      &config.invocation_directory,
-      &config.search_config,
-    )?;
+    let search = Search::search(config)?;
 
     if matches!(self, Edit) {
       return Self::edit(&search);
@@ -98,12 +97,18 @@ impl Subcommand {
 
     match self {
       Choose { chooser } => {
-        Self::choose(config, justfile, &search, chooser.as_deref())?;
+        Self::choose(
+          chooser.as_deref(),
+          config,
+          justfile,
+          &compilation.overrides,
+          &search,
+        )?;
       }
       Command { .. } | Evaluate { .. } => {
-        justfile.run(config, &search, &[])?;
+        justfile.run(config, &search, &[], &compilation.overrides)?;
       }
-      Dump => Self::dump(config, compilation)?,
+      Dump { format } => Self::dump(compilation, *format)?,
       Groups => Self::groups(config, justfile),
       List { path } => Self::list(config, justfile, path)?,
       Run { arguments } => Self::run(config, loader, search, compilation, arguments)?,
@@ -126,6 +131,10 @@ impl Subcommand {
     }
   }
 
+  pub(crate) fn name(&self) -> &'static str {
+    self.into()
+  }
+
   fn run<'src>(
     config: &Config,
     loader: &'src Loader,
@@ -143,7 +152,7 @@ impl Subcommand {
           SearchConfig::FromInvocationDirectory | SearchConfig::FromSearchDirectory { .. }
         );
 
-      let result = justfile.run(config, &search, arguments);
+      let result = justfile.run(config, &search, arguments, &compilation.overrides);
 
       if fallback {
         if let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result {
@@ -207,10 +216,11 @@ impl Subcommand {
   }
 
   fn choose<'src>(
+    chooser: Option<&Path>,
     config: &Config,
     justfile: &Justfile<'src>,
+    overrides: &HashMap<Number, String>,
     search: &Search,
-    chooser: Option<&str>,
   ) -> RunResult<'src> {
     let mut recipes = Vec::<&Recipe>::new();
     let mut stack = vec![justfile];
@@ -262,7 +272,7 @@ impl Subcommand {
 
     let stdin = child.stdin.as_mut().unwrap();
     for recipe in recipes {
-      if let Err(io_error) = writeln!(stdin, "{}", recipe.spaced_namepath()) {
+      if let Err(io_error) = writeln!(stdin, "{}", recipe.spaced_recipe_path()) {
         if io_error.kind() != std::io::ErrorKind::BrokenPipe {
           return Err(Error::ChooserWrite { io_error, chooser });
         }
@@ -294,15 +304,15 @@ impl Subcommand {
       .map(str::to_owned)
       .collect::<Vec<String>>();
 
-    justfile.run(config, search, &recipes)
+    justfile.run(config, search, &recipes, overrides)
   }
 
-  fn completions(shell: completions::Shell) {
-    print!("{}", shell.script());
+  fn completions(shell: Shell) {
+    print!("{}", shell.completion_script());
   }
 
-  fn dump(config: &Config, compilation: Compilation) -> RunResult<'static> {
-    match config.dump_format {
+  fn dump(compilation: Compilation, format: DumpFormat) -> RunResult<'static> {
+    match format {
       DumpFormat::Json => {
         serde_json::to_writer(io::stdout(), &compilation.justfile)
           .map_err(|source| Error::DumpJson { source })?;
@@ -318,7 +328,7 @@ impl Subcommand {
       .or_else(|| env::var_os("EDITOR"))
       .unwrap_or_else(|| "vim".into());
 
-    let error = Command::new(&editor)
+    let error = Command::resolve(&editor)
       .current_dir(&search.working_directory)
       .arg(&search.justfile)
       .status();
@@ -436,7 +446,7 @@ impl Subcommand {
   fn man() -> RunResult<'static> {
     let mut buffer = Vec::<u8>::new();
 
-    Man::new(Config::app())
+    Man::new(Arguments::command())
       .render(&mut buffer)
       .expect("writing to buffer cannot fail");
 
@@ -473,7 +483,7 @@ impl Subcommand {
     Ok(())
   }
 
-  fn list(config: &Config, mut module: &Justfile, path: &ModulePath) -> RunResult<'static> {
+  fn list(config: &Config, mut module: &Justfile, path: &Modulepath) -> RunResult<'static> {
     for name in &path.path {
       module = module
         .modules
@@ -771,7 +781,7 @@ impl Subcommand {
     Ok(())
   }
 
-  fn show<'src>(config: &Config, module: &Justfile<'src>, path: &ModulePath) -> RunResult<'src> {
+  fn show<'src>(config: &Config, module: &Justfile<'src>, path: &Modulepath) -> RunResult<'src> {
     let (alias, recipe) = Self::resolve_path(module, path)?;
 
     if let Some(alias) = alias {
@@ -784,44 +794,45 @@ impl Subcommand {
   }
 
   fn summary(config: &Config, justfile: &Justfile) {
-    let mut printed = 0;
-    Self::summary_recursive(config, &mut Vec::new(), &mut printed, justfile);
+    let recipes = justfile.public_recipes_recursive(config);
+
+    for (i, recipe) in recipes.iter().enumerate() {
+      if i > 0 {
+        print!(" ");
+      }
+      print!("{}", recipe.recipe_path());
+    }
     println!();
 
-    if printed == 0 && config.verbosity.loud() {
+    if recipes.is_empty() && config.verbosity.loud() {
       eprintln!("Justfile contains no recipes.");
     }
   }
 
-  fn summary_recursive<'a>(
-    config: &Config,
-    components: &mut Vec<&'a str>,
-    printed: &mut usize,
-    justfile: &'a Justfile,
-  ) {
-    let path = components.join("::");
-
-    for recipe in justfile.public_recipes(config) {
-      if *printed > 0 {
-        print!(" ");
-      }
-      if path.is_empty() {
-        print!("{}", recipe.name());
-      } else {
-        print!("{}::{}", path, recipe.name());
-      }
-      *printed += 1;
-    }
-
-    for module in justfile.public_modules(config) {
-      let name = module.name();
-      components.push(name);
-      Self::summary_recursive(config, components, printed, module);
-      components.pop();
+  pub(crate) fn takes_arguments(&self) -> bool {
+    match self {
+      Self::Changelog
+      | Self::Dump { .. }
+      | Self::Edit
+      | Self::Format
+      | Self::Init
+      | Self::Man
+      | Self::Summary
+      | Self::Variables => false,
+      Self::Choose { .. }
+      | Self::Command { .. }
+      | Self::Completions { .. }
+      | Self::Evaluate { .. }
+      | Self::Groups
+      | Self::List { .. }
+      | Self::Request { .. }
+      | Self::Run { .. }
+      | Self::Show { .. }
+      | Self::Usage { .. } => true,
     }
   }
 
-  fn usage<'src>(config: &Config, module: &Justfile<'src>, path: &ModulePath) -> RunResult<'src> {
+  fn usage<'src>(config: &Config, module: &Justfile<'src>, path: &Modulepath) -> RunResult<'src> {
     let (alias, recipe) = Self::resolve_path(module, path)?;
 
     if let Some(alias) = alias {
@@ -843,7 +854,7 @@ impl Subcommand {
 
   fn resolve_path<'src, 'run>(
     mut module: &'run Justfile<'src>,
-    path: &ModulePath,
+    path: &Modulepath,
   ) -> RunResult<'src, (Option<&'run Alias<'src>>, &'run Recipe<'src>)> {
     for name in &path.path[0..path.path.len() - 1] {
       module = module

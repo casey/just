@@ -24,6 +24,7 @@ pub(crate) use {
     compile_error::CompileError,
     compile_error_kind::CompileErrorKind,
     compiler::Compiler,
+    completer::Completer,
     condition::Condition,
     conditional_operator::ConditionalOperator,
     config::Config,
@@ -55,7 +56,7 @@ pub(crate) use {
     list::List,
     load_dotenv::load_dotenv,
     loader::Loader,
-    module_path::ModulePath,
+    modulepath::Modulepath,
     name::Name,
     namepath::Namepath,
     number::Number,
@@ -75,6 +76,7 @@ pub(crate) use {
     recipe::Recipe,
     recipe_resolver::RecipeResolver,
     recipe_signature::RecipeSignature,
+    request::Request,
     scope::Scope,
     search::Search,
     search_config::SearchConfig,
@@ -83,6 +85,7 @@ pub(crate) use {
     setting::Setting,
     settings::Settings,
     shebang::Shebang,
+    shell::Shell,
     show_whitespace::ShowWhitespace,
     sigil::Sigil,
     signal::Signal,
@@ -110,7 +113,8 @@ pub(crate) use {
     which::which,
   },
   camino::Utf8Path,
-  clap::ValueEnum,
+  clap::{CommandFactory, FromArgMatches, Parser as _, ValueEnum, builder::StyledStr},
+  clap_complete::{ArgValueCompleter, CompletionCandidate, PathCompleter},
   derive_where::derive_where,
   edit_distance::edit_distance,
   lexiclean::Lexiclean,
@@ -127,7 +131,7 @@ pub(crate) use {
     cmp::Ordering,
     collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     env,
-    ffi::OsString,
+    ffi::{OsStr, OsString},
     fmt::{self, Debug, Display, Formatter},
     fs,
     io::{self, Write},
@@ -135,32 +139,26 @@ pub(crate) use {
     mem,
     ops::Deref,
     ops::{Index, RangeInclusive},
-    path::{self, Path, PathBuf},
+    path::{self, Component, Path, PathBuf},
     process::{self, Command, ExitStatus, Stdio},
+    slice,
     str::{self, Chars},
     sync::{Arc, LazyLock, Mutex, MutexGuard},
     thread, vec,
   },
-  strum::{Display, EnumDiscriminants, EnumString, IntoStaticStr},
+  strum::{Display, EnumDiscriminants, EnumIter, EnumString, IntoStaticStr},
   tempfile::TempDir,
   typed_arena::Arena,
   unicode_width::{UnicodeWidthChar, UnicodeWidthStr},
 };
 
 #[cfg(test)]
-pub(crate) use {
-  crate::{node::Node, tree::Tree},
-  std::slice,
-};
+pub(crate) use crate::{node::Node, tree::Tree};
 
 pub use crate::run::run;
 
 #[doc(hidden)]
-use request::Request;
-
-// Used in integration tests.
-#[doc(hidden)]
-pub use {request::Response, subcommand::INIT_JUSTFILE, unindent::unindent};
+pub use {arguments::Arguments, request::Response, subcommand::INIT_JUSTFILE, unindent::unindent};
 
 type CompileResult<'a, T = ()> = Result<T, CompileError<'a>>;
 type ConfigResult<T> = Result<T, ConfigError>;
@@ -196,6 +194,7 @@ mod alias;
 mod alias_style;
 mod analyzer;
 mod arg_attribute;
+mod arguments;
 mod assignment;
 mod assignment_resolver;
 mod ast;
@@ -210,7 +209,7 @@ mod compilation;
 mod compile_error;
 mod compile_error_kind;
 mod compiler;
-mod completions;
+mod completer;
 mod condition;
 mod conditional_operator;
 mod config;
@@ -243,7 +242,7 @@ mod line;
 mod list;
 mod load_dotenv;
 mod loader;
-mod module_path;
+mod modulepath;
 mod name;
 mod namepath;
 mod number;
@@ -272,6 +271,7 @@ mod set;
 mod setting;
 mod settings;
 mod shebang;
+mod shell;
 mod show_whitespace;
 mod sigil;
 mod signal;

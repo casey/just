@@ -252,21 +252,6 @@ impl<'src> Lexer<'src> {
     CompileError::new(interpolation_start, UnterminatedInterpolation)
   }
 
-  /// True if `text` could be an identifier
-  pub(crate) fn is_identifier(text: &str) -> bool {
-    if !text.chars().next().is_some_and(Self::is_identifier_start) {
-      return false;
-    }
-
-    for c in text.chars().skip(1) {
-      if !Self::is_identifier_continue(c) {
-        return false;
-      }
-    }
-
-    true
-  }
-
   /// True if `c` can be the first character of an identifier
   pub(crate) fn is_identifier_start(c: char) -> bool {
     matches!(c, 'a'..='z' | 'A'..='Z' | '_')

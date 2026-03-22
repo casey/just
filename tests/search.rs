@@ -196,3 +196,17 @@ fn dot_justfile_conflicts_with_justfile() {
     .stderr_regex("error: Multiple candidate justfiles found in `.*`: `.justfile` and `justfile`\n")
     .failure();
 }
+
+#[test]
+fn justfile_symlink_parent() {
+  Test::new()
+    .no_justfile()
+    .test_round_trip(false)
+    .write("src", "foo:\n\techo bar\n")
+    .create_dir("sub")
+    .symlink("src", "sub/justfile")
+    .current_dir("sub")
+    .stderr("echo bar\n")
+    .stdout("bar\n")
+    .success();
+}

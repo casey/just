@@ -6,7 +6,7 @@ impl<'src> UnresolvedRecipe<'src> {
   pub(crate) fn resolve(
     self,
     assignments: &Table<'src, Assignment<'src>>,
-    module_path: &str,
+    modulepath: &Modulepath,
     resolved: Vec<Arc<Recipe<'src>>>,
     settings: &Settings,
   ) -> CompileResult<'src, Recipe<'src>> {
@@ -92,13 +92,9 @@ impl<'src> UnresolvedRecipe<'src> {
       })
       .collect();
 
-    let mut namepath = String::from(module_path);
+    let mut recipe_path = modulepath.clone();
 
-    if !namepath.is_empty() {
-      namepath.push_str("::");
-    }
-
-    namepath.push_str(self.name.lexeme());
+    recipe_path.path.push(self.name.lexeme().into());
 
     Ok(Recipe {
       attributes: self.attributes,
@@ -107,12 +103,13 @@ impl<'src> UnresolvedRecipe<'src> {
       doc: self.doc,
       file_depth: self.file_depth,
       import_offsets: self.import_offsets,
+      module_path: Some(modulepath.clone()),
       name: self.name,
-      namepath: Some(namepath),
       parameters: self.parameters,
       priors: self.priors,
       private: self.private,
       quiet: self.quiet,
+      recipe_path: Some(recipe_path),
       shebang: self.shebang,
       variable_references,
     })
