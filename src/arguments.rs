@@ -64,11 +64,12 @@ pub struct Arguments {
   )]
   pub(crate) check: bool,
   #[arg(
+    add = ArgValueCompleter::new(PathCompleter::file()),
     env = "JUST_CHOOSER",
     help = "Override binary invoked by `--choose`",
     long
   )]
-  pub(crate) chooser: Option<String>,
+  pub(crate) chooser: Option<PathBuf>,
   #[arg(help = "Clear shell arguments", long, overrides_with = "shell_arg")]
   pub(crate) clear_shell_args: bool,
   #[arg(
