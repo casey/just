@@ -100,7 +100,7 @@ fn show_recipes() {
     .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&["--show", ""]))
-    .stdout(format!("bar\nfoo\n"))
+    .stdout("bar\nfoo\n")
     .success();
 }
 
