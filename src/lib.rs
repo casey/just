@@ -84,6 +84,7 @@ pub(crate) use {
     setting::Setting,
     settings::Settings,
     shebang::Shebang,
+    shell::Shell,
     show_whitespace::ShowWhitespace,
     sigil::Sigil,
     signal::Signal,
@@ -143,14 +144,17 @@ pub(crate) use {
     sync::{Arc, LazyLock, Mutex, MutexGuard},
     thread, vec,
   },
-  strum::{Display, EnumDiscriminants, EnumString, IntoStaticStr},
+  strum::{Display, EnumDiscriminants, EnumIter, EnumString, IntoStaticStr},
   tempfile::TempDir,
   typed_arena::Arena,
   unicode_width::{UnicodeWidthChar, UnicodeWidthStr},
 };
 
 #[cfg(test)]
-pub(crate) use crate::{node::Node, tree::Tree};
+pub(crate) use {
+  crate::{node::Node, tree::Tree},
+  strum::IntoEnumIterator,
+};
 
 pub use crate::run::run;
 
@@ -210,7 +214,6 @@ mod compilation;
 mod compile_error;
 mod compile_error_kind;
 mod compiler;
-mod completions;
 mod condition;
 mod conditional_operator;
 mod config;
@@ -272,6 +275,7 @@ mod set;
 mod setting;
 mod settings;
 mod shebang;
+mod shell;
 mod show_whitespace;
 mod sigil;
 mod signal;

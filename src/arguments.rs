@@ -328,7 +328,7 @@ pub(crate) struct Subcommand {
     value_enum,
     value_name = "SHELL",
   )]
-  pub(crate) completions: Option<completions::Shell>,
+  pub(crate) completions: Option<Shell>,
   #[arg(
     help = "Print justfile",
     help_heading = Self::HEADING,

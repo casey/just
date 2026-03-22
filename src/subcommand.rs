@@ -23,7 +23,7 @@ pub(crate) enum Subcommand {
     binary: OsString,
   },
   Completions {
-    shell: completions::Shell,
+    shell: Shell,
   },
   Dump {
     format: DumpFormat,
@@ -311,7 +311,7 @@ impl Subcommand {
     justfile.run(config, search, &recipes, overrides)
   }
 
-  fn completions(shell: completions::Shell) {
+  fn completions(shell: Shell) {
     print!("{}", shell.script());
   }
 
