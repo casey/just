@@ -324,3 +324,19 @@ fn group_completion_filters_by_prefix() {
     .stdout("baz\n")
     .success();
 }
+
+#[test]
+fn usage_recipes() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+        bar:
+      ",
+    )
+    .shell(false)
+    .env("JUST_COMPLETE", "fish")
+    .args(complete_args(&["--usage", ""]))
+    .stdout("bar\nfoo\n")
+    .success();
+}
