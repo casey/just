@@ -24,6 +24,7 @@ pub(crate) use {
     compile_error::CompileError,
     compile_error_kind::CompileErrorKind,
     compiler::Compiler,
+    completer::Completer,
     condition::Condition,
     conditional_operator::ConditionalOperator,
     config::Config,
@@ -112,8 +113,8 @@ pub(crate) use {
     which::which,
   },
   camino::Utf8Path,
-  clap::{CommandFactory, Parser as _, ValueEnum},
-  clap_complete::{ArgValueCompleter, PathCompleter},
+  clap::{CommandFactory, FromArgMatches, Parser as _, ValueEnum, builder::StyledStr},
+  clap_complete::{ArgValueCompleter, CompletionCandidate, PathCompleter},
   derive_where::derive_where,
   edit_distance::edit_distance,
   lexiclean::Lexiclean,
@@ -208,6 +209,7 @@ mod compilation;
 mod compile_error;
 mod compile_error_kind;
 mod compiler;
+mod completer;
 mod condition;
 mod conditional_operator;
 mod config;

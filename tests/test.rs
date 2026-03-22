@@ -94,14 +94,21 @@ impl Test {
     self.tempdir.path().join("justfile")
   }
 
-  #[cfg(unix)]
   #[track_caller]
   pub(crate) fn symlink(self, original: &str, link: &str) -> Self {
-    std::os::unix::fs::symlink(
-      self.tempdir.path().join(original),
-      self.tempdir.path().join(link),
-    )
-    .unwrap();
+    let original = self.tempdir.path().join(original);
+    let link = self.tempdir.path().join(link);
+
+    #[cfg(unix)]
+    std::os::unix::fs::symlink(original, link).unwrap();
+
+    #[cfg(windows)]
+    if original.is_dir() {
+      std::os::windows::fs::symlink_dir(original, link).unwrap();
+    } else {
+      std::os::windows::fs::symlink_file(original, link).unwrap();
+    }
+
     self
   }
 

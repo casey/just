@@ -179,7 +179,13 @@ impl Config {
     let mut overrides = BTreeMap::new();
     let mut values = arguments.set.iter();
     while let Some(path) = values.next() {
-      overrides.insert(Self::parse_override(path)?, values.next().unwrap().into());
+      overrides.insert(
+        Self::parse_override(path)?,
+        values
+          .next()
+          .ok_or_else(|| ConfigError::internal("--set for `{path}` did not have value"))?
+          .into(),
+      );
     }
 
     let positional = Positional::from_values(Some(arguments.arguments.iter().map(String::as_str)));
@@ -246,7 +252,7 @@ impl Config {
       dry_run: arguments.dry_run,
       explain,
       highlight: !arguments.no_highlight,
-      invocation_directory: env::current_dir().context(config_error::CurrentDirContext)?,
+      invocation_directory: env::current_dir().context(config_error::CurrentDir)?,
       groups: arguments.group,
       list_heading: arguments.list_heading,
       list_prefix: arguments.list_prefix,
