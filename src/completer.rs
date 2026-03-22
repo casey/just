@@ -51,7 +51,7 @@ impl<'run, 'src> Completer<'run, 'src> {
       .justfile
       .public_groups(&completer.config)
       .into_iter()
-      .filter(|group| group.starts_with(&completer.current))
+      .filter(|group| group.starts_with(completer.current))
       .map(CompletionCandidate::new)
       .collect()
   }
