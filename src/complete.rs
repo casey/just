@@ -4,6 +4,7 @@ use super::*;
 // - figure out how to test these
 //   - unit tests (will have to inject current_dir and args, and replicate what the completion script passes in)
 //   - integration tests (will have to puppet bash, which is annoying)
+// - how does clap actually pass arguments to us? do we need to modify env::args_os?
 
 pub(crate) fn argument(current: &OsStr) -> Vec<CompletionCandidate> {
   let loader = Loader::new();
