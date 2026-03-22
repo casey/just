@@ -104,6 +104,7 @@ pub struct Arguments {
   )]
   pub(crate) dotenv_filename: Option<String>,
   #[arg(
+    add = ArgValueCompleter::new(PathCompleter::file()),
     help = "Load <DOTENV-PATH> as environment file instead of searching for one",
     long,
     short = 'E',
