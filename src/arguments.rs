@@ -429,6 +429,7 @@ pub(crate) struct Subcommand {
   )]
   pub(crate) summary: bool,
   #[arg(
+    add = ArgValueCompleter::new(Completer::complete_recipe),
     conflicts_with = "arguments",
     help = "Print recipe usage information",
     help_heading = Self::HEADING,
