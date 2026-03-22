@@ -151,10 +151,7 @@ pub(crate) use {
 };
 
 #[cfg(test)]
-pub(crate) use {
-  crate::{node::Node, tree::Tree},
-  strum::IntoEnumIterator,
-};
+pub(crate) use crate::{node::Node, tree::Tree};
 
 pub use crate::run::run;
 
