@@ -36,8 +36,11 @@ mod tests {
       }
 
       assert!(
-        shell.script().contains("JUST_COMPLETE"),
-        "shell {shell:?} does not contain `JUST_COMPLETE`",
+        shell
+          .script()
+          .contains(Arguments::COMPLETION_ENVIRONMENT_VARIABLE),
+        "shell {shell:?} does not contain `{}`",
+        Arguments::COMPLETION_ENVIRONMENT_VARIABLE,
       );
     }
   }

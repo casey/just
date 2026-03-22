@@ -292,6 +292,10 @@ pub struct Arguments {
   pub(crate) yes: bool,
 }
 
+impl Arguments {
+  pub const COMPLETION_ENVIRONMENT_VARIABLE: &str = "JUST_COMPLETE";
+}
+
 #[derive(Args, Debug, Default)]
 #[group(multiple = false)]
 pub(crate) struct Subcommand {
