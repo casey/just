@@ -99,3 +99,19 @@ fn summary_implies_unstable() {
     .stdout("foo::foo\n")
     .success();
 }
+
+#[test]
+fn depth_first_pre_order() {
+  Test::new()
+    .write("bar.just", "bar:")
+    .write("foo.just", "foo:")
+    .justfile(
+      "
+        mod bar
+        mod foo
+      ",
+    )
+    .arg("--summary")
+    .stdout("bar::bar foo::foo\n")
+    .success();
+}

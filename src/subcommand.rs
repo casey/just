@@ -308,7 +308,7 @@ impl Subcommand {
   }
 
   fn completions(shell: Shell) {
-    print!("{}", shell.script());
+    print!("{}", shell.completion_script());
   }
 
   fn dump(compilation: Compilation, format: DumpFormat) -> RunResult<'static> {

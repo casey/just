@@ -1,5 +1,8 @@
 use super::*;
 
+// todo:
+// - figure out how to test these
+
 pub(crate) fn argument(current: &OsStr) -> Vec<CompletionCandidate> {
   let loader = Loader::new();
 

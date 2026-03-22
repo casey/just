@@ -12,7 +12,7 @@ pub(crate) enum Shell {
 }
 
 impl Shell {
-  pub(crate) fn script(self) -> &'static str {
+  pub(crate) fn completion_script(self) -> &'static str {
     match self {
       Self::Bash => include_str!("../completions/just.bash"),
       Self::Elvish => include_str!("../completions/just.elvish"),
