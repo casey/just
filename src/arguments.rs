@@ -286,6 +286,7 @@ pub struct Arguments {
   )]
   pub(crate) verbose: u8,
   #[arg(
+    add = ArgValueCompleter::new(PathCompleter::dir()),
     env = "JUST_WORKING_DIRECTORY",
     help = "Use <WORKING-DIRECTORY> as working directory. --justfile must also be set",
     long,
