@@ -49,6 +49,7 @@ pub struct Arguments {
   )]
   pub(crate) arguments: Vec<String>,
   #[arg(
+    add = ArgValueCompleter::new(PathCompleter::dir()),
     env = "JUST_CEILING",
     help = "Do not ascend above <CEILING> directory when searching for a justfile.",
     long,
