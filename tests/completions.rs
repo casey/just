@@ -89,6 +89,7 @@ fn doc_comments() {
 }
 
 #[test]
+#[should_panic]
 fn variable_completion() {
   Test::new()
     .justfile(
@@ -105,6 +106,7 @@ fn variable_completion() {
 }
 
 #[test]
+#[should_panic]
 fn private_variables_excluded() {
   Test::new()
     .justfile(

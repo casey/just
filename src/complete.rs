@@ -73,9 +73,7 @@ impl<'run, 'src> Context<'run, 'src> {
   fn try_new(current: &'run str, loader: &'src Loader) -> RunResult<'src, Self> {
     let mut args = env::args_os().collect::<Vec<OsString>>();
 
-    args.remove(1);
-    args.remove(1);
-    args.pop();
+    args.drain(1..3);
 
     let matches = Arguments::command()
       .ignore_errors(true)
