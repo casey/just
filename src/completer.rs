@@ -40,6 +40,22 @@ impl<'run, 'src> Completer<'run, 'src> {
     candidates
   }
 
+  pub(crate) fn complete_group(current: &OsStr) -> Vec<CompletionCandidate> {
+    let loader = Loader::new();
+
+    let Some(completer) = Completer::new(current, &loader) else {
+      return Vec::new();
+    };
+
+    completer
+      .justfile
+      .public_groups(&completer.config)
+      .into_iter()
+      .filter(|group| group.starts_with(completer.current))
+      .map(CompletionCandidate::new)
+      .collect()
+  }
+
   pub(crate) fn complete_recipe(current: &OsStr) -> Vec<CompletionCandidate> {
     let loader = Loader::new();
 

@@ -286,3 +286,41 @@ fn show_malformed_path() {
     .stdout_regex(format!("(foo\n)+{FLAGS}"))
     .success();
 }
+
+#[test]
+fn group_completion() {
+  Test::new()
+    .justfile(
+      "
+        [group: 'baz']
+        foo:
+
+        [group: 'bob']
+        bar:
+      ",
+    )
+    .shell(false)
+    .env("JUST_COMPLETE", "fish")
+    .args(complete_args(&["--group", ""]))
+    .stdout("baz\nbob\n")
+    .success();
+}
+
+#[test]
+fn group_completion_filters_by_prefix() {
+  Test::new()
+    .justfile(
+      "
+        [group: 'baz']
+        foo:
+
+        [group: 'bob']
+        bar:
+      ",
+    )
+    .shell(false)
+    .env("JUST_COMPLETE", "fish")
+    .args(complete_args(&["--group", "ba"]))
+    .stdout("baz\n")
+    .success();
+}
