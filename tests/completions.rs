@@ -52,7 +52,7 @@ fn recipe_prefix_filter() {
     .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&["b"]))
-    .stdout_regex("bar\nbaz\n")
+    .stdout("bar\nbaz\n")
     .success();
 }
 
@@ -85,6 +85,22 @@ fn doc_comments() {
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&[""]))
     .stdout_regex(format!("foo\tdoc\n{FLAGS}"))
+    .success();
+}
+
+#[test]
+fn show_recipes() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+        bar:
+      ",
+    )
+    .shell(false)
+    .env("JUST_COMPLETE", "fish")
+    .args(complete_args(&["--show", ""]))
+    .stdout(format!("bar\nfoo\n"))
     .success();
 }
 
