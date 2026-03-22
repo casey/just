@@ -32,6 +32,7 @@ fn recipes() {
         bar:
       ",
     )
+    .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&[""]))
     .stdout_regex(format!("bar\nfoo\n{FLAGS}"))
@@ -48,6 +49,7 @@ fn recipe_prefix_filter() {
         baz:
       ",
     )
+    .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&["b"]))
     .stdout_regex("bar\nbaz\n")
@@ -63,6 +65,7 @@ fn private_recipes_excluded() {
         _bar:
       ",
     )
+    .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&[""]))
     .stdout_regex(format!("foo\n{FLAGS}"))
@@ -78,6 +81,7 @@ fn doc_comments() {
         foo:
       ",
     )
+    .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&[""]))
     .stdout_regex(format!("foo\tdoc\n{FLAGS}"))
@@ -93,6 +97,7 @@ fn variable_completion() {
         y := 'b'
       ",
     )
+    .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&["--set", ""]))
     .stdout("x\ny\n")
@@ -108,6 +113,7 @@ fn private_variables_excluded() {
         _y := 'b'
       ",
     )
+    .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&["--set", ""]))
     .stdout("x\n")
@@ -123,6 +129,7 @@ fn argument_completion_includes_recipes_and_variables() {
         x := 'a'
       ",
     )
+    .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&[""]))
     .stdout_regex(format!("foo\nx=\n{FLAGS}"))
@@ -138,6 +145,7 @@ fn module_recipes() {
       ",
     )
     .write("bar.just", "baz:")
+    .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&[""]))
     .stdout_regex(format!("bar::baz\n{FLAGS}"))
@@ -145,11 +153,11 @@ fn module_recipes() {
 }
 
 #[test]
-#[should_panic]
 fn justfile_flag_in_completion_words() {
   Test::new()
     .no_justfile()
     .write("foo.just", "bar:")
+    .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(["--", "just", "--justfile", "foo.just", ""])
     .stdout_regex(format!("bar\n{FLAGS}"))

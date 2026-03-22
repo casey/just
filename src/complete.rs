@@ -1,11 +1,5 @@
 use super::*;
 
-// todo:
-// - figure out how to test these
-//   - unit tests (will have to inject current_dir and args, and replicate what the completion script passes in)
-//   - integration tests (will have to puppet bash, which is annoying)
-// - how does clap actually pass arguments to us? do we need to modify env::args_os?
-
 pub(crate) fn argument(current: &OsStr) -> Vec<CompletionCandidate> {
   let loader = Loader::new();
 
@@ -77,9 +71,15 @@ impl<'run, 'src> Context<'run, 'src> {
   }
 
   fn try_new(current: &'run str, loader: &'src Loader) -> RunResult<'src, Self> {
+    let mut args = env::args_os().collect::<Vec<OsString>>();
+
+    args.remove(1);
+    args.remove(1);
+    args.pop();
+
     let matches = Arguments::command()
       .ignore_errors(true)
-      .try_get_matches_from(env::args_os())
+      .try_get_matches_from(args)
       .map_err(|err| Error::internal(format!("failed to parse arguments: {err}")))?;
 
     let arguments = Arguments::from_arg_matches(&matches).unwrap();
