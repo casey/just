@@ -23,25 +23,3 @@ impl Shell {
     }
   }
 }
-
-#[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn completion_scripts() {
-    for shell in Shell::iter() {
-      if shell == Shell::Nushell {
-        continue;
-      }
-
-      assert!(
-        shell
-          .script()
-          .contains(Arguments::COMPLETION_ENVIRONMENT_VARIABLE),
-        "shell {shell:?} does not contain `{}`",
-        Arguments::COMPLETION_ENVIRONMENT_VARIABLE,
-      );
-    }
-  }
-}

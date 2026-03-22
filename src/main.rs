@@ -7,7 +7,7 @@ use {
 
 fn main() {
   CompleteEnv::with_factory(Arguments::command)
-    .var(Arguments::COMPLETION_ENVIRONMENT_VARIABLE)
+    .var("JUST_COMPLETE")
     .complete();
 
   if let Err(code) = just::run(env::args_os()) {
