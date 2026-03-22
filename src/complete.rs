@@ -82,7 +82,10 @@ impl<'run, 'src> Context<'run, 'src> {
 
     let arguments = Arguments::from_arg_matches(&matches).unwrap();
 
-    let config = Config::from_arguments(arguments, true)?;
+    let config = Config::from_arguments(arguments, true).unwrap_or(Config {
+      invocation_directory: env::current_dir().context(config_error::CurrentDirContext)?,
+      ..Config::default()
+    });
 
     let search = Search::search(&config)?;
 

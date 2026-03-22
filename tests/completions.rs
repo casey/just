@@ -163,3 +163,58 @@ fn justfile_flag_in_completion_words() {
     .stdout_regex(format!("bar\n{FLAGS}"))
     .success();
 }
+
+#[test]
+fn set_malformed_override_path() {
+  Test::new()
+    .justfile("foo:")
+    .shell(false)
+    .env("JUST_COMPLETE", "fish")
+    .args(complete_args(&["--set", ":::", "foo", ""]))
+    .stdout_regex(format!("foo\n{FLAGS}"))
+    .success();
+}
+
+#[test]
+fn positional_malformed_override() {
+  Test::new()
+    .justfile("foo:")
+    .shell(false)
+    .env("JUST_COMPLETE", "fish")
+    .args(complete_args(&[":::=foo", ""]))
+    .stdout_regex(format!("foo\n{FLAGS}"))
+    .success();
+}
+
+#[test]
+fn working_directory_without_justfile() {
+  Test::new()
+    .justfile("foo:")
+    .shell(false)
+    .env("JUST_COMPLETE", "fish")
+    .args(complete_args(&["--working-directory", ".", ""]))
+    .stdout_regex(format!("foo\n{FLAGS}"))
+    .success();
+}
+
+#[test]
+fn show_malformed_path() {
+  Test::new()
+    .justfile("foo:")
+    .shell(false)
+    .env("JUST_COMPLETE", "fish")
+    .args(complete_args(&["--show", ":::", ""]))
+    .stdout_regex(format!("(foo\n)+{FLAGS}"))
+    .success();
+}
+
+#[test]
+fn dump_with_positional_args() {
+  Test::new()
+    .justfile("foo:")
+    .shell(false)
+    .env("JUST_COMPLETE", "fish")
+    .args(complete_args(&["--dump", ""]))
+    .stdout_regex(format!("foo\n{FLAGS}"))
+    .success();
+}
