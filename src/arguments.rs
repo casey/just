@@ -144,6 +144,7 @@ pub struct Arguments {
   )]
   pub(crate) global_justfile: bool,
   #[arg(
+    add = ArgValueCompleter::new(Completer::complete_group),
     env = "JUST_GROUP",
     help = "Only list recipes in <GROUP>",
     long = "group",
