@@ -7,7 +7,22 @@ pub(crate) struct Completer<'run, 'src> {
 }
 
 impl<'run, 'src> Completer<'run, 'src> {
-  pub(crate) fn argument(current: &OsStr) -> Vec<CompletionCandidate> {
+  fn candidate_recipes(&self) -> Vec<CompletionCandidate> {
+    let mut candidates = Vec::new();
+
+    for recipe in self.justfile.public_recipes_recursive(&self.config) {
+      let path = recipe.recipe_path().to_string();
+
+      if path.starts_with(self.current) {
+        candidates
+          .push(CompletionCandidate::new(path).help(recipe.doc.as_ref().map(StyledStr::from)));
+      }
+    }
+
+    candidates
+  }
+
+  pub(crate) fn complete_argument(current: &OsStr) -> Vec<CompletionCandidate> {
     let loader = Loader::new();
 
     let Some(completer) = Completer::new(current, &loader) else {
@@ -25,26 +40,7 @@ impl<'run, 'src> Completer<'run, 'src> {
     candidates
   }
 
-  fn candidate_recipes(&self) -> Vec<CompletionCandidate> {
-    let mut candidates = Vec::new();
-
-    for recipe in self.justfile.public_recipes_recursive(&self.config) {
-      let path = recipe.recipe_path().to_string();
-
-      if path.starts_with(self.current) {
-        candidates
-          .push(CompletionCandidate::new(path).help(recipe.doc.as_ref().map(StyledStr::from)));
-      }
-    }
-
-    candidates
-  }
-
-  fn new(current: &'run OsStr, loader: &'src Loader) -> Option<Self> {
-    Self::try_new(current.to_str()?, loader).ok()
-  }
-
-  pub(crate) fn recipe(current: &OsStr) -> Vec<CompletionCandidate> {
+  pub(crate) fn complete_recipe(current: &OsStr) -> Vec<CompletionCandidate> {
     let loader = Loader::new();
 
     let Some(completer) = Completer::new(current, &loader) else {
@@ -52,6 +48,26 @@ impl<'run, 'src> Completer<'run, 'src> {
     };
 
     completer.candidate_recipes()
+  }
+
+  pub(crate) fn complete_variable(current: &OsStr) -> Vec<CompletionCandidate> {
+    let loader = Loader::new();
+
+    let Some(completer) = Completer::new(current, &loader) else {
+      return Vec::new();
+    };
+
+    completer
+      .justfile
+      .assignments
+      .into_iter()
+      .filter(|(name, binding)| !binding.private && name.starts_with(completer.current))
+      .map(|(name, _)| CompletionCandidate::new(name))
+      .collect()
+  }
+
+  fn new(current: &'run OsStr, loader: &'src Loader) -> Option<Self> {
+    Self::try_new(current.to_str()?, loader).ok()
   }
 
   fn try_new(current: &'run str, loader: &'src Loader) -> RunResult<'src, Self> {
@@ -80,21 +96,5 @@ impl<'run, 'src> Completer<'run, 'src> {
       current,
       justfile: compilation.justfile,
     })
-  }
-
-  pub(crate) fn variable(current: &OsStr) -> Vec<CompletionCandidate> {
-    let loader = Loader::new();
-
-    let Some(completer) = Completer::new(current, &loader) else {
-      return Vec::new();
-    };
-
-    completer
-      .justfile
-      .assignments
-      .into_iter()
-      .filter(|(name, binding)| !binding.private && name.starts_with(completer.current))
-      .map(|(name, _)| CompletionCandidate::new(name))
-      .collect()
   }
 }
