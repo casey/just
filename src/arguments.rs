@@ -246,6 +246,7 @@ pub struct Arguments {
   #[command(flatten)]
   pub(crate) subcommand: Subcommand,
   #[arg(
+    add = ArgValueCompleter::new(PathCompleter::dir()),
     env = "JUST_TEMPDIR",
     help = "Save temporary files to <TEMPDIR>.",
     long,
