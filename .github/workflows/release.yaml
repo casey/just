@@ -171,6 +171,62 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  docker:
+    runs-on: ubuntu-latest
+
+    needs:
+    - package
+    - prerelease
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Download Release Archives
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh release download \
+          --repo casey/just \
+          --pattern 'just-*-x86_64-unknown-linux-musl.tar.gz' \
+          --pattern 'just-*-aarch64-unknown-linux-musl.tar.gz' \
+          --dir archives \
+          ${{ github.ref_name }}
+        mkdir -p linux/amd64 linux/arm64
+        tar xzf archives/*x86_64* -C linux/amd64 just
+        tar xzf archives/*aarch64* -C linux/arm64 just
+
+    - name: Determine Tags
+      id: tags
+      run: |
+        VERSION=${{ github.ref_name }}
+        TAGS="ghcr.io/casey/just:${VERSION}"
+        if [[ "${{ needs.prerelease.outputs.value }}" == "false" ]]; then
+          TAGS="${TAGS},ghcr.io/casey/just:latest"
+        fi
+        echo "tags=${TAGS}" >> $GITHUB_OUTPUT
+
+    - name: Build and Push
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        push: true
+        platforms: linux/amd64,linux/arm64
+        tags: ${{ steps.tags.outputs.tags }}
+
   pages:
     runs-on: ubuntu-latest
 
