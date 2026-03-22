@@ -26,7 +26,7 @@ use {
   trailing_var_arg = true,
   version = env!("CARGO_PKG_VERSION"),
 )]
-pub(crate) struct Arguments {
+pub struct Arguments {
   #[arg(
     conflicts_with = "no_aliases",
     default_value = "right",
@@ -328,7 +328,7 @@ pub(crate) struct Subcommand {
     value_enum,
     value_name = "SHELL",
   )]
-  pub(crate) completions: Option<completions::Shell>,
+  pub(crate) completions: Option<Shell>,
   #[arg(
     help = "Print justfile",
     help_heading = Self::HEADING,

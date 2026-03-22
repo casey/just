@@ -10,7 +10,6 @@ pub(crate) use {
     alias_style::AliasStyle,
     analyzer::Analyzer,
     arg_attribute::ArgAttribute,
-    arguments::Arguments,
     assignment::Assignment,
     assignment_resolver::AssignmentResolver,
     ast::Ast,
@@ -76,6 +75,7 @@ pub(crate) use {
     recipe::Recipe,
     recipe_resolver::RecipeResolver,
     recipe_signature::RecipeSignature,
+    request::Request,
     scope::Scope,
     search::Search,
     search_config::SearchConfig,
@@ -84,6 +84,7 @@ pub(crate) use {
     setting::Setting,
     settings::Settings,
     shebang::Shebang,
+    shell::Shell,
     show_whitespace::ShowWhitespace,
     sigil::Sigil,
     signal::Signal,
@@ -143,7 +144,7 @@ pub(crate) use {
     sync::{Arc, LazyLock, Mutex, MutexGuard},
     thread, vec,
   },
-  strum::{Display, EnumDiscriminants, EnumString, IntoStaticStr},
+  strum::{Display, EnumDiscriminants, EnumIter, EnumString, IntoStaticStr},
   tempfile::TempDir,
   typed_arena::Arena,
   unicode_width::{UnicodeWidthChar, UnicodeWidthStr},
@@ -155,11 +156,7 @@ pub(crate) use crate::{node::Node, tree::Tree};
 pub use crate::run::run;
 
 #[doc(hidden)]
-use request::Request;
-
-// Used in integration tests.
-#[doc(hidden)]
-pub use {request::Response, subcommand::INIT_JUSTFILE, unindent::unindent};
+pub use {arguments::Arguments, request::Response, subcommand::INIT_JUSTFILE, unindent::unindent};
 
 type CompileResult<'a, T = ()> = Result<T, CompileError<'a>>;
 type ConfigResult<T> = Result<T, ConfigError>;
@@ -210,7 +207,6 @@ mod compilation;
 mod compile_error;
 mod compile_error_kind;
 mod compiler;
-mod completions;
 mod condition;
 mod conditional_operator;
 mod config;
@@ -272,6 +268,7 @@ mod set;
 mod setting;
 mod settings;
 mod shebang;
+mod shell;
 mod show_whitespace;
 mod sigil;
 mod signal;

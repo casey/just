@@ -742,13 +742,13 @@ mod tests {
   test! {
     name: subcommand_completions,
     args: ["--completions", "bash"],
-    subcommand: Subcommand::Completions{ shell: completions::Shell::Bash },
+    subcommand: Subcommand::Completions{ shell: Shell::Bash },
   }
 
   test! {
     name: subcommand_completions_uppercase,
     args: ["--completions", "BASH"],
-    subcommand: Subcommand::Completions{ shell: completions::Shell::Bash },
+    subcommand: Subcommand::Completions{ shell: Shell::Bash },
   }
 
   error! {
