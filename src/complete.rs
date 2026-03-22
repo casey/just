@@ -1,20 +1,16 @@
 use super::*;
 
 pub(crate) fn argument(current: &OsStr) -> Vec<CompletionCandidate> {
-  let Some(current) = current.to_str() else {
-    return Vec::new();
-  };
-
   let loader = Loader::new();
 
-  let Some(context) = Context::new(&loader) else {
+  let Some(context) = Context::new(current, &loader) else {
     return Vec::new();
   };
 
-  let mut candidates = context.candidate_recipes(current);
+  let mut candidates = context.candidate_recipes();
 
   for (name, binding) in &context.justfile.assignments {
-    if !binding.private && name.starts_with(current) {
+    if !binding.private && name.starts_with(context.current) {
       candidates.push(CompletionCandidate::new(format!("{name}=")));
     }
   }
@@ -23,27 +19,19 @@ pub(crate) fn argument(current: &OsStr) -> Vec<CompletionCandidate> {
 }
 
 pub(crate) fn recipe(current: &OsStr) -> Vec<CompletionCandidate> {
-  let Some(current) = current.to_str() else {
-    return Vec::new();
-  };
-
   let loader = Loader::new();
 
-  let Some(context) = Context::new(&loader) else {
+  let Some(context) = Context::new(current, &loader) else {
     return Vec::new();
   };
 
-  context.candidate_recipes(current)
+  context.candidate_recipes()
 }
 
 pub(crate) fn variable(current: &OsStr) -> Vec<CompletionCandidate> {
-  let Some(current) = current.to_str() else {
-    return Vec::new();
-  };
-
   let loader = Loader::new();
 
-  let Some(context) = Context::new(&loader) else {
+  let Some(context) = Context::new(current, &loader) else {
     return Vec::new();
   };
 
@@ -51,24 +39,25 @@ pub(crate) fn variable(current: &OsStr) -> Vec<CompletionCandidate> {
     .justfile
     .assignments
     .into_iter()
-    .filter(|(name, binding)| !binding.private && name.starts_with(current))
+    .filter(|(name, binding)| !binding.private && name.starts_with(context.current))
     .map(|(name, _)| CompletionCandidate::new(name))
     .collect()
 }
 
-struct Context<'src> {
+struct Context<'run, 'src> {
   config: Config,
+  current: &'run str,
   justfile: Justfile<'src>,
 }
 
-impl<'src> Context<'src> {
-  fn candidate_recipes(&self, current: &str) -> Vec<CompletionCandidate> {
+impl<'run, 'src> Context<'run, 'src> {
+  fn candidate_recipes(&self) -> Vec<CompletionCandidate> {
     let mut candidates = Vec::new();
 
     for recipe in self.justfile.public_recipes_recursive(&self.config) {
       let path = recipe.recipe_path().to_string();
 
-      if path.starts_with(current) {
+      if path.starts_with(self.current) {
         candidates
           .push(CompletionCandidate::new(path).help(recipe.doc.as_ref().map(StyledStr::from)));
       }
@@ -77,11 +66,11 @@ impl<'src> Context<'src> {
     candidates
   }
 
-  fn new(loader: &'src Loader) -> Option<Self> {
-    Self::try_new(loader).ok()
+  fn new(current: &'run OsStr, loader: &'src Loader) -> Option<Self> {
+    Self::try_new(current.to_str()?, loader).ok()
   }
 
-  fn try_new(loader: &'src Loader) -> RunResult<'src, Self> {
+  fn try_new(current: &'run str, loader: &'src Loader) -> RunResult<'src, Self> {
     let matches = Arguments::command()
       .ignore_errors(true)
       .try_get_matches_from(env::args_os())
@@ -97,6 +86,7 @@ impl<'src> Context<'src> {
 
     Ok(Context {
       config,
+      current,
       justfile: compilation.justfile,
     })
   }
