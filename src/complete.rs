@@ -1,7 +1,6 @@
 use super::*;
 
 // todo:
-// - create a recipe to manually test completions
 // - figure out how to test these
 
 pub(crate) fn argument(current: &OsStr) -> Vec<CompletionCandidate> {
