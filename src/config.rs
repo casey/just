@@ -255,7 +255,7 @@ impl Config {
       dry_run: arguments.dry_run,
       explain,
       highlight: !arguments.no_highlight,
-      invocation_directory: env::current_dir().context(config_error::CurrentDirContext)?,
+      invocation_directory: env::current_dir().context(config_error::CurrentDir)?,
       groups: arguments.group,
       list_heading: arguments.list_heading,
       list_prefix: arguments.list_prefix,

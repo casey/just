@@ -1,7 +1,7 @@
 use super::*;
 
 #[derive(Debug, Snafu)]
-#[snafu(visibility(pub(crate)), context(suffix(Context)))]
+#[snafu(visibility(pub(crate)), context(suffix(false)))]
 pub(crate) enum ConfigError {
   #[snafu(display("Failed to get current directory: {}", source))]
   CurrentDir { source: io::Error },
