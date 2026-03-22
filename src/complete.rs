@@ -1,0 +1,103 @@
+use super::*;
+
+pub(crate) fn argument(current: &OsStr) -> Vec<CompletionCandidate> {
+  let Some(current) = current.to_str() else {
+    return Vec::new();
+  };
+
+  let loader = Loader::new();
+
+  let Some(context) = Context::new(&loader) else {
+    return Vec::new();
+  };
+
+  let mut candidates = context.candidate_recipes(current);
+
+  for (name, binding) in &context.justfile.assignments {
+    if !binding.private && name.starts_with(current) {
+      candidates.push(CompletionCandidate::new(format!("{name}=")));
+    }
+  }
+
+  candidates
+}
+
+pub(crate) fn recipe(current: &OsStr) -> Vec<CompletionCandidate> {
+  let Some(current) = current.to_str() else {
+    return Vec::new();
+  };
+
+  let loader = Loader::new();
+
+  let Some(context) = Context::new(&loader) else {
+    return Vec::new();
+  };
+
+  context.candidate_recipes(current)
+}
+
+pub(crate) fn variable(current: &OsStr) -> Vec<CompletionCandidate> {
+  let Some(current) = current.to_str() else {
+    return Vec::new();
+  };
+
+  let loader = Loader::new();
+
+  let Some(context) = Context::new(&loader) else {
+    return Vec::new();
+  };
+
+  context
+    .justfile
+    .assignments
+    .into_iter()
+    .filter(|(name, binding)| !binding.private && name.starts_with(current))
+    .map(|(name, _)| CompletionCandidate::new(name))
+    .collect()
+}
+
+struct Context<'src> {
+  config: Config,
+  justfile: Justfile<'src>,
+}
+
+impl<'src> Context<'src> {
+  fn candidate_recipes(&self, current: &str) -> Vec<CompletionCandidate> {
+    let mut candidates = Vec::new();
+
+    for recipe in self.justfile.public_recipes_recursive(&self.config) {
+      let path = recipe.recipe_path().to_string();
+
+      if path.starts_with(current) {
+        candidates
+          .push(CompletionCandidate::new(path).help(recipe.doc.as_ref().map(StyledStr::from)));
+      }
+    }
+
+    candidates
+  }
+
+  fn new(loader: &'src Loader) -> Option<Self> {
+    Self::try_new(loader).ok()
+  }
+
+  fn try_new(loader: &'src Loader) -> RunResult<'src, Self> {
+    let matches = Arguments::command()
+      .ignore_errors(true)
+      .try_get_matches_from(env::args_os())
+      .map_err(|err| Error::internal(format!("failed to parse arguments: {err}")))?;
+
+    let arguments = Arguments::from_arg_matches(&matches).unwrap();
+
+    let config = Config::from_arguments(arguments)?;
+
+    let search = Search::search(&config)?;
+
+    let compilation = Compiler::compile(&config, loader, &search.justfile)?;
+
+    Ok(Context {
+      config,
+      justfile: compilation.justfile,
+    })
+  }
+}

@@ -82,11 +82,7 @@ impl Subcommand {
       _ => {}
     }
 
-    let search = Search::find(
-      config.ceiling.as_deref(),
-      &config.invocation_directory,
-      &config.search_config,
-    )?;
+    let search = Search::search(config)?;
 
     if matches!(self, Edit) {
       return Self::edit(&search);
@@ -798,40 +794,18 @@ impl Subcommand {
   }
 
   fn summary(config: &Config, justfile: &Justfile) {
-    let mut printed = 0;
-    Self::summary_recursive(config, &mut Vec::new(), &mut printed, justfile);
-    println!();
+    let recipes = justfile.public_recipes_recursive(config);
 
-    if printed == 0 && config.verbosity.loud() {
-      eprintln!("Justfile contains no recipes.");
-    }
-  }
-
-  fn summary_recursive<'a>(
-    config: &Config,
-    components: &mut Vec<&'a str>,
-    printed: &mut usize,
-    justfile: &'a Justfile,
-  ) {
-    let path = components.join("::");
-
-    for recipe in justfile.public_recipes(config) {
-      if *printed > 0 {
+    for (i, recipe) in recipes.iter().enumerate() {
+      if i > 0 {
         print!(" ");
       }
-      if path.is_empty() {
-        print!("{}", recipe.name());
-      } else {
-        print!("{}::{}", path, recipe.name());
-      }
-      *printed += 1;
+      print!("{}", recipe.recipe_path());
     }
+    println!();
 
-    for module in justfile.public_modules(config) {
-      let name = module.name();
-      components.push(name);
-      Self::summary_recursive(config, components, printed, module);
-      components.pop();
+    if recipes.is_empty() && config.verbosity.loud() {
+      eprintln!("Justfile contains no recipes.");
     }
   }
 

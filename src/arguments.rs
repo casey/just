@@ -44,6 +44,7 @@ pub struct Arguments {
   pub(crate) allow_missing: bool,
   #[arg(
     action = ArgAction::Append,
+    add = ArgValueCompleter::new(complete::argument),
     help = "Overrides and recipe(s) to run, defaulting to the first recipe in the justfile",
     num_args = 1..,
   )]
@@ -222,6 +223,7 @@ pub struct Arguments {
   pub(crate) quiet: bool,
   #[arg(
     action = ArgAction::Append,
+    add = ArgValueCompleter::new(complete::variable),
     help = "Override <VARIABLE> with <VALUE>",
     long,
     num_args = 2,
@@ -409,6 +411,7 @@ pub(crate) struct Subcommand {
   )]
   pub(crate) request: Option<String>,
   #[arg(
+    add = ArgValueCompleter::new(complete::recipe),
     conflicts_with = "arguments",
     help = "Show recipe at <PATH>",
     help_heading = Self::HEADING,

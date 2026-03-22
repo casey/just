@@ -75,6 +75,7 @@ enum_glob_use = "allow"
 ignore_without_reason = "allow"
 needless_pass_by_value = "allow"
 pedantic = { level = "deny", priority = -1 }
+self_named_constructors = "allow"
 similar_names = "allow"
 struct_excessive_bools = "allow"
 struct_field_names = "allow"
