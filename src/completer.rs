@@ -1,56 +1,30 @@
 use super::*;
 
-pub(crate) fn argument(current: &OsStr) -> Vec<CompletionCandidate> {
-  let loader = Loader::new();
-
-  let Some(context) = Context::new(current, &loader) else {
-    return Vec::new();
-  };
-
-  let mut candidates = context.candidate_recipes();
-
-  for (name, binding) in &context.justfile.assignments {
-    if !binding.private && name.starts_with(context.current) {
-      candidates.push(CompletionCandidate::new(format!("{name}=")));
-    }
-  }
-
-  candidates
-}
-
-pub(crate) fn recipe(current: &OsStr) -> Vec<CompletionCandidate> {
-  let loader = Loader::new();
-
-  let Some(context) = Context::new(current, &loader) else {
-    return Vec::new();
-  };
-
-  context.candidate_recipes()
-}
-
-pub(crate) fn variable(current: &OsStr) -> Vec<CompletionCandidate> {
-  let loader = Loader::new();
-
-  let Some(context) = Context::new(current, &loader) else {
-    return Vec::new();
-  };
-
-  context
-    .justfile
-    .assignments
-    .into_iter()
-    .filter(|(name, binding)| !binding.private && name.starts_with(context.current))
-    .map(|(name, _)| CompletionCandidate::new(name))
-    .collect()
-}
-
-struct Context<'run, 'src> {
+pub(crate) struct Completer<'run, 'src> {
   config: Config,
   current: &'run str,
   justfile: Justfile<'src>,
 }
 
-impl<'run, 'src> Context<'run, 'src> {
+impl<'run, 'src> Completer<'run, 'src> {
+  pub(crate) fn argument(current: &OsStr) -> Vec<CompletionCandidate> {
+    let loader = Loader::new();
+
+    let Some(completer) = Completer::new(current, &loader) else {
+      return Vec::new();
+    };
+
+    let mut candidates = completer.candidate_recipes();
+
+    for (name, binding) in &completer.justfile.assignments {
+      if !binding.private && name.starts_with(completer.current) {
+        candidates.push(CompletionCandidate::new(format!("{name}=")));
+      }
+    }
+
+    candidates
+  }
+
   fn candidate_recipes(&self) -> Vec<CompletionCandidate> {
     let mut candidates = Vec::new();
 
@@ -68,6 +42,16 @@ impl<'run, 'src> Context<'run, 'src> {
 
   fn new(current: &'run OsStr, loader: &'src Loader) -> Option<Self> {
     Self::try_new(current.to_str()?, loader).ok()
+  }
+
+  pub(crate) fn recipe(current: &OsStr) -> Vec<CompletionCandidate> {
+    let loader = Loader::new();
+
+    let Some(completer) = Completer::new(current, &loader) else {
+      return Vec::new();
+    };
+
+    completer.candidate_recipes()
   }
 
   fn try_new(current: &'run str, loader: &'src Loader) -> RunResult<'src, Self> {
@@ -91,10 +75,26 @@ impl<'run, 'src> Context<'run, 'src> {
 
     let compilation = Compiler::compile(&config, loader, &search.justfile)?;
 
-    Ok(Context {
+    Ok(Completer {
       config,
       current,
       justfile: compilation.justfile,
     })
+  }
+
+  pub(crate) fn variable(current: &OsStr) -> Vec<CompletionCandidate> {
+    let loader = Loader::new();
+
+    let Some(completer) = Completer::new(current, &loader) else {
+      return Vec::new();
+    };
+
+    completer
+      .justfile
+      .assignments
+      .into_iter()
+      .filter(|(name, binding)| !binding.private && name.starts_with(completer.current))
+      .map(|(name, _)| CompletionCandidate::new(name))
+      .collect()
   }
 }
