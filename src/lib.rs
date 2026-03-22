@@ -10,7 +10,6 @@ pub(crate) use {
     alias_style::AliasStyle,
     analyzer::Analyzer,
     arg_attribute::ArgAttribute,
-    arguments::Arguments,
     assignment::Assignment,
     assignment_resolver::AssignmentResolver,
     ast::Ast,
@@ -76,6 +75,7 @@ pub(crate) use {
     recipe::Recipe,
     recipe_resolver::RecipeResolver,
     recipe_signature::RecipeSignature,
+    request::Request,
     scope::Scope,
     search::Search,
     search_config::SearchConfig,
@@ -159,11 +159,7 @@ pub(crate) use {
 pub use crate::run::run;
 
 #[doc(hidden)]
-use request::Request;
-
-// Used in integration tests.
-#[doc(hidden)]
-pub use {request::Response, subcommand::INIT_JUSTFILE, unindent::unindent};
+pub use {arguments::Arguments, request::Response, subcommand::INIT_JUSTFILE, unindent::unindent};
 
 type CompileResult<'a, T = ()> = Result<T, CompileError<'a>>;
 type ConfigResult<T> = Result<T, ConfigError>;

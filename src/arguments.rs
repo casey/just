@@ -26,7 +26,7 @@ use {
   trailing_var_arg = true,
   version = env!("CARGO_PKG_VERSION"),
 )]
-pub(crate) struct Arguments {
+pub struct Arguments {
   #[arg(
     conflicts_with = "no_aliases",
     default_value = "right",
