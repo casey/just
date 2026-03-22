@@ -165,6 +165,53 @@ fn justfile_flag_in_completion_words() {
 }
 
 #[test]
+fn bash() {
+  Test::new()
+    .justfile("foo:")
+    .shell(false)
+    .env("JUST_COMPLETE", "bash")
+    .env("_CLAP_COMPLETE_INDEX", "1")
+    .args(complete_args(&[""]))
+    .stdout_regex("foo\n.*")
+    .success();
+}
+
+#[test]
+fn elvish() {
+  Test::new()
+    .justfile("foo:")
+    .shell(false)
+    .env("JUST_COMPLETE", "elvish")
+    .env("_CLAP_COMPLETE_INDEX", "1")
+    .args(complete_args(&[""]))
+    .stdout_regex("foo\n.*")
+    .success();
+}
+
+#[test]
+fn powershell() {
+  Test::new()
+    .justfile("foo:")
+    .shell(false)
+    .env("JUST_COMPLETE", "powershell")
+    .args(complete_args(&[""]))
+    .stdout_regex("foo\n.*")
+    .success();
+}
+
+#[test]
+fn zsh() {
+  Test::new()
+    .justfile("foo:")
+    .shell(false)
+    .env("JUST_COMPLETE", "zsh")
+    .env("_CLAP_COMPLETE_INDEX", "1")
+    .args(complete_args(&[""]))
+    .stdout_regex("foo\n.*")
+    .success();
+}
+
+#[test]
 fn set_malformed_override_path() {
   Test::new()
     .justfile("foo:")

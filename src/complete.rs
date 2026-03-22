@@ -1,5 +1,8 @@
 use super::*;
 
+// todo:
+// - we don't need ignore_errors now
+
 pub(crate) fn argument(current: &OsStr) -> Vec<CompletionCandidate> {
   let loader = Loader::new();
 
