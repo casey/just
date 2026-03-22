@@ -88,6 +88,7 @@ pub struct Arguments {
   )]
   pub(crate) command_color: Option<CommandColor>,
   #[arg(
+    add = ArgValueCompleter::new(PathCompleter::file()),
     default_value = "cygpath",
     env = "JUST_CYGPATH",
     help = "Use binary at <CYGPATH> to convert between unix and Windows paths.",
