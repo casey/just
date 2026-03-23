@@ -147,7 +147,7 @@ jobs:
         }}
       uses: actions/upload-artifact@v7
       with:
-        name: package-${{ matrix.target }}
+        name: ${{ matrix.target }}
         path: ${{ steps.package.outputs.archive }}
 
   checksum:
@@ -209,12 +209,12 @@ jobs:
     - name: Download x86_64 Artifact
       uses: actions/download-artifact@v8
       with:
-        name: package-x86_64-unknown-linux-musl
+        name: x86_64-unknown-linux-musl
 
     - name: Download aarch64 Artifact
       uses: actions/download-artifact@v8
       with:
-        name: package-aarch64-unknown-linux-musl
+        name: aarch64-unknown-linux-musl
 
     - name: Extract Binaries
       run: |
