@@ -29,8 +29,6 @@ pub(crate) enum Error {
   GhStatus { repo: String, status: ExitStatus },
   #[snafu(display("`gh` output was not unicode"))]
   GhOutput { source: Utf8Error },
-  #[snafu(display("failed to get latest version for `{repo}`"))]
-  LatestVersion { repo: String },
   #[snafu(display("failed to parse uses `{uses}`"))]
   UsesParse { uses: String },
 }
