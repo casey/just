@@ -66,6 +66,10 @@ update-contributors:
   cargo run --release --package update-contributors
 
 [group: 'check']
+action-versions:
+  cargo run --package action-versions
+
+[group: 'check']
 outdated:
   cargo outdated -R
 

@@ -425,6 +425,24 @@ Or with [taiki-e/install-action](https://github.com/taiki-e/install-action):
 - uses: taiki-e/install-action@just
 ```
 
+### Docker
+
+`just` is available as a Docker image from
+[the GitHub Container Registry](https://ghcr.io/casey/just).
+
+To copy `just` into a Docker image, add the following line to your
+`Dockerfile`:
+
+```dockerfile
+COPY --from=ghcr.io/casey/just:latest /just /usr/local/bin/
+```
+
+After copying, `just` may also be used as part of a docker build:
+
+```dockerfile
+RUN just
+```
+
 ### Release RSS Feed
 
 An [RSS feed](https://en.wikipedia.org/wiki/RSS) of `just` releases is available [here](https://github.com/casey/just/releases.atom).
