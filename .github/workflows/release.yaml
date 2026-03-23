@@ -139,7 +139,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Upload Docker Artifact
+    - name: Upload Artifacts
       if: >-
         ${{
           matrix.target == 'aarch64-unknown-linux-musl'
@@ -147,7 +147,7 @@ jobs:
         }}
       uses: actions/upload-artifact@v7
       with:
-        name: docker-${{ matrix.target }}
+        name: package-${{ matrix.target }}
         path: ${{ steps.package.outputs.archive }}
 
   checksum:
@@ -209,13 +209,13 @@ jobs:
     - name: Download x86_64 Artifact
       uses: actions/download-artifact@v8
       with:
-        name: docker-x86_64-unknown-linux-musl
+        name: package-x86_64-unknown-linux-musl
         path: archives/x86_64
 
     - name: Download aarch64 Artifact
       uses: actions/download-artifact@v8
       with:
-        name: docker-aarch64-unknown-linux-musl
+        name: package-aarch64-unknown-linux-musl
         path: archives/aarch64
 
     - name: Extract Binaries
