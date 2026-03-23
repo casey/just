@@ -145,7 +145,7 @@ jobs:
           matrix.target == 'aarch64-unknown-linux-musl'
           || matrix.target == 'x86_64-unknown-linux-musl'
         }}
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: docker-${{ matrix.target }}
         path: ${{ steps.package.outputs.archive }}
@@ -213,7 +213,7 @@ jobs:
         path: archives/x86_64
 
     - name: Download aarch64 Artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: docker-aarch64-unknown-linux-musl
         path: archives/aarch64
@@ -235,7 +235,7 @@ jobs:
         echo "tags=${TAGS}" >> $GITHUB_OUTPUT
 
     - name: Build and Push
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@v7
       with:
         context: .
         file: etc/Dockerfile

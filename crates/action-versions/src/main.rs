@@ -1,10 +1,24 @@
-use semver::Version;
-use serde::Deserialize;
-use std::collections::BTreeMap;
-use std::fs;
-use std::process::{Command, Stdio};
-use tabled::settings::style::{BorderSpanCorrection, Style};
-use tabled::{Table, Tabled};
+use {
+  crate::error::Error,
+  semver::Version,
+  serde::Deserialize,
+  snafu::{ErrorCompat, ResultExt, Snafu},
+  std::{
+    collections::{BTreeMap, BTreeSet},
+    fs,
+    path::PathBuf,
+    process::{Command, ExitCode, ExitStatus},
+    str::Utf8Error,
+  },
+  tabled::{
+    settings::style::{BorderSpanCorrection, Style},
+    {Table, Tabled},
+  },
+};
+
+mod error;
+
+type Result<T, E = Error> = std::result::Result<T, E>;
 
 #[derive(Deserialize)]
 struct Workflow {
@@ -13,7 +27,6 @@ struct Workflow {
 
 #[derive(Deserialize)]
 struct Job {
-  #[serde(default)]
   steps: Vec<Step>,
 }
 
@@ -22,16 +35,25 @@ struct Step {
   uses: Option<String>,
 }
 
-fn parse_version(s: &str) -> Option<Version> {
-  let s = s.strip_prefix('v').unwrap_or(s);
-  if s.contains('.') {
-    Version::parse(s).ok()
-  } else {
-    Version::parse(&format!("{s}.0.0")).ok()
-  }
+#[derive(Tabled)]
+struct Row {
+  action: String,
+  version: Version,
+  latest: Version,
+  status: &'static str,
 }
 
-fn latest_version(repo: &str) -> Option<String> {
+fn parse_version(version: &str) -> Result<Version> {
+  let version = version.strip_prefix('v').unwrap_or(version);
+  let version = if version.contains('.') {
+    version.to_string()
+  } else {
+    format!("{version}.0.0")
+  };
+  Version::parse(&version).context(error::ParseVersion { version })
+}
+
+fn latest_version(repo: &str) -> Result<Version> {
   let output = Command::new("gh")
     .args([
       "api",
@@ -39,121 +61,111 @@ fn latest_version(repo: &str) -> Option<String> {
       "--jq",
       ".tag_name",
     ])
-    .stderr(Stdio::null())
     .output()
-    .ok()?;
+    .context(error::GhInvoke { repo })?;
 
-  if output.status.success() {
-    let tag = String::from_utf8_lossy(&output.stdout).trim().to_string();
-    if !tag.is_empty() {
-      return Some(tag);
-    }
+  if !output.status.success() {
+    return Err(
+      error::GhStatus {
+        status: output.status,
+        repo,
+      }
+      .build(),
+    );
   }
 
-  let output = Command::new("gh")
-    .args(["api", &format!("repos/{repo}/tags"), "--jq", ".[0].name"])
-    .stderr(Stdio::null())
-    .output()
-    .ok()?;
-
-  if output.status.success() {
-    let tag = String::from_utf8_lossy(&output.stdout).trim().to_string();
-    if !tag.is_empty() {
-      return Some(tag);
-    }
-  }
-
-  None
+  parse_version(
+    str::from_utf8(&output.stdout)
+      .context(error::GhOutput)?
+      .trim(),
+  )
 }
 
-fn main() {
-  let mut seen = BTreeMap::<String, String>::new();
+const WORKFLOWS: &str = ".github/workflows";
 
-  let entries: Vec<_> = fs::read_dir(".github/workflows")
-    .expect("could not read .github/workflows")
-    .filter_map(|e| e.ok())
-    .filter(|e| {
-      let name = e.file_name();
-      let name = name.to_string_lossy();
-      name.ends_with(".yaml") || name.ends_with(".yml")
-    })
-    .collect();
+fn run() -> Result<()> {
+  let mut actions = BTreeSet::new();
 
-  for entry in &entries {
+  for entry in fs::read_dir(WORKFLOWS).context(error::Io { path: WORKFLOWS })? {
+    let entry = entry.context(error::Io { path: WORKFLOWS })?;
+
     let path = entry.path();
-    let content = fs::read_to_string(&path).expect("could not read workflow file");
-    let workflow: Workflow = serde_yaml::from_str(&content).expect("could not parse workflow file");
+
+    let Some(extension) = path.extension() else {
+      continue;
+    };
+
+    if !(extension == "yaml" || extension == "yml") {
+      continue;
+    }
+
+    let yaml = fs::read_to_string(&path).context(error::Io { path: &path })?;
+
+    let workflow =
+      serde_yaml::from_str::<Workflow>(&yaml).context(error::ParseWorkflow { path: &path })?;
 
     for job in workflow.jobs.values() {
       for step in &job.steps {
         let Some(uses) = &step.uses else { continue };
 
-        if uses.starts_with("./") || uses.starts_with("docker://") {
-          continue;
-        }
-
-        let Some((repo, version)) = uses.split_once('@') else {
-          continue;
+        let Some((action, version)) = uses.split_once('@') else {
+          return Err(error::UsesParse { uses }.build());
         };
 
-        seen
-          .entry(repo.to_string())
-          .or_insert_with(|| version.to_string());
+        actions.insert((action.to_string(), parse_version(version)?));
       }
     }
-  }
-
-  #[derive(Tabled)]
-  struct Row {
-    action: String,
-    version: String,
-    latest: String,
-    status: String,
   }
 
   let mut rows = Vec::new();
-  let mut ok = true;
 
-  for (repo, version) in &seen {
-    match latest_version(repo) {
-      Some(latest) => {
-        let current = parse_version(version);
-        let latest_ver = parse_version(&latest);
+  for (action, version) in actions {
+    let latest = latest_version(&action)?;
 
-        let matches = match (current, latest_ver) {
-          (Some(current), Some(latest_ver)) => current.major == latest_ver.major,
-          _ => version == &latest,
-        };
+    let status = if version.major == latest.major {
+      "ok"
+    } else {
+      "mismatch"
+    };
 
-        let status = if matches { "ok" } else { "mismatch" };
-
-        if !matches {
-          ok = false;
-        }
-
-        rows.push(Row {
-          action: repo.clone(),
-          version: version.clone(),
-          latest: latest.clone(),
-          status: status.to_string(),
-        });
-      }
-      None => {
-        rows.push(Row {
-          action: repo.clone(),
-          version: version.clone(),
-          latest: "?".to_string(),
-          status: "warning".to_string(),
-        });
-      }
-    }
+    rows.push(Row {
+      action,
+      latest,
+      status,
+      version,
+    });
   }
 
-  let mut table = Table::new(&rows);
-  table.with(Style::modern()).with(BorderSpanCorrection);
-  println!("{table}");
+  println!(
+    "{}",
+    Table::new(&rows)
+      .with(Style::modern())
+      .with(BorderSpanCorrection),
+  );
 
-  if !ok {
-    std::process::exit(1);
+  if rows.iter().any(|row| row.status == "mismatch") {
+    return Err(Error::Mismatch);
+  }
+
+  Ok(())
+}
+
+fn main() -> ExitCode {
+  match run() {
+    Ok(()) => ExitCode::SUCCESS,
+    Err(err) => {
+      eprintln!("error: {err}");
+
+      for (i, err) in err.iter_chain().skip(1).enumerate() {
+        if i == 0 {
+          eprintln!();
+          eprintln!("because:");
+        }
+
+        eprintln!("- {err}");
+      }
+
+      ExitCode::FAILURE
+    }
   }
 }
