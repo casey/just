@@ -210,19 +210,17 @@ jobs:
       uses: actions/download-artifact@v8
       with:
         name: package-x86_64-unknown-linux-musl
-        path: archives/x86_64
 
     - name: Download aarch64 Artifact
       uses: actions/download-artifact@v8
       with:
         name: package-aarch64-unknown-linux-musl
-        path: archives/aarch64
 
     - name: Extract Binaries
       run: |
-        mkdir -p linux/amd64 linux/arm64
-        tar xzf archives/x86_64/just-${{ github.ref_name }}-x86_64-unknown-linux-musl.tar.gz -C linux/amd64 just
-        tar xzf archives/aarch64/just-${{ github.ref_name }}-aarch64-unknown-linux-musl.tar.gz -C linux/arm64 just
+        mkdir -p amd64 arm64
+        tar xzf just-${{ github.ref_name }}-x86_64-unknown-linux-musl.tar.gz --directory amd64 just
+        tar xzf just-${{ github.ref_name }}-aarch64-unknown-linux-musl.tar.gz --directory arm64 just
 
     - name: Determine Tags
       id: tags

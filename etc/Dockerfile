@@ -1,3 +1,3 @@
 FROM scratch
 ARG TARGETARCH
-COPY linux/${TARGETARCH}/just /just
+COPY ${TARGETARCH}/just /just
