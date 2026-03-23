@@ -225,12 +225,12 @@ jobs:
     - name: Determine Tags
       id: tags
       run: |
-        VERSION="${{ github.ref_name }}"
-        TAGS="ghcr.io/casey/just:${VERSION}"
-        if [[ "${{ needs.prerelease.outputs.value }}" == "false" ]]; then
-          TAGS="${TAGS},ghcr.io/casey/just:latest"
+        VERSION=${{ github.ref_name }}
+        TAGS=ghcr.io/casey/just:${VERSION}
+        if [[ ${{ needs.prerelease.outputs.value }} == false ]]; then
+          TAGS=${TAGS},ghcr.io/casey/just:latest
         fi
-        echo "tags=${TAGS}" >> $GITHUB_OUTPUT
+        echo tags=${TAGS} >> $GITHUB_OUTPUT
 
     - name: Build and Push
       uses: docker/build-push-action@v7
