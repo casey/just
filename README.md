@@ -2131,6 +2131,13 @@ xdg_config_dir := if env('XDG_CONFIG_HOME', '') =~ '^/' {
 }
 ```
 
+##### git
+
+- `git_repo()` — Returns the root of the git repository where the recipe is running.
+- `git_branch()` — Returns the current git branch name.
+- `git_rev()` / `git_rev_full()` — Returns the latest commit hash (short and full, respectively).
+- `git_is_dirty()` — Returns the string `"true"` if the branch is dirty (has uncommitted changes), and `"false"` otherwise.
+
 ### Constants
 
 A number of constants are predefined:

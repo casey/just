@@ -62,6 +62,11 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "extension" => Unary(extension),
     "file_name" => Unary(file_name),
     "file_stem" => Unary(file_stem),
+    "git_repo" => Nullary(git_repo),
+    "git_branch" => Nullary(git_branch),
+    "git_rev" => Nullary(git_rev),
+    "git_rev_full" => Nullary(git_rev_full),
+    "git_is_dirty" => Nullary(git_is_dirty),
     "home_directory" => Nullary(|_| dir("home", dirs::home_dir)),
     "invocation_directory" => Nullary(invocation_directory),
     "invocation_directory_native" => Nullary(invocation_directory_native),
@@ -324,6 +329,83 @@ fn file_stem(_context: Context, path: &str) -> FunctionResult {
     .file_stem()
     .map(str::to_owned)
     .ok_or_else(|| format!("Could not extract file stem from `{path}`"))
+}
+
+fn open_git_repo(context: Context) -> Result<git2::Repository, String> {
+  git2::Repository::open(context.execution_context.working_directory())
+    .map_err(|e| format!("Cannot open repo cause `{e}`"))
+}
+
+fn git_repo(context: Context) -> FunctionResult {
+  let repo = open_git_repo(context)?;
+  repo
+    .workdir()
+    .ok_or_else(|| "Cannot find repo at working directory".to_string())
+    .and_then(|workdir| {
+      workdir
+        .as_os_str()
+        .to_str()
+        .map(str::to_string)
+        .ok_or_else(|| "unable to convert directory path to string".to_string())
+    })
+}
+
+fn git_branch(context: Context) -> FunctionResult {
+  let repo = open_git_repo(context)?;
+  let head = repo
+    .head()
+    .map_err(|e| format!("Failed to get HEAD cause '{e}'"))?;
+  if head.is_branch() {
+    head
+      .shorthand()
+      .map(str::to_owned)
+      .ok_or_else(|| "unable to convert branch to string".to_string())
+  } else {
+    Err("HEAD is detached, not on a branch".to_string())
+  }
+}
+
+fn get_git_commit(repo: &git2::Repository) -> Result<git2::Object, String> {
+  let head = repo
+    .head()
+    .map_err(|e| format!("Failed to get HEAD cause '{e}'"))?;
+
+  head
+    .peel(git2::ObjectType::Commit)
+    .map_err(|e| format!("HEAD does not point to a commit: {e}"))
+}
+fn git_rev(context: Context) -> FunctionResult {
+  let repo = open_git_repo(context)?;
+  get_git_commit(&repo)
+    .and_then(|commit| {
+      commit
+        .short_id()
+        .map_err(|e| format!("Failed to get short id: {e}"))
+    })
+    .and_then(|id| {
+      id.as_str()
+        .ok_or_else(|| "Failed to get short id".to_string())
+        .map(str::to_owned)
+    })
+}
+
+fn git_rev_full(context: Context) -> FunctionResult {
+  let repo = open_git_repo(context)?;
+  get_git_commit(&repo).map(|commit| commit.id().to_string())
+}
+
+fn git_is_dirty(context: Context) -> FunctionResult {
+  let repo = open_git_repo(context)?;
+
+  let mut opts = git2::StatusOptions::new();
+  opts.include_untracked(true);
+  opts.include_ignored(false);
+
+  let statuses = repo
+    .statuses(Some(&mut opts))
+    .map_err(|e| format!("Failed to get status: {e}"))?;
+
+  Ok(if statuses.is_empty() { "false" } else { "true" }.to_string())
 }
 
 fn invocation_directory(context: Context) -> FunctionResult {
