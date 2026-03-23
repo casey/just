@@ -1,0 +1,11 @@
+[package]
+name = "action-versions"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+semver = "1"
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
+tabled = "0.18"
