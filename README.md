@@ -4347,7 +4347,7 @@ conflict.
 
 If `just` exits leaving behind child processes, the user will have no recourse
 but to `ps aux | grep` for the children and manually `kill` them, a tedious
-endevour.
+endeavour.
 
 #### Fatal Signals
 
