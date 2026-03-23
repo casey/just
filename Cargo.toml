@@ -51,6 +51,7 @@ tempfile = "3.0.0"
 typed-arena = "2.0.1"
 unicode-width = "0.2.0"
 uuid = { version = "1.0.0", features = ["v4"] }
+git2 = {version = "0.20.4", features = ["vendored-libgit2"]}
 
 [target.'cfg(unix)'.dependencies]
 nix = { version = "0.31.0", features = ["signal", "user", "fs"] }
