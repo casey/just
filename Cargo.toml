@@ -6,11 +6,11 @@ autotests = false
 categories = ["command-line-utilities", "development-tools"]
 description = "🤖 Just a command runner"
 edition = "2024"
-exclude = ["/book", "/icon.png", "/screenshot.png", "/www"]
+exclude = ["/book", "/etc", "/www"]
 homepage = "https://github.com/casey/just"
 keywords = ["command-line", "task", "runner", "development", "utility"]
 license = "CC0-1.0"
-readme = "crates-io-readme.md"
+readme = "etc/crates-io-readme.md"
 repository = "https://github.com/casey/just"
 rust-version = "1.85.0"
 

@@ -34,7 +34,7 @@ reflects latest master.
 Commands, called recipes, are stored in a file called `justfile` with syntax
 inspired by `make`:
 
-![screenshot](https://raw.githubusercontent.com/casey/just/master/screenshot.png)
+![screenshot](https://raw.githubusercontent.com/casey/just/master/etc/screenshot.png)
 
 You can then run them with `just RECIPE`:
 
