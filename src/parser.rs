@@ -386,9 +386,6 @@ impl<'run, 'src> Parser<'run, 'src> {
             items.push(Item::Alias(self.parse_alias(take_attributes())?));
           }
           Some(Keyword::Eager) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
-            self
-              .unstable_features
-              .insert(UnstableFeature::EagerAssignments);
             self.presume_keyword(Keyword::Eager)?;
             items.push(Item::Assignment(self.parse_assignment(
               take_attributes(),
@@ -1367,10 +1364,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       Keyword::Fallback => Some(Setting::Fallback(self.parse_set_bool()?)),
       Keyword::Guards => Some(Setting::Guards(self.parse_set_bool()?)),
       Keyword::IgnoreComments => Some(Setting::IgnoreComments(self.parse_set_bool()?)),
-      Keyword::Lazy => {
-        self.unstable_features.insert(UnstableFeature::LazySetting);
-        Some(Setting::Lazy(self.parse_set_bool()?))
-      }
+      Keyword::Lazy => Some(Setting::Lazy(self.parse_set_bool()?)),
       Keyword::NoExitMessage => Some(Setting::NoExitMessage(self.parse_set_bool()?)),
       Keyword::PositionalArguments => Some(Setting::PositionalArguments(self.parse_set_bool()?)),
       Keyword::Quiet => Some(Setting::Quiet(self.parse_set_bool()?)),
