@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Attributes - Just Programmer&#x27;s Manual</title>
+        <title>Modules - Just Programmer&#x27;s Manual</title>
 
 
         <!-- Custom HTML head -->
@@ -178,127 +178,84 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h3 id="attributes"><a class="header" href="#attributes">Attributes</a></h3>
-<p>Recipes, <code>mod</code> statements, and aliases may be annotated with attributes that
-change their behavior.</p>
-<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>[arg(ARG, help="HELP")]</code><sup>1.46.0</sup></td><td>recipe</td><td>Print help string <code>HELP</code> for <code>ARG</code> in usage messages.</td></tr>
-<tr><td><code>[arg(ARG, long="LONG")]</code><sup>1.46.0</sup></td><td>recipe</td><td>Require values of argument <code>ARG</code> to be passed as <code>--LONG</code> option.</td></tr>
-<tr><td><code>[arg(ARG, pattern="PATTERN")]</code><sup>1.45.0</sup></td><td>recipe</td><td>Require values of argument <code>ARG</code> to match regular expression <code>PATTERN</code>.</td></tr>
-<tr><td><code>[arg(ARG, short="S")]</code><sup>1.46.0</sup></td><td>recipe</td><td>Require values of argument <code>ARG</code> to be passed as short <code>-S</code> option.</td></tr>
-<tr><td><code>[arg(ARG, value="VALUE")]</code><sup>1.46.0</sup></td><td>recipe</td><td>Makes option <code>ARG</code> a flag which does not take a value.</td></tr>
-<tr><td><code>[confirm(PROMPT)]</code><sup>1.23.0</sup></td><td>recipe</td><td>Require confirmation prior to executing recipe with a custom prompt.</td></tr>
-<tr><td><code>[confirm]</code><sup>1.17.0</sup></td><td>recipe</td><td>Require confirmation prior to executing recipe.</td></tr>
-<tr><td><code>[default]</code><sup>1.43.0</sup></td><td>recipe</td><td>Use recipe as module’s default recipe.</td></tr>
-<tr><td><code>[doc(DOC)]</code><sup>1.27.0</sup></td><td>module, recipe</td><td>Set recipe or module’s <a href="documentation-comments.html">documentation comment</a> to <code>DOC</code>.</td></tr>
-<tr><td><code>[dragonfly]</code><sup>1.47.0</sup></td><td>recipe</td><td>Enable recipe on DragonFly BSD.</td></tr>
-<tr><td><code>[env(ENV_VAR, VALUE)]</code> <sup>1.47.0</sup></td><td>recipe</td><td>Set environment variables for recipe.</td></tr>
-<tr><td><code>[extension(EXT)]</code><sup>1.32.0</sup></td><td>recipe</td><td>Set shebang recipe script’s file extension to <code>EXT</code>. <code>EXT</code> should include a period if one is desired.</td></tr>
-<tr><td><code>[freebsd]</code><sup>1.47.0</sup></td><td>recipe</td><td>Enable recipe on FreeBSD.</td></tr>
-<tr><td><code>[group(NAME)]</code><sup>1.27.0</sup></td><td>module, recipe</td><td>Put recipe or module in <a href="groups.html">group</a> <code>NAME</code>.</td></tr>
-<tr><td><code>[linux]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on Linux.</td></tr>
-<tr><td><code>[macos]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on MacOS.</td></tr>
-<tr><td><code>[metadata(METADATA)]</code><sup>1.42.0</sup></td><td>recipe</td><td>Attach <code>METADATA</code> to recipe.</td></tr>
-<tr><td><code>[netbsd]</code><sup>1.47.0</sup></td><td>recipe</td><td>Enable recipe on NetBSD.</td></tr>
-<tr><td><code>[no-cd]</code><sup>1.9.0</sup></td><td>recipe</td><td>Don’t change directory before executing recipe.</td></tr>
-<tr><td><code>[no-exit-message]</code><sup>1.7.0</sup></td><td>recipe</td><td>Don’t print an error message if recipe fails.</td></tr>
-<tr><td><code>[no-quiet]</code><sup>1.23.0</sup></td><td>recipe</td><td>Override globally quiet recipes and always echo out the recipe.</td></tr>
-<tr><td><code>[openbsd]</code><sup>1.38.0</sup></td><td>recipe</td><td>Enable recipe on OpenBSD.</td></tr>
-<tr><td><code>[parallel]</code><sup>1.42.0</sup></td><td>recipe</td><td>Run this recipe’s dependencies in parallel.</td></tr>
-<tr><td><code>[positional-arguments]</code><sup>1.29.0</sup></td><td>recipe</td><td>Turn on <a href="avoiding-argument-splitting.html#positional-arguments">positional arguments</a> for this recipe.</td></tr>
-<tr><td><code>[private]</code><sup>1.10.0</sup></td><td>alias, recipe</td><td>Make recipe, alias, or variable private. See <a href="private-recipes.html">Private Recipes</a>.</td></tr>
-<tr><td><code>[script(COMMAND)]</code><sup>1.32.0</sup></td><td>recipe</td><td>Execute recipe as a script interpreted by <code>COMMAND</code>. See <a href="script-recipes.html">script recipes</a> for more details.</td></tr>
-<tr><td><code>[script]</code><sup>1.33.0</sup></td><td>recipe</td><td>Execute recipe as script. See <a href="script-recipes.html">script recipes</a> for more details.</td></tr>
-<tr><td><code>[unix]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on Unixes. (Includes MacOS).</td></tr>
-<tr><td><code>[windows]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on Windows.</td></tr>
-<tr><td><code>[working-directory(PATH)]</code><sup>1.38.0</sup></td><td>recipe</td><td>Set recipe working directory. <code>PATH</code> may be relative or absolute. If relative, it is interpreted relative to the default working directory.</td></tr>
-</tbody></table>
-</div>
-<p>A recipe can have multiple attributes, either on multiple lines:</p>
-<pre><code class="language-just">[no-cd]
-[private]
-foo:
-    echo "foo"
-</code></pre>
-<p>Or separated by commas on a single line<sup>1.14.0</sup>:</p>
-<pre><code class="language-just">[no-cd, private]
-foo:
-    echo "foo"
-</code></pre>
-<p>Attributes with a single argument may be written with a colon:</p>
-<pre><code class="language-just">[group: 'bar']
-foo:
-</code></pre>
-<h4 id="enabling-and-disabling-recipes"><a class="header" href="#enabling-and-disabling-recipes">Enabling and Disabling Recipes</a></h4>
-<p>The <code>[linux]</code>, <code>[macos]</code>, <code>[unix]</code>, and <code>[windows]</code> attributes<sup>1.8.0</sup>
-are configuration attributes. By default, recipes are always enabled. A recipe
-with one or more configuration attributes will only be enabled when one or more
-of those configurations is active.</p>
-<p>This can be used to write <code>justfile</code>s that behave differently depending on
-which operating system they run on. The <code>run</code> recipe in this <code>justfile</code> will
-compile and run <code>main.c</code>, using a different C compiler and using the correct
-output binary name for that compiler depending on the operating system:</p>
-<pre><code class="language-just">[unix]
-run:
-  cc main.c
-  ./a.out
+                        <h3 id="modules"><a class="header" href="#modules">Modules</a></h3>
+<p>A <code>justfile</code> can declare modules using <code>mod</code> statements<sup>1.19.0</sup>.</p>
+<p><code>mod</code> statements were stabilized in <code>just</code><sup>1.31.0</sup>. In earlier
+versions, you’ll need to use the <code>--unstable</code> flag, <code>set unstable</code>, or set the
+<code>JUST_UNSTABLE</code> environment variable to use them.</p>
+<p>If you have the following <code>justfile</code>:</p>
+<pre><code class="language-justfile">mod bar
 
-[windows]
-run:
-  cl main.c
-  main.exe
+a:
+  @echo A
 </code></pre>
-<h4 id="disabling-changing-directory"><a class="header" href="#disabling-changing-directory">Disabling Changing Directory</a></h4>
-<p><code>just</code> normally executes recipes with the current directory set to the
-directory that contains the <code>justfile</code>. This can be disabled using the
-<code>[no-cd]</code> attribute<sup>1.9.0</sup>. This can be used to create recipes which
-use paths relative to the invocation directory, or which operate on the current
-directory.</p>
-<p>For example, this <code>commit</code> recipe:</p>
-<pre><code class="language-just">[no-cd]
-commit file:
-  git add {{file}}
-  git commit
+<p>And the following text in <code>bar.just</code>:</p>
+<pre><code class="language-just">b:
+  @echo B
 </code></pre>
-<p>Can be used with paths that are relative to the current directory, because
-<code>[no-cd]</code> prevents <code>just</code> from changing the current directory when executing
-<code>commit</code>.</p>
-<h4 id="requiring-confirmation-for-recipes"><a class="header" href="#requiring-confirmation-for-recipes">Requiring Confirmation for Recipes</a></h4>
-<p><code>just</code> normally executes all recipes unless there is an error. The <code>[confirm]</code>
-attribute<sup>1.17.0</sup> allows recipes require confirmation in the terminal
-prior to running. This can be overridden by passing <code>--yes</code> to <code>just</code>, which
-will automatically confirm any recipes marked by this attribute.</p>
-<p>Recipes dependent on a recipe that requires confirmation will not be run if the
-relied upon recipe is not confirmed, as well as recipes passed after any recipe
-that requires confirmation.</p>
-<pre><code class="language-just">[confirm]
-delete-all:
-  rm -rf *
+<p><code>bar.just</code> will be included in <code>justfile</code> as a submodule. Recipes, aliases, and
+variables defined in one submodule cannot be used in another, and each module
+uses its own settings.</p>
+<p>Recipes in submodules can be invoked as subcommands:</p>
+<pre><code class="language-console">$ just bar b
+B
 </code></pre>
-<h4 id="custom-confirmation-prompt"><a class="header" href="#custom-confirmation-prompt">Custom Confirmation Prompt</a></h4>
-<p>The default confirmation prompt can be overridden with
-<code>[confirm(PROMPT)]</code><sup>1.23.0</sup>:</p>
-<pre><code class="language-just">[confirm("Are you sure you want to delete everything?")]
-delete-everything:
-  rm -rf *
+<p>Or with path syntax:</p>
+<pre><code class="language-console">$ just bar::b
+B
 </code></pre>
-<h4 id="metadata"><a class="header" href="#metadata">Metadata</a></h4>
-<p>Metadata in the form of lists of strings may be attached to recipes with the
-<code>[metadata(METADATA)]</code> attribute<sup>1.42.0</sup>:</p>
-<pre><code class="language-just">[metadata("hello", "goodbye")]
-foo:
+<p>If a module is named <code>foo</code>, just will search for the module file in <code>foo.just</code>,
+<code>foo/mod.just</code>, <code>foo/justfile</code>, and <code>foo/.justfile</code>. In the latter two cases,
+the module file may have any capitalization.</p>
+<p>Module statements may be of the form:</p>
+<pre><code class="language-justfile">mod foo 'PATH'
 </code></pre>
-<p>Metadata can be read using <code>just --dump --dump-format json</code>.</p>
+<p>Which loads the module’s source file from <code>PATH</code>, instead of from the usual
+locations. A leading <code>~/</code> in <code>PATH</code> is replaced with the current user’s home
+directory. <code>PATH</code> may point to the module source file itself, or to a directory
+containing the module source file with the name <code>mod.just</code>, <code>justfile</code>, or
+<code>.justfile</code>. In the latter two cases, the module file may have any
+capitalization.</p>
+<p>Environment files are only loaded for the root justfile, and loaded environment
+variables are available in submodules. Settings in submodules that affect
+environment file loading are ignored.</p>
+<p>Recipes in submodules without the <code>[no-cd]</code> attribute run with the working
+directory set to the directory containing the submodule source file.</p>
+<p><code>justfile()</code> and <code>justfile_directory()</code> always return the path to the root
+justfile and the directory that contains it, even when called from submodule
+recipes.</p>
+<p>Modules may be made optional by putting a <code>?</code> after the <code>mod</code> keyword:</p>
+<pre><code class="language-just">mod? foo
+</code></pre>
+<p>Missing source files for optional modules do not produce an error.</p>
+<p>Optional modules with no source file do not conflict, so you can have multiple
+mod statements with the same name, but with different source file paths, as
+long as at most one source file exists:</p>
+<pre><code class="language-just">mod? foo 'bar.just'
+mod? foo 'baz.just'
+</code></pre>
+<p>Modules may be given doc comments which appear in <code>--list</code>
+output<sup>1.30.0</sup>:</p>
+<pre><code class="language-justfile"># foo is a great module!
+mod foo
+</code></pre>
+<pre><code class="language-console">$ just --list
+Available recipes:
+    foo ... # foo is a great module!
+</code></pre>
+<p>Modules are still missing a lot of features, for example, the ability to refer
+to variables in other modules. See the <a href="https://github.com/casey/just/issues/2252">module improvement tracking
+issue</a> for more information.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="constants.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="imports.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="groups.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="hiding-justfiles.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -308,11 +265,11 @@ foo:
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="constants.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="imports.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="groups.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="hiding-justfiles.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

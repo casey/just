@@ -202,6 +202,9 @@ build:
 ./build bsd
 ./test --test bsd
 </code></pre>
+<p>Variables in submodules can be overridden using the <code>::</code>-separated path to the
+variable. A variable named <code>bar</code> in a submodule named <code>foo</code> may be overridden
+with <code>foo::bar=VALUE</code> or <code>--set foo::bar VALUE</code>.</p>
 
                     </main>
 

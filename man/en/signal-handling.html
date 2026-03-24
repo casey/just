@@ -179,15 +179,15 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="signal-handling"><a class="header" href="#signal-handling">Signal Handling</a></h3>
-<p><a href="https://en.wikipedia.org/wiki/Signal_(IPC)">Signals</a> are messsages sent to
+<p><a href="https://en.wikipedia.org/wiki/Signal_(IPC)">Signals</a> are messages sent to
 running programs to trigger specific behavior. For example, <code>SIGINT</code> is sent to
-all processes in the terminal forground process group when <code>CTRL-C</code> is pressed.</p>
+all processes in the terminal foreground process group when <code>CTRL-C</code> is pressed.</p>
 <p><code>just</code> tries to exit when requested by a signal, but it also tries to avoid
-leaving behind running child proccesses, two goals which are somewhat in
+leaving behind running child processes, two goals which are somewhat in
 conflict.</p>
 <p>If <code>just</code> exits leaving behind child processes, the user will have no recourse
 but to <code>ps aux | grep</code> for the children and manually <code>kill</code> them, a tedious
-endevour.</p>
+endeavor.</p>
 <h4 id="fatal-signals"><a class="header" href="#fatal-signals">Fatal Signals</a></h4>
 <p><code>SIGHUP</code>, <code>SIGINT</code>, and <code>SIGQUIT</code> are generated when the user closes the
 terminal, types <code>ctrl-c</code>, or types <code>ctrl-\</code>, respectively, and are sent to all

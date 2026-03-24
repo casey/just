@@ -394,9 +394,9 @@ except <code>[A-Za-z0-9_.!~*'()-]</code>, matching the behavior of the
 <li><code>quote(s)</code> - Replace all single quotes with <code>'\''</code> and prepend and append
 single quotes to <code>s</code>. This is sufficient to escape special characters for
 many shells, including most Bourne shell descendants.</li>
-<li><code>replace(s, from, to)</code> - Replace all occurrences of <code>from</code> in <code>s</code> to <code>to</code>.</li>
+<li><code>replace(s, from, to)</code> - Replace all occurrences of <code>from</code> in <code>s</code> with <code>to</code>.</li>
 <li><code>replace_regex(s, regex, replacement)</code> - Replace all occurrences of <code>regex</code>
-in <code>s</code> to <code>replacement</code>. Regular expressions are provided by the
+in <code>s</code> with <code>replacement</code>. Regular expressions are provided by the
 <a href="https://docs.rs/regex/latest/regex/">Rust <code>regex</code> crate</a>. See the
 <a href="https://docs.rs/regex/latest/regex/#syntax">syntax documentation</a> for usage
 examples. Capture groups are supported. The <code>replacement</code> string uses
@@ -459,9 +459,10 @@ desired on Windows.</em> Join path <code>a</code> with path <code>b</code>. <cod
 </ul>
 <h4 id="filesystem-access"><a class="header" href="#filesystem-access">Filesystem Access</a></h4>
 <ul>
-<li><code>path_exists(path)</code> - Returns <code>true</code> if the path points at an existing entity
-and <code>false</code> otherwise. Traverses symbolic links, and returns <code>false</code> if the
-path is inaccessible or points to a broken symlink.</li>
+<li><code>path_exists(path)</code> - Returns the string <code>true</code> if the path points at an
+existing entity and the string <code>false</code> otherwise. Traverses symbolic links,
+and returns the string <code>false</code> if the path is inaccessible or points to a
+broken symlink.</li>
 <li><code>read(path)</code><sup>1.39.0</sup> - Returns the content of file at <code>path</code> as
 string.</li>
 </ul>
@@ -518,9 +519,10 @@ recipe output match <code>just</code>’s own output.</p>
 </code></pre>
 </li>
 </ul>
-<h5 id="user-directories1230"><a class="header" href="#user-directories1230">User Directories<sup>1.23.0</sup></a></h5>
-<p>These functions return paths to user-specific directories for things like
-configuration, data, caches, executables, and the user’s home directory.</p>
+<h5 id="user-directories"><a class="header" href="#user-directories">User Directories</a></h5>
+<p>These functions<sup>1.23.0</sup> return paths to user-specific directories for
+things like configuration, data, caches, executables, and the user’s home
+directory.</p>
 <p>On Unix, these functions follow the
 <a href="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">XDG Base Directory Specification</a>.</p>
 <p>On MacOS and Windows, these functions return the system-specified user-specific

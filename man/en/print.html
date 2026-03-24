@@ -324,6 +324,11 @@ most Windows users.)</p>
       <td><code>cargo install just</code></td>
     </tr>
     <tr>
+      <td><a href=https://github.com/cargo-bins/cargo-binstall>Cargo Binstall</a></td>
+      <td><a href=https://crates.io/crates/just>just</a></td>
+      <td><code>cargo binstall just</code></td>
+    </tr>
+    <tr>
       <td><a href=https://docs.conda.io/projects/conda/en/latest/index.html>Conda</a></td>
       <td><a href=https://anaconda.org/conda-forge/just>just</a></td>
       <td><code>conda install -c conda-forge just</code></td>
@@ -550,6 +555,16 @@ which can be used to verify the integrity of pre-built binary archives.</p>
 <p>Or with <a href="https://github.com/taiki-e/install-action">taiki-e/install-action</a>:</p>
 <pre><code class="language-yaml">- uses: taiki-e/install-action@just
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="docker"><a class="header" href="#docker">Docker</a></h3>
+<p><code>just</code> is available as a Docker image from
+<a href="https://ghcr.io/casey/just">the GitHub Container Registry</a>.</p>
+<p>To copy <code>just</code> into a Docker image, add the following line to your
+<code>Dockerfile</code>:</p>
+<pre><code class="language-dockerfile">COPY --from=ghcr.io/casey/just:latest /just /usr/local/bin/
+</code></pre>
+<p>After copying, <code>just</code> may also be used as part of a docker build:</p>
+<pre><code class="language-dockerfile">RUN just
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="release-rss-feed"><a class="header" href="#release-rss-feed">Release RSS Feed</a></h3>
 <p>An <a href="https://en.wikipedia.org/wiki/RSS">RSS feed</a> of <code>just</code> releases is available <a href="https://github.com/casey/just/releases.atom">here</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="nodejs-installation"><a class="header" href="#nodejs-installation">Node.js Installation</a></h3>
@@ -577,7 +592,7 @@ will be opt-in on a per-<code>justfile</code> basis, so users may migrate at the
 leisure.</p>
 <p>Features that aren’t yet ready for stabilization are marked as unstable and may
 be changed or removed at any time. Using unstable features produces an error by
-default, which can be suppressed with by passing the <code>--unstable</code> flag,
+default, which can be suppressed by passing the <code>--unstable</code> flag,
 <code>set unstable</code>, or setting the environment variable <code>JUST_UNSTABLE</code>, to any
 value other than <code>false</code>, <code>0</code>, or the empty string.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="editor-support"><a class="header" href="#editor-support">Editor Support</a></h2>
@@ -657,7 +672,7 @@ available on <a href="https://packagecontrol.io/packages/Just">PackageControl</a
 out of the box, thanks to <a href="https://github.com/tomodachi94">tomodachi94</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="zed"><a class="header" href="#zed">Zed</a></h3>
 <p>The <a href="https://github.com/jackTabsCode/zed-just/">zed-just</a> extension by
-<a href="https://github.com/jackTabsCode">jackTabsCode</a> is avilable on the
+<a href="https://github.com/jackTabsCode">jackTabsCode</a> is available on the
 <a href="https://zed.dev/extensions?query=just">Zed extensions page</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="other-editors"><a class="header" href="#other-editors">Other Editors</a></h3>
 <p>Feel free to send me the commands necessary to get syntax highlighting working
@@ -783,8 +798,8 @@ Available recipes:
     deploy
     lint
 </code></pre>
-<p>Recipes in <a href="modules1190.html">submodules</a> can be listed with <code>just --list PATH</code>,
-where <code>PATH</code> is a space- or <code>::</code>-separated module path:</p>
+<p>Recipes in <a href="modules.html">submodules</a> can be listed with <code>just --list PATH</code>, where
+<code>PATH</code> is a space- or <code>::</code>-separated module path:</p>
 <pre><code>$ cat justfile
 mod foo
 $ cat foo.just
@@ -1116,7 +1131,7 @@ When there are no positional parameters, <code>"$@"</code> and <code>$@</code> e
 - foo
 - bar baz
 </code></pre>
-<p>Positional arguments may also be turned on on a per-recipe basis with the
+<p>Positional arguments may also be turned on a per-recipe basis with the
 <code>[positional-arguments]</code> attribute<sup>1.29.0</sup>:</p>
 <pre><code class="language-just">[positional-arguments]
 @foo bar:
@@ -1648,9 +1663,9 @@ except <code>[A-Za-z0-9_.!~*'()-]</code>, matching the behavior of the
 <li><code>quote(s)</code> - Replace all single quotes with <code>'\''</code> and prepend and append
 single quotes to <code>s</code>. This is sufficient to escape special characters for
 many shells, including most Bourne shell descendants.</li>
-<li><code>replace(s, from, to)</code> - Replace all occurrences of <code>from</code> in <code>s</code> to <code>to</code>.</li>
+<li><code>replace(s, from, to)</code> - Replace all occurrences of <code>from</code> in <code>s</code> with <code>to</code>.</li>
 <li><code>replace_regex(s, regex, replacement)</code> - Replace all occurrences of <code>regex</code>
-in <code>s</code> to <code>replacement</code>. Regular expressions are provided by the
+in <code>s</code> with <code>replacement</code>. Regular expressions are provided by the
 <a href="https://docs.rs/regex/latest/regex/">Rust <code>regex</code> crate</a>. See the
 <a href="https://docs.rs/regex/latest/regex/#syntax">syntax documentation</a> for usage
 examples. Capture groups are supported. The <code>replacement</code> string uses
@@ -1713,9 +1728,10 @@ desired on Windows.</em> Join path <code>a</code> with path <code>b</code>. <cod
 </ul>
 <h4 id="filesystem-access"><a class="header" href="#filesystem-access">Filesystem Access</a></h4>
 <ul>
-<li><code>path_exists(path)</code> - Returns <code>true</code> if the path points at an existing entity
-and <code>false</code> otherwise. Traverses symbolic links, and returns <code>false</code> if the
-path is inaccessible or points to a broken symlink.</li>
+<li><code>path_exists(path)</code> - Returns the string <code>true</code> if the path points at an
+existing entity and the string <code>false</code> otherwise. Traverses symbolic links,
+and returns the string <code>false</code> if the path is inaccessible or points to a
+broken symlink.</li>
 <li><code>read(path)</code><sup>1.39.0</sup> - Returns the content of file at <code>path</code> as
 string.</li>
 </ul>
@@ -1772,9 +1788,10 @@ recipe output match <code>just</code>’s own output.</p>
 </code></pre>
 </li>
 </ul>
-<h5 id="user-directories1230"><a class="header" href="#user-directories1230">User Directories<sup>1.23.0</sup></a></h5>
-<p>These functions return paths to user-specific directories for things like
-configuration, data, caches, executables, and the user’s home directory.</p>
+<h5 id="user-directories"><a class="header" href="#user-directories">User Directories</a></h5>
+<p>These functions<sup>1.23.0</sup> return paths to user-specific directories for
+things like configuration, data, caches, executables, and the user’s home
+directory.</p>
 <p>On Unix, these functions follow the
 <a href="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">XDG Base Directory Specification</a>.</p>
 <p>On MacOS and Windows, these functions return the system-specified user-specific
@@ -1906,11 +1923,11 @@ foo:
 <pre><code class="language-just">[group: 'bar']
 foo:
 </code></pre>
-<h4 id="enabling-and-disabling-recipes180"><a class="header" href="#enabling-and-disabling-recipes180">Enabling and Disabling Recipes<sup>1.8.0</sup></a></h4>
-<p>The <code>[linux]</code>, <code>[macos]</code>, <code>[unix]</code>, and <code>[windows]</code> attributes are
-configuration attributes. By default, recipes are always enabled. A recipe with
-one or more configuration attributes will only be enabled when one or more of
-those configurations is active.</p>
+<h4 id="enabling-and-disabling-recipes"><a class="header" href="#enabling-and-disabling-recipes">Enabling and Disabling Recipes</a></h4>
+<p>The <code>[linux]</code>, <code>[macos]</code>, <code>[unix]</code>, and <code>[windows]</code> attributes<sup>1.8.0</sup>
+are configuration attributes. By default, recipes are always enabled. A recipe
+with one or more configuration attributes will only be enabled when one or more
+of those configurations is active.</p>
 <p>This can be used to write <code>justfile</code>s that behave differently depending on
 which operating system they run on. The <code>run</code> recipe in this <code>justfile</code> will
 compile and run <code>main.c</code>, using a different C compiler and using the correct
@@ -1925,11 +1942,11 @@ run:
   cl main.c
   main.exe
 </code></pre>
-<h4 id="disabling-changing-directory190"><a class="header" href="#disabling-changing-directory190">Disabling Changing Directory<sup>1.9.0</sup></a></h4>
+<h4 id="disabling-changing-directory"><a class="header" href="#disabling-changing-directory">Disabling Changing Directory</a></h4>
 <p><code>just</code> normally executes recipes with the current directory set to the
 directory that contains the <code>justfile</code>. This can be disabled using the
-<code>[no-cd]</code> attribute. This can be used to create recipes which use paths
-relative to the invocation directory, or which operate on the current
+<code>[no-cd]</code> attribute<sup>1.9.0</sup>. This can be used to create recipes which
+use paths relative to the invocation directory, or which operate on the current
 directory.</p>
 <p>For example, this <code>commit</code> recipe:</p>
 <pre><code class="language-just">[no-cd]
@@ -1940,11 +1957,11 @@ commit file:
 <p>Can be used with paths that are relative to the current directory, because
 <code>[no-cd]</code> prevents <code>just</code> from changing the current directory when executing
 <code>commit</code>.</p>
-<h4 id="requiring-confirmation-for-recipes1170"><a class="header" href="#requiring-confirmation-for-recipes1170">Requiring Confirmation for Recipes<sup>1.17.0</sup></a></h4>
+<h4 id="requiring-confirmation-for-recipes"><a class="header" href="#requiring-confirmation-for-recipes">Requiring Confirmation for Recipes</a></h4>
 <p><code>just</code> normally executes all recipes unless there is an error. The <code>[confirm]</code>
-attribute allows recipes require confirmation in the terminal prior to running.
-This can be overridden by passing <code>--yes</code> to <code>just</code>, which will automatically
-confirm any recipes marked by this attribute.</p>
+attribute<sup>1.17.0</sup> allows recipes require confirmation in the terminal
+prior to running. This can be overridden by passing <code>--yes</code> to <code>just</code>, which
+will automatically confirm any recipes marked by this attribute.</p>
 <p>Recipes dependent on a recipe that requires confirmation will not be run if the
 relied upon recipe is not confirmed, as well as recipes passed after any recipe
 that requires confirmation.</p>
@@ -1952,12 +1969,20 @@ that requires confirmation.</p>
 delete-all:
   rm -rf *
 </code></pre>
-<h4 id="custom-confirmation-prompt1230"><a class="header" href="#custom-confirmation-prompt1230">Custom Confirmation Prompt<sup>1.23.0</sup></a></h4>
-<p>The default confirmation prompt can be overridden with <code>[confirm(PROMPT)]</code>:</p>
+<h4 id="custom-confirmation-prompt"><a class="header" href="#custom-confirmation-prompt">Custom Confirmation Prompt</a></h4>
+<p>The default confirmation prompt can be overridden with
+<code>[confirm(PROMPT)]</code><sup>1.23.0</sup>:</p>
 <pre><code class="language-just">[confirm("Are you sure you want to delete everything?")]
 delete-everything:
   rm -rf *
 </code></pre>
+<h4 id="metadata"><a class="header" href="#metadata">Metadata</a></h4>
+<p>Metadata in the form of lists of strings may be attached to recipes with the
+<code>[metadata(METADATA)]</code> attribute<sup>1.42.0</sup>:</p>
+<pre><code class="language-just">[metadata("hello", "goodbye")]
+foo:
+</code></pre>
+<p>Metadata can be read using <code>just --dump --dump-format json</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="groups"><a class="header" href="#groups">Groups</a></h3>
 <p>Recipes and modules may be annotated with one or more group names:</p>
 <pre><code class="language-just">[group('lint')]
@@ -2129,6 +2154,9 @@ build:
 ./build bsd
 ./test --test bsd
 </code></pre>
+<p>Variables in submodules can be overridden using the <code>::</code>-separated path to the
+variable. A variable named <code>bar</code> in a submodule named <code>foo</code> may be overridden
+with <code>foo::bar=VALUE</code> or <code>--set foo::bar VALUE</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="getting-and-setting-environment-variables"><a class="header" href="#getting-and-setting-environment-variables">Getting and Setting Environment Variables</a></h3>
 <h4 id="exporting-just-variables"><a class="header" href="#exporting-just-variables">Exporting <code>just</code> Variables</a></h4>
 <p>Assignments prefixed with the <code>export</code> keyword will be exported to recipes as
@@ -2162,8 +2190,8 @@ a $A $B=`echo $A`:
 </code></pre>
 <p>When <a href="settings.html#export">export</a> is set, all <code>just</code> variables are exported as environment
 variables.</p>
-<h4 id="unexporting-environment-variables1290"><a class="header" href="#unexporting-environment-variables1290">Unexporting Environment Variables<sup>1.29.0</sup></a></h4>
-<p>Environment variables can be unexported with the <code>unexport keyword</code>:</p>
+<h4 id="unexporting-environment-variables"><a class="header" href="#unexporting-environment-variables">Unexporting Environment Variables</a></h4>
+<p>Environment variables can be unexported with the <code>unexport keyword</code><sup>1.29.0</sup>:</p>
 <pre><code class="language-just">unexport FOO
 
 @foo:
@@ -2365,7 +2393,7 @@ foo bar:
 bar=hello
 </code></pre>
 <p>If a parameter has both a long and short option, it may be passed using either.</p>
-<p>Variadic <code>+</code> and <code>?</code> parameters cannot be options.</p>
+<p>Variadic <code>*</code> and <code>+</code> parameters cannot be options.</p>
 <p>The <code>[arg(ARG, value=VALUE, …)]</code><sup>1.46.0</sup> attribute can be used with
 <code>long</code> or <code>short</code> to make a parameter a flag which does not take a value.</p>
 <p>In this <code>justfile</code>:</p>
@@ -3134,8 +3162,8 @@ bar: baz
 <pre><code class="language-just"># baz
 baz:
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h3 id="modules1190"><a class="header" href="#modules1190">Modules<sup>1.19.0</sup></a></h3>
-<p>A <code>justfile</code> can declare modules using <code>mod</code> statements.</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="modules"><a class="header" href="#modules">Modules</a></h3>
+<p>A <code>justfile</code> can declare modules using <code>mod</code> statements<sup>1.19.0</sup>.</p>
 <p><code>mod</code> statements were stabilized in <code>just</code><sup>1.31.0</sup>. In earlier
 versions, you’ll need to use the <code>--unstable</code> flag, <code>set unstable</code>, or set the
 <code>JUST_UNSTABLE</code> environment variable to use them.</p>
@@ -3371,15 +3399,15 @@ the
 <a href="https://docs.rs/chrono/latest/chrono/format/strftime/index.html"><code>chrono</code> library docs</a>
 for details.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="signal-handling"><a class="header" href="#signal-handling">Signal Handling</a></h3>
-<p><a href="https://en.wikipedia.org/wiki/Signal_(IPC)">Signals</a> are messsages sent to
+<p><a href="https://en.wikipedia.org/wiki/Signal_(IPC)">Signals</a> are messages sent to
 running programs to trigger specific behavior. For example, <code>SIGINT</code> is sent to
-all processes in the terminal forground process group when <code>CTRL-C</code> is pressed.</p>
+all processes in the terminal foreground process group when <code>CTRL-C</code> is pressed.</p>
 <p><code>just</code> tries to exit when requested by a signal, but it also tries to avoid
-leaving behind running child proccesses, two goals which are somewhat in
+leaving behind running child processes, two goals which are somewhat in
 conflict.</p>
 <p>If <code>just</code> exits leaving behind child processes, the user will have no recourse
 but to <code>ps aux | grep</code> for the children and manually <code>kill</code> them, a tedious
-endevour.</p>
+endeavor.</p>
 <h4 id="fatal-signals"><a class="header" href="#fatal-signals">Fatal Signals</a></h4>
 <p><code>SIGHUP</code>, <code>SIGINT</code>, and <code>SIGQUIT</code> are generated when the user closes the
 terminal, types <code>ctrl-c</code>, or types <code>ctrl-\</code>, respectively, and are sent to all
@@ -3454,34 +3482,54 @@ the same completion function as <code>just</code> for your aliased command:</p>
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="shell-completion-scripts"><a class="header" href="#shell-completion-scripts">Shell Completion Scripts</a></h3>
 <p>Shell completion scripts for Bash, Elvish, Fish, Nushell, PowerShell, and Zsh
-are available <a href="https://github.com/casey/just/releases">release archives</a>.</p>
+are available in <a href="https://github.com/casey/just/releases">release archives</a>.</p>
 <p>The <code>just</code> binary can also generate the same completion scripts at runtime
 using <code>just --completions SHELL</code>:</p>
-<pre><code class="language-console">$ just --completions zsh &gt; just.zsh
+<pre><code class="language-console">$ just --completions bash &gt; just
 </code></pre>
-<p>Please refer to your shell’s documentation for how to install them.</p>
-<p><em>macOS Note:</em> Recent versions of macOS use zsh as the default shell. If you use
-Homebrew to install <code>just</code>, it will automatically install the most recent copy
-of the zsh completion script in the Homebrew zsh directory, which the built-in
-version of zsh doesn’t know about by default. It’s best to use this copy of the
-script if possible, since it will be updated whenever you update <code>just</code> via
-Homebrew. Also, many other Homebrew packages use the same location for
-completion scripts, and the built-in zsh doesn’t know about those either. To
-take advantage of <code>just</code> completion in zsh in this scenario, you can set
-<code>fpath</code> to the Homebrew location before calling <code>compinit</code>. Note also that Oh
-My Zsh runs <code>compinit</code> by default. So your <code>.zshrc</code> file could look like this:</p>
-<pre><code class="language-zsh"># Init Homebrew, which adds environment variables
-eval "$(brew shellenv)"
-
-fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath)
-
-# Then choose one of these options:
-# 1. If you're using Oh My Zsh, you can initialize it here
-# source $ZSH/oh-my-zsh.sh
-
-# 2. Otherwise, run compinit yourself
-# autoload -U compinit
-# compinit
+<h4 id="bash-1"><a class="header" href="#bash-1">Bash</a></h4>
+<p>The recommended approach is to use the <code>bash-completions</code> package to lazy-load
+the completion script:</p>
+<pre><code class="language-bash">mkdir -p ~/.local/share/bash-completion/completions
+just --completions bash &gt; ~/.local/share/bash-completion/completions/just
+</code></pre>
+<p>If <code>bash-completions</code> is not installed, you can source the completion script in
+your <code>.bashrc</code>:</p>
+<pre><code class="language-bash">source &lt;(just --completions bash)
+</code></pre>
+<h4 id="elvish"><a class="header" href="#elvish">Elvish</a></h4>
+<p>In your <code>rc.elv</code>:</p>
+<pre><code class="language-elvish">set edit:completion:arg-completer[just] = { |@args|
+  eval (just --completions elvish | slurp)
+  set @result = (edit:completion:arg-completer[just] $@args)
+  put $@result
+}
+</code></pre>
+<h4 id="fish-1"><a class="header" href="#fish-1">Fish</a></h4>
+<p>Save the completion script to the completions directory to lazy-load it:</p>
+<pre><code class="language-fish">mkdir -p ~/.config/fish/completions
+just --completions fish &gt; ~/.config/fish/completions/just.fish
+</code></pre>
+<h4 id="nushell-1"><a class="header" href="#nushell-1">Nushell</a></h4>
+<p>First save the completion script:</p>
+<pre><code class="language-nu">just --completions nushell | save -f ($nu.default-config-dir | path join just.nu)
+</code></pre>
+<p>Then in <code>config.nu</code>:</p>
+<pre><code class="language-nu">source just.nu
+</code></pre>
+<h4 id="powershell"><a class="header" href="#powershell">PowerShell</a></h4>
+<p>In your PowerShell <code>$PROFILE</code>:</p>
+<pre><code class="language-powershell">just --completions powershell | Out-String | Invoke-Expression
+</code></pre>
+<h4 id="zsh"><a class="header" href="#zsh">Zsh</a></h4>
+<p>First save the completion script:</p>
+<pre><code class="language-zsh">mkdir -p ~/.zsh/completions
+just --completions zsh &gt; ~/.zsh/completions/_just
+</code></pre>
+<p>Then in your <code>.zshrc</code>:</p>
+<pre><code class="language-zsh">fpath=(~/.zsh/completions $fpath)
+autoload -U compinit
+compinit
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="man-page"><a class="header" href="#man-page">Man Page</a></h3>
 <p><code>just</code> can print its own man page with <code>just --man</code>. Man pages are written in
@@ -3697,7 +3745,7 @@ changes. You can run such a job by installing
 <li>
 <p>Add a failing test for your feature. Most of the time this will be an
 integration test which exercises the feature end-to-end. Look for an
-appropriate file to put the test in in
+appropriate file to put the test in
 <a href="https://github.com/casey/just/blob/master/tests">tests</a>, or add a new file
 in <a href="https://github.com/casey/just/blob/master/tests">tests</a> and add a <code>mod</code>
 statement importing that file in
