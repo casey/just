@@ -27,7 +27,7 @@
 
 命令，在此也称为配方，存储在一个名为 `justfile` 的文件中，其语法受 `make` 启发：
 
-![screenshot](https://raw.githubusercontent.com/casey/just/master/screenshot.png)
+![screenshot](https://raw.githubusercontent.com/casey/just/master/etc/screenshot.png)
 
 然后你可以用 `just RECIPE` 运行它们：
 
@@ -397,7 +397,7 @@ augroup END
 ### Visual Studio Code
 
 VS Code 的一个插件可以在 [这里](https://github.com/nefrob/vscode-just) 找到。
-  
+
 不再维护的 VS Code 插件有 [skellock/vscode-just](https://github.com/skellock/vscode-just) 和 [sclu1034/vscode-just](https://github.com/sclu1034/vscode-just)。
 
 ### JetBrains IDEs
