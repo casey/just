@@ -1,6 +1,43 @@
 Changelog
 =========
 
+[1.48.0](https://github.com/casey/just/releases/tag/1.48.1) - 2026-03-23
+------------------------------------------------------------------------
+
+### Added
+- Build docker images ([#3174](https://github.com/casey/just/pull/3174) by [casey](https://github.com/casey))
+- Dynamically complete recipes for `--usage` ([#3172](https://github.com/casey/just/pull/3172) by [casey](https://github.com/casey))
+- Dynamically complete groups ([#3171](https://github.com/casey/just/pull/3171) by [casey](https://github.com/casey))
+- Dynamically complete recipes and variables ([#3169](https://github.com/casey/just/pull/3169) by [casey](https://github.com/casey))
+- Complete appropriate filetypes ([#3168](https://github.com/casey/just/pull/3168) by [casey](https://github.com/casey))
+- Allow overriding variables in submodules ([#3151](https://github.com/casey/just/pull/3151) by [casey](https://github.com/casey))
+- Add `--json` as synonym for `--dump --dump-format json` ([#3143](https://github.com/casey/just/pull/3143) by [casey](https://github.com/casey))
+
+### Changed
+- Switch to dynamic completion engine ([#3167](https://github.com/casey/just/pull/3167) by [casey](https://github.com/casey))
+- Respect PATH and PATHEXT when running commands on Windows ([#3160](https://github.com/casey/just/pull/3160) by [casey](https://github.com/casey))
+- Make `which()` and `require()` respect PATHEXT on Windows ([#3144](https://github.com/casey/just/pull/3144) by [casey](https://github.com/casey))
+
+### Misc
+- Add completion script installation instructions ([#3178](https://github.com/casey/just/pull/3178) by [casey](https://github.com/casey))
+- Fix readme typo ([#3176](https://github.com/casey/just/pull/3176) by [Rohan5commit](https://github.com/Rohan5commit))
+- Remove Vagrantfile ([#3173](https://github.com/casey/just/pull/3173) by [casey](https://github.com/casey))
+- Fix signal handling typo ([#3170](https://github.com/casey/just/pull/3170) by [Rohan5commit](https://github.com/Rohan5commit))
+- Add cargo-binstall installation instructions ([#3165](https://github.com/casey/just/pull/3165) by [casey](https://github.com/casey))
+- Fix typos ([#3162](https://github.com/casey/just/pull/3162) by [casey](https://github.com/casey))
+- Readme typo: forground ([#3161](https://github.com/casey/just/pull/3161) by [Rohan5commit](https://github.com/Rohan5commit))
+- Use clap derive to parse arguments ([#3158](https://github.com/casey/just/pull/3158) by [casey](https://github.com/casey))
+- Fix readme typo ([#3156](https://github.com/casey/just/pull/3156) by [teee32](https://github.com/teee32))
+- Document that path_exists() returns strings ([#2946](https://github.com/casey/just/pull/2946) by [cspotcode](https://github.com/cspotcode))
+- Remove version references from readme headings ([#3153](https://github.com/casey/just/pull/3153) by [casey](https://github.com/casey))
+- Fix readme typo ([#3152](https://github.com/casey/just/pull/3152) by [Rohan5commit](https://github.com/Rohan5commit))
+- Fix variadic parameter typo in readme ([#3150](https://github.com/casey/just/pull/3150) by [casey](https://github.com/casey))
+- Fix readme typo ([#3148](https://github.com/casey/just/pull/3148) by [Rohan5commit](https://github.com/Rohan5commit))
+- Avoid conditional compilation ([#3145](https://github.com/casey/just/pull/3145) by [casey](https://github.com/casey))
+- Update VS Code extension in Chinese readme ([#2984](https://github.com/casey/just/pull/2984) by [A-moment096](https://github.com/A-moment096))
+- Change replace wording in readme ([#3137](https://github.com/casey/just/pull/3137) by [Rohan5commit](https://github.com/Rohan5commit))
+- Document recipe metadata ([#3142](https://github.com/casey/just/pull/3142) by [casey](https://github.com/casey))
+
 [1.47.1](https://github.com/casey/just/releases/tag/1.47.1) - 2026-03-16
 ------------------------------------------------------------------------
 
