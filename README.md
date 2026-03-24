@@ -4487,6 +4487,29 @@ using `just --completions SHELL`:
 $ just --completions zsh > just.zsh
 ```
 
+#### Bash
+
+The recommended approach is to use the `bash-completions` package to lazy load
+the completion script:
+
+```bash
+mkdir -p ~/.local/share/bash-completion/completions
+just --completions > ~/.local/share/bash-completion/completions/just
+```
+
+If `bash-completions` is not installed, you can source the completion script in
+your `.bashrc`:
+
+```bash
+source <(just --completions bash)
+```
+
+#### Elvish
+#### Fish
+#### Nushell
+#### PowerShell
+#### Zsh
+
 Please refer to your shell's documentation for how to install them.
 
 *macOS Note:* Recent versions of macOS use zsh as the default shell. If you use
