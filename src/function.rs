@@ -84,6 +84,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "prepend" => Binary(prepend),
     "quote" => Unary(quote),
     "read" => Unary(read),
+    "relative_path" => Binary(relpath),
     "replace" => Ternary(replace),
     "replace_regex" => Ternary(replace_regex),
     "require" => Unary(require),
@@ -500,6 +501,22 @@ fn quote(_context: Context, s: &str) -> FunctionResult {
 fn read(context: Context, filename: &str) -> FunctionResult {
   fs::read_to_string(context.execution_context.working_directory().join(filename))
     .map_err(|err| format!("I/O error reading `{filename}`: {err}"))
+}
+
+fn relpath(_context: Context, target: &str, base: &str) -> FunctionResult {
+  let base = match Utf8Path::new(base).canonicalize(){
+    Ok(b) => b,
+    Err(e) => return Err(format!("Canonicalize path {base} failed: {e}")),
+  };
+  let target = match Utf8Path::new(target).canonicalize(){
+    Ok(t) => t,
+    Err(e) => return Err(format!("Canonicalize path {target} failed: {e}")),
+  };
+  if let Some(rel) = pathdiff::diff_paths(&target, &base) {
+    Ok(rel.display().to_string())
+  } else {
+    Ok(target.display().to_string()) // fallback to absolute path
+  }
 }
 
 fn replace(_context: Context, s: &str, from: &str, to: &str) -> FunctionResult {

@@ -1501,3 +1501,57 @@ fn read_file_not_found() {
     .stderr_regex(r"error: Call to function `read` failed: I/O error reading `bar`: .*")
     .failure();
 }
+
+#[test]
+fn relative_path() {
+  Test::new()
+    .justfile(
+      r"
+foo := relative_path('/usr/bin', '/usr/lib')
+"
+    )
+    .args(["--evaluate", "foo"])
+    .stdout("../bin")
+    .success();
+}
+
+#[test]
+fn relative_path_dont_exists() {
+  Test::new()
+    .justfile(
+      r"
+foo := relative_path('/foo/bar', '/qux/baz')
+"
+    ) // make sure these two dir doesn't exists on your system
+    .args(["--evaluate", "foo"])
+    .stderr_regex(r"error: Call to function `relative_path` failed: Canonicalize path .* failed: .*")
+    .failure();
+}
+
+#[cfg(target_os = "windows")]
+#[test]
+fn relative_path_windows() {
+  Test::new()
+    .justfile(
+      r"
+foo := relative_path('C:\usr\bin', 'C:\usr\lib')
+"
+    )
+    .args(["--evaluate", "foo"])
+    .stdout("..\\bin")
+    .success();
+}
+
+#[cfg(target_os = "windows")]
+#[test]
+fn relative_path_windows_none() {
+  Test::new()
+    .justfile(
+      r"
+foo := relative_path('C:\usr\bin', 'D:\usr\lib')
+"
+    )
+    .args(["--evaluate", "foo"])
+    .stdout("D:\\usr\\lib")
+    .success();
+}
