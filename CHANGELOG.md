@@ -14,6 +14,7 @@ Changelog
 - Add `--json` as synonym for `--dump --dump-format json` ([#3143](https://github.com/casey/just/pull/3143) by [casey](https://github.com/casey))
 
 ### Changed
+- Stabilize lazy evaluation ([#3180](https://github.com/casey/just/pull/3180) by [casey](https://github.com/casey))
 - Switch to dynamic completion engine ([#3167](https://github.com/casey/just/pull/3167) by [casey](https://github.com/casey))
 - Respect PATH and PATHEXT when running commands on Windows ([#3160](https://github.com/casey/just/pull/3160) by [casey](https://github.com/casey))
 - Make `which()` and `require()` respect PATHEXT on Windows ([#3144](https://github.com/casey/just/pull/3144) by [casey](https://github.com/casey))
