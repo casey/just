@@ -43,7 +43,6 @@ pub struct Arguments {
   )]
   pub(crate) allow_missing: bool,
   #[arg(
-    action = ArgAction::Append,
     add = ArgValueCompleter::new(Completer::complete_argument),
     help = "Overrides and recipe(s) to run, defaulting to the first recipe in the justfile",
     num_args = 1..,
@@ -223,7 +222,6 @@ pub struct Arguments {
   )]
   pub(crate) quiet: bool,
   #[arg(
-    action = ArgAction::Append,
     add = ArgValueCompleter::new(Completer::complete_variable),
     help = "Override <VARIABLE> with <VALUE>",
     long,
@@ -273,7 +271,6 @@ pub struct Arguments {
   )]
   pub(crate) unsorted: bool,
   #[arg(
-    action = ArgAction::SetTrue,
     env = "JUST_UNSTABLE",
     help = "Enable unstable features",
     long,
@@ -319,7 +316,6 @@ pub(crate) struct Subcommand {
   )]
   pub(crate) choose: bool,
   #[arg(
-    action = ArgAction::Append,
     allow_hyphen_values = true,
     help = "Run an arbitrary command with the working directory, `.env`, overrides, and exports \
             set",
