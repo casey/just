@@ -4489,7 +4489,7 @@ $ just --completions zsh > just.zsh
 
 #### Bash
 
-The recommended approach is to use the `bash-completions` package to lazy load
+The recommended approach is to use the `bash-completions` package to lazy-load
 the completion script:
 
 ```bash
@@ -4505,37 +4505,63 @@ source <(just --completions bash)
 ```
 
 #### Elvish
+
+In your `rc.elv`:
+
+```elvish
+set edit:completion:arg-completer[just] = { |@args|
+  eval (just --completions elvish | slurp)
+  set @result = (edit:completion:arg-completer[just] $@args)
+  put $@result
+}
+```
+
 #### Fish
+
+Save the completion script to Fish's completions directory to lazy-load it:
+
+```fish
+mkdir -p ~/.config/fish/completions
+just --completions fish > ~/.config/fish/completions/just.fish
+```
+
 #### Nushell
+
+First save the completion script:
+
+```nu
+just --completions nushell | save -f ($nu.default-config-dir | path join just.nu)
+```
+
+Then in `config.nu`:
+
+```nu
+source just.nu
+```
+
 #### PowerShell
+
+In your PowerShell `$PROFILE`:
+
+```powershell
+just --completions powershell | Out-String | Invoke-Expression
+```
+
 #### Zsh
 
-Please refer to your shell's documentation for how to install them.
-
-*macOS Note:* Recent versions of macOS use zsh as the default shell. If you use
-Homebrew to install `just`, it will automatically install the most recent copy
-of the zsh completion script in the Homebrew zsh directory, which the built-in
-version of zsh doesn't know about by default. It's best to use this copy of the
-script if possible, since it will be updated whenever you update `just` via
-Homebrew. Also, many other Homebrew packages use the same location for
-completion scripts, and the built-in zsh doesn't know about those either. To
-take advantage of `just` completion in zsh in this scenario, you can set
-`fpath` to the Homebrew location before calling `compinit`. Note also that Oh
-My Zsh runs `compinit` by default. So your `.zshrc` file could look like this:
+First save the completion script:
 
 ```zsh
-# Init Homebrew, which adds environment variables
-eval "$(brew shellenv)"
+mkdir -p ~/.zsh/completions
+just --completions zsh > ~/.zsh/completions/_just
+```
 
-fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath)
+Then in your `.zshrc`:
 
-# Then choose one of these options:
-# 1. If you're using Oh My Zsh, you can initialize it here
-# source $ZSH/oh-my-zsh.sh
-
-# 2. Otherwise, run compinit yourself
-# autoload -U compinit
-# compinit
+```zsh
+fpath=(~/.zsh/completions $fpath)
+autoload -U compinit
+compinit
 ```
 
 ### Man Page
