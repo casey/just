@@ -4484,7 +4484,7 @@ The `just` binary can also generate the same completion scripts at runtime
 using `just --completions SHELL`:
 
 ```console
-$ just --completions zsh > just.zsh
+$ just --completions bash > just
 ```
 
 #### Bash
@@ -4494,7 +4494,7 @@ the completion script:
 
 ```bash
 mkdir -p ~/.local/share/bash-completion/completions
-just --completions > ~/.local/share/bash-completion/completions/just
+just --completions bash > ~/.local/share/bash-completion/completions/just
 ```
 
 If `bash-completions` is not installed, you can source the completion script in
@@ -4518,7 +4518,7 @@ set edit:completion:arg-completer[just] = { |@args|
 
 #### Fish
 
-Save the completion script to Fish's completions directory to lazy-load it:
+Save the completion script to the completions directory to lazy-load it:
 
 ```fish
 mkdir -p ~/.config/fish/completions
