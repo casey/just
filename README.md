@@ -4462,14 +4462,6 @@ parallel:
 For lightning-fast command running, put `alias j=just` in your shell's
 configuration file.
 
-In `bash`, the aliased command may not keep the shell completion functionality
-described in the next section. Add the following line to your `.bashrc` to use
-the same completion function as `just` for your aliased command:
-
-```console
-complete -F _just -o bashdefault -o default j
-```
-
 ### Shell Completion Scripts
 
 Shell completion scripts for Bash, Elvish, Fish, Nushell, PowerShell, and Zsh
@@ -4497,6 +4489,20 @@ your `.bashrc`:
 
 ```bash
 source <(just --completions bash)
+```
+
+If you use an alias like `alias j=just`, you should also save the completion
+script with the name `j` when lazy-loading:
+
+```bash
+just --completions bash > ~/.local/share/bash-completion/completions/j
+```
+
+Or if not lazy-loading, add this line after sourcing the completion script in
+your `.bashrc`:
+
+```bash
+complete -F _clap_complete_just -o bashdefault -o default j
 ```
 
 #### Elvish
