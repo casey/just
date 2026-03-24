@@ -1,1 +1,1 @@
-source <(JUST_COMPLETE=bash just)
+source <(just --completions bash)

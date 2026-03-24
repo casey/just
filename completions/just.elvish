@@ -1,1 +1,1 @@
-eval (E:JUST_COMPLETE=elvish just | slurp)
+eval (just --completions elvish | slurp)

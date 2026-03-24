@@ -1,3 +1,1 @@
-$env:JUST_COMPLETE = "powershell"
-just | Out-String | Invoke-Expression
-Remove-Item Env:\JUST_COMPLETE
+just --completions powershell | Out-String | Invoke-Expression

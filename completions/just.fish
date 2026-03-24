@@ -1,1 +1,1 @@
-JUST_COMPLETE=fish just | source
+just --completions fish | source

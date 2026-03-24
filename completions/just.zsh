@@ -1,1 +1,1 @@
-source <(JUST_COMPLETE=zsh just)
+source <(just --completions zsh)
