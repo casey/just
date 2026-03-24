@@ -1,7 +1,7 @@
 Changelog
 =========
 
-[1.48.0](https://github.com/casey/just/releases/tag/1.48.1) - 2026-03-23
+[1.48.0](https://github.com/casey/just/releases/tag/1.48.0) - 2026-03-23
 ------------------------------------------------------------------------
 
 ### Added

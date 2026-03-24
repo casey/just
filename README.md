@@ -1192,15 +1192,14 @@ goodbye
 
 #### Lazy
 
-The `lazy` setting<sup>1.47.0</sup>, currently unstable, causes the evaluator
-to skip evaluating unused variables. This can be beneficial when a `justfile`
-contains variables that are expensive to evaluate but only sometimes used.
+The `lazy` setting<sup>1.47.0</sup> causes the evaluator to skip evaluating
+unused variables. This can be beneficial when a `justfile` contains variables
+that are expensive to evaluate but only sometimes used.
 
 In the following `justfile`, `token` will be skipped when only invoking `bar`:
 
 ```just
 set lazy
-set unstable
 
 token := `expensive-script-to-get-credentials`
 
@@ -3280,8 +3279,6 @@ Using the `[script]` attribute and `script-interpreter` setting, `just` can
 easily be configured to run Python recipes with `uv`:
 
 ```just
-set unstable
-
 set script-interpreter := ['uv', 'run', '--script']
 
 [script]
@@ -4014,9 +4011,7 @@ baz:
 
 A `justfile` can declare modules using `mod` statements<sup>1.19.0</sup>.
 
-`mod` statements were stabilized in `just`<sup>1.31.0</sup>. In earlier
-versions, you'll need to use the `--unstable` flag, `set unstable`, or set the
-`JUST_UNSTABLE` environment variable to use them.
+`mod` statements were stabilized in `just`<sup>1.31.0</sup>.
 
 If you have the following `justfile`:
 
@@ -4685,8 +4680,8 @@ convert the invocation directory into a unix-style `/`-separated path. Use
 same unix-style path.
 
 `cygpath.exe` is used also used to convert Unix-style shebang lines into
-Windows paths. As an alternative, the `[script]` attribute, currently unstable,
-can be used, which does not depend on `cygpath.exe`.
+Windows paths. As an alternative, the `[script]` attribute can be used, which
+does not depend on `cygpath.exe`.
 
 If `cygpath.exe` is available, you can use it to convert between path styles:
 
