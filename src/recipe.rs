@@ -104,10 +104,7 @@ impl<'src, D> Recipe<'src, D> {
     self.name.line
   }
 
-  pub(crate) fn confirm(
-    &self,
-    evaluator: &mut Evaluator<'src, '_>,
-  ) -> RunResult<'src, bool> {
+  pub(crate) fn confirm(&self, evaluator: &mut Evaluator<'src, '_>) -> RunResult<'src, bool> {
     if let Some(Attribute::Confirm(prompt)) = self.attributes.get(AttributeDiscriminant::Confirm) {
       if let Some(expression) = prompt {
         let message = evaluator.evaluate_expression(expression)?;
