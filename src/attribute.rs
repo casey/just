@@ -366,9 +366,9 @@ impl Ord for Attribute<'_> {
     // in BTreeSet. Non-repeatable attributes (including Confirm) appear at
     // most once, so Equal is correct.
     match (self, other) {
-      (Self::Arg { name: a, .. }, Self::Arg { name: b, .. }) => a.cmp(b),
       (Self::Env(k1, v1), Self::Env(k2, v2)) => (k1, v1).cmp(&(k2, v2)),
-      (Self::Group(a), Self::Group(b)) => a.cmp(b),
+      (Self::Arg { name: a, .. }, Self::Arg { name: b, .. })
+      | (Self::Group(a), Self::Group(b)) => a.cmp(b),
       (Self::Metadata(a), Self::Metadata(b)) => a.cmp(b),
       _ => Ordering::Equal,
     }
