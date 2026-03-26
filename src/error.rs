@@ -198,6 +198,7 @@ pub(crate) enum Error<'src> {
     recipe: &'src str,
     line_number: Option<usize>,
     signal: i32,
+    print_message: bool,
   },
   #[cfg(windows)]
   SignalHandlerInstall {
@@ -230,6 +231,7 @@ pub(crate) enum Error<'src> {
   Unknown {
     recipe: &'src str,
     line_number: Option<usize>,
+    print_message: bool,
   },
   UnknownGroup {
     group: String,
@@ -306,6 +308,12 @@ impl<'src> Error<'src> {
     !matches!(
       self,
       Error::Code {
+        print_message: false,
+        ..
+      } | Error::Signal {
+        print_message: false,
+        ..
+      } | Error::Unknown {
         print_message: false,
         ..
       }
@@ -717,6 +725,7 @@ impl ColorDisplay for Error<'_> {
         recipe,
         line_number,
         signal,
+        ..
       } => {
         if let Some(n) = line_number {
           write!(
@@ -766,6 +775,7 @@ impl ColorDisplay for Error<'_> {
       Unknown {
         recipe,
         line_number,
+        ..
       } => {
         if let Some(n) = line_number {
           write!(
