@@ -1,17 +1,5 @@
 use super::*;
 
-#[cfg(unix)]
-use {
-  nix::{sys::signal::Signal, unistd::Pid},
-  std::process::{Child, Stdio},
-  std::time::Duration,
-};
-
-#[cfg(unix)]
-fn kill(child: &Child, signal: Signal) {
-  nix::sys::signal::kill(Pid::from_raw(child.id().try_into().unwrap()), signal).unwrap();
-}
-
 #[test]
 fn recipe_exit_message_suppressed() {
   Test::new()
@@ -275,129 +263,53 @@ fn exit_message_and_no_exit_message_compile_forbidden() {
     .failure();
 }
 
-/// Verify that `[no-exit-message]` suppresses the error printed when a recipe
-/// is terminated by a signal.
+/// `[no-exit-message]` should suppress the error when a recipe is killed by a
+/// signal. The shebang script sends SIGTERM to itself so just sees the child
+/// exit with a signal status rather than an exit code.
 #[test]
-#[ignore]
 #[cfg(unix)]
 fn signal_exit_message_suppressed() {
-  let tmp = tempdir();
-
-  fs::write(
-    tmp.path().join("justfile"),
-    unindent(
+  Test::new()
+    .justfile(
       "
         [no-exit-message]
         default:
-          @sleep 1
+          #!/usr/bin/env sh
+          kill -TERM $$
       ",
-    ),
-  )
-  .unwrap();
-
-  let start = std::time::Instant::now();
-
-  let mut child = Command::new(JUST)
-    .current_dir(&tmp)
-    .stdout(Stdio::piped())
-    .stderr(Stdio::piped())
-    .spawn()
-    .expect("just invocation failed");
-
-  while start.elapsed() < Duration::from_millis(500) {}
-
-  kill(&child, Signal::SIGINT);
-
-  let output = child.wait_with_output().unwrap();
-  let stderr = str::from_utf8(&output.stderr).unwrap();
-
-  assert_eq!(
-    stderr, "",
-    "[no-exit-message] should suppress signal error, got: {stderr:?}"
-  );
-  assert_eq!(output.status.code(), Some(130));
+    )
+    .status(128 + 15); // 128 + SIGTERM
 }
 
-/// Verify that without `[no-exit-message]` the signal error IS printed.
+/// Without `[no-exit-message]`, the signal error should still be printed.
 #[test]
-#[ignore]
 #[cfg(unix)]
 fn signal_exit_message_not_suppressed() {
-  let tmp = tempdir();
-
-  fs::write(
-    tmp.path().join("justfile"),
-    unindent(
+  Test::new()
+    .justfile(
       "
         default:
-          @sleep 1
+          #!/usr/bin/env sh
+          kill -TERM $$
       ",
-    ),
-  )
-  .unwrap();
-
-  let start = std::time::Instant::now();
-
-  let mut child = Command::new(JUST)
-    .current_dir(&tmp)
-    .stdout(Stdio::piped())
-    .stderr(Stdio::piped())
-    .spawn()
-    .expect("just invocation failed");
-
-  while start.elapsed() < Duration::from_millis(500) {}
-
-  kill(&child, Signal::SIGINT);
-
-  let output = child.wait_with_output().unwrap();
-  let stderr = str::from_utf8(&output.stderr).unwrap();
-
-  assert!(
-    stderr.contains("was terminated"),
-    "expected signal error message, got: {stderr:?}"
-  );
-  assert_eq!(output.status.code(), Some(130));
+    )
+    .stderr("error: Recipe `default` was terminated by signal 15\n")
+    .status(128 + 15);
 }
 
-/// Verify that `set no-exit-message` also suppresses signal errors.
+/// `set no-exit-message` should also suppress signal errors.
 #[test]
-#[ignore]
 #[cfg(unix)]
 fn signal_exit_message_setting_suppressed() {
-  let tmp = tempdir();
-
-  fs::write(
-    tmp.path().join("justfile"),
-    unindent(
+  Test::new()
+    .justfile(
       "
         set no-exit-message
 
         default:
-          @sleep 1
+          #!/usr/bin/env sh
+          kill -TERM $$
       ",
-    ),
-  )
-  .unwrap();
-
-  let start = std::time::Instant::now();
-
-  let mut child = Command::new(JUST)
-    .current_dir(&tmp)
-    .stdout(Stdio::piped())
-    .stderr(Stdio::piped())
-    .spawn()
-    .expect("just invocation failed");
-
-  while start.elapsed() < Duration::from_millis(500) {}
-
-  kill(&child, Signal::SIGINT);
-
-  let output = child.wait_with_output().unwrap();
-  let stderr = str::from_utf8(&output.stderr).unwrap();
-
-  assert_eq!(
-    stderr, "",
-    "`set no-exit-message` should suppress signal error, got: {stderr:?}"
-  );
-  assert_eq!(output.status.code(), Some(130));
+    )
+    .status(128 + 15);
 }
