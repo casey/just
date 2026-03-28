@@ -36,13 +36,10 @@ impl From<&str> for ShellKind {
 
 impl From<&Command> for ShellKind {
   fn from(command: &Command) -> Self {
-    let command = Path::new(command.get_program());
-
-    let Some(command) = command.file_name() else {
-      return Self::Other;
-    };
-
-    let Some(command) = command.to_str() else {
+    let Some(command) = Path::new(command.get_program())
+      .file_name()
+      .and_then(OsStr::to_str)
+    else {
       return Self::Other;
     };
 
