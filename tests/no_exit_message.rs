@@ -263,9 +263,6 @@ fn exit_message_and_no_exit_message_compile_forbidden() {
     .failure();
 }
 
-/// `[no-exit-message]` should suppress the error when a recipe is killed by a
-/// signal. The shebang script sends SIGTERM to itself so just sees the child
-/// exit with a signal status rather than an exit code.
 #[test]
 #[cfg(unix)]
 fn signal_exit_message_suppressed() {
@@ -281,7 +278,6 @@ fn signal_exit_message_suppressed() {
     .status(128 + 15); // 128 + SIGTERM
 }
 
-/// Without `[no-exit-message]`, the signal error should still be printed.
 #[test]
 #[cfg(unix)]
 fn signal_exit_message_not_suppressed() {
@@ -297,7 +293,6 @@ fn signal_exit_message_not_suppressed() {
     .status(128 + 15);
 }
 
-/// `set no-exit-message` should also suppress signal errors.
 #[test]
 #[cfg(unix)]
 fn signal_exit_message_setting_suppressed() {
