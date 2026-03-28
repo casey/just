@@ -40,13 +40,7 @@ _clap_complete_just() {
         local _CLAP_COMPLETE_SPACE=true
     fi
     local words=("${COMP_WORDS[@]}")
-    echo "--- completion invoked ---" >> /Users/rodarmor/src/just/complete-log
-    echo "COMP_WORDS: $(printf "'%s' " "${COMP_WORDS[@]}")" >> /Users/rodarmor/src/just/complete-log
-    echo "COMP_CWORD: $COMP_CWORD" >> /Users/rodarmor/src/just/complete-log
     _clap_reassemble_words
-    echo "reassembled words: $(printf "'%s' " "${words[@]}")" >> /Users/rodarmor/src/just/complete-log
-    echo "_CLAP_COMPLETE_INDEX: $_CLAP_COMPLETE_INDEX" >> /Users/rodarmor/src/just/complete-log
-    echo "cur: '${words[_CLAP_COMPLETE_INDEX]}'" >> /Users/rodarmor/src/just/complete-log
     COMPREPLY=( $( \
         _CLAP_IFS="$IFS" \
         _CLAP_COMPLETE_INDEX="$_CLAP_COMPLETE_INDEX" \
@@ -60,9 +54,7 @@ _clap_complete_just() {
     elif [[ $_CLAP_COMPLETE_SPACE == false ]] && [[ "${COMPREPLY-}" =~ [=/:]$ ]]; then
         compopt -o nospace
     fi
-    echo "COMPREPLY before trim: $(printf "'%s' " "${COMPREPLY[@]}")" >> /Users/rodarmor/src/just/complete-log
     _clap_trim_completions
-    echo "COMPREPLY after trim: $(printf "'%s' " "${COMPREPLY[@]}")" >> /Users/rodarmor/src/just/complete-log
 }
 
 if [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 4 || "${BASH_VERSINFO[0]}" -gt 4 ]]; then
