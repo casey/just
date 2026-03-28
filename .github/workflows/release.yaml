@@ -39,6 +39,7 @@ jobs:
         - arm-unknown-linux-musleabihf
         - armv7-unknown-linux-musleabihf
         - loongarch64-unknown-linux-musl
+        - riscv64gc-unknown-linux-musl
         - x86_64-apple-darwin
         - x86_64-pc-windows-msvc
         - x86_64-unknown-linux-musl
@@ -61,6 +62,9 @@ jobs:
         - target: loongarch64-unknown-linux-musl
           os: ubuntu-latest
           target_rustflags: '--codegen linker=loongarch64-linux-gnu-gcc-14'
+        - target: riscv64gc-unknown-linux-musl
+          os: ubuntu-latest
+          target_rustflags: '--codegen linker=riscv64-linux-gnu-gcc'
         - target: x86_64-apple-darwin
           os: macos-latest
           target_rustflags: ''
@@ -95,6 +99,10 @@ jobs:
           loongarch64-unknown-linux-musl)
             sudo apt-get update
             sudo apt-get install gcc-14-loongarch64-linux-gnu
+            ;;
+          riscv64gc-unknown-linux-musl)
+            sudo apt-get update
+            sudo apt-get install gcc-riscv64-linux-gnu
             ;;
         esac
 
