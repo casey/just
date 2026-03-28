@@ -249,7 +249,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           return Ok(format!("`{contents}`"));
         }
 
-        Self::run_command(context, &self.env, &self.scope, contents, &[]).map_err(|output_error| {
+        Self::run_command(context, &self.env, &self.scope, contents, None).map_err(|output_error| {
           Error::Backtick {
             token: *token,
             output_error,
@@ -415,23 +415,23 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     env: &BTreeMap<String, String>,
     scope: &Scope,
     command: &str,
-    args: &[&str],
+    args: Option<&[String]>,
   ) -> Result<String, OutputError> {
     let mut cmd = context.module.settings.shell_command(context.config);
 
     cmd.arg(command);
 
-    let args = if !args.is_empty()
-      && let Some(program) = cmd.get_program().to_str()
-      && !ShellKind::from(program).takes_shell_name()
-    {
-      &args[1..]
-    } else {
-      args
-    };
+    if let Some(args) = args {
+      if let Some(program) = cmd.get_program().to_str()
+        && ShellKind::from(program).takes_shell_name()
+      {
+        cmd.arg(command);
+      }
+
+      cmd.args(args);
+    }
 
     cmd
-      .args(args)
       .current_dir(context.working_directory())
       .export(
         &context.module.settings,
