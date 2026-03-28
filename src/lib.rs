@@ -86,6 +86,7 @@ pub(crate) use {
     settings::Settings,
     shebang::Shebang,
     shell::Shell,
+    shell_kind::ShellKind,
     show_whitespace::ShowWhitespace,
     sigil::Sigil,
     signal::Signal,
@@ -272,6 +273,7 @@ mod setting;
 mod settings;
 mod shebang;
 mod shell;
+mod shell_kind;
 mod show_whitespace;
 mod sigil;
 mod signal;

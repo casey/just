@@ -540,16 +540,12 @@ fn sha256_file(context: Context, path: &str) -> FunctionResult {
 }
 
 fn shell(context: Context, command: &str, args: &[String]) -> FunctionResult {
-  let args = iter::once(command)
-    .chain(args.iter().map(String::as_str))
-    .collect::<Vec<&str>>();
-
   Evaluator::run_command(
     context.execution_context,
     &BTreeMap::new(),
     context.scope,
     command,
-    &args,
+    Some(args),
   )
   .map_err(|output_error| output_error.to_string())
 }
