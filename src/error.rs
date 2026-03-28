@@ -136,10 +136,6 @@ pub(crate) enum Error<'src> {
   Interrupted {
     signal: Signal,
   },
-  Io {
-    recipe: &'src str,
-    io_error: io::Error,
-  },
   Load {
     path: PathBuf,
     io_error: io::Error,
@@ -193,6 +189,11 @@ pub(crate) enum Error<'src> {
     command: String,
     io_error: io::Error,
     recipe: &'src str,
+  },
+  ShellIo {
+    io_error: io::Error,
+    recipe: &'src str,
+    shell: String,
   },
   Signal {
     line_number: Option<usize>,
@@ -625,19 +626,26 @@ impl ColorDisplay for Error<'_> {
       Interrupted { signal } => {
         write!(f, "Interrupted by {signal}")?;
       }
-      Io { recipe, io_error } => {
+      ShellIo {
+        recipe,
+        io_error,
+        shell,
+      } => {
         match io_error.kind() {
           io::ErrorKind::NotFound => write!(
             f,
-            "Recipe `{recipe}` could not be run because just could not find the shell: {io_error}",
+            "Recipe `{recipe}` could not be run because just could not find the shell `{shell}`: \
+            {io_error}",
           ),
           io::ErrorKind::PermissionDenied => write!(
             f,
-            "Recipe `{recipe}` could not be run because just could not run the shell: {io_error}",
+            "Recipe `{recipe}` could not be run because just could not run the shell `{shell}`: \
+            {io_error}",
           ),
           _ => write!(
             f,
-            "Recipe `{recipe}` could not be run because of an IO error while launching the shell: {io_error}",
+            "Recipe `{recipe}` could not be run because of an IO error while launching the shell \
+            `{shell}`: {io_error}",
           ),
         }?;
       }
