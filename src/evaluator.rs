@@ -419,8 +419,18 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   ) -> Result<String, OutputError> {
     let mut cmd = context.module.settings.shell_command(context.config);
 
+    cmd.arg(command);
+
+    let args = if !args.is_empty()
+      && let Some(program) = cmd.get_program().to_str()
+      && !ShellKind::from(program).takes_shell_name()
+    {
+      &args[1..]
+    } else {
+      args
+    };
+
     cmd
-      .arg(command)
       .args(args)
       .current_dir(context.working_directory())
       .export(
