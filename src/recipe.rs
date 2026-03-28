@@ -3,22 +3,22 @@ use super::*;
 /// Return a `Error::Signal` if the process was terminated by a signal,
 /// otherwise return an `Error::UnknownFailure`
 fn error_from_signal(
-  recipe: &str,
-  line_number: Option<usize>,
   exit_status: ExitStatus,
+  line_number: Option<usize>,
   print_message: bool,
+  recipe: &str,
 ) -> Error {
   match Platform::signal_from_exit_status(exit_status) {
     Some(signal) => Error::Signal {
-      recipe,
       line_number,
-      signal,
       print_message,
+      recipe,
+      signal,
     },
     None => Error::Unknown {
-      recipe,
       line_number,
       print_message,
+      recipe,
     },
   }
 }
@@ -382,10 +382,10 @@ impl<'src, D> Recipe<'src, D> {
             }
           } else if !infallible {
             return Err(error_from_signal(
-              self.name(),
-              Some(line_number),
               exit_status,
+              Some(line_number),
               self.print_exit_message(settings),
+              self.name(),
             ));
           }
         }
@@ -531,10 +531,10 @@ impl<'src, D> Recipe<'src, D> {
       Ok(exit_status) => exit_status.code().map_or_else(
         || {
           Err(error_from_signal(
-            self.name(),
-            None,
             exit_status,
+            None,
             self.print_exit_message(&context.module.settings),
+            self.name(),
           ))
         },
         |code| {

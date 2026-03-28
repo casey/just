@@ -195,10 +195,10 @@ pub(crate) enum Error<'src> {
     recipe: &'src str,
   },
   Signal {
-    recipe: &'src str,
     line_number: Option<usize>,
-    signal: i32,
     print_message: bool,
+    recipe: &'src str,
+    signal: i32,
   },
   #[cfg(windows)]
   SignalHandlerInstall {
@@ -229,9 +229,9 @@ pub(crate) enum Error<'src> {
     io_error: io::Error,
   },
   Unknown {
-    recipe: &'src str,
     line_number: Option<usize>,
     print_message: bool,
+    recipe: &'src str,
   },
   UnknownGroup {
     group: String,
