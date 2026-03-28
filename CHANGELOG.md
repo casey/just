@@ -1,6 +1,18 @@
 Changelog
 =========
 
+[1.48.1](https://github.com/casey/just/releases/tag/1.48.1) - 2026-03-27
+------------------------------------------------------------------------
+
+- Fix bash completion of command lines containing `:` ([#3205](https://github.com/casey/just/pull/3205) by [casey](https://github.com/casey))
+- Call zsh completion function when first auto-loaded ([#3199](https://github.com/casey/just/pull/3199) by [casey](https://github.com/casey))
+- Fix `--set` missing value error message interpolation ([#3198](https://github.com/casey/just/pull/3198) by [cuiweixie](https://github.com/cuiweixie))
+- Add `#compdef` to zsh completion script ([#3197](https://github.com/casey/just/pull/3197) by [casey](https://github.com/casey))
+- Add instructions for alias completions in bash ([#3190](https://github.com/casey/just/pull/3190) by [casey](https://github.com/casey))
+- Remove redundant clap derive attributes ([#3183](https://github.com/casey/just/pull/3183) by [casey](https://github.com/casey))
+- Move files into etc/ ([#3182](https://github.com/casey/just/pull/3182) by [casey](https://github.com/casey))
+- Update stable features in readme ([#3181](https://github.com/casey/just/pull/3181) by [casey](https://github.com/casey))
+
 [1.48.0](https://github.com/casey/just/releases/tag/1.48.0) - 2026-03-23
 ------------------------------------------------------------------------
 
