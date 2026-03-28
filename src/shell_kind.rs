@@ -1,3 +1,5 @@
+use super::*;
+
 #[derive(Clone, Copy)]
 pub(crate) enum ShellKind {
   Cmd,
@@ -29,6 +31,22 @@ impl From<&str> for ShellKind {
       "powershell" | "powershell.exe" | "pwsh" | "pwsh.exe" => Self::Powershell,
       _ => Self::Other,
     }
+  }
+}
+
+impl From<&Command> for ShellKind {
+  fn from(command: &Command) -> Self {
+    let command = Path::new(command.get_program());
+
+    let Some(command) = command.file_name() else {
+      return Self::Other;
+    };
+
+    let Some(command) = command.to_str() else {
+      return Self::Other;
+    };
+
+    command.into()
   }
 }
 
