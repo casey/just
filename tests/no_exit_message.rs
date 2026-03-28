@@ -275,7 +275,7 @@ fn signal_exit_message_suppressed() {
           kill -TERM $$
       ",
     )
-    .status(128 + 15); // 128 + SIGTERM
+    .status(128 + 15);
 }
 
 #[test]
