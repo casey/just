@@ -262,3 +262,49 @@ fn exit_message_and_no_exit_message_compile_forbidden() {
     )
     .failure();
 }
+
+#[test]
+#[cfg(unix)]
+fn signal_exit_message_suppressed() {
+  Test::new()
+    .justfile(
+      "
+        [no-exit-message]
+        default:
+          #!/usr/bin/env sh
+          kill -TERM $$
+      ",
+    )
+    .status(128 + 15);
+}
+
+#[test]
+#[cfg(unix)]
+fn signal_exit_message_not_suppressed() {
+  Test::new()
+    .justfile(
+      "
+        default:
+          #!/usr/bin/env sh
+          kill -TERM $$
+      ",
+    )
+    .stderr("error: Recipe `default` was terminated by signal 15\n")
+    .status(128 + 15);
+}
+
+#[test]
+#[cfg(unix)]
+fn signal_exit_message_setting_suppressed() {
+  Test::new()
+    .justfile(
+      "
+        set no-exit-message
+
+        default:
+          #!/usr/bin/env sh
+          kill -TERM $$
+      ",
+    )
+    .status(128 + 15);
+}

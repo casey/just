@@ -1,21 +1,5 @@
 use super::*;
 
-/// Return a `Error::Signal` if the process was terminated by a signal,
-/// otherwise return an `Error::UnknownFailure`
-fn error_from_signal(recipe: &str, line_number: Option<usize>, exit_status: ExitStatus) -> Error {
-  match Platform::signal_from_exit_status(exit_status) {
-    Some(signal) => Error::Signal {
-      recipe,
-      line_number,
-      signal,
-    },
-    None => Error::Unknown {
-      recipe,
-      line_number,
-    },
-  }
-}
-
 /// A recipe, e.g. `foo: bar baz`
 #[derive(PartialEq, Debug, Clone, Serialize)]
 pub(crate) struct Recipe<'src, D = Dependency<'src>> {
@@ -374,10 +358,11 @@ impl<'src, D> Recipe<'src, D> {
               }
             }
           } else if !infallible {
-            return Err(error_from_signal(
-              self.name(),
-              Some(line_number),
+            return Err(Error::from_signal(
               exit_status,
+              Some(line_number),
+              self.print_exit_message(settings),
+              self.name(),
             ));
           }
         }
@@ -521,7 +506,14 @@ impl<'src, D> Recipe<'src, D> {
 
     match result {
       Ok(exit_status) => exit_status.code().map_or_else(
-        || Err(error_from_signal(self.name(), None, exit_status)),
+        || {
+          Err(Error::from_signal(
+            exit_status,
+            None,
+            self.print_exit_message(&context.module.settings),
+            self.name(),
+          ))
+        },
         |code| {
           if code == 0 {
             Ok(())

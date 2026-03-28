@@ -195,8 +195,9 @@ pub(crate) enum Error<'src> {
     recipe: &'src str,
   },
   Signal {
-    recipe: &'src str,
     line_number: Option<usize>,
+    print_message: bool,
+    recipe: &'src str,
     signal: i32,
   },
   #[cfg(windows)]
@@ -228,8 +229,9 @@ pub(crate) enum Error<'src> {
     io_error: io::Error,
   },
   Unknown {
-    recipe: &'src str,
     line_number: Option<usize>,
+    print_message: bool,
+    recipe: &'src str,
   },
   UnknownGroup {
     group: String,
@@ -296,6 +298,29 @@ impl<'src> Error<'src> {
     }
   }
 
+  /// `Self::Signal` if process was terminated by a signal otherwise
+  /// `Self::UnknownFailure`.
+  pub(crate) fn from_signal(
+    exit_status: ExitStatus,
+    line_number: Option<usize>,
+    print_message: bool,
+    recipe: &'src str,
+  ) -> Self {
+    match Platform::signal_from_exit_status(exit_status) {
+      Some(signal) => Self::Signal {
+        line_number,
+        print_message,
+        recipe,
+        signal,
+      },
+      None => Self::Unknown {
+        line_number,
+        print_message,
+        recipe,
+      },
+    }
+  }
+
   pub(crate) fn internal(message: impl Into<String>) -> Self {
     Self::Internal {
       message: message.into(),
@@ -303,13 +328,12 @@ impl<'src> Error<'src> {
   }
 
   pub(crate) fn print_message(&self) -> bool {
-    !matches!(
-      self,
-      Error::Code {
-        print_message: false,
-        ..
-      }
-    )
+    match self {
+      Self::Code { print_message, .. }
+      | Self::Signal { print_message, .. }
+      | Self::Unknown { print_message, .. } => *print_message,
+      _ => true,
+    }
   }
 
   fn source(&self) -> Option<&dyn std::error::Error> {
@@ -717,6 +741,7 @@ impl ColorDisplay for Error<'_> {
         recipe,
         line_number,
         signal,
+        ..
       } => {
         if let Some(n) = line_number {
           write!(
@@ -766,6 +791,7 @@ impl ColorDisplay for Error<'_> {
       Unknown {
         recipe,
         line_number,
+        ..
       } => {
         if let Some(n) = line_number {
           write!(
