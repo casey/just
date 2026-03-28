@@ -2,11 +2,11 @@ _clap_reassemble_words() {
     if [[ "$COMP_WORDBREAKS" != *:* ]]; then
         return
     fi
-    local i j=0
+    local i j=0 line=$COMP_LINE
     words=()
     _CLAP_COMPLETE_INDEX=0
     for ((i = 0; i < ${#COMP_WORDS[@]}; i++)); do
-        if ((i > 0 && j > 0)) && [[ "${COMP_WORDS[i]}" == :* || "${words[j-1]}" == *: ]]; then
+        if ((i > 0 && j > 0)) && [[ "${COMP_WORDS[i]}" == :* || "${words[j-1]}" == *: ]] && [[ "$line" != [[:blank:]]* ]]; then
             words[j-1]="${words[j-1]}${COMP_WORDS[i]}"
         else
             words[j]="${COMP_WORDS[i]}"
@@ -15,6 +15,7 @@ _clap_reassemble_words() {
         if ((i == COMP_CWORD)); then
             _CLAP_COMPLETE_INDEX=$((j - 1))
         fi
+        line=${line#*"${COMP_WORDS[i]}"}
     done
 }
 
