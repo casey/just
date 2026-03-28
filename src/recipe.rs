@@ -487,10 +487,24 @@ impl<'src, D> Recipe<'src, D> {
       eprintln!("{}", config.color.doc().stderr().paint(&script));
     }
 
-    fs::write(&path, script).map_err(|error| Error::TempdirIo {
-      recipe: self.name(),
-      io_error: error,
-    })?;
+    let interpreter = match &executor {
+      Executor::Shebang(shebang) => shebang.interpreter,
+      Executor::Command(command) => command.command.as_str(),
+    };
+    let preamble = match interpreter.to_lowercase().as_str() {
+      "powershell" | "powershell.exe" => "\u{FEFF}",
+      _ => "",
+    };
+
+    File::create(&path)
+      .and_then(|mut f| {
+        f.write_all(preamble.as_ref())?;
+        f.write_all(script.as_ref())
+      })
+      .map_err(|error| Error::TempdirIo {
+        recipe: self.name(),
+        io_error: error,
+      })?;
 
     let mut command = executor.command(
       config,
