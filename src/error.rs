@@ -305,19 +305,12 @@ impl<'src> Error<'src> {
   }
 
   pub(crate) fn print_message(&self) -> bool {
-    !matches!(
-      self,
-      Error::Code {
-        print_message: false,
-        ..
-      } | Error::Signal {
-        print_message: false,
-        ..
-      } | Error::Unknown {
-        print_message: false,
-        ..
-      }
-    )
+    match self {
+      Self::Code { print_message, .. }
+      | Self::Signal { print_message, .. }
+      | Self::Unknown { print_message, .. } => *print_message,
+      _ => true,
+    }
   }
 
   fn source(&self) -> Option<&dyn std::error::Error> {
