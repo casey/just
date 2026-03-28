@@ -1,3 +1,4 @@
+#[derive(Clone, Copy)]
 pub(crate) enum ShellKind {
   Cmd,
   Other,
@@ -30,5 +31,30 @@ impl From<&str> for ShellKind {
       "pwsh" | "pwsh.exe" => Self::Pwsh,
       _ => Self::Other,
     }
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn from_str() {
+    #[track_caller]
+    fn case(s: &str, takes_shell_name: bool, extension: &str) {
+      let kind = ShellKind::from(s);
+      assert_eq!(kind.takes_shell_name(), takes_shell_name, "takes_shell_name for {s:?}");
+      assert_eq!(kind.extension(), extension, "extension for {s:?}");
+    }
+
+    case("sh", true, "");
+    case("bash", true, "");
+    case("zsh", true, "");
+    case("cmd", false, ".bat");
+    case("cmd.exe", false, ".bat");
+    case("powershell", false, ".ps1");
+    case("powershell.exe", false, ".ps1");
+    case("pwsh", false, ".ps1");
+    case("pwsh.exe", false, ".ps1");
   }
 }
