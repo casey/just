@@ -367,9 +367,10 @@ impl<'src, D> Recipe<'src, D> {
           }
         }
         Err(io_error) => {
-          return Err(Error::Io {
-            recipe: self.name(),
+          return Err(Error::ShellIo {
             io_error,
+            recipe: self.name(),
+            shell: settings.shell(config).0.into(),
           });
         }
       }
