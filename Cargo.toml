@@ -1,6 +1,6 @@
 [package]
 name = "just"
-version = "1.48.0"
+version = "1.48.1"
 authors = ["Casey Rodarmor <casey@rodarmor.com>"]
 autotests = false
 categories = ["command-line-utilities", "development-tools"]
@@ -24,10 +24,10 @@ camino = "1.0.4"
 chrono = "0.4.38"
 clap = { version = "4.0.0", features = ["derive", "env", "wrap_help"] }
 clap_complete = { version = "=4.6.0", features = ["unstable-dynamic"] }
-clap_mangen = "0.2.20"
+clap_mangen = "0.3.0"
 derive-where = "1.2.7"
 dirs = "6.0.0"
-dotenvy = "0.15"
+dotenvy = "0.15.0"
 edit-distance = "2.0.0"
 heck = "0.5.0"
 is_executable = "1.0.4"
@@ -41,7 +41,7 @@ rustversion = "1.0.18"
 semver = "1.0.20"
 serde = { version = "1.0.130", features = ["derive", "rc"] }
 serde_json = "1.0.68"
-sha2 = "0.10"
+sha2 = "0.10.9"
 shellexpand = "3.1.0"
 similar = { version = "2.1.0", features = ["unicode"] }
 snafu = "0.9.0"
