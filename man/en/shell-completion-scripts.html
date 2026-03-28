@@ -195,6 +195,14 @@ just --completions bash &gt; ~/.local/share/bash-completion/completions/just
 your <code>.bashrc</code>:</p>
 <pre><code class="language-bash">source &lt;(just --completions bash)
 </code></pre>
+<p>If you use an alias like <code>alias j=just</code>, you should also save the completion
+script with the name <code>j</code> when lazy-loading:</p>
+<pre><code class="language-bash">just --completions bash &gt; ~/.local/share/bash-completion/completions/j
+</code></pre>
+<p>Or if not lazy-loading, add this line after sourcing the completion script in
+your <code>.bashrc</code>:</p>
+<pre><code class="language-bash">complete -F _clap_complete_just -o bashdefault -o default j
+</code></pre>
 <h4 id="elvish"><a class="header" href="#elvish">Elvish</a></h4>
 <p>In your <code>rc.elv</code>:</p>
 <pre><code class="language-elvish">set edit:completion:arg-completer[just] = { |@args|

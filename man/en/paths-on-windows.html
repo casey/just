@@ -196,8 +196,8 @@ convert the invocation directory into a unix-style <code>/</code>-separated path
 <code>invocation_directory()</code> and <code>invocation_directory_native()</code> both return the
 same unix-style path.</p>
 <p><code>cygpath.exe</code> is used also used to convert Unix-style shebang lines into
-Windows paths. As an alternative, the <code>[script]</code> attribute, currently unstable,
-can be used, which does not depend on <code>cygpath.exe</code>.</p>
+Windows paths. As an alternative, the <code>[script]</code> attribute can be used, which
+does not depend on <code>cygpath.exe</code>.</p>
 <p>If <code>cygpath.exe</code> is available, you can use it to convert between path styles:</p>
 <pre><code class="language-just">foo_unix := '/hello/world'
 foo_windows := shell('cygpath --windows $1', foo_unix)

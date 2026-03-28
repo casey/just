@@ -308,12 +308,11 @@ hello
 goodbye
 </code></pre>
 <h4 id="lazy"><a class="header" href="#lazy">Lazy</a></h4>
-<p>The <code>lazy</code> setting<sup>1.47.0</sup>, currently unstable, causes the evaluator
-to skip evaluating unused variables. This can be beneficial when a <code>justfile</code>
-contains variables that are expensive to evaluate but only sometimes used.</p>
+<p>The <code>lazy</code> setting<sup>1.47.0</sup> causes the evaluator to skip evaluating
+unused variables. This can be beneficial when a <code>justfile</code> contains variables
+that are expensive to evaluate but only sometimes used.</p>
 <p>In the following <code>justfile</code>, <code>token</code> will be skipped when only invoking <code>bar</code>:</p>
 <pre><code class="language-just">set lazy
-set unstable
 
 token := `expensive-script-to-get-credentials`
 

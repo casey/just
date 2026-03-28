@@ -207,7 +207,7 @@ reflects latest master.</p>
 快看过来!)</p>
 <p>Commands, called recipes, are stored in a file called <code>justfile</code> with syntax
 inspired by <code>make</code>:</p>
-<p><img src="https://raw.githubusercontent.com/casey/just/master/screenshot.png" alt="screenshot" /></p>
+<p><img src="https://raw.githubusercontent.com/casey/just/master/etc/screenshot.png" alt="screenshot" /></p>
 <p>You can then run them with <code>just RECIPE</code>:</p>
 <pre><code class="language-console">$ just test-all
 cc *.c -o main
@@ -1080,12 +1080,11 @@ hello
 goodbye
 </code></pre>
 <h4 id="lazy"><a class="header" href="#lazy">Lazy</a></h4>
-<p>The <code>lazy</code> setting<sup>1.47.0</sup>, currently unstable, causes the evaluator
-to skip evaluating unused variables. This can be beneficial when a <code>justfile</code>
-contains variables that are expensive to evaluate but only sometimes used.</p>
+<p>The <code>lazy</code> setting<sup>1.47.0</sup> causes the evaluator to skip evaluating
+unused variables. This can be beneficial when a <code>justfile</code> contains variables
+that are expensive to evaluate but only sometimes used.</p>
 <p>In the following <code>justfile</code>, <code>token</code> will be skipped when only invoking <code>bar</code>:</p>
 <pre><code class="language-just">set lazy
-set unstable
 
 token := `expensive-script-to-get-credentials`
 
@@ -2630,9 +2629,7 @@ environment variable<sup>1.41.0</sup>.</p>
 project manager, written in Rust.</p>
 <p>Using the <code>[script]</code> attribute and <code>script-interpreter</code> setting, <code>just</code> can
 easily be configured to run Python recipes with <code>uv</code>:</p>
-<pre><code class="language-just">set unstable
-
-set script-interpreter := ['uv', 'run', '--script']
+<pre><code class="language-just">set script-interpreter := ['uv', 'run', '--script']
 
 [script]
 hello:
@@ -3164,9 +3161,7 @@ baz:
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="modules"><a class="header" href="#modules">Modules</a></h3>
 <p>A <code>justfile</code> can declare modules using <code>mod</code> statements<sup>1.19.0</sup>.</p>
-<p><code>mod</code> statements were stabilized in <code>just</code><sup>1.31.0</sup>. In earlier
-versions, you’ll need to use the <code>--unstable</code> flag, <code>set unstable</code>, or set the
-<code>JUST_UNSTABLE</code> environment variable to use them.</p>
+<p><code>mod</code> statements were stabilized in <code>just</code><sup>1.31.0</sup>.</p>
 <p>If you have the following <code>justfile</code>:</p>
 <pre><code class="language-justfile">mod bar
 
@@ -3475,11 +3470,6 @@ baz:
 <div style="break-before: page; page-break-before: always;"></div><h3 id="shell-alias"><a class="header" href="#shell-alias">Shell Alias</a></h3>
 <p>For lightning-fast command running, put <code>alias j=just</code> in your shell’s
 configuration file.</p>
-<p>In <code>bash</code>, the aliased command may not keep the shell completion functionality
-described in the next section. Add the following line to your <code>.bashrc</code> to use
-the same completion function as <code>just</code> for your aliased command:</p>
-<pre><code class="language-console">complete -F _just -o bashdefault -o default j
-</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="shell-completion-scripts"><a class="header" href="#shell-completion-scripts">Shell Completion Scripts</a></h3>
 <p>Shell completion scripts for Bash, Elvish, Fish, Nushell, PowerShell, and Zsh
 are available in <a href="https://github.com/casey/just/releases">release archives</a>.</p>
@@ -3496,6 +3486,14 @@ just --completions bash &gt; ~/.local/share/bash-completion/completions/just
 <p>If <code>bash-completions</code> is not installed, you can source the completion script in
 your <code>.bashrc</code>:</p>
 <pre><code class="language-bash">source &lt;(just --completions bash)
+</code></pre>
+<p>If you use an alias like <code>alias j=just</code>, you should also save the completion
+script with the name <code>j</code> when lazy-loading:</p>
+<pre><code class="language-bash">just --completions bash &gt; ~/.local/share/bash-completion/completions/j
+</code></pre>
+<p>Or if not lazy-loading, add this line after sourcing the completion script in
+your <code>.bashrc</code>:</p>
+<pre><code class="language-bash">complete -F _clap_complete_just -o bashdefault -o default j
 </code></pre>
 <h4 id="elvish"><a class="header" href="#elvish">Elvish</a></h4>
 <p>In your <code>rc.elv</code>:</p>
@@ -3612,8 +3610,8 @@ convert the invocation directory into a unix-style <code>/</code>-separated path
 <code>invocation_directory()</code> and <code>invocation_directory_native()</code> both return the
 same unix-style path.</p>
 <p><code>cygpath.exe</code> is used also used to convert Unix-style shebang lines into
-Windows paths. As an alternative, the <code>[script]</code> attribute, currently unstable,
-can be used, which does not depend on <code>cygpath.exe</code>.</p>
+Windows paths. As an alternative, the <code>[script]</code> attribute can be used, which
+does not depend on <code>cygpath.exe</code>.</p>
 <p>If <code>cygpath.exe</code> is available, you can use it to convert between path styles:</p>
 <pre><code class="language-just">foo_unix := '/hello/world'
 foo_windows := shell('cygpath --windows $1', foo_unix)
