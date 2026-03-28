@@ -298,6 +298,29 @@ impl<'src> Error<'src> {
     }
   }
 
+  /// `Self::Signal` if process was terminated by a signal otherwise
+  /// `Self::UnknownFailure`.
+  pub(crate) fn from_signal(
+    exit_status: ExitStatus,
+    line_number: Option<usize>,
+    print_message: bool,
+    recipe: &'src str,
+  ) -> Self {
+    match Platform::signal_from_exit_status(exit_status) {
+      Some(signal) => Self::Signal {
+        line_number,
+        print_message,
+        recipe,
+        signal,
+      },
+      None => Self::Unknown {
+        line_number,
+        print_message,
+        recipe,
+      },
+    }
+  }
+
   pub(crate) fn internal(message: impl Into<String>) -> Self {
     Self::Internal {
       message: message.into(),
