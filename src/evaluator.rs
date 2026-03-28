@@ -422,10 +422,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     cmd.arg(command);
 
     if let Some(args) = args {
-      if let Some(program) = cmd.get_program().to_str()
-        && ShellKind::from(program).takes_shell_name()
-      {
-        cmd.arg(command);
+      if let Some(program) = cmd.get_program().to_str() {
+        if ShellKind::from(program).takes_shell_name() {
+          cmd.arg(command);
+        }
       }
 
       cmd.args(args);
