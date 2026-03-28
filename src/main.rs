@@ -5,6 +5,9 @@ use {
   std::{env, process},
 };
 
+// todo:
+// - write a failing test which fails if the base bash registration script changes
+
 fn main() {
   if env::var_os("JUST_COMPLETE").is_some_and(|value| value == "bash")
     && env::args_os().nth(1).is_none()
