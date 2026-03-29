@@ -351,27 +351,6 @@ most Windows users.)
   </tbody>
 </table>
 
-
-#### Nix flake
-
-The `just` repository has a `flake.nix` file defining the repository as a [nix flake](https://nix.dev/concepts/flakes.html)
-
-You can specify the `just` repository as an input to another nix flake:
-
-```nix
-{
-  inputs = {
-    ...
-    just.url = "github:casey/just";
-  }
-
-  outputs = {self, nixpkgs, just}: {
-    ...
-  }
-}
-
-```
-
 ![just package version table](https://repology.org/badge/vertical-allrepos/just.svg)
 
 ### Pre-Built Binaries
@@ -483,6 +462,23 @@ who want to make the set up process for their project as easy as possible.
 
 For more information, see the
 [just-install README file](https://github.com/brombal/just-install#readme).
+
+### Nix Flake
+
+The `just` repository includes a [`flake.nix`](flake.nix) that defines a [nix
+flake](https://nix.dev/concepts/flakes.html), allowing you to use `just` as an
+input to another flake:
+
+```nix
+{
+  inputs = {
+    just.url = "github:casey/just";
+  }
+
+  outputs = {self, nixpkgs, just}: {
+  }
+}
+```
 
 Backwards Compatibility
 -----------------------
