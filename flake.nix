@@ -6,20 +6,23 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-  }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+    }:
     flake-utils.lib.eachDefaultSystem (
-      system: let
+      system:
+      let
         pkgs = import nixpkgs {
           inherit system;
         };
 
         package = (builtins.fromTOML (builtins.readFile ./Cargo.toml)).package;
 
-      in {
+      in
+      {
         packages.default = pkgs.rustPlatform.buildRustPackage {
           pname = "just";
           version = package.version;
