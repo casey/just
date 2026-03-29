@@ -19,12 +19,8 @@
 
         package = (builtins.fromTOML (builtins.readFile ./Cargo.toml)).package;
 
-        nativeBuildInputs = with pkgs; [
-          installShellFiles
-          pkg-config
-        ];
-
-        just = pkgs.rustPlatform.buildRustPackage {
+      in {
+        packages.default = pkgs.rustPlatform.buildRustPackage {
           pname = "just";
           version = package.version;
 
@@ -36,7 +32,10 @@
             lockFile = ./Cargo.lock;
           };
 
-          inherit nativeBuildInputs;
+          nativeBuildInputs = with pkgs; [
+            installShellFiles
+            pkg-config
+          ];
 
           doCheck = false;
 
@@ -59,32 +58,14 @@
           };
         };
 
-        devShell = pkgs.mkShell {
+        devShells.default = pkgs.mkShell {
           packages = with pkgs; [
             rustc
             cargo
             clippy
             rustfmt
           ];
-
-          RUSTC = "${pkgs.rustc}/bin/rustc";
         };
-      in {
-        packages = {
-          default = just;
-          just = just;
-        };
-
-        apps = {
-          default = flake-utils.lib.mkApp {
-            drv = just;
-            exePath = "/bin/just";
-          };
-        };
-
-        devShells.default = devShell;
-
-        formatter = pkgs.nixpkgs-fmt;
       }
     );
 }
