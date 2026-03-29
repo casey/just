@@ -445,7 +445,8 @@ RUN just
 
 ### Release RSS Feed
 
-An [RSS feed](https://en.wikipedia.org/wiki/RSS) of `just` releases is available [here](https://github.com/casey/just/releases.atom).
+An [RSS feed](https://en.wikipedia.org/wiki/RSS) of `just` releases is
+available [here](https://github.com/casey/just/releases.atom).
 
 ### Node.js Installation
 
@@ -465,9 +466,10 @@ For more information, see the
 
 ### Nix Flake
 
-The `just` repository includes a [`flake.nix`](flake.nix) that defines a [nix
-flake](https://nix.dev/concepts/flakes.html), allowing you to use `just` as an
-input to another flake:
+The `just` repository includes a
+[`flake.nix`](https://github.com/casey/just/tree/master/flake.nix) that defines
+a [nix flake](https://nix.dev/concepts/flakes.html), allowing you to use `just`
+as an input to another flake:
 
 ```nix
 {
