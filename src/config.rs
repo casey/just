@@ -183,7 +183,7 @@ impl Config {
         Self::parse_override(path)?,
         values
           .next()
-          .ok_or_else(|| ConfigError::internal("--set for `{path}` did not have value"))?
+          .ok_or_else(|| ConfigError::internal(format!("--set for `{path}` did not have value")))?
           .into(),
       );
     }

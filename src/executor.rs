@@ -47,21 +47,19 @@ impl Executor<'_> {
     }
   }
 
+  fn shell_kind(&self) -> ShellKind {
+    match self {
+      Self::Command(interpreter) => &interpreter.command,
+      Self::Shebang(shebang) => shebang.interpreter_filename(),
+    }
+    .into()
+  }
+
   pub(crate) fn script_filename(&self, recipe: &str, extension: Option<&str>) -> String {
-    let extension = extension.unwrap_or_else(|| {
-      let interpreter = match self {
-        Self::Command(interpreter) => &interpreter.command,
-        Self::Shebang(shebang) => shebang.interpreter_filename(),
-      };
-
-      match interpreter {
-        "cmd" | "cmd.exe" => ".bat",
-        "powershell" | "powershell.exe" | "pwsh" | "pwsh.exe" => ".ps1",
-        _ => "",
-      }
-    });
-
-    format!("{recipe}{extension}")
+    format!(
+      "{recipe}{}",
+      extension.unwrap_or_else(|| self.shell_kind().extension()),
+    )
   }
 
   pub(crate) fn error<'src>(&self, io_error: io::Error, recipe: &'src str) -> Error<'src> {
