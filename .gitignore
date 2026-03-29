@@ -11,8 +11,8 @@
 /fuzz/corpus
 /fuzz/target
 /man
+/result
 /target
 /test-utilities/Cargo.lock
 /test-utilities/target
 /tmp
-result
