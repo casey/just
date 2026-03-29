@@ -18,8 +18,8 @@
         };
 
         # Read version from Cargo.toml
-        cargoToml = builtins.fromTOML (builtins.readFile ./Cargo.toml);
-        version = cargoToml.package.version;
+        package = (builtins.fromTOML (builtins.readFile ./Cargo.toml)).package;
+        version = package.version;
 
         # Common build inputs
         buildInputs = with pkgs;
@@ -67,12 +67,10 @@
             export JUST_PATH_PREFIX="${pkgs.lib.makeBinPath [pkgs.coreutils pkgs.bashInteractive]}''${JUST_PATH_PREFIX:+:$JUST_PATH_PREFIX}"
           '';
 
-          meta = let
-            p = cargoToml.package;
-          in {
-            description = p.description;
-            homepage = p.homepage;
-            changelog = "${p.repository}/blob/master/CHANGELOG.md";
+          meta = {
+            description = package.description;
+            homepage = package.homepage;
+            changelog = "${package.repository}/blob/master/CHANGELOG.md";
             license = pkgs.lib.licenses.cc0;
             mainProgram = "just";
           };
