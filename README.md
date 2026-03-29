@@ -1961,8 +1961,8 @@ called from within an import or submodule.
 
 `module_file()` and `module_directory()` behave the same as `justfile()` and
 `justfile_directory()` in the root `justfile`, but will return the path and
-directory, respectively, of the current `mod` source file when
-called from within submodule.
+directory, respectively, of the current `mod` source file when called from
+within submodule.
 
 #### Just Executable
 
