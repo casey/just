@@ -445,7 +445,8 @@ RUN just
 
 ### Release RSS Feed
 
-An [RSS feed](https://en.wikipedia.org/wiki/RSS) of `just` releases is available [here](https://github.com/casey/just/releases.atom).
+An [RSS feed](https://en.wikipedia.org/wiki/RSS) of `just` releases is
+available [here](https://github.com/casey/just/releases.atom).
 
 ### Node.js Installation
 
@@ -462,6 +463,24 @@ who want to make the set up process for their project as easy as possible.
 
 For more information, see the
 [just-install README file](https://github.com/brombal/just-install#readme).
+
+### Nix Flake
+
+The `just` repository includes a
+[`flake.nix`](https://github.com/casey/just/tree/master/flake.nix) that defines
+a [nix flake](https://nix.dev/concepts/flakes.html), allowing you to use `just`
+as an input to another flake:
+
+```nix
+{
+  inputs = {
+    just.url = "github:casey/just";
+  }
+
+  outputs = {self, nixpkgs, just}: {
+  }
+}
+```
 
 Backwards Compatibility
 -----------------------
