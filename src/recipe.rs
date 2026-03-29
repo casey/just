@@ -1,21 +1,5 @@
 use super::*;
 
-/// Return a `Error::Signal` if the process was terminated by a signal,
-/// otherwise return an `Error::UnknownFailure`
-fn error_from_signal(recipe: &str, line_number: Option<usize>, exit_status: ExitStatus) -> Error {
-  match Platform::signal_from_exit_status(exit_status) {
-    Some(signal) => Error::Signal {
-      recipe,
-      line_number,
-      signal,
-    },
-    None => Error::Unknown {
-      recipe,
-      line_number,
-    },
-  }
-}
-
 /// A recipe, e.g. `foo: bar baz`
 #[derive(PartialEq, Debug, Clone, Serialize)]
 pub(crate) struct Recipe<'src, D = Dependency<'src>> {
@@ -27,27 +11,31 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) file_depth: u32,
   #[serde(skip)]
   pub(crate) import_offsets: Vec<usize>,
+  #[serde(skip)]
+  pub(crate) module_path: Option<Modulepath>,
   pub(crate) name: Name<'src>,
-  pub(crate) namepath: Option<String>,
   pub(crate) parameters: Vec<Parameter<'src>>,
   pub(crate) priors: usize,
   pub(crate) private: bool,
   pub(crate) quiet: bool,
+  #[serde(rename = "namepath")]
+  pub(crate) recipe_path: Option<Modulepath>,
   pub(crate) shebang: bool,
+  #[serde(skip)]
+  pub(crate) variable_references: HashSet<Number>,
 }
 
 impl Recipe<'_> {
-  pub(crate) fn module_path(&self) -> &str {
-    let namepath = self.namepath();
-    &namepath[0..namepath.rfind("::").unwrap_or_default()]
+  pub(crate) fn module_path(&self) -> &Modulepath {
+    self.module_path.as_ref().unwrap()
   }
 
-  pub(crate) fn namepath(&self) -> &str {
-    self.namepath.as_ref().unwrap()
+  pub(crate) fn recipe_path(&self) -> &Modulepath {
+    self.recipe_path.as_ref().unwrap()
   }
 
-  pub(crate) fn spaced_namepath(&self) -> String {
-    self.namepath().replace("::", " ")
+  pub(crate) fn spaced_recipe_path(&self) -> String {
+    self.recipe_path().to_string().replace("::", " ")
   }
 }
 
@@ -56,12 +44,32 @@ impl<'src, D> Recipe<'src, D> {
     self.min_arguments()..=self.max_arguments()
   }
 
+  pub(crate) fn group_arguments(
+    &self,
+    arguments: &[Expression<'src>],
+  ) -> Vec<Vec<Expression<'src>>> {
+    let mut groups = Vec::new();
+    let mut rest = arguments;
+
+    for parameter in &self.parameters {
+      let group = if parameter.kind.is_variadic() {
+        mem::take(&mut rest).into()
+      } else if let Some(argument) = rest.first() {
+        rest = &rest[1..];
+        vec![argument.clone()]
+      } else {
+        debug_assert!(parameter.default.is_some());
+        Vec::new()
+      };
+
+      groups.push(group);
+    }
+
+    groups
+  }
+
   pub(crate) fn min_arguments(&self) -> usize {
-    self
-      .parameters
-      .iter()
-      .filter(|p| p.default.is_none() && p.kind != ParameterKind::Star)
-      .count()
+    self.parameters.iter().filter(|p| p.is_required()).count()
   }
 
   pub(crate) fn max_arguments(&self) -> usize {
@@ -98,7 +106,7 @@ impl<'src, D> Recipe<'src, D> {
     }
   }
 
-  pub(crate) fn check_can_be_default_recipe(&self) -> RunResult<'src, ()> {
+  pub(crate) fn check_can_be_default_recipe(&self) -> RunResult<'src> {
     let min_arguments = self.min_arguments();
     if min_arguments > 0 {
       return Err(Error::DefaultRecipeRequiresArguments {
@@ -134,15 +142,21 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn enabled(&self) -> bool {
+    let dragonfly = self.attributes.contains(AttributeDiscriminant::Dragonfly);
+    let freebsd = self.attributes.contains(AttributeDiscriminant::Freebsd);
     let linux = self.attributes.contains(AttributeDiscriminant::Linux);
     let macos = self.attributes.contains(AttributeDiscriminant::Macos);
+    let netbsd = self.attributes.contains(AttributeDiscriminant::Netbsd);
     let openbsd = self.attributes.contains(AttributeDiscriminant::Openbsd);
     let unix = self.attributes.contains(AttributeDiscriminant::Unix);
     let windows = self.attributes.contains(AttributeDiscriminant::Windows);
 
-    (!windows && !linux && !macos && !openbsd && !unix)
+    (!windows && !linux && !macos && !openbsd && !freebsd && !dragonfly && !netbsd && !unix)
+      || (cfg!(target_os = "dragonfly") && (dragonfly || unix))
+      || (cfg!(target_os = "freebsd") && (freebsd || unix))
       || (cfg!(target_os = "linux") && (linux || unix))
       || (cfg!(target_os = "macos") && (macos || unix))
+      || (cfg!(target_os = "netbsd") && (netbsd || unix))
       || (cfg!(target_os = "openbsd") && (openbsd || unix))
       || (cfg!(target_os = "windows") && windows)
       || (cfg!(unix) && unix)
@@ -187,7 +201,7 @@ impl<'src, D> Recipe<'src, D> {
     scope: &Scope<'src, 'run>,
     positional: &[String],
     is_dependency: bool,
-  ) -> RunResult<'src, ()> {
+  ) -> RunResult<'src> {
     let color = context.config.color.stderr().banner();
     let prefix = color.prefix();
     let suffix = color.suffix();
@@ -202,7 +216,7 @@ impl<'src, D> Recipe<'src, D> {
       }
     }
 
-    let evaluator = Evaluator::new(context, is_dependency, scope);
+    let evaluator = Evaluator::new(context, BTreeMap::new(), is_dependency, scope);
 
     if self.is_script() {
       self.run_script(context, scope, positional, evaluator)
@@ -217,22 +231,22 @@ impl<'src, D> Recipe<'src, D> {
     scope: &Scope<'src, 'run>,
     positional: &[String],
     mut evaluator: Evaluator<'src, 'run>,
-  ) -> RunResult<'src, ()> {
+  ) -> RunResult<'src> {
     let config = &context.config;
+    let settings = &context.module.settings;
 
     let mut lines = self.body.iter().peekable();
     let mut line_number = self.line_number() + 1;
     loop {
-      if lines.peek().is_none() {
+      let Some(line) = lines.peek() else {
         return Ok(());
-      }
+      };
+
       let mut evaluated = String::new();
       let mut continued = false;
-      let quiet_line = lines.peek().is_some_and(|line| line.is_quiet());
-      let infallible_line = lines.peek().is_some_and(|line| line.is_infallible());
 
-      let comment_line = context.module.settings.ignore_comments
-        && lines.peek().is_some_and(|line| line.is_comment());
+      let comment_line = settings.ignore_comments && line.is_comment();
+      let sigils = line.sigils(settings);
 
       loop {
         if lines.peek().is_none() {
@@ -257,18 +271,21 @@ impl<'src, D> Recipe<'src, D> {
 
       let mut command = evaluated.as_str();
 
-      let sigils = usize::from(infallible_line) + usize::from(quiet_line);
-
-      command = &command[sigils..];
+      command = &command[sigils.len()..];
 
       if command.is_empty() {
         continue;
       }
 
+      let guard = sigils.contains(&Sigil::Guard);
+      let infallible = sigils.contains(&Sigil::Infallible);
+      let quiet = sigils.contains(&Sigil::Quiet);
+
       if config.dry_run
         || config.verbosity.loquacious()
-        || !((quiet_line ^ self.quiet)
-          || (context.module.settings.quiet && !self.no_quiet())
+        || config.timestamp
+        || !((quiet ^ self.quiet)
+          || (settings.quiet && !self.no_quiet())
           || config.verbosity.quiet())
       {
         let color = if config.highlight {
@@ -278,15 +295,8 @@ impl<'src, D> Recipe<'src, D> {
         }
         .stderr();
 
-        if config.timestamp {
-          eprint!(
-            "[{}] ",
-            color.paint(
-              &chrono::Local::now()
-                .format(&config.timestamp_format)
-                .to_string()
-            ),
-          );
+        if let Some(timestamp) = config.timestamp() {
+          eprint!("[{}] ", color.paint(&timestamp));
         }
 
         eprintln!("{}", color.paint(command));
@@ -296,7 +306,7 @@ impl<'src, D> Recipe<'src, D> {
         continue;
       }
 
-      let mut cmd = context.module.settings.shell_command(config);
+      let mut cmd = settings.shell_command(config);
 
       if let Some(working_directory) = self.working_directory(context) {
         cmd.current_dir(working_directory);
@@ -304,7 +314,7 @@ impl<'src, D> Recipe<'src, D> {
 
       cmd.arg(command);
 
-      if self.takes_positional_arguments(&context.module.settings) {
+      if self.takes_positional_arguments(settings) {
         cmd.arg(self.name.lexeme());
         cmd.args(positional);
       }
@@ -314,43 +324,58 @@ impl<'src, D> Recipe<'src, D> {
         cmd.stdout(Stdio::null());
       }
 
-      cmd.export(
-        &context.module.settings,
-        context.dotenv,
-        scope,
-        &context.module.unexports,
-      );
+      for attribute in &self.attributes {
+        if let Attribute::Env(key, value) = attribute {
+          cmd.env(&key.cooked, &value.cooked);
+        }
+      }
+
+      cmd.export(settings, context.dotenv, scope, &context.module.unexports);
 
       let (result, caught) = cmd.status_guard();
 
       match result {
         Ok(exit_status) => {
           if let Some(code) = exit_status.code() {
-            if code != 0 && !infallible_line {
-              return Err(Error::Code {
-                recipe: self.name(),
-                line_number: Some(line_number),
-                code,
-                print_message: self.print_exit_message(&context.module.settings),
-              });
+            if code != 0 {
+              if guard {
+                if code == 1 {
+                  return Ok(());
+                }
+
+                return Err(Error::GuardCode {
+                  recipe: self.name(),
+                  line_number,
+                  code,
+                });
+              } else if !infallible {
+                return Err(Error::Code {
+                  recipe: self.name(),
+                  line_number: Some(line_number),
+                  code,
+                  print_message: self.print_exit_message(settings),
+                });
+              }
             }
-          } else if !infallible_line {
-            return Err(error_from_signal(
-              self.name(),
-              Some(line_number),
+          } else if !infallible {
+            return Err(Error::from_signal(
               exit_status,
+              Some(line_number),
+              self.print_exit_message(settings),
+              self.name(),
             ));
           }
         }
         Err(io_error) => {
-          return Err(Error::Io {
-            recipe: self.name(),
+          return Err(Error::ShellIo {
             io_error,
+            recipe: self.name(),
+            shell: settings.shell(config).0.into(),
           });
         }
       }
 
-      if !infallible_line {
+      if !infallible {
         if let Some(signal) = caught {
           return Err(Error::Interrupted { signal });
         }
@@ -364,8 +389,19 @@ impl<'src, D> Recipe<'src, D> {
     scope: &Scope<'src, 'run>,
     positional: &[String],
     mut evaluator: Evaluator<'src, 'run>,
-  ) -> RunResult<'src, ()> {
+  ) -> RunResult<'src> {
     let config = &context.config;
+
+    if let Some(timestamp) = config.timestamp() {
+      let color = if config.highlight {
+        config.color.command(config.command_color)
+      } else {
+        config.color
+      }
+      .stderr();
+
+      eprintln!("[{}] {}", color.paint(&timestamp), self.name);
+    }
 
     let mut evaluated_lines = Vec::new();
     for line in &self.body {
@@ -395,8 +431,16 @@ impl<'src, D> Recipe<'src, D> {
       Executor::Command(
         interpreter
           .as_ref()
-          .or(context.module.settings.script_interpreter.as_ref())
-          .unwrap_or_else(|| Interpreter::default_script_interpreter()),
+          .map(|interpreter| Interpreter {
+            command: interpreter.command.cooked.clone(),
+            arguments: interpreter
+              .arguments
+              .iter()
+              .map(|argument| argument.cooked.clone())
+              .collect(),
+          })
+          .or_else(|| context.module.settings.script_interpreter.clone())
+          .unwrap_or_else(|| Interpreter::default_script_interpreter().clone()),
       )
     } else {
       let line = evaluated_lines
@@ -445,6 +489,12 @@ impl<'src, D> Recipe<'src, D> {
       command.args(positional);
     }
 
+    for attribute in &self.attributes {
+      if let Attribute::Env(key, value) = attribute {
+        command.env(&key.cooked, &value.cooked);
+      }
+    }
+
     command.export(
       &context.module.settings,
       context.dotenv,
@@ -457,7 +507,14 @@ impl<'src, D> Recipe<'src, D> {
 
     match result {
       Ok(exit_status) => exit_status.code().map_or_else(
-        || Err(error_from_signal(self.name(), None, exit_status)),
+        || {
+          Err(Error::from_signal(
+            exit_status,
+            None,
+            self.print_exit_message(&context.module.settings),
+            self.name(),
+          ))
+        },
         |code| {
           if code == 0 {
             Ok(())

@@ -8,8 +8,11 @@ fn justfile_run_search_stops_at_ceiling_dir() {
 
   fs::create_dir(&ceiling).unwrap();
 
-  #[cfg(not(windows))]
-  let ceiling = ceiling.canonicalize().unwrap();
+  let ceiling = if cfg!(not(windows)) {
+    ceiling.canonicalize().unwrap()
+  } else {
+    ceiling
+  };
 
   Test::with_tempdir(tempdir)
     .justfile(
@@ -22,8 +25,7 @@ fn justfile_run_search_stops_at_ceiling_dir() {
     .current_dir("foo/bar")
     .args(["--ceiling", ceiling.to_str().unwrap()])
     .stderr("error: No justfile found\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -34,8 +36,11 @@ fn ceiling_can_be_passed_as_environment_variable() {
 
   fs::create_dir(&ceiling).unwrap();
 
-  #[cfg(not(windows))]
-  let ceiling = ceiling.canonicalize().unwrap();
+  let ceiling = if cfg!(not(windows)) {
+    ceiling.canonicalize().unwrap()
+  } else {
+    ceiling
+  };
 
   Test::with_tempdir(tempdir)
     .justfile(
@@ -48,8 +53,7 @@ fn ceiling_can_be_passed_as_environment_variable() {
     .current_dir("foo/bar")
     .env("JUST_CEILING", ceiling.to_str().unwrap())
     .stderr("error: No justfile found\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -60,8 +64,11 @@ fn justfile_init_search_stops_at_ceiling_dir() {
 
   fs::create_dir(&ceiling).unwrap();
 
-  #[cfg(not(windows))]
-  let ceiling = ceiling.canonicalize().unwrap();
+  let ceiling = if cfg!(not(windows)) {
+    ceiling.canonicalize().unwrap()
+  } else {
+    ceiling
+  };
 
   let Output { tempdir, .. } = Test::with_tempdir(tempdir)
     .no_justfile()
@@ -75,7 +82,7 @@ fn justfile_init_search_stops_at_ceiling_dir() {
     } else {
       "Wrote justfile to `.*/foo/bar/justfile`\n"
     })
-    .run();
+    .success();
 
   assert_eq!(
     fs::read_to_string(tempdir.path().join("foo/bar/justfile")).unwrap(),

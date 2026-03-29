@@ -30,18 +30,14 @@ impl Search {
   }
 
   /// Find justfile given search configuration and invocation directory
-  pub(crate) fn find(
-    ceiling: Option<&Path>,
-    invocation_directory: &Path,
-    search_config: &SearchConfig,
-  ) -> SearchResult<Self> {
-    match search_config {
+  pub(crate) fn search(config: &Config) -> SearchResult<Self> {
+    match &config.search_config {
       SearchConfig::FromInvocationDirectory => {
-        Self::find_in_directory(ceiling, invocation_directory)
+        Self::find_in_directory(config.ceiling.as_deref(), &config.invocation_directory)
       }
       SearchConfig::FromSearchDirectory { search_directory } => {
-        let search_directory = Self::clean(invocation_directory, search_directory);
-        let justfile = Self::justfile(ceiling, &search_directory)?;
+        let search_directory = Self::clean(&config.invocation_directory, search_directory);
+        let justfile = Self::justfile(config.ceiling.as_deref(), &search_directory)?;
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
         Ok(Self {
           justfile,
@@ -50,10 +46,13 @@ impl Search {
       }
       SearchConfig::GlobalJustfile => Ok(Self {
         justfile: Self::find_global_justfile()?,
-        working_directory: Self::project_root(ceiling, invocation_directory)?,
+        working_directory: Self::project_root(
+          config.ceiling.as_deref(),
+          &config.invocation_directory,
+        )?,
       }),
       SearchConfig::WithJustfile { justfile } => {
-        let justfile = Self::clean(invocation_directory, justfile);
+        let justfile = Self::clean(&config.invocation_directory, justfile);
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
         Ok(Self {
           justfile,
@@ -64,8 +63,8 @@ impl Search {
         justfile,
         working_directory,
       } => Ok(Self {
-        justfile: Self::clean(invocation_directory, justfile),
-        working_directory: Self::clean(invocation_directory, working_directory),
+        justfile: Self::clean(&config.invocation_directory, justfile),
+        working_directory: Self::clean(&config.invocation_directory, working_directory),
       }),
     }
   }
@@ -261,7 +260,6 @@ impl Search {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use temptree::temptree;
 
   #[test]
   fn not_found() {
@@ -368,39 +366,15 @@ mod tests {
   }
 
   #[test]
-  fn justfile_symlink_parent() {
-    let tmp = temptree! {
-      src: "",
-      sub: {},
-    };
-
-    let src = tmp.path().join("src");
-    let sub = tmp.path().join("sub");
-    let justfile = sub.join("justfile");
-
-    #[cfg(unix)]
-    std::os::unix::fs::symlink(src, &justfile).unwrap();
-
-    #[cfg(windows)]
-    std::os::windows::fs::symlink_file(&src, &justfile).unwrap();
-
-    let search_config = SearchConfig::FromInvocationDirectory;
-
-    let search = Search::find(None, &sub, &search_config).unwrap();
-
-    assert_eq!(search.justfile, justfile);
-    assert_eq!(search.working_directory, sub);
-  }
-
-  #[test]
   fn clean() {
     let cases = &[
       ("/", "foo", "/foo"),
       ("/bar", "/foo", "/foo"),
-      #[cfg(windows)]
-      ("//foo", "bar//baz", "//foo\\bar\\baz"),
-      #[cfg(not(windows))]
-      ("/", "..", "/"),
+      if cfg!(windows) {
+        ("//foo", "bar//baz", "//foo\\bar\\baz")
+      } else {
+        ("/", "..", "/")
+      },
       ("/", "/..", "/"),
       ("/..", "", "/"),
       ("/../../../..", "../../../", "/"),

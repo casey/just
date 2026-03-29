@@ -29,7 +29,7 @@ foo:
       )
       .as_str(),
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -66,12 +66,14 @@ foo:
       )
       .as_str(),
     )
-    .run();
+    .success();
 }
 
-#[cfg(not(windows))]
 #[test]
-fn env_var_functions() {
+fn env_var_functions_unix() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"
@@ -91,12 +93,14 @@ foo:
       )
       .as_str(),
     )
-    .run();
+    .success();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn path_functions() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"
@@ -113,12 +117,14 @@ foo:
     )
     .stdout("/foo/bar/baz baz baz.hello /foo/bar hello a/b\n")
     .stderr("/usr/bin/env echo '/foo/bar/baz' 'baz' 'baz.hello' '/foo/bar' 'hello' 'a/b'\n")
-    .run();
+    .success();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn path_functions2() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"
@@ -134,12 +140,14 @@ foo:
     )
     .stdout("/foo/bar/baz baz.hello baz.hello.ciao / ciao\n")
     .stderr("/usr/bin/env echo '/foo/bar/baz' 'baz.hello' 'baz.hello.ciao' '/' 'ciao'\n")
-    .run();
+    .success();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn broken_without_extension_function() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"
@@ -161,13 +169,14 @@ foo:
       )
       .as_str(),
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn broken_extension_function() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"
@@ -188,13 +197,14 @@ foo:
       )
       .as_str(),
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn broken_extension_function2() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"
@@ -215,13 +225,14 @@ foo:
       )
       .as_str(),
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn broken_file_stem_function() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"
@@ -242,13 +253,14 @@ foo:
       )
       .as_str(),
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn broken_file_name_function() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"
@@ -269,13 +281,14 @@ foo:
       )
       .as_str(),
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn broken_directory_function() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"
@@ -297,13 +310,14 @@ foo:
       )
       .as_str(),
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
-#[cfg(not(windows))]
 #[test]
 fn broken_directory_function2() {
+  if cfg!(windows) {
+    return;
+  }
   Test::new()
     .justfile(
       r"
@@ -325,23 +339,24 @@ foo:
       )
       .as_str(),
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
-#[cfg(windows)]
 #[test]
-fn env_var_functions() {
+fn env_var_functions_windows() {
+  if cfg!(not(windows)) {
+    return;
+  }
   Test::new()
     .justfile(
-      r#"
+      r"
 p := env_var('USERNAME')
 b := env_var_or_default('ZADDY', 'HTAP')
 x := env_var_or_default('XYZ', 'ABC')
 
 foo:
   /usr/bin/env echo '{{p}}' '{{b}}' '{{x}}'
-"#,
+",
     )
     .stdout(format!("{} HTAP ABC\n", env::var("USERNAME").unwrap()).as_str())
     .stderr(
@@ -351,7 +366,7 @@ foo:
       )
       .as_str(),
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -359,7 +374,6 @@ fn env_var_failure() {
   Test::new()
     .arg("a")
     .justfile("a:\n  echo {{env_var('ZADDY')}}")
-    .status(EXIT_FAILURE)
     .stderr(
       "error: Call to function `env_var` failed: environment variable `ZADDY` not present
  ——▶ justfile:2:10
@@ -368,7 +382,7 @@ fn env_var_failure() {
   │          ^^^^^^^
 ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -381,15 +395,8 @@ fn test_just_executable_function() {
       @printf 'Executable path is: %s\\n' '{{ just_executable() }}'
   ",
     )
-    .status(EXIT_SUCCESS)
-    .stdout(
-      format!(
-        "Executable path is: {}\n",
-        executable_path("just").to_str().unwrap()
-      )
-      .as_str(),
-    )
-    .run();
+    .stdout(format!("Executable path is: {JUST}\n"))
+    .success();
 }
 
 #[test]
@@ -421,7 +428,7 @@ foo a=arch() o=os() f=os_family() n=num_cpus():
       )
       .as_str(),
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -435,7 +442,7 @@ fn clean() {
     )
     .stdout("b\n")
     .stderr("echo b\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -449,7 +456,7 @@ fn uppercase() {
     )
     .stdout("BAR\n")
     .stderr("echo BAR\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -463,7 +470,7 @@ fn lowercase() {
     )
     .stdout("bar\n")
     .stderr("echo bar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -477,7 +484,7 @@ fn uppercamelcase() {
     )
     .stdout("FooBar\n")
     .stderr("echo FooBar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -491,7 +498,7 @@ fn lowercamelcase() {
     )
     .stdout("fooBar\n")
     .stderr("echo fooBar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -505,7 +512,7 @@ fn snakecase() {
     )
     .stdout("foo_bar\n")
     .stderr("echo foo_bar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -519,7 +526,7 @@ fn kebabcase() {
     )
     .stdout("foo-bar\n")
     .stderr("echo foo-bar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -533,7 +540,7 @@ fn shoutysnakecase() {
     )
     .stdout("FOO_BAR\n")
     .stderr("echo FOO_BAR\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -547,7 +554,7 @@ fn titlecase() {
     )
     .stdout("Foo Bar\n")
     .stderr("echo Foo Bar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -561,7 +568,7 @@ fn shoutykebabcase() {
     )
     .stdout("FOO-BAR\n")
     .stderr("echo FOO-BAR\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -575,7 +582,7 @@ fn trim() {
     )
     .stdout("bar\n")
     .stderr("echo bar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -589,7 +596,7 @@ fn replace() {
     )
     .stdout("foofoofoo\n")
     .stderr("echo foofoofoo\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -603,7 +610,7 @@ fn replace_regex() {
     )
     .stdout("foofoofoo\n")
     .stderr("echo foofoofoo\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -626,8 +633,7 @@ error: incomplete escape sequence, reached end of pattern prematurely
   │           ^^^^^^^^^^^^^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -641,7 +647,7 @@ fn capitalize() {
     )
     .stdout("Bar\n")
     .stderr("echo Bar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -656,7 +662,7 @@ fn semver_matches() {
     )
     .stdout("true\nfalse\n")
     .stderr("echo true\necho false\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -709,9 +715,9 @@ fn append() {
     Determina
     Acquisi
     Motiva
-    Conjuc
+    Conjunc
     ')",
-    "Determination Acquisition Motivation Conjuction",
+    "Determination Acquisition Motivation Conjunction",
   );
 }
 
@@ -738,8 +744,10 @@ fn prepend() {
 }
 
 #[test]
-#[cfg(not(windows))]
-fn join() {
+fn join_unix() {
+  if cfg!(windows) {
+    return;
+  }
   assert_eval_eq("join('a', 'b', 'c', 'd')", "a/b/c/d");
   assert_eval_eq("join('a', '/b', 'c', 'd')", "/b/c/d");
   assert_eval_eq("join('a', '/b', '/c', 'd')", "/c/d");
@@ -747,8 +755,10 @@ fn join() {
 }
 
 #[test]
-#[cfg(windows)]
-fn join() {
+fn join_windows() {
+  if cfg!(not(windows)) {
+    return;
+  }
   assert_eval_eq("join('a', 'b', 'c', 'd')", "a\\b\\c\\d");
   assert_eval_eq("join('a', '\\b', 'c', 'd')", "\\b\\c\\d");
   assert_eval_eq("join('a', '\\b', '\\c', 'd')", "\\c\\d");
@@ -769,8 +779,7 @@ fn join_argument_count_error() {
         │      ^^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -782,7 +791,7 @@ fn test_path_exists_filepath_exist() {
     .justfile("x := path_exists('testfile')")
     .args(["--evaluate", "x"])
     .stdout("true")
-    .run();
+    .success();
 }
 
 #[test]
@@ -791,7 +800,7 @@ fn test_path_exists_filepath_doesnt_exist() {
     .justfile("x := path_exists('testfile')")
     .args(["--evaluate", "x"])
     .stdout("false")
-    .run();
+    .success();
 }
 
 #[test]
@@ -799,7 +808,6 @@ fn error_errors_with_message() {
   Test::new()
     .justfile("x := error ('Thing Not Supported')")
     .args(["--evaluate"])
-    .status(1)
     .stderr(
       "
       error: Call to function `error` failed: Thing Not Supported
@@ -809,7 +817,7 @@ fn error_errors_with_message() {
         │      ^^^^^
     ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -829,7 +837,7 @@ fn test_absolute_path_resolves() {
 
   test_object
     .stdout(tempdir.join("test_file").to_str().unwrap().to_owned())
-    .run();
+    .success();
 }
 
 #[test]
@@ -857,7 +865,7 @@ fn test_absolute_path_resolves_parent() {
         .unwrap()
         .to_owned(),
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -872,7 +880,7 @@ fn path_exists_subdir() {
     .current_dir("bar")
     .args(["--evaluate", "x"])
     .stdout("true")
-    .run();
+    .success();
 }
 
 #[test]
@@ -881,7 +889,7 @@ fn uuid() {
     .justfile("x := uuid()")
     .args(["--evaluate", "x"])
     .stdout_regex("........-....-....-....-............")
-    .run();
+    .success();
 }
 
 #[test]
@@ -890,7 +898,7 @@ fn choose() {
     .justfile(r"x := choose('10', 'xXyYzZ')")
     .args(["--evaluate", "x"])
     .stdout_regex("^[X-Zx-z]{10}$")
-    .run();
+    .success();
 }
 
 #[test]
@@ -898,7 +906,6 @@ fn choose_bad_alphabet_empty() {
   Test::new()
     .justfile("x := choose('10', '')")
     .args(["--evaluate"])
-    .status(1)
     .stderr(
       "
       error: Call to function `choose` failed: empty alphabet
@@ -908,7 +915,7 @@ fn choose_bad_alphabet_empty() {
         │      ^^^^^^
     ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -916,7 +923,6 @@ fn choose_bad_alphabet_repeated() {
   Test::new()
     .justfile("x := choose('10', 'aa')")
     .args(["--evaluate"])
-    .status(1)
     .stderr(
       "
       error: Call to function `choose` failed: alphabet contains repeated character `a`
@@ -926,7 +932,7 @@ fn choose_bad_alphabet_repeated() {
         │      ^^^^^^
     ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -934,7 +940,6 @@ fn choose_bad_length() {
   Test::new()
     .justfile("x := choose('foo', HEX)")
     .args(["--evaluate"])
-    .status(1)
     .stderr(
       "
       error: Call to function `choose` failed: failed to parse `foo` as positive integer: invalid digit found in string
@@ -944,7 +949,7 @@ fn choose_bad_length() {
         │      ^^^^^^
     ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -953,7 +958,7 @@ fn sha256() {
     .justfile("x := sha256('5943ee37-0000-1000-8000-010203040506')")
     .args(["--evaluate", "x"])
     .stdout("2330d7f5eb94a820b54fed59a8eced236f80b633a504289c030b6a65aef58871")
-    .run();
+    .success();
 }
 
 #[test]
@@ -968,7 +973,7 @@ fn sha256_file() {
     .current_dir("sub")
     .args(["--evaluate", "x"])
     .stdout("177b3d79aaafb53a7a4d7aaba99a82f27c73370e8cb0295571aade1e4fea1cd2")
-    .run();
+    .success();
 }
 
 #[test]
@@ -977,7 +982,7 @@ fn just_pid() {
     .args(["--evaluate", "x"])
     .justfile("x := just_pid()")
     .stdout_regex(r"\d+")
-    .run();
+    .success();
 
   assert_eq!(stdout.parse::<u32>().unwrap(), pid);
 }
@@ -996,8 +1001,7 @@ fn shell_no_argument() {
         │        ^^^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1029,8 +1033,7 @@ fn shell_error() {
         │        ^^^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1039,7 +1042,7 @@ fn blake3() {
     .justfile("x := blake3('5943ee37-0000-1000-8000-010203040506')")
     .args(["--evaluate", "x"])
     .stdout("026c9f740a793ff536ddf05f8915ea4179421f47f0fa9545476076e9ba8f3f2b")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1054,7 +1057,7 @@ fn blake3_file() {
     .current_dir("sub")
     .args(["--evaluate", "x"])
     .stdout("8379241877190ca4b94076a8c8f89fe5747f95c62f3e4bf41f7408a0088ae16d")
-    .run();
+    .success();
 }
 
 #[cfg(unix)]
@@ -1065,7 +1068,7 @@ fn canonicalize() {
     .justfile("x := canonicalize('foo')")
     .symlink("justfile", "foo")
     .stdout_regex(".*/justfile")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1074,7 +1077,7 @@ fn encode_uri_component() {
     .justfile("x := encode_uri_component(\"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\\\"#$%&'()*+,-./:;<=>?@[\\\\]^_`{|}~ \\t\\r\\n🌐\")")
     .args(["--evaluate", "x"])
     .stdout("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!%22%23%24%25%26'()*%2B%2C-.%2F%3A%3B%3C%3D%3E%3F%40%5B%5C%5D%5E_%60%7B%7C%7D~%20%09%0D%0A%F0%9F%8C%90")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1083,7 +1086,7 @@ fn source_file() {
     .args(["--evaluate", "x"])
     .justfile("x := source_file()")
     .stdout_regex(r".*[/\\]justfile")
-    .run();
+    .success();
 
   Test::new()
     .args(["--evaluate", "x"])
@@ -1094,7 +1097,7 @@ fn source_file() {
     )
     .write("foo.just", "x := source_file()")
     .stdout_regex(r".*[/\\]foo.just")
-    .run();
+    .success();
 
   Test::new()
     .args(["foo", "bar"])
@@ -1105,7 +1108,7 @@ fn source_file() {
     )
     .write("foo.just", "x := source_file()\nbar:\n @echo '{{x}}'")
     .stdout_regex(r".*[/\\]foo.just\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1122,7 +1125,7 @@ fn source_directory() {
       "x := source_directory()\nbar:\n @echo '{{x}}'",
     )
     .stdout_regex(r".*[/\\]foo\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1243,7 +1246,7 @@ import
 .*[/\\]just-test-tempdir......[/\\]baz
 ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1260,17 +1263,17 @@ fn is_dependency() {
     .args(["alpha"])
     .justfile(justfile)
     .stdout("beta true\ngamma true\nalpha false\n")
-    .run();
+    .success();
 
   Test::new()
     .args(["beta"])
     .justfile(justfile)
     .stdout("beta false\ngamma true\n")
-    .run();
+    .success();
 }
 
 #[test]
-fn unary_argument_count_mismamatch_error_message() {
+fn unary_argument_count_mismatch_error_message() {
   Test::new()
     .justfile("x := datetime()")
     .args(["--evaluate"])
@@ -1283,8 +1286,7 @@ fn unary_argument_count_mismamatch_error_message() {
         │      ^^^^^^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1299,7 +1301,7 @@ fn dir_abbreviations_are_accepted() {
         # {{ assert(abbreviated == unabbreviated, 'fail') }}
     ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1314,7 +1316,7 @@ fn invocation_dir_native_abbreviation_is_accepted() {
         # {{ assert(abbreviated == unabbreviated, 'fail') }}
     ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1332,7 +1334,7 @@ bar:
     )
     .stdout_regex(r".*[/\\]foo[/\\]baz\n")
     .args(["foo", "bar"])
-    .run();
+    .success();
 }
 
 #[test]
@@ -1350,7 +1352,7 @@ bar:
     )
     .stdout("af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262\n")
     .args(["foo", "bar"])
-    .run();
+    .success();
 }
 
 #[test]
@@ -1368,7 +1370,7 @@ bar:
     )
     .stdout_regex(r".*[/\\]foo[/\\]baz\n")
     .args(["foo", "bar"])
-    .run();
+    .success();
 }
 
 #[test]
@@ -1386,7 +1388,7 @@ bar:
     )
     .stdout_regex("true\n")
     .args(["foo", "bar"])
-    .run();
+    .success();
 }
 
 #[test]
@@ -1404,7 +1406,7 @@ bar:
     )
     .stdout_regex("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n")
     .args(["foo", "bar"])
-    .run();
+    .success();
 }
 
 #[test]
@@ -1417,7 +1419,7 @@ fn style_command_default() {
       "#,
     )
     .stdout("\x1b[1mfoo\x1b[0m\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1431,7 +1433,7 @@ fn style_command_non_default() {
     )
     .args(["--command-color", "red"])
     .stdout("\x1b[1;31mfoo\x1b[0m\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1444,7 +1446,7 @@ fn style_error() {
       "#,
     )
     .stdout("\x1b[1;31mfoo\x1b[0m\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1457,7 +1459,7 @@ fn style_warning() {
       "#,
     )
     .stdout("\x1b[1;33mfoo\x1b[0m\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1478,8 +1480,7 @@ fn style_unknown() {
           │             ^^^^^
       "#,
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1489,7 +1490,7 @@ fn read() {
     .write("bar", "baz")
     .args(["--evaluate", "foo"])
     .stdout("baz")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1498,6 +1499,27 @@ fn read_file_not_found() {
     .justfile("foo := read('bar')")
     .args(["--evaluate", "foo"])
     .stderr_regex(r"error: Call to function `read` failed: I/O error reading `bar`: .*")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
+}
+
+#[test]
+fn shell_with_powershell() {
+  if !cfg!(windows) {
+    return;
+  }
+
+  Test::new()
+    .justfile(
+      r#"
+      set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
+
+      foo := shell('Write-Output bar')
+
+      default:
+        @echo {{foo}}
+    "#,
+    )
+    .shell(false)
+    .stdout("bar\r\n")
+    .success();
 }

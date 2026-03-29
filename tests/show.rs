@@ -17,7 +17,7 @@ recipe:
         echo {{ hello + "bar" + bar }}
   "#,
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -33,7 +33,7 @@ fn alias_show() {
         bar
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -42,7 +42,6 @@ fn alias_show_missing_target() {
     .arg("--show")
     .arg("f")
     .justfile("alias f := foo")
-    .status(EXIT_FAILURE)
     .stderr(
       "
     error: Alias `f` has an unknown target `foo`
@@ -52,7 +51,7 @@ fn alias_show_missing_target() {
       │       ^
   ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -69,8 +68,7 @@ a Z="\t z":
 "#,
     )
     .stderr("error: Justfile does not contain recipe `hell`\nDid you mean `hello`?\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -94,8 +92,7 @@ a Z="\t z":
     Did you mean `foo`, an alias for `hello`?
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -112,8 +109,7 @@ a Z="\t z":
 "#,
     )
     .stderr("error: Justfile does not contain recipe `hell`\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -132,8 +128,7 @@ a Z="\t z":
 "#,
     )
     .stderr("error: Justfile does not contain recipe `fooooooo`\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -147,7 +142,7 @@ fn show_recipe_at_path() {
     )
     .args(["--show", "foo::bar"])
     .stdout("bar:\n    @echo MODULE\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -155,8 +150,7 @@ fn show_invalid_path() {
   Test::new()
     .args(["--show", "$hello"])
     .stderr("error: Invalid module path `$hello`\n")
-    .status(1)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -170,5 +164,5 @@ fn show_space_separated_path() {
     )
     .args(["--show", "foo bar"])
     .stdout("bar:\n    @echo MODULE\n")
-    .run();
+    .success();
 }

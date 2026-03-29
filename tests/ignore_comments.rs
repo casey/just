@@ -14,7 +14,7 @@ fn ignore_comments_in_recipe() {
     )
     .stdout("something-useful\n")
     .stderr("echo something-useful\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -29,7 +29,7 @@ fn dont_ignore_comments_in_recipe_by_default() {
     )
     .stdout("something-useful\n")
     .stderr("# A recipe-internal comment\necho something-useful\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -47,7 +47,7 @@ fn ignore_recipe_comments_with_shell_setting() {
     )
     .stdout("something-useful\n")
     .stderr("echo something-useful\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -64,7 +64,7 @@ fn continuations_with_echo_comments_false() {
     )
     .stdout("something-useful\n")
     .stderr("echo something-useful\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -80,7 +80,7 @@ fn continuations_with_echo_comments_true() {
     ",
     )
     .stderr("# comment lines can be continued echo something-useful\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -94,7 +94,7 @@ fn dont_evaluate_comments() {
         # {{ error('foo') }}
     ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -108,7 +108,7 @@ fn dont_analyze_comments() {
         # {{ bar }}
     ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -131,6 +131,5 @@ fn comments_still_must_be_parsable_when_ignored() {
           │            ^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }

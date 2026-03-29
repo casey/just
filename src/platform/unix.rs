@@ -8,7 +8,7 @@ impl PlatformInterface for Platform {
     working_directory: Option<&Path>,
   ) -> Result<Command, OutputError> {
     // shebang scripts can be executed directly on unix
-    let mut command = Command::new(path);
+    let mut command = Command::resolve(path);
 
     if let Some(working_directory) = working_directory {
       command.current_dir(working_directory);

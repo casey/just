@@ -66,6 +66,10 @@ update-contributors:
   cargo run --release --package update-contributors
 
 [group: 'check']
+action-versions:
+  cargo run --package action-versions
+
+[group: 'check']
 outdated:
   cargo outdated -R
 
@@ -79,7 +83,7 @@ publish:
   #!/usr/bin/env bash
   set -euxo pipefail
   rm -rf tmp/release
-  git clone git@github.com:casey/just.git tmp/release
+  git clone --depth 1 git@github.com:casey/just.git tmp/release
   cd tmp/release
   ! grep '<sup>master</sup>' README.md
   VERSION=`sed -En 's/version[[:space:]]*=[[:space:]]*"([^"]+)"/\1/p' Cargo.toml | head -1`
@@ -163,10 +167,6 @@ quine-text := '
   }
 '
 
-[group: 'test']
-test-completions:
-  ./tests/completions/just.bash
-
 [group: 'check']
 build-book:
   cargo run --package generate-book
@@ -213,22 +213,22 @@ pwd:
   echo {{invocation_directory()}}
 
 [group: 'test']
-test-bash-completions:
-  rm -rf tmp
-  mkdir -p tmp/bin
-  cargo build
-  cp target/debug/just tmp/bin
-  ./tmp/bin/just --completions bash > tmp/just.bash
-  echo 'mod foo' > tmp/justfile
-  echo 'bar:' > tmp/foo.just
-  cd tmp && PATH="`realpath bin`:$PATH" bash --init-file just.bash
-
-[group: 'test']
 test-release-workflow:
   -git tag -d test-release
   -git push origin :test-release
   git tag test-release
   git push origin test-release
+
+[group: 'test']
+test-completions:
+  rm -rf tmp/complete
+  mkdir -p tmp/complete/bin
+  cargo build
+  cp target/debug/just tmp/complete/bin
+  ./tmp/complete/bin/just --completions bash > tmp/complete/just.bash
+  echo 'mod foo' > tmp/complete/justfile
+  echo 'bar:' > tmp/complete/foo.just
+  cd tmp/complete && PATH="`realpath bin`:$PATH" bash --init-file just.bash
 
 # Local Variables:
 # mode: makefile

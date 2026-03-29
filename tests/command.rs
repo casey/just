@@ -13,7 +13,7 @@ fn long() {
   ",
     )
     .stdout("foo")
-    .run();
+    .success();
 }
 
 #[test]
@@ -29,7 +29,7 @@ fn short() {
   ",
     )
     .stdout("foo")
-    .run();
+    .success();
 }
 
 #[test]
@@ -47,8 +47,7 @@ fn command_color() {
     )
     .stdout("XYZ\n")
     .stderr("\u{1b}[1;36mecho XYZ\u{1b}[0m\n")
-    .status(EXIT_SUCCESS)
-    .run();
+    .success();
 }
 
 #[test]
@@ -68,8 +67,7 @@ fn no_binary() {
     For more information, try '--help'.
   ",
     )
-    .status(2)
-    .run();
+    .status(2);
 }
 
 #[test]
@@ -86,7 +84,7 @@ fn env_is_loaded() {
     .args(["--command", "sh", "-c", "printf $DOTENV_KEY"])
     .write(".env", "DOTENV_KEY=dotenv-value")
     .stdout("dotenv-value")
-    .run();
+    .success();
 }
 
 #[test]
@@ -105,7 +103,7 @@ fn exports_are_available() {
   ",
     )
     .stdout("bar")
-    .run();
+    .success();
 }
 
 #[test]
@@ -127,7 +125,7 @@ fn set_overrides_work() {
   ",
     )
     .stdout("baz")
-    .run();
+    .success();
 }
 
 #[test]
@@ -143,7 +141,7 @@ fn run_in_shell() {
     )
     .stdout("bar baz")
     .shell(false)
-    .run();
+    .success();
 }
 
 #[test]
@@ -158,8 +156,7 @@ fn exit_status() {
   ",
     )
     .stderr_regex("error: Command `false` failed: exit (code|status): 1\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -170,7 +167,7 @@ fn working_directory_is_correct() {
   fs::write(tmp.path().join("bar"), "baz").unwrap();
   fs::create_dir(tmp.path().join("foo")).unwrap();
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .args(["--command", "cat", "bar"])
     .current_dir(tmp.path().join("foo"))
     .output()
@@ -189,14 +186,31 @@ fn command_not_found() {
 
   fs::write(tmp.path().join("justfile"), "").unwrap();
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .args(["--command", "asdfasdfasdfasdfadfsadsfadsf", "bar"])
     .output()
     .unwrap();
 
-  assert!(str::from_utf8(&output.stderr)
-    .unwrap()
-    .starts_with("error: Failed to invoke `asdfasdfasdfasdfadfsadsfadsf` `bar`:"));
+  assert!(
+    str::from_utf8(&output.stderr)
+      .unwrap()
+      .starts_with("error: Failed to invoke `asdfasdfasdfasdfadfsadsfadsf` `bar`:"),
+  );
 
   assert!(!output.status.success());
+}
+
+#[test]
+fn dont_evaluate_unnecessary_variables() {
+  Test::new()
+    .justfile(
+      "
+      export x := 'FOO'
+
+      y := `exit 1`
+    ",
+    )
+    .args(["--command", "bash", "-c", "echo $x"])
+    .stdout("FOO\n")
+    .success();
 }

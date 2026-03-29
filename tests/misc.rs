@@ -18,7 +18,7 @@ fn alias_listing() {
         foo # [alias: f]
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -40,7 +40,7 @@ fn alias_listing_with_doc() {
           foo # foo command [alias: f]
     ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -54,7 +54,7 @@ fn alias_listing_multiple_aliases() {
         foo # [aliases: f, fo]
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -68,7 +68,7 @@ fn alias_listing_parameters() {
         foo PARAM='foo' # [alias: f]
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -82,7 +82,7 @@ fn alias_listing_private() {
         foo PARAM='foo'
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -92,7 +92,7 @@ fn alias() {
     .justfile("foo:\n  echo foo\nalias f := foo")
     .stdout("foo\n")
     .stderr("echo foo\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -103,7 +103,7 @@ fn alias_with_parameters() {
     .justfile("foo value='foo':\n  echo {{value}}\nalias f := foo")
     .stdout("bar\n")
     .stderr("echo bar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -123,8 +123,7 @@ fn bad_setting() {
     │     ^^^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -144,8 +143,7 @@ fn bad_setting_with_keyword_name() {
     │     ^^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -155,7 +153,7 @@ fn alias_with_dependencies() {
     .justfile("foo:\n  echo foo\nbar: foo\nalias b := bar")
     .stdout("foo\n")
     .stderr("echo foo\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -171,8 +169,7 @@ fn duplicate_alias() {
       │       ^^^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -188,8 +185,7 @@ fn unknown_alias_target() {
       │       ^^^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -205,8 +201,7 @@ fn alias_shadows_recipe() {
       │ ^^^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -215,7 +210,7 @@ fn default() {
     .justfile("default:\n echo hello\nother: \n echo bar")
     .stdout("hello\n")
     .stderr("echo hello\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -223,7 +218,7 @@ fn quiet() {
   Test::new()
     .justfile("default:\n @echo hello")
     .stdout("hello\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -233,7 +228,7 @@ fn verbose() {
     .justfile("default:\n @echo hello")
     .stdout("hello\n")
     .stderr("===> Running recipe `default`...\necho hello\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -262,7 +257,7 @@ c: b
     )
     .stdout("a\nb\nc\nd\n")
     .stderr("echo a\necho b\necho c\necho d\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -272,7 +267,7 @@ fn select() {
     .arg("c")
     .justfile("b:\n  @echo b\na:\n  @echo a\nd:\n  @echo d\nc:\n  @echo c")
     .stdout("d\nc\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -283,7 +278,7 @@ fn print() {
     .justfile("b:\n  echo b\na:\n  echo a\nd:\n  echo d\nc:\n  echo c")
     .stdout("d\nc\n")
     .stderr("echo d\necho c\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -299,8 +294,7 @@ recipe:
   @exit 100",
     )
     .stderr("error: Recipe `recipe` failed on line 5 with exit code 100\n")
-    .status(100)
-    .run();
+    .status(100);
 }
 
 #[test]
@@ -316,8 +310,7 @@ fn unknown_dependency() {
       │          ^^^^^^^^^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -326,7 +319,7 @@ fn backtick_success() {
     .justfile("a := `printf Hello,`\nbar:\n printf '{{a + `printf ' world.'`}}'")
     .stdout("Hello, world.")
     .stderr("printf 'Hello, world.'\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -335,7 +328,7 @@ fn backtick_trimming() {
     .justfile("a := `echo Hello,`\nbar:\n echo '{{a + `echo ' world.'`}}'")
     .stdout("Hello, world.\n")
     .stderr("echo 'Hello, world.'\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -351,8 +344,7 @@ fn backtick_code_assignment() {
       │      ^^^^^^^^^^
   ",
     )
-    .status(100)
-    .run();
+    .status(100);
 }
 
 #[test]
@@ -368,8 +360,7 @@ fn backtick_code_interpolation() {
       │          ^^^^^^^^^^
   ",
     )
-    .status(200)
-    .run();
+    .status(200);
 }
 
 #[test]
@@ -385,8 +376,7 @@ fn backtick_code_interpolation_mod() {
       │      ^^^^^^^^^^
   ",
     )
-    .status(200)
-    .run();
+    .status(200);
 }
 
 #[test]
@@ -406,8 +396,7 @@ fn backtick_code_interpolation_tab() {
       │            ^^^^^^^^^^
   ",
     )
-    .status(200)
-    .run();
+    .status(200);
 }
 
 #[test]
@@ -427,8 +416,7 @@ fn backtick_code_interpolation_tabs() {
   │                ^^^^^^^^^^
 ",
     )
-    .status(200)
-    .run();
+    .status(200);
 }
 
 #[test]
@@ -449,8 +437,7 @@ fn backtick_code_interpolation_inner_tab() {
       │                ^^^^^^^^^^^^^^^^^
   ",
     )
-    .status(200)
-    .run();
+    .status(200);
 }
 
 #[test]
@@ -471,8 +458,7 @@ fn backtick_code_interpolation_leading_emoji() {
       │              ^^^^^^^^^^
   ",
     )
-    .status(200)
-    .run();
+    .status(200);
 }
 
 #[test]
@@ -493,8 +479,7 @@ fn backtick_code_interpolation_unicode_hell() {
       │                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   ",
     )
-    .status(200)
-    .run();
+    .status(200);
 }
 
 #[test]
@@ -523,8 +508,7 @@ fn backtick_code_long() {
        │          ^^^^^^^^^^
   ",
     )
-    .status(200)
-    .run();
+    .status(200);
 }
 
 #[test]
@@ -545,8 +529,7 @@ fn shebang_backtick_failure() {
       │         ^^^^^^^^^^
   ",
     )
-    .status(123)
-    .run();
+    .status(123);
 }
 
 #[test]
@@ -568,8 +551,7 @@ fn command_backtick_failure() {
       │         ^^^^^^^^^^
   ",
     )
-    .status(123)
-    .run();
+    .status(123);
 }
 
 #[test]
@@ -590,120 +572,7 @@ a := `exit 222`",
       │      ^^^^^^^^^^
   ",
     )
-    .status(222)
-    .run();
-}
-
-#[test]
-fn unknown_override_options() {
-  Test::new()
-    .arg("--set")
-    .arg("foo")
-    .arg("bar")
-    .arg("--set")
-    .arg("baz")
-    .arg("bob")
-    .arg("--set")
-    .arg("a")
-    .arg("b")
-    .arg("a")
-    .arg("b")
-    .justfile(
-      "foo:
- echo hello
- echo {{`exit 111`}}
-a := `exit 222`",
-    )
-    .status(EXIT_FAILURE)
-    .stderr(
-      "error: Variables `baz` and `foo` overridden on the command line but not present \
-    in justfile\n",
-    )
-    .run();
-}
-
-#[test]
-fn unknown_override_args() {
-  Test::new()
-    .arg("foo=bar")
-    .arg("baz=bob")
-    .arg("a=b")
-    .arg("a")
-    .arg("b")
-    .justfile(
-      "foo:
- echo hello
- echo {{`exit 111`}}
-a := `exit 222`",
-    )
-    .stderr(
-      "error: Variables `baz` and `foo` overridden on the command line but not present \
-    in justfile\n",
-    )
-    .status(EXIT_FAILURE)
-    .run();
-}
-
-#[test]
-fn unknown_override_arg() {
-  Test::new()
-    .arg("foo=bar")
-    .arg("a=b")
-    .arg("a")
-    .arg("b")
-    .justfile(
-      "foo:
- echo hello
- echo {{`exit 111`}}
-a := `exit 222`",
-    )
-    .stderr("error: Variable `foo` overridden on the command line but not present in justfile\n")
-    .status(EXIT_FAILURE)
-    .run();
-}
-
-#[test]
-fn overrides_first() {
-  Test::new()
-    .arg("foo=bar")
-    .arg("a=b")
-    .arg("recipe")
-    .arg("baz=bar")
-    .justfile(
-      r#"
-foo := "foo"
-a := "a"
-baz := "baz"
-
-recipe arg:
- echo arg={{arg}}
- echo {{foo + a + baz}}"#,
-    )
-    .stdout("arg=baz=bar\nbarbbaz\n")
-    .stderr("echo arg=baz=bar\necho barbbaz\n")
-    .run();
-}
-
-#[test]
-fn overrides_not_evaluated() {
-  Test::new()
-    .arg("foo=bar")
-    .arg("a=b")
-    .arg("recipe")
-    .arg("baz=bar")
-    .justfile(
-      r#"
-foo := `exit 1`
-a := "a"
-baz := "baz"
-
-recipe arg:
- echo arg={{arg}}
- echo {{foo + a + baz}}"#,
-    )
-    .stdout("arg=baz=bar\nbarbbaz\n")
-    .stderr("echo arg=baz=bar\necho barbbaz\n")
-    .run();
+    .status(222);
 }
 
 #[test]
@@ -737,7 +606,7 @@ touch /this/is/not/a/file
 echo `echo command interpolation`
 ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -765,8 +634,7 @@ fn line_error_spacing() {
    │ ^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -782,7 +650,7 @@ foo A:
     )
     .stdout("ARGUMENT\n")
     .stderr("echo ARGUMENT\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -799,7 +667,7 @@ foo A B:
     )
     .stdout("A:ONE B:TWO\n")
     .stderr("echo A:ONE B:TWO\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -810,14 +678,13 @@ fn argument_mismatch_more() {
     .arg("TWO")
     .arg("THREE")
     .stderr("error: Justfile does not contain recipe `THREE`\n")
-    .status(EXIT_FAILURE)
     .justfile(
       "
 foo A B:
   echo A:{{A}} B:{{B}}
     ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -831,9 +698,8 @@ foo A B:
   echo A:{{A}} B:{{B}}
     ",
     )
-    .stderr("error: Recipe `foo` got 1 argument but takes 2\nusage:\n    just foo A B\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .stderr("error: Recipe `foo` got 1 positional argument but takes 2\nusage:\n    just foo A B\n")
+    .failure();
 }
 
 #[test]
@@ -850,8 +716,7 @@ foo A B='B':
     ",
     )
     .stderr("error: Justfile does not contain recipe `THREE`\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -867,13 +732,12 @@ foo A B C='C':
     )
     .stderr(
       "
-    error: Recipe `foo` got 1 argument but takes at least 2
+    error: Recipe `foo` got 1 positional argument but takes at least 2
     usage:
-        just foo A B C='C'
+        just foo A B [C]
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -882,8 +746,7 @@ fn unknown_recipe() {
     .arg("foo")
     .justfile("hello:")
     .stderr("error: Justfile does not contain recipe `foo`\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -893,8 +756,7 @@ fn unknown_recipes() {
     .arg("bar")
     .justfile("hello:")
     .stderr("error: Justfile does not contain recipe `foo`\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -903,9 +765,8 @@ fn color_always() {
         .arg("--color")
         .arg("always")
         .justfile("b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'")
-        .status(100)
         .stderr("\u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mBacktick failed with exit code 100\u{1b}[0m\n \u{1b}[1;34m——▶\u{1b}[0m justfile:2:6\n  \u{1b}[1;34m│\u{1b}[0m\n\u{1b}[1;34m2 │\u{1b}[0m a := `exit 100`\n  \u{1b}[1;34m│\u{1b}[0m      \u{1b}[1;31m^^^^^^^^^^\u{1b}[0m\n")
-        .run();
+        .status(100);
 }
 
 #[test]
@@ -922,8 +783,7 @@ fn color_never() {
   │      ^^^^^^^^^^
 ",
     )
-    .status(100)
-    .run();
+    .status(100);
 }
 
 #[test]
@@ -940,8 +800,7 @@ fn color_auto() {
   │      ^^^^^^^^^^
 ",
     )
-    .status(100)
-    .run();
+    .status(100);
 }
 
 #[test]
@@ -952,32 +811,12 @@ fn colors_no_context() {
       "\u{1b}[1;31merror\u{1b}[0m: \u{1b}[1m\
 Recipe `recipe` failed on line 2 with exit code 100\u{1b}[0m\n",
     )
-    .status(100)
     .justfile(
       "
 recipe:
   @exit 100",
     )
-    .run();
-}
-
-#[test]
-fn dump() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      r"
-# this recipe does something
-recipe a b +d:
- @exit 100",
-    )
-    .stdout(
-      "# this recipe does something
-recipe a b +d:
-    @exit 100
-",
-    )
-    .run();
+    .status(100);
 }
 
 #[test]
@@ -993,8 +832,7 @@ Leading whitespace may consist of tabs or spaces, but not both
   │ ^^^^^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1009,8 +847,7 @@ fn extra_leading_whitespace() {
   │         ^^^^^^^^^^^^^^^^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1026,8 +863,7 @@ fn inconsistent_leading_whitespace() {
   │ ^^^^^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1042,8 +878,7 @@ fn required_after_default() {
   │                     ^^^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1058,8 +893,7 @@ fn required_after_plus_variadic() {
   │                ^^^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1074,8 +908,7 @@ fn required_after_star_variadic() {
   │                ^^^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1092,7 +925,7 @@ hello baz arg="XYZ\t\"	":
     )
     .stdout("ABC...XYZ\t\"\t\n")
     .stderr("echo 'ABC...XYZ\t\"\t'\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1109,7 +942,7 @@ hello baz arg='XYZ"	':
     )
     .stdout("ABC...XYZ\"\t")
     .stderr("printf 'ABC...XYZ\"\t'\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1126,7 +959,7 @@ hello a b='B' c='C':
     )
     .stdout("0 1 C\n")
     .stderr("echo 0 1 C\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1144,7 +977,7 @@ hello a b='B' c='C':
     )
     .stdout("0 1 2\n")
     .stderr("echo 0 1 2\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1173,7 +1006,7 @@ _private-recipe:
         hello a b='B	' c='C' # this does a thing
   "#,
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1201,7 +1034,7 @@ _private-recipe:
         hello a b='B	' c='C' # this does a thing
   "#,
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1234,7 +1067,7 @@ _private-recipe:
         x a b='B	' c='C'     # this does another thing
   "#,
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1255,7 +1088,7 @@ a:
         b # [alias: c]
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1277,7 +1110,7 @@ a:
         a
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1299,7 +1132,7 @@ b:
         b
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1321,7 +1154,7 @@ b:
     ····b
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1344,7 +1177,7 @@ b:
     b
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1353,8 +1186,7 @@ fn run_suggestion() {
     .arg("hell")
     .justfile("hello:")
     .stderr("error: Justfile does not contain recipe `hell`\nDid you mean `hello`?\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1368,8 +1200,7 @@ fn private_recipes_are_not_suggested() {
       ",
     )
     .stderr("error: Justfile does not contain recipe `hell`\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1386,8 +1217,7 @@ fn alias_suggestion() {
     .stderr(
       "error: Justfile does not contain recipe `hell`\nDid you mean `hello`, an alias for `bar`?\n",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1403,8 +1233,7 @@ fn private_aliases_are_not_suggested() {
       ",
     )
     .stderr("error: Justfile does not contain recipe `hell`\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1420,7 +1249,7 @@ foo:
     )
     .stdout("ab c\n")
     .stderr("echo ab  c\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1436,7 +1265,7 @@ foo:
     )
     .stdout("ab  c\n")
     .stderr("echo 'ab  c'\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1452,7 +1281,7 @@ foo:
     )
     .stdout("abc\n")
     .stderr("echo abc\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1465,8 +1294,7 @@ infallible:
 ",
     )
     .stderr("exit 101\n")
-    .status(EXIT_SUCCESS)
-    .run();
+    .success();
 }
 
 #[test]
@@ -1485,8 +1313,7 @@ exit 202
 error: Recipe `infallible` failed on line 3 with exit code 202
 ",
     )
-    .status(202)
-    .run();
+    .status(202);
 }
 
 #[test]
@@ -1502,7 +1329,7 @@ fn quiet_recipe() {
     )
     .stdout("c\n")
     .stderr("echo c\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1517,7 +1344,7 @@ fn quiet_shebang_recipe() {
     )
     .stdout("hello\n")
     .stderr("#!/bin/sh\necho hello\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1531,7 +1358,7 @@ b:
 c: b a
 ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -1550,8 +1377,7 @@ bar:"#,
   │        ^^^
 "#,
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1572,8 +1398,7 @@ fn dependency_takes_arguments_exact() {
   │    ^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1594,8 +1419,7 @@ fn dependency_takes_arguments_at_least() {
   │    ^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1616,8 +1440,7 @@ fn dependency_takes_arguments_at_most() {
   │     ^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1633,8 +1456,7 @@ fn duplicate_parameter() {
   │       ^^^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1650,8 +1472,7 @@ fn duplicate_recipe() {
   │ ^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1659,7 +1480,6 @@ fn duplicate_variable() {
   Test::new()
     .arg("foo")
     .justfile("a := 'hello'\na := 'hello'\nfoo:")
-    .status(EXIT_FAILURE)
     .stderr(
       "error: Variable `a` has multiple definitions
  ——▶ justfile:2:1
@@ -1668,7 +1488,7 @@ fn duplicate_variable() {
   │ ^
 ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1685,8 +1505,7 @@ fn unexpected_token_in_dependency_position() {
   │      ^^^^^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1702,8 +1521,7 @@ fn unexpected_token_after_name() {
   │     ^^^^^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1719,8 +1537,7 @@ fn self_dependency() {
   │    ^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1736,8 +1553,7 @@ fn long_circular_recipe_dependency() {
   │    ^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1753,8 +1569,7 @@ fn variable_self_dependency() {
   │ ^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1762,7 +1577,6 @@ fn variable_circular_dependency() {
   Test::new()
     .arg("a")
     .justfile("x := y\ny := z\nz := x\na:")
-    .status(EXIT_FAILURE)
     .stderr(
       "error: Variable `x` depends on its own value: `x -> y -> z -> x`
  ——▶ justfile:1:1
@@ -1771,7 +1585,7 @@ fn variable_circular_dependency() {
   │ ^
 ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1795,8 +1609,7 @@ fn variable_circular_dependency_with_additional_variable() {
   │ ^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1816,7 +1629,7 @@ a x y +z:
     )
     .stdout("0 1 2 3 4\n")
     .stderr("echo 0 1 2 3  4 \n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1836,7 +1649,7 @@ a x y +z='HELLO':
     )
     .stdout("0 1 2 3 4\n")
     .stderr("echo 0 1 2 3  4 \n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1853,7 +1666,7 @@ a x y +z='HELLO':
     )
     .stdout("0 1 HELLO\n")
     .stderr("echo 0 1 HELLO\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1868,9 +1681,14 @@ a x y +z:
   echo {{x}} {{y}} {{z}}
 ",
     )
-    .stderr("error: Recipe `a` got 2 arguments but takes at least 3\nusage:\n    just a x y +z\n")
-    .status(EXIT_FAILURE)
-    .run();
+    .stderr(
+      "
+        error: Recipe `a` got 2 positional arguments but takes at least 3
+        usage:
+            just a x y z...
+      ",
+    )
+    .failure();
 }
 
 #[test]
@@ -1890,7 +1708,7 @@ a x y *z:
     )
     .stdout("0 1 2 3 4\n")
     .stderr("echo 0 1 2 3  4 \n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1907,7 +1725,7 @@ a x y *z:
     )
     .stdout("0 1\n")
     .stderr("echo 0 1 \n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1927,7 +1745,7 @@ a x y *z='HELLO':
     )
     .stdout("0 1 2 3 4\n")
     .stderr("echo 0 1 2 3  4 \n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1944,7 +1762,7 @@ a x y *z='HELLO':
     )
     .stdout("0 1 HELLO\n")
     .stderr("echo 0 1 HELLO\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -1964,8 +1782,7 @@ foo *a +b:
   │        ^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -1985,8 +1802,7 @@ foo +a *b:
   │        ^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -2015,7 +1831,7 @@ BAZ +Z:
     )
     .stdout("bar: 0\nfoo: 1 2\nbaz: 3 4 5\n")
     .stderr("echo bar: 0\necho foo: 1 2\necho baz: 3 4 5\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -2036,8 +1852,7 @@ a: x y
   │      ^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -2062,7 +1877,7 @@ a B C +D='hello':
      \u{1b}[34m#\u{1b}[0m \u{1b}[34mcomment\u{1b}[0m
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -2081,7 +1896,7 @@ a:
     )
     .stdout("hi\n")
     .stderr("\u{1b}[1;36m===> Running recipe `a`...\u{1b}[0m\n\u{1b}[1mecho hi\u{1b}[0m\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -2101,7 +1916,7 @@ a:
     )
     .stdout("hi\n")
     .stderr("\u{1b}[1;36m===> Running recipe `a`...\u{1b}[0m\necho hi\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -2119,7 +1934,7 @@ echo A B C:
     )
     .stdout("--some --awesome --flags\n")
     .stderr("echo --some --awesome --flags\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -2136,7 +1951,7 @@ echo:
     )
     .stdout("1\n")
     .stderr("echo 1\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -2155,8 +1970,7 @@ X := "\'"
   │      ^^^^
 "#,
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -2175,8 +1989,7 @@ fn unknown_variable_in_default() {
   │       ^^^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -2195,8 +2008,7 @@ foo x=bar():
   │       ^^^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -2210,7 +2022,7 @@ foo x='bar':
     )
     .stdout("bar\n")
     .stderr("echo bar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -2224,7 +2036,7 @@ foo x=(`echo foo` + 'bar'):
     )
     .stdout("foobar\n")
     .stderr("echo foobar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -2238,7 +2050,7 @@ foo x=`echo foo`:
     )
     .stdout("foo\n")
     .stderr("echo foo\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -2253,7 +2065,7 @@ foo x=y:
     )
     .stdout("foo\n")
     .stderr("echo foo\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -2274,8 +2086,7 @@ fn unterminated_interpolation_eol() {
       │        ^^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -2296,8 +2107,7 @@ fn unterminated_interpolation_eof() {
       │        ^^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -2317,8 +2127,7 @@ assembly_source_files = %(wildcard src/arch/$(arch)/*.s)
       │                         ^
   ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -2338,8 +2147,7 @@ error: Unknown start of token '\u{200b}' (U+200B)
   │ ^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -2359,8 +2167,7 @@ error: Unknown start of token '\0' (U+0000)
   │ ^
 ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -2377,7 +2184,7 @@ default:
     .stdin("STDIN")
     .stdout("STDIN\n")
     .stderr("echo STDIN\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -2392,7 +2199,7 @@ default stdin = `cat`:
     .stdin("STDIN")
     .stdout("STDIN\n")
     .stderr("echo STDIN\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -2416,7 +2223,7 @@ fn backtick_default_cat_justfile() {
       echo '{{stdin}}''
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -2433,7 +2240,7 @@ default:
     .stdin("foobar\n")
     .stdout("foobar\n")
     .stderr("echo foobar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -2452,7 +2259,7 @@ default:
     .stdin("foo\nbar\n")
     .stdout("foo\nbar\n")
     .stderr("echo foo\necho bar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -2469,7 +2276,7 @@ default a=`read A && echo $A` b=`read B && echo $B`:
     .stdin("foo\nbar\n")
     .stdout("foo\nbar\n")
     .stderr("echo foo\necho bar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -2492,8 +2299,7 @@ fn old_equals_assignment_syntax_produces_error() {
       │     ^
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -2510,7 +2316,7 @@ fn dependency_argument_string() {
     .stdout("Building foo...\nBuilding bar...\n")
     .stderr("echo 'Building foo...'\necho 'Building bar...'\n")
     .shell(false)
-    .run();
+    .success();
 }
 
 #[test]
@@ -2529,7 +2335,7 @@ fn dependency_argument_parameter() {
     .stdout("Building foo@1.0...\nBuilding bar@1.0...\n")
     .stderr("echo 'Building foo@1.0...'\necho 'Building bar@1.0...'\n")
     .shell(false)
-    .run();
+    .success();
 }
 
 #[test]
@@ -2546,7 +2352,7 @@ fn dependency_argument_function() {
     .stdout("y\n")
     .stderr("echo y\n")
     .shell(false)
-    .run();
+    .success();
 }
 
 #[test]
@@ -2564,7 +2370,7 @@ fn env_function_as_env_var() {
     .stdout("z\n")
     .stderr("echo z\n")
     .shell(false)
-    .run();
+    .success();
 }
 
 #[test]
@@ -2582,7 +2388,7 @@ fn env_function_as_env_var_or_default() {
     .stdout("z\n")
     .stderr("echo z\n")
     .shell(false)
-    .run();
+    .success();
 }
 
 #[test]
@@ -2600,7 +2406,7 @@ fn env_function_as_env_var_with_existing_env_var() {
     .stdout("z\n")
     .stderr("echo z\n")
     .shell(false)
-    .run();
+    .success();
 }
 
 #[test]
@@ -2618,7 +2424,7 @@ fn env_function_as_env_var_or_default_with_existing_env_var() {
     .stdout("z\n")
     .stderr("echo z\n")
     .shell(false)
-    .run();
+    .success();
 }
 
 #[test]
@@ -2638,7 +2444,7 @@ fn dependency_argument_backtick() {
     .stdout("X\nX\n")
     .stderr("echo X\necho $X\n")
     .shell(false)
-    .run();
+    .success();
 }
 
 #[test]
@@ -2657,7 +2463,7 @@ fn dependency_argument_assignment() {
     .stdout("Release 1.0...\n")
     .stderr("echo Release 1.0...\n")
     .shell(false)
-    .run();
+    .success();
 }
 
 #[test]
@@ -2674,7 +2480,7 @@ fn dependency_argument_plus_variadic() {
     .stdout("A B C\n")
     .stderr("echo A B C\n")
     .shell(false)
-    .run();
+    .success();
 }
 
 #[test]
@@ -2691,7 +2497,7 @@ fn duplicate_dependency_no_args() {
     .stdout("BAR\n")
     .stderr("echo BAR\n")
     .shell(false)
-    .run();
+    .success();
 }
 
 #[test]
@@ -2708,12 +2514,14 @@ fn duplicate_dependency_argument() {
     .stdout("BAR\n")
     .stderr("echo BAR\n")
     .shell(false)
-    .run();
+    .success();
 }
 
-#[cfg(windows)]
 #[test]
 fn pwsh_invocation_directory() {
+  if cfg!(not(windows)) {
+    return;
+  }
   Test::new()
     .justfile(
       r#"
@@ -2723,9 +2531,8 @@ fn pwsh_invocation_directory() {
       @Test-Path {{invocation_directory()}} > result.txt
   "#,
     )
-    .status(EXIT_SUCCESS)
     .shell(false)
-    .run();
+    .success();
 }
 
 #[test]
@@ -2740,7 +2547,7 @@ fn variables() {
     )
     .stdout("a z\n")
     .shell(false)
-    .run();
+    .success();
 }
 
 #[test]
@@ -2758,9 +2565,8 @@ fn interpolation_evaluation_ignore_quiet() {
     error: Recipe `foo` failed on line 2 with exit code 127
   ",
     )
-    .status(127)
     .shell(false)
-    .run();
+    .status(127);
 }
 
 #[test]
@@ -2779,9 +2585,8 @@ fn interpolation_evaluation_ignore_quiet_continuation() {
     error: Recipe `foo` failed on line 3 with exit code 127
   ",
     )
-    .status(127)
     .shell(false)
-    .run();
+    .status(127);
 }
 
 #[test]
@@ -2799,7 +2604,7 @@ fn brace_escape() {
     echo '{{'
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -2817,7 +2622,7 @@ fn brace_escape_extra() {
     echo '{{{'
   ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -2834,20 +2639,22 @@ fn multi_line_string_in_interpolation() {
     )
     .stdout("a\nb\ncz\nbaz\n")
     .stderr("echo a\n  echo b\n  echo cz\necho baz\n")
-    .run();
+    .success();
 }
 
-#[cfg(windows)]
 #[test]
 fn windows_interpreter_path_no_base() {
+  if cfg!(not(windows)) {
+    return;
+  }
   Test::new()
     .justfile(
-      r#"
+      r"
     foo:
       #!powershell
 
       exit 0
-  "#,
+  ",
     )
-    .run();
+    .success();
 }

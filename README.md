@@ -34,7 +34,7 @@ reflects latest master.
 Commands, called recipes, are stored in a file called `justfile` with syntax
 inspired by `make`:
 
-![screenshot](https://raw.githubusercontent.com/casey/just/master/screenshot.png)
+![screenshot](https://raw.githubusercontent.com/casey/just/master/etc/screenshot.png)
 
 You can then run them with `just RECIPE`:
 
@@ -96,8 +96,8 @@ and the BSDs.
 On Windows, `just` works with the `sh` provided by
 [Git for Windows](https://git-scm.com),
 [GitHub Desktop](https://desktop.github.com), or
-[Cygwin](http://www.cygwin.com). After installation, `sh` must be
-available in the `PATH` of the shell you want to to invoke `just` from.
+[Cygwin](http://www.cygwin.com). After installation, `sh` must be available in
+the `PATH` of the shell you want to invoke `just` from.
 
 If you'd rather not install `sh`, you can use the `shell` setting to use the
 shell of your choice.
@@ -161,6 +161,11 @@ most Windows users.)
       <td><code>cargo install just</code></td>
     </tr>
     <tr>
+      <td><a href=https://github.com/cargo-bins/cargo-binstall>Cargo Binstall</a></td>
+      <td><a href=https://crates.io/crates/just>just</a></td>
+      <td><code>cargo binstall just</code></td>
+    </tr>
+    <tr>
       <td><a href=https://docs.conda.io/projects/conda/en/latest/index.html>Conda</a></td>
       <td><a href=https://anaconda.org/conda-forge/just>just</a></td>
       <td><code>conda install -c conda-forge just</code></td>
@@ -190,6 +195,11 @@ most Windows users.)
       <td><a href=https://snapcraft.io/just>just</a></td>
       <td><code>snap install --edge --classic just</code></td>
     </tr>
+    <tr>
+      <td><a href=https://docs.astral.sh/uv/>uv</a></td>
+      <td><a href=https://pypi.org/project/rust-just/>rust-just</a></td>
+      <td><code>uv tool install rust-just</code></td>
+    </tr>
   </tbody>
 </table>
 
@@ -210,6 +220,12 @@ most Windows users.)
       <td><a href=https://www.freebsd.org/doc/handbook/pkgng-intro.html>pkg</a></td>
       <td><a href=https://www.freshports.org/deskutils/just/>just</a></td>
       <td><code>pkg install just</code></td>
+    </tr>
+    <tr>
+      <td><a href=https://www.openbsd.org>OpenBSD</a></td>
+      <td><a href=https://www.openbsd.org/faq/faq15.html>pkg_*</a></td>
+      <td><a href=https://cvsweb.openbsd.org/cgi-bin/cvsweb/ports/sysutils/just>just</a></td>
+      <td><code>pkg_add just</code></td>
     </tr>
   </tbody>
 </table>
@@ -247,25 +263,6 @@ most Windows users.)
       <td><code>apt install just</code></td>
     </tr>
     <tr>
-      <td><a href=https://debian.org>Debian</a> and <a href=https://ubuntu.com>Ubuntu</a> derivatives</td>
-      <td><a href=https://mpr.makedeb.org>MPR</a></td>
-      <td><a href=https://mpr.makedeb.org/packages/just>just</a></td>
-      <td>
-        <code>git clone https://mpr.makedeb.org/just</code><br>
-        <code>cd just</code><br>
-        <code>makedeb -si</code>
-      </td>
-    </tr>
-    <tr>
-      <td><a href=https://debian.org>Debian</a> and <a href=https://ubuntu.com>Ubuntu</a> derivatives</td>
-      <td><a href=https://docs.makedeb.org/prebuilt-mpr>Prebuilt-MPR</a></td>
-      <td><a href=https://mpr.makedeb.org/packages/just>just</a></td>
-      <td>
-        <sup><b>You must have the <a href=https://docs.makedeb.org/prebuilt-mpr/getting-started/#setting-up-the-repository>Prebuilt-MPR set up</a> on your system in order to run this command.</b></sup><br>
-        <code>apt install just</code>
-      </td>
-    </tr>
-    <tr>
       <td><a href=https://getfedora.org>Fedora</a></td>
       <td><a href=https://dnf.readthedocs.io/en/latest/>DNF</a></td>
       <td><a href=https://src.fedoraproject.org/rpms/rust-just>just</a></td>
@@ -274,11 +271,9 @@ most Windows users.)
     <tr>
       <td><a href=https://www.gentoo.org>Gentoo</a></td>
       <td><a href=https://wiki.gentoo.org/wiki/Portage>Portage</a></td>
-      <td><a href=https://github.com/gentoo-mirror/guru/tree/master/dev-build/just>guru/dev-build/just</a></td>
+      <td><a href=https://packages.gentoo.org/packages/dev-build/just>dev-build/just</a></td>
       <td>
-        <code>eselect repository enable guru</code><br>
-        <code>emerge --sync guru</code><br>
-        <code>emerge dev-build/just</code>
+        <code>emerge -av dev-build/just</code>
       </td>
     </tr>
     <tr>
@@ -430,9 +425,28 @@ Or with [taiki-e/install-action](https://github.com/taiki-e/install-action):
 - uses: taiki-e/install-action@just
 ```
 
+### Docker
+
+`just` is available as a Docker image from
+[the GitHub Container Registry](https://ghcr.io/casey/just).
+
+To copy `just` into a Docker image, add the following line to your
+`Dockerfile`:
+
+```dockerfile
+COPY --from=ghcr.io/casey/just:latest /just /usr/local/bin/
+```
+
+After copying, `just` may also be used as part of a docker build:
+
+```dockerfile
+RUN just
+```
+
 ### Release RSS Feed
 
-An [RSS feed](https://en.wikipedia.org/wiki/RSS) of `just` releases is available [here](https://github.com/casey/just/releases.atom).
+An [RSS feed](https://en.wikipedia.org/wiki/RSS) of `just` releases is
+available [here](https://github.com/casey/just/releases.atom).
 
 ### Node.js Installation
 
@@ -449,6 +463,24 @@ who want to make the set up process for their project as easy as possible.
 
 For more information, see the
 [just-install README file](https://github.com/brombal/just-install#readme).
+
+### Nix Flake
+
+The `just` repository includes a
+[`flake.nix`](https://github.com/casey/just/tree/master/flake.nix) that defines
+a [nix flake](https://nix.dev/concepts/flakes.html), allowing you to use `just`
+as an input to another flake:
+
+```nix
+{
+  inputs = {
+    just.url = "github:casey/just";
+  }
+
+  outputs = {self, nixpkgs, just}: {
+  }
+}
+```
 
 Backwards Compatibility
 -----------------------
@@ -469,7 +501,7 @@ leisure.
 
 Features that aren't yet ready for stabilization are marked as unstable and may
 be changed or removed at any time. Using unstable features produces an error by
-default, which can be suppressed with by passing the `--unstable` flag,
+default, which can be suppressed by passing the `--unstable` flag,
 `set unstable`, or setting the environment variable `JUST_UNSTABLE`, to any
 value other than `false`, `0`, or the empty string.
 
@@ -592,13 +624,20 @@ out of the box, thanks to [tomodachi94](https://github.com/tomodachi94).
 ### Zed
 
 The [zed-just](https://github.com/jackTabsCode/zed-just/) extension by
-[jackTabsCode](https://github.com/jackTabsCode) is avilable on the
+[jackTabsCode](https://github.com/jackTabsCode) is available on the
 [Zed extensions page](https://zed.dev/extensions?query=just).
 
 ### Other Editors
 
 Feel free to send me the commands necessary to get syntax highlighting working
 in your editor of choice so that I may include them here.
+
+### Language Server Protocol
+
+[just-lsp](https://github.com/terror/just-lsp) provides a [language server
+protocol](https://en.wikipedia.org/wiki/Language_Server_Protocol)
+implementation, enabling features such as go-to-definition, inline diagnostics,
+and code completion.
 
 ### Model Context Protocol
 
@@ -771,8 +810,8 @@ Available recipes:
     lint
 ```
 
-Recipes in [submodules](#modules1190) can be listed with `just --list PATH`,
-where `PATH` is a space- or `::`-separated module path:
+Recipes in [submodules](#modules) can be listed with `just --list PATH`, where
+`PATH` is a space- or `::`-separated module path:
 
 ```
 $ cat justfile
@@ -781,10 +820,10 @@ $ cat foo.just
 mod bar
 $ cat bar.just
 baz:
-$ just foo bar
+$ just --list foo bar
 Available recipes:
     baz
-$ just foo::bar
+$ just --list foo::bar
 Available recipes:
     baz
 ```
@@ -1019,6 +1058,7 @@ foo:
 | `export` | boolean | `false` | Export all variables as environment variables. |
 | `fallback` | boolean | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found. |
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
+| `lazy`<sup>1.47.0</sup> | boolean | `false` | Don't evaluate unused variables. |
 | `positional-arguments` | boolean | `false` | Pass positional arguments. |
 | `quiet` | boolean | `false` | Disable echoing recipe lines before executing. |
 | `script-interpreter`<sup>1.33.0</sup> | `[COMMAND, ARGS…]` | `['sh', '-eu']` | Set command used to invoke recipes with empty `[script]` attribute. |
@@ -1040,6 +1080,13 @@ Which is equivalent to:
 ```justfile
 set NAME := true
 ```
+
+Non-boolean settings can be set to both strings and
+expressions.<sup>1.46.0</sup>
+
+However, because settings affect the behavior of backticks and many functions,
+those expressions may not contain backticks or function calls, directly or
+transitively via reference.
 
 #### Allow Duplicate Recipes
 
@@ -1162,6 +1209,30 @@ hello
 goodbye
 ```
 
+#### Lazy
+
+The `lazy` setting<sup>1.47.0</sup> causes the evaluator to skip evaluating
+unused variables. This can be beneficial when a `justfile` contains variables
+that are expensive to evaluate but only sometimes used.
+
+In the following `justfile`, `token` will be skipped when only invoking `bar`:
+
+```just
+set lazy
+
+token := `expensive-script-to-get-credentials`
+
+foo:
+  curl -H "Authorization: Bearer {{ token }}" https://example.com/foo
+
+bar:
+  cargo test
+```
+
+Because `just` cannot determine when exported variables are used, assignments
+with `export` and assignments in a module with `set export` will always be
+evaluated.
+
 #### Positional Arguments
 
 If `positional-arguments` is `true`, recipe arguments will be passed as
@@ -1210,7 +1281,7 @@ $ just test foo "bar baz"
 - bar baz
 ```
 
-Positional arguments may also be turned on on a per-recipe basis with the
+Positional arguments may also be turned on a per-recipe basis with the
 `[positional-arguments]` attribute<sup>1.29.0</sup>:
 
 ```just
@@ -1573,6 +1644,8 @@ sequence processing takes place after unindentation. The unindentation
 algorithm does not take escape-sequence produced whitespace or newlines into
 account.
 
+#### Shell-expanded strings
+
 Strings prefixed with `x` are shell expanded<sup>1.27.0</sup>:
 
 ```justfile
@@ -1592,24 +1665,80 @@ exported `just` variables cannot be used. However, this allows shell expanded
 strings to be used in places like settings and import paths, which cannot
 depend on `just` variables and `.env` files.
 
-### Ignoring Errors
+#### Format strings
 
-Normally, if a command returns a non-zero exit status, execution will stop. To
-continue execution after a command, even if it fails, prefix the command with
-`-`:
+Strings prefixed with `f` are format strings<sup>1.44.0</sup>:
+
+```justfile
+name := "world"
+message := f'Hello, {{name}}!'
+```
+
+Format strings may contain interpolations delimited with `{{…}}` that contain
+expressions. Format strings evaluate to the concatenated string fragments and
+evaluated expressions.
+
+Use `{{{{` to include a literal `{{` in a format string:
+
+```justfile
+foo := f'I {{{{LOVE} curly braces!'
+```
+
+### Sigils
+
+Commands in linewise recipes may be prefixed with any combination of the sigils
+`-`, `@`, and `?`.
+
+The `@` sigil toggles command echoing:
 
 ```just
 foo:
-  -cat foo
-  echo 'Done!'
+  @echo "This line won't be echoed!"
+  echo "This line will be echoed!"
+
+@bar:
+  @echo "This line will be echoed!"
+  echo "This line won't be echoed!"
+```
+
+The `-` sigil cause recipe execution to continue even if the command returns a
+nonzero exit status:
+
+```just
+# execution will continue, even if bar doesn't exist
+foo:
+  -rmdir bar
+  mkdir bar
+  echo 'so much good stuff' > bar/stuff.txt
+```
+
+The `?` sigil<sup>1.47.0</sup> causes the current recipe to stop executing if
+the command exits with status code `1`, however execution of other recipes will
+continue. Exit status `0` causes the current recipe to continue execution as
+normal. All other exit codes are reserved and should not be used, as they may
+be given meaning in a future version of `just`.
+
+If the `guards` setting is unset or false, `?` sigils are ignored and instead
+treated as part of the command.
+
+```just
+set guards
+
+@foo: bar
+  echo FOO
+
+@bar:
+  ?[[ -f baz ]]
+  echo BAR
 ```
 
 ```console
 $ just foo
-cat foo
-cat: foo: No such file or directory
-echo 'Done!'
-Done!
+FOO
+$ touch baz
+$ just foo
+BAR
+FOO
 ```
 
 ### Functions
@@ -1880,9 +2009,9 @@ The process ID is: 420
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append
   single quotes to `s`. This is sufficient to escape special characters for
   many shells, including most Bourne shell descendants.
-- `replace(s, from, to)` - Replace all occurrences of `from` in `s` to `to`.
+- `replace(s, from, to)` - Replace all occurrences of `from` in `s` with `to`.
 - `replace_regex(s, regex, replacement)` - Replace all occurrences of `regex`
-  in `s` to `replacement`. Regular expressions are provided by the
+  in `s` with `replacement`. Regular expressions are provided by the
   [Rust `regex` crate](https://docs.rs/regex/latest/regex/). See the
   [syntax documentation](https://docs.rs/regex/latest/regex/#syntax) for usage
   examples. Capture groups are supported. The `replacement` string uses
@@ -1947,9 +2076,10 @@ which will halt execution.
 
 #### Filesystem Access
 
-- `path_exists(path)` - Returns `true` if the path points at an existing entity
-  and `false` otherwise. Traverses symbolic links, and returns `false` if the
-  path is inaccessible or points to a broken symlink.
+- `path_exists(path)` - Returns the string `true` if the path points at an
+  existing entity and the string `false` otherwise. Traverses symbolic links,
+  and returns the string `false` if the path is inaccessible or points to a
+  broken symlink.
 - `read(path)`<sup>1.39.0</sup> - Returns the content of file at `path` as
   string.
 
@@ -1990,8 +2120,8 @@ for details.
 
 - `semver_matches(version, requirement)`<sup>1.16.0</sup> - Check whether a
   [semantic `version`](https://semver.org), e.g., `"0.1.0"` matches a
-  `requirement`, e.g., `">=0.1.0"`, returning `"true"` if so and `"false"`
-  otherwise.
+  `requirement`, e.g., `">=0.1.0"`, returning the string `"true"` if so and the
+  string `"false"` otherwise.
 
 #### Style
 
@@ -2011,10 +2141,11 @@ for details.
     @echo '{{ style("error") }}OH NO{{ NORMAL }}'
   ```
 
-##### User Directories<sup>1.23.0</sup>
+##### User Directories
 
-These functions return paths to user-specific directories for things like
-configuration, data, caches, executables, and the user's home directory.
+These functions<sup>1.23.0</sup> return paths to user-specific directories for
+things like configuration, data, caches, executables, and the user's home
+directory.
 
 On Unix, these functions follow the
 [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html).
@@ -2120,15 +2251,24 @@ change their behavior.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `[confirm]`<sup>1.17.0</sup> | recipe | Require confirmation prior to executing recipe. |
+| `[arg(ARG, help="HELP")]`<sup>1.46.0</sup> | recipe | Print help string `HELP` for `ARG` in usage messages. |
+| `[arg(ARG, long="LONG")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as `--LONG` option. |
+| `[arg(ARG, pattern="PATTERN")]`<sup>1.45.0</sup> | recipe | Require values of argument `ARG` to match regular expression `PATTERN`. |
+| `[arg(ARG, short="S")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as short `-S` option. |
+| `[arg(ARG, value="VALUE")]`<sup>1.46.0</sup> | recipe | Makes option `ARG` a flag which does not take a value. |
 | `[confirm(PROMPT)]`<sup>1.23.0</sup> | recipe | Require confirmation prior to executing recipe with a custom prompt. |
+| `[confirm]`<sup>1.17.0</sup> | recipe | Require confirmation prior to executing recipe. |
 | `[default]`<sup>1.43.0</sup> | recipe | Use recipe as module's default recipe. |
 | `[doc(DOC)]`<sup>1.27.0</sup> | module, recipe | Set recipe or module's [documentation comment](#documentation-comments) to `DOC`. |
+| `[dragonfly]`<sup>1.47.0</sup> | recipe | Enable recipe on DragonFly BSD. |
+| `[env(ENV_VAR, VALUE)]` <sup>1.47.0</sup> | recipe | Set environment variables for recipe. |
 | `[extension(EXT)]`<sup>1.32.0</sup> | recipe | Set shebang recipe script's file extension to `EXT`. `EXT` should include a period if one is desired. |
-| `[group(NAME)]`<sup>1.27.0</sup> | module, recipe | Put recipe or module in in [group](#groups) `NAME`. |
+| `[freebsd]`<sup>1.47.0</sup> | recipe | Enable recipe on FreeBSD. |
+| `[group(NAME)]`<sup>1.27.0</sup> | module, recipe | Put recipe or module in [group](#groups) `NAME`. |
 | `[linux]`<sup>1.8.0</sup> | recipe | Enable recipe on Linux. |
 | `[macos]`<sup>1.8.0</sup> | recipe | Enable recipe on MacOS. |
 | `[metadata(METADATA)]`<sup>1.42.0</sup> | recipe | Attach `METADATA` to recipe. |
+| `[netbsd]`<sup>1.47.0</sup> | recipe | Enable recipe on NetBSD. |
 | `[no-cd]`<sup>1.9.0</sup> | recipe | Don't change directory before executing recipe. |
 | `[no-exit-message]`<sup>1.7.0</sup> | recipe | Don't print an error message if recipe fails. |
 | `[no-quiet]`<sup>1.23.0</sup> | recipe | Override globally quiet recipes and always echo out the recipe. |
@@ -2136,8 +2276,8 @@ change their behavior.
 | `[parallel]`<sup>1.42.0</sup> | recipe | Run this recipe's dependencies in parallel. |
 | `[positional-arguments]`<sup>1.29.0</sup> | recipe | Turn on [positional arguments](#positional-arguments) for this recipe. |
 | `[private]`<sup>1.10.0</sup> | alias, recipe | Make recipe, alias, or variable private. See [Private Recipes](#private-recipes). |
-| `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
 | `[script(COMMAND)]`<sup>1.32.0</sup> | recipe | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
+| `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
 | `[unix]`<sup>1.8.0</sup> | recipe | Enable recipe on Unixes. (Includes MacOS). |
 | `[windows]`<sup>1.8.0</sup> | recipe | Enable recipe on Windows. |
 | `[working-directory(PATH)]`<sup>1.38.0</sup> | recipe | Set recipe working directory. `PATH` may be relative or absolute. If relative, it is interpreted relative to the default working directory. |
@@ -2166,12 +2306,12 @@ Attributes with a single argument may be written with a colon:
 foo:
 ```
 
-#### Enabling and Disabling Recipes<sup>1.8.0</sup>
+#### Enabling and Disabling Recipes
 
-The `[linux]`, `[macos]`, `[unix]`, and `[windows]` attributes are
-configuration attributes. By default, recipes are always enabled. A recipe with
-one or more configuration attributes will only be enabled when one or more of
-those configurations is active.
+The `[linux]`, `[macos]`, `[unix]`, and `[windows]` attributes<sup>1.8.0</sup>
+are configuration attributes. By default, recipes are always enabled. A recipe
+with one or more configuration attributes will only be enabled when one or more
+of those configurations is active.
 
 This can be used to write `justfile`s that behave differently depending on
 which operating system they run on. The `run` recipe in this `justfile` will
@@ -2190,12 +2330,12 @@ run:
   main.exe
 ```
 
-#### Disabling Changing Directory<sup>1.9.0</sup>
+#### Disabling Changing Directory
 
 `just` normally executes recipes with the current directory set to the
 directory that contains the `justfile`. This can be disabled using the
-`[no-cd]` attribute. This can be used to create recipes which use paths
-relative to the invocation directory, or which operate on the current
+`[no-cd]` attribute<sup>1.9.0</sup>. This can be used to create recipes which
+use paths relative to the invocation directory, or which operate on the current
 directory.
 
 For example, this `commit` recipe:
@@ -2211,12 +2351,12 @@ Can be used with paths that are relative to the current directory, because
 `[no-cd]` prevents `just` from changing the current directory when executing
 `commit`.
 
-#### Requiring Confirmation for Recipes<sup>1.17.0</sup>
+#### Requiring Confirmation for Recipes
 
 `just` normally executes all recipes unless there is an error. The `[confirm]`
-attribute allows recipes require confirmation in the terminal prior to running.
-This can be overridden by passing `--yes` to `just`, which will automatically
-confirm any recipes marked by this attribute.
+attribute<sup>1.17.0</sup> allows recipes require confirmation in the terminal
+prior to running. This can be overridden by passing `--yes` to `just`, which
+will automatically confirm any recipes marked by this attribute.
 
 Recipes dependent on a recipe that requires confirmation will not be run if the
 relied upon recipe is not confirmed, as well as recipes passed after any recipe
@@ -2228,15 +2368,28 @@ delete-all:
   rm -rf *
 ```
 
-#### Custom Confirmation Prompt<sup>1.23.0</sup>
+#### Custom Confirmation Prompt
 
-The default confirmation prompt can be overridden with `[confirm(PROMPT)]`:
+The default confirmation prompt can be overridden with
+`[confirm(PROMPT)]`<sup>1.23.0</sup>:
 
 ```just
 [confirm("Are you sure you want to delete everything?")]
 delete-everything:
   rm -rf *
 ```
+
+#### Metadata
+
+Metadata in the form of lists of strings may be attached to recipes with the
+`[metadata(METADATA)]` attribute<sup>1.42.0</sup>:
+
+```just
+[metadata("hello", "goodbye")]
+foo:
+```
+
+Metadata can be read using `just --dump --dump-format json`.
 
 ### Groups
 
@@ -2402,9 +2555,6 @@ bar foo:
   echo {{ if foo == "bar" { "hello" } else { "goodbye" } }}
 ```
 
-Note the space after the final `}`! Without the space, the interpolation will
-be prematurely closed.
-
 Multiple conditionals can be chained:
 
 ```just
@@ -2483,6 +2633,10 @@ $ just --set os bsd
 ./test --test bsd
 ```
 
+Variables in submodules can be overridden using the `::`-separated path to the
+variable. A variable named `bar` in a submodule named `foo` may be overridden
+with `foo::bar=VALUE` or `--set foo::bar VALUE`.
+
 ### Getting and Setting Environment Variables
 
 #### Exporting `just` Variables
@@ -2506,6 +2660,16 @@ test $RUST_BACKTRACE="1":
   cargo test
 ```
 
+You can also use the `[env(NAME, VALUE)]` attribute to export environment
+variables to a specific recipe:
+
+```just
+[env("RUST_BACKTRACE", "1")]
+test:
+  # will print a stack trace if it crashes
+  cargo test
+```
+
 Exported variables and parameters are not exported to backticks in the same scope.
 
 ```just
@@ -2523,9 +2687,10 @@ a $A $B=`echo $A`:
 When [export](#export) is set, all `just` variables are exported as environment
 variables.
 
-#### Unexporting Environment Variables<sup>1.29.0</sup>
+#### Unexporting Environment Variables
 
-Environment variables can be unexported with the `unexport keyword`:
+Environment variables can be unexported with the `unexport
+keyword`<sup>1.29.0</sup>:
 
 ```just
 unexport FOO
@@ -2715,6 +2880,164 @@ Parameters prefixed with a `$` will be exported as environment variables:
 ```just
 foo $bar:
   echo $bar
+```
+
+Parameters may be constrained to match regular expression patterns using the
+`[arg("name", pattern="pattern")]` attribute<sup>1.45.0</sup>:
+
+```just
+[arg('n', pattern='\d+')]
+double n:
+  echo $(({{n}} * 2))
+```
+
+A leading `^` and trailing `$` are added to the pattern, so it must match the
+entire argument value.
+
+You may constrain the pattern to a number of alternatives using the `|`
+operator:
+
+```just
+[arg('flag', pattern='--help|--version')]
+info flag:
+  just {{flag}}
+```
+
+Regular expressions are provided by the
+[Rust `regex` crate](https://docs.rs/regex/latest/regex/). See the
+[syntax documentation](https://docs.rs/regex/latest/regex/#syntax) for usage
+examples.
+
+Usage information for a recipe may be printed with the `--usage`
+subcommand<sup>1.46.0</sup>:
+
+```console
+$ just --usage foo
+Usage: just foo [OPTIONS] bar
+
+Arguments:
+  bar
+```
+
+Help strings may be added to arguments using the `[arg(ARG, help=HELP)]` attribute:
+
+```just
+[arg("bar", help="hello")]
+foo bar:
+```
+
+```console
+$ just --usage foo
+Usage: just foo bar
+
+Arguments:
+  bar hello
+```
+
+#### Recipe Flags and Options
+
+Recipe parameters are positional by default.
+
+In this `justfile`:
+
+```just
+@foo bar:
+  echo bar={{bar}}
+```
+
+The parameter `bar` is positional:
+
+```console
+$ just foo hello
+bar=hello
+```
+
+The `[arg(ARG, long=OPTION)]`<sup>1.46.0</sup> attribute can be used to make a
+parameter a long option.
+
+In this `justfile`:
+
+```just
+[arg("bar", long="bar")]
+foo bar:
+```
+
+The parameter `bar` is given with the `--bar` option:
+
+```console
+$ just foo --bar hello
+bar=hello
+```
+
+Options may also be passed with `--name=value` syntax:
+
+```console
+$ just foo --bar=hello
+bar=hello
+```
+
+The value of `long` can be omitted, in which case the option defaults to the
+name of the parameter:
+
+```just
+[arg("bar", long)]
+foo bar:
+```
+
+The `[arg(ARG, short=OPTION)]`<sup>1.46.0</sup> attribute can be used to make a
+parameter a short option.
+
+In this `justfile`:
+
+```just
+[arg("bar", short="b")]
+foo bar:
+```
+
+The parameter `bar` is given with the `-b` option:
+
+```console
+$ just foo -b hello
+bar=hello
+```
+
+If a parameter has both a long and short option, it may be passed using either.
+
+Variadic `*` and `+` parameters cannot be options.
+
+The `[arg(ARG, value=VALUE, …)]`<sup>1.46.0</sup> attribute can be used with
+`long` or `short` to make a parameter a flag which does not take a value.
+
+In this `justfile`:
+
+```just
+[arg("bar", long="bar", value="hello")]
+foo bar:
+```
+
+The parameter `bar` is given with the `--bar` option, but does not take a
+value, and instead takes the value given in the `[arg]` attribute:
+
+```console
+$ just foo --bar
+bar=hello
+```
+
+This is useful for unconditionally requiring a flag like `--force` on dangerous
+commands.
+
+A flag is optional if its parameter has a default:
+
+```just
+[arg("bar", long="bar", value="hello")]
+foo bar="goodbye":
+```
+
+Causing it to receive the default when not passed in the invocation:
+
+```console
+$ just foo
+bar=goodbye
 ```
 
 ### Dependencies
@@ -2957,10 +3280,6 @@ the value of `set shell`.
 The body of the recipe is evaluated, written to disk in the temporary
 directory, and run by passing its path as an argument to `COMMAND`.
 
-The `[script(…)]` attribute is unstable, so you'll need to use `set unstable`,
-set the `JUST_UNSTABLE` environment variable, or pass `--unstable` on the
-command line.
-
 ### Script and Shebang Recipe Temporary Files
 
 Both script and shebang recipes write the recipe body to a temporary file for
@@ -2991,8 +3310,6 @@ Using the `[script]` attribute and `script-interpreter` setting, `just` can
 easily be configured to run Python recipes with `uv`:
 
 ```just
-set unstable
-
 set script-interpreter := ['uv', 'run', '--script']
 
 [script]
@@ -3721,13 +4038,11 @@ bar: baz
 baz:
 ```
 
-### Modules<sup>1.19.0</sup>
+### Modules
 
-A `justfile` can declare modules using `mod` statements.
+A `justfile` can declare modules using `mod` statements<sup>1.19.0</sup>.
 
-`mod` statements were stabilized in `just`<sup>1.31.0</sup>. In earlier
-versions, you'll need to use the `--unstable` flag, `set unstable`, or set the
-`JUST_UNSTABLE` environment variable to use them.
+`mod` statements were stabilized in `just`<sup>1.31.0</sup>.
 
 If you have the following `justfile`:
 
@@ -4066,17 +4381,17 @@ for details.
 
 ### Signal Handling
 
-[Signals](https://en.wikipedia.org/wiki/Signal_(IPC)) are messsages sent to
+[Signals](https://en.wikipedia.org/wiki/Signal_(IPC)) are messages sent to
 running programs to trigger specific behavior. For example, `SIGINT` is sent to
-all processes in the terminal forground process group when `CTRL-C` is pressed.
+all processes in the terminal foreground process group when `CTRL-C` is pressed.
 
 `just` tries to exit when requested by a signal, but it also tries to avoid
-leaving behind running child proccesses, two goals which are somewhat in
+leaving behind running child processes, two goals which are somewhat in
 conflict.
 
 If `just` exits leaving behind child processes, the user will have no recourse
 but to `ps aux | grep` for the children and manually `kill` them, a tedious
-endevour.
+endeavor.
 
 #### Fatal Signals
 
@@ -4178,52 +4493,107 @@ parallel:
 For lightning-fast command running, put `alias j=just` in your shell's
 configuration file.
 
-In `bash`, the aliased command may not keep the shell completion functionality
-described in the next section. Add the following line to your `.bashrc` to use
-the same completion function as `just` for your aliased command:
-
-```console
-complete -F _just -o bashdefault -o default j
-```
-
 ### Shell Completion Scripts
 
 Shell completion scripts for Bash, Elvish, Fish, Nushell, PowerShell, and Zsh
-are available [release archives](https://github.com/casey/just/releases).
+are available in [release archives](https://github.com/casey/just/releases).
 
 The `just` binary can also generate the same completion scripts at runtime
 using `just --completions SHELL`:
 
 ```console
-$ just --completions zsh > just.zsh
+$ just --completions bash > just
 ```
 
-Please refer to your shell's documentation for how to install them.
+#### Bash
 
-*macOS Note:* Recent versions of macOS use zsh as the default shell. If you use
-Homebrew to install `just`, it will automatically install the most recent copy
-of the zsh completion script in the Homebrew zsh directory, which the built-in
-version of zsh doesn't know about by default. It's best to use this copy of the
-script if possible, since it will be updated whenever you update `just` via
-Homebrew. Also, many other Homebrew packages use the same location for
-completion scripts, and the built-in zsh doesn't know about those either. To
-take advantage of `just` completion in zsh in this scenario, you can set
-`fpath` to the Homebrew location before calling `compinit`. Note also that Oh
-My Zsh runs `compinit` by default. So your `.zshrc` file could look like this:
+The recommended approach is to use the `bash-completions` package to lazy-load
+the completion script:
+
+```bash
+mkdir -p ~/.local/share/bash-completion/completions
+just --completions bash > ~/.local/share/bash-completion/completions/just
+```
+
+If `bash-completions` is not installed, you can source the completion script in
+your `.bashrc`:
+
+```bash
+source <(just --completions bash)
+```
+
+If you use an alias like `alias j=just`, you should also save the completion
+script with the name `j` when lazy-loading:
+
+```bash
+just --completions bash > ~/.local/share/bash-completion/completions/j
+```
+
+Or if not lazy-loading, add this line after sourcing the completion script in
+your `.bashrc`:
+
+```bash
+complete -F _clap_complete_just -o bashdefault -o default j
+```
+
+#### Elvish
+
+In your `rc.elv`:
+
+```elvish
+set edit:completion:arg-completer[just] = { |@args|
+  eval (just --completions elvish | slurp)
+  set @result = (edit:completion:arg-completer[just] $@args)
+  put $@result
+}
+```
+
+#### Fish
+
+Save the completion script to the completions directory to lazy-load it:
+
+```fish
+mkdir -p ~/.config/fish/completions
+just --completions fish > ~/.config/fish/completions/just.fish
+```
+
+#### Nushell
+
+First save the completion script:
+
+```nu
+just --completions nushell | save -f ($nu.default-config-dir | path join just.nu)
+```
+
+Then in `config.nu`:
+
+```nu
+source just.nu
+```
+
+#### PowerShell
+
+In your PowerShell `$PROFILE`:
+
+```powershell
+just --completions powershell | Out-String | Invoke-Expression
+```
+
+#### Zsh
+
+First save the completion script:
 
 ```zsh
-# Init Homebrew, which adds environment variables
-eval "$(brew shellenv)"
+mkdir -p ~/.zsh/completions
+just --completions zsh > ~/.zsh/completions/_just
+```
 
-fpath=($HOMEBREW_PREFIX/share/zsh/site-functions $fpath)
+Then in your `.zshrc`:
 
-# Then choose one of these options:
-# 1. If you're using Oh My Zsh, you can initialize it here
-# source $ZSH/oh-my-zsh.sh
-
-# 2. Otherwise, run compinit yourself
-# autoload -U compinit
-# compinit
+```zsh
+fpath=(~/.zsh/completions $fpath)
+autoload -U compinit
+compinit
 ```
 
 ### Man Page
@@ -4347,8 +4717,8 @@ convert the invocation directory into a unix-style `/`-separated path. Use
 same unix-style path.
 
 `cygpath.exe` is used also used to convert Unix-style shebang lines into
-Windows paths. As an alternative, the `[script]` attribute, currently unstable,
-can be used, which does not depend on `cygpath.exe`.
+Windows paths. As an alternative, the `[script]` attribute can be used, which
+does not depend on `cygpath.exe`.
 
 If `cygpath.exe` is available, you can use it to convert between path styles:
 
@@ -4437,7 +4807,7 @@ to `just` include:
 - [haku](https://github.com/VladimirMarkelov/haku): A make-like command runner
   written in Rust.
 - [mise](https://mise.jdx.dev/): A development environment tool manager written
-  in Rust supporing tasks in TOML files and standalone scripts.
+  in Rust supporting tasks in TOML files and standalone scripts.
 
 Contributing
 ------------
@@ -4506,7 +4876,7 @@ and checking the program's stdout, stderr, and exit code .
 
 4. Add a failing test for your feature. Most of the time this will be an
    integration test which exercises the feature end-to-end. Look for an
-   appropriate file to put the test in in
+   appropriate file to put the test in
    [tests](https://github.com/casey/just/blob/master/tests), or add a new file
    in [tests](https://github.com/casey/just/blob/master/tests) and add a `mod`
    statement importing that file in
