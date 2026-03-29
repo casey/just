@@ -2089,8 +2089,8 @@ for details.
 
 - `semver_matches(version, requirement)`<sup>1.16.0</sup> - Check whether a
   [semantic `version`](https://semver.org), e.g., `"0.1.0"` matches a
-  `requirement`, e.g., `">=0.1.0"`, returning `"true"` if so and `"false"`
-  otherwise.
+  `requirement`, e.g., `">=0.1.0"`, returning the string `"true"` if so and the
+  string `"false"` otherwise.
 
 #### Style
 
