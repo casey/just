@@ -244,7 +244,7 @@ impl Config {
       allow_missing: arguments.allow_missing,
       ceiling: arguments.ceiling,
       check: arguments.check,
-      color: arguments.color.into(),
+      color: Color::new(arguments.indentation, arguments.color),
       command_color: arguments.command_color.map(CommandColor::into),
       cygpath: arguments.cygpath,
       dotenv_filename: arguments.dotenv_filename,
