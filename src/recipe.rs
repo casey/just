@@ -207,7 +207,7 @@ impl<'src> Recipe<'src> {
     let suffix = color.suffix();
 
     if context.config.verbosity.loquacious() {
-      eprintln!("{prefix}===> Running recipe `{self.recipe_path()}`...{suffix}");
+      eprintln!("{prefix}===> Running recipe `{}`...{suffix}", self.recipe_path());
     }
 
     if context.config.explain {
