@@ -47,6 +47,10 @@ pub(crate) enum Attribute<'src> {
 }
 
 impl AttributeDiscriminant {
+  pub(crate) fn accepts_keyword_arguments(self) -> bool {
+    matches!(self, Self::Arg)
+  }
+
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
       Self::Default
@@ -100,18 +104,10 @@ impl<'src> Attribute<'src> {
 
   pub(crate) fn new(
     name: Name<'src>,
-    arguments: Vec<StringLiteral<'src>>,
+    discriminant: AttributeDiscriminant,
+    arguments: Vec<(Token<'src>, Expression<'src>)>,
     mut keyword_arguments: BTreeMap<&'src str, (Name<'src>, Option<StringLiteral<'src>>)>,
   ) -> CompileResult<'src, Self> {
-    let discriminant = name
-      .lexeme()
-      .parse::<AttributeDiscriminant>()
-      .map_err(|_| {
-        name.error(CompileErrorKind::UnknownAttribute {
-          attribute: name.lexeme(),
-        })
-      })?;
-
     let found = arguments.len();
     let range = discriminant.argument_range();
     if !range.contains(&found) {
@@ -124,6 +120,16 @@ impl<'src> Attribute<'src> {
         }),
       );
     }
+
+    let arguments = arguments
+      .into_iter()
+      .map(|(token, argument)| {
+        let Expression::StringLiteral { string_literal } = argument else {
+          todo!("use token to emit error")
+        };
+        string_literal
+      })
+      .collect::<Vec<StringLiteral>>();
 
     let attribute = match discriminant {
       AttributeDiscriminant::Arg => {

@@ -1437,14 +1437,29 @@ impl<'run, 'src> Parser<'run, 'src> {
       loop {
         let name = self.parse_name()?;
 
+        let discriminant = name
+          .lexeme()
+          .parse::<AttributeDiscriminant>()
+          .map_err(|_| {
+            name.error(CompileErrorKind::UnknownAttribute {
+              attribute: name.lexeme(),
+            })
+          })?;
+
         let mut arguments = Vec::new();
         let mut keyword_arguments = BTreeMap::new();
 
         if self.accepted(Colon)? {
-          arguments.push(self.parse_string_literal()?);
+          let token = self.next();
+          let expression = self.parse_expression()?;
+          let token = token.unwrap();
+          arguments.push((token, expression));
         } else if self.accepted(ParenL)? {
           loop {
-            if self.next_is(Identifier) && !self.next_is_shell_expanded_string() {
+            if discriminant.accepts_keyword_arguments()
+              && self.next_is(Identifier)
+              && !self.next_is_shell_expanded_string()
+            {
               let key = self.parse_name()?;
 
               let value = self
@@ -1454,17 +1469,17 @@ impl<'run, 'src> Parser<'run, 'src> {
 
               keyword_arguments.insert(key.lexeme(), (key, value));
             } else {
-              let literal = self.parse_string_literal()?;
+              let token = self.next();
+
+              let expression = self.parse_expression()?;
+
+              let token = token.unwrap();
 
               if !keyword_arguments.is_empty() {
-                return Err(
-                  literal
-                    .token
-                    .error(CompileErrorKind::AttributePositionalFollowsKeyword),
-                );
+                return Err(token.error(CompileErrorKind::AttributePositionalFollowsKeyword));
               }
 
-              arguments.push(literal);
+              arguments.push((token, expression));
             }
 
             if !self.accepted(Comma)? || self.next_is(ParenR) {
@@ -1475,7 +1490,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           self.expect(ParenR)?;
         }
 
-        let attribute = Attribute::new(name, arguments, keyword_arguments)?;
+        let attribute = Attribute::new(name, discriminant, arguments, keyword_arguments)?;
 
         let first = if attribute.repeatable() {
           None
