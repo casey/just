@@ -44,6 +44,7 @@ pub(crate) use {
     format_string_part::FormatStringPart,
     fragment::Fragment,
     function::Function,
+    indentation::Indentation,
     interpreter::Interpreter,
     invocation::Invocation,
     invocation_parser::InvocationParser,
@@ -86,6 +87,7 @@ pub(crate) use {
     settings::Settings,
     shebang::Shebang,
     shell::Shell,
+    shell_kind::ShellKind,
     show_whitespace::ShowWhitespace,
     sigil::Sigil,
     signal::Signal,
@@ -142,7 +144,7 @@ pub(crate) use {
     path::{self, Component, Path, PathBuf},
     process::{self, Command, ExitStatus, Stdio},
     slice,
-    str::{self, Chars},
+    str::{self, Chars, FromStr},
     sync::{Arc, LazyLock, Mutex, MutexGuard},
     thread, vec,
   },
@@ -230,6 +232,7 @@ mod filesystem;
 mod format_string_part;
 mod fragment;
 mod function;
+mod indentation;
 mod interpreter;
 mod invocation;
 mod invocation_parser;
@@ -272,6 +275,7 @@ mod setting;
 mod settings;
 mod shebang;
 mod shell;
+mod shell_kind;
 mod show_whitespace;
 mod sigil;
 mod signal;

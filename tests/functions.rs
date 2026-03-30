@@ -1501,3 +1501,25 @@ fn read_file_not_found() {
     .stderr_regex(r"error: Call to function `read` failed: I/O error reading `bar`: .*")
     .failure();
 }
+
+#[test]
+fn shell_with_powershell() {
+  if !cfg!(windows) {
+    return;
+  }
+
+  Test::new()
+    .justfile(
+      r#"
+      set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
+
+      foo := shell('Write-Output bar')
+
+      default:
+        @echo {{foo}}
+    "#,
+    )
+    .shell(false)
+    .stdout("bar\r\n")
+    .success();
+}

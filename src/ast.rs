@@ -12,12 +12,12 @@ pub(crate) struct Ast<'src> {
   pub(crate) working_directory: PathBuf,
 }
 
-impl Display for Ast<'_> {
-  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+impl ColorDisplay for Ast<'_> {
+  fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     let mut iter = self.items.iter().peekable();
 
     while let Some(item) = iter.next() {
-      writeln!(f, "{item}")?;
+      writeln!(f, "{}", item.color_display(color))?;
 
       if let Some(next_item) = iter.peek() {
         if matches!(item, Item::Recipe(_))

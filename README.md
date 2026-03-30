@@ -445,7 +445,8 @@ RUN just
 
 ### Release RSS Feed
 
-An [RSS feed](https://en.wikipedia.org/wiki/RSS) of `just` releases is available [here](https://github.com/casey/just/releases.atom).
+An [RSS feed](https://en.wikipedia.org/wiki/RSS) of `just` releases is
+available [here](https://github.com/casey/just/releases.atom).
 
 ### Node.js Installation
 
@@ -462,6 +463,24 @@ who want to make the set up process for their project as easy as possible.
 
 For more information, see the
 [just-install README file](https://github.com/brombal/just-install#readme).
+
+### Nix Flake
+
+The `just` repository includes a
+[`flake.nix`](https://github.com/casey/just/tree/master/flake.nix) that defines
+a [nix flake](https://nix.dev/concepts/flakes.html), allowing you to use `just`
+as an input to another flake:
+
+```nix
+{
+  inputs = {
+    just.url = "github:casey/just";
+  }
+
+  outputs = {self, nixpkgs, just}: {
+  }
+}
+```
 
 Backwards Compatibility
 -----------------------
@@ -1933,6 +1952,18 @@ script:
 directory, respectively, of the current `import` or `mod` source file when
 called from within an import or submodule.
 
+#### Module and Module Directory
+
+- `module_file()` - Retrieves the path of the current module file.
+
+- `module_directory()` - Retrieves the path of the parent directory of the
+  current module file.
+
+`module_file()` and `module_directory()` behave the same as `justfile()` and
+`justfile_directory()` in the root `justfile`, but will return the path and
+directory, respectively, of the current `mod` source file when called from
+within submodule.
+
 #### Just Executable
 
 - `just_executable()` - Absolute path to the `just` executable.
@@ -2089,8 +2120,8 @@ for details.
 
 - `semver_matches(version, requirement)`<sup>1.16.0</sup> - Check whether a
   [semantic `version`](https://semver.org), e.g., `"0.1.0"` matches a
-  `requirement`, e.g., `">=0.1.0"`, returning `"true"` if so and `"false"`
-  otherwise.
+  `requirement`, e.g., `">=0.1.0"`, returning the string `"true"` if so and the
+  string `"false"` otherwise.
 
 #### Style
 

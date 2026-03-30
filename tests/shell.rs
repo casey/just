@@ -177,7 +177,8 @@ fn recipe_shell_not_found_error_message() {
     .shell(false)
     .args(["--shell", "NOT_A_REAL_SHELL"])
     .stderr_regex(
-      "error: Recipe `foo` could not be run because just could not find the shell: .*\n",
+      "error: Recipe `foo` could not be run because just could not find the shell \
+      `NOT_A_REAL_SHELL`: .*\n",
     )
     .failure();
 }
