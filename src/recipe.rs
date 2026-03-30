@@ -25,7 +25,39 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) variable_references: HashSet<Number>,
 }
 
-impl Recipe<'_> {
+impl<'src, D> Recipe<'src, D> {
+  pub(crate) fn enabled(&self) -> bool {
+    let dragonfly = self.attributes.contains(AttributeDiscriminant::Dragonfly);
+    let freebsd = self.attributes.contains(AttributeDiscriminant::Freebsd);
+    let linux = self.attributes.contains(AttributeDiscriminant::Linux);
+    let macos = self.attributes.contains(AttributeDiscriminant::Macos);
+    let netbsd = self.attributes.contains(AttributeDiscriminant::Netbsd);
+    let openbsd = self.attributes.contains(AttributeDiscriminant::Openbsd);
+    let unix = self.attributes.contains(AttributeDiscriminant::Unix);
+    let windows = self.attributes.contains(AttributeDiscriminant::Windows);
+
+    (!windows && !linux && !macos && !openbsd && !freebsd && !dragonfly && !netbsd && !unix)
+      || (cfg!(target_os = "dragonfly") && (dragonfly || unix))
+      || (cfg!(target_os = "freebsd") && (freebsd || unix))
+      || (cfg!(target_os = "linux") && (linux || unix))
+      || (cfg!(target_os = "macos") && (macos || unix))
+      || (cfg!(target_os = "netbsd") && (netbsd || unix))
+      || (cfg!(target_os = "openbsd") && (openbsd || unix))
+      || (cfg!(target_os = "windows") && windows)
+      || (cfg!(unix) && unix)
+      || (cfg!(windows) && windows)
+  }
+
+  pub(crate) fn is_script(&self) -> bool {
+    self.shebang
+  }
+
+  pub(crate) fn name(&self) -> &'src str {
+    self.name.lexeme()
+  }
+}
+
+impl<'src> Recipe<'src> {
   pub(crate) fn module_path(&self) -> &Modulepath {
     self.module_path.as_ref().unwrap()
   }
@@ -37,9 +69,7 @@ impl Recipe<'_> {
   pub(crate) fn spaced_recipe_path(&self) -> String {
     self.recipe_path().to_string().replace("::", " ")
   }
-}
 
-impl<'src, D> Recipe<'src, D> {
   pub(crate) fn argument_range(&self) -> RangeInclusive<usize> {
     self.min_arguments()..=self.max_arguments()
   }
@@ -78,10 +108,6 @@ impl<'src, D> Recipe<'src, D> {
     } else {
       self.parameters.len()
     }
-  }
-
-  pub(crate) fn name(&self) -> &'src str {
-    self.name.lexeme()
   }
 
   pub(crate) fn line_number(&self) -> usize {
@@ -126,10 +152,6 @@ impl<'src, D> Recipe<'src, D> {
     !self.private && !self.attributes.contains(AttributeDiscriminant::Private)
   }
 
-  pub(crate) fn is_script(&self) -> bool {
-    self.shebang
-  }
-
   pub(crate) fn takes_positional_arguments(&self, settings: &Settings) -> bool {
     settings.positional_arguments
       || self
@@ -139,28 +161,6 @@ impl<'src, D> Recipe<'src, D> {
 
   pub(crate) fn change_directory(&self) -> bool {
     !self.attributes.contains(AttributeDiscriminant::NoCd)
-  }
-
-  pub(crate) fn enabled(&self) -> bool {
-    let dragonfly = self.attributes.contains(AttributeDiscriminant::Dragonfly);
-    let freebsd = self.attributes.contains(AttributeDiscriminant::Freebsd);
-    let linux = self.attributes.contains(AttributeDiscriminant::Linux);
-    let macos = self.attributes.contains(AttributeDiscriminant::Macos);
-    let netbsd = self.attributes.contains(AttributeDiscriminant::Netbsd);
-    let openbsd = self.attributes.contains(AttributeDiscriminant::Openbsd);
-    let unix = self.attributes.contains(AttributeDiscriminant::Unix);
-    let windows = self.attributes.contains(AttributeDiscriminant::Windows);
-
-    (!windows && !linux && !macos && !openbsd && !freebsd && !dragonfly && !netbsd && !unix)
-      || (cfg!(target_os = "dragonfly") && (dragonfly || unix))
-      || (cfg!(target_os = "freebsd") && (freebsd || unix))
-      || (cfg!(target_os = "linux") && (linux || unix))
-      || (cfg!(target_os = "macos") && (macos || unix))
-      || (cfg!(target_os = "netbsd") && (netbsd || unix))
-      || (cfg!(target_os = "openbsd") && (openbsd || unix))
-      || (cfg!(target_os = "windows") && windows)
-      || (cfg!(unix) && unix)
-      || (cfg!(windows) && windows)
   }
 
   fn print_exit_message(&self, settings: &Settings) -> bool {
@@ -562,11 +562,11 @@ impl<'src, D> Recipe<'src, D> {
     self.doc.as_deref()
   }
 
-  pub(crate) fn priors(&self) -> &[D] {
+  pub(crate) fn priors(&self) -> &[Dependency<'src>] {
     &self.dependencies[..self.priors]
   }
 
-  pub(crate) fn subsequents(&self) -> &[D] {
+  pub(crate) fn subsequents(&self) -> &[Dependency<'src>] {
     &self.dependencies[self.priors..]
   }
 }
