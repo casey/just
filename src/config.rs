@@ -787,7 +787,7 @@ mod tests {
     args: ["--evaluate"],
     overrides: map!{},
     subcommand: Subcommand::Evaluate {
-      variable: None,
+      path: None,
     },
   }
 
@@ -796,7 +796,7 @@ mod tests {
     args: ["--evaluate", "x=y"],
     overrides: map!{"x": "y"},
     subcommand: Subcommand::Evaluate {
-      variable: None,
+      path: None,
     },
   }
 
@@ -805,7 +805,7 @@ mod tests {
     args: ["--evaluate", "x=y", "foo"],
     overrides: map!{"x": "y"},
     subcommand: Subcommand::Evaluate {
-      variable: Some("foo".to_owned()),
+      path: Some(Modulepath::try_from(["foo"].as_slice()).unwrap()),
     },
   }
 

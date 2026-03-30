@@ -87,7 +87,7 @@ fn evaluate_no_suggestion() {
     )
     .stderr(
       "
-    error: Justfile does not contain variable `aby`.
+    error: Justfile does not contain variable or submodule `aby`.
     Did you mean `abc`?
   ",
     )
@@ -106,7 +106,7 @@ fn evaluate_suggestion() {
     )
     .stderr(
       "
-    error: Justfile does not contain variable `goodbye`.
+    error: Justfile does not contain variable or submodule `goodbye`.
   ",
     )
     .failure();
