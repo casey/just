@@ -48,3 +48,36 @@ impl FromStr for Indentation {
     })
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn from_str() {
+    #[track_caller]
+    fn case(s: &str, character: char, count: usize) {
+      assert_eq!(
+        s.parse::<Indentation>().unwrap(),
+        Indentation { character, count },
+      );
+    }
+
+    case("    ", ' ', 4);
+    case("  ", ' ', 2);
+    case("\t", '\t', 1);
+    case("\t\t", '\t', 2);
+  }
+
+  #[test]
+  fn from_str_error() {
+    #[track_caller]
+    fn case(s: &str, expected: &str) {
+      assert_eq!(s.parse::<Indentation>().unwrap_err(), expected);
+    }
+
+    case("", "indentation must not be empty");
+    case("x", "indentation must be spaces or tabs");
+    case(" \t", "indentation may not be mixed");
+  }
+}
