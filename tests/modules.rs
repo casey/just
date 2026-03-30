@@ -1110,3 +1110,49 @@ fn exported_variables_can_be_overridden_in_submodules() {
     .stdout("b\n")
     .success();
 }
+
+#[test]
+fn verbose_message_includes_module_path() {
+  Test::new()
+    .write("foo.just", "bar:\n @echo BAR")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .args(["--verbose", "foo::bar"])
+    .stderr("===> Running recipe `foo::bar`...\necho BAR\n")
+    .stdout("BAR\n")
+    .success();
+}
+
+#[test]
+fn verbose_message_includes_nested_module_path() {
+  Test::new()
+    .write("foo.just", "mod bar")
+    .write("bar.just", "baz:\n @echo BAZ")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .args(["--verbose", "foo::bar::baz"])
+    .stderr("===> Running recipe `foo::bar::baz`...\necho BAZ\n")
+    .stdout("BAZ\n")
+    .success();
+}
+
+#[test]
+fn verbose_message_for_root_recipe_shows_name_only() {
+  Test::new()
+    .justfile(
+      "
+        bar:
+          @echo BAR
+      ",
+    )
+    .args(["--verbose", "bar"])
+    .stderr("===> Running recipe `bar`...\necho BAR\n")
+    .stdout("BAR\n")
+    .success();
+}
