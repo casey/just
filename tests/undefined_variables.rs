@@ -1,6 +1,27 @@
 use super::*;
 
 #[test]
+fn undefined_variable_in_confirm_expression() {
+  Test::new()
+    .justfile(
+      "
+    [confirm(x)]
+    foo:
+  ",
+    )
+    .stderr(
+      "
+      error: Variable `x` not defined
+       ——▶ justfile:1:10
+        │
+      1 │ [confirm(x)]
+        │          ^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn parameter_default_unknown_variable_in_expression() {
   Test::new()
     .justfile("foo a=(b+''):")
