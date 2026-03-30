@@ -1110,3 +1110,18 @@ fn exported_variables_can_be_overridden_in_submodules() {
     .stdout("b\n")
     .success();
 }
+
+#[test]
+fn verbose_message_includes_module_path() {
+  Test::new()
+    .write("foo.just", "bar:\n @echo BAR")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .args(["--verbose", "foo::bar"])
+    .stderr("===> Running recipe `foo::bar`...\necho BAR\n")
+    .stdout("BAR\n")
+    .success();
+}
