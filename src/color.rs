@@ -165,4 +165,8 @@ impl Color {
       ..Default::default()
     }
   }
+
+  pub(crate) fn use_color(self, use_color: UseColor) -> Self {
+    Self { use_color, ..self }
+  }
 }

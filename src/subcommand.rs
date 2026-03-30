@@ -318,7 +318,7 @@ impl Subcommand {
           .map_err(|source| Error::DumpJson { source })?;
         println!();
       }
-      DumpFormat::Just => print!("{}", compilation.root_ast()),
+      DumpFormat::Just => print!("{}", compilation.root_ast().color_display(Color::never())),
     }
     Ok(())
   }
@@ -374,7 +374,9 @@ impl Subcommand {
       });
     }
 
-    let formatted = ast.to_string();
+    let formatted = ast
+      .color_display(config.color.use_color(UseColor::Never))
+      .to_string();
 
     if formatted == src {
       return Ok(());
