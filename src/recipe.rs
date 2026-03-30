@@ -615,7 +615,7 @@ impl<D: Display> ColorDisplay for Recipe<'_, D> {
       }
       for (j, fragment) in line.fragments.iter().enumerate() {
         if j == 0 {
-          write!(f, "    ")?;
+          write!(f, "{}", color.indentation())?;
         }
         match fragment {
           Fragment::Text { token } => write!(f, "{}", token.lexeme())?,
