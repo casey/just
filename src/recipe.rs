@@ -209,7 +209,7 @@ impl<'src> Recipe<'src> {
     if context.config.verbosity.loquacious() {
       eprintln!(
         "{prefix}===> Running recipe `{}`...{suffix}",
-        self.recipe_path()
+        self.recipe_path(),
       );
     }
 
