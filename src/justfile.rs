@@ -64,12 +64,23 @@ impl<'src> Justfile<'src> {
     )
   }
 
-  pub(crate) fn suggest_variable(&self, input: &str) -> Option<Suggestion<'src>> {
+  pub(crate) fn suggest_submodule(&self, input: &str) -> Option<Suggestion<'src>> {
+    Self::find_suggestion(
+      input,
+      self
+        .modules
+        .keys()
+        .map(|name| Suggestion { name, target: None }),
+    )
+  }
+
+  pub(crate) fn suggest_variable_or_submodule(&self, input: &str) -> Option<Suggestion<'src>> {
     Self::find_suggestion(
       input,
       self
         .assignments
         .keys()
+        .chain(self.modules.keys())
         .map(|name| Suggestion { name, target: None }),
     )
   }
@@ -243,26 +254,10 @@ impl<'src> Justfile<'src> {
 
         Ok(())
       }
-      Subcommand::Evaluate { variable, .. } => {
-        let variable_references = if let Some(variable) = variable {
-          if let Some(assignment) = self.assignments.get(variable) {
-            Some(HashSet::from([assignment.number]))
-          } else {
-            return Err(Error::EvalUnknownVariable {
-              suggestion: self.suggest_variable(variable),
-              variable: variable.clone(),
-            });
-          }
-        } else {
-          Some(
-            self
-              .assignments
-              .values()
-              .filter(|assignment| !assignment.private)
-              .map(|assignment| assignment.number)
-              .collect(),
-          )
-        };
+      Subcommand::Evaluate { path } => {
+        let (module, variable, variable_references) = self.evaluate_target(path.as_ref())?;
+
+        // todo: path.path -> path.components
 
         self.evaluate_scopes(
           &arena,
@@ -272,10 +267,10 @@ impl<'src> Justfile<'src> {
           &root,
           &mut scopes,
           search,
-          variable_references.as_ref(),
+          Some(&variable_references),
         )?;
 
-        let scope = scopes.get(&self.modulepath).unwrap().1;
+        let scope = scopes.get(&module.modulepath).unwrap().1;
 
         if let Some(variable) = variable {
           print!("{}", scope.value(variable).unwrap());
@@ -298,6 +293,55 @@ impl<'src> Justfile<'src> {
       }
       _ => unreachable!(),
     }
+  }
+
+  pub(crate) fn evaluate_target<'a>(
+    &'a self,
+    path: Option<&'a Modulepath>,
+  ) -> RunResult<'src, (&Justfile, Option<&str>, HashSet<Number>)> {
+    let mut current = self;
+
+    let mut variable = None;
+
+    if let Some(path) = path {
+      for (i, component) in path.path.iter().enumerate() {
+        let last = i + 1 == path.path.len();
+
+        if last && current.assignments.contains_key(component) {
+          variable = Some(component.as_ref());
+          break;
+        }
+
+        if let Some(module) = current.modules.get(component) {
+          current = module;
+        } else {
+          if last {
+            return Err(Error::EvalUnknownSubmoduleOrVariable {
+              suggestion: current.suggest_variable_or_submodule(component),
+              component: component.into(),
+            });
+          } else {
+            return Err(Error::EvalUnknownSubmodule {
+              suggestion: current.suggest_submodule(component),
+              component: component.into(),
+            });
+          }
+        }
+      }
+    }
+
+    let variable_references = if let Some(variable) = variable {
+      HashSet::from([current.assignments.get(variable).unwrap().number])
+    } else {
+      current
+        .assignments
+        .values()
+        .filter(|assignment| !assignment.private)
+        .map(|assignment| assignment.number)
+        .collect()
+    };
+
+    Ok((current, variable, variable_references))
   }
 
   pub(crate) fn check_unstable(&self, config: &Config) -> RunResult<'src> {

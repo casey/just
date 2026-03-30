@@ -30,7 +30,7 @@ pub(crate) enum Subcommand {
   },
   Edit,
   Evaluate {
-    variable: Option<String>,
+    path: Option<Modulepath>,
   },
   Format,
   Groups,

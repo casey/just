@@ -125,16 +125,18 @@ impl Config {
     } else if arguments.subcommand.edit {
       Ok(Subcommand::Edit)
     } else if arguments.subcommand.evaluate {
-      if positional.arguments.len() > 1 {
+      let path = if positional.arguments.is_empty() {
+        None
+      } else if positional.arguments.len() == 1 {
+        Some(Self::parse_modulepath(&positional.arguments)?)
+      } else {
         return Err(ConfigError::SubcommandArguments {
           subcommand: "EVALUATE",
           arguments: positional.arguments.iter().skip(1).cloned().collect(),
         });
-      }
+      };
 
-      Ok(Subcommand::Evaluate {
-        variable: positional.arguments.first().cloned(),
-      })
+      Ok(Subcommand::Evaluate { path })
     } else if arguments.subcommand.fmt {
       Ok(Subcommand::Format)
     } else if arguments.subcommand.groups {

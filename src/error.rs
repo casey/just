@@ -95,8 +95,12 @@ pub(crate) enum Error<'src> {
     editor: OsString,
     status: ExitStatus,
   },
-  EvalUnknownVariable {
-    variable: String,
+  EvalUnknownSubmodule {
+    component: String,
+    suggestion: Option<Suggestion<'src>>,
+  },
+  EvalUnknownSubmoduleOrVariable {
+    component: String,
     suggestion: Option<Suggestion<'src>>,
   },
   ExcessInvocations {
@@ -566,11 +570,23 @@ impl ColorDisplay for Error<'_> {
         let editor = editor.to_string_lossy();
         write!(f, "Editor `{editor}` failed: {status}")?;
       }
-      EvalUnknownVariable {
-        variable,
+      EvalUnknownSubmodule {
+        component,
         suggestion,
       } => {
-        write!(f, "Justfile does not contain variable `{variable}`.")?;
+        write!(f, "Justfile does not contain submodule `{component}`.")?;
+        if let Some(suggestion) = suggestion {
+          write!(f, "\n{suggestion}")?;
+        }
+      }
+      EvalUnknownSubmoduleOrVariable {
+        component,
+        suggestion,
+      } => {
+        write!(
+          f,
+          "Justfile does not contain variable or submodule `{component}`."
+        )?;
         if let Some(suggestion) = suggestion {
           write!(f, "\n{suggestion}")?;
         }
