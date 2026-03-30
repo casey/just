@@ -160,7 +160,7 @@ pub struct Arguments {
   #[arg(
     default_value = "    ",
     env = "JUST_INDENTATION",
-    help = "Indent recipes bodies by <INDENTATION> when formatting",
+    help = "Indent recipes bodies with <INDENTATION>",
     long
   )]
   pub(crate) indentation: Indentation,
