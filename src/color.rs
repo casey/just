@@ -6,10 +6,10 @@ use {
 
 #[derive(Copy, Clone, Debug, Default, PartialEq)]
 pub(crate) struct Color {
+  indentation: Indentation,
   is_terminal: bool,
   style: Style,
   use_color: UseColor,
-  indentation: Indentation,
 }
 
 impl Color {
