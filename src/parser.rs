@@ -1447,18 +1447,19 @@ impl<'run, 'src> Parser<'run, 'src> {
         } else if self.accepted(ParenL)? {
           if !self.next_is(ParenR) {
             loop {
-              if !accepts_expressions
+              if self.next_are(&[Identifier, Equals]) && !self.next_is_shell_expanded_string() {
+                let key = self.parse_name()?;
+                self.expect(Equals)?;
+                let value = self.parse_string_literal()?;
+
+                keyword_arguments.insert(key.lexeme(), (key, Some(value)));
+              } else if !accepts_expressions
                 && self.next_is(Identifier)
                 && !self.next_is_shell_expanded_string()
               {
                 let key = self.parse_name()?;
 
-                let value = self
-                  .accepted(Equals)?
-                  .then(|| self.parse_string_literal())
-                  .transpose()?;
-
-                keyword_arguments.insert(key.lexeme(), (key, value));
+                keyword_arguments.insert(key.lexeme(), (key, None));
               } else {
                 let token = self.next()?;
                 let expression = self.parse_expression()?;
@@ -1480,6 +1481,14 @@ impl<'run, 'src> Parser<'run, 'src> {
         }
 
         let attribute = if accepts_expressions {
+          if let Some((_, (keyword_name, _))) = keyword_arguments.into_iter().next() {
+            return Err(
+              keyword_name.error(CompileErrorKind::UnknownAttributeKeyword {
+                attribute: name.lexeme(),
+                keyword: keyword_name.lexeme(),
+              }),
+            );
+          }
           Attribute::Confirm(arguments.into_iter().next())
         } else {
           let string_arguments = arguments
