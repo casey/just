@@ -1,7 +1,9 @@
 use super::*;
 
 #[allow(clippy::large_enum_variant)]
-#[derive(EnumDiscriminants, PartialEq, Debug, Clone, Serialize, IntoStaticStr)]
+#[derive(
+  EnumDiscriminants, PartialEq, Eq, PartialOrd, Ord, Debug, Clone, Serialize, IntoStaticStr,
+)]
 #[strum(serialize_all = "kebab-case")]
 #[serde(rename_all = "kebab-case")]
 #[strum_discriminants(name(AttributeDiscriminant))]
@@ -343,36 +345,6 @@ impl Display for Attribute<'_> {
     }
 
     Ok(())
-  }
-}
-
-impl Eq for Attribute<'_> {}
-
-impl PartialOrd for Attribute<'_> {
-  fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-    Some(self.cmp(other))
-  }
-}
-
-impl Ord for Attribute<'_> {
-  fn cmp(&self, other: &Self) -> Ordering {
-    let disc_cmp = self.discriminant().cmp(&other.discriminant());
-
-    if disc_cmp != Ordering::Equal {
-      return disc_cmp;
-    }
-
-    // For repeatable attributes, compare inner values to distinguish them
-    // in BTreeSet. Non-repeatable attributes (including Confirm) appear at
-    // most once, so Equal is correct.
-    match (self, other) {
-      (Self::Env(k1, v1), Self::Env(k2, v2)) => (k1, v1).cmp(&(k2, v2)),
-      (Self::Arg { name: a, .. }, Self::Arg { name: b, .. }) | (Self::Group(a), Self::Group(b)) => {
-        a.cmp(b)
-      }
-      (Self::Metadata(a), Self::Metadata(b)) => a.cmp(b),
-      _ => Ordering::Equal,
-    }
   }
 }
 

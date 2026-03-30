@@ -12,6 +12,9 @@ pub(crate) enum CompileErrorKind<'src> {
     min: usize,
     max: usize,
   },
+  AttributeArgumentNotStringLiteral {
+    attribute: &'src str,
+  },
   AttributeKeyMissingValue {
     key: Name<'src>,
   },

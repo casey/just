@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Eq, Debug, Clone, Ord, PartialOrd)]
 pub(crate) struct Condition<'src> {
   pub(crate) lhs: Box<Expression<'src>>,
   pub(crate) operator: ConditionalOperator,

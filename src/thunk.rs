@@ -1,7 +1,7 @@
 use super::*;
 
 #[allow(clippy::arbitrary_source_item_ordering)]
-#[derive_where(Debug, PartialEq)]
+#[derive_where(Debug, PartialEq, Eq, Ord, PartialOrd)]
 #[derive(Clone)]
 pub(crate) enum Thunk<'src> {
   Nullary {

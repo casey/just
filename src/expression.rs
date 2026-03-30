@@ -6,7 +6,7 @@ use super::*;
 /// parenthetical groups).
 ///
 /// The parser parses both values and expressions into `Expression`s.
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Eq, Debug, Clone, Ord, PartialOrd)]
 pub(crate) enum Expression<'src> {
   /// `lhs && rhs`
   And { lhs: Box<Self>, rhs: Box<Self> },
