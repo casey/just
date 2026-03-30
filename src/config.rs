@@ -99,7 +99,7 @@ impl Config {
     let mut path = Modulepath::try_from([path].as_slice())
       .map_err(|()| ConfigError::OverridePath { path: path.into() })?;
 
-    let name = path.path.pop().unwrap();
+    let name = path.components.pop().unwrap();
 
     Ok((path, name))
   }

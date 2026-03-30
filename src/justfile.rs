@@ -257,8 +257,6 @@ impl<'src> Justfile<'src> {
       Subcommand::Evaluate { path } => {
         let (module, variable, variable_references) = self.evaluate_target(path.as_ref())?;
 
-        // todo: path.path -> path.components
-
         self.evaluate_scopes(
           &arena,
           config,
@@ -304,8 +302,8 @@ impl<'src> Justfile<'src> {
     let mut variable = None;
 
     if let Some(path) = path {
-      for (i, component) in path.path.iter().enumerate() {
-        let last = i + 1 == path.path.len();
+      for (i, component) in path.components.iter().enumerate() {
+        let last = i + 1 == path.components.len();
 
         if last && current.assignments.contains_key(component) {
           variable = Some(component.as_ref());
@@ -314,18 +312,16 @@ impl<'src> Justfile<'src> {
 
         if let Some(module) = current.modules.get(component) {
           current = module;
+        } else if last {
+          return Err(Error::EvalUnknownSubmoduleOrVariable {
+            suggestion: current.suggest_variable_or_submodule(component),
+            component: component.into(),
+          });
         } else {
-          if last {
-            return Err(Error::EvalUnknownSubmoduleOrVariable {
-              suggestion: current.suggest_variable_or_submodule(component),
-              component: component.into(),
-            });
-          } else {
-            return Err(Error::EvalUnknownSubmodule {
-              suggestion: current.suggest_submodule(component),
-              component: component.into(),
-            });
-          }
+          return Err(Error::EvalUnknownSubmodule {
+            suggestion: current.suggest_submodule(component),
+            component: component.into(),
+          });
         }
       }
     }
