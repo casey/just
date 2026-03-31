@@ -1437,29 +1437,37 @@ impl<'run, 'src> Parser<'run, 'src> {
       loop {
         let name = self.parse_name()?;
 
-        let accepts_expressions = name.lexeme() == "confirm";
+        let discriminant = name
+          .lexeme()
+          .parse::<AttributeDiscriminant>()
+          .map_err(|_| {
+            name.error(CompileErrorKind::UnknownAttribute {
+              attribute: name.lexeme(),
+            })
+          })?;
 
         let mut arguments = Vec::new();
         let mut keyword_arguments = BTreeMap::new();
 
         if self.accepted(Colon)? {
-          arguments.push(self.parse_expression()?);
+          let token = self.next()?;
+          let expression = self.parse_expression()?;
+          arguments.push((token, expression));
         } else if self.accepted(ParenL)? {
           if !self.next_is(ParenR) {
             loop {
-              if self.next_are(&[Identifier, Equals]) && !self.next_is_shell_expanded_string() {
-                let key = self.parse_name()?;
-                self.expect(Equals)?;
-                let value = self.parse_string_literal()?;
-
-                keyword_arguments.insert(key.lexeme(), (key, Some(value)));
-              } else if !accepts_expressions
+              if discriminant.accepts_keyword_arguments()
                 && self.next_is(Identifier)
                 && !self.next_is_shell_expanded_string()
               {
                 let key = self.parse_name()?;
 
-                keyword_arguments.insert(key.lexeme(), (key, None));
+                let value = self
+                  .accepted(Equals)?
+                  .then(|| self.parse_string_literal())
+                  .transpose()?;
+
+                keyword_arguments.insert(key.lexeme(), (key, value));
               } else {
                 let token = self.next()?;
                 let expression = self.parse_expression()?;
@@ -1468,7 +1476,7 @@ impl<'run, 'src> Parser<'run, 'src> {
                   return Err(token.error(CompileErrorKind::AttributePositionalFollowsKeyword));
                 }
 
-                arguments.push(expression);
+                arguments.push((token, expression));
               }
 
               if !self.accepted(Comma)? || self.next_is(ParenR) {
@@ -1480,31 +1488,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           self.expect(ParenR)?;
         }
 
-        let attribute = if accepts_expressions {
-          if let Some((_, (keyword_name, _))) = keyword_arguments.into_iter().next() {
-            return Err(
-              keyword_name.error(CompileErrorKind::UnknownAttributeKeyword {
-                attribute: name.lexeme(),
-                keyword: keyword_name.lexeme(),
-              }),
-            );
-          }
-          Attribute::Confirm(arguments.into_iter().next())
-        } else {
-          let string_arguments = arguments
-            .into_iter()
-            .map(|expression| match expression {
-              Expression::StringLiteral { string_literal } => Ok(string_literal),
-              _ => Err(
-                name.error(CompileErrorKind::AttributeArgumentNotStringLiteral {
-                  attribute: name.lexeme(),
-                }),
-              ),
-            })
-            .collect::<CompileResult<'src, Vec<_>>>()?;
-
-          Attribute::new(name, string_arguments, keyword_arguments)?
-        };
+        let attribute = Attribute::new(name, discriminant, arguments, keyword_arguments)?;
 
         let first = if attribute.repeatable() {
           None

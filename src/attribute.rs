@@ -47,6 +47,10 @@ pub(crate) enum Attribute<'src> {
 }
 
 impl AttributeDiscriminant {
+  pub(crate) fn accepts_keyword_arguments(self) -> bool {
+    matches!(self, Self::Arg)
+  }
+
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
       Self::Default
@@ -100,18 +104,10 @@ impl<'src> Attribute<'src> {
 
   pub(crate) fn new(
     name: Name<'src>,
-    arguments: Vec<StringLiteral<'src>>,
+    discriminant: AttributeDiscriminant,
+    arguments: Vec<(Token<'src>, Expression<'src>)>,
     mut keyword_arguments: BTreeMap<&'src str, (Name<'src>, Option<StringLiteral<'src>>)>,
   ) -> CompileResult<'src, Self> {
-    let discriminant = name
-      .lexeme()
-      .parse::<AttributeDiscriminant>()
-      .map_err(|_| {
-        name.error(CompileErrorKind::UnknownAttribute {
-          attribute: name.lexeme(),
-        })
-      })?;
-
     let found = arguments.len();
     let range = discriminant.argument_range();
     if !range.contains(&found) {
@@ -124,6 +120,35 @@ impl<'src> Attribute<'src> {
         }),
       );
     }
+
+    if matches!(discriminant, AttributeDiscriminant::Confirm) {
+      if let Some((_name, (keyword_name, _literal))) = keyword_arguments.into_iter().next() {
+        return Err(
+          keyword_name.error(CompileErrorKind::UnknownAttributeKeyword {
+            attribute: name.lexeme(),
+            keyword: keyword_name.lexeme(),
+          }),
+        );
+      }
+
+      return Ok(Self::Confirm(
+        arguments.into_iter().next().map(|(_, expr)| expr),
+      ));
+    }
+
+    let arguments = arguments
+      .into_iter()
+      .map(|(token, argument)| {
+        let Expression::StringLiteral { string_literal } = argument else {
+          return Err(
+            token.error(CompileErrorKind::AttributeArgumentNotStringLiteral {
+              attribute: name.lexeme(),
+            }),
+          );
+        };
+        Ok(string_literal)
+      })
+      .collect::<CompileResult<'src, Vec<_>>>()?;
 
     let attribute = match discriminant {
       AttributeDiscriminant::Arg => {
@@ -184,12 +209,7 @@ impl<'src> Attribute<'src> {
           value,
         }
       }
-      AttributeDiscriminant::Confirm => Self::Confirm(
-        arguments
-          .into_iter()
-          .next()
-          .map(|string_literal| Expression::StringLiteral { string_literal }),
-      ),
+      AttributeDiscriminant::Confirm => unreachable!(),
       AttributeDiscriminant::Default => Self::Default,
       AttributeDiscriminant::Doc => Self::Doc(arguments.into_iter().next()),
       AttributeDiscriminant::Dragonfly => Self::Dragonfly,
