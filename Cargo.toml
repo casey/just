@@ -64,7 +64,6 @@ temptree = "0.2.0"
 which = "8.0.0"
 
 [lints.rust]
-elided_named_lifetimes = "allow"
 mismatched_lifetime_syntaxes = "allow"
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(fuzzing)'] }
 unreachable_pub = "deny"
