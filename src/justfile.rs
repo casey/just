@@ -254,7 +254,7 @@ impl<'src> Justfile<'src> {
 
         Ok(())
       }
-      Subcommand::Evaluate { path } => {
+      Subcommand::Evaluate { format, path } => {
         let (module, variable, variable_references) = self.evaluation_target(path)?;
 
         self.evaluate_scopes(
@@ -277,16 +277,32 @@ impl<'src> Justfile<'src> {
 
           for binding in scope.bindings() {
             if !binding.private {
-              println!(
-                "{0:1$} := \"{2}\"",
-                binding.name.lexeme(),
-                width,
-                binding.value
-              );
+              match format {
+                EvaluateFormat::Just => {
+                  println!(
+                    "{0:1$} := \"{2}\"",
+                    binding.name.lexeme(),
+                    width,
+                    binding.value,
+                  );
+                }
+                EvaluateFormat::Shell => {
+                  if binding.export || module.settings.export {
+                    print!("export ");
+                  }
+                  print!("{}=\"", binding.name);
+                  for c in binding.value.chars() {
+                    if matches!(c, '!' | '"' | '$' | '\\' | '`') {
+                      print!("\\");
+                    }
+                    print!("{c}");
+                  }
+                  println!("\"");
+                }
+              }
             }
           }
         }
-
         Ok(())
       }
       _ => unreachable!(),
