@@ -1,5 +1,4 @@
 use super::*;
-use std::time::Instant;
 
 /// A recipe, e.g. `foo: bar baz`
 #[derive(PartialEq, Debug, Clone, Serialize)]
@@ -242,7 +241,7 @@ impl<'src> Recipe<'src> {
       let suffix = color.suffix();
       let recipe_name = self.name.lexeme();
 
-      eprintln!("{prefix}{recipe_name} (Duration: {elapsed:.2?}){suffix}");
+      eprintln!("{prefix}---> {recipe_name} (Duration: {elapsed:.2?}){suffix}");
     }
 
     result

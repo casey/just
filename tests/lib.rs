@@ -135,6 +135,7 @@ mod string;
 mod subsequents;
 mod summary;
 mod tempdir;
+mod time;
 mod timestamps;
 mod undefined_variables;
 mod unexport;
