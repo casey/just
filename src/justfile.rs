@@ -255,7 +255,7 @@ impl<'src> Justfile<'src> {
         Ok(())
       }
       Subcommand::Evaluate { path } => {
-        let (module, variable, variable_references) = self.evaluate_target(path.as_ref())?;
+        let (module, variable, variable_references) = self.evaluate_target(path)?;
 
         self.evaluate_scopes(
           &arena,
@@ -295,34 +295,32 @@ impl<'src> Justfile<'src> {
 
   pub(crate) fn evaluate_target<'a>(
     &'a self,
-    path: Option<&'a Modulepath>,
+    path: &'a Modulepath,
   ) -> RunResult<'src, (&Justfile, Option<&str>, HashSet<Number>)> {
     let mut current = self;
 
     let mut variable = None;
 
-    if let Some(path) = path {
-      for (i, component) in path.components.iter().enumerate() {
-        let last = i + 1 == path.components.len();
+    for (i, component) in path.components.iter().enumerate() {
+      let last = i + 1 == path.components.len();
 
-        if last && current.assignments.contains_key(component) {
-          variable = Some(component.as_ref());
-          break;
-        }
+      if last && current.assignments.contains_key(component) {
+        variable = Some(component.as_ref());
+        break;
+      }
 
-        if let Some(module) = current.modules.get(component) {
-          current = module;
-        } else if last {
-          return Err(Error::EvalUnknownSubmoduleOrVariable {
-            suggestion: current.suggest_variable_or_submodule(component),
-            component: component.into(),
-          });
-        } else {
-          return Err(Error::EvalUnknownSubmodule {
-            suggestion: current.suggest_submodule(component),
-            component: component.into(),
-          });
-        }
+      if let Some(module) = current.modules.get(component) {
+        current = module;
+      } else if last {
+        return Err(Error::EvalUnknownSubmoduleOrVariable {
+          suggestion: current.suggest_variable_or_submodule(component),
+          component: component.into(),
+        });
+      } else {
+        return Err(Error::EvalUnknownSubmodule {
+          suggestion: current.suggest_submodule(component),
+          component: component.into(),
+        });
       }
     }
 

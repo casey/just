@@ -126,9 +126,9 @@ impl Config {
       Ok(Subcommand::Edit)
     } else if arguments.subcommand.evaluate {
       let path = if positional.arguments.is_empty() {
-        None
+        Modulepath::default()
       } else if positional.arguments.len() == 1 {
-        Some(Self::parse_modulepath(&positional.arguments)?)
+        Self::parse_modulepath(&positional.arguments)?
       } else {
         return Err(ConfigError::SubcommandArguments {
           subcommand: "EVALUATE",
@@ -787,7 +787,7 @@ mod tests {
     args: ["--evaluate"],
     overrides: map!{},
     subcommand: Subcommand::Evaluate {
-      path: None,
+      path: Modulepath::default(),
     },
   }
 
@@ -796,7 +796,7 @@ mod tests {
     args: ["--evaluate", "x=y"],
     overrides: map!{"x": "y"},
     subcommand: Subcommand::Evaluate {
-      path: None,
+      path: Modulepath::default(),
     },
   }
 
@@ -805,48 +805,45 @@ mod tests {
     args: ["--evaluate", "x=y", "foo"],
     overrides: map!{"x": "y"},
     subcommand: Subcommand::Evaluate {
-      path: Some(Modulepath::try_from(["foo"].as_slice()).unwrap()),
+      path: Modulepath::try_from(["foo"].as_slice()).unwrap(),
     },
   }
 
   test! {
     name: subcommand_list_long,
     args: ["--list"],
-    subcommand: Subcommand::List{ path: Modulepath { path: Vec::new(), spaced: false } },
+    subcommand: Subcommand::List{ path: Modulepath::default() },
   }
 
   test! {
     name: subcommand_list_short,
     args: ["-l"],
-    subcommand: Subcommand::List{ path: Modulepath { path: Vec::new(), spaced: false } },
+    subcommand: Subcommand::List{ path: Modulepath::default() },
   }
 
   test! {
     name: subcommand_list_arguments,
     args: ["--list", "bar"],
-    subcommand: Subcommand::List{ path: Modulepath { path: vec!["bar".into()], spaced: false } },
+    subcommand: Subcommand::List{ path: Modulepath::try_from(["bar".into()].as_slice()).unwrap() },
   }
 
   test! {
     name: subcommand_show_long,
     args: ["--show", "build"],
-    subcommand: Subcommand::Show { path: Modulepath { path: vec!["build".into()], spaced: false } },
+    subcommand: Subcommand::List{ path: Modulepath::try_from(["build".into()].as_slice()).unwrap() },
   }
 
   test! {
     name: subcommand_show_short,
     args: ["-s", "build"],
-    subcommand: Subcommand::Show { path: Modulepath { path: vec!["build".into()], spaced: false } },
+    subcommand: Subcommand::List{ path: Modulepath::try_from(["build".into()].as_slice()).unwrap() },
   }
 
   test! {
     name: subcommand_show_multiple_args,
     args: ["--show", "foo", "bar"],
     subcommand: Subcommand::Show {
-      path: Modulepath {
-        path: vec!["foo".into(), "bar".into()],
-        spaced: true,
-      },
+      path: Modulepath::try_from(["foo".into(), "bar".into()].as_slice()).unwrap(),
     },
   }
 

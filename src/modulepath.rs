@@ -100,7 +100,7 @@ mod tests {
     #[track_caller]
     fn case(path: &[&str], expected: &[&str], display: &str) {
       let actual = Modulepath::try_from(path).unwrap();
-      assert_eq!(actual.path, expected);
+      assert_eq!(actual.components, expected);
       assert_eq!(actual.to_string(), display);
     }
 
