@@ -255,7 +255,7 @@ impl<'src> Justfile<'src> {
         Ok(())
       }
       Subcommand::Evaluate { path } => {
-        let (module, variable, variable_references) = self.evaluate_target(path)?;
+        let (module, variable, variable_references) = self.evaluation_target(path)?;
 
         self.evaluate_scopes(
           &arena,
@@ -293,7 +293,7 @@ impl<'src> Justfile<'src> {
     }
   }
 
-  pub(crate) fn evaluate_target<'a>(
+  pub(crate) fn evaluation_target<'a>(
     &'a self,
     path: &'a Modulepath,
   ) -> RunResult<'src, (&'a Justfile<'a>, Option<&'a str>, HashSet<Number>)> {
