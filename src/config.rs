@@ -812,38 +812,38 @@ mod tests {
   test! {
     name: subcommand_list_long,
     args: ["--list"],
-    subcommand: Subcommand::List{ path: Modulepath::default() },
+    subcommand: Subcommand::List { path: Modulepath::default() },
   }
 
   test! {
     name: subcommand_list_short,
     args: ["-l"],
-    subcommand: Subcommand::List{ path: Modulepath::default() },
+    subcommand: Subcommand::List { path: Modulepath::default() },
   }
 
   test! {
     name: subcommand_list_arguments,
     args: ["--list", "bar"],
-    subcommand: Subcommand::List{ path: Modulepath::try_from(["bar".into()].as_slice()).unwrap() },
+    subcommand: Subcommand::List { path: Modulepath::try_from(["bar"].as_slice()).unwrap() },
   }
 
   test! {
     name: subcommand_show_long,
     args: ["--show", "build"],
-    subcommand: Subcommand::List{ path: Modulepath::try_from(["build".into()].as_slice()).unwrap() },
+    subcommand: Subcommand::Show { path: Modulepath::try_from(["build"].as_slice()).unwrap() },
   }
 
   test! {
     name: subcommand_show_short,
     args: ["-s", "build"],
-    subcommand: Subcommand::List{ path: Modulepath::try_from(["build".into()].as_slice()).unwrap() },
+    subcommand: Subcommand::Show { path: Modulepath::try_from(["build"].as_slice()).unwrap() },
   }
 
   test! {
     name: subcommand_show_multiple_args,
     args: ["--show", "foo", "bar"],
     subcommand: Subcommand::Show {
-      path: Modulepath::try_from(["foo".into(), "bar".into()].as_slice()).unwrap(),
+      path: Modulepath::try_from(["foo", "bar"].as_slice()).unwrap(),
     },
   }
 
