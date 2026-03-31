@@ -303,6 +303,7 @@ impl<'src> Justfile<'src> {
             }
           }
         }
+
         Ok(())
       }
       _ => unreachable!(),
