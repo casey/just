@@ -95,8 +95,12 @@ pub(crate) enum Error<'src> {
     editor: OsString,
     status: ExitStatus,
   },
-  EvalUnknownVariable {
-    variable: String,
+  EvalUnknownSubmodule {
+    component: String,
+    suggestion: Option<Suggestion<'src>>,
+  },
+  EvalUnknownSubmoduleOrVariable {
+    component: String,
     suggestion: Option<Suggestion<'src>>,
   },
   ExcessInvocations {
@@ -343,6 +347,15 @@ impl<'src> Error<'src> {
       _ => None,
     }
   }
+
+  fn suggestion(&self) -> Option<&Suggestion> {
+    match self {
+      Self::EvalUnknownSubmodule { suggestion, .. }
+      | Self::EvalUnknownSubmoduleOrVariable { suggestion, .. }
+      | Self::UnknownRecipe { suggestion, .. } => suggestion.as_ref(),
+      _ => None,
+    }
+  }
 }
 
 impl<'src> From<CompileError<'src>> for Error<'src> {
@@ -566,14 +579,14 @@ impl ColorDisplay for Error<'_> {
         let editor = editor.to_string_lossy();
         write!(f, "Editor `{editor}` failed: {status}")?;
       }
-      EvalUnknownVariable {
-        variable,
-        suggestion,
-      } => {
-        write!(f, "Justfile does not contain variable `{variable}`.")?;
-        if let Some(suggestion) = suggestion {
-          write!(f, "\n{suggestion}")?;
-        }
+      EvalUnknownSubmodule { component, .. } => {
+        write!(f, "Justfile does not contain submodule `{component}`.")?;
+      }
+      EvalUnknownSubmoduleOrVariable { component, .. } => {
+        write!(
+          f,
+          "Justfile does not contain variable or submodule `{component}`."
+        )?;
       }
       ExcessInvocations { invocations } => {
         write!(
@@ -824,11 +837,8 @@ impl ColorDisplay for Error<'_> {
       UnknownGroup { group } => {
         write!(f, "Justfile does not contain group `{group}`")?;
       }
-      UnknownRecipe { recipe, suggestion } => {
+      UnknownRecipe { recipe, .. } => {
         write!(f, "Justfile does not contain recipe `{recipe}`")?;
-        if let Some(suggestion) = suggestion {
-          write!(f, "\n{suggestion}")?;
-        }
       }
       UnknownSubmodule { path } => {
         write!(f, "Justfile does not contain submodule `{path}`")?;
@@ -843,6 +853,10 @@ impl ColorDisplay for Error<'_> {
         let justfile = justfile.display();
         write!(f, "Failed to write justfile to `{justfile}`: {io_error}")?;
       }
+    }
+
+    if let Some(suggestion) = self.suggestion() {
+      write!(f, "\n{suggestion}")?;
     }
 
     write!(f, "{}", color.message().suffix())?;

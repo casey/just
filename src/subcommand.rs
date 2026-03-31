@@ -30,7 +30,7 @@ pub(crate) enum Subcommand {
   },
   Edit,
   Evaluate {
-    variable: Option<String>,
+    path: Modulepath,
   },
   Format,
   Groups,
@@ -491,7 +491,7 @@ impl Subcommand {
   }
 
   fn list(config: &Config, mut module: &Justfile, path: &Modulepath) -> RunResult<'static> {
-    for name in &path.path {
+    for name in &path.components {
       module = module
         .modules
         .get(name)
@@ -863,7 +863,7 @@ impl Subcommand {
     mut module: &'run Justfile<'src>,
     path: &Modulepath,
   ) -> RunResult<'src, (Option<&'run Alias<'src>>, &'run Recipe<'src>)> {
-    for name in &path.path[0..path.path.len() - 1] {
+    for name in &path.components[0..path.components.len() - 1] {
       module = module
         .modules
         .get(name)
@@ -872,7 +872,7 @@ impl Subcommand {
         })?;
     }
 
-    let name = path.path.last().unwrap();
+    let name = path.components.last().unwrap();
 
     if let Some(alias) = module.get_alias(name) {
       Ok((Some(alias), &alias.target))
