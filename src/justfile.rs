@@ -296,7 +296,7 @@ impl<'src> Justfile<'src> {
   pub(crate) fn evaluate_target<'a>(
     &'a self,
     path: &'a Modulepath,
-  ) -> RunResult<'src, (&Justfile, Option<&str>, HashSet<Number>)> {
+  ) -> RunResult<'src, (&'a Justfile, Option<&'a str>, HashSet<Number>)> {
     let mut current = self;
 
     let mut variable = None;
