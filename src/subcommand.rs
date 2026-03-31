@@ -30,6 +30,7 @@ pub(crate) enum Subcommand {
   },
   Edit,
   Evaluate {
+    format: EvaluateFormat,
     path: Modulepath,
   },
   Format,

@@ -238,3 +238,77 @@ fn dont_evaluate_unnecessary_variables() {
     .stdout("FOO")
     .success();
 }
+
+#[test]
+fn format_shell() {
+  Test::new()
+    .args(["--evaluate", "--evaluate-format", "shell"])
+    .justfile(
+      "
+        foo := 'a'
+        hello := 'b'
+        bar := 'c'
+      ",
+    )
+    .stdout(
+      r#"
+        bar="c"
+        foo="a"
+        hello="b"
+      "#,
+    )
+    .success();
+}
+
+#[test]
+fn format_shell_special_characters_are_escaped() {
+  Test::new()
+    .args(["--evaluate", "--evaluate-format", "shell"])
+    .justfile(
+      r#"
+        foo := '!"$\`'
+      "#,
+    )
+    .stdout(
+      r#"
+        foo="\!\"\$\\\`"
+      "#,
+    )
+    .success();
+}
+
+#[test]
+fn format_shell_exported_variables_are_exported() {
+  Test::new()
+    .args(["--evaluate", "--evaluate-format", "shell"])
+    .justfile(
+      "
+        export foo := 'bar'
+      ",
+    )
+    .stdout(
+      r#"
+        export foo="bar"
+      "#,
+    )
+    .success();
+}
+
+#[test]
+fn format_shell_variables_are_exported_with_setting() {
+  Test::new()
+    .args(["--evaluate", "--evaluate-format", "shell"])
+    .justfile(
+      "
+        set export
+
+        foo := 'bar'
+      ",
+    )
+    .stdout(
+      r#"
+        export foo="bar"
+      "#,
+    )
+    .success();
+}

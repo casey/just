@@ -1477,6 +1477,23 @@ $ just --evaluate bob::bar::y
 hello
 ```
 
+The format of exported variables may be controlled with
+`--evaluate-format`<sup>master</sup>:
+
+```console
+$ just --evaluate --evaluate-format shell
+bar="world"
+foo="hello"
+```
+
+The default format is `--evaluate-format just`:
+
+```console
+$ just --evaluate --evaluate-format just
+bar := "world"
+foo := "hello"
+```
+
 ### Expressions and Substitutions
 
 Various operators and function calls are supported in expressions, which may be

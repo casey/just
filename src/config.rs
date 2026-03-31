@@ -136,7 +136,10 @@ impl Config {
         });
       };
 
-      Ok(Subcommand::Evaluate { path })
+      Ok(Subcommand::Evaluate {
+        format: arguments.evaluate_format,
+        path,
+      })
     } else if arguments.subcommand.fmt {
       Ok(Subcommand::Format)
     } else if arguments.subcommand.groups {
@@ -787,6 +790,7 @@ mod tests {
     args: ["--evaluate"],
     overrides: map!{},
     subcommand: Subcommand::Evaluate {
+      format: EvaluateFormat::Just,
       path: Modulepath::default(),
     },
   }
@@ -796,6 +800,7 @@ mod tests {
     args: ["--evaluate", "x=y"],
     overrides: map!{"x": "y"},
     subcommand: Subcommand::Evaluate {
+      format: EvaluateFormat::Just,
       path: Modulepath::default(),
     },
   }
@@ -805,6 +810,7 @@ mod tests {
     args: ["--evaluate", "x=y", "foo"],
     overrides: map!{"x": "y"},
     subcommand: Subcommand::Evaluate {
+      format: EvaluateFormat::Just,
       path: Modulepath::try_from(["foo"].as_slice()).unwrap(),
     },
   }
