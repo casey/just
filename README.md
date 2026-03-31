@@ -86,6 +86,11 @@ always welcome!
 Installation
 ------------
 
+To install `just`, see the [Packages](#packages) section below for one-line
+install commands for your platform. On Windows, check
+[Prerequisites](#prerequisites) first for shell setup notes.
+
+
 ### Prerequisites
 
 `just` should run on any system with a reasonable `sh`, including Linux, MacOS,
