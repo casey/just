@@ -76,7 +76,7 @@ fn evaluate_single_free() {
 }
 
 #[test]
-fn evaluate_no_suggestion() {
+fn evaluate_with_suggestion() {
   Test::new()
     .arg("--evaluate")
     .arg("aby")
@@ -95,7 +95,7 @@ fn evaluate_no_suggestion() {
 }
 
 #[test]
-fn evaluate_suggestion() {
+fn evaluate_no_suggestion() {
   Test::new()
     .arg("--evaluate")
     .arg("goodbye")
@@ -143,6 +143,85 @@ fn evaluate_single_private() {
     )
     .stdout("one")
     .success();
+}
+
+#[test]
+fn evaluate_variable_chosen_over_submodule() {
+  Test::new()
+    .write("foo.just", "bar:\n")
+    .justfile(
+      "
+        mod foo
+
+        foo := 'bar'
+      ",
+    )
+    .args(["--evaluate", "foo"])
+    .stdout("bar")
+    .success();
+}
+
+#[test]
+fn evaluate_submodule_chosen_over_variable_in_path() {
+  Test::new()
+    .write("foo.just", "a := 'x'\n")
+    .justfile(
+      "
+        mod foo
+
+        foo := 'bar'
+      ",
+    )
+    .args(["--evaluate", "foo::a"])
+    .stdout("x")
+    .success();
+}
+
+#[test]
+fn evaluate_submodule() {
+  Test::new()
+    .write("foo.just", "a := 'x'\nb := 'y'\n")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .args(["--evaluate", "foo"])
+    .stdout("a := \"x\"\nb := \"y\"\n")
+    .success();
+}
+
+#[test]
+fn evaluate_variable_in_submodule() {
+  Test::new()
+    .write("foo.just", "a := 'x'\nb := 'y'\n")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .args(["--evaluate", "foo::a"])
+    .stdout("x")
+    .success();
+}
+
+#[test]
+fn evaluate_unknown_submodule_with_suggestion() {
+  Test::new()
+    .write("foo.just", "a := 'x'\n")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .args(["--evaluate", "fob::a"])
+    .stderr(
+      "
+        error: Justfile does not contain submodule `fob`.
+        Did you mean `foo`?
+      ",
+    )
+    .failure();
 }
 
 #[test]
