@@ -82,3 +82,12 @@ fn home_directory() {
     .stdout(dirs::home_dir().unwrap_or_default().to_string_lossy())
     .success();
 }
+
+#[test]
+fn runtime_directory() {
+  Test::new()
+    .justfile("x := runtime_directory()")
+    .args(["--evaluate", "x"])
+    .stdout(dirs::runtime_dir().unwrap_or_default().to_string_lossy())
+    .success();
+}
