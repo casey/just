@@ -62,26 +62,56 @@ impl Compiler {
             absolute,
             optional,
           } => {
-            let import = current
-              .path
-              .parent()
-              .unwrap()
-              .join(Self::expand_tilde(&relative.cooked)?)
-              .lexiclean();
+            let expanded = Self::expand_tilde(&relative.cooked)?;
+            let parent = current.path.parent().unwrap();
 
-            if filesystem::is_file(&import)? {
-              if current.file_path.contains(&import) {
-                return Err(Error::CircularImport {
-                  current: current.path,
-                  import,
+            if Self::is_glob_pattern(&relative.cooked) {
+              let pattern = parent.join(&expanded);
+              let pattern_str = pattern.to_string_lossy();
+              let mut matches: Vec<PathBuf> = glob::glob(&pattern_str)
+                .map_err(|e| Error::GlobPattern {
+                  message: e.msg.to_owned(),
+                  path: relative.token,
+                })?
+                .filter_map(std::result::Result::ok)
+                .filter(|p| p.is_file())
+                .collect();
+              matches.sort();
+
+              if matches.is_empty() && !*optional {
+                return Err(Error::GlobImportNoMatches {
+                  path: relative.token,
                 });
               }
-              *absolute = Some(import.clone());
-              stack.push(current.import(import, relative.token.offset));
-            } else if !*optional {
-              return Err(Error::MissingImportFile {
-                path: relative.token,
-              });
+
+              for import in &matches {
+                if current.file_path.contains(import) {
+                  return Err(Error::CircularImport {
+                    current: current.path.clone(),
+                    import: import.clone(),
+                  });
+                }
+                stack.push(current.import(import.clone(), relative.token.offset));
+              }
+
+              *absolute = matches;
+            } else {
+              let import = parent.join(expanded).lexiclean();
+
+              if filesystem::is_file(&import)? {
+                if current.file_path.contains(&import) {
+                  return Err(Error::CircularImport {
+                    current: current.path,
+                    import,
+                  });
+                }
+                absolute.push(import.clone());
+                stack.push(current.import(import, relative.token.offset));
+              } else if !*optional {
+                return Err(Error::MissingImportFile {
+                  path: relative.token,
+                });
+              }
             }
           }
           _ => {}
@@ -208,6 +238,10 @@ impl Compiler {
     } else {
       Ok(found.into_iter().next())
     }
+  }
+
+  fn is_glob_pattern(path: &str) -> bool {
+    path.contains(['*', '?', '['])
   }
 
   fn expand_tilde(path: &str) -> RunResult<'static, PathBuf> {

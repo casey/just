@@ -1,6 +1,12 @@
 Changelog
 =========
 
+[Unreleased](https://github.com/casey/just/pulls/xuedi)
+------------------------------------------------------------------------
+
+### Added
+- Allow glob wildcards in `import` paths ([#1885](https://github.com/casey/just/issues/1885) by [xuedi](https://github.com/xuedi))
+
 [1.48.1](https://github.com/casey/just/releases/tag/1.48.1) - 2026-03-27
 ------------------------------------------------------------------------
 

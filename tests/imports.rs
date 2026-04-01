@@ -406,3 +406,93 @@ x := 'y'
     .stdout("hello\n")
     .success();
 }
+
+#[test]
+fn import_wildcard_single_match() {
+  Test::new()
+    .justfile(
+      "
+      import 'plugin/*/justfile'
+
+      a: b
+        @echo A
+      ",
+    )
+    .write(
+      "plugin/foo/justfile",
+      "
+b:
+  @echo B
+",
+    )
+    .arg("a")
+    .stdout("B\nA\n")
+    .success();
+}
+
+#[test]
+fn import_wildcard_multiple_matches() {
+  Test::new()
+    .justfile(
+      "
+      import 'plugin/*/justfile'
+      ",
+    )
+    .write("plugin/alpha/justfile", "alpha:\n  @echo alpha")
+    .write("plugin/beta/justfile", "beta:\n  @echo beta")
+    .arg("alpha")
+    .stdout("alpha\n")
+    .success();
+}
+
+#[test]
+fn import_wildcard_no_matches_error() {
+  Test::new()
+    .justfile(
+      "
+      import 'plugin/*/justfile'
+      ",
+    )
+    .stderr(
+      "
+      error: No files matched glob pattern for import.
+       ——▶ justfile:1:8
+        │
+      1 │ import 'plugin/*/justfile'
+        │        ^^^^^^^^^^^^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn import_wildcard_optional_no_matches() {
+  Test::new()
+    .justfile(
+      "
+      import? 'plugin/*/justfile'
+
+      a:
+        @echo A
+      ",
+    )
+    .arg("a")
+    .stdout("A\n")
+    .success();
+}
+
+#[test]
+fn import_wildcard_all_matched_recipes_available() {
+  Test::new()
+    .justfile(
+      "
+      import 'plugin/*/justfile'
+
+      default: alpha beta
+      ",
+    )
+    .write("plugin/alpha/justfile", "alpha:\n  @echo alpha")
+    .write("plugin/beta/justfile", "beta:\n  @echo beta")
+    .stdout("alpha\nbeta\n")
+    .success();
+}

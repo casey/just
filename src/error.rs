@@ -125,6 +125,13 @@ pub(crate) enum Error<'src> {
   GetConfirmation {
     io_error: io::Error,
   },
+  GlobImportNoMatches {
+    path: Token<'src>,
+  },
+  GlobPattern {
+    message: String,
+    path: Token<'src>,
+  },
   GuardCode {
     recipe: &'src str,
     line_number: usize,
@@ -298,7 +305,9 @@ impl<'src> Error<'src> {
       Self::Compile { compile_error } => Some(compile_error.context()),
       Self::Const { const_error } => Some(const_error.context()),
       Self::FunctionCall { function, .. } => Some(function.token),
-      Self::MissingImportFile { path } => Some(*path),
+      Self::GlobImportNoMatches { path }
+      | Self::GlobPattern { path, .. }
+      | Self::MissingImportFile { path } => Some(*path),
       _ => None,
     }
   }
@@ -612,6 +621,12 @@ impl ColorDisplay for Error<'_> {
       }
       GetConfirmation { io_error } => {
         write!(f, "Failed to read confirmation from stdin: {io_error}")?;
+      }
+      GlobImportNoMatches { .. } => {
+        write!(f, "No files matched glob pattern for import.")?;
+      }
+      GlobPattern { message, .. } => {
+        write!(f, "Invalid glob pattern for import: {message}")?;
       }
       GuardCode {
         recipe,

@@ -64,7 +64,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           }
           Item::Comment(_) => (),
           Item::Import { absolute, .. } => {
-            if let Some(absolute) = absolute {
+            for absolute in absolute {
               if imports.insert(absolute) {
                 stack.push(asts.get(absolute).unwrap());
               }

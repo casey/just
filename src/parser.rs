@@ -419,7 +419,7 @@ impl<'run, 'src> Parser<'run, 'src> {
             let optional = self.accepted(QuestionMark)?;
             let relative = self.parse_string_literal()?;
             items.push(Item::Import {
-              absolute: None,
+              absolute: vec![],
               optional,
               relative,
             });

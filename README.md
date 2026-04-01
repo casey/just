@@ -4019,6 +4019,16 @@ The `import` path can be absolute or relative to the location of the justfile
 containing it. A leading `~/` in the import path is replaced with the current
 users home directory.
 
+Import paths may contain glob wildcards (`*`, `?`, and `[...]`), in which case
+all matching files are imported:
+
+```justfile
+import 'plugins/*/justfile'
+```
+
+A non-optional wildcard import that matches no files is an error. An optional
+wildcard import (`import?`) that matches no files is silently ignored.
+
 Justfiles are insensitive to order, so included files can reference variables
 and recipes defined after the `import` statement.
 
