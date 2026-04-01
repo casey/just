@@ -13,8 +13,7 @@ fn recipe_exit_message_suppressed() {
       ",
     )
     .stdout("Hello, World!\n")
-    .status(100)
-    .run();
+    .status(100);
 }
 
 #[test]
@@ -30,8 +29,7 @@ fn silent_recipe_exit_message_suppressed() {
       ",
     )
     .stdout("Hello, World!\n")
-    .status(100)
-    .run();
+    .status(100);
 }
 
 #[test]
@@ -52,7 +50,7 @@ fn recipe_has_doc_comment() {
           hello # This is a doc comment
       ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -75,8 +73,7 @@ fn unknown_attribute() {
         │  ^^^^^^^^^^^^^^^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -99,8 +96,7 @@ fn empty_attribute() {
         │  ^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -123,8 +119,7 @@ fn extraneous_attribute_before_comment() {
         │ ^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -147,8 +142,7 @@ fn extraneous_attribute_before_empty_line() {
         │ ^
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -164,8 +158,7 @@ fn shebang_exit_message_suppressed() {
     ",
     )
     .stdout("Hello, World!\n")
-    .status(100)
-    .run();
+    .status(100);
 }
 
 #[test]
@@ -180,8 +173,7 @@ fn no_exit_message() {
     ",
     )
     .stdout("Hello, World!\n")
-    .status(100)
-    .run();
+    .status(100);
 }
 
 #[test]
@@ -196,9 +188,8 @@ fn exit_message() {
     ",
     )
     .stdout("Hello, World!\n")
-    .status(100)
     .stderr("error: Recipe `hello` failed on line 4 with exit code 100\n")
-    .run();
+    .status(100);
 }
 
 #[test]
@@ -215,8 +206,7 @@ fn recipe_exit_message_setting_suppressed() {
     ",
     )
     .stdout("Hello, World!\n")
-    .status(100)
-    .run();
+    .status(100);
 }
 
 #[test]
@@ -233,8 +223,7 @@ fn shebang_exit_message_setting_suppressed() {
     ",
     )
     .stdout("Hello, World!\n")
-    .status(100)
-    .run();
+    .status(100);
 }
 
 #[test]
@@ -249,9 +238,8 @@ fn exit_message_override_no_exit_setting() {
         @exit 100
     ",
     )
-    .status(100)
     .stderr("error: Recipe `fail` failed on line 5 with exit code 100\n")
-    .run();
+    .status(100);
 }
 
 #[test]
@@ -272,6 +260,51 @@ fn exit_message_and_no_exit_message_compile_forbidden() {
           │ ^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
+}
+
+#[test]
+#[cfg(unix)]
+fn signal_exit_message_suppressed() {
+  Test::new()
+    .justfile(
+      "
+        [no-exit-message]
+        default:
+          #!/usr/bin/env sh
+          kill -TERM $$
+      ",
+    )
+    .status(128 + 15);
+}
+
+#[test]
+#[cfg(unix)]
+fn signal_exit_message_not_suppressed() {
+  Test::new()
+    .justfile(
+      "
+        default:
+          #!/usr/bin/env sh
+          kill -TERM $$
+      ",
+    )
+    .stderr("error: Recipe `default` was terminated by signal 15\n")
+    .status(128 + 15);
+}
+
+#[test]
+#[cfg(unix)]
+fn signal_exit_message_setting_suppressed() {
+  Test::new()
+    .justfile(
+      "
+        set no-exit-message
+
+        default:
+          #!/usr/bin/env sh
+          kill -TERM $$
+      ",
+    )
+    .status(128 + 15);
 }

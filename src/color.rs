@@ -4,8 +4,9 @@ use {
   std::io::{self, IsTerminal},
 };
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Default, PartialEq)]
 pub(crate) struct Color {
+  indentation: Indentation,
   is_terminal: bool,
   style: Style,
   use_color: UseColor,
@@ -87,6 +88,10 @@ impl Color {
     self.restyle(Style::new().fg(Yellow).bold())
   }
 
+  pub(crate) fn indentation(self) -> Indentation {
+    self.indentation
+  }
+
   pub(crate) fn message(self) -> Self {
     self.restyle(Style::new().bold())
   }
@@ -140,23 +145,28 @@ impl Color {
   pub(crate) fn warning(self) -> Self {
     self.restyle(Style::new().fg(Yellow).bold())
   }
-}
 
-impl From<UseColor> for Color {
-  fn from(use_color: UseColor) -> Self {
+  pub(crate) fn heading(self) -> Self {
+    self.restyle(Style::new().fg(Yellow).bold())
+  }
+
+  pub(crate) fn option(self) -> Self {
+    self.restyle(Style::new().fg(Green))
+  }
+
+  pub(crate) fn argument(self) -> Self {
+    self.restyle(Style::new().fg(Cyan))
+  }
+
+  pub(crate) fn new(indentation: Indentation, use_color: UseColor) -> Self {
     Self {
+      indentation,
       use_color,
       ..Default::default()
     }
   }
-}
 
-impl Default for Color {
-  fn default() -> Self {
-    Self {
-      is_terminal: false,
-      style: Style::new(),
-      use_color: UseColor::Auto,
-    }
+  pub(crate) fn use_color(self, use_color: UseColor) -> Self {
+    Self { use_color, ..self }
   }
 }

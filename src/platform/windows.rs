@@ -12,7 +12,7 @@ impl PlatformInterface for Platform {
     // If the path contains forward slashes…
     let command = if shebang.interpreter.contains('/') {
       // …translate path to the interpreter from unix style to windows style.
-      let mut cygpath = Command::new(&config.cygpath);
+      let mut cygpath = Command::resolve(&config.cygpath);
 
       if let Some(working_directory) = working_directory {
         cygpath.current_dir(working_directory);
@@ -31,7 +31,7 @@ impl PlatformInterface for Platform {
       Cow::Borrowed(shebang.interpreter)
     };
 
-    let mut cmd = Command::new(command.as_ref());
+    let mut cmd = Command::resolve(command.as_ref());
 
     if let Some(working_directory) = working_directory {
       cmd.current_dir(working_directory);
@@ -59,7 +59,7 @@ impl PlatformInterface for Platform {
 
   fn convert_native_path(config: &Config, working_directory: &Path, path: &Path) -> FunctionResult {
     // Translate path from windows style to unix style
-    let mut cygpath = Command::new(&config.cygpath);
+    let mut cygpath = Command::resolve(&config.cygpath);
 
     cygpath
       .current_dir(working_directory)

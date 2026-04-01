@@ -11,7 +11,7 @@ fn export_recipe() {
     )
     .stdout("bar\n")
     .stderr("echo bar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -25,5 +25,5 @@ fn alias_recipe() {
     )
     .stdout("bar\n")
     .stderr("echo bar\n")
-    .run();
+    .success();
 }

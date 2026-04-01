@@ -15,7 +15,7 @@ fn allow_duplicate_recipes() {
     )
     .stdout("bar\n")
     .stderr("echo bar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -34,5 +34,5 @@ fn allow_duplicate_recipes_with_args() {
     .args(["b", "one", "two"])
     .stdout("bar one two\n")
     .stderr("echo bar one two\n")
-    .run();
+    .success();
 }

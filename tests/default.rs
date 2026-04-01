@@ -14,7 +14,7 @@ fn default_attribute_overrides_first_recipe() {
       ",
     )
     .stdout("BAR\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -38,6 +38,5 @@ fn default_attribute_may_only_appear_once_per_justfile() {
           │ ^^^
       "
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }

@@ -1,32 +1,32 @@
 use super::*;
 
-pub struct List<T: Display, I: Iterator<Item = T> + Clone> {
+pub(crate) struct List<T: Display, I: Iterator<Item = T> + Clone> {
   conjunction: &'static str,
   values: I,
 }
 
 impl<T: Display, I: Iterator<Item = T> + Clone> List<T, I> {
-  pub fn or<II: IntoIterator<Item = T, IntoIter = I>>(values: II) -> Self {
+  pub(crate) fn or<II: IntoIterator<Item = T, IntoIter = I>>(values: II) -> Self {
     Self {
       conjunction: "or",
       values: values.into_iter(),
     }
   }
 
-  pub fn and<II: IntoIterator<Item = T, IntoIter = I>>(values: II) -> Self {
+  pub(crate) fn and<II: IntoIterator<Item = T, IntoIter = I>>(values: II) -> Self {
     Self {
       conjunction: "and",
       values: values.into_iter(),
     }
   }
 
-  pub fn or_ticked<II: IntoIterator<Item = T, IntoIter = I>>(
+  pub(crate) fn or_ticked<II: IntoIterator<Item = T, IntoIter = I>>(
     values: II,
   ) -> List<Enclosure<T>, impl Iterator<Item = Enclosure<T>> + Clone> {
     List::or(values.into_iter().map(Enclosure::tick))
   }
 
-  pub fn and_ticked<II: IntoIterator<Item = T, IntoIter = I>>(
+  pub(crate) fn and_ticked<II: IntoIterator<Item = T, IntoIter = I>>(
     values: II,
   ) -> List<Enclosure<T>, impl Iterator<Item = Enclosure<T>> + Clone> {
     List::and(values.into_iter().map(Enclosure::tick))

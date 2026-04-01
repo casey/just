@@ -16,7 +16,7 @@ fn fallback_from_subdir_bugfix() {
     )
     .args(["sub/default"])
     .stdout("foo\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -37,7 +37,7 @@ fn fallback_from_subdir_message() {
     .args(["sub/bar"])
     .stderr(path("echo bar\n"))
     .stdout("bar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -64,7 +64,7 @@ fn fallback_from_subdir_verbose_message() {
       ",
     ))
     .stdout("bar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -94,7 +94,7 @@ fn runs_recipe_in_parent_if_not_found_in_current() {
     ",
     )
     .stdout("root\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -124,7 +124,7 @@ fn setting_accepts_value() {
     ",
     )
     .stdout("root\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -152,8 +152,7 @@ fn print_error_from_parent_if_recipe_not_found_in_current() {
         │         ^^^
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -175,9 +174,8 @@ fn requires_setting() {
     )
     .args(["foo"])
     .current_dir("bar")
-    .status(EXIT_FAILURE)
     .stderr("error: Justfile does not contain recipe `foo`\n")
-    .run();
+    .failure();
 }
 
 #[test]
@@ -207,7 +205,7 @@ fn works_with_provided_search_directory() {
     ",
     )
     .current_dir("bar")
-    .run();
+    .success();
 }
 
 #[test]
@@ -229,9 +227,8 @@ fn doesnt_work_with_justfile() {
     )
     .args(["--justfile", "justfile", "foo"])
     .current_dir("bar")
-    .status(EXIT_FAILURE)
     .stderr("error: Justfile does not contain recipe `foo`\n")
-    .run();
+    .failure();
 }
 
 #[test]
@@ -253,9 +250,8 @@ fn doesnt_work_with_justfile_and_working_directory() {
     )
     .args(["--justfile", "justfile", "--working-directory", ".", "foo"])
     .current_dir("bar")
-    .status(EXIT_FAILURE)
     .stderr("error: Justfile does not contain recipe `foo`\n")
-    .run();
+    .failure();
 }
 
 #[test]
@@ -279,13 +275,12 @@ fn prints_correct_error_message_when_recipe_not_found() {
     )
     .args(["foo"])
     .current_dir("bar")
-    .status(EXIT_FAILURE)
     .stderr(
       "
       error: Justfile does not contain recipe `foo`
     ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -323,7 +318,7 @@ fn multiple_levels_of_fallback_work() {
       echo root
     ",
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -359,8 +354,7 @@ fn stop_fallback_when_fallback_is_false() {
       Did you mean `bar`?
     ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -372,5 +366,5 @@ fn works_with_modules() {
     .args(["foo::baz"])
     .current_dir("bar")
     .stdout("BAZ\n")
-    .run();
+    .success();
 }

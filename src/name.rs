@@ -24,7 +24,13 @@ impl<'src> Deref for Name<'src> {
 
 impl Display for Name<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    write!(f, "{}", self.lexeme())
+    f.pad(self.lexeme())
+  }
+}
+
+impl<'src> Keyed<'src> for Name<'src> {
+  fn key(&self) -> &'src str {
+    self.lexeme()
   }
 }
 

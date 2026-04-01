@@ -4,8 +4,6 @@ use super::*;
 pub(crate) enum UnstableFeature {
   FormatSubcommand,
   LogicalOperators,
-  ScriptAttribute,
-  ScriptInterpreterSetting,
   WhichFunction,
 }
 
@@ -17,10 +15,6 @@ impl Display for UnstableFeature {
         f,
         "The logical operators `&&` and `||` are currently unstable."
       ),
-      Self::ScriptAttribute => write!(f, "The `[script]` attribute is currently unstable."),
-      Self::ScriptInterpreterSetting => {
-        write!(f, "The `script-interpreter` setting is currently unstable.")
-      }
       Self::WhichFunction => write!(f, "The `which()` function is currently unstable."),
     }
   }

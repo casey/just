@@ -32,9 +32,8 @@ const CONSTANTS: &[(&str, &str, Option<&str>, &str)] = &[
   ("BG_WHITE", "\x1b[47m", None, "1.37.0"),
 ];
 
-pub(crate) fn constants() -> &'static HashMap<&'static str, &'static str> {
-  static MAP: OnceLock<HashMap<&str, &str>> = OnceLock::new();
-  MAP.get_or_init(|| {
+pub(crate) fn constants() -> &'static BTreeMap<&'static str, &'static str> {
+  static MAP: LazyLock<BTreeMap<&str, &str>> = LazyLock::new(|| {
     CONSTANTS
       .iter()
       .copied()
@@ -49,7 +48,9 @@ pub(crate) fn constants() -> &'static HashMap<&'static str, &'static str> {
         )
       })
       .collect()
-  })
+  });
+
+  &MAP
 }
 
 #[cfg(test)]

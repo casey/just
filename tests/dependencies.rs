@@ -14,7 +14,7 @@ fn recipe_doubly_nested_module_dependencies() {
     )
     .arg("baz")
     .stdout("BAZ\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -30,7 +30,7 @@ fn recipe_singly_nested_module_dependencies() {
     )
     .arg("baz")
     .stdout("BAR\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -44,7 +44,6 @@ fn dependency_not_in_submodule() {
       ",
     )
     .arg("baz")
-    .status(1)
     .stderr(
       "error: Recipe `baz` has unknown dependency `foo::baz`
  ——▶ justfile:2:11
@@ -53,7 +52,7 @@ fn dependency_not_in_submodule() {
   │           ^^^
 ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -69,7 +68,6 @@ fn dependency_submodule_missing() {
       ",
     )
     .arg("baz")
-    .status(1)
     .stderr(
       "error: Recipe `baz` has unknown dependency `foo::bar`
  ——▶ justfile:5:11
@@ -78,7 +76,7 @@ fn dependency_submodule_missing() {
   │           ^^^
 ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -93,7 +91,6 @@ fn recipe_dependency_on_module_fails() {
       ",
     )
     .arg("baz")
-    .status(1)
     .stderr(
       "error: Recipe `baz` has unknown dependency `foo::bar`
  ——▶ justfile:2:11
@@ -102,7 +99,7 @@ fn recipe_dependency_on_module_fails() {
   │           ^^^
 ",
     )
-    .run();
+    .failure();
 }
 
 #[test]
@@ -120,7 +117,7 @@ fn recipe_module_dependency_subsequent_mix() {
     )
     .arg("quux")
     .stdout("BAR\nQUUX\nBAZ\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -135,5 +132,5 @@ fn recipe_module_dependency_only_runs_once() {
     )
     .arg("qux")
     .stdout("BAZ\n")
-    .run();
+    .success();
 }

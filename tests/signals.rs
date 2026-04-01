@@ -12,7 +12,7 @@ fn interrupt_test(arguments: &[&str], justfile: &str) {
 
   let start = Instant::now();
 
-  let mut child = Command::new(executable_path("just"))
+  let mut child = Command::new(JUST)
     .current_dir(&tmp)
     .args(arguments)
     .stdout(Stdio::piped())
@@ -92,8 +92,6 @@ fn interrupt_command() {
 #[test]
 #[ignore]
 fn forwarding() {
-  let just = executable_path("just");
-
   let tempdir = tempdir();
 
   fs::write(
@@ -103,7 +101,7 @@ fn forwarding() {
   .unwrap();
 
   for signal in [Signal::SIGINT, Signal::SIGQUIT, Signal::SIGHUP] {
-    let mut child = Command::new(&just)
+    let mut child = Command::new(JUST)
       .current_dir(&tempdir)
       .stdout(Stdio::piped())
       .stderr(Stdio::piped())
@@ -166,13 +164,11 @@ fn forwarding() {
   target_os = "openbsd",
 ))]
 fn siginfo_prints_current_process() {
-  let just = executable_path("just");
-
   let tempdir = tempdir();
 
   fs::write(tempdir.path().join("justfile"), "foo:\n @sleep 1").unwrap();
 
-  let child = Command::new(&just)
+  let child = Command::new(JUST)
     .current_dir(&tempdir)
     .stdout(Stdio::piped())
     .stderr(Stdio::piped())

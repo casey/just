@@ -9,7 +9,7 @@ pub(crate) use {
     alias::Alias,
     alias_style::AliasStyle,
     analyzer::Analyzer,
-    argument_parser::ArgumentParser,
+    arg_attribute::ArgAttribute,
     assignment::Assignment,
     assignment_resolver::AssignmentResolver,
     ast::Ast,
@@ -24,10 +24,12 @@ pub(crate) use {
     compile_error::CompileError,
     compile_error_kind::CompileErrorKind,
     compiler::Compiler,
+    completer::Completer,
     condition::Condition,
     conditional_operator::ConditionalOperator,
     config::Config,
     config_error::ConfigError,
+    const_error::ConstError,
     constants::constants,
     count::Count,
     delimiter::Delimiter,
@@ -35,13 +37,18 @@ pub(crate) use {
     dump_format::DumpFormat,
     enclosure::Enclosure,
     error::Error,
+    evaluate_format::EvaluateFormat,
     evaluator::Evaluator,
     execution_context::ExecutionContext,
     executor::Executor,
     expression::Expression,
+    format_string_part::FormatStringPart,
     fragment::Fragment,
     function::Function,
+    indentation::Indentation,
     interpreter::Interpreter,
+    invocation::Invocation,
+    invocation_parser::InvocationParser,
     item::Item,
     justfile::Justfile,
     keyed::Keyed,
@@ -51,14 +58,17 @@ pub(crate) use {
     list::List,
     load_dotenv::load_dotenv,
     loader::Loader,
-    module_path::ModulePath,
+    modulepath::Modulepath,
     name::Name,
     namepath::Namepath,
+    number::Number,
+    numerator::Numerator,
     ordinal::Ordinal,
     output_error::OutputError,
     parameter::Parameter,
     parameter_kind::ParameterKind,
     parser::Parser,
+    pattern::Pattern,
     platform::Platform,
     platform_interface::PlatformInterface,
     position::Position,
@@ -68,6 +78,7 @@ pub(crate) use {
     recipe::Recipe,
     recipe_resolver::RecipeResolver,
     recipe_signature::RecipeSignature,
+    request::Request,
     scope::Scope,
     search::Search,
     search_config::SearchConfig,
@@ -76,15 +87,20 @@ pub(crate) use {
     setting::Setting,
     settings::Settings,
     shebang::Shebang,
+    shell::Shell,
+    shell_kind::ShellKind,
     show_whitespace::ShowWhitespace,
+    sigil::Sigil,
     signal::Signal,
     signal_handler::SignalHandler,
     source::Source,
     string_delimiter::StringDelimiter,
     string_kind::StringKind,
     string_literal::StringLiteral,
+    string_state::StringState,
     subcommand::Subcommand,
     suggestion::Suggestion,
+    switch::Switch,
     table::Table,
     thunk::Thunk,
     token::Token,
@@ -92,6 +108,7 @@ pub(crate) use {
     unresolved_dependency::UnresolvedDependency,
     unresolved_recipe::UnresolvedRecipe,
     unstable_feature::UnstableFeature,
+    usage::Usage,
     use_color::UseColor,
     variables::Variables,
     verbosity::Verbosity,
@@ -99,7 +116,8 @@ pub(crate) use {
     which::which,
   },
   camino::Utf8Path,
-  clap::ValueEnum,
+  clap::{CommandFactory, FromArgMatches, Parser as _, ValueEnum, builder::StyledStr},
+  clap_complete::{ArgValueCompleter, CompletionCandidate, PathCompleter},
   derive_where::derive_where,
   edit_distance::edit_distance,
   lexiclean::Lexiclean,
@@ -107,49 +125,43 @@ pub(crate) use {
   rand::seq::IndexedRandom,
   regex::Regex,
   serde::{
-    ser::{SerializeMap, SerializeSeq},
     Deserialize, Serialize, Serializer,
+    ser::{SerializeMap, SerializeSeq},
   },
   snafu::{ResultExt, Snafu},
   std::{
     borrow::Cow,
-    cmp,
+    cmp::Ordering,
     collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     env,
-    ffi::OsString,
+    ffi::{OsStr, OsString},
     fmt::{self, Debug, Display, Formatter},
     fs,
     io::{self, Write},
     iter::{self, FromIterator},
     mem,
     ops::Deref,
-    ops::{Index, Range, RangeInclusive},
-    path::{self, Path, PathBuf},
+    ops::{Index, RangeInclusive},
+    path::{self, Component, Path, PathBuf},
     process::{self, Command, ExitStatus, Stdio},
-    str::{self, Chars},
-    sync::{Arc, LazyLock, Mutex, MutexGuard, OnceLock},
+    slice,
+    str::{self, Chars, FromStr},
+    sync::{Arc, LazyLock, Mutex, MutexGuard},
     thread, vec,
   },
-  strum::{Display, EnumDiscriminants, EnumString, IntoStaticStr},
+  strum::{Display, EnumDiscriminants, EnumIter, EnumString, IntoStaticStr},
   tempfile::TempDir,
   typed_arena::Arena,
   unicode_width::{UnicodeWidthChar, UnicodeWidthStr},
 };
 
 #[cfg(test)]
-pub(crate) use {
-  crate::{node::Node, tree::Tree},
-  std::slice,
-};
+pub(crate) use crate::{node::Node, tree::Tree};
 
 pub use crate::run::run;
 
 #[doc(hidden)]
-use request::Request;
-
-// Used in integration tests.
-#[doc(hidden)]
-pub use {request::Response, subcommand::INIT_JUSTFILE, unindent::unindent};
+pub use {arguments::Arguments, request::Response, subcommand::INIT_JUSTFILE, unindent::unindent};
 
 type CompileResult<'a, T = ()> = Result<T, CompileError<'a>>;
 type ConfigResult<T> = Result<T, ConfigError>;
@@ -184,7 +196,8 @@ pub mod request;
 mod alias;
 mod alias_style;
 mod analyzer;
-mod argument_parser;
+mod arg_attribute;
+mod arguments;
 mod assignment;
 mod assignment_resolver;
 mod ast;
@@ -199,11 +212,12 @@ mod compilation;
 mod compile_error;
 mod compile_error_kind;
 mod compiler;
-mod completions;
+mod completer;
 mod condition;
 mod conditional_operator;
 mod config;
 mod config_error;
+mod const_error;
 mod constants;
 mod count;
 mod delimiter;
@@ -211,13 +225,19 @@ mod dependency;
 mod dump_format;
 mod enclosure;
 mod error;
+mod evaluate_format;
 mod evaluator;
 mod execution_context;
 mod executor;
 mod expression;
+mod filesystem;
+mod format_string_part;
 mod fragment;
 mod function;
+mod indentation;
 mod interpreter;
+mod invocation;
+mod invocation_parser;
 mod item;
 mod justfile;
 mod keyed;
@@ -227,14 +247,17 @@ mod line;
 mod list;
 mod load_dotenv;
 mod loader;
-mod module_path;
+mod modulepath;
 mod name;
 mod namepath;
+mod number;
+mod numerator;
 mod ordinal;
 mod output_error;
 mod parameter;
 mod parameter_kind;
 mod parser;
+mod pattern;
 mod platform;
 mod platform_interface;
 mod position;
@@ -253,7 +276,10 @@ mod set;
 mod setting;
 mod settings;
 mod shebang;
+mod shell;
+mod shell_kind;
 mod show_whitespace;
+mod sigil;
 mod signal;
 mod signal_handler;
 #[cfg(unix)]
@@ -262,8 +288,10 @@ mod source;
 mod string_delimiter;
 mod string_kind;
 mod string_literal;
+mod string_state;
 mod subcommand;
 mod suggestion;
+mod switch;
 mod table;
 mod thunk;
 mod token;
@@ -272,6 +300,7 @@ mod unindent;
 mod unresolved_dependency;
 mod unresolved_recipe;
 mod unstable_feature;
+mod usage;
 mod use_color;
 mod variables;
 mod verbosity;

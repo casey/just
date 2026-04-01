@@ -20,8 +20,8 @@ pub(crate) enum Signal {
 
 impl Signal {
   #[cfg(not(windows))]
-  pub(crate) const ALL: &'static [Signal] = &[
-    Signal::Hangup,
+  pub(crate) const ALL: &'static [Self] = &[
+    Self::Hangup,
     #[cfg(any(
       target_os = "dragonfly",
       target_os = "freebsd",
@@ -30,10 +30,10 @@ impl Signal {
       target_os = "netbsd",
       target_os = "openbsd",
     ))]
-    Signal::Info,
-    Signal::Interrupt,
-    Signal::Quit,
-    Signal::Terminate,
+    Self::Info,
+    Self::Interrupt,
+    Self::Quit,
+    Self::Terminate,
   ];
 
   pub(crate) fn code(self) -> i32 {
@@ -66,7 +66,7 @@ impl Display for Signal {
       f,
       "{}",
       match self {
-        Signal::Hangup => "SIGHUP",
+        Self::Hangup => "SIGHUP",
         #[cfg(any(
           target_os = "dragonfly",
           target_os = "freebsd",
@@ -75,10 +75,10 @@ impl Display for Signal {
           target_os = "netbsd",
           target_os = "openbsd",
         ))]
-        Signal::Info => "SIGINFO",
-        Signal::Interrupt => "SIGINT",
-        Signal::Quit => "SIGQUIT",
-        Signal::Terminate => "SIGTERM",
+        Self::Info => "SIGINFO",
+        Self::Interrupt => "SIGINT",
+        Self::Quit => "SIGQUIT",
+        Self::Terminate => "SIGTERM",
       }
     )
   }
@@ -108,9 +108,9 @@ impl From<Signal> for nix::sys::signal::Signal {
 impl TryFrom<u8> for Signal {
   type Error = io::Error;
 
-  fn try_from(n: u8) -> Result<Signal, Self::Error> {
+  fn try_from(n: u8) -> Result<Self, Self::Error> {
     match n {
-      1 => Ok(Signal::Hangup),
+      1 => Ok(Self::Hangup),
       #[cfg(any(
         target_os = "dragonfly",
         target_os = "freebsd",
@@ -119,10 +119,10 @@ impl TryFrom<u8> for Signal {
         target_os = "netbsd",
         target_os = "openbsd",
       ))]
-      29 => Ok(Signal::Info),
-      2 => Ok(Signal::Interrupt),
-      3 => Ok(Signal::Quit),
-      15 => Ok(Signal::Terminate),
+      29 => Ok(Self::Info),
+      2 => Ok(Self::Interrupt),
+      3 => Ok(Self::Quit),
+      15 => Ok(Self::Terminate),
       _ => Err(io::Error::other(format!("unexpected signal: {n}"))),
     }
   }

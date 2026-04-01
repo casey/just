@@ -6,7 +6,7 @@ fn cache_directory() {
     .justfile("x := cache_directory()")
     .args(["--evaluate", "x"])
     .stdout(dirs::cache_dir().unwrap_or_default().to_string_lossy())
-    .run();
+    .success();
 }
 
 #[test]
@@ -15,7 +15,7 @@ fn config_directory() {
     .justfile("x := config_directory()")
     .args(["--evaluate", "x"])
     .stdout(dirs::config_dir().unwrap_or_default().to_string_lossy())
-    .run();
+    .success();
 }
 
 #[test]
@@ -28,7 +28,7 @@ fn config_local_directory() {
         .unwrap_or_default()
         .to_string_lossy(),
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -37,7 +37,7 @@ fn data_directory() {
     .justfile("x := data_directory()")
     .args(["--evaluate", "x"])
     .stdout(dirs::data_dir().unwrap_or_default().to_string_lossy())
-    .run();
+    .success();
 }
 
 #[test]
@@ -46,7 +46,7 @@ fn data_local_directory() {
     .justfile("x := data_local_directory()")
     .args(["--evaluate", "x"])
     .stdout(dirs::data_local_dir().unwrap_or_default().to_string_lossy())
-    .run();
+    .success();
 }
 
 #[test]
@@ -56,7 +56,7 @@ fn executable_directory() {
       .justfile("x := executable_directory()")
       .args(["--evaluate", "x"])
       .stdout(executable_dir.to_string_lossy())
-      .run();
+      .success();
   } else {
     Test::new()
       .justfile("x := executable_directory()")
@@ -70,8 +70,7 @@ fn executable_directory() {
             │      ^^^^^^^^^^^^^^^^^^^^
         ",
       )
-      .status(EXIT_FAILURE)
-      .run();
+      .failure();
   }
 }
 
@@ -81,5 +80,5 @@ fn home_directory() {
     .justfile("x := home_directory()")
     .args(["--evaluate", "x"])
     .stdout(dirs::home_dir().unwrap_or_default().to_string_lossy())
-    .run();
+    .success();
 }

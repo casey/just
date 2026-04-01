@@ -10,7 +10,7 @@ fn single_quotes_are_prepended_and_appended() {
     )
     .args(["--evaluate", "x"])
     .stdout("'abc'")
-    .run();
+    .success();
 }
 
 #[test]
@@ -23,7 +23,7 @@ fn quotes_are_escaped() {
     )
     .args(["--evaluate", "x"])
     .stdout(r"''\'''")
-    .run();
+    .success();
 }
 
 #[test]
@@ -39,5 +39,5 @@ fn quoted_strings_can_be_used_as_arguments() {
     "#,
     )
     .stdout("foo ' bar\njustfile\n")
-    .run();
+    .success();
 }

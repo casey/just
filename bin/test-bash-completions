@@ -1,0 +1,258 @@
+#!/usr/bin/env bash
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+source "$SCRIPT_DIR/../completion-registration-script.bash"
+
+PASS=0
+FAIL=0
+
+assert_reassemble() {
+  local description="$1"
+  shift
+  local comp_line="$1"
+  shift
+  local comp_cword="$1"
+  shift
+  local comp_wordbreaks="$1"
+  shift
+  local expected_index="$1"
+  shift
+  local -a expected_words=()
+  while [[ $# -gt 0 && "$1" != "--" ]]; do
+    expected_words+=("$1")
+    shift
+  done
+  [[ "${1:-}" == "--" ]] && shift
+  local -a comp_words_arr=()
+  while [[ $# -gt 0 ]]; do
+    comp_words_arr+=("$1")
+    shift
+  done
+
+  COMP_WORDS=("${comp_words_arr[@]}")
+  COMP_LINE="$comp_line"
+  COMP_CWORD="$comp_cword"
+  COMP_WORDBREAKS="$comp_wordbreaks"
+
+  local words=("${COMP_WORDS[@]}")
+  local _CLAP_COMPLETE_INDEX=${COMP_CWORD}
+  _clap_reassemble_words
+
+  local fail=0
+
+  if [[ "$_CLAP_COMPLETE_INDEX" != "$expected_index" ]]; then
+    echo "FAIL: $description"
+    echo "  _CLAP_COMPLETE_INDEX: expected=$expected_index got=$_CLAP_COMPLETE_INDEX"
+    fail=1
+  fi
+
+  if [[ "${#words[@]}" != "${#expected_words[@]}" ]]; then
+    echo "FAIL: $description"
+    echo "  words length: expected=${#expected_words[@]} got=${#words[@]}"
+    echo "  expected: (${expected_words[*]})"
+    echo "  got:      (${words[*]})"
+    fail=1
+  else
+    for ((i = 0; i < ${#expected_words[@]}; i++)); do
+      if [[ "${words[i]}" != "${expected_words[i]}" ]]; then
+        echo "FAIL: $description"
+        echo "  words[$i]: expected='${expected_words[i]}' got='${words[i]}'"
+        fail=1
+      fi
+    done
+  fi
+
+  if [[ $fail -eq 0 ]]; then
+    PASS=$((PASS + 1))
+  else
+    FAIL=$((FAIL + 1))
+  fi
+}
+
+assert_trim() {
+  local description="$1"
+  shift
+  local comp_wordbreaks="$1"
+  shift
+  local clap_index="$1"
+  shift
+  local -a expected_reply=()
+  while [[ $# -gt 0 && "$1" != "--" ]]; do
+    expected_reply+=("$1")
+    shift
+  done
+  [[ "${1:-}" == "--" ]] && shift
+  local -a words_arr=()
+  while [[ $# -gt 0 && "$1" != "--" ]]; do
+    words_arr+=("$1")
+    shift
+  done
+  [[ "${1:-}" == "--" ]] && shift
+  COMPREPLY=("$@")
+
+  COMP_WORDBREAKS="$comp_wordbreaks"
+  local words=("${words_arr[@]}")
+  local _CLAP_COMPLETE_INDEX="$clap_index"
+
+  _clap_trim_completions
+
+  local fail=0
+
+  if [[ "${#COMPREPLY[@]}" != "${#expected_reply[@]}" ]]; then
+    echo "FAIL: $description"
+    echo "  COMPREPLY length: expected=${#expected_reply[@]} got=${#COMPREPLY[@]}"
+    echo "  expected: (${expected_reply[*]:-})"
+    echo "  got:      (${COMPREPLY[*]:-})"
+    fail=1
+  else
+    for ((i = 0; i < ${#expected_reply[@]}; i++)); do
+      if [[ "${COMPREPLY[i]}" != "${expected_reply[i]}" ]]; then
+        echo "FAIL: $description"
+        echo "  COMPREPLY[$i]: expected='${expected_reply[i]}' got='${COMPREPLY[i]}'"
+        fail=1
+      fi
+    done
+  fi
+
+  if [[ $fail -eq 0 ]]; then
+    PASS=$((PASS + 1))
+  else
+    FAIL=$((FAIL + 1))
+  fi
+}
+
+# _clap_reassemble_words tests
+
+assert_reassemble \
+  "no colon in COMP_WORDBREAKS" \
+  "just foo" 1 " " \
+  1 "just" "foo" \
+  -- "just" "foo"
+
+assert_reassemble \
+  "no colons in input" \
+  "just foo" 1 " :" \
+  1 "just" "foo" \
+  -- "just" "foo"
+
+assert_reassemble \
+  "single colon" \
+  "just foo:bar" 3 " :" \
+  1 "just" "foo:bar" \
+  -- "just" "foo" ":" "bar"
+
+assert_reassemble \
+  "double colon" \
+  "just foo::bar" 4 " :" \
+  1 "just" "foo::bar" \
+  -- "just" "foo" ":" ":" "bar"
+
+assert_reassemble \
+  "trailing colon" \
+  "just foo:" 2 " :" \
+  1 "just" "foo:" \
+  -- "just" "foo" ":"
+
+assert_reassemble \
+  "trailing double colon" \
+  "just foo::" 3 " :" \
+  1 "just" "foo::" \
+  -- "just" "foo" ":" ":"
+
+assert_reassemble \
+  "colon with spaces" \
+  "just foo : bar" 3 " :" \
+  3 "just" "foo" ":" "bar" \
+  -- "just" "foo" ":" "bar"
+
+assert_reassemble \
+  "multiple colon-separated args" \
+  "just a:b c:d" 6 " :" \
+  2 "just" "a:b" "c:d" \
+  -- "just" "a" ":" "b" "c" ":" "d"
+
+assert_reassemble \
+  "cursor on colon" \
+  "just foo:" 2 " :" \
+  1 "just" "foo:" \
+  -- "just" "foo" ":"
+
+assert_reassemble \
+  "cursor on word after colon" \
+  "just foo:bar" 3 " :" \
+  1 "just" "foo:bar" \
+  -- "just" "foo" ":" "bar"
+
+assert_reassemble \
+  "cursor on word before colon" \
+  "just foo:bar" 1 " :" \
+  1 "just" "foo:bar" \
+  -- "just" "foo" ":" "bar"
+
+assert_reassemble \
+  "just the command" \
+  "just" 0 " :" \
+  0 "just" \
+  -- "just"
+
+assert_reassemble \
+  "leading colon word" \
+  "just :foo" 2 " :" \
+  1 "just" ":foo" \
+  -- "just" ":" "foo"
+
+# _clap_trim_completions tests
+
+assert_trim \
+  "no colon in current word" \
+  " :" 1 \
+  "foo:baz" "foo:qux" \
+  -- "just" "foo" \
+  -- "foo:baz" "foo:qux"
+
+assert_trim \
+  "no colon in COMP_WORDBREAKS" \
+  " " 1 \
+  "foo:baz" "foo:qux" \
+  -- "just" "foo:bar" \
+  -- "foo:baz" "foo:qux"
+
+assert_trim \
+  "single colon prefix" \
+  " :" 1 \
+  "baz" "qux" \
+  -- "just" "foo:bar" \
+  -- "foo:baz" "foo:qux"
+
+assert_trim \
+  "double colon prefix" \
+  " :" 1 \
+  "baz" "qux" \
+  -- "just" "foo::bar" \
+  -- "foo::baz" "foo::qux"
+
+assert_trim \
+  "empty COMPREPLY" \
+  " :" 1 \
+  -- "just" "foo:bar" \
+  --
+
+assert_trim \
+  "mixed prefixes" \
+  " :" 1 \
+  "baz" "other" \
+  -- "just" "foo:bar" \
+  -- "foo:baz" "other"
+
+# summary
+
+echo ""
+echo "PASS: $PASS"
+echo "FAIL: $FAIL"
+
+if [[ $FAIL -gt 0 ]]; then
+  exit 1
+fi
