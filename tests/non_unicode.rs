@@ -20,8 +20,8 @@ fn warn_for_non_unicode_invocation_directory() {
 
   let expected = format!(
     "The invocation directory path `{}` is not Unicode. Just is considering phasing-out support \
-        for non-Unicode paths. If you see this warning, please leave a comment on\n\
-        https://github.com/casey/just/issues/3229. Thank you!\n",
+    for non-Unicode paths. If you see this warning, please leave a comment on \
+    https://github.com/casey/just/issues/3229. Thank you!",
     non_unicode_dir.display(),
   );
 
@@ -48,8 +48,8 @@ fn warn_for_non_unicode_justfile_path() {
 
   let expected = format!(
     "The justfile path `{}` is not Unicode. Just is considering phasing-out support for \
-        non-Unicode paths. If you see this warning, please leave a comment on\n\
-        https://github.com/casey/just/issues/3229. Thank you!\n",
+    non-Unicode paths. If you see this warning, please leave a comment on \
+    https://github.com/casey/just/issues/3229. Thank you!",
     non_unicode_dir.join("justfile").display(),
   );
 
