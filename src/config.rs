@@ -242,22 +242,26 @@ impl Config {
     }
 
     let unstable = arguments.unstable || subcommand == Subcommand::Summary;
-    let explain = arguments.explain;
+    let color = Color::new(arguments.indentation, arguments.color);
+
+    let invocation_directory = env::current_dir().context(config_error::CurrentDir)?;
+
+    Self::warn_non_unicode_path(color, "invocation directory", &invocation_directory);
 
     Ok(Self {
       alias_style: arguments.alias_style,
       allow_missing: arguments.allow_missing,
       ceiling: arguments.ceiling,
       check: arguments.check,
-      color: Color::new(arguments.indentation, arguments.color),
+      color,
       command_color: arguments.command_color.map(CommandColor::into),
       cygpath: arguments.cygpath,
       dotenv_filename: arguments.dotenv_filename,
       dotenv_path: arguments.dotenv_path,
       dry_run: arguments.dry_run,
-      explain,
+      explain: arguments.explain,
       highlight: !arguments.no_highlight,
-      invocation_directory: env::current_dir().context(config_error::CurrentDir)?,
+      invocation_directory,
       groups: arguments.group,
       list_heading: arguments.list_heading,
       list_prefix: arguments.list_prefix,
@@ -301,6 +305,19 @@ impl Config {
       Ok(())
     } else {
       Err(Error::UnstableFeature { unstable_feature })
+    }
+  }
+
+  pub(crate) fn warn_non_unicode_path(color: Color, name: &str, path: &Path) {
+    if path.to_str().is_none() {
+      eprintln!(
+        "{}The {name} path `{}` is not Unicode. Just is considering phasing-out support for \
+        non-Unicode paths. If you see this warning, please leave a comment on \
+        https://github.com/casey/just/issues/3229. Thank you!{}",
+        color.warning().prefix(),
+        path.display(),
+        color.warning().suffix(),
+      );
     }
   }
 }
