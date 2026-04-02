@@ -314,8 +314,8 @@ impl Config {
         "{}The {name} path `{}` is not Unicode. Just is considering phasing-out support for \
         non-Unicode paths. If you see this warning, please leave a comment on
         https://github.com/casey/just/issues/3229. Thank you!{}",
-        path.display(),
         color.warning().prefix(),
+        path.display(),
         color.warning().suffix(),
       );
     }
