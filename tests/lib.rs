@@ -98,12 +98,12 @@ mod misc;
 mod modules;
 mod multibyte_char;
 mod newline_escape;
-#[cfg(target_os = "linux")]
-mod non_unicode;
 mod no_aliases;
 mod no_cd;
 mod no_dependencies;
 mod no_exit_message;
+#[cfg(target_os = "linux")]
+mod non_unicode;
 mod options;
 mod os_attributes;
 mod overrides;

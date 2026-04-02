@@ -4,9 +4,7 @@ use {super::*, std::os::unix::ffi::OsStrExt};
 fn warn_for_non_unicode_invocation_directory() {
   let tempdir = tempdir();
 
-  let non_unicode_dir = tempdir
-    .path()
-    .join(std::ffi::OsStr::from_bytes(b"foo\xff"));
+  let non_unicode_dir = tempdir.path().join(std::ffi::OsStr::from_bytes(b"foo\xff"));
 
   fs::create_dir(&non_unicode_dir).unwrap();
   fs::write(non_unicode_dir.join("justfile"), "default:\n\ttrue\n").unwrap();
@@ -34,9 +32,7 @@ fn warn_for_non_unicode_invocation_directory() {
 fn warn_for_non_unicode_justfile_path() {
   let tempdir = tempdir();
 
-  let non_unicode_dir = tempdir
-    .path()
-    .join(std::ffi::OsStr::from_bytes(b"bar\xff"));
+  let non_unicode_dir = tempdir.path().join(std::ffi::OsStr::from_bytes(b"bar\xff"));
 
   fs::create_dir(&non_unicode_dir).unwrap();
   fs::write(non_unicode_dir.join("justfile"), "default:\n\ttrue\n").unwrap();
