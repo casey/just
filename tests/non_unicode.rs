@@ -20,15 +20,14 @@ fn warn_for_non_unicode_invocation_directory() {
 
   let stderr = str::from_utf8(&output.stderr).unwrap();
 
-  assert!(
-    stderr.contains("invocation directory"),
-    "expected warning about invocation directory in stderr: {stderr}",
+  let expected = format!(
+    "The invocation directory path `{}` is not Unicode. Just is considering phasing-out support \
+        for non-Unicode paths. If you see this warning, please leave a comment on\n\
+        https://github.com/casey/just/issues/3229. Thank you!\n",
+    non_unicode_dir.display(),
   );
 
-  assert!(
-    stderr.contains("not Unicode"),
-    "expected 'not Unicode' in stderr: {stderr}",
-  );
+  assert!(stderr.contains(&expected), "stderr: {stderr}");
 }
 
 #[test]
@@ -51,8 +50,12 @@ fn warn_for_non_unicode_justfile_path() {
 
   let stderr = str::from_utf8(&output.stderr).unwrap();
 
-  assert!(
-    stderr.contains("justfile"),
-    "expected warning about justfile in stderr: {stderr}",
+  let expected = format!(
+    "The justfile path `{}` is not Unicode. Just is considering phasing-out support for \
+        non-Unicode paths. If you see this warning, please leave a comment on\n\
+        https://github.com/casey/just/issues/3229. Thank you!\n",
+    non_unicode_dir.join("justfile").display(),
   );
+
+  assert!(stderr.contains(&expected), "stderr: {stderr}");
 }
