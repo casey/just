@@ -354,7 +354,7 @@ impl Subcommand {
   fn format<'src>(config: &Config, loader: &'src Loader, search: &Search) -> RunResult<'src> {
     let root = search.justfile.parent().unwrap();
 
-    let (path, src) = loader.load(root, &search.justfile)?;
+    let (path, src) = loader.load(config, root, &search.justfile)?;
 
     let ast = Parser::parse_source(
       &mut Numerator::new(),
