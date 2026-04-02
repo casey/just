@@ -312,7 +312,7 @@ impl Config {
     if path.to_str().is_none() {
       eprintln!(
         "{}The {name} path `{}` is not Unicode. Just is considering phasing-out support for \
-        non-Unicode paths. If you see this warning, please leave a comment on
+        non-Unicode paths. If you see this warning, please leave a comment on \
         https://github.com/casey/just/issues/3229. Thank you!{}",
         color.warning().prefix(),
         path.display(),
