@@ -187,44 +187,26 @@ fn justfile_and_working_directory() {
 
 #[test]
 fn justfile_name_from_invocation_directory() {
-  let tmp = temptree! {
-    ".git": {},
-  };
-
-  let output = Command::new(JUST)
-    .current_dir(tmp.path())
+  Test::new()
+    .no_justfile()
+    .test_round_trip(false)
+    .create_dir(".git")
     .args(["--init", "--justfile-name", "foo"])
-    .output()
-    .unwrap();
-
-  assert!(output.status.success());
-
-  assert_eq!(
-    fs::read_to_string(tmp.path().join("foo")).unwrap(),
-    INIT_JUSTFILE
-  );
+    .stderr_regex("Wrote justfile to `.*`\n")
+    .expect_file("foo", INIT_JUSTFILE)
+    .success();
 }
 
 #[test]
 fn justfile_name_from_search_directory() {
-  let tmp = temptree! {
-    sub: {
-      ".git": {},
-    },
-  };
-
-  let output = Command::new(JUST)
-    .current_dir(tmp.path())
+  Test::new()
+    .no_justfile()
+    .test_round_trip(false)
+    .create_dir("sub/.git")
     .args(["--init", "--justfile-name", "foo", "sub/"])
-    .output()
-    .unwrap();
-
-  assert!(output.status.success());
-
-  assert_eq!(
-    fs::read_to_string(tmp.path().join("sub/foo")).unwrap(),
-    INIT_JUSTFILE
-  );
+    .stderr_regex("Wrote justfile to `.*`\n")
+    .expect_file("sub/foo", INIT_JUSTFILE)
+    .success();
 }
 
 #[test]
