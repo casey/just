@@ -122,13 +122,11 @@ impl<'src> Attribute<'src> {
     }
 
     if matches!(discriminant, AttributeDiscriminant::Confirm) {
-      if let Some((_name, (keyword_name, _literal))) = keyword_arguments.into_iter().next() {
-        return Err(
-          keyword_name.error(CompileErrorKind::UnknownAttributeKeyword {
-            attribute: name.lexeme(),
-            keyword: keyword_name.lexeme(),
-          }),
-        );
+      if let Some((_name, (keyword, _literal))) = keyword_arguments.into_iter().next() {
+        return Err(keyword.error(CompileErrorKind::UnknownAttributeKeyword {
+          attribute: name.lexeme(),
+          keyword: keyword.lexeme(),
+        }));
       }
 
       return Ok(Self::Confirm(
@@ -140,15 +138,13 @@ impl<'src> Attribute<'src> {
       .into_iter()
       .map(|(token, argument)| {
         let Expression::StringLiteral { string_literal } = argument else {
-          return Err(
-            token.error(CompileErrorKind::AttributeArgumentNotStringLiteral {
-              attribute: name.lexeme(),
-            }),
-          );
+          return Err(token.error(CompileErrorKind::AttributeArgumentExpression {
+            attribute: name.lexeme(),
+          }));
         };
         Ok(string_literal)
       })
-      .collect::<CompileResult<'src, Vec<_>>>()?;
+      .collect::<CompileResult<Vec<StringLiteral>>>()?;
 
     let attribute = match discriminant {
       AttributeDiscriminant::Arg => {

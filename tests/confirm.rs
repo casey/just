@@ -1,6 +1,28 @@
 use super::*;
 
 #[test]
+fn confirm_recipe_with_prompt_too_many_args() {
+  Test::new()
+    .justfile(
+      r#"
+        [confirm("PROMPT","EXTRA")]
+        requires_confirmation:
+            echo confirmed
+      "#,
+    )
+    .stderr(
+      r#"
+        error: Attribute `confirm` got 2 arguments but takes at most 1 argument
+         ——▶ justfile:1:2
+          │
+        1 │ [confirm("PROMPT","EXTRA")]
+          │  ^^^^^^^
+      "#,
+    )
+    .failure();
+}
+
+#[test]
 fn confirm_recipe_arg() {
   Test::new()
     .arg("--yes")

@@ -69,7 +69,7 @@ impl Display for CompileError<'_> {
           write!(f, "at most {max} {}", Count("argument", *max))
         }
       }
-      AttributeArgumentNotStringLiteral { attribute } => {
+      AttributeArgumentExpression { attribute } => {
         write!(
           f,
           "Attribute `{attribute}` arguments must be string literals"
