@@ -87,7 +87,7 @@ Installation
 ------------
 
 Just can be installed with your favorite [package manager](#packages), by
-downloading [pre-built binaries](#pre-build-binaries), or building from source
+downloading [pre-built binaries](#pre-built-binaries), or building from source
 with `cargo install just`.
 
 ### Prerequisites
