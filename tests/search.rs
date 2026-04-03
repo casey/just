@@ -199,17 +199,11 @@ fn dot_justfile_conflicts_with_justfile() {
 
 #[test]
 fn not_found() {
-  let tmp = temptree! {};
-
-  let output = Command::new(JUST)
-    .current_dir(tmp.path())
-    .output()
-    .expect("just invocation failed");
-
-  assert!(!output.status.success());
-
-  let stderr = str::from_utf8(&output.stderr).unwrap();
-  assert!(stderr.contains("No justfile found"), "stderr: {stderr}");
+  Test::new()
+    .no_justfile()
+    .test_round_trip(false)
+    .stderr_regex("error: No justfile found\n")
+    .failure();
 }
 
 #[test]
