@@ -2201,7 +2201,8 @@ details.
 - `data_local_directory()` - The local user-specific data directory.
 - `executable_directory()` - The user-specific executable directory.
 - `home_directory()` - The user's home directory.
-- `runtime_directory()` - The user-specific runtime directory.
+- `runtime_directory()` - The user-specific runtime directory. Only defined on
+  Linux.
 
 If you would like to use XDG base directories on all platforms you can use the
 `env(…)` function with the appropriate environment variable and fallback,
