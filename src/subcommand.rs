@@ -30,7 +30,8 @@ pub(crate) enum Subcommand {
   },
   Edit,
   Evaluate {
-    variable: Option<String>,
+    format: EvaluateFormat,
+    path: Modulepath,
   },
   Format,
   Groups,
@@ -156,9 +157,7 @@ impl Subcommand {
 
       if fallback {
         if let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result {
-          search = search
-            .search_parent_directory(config.ceiling.as_deref())
-            .map_err(|_| err)?;
+          search = search.search_parent_directory(config).map_err(|_| err)?;
 
           if config.verbosity.loquacious() {
             eprintln!(
@@ -353,7 +352,7 @@ impl Subcommand {
   fn format<'src>(config: &Config, loader: &'src Loader, search: &Search) -> RunResult<'src> {
     let root = search.justfile.parent().unwrap();
 
-    let (path, src) = loader.load(root, &search.justfile)?;
+    let (path, src) = loader.load(config, root, &search.justfile)?;
 
     let ast = Parser::parse_source(
       &mut Numerator::new(),
@@ -424,11 +423,7 @@ impl Subcommand {
   }
 
   fn init(config: &Config) -> RunResult<'static> {
-    let search = Search::init(
-      &config.search_config,
-      &config.invocation_directory,
-      config.ceiling.as_deref(),
-    )?;
+    let search = Search::init(config)?;
 
     if filesystem::is_file(&search.justfile)? {
       return Err(Error::InitExists {
@@ -491,7 +486,7 @@ impl Subcommand {
   }
 
   fn list(config: &Config, mut module: &Justfile, path: &Modulepath) -> RunResult<'static> {
-    for name in &path.path {
+    for name in &path.components {
       module = module
         .modules
         .get(name)
@@ -863,7 +858,7 @@ impl Subcommand {
     mut module: &'run Justfile<'src>,
     path: &Modulepath,
   ) -> RunResult<'src, (Option<&'run Alias<'src>>, &'run Recipe<'src>)> {
-    for name in &path.path[0..path.path.len() - 1] {
+    for name in &path.components[0..path.components.len() - 1] {
       module = module
         .modules
         .get(name)
@@ -872,7 +867,7 @@ impl Subcommand {
         })?;
     }
 
-    let name = path.path.last().unwrap();
+    let name = path.components.last().unwrap();
 
     if let Some(alias) = module.get_alias(name) {
       Ok((Some(alias), &alias.target))

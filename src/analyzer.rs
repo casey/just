@@ -169,16 +169,12 @@ impl<'run, 'src> Analyzer<'run, 'src> {
         if let Some(assignment) = assignments.get(name) {
           overrides.insert(assignment.number, value.clone());
         } else {
-          unknown_overrides.push(if path.is_empty() {
-            name.into()
-          } else {
-            format!("{path}::{name}")
-          });
+          unknown_overrides.push(path.join(name));
         }
       } else if path.starts_with(&ast.modulepath)
         && !self
           .modules
-          .contains_key(&path.path[ast.modulepath.path.len()])
+          .contains_key(&path.components[ast.modulepath.components.len()])
       {
         unknown_overrides.push(format!("{path}::{name}"));
       }

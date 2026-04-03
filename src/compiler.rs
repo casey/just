@@ -20,7 +20,7 @@ impl Compiler {
         continue;
       }
 
-      let (relative, src) = loader.load(root, &current.path)?;
+      let (relative, src) = loader.load(config, root, &current.path)?;
       loaded.push(relative.into());
       let mut ast = Parser::parse_source(&mut numerator, relative, &current, src)?;
 

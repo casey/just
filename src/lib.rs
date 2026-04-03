@@ -37,6 +37,7 @@ pub(crate) use {
     dump_format::DumpFormat,
     enclosure::Enclosure,
     error::Error,
+    evaluate_format::EvaluateFormat,
     evaluator::Evaluator,
     execution_context::ExecutionContext,
     executor::Executor,
@@ -115,7 +116,7 @@ pub(crate) use {
     which::which,
   },
   camino::Utf8Path,
-  clap::{CommandFactory, FromArgMatches, Parser as _, ValueEnum, builder::StyledStr},
+  clap::{CommandFactory, FromArgMatches, Parser as _, ValueEnum},
   clap_complete::{ArgValueCompleter, CompletionCandidate, PathCompleter},
   derive_where::derive_where,
   edit_distance::edit_distance,
@@ -224,6 +225,7 @@ mod dependency;
 mod dump_format;
 mod enclosure;
 mod error;
+mod evaluate_format;
 mod evaluator;
 mod execution_context;
 mod executor;

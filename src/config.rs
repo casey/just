@@ -8,6 +8,7 @@ pub(crate) struct Config {
   pub(crate) check: bool,
   pub(crate) color: Color,
   pub(crate) command_color: Option<ansi_term::Color>,
+  pub(crate) complete_aliases: bool,
   pub(crate) cygpath: PathBuf,
   pub(crate) dotenv_filename: Option<String>,
   pub(crate) dotenv_path: Option<PathBuf>,
@@ -16,6 +17,7 @@ pub(crate) struct Config {
   pub(crate) groups: Vec<String>,
   pub(crate) highlight: bool,
   pub(crate) invocation_directory: PathBuf,
+  pub(crate) justfile_names: Option<Vec<String>>,
   pub(crate) list_heading: String,
   pub(crate) list_prefix: String,
   pub(crate) list_submodules: bool,
@@ -99,7 +101,7 @@ impl Config {
     let mut path = Modulepath::try_from([path].as_slice())
       .map_err(|()| ConfigError::OverridePath { path: path.into() })?;
 
-    let name = path.path.pop().unwrap();
+    let name = path.components.pop().unwrap();
 
     Ok((path, name))
   }
@@ -125,15 +127,20 @@ impl Config {
     } else if arguments.subcommand.edit {
       Ok(Subcommand::Edit)
     } else if arguments.subcommand.evaluate {
-      if positional.arguments.len() > 1 {
+      let path = if positional.arguments.is_empty() {
+        Modulepath::default()
+      } else if positional.arguments.len() == 1 {
+        Self::parse_modulepath(&positional.arguments)?
+      } else {
         return Err(ConfigError::SubcommandArguments {
           subcommand: "EVALUATE",
           arguments: positional.arguments.iter().skip(1).cloned().collect(),
         });
-      }
+      };
 
       Ok(Subcommand::Evaluate {
-        variable: positional.arguments.first().cloned(),
+        format: arguments.evaluate_format,
+        path,
       })
     } else if arguments.subcommand.fmt {
       Ok(Subcommand::Format)
@@ -199,13 +206,7 @@ impl Config {
     let format_overrides = || {
       overrides
         .iter()
-        .map(|((path, key), value)| {
-          if path.is_empty() {
-            format!("{key}={value}")
-          } else {
-            format!("{path}::{key}={value}")
-          }
-        })
+        .map(|((path, key), value)| format!("{}={value}", path.join(key)))
         .collect()
     };
 
@@ -237,23 +238,29 @@ impl Config {
     }
 
     let unstable = arguments.unstable || subcommand == Subcommand::Summary;
-    let explain = arguments.explain;
+    let color = Color::new(arguments.indentation, arguments.color);
+
+    let invocation_directory = env::current_dir().context(config_error::CurrentDir)?;
+
+    Self::warn_non_unicode_path(color, "invocation directory", &invocation_directory);
 
     Ok(Self {
       alias_style: arguments.alias_style,
       allow_missing: arguments.allow_missing,
       ceiling: arguments.ceiling,
       check: arguments.check,
-      color: Color::new(arguments.indentation, arguments.color),
+      color,
       command_color: arguments.command_color.map(CommandColor::into),
+      complete_aliases: arguments.complete_aliases,
       cygpath: arguments.cygpath,
       dotenv_filename: arguments.dotenv_filename,
       dotenv_path: arguments.dotenv_path,
       dry_run: arguments.dry_run,
-      explain,
-      highlight: !arguments.no_highlight,
-      invocation_directory: env::current_dir().context(config_error::CurrentDir)?,
+      explain: arguments.explain,
       groups: arguments.group,
+      highlight: !arguments.no_highlight,
+      invocation_directory,
+      justfile_names: arguments.justfile_names,
       list_heading: arguments.list_heading,
       list_prefix: arguments.list_prefix,
       list_submodules: arguments.list_submodules,
@@ -296,6 +303,19 @@ impl Config {
       Ok(())
     } else {
       Err(Error::UnstableFeature { unstable_feature })
+    }
+  }
+
+  pub(crate) fn warn_non_unicode_path(color: Color, name: &str, path: &Path) {
+    if path.to_str().is_none() {
+      eprintln!(
+        "{}The {name} path `{}` is not Unicode. Just is considering phasing-out support for \
+        non-Unicode paths. If you see this warning, please leave a comment on \
+        https://github.com/casey/just/issues/3229. Thank you!{}",
+        color.warning().prefix(),
+        path.display(),
+        color.warning().suffix(),
+      );
     }
   }
 }
@@ -785,7 +805,8 @@ mod tests {
     args: ["--evaluate"],
     overrides: map!{},
     subcommand: Subcommand::Evaluate {
-      variable: None,
+      format: EvaluateFormat::Just,
+      path: Modulepath::default(),
     },
   }
 
@@ -794,7 +815,8 @@ mod tests {
     args: ["--evaluate", "x=y"],
     overrides: map!{"x": "y"},
     subcommand: Subcommand::Evaluate {
-      variable: None,
+      format: EvaluateFormat::Just,
+      path: Modulepath::default(),
     },
   }
 
@@ -803,48 +825,46 @@ mod tests {
     args: ["--evaluate", "x=y", "foo"],
     overrides: map!{"x": "y"},
     subcommand: Subcommand::Evaluate {
-      variable: Some("foo".to_owned()),
+      format: EvaluateFormat::Just,
+      path: Modulepath::try_from(["foo"].as_slice()).unwrap(),
     },
   }
 
   test! {
     name: subcommand_list_long,
     args: ["--list"],
-    subcommand: Subcommand::List{ path: Modulepath { path: Vec::new(), spaced: false } },
+    subcommand: Subcommand::List { path: Modulepath::default() },
   }
 
   test! {
     name: subcommand_list_short,
     args: ["-l"],
-    subcommand: Subcommand::List{ path: Modulepath { path: Vec::new(), spaced: false } },
+    subcommand: Subcommand::List { path: Modulepath::default() },
   }
 
   test! {
     name: subcommand_list_arguments,
     args: ["--list", "bar"],
-    subcommand: Subcommand::List{ path: Modulepath { path: vec!["bar".into()], spaced: false } },
+    subcommand: Subcommand::List { path: Modulepath::try_from(["bar"].as_slice()).unwrap() },
   }
 
   test! {
     name: subcommand_show_long,
     args: ["--show", "build"],
-    subcommand: Subcommand::Show { path: Modulepath { path: vec!["build".into()], spaced: false } },
+    subcommand: Subcommand::Show { path: Modulepath::try_from(["build"].as_slice()).unwrap() },
   }
 
   test! {
     name: subcommand_show_short,
     args: ["-s", "build"],
-    subcommand: Subcommand::Show { path: Modulepath { path: vec!["build".into()], spaced: false } },
+    subcommand: Subcommand::Show { path: Modulepath::try_from(["build"].as_slice()).unwrap() },
   }
 
   test! {
     name: subcommand_show_multiple_args,
     args: ["--show", "foo", "bar"],
     subcommand: Subcommand::Show {
-      path: Modulepath {
-        path: vec!["foo".into(), "bar".into()],
-        spaced: true,
-      },
+      path: Modulepath::try_from(["foo", "bar"].as_slice()).unwrap(),
     },
   }
 
