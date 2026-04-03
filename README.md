@@ -86,6 +86,10 @@ always welcome!
 Installation
 ------------
 
+Just can be installed using your favorite [package manager](#packages), by
+downloading [pre-built binaries](#pre-built-binaries), or building from source
+with `cargo install just`.
+
 ### Prerequisites
 
 `just` should run on any system with a reasonable `sh`, including Linux, MacOS,
@@ -546,28 +550,6 @@ git clone https://github.com/NoahTheDuke/vim-just.git
 [tree-sitter-just](https://github.com/IndianBoy42/tree-sitter-just) is an
 [Nvim Treesitter](https://github.com/nvim-treesitter/nvim-treesitter) plugin
 for Neovim.
-
-#### Makefile Syntax Highlighting
-
-Vim's built-in makefile syntax highlighting isn't perfect for `justfile`s, but
-it's better than nothing. You can put the following in `~/.vim/filetype.vim`:
-
-```vimscript
-if exists("did_load_filetypes")
-  finish
-endif
-
-augroup filetypedetect
-  au BufNewFile,BufRead justfile setf make
-augroup END
-```
-
-Or add the following to an individual `justfile` to enable `make` mode on a
-per-file basis:
-
-```text
-# vim: set ft=make :
-```
 
 ### Emacs
 
