@@ -172,7 +172,7 @@ impl Search {
             };
 
           for justfile_name in justfile_names {
-            if name.eq_ignore_ascii_case(&justfile_name) {
+            if name.eq_ignore_ascii_case(justfile_name) {
               candidates.insert(entry.path());
             }
           }
