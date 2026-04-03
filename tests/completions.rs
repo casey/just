@@ -326,6 +326,71 @@ fn group_completion_filters_by_prefix() {
 }
 
 #[test]
+fn aliases_not_completed_by_default() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+        alias b := foo
+      ",
+    )
+    .shell(false)
+    .env("JUST_COMPLETE", "fish")
+    .args(complete_args(&[""]))
+    .stdout_regex(format!("foo\n{FLAGS}"))
+    .success();
+}
+
+#[test]
+fn aliases_completed_with_flag() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+        alias b := foo
+      ",
+    )
+    .shell(false)
+    .env("JUST_COMPLETE", "fish")
+    .args(complete_args(&["--complete-aliases", ""]))
+    .stdout_regex(format!("foo\nb\n{FLAGS}"))
+    .success();
+}
+
+#[test]
+fn private_aliases_excluded() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+        alias b := foo
+        alias _c := foo
+      ",
+    )
+    .shell(false)
+    .env("JUST_COMPLETE", "fish")
+    .args(complete_args(&["--complete-aliases", ""]))
+    .stdout_regex(format!("foo\nb\n{FLAGS}"))
+    .success();
+}
+
+#[test]
+fn aliases_in_modules() {
+  Test::new()
+    .justfile(
+      "
+        mod bar
+      ",
+    )
+    .write("bar.just", "foo:\nalias b := foo")
+    .shell(false)
+    .env("JUST_COMPLETE", "fish")
+    .args(complete_args(&["--complete-aliases", ""]))
+    .stdout_regex(format!("bar::foo\nbar::b\n{FLAGS}"))
+    .success();
+}
+
+#[test]
 fn usage_recipes() {
   Test::new()
     .justfile(

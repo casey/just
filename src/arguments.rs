@@ -87,6 +87,8 @@ pub struct Arguments {
     value_enum
   )]
   pub(crate) command_color: Option<CommandColor>,
+  #[arg(env = "JUST_COMPLETE_ALIASES", help = "Complete recipe aliases", long)]
+  pub(crate) complete_aliases: bool,
   #[arg(
     add = ArgValueCompleter::new(PathCompleter::file()),
     default_value = "cygpath",
