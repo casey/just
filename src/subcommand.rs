@@ -156,9 +156,7 @@ impl Subcommand {
 
       if fallback {
         if let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result {
-          search = search
-            .search_parent_directory(config, config.ceiling.as_deref())
-            .map_err(|_| err)?;
+          search = search.search_parent_directory(config).map_err(|_| err)?;
 
           if config.verbosity.loquacious() {
             eprintln!(
@@ -417,11 +415,7 @@ impl Subcommand {
   }
 
   fn init(config: &Config) -> RunResult<'static> {
-    let search = Search::init(
-      &config.search_config,
-      &config.invocation_directory,
-      config.ceiling.as_deref(),
-    )?;
+    let search = Search::init(config)?;
 
     if filesystem::is_file(&search.justfile)? {
       return Err(Error::InitExists {

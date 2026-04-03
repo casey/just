@@ -32,14 +32,12 @@ impl Search {
   /// Find justfile given search configuration and invocation directory
   pub(crate) fn search(config: &Config) -> SearchResult<Self> {
     match &config.search_config {
-      SearchConfig::FromInvocationDirectory => Self::find_in_directory(
-        config,
-        config.ceiling.as_deref(),
-        &config.invocation_directory,
-      ),
+      SearchConfig::FromInvocationDirectory => {
+        Self::find_in_directory(config, &config.invocation_directory)
+      }
       SearchConfig::FromSearchDirectory { search_directory } => {
         let search_directory = Self::clean(&config.invocation_directory, search_directory);
-        let justfile = Self::justfile(config, config.ceiling.as_deref(), &search_directory)?;
+        let justfile = Self::justfile(config, &search_directory)?;
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
         Ok(Self {
           justfile,
@@ -48,10 +46,7 @@ impl Search {
       }
       SearchConfig::GlobalJustfile => Ok(Self {
         justfile: Self::find_global_justfile()?,
-        working_directory: Self::project_root(
-          config.ceiling.as_deref(),
-          &config.invocation_directory,
-        )?,
+        working_directory: Self::project_root(config, &config.invocation_directory)?,
       }),
       SearchConfig::WithJustfile { justfile } => {
         let justfile = Self::clean(&config.invocation_directory, justfile);
@@ -92,11 +87,7 @@ impl Search {
   }
 
   /// Find justfile starting from parent directory of current justfile
-  pub(crate) fn search_parent_directory(
-    &self,
-    config: &Config,
-    ceiling: Option<&Path>,
-  ) -> SearchResult<Self> {
+  pub(crate) fn search_parent_directory(&self, config: &Config) -> SearchResult<Self> {
     let parent = self
       .justfile
       .parent()
@@ -104,16 +95,12 @@ impl Search {
       .ok_or_else(|| SearchError::JustfileHadNoParent {
         path: self.justfile.clone(),
       })?;
-    Self::find_in_directory(config, ceiling, parent)
+    Self::find_in_directory(config, parent)
   }
 
   /// Find justfile starting in given directory searching upwards in directory tree
-  fn find_in_directory(
-    config: &Config,
-    ceiling: Option<&Path>,
-    starting_dir: &Path,
-  ) -> SearchResult<Self> {
-    let justfile = Self::justfile(config, ceiling, starting_dir)?;
+  fn find_in_directory(config: &Config, starting_dir: &Path) -> SearchResult<Self> {
+    let justfile = Self::justfile(config, starting_dir)?;
     let working_directory = Self::working_directory_from_justfile(&justfile)?;
     Ok(Self {
       justfile,
@@ -122,14 +109,10 @@ impl Search {
   }
 
   /// Get working directory and justfile path for newly-initialized justfile
-  pub(crate) fn init(
-    search_config: &SearchConfig,
-    invocation_directory: &Path,
-    ceiling: Option<&Path>,
-  ) -> SearchResult<Self> {
-    match search_config {
+  pub(crate) fn init(config: &Config) -> SearchResult<Self> {
+    match &config.search_config {
       SearchConfig::FromInvocationDirectory => {
-        let working_directory = Self::project_root(ceiling, invocation_directory)?;
+        let working_directory = Self::project_root(config, &config.invocation_directory)?;
         let justfile = working_directory.join(DEFAULT_JUSTFILE_NAME);
         Ok(Self {
           justfile,
@@ -137,8 +120,8 @@ impl Search {
         })
       }
       SearchConfig::FromSearchDirectory { search_directory } => {
-        let search_directory = Self::clean(invocation_directory, search_directory);
-        let working_directory = Self::project_root(ceiling, &search_directory)?;
+        let search_directory = Self::clean(&config.invocation_directory, search_directory);
+        let working_directory = Self::project_root(config, &search_directory)?;
         let justfile = working_directory.join(DEFAULT_JUSTFILE_NAME);
         Ok(Self {
           justfile,
@@ -147,7 +130,7 @@ impl Search {
       }
       SearchConfig::GlobalJustfile => Err(SearchError::GlobalJustfileInit),
       SearchConfig::WithJustfile { justfile } => {
-        let justfile = Self::clean(invocation_directory, justfile);
+        let justfile = Self::clean(&config.invocation_directory, justfile);
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
         Ok(Self {
           justfile,
@@ -158,15 +141,15 @@ impl Search {
         justfile,
         working_directory,
       } => Ok(Self {
-        justfile: Self::clean(invocation_directory, justfile),
-        working_directory: Self::clean(invocation_directory, working_directory),
+        justfile: Self::clean(&config.invocation_directory, justfile),
+        working_directory: Self::clean(&config.invocation_directory, working_directory),
       }),
     }
   }
 
   /// Search upwards from `directory` for a file whose name matches one of
   /// `JUSTFILE_NAMES`
-  fn justfile(config: &Config, ceiling: Option<&Path>, directory: &Path) -> SearchResult<PathBuf> {
+  fn justfile(config: &Config, directory: &Path) -> SearchResult<PathBuf> {
     for directory in directory.ancestors() {
       let mut candidates = BTreeSet::new();
 
@@ -195,7 +178,7 @@ impl Search {
         _ => return Err(SearchError::MultipleCandidates { candidates }),
       }
 
-      if let Some(ceiling) = ceiling {
+      if let Some(ceiling) = &config.ceiling {
         if directory == ceiling {
           break;
         }
@@ -226,7 +209,7 @@ impl Search {
   /// Search upwards from `directory` for the root directory of a software
   /// project, as determined by the presence of one of the version control
   /// system directories given in `PROJECT_ROOT_CHILDREN`
-  fn project_root(ceiling: Option<&Path>, directory: &Path) -> SearchResult<PathBuf> {
+  fn project_root(config: &Config, directory: &Path) -> SearchResult<PathBuf> {
     for directory in directory.ancestors() {
       let entries = fs::read_dir(directory).map_err(|io_error| SearchError::Io {
         io_error,
@@ -245,7 +228,7 @@ impl Search {
         }
       }
 
-      if let Some(ceiling) = ceiling {
+      if let Some(ceiling) = &config.ceiling {
         if directory == ceiling {
           break;
         }
