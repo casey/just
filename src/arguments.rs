@@ -183,6 +183,13 @@ pub struct Arguments {
   )]
   pub(crate) justfile: Option<PathBuf>,
   #[arg(
+    env = "JUST_JUSTFILE_NAME",
+    help = "Search for justfile named <NAME>",
+    long = "justfile-name",
+    value_name = "NAME"
+  )]
+  pub(crate) justfile_names: Option<Vec<String>>,
+  #[arg(
     default_value = "Available recipes:\n",
     env = "JUST_LIST_HEADING",
     help = "Print <TEXT> before list",

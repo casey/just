@@ -186,6 +186,30 @@ fn justfile_and_working_directory() {
 }
 
 #[test]
+fn justfile_name_from_invocation_directory() {
+  Test::new()
+    .no_justfile()
+    .test_round_trip(false)
+    .create_dir(".git")
+    .args(["--init", "--justfile-name", "foo"])
+    .stderr_regex("Wrote justfile to `.*`\n")
+    .expect_file("foo", INIT_JUSTFILE)
+    .success();
+}
+
+#[test]
+fn justfile_name_from_search_directory() {
+  Test::new()
+    .no_justfile()
+    .test_round_trip(false)
+    .create_dir("sub/.git")
+    .args(["--init", "--justfile-name", "foo", "sub/"])
+    .stderr_regex("Wrote justfile to `.*`\n")
+    .expect_file("sub/foo", INIT_JUSTFILE)
+    .success();
+}
+
+#[test]
 fn fmt_compatibility() {
   let output = Test::new()
     .no_justfile()

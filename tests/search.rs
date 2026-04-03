@@ -198,6 +198,62 @@ fn dot_justfile_conflicts_with_justfile() {
 }
 
 #[test]
+fn not_found() {
+  Test::new()
+    .no_justfile()
+    .test_round_trip(false)
+    .stderr_regex("error: No justfile found\n")
+    .failure();
+}
+
+#[test]
+fn found_spongebob_case() {
+  let tmp = temptree! {
+    JuStFiLe: "default:\n\techo ok",
+    a: {},
+  };
+
+  search_test(tmp.path().join("a"), &[]);
+}
+
+#[test]
+fn search_stops_at_closest_justfile() {
+  let tmp = temptree! {
+    justfile: "default:\n\techo bad",
+    a: {
+      justfile: "default:\n\techo ok",
+      b: {},
+    },
+  };
+
+  search_test(tmp.path().join("a/b"), &[]);
+}
+
+#[test]
+fn justfile_name_not_found() {
+  Test::new()
+    .justfile("default:\n\techo ok")
+    .args(["--justfile-name", "foo"])
+    .stderr_regex("error: No justfile found\n")
+    .failure();
+}
+
+#[test]
+fn justfile_name_skips_default_justfile() {
+  Test::new()
+    .no_justfile()
+    .test_round_trip(false)
+    .write("foo", "default:\n\techo ok")
+    .create_dir("subdir")
+    .write("subdir/justfile", "default:\n\techo bad")
+    .current_dir("subdir")
+    .args(["--justfile-name", "foo"])
+    .stderr("echo ok\n")
+    .stdout("ok\n")
+    .success();
+}
+
+#[test]
 fn justfile_symlink_parent() {
   Test::new()
     .no_justfile()
