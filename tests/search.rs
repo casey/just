@@ -209,10 +209,7 @@ fn not_found() {
   assert!(!output.status.success());
 
   let stderr = str::from_utf8(&output.stderr).unwrap();
-  assert!(
-    stderr.contains("No justfile found"),
-    "stderr: {stderr}",
-  );
+  assert!(stderr.contains("No justfile found"), "stderr: {stderr}",);
 }
 
 #[test]
