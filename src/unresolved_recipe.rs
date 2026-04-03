@@ -46,6 +46,19 @@ impl<'src> UnresolvedRecipe<'src> {
       }
     }
 
+    for attribute in &self.attributes {
+      if let Attribute::Confirm(Some(expression)) = attribute {
+        for variable in expression.variables() {
+          Self::resolve_variable(
+            assignments,
+            &self.parameters,
+            &variable,
+            &mut variable_references,
+          )?;
+        }
+      }
+    }
+
     for line in &self.body {
       if line.is_comment() && settings.ignore_comments {
         continue;

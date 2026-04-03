@@ -400,12 +400,6 @@ impl<'src> Justfile<'src> {
       return Ok(());
     }
 
-    if !config.yes && !recipe.confirm()? {
-      return Err(Error::NotConfirmed {
-        recipe: recipe.name(),
-      });
-    }
-
     let (module, scope) = scopes
       .get(recipe.module_path())
       .expect("failed to retrieve scope for module");
@@ -429,6 +423,12 @@ impl<'src> Justfile<'src> {
     let scope = outer.child();
 
     let mut evaluator = Evaluator::new(&context, BTreeMap::new(), true, &scope);
+
+    if !config.yes && !recipe.confirm(&mut evaluator)? {
+      return Err(Error::NotConfirmed {
+        recipe: recipe.name(),
+      });
+    }
 
     Self::run_dependencies(
       config,

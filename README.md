@@ -2418,6 +2418,15 @@ delete-everything:
   rm -rf *
 ```
 
+The confirmation prompt may also be an expression<sup>master</sup> which may
+reference assignments or recipe arguments:
+
+```just
+[confirm("Deploy to " + env + "?")]
+deploy env:
+  echo 'Deploying to {{env}}...'
+```
+
 #### Metadata
 
 Metadata in the form of lists of strings may be attached to recipes with the

@@ -1437,45 +1437,58 @@ impl<'run, 'src> Parser<'run, 'src> {
       loop {
         let name = self.parse_name()?;
 
+        let discriminant = name
+          .lexeme()
+          .parse::<AttributeDiscriminant>()
+          .map_err(|_| {
+            name.error(CompileErrorKind::UnknownAttribute {
+              attribute: name.lexeme(),
+            })
+          })?;
+
         let mut arguments = Vec::new();
         let mut keyword_arguments = BTreeMap::new();
 
         if self.accepted(Colon)? {
-          arguments.push(self.parse_string_literal()?);
+          let token = self.next()?;
+          let expression = self.parse_expression()?;
+          arguments.push((token, expression));
         } else if self.accepted(ParenL)? {
-          loop {
-            if self.next_is(Identifier) && !self.next_is_shell_expanded_string() {
-              let key = self.parse_name()?;
+          if !self.next_is(ParenR) {
+            loop {
+              if discriminant.accepts_keyword_arguments()
+                && self.next_is(Identifier)
+                && !self.next_is_shell_expanded_string()
+              {
+                let key = self.parse_name()?;
 
-              let value = self
-                .accepted(Equals)?
-                .then(|| self.parse_string_literal())
-                .transpose()?;
+                let value = self
+                  .accepted(Equals)?
+                  .then(|| self.parse_string_literal())
+                  .transpose()?;
 
-              keyword_arguments.insert(key.lexeme(), (key, value));
-            } else {
-              let literal = self.parse_string_literal()?;
+                keyword_arguments.insert(key.lexeme(), (key, value));
+              } else {
+                let token = self.next()?;
+                let expression = self.parse_expression()?;
 
-              if !keyword_arguments.is_empty() {
-                return Err(
-                  literal
-                    .token
-                    .error(CompileErrorKind::AttributePositionalFollowsKeyword),
-                );
+                if !keyword_arguments.is_empty() {
+                  return Err(token.error(CompileErrorKind::AttributePositionalFollowsKeyword));
+                }
+
+                arguments.push((token, expression));
               }
 
-              arguments.push(literal);
-            }
-
-            if !self.accepted(Comma)? || self.next_is(ParenR) {
-              break;
+              if !self.accepted(Comma)? || self.next_is(ParenR) {
+                break;
+              }
             }
           }
 
           self.expect(ParenR)?;
         }
 
-        let attribute = Attribute::new(name, arguments, keyword_arguments)?;
+        let attribute = Attribute::new(name, discriminant, arguments, keyword_arguments)?;
 
         let first = if attribute.repeatable() {
           None
