@@ -164,7 +164,14 @@ impl Search {
           directory: directory.to_owned(),
         })?;
         if let Some(name) = entry.file_name().to_str() {
-          for justfile_name in &config.justfile_names {
+          let justfile_names: Box<dyn Iterator<Item = &str>> =
+            if let Some(justfile_names) = &config.justfile_names {
+              Box::new(justfile_names.iter().map(String::as_str))
+            } else {
+              Box::new(JUSTFILE_NAMES.into_iter())
+            };
+
+          for justfile_name in justfile_names {
             if name.eq_ignore_ascii_case(&justfile_name) {
               candidates.insert(entry.path());
             }

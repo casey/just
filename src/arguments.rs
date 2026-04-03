@@ -170,13 +170,9 @@ pub struct Arguments {
     env = "JUST_JUSTFILE_NAME",
     help = "Search for justfile named <NAME>",
     long = "justfile-name",
-    value_name = "NAME",
-    default_values_t = search::JUSTFILE_NAMES
-        .into_iter()
-        .map(str::to_string)
-        .collect::<Vec<String>>(),
+    value_name = "NAME"
   )]
-  pub(crate) justfile_names: Vec<String>,
+  pub(crate) justfile_names: Option<Vec<String>>,
   #[arg(
     default_value = "Available recipes:\n",
     env = "JUST_LIST_HEADING",

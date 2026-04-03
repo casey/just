@@ -16,7 +16,7 @@ pub(crate) struct Config {
   pub(crate) groups: Vec<String>,
   pub(crate) highlight: bool,
   pub(crate) invocation_directory: PathBuf,
-  pub(crate) justfile_names: Vec<String>,
+  pub(crate) justfile_names: Option<Vec<String>>,
   pub(crate) list_heading: String,
   pub(crate) list_prefix: String,
   pub(crate) list_submodules: bool,

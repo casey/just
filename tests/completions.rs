@@ -261,7 +261,7 @@ fn positional_malformed_override() {
     .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&[":::=foo", ""]))
-    .stdout_regex(format!("foo\n--.*"))
+    .stdout_regex(format!("foo\n{FLAGS}"))
     .success();
 }
 
