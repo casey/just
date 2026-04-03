@@ -32,12 +32,14 @@ impl Search {
   /// Find justfile given search configuration and invocation directory
   pub(crate) fn search(config: &Config) -> SearchResult<Self> {
     match &config.search_config {
-      SearchConfig::FromInvocationDirectory => {
-        Self::find_in_directory(config.ceiling.as_deref(), &config.invocation_directory)
-      }
+      SearchConfig::FromInvocationDirectory => Self::find_in_directory(
+        config,
+        config.ceiling.as_deref(),
+        &config.invocation_directory,
+      ),
       SearchConfig::FromSearchDirectory { search_directory } => {
         let search_directory = Self::clean(&config.invocation_directory, search_directory);
-        let justfile = Self::justfile(config.ceiling.as_deref(), &search_directory)?;
+        let justfile = Self::justfile(config, config.ceiling.as_deref(), &search_directory)?;
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
         Ok(Self {
           justfile,
@@ -90,7 +92,11 @@ impl Search {
   }
 
   /// Find justfile starting from parent directory of current justfile
-  pub(crate) fn search_parent_directory(&self, ceiling: Option<&Path>) -> SearchResult<Self> {
+  pub(crate) fn search_parent_directory(
+    &self,
+    config: &Config,
+    ceiling: Option<&Path>,
+  ) -> SearchResult<Self> {
     let parent = self
       .justfile
       .parent()
@@ -98,12 +104,16 @@ impl Search {
       .ok_or_else(|| SearchError::JustfileHadNoParent {
         path: self.justfile.clone(),
       })?;
-    Self::find_in_directory(ceiling, parent)
+    Self::find_in_directory(config, ceiling, parent)
   }
 
   /// Find justfile starting in given directory searching upwards in directory tree
-  fn find_in_directory(ceiling: Option<&Path>, starting_dir: &Path) -> SearchResult<Self> {
-    let justfile = Self::justfile(ceiling, starting_dir)?;
+  fn find_in_directory(
+    config: &Config,
+    ceiling: Option<&Path>,
+    starting_dir: &Path,
+  ) -> SearchResult<Self> {
+    let justfile = Self::justfile(config, ceiling, starting_dir)?;
     let working_directory = Self::working_directory_from_justfile(&justfile)?;
     Ok(Self {
       justfile,
@@ -156,7 +166,7 @@ impl Search {
 
   /// Search upwards from `directory` for a file whose name matches one of
   /// `JUSTFILE_NAMES`
-  fn justfile(ceiling: Option<&Path>, directory: &Path) -> SearchResult<PathBuf> {
+  fn justfile(config: &Config, ceiling: Option<&Path>, directory: &Path) -> SearchResult<PathBuf> {
     for directory in directory.ancestors() {
       let mut candidates = BTreeSet::new();
 
@@ -171,8 +181,8 @@ impl Search {
           directory: directory.to_owned(),
         })?;
         if let Some(name) = entry.file_name().to_str() {
-          for justfile_name in JUSTFILE_NAMES {
-            if name.eq_ignore_ascii_case(justfile_name) {
+          for justfile_name in &config.justfile_names {
+            if name.eq_ignore_ascii_case(&justfile_name) {
               candidates.insert(entry.path());
             }
           }

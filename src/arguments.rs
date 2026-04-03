@@ -171,7 +171,10 @@ pub struct Arguments {
     help = "Search for justfile named <NAME>",
     long = "justfile-name",
     value_name = "NAME",
-    default_values_t = ["justfile".to_string(), ".justfile".to_string()],
+    default_values_t = search::JUSTFILE_NAMES
+        .into_iter()
+        .map(str::to_string)
+        .collect::<Vec<String>>(),
   )]
   pub(crate) justfile_names: Vec<String>,
   #[arg(

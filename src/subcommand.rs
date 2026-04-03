@@ -157,7 +157,7 @@ impl Subcommand {
       if fallback {
         if let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result {
           search = search
-            .search_parent_directory(config.ceiling.as_deref())
+            .search_parent_directory(config, config.ceiling.as_deref())
             .map_err(|_| err)?;
 
           if config.verbosity.loquacious() {
