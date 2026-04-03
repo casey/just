@@ -76,7 +76,7 @@ fn evaluate_single_free() {
 }
 
 #[test]
-fn evaluate_no_suggestion() {
+fn evaluate_with_suggestion() {
   Test::new()
     .arg("--evaluate")
     .arg("aby")
@@ -87,7 +87,7 @@ fn evaluate_no_suggestion() {
     )
     .stderr(
       "
-    error: Justfile does not contain variable `aby`.
+    error: Justfile does not contain variable or submodule `aby`.
     Did you mean `abc`?
   ",
     )
@@ -95,7 +95,7 @@ fn evaluate_no_suggestion() {
 }
 
 #[test]
-fn evaluate_suggestion() {
+fn evaluate_no_suggestion() {
   Test::new()
     .arg("--evaluate")
     .arg("goodbye")
@@ -106,7 +106,7 @@ fn evaluate_suggestion() {
     )
     .stderr(
       "
-    error: Justfile does not contain variable `goodbye`.
+    error: Justfile does not contain variable or submodule `goodbye`.
   ",
     )
     .failure();
@@ -146,6 +146,85 @@ fn evaluate_single_private() {
 }
 
 #[test]
+fn evaluate_variable_chosen_over_submodule() {
+  Test::new()
+    .write("foo.just", "bar:\n")
+    .justfile(
+      "
+        mod foo
+
+        foo := 'bar'
+      ",
+    )
+    .args(["--evaluate", "foo"])
+    .stdout("bar")
+    .success();
+}
+
+#[test]
+fn evaluate_submodule_chosen_over_variable_in_path() {
+  Test::new()
+    .write("foo.just", "a := 'x'\n")
+    .justfile(
+      "
+        mod foo
+
+        foo := 'bar'
+      ",
+    )
+    .args(["--evaluate", "foo::a"])
+    .stdout("x")
+    .success();
+}
+
+#[test]
+fn evaluate_submodule() {
+  Test::new()
+    .write("foo.just", "a := 'x'\nb := 'y'\n")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .args(["--evaluate", "foo"])
+    .stdout("a := \"x\"\nb := \"y\"\n")
+    .success();
+}
+
+#[test]
+fn evaluate_variable_in_submodule() {
+  Test::new()
+    .write("foo.just", "a := 'x'\nb := 'y'\n")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .args(["--evaluate", "foo::a"])
+    .stdout("x")
+    .success();
+}
+
+#[test]
+fn evaluate_unknown_submodule_with_suggestion() {
+  Test::new()
+    .write("foo.just", "a := 'x'\n")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .args(["--evaluate", "fob::a"])
+    .stderr(
+      "
+        error: Justfile does not contain submodule `fob`.
+        Did you mean `foo`?
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn dont_evaluate_unnecessary_variables() {
   Test::new()
     .justfile(
@@ -157,5 +236,79 @@ fn dont_evaluate_unnecessary_variables() {
     )
     .args(["--evaluate", "x"])
     .stdout("FOO")
+    .success();
+}
+
+#[test]
+fn format_shell() {
+  Test::new()
+    .args(["--evaluate", "--evaluate-format", "shell"])
+    .justfile(
+      "
+        foo := 'a'
+        hello := 'b'
+        bar := 'c'
+      ",
+    )
+    .stdout(
+      r#"
+        bar="c"
+        foo="a"
+        hello="b"
+      "#,
+    )
+    .success();
+}
+
+#[test]
+fn format_shell_special_characters_are_escaped() {
+  Test::new()
+    .args(["--evaluate", "--evaluate-format", "shell"])
+    .justfile(
+      r#"
+        foo := '!"$\`'
+      "#,
+    )
+    .stdout(
+      r#"
+        foo="\!\"\$\\\`"
+      "#,
+    )
+    .success();
+}
+
+#[test]
+fn format_shell_exported_variables_are_exported() {
+  Test::new()
+    .args(["--evaluate", "--evaluate-format", "shell"])
+    .justfile(
+      "
+        export foo := 'bar'
+      ",
+    )
+    .stdout(
+      r#"
+        export foo="bar"
+      "#,
+    )
+    .success();
+}
+
+#[test]
+fn format_shell_variables_are_exported_with_setting() {
+  Test::new()
+    .args(["--evaluate", "--evaluate-format", "shell"])
+    .justfile(
+      "
+        set export
+
+        foo := 'bar'
+      ",
+    )
+    .stdout(
+      r#"
+        export foo="bar"
+      "#,
+    )
     .success();
 }

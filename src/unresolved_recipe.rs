@@ -107,7 +107,7 @@ impl<'src> UnresolvedRecipe<'src> {
 
     let mut recipe_path = modulepath.clone();
 
-    recipe_path.path.push(self.name.lexeme().into());
+    recipe_path.components.push(self.name.lexeme().into());
 
     Ok(Recipe {
       attributes: self.attributes,

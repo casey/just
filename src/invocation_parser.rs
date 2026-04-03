@@ -55,7 +55,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
             recipe: next.into(),
             suggestion: None,
           })?;
-        let (recipe, _) = self.resolve_recipe(true, &modulepath.path)?;
+        let (recipe, _) = self.resolve_recipe(true, &modulepath.components)?;
         self.next += 1;
         recipe
       } else {

@@ -87,6 +87,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "replace" => Ternary(replace),
     "replace_regex" => Ternary(replace_regex),
     "require" => Unary(require),
+    "runtime_directory" => Nullary(|_| dir("runtime", dirs::runtime_dir)),
     "semver_matches" => Binary(semver_matches),
     "sha256" => Unary(sha256),
     "sha256_file" => Unary(sha256_file),

@@ -86,6 +86,10 @@ always welcome!
 Installation
 ------------
 
+Just can be installed using your favorite [package manager](#packages), by
+downloading [pre-built binaries](#pre-built-binaries), or building from source
+with `cargo install just`.
+
 ### Prerequisites
 
 `just` should run on any system with a reasonable `sh`, including Linux, MacOS,
@@ -546,28 +550,6 @@ git clone https://github.com/NoahTheDuke/vim-just.git
 [tree-sitter-just](https://github.com/IndianBoy42/tree-sitter-just) is an
 [Nvim Treesitter](https://github.com/nvim-treesitter/nvim-treesitter) plugin
 for Neovim.
-
-#### Makefile Syntax Highlighting
-
-Vim's built-in makefile syntax highlighting isn't perfect for `justfile`s, but
-it's better than nothing. You can put the following in `~/.vim/filetype.vim`:
-
-```vimscript
-if exists("did_load_filetypes")
-  finish
-endif
-
-augroup filetypedetect
-  au BufNewFile,BufRead justfile setf make
-augroup END
-```
-
-Or add the following to an individual `justfile` to enable `make` mode on a
-per-file basis:
-
-```text
-# vim: set ft=make :
-```
 
 ### Emacs
 
@@ -1439,6 +1421,61 @@ Available recipes:
     test
 ```
 
+### Variables and Assignments
+
+Module-level variables may be created by assigning them a value with `:=`:
+
+```just
+foo := "hello"
+bar := "world"
+
+baz:
+  echo {{ foo + " " + bar }}
+```
+
+All variables in a module may be printed:
+
+```console
+$ just --evaluate
+bar := "world"
+foo := "hello"
+```
+
+Or the value of a single variable:
+
+```console
+$ just --evalaute foo
+hello
+```
+
+All variables in a submodule or a single variable in a submodule may be printed
+with a path to the submodule or variable<sup>master</sup>:
+
+```console
+$ just --evaluate bob::bar
+x := "world"
+y := "hello"
+$ just --evaluate bob::bar::y
+hello
+```
+
+The format of exported variables may be controlled with
+`--evaluate-format`<sup>master</sup>:
+
+```console
+$ just --evaluate --evaluate-format shell
+bar="world"
+foo="hello"
+```
+
+The default format is `--evaluate-format just`:
+
+```console
+$ just --evaluate --evaluate-format just
+bar := "world"
+foo := "hello"
+```
+
 ### Expressions and Substitutions
 
 Various operators and function calls are supported in expressions, which may be
@@ -2164,6 +2201,8 @@ details.
 - `data_local_directory()` - The local user-specific data directory.
 - `executable_directory()` - The user-specific executable directory.
 - `home_directory()` - The user's home directory.
+- `runtime_directory()` - The user-specific runtime directory. Only defined on
+  Linux.
 
 If you would like to use XDG base directories on all platforms you can use the
 `env(…)` function with the appropriate environment variable and fallback,
