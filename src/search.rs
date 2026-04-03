@@ -110,10 +110,18 @@ impl Search {
 
   /// Get working directory and justfile path for newly-initialized justfile
   pub(crate) fn init(config: &Config) -> SearchResult<Self> {
+    let default_justfile_name = || {
+      config
+        .justfile_names
+        .as_ref()
+        .and_then(|names| names.first().map(String::as_str))
+        .unwrap_or(DEFAULT_JUSTFILE_NAME)
+    };
+
     match &config.search_config {
       SearchConfig::FromInvocationDirectory => {
         let working_directory = Self::project_root(config, &config.invocation_directory)?;
-        let justfile = working_directory.join(DEFAULT_JUSTFILE_NAME);
+        let justfile = working_directory.join(default_justfile_name());
         Ok(Self {
           justfile,
           working_directory,
@@ -122,7 +130,7 @@ impl Search {
       SearchConfig::FromSearchDirectory { search_directory } => {
         let search_directory = Self::clean(&config.invocation_directory, search_directory);
         let working_directory = Self::project_root(config, &search_directory)?;
-        let justfile = working_directory.join(DEFAULT_JUSTFILE_NAME);
+        let justfile = working_directory.join(default_justfile_name());
         Ok(Self {
           justfile,
           working_directory,

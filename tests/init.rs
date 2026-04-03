@@ -186,6 +186,48 @@ fn justfile_and_working_directory() {
 }
 
 #[test]
+fn justfile_name_from_invocation_directory() {
+  let tmp = temptree! {
+    ".git": {},
+  };
+
+  let output = Command::new(JUST)
+    .current_dir(tmp.path())
+    .args(["--init", "--justfile-name", "foo"])
+    .output()
+    .unwrap();
+
+  assert!(output.status.success());
+
+  assert_eq!(
+    fs::read_to_string(tmp.path().join("foo")).unwrap(),
+    INIT_JUSTFILE
+  );
+}
+
+#[test]
+fn justfile_name_from_search_directory() {
+  let tmp = temptree! {
+    sub: {
+      ".git": {},
+    },
+  };
+
+  let output = Command::new(JUST)
+    .current_dir(tmp.path())
+    .args(["--init", "--justfile-name", "foo", "sub/"])
+    .output()
+    .unwrap();
+
+  assert!(output.status.success());
+
+  assert_eq!(
+    fs::read_to_string(tmp.path().join("sub/foo")).unwrap(),
+    INIT_JUSTFILE
+  );
+}
+
+#[test]
 fn fmt_compatibility() {
   let output = Test::new()
     .no_justfile()
