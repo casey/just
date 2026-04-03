@@ -14,8 +14,7 @@ impl<'run, 'src> Completer<'run, 'src> {
       let path = recipe.recipe_path().to_string();
 
       if path.starts_with(self.current) {
-        candidates
-          .push(CompletionCandidate::new(path).help(recipe.doc.as_ref().map(StyledStr::from)));
+        candidates.push(CompletionCandidate::new(path).help(recipe.doc.as_ref().map(Into::into)));
       }
     }
 
@@ -23,9 +22,8 @@ impl<'run, 'src> Completer<'run, 'src> {
       for (alias, modulepath) in self.justfile.public_aliases_recursive(&self.config) {
         let name = modulepath.join(alias.name.lexeme());
         if name.starts_with(self.current) {
-          candidates.push(
-            CompletionCandidate::new(name).help(alias.target.doc.as_ref().map(StyledStr::from)),
-          );
+          candidates
+            .push(CompletionCandidate::new(name).help(alias.target.doc.as_ref().map(Into::into)));
         }
       }
     }

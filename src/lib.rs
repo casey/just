@@ -116,7 +116,7 @@ pub(crate) use {
     which::which,
   },
   camino::Utf8Path,
-  clap::{CommandFactory, FromArgMatches, Parser as _, ValueEnum, builder::StyledStr},
+  clap::{CommandFactory, FromArgMatches, Parser as _, ValueEnum},
   clap_complete::{ArgValueCompleter, CompletionCandidate, PathCompleter},
   derive_where::derive_where,
   edit_distance::edit_distance,
