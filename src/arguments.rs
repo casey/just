@@ -129,6 +129,15 @@ pub struct Arguments {
   )]
   pub(crate) dump_format: DumpFormat,
   #[arg(
+    default_value = "just",
+    env = "JUST_EVALUATE_FORMAT",
+    help = "Print evaluated variables in <FORMAT>",
+    long,
+    value_enum,
+    value_name = "FORMAT"
+  )]
+  pub(crate) evaluate_format: EvaluateFormat,
+  #[arg(
     env = "JUST_EXPLAIN",
     help = "Print recipe doc comment before running it",
     long
