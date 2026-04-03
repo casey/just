@@ -21,12 +21,7 @@ impl<'run, 'src> Completer<'run, 'src> {
 
     if self.config.complete_aliases {
       for (alias, modulepath) in self.justfile.public_aliases_recursive(&self.config) {
-        let name = if modulepath.is_empty() {
-          alias.name.lexeme().to_string()
-        } else {
-          format!("{modulepath}::{}", alias.name.lexeme())
-        };
-
+        let name = modulepath.join(alias.name.lexeme());
         if name.starts_with(self.current) {
           candidates.push(
             CompletionCandidate::new(name).help(alias.target.doc.as_ref().map(StyledStr::from)),

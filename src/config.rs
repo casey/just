@@ -206,13 +206,7 @@ impl Config {
     let format_overrides = || {
       overrides
         .iter()
-        .map(|((path, key), value)| {
-          if path.is_empty() {
-            format!("{key}={value}")
-          } else {
-            format!("{path}::{key}={value}")
-          }
-        })
+        .map(|((path, key), value)| format!("{}={value}", path.join(key)))
         .collect()
     };
 
