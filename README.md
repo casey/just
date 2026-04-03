@@ -2295,7 +2295,7 @@ change their behavior.
 | `[arg(ARG, pattern="PATTERN")]`<sup>1.45.0</sup> | recipe | Require values of argument `ARG` to match regular expression `PATTERN`. |
 | `[arg(ARG, short="S")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as short `-S` option. |
 | `[arg(ARG, value="VALUE")]`<sup>1.46.0</sup> | recipe | Makes option `ARG` a flag which does not take a value. |
-| `[confirm(EXPRESSION)]`<sup>1.23.0</sup> | recipe | Require confirmation prior to executing recipe with a custom prompt expression. |
+| `[confirm(PROMPT)]`<sup>1.23.0</sup> | recipe | Require confirmation prior to executing recipe with a custom prompt.  |
 | `[confirm]`<sup>1.17.0</sup> | recipe | Require confirmation prior to executing recipe. |
 | `[default]`<sup>1.43.0</sup> | recipe | Use recipe as module's default recipe. |
 | `[doc(DOC)]`<sup>1.27.0</sup> | module, recipe | Set recipe or module's [documentation comment](#documentation-comments) to `DOC`. |
@@ -2410,7 +2410,7 @@ delete-all:
 #### Custom Confirmation Prompt
 
 The default confirmation prompt can be overridden with
-`[confirm(EXPRESSION)]`<sup>1.23.0</sup>:
+`[confirm(PROMPT)]`<sup>1.23.0</sup>:
 
 ```just
 [confirm("Are you sure you want to delete everything?")]
@@ -2418,18 +2418,8 @@ delete-everything:
   rm -rf *
 ```
 
-The confirmation prompt accepts any expression, so you can use variables,
-concatenation, and function calls:
-
-```just
-target := "production"
-
-[confirm("Deploy to " + target + "?")]
-deploy:
-  echo 'Deploying...'
-```
-
-Recipe parameters can also be used in confirmation prompts:
+The confirmation prompt may also be an expression<sup>master</sup> which may
+reference assignments or recipe arguments:
 
 ```just
 [confirm("Deploy to " + env + "?")]
