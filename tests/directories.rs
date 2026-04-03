@@ -85,9 +85,34 @@ fn home_directory() {
 
 #[test]
 fn runtime_directory() {
+  if cfg!(not(target_os = "linux")) {
+    return;
+  }
+
   Test::new()
     .justfile("x := runtime_directory()")
     .args(["--evaluate", "x"])
     .stdout(dirs::runtime_dir().unwrap_or_default().to_string_lossy())
     .success();
+}
+
+#[test]
+fn runtime_directory_not_found() {
+  if cfg!(target_os = "linux") {
+    return;
+  }
+
+  Test::new()
+    .justfile("x := runtime_directory()")
+    .args(["--evaluate", "x"])
+    .stderr(
+      "
+        error: Call to function `runtime_directory` failed: runtime directory not found
+         ——▶ justfile:1:6
+          │
+        1 │ x := runtime_directory()
+          │      ^^^^^^^^^^^^^^^^^
+      ",
+    )
+    .failure();
 }
