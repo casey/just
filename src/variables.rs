@@ -35,45 +35,11 @@ impl<'src> Iterator for Variables<'_, 'src> {
           self.stack.push(lhs);
         }
         Expression::Backtick { .. } | Expression::StringLiteral { .. } => {}
-        Expression::Call { thunk } => match thunk {
-          Thunk::Nullary { .. } => {}
-          Thunk::Unary { arg, .. } => self.stack.push(arg),
-          Thunk::UnaryOpt {
-            args: (a, opt_b), ..
-          } => {
-            self.stack.push(a);
-            if let Some(b) = opt_b.as_ref() {
-              self.stack.push(b);
-            }
+        Expression::Call { arguments, .. } => {
+          for arg in arguments.iter().rev() {
+            self.stack.push(arg);
           }
-          Thunk::UnaryPlus {
-            args: (a, rest), ..
-          } => {
-            let first: &[&Expression] = &[a];
-            for arg in first.iter().copied().chain(rest).rev() {
-              self.stack.push(arg);
-            }
-          }
-          Thunk::Binary { args, .. } => {
-            for arg in args.iter().rev() {
-              self.stack.push(arg);
-            }
-          }
-          Thunk::BinaryPlus {
-            args: ([a, b], rest),
-            ..
-          } => {
-            let first: &[&Expression] = &[a, b];
-            for arg in first.iter().copied().chain(rest).rev() {
-              self.stack.push(arg);
-            }
-          }
-          Thunk::Ternary { args, .. } => {
-            for arg in args.iter().rev() {
-              self.stack.push(arg);
-            }
-          }
-        },
+        }
         Expression::Concatenation { lhs, rhs } => {
           self.stack.push(rhs);
           self.stack.push(lhs);

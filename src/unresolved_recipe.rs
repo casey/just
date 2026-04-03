@@ -6,6 +6,7 @@ impl<'src> UnresolvedRecipe<'src> {
   pub(crate) fn resolve(
     self,
     assignments: &Table<'src, Assignment<'src>>,
+    functions: &Table<'src, UserFunction<'src>>,
     modulepath: &Modulepath,
     resolved: Vec<Arc<Recipe<'src>>>,
     settings: &Settings,
@@ -30,6 +31,7 @@ impl<'src> UnresolvedRecipe<'src> {
             &mut variable_references,
           )?;
         }
+        FunctionResolver::resolve_calls(functions, expression)?;
       }
     }
 
@@ -43,6 +45,7 @@ impl<'src> UnresolvedRecipe<'src> {
             &mut variable_references,
           )?;
         }
+        FunctionResolver::resolve_calls(functions, argument)?;
       }
     }
 
@@ -56,6 +59,7 @@ impl<'src> UnresolvedRecipe<'src> {
             &mut variable_references,
           )?;
         }
+        FunctionResolver::resolve_calls(functions, expression)?;
       }
     }
 
@@ -74,6 +78,7 @@ impl<'src> UnresolvedRecipe<'src> {
               &mut variable_references,
             )?;
           }
+          FunctionResolver::resolve_calls(functions, expression)?;
         }
       }
     }

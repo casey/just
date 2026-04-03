@@ -6,6 +6,7 @@ pub(crate) enum Item<'src> {
   Alias(Alias<'src, Namepath<'src>>),
   Assignment(Assignment<'src>),
   Comment(&'src str),
+  Function(UserFunction<'src>),
   Import {
     absolute: Option<PathBuf>,
     optional: bool,
@@ -33,6 +34,16 @@ impl ColorDisplay for Item<'_> {
       Self::Alias(alias) => write!(f, "{alias}"),
       Self::Assignment(assignment) => write!(f, "{assignment}"),
       Self::Comment(comment) => write!(f, "{comment}"),
+      Self::Function(function) => {
+        write!(f, "{}(", function.name.lexeme())?;
+        for (i, param) in function.parameters.iter().enumerate() {
+          if i > 0 {
+            write!(f, ", ")?;
+          }
+          write!(f, "{}", param.lexeme())?;
+        }
+        write!(f, ") := {}", function.body)
+      }
       Self::Import {
         relative, optional, ..
       } => {

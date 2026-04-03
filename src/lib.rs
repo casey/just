@@ -45,6 +45,7 @@ pub(crate) use {
     format_string_part::FormatStringPart,
     fragment::Fragment,
     function::Function,
+    function_resolver::FunctionResolver,
     indentation::Indentation,
     interpreter::Interpreter,
     invocation::Invocation,
@@ -102,7 +103,6 @@ pub(crate) use {
     suggestion::Suggestion,
     switch::Switch,
     table::Table,
-    thunk::Thunk,
     token::Token,
     token_kind::TokenKind,
     unresolved_dependency::UnresolvedDependency,
@@ -110,6 +110,7 @@ pub(crate) use {
     unstable_feature::UnstableFeature,
     usage::Usage,
     use_color::UseColor,
+    user_function::UserFunction,
     variables::Variables,
     verbosity::Verbosity,
     warning::Warning,
@@ -234,6 +235,7 @@ mod filesystem;
 mod format_string_part;
 mod fragment;
 mod function;
+mod function_resolver;
 mod indentation;
 mod interpreter;
 mod invocation;
@@ -293,7 +295,6 @@ mod subcommand;
 mod suggestion;
 mod switch;
 mod table;
-mod thunk;
 mod token;
 mod token_kind;
 mod unindent;
@@ -302,6 +303,7 @@ mod unresolved_recipe;
 mod unstable_feature;
 mod usage;
 mod use_color;
+mod user_function;
 mod variables;
 mod verbosity;
 mod warning;

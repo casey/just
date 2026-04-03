@@ -16,6 +16,8 @@ pub(crate) struct Justfile<'src> {
   #[serde(rename = "first", serialize_with = "keyed::serialize_option")]
   pub(crate) default: Option<Arc<Recipe<'src>>>,
   pub(crate) doc: Option<String>,
+  #[serde(skip)]
+  pub(crate) functions: Table<'src, UserFunction<'src>>,
   pub(crate) groups: Vec<StringLiteral<'src>>,
   #[serde(skip)]
   pub(crate) loaded: Vec<PathBuf>,

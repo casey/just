@@ -52,6 +52,15 @@ impl<'src> Node<'src> for Item<'src> {
 
         tree
       }
+      Self::Function(function) => {
+        let mut tree = Tree::atom("function");
+        tree.push_mut(function.name.lexeme());
+        for param in &function.parameters {
+          tree.push_mut(param.lexeme());
+        }
+        tree.push_mut(function.body.tree());
+        tree
+      }
       Self::Recipe(recipe) => recipe.tree(),
       Self::Set(set) => set.tree(),
       Self::Unexport { name } => {
@@ -114,64 +123,11 @@ impl<'src> Node<'src> for Expression<'src> {
         .push(rhs.tree())
         .push(error.tree()),
       Self::Backtick { contents, .. } => Tree::atom("backtick").push(Tree::string(contents)),
-      Self::Call { thunk } => {
-        use Thunk::*;
+      Self::Call { name, arguments } => {
         let mut tree = Tree::atom("call");
-        match thunk {
-          Nullary { name, .. } => tree.push_mut(name.lexeme()),
-          Unary { name, arg, .. } => {
-            tree.push_mut(name.lexeme());
-            tree.push_mut(arg.tree());
-          }
-          UnaryOpt {
-            name, args: (a, b), ..
-          } => {
-            tree.push_mut(name.lexeme());
-            tree.push_mut(a.tree());
-            if let Some(b) = b.as_ref() {
-              tree.push_mut(b.tree());
-            }
-          }
-          UnaryPlus {
-            name,
-            args: (a, rest),
-            ..
-          } => {
-            tree.push_mut(name.lexeme());
-            tree.push_mut(a.tree());
-            for arg in rest {
-              tree.push_mut(arg.tree());
-            }
-          }
-          Binary {
-            name, args: [a, b], ..
-          } => {
-            tree.push_mut(name.lexeme());
-            tree.push_mut(a.tree());
-            tree.push_mut(b.tree());
-          }
-          BinaryPlus {
-            name,
-            args: ([a, b], rest),
-            ..
-          } => {
-            tree.push_mut(name.lexeme());
-            tree.push_mut(a.tree());
-            tree.push_mut(b.tree());
-            for arg in rest {
-              tree.push_mut(arg.tree());
-            }
-          }
-          Ternary {
-            name,
-            args: [a, b, c],
-            ..
-          } => {
-            tree.push_mut(name.lexeme());
-            tree.push_mut(a.tree());
-            tree.push_mut(b.tree());
-            tree.push_mut(c.tree());
-          }
+        tree.push_mut(name.lexeme());
+        for arg in arguments {
+          tree.push_mut(arg.tree());
         }
         tree
       }

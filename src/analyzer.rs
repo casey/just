@@ -4,6 +4,7 @@ use {super::*, CompileErrorKind::*};
 pub(crate) struct Analyzer<'run, 'src> {
   aliases: Table<'src, Alias<'src, Namepath<'src>>>,
   assignments: Vec<&'run Binding<'src, Expression<'src>>>,
+  functions: Vec<&'run UserFunction<'src>>,
   modules: Table<'src, Justfile<'src>>,
   recipes: Vec<&'run Recipe<'src, UnresolvedDependency<'src>>>,
   sets: Table<'src, Set<'src>>,
@@ -63,6 +64,9 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             self.assignments.push(assignment);
           }
           Item::Comment(_) => (),
+          Item::Function(function) => {
+            self.functions.push(function);
+          }
           Item::Import { absolute, .. } => {
             if let Some(absolute) = absolute {
               if imports.insert(absolute) {
@@ -151,8 +155,36 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     AssignmentResolver::resolve_assignments(&assignments)?;
 
+    let mut functions: Table<'src, UserFunction<'src>> = Table::default();
+    for function in self.functions {
+      let name = function.name.lexeme();
+
+      if functions.contains_key(name) {
+        return Err(
+          function
+            .name
+            .error(Redefinition {
+              first_type: "function",
+              second_type: "function",
+              name,
+              first: functions.get(name).unwrap().name.line,
+            })
+            .into(),
+        );
+      }
+
+      functions.insert(function.clone());
+    }
+
+    FunctionResolver::resolve_functions(&assignments, &functions)?;
+
+    for assignment in assignments.values() {
+      FunctionResolver::resolve_calls(&functions, &assignment.value)?;
+    }
+
     for set in self.sets.values() {
       for expression in set.value.expressions() {
+        FunctionResolver::resolve_calls(&functions, expression)?;
         for variable in expression.variables() {
           let name = variable.lexeme();
           if !assignments.contains_key(name) && !constants().contains_key(name) {
@@ -225,6 +257,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     let recipes = RecipeResolver::resolve_recipes(
       &assignments,
+      &functions,
       &ast.modulepath,
       &self.modules,
       &settings,
@@ -276,6 +309,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       assignments,
       default,
       doc: doc.filter(|doc| !doc.is_empty()),
+      functions,
       groups: groups.into(),
       loaded: loaded.into(),
       modulepath: ast.modulepath.clone(),
@@ -548,5 +582,133 @@ mod tests {
     column: 1,
     width:  6,
     kind:   ExtraLeadingWhitespace,
+  }
+
+  analysis_error! {
+    name:   unknown_function,
+    input:  "a := foo()",
+    offset: 5,
+    line:   0,
+    column: 5,
+    width:  3,
+    kind:   UnknownFunction{function: "foo"},
+  }
+
+  analysis_error! {
+    name:   unknown_function_in_interpolation,
+    input:  "a:\n echo {{bar()}}",
+    offset: 11,
+    line:   1,
+    column: 8,
+    width:  3,
+    kind:   UnknownFunction{function: "bar"},
+  }
+
+  analysis_error! {
+    name:   unknown_function_in_default,
+    input:  "a f=baz():",
+    offset: 4,
+    line:   0,
+    column: 4,
+    width:  3,
+    kind:   UnknownFunction{function: "baz"},
+  }
+
+  analysis_error! {
+    name: function_argument_count_nullary,
+    input: "x := arch('foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 4,
+    kind: FunctionArgumentCountMismatch {
+      function: "arch",
+      found: 1,
+      expected: 0..=0,
+    },
+  }
+
+  analysis_error! {
+    name: function_argument_count_unary,
+    input: "x := env_var()",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 7,
+    kind: FunctionArgumentCountMismatch {
+      function: "env_var",
+      found: 0,
+      expected: 1..=1,
+    },
+  }
+
+  analysis_error! {
+    name: function_argument_count_too_high_unary_opt,
+    input: "x := env('foo', 'foo', 'foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 3,
+    kind: FunctionArgumentCountMismatch {
+      function: "env",
+      found: 3,
+      expected: 1..=2,
+    },
+  }
+
+  analysis_error! {
+    name: function_argument_count_too_low_unary_opt,
+    input: "x := env()",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 3,
+    kind: FunctionArgumentCountMismatch {
+      function: "env",
+      found: 0,
+      expected: 1..=2,
+    },
+  }
+
+  analysis_error! {
+    name: function_argument_count_binary,
+    input: "x := env_var_or_default('foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 18,
+    kind: FunctionArgumentCountMismatch {
+      function: "env_var_or_default",
+      found: 1,
+      expected: 2..=2,
+    },
+  }
+
+  analysis_error! {
+    name: function_argument_count_binary_plus,
+    input: "x := join('foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 4,
+    kind: FunctionArgumentCountMismatch {
+      function: "join",
+      found: 1,
+      expected: 2..=usize::MAX,
+    },
+  }
+
+  analysis_error! {
+    name: function_argument_count_ternary,
+    input: "x := replace('foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 7,
+    kind: FunctionArgumentCountMismatch {
+      function: "replace",
+      found: 1,
+      expected: 3..=3,
+    },
   }
 }

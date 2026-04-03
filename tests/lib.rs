@@ -142,6 +142,7 @@ mod undefined_variables;
 mod unexport;
 mod unstable;
 mod usage;
+mod user_functions;
 mod which_function;
 #[cfg(windows)]
 mod windows;

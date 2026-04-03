@@ -207,12 +207,88 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     Ok(self.scope.value(name).unwrap())
   }
 
-  fn function_context(&self, thunk: &Thunk<'src>) -> RunResult<'src, function::Context> {
+  fn function_context(&self, name: Name<'src>) -> RunResult<'src, function::Context> {
     Ok(function::Context {
-      execution_context: self.context(ConstError::FunctionCall(thunk.name()))?,
+      execution_context: self.context(ConstError::FunctionCall(name))?,
       is_dependency: self.is_dependency,
-      name: thunk.name(),
+      name,
       scope: &self.scope,
+    })
+  }
+
+  fn evaluate_user_function(
+    &mut self,
+    name: Name<'src>,
+    function: &UserFunction<'src>,
+    arguments: &[Expression<'src>],
+  ) -> RunResult<'src, String> {
+    let mut evaluated_args = Vec::new();
+    for arg in arguments {
+      evaluated_args.push(self.evaluate_expression(arg)?);
+    }
+
+    let context = *self
+      .context
+      .as_ref()
+      .ok_or(ConstError::FunctionCall(name))?;
+
+    call_user_function(&context, function, &evaluated_args)
+  }
+
+  fn evaluate_builtin(
+    &mut self,
+    name: Name<'src>,
+    function: Function,
+    arguments: &[Expression<'src>],
+  ) -> RunResult<'src, String> {
+    use Function::*;
+    match function {
+      Nullary(f) => f(self.function_context(name)?),
+      Unary(f) => {
+        let a = self.evaluate_expression(&arguments[0])?;
+        f(self.function_context(name)?, &a)
+      }
+      UnaryOpt(f) => {
+        let a = self.evaluate_expression(&arguments[0])?;
+        let b = if arguments.len() > 1 {
+          Some(self.evaluate_expression(&arguments[1])?)
+        } else {
+          None
+        };
+        f(self.function_context(name)?, &a, b.as_deref())
+      }
+      UnaryPlus(f) => {
+        let a = self.evaluate_expression(&arguments[0])?;
+        let mut rest = Vec::new();
+        for arg in &arguments[1..] {
+          rest.push(self.evaluate_expression(arg)?);
+        }
+        f(self.function_context(name)?, &a, &rest)
+      }
+      Binary(f) => {
+        let a = self.evaluate_expression(&arguments[0])?;
+        let b = self.evaluate_expression(&arguments[1])?;
+        f(self.function_context(name)?, &a, &b)
+      }
+      BinaryPlus(f) => {
+        let a = self.evaluate_expression(&arguments[0])?;
+        let b = self.evaluate_expression(&arguments[1])?;
+        let mut rest = Vec::new();
+        for arg in &arguments[2..] {
+          rest.push(self.evaluate_expression(arg)?);
+        }
+        f(self.function_context(name)?, &a, &b, &rest)
+      }
+      Ternary(f) => {
+        let a = self.evaluate_expression(&arguments[0])?;
+        let b = self.evaluate_expression(&arguments[1])?;
+        let c = self.evaluate_expression(&arguments[2])?;
+        f(self.function_context(name)?, &a, &b, &c)
+      }
+    }
+    .map_err(|message| Error::FunctionCall {
+      function: name,
+      message,
     })
   }
 
@@ -256,75 +332,15 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           }
         })
       }
-      Expression::Call { thunk } => {
-        use Thunk::*;
-        match thunk {
-          Nullary { function, .. } => function(self.function_context(thunk)?),
-          Unary { function, arg, .. } => {
-            let arg = self.evaluate_expression(arg)?;
-            function(self.function_context(thunk)?, &arg)
-          }
-          UnaryOpt {
-            function,
-            args: (a, b),
-            ..
-          } => {
-            let a = self.evaluate_expression(a)?;
-            let b = match b.as_ref() {
-              Some(b) => Some(self.evaluate_expression(b)?),
-              None => None,
-            };
-            function(self.function_context(thunk)?, &a, b.as_deref())
-          }
-          UnaryPlus {
-            function,
-            args: (a, rest),
-            ..
-          } => {
-            let a = self.evaluate_expression(a)?;
-            let mut rest_evaluated = Vec::new();
-            for arg in rest {
-              rest_evaluated.push(self.evaluate_expression(arg)?);
-            }
-            function(self.function_context(thunk)?, &a, &rest_evaluated)
-          }
-          Binary {
-            function,
-            args: [a, b],
-            ..
-          } => {
-            let a = self.evaluate_expression(a)?;
-            let b = self.evaluate_expression(b)?;
-            function(self.function_context(thunk)?, &a, &b)
-          }
-          BinaryPlus {
-            function,
-            args: ([a, b], rest),
-            ..
-          } => {
-            let a = self.evaluate_expression(a)?;
-            let b = self.evaluate_expression(b)?;
-            let mut rest_evaluated = Vec::new();
-            for arg in rest {
-              rest_evaluated.push(self.evaluate_expression(arg)?);
-            }
-            function(self.function_context(thunk)?, &a, &b, &rest_evaluated)
-          }
-          Ternary {
-            function,
-            args: [a, b, c],
-            ..
-          } => {
-            let a = self.evaluate_expression(a)?;
-            let b = self.evaluate_expression(b)?;
-            let c = self.evaluate_expression(c)?;
-            function(self.function_context(thunk)?, &a, &b, &c)
-          }
+      Expression::Call { name, arguments } => {
+        let module = self.context(ConstError::FunctionCall(*name))?.module;
+        if let Some(user_fn) = module.functions.get(name.lexeme()) {
+          self.evaluate_user_function(*name, user_fn, arguments)
+        } else if let Some(builtin) = function::get(name.lexeme()) {
+          self.evaluate_builtin(*name, builtin, arguments)
+        } else {
+          unreachable!("unresolved function call should have been caught during analysis")
         }
-        .map_err(|message| Error::FunctionCall {
-          function: thunk.name(),
-          message,
-        })
       }
       Expression::Concatenation { lhs, rhs } => {
         let lhs = self.evaluate_expression(lhs)?;
@@ -568,6 +584,47 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       scope: scope.child(),
     }
   }
+}
+
+pub(crate) fn call_user_function<'src>(
+  context: &ExecutionContext<'src, '_>,
+  function: &UserFunction<'src>,
+  args: &[String],
+) -> RunResult<'src, String> {
+  let root = Scope::root();
+  let overrides = HashMap::new();
+
+  let context = ExecutionContext {
+    config: context.config,
+    dotenv: context.dotenv,
+    module: context.module,
+    search: context.search,
+  };
+
+  let mut evaluator = Evaluator {
+    assignments: Some(&context.module.assignments),
+    context: Some(context),
+    env: BTreeMap::new(),
+    is_dependency: false,
+    non_const_assignments: Table::new(),
+    overrides: &overrides,
+    scope: root.child(),
+  };
+
+  for (param, value) in function.parameters.iter().zip(args) {
+    evaluator.scope.bind(Binding {
+      eager: false,
+      export: false,
+      file_depth: 0,
+      name: *param,
+      number: function.number,
+      prelude: false,
+      private: false,
+      value: value.clone(),
+    });
+  }
+
+  evaluator.evaluate_expression(&function.body)
 }
 
 #[cfg(test)]
