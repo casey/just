@@ -37,6 +37,7 @@ pub(crate) use {
     dump_format::DumpFormat,
     enclosure::Enclosure,
     error::Error,
+    evaluate_format::EvaluateFormat,
     evaluator::Evaluator,
     execution_context::ExecutionContext,
     executor::Executor,
@@ -44,6 +45,7 @@ pub(crate) use {
     format_string_part::FormatStringPart,
     fragment::Fragment,
     function::Function,
+    indentation::Indentation,
     interpreter::Interpreter,
     invocation::Invocation,
     invocation_parser::InvocationParser,
@@ -143,7 +145,7 @@ pub(crate) use {
     path::{self, Component, Path, PathBuf},
     process::{self, Command, ExitStatus, Stdio},
     slice,
-    str::{self, Chars},
+    str::{self, Chars, FromStr},
     sync::{Arc, LazyLock, Mutex, MutexGuard},
     thread, vec,
   },
@@ -223,6 +225,7 @@ mod dependency;
 mod dump_format;
 mod enclosure;
 mod error;
+mod evaluate_format;
 mod evaluator;
 mod execution_context;
 mod executor;
@@ -231,6 +234,7 @@ mod filesystem;
 mod format_string_part;
 mod fragment;
 mod function;
+mod indentation;
 mod interpreter;
 mod invocation;
 mod invocation_parser;

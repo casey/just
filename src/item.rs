@@ -27,8 +27,8 @@ pub(crate) enum Item<'src> {
   },
 }
 
-impl Display for Item<'_> {
-  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+impl ColorDisplay for Item<'_> {
+  fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     match self {
       Self::Alias(alias) => write!(f, "{alias}"),
       Self::Assignment(assignment) => write!(f, "{assignment}"),
@@ -74,7 +74,7 @@ impl Display for Item<'_> {
 
         Ok(())
       }
-      Self::Recipe(recipe) => write!(f, "{}", recipe.color_display(Color::never())),
+      Self::Recipe(recipe) => write!(f, "{}", recipe.color_display(color)),
       Self::Set(set) => write!(f, "{set}"),
       Self::Unexport { name } => write!(f, "unexport {name}"),
     }

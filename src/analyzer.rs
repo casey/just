@@ -178,7 +178,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       } else if path.starts_with(&ast.modulepath)
         && !self
           .modules
-          .contains_key(&path.path[ast.modulepath.path.len()])
+          .contains_key(&path.components[ast.modulepath.components.len()])
       {
         unknown_overrides.push(format!("{path}::{name}"));
       }

@@ -129,6 +129,15 @@ pub struct Arguments {
   )]
   pub(crate) dump_format: DumpFormat,
   #[arg(
+    default_value = "just",
+    env = "JUST_EVALUATE_FORMAT",
+    help = "Print evaluated variables in <FORMAT>",
+    long,
+    value_enum,
+    value_name = "FORMAT"
+  )]
+  pub(crate) evaluate_format: EvaluateFormat,
+  #[arg(
     env = "JUST_EXPLAIN",
     help = "Print recipe doc comment before running it",
     long
@@ -157,6 +166,13 @@ pub struct Arguments {
     overrides_with = "no_highlight"
   )]
   pub(crate) highlight: bool,
+  #[arg(
+    default_value = "    ",
+    env = "JUST_INDENTATION",
+    help = "Indent recipes bodies with <INDENTATION>",
+    long
+  )]
+  pub(crate) indentation: Indentation,
   #[arg(
     add = ArgValueCompleter::new(PathCompleter::file()),
     env = "JUST_JUSTFILE",
