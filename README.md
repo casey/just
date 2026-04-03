@@ -51,7 +51,7 @@ Yay, all your tests passed!
   [`make`'s complexity and idiosyncrasies](#what-are-the-idiosyncrasies-of-make-that-just-avoids).
   No need for `.PHONY` recipes!
 
-- Linux, MacOS, Windows, and other reasonable unices are supported with no
+- Linux, macOS, Windows, and other reasonable unices are supported with no
   additional dependencies. (Although if your system doesn't have an `sh`,
   you'll need to [choose a different shell](#shell).)
 
@@ -92,7 +92,7 @@ with `cargo install just`.
 
 ### Prerequisites
 
-`just` should run on any system with a reasonable `sh`, including Linux, MacOS,
+`just` should run on any system with a reasonable `sh`, including Linux, macOS,
 and the BSDs.
 
 #### Windows
@@ -359,10 +359,10 @@ most Windows users.)
 
 ### Pre-Built Binaries
 
-Pre-built binaries for Linux, MacOS, and Windows can be found on
+Pre-built binaries for Linux, macOS, and Windows can be found on
 [the releases page](https://github.com/casey/just/releases).
 
-You can use the following command on Linux, MacOS, or Windows to download the
+You can use the following command on Linux, macOS, or Windows to download the
 latest release, just replace `DEST` with the directory where you'd like to put
 `just`:
 
@@ -412,7 +412,7 @@ shasum --algorithm 256 --ignore-missing --check SHA256SUMS
 
 `just` can be installed on GitHub Actions in a few ways.
 
-Using package managers pre-installed on GitHub Actions runners on MacOS with
+Using package managers pre-installed on GitHub Actions runners on macOS with
 `brew install just`, and on Windows with `choco install just`.
 
 With [extractions/setup-just](https://github.com/extractions/setup-just):
@@ -2187,9 +2187,9 @@ directory.
 On Unix, these functions follow the
 [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html).
 
-On MacOS and Windows, these functions return the system-specified user-specific
+On macOS and Windows, these functions return the system-specified user-specific
 directories. For example, `cache_directory()` returns `~/Library/Caches` on
-MacOS and `{FOLDERID_LocalAppData}` on Windows.
+macOS and `{FOLDERID_LocalAppData}` on Windows.
 
 See the [`dirs`](https://docs.rs/dirs/latest/dirs/index.html) crate for more
 details.
@@ -2305,7 +2305,7 @@ change their behavior.
 | `[freebsd]`<sup>1.47.0</sup> | recipe | Enable recipe on FreeBSD. |
 | `[group(NAME)]`<sup>1.27.0</sup> | module, recipe | Put recipe or module in [group](#groups) `NAME`. |
 | `[linux]`<sup>1.8.0</sup> | recipe | Enable recipe on Linux. |
-| `[macos]`<sup>1.8.0</sup> | recipe | Enable recipe on MacOS. |
+| `[macos]`<sup>1.8.0</sup> | recipe | Enable recipe on macOS. |
 | `[metadata(METADATA)]`<sup>1.42.0</sup> | recipe | Attach `METADATA` to recipe. |
 | `[netbsd]`<sup>1.47.0</sup> | recipe | Enable recipe on NetBSD. |
 | `[no-cd]`<sup>1.9.0</sup> | recipe | Don't change directory before executing recipe. |
@@ -2317,7 +2317,7 @@ change their behavior.
 | `[private]`<sup>1.10.0</sup> | alias, recipe | Make recipe, alias, or variable private. See [Private Recipes](#private-recipes). |
 | `[script(COMMAND)]`<sup>1.32.0</sup> | recipe | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
 | `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
-| `[unix]`<sup>1.8.0</sup> | recipe | Enable recipe on Unixes. (Includes MacOS). |
+| `[unix]`<sup>1.8.0</sup> | recipe | Enable recipe on Unixes. (Includes macOS). |
 | `[windows]`<sup>1.8.0</sup> | recipe | Enable recipe on Windows. |
 | `[working-directory(PATH)]`<sup>1.38.0</sup> | recipe | Set recipe working directory. `PATH` may be relative or absolute. If relative, it is interpreted relative to the default working directory. |
 
@@ -3279,7 +3279,7 @@ Hola from a nushell script!
 Hello from ruby!
 ```
 
-On Unix-like operating systems, including Linux and MacOS, shebang recipes are
+On Unix-like operating systems, including Linux and macOS, shebang recipes are
 executed by saving the recipe body to a file in a temporary directory, marking
 the file as executable, and executing it. The OS then parses the shebang line
 into a command line and invokes it, including the path to the file. For
@@ -4459,7 +4459,7 @@ receives a fatal signal, `just` halts execution.
 `SIGINFO` is sent to all processes in the foreground process group when the
 user types `ctrl-t` on
 [BSD](https://en.wikipedia.org/wiki/Berkeley_Software_Distribution)-derived
-operating systems, including MacOS, but not Linux.
+operating systems, including macOS, but not Linux.
 
 `just` responds by printing a list of all child process IDs and
 commands<sup>1.41.0</sup>.
