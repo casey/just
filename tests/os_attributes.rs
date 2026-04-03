@@ -28,7 +28,7 @@ fn os_family() {
     } else {
       panic!("unexpected os family")
     })
-    .run();
+    .success();
 }
 
 #[test]
@@ -51,6 +51,18 @@ fn os() {
       [openbsd]
       foo:
         echo bob
+
+      [freebsd]
+      foo:
+        echo corge
+
+      [dragonfly]
+      foo:
+        echo grault
+
+      [netbsd]
+      foo:
+        echo garply
     ",
     )
     .stdout(if cfg!(target_os = "macos") {
@@ -61,6 +73,12 @@ fn os() {
       "quxx\n"
     } else if cfg!(target_os = "openbsd") {
       "bob\n"
+    } else if cfg!(target_os = "freebsd") {
+      "corge\n"
+    } else if cfg!(target_os = "dragonfly") {
+      "grault\n"
+    } else if cfg!(target_os = "netbsd") {
+      "garply\n"
     } else {
       panic!("unexpected os family")
     })
@@ -72,10 +90,16 @@ fn os() {
       "echo quxx\n"
     } else if cfg!(target_os = "openbsd") {
       "echo bob\n"
+    } else if cfg!(target_os = "freebsd") {
+      "echo corge\n"
+    } else if cfg!(target_os = "dragonfly") {
+      "echo grault\n"
+    } else if cfg!(target_os = "netbsd") {
+      "echo garply\n"
     } else {
       panic!("unexpected os family")
     })
-    .run();
+    .success();
 }
 
 #[test]
@@ -86,6 +110,9 @@ fn all() {
       [linux]
       [macos]
       [openbsd]
+      [freebsd]
+      [dragonfly]
+      [netbsd]
       [unix]
       [windows]
       foo:
@@ -94,7 +121,7 @@ fn all() {
     )
     .stdout("bar\n")
     .stderr("echo bar\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -108,5 +135,5 @@ fn none() {
     )
     .stdout("bar\n")
     .stderr("echo bar\n")
-    .run();
+    .success();
 }

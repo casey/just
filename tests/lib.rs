@@ -3,15 +3,13 @@ use {
     assert_stdout::assert_stdout,
     assert_success::assert_success,
     tempdir::tempdir,
-    test::{assert_eval_eq, Output, Test},
+    test::{Output, Test, assert_eval_eq},
   },
-  executable_path::executable_path,
-  just::{unindent, Response},
-  libc::{EXIT_FAILURE, EXIT_SUCCESS},
+  just::{Response, unindent},
   pretty_assertions::Comparison,
   regex::Regex,
   serde::{Deserialize, Serialize},
-  serde_json::{json, Value},
+  serde_json::{Value, json},
   std::{
     collections::BTreeMap,
     env::{self, consts::EXE_SUFFIX},
@@ -20,15 +18,17 @@ use {
     fs,
     io::Write,
     iter,
-    path::{Path, PathBuf, MAIN_SEPARATOR, MAIN_SEPARATOR_STR},
+    path::{MAIN_SEPARATOR, MAIN_SEPARATOR_STR, Path, PathBuf},
     process::{Command, Stdio},
     str,
     time::{Duration, Instant},
   },
   tempfile::TempDir,
-  temptree::{temptree, tree, Tree},
+  temptree::{Tree, temptree, tree},
   which::which,
 };
+
+const JUST: &str = env!("CARGO_BIN_EXE_just");
 
 #[cfg(not(windows))]
 use std::thread;
@@ -45,6 +45,7 @@ mod alias_style;
 mod allow_duplicate_recipes;
 mod allow_duplicate_variables;
 mod allow_missing;
+mod arg_attribute;
 mod assert_stdout;
 mod assert_success;
 mod assertions;
@@ -66,6 +67,7 @@ mod delimiters;
 mod dependencies;
 mod directories;
 mod dotenv;
+mod dump;
 mod edit;
 mod equals;
 mod error_messages;
@@ -75,15 +77,19 @@ mod explain;
 mod export;
 mod fallback;
 mod format;
+mod format_string;
 mod functions;
 #[cfg(unix)]
 mod global;
 mod groups;
+mod guards;
 mod ignore_comments;
 mod imports;
 mod init;
+mod interpolation;
 mod invocation_directory;
 mod json;
+mod lazy;
 mod line_prefixes;
 mod list;
 mod logical_operators;
@@ -96,7 +102,11 @@ mod no_aliases;
 mod no_cd;
 mod no_dependencies;
 mod no_exit_message;
+#[cfg(target_os = "linux")]
+mod non_unicode;
+mod options;
 mod os_attributes;
+mod overrides;
 mod parallel;
 mod parameters;
 mod parser;
@@ -108,11 +118,13 @@ mod readme;
 mod recursion_limit;
 mod regexes;
 mod request;
+mod resolve;
 mod run;
 mod scope;
 mod script;
 mod search;
 mod search_arguments;
+mod settings;
 mod shadowing_parameters;
 mod shebang;
 mod shell;
@@ -129,6 +141,7 @@ mod timestamps;
 mod undefined_variables;
 mod unexport;
 mod unstable;
+mod usage;
 mod which_function;
 #[cfg(windows)]
 mod windows;

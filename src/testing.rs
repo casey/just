@@ -8,11 +8,9 @@ pub(crate) fn config(args: &[&str]) -> Config {
   let mut args = Vec::from(args);
   args.insert(0, "just");
 
-  let app = Config::app();
+  let arguments = Arguments::try_parse_from(args).unwrap();
 
-  let matches = app.try_get_matches_from(args).unwrap();
-
-  Config::from_matches(&matches).unwrap()
+  Config::from_arguments(arguments).unwrap()
 }
 
 pub(crate) fn search(config: &Config) -> Search {
@@ -59,7 +57,7 @@ pub(crate) fn analysis_error(
 ) {
   let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
 
-  let ast = Parser::parse(0, &[], None, &tokens, &PathBuf::new())
+  let ast = Parser::parse_tokens(&mut Numerator::new(), &tokens)
     .expect("Parsing failed in analysis test...");
 
   let root = PathBuf::from("justfile");
@@ -69,12 +67,30 @@ pub(crate) fn analysis_error(
   let mut paths: HashMap<PathBuf, PathBuf> = HashMap::new();
   paths.insert("justfile".into(), "justfile".into());
 
-  match Analyzer::analyze(&asts, None, &[], &[], None, &paths, &root) {
+  match Analyzer::analyze(
+    &asts,
+    &Config::default(),
+    None,
+    &[],
+    &[],
+    None,
+    &mut HashMap::new(),
+    &paths,
+    false,
+    &root,
+  ) {
     Ok(_) => panic!("Analysis unexpectedly succeeded"),
     Err(have) => {
+      let Error::Compile { compile_error } = have else {
+        panic!(
+          "unexpected non-compile analysis error: {}",
+          have.color_display(Color::never()),
+        );
+      };
+
       let want = CompileError {
         token: Token {
-          kind: have.token.kind,
+          kind: compile_error.token.kind,
           src,
           offset,
           line,
@@ -84,7 +100,7 @@ pub(crate) fn analysis_error(
         },
         kind: kind.into(),
       };
-      assert_eq!(have, want);
+      assert_eq!(compile_error, want);
     }
   }
 }
@@ -102,13 +118,13 @@ macro_rules! run_error {
       let config = $crate::testing::config(&$args);
       let search = $crate::testing::search(&config);
 
-      if let Subcommand::Run{ overrides, arguments } = &config.subcommand {
+      if let Subcommand::Run{ arguments } = &config.subcommand {
         match $crate::testing::compile(&$crate::unindent::unindent($src))
           .run(
             &config,
             &search,
-            &overrides,
             &arguments,
+            &HashMap::new(),
           ).expect_err("Expected runtime error") {
             $error => $check
             other => {

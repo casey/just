@@ -9,14 +9,11 @@ fn invalid_justfile() {
     justfile: JUSTFILE,
   };
 
-  let output = Command::new(executable_path("just"))
-    .current_dir(tmp.path())
-    .output()
-    .unwrap();
+  let output = Command::new(JUST).current_dir(tmp.path()).output().unwrap();
 
   assert!(!output.status.success());
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path())
     .arg("--edit")
     .env("VISUAL", "cat")
@@ -32,14 +29,11 @@ fn invoke_error() {
     justfile: JUSTFILE,
   };
 
-  let output = Command::new(executable_path("just"))
-    .current_dir(tmp.path())
-    .output()
-    .unwrap();
+  let output = Command::new(JUST).current_dir(tmp.path()).output().unwrap();
 
   assert!(!output.status.success());
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path())
     .arg("--edit")
     .env("VISUAL", "/")
@@ -57,8 +51,10 @@ fn invoke_error() {
 }
 
 #[test]
-#[cfg(not(windows))]
 fn status_error() {
+  if cfg!(windows) {
+    return;
+  }
   let tmp = temptree! {
     justfile: JUSTFILE,
     "exit-2": "#!/usr/bin/env bash\nexit 2\n",
@@ -77,7 +73,7 @@ fn status_error() {
   )
   .unwrap();
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path())
     .arg("--edit")
     .env("PATH", path)
@@ -101,7 +97,7 @@ fn editor_precedence() {
     justfile: JUSTFILE,
   };
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path())
     .arg("--edit")
     .env("VISUAL", "cat")
@@ -111,7 +107,7 @@ fn editor_precedence() {
 
   assert_stdout(&output, JUSTFILE);
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path())
     .arg("--edit")
     .env_remove("VISUAL")
@@ -135,7 +131,7 @@ fn editor_precedence() {
   )
   .unwrap();
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path())
     .arg("--edit")
     .env("PATH", path)
@@ -162,7 +158,7 @@ fn editor_working_directory() {
   let permissions = std::os::unix::fs::PermissionsExt::from_mode(0o700);
   fs::set_permissions(&editor, permissions).unwrap();
 
-  let output = Command::new(executable_path("just"))
+  let output = Command::new(JUST)
     .current_dir(tmp.path().join("child"))
     .arg("--edit")
     .env("VISUAL", &editor)

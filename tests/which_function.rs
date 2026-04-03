@@ -17,7 +17,7 @@ fn finds_executable() {
     .env("PATH", path.to_str().unwrap())
     .env("JUST_UNSTABLE", "1")
     .stdout(path.join("hello.exe").display().to_string())
-    .run();
+    .success();
 }
 
 #[test]
@@ -32,7 +32,7 @@ fn prints_empty_string_for_missing_executable() {
     .make_executable("hello.exe")
     .env("PATH", path.to_str().unwrap())
     .env("JUST_UNSTABLE", "1")
-    .run();
+    .success();
 }
 
 #[test]
@@ -48,7 +48,7 @@ fn skips_non_executable_files() {
     .write("hi", "just some regular file")
     .env("PATH", path.to_str().unwrap())
     .env("JUST_UNSTABLE", "1")
-    .run();
+    .success();
 }
 
 #[test]
@@ -75,7 +75,7 @@ fn supports_multiple_paths() {
       path.join("subdir1").join("hello1.exe").display(),
       path.join("subdir2").join("hello2.exe").display(),
     ))
-    .run();
+    .success();
 }
 
 #[test]
@@ -116,7 +116,7 @@ fn supports_shadowed_executables() {
       .env("PATH", path_var.to_str().unwrap())
       .env("JUST_UNSTABLE", "1")
       .stdout(stdout)
-      .run();
+      .success();
   }
 }
 
@@ -147,7 +147,7 @@ fn ignores_nonexecutable_candidates() {
     .env("PATH", path_var.to_str().unwrap())
     .env("JUST_UNSTABLE", "1")
     .stdout(path.join("subdir").join("foo.exe").display().to_string())
-    .run();
+    .success();
 }
 
 #[test]
@@ -166,7 +166,7 @@ fn handles_absolute_path() {
     .env("JUST_UNSTABLE", "1")
     .args(["--evaluate", "p"])
     .stdout(abspath.display().to_string())
-    .run();
+    .success();
 }
 
 #[test]
@@ -191,7 +191,7 @@ fn handles_dotslash() {
     .env("PATH", path.join("pathdir").to_str().unwrap())
     .env("JUST_UNSTABLE", "1")
     .stdout(path.join("foo.exe").display().to_string())
-    .run();
+    .success();
 }
 
 #[test]
@@ -216,7 +216,7 @@ fn handles_dir_slash() {
     .env("PATH", path.join("pathdir").to_str().unwrap())
     .env("JUST_UNSTABLE", "1")
     .stdout(path.join("subdir").join("foo.exe").display().to_string())
-    .run();
+    .success();
 }
 
 #[test]
@@ -231,8 +231,7 @@ fn is_unstable() {
     .make_executable("hello.exe")
     .env("PATH", path.to_str().unwrap())
     .stderr_regex(r".*The `which\(\)` function is currently unstable\..*")
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
 }
 
 #[test]
@@ -249,8 +248,109 @@ fn require_error() {
           │      ^^^^^^^
       ",
     )
-    .status(EXIT_FAILURE)
-    .run();
+    .failure();
+}
+
+#[test]
+fn finds_executable_via_pathext() {
+  if !cfg!(windows) {
+    return;
+  }
+
+  let tmp = tempdir();
+  let path = PathBuf::from(tmp.path());
+
+  Test::with_tempdir(tmp)
+    .justfile("p := which('foo')")
+    .args(["--evaluate", "p"])
+    .write("foo.exe", HELLO_SCRIPT)
+    .make_executable("foo.exe")
+    .env("PATH", path.to_str().unwrap())
+    .env("PATHEXT", ".exe")
+    .env("JUST_UNSTABLE", "1")
+    .stdout(path.join("foo.exe").display().to_string())
+    .success();
+}
+
+#[test]
+fn pathext_not_applied_when_candidate_has_extension() {
+  if !cfg!(windows) {
+    return;
+  }
+
+  let tmp = tempdir();
+  let path = PathBuf::from(tmp.path());
+
+  Test::with_tempdir(tmp)
+    .justfile("p := which('foo.bat')")
+    .args(["--evaluate", "p"])
+    .write("foo.bat.exe", HELLO_SCRIPT)
+    .make_executable("foo.bat.exe")
+    .env("PATH", path.to_str().unwrap())
+    .env("PATHEXT", ".EXE")
+    .env("JUST_UNSTABLE", "1")
+    .success();
+}
+
+#[test]
+fn pathext_custom_extension() {
+  if !cfg!(windows) {
+    return;
+  }
+
+  let tmp = tempdir();
+  let path = PathBuf::from(tmp.path());
+
+  Test::with_tempdir(tmp)
+    .justfile("p := which('foo')")
+    .args(["--evaluate", "p"])
+    .write("foo.bar", HELLO_SCRIPT)
+    .env("PATH", path.to_str().unwrap())
+    .env("PATHEXT", ".BAR")
+    .env("JUST_UNSTABLE", "1")
+    .stdout(path.join("foo.BAR").display().to_string())
+    .success();
+}
+
+#[test]
+fn pathext_entry_missing_dot_is_error() {
+  if !cfg!(windows) {
+    return;
+  }
+
+  let tmp = tempdir();
+  let path = PathBuf::from(tmp.path());
+
+  Test::with_tempdir(tmp)
+    .justfile("p := which('foo')")
+    .args(["--evaluate", "p"])
+    .write("foo.exe", HELLO_SCRIPT)
+    .make_executable("foo.exe")
+    .env("PATH", path.to_str().unwrap())
+    .env("PATHEXT", "EXE")
+    .env("JUST_UNSTABLE", "1")
+    .stderr_regex(".*`PATHEXT` entry `EXE` does not start with `.`.*")
+    .failure();
+}
+
+#[test]
+fn pathext_ignored_on_non_windows() {
+  if cfg!(windows) {
+    return;
+  }
+
+  let tmp = tempdir();
+  let path = PathBuf::from(tmp.path());
+
+  Test::with_tempdir(tmp)
+    .justfile("p := which('foo')")
+    .args(["--evaluate", "p"])
+    .write("foo.exe", HELLO_SCRIPT)
+    .make_executable("foo.exe")
+    .env("PATH", path.to_str().unwrap())
+    .env("PATHEXT", ".EXE")
+    .env("JUST_UNSTABLE", "1")
+    .success();
 }
 
 #[test]
@@ -265,5 +365,5 @@ fn require_success() {
     .make_executable("hello.exe")
     .env("PATH", path.to_str().unwrap())
     .stdout(path.join("hello.exe").display().to_string())
-    .run();
+    .success();
 }

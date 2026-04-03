@@ -11,7 +11,7 @@ fn dont_run_duplicate_recipes() {
     )
     .args(["foo", "foo"])
     .stdout("foo\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -25,7 +25,7 @@ fn one_flag_only_allows_one_invocation() {
     )
     .args(["--one", "foo"])
     .stdout("foo\n")
-    .run();
+    .success();
 
   Test::new()
     .justfile(
@@ -39,6 +39,5 @@ fn one_flag_only_allows_one_invocation() {
     )
     .args(["--one", "foo", "bar"])
     .stderr("error: Expected 1 command-line recipe invocation but found 2.\n")
-    .status(1)
-    .run();
+    .failure();
 }

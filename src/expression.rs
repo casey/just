@@ -9,14 +9,12 @@ use super::*;
 #[derive(PartialEq, Debug, Clone)]
 pub(crate) enum Expression<'src> {
   /// `lhs && rhs`
-  And {
-    lhs: Box<Expression<'src>>,
-    rhs: Box<Expression<'src>>,
-  },
+  And { lhs: Box<Self>, rhs: Box<Self> },
   /// `assert(condition, error)`
   Assert {
+    name: Name<'src>,
     condition: Condition<'src>,
-    error: Box<Expression<'src>>,
+    error: Box<Self>,
   },
   /// `contents`
   Backtick {
@@ -26,28 +24,27 @@ pub(crate) enum Expression<'src> {
   /// `name(arguments)`
   Call { thunk: Thunk<'src> },
   /// `lhs + rhs`
-  Concatenation {
-    lhs: Box<Expression<'src>>,
-    rhs: Box<Expression<'src>>,
-  },
+  Concatenation { lhs: Box<Self>, rhs: Box<Self> },
   /// `if condition { then } else { otherwise }`
   Conditional {
     condition: Condition<'src>,
-    then: Box<Expression<'src>>,
-    otherwise: Box<Expression<'src>>,
+    then: Box<Self>,
+    otherwise: Box<Self>,
+  },
+  // `f"format string"`
+  FormatString {
+    start: StringLiteral<'src>,
+    expressions: Vec<(Self, StringLiteral<'src>)>,
   },
   /// `(contents)`
-  Group { contents: Box<Expression<'src>> },
+  Group { contents: Box<Self> },
   /// `lhs / rhs`
   Join {
-    lhs: Option<Box<Expression<'src>>>,
-    rhs: Box<Expression<'src>>,
+    lhs: Option<Box<Self>>,
+    rhs: Box<Self>,
   },
   /// `lhs || rhs`
-  Or {
-    lhs: Box<Expression<'src>>,
-    rhs: Box<Expression<'src>>,
-  },
+  Or { lhs: Box<Self>, rhs: Box<Self> },
   /// `"string_literal"` or `'string_literal'`
   StringLiteral { string_literal: StringLiteral<'src> },
   /// `variable`
@@ -64,7 +61,9 @@ impl Display for Expression<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     match self {
       Self::And { lhs, rhs } => write!(f, "{lhs} && {rhs}"),
-      Self::Assert { condition, error } => write!(f, "assert({condition}, {error})"),
+      Self::Assert {
+        condition, error, ..
+      } => write!(f, "assert({condition}, {error})"),
       Self::Backtick { token, .. } => write!(f, "{}", token.lexeme()),
       Self::Call { thunk } => write!(f, "{thunk}"),
       Self::Concatenation { lhs, rhs } => write!(f, "{lhs} + {rhs}"),
@@ -78,6 +77,15 @@ impl Display for Expression<'_> {
         } else {
           write!(f, "if {condition} {{ {then} }} else {{ {otherwise} }}")
         }
+      }
+      Self::FormatString { start, expressions } => {
+        write!(f, "{start}")?;
+
+        for (expression, string) in expressions {
+          write!(f, "{expression}{string}")?;
+        }
+
+        Ok(())
       }
       Self::Group { contents } => write!(f, "({contents})"),
       Self::Join { lhs: None, rhs } => write!(f, "/ {rhs}"),
@@ -105,7 +113,9 @@ impl Serialize for Expression<'_> {
         seq.serialize_element(rhs)?;
         seq.end()
       }
-      Self::Assert { condition, error } => {
+      Self::Assert {
+        condition, error, ..
+      } => {
         let mut seq: <S as Serializer>::SerializeSeq = serializer.serialize_seq(None)?;
         seq.serialize_element("assert")?;
         seq.serialize_element(condition)?;
@@ -136,6 +146,16 @@ impl Serialize for Expression<'_> {
         seq.serialize_element(condition)?;
         seq.serialize_element(then)?;
         seq.serialize_element(otherwise)?;
+        seq.end()
+      }
+      Self::FormatString { start, expressions } => {
+        let mut seq = serializer.serialize_seq(None)?;
+        seq.serialize_element("format")?;
+        seq.serialize_element(start)?;
+        for (expression, string) in expressions {
+          seq.serialize_element(expression)?;
+          seq.serialize_element(string)?;
+        }
         seq.end()
       }
       Self::Group { contents } => contents.serialize(serializer),

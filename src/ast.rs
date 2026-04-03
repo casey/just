@@ -6,18 +6,18 @@ use super::*;
 #[derive(Debug, Clone)]
 pub(crate) struct Ast<'src> {
   pub(crate) items: Vec<Item<'src>>,
-  pub(crate) module_path: String,
+  pub(crate) modulepath: Modulepath,
   pub(crate) unstable_features: BTreeSet<UnstableFeature>,
   pub(crate) warnings: Vec<Warning>,
   pub(crate) working_directory: PathBuf,
 }
 
-impl Display for Ast<'_> {
-  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+impl ColorDisplay for Ast<'_> {
+  fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     let mut iter = self.items.iter().peekable();
 
     while let Some(item) = iter.next() {
-      writeln!(f, "{item}")?;
+      writeln!(f, "{}", item.color_display(color))?;
 
       if let Some(next_item) = iter.peek() {
         if matches!(item, Item::Recipe(_))

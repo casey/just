@@ -63,7 +63,7 @@ impl<'src> Thunk<'src> {
   pub(crate) fn resolve(
     name: Name<'src>,
     mut arguments: Vec<Expression<'src>>,
-  ) -> CompileResult<'src, Thunk<'src>> {
+  ) -> CompileResult<'src, Self> {
     function::get(name.lexeme()).map_or(
       Err(name.error(CompileErrorKind::UnknownFunction {
         function: name.lexeme(),

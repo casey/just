@@ -27,7 +27,7 @@ fn readme() {
 
     fs::write(path, justfile).unwrap();
 
-    let output = Command::new(executable_path("just"))
+    let output = Command::new(JUST)
       .current_dir(tmp.path())
       .arg("--dump")
       .output()

@@ -1,7 +1,7 @@
 use super::*;
 
 pub(crate) enum Executor<'a> {
-  Command(&'a Interpreter<'a>),
+  Command(Interpreter<String>),
   Shebang(Shebang<'a>),
 }
 
@@ -15,14 +15,14 @@ impl Executor<'_> {
   ) -> RunResult<'src, Command> {
     match self {
       Self::Command(interpreter) => {
-        let mut command = Command::new(&interpreter.command.cooked);
+        let mut command = Command::resolve(&interpreter.command);
 
         if let Some(working_directory) = working_directory {
           command.current_dir(working_directory);
         }
 
         for arg in &interpreter.arguments {
-          command.arg(&arg.cooked);
+          command.arg(arg);
         }
 
         command.arg(path);
@@ -47,31 +47,29 @@ impl Executor<'_> {
     }
   }
 
+  fn shell_kind(&self) -> ShellKind {
+    match self {
+      Self::Command(interpreter) => &interpreter.command,
+      Self::Shebang(shebang) => shebang.interpreter_filename(),
+    }
+    .into()
+  }
+
   pub(crate) fn script_filename(&self, recipe: &str, extension: Option<&str>) -> String {
-    let extension = extension.unwrap_or_else(|| {
-      let interpreter = match self {
-        Self::Command(interpreter) => &interpreter.command.cooked,
-        Self::Shebang(shebang) => shebang.interpreter_filename(),
-      };
-
-      match interpreter {
-        "cmd" | "cmd.exe" => ".bat",
-        "powershell" | "powershell.exe" | "pwsh" | "pwsh.exe" => ".ps1",
-        _ => "",
-      }
-    });
-
-    format!("{recipe}{extension}")
+    format!(
+      "{recipe}{}",
+      extension.unwrap_or_else(|| self.shell_kind().extension()),
+    )
   }
 
   pub(crate) fn error<'src>(&self, io_error: io::Error, recipe: &'src str) -> Error<'src> {
     match self {
       Self::Command(Interpreter { command, arguments }) => {
-        let mut command = command.cooked.clone();
+        let mut command = command.clone();
 
         for arg in arguments {
           command.push(' ');
-          command.push_str(&arg.cooked);
+          command.push_str(arg);
         }
 
         Error::Script {
@@ -139,8 +137,8 @@ mod tests {
         expected
       );
       assert_eq!(
-        Executor::Command(&Interpreter {
-          command: StringLiteral::from_raw(interpreter),
+        Executor::Command(Interpreter {
+          command: interpreter.into(),
           arguments: Vec::new()
         })
         .script_filename(recipe, extension),

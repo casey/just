@@ -5,8 +5,8 @@ fn cache_directory() {
   Test::new()
     .justfile("x := cache_directory()")
     .args(["--evaluate", "x"])
-    .stdout(dirs::cache_dir().unwrap_or_default().to_string_lossy())
-    .run();
+    .stdout(dirs::cache_dir().unwrap_or_default().to_str().unwrap())
+    .success();
 }
 
 #[test]
@@ -14,8 +14,8 @@ fn config_directory() {
   Test::new()
     .justfile("x := config_directory()")
     .args(["--evaluate", "x"])
-    .stdout(dirs::config_dir().unwrap_or_default().to_string_lossy())
-    .run();
+    .stdout(dirs::config_dir().unwrap_or_default().to_str().unwrap())
+    .success();
 }
 
 #[test]
@@ -26,9 +26,10 @@ fn config_local_directory() {
     .stdout(
       dirs::config_local_dir()
         .unwrap_or_default()
-        .to_string_lossy(),
+        .to_str()
+        .unwrap(),
     )
-    .run();
+    .success();
 }
 
 #[test]
@@ -36,8 +37,8 @@ fn data_directory() {
   Test::new()
     .justfile("x := data_directory()")
     .args(["--evaluate", "x"])
-    .stdout(dirs::data_dir().unwrap_or_default().to_string_lossy())
-    .run();
+    .stdout(dirs::data_dir().unwrap_or_default().to_str().unwrap())
+    .success();
 }
 
 #[test]
@@ -45,8 +46,8 @@ fn data_local_directory() {
   Test::new()
     .justfile("x := data_local_directory()")
     .args(["--evaluate", "x"])
-    .stdout(dirs::data_local_dir().unwrap_or_default().to_string_lossy())
-    .run();
+    .stdout(dirs::data_local_dir().unwrap_or_default().to_str().unwrap())
+    .success();
 }
 
 #[test]
@@ -55,8 +56,8 @@ fn executable_directory() {
     Test::new()
       .justfile("x := executable_directory()")
       .args(["--evaluate", "x"])
-      .stdout(executable_dir.to_string_lossy())
-      .run();
+      .stdout(executable_dir.to_str().unwrap())
+      .success();
   } else {
     Test::new()
       .justfile("x := executable_directory()")
@@ -70,8 +71,7 @@ fn executable_directory() {
             │      ^^^^^^^^^^^^^^^^^^^^
         ",
       )
-      .status(EXIT_FAILURE)
-      .run();
+      .failure();
   }
 }
 
@@ -80,6 +80,40 @@ fn home_directory() {
   Test::new()
     .justfile("x := home_directory()")
     .args(["--evaluate", "x"])
-    .stdout(dirs::home_dir().unwrap_or_default().to_string_lossy())
-    .run();
+    .stdout(dirs::home_dir().unwrap_or_default().to_str().unwrap())
+    .success();
+}
+
+#[test]
+fn runtime_directory() {
+  if cfg!(not(target_os = "linux")) {
+    return;
+  }
+
+  Test::new()
+    .justfile("x := runtime_directory()")
+    .args(["--evaluate", "x"])
+    .stdout(dirs::runtime_dir().unwrap_or_default().to_str().unwrap())
+    .success();
+}
+
+#[test]
+fn runtime_directory_not_found() {
+  if cfg!(target_os = "linux") {
+    return;
+  }
+
+  Test::new()
+    .justfile("x := runtime_directory()")
+    .args(["--evaluate", "x"])
+    .stderr(
+      "
+        error: Call to function `runtime_directory` failed: runtime directory not found
+         ——▶ justfile:1:6
+          │
+        1 │ x := runtime_directory()
+          │      ^^^^^^^^^^^^^^^^^
+      ",
+    )
+    .failure();
 }

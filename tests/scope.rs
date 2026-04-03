@@ -13,7 +13,7 @@ fn dependencies_in_submodules_run_with_submodule_scope() {
     )
     .stdout("X X\n")
     .stderr("echo X X\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -30,7 +30,7 @@ fn aliases_in_submodules_run_with_submodule_scope() {
     .arg("foo")
     .stdout("X X\n")
     .stderr("echo X X\n")
-    .run();
+    .success();
 }
 
 #[test]
@@ -49,7 +49,7 @@ foo:
     .stdout("y\n")
     .justfile("mod a")
     .args(["a", "b", "foo"])
-    .run();
+    .success();
 }
 
 #[test]
@@ -66,5 +66,5 @@ fn imported_recipes_run_in_correct_scope() {
     .write("shared.just", "foo:\n @echo {{ X }}")
     .args(["a::foo", "b::foo"])
     .stdout("A\nB\n")
-    .run();
+    .success();
 }

@@ -9,15 +9,15 @@ pub(crate) enum Item<'src> {
   Import {
     absolute: Option<PathBuf>,
     optional: bool,
-    path: Token<'src>,
     relative: StringLiteral<'src>,
   },
   Module {
     absolute: Option<PathBuf>,
     doc: Option<String>,
-    groups: Vec<String>,
+    groups: Vec<StringLiteral<'src>>,
     name: Name<'src>,
     optional: bool,
+    private: bool,
     relative: Option<StringLiteral<'src>>,
   },
   Recipe(UnresolvedRecipe<'src>),
@@ -27,8 +27,8 @@ pub(crate) enum Item<'src> {
   },
 }
 
-impl Display for Item<'_> {
-  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+impl ColorDisplay for Item<'_> {
+  fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     match self {
       Self::Alias(alias) => write!(f, "{alias}"),
       Self::Assignment(assignment) => write!(f, "{assignment}"),
@@ -45,11 +45,21 @@ impl Display for Item<'_> {
         write!(f, " {relative}")
       }
       Self::Module {
+        doc,
+        groups,
         name,
-        relative,
         optional,
+        relative,
         ..
       } => {
+        if let Some(doc) = doc {
+          writeln!(f, "# {doc}")?;
+        }
+
+        for group in groups {
+          writeln!(f, "[group: {group}]")?;
+        }
+
         write!(f, "mod")?;
 
         if *optional {
@@ -64,7 +74,7 @@ impl Display for Item<'_> {
 
         Ok(())
       }
-      Self::Recipe(recipe) => write!(f, "{}", recipe.color_display(Color::never())),
+      Self::Recipe(recipe) => write!(f, "{}", recipe.color_display(color)),
       Self::Set(set) => write!(f, "{set}"),
       Self::Unexport { name } => write!(f, "unexport {name}"),
     }

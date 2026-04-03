@@ -12,7 +12,7 @@ fn environment_variable_set() {
     "#,
     )
     .response(Response::EnvironmentVariable(Some("baz".into())))
-    .run();
+    .success();
 }
 
 #[test]
@@ -25,5 +25,5 @@ fn environment_variable_missing() {
     "#,
     )
     .response(Response::EnvironmentVariable(None))
-    .run();
+    .success();
 }

@@ -6,14 +6,12 @@ pub fn run(args: impl Iterator<Item = impl Into<OsString> + Clone>) -> Result<()
   #[cfg(windows)]
   ansi_term::enable_ansi_support().ok();
 
-  let app = Config::app();
-
-  let matches = app.try_get_matches_from(args).map_err(|err| {
+  let arguments = Arguments::try_parse_from(args).map_err(|err| {
     err.print().ok();
     err.exit_code()
   })?;
 
-  let config = Config::from_matches(&matches).map_err(Error::from);
+  let config = Config::from_arguments(arguments).map_err(Error::from);
 
   let (color, verbosity) = config
     .as_ref()
@@ -33,4 +31,18 @@ pub fn run(args: impl Iterator<Item = impl Into<OsString> + Clone>) -> Result<()
       }
       error.code().unwrap_or(EXIT_FAILURE)
     })
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn run_can_be_called_more_than_once() {
+    let tmp = testing::tempdir();
+    fs::write(tmp.path().join("justfile"), "foo:").unwrap();
+    let search_directory = format!("{}/", tmp.path().to_str().unwrap());
+    run(["just", &search_directory].iter()).unwrap();
+    run(["just", &search_directory].iter()).unwrap();
+  }
 }
