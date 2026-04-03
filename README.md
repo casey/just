@@ -86,6 +86,10 @@ always welcome!
 Installation
 ------------
 
+Just can be installed with your favorite [package manager](#packages), by
+downloading [pre-built binaries](#pre-build-binaries), or built from source
+with `cargo install just`.
+
 ### Prerequisites
 
 `just` should run on any system with a reasonable `sh`, including Linux, MacOS,
