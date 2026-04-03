@@ -7,8 +7,14 @@ pub(crate) struct Modulepath {
 }
 
 impl Modulepath {
-  pub(crate) fn is_empty(&self) -> bool {
-    self.components.is_empty()
+  pub(crate) fn join(&self, name: &str) -> String {
+    if self.components.is_empty() {
+      name.into()
+    } else if self.spaced {
+      format!("{self} {name}")
+    } else {
+      format!("{self}::{name}")
+    }
   }
 
   pub(crate) fn starts_with(&self, other: &Modulepath) -> bool {

@@ -88,6 +88,12 @@ pub struct Arguments {
   )]
   pub(crate) command_color: Option<CommandColor>,
   #[arg(
+    env = "JUST_COMPLETE_ALIASES",
+    help = "Auto-complete recipe aliases",
+    long
+  )]
+  pub(crate) complete_aliases: bool,
+  #[arg(
     add = ArgValueCompleter::new(PathCompleter::file()),
     default_value = "cygpath",
     env = "JUST_CYGPATH",

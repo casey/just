@@ -8,6 +8,7 @@ pub(crate) struct Config {
   pub(crate) check: bool,
   pub(crate) color: Color,
   pub(crate) command_color: Option<ansi_term::Color>,
+  pub(crate) complete_aliases: bool,
   pub(crate) cygpath: PathBuf,
   pub(crate) dotenv_filename: Option<String>,
   pub(crate) dotenv_path: Option<PathBuf>,
@@ -205,13 +206,7 @@ impl Config {
     let format_overrides = || {
       overrides
         .iter()
-        .map(|((path, key), value)| {
-          if path.is_empty() {
-            format!("{key}={value}")
-          } else {
-            format!("{path}::{key}={value}")
-          }
-        })
+        .map(|((path, key), value)| format!("{}={value}", path.join(key)))
         .collect()
     };
 
@@ -256,6 +251,7 @@ impl Config {
       check: arguments.check,
       color,
       command_color: arguments.command_color.map(CommandColor::into),
+      complete_aliases: arguments.complete_aliases,
       cygpath: arguments.cygpath,
       dotenv_filename: arguments.dotenv_filename,
       dotenv_path: arguments.dotenv_path,

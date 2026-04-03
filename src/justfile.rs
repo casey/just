@@ -568,6 +568,25 @@ impl<'src> Justfile<'src> {
     recipes
   }
 
+  pub(crate) fn public_aliases_recursive(&self, config: &Config) -> Vec<(&Alias, &Modulepath)> {
+    let mut aliases = Vec::new();
+
+    let mut stack = vec![self];
+    while let Some(current) = stack.pop() {
+      for alias in current.aliases.values() {
+        if alias.is_public() {
+          aliases.push((alias, &current.modulepath));
+        }
+      }
+
+      for module in current.public_modules(config).into_iter().rev() {
+        stack.push(module);
+      }
+    }
+
+    aliases
+  }
+
   pub(crate) fn groups(&self) -> Vec<&str> {
     self
       .groups
