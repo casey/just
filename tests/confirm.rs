@@ -1,6 +1,22 @@
 use super::*;
 
 #[test]
+fn confirm_recipe_arg() {
+  Test::new()
+    .arg("--yes")
+    .justfile(
+      "
+        [confirm]
+        requires_confirmation:
+            echo confirmed
+        ",
+    )
+    .stderr("echo confirmed\n")
+    .stdout("confirmed\n")
+    .success();
+}
+
+#[test]
 fn confirm_recipe_with_prompt_too_many_args() {
   Test::new()
     .justfile(
@@ -20,22 +36,6 @@ fn confirm_recipe_with_prompt_too_many_args() {
       "#,
     )
     .failure();
-}
-
-#[test]
-fn confirm_recipe_arg() {
-  Test::new()
-    .arg("--yes")
-    .justfile(
-      "
-        [confirm]
-        requires_confirmation:
-            echo confirmed
-        ",
-    )
-    .stderr("echo confirmed\n")
-    .stdout("confirmed\n")
-    .success();
 }
 
 #[test]
