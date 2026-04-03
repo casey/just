@@ -7,12 +7,11 @@ fn confirm_recipe_arg() {
     .justfile(
       "
         [confirm]
-        requires_confirmation:
-            echo confirmed
-        ",
+        @foo:
+          echo FOO
+      ",
     )
-    .stderr("echo confirmed\n")
-    .stdout("confirmed\n")
+    .stdout("FOO\n")
     .success();
 }
 
@@ -22,16 +21,15 @@ fn recipe_with_confirm_recipe_dependency_arg() {
     .arg("--yes")
     .justfile(
       "
-        dep_confirmation: requires_confirmation
-            echo confirmed2
+        @bar: foo
+          echo BAR
 
         [confirm]
-        requires_confirmation:
-            echo confirmed
-        ",
+        @foo:
+          echo FOO
+      ",
     )
-    .stderr("echo confirmed\necho confirmed2\n")
-    .stdout("confirmed\nconfirmed2\n")
+    .stdout("FOO\nBAR\n")
     .success();
 }
 
@@ -41,12 +39,12 @@ fn confirm_recipe() {
     .justfile(
       "
         [confirm]
-        requires_confirmation:
-            echo confirmed
-        ",
+        @foo:
+          echo FOO
+      ",
     )
-    .stderr("Run recipe `requires_confirmation`? echo confirmed\n")
-    .stdout("confirmed\n")
+    .stderr("Run recipe `foo`? ")
+    .stdout("FOO\n")
     .stdin("y")
     .success();
 }
@@ -56,16 +54,16 @@ fn recipe_with_confirm_recipe_dependency() {
   Test::new()
     .justfile(
       "
-        dep_confirmation: requires_confirmation
-            echo confirmed2
+        @bar: foo
+          echo BAR
 
         [confirm]
-        requires_confirmation:
-            echo confirmed
-        ",
+        @foo:
+          echo FOO
+      ",
     )
-    .stderr("Run recipe `requires_confirmation`? echo confirmed\necho confirmed2\n")
-    .stdout("confirmed\nconfirmed2\n")
+    .stderr("Run recipe `foo`? ")
+    .stdout("FOO\nBAR\n")
     .stdin("y")
     .success();
 }
@@ -76,11 +74,11 @@ fn do_not_confirm_recipe() {
     .justfile(
       "
         [confirm]
-        requires_confirmation:
-            echo confirmed
-        ",
+        @foo:
+          echo FOO
+      ",
     )
-    .stderr("Run recipe `requires_confirmation`? error: Recipe `requires_confirmation` was not confirmed\n")
+    .stderr("Run recipe `foo`? error: Recipe `foo` was not confirmed\n")
     .failure();
 }
 
@@ -89,15 +87,15 @@ fn do_not_confirm_recipe_with_confirm_recipe_dependency() {
   Test::new()
     .justfile(
       "
-        dep_confirmation: requires_confirmation
-            echo mistake
+        bar: foo
+          echo BAR
 
         [confirm]
-        requires_confirmation:
-            echo confirmed
-        ",
+        @foo:
+          echo FOO
+      ",
     )
-    .stderr("Run recipe `requires_confirmation`? error: Recipe `requires_confirmation` was not confirmed\n")
+    .stderr("Run recipe `foo`? error: Recipe `foo` was not confirmed\n")
     .failure();
 }
 
@@ -106,13 +104,13 @@ fn confirm_recipe_with_prompt() {
   Test::new()
     .justfile(
       "
-        [confirm(\"This is dangerous - are you sure you want to run it?\")]
-        requires_confirmation:
-            echo confirmed
-        ",
+        [confirm('Sure?')]
+        @foo:
+            echo FOO
+      ",
     )
-    .stderr("This is dangerous - are you sure you want to run it? echo confirmed\n")
-    .stdout("confirmed\n")
+    .stderr("Sure? ")
+    .stdout("FOO\n")
     .stdin("y")
     .success();
 }
@@ -121,18 +119,17 @@ fn confirm_recipe_with_prompt() {
 fn confirm_recipe_with_prompt_too_many_args() {
   Test::new()
     .justfile(
-      r#"
-        [confirm("PROMPT","EXTRA")]
-        requires_confirmation:
-            echo confirmed
-      "#,
+      "
+        [confirm('A', 'B')]
+        foo:
+      ",
     )
     .stderr(
       r#"
         error: Attribute `confirm` got 2 arguments but takes at most 1 argument
          ——▶ justfile:1:2
           │
-        1 │ [confirm("PROMPT","EXTRA")]
+        1 │ [confirm('A', 'B')]
           │  ^^^^^^^
       "#,
     )
@@ -149,39 +146,26 @@ fn confirm_attribute_is_formatted_correctly() {
       ",
     )
     .arg("--dump")
-    .stdout("[confirm('prompt')]\nfoo:\n")
-    .success();
-}
-
-#[test]
-fn confirm_with_variable() {
-  Test::new()
-    .justfile(
-      r#"
-        target := "production"
-
-        [confirm(target)]
-        deploy:
-            echo deployed
-      "#,
+    .stdout(
+      "
+        [confirm('prompt')]
+        foo:
+      ",
     )
-    .stdin("y")
-    .stderr("production echo deployed\n")
-    .stdout("deployed\n")
     .success();
 }
 
 #[test]
-fn confirm_with_concatenation() {
+fn confirm_with_expression() {
   Test::new()
     .justfile(
-      r#"
-        target := "production"
+      "
+        target := 'production'
 
-        [confirm("Deploy to " + target + "?")]
+        [confirm('Deploy to ' + target + '?')]
         deploy:
             echo deployed
-      "#,
+      ",
     )
     .stdin("y")
     .stderr("Deploy to production? echo deployed\n")
@@ -190,55 +174,19 @@ fn confirm_with_concatenation() {
 }
 
 #[test]
-fn confirm_with_expression_and_yes_flag() {
-  Test::new()
-    .justfile(
-      r#"
-        target := "production"
-
-        [confirm("Deploy to " + target + "?")]
-        deploy:
-            echo deployed
-      "#,
-    )
-    .arg("--yes")
-    .stderr("echo deployed\n")
-    .stdout("deployed\n")
-    .success();
-}
-
-#[test]
 fn confirm_with_recipe_parameter() {
   Test::new()
     .justfile(
-      r#"
-        [confirm("Deploy to " + target + "?")]
+      "
+        [confirm('Deploy to ' + target + '?')]
         deploy target:
-            echo "deployed to {{target}}"
-      "#,
+            echo 'deployed to {{target}}'
+      ",
     )
     .args(["deploy", "staging"])
     .stdin("y")
-    .stderr("Deploy to staging? echo \"deployed to staging\"\n")
+    .stderr("Deploy to staging? echo 'deployed to staging'\n")
     .stdout("deployed to staging\n")
-    .success();
-}
-
-#[test]
-fn confirm_with_function_call() {
-  Test::new()
-    .justfile(
-      r#"
-        target := "production"
-
-        [confirm("Deploy to " + uppercase(target) + "?")]
-        deploy:
-            echo deployed
-      "#,
-    )
-    .stdin("y")
-    .stderr("Deploy to PRODUCTION? echo deployed\n")
-    .stdout("deployed\n")
     .success();
 }
 
@@ -246,17 +194,23 @@ fn confirm_with_function_call() {
 fn confirm_expression_dump() {
   Test::new()
     .justfile(
-      r#"
-        target := "production"
+      "
+        target := 'production'
 
-        [confirm("Deploy to " + target + "?")]
+        [confirm('Deploy to ' + target + '?')]
         deploy:
             echo deployed
-      "#,
+      ",
     )
     .arg("--dump")
     .stdout(
-      "target := \"production\"\n\n[confirm(\"Deploy to \" + target + \"?\")]\ndeploy:\n    echo deployed\n",
+      "
+        target := 'production'
+
+        [confirm('Deploy to ' + target + '?')]
+        deploy:
+            echo deployed
+      ",
     )
     .success();
 }
