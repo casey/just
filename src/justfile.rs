@@ -100,7 +100,7 @@ impl<'src> Justfile<'src> {
     config: &'run Config,
     dotenv_arena: &'run Arena<BTreeMap<String, String>>,
     overrides: &'run HashMap<Number, String>,
-    parent_dotenv: &'run BTreeMap<String, String>,
+    parent_dotenv: Option<&'run BTreeMap<String, String>>,
     root: &'run Scope<'src, 'run>,
     scopes: &mut Scopes<'src, 'run>,
     search: &'run Search,
@@ -117,13 +117,17 @@ impl<'src> Justfile<'src> {
       BTreeMap::new()
     };
 
-    let dotenv = dotenv_arena.alloc(
+    let dotenv = if let Some(parent_dotenv) = parent_dotenv {
       parent_dotenv
         .iter()
         .map(|(key, value)| (key.clone(), value.clone()))
         .chain(dotenv)
-        .collect(),
-    );
+        .collect()
+    } else {
+      dotenv
+    };
+
+    let dotenv = dotenv_arena.alloc(dotenv);
 
     let scope = Evaluator::evaluate_assignments(
       config,
@@ -144,7 +148,7 @@ impl<'src> Justfile<'src> {
         config,
         dotenv_arena,
         overrides,
-        dotenv,
+        Some(dotenv),
         scope,
         scopes,
         search,
@@ -165,7 +169,6 @@ impl<'src> Justfile<'src> {
     let root = Scope::root();
     let arena = Arena::new();
     let dotenv_arena = Arena::new();
-    let empty_dotenv = BTreeMap::new();
     let mut scopes = BTreeMap::new();
 
     match &config.subcommand {
@@ -206,7 +209,7 @@ impl<'src> Justfile<'src> {
           config,
           &dotenv_arena,
           overrides,
-          &empty_dotenv,
+          None,
           &root,
           &mut scopes,
           search,
@@ -248,7 +251,7 @@ impl<'src> Justfile<'src> {
           config,
           &dotenv_arena,
           overrides,
-          &empty_dotenv,
+          None,
           &root,
           &mut scopes,
           search,
@@ -290,7 +293,7 @@ impl<'src> Justfile<'src> {
           config,
           &dotenv_arena,
           overrides,
-          &empty_dotenv,
+          None,
           &root,
           &mut scopes,
           search,
