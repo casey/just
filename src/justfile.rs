@@ -96,12 +96,12 @@ impl<'src> Justfile<'src> {
 
   fn evaluate_scopes<'run>(
     &'run self,
-    arena: &'run Arena<Scope<'src, 'run>>,
     config: &'run Config,
     dotenv_arena: &'run Arena<BTreeMap<String, String>>,
     overrides: &'run HashMap<Number, String>,
     parent_dotenv: Option<&'run BTreeMap<String, String>>,
     root: &'run Scope<'src, 'run>,
+    scope_arena: &'run Arena<Scope<'src, 'run>>,
     scopes: &mut Scopes<'src, 'run>,
     search: &'run Search,
     variable_references: Option<&HashSet<Number>>,
@@ -139,17 +139,17 @@ impl<'src> Justfile<'src> {
       variable_references,
     )?;
 
-    let scope = arena.alloc(scope);
+    let scope = scope_arena.alloc(scope);
     scopes.insert(self.modulepath.clone(), (self, scope, dotenv));
 
     for module in self.modules.values() {
       module.evaluate_scopes(
-        arena,
         config,
         dotenv_arena,
         overrides,
         Some(dotenv),
         scope,
+        scope_arena,
         scopes,
         search,
         variable_references,
@@ -167,8 +167,8 @@ impl<'src> Justfile<'src> {
     overrides: &HashMap<Number, String>,
   ) -> RunResult<'src> {
     let root = Scope::root();
-    let arena = Arena::new();
     let dotenv_arena = Arena::new();
+    let scope_arena = Arena::new();
     let mut scopes = BTreeMap::new();
 
     match &config.subcommand {
@@ -205,12 +205,12 @@ impl<'src> Justfile<'src> {
         };
 
         self.evaluate_scopes(
-          &arena,
           config,
           &dotenv_arena,
           overrides,
           None,
           &root,
+          &scope_arena,
           &mut scopes,
           search,
           variable_references.as_ref(),
@@ -247,12 +247,12 @@ impl<'src> Justfile<'src> {
           .current_dir(&search.working_directory);
 
         self.evaluate_scopes(
-          &arena,
           config,
           &dotenv_arena,
           overrides,
           None,
           &root,
+          &scope_arena,
           &mut scopes,
           search,
           Some(HashSet::new()).as_ref(),
@@ -289,12 +289,12 @@ impl<'src> Justfile<'src> {
         let (module, variable, variable_references) = self.evaluation_target(path)?;
 
         self.evaluate_scopes(
-          &arena,
           config,
           &dotenv_arena,
           overrides,
           None,
           &root,
+          &scope_arena,
           &mut scopes,
           search,
           Some(&variable_references),
