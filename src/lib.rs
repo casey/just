@@ -44,6 +44,7 @@ pub(crate) use {
     expression::Expression,
     format_string_part::FormatStringPart,
     fragment::Fragment,
+    fs::File,
     function::Function,
     indentation::Indentation,
     interpreter::Interpreter,
