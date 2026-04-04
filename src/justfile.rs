@@ -1,5 +1,14 @@
 use {super::*, serde::Serialize};
 
+type Scopes<'src, 'run> = BTreeMap<
+  Modulepath,
+  (
+    &'run Justfile<'src>,
+    &'run Scope<'src, 'run>,
+    &'run BTreeMap<String, String>,
+  ),
+>;
+
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Justfile<'src> {
   pub(crate) aliases: Table<'src, Alias<'src>>,
@@ -93,18 +102,11 @@ impl<'src> Justfile<'src> {
     parent_dotenv: &'run BTreeMap<String, String>,
     overrides: &'run HashMap<Number, String>,
     root: &'run Scope<'src, 'run>,
-    scopes: &mut BTreeMap<
-      Modulepath,
-      (
-        &'run Self,
-        &'run Scope<'src, 'run>,
-        &'run BTreeMap<String, String>,
-      ),
-    >,
+    scopes: &mut Scopes<'src, 'run>,
     search: &'run Search,
     variable_references: Option<&HashSet<Number>>,
   ) -> RunResult<'src> {
-    let own_dotenv = if config.load_dotenv {
+    let dotenv = if config.load_dotenv {
       let working_directory = if self.is_submodule() {
         &self.working_directory
       } else {
@@ -115,9 +117,13 @@ impl<'src> Justfile<'src> {
       BTreeMap::new()
     };
 
-    let mut merged = parent_dotenv.clone();
-    merged.extend(own_dotenv);
-    let dotenv = dotenv_arena.alloc(merged);
+    let dotenv = dotenv_arena.alloc(
+      parent_dotenv
+        .iter()
+        .map(|(key, value)| (key.clone(), value.clone()))
+        .chain(dotenv)
+        .collect(),
+    );
 
     let scope = Evaluator::evaluate_assignments(
       config,
@@ -411,7 +417,7 @@ impl<'src> Justfile<'src> {
     is_dependency: bool,
     ran: &Ran,
     recipe: &Recipe<'src>,
-    scopes: &BTreeMap<Modulepath, (&Self, &Scope<'src, '_>, &BTreeMap<String, String>)>,
+    scopes: &Scopes<'src, '_>,
     search: &Search,
   ) -> RunResult<'src> {
     let mutex = ran.mutex(recipe, arguments);
