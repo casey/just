@@ -4832,6 +4832,12 @@ bar:
   printf %s "$FOO"
 ```
 
+### Skill for Agents
+
+A skill for agents is available in
+[skills/just](https://github.com/casey/just/blob/master/skills/just/) and may
+be installed manually or with `npx skills add casey/just --global`.
+
 ### Alternatives and Prior Art
 
 There is no shortage of command runners! Some more or less similar alternatives
