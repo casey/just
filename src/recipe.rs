@@ -241,7 +241,10 @@ impl<'src> Recipe<'src> {
       let suffix = color.suffix();
       let recipe_name = self.name.lexeme();
 
-      eprintln!("{prefix}---> {recipe_name} (Duration: {elapsed:.2?}){suffix}");
+      eprintln!(
+        "{prefix}---> {recipe_name} (Duration: {:.3}s){suffix}",
+        elapsed.as_secs_f64()
+      );
     }
 
     result

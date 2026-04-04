@@ -1,7 +1,7 @@
 use super::*;
 
 fn duration_regex(recipe_name: &str) -> String {
-  format!(r"---> {recipe_name} \(Duration: \d+\.\d+(s|ms|ns|µs)\)\s")
+  format!(r"---> {recipe_name} \(Duration: \d+\.\d+s\)\s")
 }
 
 #[test]
