@@ -1173,7 +1173,7 @@ Starting server with database localhost:6379 on port 1337…
 Variables in environment files loaded in parent modules are inherited by
 submodules.
 
-Environment files are loaded in submodules<sup>master<sup>, and may override
+Environment files are loaded in submodules<sup>master<sup> and may override
 variable defined in parent module environment files.
 
 #### Export
