@@ -497,7 +497,7 @@ impl<'src> Justfile<'src> {
     evaluator: &mut Evaluator<'src, 'run>,
     ran: &Ran,
     recipe: &Recipe<'src>,
-    scopes: &BTreeMap<Modulepath, (&Self, &Scope<'src, 'run>, &'run BTreeMap<String, String>)>,
+    scopes: &Scopes<'src, 'run>,
     search: &Search,
   ) -> RunResult<'src> {
     if context.config.no_dependencies {
