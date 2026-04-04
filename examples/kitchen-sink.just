@@ -5,6 +5,12 @@ set positional-arguments
 set dotenv-load
 set export
 
+_required_just_ver := if semver_matches(just_version(), '>=1.43.0') == 'true' {
+  'yes'
+} else {
+  error('just version 1.43.0 or greater is required, found ' + just_version())
+}
+
 alias s := serve
 
 bt := '0'
@@ -16,7 +22,7 @@ log := "warn"
 export JUST_LOG := (log + "ing" + `grep loop /etc/networks | cut -f2`)
 
 tmpdir  := `mktemp`
-version := "0.2.7"
+version := just_version()
 tardir  := tmpdir / "awesomesauce-" + version
 foo1    := / "tmp"
 foo2_3  := "a/"
