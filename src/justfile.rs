@@ -258,7 +258,7 @@ impl<'src> Justfile<'src> {
           Some(HashSet::new()).as_ref(),
         )?;
 
-        let (_, scope, dotenv) = scopes.get(&self.modulepath).unwrap();
+        let (_module, scope, dotenv) = scopes.get(&self.modulepath).unwrap();
         let scope = scope.child();
 
         command.export(&self.settings, dotenv, &scope, &self.unexports);
