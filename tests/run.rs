@@ -41,3 +41,18 @@ fn one_flag_only_allows_one_invocation() {
     .stderr("error: Expected 1 command-line recipe invocation but found 2.\n")
     .failure();
 }
+
+#[test]
+fn time_reports_time_when_specified() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          @echo FOO
+      ",
+    )
+    .arg("--time")
+    .stdout("FOO\n")
+    .stderr_regex(r"---> foo completed in \d+\.\d+s\n")
+    .success();
+}

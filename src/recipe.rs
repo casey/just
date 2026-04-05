@@ -242,8 +242,8 @@ impl<'src> Recipe<'src> {
       let recipe_name = self.name.lexeme();
 
       eprintln!(
-        "{prefix}---> {recipe_name} (Duration: {:.3}s){suffix}",
-        elapsed.as_secs_f64()
+        "{prefix}---> {recipe_name} completed in {:.3}s{suffix}",
+        elapsed.as_secs_f64(),
       );
     }
 
