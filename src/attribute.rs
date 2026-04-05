@@ -2,7 +2,7 @@ use super::*;
 
 #[allow(clippy::large_enum_variant)]
 #[derive(
-  EnumDiscriminants, PartialEq, Debug, Clone, Serialize, Ord, PartialOrd, Eq, IntoStaticStr,
+  EnumDiscriminants, PartialEq, Eq, PartialOrd, Ord, Debug, Clone, Serialize, IntoStaticStr,
 )]
 #[strum(serialize_all = "kebab-case")]
 #[serde(rename_all = "kebab-case")]
@@ -20,7 +20,7 @@ pub(crate) enum Attribute<'src> {
     short: Option<StringLiteral<'src>>,
     value: Option<StringLiteral<'src>>,
   },
-  Confirm(Option<StringLiteral<'src>>),
+  Confirm(Option<Expression<'src>>),
   Default,
   Doc(Option<StringLiteral<'src>>),
   Dragonfly,
@@ -47,6 +47,10 @@ pub(crate) enum Attribute<'src> {
 }
 
 impl AttributeDiscriminant {
+  pub(crate) fn accepts_keyword_arguments(self) -> bool {
+    matches!(self, Self::Arg)
+  }
+
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
       Self::Default
@@ -100,18 +104,10 @@ impl<'src> Attribute<'src> {
 
   pub(crate) fn new(
     name: Name<'src>,
-    arguments: Vec<StringLiteral<'src>>,
+    discriminant: AttributeDiscriminant,
+    arguments: Vec<(Token<'src>, Expression<'src>)>,
     mut keyword_arguments: BTreeMap<&'src str, (Name<'src>, Option<StringLiteral<'src>>)>,
   ) -> CompileResult<'src, Self> {
-    let discriminant = name
-      .lexeme()
-      .parse::<AttributeDiscriminant>()
-      .map_err(|_| {
-        name.error(CompileErrorKind::UnknownAttribute {
-          attribute: name.lexeme(),
-        })
-      })?;
-
     let found = arguments.len();
     let range = discriminant.argument_range();
     if !range.contains(&found) {
@@ -124,6 +120,31 @@ impl<'src> Attribute<'src> {
         }),
       );
     }
+
+    if matches!(discriminant, AttributeDiscriminant::Confirm) {
+      if let Some((_name, (keyword, _literal))) = keyword_arguments.into_iter().next() {
+        return Err(keyword.error(CompileErrorKind::UnknownAttributeKeyword {
+          attribute: name.lexeme(),
+          keyword: keyword.lexeme(),
+        }));
+      }
+
+      return Ok(Self::Confirm(
+        arguments.into_iter().next().map(|(_, expr)| expr),
+      ));
+    }
+
+    let arguments = arguments
+      .into_iter()
+      .map(|(token, argument)| {
+        let Expression::StringLiteral { string_literal } = argument else {
+          return Err(token.error(CompileErrorKind::AttributeArgumentExpression {
+            attribute: name.lexeme(),
+          }));
+        };
+        Ok(string_literal)
+      })
+      .collect::<CompileResult<Vec<StringLiteral>>>()?;
 
     let attribute = match discriminant {
       AttributeDiscriminant::Arg => {
@@ -184,7 +205,7 @@ impl<'src> Attribute<'src> {
           value,
         }
       }
-      AttributeDiscriminant::Confirm => Self::Confirm(arguments.into_iter().next()),
+      AttributeDiscriminant::Confirm => unreachable!(),
       AttributeDiscriminant::Default => Self::Default,
       AttributeDiscriminant::Doc => Self::Doc(arguments.into_iter().next()),
       AttributeDiscriminant::Dragonfly => Self::Dragonfly,
@@ -320,8 +341,8 @@ impl Display for Attribute<'_> {
       | Self::Script(None)
       | Self::Unix
       | Self::Windows => {}
-      Self::Confirm(Some(argument))
-      | Self::Doc(Some(argument))
+      Self::Confirm(Some(argument)) => write!(f, "({argument})")?,
+      Self::Doc(Some(argument))
       | Self::Extension(argument)
       | Self::Group(argument)
       | Self::WorkingDirectory(argument) => write!(f, "({argument})")?,

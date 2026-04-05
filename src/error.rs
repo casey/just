@@ -110,7 +110,7 @@ pub(crate) enum Error<'src> {
     path: String,
   },
   FilesystemIo {
-    io_error: io::Error,
+    source: io::Error,
     path: PathBuf,
   },
   FlagWithValue {
@@ -597,8 +597,8 @@ impl ColorDisplay for Error<'_> {
       ExpectedSubmoduleButFoundRecipe { path } => {
         write!(f, "Expected submodule at `{path}` but found recipe.")?;
       }
-      FilesystemIo { io_error, path } => {
-        write!(f, "I/O error at `{}`: {io_error}", path.display())?;
+      FilesystemIo { source, path } => {
+        write!(f, "I/O error at `{}`: {source}", path.display())?;
       }
       FlagWithValue { recipe, option } => {
         write!(f, "Recipe `{recipe}` flag `{option}` does not take value",)?;

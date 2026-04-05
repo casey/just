@@ -495,7 +495,9 @@ impl<'run, 'src> Parser<'run, 'src> {
             items.push(Item::Set(self.parse_set()?));
           }
           _ => {
-            if self.next_are(&[Identifier, ColonEquals]) {
+            if self.next_are(&[Identifier, ParenL]) {
+              items.push(Item::Function(self.parse_function_definition()?));
+            } else if self.next_are(&[Identifier, ColonEquals]) {
               items.push(Item::Assignment(self.parse_assignment(
                 take_attributes(),
                 false,
@@ -562,6 +564,38 @@ impl<'run, 'src> Parser<'run, 'src> {
       attributes,
       name,
       target,
+    })
+  }
+
+  fn parse_function_definition(&mut self) -> CompileResult<'src, FunctionDefinition<'src>> {
+    self
+      .unstable_features
+      .insert(UnstableFeature::UserDefinedFunction);
+
+    let name = self.parse_name()?;
+
+    self.presume(ParenL)?;
+
+    let mut parameters = Vec::new();
+    while !self.next_is(ParenR) {
+      parameters.push((self.parse_name()?, self.numerator.next()));
+      if !self.accepted(Comma)? {
+        break;
+      }
+    }
+
+    self.expect(ParenR)?;
+
+    self.expect(ColonEquals)?;
+
+    let body = self.parse_expression()?;
+
+    self.expect_eol()?;
+
+    Ok(FunctionDefinition {
+      body,
+      name,
+      parameters,
     })
   }
 
@@ -819,9 +853,7 @@ impl<'run, 'src> Parser<'run, 'src> {
               .unstable_features
               .insert(UnstableFeature::WhichFunction);
           }
-          Ok(Expression::Call {
-            thunk: Thunk::resolve(name, arguments)?,
-          })
+          Ok(Expression::Call { name, arguments })
         } else {
           Ok(Expression::Variable { name })
         }
@@ -1437,45 +1469,58 @@ impl<'run, 'src> Parser<'run, 'src> {
       loop {
         let name = self.parse_name()?;
 
+        let discriminant = name
+          .lexeme()
+          .parse::<AttributeDiscriminant>()
+          .map_err(|_| {
+            name.error(CompileErrorKind::UnknownAttribute {
+              attribute: name.lexeme(),
+            })
+          })?;
+
         let mut arguments = Vec::new();
         let mut keyword_arguments = BTreeMap::new();
 
         if self.accepted(Colon)? {
-          arguments.push(self.parse_string_literal()?);
+          let token = self.next()?;
+          let expression = self.parse_expression()?;
+          arguments.push((token, expression));
         } else if self.accepted(ParenL)? {
-          loop {
-            if self.next_is(Identifier) && !self.next_is_shell_expanded_string() {
-              let key = self.parse_name()?;
+          if !self.next_is(ParenR) {
+            loop {
+              if discriminant.accepts_keyword_arguments()
+                && self.next_is(Identifier)
+                && !self.next_is_shell_expanded_string()
+              {
+                let key = self.parse_name()?;
 
-              let value = self
-                .accepted(Equals)?
-                .then(|| self.parse_string_literal())
-                .transpose()?;
+                let value = self
+                  .accepted(Equals)?
+                  .then(|| self.parse_string_literal())
+                  .transpose()?;
 
-              keyword_arguments.insert(key.lexeme(), (key, value));
-            } else {
-              let literal = self.parse_string_literal()?;
+                keyword_arguments.insert(key.lexeme(), (key, value));
+              } else {
+                let token = self.next()?;
+                let expression = self.parse_expression()?;
 
-              if !keyword_arguments.is_empty() {
-                return Err(
-                  literal
-                    .token
-                    .error(CompileErrorKind::AttributePositionalFollowsKeyword),
-                );
+                if !keyword_arguments.is_empty() {
+                  return Err(token.error(CompileErrorKind::AttributePositionalFollowsKeyword));
+                }
+
+                arguments.push((token, expression));
               }
 
-              arguments.push(literal);
-            }
-
-            if !self.accepted(Comma)? || self.next_is(ParenR) {
-              break;
+              if !self.accepted(Comma)? || self.next_is(ParenR) {
+                break;
+              }
             }
           }
 
           self.expect(ParenR)?;
         }
 
-        let attribute = Attribute::new(name, arguments, keyword_arguments)?;
+        let attribute = Attribute::new(name, discriminant, arguments, keyword_arguments)?;
 
         let first = if attribute.repeatable() {
           None
@@ -3052,134 +3097,6 @@ mod tests {
     width:  5,
     kind:   UnknownSetting {
       setting: "shall",
-    },
-  }
-
-  error! {
-    name:   unknown_function,
-    input:  "a := foo()",
-    offset: 5,
-    line:   0,
-    column: 5,
-    width:  3,
-    kind:   UnknownFunction{function: "foo"},
-  }
-
-  error! {
-    name:   unknown_function_in_interpolation,
-    input:  "a:\n echo {{bar()}}",
-    offset: 11,
-    line:   1,
-    column: 8,
-    width:  3,
-    kind:   UnknownFunction{function: "bar"},
-  }
-
-  error! {
-    name:   unknown_function_in_default,
-    input:  "a f=baz():",
-    offset: 4,
-    line:   0,
-    column: 4,
-    width:  3,
-    kind:   UnknownFunction{function: "baz"},
-  }
-
-  error! {
-    name: function_argument_count_nullary,
-    input: "x := arch('foo')",
-    offset: 5,
-    line: 0,
-    column: 5,
-    width: 4,
-    kind: FunctionArgumentCountMismatch {
-      function: "arch",
-      found: 1,
-      expected: 0..=0,
-    },
-  }
-
-  error! {
-    name: function_argument_count_unary,
-    input: "x := env_var()",
-    offset: 5,
-    line: 0,
-    column: 5,
-    width: 7,
-    kind: FunctionArgumentCountMismatch {
-      function: "env_var",
-      found: 0,
-      expected: 1..=1,
-    },
-  }
-
-  error! {
-    name: function_argument_count_too_high_unary_opt,
-    input: "x := env('foo', 'foo', 'foo')",
-    offset: 5,
-    line: 0,
-    column: 5,
-    width: 3,
-    kind: FunctionArgumentCountMismatch {
-      function: "env",
-      found: 3,
-      expected: 1..=2,
-    },
-  }
-
-  error! {
-    name: function_argument_count_too_low_unary_opt,
-    input: "x := env()",
-    offset: 5,
-    line: 0,
-    column: 5,
-    width: 3,
-    kind: FunctionArgumentCountMismatch {
-      function: "env",
-      found: 0,
-      expected: 1..=2,
-    },
-  }
-
-  error! {
-    name: function_argument_count_binary,
-    input: "x := env_var_or_default('foo')",
-    offset: 5,
-    line: 0,
-    column: 5,
-    width: 18,
-    kind: FunctionArgumentCountMismatch {
-      function: "env_var_or_default",
-      found: 1,
-      expected: 2..=2,
-    },
-  }
-
-  error! {
-    name: function_argument_count_binary_plus,
-    input: "x := join('foo')",
-    offset: 5,
-    line: 0,
-    column: 5,
-    width: 4,
-    kind: FunctionArgumentCountMismatch {
-      function: "join",
-      found: 1,
-      expected: 2..=usize::MAX,
-    },
-  }
-
-  error! {
-    name: function_argument_count_ternary,
-    input: "x := replace('foo')",
-    offset: 5,
-    line: 0,
-    column: 5,
-    width: 7,
-    kind: FunctionArgumentCountMismatch {
-      function: "replace",
-      found: 1,
-      expected: 3..=3,
     },
   }
 }

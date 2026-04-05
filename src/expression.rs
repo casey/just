@@ -6,7 +6,7 @@ use super::*;
 /// parenthetical groups).
 ///
 /// The parser parses both values and expressions into `Expression`s.
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, Eq, Debug, Clone, Ord, PartialOrd)]
 pub(crate) enum Expression<'src> {
   /// `lhs && rhs`
   And { lhs: Box<Self>, rhs: Box<Self> },
@@ -22,7 +22,10 @@ pub(crate) enum Expression<'src> {
     token: Token<'src>,
   },
   /// `name(arguments)`
-  Call { thunk: Thunk<'src> },
+  Call {
+    name: Name<'src>,
+    arguments: Vec<Expression<'src>>,
+  },
   /// `lhs + rhs`
   Concatenation { lhs: Box<Self>, rhs: Box<Self> },
   /// `if condition { then } else { otherwise }`
@@ -52,8 +55,8 @@ pub(crate) enum Expression<'src> {
 }
 
 impl<'src> Expression<'src> {
-  pub(crate) fn variables<'expression>(&'expression self) -> Variables<'expression, 'src> {
-    Variables::new(self)
+  pub(crate) fn references<'a>(&'a self) -> References<'a, 'src> {
+    References::new(self)
   }
 }
 
@@ -65,7 +68,16 @@ impl Display for Expression<'_> {
         condition, error, ..
       } => write!(f, "assert({condition}, {error})"),
       Self::Backtick { token, .. } => write!(f, "{}", token.lexeme()),
-      Self::Call { thunk } => write!(f, "{thunk}"),
+      Self::Call { name, arguments } => {
+        write!(f, "{name}(")?;
+        for (i, argument) in arguments.iter().enumerate() {
+          if i > 0 {
+            write!(f, ", ")?;
+          }
+          write!(f, "{argument}")?;
+        }
+        write!(f, ")")
+      }
       Self::Concatenation { lhs, rhs } => write!(f, "{lhs} + {rhs}"),
       Self::Conditional {
         condition,
@@ -95,7 +107,7 @@ impl Display for Expression<'_> {
       } => write!(f, "{lhs} / {rhs}"),
       Self::Or { lhs, rhs } => write!(f, "{lhs} || {rhs}"),
       Self::StringLiteral { string_literal } => write!(f, "{string_literal}"),
-      Self::Variable { name } => write!(f, "{}", name.lexeme()),
+      Self::Variable { name } => write!(f, "{name}"),
     }
   }
 }
@@ -128,7 +140,15 @@ impl Serialize for Expression<'_> {
         seq.serialize_element(contents)?;
         seq.end()
       }
-      Self::Call { thunk } => thunk.serialize(serializer),
+      Self::Call { name, arguments } => {
+        let mut seq = serializer.serialize_seq(None)?;
+        seq.serialize_element("call")?;
+        seq.serialize_element(name)?;
+        for argument in arguments {
+          seq.serialize_element(argument)?;
+        }
+        seq.end()
+      }
       Self::Concatenation { lhs, rhs } => {
         let mut seq = serializer.serialize_seq(None)?;
         seq.serialize_element("concatenate")?;

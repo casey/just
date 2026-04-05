@@ -1,7 +1,7 @@
 use super::*;
 
 /// A conditional expression operator.
-#[derive(PartialEq, Debug, Copy, Clone)]
+#[derive(PartialEq, Eq, Debug, Copy, Clone, Ord, PartialOrd)]
 pub(crate) enum ConditionalOperator {
   /// `==`
   Equality,

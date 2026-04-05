@@ -8,6 +8,7 @@ pub(crate) struct Config {
   pub(crate) check: bool,
   pub(crate) color: Color,
   pub(crate) command_color: Option<ansi_term::Color>,
+  pub(crate) complete_aliases: bool,
   pub(crate) cygpath: PathBuf,
   pub(crate) dotenv_filename: Option<String>,
   pub(crate) dotenv_path: Option<PathBuf>,
@@ -16,6 +17,7 @@ pub(crate) struct Config {
   pub(crate) groups: Vec<String>,
   pub(crate) highlight: bool,
   pub(crate) invocation_directory: PathBuf,
+  pub(crate) justfile_names: Option<Vec<String>>,
   pub(crate) list_heading: String,
   pub(crate) list_prefix: String,
   pub(crate) list_submodules: bool,
@@ -205,13 +207,7 @@ impl Config {
     let format_overrides = || {
       overrides
         .iter()
-        .map(|((path, key), value)| {
-          if path.is_empty() {
-            format!("{key}={value}")
-          } else {
-            format!("{path}::{key}={value}")
-          }
-        })
+        .map(|((path, key), value)| format!("{}={value}", path.join(key)))
         .collect()
     };
 
@@ -256,14 +252,16 @@ impl Config {
       check: arguments.check,
       color,
       command_color: arguments.command_color.map(CommandColor::into),
+      complete_aliases: arguments.complete_aliases,
       cygpath: arguments.cygpath,
       dotenv_filename: arguments.dotenv_filename,
       dotenv_path: arguments.dotenv_path,
       dry_run: arguments.dry_run,
       explain: arguments.explain,
+      groups: arguments.group,
       highlight: !arguments.no_highlight,
       invocation_directory,
-      groups: arguments.group,
+      justfile_names: arguments.justfile_names,
       list_heading: arguments.list_heading,
       list_prefix: arguments.list_prefix,
       list_submodules: arguments.list_submodules,

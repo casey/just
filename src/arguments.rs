@@ -88,6 +88,12 @@ pub struct Arguments {
   )]
   pub(crate) command_color: Option<CommandColor>,
   #[arg(
+    env = "JUST_COMPLETE_ALIASES",
+    help = "Auto-complete recipe aliases",
+    long
+  )]
+  pub(crate) complete_aliases: bool,
+  #[arg(
     add = ArgValueCompleter::new(PathCompleter::file()),
     default_value = "cygpath",
     env = "JUST_CYGPATH",
@@ -182,6 +188,13 @@ pub struct Arguments {
     value_name = "JUSTFILE"
   )]
   pub(crate) justfile: Option<PathBuf>,
+  #[arg(
+    env = "JUST_JUSTFILE_NAME",
+    help = "Search for justfile named <NAME>",
+    long = "justfile-name",
+    value_name = "NAME"
+  )]
+  pub(crate) justfile_names: Option<Vec<String>>,
   #[arg(
     default_value = "Available recipes:\n",
     env = "JUST_LIST_HEADING",

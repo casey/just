@@ -114,10 +114,10 @@ impl<'src> Recipe<'src> {
     self.name.line
   }
 
-  pub(crate) fn confirm(&self) -> RunResult<'src, bool> {
+  pub(crate) fn confirm(&self, evaluator: &mut Evaluator<'src, '_>) -> RunResult<'src, bool> {
     if let Some(Attribute::Confirm(prompt)) = self.attributes.get(AttributeDiscriminant::Confirm) {
-      if let Some(prompt) = prompt {
-        eprint!("{} ", prompt.cooked);
+      if let Some(expression) = prompt {
+        eprint!("{} ", evaluator.evaluate_expression(expression)?);
       } else {
         eprint!("Run recipe `{}`? ", self.name);
       }

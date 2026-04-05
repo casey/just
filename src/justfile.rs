@@ -1,5 +1,14 @@
 use {super::*, serde::Serialize};
 
+type Scopes<'src, 'run> = BTreeMap<
+  Modulepath,
+  (
+    &'run Justfile<'src>,
+    &'run Scope<'src, 'run>,
+    &'run BTreeMap<String, String>,
+  ),
+>;
+
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Justfile<'src> {
   pub(crate) aliases: Table<'src, Alias<'src>>,
@@ -7,6 +16,8 @@ pub(crate) struct Justfile<'src> {
   #[serde(rename = "first", serialize_with = "keyed::serialize_option")]
   pub(crate) default: Option<Arc<Recipe<'src>>>,
   pub(crate) doc: Option<String>,
+  #[serde(skip)]
+  pub(crate) functions: Table<'src, FunctionDefinition<'src>>,
   pub(crate) groups: Vec<StringLiteral<'src>>,
   #[serde(skip)]
   pub(crate) loaded: Vec<PathBuf>,
@@ -87,15 +98,39 @@ impl<'src> Justfile<'src> {
 
   fn evaluate_scopes<'run>(
     &'run self,
-    arena: &'run Arena<Scope<'src, 'run>>,
     config: &'run Config,
-    dotenv: &'run BTreeMap<String, String>,
+    dotenv_arena: &'run Arena<BTreeMap<String, String>>,
     overrides: &'run HashMap<Number, String>,
+    parent_dotenv: Option<&'run BTreeMap<String, String>>,
     root: &'run Scope<'src, 'run>,
-    scopes: &mut BTreeMap<Modulepath, (&'run Self, &'run Scope<'src, 'run>)>,
+    scope_arena: &'run Arena<Scope<'src, 'run>>,
+    scopes: &mut Scopes<'src, 'run>,
     search: &'run Search,
     variable_references: Option<&HashSet<Number>>,
   ) -> RunResult<'src> {
+    let dotenv = if config.load_dotenv {
+      let working_directory = if self.is_submodule() {
+        &self.working_directory
+      } else {
+        &search.working_directory
+      };
+      load_dotenv(config, &self.settings, working_directory)?
+    } else {
+      BTreeMap::new()
+    };
+
+    let dotenv = if let Some(parent_dotenv) = parent_dotenv {
+      parent_dotenv
+        .iter()
+        .map(|(key, value)| (key.clone(), value.clone()))
+        .chain(dotenv)
+        .collect()
+    } else {
+      dotenv
+    };
+
+    let dotenv = dotenv_arena.alloc(dotenv);
+
     let scope = Evaluator::evaluate_assignments(
       config,
       dotenv,
@@ -106,16 +141,17 @@ impl<'src> Justfile<'src> {
       variable_references,
     )?;
 
-    let scope = arena.alloc(scope);
-    scopes.insert(self.modulepath.clone(), (self, scope));
+    let scope = scope_arena.alloc(scope);
+    scopes.insert(self.modulepath.clone(), (self, scope, dotenv));
 
     for module in self.modules.values() {
       module.evaluate_scopes(
-        arena,
         config,
-        dotenv,
+        dotenv_arena,
         overrides,
+        Some(dotenv),
         scope,
+        scope_arena,
         scopes,
         search,
         variable_references,
@@ -132,14 +168,9 @@ impl<'src> Justfile<'src> {
     arguments: &[String],
     overrides: &HashMap<Number, String>,
   ) -> RunResult<'src> {
-    let dotenv = if config.load_dotenv {
-      load_dotenv(config, &self.settings, &search.working_directory)?
-    } else {
-      BTreeMap::new()
-    };
-
     let root = Scope::root();
-    let arena = Arena::new();
+    let dotenv_arena = Arena::new();
+    let scope_arena = Arena::new();
     let mut scopes = BTreeMap::new();
 
     match &config.subcommand {
@@ -176,11 +207,12 @@ impl<'src> Justfile<'src> {
         };
 
         self.evaluate_scopes(
-          &arena,
           config,
-          &dotenv,
+          &dotenv_arena,
           overrides,
+          None,
           &root,
+          &scope_arena,
           &mut scopes,
           search,
           variable_references.as_ref(),
@@ -191,7 +223,6 @@ impl<'src> Justfile<'src> {
           Self::run_recipe(
             &invocation.arguments,
             config,
-            &dotenv,
             false,
             &ran,
             invocation.recipe,
@@ -218,19 +249,21 @@ impl<'src> Justfile<'src> {
           .current_dir(&search.working_directory);
 
         self.evaluate_scopes(
-          &arena,
           config,
-          &dotenv,
+          &dotenv_arena,
           overrides,
+          None,
           &root,
+          &scope_arena,
           &mut scopes,
           search,
           Some(HashSet::new()).as_ref(),
         )?;
 
-        let scope = scopes.get(&self.modulepath).unwrap().1.child();
+        let (_module, scope, dotenv) = scopes.get(&self.modulepath).unwrap();
+        let scope = scope.child();
 
-        command.export(&self.settings, &dotenv, &scope, &self.unexports);
+        command.export(&self.settings, dotenv, &scope, &self.unexports);
 
         let (result, caught) = command.status_guard();
 
@@ -258,11 +291,12 @@ impl<'src> Justfile<'src> {
         let (module, variable, variable_references) = self.evaluation_target(path)?;
 
         self.evaluate_scopes(
-          &arena,
           config,
-          &dotenv,
+          &dotenv_arena,
           overrides,
+          None,
           &root,
+          &scope_arena,
           &mut scopes,
           search,
           Some(&variable_references),
@@ -385,11 +419,10 @@ impl<'src> Justfile<'src> {
   fn run_recipe(
     arguments: &[Vec<String>],
     config: &Config,
-    dotenv: &BTreeMap<String, String>,
     is_dependency: bool,
     ran: &Ran,
     recipe: &Recipe<'src>,
-    scopes: &BTreeMap<Modulepath, (&Self, &Scope<'src, '_>)>,
+    scopes: &Scopes<'src, '_>,
     search: &Search,
   ) -> RunResult<'src> {
     let mutex = ran.mutex(recipe, arguments);
@@ -400,13 +433,7 @@ impl<'src> Justfile<'src> {
       return Ok(());
     }
 
-    if !config.yes && !recipe.confirm()? {
-      return Err(Error::NotConfirmed {
-        recipe: recipe.name(),
-      });
-    }
-
-    let (module, scope) = scopes
+    let (module, scope, dotenv) = scopes
       .get(recipe.module_path())
       .expect("failed to retrieve scope for module");
 
@@ -430,11 +457,16 @@ impl<'src> Justfile<'src> {
 
     let mut evaluator = Evaluator::new(&context, BTreeMap::new(), true, &scope);
 
+    if !config.yes && !recipe.confirm(&mut evaluator)? {
+      return Err(Error::NotConfirmed {
+        recipe: recipe.name(),
+      });
+    }
+
     Self::run_dependencies(
       config,
       &context,
       recipe.priors(),
-      dotenv,
       &mut evaluator,
       ran,
       recipe,
@@ -448,7 +480,6 @@ impl<'src> Justfile<'src> {
       config,
       &context,
       recipe.subsequents(),
-      dotenv,
       &mut evaluator,
       &Ran::default(),
       recipe,
@@ -465,11 +496,10 @@ impl<'src> Justfile<'src> {
     config: &Config,
     context: &ExecutionContext<'src, 'run>,
     dependencies: &[Dependency<'src>],
-    dotenv: &BTreeMap<String, String>,
     evaluator: &mut Evaluator<'src, 'run>,
     ran: &Ran,
     recipe: &Recipe<'src>,
-    scopes: &BTreeMap<Modulepath, (&Self, &Scope<'src, 'run>)>,
+    scopes: &Scopes<'src, 'run>,
     search: &Search,
   ) -> RunResult<'src> {
     if context.config.no_dependencies {
@@ -494,9 +524,7 @@ impl<'src> Justfile<'src> {
         let mut handles = Vec::new();
         for (recipe, arguments) in evaluated {
           handles.push(thread_scope.spawn(move || {
-            Self::run_recipe(
-              &arguments, config, dotenv, true, ran, recipe, scopes, search,
-            )
+            Self::run_recipe(&arguments, config, true, ran, recipe, scopes, search)
           }));
         }
         for handle in handles {
@@ -508,9 +536,7 @@ impl<'src> Justfile<'src> {
       })?;
     } else {
       for (recipe, arguments) in evaluated {
-        Self::run_recipe(
-          &arguments, config, dotenv, true, ran, recipe, scopes, search,
-        )?;
+        Self::run_recipe(&arguments, config, true, ran, recipe, scopes, search)?;
       }
     }
 
@@ -566,6 +592,25 @@ impl<'src> Justfile<'src> {
     }
 
     recipes
+  }
+
+  pub(crate) fn public_aliases_recursive(&self, config: &Config) -> Vec<(&Alias, &Modulepath)> {
+    let mut aliases = Vec::new();
+
+    let mut stack = vec![self];
+    while let Some(current) = stack.pop() {
+      for alias in current.aliases.values() {
+        if alias.is_public() {
+          aliases.push((alias, &current.modulepath));
+        }
+      }
+
+      for module in current.public_modules(config).into_iter().rev() {
+        stack.push(module);
+      }
+    }
+
+    aliases
   }
 
   pub(crate) fn groups(&self) -> Vec<&str> {

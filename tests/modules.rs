@@ -465,7 +465,7 @@ fn root_dotenv_is_available_to_submodules() {
 }
 
 #[test]
-fn dotenv_settings_in_submodule_are_ignored() {
+fn submodule_inherits_root_dotenv_even_with_dotenv_load_false() {
   Test::new()
     .justfile(
       "
@@ -481,6 +481,107 @@ fn dotenv_settings_in_submodule_are_ignored() {
     .write(".env", "DOTENV_KEY=dotenv-value")
     .args(["foo", "foo"])
     .stdout("dotenv-value\n")
+    .success();
+}
+
+#[test]
+fn submodule_loads_own_dotenv() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-load
+
+        mod foo
+      ",
+    )
+    .write(
+      "foo/mod.just",
+      "set dotenv-load\nfoo:\n @echo $ROOT_KEY $SUB_KEY",
+    )
+    .write(".env", "ROOT_KEY=root")
+    .write("foo/.env", "SUB_KEY=sub")
+    .args(["foo", "foo"])
+    .stdout("root sub\n")
+    .success();
+}
+
+#[test]
+fn submodule_dotenv_overrides_root() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-load
+
+        mod foo
+      ",
+    )
+    .write("foo/mod.just", "set dotenv-load\nfoo:\n @echo $KEY")
+    .write(".env", "KEY=root")
+    .write("foo/.env", "KEY=sub")
+    .args(["foo", "foo"])
+    .stdout("sub\n")
+    .success();
+}
+
+#[test]
+fn root_does_not_see_submodule_dotenv() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-load
+
+        mod foo
+
+        bar:
+          @echo ${SUB_KEY:-unset}
+      ",
+    )
+    .write("foo/mod.just", "set dotenv-load\nfoo:\n @echo $SUB_KEY")
+    .write(".env", "ROOT_KEY=root")
+    .write("foo/.env", "SUB_KEY=sub")
+    .args(["bar"])
+    .stdout("unset\n")
+    .success();
+}
+
+#[test]
+fn nested_submodule_dotenv_merge() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-load
+
+        mod foo
+      ",
+    )
+    .write("foo/mod.just", "set dotenv-load\nmod bar")
+    .write("foo/bar/mod.just", "set dotenv-load\nbaz:\n @echo $A $B $C")
+    .write(".env", "A=1\nB=2\nC=3")
+    .write("foo/.env", "B=20")
+    .write("foo/bar/.env", "C=300")
+    .args(["foo", "bar", "baz"])
+    .stdout("1 20 300\n")
+    .success();
+}
+
+#[test]
+fn submodule_dotenv_load_false_skips_own_but_inherits_parent() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-load
+
+        mod foo
+      ",
+    )
+    .write(
+      "foo/mod.just",
+      "set dotenv-load := false\nfoo:\n @echo $ROOT_KEY ${SUB_KEY:-unset}",
+    )
+    .write(".env", "ROOT_KEY=root")
+    .write("foo/.env", "SUB_KEY=sub")
+    .args(["foo", "foo"])
+    .stdout("root unset\n")
     .success();
 }
 

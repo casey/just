@@ -21,7 +21,7 @@ mod full {
   pub(crate) use crate::{
     assignment::Assignment, condition::Condition, conditional_operator::ConditionalOperator,
     dependency::Dependency, expression::Expression, fragment::Fragment, justfile::Justfile,
-    line::Line, parameter::Parameter, parameter_kind::ParameterKind, recipe::Recipe, thunk::Thunk,
+    line::Line, parameter::Parameter, parameter_kind::ParameterKind, recipe::Recipe,
   };
 }
 
@@ -252,72 +252,9 @@ impl Expression {
       Backtick { contents, .. } => Self::Backtick {
         command: (*contents).clone(),
       },
-      Call { thunk } => match thunk {
-        full::Thunk::Nullary { name, .. } => Self::Call {
-          name: name.lexeme().to_owned(),
-          arguments: Vec::new(),
-        },
-        full::Thunk::Unary { name, arg, .. } => Self::Call {
-          name: name.lexeme().to_owned(),
-          arguments: vec![Self::new(arg)],
-        },
-        full::Thunk::UnaryOpt {
-          name,
-          args: (a, opt_b),
-          ..
-        } => {
-          let mut arguments = Vec::new();
-          if let Some(b) = opt_b.as_ref() {
-            arguments.push(Self::new(b));
-          }
-          arguments.push(Self::new(a));
-          Self::Call {
-            name: name.lexeme().to_owned(),
-            arguments,
-          }
-        }
-        full::Thunk::UnaryPlus {
-          name,
-          args: (a, rest),
-          ..
-        } => {
-          let mut arguments = vec![Self::new(a)];
-          for arg in rest {
-            arguments.push(Self::new(arg));
-          }
-          Self::Call {
-            name: name.lexeme().to_owned(),
-            arguments,
-          }
-        }
-        full::Thunk::Binary {
-          name, args: [a, b], ..
-        } => Self::Call {
-          name: name.lexeme().to_owned(),
-          arguments: vec![Self::new(a), Self::new(b)],
-        },
-        full::Thunk::BinaryPlus {
-          name,
-          args: ([a, b], rest),
-          ..
-        } => {
-          let mut arguments = vec![Self::new(a), Self::new(b)];
-          for arg in rest {
-            arguments.push(Self::new(arg));
-          }
-          Self::Call {
-            name: name.lexeme().to_owned(),
-            arguments,
-          }
-        }
-        full::Thunk::Ternary {
-          name,
-          args: [a, b, c],
-          ..
-        } => Self::Call {
-          name: name.lexeme().to_owned(),
-          arguments: vec![Self::new(a), Self::new(b), Self::new(c)],
-        },
+      Call { name, arguments } => Self::Call {
+        name: name.lexeme().to_owned(),
+        arguments: arguments.iter().map(Self::new).collect(),
       },
       Concatenation { lhs, rhs } => Self::Concatenation {
         lhs: Self::new(lhs).into(),

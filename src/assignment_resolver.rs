@@ -3,21 +3,30 @@ use {super::*, CompileErrorKind::*};
 pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
   assignments: &'run Table<'src, Assignment<'src>>,
   evaluated: BTreeSet<&'src str>,
+  functions: &'run Table<'src, FunctionDefinition<'src>>,
   stack: Vec<&'src str>,
 }
 
 impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
   pub(crate) fn resolve_assignments(
     assignments: &'run Table<'src, Assignment<'src>>,
+    functions: &'run Table<'src, FunctionDefinition<'src>>,
   ) -> CompileResult<'src> {
     let mut resolver = Self {
-      stack: Vec::new(),
-      evaluated: BTreeSet::new(),
       assignments,
+      evaluated: BTreeSet::new(),
+      functions,
+      stack: Vec::new(),
     };
 
     for assignment in assignments.values() {
       resolver.resolve_assignment(assignment)?;
+    }
+
+    for function in functions.values() {
+      for reference in function.body.references() {
+        resolver.resolve_reference(Some(&function.parameters), reference)?;
+      }
     }
 
     Ok(())
@@ -32,32 +41,65 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
 
     self.stack.push(name);
 
-    for variable in assignment.value.variables() {
-      let name = variable.lexeme();
-
-      if self.evaluated.contains(name) || constants().contains_key(name) {
-        continue;
-      }
-
-      if self.stack.contains(&name) {
-        self.stack.push(name);
-        return Err(
-          self.assignments[name]
-            .name
-            .error(CircularVariableDependency {
-              variable: name,
-              circle: self.stack.clone(),
-            }),
-        );
-      } else if let Some(assignment) = self.assignments.get(name) {
-        self.resolve_assignment(assignment)?;
-      } else {
-        return Err(variable.error(UndefinedVariable { variable: name }));
-      }
+    for reference in assignment.value.references() {
+      self.resolve_reference(None, reference)?;
     }
+
     self.evaluated.insert(name);
 
     self.stack.pop();
+
+    Ok(())
+  }
+
+  fn resolve_reference(
+    &mut self,
+    parameters: Option<&[(Name<'src>, Number)]>,
+    reference: Reference<'src>,
+  ) -> CompileResult<'src> {
+    match reference {
+      Reference::Call { name, arguments } => {
+        Analyzer::resolve_call(self.functions, name, arguments)
+      }
+      Reference::Variable(name) => self.resolve_variable(parameters, name),
+    }
+  }
+
+  fn resolve_variable(
+    &mut self,
+    parameters: Option<&[(Name<'src>, Number)]>,
+    variable: Name<'src>,
+  ) -> CompileResult<'src> {
+    let name = variable.lexeme();
+
+    if let Some(parameters) = parameters {
+      if parameters
+        .iter()
+        .any(|(parameter, _number)| parameter.lexeme() == name)
+      {
+        return Ok(());
+      }
+    }
+
+    if self.evaluated.contains(name) || constants().contains_key(name) {
+      return Ok(());
+    }
+
+    if self.stack.contains(&name) {
+      self.stack.push(name);
+      return Err(
+        self.assignments[name]
+          .name
+          .error(CircularVariableDependency {
+            variable: name,
+            circle: self.stack.clone(),
+          }),
+      );
+    } else if let Some(assignment) = self.assignments.get(name) {
+      self.resolve_assignment(assignment)?;
+    } else {
+      return Err(variable.error(UndefinedVariable { variable: name }));
+    }
 
     Ok(())
   }
@@ -69,12 +111,12 @@ mod tests {
 
   analysis_error! {
     name:   circular_variable_dependency,
-    input:   "a := b\nb := a",
-    offset:  0,
+    input:  "a := b\nb := a",
+    offset: 0,
     line:   0,
     column: 0,
     width:  1,
-    kind:   CircularVariableDependency{variable: "a", circle: vec!["a", "b", "a"]},
+    kind:   CircularVariableDependency { variable: "a", circle: vec!["a", "b", "a"] },
   }
 
   analysis_error! {
@@ -84,7 +126,7 @@ mod tests {
     line:   0,
     column: 0,
     width:  1,
-    kind:   CircularVariableDependency{variable: "a", circle: vec!["a", "a"]},
+    kind:   CircularVariableDependency { variable: "a", circle: vec!["a", "a"] },
   }
 
   analysis_error! {
@@ -94,36 +136,36 @@ mod tests {
     line:   0,
     column: 5,
     width:  2,
-    kind:   UndefinedVariable{variable: "yy"},
+    kind:   UndefinedVariable { variable: "yy" },
   }
 
   analysis_error! {
-    name:   unknown_function_parameter,
+    name:   undefined_function_parameter,
     input:  "x := env_var(yy)",
-    offset:  13,
+    offset: 13,
     line:   0,
     column: 13,
     width:  2,
-    kind:   UndefinedVariable{variable: "yy"},
+    kind:   UndefinedVariable { variable: "yy" },
   }
 
   analysis_error! {
-    name:   unknown_function_parameter_binary_first,
+    name:   undefined_function_parameter_binary_first,
     input:  "x := env_var_or_default(yy, 'foo')",
-    offset:  24,
+    offset: 24,
     line:   0,
     column: 24,
     width:  2,
-    kind:   UndefinedVariable{variable: "yy"},
+    kind:   UndefinedVariable { variable: "yy" },
   }
 
   analysis_error! {
-    name:   unknown_function_parameter_binary_second,
+    name:   undefined_function_parameter_binary_second,
     input:  "x := env_var_or_default('foo', yy)",
-    offset:  31,
+    offset: 31,
     line:   0,
     column: 31,
     width:  2,
-    kind:   UndefinedVariable{variable: "yy"},
+    kind:   UndefinedVariable { variable: "yy" },
   }
 }

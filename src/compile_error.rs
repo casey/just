@@ -69,6 +69,12 @@ impl Display for CompileError<'_> {
           write!(f, "at most {max} {}", Count("argument", *max))
         }
       }
+      AttributeArgumentExpression { attribute } => {
+        write!(
+          f,
+          "Attribute `{attribute}` arguments must be string literals"
+        )
+      }
       AttributePositionalFollowsKeyword => {
         write!(
           f,
@@ -187,12 +193,12 @@ impl Display for CompileError<'_> {
       }
       FunctionArgumentCountMismatch {
         function,
-        found,
+        arguments,
         expected,
       } => write!(
         f,
-        "Function `{function}` called with {found} {} but takes {}",
-        Count("argument", *found),
+        "Function `{function}` called with {arguments} {} but takes {}",
+        Count("argument", *arguments),
         expected.display(),
       ),
       GuardAndInfallibleSigil => write!(
@@ -308,6 +314,7 @@ impl Display for CompileError<'_> {
       UndefinedArgAttribute { argument } => {
         write!(f, "Argument attribute for undefined argument `{argument}`")
       }
+      UndefinedFunction { function } => write!(f, "Call to undefined function `{function}`"),
       UndefinedVariable { variable } => write!(f, "Variable `{variable}` not defined"),
       UnexpectedCharacter { expected } => {
         write!(f, "Expected character {}", List::or_ticked(expected))
@@ -357,7 +364,6 @@ impl Display for CompileError<'_> {
       UnknownDependency { recipe, unknown } => {
         write!(f, "Recipe `{recipe}` has unknown dependency `{unknown}`")
       }
-      UnknownFunction { function } => write!(f, "Call to unknown function `{function}`"),
       UnknownSetting { setting } => write!(f, "Unknown setting `{setting}`"),
       UnknownStartOfToken { start } => {
         write!(f, "Unknown start of token '{start}'")?;

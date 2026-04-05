@@ -1170,6 +1170,12 @@ Starting server with database localhost:6379 on port 1337…
 ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
 ```
 
+Variables in environment files loaded in parent modules are inherited by
+submodules.
+
+Environment files are loaded in submodules<sup>master<sup> and may override
+variable defined in parent module environment files.
+
 #### Export
 
 The `export` setting causes all `just` variables to be exported as environment
@@ -1778,7 +1784,7 @@ BAR
 FOO
 ```
 
-### Functions
+### Built-in Functions
 
 `just` provides many built-in functions for use in expressions, including
 recipe body `{{…}}` substitutions, assignments, and default parameter values.
@@ -2218,6 +2224,36 @@ xdg_config_dir := if env('XDG_CONFIG_HOME', '') =~ '^/' {
 }
 ```
 
+### User-defined functions
+
+New functions may be defined<sup>master</sup>:
+
+```just
+set unstable
+
+hello(name) := f"Hello, {{ name }}!"
+
+foo:
+  echo '{{ hello("World") }}'
+```
+
+User defined functions are currently unstable.
+
+Functions may reference assignments in the same module:
+
+```just
+set unstable
+
+base := "foo"
+
+join(extension) := base + "." + extension
+
+create:
+  touch {{ join("c") }}
+  touch {{ join("html") }}
+  touch {{ join("txt") }}
+```
+
 ### Constants
 
 A number of constants are predefined:
@@ -2416,6 +2452,15 @@ The default confirmation prompt can be overridden with
 [confirm("Are you sure you want to delete everything?")]
 delete-everything:
   rm -rf *
+```
+
+The confirmation prompt may also be an expression<sup>master</sup> which may
+reference assignments or recipe arguments:
+
+```just
+[confirm("Deploy to " + env + "?")]
+deploy env:
+  echo 'Deploying to {{env}}...'
 ```
 
 #### Metadata
@@ -4816,6 +4861,12 @@ export FOO := '''
 bar:
   printf %s "$FOO"
 ```
+
+### Skill for Agents
+
+A skill for agents is available in
+[skills/just](https://github.com/casey/just/blob/master/skills/just/) and may
+be installed manually or with `npx skills add casey/just --global`.
 
 ### Alternatives and Prior Art
 

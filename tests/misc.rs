@@ -1362,7 +1362,7 @@ c: b a
 }
 
 #[test]
-fn unknown_function_in_assignment() {
+fn undefined_function_in_assignment() {
   Test::new()
     .arg("bar")
     .justfile(
@@ -1370,7 +1370,7 @@ fn unknown_function_in_assignment() {
 bar:"#,
     )
     .stderr(
-      r#"error: Call to unknown function `foo`
+      r#"error: Call to undefined function `foo`
  ——▶ justfile:1:8
   │
 1 │ foo := foo() + "hello"
@@ -1993,7 +1993,7 @@ fn unknown_variable_in_default() {
 }
 
 #[test]
-fn unknown_function_in_default() {
+fn undefined_function_in_default() {
   Test::new()
     .justfile(
       "
@@ -2001,7 +2001,7 @@ foo x=bar():
 ",
     )
     .stderr(
-      r"error: Call to unknown function `bar`
+      r"error: Call to undefined function `bar`
  ——▶ justfile:1:7
   │
 1 │ foo x=bar():
