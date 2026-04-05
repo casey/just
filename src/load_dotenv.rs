@@ -26,8 +26,9 @@ pub(crate) fn load_dotenv(
 
   if let Some(path) = dotenv_path {
     let path = working_directory.join(path);
-    if filesystem::is_file(&path)? {
-      return load_from_file(&path, settings);
+
+    if let Some(map) = load_from_file(&path, settings)? {
+      return Ok(map);
     }
   }
 
@@ -35,8 +36,9 @@ pub(crate) fn load_dotenv(
 
   for directory in working_directory.ancestors() {
     let path = directory.join(filename);
-    if filesystem::is_file(&path)? {
-      return load_from_file(&path, settings);
+
+    if let Some(map) = load_from_file(&path, settings)? {
+      return Ok(map);
     }
   }
 
@@ -50,20 +52,47 @@ pub(crate) fn load_dotenv(
 fn load_from_file(
   path: &Path,
   settings: &Settings,
-) -> RunResult<'static, BTreeMap<String, String>> {
-  let iter = dotenvy::from_path_iter(path).map_err(|dotenv_error| Error::Dotenv {
-    dotenv_error,
-    path: path.into(),
-  })?;
+) -> RunResult<'static, Option<BTreeMap<String, String>>> {
+  let file = match File::open(&path) {
+    Ok(file) => file,
+    Err(source) => {
+      if matches!(
+        source.kind(),
+        io::ErrorKind::IsADirectory | io::ErrorKind::NotFound,
+      ) {
+        return Ok(None);
+      } else {
+        return Err(Error::FilesystemIo {
+          path: path.into(),
+          source,
+        });
+      }
+    }
+  };
+
+  if file
+    .metadata()
+    .map_err(|source| Error::FilesystemIo {
+      path: path.into(),
+      source,
+    })?
+    .is_dir()
+  {
+    return Ok(None);
+  }
+
   let mut dotenv = BTreeMap::new();
-  for result in iter {
+
+  for result in dotenvy::from_read_iter(file) {
     let (key, value) = result.map_err(|dotenv_error| Error::Dotenv {
       dotenv_error,
       path: path.into(),
     })?;
+
     if settings.dotenv_override || env::var_os(&key).is_none() {
       dotenv.insert(key, value);
     }
   }
-  Ok(dotenv)
+
+  Ok(Some(dotenv))
 }

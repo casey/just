@@ -136,7 +136,7 @@ pub(crate) use {
     env,
     ffi::{OsStr, OsString},
     fmt::{self, Debug, Display, Formatter},
-    fs,
+    fs::{self, File},
     io::{self, Write},
     iter::{self, FromIterator},
     mem,
