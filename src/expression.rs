@@ -69,7 +69,7 @@ impl Display for Expression<'_> {
       } => write!(f, "assert({condition}, {error})"),
       Self::Backtick { token, .. } => write!(f, "{}", token.lexeme()),
       Self::Call { name, arguments } => {
-        write!(f, "{}(", name.lexeme())?;
+        write!(f, "{name}(")?;
         for (i, argument) in arguments.iter().enumerate() {
           if i > 0 {
             write!(f, ", ")?;
@@ -107,7 +107,7 @@ impl Display for Expression<'_> {
       } => write!(f, "{lhs} / {rhs}"),
       Self::Or { lhs, rhs } => write!(f, "{lhs} || {rhs}"),
       Self::StringLiteral { string_literal } => write!(f, "{string_literal}"),
-      Self::Variable { name } => write!(f, "{}", name.lexeme()),
+      Self::Variable { name } => write!(f, "{name}"),
     }
   }
 }
