@@ -1818,3 +1818,20 @@ fn user_defined_function_has_access_to_env_file() {
     .stdout("VAL")
     .success();
 }
+
+#[test]
+fn user_defined_function_may_reference_non_const_assignment() {
+  Test::new()
+    .justfile(
+      "
+        foo() := bar
+
+        bar := `echo baz`
+
+        a := foo()
+      ",
+    )
+    .args(["--evaluate", "a"])
+    .stdout("baz")
+    .success();
+}
