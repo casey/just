@@ -1800,3 +1800,21 @@ fn user_defined_function_trailing_comma() {
     .stdout("bar")
     .success();
 }
+
+#[test]
+fn user_defined_function_has_access_to_env_file() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-required
+
+        foo() := env('VAR')
+
+        a := foo()
+      ",
+    )
+    .write(".env", "VAR=VAL")
+    .args(["--evaluate", "a"])
+    .stdout("VAL")
+    .success();
+}
