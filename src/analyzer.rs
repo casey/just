@@ -565,7 +565,7 @@ mod tests {
     line:   0,
     column: 4,
     width:  1,
-    kind:   DuplicateParameter{ recipe: "a", parameter: "b" },
+    kind:   DuplicateParameter { recipe: "a", parameter: "b" },
   }
 
   analysis_error! {
@@ -575,7 +575,7 @@ mod tests {
     line:   0,
     column: 5,
     width:  1,
-    kind:   DuplicateParameter{ recipe: "a", parameter: "b" },
+    kind:   DuplicateParameter { recipe: "a", parameter: "b" },
   }
 
   analysis_error! {
@@ -595,7 +595,7 @@ mod tests {
     line:   1,
     column: 0,
     width:  1,
-    kind:   DuplicateVariable{variable: "a"},
+    kind:   DuplicateVariable { variable: "a" },
   }
 
   analysis_error! {
@@ -615,7 +615,7 @@ mod tests {
     line:   0,
     column: 5,
     width:  3,
-    kind:   UndefinedFunction{function: "foo"},
+    kind:   UndefinedFunction { function: "foo" },
   }
 
   analysis_error! {
@@ -625,7 +625,7 @@ mod tests {
     line:   1,
     column: 8,
     width:  3,
-    kind:   UndefinedFunction{function: "bar"},
+    kind:   UndefinedFunction { function: "bar" },
   }
 
   analysis_error! {
@@ -635,7 +635,7 @@ mod tests {
     line:   0,
     column: 4,
     width:  3,
-    kind:   UndefinedFunction{function: "baz"},
+    kind:   UndefinedFunction { function: "baz" },
   }
 
   analysis_error! {
