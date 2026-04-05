@@ -1784,7 +1784,7 @@ BAR
 FOO
 ```
 
-### Functions
+### Built-in Functions
 
 `just` provides many built-in functions for use in expressions, including
 recipe body `{{…}}` substitutions, assignments, and default parameter values.
@@ -2222,6 +2222,32 @@ xdg_config_dir := if env('XDG_CONFIG_HOME', '') =~ '^/' {
 } else {
   home_directory() / '.config'
 }
+```
+
+### User-defined functions
+
+New functions may be defined<sup>master</sup>:
+
+```just
+hello(name) := f"Hello, {{ name }}!"
+
+foo:
+  echo '{{ hello("World") }}'
+```
+
+User defined functions are currently unstable.
+
+Functions may reference assignments in the same module:
+
+```just
+base := "foo"
+
+join(extension) := base + "." + extension
+
+create:
+  touch {{ join("c") }}
+  touch {{ join("html") }}
+  touch {{ join("txt") }}
 ```
 
 ### Constants
