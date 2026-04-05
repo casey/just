@@ -1527,6 +1527,7 @@ fn user_defined_function_redefinition() {
           │ ^^^
       ",
     )
+    .env("JUST_UNSTABLE", "1")
     .failure();
 }
 
@@ -1548,6 +1549,7 @@ fn user_defined_function_wrong_argument_count() {
           │      ^^^
       ",
     )
+    .env("JUST_UNSTABLE", "1")
     .failure();
 }
 
@@ -1569,6 +1571,7 @@ fn user_defined_function_undefined_variable_in_body() {
           │          ^^^
       ",
     )
+    .env("JUST_UNSTABLE", "1")
     .failure();
 }
 
@@ -1585,6 +1588,7 @@ fn user_defined_function_undefined_in_assignment() {
           │      ^^^
       ",
     )
+    .env("JUST_UNSTABLE", "1")
     .failure();
 }
 
@@ -1601,6 +1605,7 @@ fn user_defined_function_undefined_in_setting() {
           │                ^^^
       ",
     )
+    .env("JUST_UNSTABLE", "1")
     .failure();
 }
 
@@ -1617,6 +1622,7 @@ fn user_defined_function_undefined_in_recipe_parameter_default() {
           │       ^^^
       ",
     )
+    .env("JUST_UNSTABLE", "1")
     .failure();
 }
 
@@ -1638,6 +1644,7 @@ fn user_defined_function_undefined_in_dependency_argument() {
           │           ^^^
       ",
     )
+    .env("JUST_UNSTABLE", "1")
     .failure();
 }
 
@@ -1659,6 +1666,7 @@ fn user_defined_function_undefined_in_confirm_attribute() {
           │          ^^^
       ",
     )
+    .env("JUST_UNSTABLE", "1")
     .failure();
 }
 
@@ -1680,6 +1688,7 @@ fn user_defined_function_undefined_in_interpolation() {
           │          ^^^
       ",
     )
+    .env("JUST_UNSTABLE", "1")
     .failure();
 }
 
@@ -1694,6 +1703,7 @@ fn user_defined_function_uses_parameter() {
     )
     .args(["--evaluate", "a"])
     .stdout("bar")
+    .env("JUST_UNSTABLE", "1")
     .success();
 }
 
@@ -1709,6 +1719,7 @@ fn user_defined_function_uses_outer_variable() {
     )
     .args(["--evaluate", "a"])
     .stdout("bar")
+    .env("JUST_UNSTABLE", "1")
     .success();
 }
 
@@ -1724,6 +1735,7 @@ fn user_defined_function_parameter_shadows_variable() {
     )
     .args(["--evaluate", "a"])
     .stdout("baz")
+    .env("JUST_UNSTABLE", "1")
     .success();
 }
 
@@ -1744,6 +1756,7 @@ fn user_defined_function_format_no_args() {
         a := foo()
       ",
     )
+    .env("JUST_UNSTABLE", "1")
     .success();
 }
 
@@ -1764,6 +1777,7 @@ fn user_defined_function_format_one_arg() {
         a := foo('bar')
       ",
     )
+    .env("JUST_UNSTABLE", "1")
     .success();
 }
 
@@ -1784,6 +1798,7 @@ fn user_defined_function_format_two_args() {
         a := foo('bar', 'baz')
       ",
     )
+    .env("JUST_UNSTABLE", "1")
     .success();
 }
 
@@ -1798,6 +1813,7 @@ fn user_defined_function_trailing_comma() {
     )
     .args(["--evaluate", "a"])
     .stdout("bar")
+    .env("JUST_UNSTABLE", "1")
     .success();
 }
 
@@ -1816,6 +1832,7 @@ fn user_defined_function_has_access_to_env_file() {
     .write(".env", "VAR=VAL")
     .args(["--evaluate", "a"])
     .stdout("VAL")
+    .env("JUST_UNSTABLE", "1")
     .success();
 }
 
@@ -1833,5 +1850,14 @@ fn user_defined_function_may_reference_non_const_assignment() {
     )
     .args(["--evaluate", "a"])
     .stdout("baz")
+    .env("JUST_UNSTABLE", "1")
     .success();
+}
+
+#[test]
+fn user_defined_function_unstable() {
+  Test::new()
+    .justfile("foo() := 'bar'")
+    .stderr_regex(r"error: User-defined functions are currently unstable\..*")
+    .failure();
 }
