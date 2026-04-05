@@ -4,10 +4,10 @@ use super::*;
 fn test_os_arch_functions_in_interpolation() {
   Test::new()
     .justfile(
-      r"
-foo:
-  echo {{arch()}} {{os()}} {{os_family()}} {{num_cpus()}}
-",
+      "
+        foo:
+          echo {{arch()}} {{os()}} {{os_family()}} {{num_cpus()}}
+      ",
     )
     .stdout(
       format!(
@@ -36,15 +36,15 @@ foo:
 fn test_os_arch_functions_in_expression() {
   Test::new()
     .justfile(
-      r"
-a := arch()
-o := os()
-f := os_family()
-n := num_cpus()
+      "
+        a := arch()
+        o := os()
+        f := os_family()
+        n := num_cpus()
 
-foo:
-  echo {{a}} {{o}} {{f}} {{n}}
-",
+        foo:
+          echo {{a}} {{o}} {{f}} {{n}}
+      ",
     )
     .stdout(
       format!(
@@ -76,14 +76,14 @@ fn env_var_functions_unix() {
   }
   Test::new()
     .justfile(
-      r"
-p := env_var('USER')
-b := env_var_or_default('ZADDY', 'HTAP')
-x := env_var_or_default('XYZ', 'ABC')
+      "
+        p := env_var('USER')
+        b := env_var_or_default('ZADDY', 'HTAP')
+        x := env_var_or_default('XYZ', 'ABC')
 
-foo:
-  /usr/bin/env echo '{{p}}' '{{b}}' '{{x}}'
-",
+        foo:
+          /usr/bin/env echo '{{p}}' '{{b}}' '{{x}}'
+      ",
     )
     .stdout(format!("{} HTAP ABC\n", env::var("USER").unwrap()).as_str())
     .stderr(
@@ -103,17 +103,17 @@ fn path_functions() {
   }
   Test::new()
     .justfile(
-      r"
-we  := without_extension('/foo/bar/baz.hello')
-fs  := file_stem('/foo/bar/baz.hello')
-fn  := file_name('/foo/bar/baz.hello')
-dir := parent_directory('/foo/bar/baz.hello')
-ext := extension('/foo/bar/baz.hello')
-jn  := join('a', 'b')
+      "
+        we  := without_extension('/foo/bar/baz.hello')
+        fs  := file_stem('/foo/bar/baz.hello')
+        fn  := file_name('/foo/bar/baz.hello')
+        dir := parent_directory('/foo/bar/baz.hello')
+        ext := extension('/foo/bar/baz.hello')
+        jn  := join('a', 'b')
 
-foo:
-  /usr/bin/env echo '{{we}}' '{{fs}}' '{{fn}}' '{{dir}}' '{{ext}}' '{{jn}}'
-",
+        foo:
+          /usr/bin/env echo '{{we}}' '{{fs}}' '{{fn}}' '{{dir}}' '{{ext}}' '{{jn}}'
+      ",
     )
     .stdout("/foo/bar/baz baz baz.hello /foo/bar hello a/b\n")
     .stderr("/usr/bin/env echo '/foo/bar/baz' 'baz' 'baz.hello' '/foo/bar' 'hello' 'a/b'\n")
@@ -1529,18 +1529,18 @@ fn user_defined_function_redefinition() {
   Test::new()
     .justfile(
       "
-foo() := \"bar\"
-foo() := \"baz\"
-",
+        foo() := \"bar\"
+        foo() := \"baz\"
+      ",
     )
     .stderr(
       "
-error: Function `foo` first defined on line 1 is redefined on line 2
- ——▶ justfile:2:1
-  │
-2 │ foo() := \"baz\"
-  │ ^^^
-",
+        error: Function `foo` first defined on line 1 is redefined on line 2
+         ——▶ justfile:2:1
+          │
+        2 │ foo() := \"baz\"
+          │ ^^^
+      ",
     )
     .failure();
 }
@@ -1550,18 +1550,18 @@ fn user_defined_function_wrong_argument_count() {
   Test::new()
     .justfile(
       "
-foo(x) := x
-a := foo(\"bar\", \"baz\")
-",
+        foo(x) := x
+        a := foo(\"bar\", \"baz\")
+      ",
     )
     .stderr(
       "
-error: Function `foo` called with 2 arguments but takes 1
- ——▶ justfile:2:6
-  │
-2 │ a := foo(\"bar\", \"baz\")
-  │      ^^^
-",
+        error: Function `foo` called with 2 arguments but takes 1
+         ——▶ justfile:2:6
+          │
+        2 │ a := foo(\"bar\", \"baz\")
+          │      ^^^
+      ",
     )
     .failure();
 }
@@ -1571,18 +1571,18 @@ fn user_defined_function_undefined_variable_in_body() {
   Test::new()
     .justfile(
       "
-foo() := bar
-a := foo()
-",
+        foo() := bar
+        a := foo()
+      ",
     )
     .stderr(
       "
-error: Variable `bar` not defined
- ——▶ justfile:1:10
-  │
-1 │ foo() := bar
-  │          ^^^
-",
+        error: Variable `bar` not defined
+         ——▶ justfile:1:10
+          │
+        1 │ foo() := bar
+          │          ^^^
+      ",
     )
     .failure();
 }
@@ -1593,12 +1593,12 @@ fn user_defined_function_undefined_in_assignment() {
     .justfile("a := foo()")
     .stderr(
       "
-error: Call to undefined function `foo`
- ——▶ justfile:1:6
-  │
-1 │ a := foo()
-  │      ^^^
-",
+        error: Call to undefined function `foo`
+         ——▶ justfile:1:6
+          │
+        1 │ a := foo()
+          │      ^^^
+      ",
     )
     .failure();
 }
@@ -1609,12 +1609,12 @@ fn user_defined_function_undefined_in_setting() {
     .justfile("set tempdir := foo()")
     .stderr(
       "
-error: Call to undefined function `foo`
- ——▶ justfile:1:16
-  │
-1 │ set tempdir := foo()
-  │                ^^^
-",
+        error: Call to undefined function `foo`
+         ——▶ justfile:1:16
+          │
+        1 │ set tempdir := foo()
+          │                ^^^
+      ",
     )
     .failure();
 }
@@ -1625,12 +1625,12 @@ fn user_defined_function_undefined_in_recipe_parameter_default() {
     .justfile("bar x=foo():")
     .stderr(
       "
-error: Call to undefined function `foo`
- ——▶ justfile:1:7
-  │
-1 │ bar x=foo():
-  │       ^^^
-",
+        error: Call to undefined function `foo`
+         ——▶ justfile:1:7
+          │
+        1 │ bar x=foo():
+          │       ^^^
+      ",
     )
     .failure();
 }
@@ -1640,18 +1640,18 @@ fn user_defined_function_undefined_in_dependency_argument() {
   Test::new()
     .justfile(
       "
-bar x:
-foo: (bar baz())
-",
+        bar x:
+        foo: (bar baz())
+      ",
     )
     .stderr(
       "
-error: Call to undefined function `baz`
- ——▶ justfile:2:11
-  │
-2 │ foo: (bar baz())
-  │           ^^^
-",
+        error: Call to undefined function `baz`
+         ——▶ justfile:2:11
+          │
+        2 │ foo: (bar baz())
+          │           ^^^
+      ",
     )
     .failure();
 }
@@ -1661,18 +1661,18 @@ fn user_defined_function_undefined_in_confirm_attribute() {
   Test::new()
     .justfile(
       "
-[confirm(foo())]
-bar:
-",
+        [confirm(foo())]
+        bar:
+      ",
     )
     .stderr(
       "
-error: Call to undefined function `foo`
- ——▶ justfile:1:10
-  │
-1 │ [confirm(foo())]
-  │          ^^^
-",
+        error: Call to undefined function `foo`
+         ——▶ justfile:1:10
+          │
+        1 │ [confirm(foo())]
+          │          ^^^
+      ",
     )
     .failure();
 }
@@ -1682,18 +1682,18 @@ fn user_defined_function_undefined_in_interpolation() {
   Test::new()
     .justfile(
       "
-bar:
-  echo {{foo()}}
-",
+        bar:
+          echo {{foo()}}
+      ",
     )
     .stderr(
       "
-error: Call to undefined function `foo`
- ——▶ justfile:2:10
-  │
-2 │   echo {{foo()}}
-  │          ^^^
-",
+        error: Call to undefined function `foo`
+         ——▶ justfile:2:10
+          │
+        2 │   echo {{foo()}}
+          │          ^^^
+      ",
     )
     .failure();
 }
@@ -1703,9 +1703,9 @@ fn user_defined_function_uses_parameter() {
   Test::new()
     .justfile(
       "
-foo(x) := x
-a := foo(\"bar\")
-",
+        foo(x) := x
+        a := foo(\"bar\")
+      ",
     )
     .args(["--evaluate", "a"])
     .stdout("bar")
@@ -1717,10 +1717,10 @@ fn user_defined_function_uses_outer_variable() {
   Test::new()
     .justfile(
       "
-x := \"bar\"
-foo() := x
-a := foo()
-",
+        x := \"bar\"
+        foo() := x
+        a := foo()
+      ",
     )
     .args(["--evaluate", "a"])
     .stdout("bar")
@@ -1732,10 +1732,10 @@ fn user_defined_function_parameter_shadows_variable() {
   Test::new()
     .justfile(
       "
-x := \"bar\"
-foo(x) := x
-a := foo(\"baz\")
-",
+        x := \"bar\"
+        foo(x) := x
+        a := foo(\"baz\")
+      ",
     )
     .args(["--evaluate", "a"])
     .stdout("baz")
@@ -1747,17 +1747,17 @@ fn user_defined_function_format_no_args() {
   Test::new()
     .justfile(
       "
-foo() := \"bar\"
-a := foo()
-",
+        foo() := \"bar\"
+        a := foo()
+      ",
     )
     .arg("--dump")
     .stdout(
       "
-foo() := \"bar\"
+        foo() := \"bar\"
 
-a := foo()
-",
+        a := foo()
+      ",
     )
     .success();
 }
@@ -1767,17 +1767,17 @@ fn user_defined_function_format_one_arg() {
   Test::new()
     .justfile(
       "
-foo(x) := x
-a := foo(\"bar\")
-",
+        foo(x) := x
+        a := foo(\"bar\")
+      ",
     )
     .arg("--dump")
     .stdout(
       "
-foo(x) := x
+        foo(x) := x
 
-a := foo(\"bar\")
-",
+        a := foo(\"bar\")
+      ",
     )
     .success();
 }
@@ -1787,17 +1787,17 @@ fn user_defined_function_format_two_args() {
   Test::new()
     .justfile(
       "
-foo(x, y) := x + y
-a := foo(\"bar\", \"baz\")
-",
+        foo(x, y) := x + y
+        a := foo(\"bar\", \"baz\")
+      ",
     )
     .arg("--dump")
     .stdout(
       "
-foo(x, y) := x + y
+        foo(x, y) := x + y
 
-a := foo(\"bar\", \"baz\")
-",
+        a := foo(\"bar\", \"baz\")
+      ",
     )
     .success();
 }
@@ -1807,9 +1807,9 @@ fn user_defined_function_trailing_comma() {
   Test::new()
     .justfile(
       "
-foo(x,) := x
-a := foo(\"bar\")
-",
+        foo(x,) := x
+        a := foo(\"bar\")
+      ",
     )
     .args(["--evaluate", "a"])
     .stdout("bar")
