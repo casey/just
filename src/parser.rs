@@ -495,7 +495,7 @@ impl<'run, 'src> Parser<'run, 'src> {
             items.push(Item::Set(self.parse_set()?));
           }
           _ => {
-            if self.next_is_function_definition() {
+            if self.next_are(&[Identifier, ParenL]) {
               items.push(Item::Function(self.parse_function_definition()?));
             } else if self.next_are(&[Identifier, ColonEquals]) {
               items.push(Item::Assignment(self.parse_assignment(
@@ -567,36 +567,9 @@ impl<'run, 'src> Parser<'run, 'src> {
     })
   }
 
-  fn next_is_function_definition(&self) -> bool {
-    let mut tokens = self.rest();
-
-    if tokens.next().is_none_or(|t| t.kind != Identifier) {
-      return false;
-    }
-
-    if tokens.next().is_none_or(|t| t.kind != ParenL) {
-      return false;
-    }
-
-    let mut expect_identifier = true;
-    loop {
-      match tokens.next() {
-        Some(t) if t.kind == ParenR => break,
-        Some(t) if expect_identifier && t.kind == Identifier => {
-          expect_identifier = false;
-        }
-        Some(t) if !expect_identifier && t.kind == Comma => {
-          expect_identifier = true;
-        }
-        _ => return false,
-      }
-    }
-
-    tokens.next().is_some_and(|t| t.kind == ColonEquals)
-  }
-
   fn parse_function_definition(&mut self) -> CompileResult<'src, FunctionDefinition<'src>> {
     let name = self.parse_name()?;
+
     self.presume(ParenL)?;
 
     let mut parameters = Vec::new();
@@ -608,8 +581,11 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
 
     self.expect(ParenR)?;
-    self.presume(ColonEquals)?;
+
+    self.expect(ColonEquals)?;
+
     let body = self.parse_expression()?;
+
     self.expect_eol()?;
 
     Ok(FunctionDefinition {
