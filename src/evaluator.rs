@@ -359,7 +359,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         } else if let Some(builtin) = function::get(name.lexeme()) {
           self.evaluate_builtin_function(*name, builtin, arguments)
         } else {
-          unreachable!("unresolved function call should have been caught during analysis")
+          unreachable!();
         }
       }
       Expression::Concatenation { lhs, rhs } => {
