@@ -609,7 +609,7 @@ mod tests {
   }
 
   analysis_error! {
-    name:   unknown_function,
+    name:   undefined_function,
     input:  "a := foo()",
     offset: 5,
     line:   0,
@@ -619,7 +619,7 @@ mod tests {
   }
 
   analysis_error! {
-    name:   unknown_function_in_interpolation,
+    name:   undefined_function_in_interpolation,
     input:  "a:\n echo {{bar()}}",
     offset: 11,
     line:   1,
@@ -629,7 +629,7 @@ mod tests {
   }
 
   analysis_error! {
-    name:   unknown_function_in_default,
+    name:   undefined_function_in_default,
     input:  "a f=baz():",
     offset: 4,
     line:   0,

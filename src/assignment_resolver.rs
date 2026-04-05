@@ -111,12 +111,12 @@ mod tests {
 
   analysis_error! {
     name:   circular_variable_dependency,
-    input:   "a := b\nb := a",
-    offset:  0,
+    input:  "a := b\nb := a",
+    offset: 0,
     line:   0,
     column: 0,
     width:  1,
-    kind:   CircularVariableDependency{variable: "a", circle: vec!["a", "b", "a"]},
+    kind:   CircularVariableDependency { variable: "a", circle: vec!["a", "b", "a"] },
   }
 
   analysis_error! {
@@ -126,7 +126,7 @@ mod tests {
     line:   0,
     column: 0,
     width:  1,
-    kind:   CircularVariableDependency{variable: "a", circle: vec!["a", "a"]},
+    kind:   CircularVariableDependency { variable: "a", circle: vec!["a", "a"] },
   }
 
   analysis_error! {
@@ -136,36 +136,36 @@ mod tests {
     line:   0,
     column: 5,
     width:  2,
-    kind:   UndefinedVariable{variable: "yy"},
+    kind:   UndefinedVariable { variable: "yy" },
   }
 
   analysis_error! {
-    name:   unknown_function_parameter,
+    name:   undefined_function_parameter,
     input:  "x := env_var(yy)",
-    offset:  13,
+    offset: 13,
     line:   0,
     column: 13,
     width:  2,
-    kind:   UndefinedVariable{variable: "yy"},
+    kind:   UndefinedVariable { variable: "yy" },
   }
 
   analysis_error! {
-    name:   unknown_function_parameter_binary_first,
+    name:   undefined_function_parameter_binary_first,
     input:  "x := env_var_or_default(yy, 'foo')",
-    offset:  24,
+    offset: 24,
     line:   0,
     column: 24,
     width:  2,
-    kind:   UndefinedVariable{variable: "yy"},
+    kind:   UndefinedVariable { variable: "yy" },
   }
 
   analysis_error! {
-    name:   unknown_function_parameter_binary_second,
+    name:   undefined_function_parameter_binary_second,
     input:  "x := env_var_or_default('foo', yy)",
-    offset:  31,
+    offset: 31,
     line:   0,
     column: 31,
     width:  2,
-    kind:   UndefinedVariable{variable: "yy"},
+    kind:   UndefinedVariable { variable: "yy" },
   }
 }
