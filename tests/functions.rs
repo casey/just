@@ -1514,8 +1514,8 @@ fn user_defined_function_redefinition() {
   Test::new()
     .justfile(
       "
-        foo() := \"bar\"
-        foo() := \"baz\"
+        foo() := 'bar'
+        foo() := 'baz'
       ",
     )
     .stderr(
@@ -1523,7 +1523,7 @@ fn user_defined_function_redefinition() {
         error: Function `foo` first defined on line 1 is redefined on line 2
          ——▶ justfile:2:1
           │
-        2 │ foo() := \"baz\"
+        2 │ foo() := 'baz'
           │ ^^^
       ",
     )
@@ -1536,7 +1536,7 @@ fn user_defined_function_wrong_argument_count() {
     .justfile(
       "
         foo(x) := x
-        a := foo(\"bar\", \"baz\")
+        a := foo('bar', 'baz')
       ",
     )
     .stderr(
@@ -1544,7 +1544,7 @@ fn user_defined_function_wrong_argument_count() {
         error: Function `foo` called with 2 arguments but takes 1
          ——▶ justfile:2:6
           │
-        2 │ a := foo(\"bar\", \"baz\")
+        2 │ a := foo('bar', 'baz')
           │      ^^^
       ",
     )
@@ -1689,7 +1689,7 @@ fn user_defined_function_uses_parameter() {
     .justfile(
       "
         foo(x) := x
-        a := foo(\"bar\")
+        a := foo('bar')
       ",
     )
     .args(["--evaluate", "a"])
@@ -1702,7 +1702,7 @@ fn user_defined_function_uses_outer_variable() {
   Test::new()
     .justfile(
       "
-        x := \"bar\"
+        x := 'bar'
         foo() := x
         a := foo()
       ",
@@ -1717,9 +1717,9 @@ fn user_defined_function_parameter_shadows_variable() {
   Test::new()
     .justfile(
       "
-        x := \"bar\"
+        x := 'bar'
         foo(x) := x
-        a := foo(\"baz\")
+        a := foo('baz')
       ",
     )
     .args(["--evaluate", "a"])
@@ -1732,14 +1732,14 @@ fn user_defined_function_format_no_args() {
   Test::new()
     .justfile(
       "
-        foo() := \"bar\"
+        foo() := 'bar'
         a := foo()
       ",
     )
     .arg("--dump")
     .stdout(
       "
-        foo() := \"bar\"
+        foo() := 'bar'
 
         a := foo()
       ",
@@ -1753,7 +1753,7 @@ fn user_defined_function_format_one_arg() {
     .justfile(
       "
         foo(x) := x
-        a := foo(\"bar\")
+        a := foo('bar')
       ",
     )
     .arg("--dump")
@@ -1761,7 +1761,7 @@ fn user_defined_function_format_one_arg() {
       "
         foo(x) := x
 
-        a := foo(\"bar\")
+        a := foo('bar')
       ",
     )
     .success();
@@ -1773,7 +1773,7 @@ fn user_defined_function_format_two_args() {
     .justfile(
       "
         foo(x, y) := x + y
-        a := foo(\"bar\", \"baz\")
+        a := foo('bar', 'baz')
       ",
     )
     .arg("--dump")
@@ -1781,7 +1781,7 @@ fn user_defined_function_format_two_args() {
       "
         foo(x, y) := x + y
 
-        a := foo(\"bar\", \"baz\")
+        a := foo('bar', 'baz')
       ",
     )
     .success();
@@ -1793,7 +1793,7 @@ fn user_defined_function_trailing_comma() {
     .justfile(
       "
         foo(x,) := x
-        a := foo(\"bar\")
+        a := foo('bar')
       ",
     )
     .args(["--evaluate", "a"])
