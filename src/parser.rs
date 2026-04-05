@@ -495,9 +495,9 @@ impl<'run, 'src> Parser<'run, 'src> {
             items.push(Item::Set(self.parse_set()?));
           }
           _ => {
-            if self.next_are(&[Identifier, ParenL]) {
+            if self.next_are(&[Identifier, ColonEquals]) {
               items.push(Item::Function(self.parse_function_definition()?));
-            } else if self.next_are(&[Identifier, ColonEquals]) {
+            } else if self.next_are(&[Identifier, ParenL]) {
               items.push(Item::Assignment(self.parse_assignment(
                 take_attributes(),
                 false,
