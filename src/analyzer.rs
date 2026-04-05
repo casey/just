@@ -607,4 +607,132 @@ mod tests {
     width:  6,
     kind:   ExtraLeadingWhitespace,
   }
+
+  analysis_error! {
+    name:   unknown_function,
+    input:  "a := foo()",
+    offset: 5,
+    line:   0,
+    column: 5,
+    width:  3,
+    kind:   UnknownFunction{function: "foo"},
+  }
+
+  analysis_error! {
+    name:   unknown_function_in_interpolation,
+    input:  "a:\n echo {{bar()}}",
+    offset: 11,
+    line:   1,
+    column: 8,
+    width:  3,
+    kind:   UnknownFunction{function: "bar"},
+  }
+
+  analysis_error! {
+    name:   unknown_function_in_default,
+    input:  "a f=baz():",
+    offset: 4,
+    line:   0,
+    column: 4,
+    width:  3,
+    kind:   UnknownFunction{function: "baz"},
+  }
+
+  analysis_error! {
+    name: function_argument_count_nullary,
+    input: "x := arch('foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 4,
+    kind: FunctionArgumentCountMismatch {
+      function: "arch",
+      arguments: 1,
+      expected: 0..=0,
+    },
+  }
+
+  analysis_error! {
+    name: function_argument_count_unary,
+    input: "x := env_var()",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 7,
+    kind: FunctionArgumentCountMismatch {
+      function: "env_var",
+      arguments: 0,
+      expected: 1..=1,
+    },
+  }
+
+  analysis_error! {
+    name: function_argument_count_too_high_unary_opt,
+    input: "x := env('foo', 'foo', 'foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 3,
+    kind: FunctionArgumentCountMismatch {
+      function: "env",
+      arguments: 3,
+      expected: 1..=2,
+    },
+  }
+
+  analysis_error! {
+    name: function_argument_count_too_low_unary_opt,
+    input: "x := env()",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 3,
+    kind: FunctionArgumentCountMismatch {
+      function: "env",
+      arguments: 0,
+      expected: 1..=2,
+    },
+  }
+
+  analysis_error! {
+    name: function_argument_count_binary,
+    input: "x := env_var_or_default('foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 18,
+    kind: FunctionArgumentCountMismatch {
+      function: "env_var_or_default",
+      arguments: 1,
+      expected: 2..=2,
+    },
+  }
+
+  analysis_error! {
+    name: function_argument_count_binary_plus,
+    input: "x := join('foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 4,
+    kind: FunctionArgumentCountMismatch {
+      function: "join",
+      arguments: 1,
+      expected: 2..=usize::MAX,
+    },
+  }
+
+  analysis_error! {
+    name: function_argument_count_ternary,
+    input: "x := replace('foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 7,
+    kind: FunctionArgumentCountMismatch {
+      function: "replace",
+      arguments: 1,
+      expected: 3..=3,
+    },
+  }
 }
