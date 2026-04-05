@@ -314,6 +314,7 @@ impl Display for CompileError<'_> {
       UndefinedArgAttribute { argument } => {
         write!(f, "Argument attribute for undefined argument `{argument}`")
       }
+      UndefinedFunction { function } => write!(f, "Call to undefined function `{function}`"),
       UndefinedVariable { variable } => write!(f, "Variable `{variable}` not defined"),
       UnexpectedCharacter { expected } => {
         write!(f, "Expected character {}", List::or_ticked(expected))
@@ -363,7 +364,6 @@ impl Display for CompileError<'_> {
       UnknownDependency { recipe, unknown } => {
         write!(f, "Recipe `{recipe}` has unknown dependency `{unknown}`")
       }
-      UnknownFunction { function } => write!(f, "Call to unknown function `{function}`"),
       UnknownSetting { setting } => write!(f, "Unknown setting `{setting}`"),
       UnknownStartOfToken { start } => {
         write!(f, "Unknown start of token '{start}'")?;

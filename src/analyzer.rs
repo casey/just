@@ -445,7 +445,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     } else if let Some(function) = function::get(function) {
       function.expected_arguments()
     } else {
-      return Err(name.error(CompileErrorKind::UnknownFunction { function }));
+      return Err(name.error(CompileErrorKind::UndefinedFunction { function }));
     };
 
     if !expected.contains(&arguments) {
@@ -615,7 +615,7 @@ mod tests {
     line:   0,
     column: 5,
     width:  3,
-    kind:   UnknownFunction{function: "foo"},
+    kind:   UndefinedFunction{function: "foo"},
   }
 
   analysis_error! {
@@ -625,7 +625,7 @@ mod tests {
     line:   1,
     column: 8,
     width:  3,
-    kind:   UnknownFunction{function: "bar"},
+    kind:   UndefinedFunction{function: "bar"},
   }
 
   analysis_error! {
@@ -635,7 +635,7 @@ mod tests {
     line:   0,
     column: 4,
     width:  3,
-    kind:   UnknownFunction{function: "baz"},
+    kind:   UndefinedFunction{function: "baz"},
   }
 
   analysis_error! {
