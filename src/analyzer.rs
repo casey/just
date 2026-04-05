@@ -157,7 +157,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     for function in self.functions {
       let name = function.name.lexeme();
 
-      if functions.contains_key(name) {
+      if let Some(first) = functions.get(name) {
         return Err(
           function
             .name
@@ -165,7 +165,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
               first_type: "function",
               second_type: "function",
               name,
-              first: functions.get(name).unwrap().name.line,
+              first: first.name.line,
             })
             .into(),
         );
