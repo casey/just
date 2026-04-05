@@ -62,7 +62,6 @@ fn load_from_file(
       ) {
         return Ok(None);
       }
-
       return Err(Error::FilesystemIo {
         path: path.into(),
         source,
