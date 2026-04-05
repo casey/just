@@ -2229,6 +2229,8 @@ xdg_config_dir := if env('XDG_CONFIG_HOME', '') =~ '^/' {
 New functions may be defined<sup>master</sup>:
 
 ```just
+set unstable
+
 hello(name) := f"Hello, {{ name }}!"
 
 foo:
@@ -2240,6 +2242,8 @@ User defined functions are currently unstable.
 Functions may reference assignments in the same module:
 
 ```just
+set unstable
+
 base := "foo"
 
 join(extension) := base + "." + extension
