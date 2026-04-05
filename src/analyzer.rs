@@ -438,27 +438,24 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     name: Name<'src>,
     arguments: usize,
   ) -> CompileResult<'src> {
-    if let Some(function) = functions.get(name.lexeme()) {
-      if function.parameters.len() != arguments {
-        return Err(name.error(CompileErrorKind::FunctionArgumentCountMismatch {
-          function: name.lexeme(),
-          found: arguments,
-          expected: function.parameters.len()..=function.parameters.len(),
-        }));
-      }
-    } else if let Some(builtin) = function::get(name.lexeme()) {
-      if !builtin.argc().contains(&arguments) {
-        return Err(name.error(CompileErrorKind::FunctionArgumentCountMismatch {
-          function: name.lexeme(),
-          found: arguments,
-          expected: builtin.argc(),
-        }));
-      }
+    let expected = if let Some(function) = functions.get(name.lexeme()) {
+      function.parameters.len()..=function.parameters.len()
+    } else if let Some(function) = function::get(name.lexeme()) {
+      function.argc()
     } else {
       return Err(name.error(CompileErrorKind::UnknownFunction {
         function: name.lexeme(),
       }));
+    };
+
+    if !expected.contains(&arguments) {
+      return Err(name.error(CompileErrorKind::FunctionArgumentCountMismatch {
+        function: name.lexeme(),
+        found: arguments,
+        expected,
+      }));
     }
+
     Ok(())
   }
 
