@@ -222,17 +222,43 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     function: &FunctionDefinition<'src>,
     arguments: &[Expression<'src>],
   ) -> RunResult<'src, String> {
-    let mut evaluated_args = Vec::new();
-    for arg in arguments {
-      evaluated_args.push(self.evaluate_expression(arg)?);
-    }
+    let arguments = arguments
+      .iter()
+      .map(|argument| self.evaluate_expression(argument))
+      .collect::<RunResult<Vec<String>>>()?;
 
     let context = *self
       .context
       .as_ref()
       .ok_or(ConstError::FunctionCall(name))?;
 
-    call_user_function(&context, function, &evaluated_args)
+    let root = Scope::root();
+    let overrides = HashMap::new();
+
+    let mut evaluator = Evaluator {
+      assignments: Some(&context.module.assignments),
+      context: Some(context),
+      env: BTreeMap::new(),
+      is_dependency: false,
+      non_const_assignments: Table::new(),
+      overrides: &overrides,
+      scope: root.child(),
+    };
+
+    for ((name, number), value) in function.parameters.iter().copied().zip(arguments) {
+      evaluator.scope.bind(Binding {
+        eager: false,
+        export: false,
+        file_depth: 0,
+        name,
+        number,
+        prelude: false,
+        private: false,
+        value: value.clone(),
+      });
+    }
+
+    evaluator.evaluate_expression(&function.body)
   }
 
   fn evaluate_builtin(
@@ -584,47 +610,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       scope: scope.child(),
     }
   }
-}
-
-pub(crate) fn call_user_function<'src>(
-  context: &ExecutionContext<'src, '_>,
-  function: &FunctionDefinition<'src>,
-  args: &[String],
-) -> RunResult<'src, String> {
-  let root = Scope::root();
-  let overrides = HashMap::new();
-
-  let context = ExecutionContext {
-    config: context.config,
-    dotenv: context.dotenv,
-    module: context.module,
-    search: context.search,
-  };
-
-  let mut evaluator = Evaluator {
-    assignments: Some(&context.module.assignments),
-    context: Some(context),
-    env: BTreeMap::new(),
-    is_dependency: false,
-    non_const_assignments: Table::new(),
-    overrides: &overrides,
-    scope: root.child(),
-  };
-
-  for ((name, number), value) in function.parameters.iter().copied().zip(args) {
-    evaluator.scope.bind(Binding {
-      eager: false,
-      export: false,
-      file_depth: 0,
-      name,
-      number,
-      prelude: false,
-      private: false,
-      value: value.clone(),
-    });
-  }
-
-  evaluator.evaluate_expression(&function.body)
 }
 
 #[cfg(test)]
