@@ -614,7 +614,6 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     Ok(FunctionDefinition {
       body,
-      file_depth: self.file_depth,
       name,
       parameters,
     })

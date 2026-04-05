@@ -5,10 +5,10 @@ fn basic() {
   Test::new()
     .justfile(
       "
-      f(x) := x
+        f(x) := x
 
-      foo:
-        echo {{f('bar')}}
+        foo:
+          echo {{f('bar')}}
       ",
     )
     .stderr("echo bar\n")
@@ -21,10 +21,10 @@ fn multiple_parameters() {
   Test::new()
     .justfile(
       "
-      f(a, b) := a + b
+        f(a, b) := a + b
 
-      foo:
-        echo {{f('bar', 'baz')}}
+        foo:
+          echo {{f('bar', 'baz')}}
       ",
     )
     .stderr("echo barbaz\n")
@@ -37,10 +37,10 @@ fn zero_parameters() {
   Test::new()
     .justfile(
       "
-      f() := 'bar'
+        f() := 'bar'
 
-      foo:
-        echo {{f()}}
+        foo:
+          echo {{f()}}
       ",
     )
     .stderr("echo bar\n")
@@ -53,11 +53,11 @@ fn references_outer_variable() {
   Test::new()
     .justfile(
       "
-      x := 'bar'
-      f(a) := x + a
+        x := 'bar'
+        f(a) := x + a
 
-      foo:
-        echo {{f('baz')}}
+        foo:
+          echo {{f('baz')}}
       ",
     )
     .stderr("echo barbaz\n")
@@ -70,10 +70,10 @@ fn shadow_builtin() {
   Test::new()
     .justfile(
       "
-      arch() := 'foo'
+        arch() := 'foo'
 
-      bar:
-        echo {{arch()}}
+        bar:
+          echo {{arch()}}
       ",
     )
     .stderr("echo foo\n")
@@ -87,11 +87,11 @@ fn in_assignment() {
   Test::new()
     .justfile(
       "
-      f(x) := x + x
-      y := f('bar')
+        f(x) := x + x
+        y := f('bar')
 
-      foo:
-        echo {{y}}
+        foo:
+          echo {{y}}
       ",
     )
     .stderr("echo barbar\n")
@@ -104,11 +104,11 @@ fn calls_another_function() {
   Test::new()
     .justfile(
       "
-      f(x) := x + x
-      g(x) := f(x) + f(x)
+        f(x) := x + x
+        g(x) := f(x) + f(x)
 
-      foo:
-        echo {{g('a')}}
+        foo:
+          echo {{g('a')}}
       ",
     )
     .stderr("echo aaaa\n")
@@ -121,10 +121,10 @@ fn calls_builtin_function() {
   Test::new()
     .justfile(
       "
-      f(x) := uppercase(x)
+        f(x) := uppercase(x)
 
-      foo:
-        echo {{f('bar')}}
+        foo:
+          echo {{f('bar')}}
       ",
     )
     .stderr("echo BAR\n")
@@ -137,11 +137,19 @@ fn duplicate_function_error() {
   Test::new()
     .justfile(
       "
-      f(x) := x
-      f(y) := y
+        f(x) := x
+        f(y) := y
       ",
     )
-    .stderr_regex("error: .*[Rr]edefin.*\n.*\n.*\n.*\n")
+    .stderr(
+      "
+        error: Function `f` first defined on line 1 is redefined on line 2
+         ——▶ justfile:2:1
+          │
+        2 │ f(y) := y
+          │ ^
+      ",
+    )
     .failure();
 }
 
@@ -150,10 +158,18 @@ fn unknown_function_error() {
   Test::new()
     .justfile(
       "
-      x := nope()
+        x := nope()
       ",
     )
-    .stderr_regex("error: Call to unknown function `nope`.*\n.*\n.*\n.*\n")
+    .stderr(
+      "
+        error: Call to unknown function `nope`
+         ——▶ justfile:1:6
+          │
+        1 │ x := nope()
+          │      ^^^^
+      ",
+    )
     .failure();
 }
 
@@ -162,11 +178,19 @@ fn argument_count_mismatch() {
   Test::new()
     .justfile(
       "
-      f(a, b) := a + b
-      x := f('foo')
+        f(a, b) := a + b
+        x := f('foo')
       ",
     )
-    .stderr_regex("error: Function `f` called with 1 argument but takes 2.*\n.*\n.*\n.*\n")
+    .stderr(
+      "
+        error: Function `f` called with 1 argument but takes 2
+         ——▶ justfile:2:6
+          │
+        2 │ x := f('foo')
+          │      ^
+      ",
+    )
     .failure();
 }
 
@@ -195,11 +219,11 @@ fn forward_reference() {
   Test::new()
     .justfile(
       "
-      g(x) := f(x)
-      f(x) := x + x
+        g(x) := f(x)
+        f(x) := x + x
 
-      foo:
-        echo {{g('a')}}
+        foo:
+          echo {{g('a')}}
       ",
     )
     .stderr("echo aa\n")
@@ -212,10 +236,10 @@ fn recursive() {
   Test::new()
     .justfile(
       "
-      f(x) := if x == '' { '' } else { f('') + 'a' }
+        f(x) := if x == '' { '' } else { f('') + 'a' }
 
-      foo:
-        echo {{f('x')}}
+        foo:
+          echo {{f('x')}}
       ",
     )
     .stderr("echo a\n")
@@ -228,11 +252,11 @@ fn parameter_shadows_variable() {
   Test::new()
     .justfile(
       "
-      x := 'foo'
-      f(x) := x
+        x := 'foo'
+        f(x) := x
 
-      bar:
-        echo {{f('baz')}}
+        bar:
+          echo {{f('baz')}}
       ",
     )
     .stderr("echo baz\n")
@@ -245,10 +269,10 @@ fn in_recipe_default() {
   Test::new()
     .justfile(
       "
-      f(x) := x + x
+        f(x) := x + x
 
-      foo y=f('bar'):
-        echo {{y}}
+        foo y=f('bar'):
+          echo {{y}}
       ",
     )
     .stderr("echo barbar\n")

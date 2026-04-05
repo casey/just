@@ -55,8 +55,8 @@ impl<'src> Node<'src> for Item<'src> {
       Self::Function(function) => {
         let mut tree = Tree::atom("function");
         tree.push_mut(function.name.lexeme());
-        for param in &function.parameters {
-          tree.push_mut(param.lexeme());
+        for (name, _number) in &function.parameters {
+          tree.push_mut(name.lexeme());
         }
         tree.push_mut(function.body.tree());
         tree
