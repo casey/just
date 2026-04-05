@@ -45,6 +45,7 @@ pub(crate) use {
     format_string_part::FormatStringPart,
     fragment::Fragment,
     function::Function,
+    function_definition::FunctionDefinition,
     indentation::Indentation,
     interpreter::Interpreter,
     invocation::Invocation,
@@ -111,7 +112,6 @@ pub(crate) use {
     unstable_feature::UnstableFeature,
     usage::Usage,
     use_color::UseColor,
-    user_function::UserFunction,
     verbosity::Verbosity,
     warning::Warning,
     which::which,
@@ -234,6 +234,7 @@ mod filesystem;
 mod format_string_part;
 mod fragment;
 mod function;
+mod function_definition;
 mod indentation;
 mod interpreter;
 mod invocation;
@@ -303,7 +304,6 @@ mod unresolved_recipe;
 mod unstable_feature;
 mod usage;
 mod use_color;
-mod user_function;
 mod verbosity;
 mod warning;
 mod which;

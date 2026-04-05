@@ -219,7 +219,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   fn evaluate_user_function(
     &mut self,
     name: Name<'src>,
-    function: &UserFunction<'src>,
+    function: &FunctionDefinition<'src>,
     arguments: &[Expression<'src>],
   ) -> RunResult<'src, String> {
     let mut evaluated_args = Vec::new();
@@ -588,7 +588,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
 pub(crate) fn call_user_function<'src>(
   context: &ExecutionContext<'src, '_>,
-  function: &UserFunction<'src>,
+  function: &FunctionDefinition<'src>,
   args: &[String],
 ) -> RunResult<'src, String> {
   let root = Scope::root();
@@ -611,13 +611,13 @@ pub(crate) fn call_user_function<'src>(
     scope: root.child(),
   };
 
-  for (param, value) in function.parameters.iter().zip(args) {
+  for ((name, number), value) in function.parameters.iter().copied().zip(args) {
     evaluator.scope.bind(Binding {
       eager: false,
       export: false,
       file_depth: 0,
-      name: *param,
-      number: function.number,
+      name,
+      number,
       prelude: false,
       private: false,
       value: value.clone(),

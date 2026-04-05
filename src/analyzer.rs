@@ -4,7 +4,7 @@ use {super::*, CompileErrorKind::*};
 pub(crate) struct Analyzer<'run, 'src> {
   aliases: Table<'src, Alias<'src, Namepath<'src>>>,
   assignments: Vec<&'run Binding<'src, Expression<'src>>>,
-  functions: Vec<&'run UserFunction<'src>>,
+  functions: Vec<&'run FunctionDefinition<'src>>,
   modules: Table<'src, Justfile<'src>>,
   recipes: Vec<&'run Recipe<'src, UnresolvedDependency<'src>>>,
   sets: Table<'src, Set<'src>>,
@@ -153,7 +153,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       }
     }
 
-    let mut functions = Table::<UserFunction>::default();
+    let mut functions = Table::<FunctionDefinition>::default();
     for function in self.functions {
       let name = function.name.lexeme();
 
@@ -436,7 +436,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
   }
 
   pub(crate) fn resolve_call(
-    functions: &'run Table<'src, UserFunction<'src>>,
+    functions: &'run Table<'src, FunctionDefinition<'src>>,
     name: Name<'src>,
     arguments: usize,
   ) -> CompileResult<'src> {

@@ -2,7 +2,7 @@ use {super::*, CompileErrorKind::*};
 
 pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
   assignments: &'run Table<'src, Assignment<'src>>,
-  functions: &'run Table<'src, UserFunction<'src>>,
+  functions: &'run Table<'src, FunctionDefinition<'src>>,
   evaluated: BTreeSet<&'src str>,
   stack: Vec<&'src str>,
 }
@@ -10,7 +10,7 @@ pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
 impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
   pub(crate) fn resolve_assignments(
     assignments: &'run Table<'src, Assignment<'src>>,
-    functions: &'run Table<'src, UserFunction<'src>>,
+    functions: &'run Table<'src, FunctionDefinition<'src>>,
   ) -> CompileResult<'src> {
     let mut resolver = Self {
       assignments,
@@ -54,7 +54,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
 
   fn resolve_reference(
     &mut self,
-    parameters: Option<&[Name<'src>]>,
+    parameters: Option<&[(Name<'src>, Number)]>,
     reference: Reference<'src>,
   ) -> CompileResult<'src> {
     match reference {
@@ -67,13 +67,16 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
 
   fn resolve_variable(
     &mut self,
-    parameters: Option<&[Name<'src>]>,
+    parameters: Option<&[(Name<'src>, Number)]>,
     variable: Name<'src>,
   ) -> CompileResult<'src> {
     let name = variable.lexeme();
 
     if let Some(parameters) = parameters {
-      if parameters.iter().any(|p| p.lexeme() == name) {
+      if parameters
+        .iter()
+        .any(|(parameter, _number)| parameter.lexeme() == name)
+      {
         return Ok(());
       }
     }

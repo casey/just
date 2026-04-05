@@ -6,7 +6,7 @@ impl<'src> UnresolvedRecipe<'src> {
   pub(crate) fn resolve(
     self,
     assignments: &Table<'src, Assignment<'src>>,
-    functions: &Table<'src, UserFunction<'src>>,
+    functions: &Table<'src, FunctionDefinition<'src>>,
     modulepath: &Modulepath,
     resolved: Vec<Arc<Recipe<'src>>>,
     settings: &Settings,
@@ -128,7 +128,7 @@ impl<'src> UnresolvedRecipe<'src> {
   fn resolve_expression(
     assignments: &Table<'src, Assignment<'src>>,
     expression: &Expression<'src>,
-    functions: &Table<'src, UserFunction<'src>>,
+    functions: &Table<'src, FunctionDefinition<'src>>,
     parameters: &[Parameter],
     variable_references: &mut HashSet<Number>,
   ) -> CompileResult<'src> {

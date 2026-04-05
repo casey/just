@@ -17,7 +17,7 @@ pub(crate) struct Justfile<'src> {
   pub(crate) default: Option<Arc<Recipe<'src>>>,
   pub(crate) doc: Option<String>,
   #[serde(skip)]
-  pub(crate) functions: Table<'src, UserFunction<'src>>,
+  pub(crate) functions: Table<'src, FunctionDefinition<'src>>,
   pub(crate) groups: Vec<StringLiteral<'src>>,
   #[serde(skip)]
   pub(crate) loaded: Vec<PathBuf>,

@@ -2,7 +2,7 @@ use {super::*, CompileErrorKind::*};
 
 pub(crate) struct RecipeResolver<'src: 'run, 'run> {
   assignments: &'run Table<'src, Assignment<'src>>,
-  functions: &'run Table<'src, UserFunction<'src>>,
+  functions: &'run Table<'src, FunctionDefinition<'src>>,
   modulepath: &'run Modulepath,
   modules: &'run Table<'src, Justfile<'src>>,
   resolved_recipes: Table<'src, Arc<Recipe<'src>>>,
@@ -13,7 +13,7 @@ pub(crate) struct RecipeResolver<'src: 'run, 'run> {
 impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
   pub(crate) fn resolve_recipes(
     assignments: &'run Table<'src, Assignment<'src>>,
-    functions: &'run Table<'src, UserFunction<'src>>,
+    functions: &'run Table<'src, FunctionDefinition<'src>>,
     modulepath: &'run Modulepath,
     modules: &'run Table<'src, Justfile<'src>>,
     settings: &'run Settings,

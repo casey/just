@@ -595,13 +595,13 @@ impl<'run, 'src> Parser<'run, 'src> {
     tokens.next().is_some_and(|t| t.kind == ColonEquals)
   }
 
-  fn parse_function_definition(&mut self) -> CompileResult<'src, UserFunction<'src>> {
+  fn parse_function_definition(&mut self) -> CompileResult<'src, FunctionDefinition<'src>> {
     let name = self.parse_name()?;
     self.presume(ParenL)?;
 
     let mut parameters = Vec::new();
     while !self.next_is(ParenR) {
-      parameters.push(self.parse_name()?);
+      parameters.push((self.parse_name()?, self.numerator.next()));
       if !self.accepted(Comma)? {
         break;
       }
@@ -612,11 +612,10 @@ impl<'run, 'src> Parser<'run, 'src> {
     let body = self.parse_expression()?;
     self.expect_eol()?;
 
-    Ok(UserFunction {
+    Ok(FunctionDefinition {
       body,
       file_depth: self.file_depth,
       name,
-      number: self.numerator.next(),
       parameters,
     })
   }
