@@ -26,7 +26,6 @@ pub(crate) fn load_dotenv(
 
   if let Some(path) = dotenv_path {
     let path = working_directory.join(path);
-
     if let Some(map) = load_from_file(&path, settings)? {
       return Ok(map);
     }
@@ -36,7 +35,6 @@ pub(crate) fn load_dotenv(
 
   for directory in working_directory.ancestors() {
     let path = directory.join(filename);
-
     if let Some(map) = load_from_file(&path, settings)? {
       return Ok(map);
     }
