@@ -51,13 +51,14 @@ fn load_from_file(
   path: &Path,
   settings: &Settings,
 ) -> RunResult<'static, Option<BTreeMap<String, String>>> {
+  if path.is_dir() {
+    return Ok(None);
+  }
+
   let file = match File::open(path) {
     Ok(file) => file,
     Err(source) => {
-      if matches!(
-        source.kind(),
-        io::ErrorKind::IsADirectory | io::ErrorKind::NotFound,
-      ) {
+      if source.kind() == io::ErrorKind::NotFound {
         return Ok(None);
       }
       return Err(Error::FilesystemIo {
@@ -66,17 +67,6 @@ fn load_from_file(
       });
     }
   };
-
-  if file
-    .metadata()
-    .map_err(|source| Error::FilesystemIo {
-      path: path.into(),
-      source,
-    })?
-    .is_dir()
-  {
-    return Ok(None);
-  }
 
   let mut dotenv = BTreeMap::new();
 
