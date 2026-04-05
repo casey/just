@@ -435,6 +435,55 @@ fn dotenv_path_does_not_override_dotenv_file() {
 }
 
 #[test]
+fn directory_is_ignored() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-load
+
+        foo:
+          echo ${DOTENV_KEY:-unset}
+      ",
+    )
+    .create_dir(".env")
+    .stdout("unset\n")
+    .stderr("echo ${DOTENV_KEY:-unset}\n")
+    .success();
+}
+
+#[test]
+fn fifo() {
+  if !cfg!(unix) {
+    return;
+  }
+
+  let test = Test::new();
+
+  let fifo = test.tempdir.path().join(".env");
+
+  let status = Command::new("mkfifo").arg(&fifo).status().unwrap();
+
+  assert!(status.success());
+
+  thread::spawn(move || {
+    fs::write(fifo, "DOTENV_KEY=foo\n").unwrap();
+  });
+
+  test
+    .justfile(
+      "
+        set dotenv-load
+
+        bar:
+          echo $DOTENV_KEY
+      ",
+    )
+    .stdout("foo\n")
+    .stderr("echo $DOTENV_KEY\n")
+    .success();
+}
+
+#[test]
 fn error_message() {
   Test::new()
     .write(".env", "FOO=bar baz")
