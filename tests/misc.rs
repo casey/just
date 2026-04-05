@@ -1362,7 +1362,7 @@ c: b a
 }
 
 #[test]
-fn unknown_function_in_assignment() {
+fn undefined_function_in_assignment() {
   Test::new()
     .arg("bar")
     .justfile(
