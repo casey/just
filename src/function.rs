@@ -117,7 +117,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
 }
 
 impl Function {
-  pub(crate) fn argc(&self) -> RangeInclusive<usize> {
+  pub(crate) fn expected_arguments(&self) -> RangeInclusive<usize> {
     match *self {
       Nullary(_) => 0..=0,
       Unary(_) => 1..=1,

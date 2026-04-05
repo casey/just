@@ -441,7 +441,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let expected = if let Some(function) = functions.get(name.lexeme()) {
       function.parameters.len()..=function.parameters.len()
     } else if let Some(function) = function::get(name.lexeme()) {
-      function.argc()
+      function.expected_arguments()
     } else {
       return Err(name.error(CompileErrorKind::UnknownFunction {
         function: name.lexeme(),
