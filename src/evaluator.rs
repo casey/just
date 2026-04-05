@@ -262,14 +262,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     function: Function,
     arguments: &[Expression<'src>],
   ) -> RunResult<'src, String> {
-    use Function::*;
     match function {
-      Nullary(f) => f(self.function_context(name)?),
-      Unary(f) => {
+      Function::Nullary(f) => f(self.function_context(name)?),
+      Function::Unary(f) => {
         let a = self.evaluate_expression(&arguments[0])?;
         f(self.function_context(name)?, &a)
       }
-      UnaryOpt(f) => {
+      Function::UnaryOpt(f) => {
         let a = self.evaluate_expression(&arguments[0])?;
         let b = if arguments.len() > 1 {
           Some(self.evaluate_expression(&arguments[1])?)
@@ -278,7 +277,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         };
         f(self.function_context(name)?, &a, b.as_deref())
       }
-      UnaryPlus(f) => {
+      Function::UnaryPlus(f) => {
         let a = self.evaluate_expression(&arguments[0])?;
         let mut rest = Vec::new();
         for arg in &arguments[1..] {
@@ -286,12 +285,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
         f(self.function_context(name)?, &a, &rest)
       }
-      Binary(f) => {
+      Function::Binary(f) => {
         let a = self.evaluate_expression(&arguments[0])?;
         let b = self.evaluate_expression(&arguments[1])?;
         f(self.function_context(name)?, &a, &b)
       }
-      BinaryPlus(f) => {
+      Function::BinaryPlus(f) => {
         let a = self.evaluate_expression(&arguments[0])?;
         let b = self.evaluate_expression(&arguments[1])?;
         let mut rest = Vec::new();
@@ -300,7 +299,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
         f(self.function_context(name)?, &a, &b, &rest)
       }
-      Ternary(f) => {
+      Function::Ternary(f) => {
         let a = self.evaluate_expression(&arguments[0])?;
         let b = self.evaluate_expression(&arguments[1])?;
         let c = self.evaluate_expression(&arguments[2])?;
