@@ -216,7 +216,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     })
   }
 
-  fn evaluate_user_function(
+  fn evaluate_defined_function(
     &mut self,
     name: Name<'src>,
     function: &FunctionDefinition<'src>,
@@ -256,7 +256,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     evaluator.evaluate_expression(&function.body)
   }
 
-  fn evaluate_builtin(
+  fn evaluate_builtin_function(
     &mut self,
     name: Name<'src>,
     function: Function,
@@ -355,10 +355,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       }
       Expression::Call { name, arguments } => {
         let module = self.context(ConstError::FunctionCall(*name))?.module;
-        if let Some(user_fn) = module.functions.get(name.lexeme()) {
-          self.evaluate_user_function(*name, user_fn, arguments)
+        if let Some(function) = module.functions.get(name.lexeme()) {
+          self.evaluate_defined_function(*name, function, arguments)
         } else if let Some(builtin) = function::get(name.lexeme()) {
-          self.evaluate_builtin(*name, builtin, arguments)
+          self.evaluate_builtin_function(*name, builtin, arguments)
         } else {
           unreachable!("unresolved function call should have been caught during analysis")
         }
