@@ -1,6 +1,47 @@
 Changelog
 =========
 
+[1.49.0](https://github.com/casey/just/releases/tag/1.49.0) - 2026-04-04
+------------------------------------------------------------------------
+
+### Added
+- Add `--time` to print recipe execution time ([#3099](https://github.com/casey/just/pull/3099) by [GeorgeLS](https://github.com/GeorgeLS))
+- Add user-defined functions ([#3247](https://github.com/casey/just/pull/3247) by [casey](https://github.com/casey))
+- Add just skill for agents ([#3241](https://github.com/casey/just/pull/3241) by [casey](https://github.com/casey))
+- Allow expressions in confirm attribute ([#3238](https://github.com/casey/just/pull/3238) by [begoon](https://github.com/begoon))
+- Add `--complete-aliases` ([#3235](https://github.com/casey/just/pull/3235) by [casey](https://github.com/casey))
+- Add `--justfile-name` to configure justfile filename ([#3234](https://github.com/casey/just/pull/3234) by [casey](https://github.com/casey))
+- Add `runtime_directory()` function ([#3226](https://github.com/casey/just/pull/3226) by [barskern](https://github.com/barskern))
+- Add `--evaluate-format` ([#3221](https://github.com/casey/just/pull/3221) by [casey](https://github.com/casey))
+- Allow passing variable and module paths to `--evaluate` ([#3219](https://github.com/casey/just/pull/3219) by [casey](https://github.com/casey))
+- Add `--indentation` ([#3215](https://github.com/casey/just/pull/3215) by [casey](https://github.com/casey))
+- Add `module_file()` and `module_directory()` to readme ([#2965](https://github.com/casey/just/pull/2965) by [cspotcode](https://github.com/cspotcode))
+- Add Nix flake ([#2972](https://github.com/casey/just/pull/2972) by [neunenak](https://github.com/neunenak))
+
+### Fixed
+- Allow reading `.env` from special files ([#3250](https://github.com/casey/just/pull/3250) by [casey](https://github.com/casey))
+- Load environment files in submodules ([#3243](https://github.com/casey/just/pull/3243) by [casey](https://github.com/casey))
+- Avoid process substitution in bash completion script ([#3217](https://github.com/casey/just/pull/3217) by [casey](https://github.com/casey))
+- Dont pass shell name to powershell ([#3209](https://github.com/casey/just/pull/3209) by [casey](https://github.com/casey))
+
+### Misc
+- Add just implementation of rule110 ([#3249](https://github.com/casey/just/pull/3249) by [casey](https://github.com/casey))
+- Add instructions for skill to readme ([#3245](https://github.com/casey/just/pull/3245) by [casey](https://github.com/casey))
+- Remove comma in readme ([#3244](https://github.com/casey/just/pull/3244) by [casey](https://github.com/casey))
+- Move bash completion registration script into etc/ ([#3242](https://github.com/casey/just/pull/3242) by [casey](https://github.com/casey))
+- Avoid to_string_lossy in directory function tests ([#3232](https://github.com/casey/just/pull/3232) by [casey](https://github.com/casey))
+- Add installation overview ([#3231](https://github.com/casey/just/pull/3231) by [casey](https://github.com/casey))
+- Warn if invocation directory or justfile path is not Unicode ([#3230](https://github.com/casey/just/pull/3230) by [casey](https://github.com/casey))
+- Don't use make syntax highlighting in vim ([#2906](https://github.com/casey/just/pull/2906) by [alerque](https://github.com/alerque))
+- Fix Name Display impl to pad correctly ([#3222](https://github.com/casey/just/pull/3222) by [casey](https://github.com/casey))
+- Rename `evaluate_target` to `evaluation_target` ([#3220](https://github.com/casey/just/pull/3220) by [casey](https://github.com/casey))
+- Include recipe path in verbose output ([#3213](https://github.com/casey/just/pull/3213) by [behnam-oneschema](https://github.com/behnam-oneschema))
+- Move recipe methods onto resolved recipe ([#3214](https://github.com/casey/just/pull/3214) by [casey](https://github.com/casey))
+- Document that `semver_matches()` returns strings ([#3212](https://github.com/casey/just/pull/3212) by [casey](https://github.com/casey))
+- Build riscv64 release binaries ([#3210](https://github.com/casey/just/pull/3210) by [gounthar](https://github.com/gounthar))
+- Include shell name in I/O error messages ([#3208](https://github.com/casey/just/pull/3208) by [casey](https://github.com/casey))
+- Don't print signal error message if recipe has `[no-exit-message]` ([#3200](https://github.com/casey/just/pull/3200) by [imp-joshi](https://github.com/imp-joshi))
+
 [1.48.1](https://github.com/casey/just/releases/tag/1.48.1) - 2026-03-27
 ------------------------------------------------------------------------
 
