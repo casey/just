@@ -47,6 +47,7 @@ item          : alias
               | assignment
               | eol
               | export
+              | function
               | import
               | module
               | recipe
@@ -62,6 +63,10 @@ target        : NAME ('::' NAME)*
 assignment    : NAME ':=' expression eol
 
 export        : 'export' assignment
+
+function      : NAME '(' parameters? ')' ':=' expression
+
+parameters    : NAME ( ',' NAME )* ','?
 
 set           : 'set' setting eol
 
