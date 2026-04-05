@@ -4,7 +4,7 @@ set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-source "$SCRIPT_DIR/../completion-registration-script.bash"
+source "$SCRIPT_DIR/../etc/completion-registration-script.bash"
 
 PASS=0
 FAIL=0
