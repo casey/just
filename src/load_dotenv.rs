@@ -53,7 +53,7 @@ fn load_from_file(
   path: &Path,
   settings: &Settings,
 ) -> RunResult<'static, Option<BTreeMap<String, String>>> {
-  let file = match File::open(&path) {
+  let file = match File::open(path) {
     Ok(file) => file,
     Err(source) => {
       if matches!(
@@ -61,12 +61,12 @@ fn load_from_file(
         io::ErrorKind::IsADirectory | io::ErrorKind::NotFound,
       ) {
         return Ok(None);
-      } else {
-        return Err(Error::FilesystemIo {
-          path: path.into(),
-          source,
-        });
       }
+
+      return Err(Error::FilesystemIo {
+        path: path.into(),
+        source,
+      });
     }
   };
 
