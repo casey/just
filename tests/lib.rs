@@ -78,6 +78,7 @@ mod export;
 mod fallback;
 mod format;
 mod format_string;
+mod function_definitions;
 mod functions;
 #[cfg(unix)]
 mod global;
@@ -142,7 +143,6 @@ mod undefined_variables;
 mod unexport;
 mod unstable;
 mod usage;
-mod user_defined_functions;
 mod which_function;
 #[cfg(windows)]
 mod windows;
