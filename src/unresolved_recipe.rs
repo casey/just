@@ -23,43 +23,37 @@ impl<'src> UnresolvedRecipe<'src> {
 
     for (i, parameter) in self.parameters.iter().enumerate() {
       if let Some(expression) = &parameter.default {
-        for variable in expression.variables() {
-          Self::resolve_variable(
-            assignments,
-            &self.parameters[..i],
-            &variable,
-            &mut variable_references,
-          )?;
-        }
-        FunctionResolver::resolve_calls(functions, expression)?;
+        Self::resolve_expression(
+          assignments,
+          expression,
+          functions,
+          &self.parameters[..i],
+          &mut variable_references,
+        )?;
       }
     }
 
     for dependency in &self.dependencies {
       for argument in &dependency.arguments {
-        for variable in argument.variables() {
-          Self::resolve_variable(
-            assignments,
-            &self.parameters,
-            &variable,
-            &mut variable_references,
-          )?;
-        }
-        FunctionResolver::resolve_calls(functions, argument)?;
+        Self::resolve_expression(
+          assignments,
+          argument,
+          functions,
+          &self.parameters,
+          &mut variable_references,
+        )?;
       }
     }
 
     for attribute in &self.attributes {
       if let Attribute::Confirm(Some(expression)) = attribute {
-        for variable in expression.variables() {
-          Self::resolve_variable(
-            assignments,
-            &self.parameters,
-            &variable,
-            &mut variable_references,
-          )?;
-        }
-        FunctionResolver::resolve_calls(functions, expression)?;
+        Self::resolve_expression(
+          assignments,
+          expression,
+          functions,
+          &self.parameters,
+          &mut variable_references,
+        )?;
       }
     }
 
@@ -70,15 +64,13 @@ impl<'src> UnresolvedRecipe<'src> {
 
       for fragment in &line.fragments {
         if let Fragment::Interpolation { expression, .. } = fragment {
-          for variable in expression.variables() {
-            Self::resolve_variable(
-              assignments,
-              &self.parameters,
-              &variable,
-              &mut variable_references,
-            )?;
-          }
-          FunctionResolver::resolve_calls(functions, expression)?;
+          Self::resolve_expression(
+            assignments,
+            expression,
+            functions,
+            &self.parameters,
+            &mut variable_references,
+          )?;
         }
       }
     }
@@ -133,10 +125,30 @@ impl<'src> UnresolvedRecipe<'src> {
     })
   }
 
+  fn resolve_expression(
+    assignments: &Table<'src, Assignment<'src>>,
+    expression: &Expression<'src>,
+    functions: &Table<'src, UserFunction<'src>>,
+    parameters: &[Parameter],
+    variable_references: &mut HashSet<Number>,
+  ) -> CompileResult<'src> {
+    for reference in expression.references() {
+      match reference {
+        Reference::Variable(variable) => {
+          Self::resolve_variable(assignments, parameters, variable, variable_references)?;
+        }
+        Reference::Call { name, arguments } => {
+          Analyzer::resolve_call(functions, name, arguments)?;
+        }
+      }
+    }
+    Ok(())
+  }
+
   fn resolve_variable(
     assignments: &Table<'src, Assignment<'src>>,
     parameters: &[Parameter],
-    variable: &Token<'src>,
+    variable: Name<'src>,
     variable_references: &mut HashSet<Number>,
   ) -> CompileResult<'src> {
     let name = variable.lexeme();

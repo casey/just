@@ -55,8 +55,8 @@ pub(crate) enum Expression<'src> {
 }
 
 impl<'src> Expression<'src> {
-  pub(crate) fn variables<'expression>(&'expression self) -> Variables<'expression, 'src> {
-    Variables::new(self)
+  pub(crate) fn references<'a>(&'a self) -> References<'a, 'src> {
+    References::new(self)
   }
 }
 

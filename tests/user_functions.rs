@@ -175,10 +175,18 @@ fn undefined_variable_in_body() {
   Test::new()
     .justfile(
       "
-      f(x) := y
+        f(x) := y
       ",
     )
-    .stderr_regex("error: Variable `y` not defined.*\n.*\n.*\n.*\n")
+    .stderr(
+      "
+        error: Variable `y` not defined
+         ——▶ justfile:1:9
+          │
+        1 │ f(x) := y
+          │         ^
+      ",
+    )
     .failure();
 }
 

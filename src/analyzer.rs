@@ -153,9 +153,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       }
     }
 
-    AssignmentResolver::resolve_assignments(&assignments)?;
-
-    let mut functions: Table<'src, UserFunction<'src>> = Table::default();
+    let mut functions = Table::<UserFunction>::default();
     for function in self.functions {
       let name = function.name.lexeme();
 
@@ -176,19 +174,21 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       functions.insert(function.clone());
     }
 
-    FunctionResolver::resolve_functions(&assignments, &functions)?;
-
-    for assignment in assignments.values() {
-      FunctionResolver::resolve_calls(&functions, &assignment.value)?;
-    }
+    AssignmentResolver::resolve_assignments(&assignments, &functions)?;
 
     for set in self.sets.values() {
       for expression in set.value.expressions() {
-        FunctionResolver::resolve_calls(&functions, expression)?;
-        for variable in expression.variables() {
-          let name = variable.lexeme();
-          if !assignments.contains_key(name) && !constants().contains_key(name) {
-            return Err(variable.error(UndefinedVariable { variable: name }).into());
+        for reference in expression.references() {
+          match reference {
+            Reference::Call { name, arguments } => {
+              Analyzer::resolve_call(&functions, name, arguments)?
+            }
+            Reference::Variable(variable) => {
+              let name = variable.lexeme();
+              if !assignments.contains_key(name) && !constants().contains_key(name) {
+                return Err(variable.error(UndefinedVariable { variable: name }).into());
+              }
+            }
           }
         }
       }
@@ -433,6 +433,35 @@ impl<'run, 'src> Analyzer<'run, 'src> {
         target: alias.target,
       })),
     }
+  }
+
+  pub(crate) fn resolve_call(
+    functions: &'run Table<'src, UserFunction<'src>>,
+    name: Name<'src>,
+    arguments: usize,
+  ) -> CompileResult<'src> {
+    if let Some(function) = functions.get(name.lexeme()) {
+      if function.parameters.len() != arguments {
+        return Err(name.error(CompileErrorKind::FunctionArgumentCountMismatch {
+          function: name.lexeme(),
+          found: arguments,
+          expected: function.parameters.len()..=function.parameters.len(),
+        }));
+      }
+    } else if let Some(builtin) = function::get(name.lexeme()) {
+      if !builtin.argc().contains(&arguments) {
+        return Err(name.error(CompileErrorKind::FunctionArgumentCountMismatch {
+          function: name.lexeme(),
+          found: arguments,
+          expected: builtin.argc(),
+        }));
+      }
+    } else {
+      return Err(name.error(CompileErrorKind::UnknownFunction {
+        function: name.lexeme(),
+      }));
+    }
+    Ok(())
   }
 
   pub(crate) fn resolve_recipe<'a>(

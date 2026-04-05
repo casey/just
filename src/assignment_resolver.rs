@@ -2,6 +2,7 @@ use {super::*, CompileErrorKind::*};
 
 pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
   assignments: &'run Table<'src, Assignment<'src>>,
+  functions: &'run Table<'src, UserFunction<'src>>,
   evaluated: BTreeSet<&'src str>,
   stack: Vec<&'src str>,
 }
@@ -9,15 +10,23 @@ pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
 impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
   pub(crate) fn resolve_assignments(
     assignments: &'run Table<'src, Assignment<'src>>,
+    functions: &'run Table<'src, UserFunction<'src>>,
   ) -> CompileResult<'src> {
     let mut resolver = Self {
-      stack: Vec::new(),
-      evaluated: BTreeSet::new(),
       assignments,
+      evaluated: BTreeSet::new(),
+      functions,
+      stack: Vec::new(),
     };
 
     for assignment in assignments.values() {
       resolver.resolve_assignment(assignment)?;
+    }
+
+    for function in functions.values() {
+      for reference in function.body.references() {
+        resolver.resolve_reference(Some(&function.parameters), reference)?;
+      }
     }
 
     Ok(())
@@ -32,32 +41,62 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
 
     self.stack.push(name);
 
-    for variable in assignment.value.variables() {
-      let name = variable.lexeme();
-
-      if self.evaluated.contains(name) || constants().contains_key(name) {
-        continue;
-      }
-
-      if self.stack.contains(&name) {
-        self.stack.push(name);
-        return Err(
-          self.assignments[name]
-            .name
-            .error(CircularVariableDependency {
-              variable: name,
-              circle: self.stack.clone(),
-            }),
-        );
-      } else if let Some(assignment) = self.assignments.get(name) {
-        self.resolve_assignment(assignment)?;
-      } else {
-        return Err(variable.error(UndefinedVariable { variable: name }));
-      }
+    for reference in assignment.value.references() {
+      self.resolve_reference(None, reference)?;
     }
+
     self.evaluated.insert(name);
 
     self.stack.pop();
+
+    Ok(())
+  }
+
+  fn resolve_reference(
+    &mut self,
+    parameters: Option<&[Name<'src>]>,
+    reference: Reference<'src>,
+  ) -> CompileResult<'src> {
+    match reference {
+      Reference::Call { name, arguments } => {
+        Analyzer::resolve_call(&self.functions, name, arguments)
+      }
+      Reference::Variable(name) => self.resolve_variable(parameters, name),
+    }
+  }
+
+  fn resolve_variable(
+    &mut self,
+    parameters: Option<&[Name<'src>]>,
+    variable: Name<'src>,
+  ) -> CompileResult<'src> {
+    let name = variable.lexeme();
+
+    if let Some(parameters) = parameters {
+      if parameters.iter().any(|p| p.lexeme() == name) {
+        return Ok(());
+      }
+    }
+
+    if self.evaluated.contains(name) || constants().contains_key(name) {
+      return Ok(());
+    }
+
+    if self.stack.contains(&name) {
+      self.stack.push(name);
+      return Err(
+        self.assignments[name]
+          .name
+          .error(CircularVariableDependency {
+            variable: name,
+            circle: self.stack.clone(),
+          }),
+      );
+    } else if let Some(assignment) = self.assignments.get(name) {
+      self.resolve_assignment(assignment)?;
+    } else {
+      return Err(variable.error(UndefinedVariable { variable: name }));
+    }
 
     Ok(())
   }

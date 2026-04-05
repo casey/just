@@ -1,5 +1,13 @@
 use super::*;
 
+// todo:
+// - UserFunction -> Function
+// - Function -> ?
+// - can functions even appear in settings?
+//
+// later:
+// - allow functions in settings
+
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct UserFunction<'src> {
   pub(crate) body: Expression<'src>,

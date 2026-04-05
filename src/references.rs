@@ -1,19 +1,19 @@
 use super::*;
 
-pub(crate) struct Variables<'expression, 'src> {
+pub(crate) struct References<'expression, 'src> {
   stack: Vec<&'expression Expression<'src>>,
 }
 
-impl<'expression, 'src> Variables<'expression, 'src> {
+impl<'expression, 'src> References<'expression, 'src> {
   pub(crate) fn new(root: &'expression Expression<'src>) -> Self {
     Self { stack: vec![root] }
   }
 }
 
-impl<'src> Iterator for Variables<'_, 'src> {
-  type Item = Name<'src>;
+impl<'src> Iterator for References<'_, 'src> {
+  type Item = Reference<'src>;
 
-  fn next(&mut self) -> Option<Name<'src>> {
+  fn next(&mut self) -> Option<Self::Item> {
     loop {
       match self.stack.pop()? {
         Expression::And { lhs, rhs } | Expression::Or { lhs, rhs } => {
@@ -35,10 +35,14 @@ impl<'src> Iterator for Variables<'_, 'src> {
           self.stack.push(lhs);
         }
         Expression::Backtick { .. } | Expression::StringLiteral { .. } => {}
-        Expression::Call { arguments, .. } => {
+        Expression::Call { name, arguments } => {
           for arg in arguments.iter().rev() {
             self.stack.push(arg);
           }
+          return Some(Reference::Call {
+            name: *name,
+            arguments: arguments.len(),
+          });
         }
         Expression::Concatenation { lhs, rhs } => {
           self.stack.push(rhs);
@@ -73,7 +77,7 @@ impl<'src> Iterator for Variables<'_, 'src> {
             self.stack.push(lhs);
           }
         }
-        Expression::Variable { name, .. } => return Some(*name),
+        Expression::Variable { name, .. } => return Some(Reference::Variable(*name)),
       }
     }
   }
