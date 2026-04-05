@@ -1173,7 +1173,7 @@ Starting server with database localhost:6379 on port 1337…
 Variables in environment files loaded in parent modules are inherited by
 submodules.
 
-Environment files are loaded in submodules<sup>master<sup> and may override
+Environment files are loaded in submodules<sup>1.49.0<sup> and may override
 variable defined in parent module environment files.
 
 #### Export
@@ -1455,7 +1455,7 @@ hello
 ```
 
 All variables in a submodule or a single variable in a submodule may be printed
-with a path to the submodule or variable<sup>master</sup>:
+with a path to the submodule or variable<sup>1.49.0</sup>:
 
 ```console
 $ just --evaluate bob::bar
@@ -1466,7 +1466,7 @@ hello
 ```
 
 The format of exported variables may be controlled with
-`--evaluate-format`<sup>master</sup>:
+`--evaluate-format`<sup>1.49.0</sup>:
 
 ```console
 $ just --evaluate --evaluate-format shell
@@ -2226,7 +2226,7 @@ xdg_config_dir := if env('XDG_CONFIG_HOME', '') =~ '^/' {
 
 ### User-defined functions
 
-New functions may be defined<sup>master</sup>:
+New functions may be defined<sup>1.49.0</sup>:
 
 ```just
 set unstable
@@ -2454,7 +2454,7 @@ delete-everything:
   rm -rf *
 ```
 
-The confirmation prompt may also be an expression<sup>master</sup> which may
+The confirmation prompt may also be an expression<sup>1.49.0</sup> which may
 reference assignments or recipe arguments:
 
 ```just
