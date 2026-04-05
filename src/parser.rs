@@ -495,7 +495,9 @@ impl<'run, 'src> Parser<'run, 'src> {
             items.push(Item::Set(self.parse_set()?));
           }
           _ => {
-            if self.next_are(&[Identifier, ColonEquals]) {
+            if self.next_are(&[Identifier, ParenL]) {
+              items.push(Item::Function(self.parse_function_definition()?));
+            } else if self.next_are(&[Identifier, ColonEquals]) {
               items.push(Item::Assignment(self.parse_assignment(
                 take_attributes(),
                 false,
@@ -562,6 +564,38 @@ impl<'run, 'src> Parser<'run, 'src> {
       attributes,
       name,
       target,
+    })
+  }
+
+  fn parse_function_definition(&mut self) -> CompileResult<'src, FunctionDefinition<'src>> {
+    self
+      .unstable_features
+      .insert(UnstableFeature::UserDefinedFunction);
+
+    let name = self.parse_name()?;
+
+    self.presume(ParenL)?;
+
+    let mut parameters = Vec::new();
+    while !self.next_is(ParenR) {
+      parameters.push((self.parse_name()?, self.numerator.next()));
+      if !self.accepted(Comma)? {
+        break;
+      }
+    }
+
+    self.expect(ParenR)?;
+
+    self.expect(ColonEquals)?;
+
+    let body = self.parse_expression()?;
+
+    self.expect_eol()?;
+
+    Ok(FunctionDefinition {
+      body,
+      name,
+      parameters,
     })
   }
 
@@ -819,9 +853,7 @@ impl<'run, 'src> Parser<'run, 'src> {
               .unstable_features
               .insert(UnstableFeature::WhichFunction);
           }
-          Ok(Expression::Call {
-            thunk: Thunk::resolve(name, arguments)?,
-          })
+          Ok(Expression::Call { name, arguments })
         } else {
           Ok(Expression::Variable { name })
         }
@@ -3065,134 +3097,6 @@ mod tests {
     width:  5,
     kind:   UnknownSetting {
       setting: "shall",
-    },
-  }
-
-  error! {
-    name:   unknown_function,
-    input:  "a := foo()",
-    offset: 5,
-    line:   0,
-    column: 5,
-    width:  3,
-    kind:   UnknownFunction{function: "foo"},
-  }
-
-  error! {
-    name:   unknown_function_in_interpolation,
-    input:  "a:\n echo {{bar()}}",
-    offset: 11,
-    line:   1,
-    column: 8,
-    width:  3,
-    kind:   UnknownFunction{function: "bar"},
-  }
-
-  error! {
-    name:   unknown_function_in_default,
-    input:  "a f=baz():",
-    offset: 4,
-    line:   0,
-    column: 4,
-    width:  3,
-    kind:   UnknownFunction{function: "baz"},
-  }
-
-  error! {
-    name: function_argument_count_nullary,
-    input: "x := arch('foo')",
-    offset: 5,
-    line: 0,
-    column: 5,
-    width: 4,
-    kind: FunctionArgumentCountMismatch {
-      function: "arch",
-      found: 1,
-      expected: 0..=0,
-    },
-  }
-
-  error! {
-    name: function_argument_count_unary,
-    input: "x := env_var()",
-    offset: 5,
-    line: 0,
-    column: 5,
-    width: 7,
-    kind: FunctionArgumentCountMismatch {
-      function: "env_var",
-      found: 0,
-      expected: 1..=1,
-    },
-  }
-
-  error! {
-    name: function_argument_count_too_high_unary_opt,
-    input: "x := env('foo', 'foo', 'foo')",
-    offset: 5,
-    line: 0,
-    column: 5,
-    width: 3,
-    kind: FunctionArgumentCountMismatch {
-      function: "env",
-      found: 3,
-      expected: 1..=2,
-    },
-  }
-
-  error! {
-    name: function_argument_count_too_low_unary_opt,
-    input: "x := env()",
-    offset: 5,
-    line: 0,
-    column: 5,
-    width: 3,
-    kind: FunctionArgumentCountMismatch {
-      function: "env",
-      found: 0,
-      expected: 1..=2,
-    },
-  }
-
-  error! {
-    name: function_argument_count_binary,
-    input: "x := env_var_or_default('foo')",
-    offset: 5,
-    line: 0,
-    column: 5,
-    width: 18,
-    kind: FunctionArgumentCountMismatch {
-      function: "env_var_or_default",
-      found: 1,
-      expected: 2..=2,
-    },
-  }
-
-  error! {
-    name: function_argument_count_binary_plus,
-    input: "x := join('foo')",
-    offset: 5,
-    line: 0,
-    column: 5,
-    width: 4,
-    kind: FunctionArgumentCountMismatch {
-      function: "join",
-      found: 1,
-      expected: 2..=usize::MAX,
-    },
-  }
-
-  error! {
-    name: function_argument_count_ternary,
-    input: "x := replace('foo')",
-    offset: 5,
-    line: 0,
-    column: 5,
-    width: 7,
-    kind: FunctionArgumentCountMismatch {
-      function: "replace",
-      found: 1,
-      expected: 3..=3,
     },
   }
 }

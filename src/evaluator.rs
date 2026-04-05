@@ -207,12 +207,104 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     Ok(self.scope.value(name).unwrap())
   }
 
-  fn function_context(&self, thunk: &Thunk<'src>) -> RunResult<'src, function::Context> {
+  fn function_context(&self, name: Name<'src>) -> RunResult<'src, function::Context> {
     Ok(function::Context {
-      execution_context: self.context(ConstError::FunctionCall(thunk.name()))?,
+      execution_context: self.context(ConstError::FunctionCall(name))?,
       is_dependency: self.is_dependency,
-      name: thunk.name(),
+      name,
       scope: &self.scope,
+    })
+  }
+
+  fn evaluate_defined_function(
+    &mut self,
+    function: &FunctionDefinition<'src>,
+    arguments: &[Expression<'src>],
+  ) -> RunResult<'src, String> {
+    let context = *self.context.as_ref().unwrap();
+
+    let mut scope = Scope::root();
+    for ((name, number), argument) in function.parameters.iter().copied().zip(arguments) {
+      let value = self.evaluate_expression(argument)?;
+      scope.bind(Binding {
+        eager: false,
+        export: false,
+        file_depth: 0,
+        name,
+        number,
+        prelude: false,
+        private: false,
+        value: value.clone(),
+      });
+    }
+
+    let overrides = HashMap::new();
+    let mut evaluator = Evaluator {
+      assignments: Some(&context.module.assignments),
+      context: Some(context),
+      env: BTreeMap::new(),
+      is_dependency: false,
+      non_const_assignments: Table::new(),
+      overrides: &overrides,
+      scope,
+    };
+
+    evaluator.evaluate_expression(&function.body)
+  }
+
+  fn evaluate_builtin_function(
+    &mut self,
+    name: Name<'src>,
+    function: Function,
+    arguments: &[Expression<'src>],
+  ) -> RunResult<'src, String> {
+    match function {
+      Function::Nullary(f) => f(self.function_context(name).unwrap()),
+      Function::Unary(f) => {
+        let a = self.evaluate_expression(&arguments[0])?;
+        f(self.function_context(name).unwrap(), &a)
+      }
+      Function::UnaryOpt(f) => {
+        let a = self.evaluate_expression(&arguments[0])?;
+        let b = if arguments.len() > 1 {
+          Some(self.evaluate_expression(&arguments[1])?)
+        } else {
+          None
+        };
+        f(self.function_context(name).unwrap(), &a, b.as_deref())
+      }
+      Function::UnaryPlus(f) => {
+        let a = self.evaluate_expression(&arguments[0])?;
+        let mut rest = Vec::new();
+        for arg in &arguments[1..] {
+          rest.push(self.evaluate_expression(arg)?);
+        }
+        f(self.function_context(name).unwrap(), &a, &rest)
+      }
+      Function::Binary(f) => {
+        let a = self.evaluate_expression(&arguments[0])?;
+        let b = self.evaluate_expression(&arguments[1])?;
+        f(self.function_context(name).unwrap(), &a, &b)
+      }
+      Function::BinaryPlus(f) => {
+        let a = self.evaluate_expression(&arguments[0])?;
+        let b = self.evaluate_expression(&arguments[1])?;
+        let mut rest = Vec::new();
+        for arg in &arguments[2..] {
+          rest.push(self.evaluate_expression(arg)?);
+        }
+        f(self.function_context(name).unwrap(), &a, &b, &rest)
+      }
+      Function::Ternary(f) => {
+        let a = self.evaluate_expression(&arguments[0])?;
+        let b = self.evaluate_expression(&arguments[1])?;
+        let c = self.evaluate_expression(&arguments[2])?;
+        f(self.function_context(name).unwrap(), &a, &b, &c)
+      }
+    }
+    .map_err(|message| Error::FunctionCall {
+      function: name,
+      message,
     })
   }
 
@@ -256,75 +348,15 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           }
         })
       }
-      Expression::Call { thunk } => {
-        use Thunk::*;
-        match thunk {
-          Nullary { function, .. } => function(self.function_context(thunk)?),
-          Unary { function, arg, .. } => {
-            let arg = self.evaluate_expression(arg)?;
-            function(self.function_context(thunk)?, &arg)
-          }
-          UnaryOpt {
-            function,
-            args: (a, b),
-            ..
-          } => {
-            let a = self.evaluate_expression(a)?;
-            let b = match b.as_ref() {
-              Some(b) => Some(self.evaluate_expression(b)?),
-              None => None,
-            };
-            function(self.function_context(thunk)?, &a, b.as_deref())
-          }
-          UnaryPlus {
-            function,
-            args: (a, rest),
-            ..
-          } => {
-            let a = self.evaluate_expression(a)?;
-            let mut rest_evaluated = Vec::new();
-            for arg in rest {
-              rest_evaluated.push(self.evaluate_expression(arg)?);
-            }
-            function(self.function_context(thunk)?, &a, &rest_evaluated)
-          }
-          Binary {
-            function,
-            args: [a, b],
-            ..
-          } => {
-            let a = self.evaluate_expression(a)?;
-            let b = self.evaluate_expression(b)?;
-            function(self.function_context(thunk)?, &a, &b)
-          }
-          BinaryPlus {
-            function,
-            args: ([a, b], rest),
-            ..
-          } => {
-            let a = self.evaluate_expression(a)?;
-            let b = self.evaluate_expression(b)?;
-            let mut rest_evaluated = Vec::new();
-            for arg in rest {
-              rest_evaluated.push(self.evaluate_expression(arg)?);
-            }
-            function(self.function_context(thunk)?, &a, &b, &rest_evaluated)
-          }
-          Ternary {
-            function,
-            args: [a, b, c],
-            ..
-          } => {
-            let a = self.evaluate_expression(a)?;
-            let b = self.evaluate_expression(b)?;
-            let c = self.evaluate_expression(c)?;
-            function(self.function_context(thunk)?, &a, &b, &c)
-          }
+      Expression::Call { name, arguments } => {
+        let module = self.context(ConstError::FunctionCall(*name))?.module;
+        if let Some(function) = module.functions.get(name.lexeme()) {
+          self.evaluate_defined_function(function, arguments)
+        } else if let Some(builtin) = function::get(name.lexeme()) {
+          self.evaluate_builtin_function(*name, builtin, arguments)
+        } else {
+          unreachable!();
         }
-        .map_err(|message| Error::FunctionCall {
-          function: thunk.name(),
-          message,
-        })
       }
       Expression::Concatenation { lhs, rhs } => {
         let lhs = self.evaluate_expression(lhs)?;

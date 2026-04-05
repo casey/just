@@ -45,6 +45,7 @@ pub(crate) use {
     format_string_part::FormatStringPart,
     fragment::Fragment,
     function::Function,
+    function_definition::FunctionDefinition,
     indentation::Indentation,
     interpreter::Interpreter,
     invocation::Invocation,
@@ -78,6 +79,8 @@ pub(crate) use {
     recipe::Recipe,
     recipe_resolver::RecipeResolver,
     recipe_signature::RecipeSignature,
+    reference::Reference,
+    references::References,
     request::Request,
     scope::Scope,
     search::Search,
@@ -102,7 +105,6 @@ pub(crate) use {
     suggestion::Suggestion,
     switch::Switch,
     table::Table,
-    thunk::Thunk,
     token::Token,
     token_kind::TokenKind,
     unresolved_dependency::UnresolvedDependency,
@@ -110,7 +112,6 @@ pub(crate) use {
     unstable_feature::UnstableFeature,
     usage::Usage,
     use_color::UseColor,
-    variables::Variables,
     verbosity::Verbosity,
     warning::Warning,
     which::which,
@@ -118,7 +119,6 @@ pub(crate) use {
   camino::Utf8Path,
   clap::{CommandFactory, FromArgMatches, Parser as _, ValueEnum},
   clap_complete::{ArgValueCompleter, CompletionCandidate, PathCompleter},
-  derive_where::derive_where,
   edit_distance::edit_distance,
   lexiclean::Lexiclean,
   libc::EXIT_FAILURE,
@@ -234,6 +234,7 @@ mod filesystem;
 mod format_string_part;
 mod fragment;
 mod function;
+mod function_definition;
 mod indentation;
 mod interpreter;
 mod invocation;
@@ -267,6 +268,8 @@ mod range_ext;
 mod recipe;
 mod recipe_resolver;
 mod recipe_signature;
+mod reference;
+mod references;
 mod run;
 mod scope;
 mod search;
@@ -293,7 +296,6 @@ mod subcommand;
 mod suggestion;
 mod switch;
 mod table;
-mod thunk;
 mod token;
 mod token_kind;
 mod unindent;
@@ -302,7 +304,6 @@ mod unresolved_recipe;
 mod unstable_feature;
 mod usage;
 mod use_color;
-mod variables;
 mod verbosity;
 mod warning;
 mod which;

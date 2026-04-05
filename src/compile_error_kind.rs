@@ -82,9 +82,9 @@ pub(crate) enum CompileErrorKind<'src> {
     count: usize,
   },
   FunctionArgumentCountMismatch {
-    function: &'src str,
-    found: usize,
+    arguments: usize,
     expected: RangeInclusive<usize>,
+    function: &'src str,
   },
   GuardAndInfallibleSigil,
   Include,
@@ -142,6 +142,9 @@ pub(crate) enum CompileErrorKind<'src> {
   UndefinedArgAttribute {
     argument: String,
   },
+  UndefinedFunction {
+    function: &'src str,
+  },
   UndefinedVariable {
     variable: &'src str,
   },
@@ -186,9 +189,6 @@ pub(crate) enum CompileErrorKind<'src> {
   UnknownDependency {
     recipe: &'src str,
     unknown: Namepath<'src>,
-  },
-  UnknownFunction {
-    function: &'src str,
   },
   UnknownSetting {
     setting: &'src str,

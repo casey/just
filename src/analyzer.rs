@@ -4,6 +4,7 @@ use {super::*, CompileErrorKind::*};
 pub(crate) struct Analyzer<'run, 'src> {
   aliases: Table<'src, Alias<'src, Namepath<'src>>>,
   assignments: Vec<&'run Binding<'src, Expression<'src>>>,
+  functions: Vec<&'run FunctionDefinition<'src>>,
   modules: Table<'src, Justfile<'src>>,
   recipes: Vec<&'run Recipe<'src, UnresolvedDependency<'src>>>,
   sets: Table<'src, Set<'src>>,
@@ -63,6 +64,9 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             self.assignments.push(assignment);
           }
           Item::Comment(_) => (),
+          Item::Function(function) => {
+            self.functions.push(function);
+          }
           Item::Import { absolute, .. } => {
             if let Some(absolute) = absolute {
               if imports.insert(absolute) {
@@ -149,14 +153,40 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       }
     }
 
-    AssignmentResolver::resolve_assignments(&assignments)?;
+    let mut functions = Table::<FunctionDefinition>::default();
+    for function in self.functions {
+      let name = function.name.lexeme();
+      if let Some(first) = functions.get(name) {
+        return Err(
+          function
+            .name
+            .error(Redefinition {
+              first_type: "function",
+              second_type: "function",
+              name,
+              first: first.name.line,
+            })
+            .into(),
+        );
+      }
+      functions.insert(function.clone());
+    }
+
+    AssignmentResolver::resolve_assignments(&assignments, &functions)?;
 
     for set in self.sets.values() {
       for expression in set.value.expressions() {
-        for variable in expression.variables() {
-          let name = variable.lexeme();
-          if !assignments.contains_key(name) && !constants().contains_key(name) {
-            return Err(variable.error(UndefinedVariable { variable: name }).into());
+        for reference in expression.references() {
+          match reference {
+            Reference::Call { name, arguments } => {
+              Analyzer::resolve_call(&functions, name, arguments)?;
+            }
+            Reference::Variable(variable) => {
+              let name = variable.lexeme();
+              if !assignments.contains_key(name) && !constants().contains_key(name) {
+                return Err(variable.error(UndefinedVariable { variable: name }).into());
+              }
+            }
           }
         }
       }
@@ -225,6 +255,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     let recipes = RecipeResolver::resolve_recipes(
       &assignments,
+      &functions,
       &ast.modulepath,
       &self.modules,
       &settings,
@@ -276,6 +307,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       assignments,
       default,
       doc: doc.filter(|doc| !doc.is_empty()),
+      functions,
       groups: groups.into(),
       loaded: loaded.into(),
       modulepath: ast.modulepath.clone(),
@@ -401,6 +433,32 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     }
   }
 
+  pub(crate) fn resolve_call(
+    functions: &'run Table<'src, FunctionDefinition<'src>>,
+    name: Name<'src>,
+    arguments: usize,
+  ) -> CompileResult<'src> {
+    let function = name.lexeme();
+
+    let expected = if let Some(function) = functions.get(function) {
+      function.parameters.len()..=function.parameters.len()
+    } else if let Some(function) = function::get(function) {
+      function.expected_arguments()
+    } else {
+      return Err(name.error(CompileErrorKind::UndefinedFunction { function }));
+    };
+
+    if !expected.contains(&arguments) {
+      return Err(name.error(CompileErrorKind::FunctionArgumentCountMismatch {
+        arguments,
+        expected,
+        function,
+      }));
+    }
+
+    Ok(())
+  }
+
   pub(crate) fn resolve_recipe<'a>(
     path: &Namepath<'src>,
     mut modules: &'a Table<'src, Justfile<'src>>,
@@ -507,7 +565,7 @@ mod tests {
     line:   0,
     column: 4,
     width:  1,
-    kind:   DuplicateParameter{ recipe: "a", parameter: "b" },
+    kind:   DuplicateParameter { recipe: "a", parameter: "b" },
   }
 
   analysis_error! {
@@ -517,7 +575,7 @@ mod tests {
     line:   0,
     column: 5,
     width:  1,
-    kind:   DuplicateParameter{ recipe: "a", parameter: "b" },
+    kind:   DuplicateParameter { recipe: "a", parameter: "b" },
   }
 
   analysis_error! {
@@ -537,7 +595,7 @@ mod tests {
     line:   1,
     column: 0,
     width:  1,
-    kind:   DuplicateVariable{variable: "a"},
+    kind:   DuplicateVariable { variable: "a" },
   }
 
   analysis_error! {
@@ -548,5 +606,133 @@ mod tests {
     column: 1,
     width:  6,
     kind:   ExtraLeadingWhitespace,
+  }
+
+  analysis_error! {
+    name:   undefined_function,
+    input:  "a := foo()",
+    offset: 5,
+    line:   0,
+    column: 5,
+    width:  3,
+    kind:   UndefinedFunction { function: "foo" },
+  }
+
+  analysis_error! {
+    name:   undefined_function_in_interpolation,
+    input:  "a:\n echo {{bar()}}",
+    offset: 11,
+    line:   1,
+    column: 8,
+    width:  3,
+    kind:   UndefinedFunction { function: "bar" },
+  }
+
+  analysis_error! {
+    name:   undefined_function_in_default,
+    input:  "a f=baz():",
+    offset: 4,
+    line:   0,
+    column: 4,
+    width:  3,
+    kind:   UndefinedFunction { function: "baz" },
+  }
+
+  analysis_error! {
+    name: function_argument_count_nullary,
+    input: "x := arch('foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 4,
+    kind: FunctionArgumentCountMismatch {
+      function: "arch",
+      arguments: 1,
+      expected: 0..=0,
+    },
+  }
+
+  analysis_error! {
+    name: function_argument_count_unary,
+    input: "x := env_var()",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 7,
+    kind: FunctionArgumentCountMismatch {
+      function: "env_var",
+      arguments: 0,
+      expected: 1..=1,
+    },
+  }
+
+  analysis_error! {
+    name: function_argument_count_too_high_unary_opt,
+    input: "x := env('foo', 'foo', 'foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 3,
+    kind: FunctionArgumentCountMismatch {
+      function: "env",
+      arguments: 3,
+      expected: 1..=2,
+    },
+  }
+
+  analysis_error! {
+    name: function_argument_count_too_low_unary_opt,
+    input: "x := env()",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 3,
+    kind: FunctionArgumentCountMismatch {
+      function: "env",
+      arguments: 0,
+      expected: 1..=2,
+    },
+  }
+
+  analysis_error! {
+    name: function_argument_count_binary,
+    input: "x := env_var_or_default('foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 18,
+    kind: FunctionArgumentCountMismatch {
+      function: "env_var_or_default",
+      arguments: 1,
+      expected: 2..=2,
+    },
+  }
+
+  analysis_error! {
+    name: function_argument_count_binary_plus,
+    input: "x := join('foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 4,
+    kind: FunctionArgumentCountMismatch {
+      function: "join",
+      arguments: 1,
+      expected: 2..=usize::MAX,
+    },
+  }
+
+  analysis_error! {
+    name: function_argument_count_ternary,
+    input: "x := replace('foo')",
+    offset: 5,
+    line: 0,
+    column: 5,
+    width: 7,
+    kind: FunctionArgumentCountMismatch {
+      function: "replace",
+      arguments: 1,
+      expected: 3..=3,
+    },
   }
 }
