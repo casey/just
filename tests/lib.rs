@@ -20,7 +20,7 @@ use {
     iter,
     path::{MAIN_SEPARATOR, MAIN_SEPARATOR_STR, Path, PathBuf},
     process::{Command, Stdio},
-    str,
+    str, thread,
     time::{Duration, Instant},
   },
   tempfile::TempDir,
@@ -29,9 +29,6 @@ use {
 };
 
 const JUST: &str = env!("CARGO_BIN_EXE_just");
-
-#[cfg(not(windows))]
-use std::thread;
 
 fn default<T: Default>() -> T {
   Default::default()
