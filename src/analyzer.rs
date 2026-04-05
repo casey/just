@@ -156,7 +156,6 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut functions = Table::<FunctionDefinition>::default();
     for function in self.functions {
       let name = function.name.lexeme();
-
       if let Some(first) = functions.get(name) {
         return Err(
           function
@@ -170,7 +169,6 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             .into(),
         );
       }
-
       functions.insert(function.clone());
     }
 
