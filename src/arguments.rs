@@ -283,6 +283,8 @@ pub struct Arguments {
     value_name = "TEMPDIR"
   )]
   pub(crate) tempdir: Option<PathBuf>,
+  #[arg(env = "JUST_TIME", help = "Print recipe execution time", long)]
+  pub(crate) time: bool,
   #[arg(env = "JUST_TIMESTAMP", help = "Print recipe command timestamps", long)]
   pub(crate) timestamp: bool,
   #[arg(
