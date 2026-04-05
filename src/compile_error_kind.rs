@@ -82,9 +82,9 @@ pub(crate) enum CompileErrorKind<'src> {
     count: usize,
   },
   FunctionArgumentCountMismatch {
-    function: &'src str,
-    found: usize,
+    arguments: usize,
     expected: RangeInclusive<usize>,
+    function: &'src str,
   },
   GuardAndInfallibleSigil,
   Include,

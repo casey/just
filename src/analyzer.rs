@@ -438,21 +438,21 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     name: Name<'src>,
     arguments: usize,
   ) -> CompileResult<'src> {
-    let expected = if let Some(function) = functions.get(name.lexeme()) {
+    let function = name.lexeme();
+
+    let expected = if let Some(function) = functions.get(function) {
       function.parameters.len()..=function.parameters.len()
-    } else if let Some(function) = function::get(name.lexeme()) {
+    } else if let Some(function) = function::get(function) {
       function.expected_arguments()
     } else {
-      return Err(name.error(CompileErrorKind::UnknownFunction {
-        function: name.lexeme(),
-      }));
+      return Err(name.error(CompileErrorKind::UnknownFunction { function }));
     };
 
     if !expected.contains(&arguments) {
       return Err(name.error(CompileErrorKind::FunctionArgumentCountMismatch {
-        function: name.lexeme(),
-        found: arguments,
+        arguments,
         expected,
+        function,
       }));
     }
 

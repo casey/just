@@ -193,12 +193,12 @@ impl Display for CompileError<'_> {
       }
       FunctionArgumentCountMismatch {
         function,
-        found,
+        arguments,
         expected,
       } => write!(
         f,
-        "Function `{function}` called with {found} {} but takes {}",
-        Count("argument", *found),
+        "Function `{function}` called with {arguments} {} but takes {}",
+        Count("argument", *arguments),
         expected.display(),
       ),
       GuardAndInfallibleSigil => write!(
