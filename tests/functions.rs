@@ -128,15 +128,15 @@ fn path_functions2() {
   Test::new()
     .justfile(
       r"
-we  := without_extension('/foo/bar/baz')
-fs  := file_stem('/foo/bar/baz.hello.ciao')
-fn  := file_name('/bar/baz.hello.ciao')
-dir := parent_directory('/foo/')
-ext := extension('/foo/bar/baz.hello.ciao')
+        we  := without_extension('/foo/bar/baz')
+        fs  := file_stem('/foo/bar/baz.hello.ciao')
+        fn  := file_name('/bar/baz.hello.ciao')
+        dir := parent_directory('/foo/')
+        ext := extension('/foo/bar/baz.hello.ciao')
 
-foo:
-  /usr/bin/env echo '{{we}}' '{{fs}}' '{{fn}}' '{{dir}}' '{{ext}}'
-",
+        foo:
+          /usr/bin/env echo '{{we}}' '{{fs}}' '{{fn}}' '{{dir}}' '{{ext}}'
+      ",
     )
     .stdout("/foo/bar/baz baz.hello baz.hello.ciao / ciao\n")
     .stderr("/usr/bin/env echo '/foo/bar/baz' 'baz.hello' 'baz.hello.ciao' '/' 'ciao'\n")
@@ -150,24 +150,21 @@ fn broken_without_extension_function() {
   }
   Test::new()
     .justfile(
-      r"
-we  := without_extension('')
+      "
+        we  := without_extension('')
 
-foo:
-  /usr/bin/env echo '{{we}}'
-",
+        foo:
+          /usr/bin/env echo '{{we}}'
+      ",
     )
     .stderr(
-      format!(
-        "{} {}\n{}\n{}\n{}\n{}\n",
-        "error: Call to function `without_extension` failed:",
-        "Could not extract parent from ``",
-        " ——▶ justfile:1:8",
-        "  │",
-        "1 │ we  := without_extension(\'\')",
-        "  │        ^^^^^^^^^^^^^^^^^"
-      )
-      .as_str(),
+      "
+        error: Call to function `without_extension` failed: Could not extract parent from ``
+         ——▶ justfile:1:8
+          │
+        1 │ we  := without_extension('')
+          │        ^^^^^^^^^^^^^^^^^
+      ",
     )
     .failure();
 }
@@ -179,23 +176,21 @@ fn broken_extension_function() {
   }
   Test::new()
     .justfile(
-      r"
-we  := extension('')
+      "
+        we  := extension('')
 
-foo:
-  /usr/bin/env echo '{{we}}'
-",
+        foo:
+          /usr/bin/env echo '{{we}}'
+      ",
     )
     .stderr(
-      format!(
-        "{}\n{}\n{}\n{}\n{}\n",
-        "error: Call to function `extension` failed: Could not extract extension from ``",
-        " ——▶ justfile:1:8",
-        "  │",
-        "1 │ we  := extension(\'\')",
-        "  │        ^^^^^^^^^"
-      )
-      .as_str(),
+      "
+        error: Call to function `extension` failed: Could not extract extension from ``
+         ——▶ justfile:1:8
+          │
+        1 │ we  := extension('')
+          │        ^^^^^^^^^
+      ",
     )
     .failure();
 }
@@ -207,23 +202,21 @@ fn broken_extension_function2() {
   }
   Test::new()
     .justfile(
-      r"
-we  := extension('foo')
+      "
+        we  := extension('foo')
 
-foo:
-  /usr/bin/env echo '{{we}}'
-",
+        foo:
+          /usr/bin/env echo '{{we}}'
+      ",
     )
     .stderr(
-      format!(
-        "{}\n{}\n{}\n{}\n{}\n",
-        "error: Call to function `extension` failed: Could not extract extension from `foo`",
-        " ——▶ justfile:1:8",
-        "  │",
-        "1 │ we  := extension(\'foo\')",
-        "  │        ^^^^^^^^^"
-      )
-      .as_str(),
+      "
+        error: Call to function `extension` failed: Could not extract extension from `foo`
+         ——▶ justfile:1:8
+          │
+        1 │ we  := extension('foo')
+          │        ^^^^^^^^^
+      ",
     )
     .failure();
 }
@@ -235,23 +228,21 @@ fn broken_file_stem_function() {
   }
   Test::new()
     .justfile(
-      r"
-we  := file_stem('')
+      "
+        we  := file_stem('')
 
-foo:
-  /usr/bin/env echo '{{we}}'
-",
+        foo:
+          /usr/bin/env echo '{{we}}'
+      ",
     )
     .stderr(
-      format!(
-        "{}\n{}\n{}\n{}\n{}\n",
-        "error: Call to function `file_stem` failed: Could not extract file stem from ``",
-        " ——▶ justfile:1:8",
-        "  │",
-        "1 │ we  := file_stem(\'\')",
-        "  │        ^^^^^^^^^"
-      )
-      .as_str(),
+      "
+        error: Call to function `file_stem` failed: Could not extract file stem from ``
+         ——▶ justfile:1:8
+          │
+        1 │ we  := file_stem('')
+          │        ^^^^^^^^^
+      ",
     )
     .failure();
 }
@@ -263,23 +254,21 @@ fn broken_file_name_function() {
   }
   Test::new()
     .justfile(
-      r"
-we  := file_name('')
+      "
+        we  := file_name('')
 
-foo:
-  /usr/bin/env echo '{{we}}'
-",
+        foo:
+          /usr/bin/env echo '{{we}}'
+      ",
     )
     .stderr(
-      format!(
-        "{}\n{}\n{}\n{}\n{}\n",
-        "error: Call to function `file_name` failed: Could not extract file name from ``",
-        " ——▶ justfile:1:8",
-        "  │",
-        "1 │ we  := file_name(\'\')",
-        "  │        ^^^^^^^^^"
-      )
-      .as_str(),
+      "
+        error: Call to function `file_name` failed: Could not extract file name from ``
+         ——▶ justfile:1:8
+          │
+        1 │ we  := file_name('')
+          │        ^^^^^^^^^
+      ",
     )
     .failure();
 }
@@ -291,24 +280,21 @@ fn broken_directory_function() {
   }
   Test::new()
     .justfile(
-      r"
-we  := parent_directory('')
+      "
+        we  := parent_directory('')
 
-foo:
-  /usr/bin/env echo '{{we}}'
-",
+        foo:
+          /usr/bin/env echo '{{we}}'
+      ",
     )
     .stderr(
-      format!(
-        "{} {}\n{}\n{}\n{}\n{}\n",
-        "error: Call to function `parent_directory` failed:",
-        "Could not extract parent directory from ``",
-        " ——▶ justfile:1:8",
-        "  │",
-        "1 │ we  := parent_directory(\'\')",
-        "  │        ^^^^^^^^^^^^^^^^"
-      )
-      .as_str(),
+      "
+        error: Call to function `parent_directory` failed: Could not extract parent directory from ``
+         ——▶ justfile:1:8
+          │
+        1 │ we  := parent_directory('')
+          │        ^^^^^^^^^^^^^^^^
+      ",
     )
     .failure();
 }
@@ -320,24 +306,21 @@ fn broken_directory_function2() {
   }
   Test::new()
     .justfile(
-      r"
-we  := parent_directory('/')
+      "
+        we  := parent_directory('/')
 
-foo:
-  /usr/bin/env echo '{{we}}'
-",
+        foo:
+          /usr/bin/env echo '{{we}}'
+      ",
     )
     .stderr(
-      format!(
-        "{} {}\n{}\n{}\n{}\n{}\n",
-        "error: Call to function `parent_directory` failed:",
-        "Could not extract parent directory from `/`",
-        " ——▶ justfile:1:8",
-        "  │",
-        "1 │ we  := parent_directory(\'/\')",
-        "  │        ^^^^^^^^^^^^^^^^"
-      )
-      .as_str(),
+      "
+        error: Call to function `parent_directory` failed: Could not extract parent directory from `/`
+         ——▶ justfile:1:8
+          │
+        1 │ we  := parent_directory('/')
+          │        ^^^^^^^^^^^^^^^^
+      ",
     )
     .failure();
 }
@@ -349,14 +332,14 @@ fn env_var_functions_windows() {
   }
   Test::new()
     .justfile(
-      r"
-p := env_var('USERNAME')
-b := env_var_or_default('ZADDY', 'HTAP')
-x := env_var_or_default('XYZ', 'ABC')
+      "
+        p := env_var('USERNAME')
+        b := env_var_or_default('ZADDY', 'HTAP')
+        x := env_var_or_default('XYZ', 'ABC')
 
-foo:
-  /usr/bin/env echo '{{p}}' '{{b}}' '{{x}}'
-",
+        foo:
+          /usr/bin/env echo '{{p}}' '{{b}}' '{{x}}'
+      ",
     )
     .stdout(format!("{} HTAP ABC\n", env::var("USERNAME").unwrap()).as_str())
     .stderr(
@@ -373,14 +356,20 @@ foo:
 fn env_var_failure() {
   Test::new()
     .arg("a")
-    .justfile("a:\n  echo {{env_var('ZADDY')}}")
+    .justfile(
+      "
+        a:
+          echo {{env_var('ZADDY')}}
+      ",
+    )
     .stderr(
-      "error: Call to function `env_var` failed: environment variable `ZADDY` not present
- ——▶ justfile:2:10
-  │
-2 │   echo {{env_var('ZADDY')}}
-  │          ^^^^^^^
-",
+      "
+        error: Call to function `env_var` failed: environment variable `ZADDY` not present
+         ——▶ justfile:2:10
+          │
+        2 │   echo {{env_var('ZADDY')}}
+          │          ^^^^^^^
+      ",
     )
     .failure();
 }
@@ -391,9 +380,9 @@ fn test_just_executable_function() {
     .arg("a")
     .justfile(
       "
-    a:
-      @printf 'Executable path is: %s\\n' '{{ just_executable() }}'
-  ",
+        a:
+          @printf 'Executable path is: %s\\n' '{{ just_executable() }}'
+      ",
     )
     .stdout(format!("Executable path is: {JUST}\n"))
     .success();
@@ -403,10 +392,10 @@ fn test_just_executable_function() {
 fn test_os_arch_functions_in_default() {
   Test::new()
     .justfile(
-      r"
-foo a=arch() o=os() f=os_family() n=num_cpus():
-  echo {{a}} {{o}} {{f}} {{n}}
-",
+      "
+        foo a=arch() o=os() f=os_family() n=num_cpus():
+          echo {{a}} {{o}} {{f}} {{n}}
+      ",
     )
     .stdout(
       format!(
@@ -436,9 +425,9 @@ fn clean() {
   Test::new()
     .justfile(
       "
-    foo:
-      echo {{ clean('a/../b') }}
-  ",
+        foo:
+          echo {{ clean('a/../b') }}
+      ",
     )
     .stdout("b\n")
     .stderr("echo b\n")
@@ -450,9 +439,9 @@ fn uppercase() {
   Test::new()
     .justfile(
       "
-    foo:
-      echo {{ uppercase('bar') }}
-  ",
+        foo:
+          echo {{ uppercase('bar') }}
+      ",
     )
     .stdout("BAR\n")
     .stderr("echo BAR\n")
@@ -464,9 +453,9 @@ fn lowercase() {
   Test::new()
     .justfile(
       "
-    foo:
-      echo {{ lowercase('BAR') }}
-  ",
+        foo:
+          echo {{ lowercase('BAR') }}
+      ",
     )
     .stdout("bar\n")
     .stderr("echo bar\n")
@@ -478,9 +467,9 @@ fn uppercamelcase() {
   Test::new()
     .justfile(
       "
-    foo:
-      echo {{ uppercamelcase('foo bar') }}
-  ",
+        foo:
+          echo {{ uppercamelcase('foo bar') }}
+      ",
     )
     .stdout("FooBar\n")
     .stderr("echo FooBar\n")
@@ -492,9 +481,9 @@ fn lowercamelcase() {
   Test::new()
     .justfile(
       "
-    foo:
-      echo {{ lowercamelcase('foo bar') }}
-  ",
+        foo:
+          echo {{ lowercamelcase('foo bar') }}
+      ",
     )
     .stdout("fooBar\n")
     .stderr("echo fooBar\n")
@@ -506,9 +495,9 @@ fn snakecase() {
   Test::new()
     .justfile(
       "
-    foo:
-      echo {{ snakecase('foo bar') }}
-  ",
+        foo:
+          echo {{ snakecase('foo bar') }}
+      ",
     )
     .stdout("foo_bar\n")
     .stderr("echo foo_bar\n")
@@ -520,9 +509,9 @@ fn kebabcase() {
   Test::new()
     .justfile(
       "
-    foo:
-      echo {{ kebabcase('foo bar') }}
-  ",
+        foo:
+          echo {{ kebabcase('foo bar') }}
+      ",
     )
     .stdout("foo-bar\n")
     .stderr("echo foo-bar\n")
@@ -534,9 +523,9 @@ fn shoutysnakecase() {
   Test::new()
     .justfile(
       "
-    foo:
-      echo {{ shoutysnakecase('foo bar') }}
-  ",
+        foo:
+          echo {{ shoutysnakecase('foo bar') }}
+      ",
     )
     .stdout("FOO_BAR\n")
     .stderr("echo FOO_BAR\n")
@@ -548,9 +537,9 @@ fn titlecase() {
   Test::new()
     .justfile(
       "
-    foo:
-      echo {{ titlecase('foo bar') }}
-  ",
+        foo:
+          echo {{ titlecase('foo bar') }}
+      ",
     )
     .stdout("Foo Bar\n")
     .stderr("echo Foo Bar\n")
@@ -562,9 +551,9 @@ fn shoutykebabcase() {
   Test::new()
     .justfile(
       "
-    foo:
-      echo {{ shoutykebabcase('foo bar') }}
-  ",
+        foo:
+          echo {{ shoutykebabcase('foo bar') }}
+      ",
     )
     .stdout("FOO-BAR\n")
     .stderr("echo FOO-BAR\n")
@@ -576,9 +565,9 @@ fn trim() {
   Test::new()
     .justfile(
       "
-    foo:
-      echo {{ trim('   bar   ') }}
-  ",
+        foo:
+          echo {{ trim('   bar   ') }}
+      ",
     )
     .stdout("bar\n")
     .stderr("echo bar\n")
@@ -590,9 +579,9 @@ fn replace() {
   Test::new()
     .justfile(
       "
-    foo:
-      echo {{ replace('barbarbar', 'bar', 'foo') }}
-  ",
+        foo:
+          echo {{ replace('barbarbar', 'bar', 'foo') }}
+      ",
     )
     .stdout("foofoofoo\n")
     .stderr("echo foofoofoo\n")
@@ -604,9 +593,9 @@ fn replace_regex() {
   Test::new()
     .justfile(
       "
-    foo:
-      echo {{ replace_regex('123bar123bar123bar', '\\d+bar', 'foo') }}
-  ",
+        foo:
+          echo {{ replace_regex('123bar123bar123bar', '\\d+bar', 'foo') }}
+      ",
     )
     .stdout("foofoofoo\n")
     .stderr("echo foofoofoo\n")
@@ -618,20 +607,21 @@ fn invalid_replace_regex() {
   Test::new()
     .justfile(
       "
-    foo:
-      echo {{ replace_regex('barbarbar', 'foo\\', 'foo') }}
-  ",
+        foo:
+          echo {{ replace_regex('barbarbar', 'foo\\', 'foo') }}
+      ",
     )
     .stderr(
-      "error: Call to function `replace_regex` failed: regex parse error:
-    foo\\
-       ^
-error: incomplete escape sequence, reached end of pattern prematurely
- ——▶ justfile:2:11
-  │
-2 │   echo {{ replace_regex('barbarbar', 'foo\\', 'foo') }}
-  │           ^^^^^^^^^^^^^
-",
+      "
+        error: Call to function `replace_regex` failed: regex parse error:
+            foo\\
+               ^
+        error: incomplete escape sequence, reached end of pattern prematurely
+         ——▶ justfile:2:11
+          │
+        2 │   echo {{ replace_regex('barbarbar', 'foo\\', 'foo') }}
+          │           ^^^^^^^^^^^^^
+      ",
     )
     .failure();
 }
@@ -1252,13 +1242,13 @@ import
 #[test]
 fn is_dependency() {
   let justfile = "
-    alpha: beta
-      @echo 'alpha {{is_dependency()}}'
-    beta: && gamma
-      @echo 'beta {{is_dependency()}}'
-    gamma:
-      @echo 'gamma {{is_dependency()}}'
-  ";
+        alpha: beta
+          @echo 'alpha {{is_dependency()}}'
+        beta: && gamma
+          @echo 'beta {{is_dependency()}}'
+        gamma:
+          @echo 'gamma {{is_dependency()}}'
+      ";
   Test::new()
     .args(["alpha"])
     .justfile(justfile)
@@ -1329,7 +1319,6 @@ fn absolute_path_argument_is_relative_to_submodule_working_directory() {
       r#"
 bar:
   @echo "{{ absolute_path('baz') }}"
-
 "#,
     )
     .stdout_regex(r".*[/\\]foo[/\\]baz\n")
@@ -1347,7 +1336,6 @@ fn blake3_file_argument_is_relative_to_submodule_working_directory() {
       "
 bar:
   @echo {{ blake3_file('baz') }}
-
 ",
     )
     .stdout("af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262\n")
@@ -1365,7 +1353,6 @@ fn canonicalize_argument_is_relative_to_submodule_working_directory() {
       r#"
 bar:
   @echo "{{ canonicalize('baz') }}"
-
 "#,
     )
     .stdout_regex(r".*[/\\]foo[/\\]baz\n")
@@ -1383,7 +1370,6 @@ fn path_exists_argument_is_relative_to_submodule_working_directory() {
       "
 bar:
   @echo {{ path_exists('baz') }}
-
 ",
     )
     .stdout_regex("true\n")
@@ -1401,7 +1387,6 @@ fn sha256_file_argument_is_relative_to_submodule_working_directory() {
       "
 bar:
   @echo {{ sha256_file('baz') }}
-
 ",
     )
     .stdout_regex("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n")
