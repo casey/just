@@ -2,8 +2,8 @@ use {super::*, CompileErrorKind::*};
 
 pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
   assignments: &'run Table<'src, Assignment<'src>>,
-  functions: &'run Table<'src, FunctionDefinition<'src>>,
   evaluated: BTreeSet<&'src str>,
+  functions: &'run Table<'src, FunctionDefinition<'src>>,
   stack: Vec<&'src str>,
 }
 
@@ -59,7 +59,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
   ) -> CompileResult<'src> {
     match reference {
       Reference::Call { name, arguments } => {
-        Analyzer::resolve_call(&self.functions, name, arguments)
+        Analyzer::resolve_call(self.functions, name, arguments)
       }
       Reference::Variable(name) => self.resolve_variable(parameters, name),
     }

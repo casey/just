@@ -179,7 +179,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
         for reference in expression.references() {
           match reference {
             Reference::Call { name, arguments } => {
-              Analyzer::resolve_call(&functions, name, arguments)?
+              Analyzer::resolve_call(&functions, name, arguments)?;
             }
             Reference::Variable(variable) => {
               let name = variable.lexeme();
