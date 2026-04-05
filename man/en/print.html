@@ -264,6 +264,9 @@ contains the <code>justfile</code>.</p>
 <a href="https://discord.gg/ezYScXR">Discord</a>. Feature requests and bug reports are
 always welcome!</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="installation"><a class="header" href="#installation">Installation</a></h2>
+<p>Just can be installed using your favorite <a href="packages.html">package manager</a>, by
+downloading <a href="pre-built-binaries.html">pre-built binaries</a>, or building from source
+with <code>cargo install just</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="prerequisites"><a class="header" href="#prerequisites">Prerequisites</a></h3>
 <p><code>just</code> should run on any system with a reasonable <code>sh</code>, including Linux, MacOS,
 and the BSDs.</p>
@@ -566,7 +569,8 @@ which can be used to verify the integrity of pre-built binary archives.</p>
 <pre><code class="language-dockerfile">RUN just
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="release-rss-feed"><a class="header" href="#release-rss-feed">Release RSS Feed</a></h3>
-<p>An <a href="https://en.wikipedia.org/wiki/RSS">RSS feed</a> of <code>just</code> releases is available <a href="https://github.com/casey/just/releases.atom">here</a>.</p>
+<p>An <a href="https://en.wikipedia.org/wiki/RSS">RSS feed</a> of <code>just</code> releases is
+available <a href="https://github.com/casey/just/releases.atom">here</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="nodejs-installation"><a class="header" href="#nodejs-installation">Node.js Installation</a></h3>
 <p><a href="https://npmjs.com/package/just-install">just-install</a> can be used to automate
 installation of <code>just</code> in Node.js applications.</p>
@@ -579,6 +583,20 @@ the <code>just</code> command will work in npm scripts or with npx. It’s great
 who want to make the set up process for their project as easy as possible.</p>
 <p>For more information, see the
 <a href="https://github.com/brombal/just-install#readme">just-install README file</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="nix-flake"><a class="header" href="#nix-flake">Nix Flake</a></h3>
+<p>The <code>just</code> repository includes a
+<a href="https://github.com/casey/just/tree/master/flake.nix"><code>flake.nix</code></a> that defines
+a <a href="https://nix.dev/concepts/flakes.html">nix flake</a>, allowing you to use <code>just</code>
+as an input to another flake:</p>
+<pre><code class="language-nix">{
+  inputs = {
+    just.url = "github:casey/just";
+  }
+
+  outputs = {self, nixpkgs, just}: {
+  }
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="backwards-compatibility"><a class="header" href="#backwards-compatibility">Backwards Compatibility</a></h2>
 <p>With the release of version 1.0, <code>just</code> features a strong commitment to
 backwards compatibility and stability.</p>
@@ -622,21 +640,6 @@ git clone https://github.com/NoahTheDuke/vim-just.git
 <p><a href="https://github.com/IndianBoy42/tree-sitter-just">tree-sitter-just</a> is an
 <a href="https://github.com/nvim-treesitter/nvim-treesitter">Nvim Treesitter</a> plugin
 for Neovim.</p>
-<h4 id="makefile-syntax-highlighting"><a class="header" href="#makefile-syntax-highlighting">Makefile Syntax Highlighting</a></h4>
-<p>Vim’s built-in makefile syntax highlighting isn’t perfect for <code>justfile</code>s, but
-it’s better than nothing. You can put the following in <code>~/.vim/filetype.vim</code>:</p>
-<pre><code class="language-vimscript">if exists("did_load_filetypes")
-  finish
-endif
-
-augroup filetypedetect
-  au BufNewFile,BufRead justfile setf make
-augroup END
-</code></pre>
-<p>Or add the following to an individual <code>justfile</code> to enable <code>make</code> mode on a
-per-file basis:</p>
-<pre><code class="language-text"># vim: set ft=make :
-</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="emacs"><a class="header" href="#emacs">Emacs</a></h3>
 <p><a href="https://github.com/leon-barrett/just-mode.el">just-mode</a> provides syntax
 highlighting and automatic indentation of <code>justfile</code>s. It is available on
@@ -1064,6 +1067,10 @@ serve:
 Starting server with database localhost:6379 on port 1337…
 ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
 </code></pre>
+<p>Variables in environment files loaded in parent modules are inherited by
+submodules.</p>
+<p>Environment files are loaded in submodules<sup>1.49.0<sup> and may override
+variable defined in parent module environment files.</p>
 <h4 id="export"><a class="header" href="#export">Export</a></h4>
 <p>The <code>export</code> setting causes all <code>just</code> variables to be exported as environment
 variables. Defaults to <code>false</code>.</p>
@@ -1235,6 +1242,42 @@ test:
 Available recipes:
     build # Build stuff
     test
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="variables-and-assignments"><a class="header" href="#variables-and-assignments">Variables and Assignments</a></h3>
+<p>Module-level variables may be created by assigning them a value with <code>:=</code>:</p>
+<pre><code class="language-just">foo := "hello"
+bar := "world"
+
+baz:
+  echo {{ foo + " " + bar }}
+</code></pre>
+<p>All variables in a module may be printed:</p>
+<pre><code class="language-console">$ just --evaluate
+bar := "world"
+foo := "hello"
+</code></pre>
+<p>Or the value of a single variable:</p>
+<pre><code class="language-console">$ just --evalaute foo
+hello
+</code></pre>
+<p>All variables in a submodule or a single variable in a submodule may be printed
+with a path to the submodule or variable<sup>1.49.0</sup>:</p>
+<pre><code class="language-console">$ just --evaluate bob::bar
+x := "world"
+y := "hello"
+$ just --evaluate bob::bar::y
+hello
+</code></pre>
+<p>The format of exported variables may be controlled with
+<code>--evaluate-format</code><sup>1.49.0</sup>:</p>
+<pre><code class="language-console">$ just --evaluate --evaluate-format shell
+bar="world"
+foo="hello"
+</code></pre>
+<p>The default format is <code>--evaluate-format just</code>:</p>
+<pre><code class="language-console">$ just --evaluate --evaluate-format just
+bar := "world"
+foo := "hello"
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="expressions-and-substitutions"><a class="header" href="#expressions-and-substitutions">Expressions and Substitutions</a></h3>
 <p>Various operators and function calls are supported in expressions, which may be
@@ -1446,7 +1489,7 @@ $ just foo
 BAR
 FOO
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h3 id="functions"><a class="header" href="#functions">Functions</a></h3>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="built-in-functions"><a class="header" href="#built-in-functions">Built-in Functions</a></h3>
 <p><code>just</code> provides many built-in functions for use in expressions, including
 recipe body <code>{{…}}</code> substitutions, assignments, and default parameter values.</p>
 <p>All functions ending in <code>_directory</code> can be abbreviated to <code>_dir</code>. So
@@ -1627,6 +1670,20 @@ current source file.</p>
 <code>justfile_directory()</code> in the root <code>justfile</code>, but will return the path and
 directory, respectively, of the current <code>import</code> or <code>mod</code> source file when
 called from within an import or submodule.</p>
+<h4 id="module-and-module-directory"><a class="header" href="#module-and-module-directory">Module and Module Directory</a></h4>
+<ul>
+<li>
+<p><code>module_file()</code> - Retrieves the path of the current module file.</p>
+</li>
+<li>
+<p><code>module_directory()</code> - Retrieves the path of the parent directory of the
+current module file.</p>
+</li>
+</ul>
+<p><code>module_file()</code> and <code>module_directory()</code> behave the same as <code>justfile()</code> and
+<code>justfile_directory()</code> in the root <code>justfile</code>, but will return the path and
+directory, respectively, of the current <code>mod</code> source file when called from
+within submodule.</p>
 <h4 id="just-executable"><a class="header" href="#just-executable">Just Executable</a></h4>
 <ul>
 <li><code>just_executable()</code> - Absolute path to the <code>just</code> executable.</li>
@@ -1768,8 +1825,8 @@ for details.</p>
 <ul>
 <li><code>semver_matches(version, requirement)</code><sup>1.16.0</sup> - Check whether a
 <a href="https://semver.org">semantic <code>version</code></a>, e.g., <code>"0.1.0"</code> matches a
-<code>requirement</code>, e.g., <code>"&gt;=0.1.0"</code>, returning <code>"true"</code> if so and <code>"false"</code>
-otherwise.</li>
+<code>requirement</code>, e.g., <code>"&gt;=0.1.0"</code>, returning the string <code>"true"</code> if so and the
+string <code>"false"</code> otherwise.</li>
 </ul>
 <h4 id="style"><a class="header" href="#style">Style</a></h4>
 <ul>
@@ -1806,6 +1863,8 @@ details.</p>
 <li><code>data_local_directory()</code> - The local user-specific data directory.</li>
 <li><code>executable_directory()</code> - The user-specific executable directory.</li>
 <li><code>home_directory()</code> - The user’s home directory.</li>
+<li><code>runtime_directory()</code> - The user-specific runtime directory. Only defined on
+Linux.</li>
 </ul>
 <p>If you would like to use XDG base directories on all platforms you can use the
 <code>env(…)</code> function with the appropriate environment variable and fallback,
@@ -1817,6 +1876,28 @@ do:</p>
 } else {
   home_directory() / '.config'
 }
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="user-defined-functions"><a class="header" href="#user-defined-functions">User-defined functions</a></h3>
+<p>New functions may be defined<sup>1.49.0</sup>:</p>
+<pre><code class="language-just">set unstable
+
+hello(name) := f"Hello, {{ name }}!"
+
+foo:
+  echo '{{ hello("World") }}'
+</code></pre>
+<p>User defined functions are currently unstable.</p>
+<p>Functions may reference assignments in the same module:</p>
+<pre><code class="language-just">set unstable
+
+base := "foo"
+
+join(extension) := base + "." + extension
+
+create:
+  touch {{ join("c") }}
+  touch {{ join("html") }}
+  touch {{ join("txt") }}
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="constants"><a class="header" href="#constants">Constants</a></h3>
 <p>A number of constants are predefined:</p>
@@ -1975,6 +2056,12 @@ delete-all:
 delete-everything:
   rm -rf *
 </code></pre>
+<p>The confirmation prompt may also be an expression<sup>1.49.0</sup> which may
+reference assignments or recipe arguments:</p>
+<pre><code class="language-just">[confirm("Deploy to " + env + "?")]
+deploy env:
+  echo 'Deploying to {{env}}...'
+</code></pre>
 <h4 id="metadata"><a class="header" href="#metadata">Metadata</a></h4>
 <p>Metadata in the form of lists of strings may be attached to recipes with the
 <code>[metadata(METADATA)]</code> attribute<sup>1.42.0</sup>:</p>
@@ -2053,7 +2140,7 @@ stuff := ```
 <p>See the <a href="strings.html">Strings</a> section for details on unindenting.</p>
 <p>Backticks may not start with <code>#!</code>. This syntax is reserved for a future
 upgrade.</p>
-<p>The <a href="functions.html#external-commands"><code>shell(…)</code> function</a> provides a more general mechanism
+<p>The <a href="built-in-functions.html#external-commands"><code>shell(…)</code> function</a> provides a more general mechanism
 to invoke external commands, including the ability to execute the contents of a
 variable as a command, and to pass arguments to a command.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="conditional-expressions"><a class="header" href="#conditional-expressions">Conditional Expressions</a></h3>
@@ -2212,7 +2299,7 @@ HOME is '/home/myuser'
 <h4 id="setting-just-variables-from-environment-variables"><a class="header" href="#setting-just-variables-from-environment-variables">Setting <code>just</code> Variables from Environment Variables</a></h4>
 <p>Environment variables can be propagated to <code>just</code> variables using the <code>env()</code> function.
 See
-<a href="functions.html#environment-variables">environment-variables</a>.</p>
+<a href="built-in-functions.html#environment-variables">environment-variables</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="recipe-parameters"><a class="header" href="#recipe-parameters">Recipe Parameters</a></h3>
 <p>Recipes may have parameters. Here recipe <code>build</code> has a parameter called
 <code>target</code>:</p>
@@ -3654,6 +3741,10 @@ all its various escape sequences and quotes undisturbed:</p>
 bar:
   printf %s "$FOO"
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="skill-for-agents"><a class="header" href="#skill-for-agents">Skill for Agents</a></h3>
+<p>A skill for agents is available in
+<a href="https://github.com/casey/just/blob/master/skills/just/">skills/just</a> and may
+be installed manually or with <code>npx skills add casey/just --global</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="alternatives-and-prior-art"><a class="header" href="#alternatives-and-prior-art">Alternatives and Prior Art</a></h3>
 <p>There is no shortage of command runners! Some more or less similar alternatives
 to <code>just</code> include:</p>

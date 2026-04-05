@@ -282,6 +282,12 @@ delete-all:
 delete-everything:
   rm -rf *
 </code></pre>
+<p>The confirmation prompt may also be an expression<sup>1.49.0</sup> which may
+reference assignments or recipe arguments:</p>
+<pre><code class="language-just">[confirm("Deploy to " + env + "?")]
+deploy env:
+  echo 'Deploying to {{env}}...'
+</code></pre>
 <h4 id="metadata"><a class="header" href="#metadata">Metadata</a></h4>
 <p>Metadata in the form of lists of strings may be attached to recipes with the
 <code>[metadata(METADATA)]</code> attribute<sup>1.42.0</sup>:</p>

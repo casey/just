@@ -292,6 +292,10 @@ serve:
 Starting server with database localhost:6379 on port 1337…
 ./server --database $DATABASE_ADDRESS --port $SERVER_PORT
 </code></pre>
+<p>Variables in environment files loaded in parent modules are inherited by
+submodules.</p>
+<p>Environment files are loaded in submodules<sup>1.49.0<sup> and may override
+variable defined in parent module environment files.</p>
 <h4 id="export"><a class="header" href="#export">Export</a></h4>
 <p>The <code>export</code> setting causes all <code>just</code> variables to be exported as environment
 variables. Defaults to <code>false</code>.</p>

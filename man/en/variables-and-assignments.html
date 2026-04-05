@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Node.js Installation - Just Programmer&#x27;s Manual</title>
+        <title>Variables and Assignments - Just Programmer&#x27;s Manual</title>
 
 
         <!-- Custom HTML head -->
@@ -178,28 +178,52 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h3 id="nodejs-installation"><a class="header" href="#nodejs-installation">Node.js Installation</a></h3>
-<p><a href="https://npmjs.com/package/just-install">just-install</a> can be used to automate
-installation of <code>just</code> in Node.js applications.</p>
-<p><code>just</code> is a great, more robust alternative to npm scripts. If you want to
-include <code>just</code> in the dependencies of a Node.js application, <code>just-install</code>
-will install a local, platform-specific binary as part of the <code>npm install</code>
-command. This removes the need for every developer to install <code>just</code>
-independently using one of the processes mentioned above. After installation,
-the <code>just</code> command will work in npm scripts or with npx. It’s great for teams
-who want to make the set up process for their project as easy as possible.</p>
-<p>For more information, see the
-<a href="https://github.com/brombal/just-install#readme">just-install README file</a>.</p>
+                        <h3 id="variables-and-assignments"><a class="header" href="#variables-and-assignments">Variables and Assignments</a></h3>
+<p>Module-level variables may be created by assigning them a value with <code>:=</code>:</p>
+<pre><code class="language-just">foo := "hello"
+bar := "world"
+
+baz:
+  echo {{ foo + " " + bar }}
+</code></pre>
+<p>All variables in a module may be printed:</p>
+<pre><code class="language-console">$ just --evaluate
+bar := "world"
+foo := "hello"
+</code></pre>
+<p>Or the value of a single variable:</p>
+<pre><code class="language-console">$ just --evalaute foo
+hello
+</code></pre>
+<p>All variables in a submodule or a single variable in a submodule may be printed
+with a path to the submodule or variable<sup>1.49.0</sup>:</p>
+<pre><code class="language-console">$ just --evaluate bob::bar
+x := "world"
+y := "hello"
+$ just --evaluate bob::bar::y
+hello
+</code></pre>
+<p>The format of exported variables may be controlled with
+<code>--evaluate-format</code><sup>1.49.0</sup>:</p>
+<pre><code class="language-console">$ just --evaluate --evaluate-format shell
+bar="world"
+foo="hello"
+</code></pre>
+<p>The default format is <code>--evaluate-format just</code>:</p>
+<pre><code class="language-console">$ just --evaluate --evaluate-format just
+bar := "world"
+foo := "hello"
+</code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="release-rss-feed.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="documentation-comments.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="nix-flake.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="expressions-and-substitutions.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -209,11 +233,11 @@ who want to make the set up process for their project as easy as possible.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="release-rss-feed.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="documentation-comments.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="nix-flake.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="expressions-and-substitutions.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
