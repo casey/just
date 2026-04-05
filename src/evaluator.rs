@@ -222,31 +222,15 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     function: &FunctionDefinition<'src>,
     arguments: &[Expression<'src>],
   ) -> RunResult<'src, String> {
-    let arguments = arguments
-      .iter()
-      .map(|argument| self.evaluate_expression(argument))
-      .collect::<RunResult<Vec<String>>>()?;
-
     let context = *self
       .context
       .as_ref()
       .ok_or(ConstError::FunctionCall(name))?;
 
-    let root = Scope::root();
-    let overrides = HashMap::new();
-
-    let mut evaluator = Evaluator {
-      assignments: Some(&context.module.assignments),
-      context: Some(context),
-      env: BTreeMap::new(),
-      is_dependency: false,
-      non_const_assignments: Table::new(),
-      overrides: &overrides,
-      scope: root.child(),
-    };
-
-    for ((name, number), value) in function.parameters.iter().copied().zip(arguments) {
-      evaluator.scope.bind(Binding {
+    let mut scope = Scope::root();
+    for ((name, number), argument) in function.parameters.iter().copied().zip(arguments) {
+      let value = self.evaluate_expression(argument)?;
+      scope.bind(Binding {
         eager: false,
         export: false,
         file_depth: 0,
@@ -257,6 +241,17 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         value: value.clone(),
       });
     }
+
+    let overrides = HashMap::new();
+    let mut evaluator = Evaluator {
+      assignments: Some(&context.module.assignments),
+      context: Some(context),
+      env: BTreeMap::new(),
+      is_dependency: false,
+      non_const_assignments: Table::new(),
+      overrides: &overrides,
+      scope,
+    };
 
     evaluator.evaluate_expression(&function.body)
   }
