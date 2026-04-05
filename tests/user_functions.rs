@@ -154,7 +154,7 @@ fn duplicate_function_error() {
 }
 
 #[test]
-fn unknown_function_error() {
+fn undefined_function_error() {
   Test::new()
     .justfile(
       "
@@ -163,7 +163,7 @@ fn unknown_function_error() {
     )
     .stderr(
       "
-        error: Call to unknown function `nope`
+        error: Call to undefined function `nope`
          ——▶ justfile:1:6
           │
         1 │ x := nope()
