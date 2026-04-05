@@ -218,14 +218,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
   fn evaluate_defined_function(
     &mut self,
-    name: Name<'src>,
     function: &FunctionDefinition<'src>,
     arguments: &[Expression<'src>],
   ) -> RunResult<'src, String> {
-    let context = *self
-      .context
-      .as_ref()
-      .ok_or(ConstError::FunctionCall(name))?;
+    let context = *self.context.as_ref().unwrap();
 
     let mut scope = Scope::root();
     for ((name, number), argument) in function.parameters.iter().copied().zip(arguments) {
@@ -263,10 +259,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     arguments: &[Expression<'src>],
   ) -> RunResult<'src, String> {
     match function {
-      Function::Nullary(f) => f(self.function_context(name)?),
+      Function::Nullary(f) => f(self.function_context(name).unwrap()),
       Function::Unary(f) => {
         let a = self.evaluate_expression(&arguments[0])?;
-        f(self.function_context(name)?, &a)
+        f(self.function_context(name).unwrap(), &a)
       }
       Function::UnaryOpt(f) => {
         let a = self.evaluate_expression(&arguments[0])?;
@@ -275,7 +271,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         } else {
           None
         };
-        f(self.function_context(name)?, &a, b.as_deref())
+        f(self.function_context(name).unwrap(), &a, b.as_deref())
       }
       Function::UnaryPlus(f) => {
         let a = self.evaluate_expression(&arguments[0])?;
@@ -283,12 +279,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         for arg in &arguments[1..] {
           rest.push(self.evaluate_expression(arg)?);
         }
-        f(self.function_context(name)?, &a, &rest)
+        f(self.function_context(name).unwrap(), &a, &rest)
       }
       Function::Binary(f) => {
         let a = self.evaluate_expression(&arguments[0])?;
         let b = self.evaluate_expression(&arguments[1])?;
-        f(self.function_context(name)?, &a, &b)
+        f(self.function_context(name).unwrap(), &a, &b)
       }
       Function::BinaryPlus(f) => {
         let a = self.evaluate_expression(&arguments[0])?;
@@ -297,13 +293,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         for arg in &arguments[2..] {
           rest.push(self.evaluate_expression(arg)?);
         }
-        f(self.function_context(name)?, &a, &b, &rest)
+        f(self.function_context(name).unwrap(), &a, &b, &rest)
       }
       Function::Ternary(f) => {
         let a = self.evaluate_expression(&arguments[0])?;
         let b = self.evaluate_expression(&arguments[1])?;
         let c = self.evaluate_expression(&arguments[2])?;
-        f(self.function_context(name)?, &a, &b, &c)
+        f(self.function_context(name).unwrap(), &a, &b, &c)
       }
     }
     .map_err(|message| Error::FunctionCall {
@@ -355,7 +351,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       Expression::Call { name, arguments } => {
         let module = self.context(ConstError::FunctionCall(*name))?.module;
         if let Some(function) = module.functions.get(name.lexeme()) {
-          self.evaluate_defined_function(*name, function, arguments)
+          self.evaluate_defined_function(function, arguments)
         } else if let Some(builtin) = function::get(name.lexeme()) {
           self.evaluate_builtin_function(*name, builtin, arguments)
         } else {
