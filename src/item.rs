@@ -35,12 +35,12 @@ impl ColorDisplay for Item<'_> {
       Self::Assignment(assignment) => write!(f, "{assignment}"),
       Self::Comment(comment) => write!(f, "{comment}"),
       Self::Function(function) => {
-        write!(f, "{}(", function.name.lexeme())?;
-        for (i, (param, _number)) in function.parameters.iter().enumerate() {
+        write!(f, "{}(", function.name)?;
+        for (i, (parameter, _number)) in function.parameters.iter().enumerate() {
           if i > 0 {
             write!(f, ", ")?;
           }
-          write!(f, "{}", param.lexeme())?;
+          write!(f, "{parameter}")?;
         }
         write!(f, ") := {}", function.body)
       }
