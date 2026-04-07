@@ -31,8 +31,6 @@ impl<'src> Setting<'src> {
     match self {
       Self::AllowDuplicateRecipes(value)
       | Self::AllowDuplicateVariables(value)
-      | Self::Unstable(value)
-      | Self::WindowsPowerShell(value)
       | Self::DotenvLoad(value)
       | Self::DotenvOverride(value)
       | Self::DotenvRequired(value)
@@ -43,14 +41,14 @@ impl<'src> Setting<'src> {
       | Self::Lazy(value)
       | Self::NoExitMessage(value)
       | Self::PositionalArguments(value)
-      | Self::Quiet(value) => *value,
-      Self::DotenvFilename(_)
-      | Self::DotenvPath(_)
-      | Self::ScriptInterpreter(_)
-      | Self::Shell(_)
-      | Self::Tempdir(_)
-      | Self::WindowsShell(_)
-      | Self::WorkingDirectory(_) => false,
+      | Self::Quiet(value)
+      | Self::Unstable(value)
+      | Self::WindowsPowerShell(value) => *value,
+      Self::DotenvFilename(_value)
+      | Self::DotenvPath(_value)
+      | Self::Tempdir(_value)
+      | Self::WorkingDirectory(_value) => false,
+      Self::ScriptInterpreter(_value) | Self::Shell(_value) | Self::WindowsShell(_value) => false,
     }
   }
 
