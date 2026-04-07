@@ -87,12 +87,12 @@ impl<'src> Lexer<'src> {
         self.token_end.offset += len_utf8;
         self.token_end.column += len_utf8;
 
-        if c == '\n' {
+        self.next = self.chars.next();
+
+        if c == '\n' && self.next.is_some() {
           self.token_end.column = 0;
           self.token_end.line += 1;
         }
-
-        self.next = self.chars.next();
 
         Ok(())
       }

@@ -391,7 +391,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     self.accept(ByteOrderMark)?;
 
-    loop {
+    while !self.accepted(Eof)? {
       let mut attributes = self.parse_attributes()?;
       let mut take_attributes = || {
         attributes
@@ -408,8 +408,6 @@ impl<'run, 'src> Parser<'run, 'src> {
         eol_since_last_comment = false;
       } else if self.accepted(Eol)? {
         eol_since_last_comment = true;
-      } else if self.accepted(Eof)? {
-        break;
       } else if self.next_is(Identifier) {
         match Keyword::from_lexeme(next.lexeme()) {
           Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {

@@ -182,22 +182,10 @@ fn working_directory_is_correct() {
 
 #[test]
 fn command_not_found() {
-  let tmp = tempdir();
-
-  fs::write(tmp.path().join("justfile"), "").unwrap();
-
-  let output = Command::new(JUST)
+  Test::new()
     .args(["--command", "asdfasdfasdfasdfadfsadsfadsf", "bar"])
-    .output()
-    .unwrap();
-
-  assert!(
-    str::from_utf8(&output.stderr)
-      .unwrap()
-      .starts_with("error: Failed to invoke `asdfasdfasdfasdfadfsadsfadsf` `bar`:"),
-  );
-
-  assert!(!output.status.success());
+    .stderr_regex("error: Failed to invoke `asdfasdfasdfasdfadfsadsfadsf` `bar`: .*")
+    .failure();
 }
 
 #[test]
