@@ -27,6 +27,31 @@ pub(crate) enum Setting<'src> {
 }
 
 impl<'src> Setting<'src> {
+  pub(crate) fn is_default(&self) -> bool {
+    match self {
+      Self::AllowDuplicateRecipes(value)
+      | Self::AllowDuplicateVariables(value)
+      | Self::DotenvLoad(value)
+      | Self::DotenvOverride(value)
+      | Self::DotenvRequired(value)
+      | Self::Export(value)
+      | Self::Fallback(value)
+      | Self::Guards(value)
+      | Self::IgnoreComments(value)
+      | Self::Lazy(value)
+      | Self::NoExitMessage(value)
+      | Self::PositionalArguments(value)
+      | Self::Quiet(value)
+      | Self::Unstable(value)
+      | Self::WindowsPowerShell(value) => *value,
+      Self::DotenvFilename(_value)
+      | Self::DotenvPath(_value)
+      | Self::Tempdir(_value)
+      | Self::WorkingDirectory(_value) => false,
+      Self::ScriptInterpreter(_value) | Self::Shell(_value) | Self::WindowsShell(_value) => false,
+    }
+  }
+
   pub(crate) fn expressions(&self) -> impl Iterator<Item = &Expression<'src>> {
     let first = match self {
       Self::DotenvFilename(value)

@@ -1110,13 +1110,13 @@ fn set_true_explicit() {
     .arg("--dump")
     .justfile(
       "
-    set export := true
-  ",
+        set export := true
+      ",
     )
     .stdout(
       "
-    set export := true
-  ",
+        set export
+      ",
     )
     .success();
 }
@@ -1127,13 +1127,13 @@ fn set_true_implicit() {
     .arg("--dump")
     .justfile(
       "
-    set export
-  ",
+        set export
+      ",
     )
     .stdout(
       "
-    set export := true
-  ",
+        set export
+      ",
     )
     .success();
 }
@@ -1379,15 +1379,15 @@ fn group_sets() {
     .arg("--dump")
     .justfile(
       "
-    set export := true
-    set positional-arguments := true
-  ",
+        set export := true
+        set positional-arguments := true
+      ",
     )
     .stdout(
       "
-    set export := true
-    set positional-arguments := true
-  ",
+        set export
+        set positional-arguments
+      ",
     )
     .success();
 }
@@ -1496,7 +1496,7 @@ fn multi_argument_attribute() {
     .arg("--dump")
     .stdout(
       "
-        set unstable := true
+        set unstable
 
         [script('a', 'b', 'c')]
         foo:
@@ -1520,7 +1520,7 @@ fn doc_attribute_suppresses_comment() {
     .arg("--dump")
     .stdout(
       "
-        set unstable := true
+        set unstable
 
         [doc('ATTRIBUTE')]
         foo:
