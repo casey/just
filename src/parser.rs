@@ -402,9 +402,9 @@ impl<'run, 'src> Parser<'run, 'src> {
             )?));
           }
           Some(Keyword::Unexport)
-            if self.next_are(&[Identifier, Identifier, Eof])
-              || self.next_are(&[Identifier, Identifier, Eol])
-              || self.next_are(&[Identifier, Identifier, Comment]) =>
+            if self.next_are(&[Identifier, Identifier, Comment])
+              || self.next_are(&[Identifier, Identifier, Eof])
+              || self.next_are(&[Identifier, Identifier, Eol]) =>
           {
             self.presume_keyword(Keyword::Unexport)?;
             let name = self.parse_name()?;
@@ -412,9 +412,9 @@ impl<'run, 'src> Parser<'run, 'src> {
             items.push(Item::Unexport { name });
           }
           Some(Keyword::Import)
-            if self.next_are(&[Identifier, StringToken])
-              || self.next_are(&[Identifier, Identifier, StringToken])
-              || self.next_are(&[Identifier, QuestionMark]) =>
+            if self.next_are(&[Identifier, Identifier, StringToken])
+              || self.next_are(&[Identifier, QuestionMark])
+              || self.next_are(&[Identifier, StringToken]) =>
           {
             self.presume_keyword(Keyword::Import)?;
             let optional = self.accepted(QuestionMark)?;
