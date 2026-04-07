@@ -155,6 +155,36 @@ impl<'run, 'src> Parser<'run, 'src> {
     true
   }
 
+  /// Check if the next significant tokens are of kinds `kinds`, followed by a
+  /// comment, end-of-file, or end-of-line.
+  ///
+  /// The first token in `kinds` will be added to the expected token set.
+  fn line_is(&mut self, kinds: &[TokenKind]) -> bool {
+    if let Some(&kind) = kinds.first() {
+      self.expected_tokens.insert(kind);
+    }
+
+    let mut rest = self.rest();
+    for kind in kinds {
+      match rest.next() {
+        Some(token) => {
+          if token.kind != *kind {
+            return false;
+          }
+        }
+        None => return false,
+      }
+    }
+
+    if let Some(token) = rest.next() {
+      if matches!(token.kind, Comment | Eof | Eol) {
+        return true;
+      }
+    }
+
+    false
+  }
+
   /// Advance past one significant token, clearing the expected token set.
   fn advance(&mut self) -> CompileResult<'src, Token<'src>> {
     self.expected_tokens.clear();
@@ -401,11 +431,7 @@ impl<'run, 'src> Parser<'run, 'src> {
               true,
             )?));
           }
-          Some(Keyword::Unexport)
-            if self.next_are(&[Identifier, Identifier, Comment])
-              || self.next_are(&[Identifier, Identifier, Eof])
-              || self.next_are(&[Identifier, Identifier, Eol]) =>
-          {
+          Some(Keyword::Unexport) if self.line_is(&[Identifier, Identifier]) => {
             self.presume_keyword(Keyword::Unexport)?;
             let name = self.parse_name()?;
             self.expect_eol()?;
@@ -426,9 +452,7 @@ impl<'run, 'src> Parser<'run, 'src> {
             });
           }
           Some(Keyword::Mod)
-            if self.next_are(&[Identifier, Identifier, Comment])
-              || self.next_are(&[Identifier, Identifier, Eof])
-              || self.next_are(&[Identifier, Identifier, Eol])
+            if self.line_is(&[Identifier, Identifier])
               || self.next_are(&[Identifier, Identifier, Identifier, StringToken])
               || self.next_are(&[Identifier, Identifier, StringToken])
               || self.next_are(&[Identifier, QuestionMark]) =>
@@ -488,10 +512,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           }
           Some(Keyword::Set)
             if self.next_are(&[Identifier, Identifier, ColonEquals])
-              || self.next_are(&[Identifier, Identifier, Comment, Eof])
-              || self.next_are(&[Identifier, Identifier, Comment, Eol])
-              || self.next_are(&[Identifier, Identifier, Eof])
-              || self.next_are(&[Identifier, Identifier, Eol]) =>
+              || self.line_is(&[Identifier, Identifier]) =>
           {
             items.push(Item::Set(self.parse_set()?));
           }
