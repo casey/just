@@ -2004,8 +2004,7 @@ called from within an import or submodule.
 - `module_directory()` - Returns the path of the parent directory of the
   current module file.
 
-- `module_path()` - Returns the `::`-separated module path to the current
-  module.
+- `module_path()` - Returns the `::`-separated path to the current module.
 
 `module_file()` and `module_directory()` behave the same as `justfile()` and
 `justfile_directory()` in the root `justfile`, but will return the path and
