@@ -1040,6 +1040,7 @@ foo:
 | `export` | boolean | `false` | Export all variables as environment variables. |
 | `fallback` | boolean | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found. |
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
+| `no-exit-message`<sup>1.39.0</sup> | boolean | `false` | Don't print exit messages if recipes fail. |
 | `lazy`<sup>1.47.0</sup> | boolean | `false` | Don't evaluate unused variables. |
 | `positional-arguments` | boolean | `false` | Pass positional arguments. |
 | `quiet` | boolean | `false` | Disable echoing recipe lines before executing. |
@@ -1064,7 +1065,7 @@ set NAME := true
 ```
 
 Non-boolean settings can be set to both strings and
-expressions.<sup>1.46.0</sup>
+expressions<sup>1.46.0</sup>.
 
 However, because settings affect the behavior of backticks and many functions,
 those expressions may not contain backticks or function calls, directly or
@@ -2338,6 +2339,7 @@ change their behavior.
 | `[dragonfly]`<sup>1.47.0</sup> | recipe | Enable recipe on DragonFly BSD. |
 | `[env(ENV_VAR, VALUE)]` <sup>1.47.0</sup> | recipe | Set environment variables for recipe. |
 | `[extension(EXT)]`<sup>1.32.0</sup> | recipe | Set shebang recipe script's file extension to `EXT`. `EXT` should include a period if one is desired. |
+| `[exit-message]`<sup>1.39.0</sup> | recipe | Print error message if recipe fails regardless of `set no-exit-message`. |
 | `[freebsd]`<sup>1.47.0</sup> | recipe | Enable recipe on FreeBSD. |
 | `[group(NAME)]`<sup>1.27.0</sup> | module, recipe | Put recipe or module in [group](#groups) `NAME`. |
 | `[linux]`<sup>1.8.0</sup> | recipe | Enable recipe on Linux. |
@@ -3922,7 +3924,9 @@ Bar!
 
 `just` normally prints error messages when a recipe line fails. These error
 messages can be suppressed using the `[no-exit-message]`<sup>1.7.0</sup>
-attribute. You may find this especially useful with a recipe that wraps a tool:
+attribute on individual recipes, or module-wide with
+`set no-exit-message`<sup>1.39.0</sup>. You may find this especially useful
+with a recipe that wraps a tool:
 
 ```just
 git *args:
