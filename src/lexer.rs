@@ -974,8 +974,8 @@ mod tests {
 
     let have_lexemes = have.iter().map(Token::lexeme).collect::<Vec<&str>>();
 
-    assert_eq!(have_kinds, want_kinds, "Token kind mismatch");
-    assert_eq!(have_lexemes, want_lexemes, "Token lexeme mismatch");
+    assert_eq!(have_kinds, want_kinds, "token kind mismatch");
+    assert_eq!(have_lexemes, want_lexemes, "token lexeme mismatch");
 
     let mut roundtrip = String::new();
 
@@ -983,20 +983,22 @@ mod tests {
       roundtrip.push_str(lexeme);
     }
 
-    assert_eq!(roundtrip, text, "Roundtrip mismatch");
+    assert_eq!(roundtrip, text, "roundtrip mismatch");
+
+    let lines = text.lines().count();
 
     let mut offset = 0;
     let mut line = 0;
     let mut column = 0;
 
     for token in have {
-      assert_eq!(token.offset, offset);
-      assert_eq!(token.line, line);
-      assert_eq!(token.lexeme().len(), token.length);
-      assert_eq!(token.column, column);
+      assert_eq!(token.offset, offset, "offset mismatch");
+      assert_eq!(token.line, line, "line mismatch");
+      assert_eq!(token.lexeme().len(), token.length, "length mismatch");
+      assert_eq!(token.column, column, "column mismatch");
 
       for c in token.lexeme().chars() {
-        if c == '\n' {
+        if c == '\n' && line + 1 < lines {
           line += 1;
           column = 0;
         } else {
