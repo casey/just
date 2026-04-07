@@ -15,6 +15,8 @@ pub(crate) struct Lexer<'src> {
   indentation: Vec<&'src str>,
   /// Interpolation token start stack
   interpolation_stack: Vec<Token<'src>>,
+  /// Source text line count
+  lines: usize,
   /// Next character to be lexed
   next: Option<char>,
   /// Current open delimiters
@@ -62,18 +64,19 @@ impl<'src> Lexer<'src> {
     };
 
     Self {
-      indentation: vec![""],
-      tokens: Vec::new(),
-      token_start: start,
-      token_end: start,
-      recipe_body_pending: false,
-      recipe_body: false,
-      interpolation_stack: Vec::new(),
-      open_delimiters: Vec::new(),
       chars,
+      indentation: vec![""],
+      interpolation_stack: Vec::new(),
+      lines: src.lines().count(),
       next,
-      src,
+      open_delimiters: Vec::new(),
       path,
+      recipe_body: false,
+      recipe_body_pending: false,
+      src,
+      token_end: start,
+      token_start: start,
+      tokens: Vec::new(),
     }
   }
 
@@ -87,12 +90,12 @@ impl<'src> Lexer<'src> {
         self.token_end.offset += len_utf8;
         self.token_end.column += len_utf8;
 
-        self.next = self.chars.next();
-
-        if c == '\n' && self.next.is_some() {
+        if c == '\n' && self.token_end.line + 1 < self.lines {
           self.token_end.column = 0;
           self.token_end.line += 1;
         }
+
+        self.next = self.chars.next();
 
         Ok(())
       }
