@@ -403,7 +403,8 @@ impl<'run, 'src> Parser<'run, 'src> {
           }
           Some(Keyword::Unexport)
             if self.next_are(&[Identifier, Identifier, Eof])
-              || self.next_are(&[Identifier, Identifier, Eol]) =>
+              || self.next_are(&[Identifier, Identifier, Eol])
+              || self.next_are(&[Identifier, Identifier, Comment]) =>
           {
             self.presume_keyword(Keyword::Unexport)?;
             let name = self.parse_name()?;
