@@ -60,3 +60,23 @@ fn comment_after_unexport() {
     )
     .success();
 }
+
+#[test]
+fn attribute_without_item() {
+  Test::new()
+    .justfile(
+      "
+        [confirm]
+      ",
+    )
+    .stderr(
+      "
+        error: Expected '@', '[', comment, end of line, or identifier, but found end of file
+         ——▶ justfile:1:11
+          │
+        1 │ [confirm]
+          │          ^
+      ",
+    )
+    .failure();
+}
