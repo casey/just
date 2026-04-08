@@ -51,7 +51,7 @@ Yay, all your tests passed!
   [`make`'s complexity and idiosyncrasies](#what-are-the-idiosyncrasies-of-make-that-just-avoids).
   No need for `.PHONY` recipes!
 
-- Linux, macOS, Windows, and other reasonable unices are supported with no
+- Linux, macOS, Windows, and other reasonable unixes are supported with no
   additional dependencies. (Although if your system doesn't have an `sh`,
   you'll need to [choose a different shell](#shell).)
 
@@ -506,7 +506,7 @@ leisure.
 Features that aren't yet ready for stabilization are marked as unstable and may
 be changed or removed at any time. Using unstable features produces an error by
 default, which can be suppressed by passing the `--unstable` flag,
-`set unstable`, or setting the environment variable `JUST_UNSTABLE`, to any
+`set unstable`, or setting the environment variable `JUST_UNSTABLE` to any
 value other than `false`, `0`, or the empty string.
 
 Editor Support
@@ -2355,7 +2355,7 @@ change their behavior.
 | `[private]`<sup>1.10.0</sup> | alias, recipe | Make recipe, alias, or variable private. See [Private Recipes](#private-recipes). |
 | `[script(COMMAND)]`<sup>1.32.0</sup> | recipe | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
 | `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
-| `[unix]`<sup>1.8.0</sup> | recipe | Enable recipe on Unixes. (Includes macOS). |
+| `[unix]`<sup>1.8.0</sup> | recipe | Enable recipe on unixes. (Includes macOS). |
 | `[windows]`<sup>1.8.0</sup> | recipe | Enable recipe on Windows. |
 | `[working-directory(PATH)]`<sup>1.38.0</sup> | recipe | Set recipe working directory. `PATH` may be relative or absolute. If relative, it is interpreted relative to the default working directory. |
 
@@ -2791,7 +2791,7 @@ $ just foo
 sh: FOO: unbound variable
 ```
 
-#### Getting Environment Variables from the environment
+#### Getting Environment Variables from the Environment
 
 Environment variables from the environment are passed automatically to the
 recipes.
@@ -4184,9 +4184,9 @@ containing the module source file with the name `mod.just`, `justfile`, or
 `.justfile`. In the latter two cases, the module file may have any
 capitalization.
 
-Environment files are only loaded for the root justfile, and loaded environment
-variables are available in submodules. Settings in submodules that affect
-environment file loading are ignored.
+Environment files are loaded for each module, respecting that module's related
+settings. Environment variables from parent modules are visible in child
+modules.
 
 Recipes in submodules without the `[no-cd]` attribute run with the working
 directory set to the directory containing the submodule source file.
