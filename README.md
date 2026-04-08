@@ -648,7 +648,7 @@ another-recipe:
   @echo 'This is another recipe.'
 ```
 
-When you invoke `just` it looks for file `justfile` in the current directory
+When you invoke `just` it looks for a file named `justfile` in the current directory
 and upwards, so you can invoke it from any subdirectory of your project.
 
 The search for a `justfile` is case insensitive, so any case, like `Justfile`,
@@ -930,7 +930,7 @@ By default, recipes run with the working directory set to the directory that
 contains the `justfile`.
 
 The `[no-cd]` attribute can be used to make recipes run with the working
-directory set to directory in which `just` was invoked.
+directory set to the directory in which `just` was invoked.
 
 ```just
 @foo:
@@ -4166,7 +4166,7 @@ $ just bar::b
 B
 ```
 
-If a module is named `foo`, just will search for the module file in `foo.just`,
+If a module is named `foo`, `just` will search for the module file in `foo.just`,
 `foo/mod.just`, `foo/justfile`, and `foo/.justfile`. In the latter two cases,
 the module file may have any capitalization.
 
