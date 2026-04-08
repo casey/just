@@ -1320,7 +1320,7 @@ fn newlines_between_items_is_preserved() {
 }
 
 #[test]
-fn multiple_newlines_between_items_is_collapsed() {
+fn multiple_newlines_between_items_are_collapsed() {
   Test::new()
     .arg("--dump")
     .justfile(
@@ -1342,7 +1342,7 @@ fn multiple_newlines_between_items_is_collapsed() {
 }
 
 #[test]
-fn foo() {
+fn newline_after_recipe_with_body_is_preserved() {
   Test::new()
     .arg("--dump")
     .justfile(
@@ -1351,7 +1351,6 @@ fn foo() {
             echo FOO
 
         bar:
-            echo BAR
       ",
     )
     .stdout(
@@ -1360,7 +1359,6 @@ fn foo() {
             echo FOO
 
         bar:
-            echo BAR
       ",
     )
     .success();
