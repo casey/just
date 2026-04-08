@@ -2042,9 +2042,9 @@ The process ID is: 420
 
 #### String Manipulation
 
-- `append(suffix, s)`<sup>1.27.0</sup> Append `suffix` to whitespace-separated
+- `append(suffix, s)`<sup>1.27.0</sup> - Append `suffix` to whitespace-separated
   strings in `s`. `append('/src', 'foo bar baz')` → `'foo/src bar/src baz/src'`
-- `prepend(prefix, s)`<sup>1.27.0</sup> Prepend `prefix` to
+- `prepend(prefix, s)`<sup>1.27.0</sup> - Prepend `prefix` to
   whitespace-separated strings in `s`. `prepend('src/', 'foo bar baz')` →
   `'src/foo src/bar src/baz'`
 - `encode_uri_component(s)`<sup>1.27.0</sup> - Percent-encode characters in `s`
@@ -4433,7 +4433,7 @@ for all other platforms.
 
 ### Timestamps
 
-`just` can print timestamps before each recipe commands:
+`just` can print timestamps before each recipe command:
 
 ```just
 recipe:
