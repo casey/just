@@ -1473,6 +1473,7 @@ fn doc_attribute_suppresses_comment() {
       "
         set unstable
 
+        # COMMENT
         [doc('ATTRIBUTE')]
         foo:
       ",
