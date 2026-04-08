@@ -1125,11 +1125,11 @@ may be absolute, or relative to the working directory.
 The command-line option `--dotenv-path`, short form `-E`, can be used to set or
 override `dotenv-path` at runtime.
 
-If `dotenv-filename` is set `just` will look for a file at the given path,
+If `dotenv-filename` is set, `just` will look for a file at the given path,
 relative to the working directory and each of its ancestors.
 
 If `dotenv-filename` is not set, but `dotenv-load` or `dotenv-required` are
-set, just will look for a file named `.env`, relative to the working directory
+set, `just` will look for a file named `.env`, relative to the working directory
 and each of its ancestors.
 
 `dotenv-filename` and `dotenv-path` are similar, but `dotenv-path` is only
@@ -1950,7 +1950,7 @@ foo := env('FOO', '') || 'DEFAULT_VALUE'
   directory on all platforms.
 
 For example, to call `rustfmt` on files just under the "current directory"
-(from the user/invoker's perspective), use the following rule:
+(from the user/invoker's perspective), use the following recipe:
 
 ```just
 rustfmt:
@@ -2854,7 +2854,7 @@ _build version:
 build: (_build target)
 ```
 
-A command's arguments can be passed to dependency by putting the dependency in
+A command's arguments can be passed to a dependency by putting the dependency in
 parentheses along with the arguments:
 
 ```just
@@ -4939,7 +4939,7 @@ of tricky edge cases which are easy to exercise with unit tests that call
 Integration tests are useful for making sure that the final behavior of the
 `just` binary is correct. `unindent()` is also covered by integration tests
 which make sure that evaluating a triple-quoted string produces the correct
-unindented value. However, there are not integration tests for all possible
+unindented value. However, there are no integration tests for all possible
 cases. These are covered by faster, more concise unit tests that call
 `unindent()` directly.
 
