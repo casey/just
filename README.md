@@ -380,7 +380,7 @@ mkdir -p ~/bin
 curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to ~/bin
 
 # add `~/bin` to the paths that your shell searches for executables
-# this line should be added to your shells initialization file,
+# this line should be added to your shell's initialization file,
 # e.g. `~/.bashrc` or `~/.zshrc`
 export PATH="$PATH:$HOME/bin"
 
@@ -463,7 +463,7 @@ will install a local, platform-specific binary as part of the `npm install`
 command. This removes the need for every developer to install `just`
 independently using one of the processes mentioned above. After installation,
 the `just` command will work in npm scripts or with npx. It's great for teams
-who want to make the set up process for their project as easy as possible.
+who want to make the setup process for their project as easy as possible.
 
 For more information, see the
 [just-install README file](https://github.com/brombal/just-install#readme).
@@ -623,7 +623,7 @@ and code completion.
 
 ### Model Context Protocol
 
-[just-mcp](http://github.com/promptexecution/just-mcp) provides a
+[just-mcp](https://github.com/promptexecution/just-mcp) provides a
 [model context protocol](https://en.wikipedia.org/wiki/Model_Context_Protocol)
 adapter to allow LLMs to query the contents of `justfiles` and run recipes.
 
@@ -1812,7 +1812,7 @@ For example:
 
 ```just
 system-info:
-  @echo "This is an {{arch()}} machine".
+  @echo "This is an {{arch()}} machine."
 ```
 
 ```console
@@ -2431,7 +2431,7 @@ Can be used with paths that are relative to the current directory, because
 #### Requiring Confirmation for Recipes
 
 `just` normally executes all recipes unless there is an error. The `[confirm]`
-attribute<sup>1.17.0</sup> allows recipes require confirmation in the terminal
+attribute<sup>1.17.0</sup> allows recipes to require confirmation in the terminal
 prior to running. This can be overridden by passing `--yes` to `just`, which
 will automatically confirm any recipes marked by this attribute.
 
@@ -4782,7 +4782,7 @@ export PATH := "./node_modules/.bin:" + env_var('PATH')
 
 ### Paths on Windows
 
-On Windows, all functions that return paths, except `invocation_directory()`
+On Windows, all functions that return paths, except `invocation_directory()`,
 will return `\`-separated paths. When not using PowerShell or `cmd.exe` these
 paths should be quoted to prevent the `\`s from being interpreted as character
 escapes:
