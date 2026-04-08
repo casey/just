@@ -2799,12 +2799,11 @@ recipes.
 
 ```just
 print_home_folder:
-  echo "HOME is: '${HOME}'"
+  @echo "HOME is: '${HOME}'"
 ```
 
 ```console
 $ just
-echo "HOME is: '${HOME}'"
 HOME is: '/home/myuser'
 ```
 
