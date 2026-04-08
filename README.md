@@ -648,8 +648,9 @@ another-recipe:
   @echo 'This is another recipe.'
 ```
 
-When you invoke `just`, it looks for a file named `justfile` in the current directory
-and upwards, so you can invoke it from any subdirectory of your project.
+When you invoke `just`, it looks for a file named `justfile` in the current
+directory and upwards, so you can invoke it from any subdirectory of your
+project.
 
 The search for a `justfile` is case insensitive, so any case, like `Justfile`,
 `JUSTFILE`, or `JuStFiLe`, will work. `just` will also look for files with the
