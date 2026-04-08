@@ -1763,3 +1763,24 @@ fn indentation_env() {
     .stdout("foo:\n  echo bar\n")
     .success();
 }
+
+#[test]
+fn multi_line_comments_before_recipes_are_not_broken_up() {
+  Test::new()
+    .justfile(
+      "
+        # foo
+        # bar
+        baz:
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        # foo
+        # bar
+        baz:
+      ",
+    )
+    .success();
+}
