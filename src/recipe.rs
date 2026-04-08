@@ -27,6 +27,7 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
 
 impl<'src, D> Recipe<'src, D> {
   pub(crate) fn enabled(&self) -> bool {
+    let android = self.attributes.contains(AttributeDiscriminant::Android);
     let dragonfly = self.attributes.contains(AttributeDiscriminant::Dragonfly);
     let freebsd = self.attributes.contains(AttributeDiscriminant::Freebsd);
     let linux = self.attributes.contains(AttributeDiscriminant::Linux);
@@ -36,7 +37,16 @@ impl<'src, D> Recipe<'src, D> {
     let unix = self.attributes.contains(AttributeDiscriminant::Unix);
     let windows = self.attributes.contains(AttributeDiscriminant::Windows);
 
-    (!windows && !linux && !macos && !openbsd && !freebsd && !dragonfly && !netbsd && !unix)
+    (!windows
+      && !linux
+      && !macos
+      && !openbsd
+      && !freebsd
+      && !dragonfly
+      && !netbsd
+      && !unix
+      && !android)
+      || (cfg!(target_os = "android") && (android || unix))
       || (cfg!(target_os = "dragonfly") && (dragonfly || unix))
       || (cfg!(target_os = "freebsd") && (freebsd || unix))
       || (cfg!(target_os = "linux") && (linux || unix))
