@@ -1048,7 +1048,7 @@ foo:
 | `shell` | `[COMMAND, ARGS…]` | - | Set command used to invoke recipes and evaluate backticks. |
 | `tempdir` | string | - | Create temporary directories in `tempdir` instead of the system default temporary directory. |
 | `unstable`<sup>1.31.0</sup> | boolean | `false` | Enable unstable features. |
-| `windows-powershell` | boolean | `false` | Use PowerShell on Windows as default shell. (Deprecated. Use `windows-shell` instead. |
+| `windows-powershell` | boolean | `false` | Use PowerShell on Windows as default shell. (Deprecated. Use `windows-shell` instead.) |
 | `windows-shell` | `[COMMAND, ARGS…]` | - | Set the command used to invoke recipes and evaluate backticks. |
 | `working-directory`<sup>1.33.0</sup> | string | - | Set the working directory for recipes and backticks, relative to the default working directory. |
 
@@ -1174,7 +1174,7 @@ Starting server with database localhost:6379 on port 1337…
 Variables in environment files loaded in parent modules are inherited by
 submodules.
 
-Environment files are loaded in submodules<sup>1.49.0<sup> and may override
+Environment files are loaded in submodules<sup>1.49.0</sup> and may override
 variable defined in parent module environment files.
 
 #### Export
@@ -1451,7 +1451,7 @@ foo := "hello"
 Or the value of a single variable:
 
 ```console
-$ just --evalaute foo
+$ just --evaluate foo
 hello
 ```
 
@@ -1745,7 +1745,7 @@ foo:
   echo "This line won't be echoed!"
 ```
 
-The `-` sigil cause recipe execution to continue even if the command returns a
+The `-` sigil causes recipe execution to continue even if the command returns a
 nonzero exit status:
 
 ```just
@@ -1943,7 +1943,7 @@ foo := env('FOO', '') || 'DEFAULT_VALUE'
 #### Invocation Directory
 
 - `invocation_directory()` - Retrieves the absolute path to the current
-  directory when `just` was invoked, before  `just` changed it (chdir'd) prior
+  directory when `just` was invoked, before `just` changed it (chdir'd) prior
   to executing commands. On Windows, `invocation_directory()` uses `cygpath` to
   convert the invocation directory to a Cygwin-compatible `/`-separated path.
   Use `invocation_directory_native()` to return the verbatim invocation
@@ -1966,7 +1966,7 @@ build:
 ```
 
 - `invocation_directory_native()` - Retrieves the absolute path to the current
-  directory when `just` was invoked, before  `just` changed it (chdir'd) prior
+  directory when `just` was invoked, before `just` changed it (chdir'd) prior
   to executing commands.
 
 #### Justfile and Justfile Directory
@@ -2006,7 +2006,7 @@ called from within an import or submodule.
 `module_file()` and `module_directory()` behave the same as `justfile()` and
 `justfile_directory()` in the root `justfile`, but will return the path and
 directory, respectively, of the current `mod` source file when called from
-within submodule.
+within a submodule.
 
 #### Just Executable
 
@@ -2113,7 +2113,7 @@ which will halt execution.
   intermediate `.` components, and `..` where possible. `clean("foo//bar")` is
   `foo/bar`, `clean("foo/..")` is `.`, `clean("foo/./bar")` is `foo/bar`.
 - `join(a, b…)` - *This function uses `/` on Unix and `\` on Windows, which can
-  be lead to unwanted behavior. The `/` operator, e.g., `a / b`, which always
+  lead to unwanted behavior. The `/` operator, e.g., `a / b`, which always
   uses `/`, should be considered as a replacement unless `\`s are specifically
   desired on Windows.* Join path `a` with path `b`. `join("foo/bar", "baz")` is
   `foo/bar/baz`. Accepts two or more arguments.
@@ -2675,7 +2675,7 @@ foo := if "hello" == "goodbye" {
 }
 ```
 
-Which produce the following error when run:
+Which produces the following error when run:
 
 ```
 error: Call to function `error` failed: 123
@@ -2775,8 +2775,8 @@ variables.
 
 #### Unexporting Environment Variables
 
-Environment variables can be unexported with the `unexport
-keyword`<sup>1.29.0</sup>:
+Environment variables can be unexported with the `unexport`
+keyword<sup>1.29.0</sup>:
 
 ```just
 unexport FOO
@@ -3208,7 +3208,7 @@ cc main.c
 
 #### Running Recipes at the End of a Recipe
 
-Normal dependencies of a recipes always run before a recipe starts. That is to
+Normal dependencies of a recipe always run before a recipe starts. That is to
 say, the dependee always runs before the depender. These dependencies are
 called "prior dependencies".
 
@@ -4050,7 +4050,7 @@ A
 
 The `import` path can be absolute or relative to the location of the justfile
 containing it. A leading `~/` in the import path is replaced with the current
-users home directory.
+user's home directory.
 
 Justfiles are insensitive to order, so included files can reference variables
 and recipes defined after the `import` statement.
@@ -4690,7 +4690,7 @@ compinit
 [`roff`](https://en.wikipedia.org/wiki/Roff_%28software%29), a venerable markup
 language and one of the first practical applications of Unix. If you have
 [`groff`](https://www.gnu.org/software/groff/) installed you can view the man
-page with  `just --man | groff -mandoc -Tascii | less`.
+page with `just --man | groff -mandoc -Tascii | less`.
 
 ### Grammar
 
@@ -4804,7 +4804,7 @@ convert the invocation directory into a unix-style `/`-separated path. Use
 `invocation_directory()` and `invocation_directory_native()` both return the
 same unix-style path.
 
-`cygpath.exe` is used also used to convert Unix-style shebang lines into
+`cygpath.exe` is also used to convert Unix-style shebang lines into
 Windows paths. As an alternative, the `[script]` attribute can be used, which
 does not depend on `cygpath.exe`.
 
@@ -4846,7 +4846,7 @@ interpolated into the format string.
 This can be combined with indented, triple quoted strings to emulate shell
 heredocs.
 
-Substitution complex strings into recipe bodies with `{…}` can also lead to
+Substituting complex strings into recipe bodies with `{…}` can also lead to
 trouble as it may be split by the shell into multiple arguments depending on
 the presence of whitespace and quotes. Exporting complex strings as environment
 variables and referring to them with `"$NAME"`, note the double quotes, can
@@ -4878,7 +4878,7 @@ There is no shortage of command runners! Some more or less similar alternatives
 to `just` include:
 
 - [make](https://en.wikipedia.org/wiki/Make_(software)): The Unix build tool
-  that inspired `just`. There are a few different modern day descendents of the
+  that inspired `just`. There are a few different modern day descendants of the
   original `make`, including
   [FreeBSD Make](https://www.freebsd.org/cgi/man.cgi?make(1)) and
   [GNU Make](https://www.gnu.org/software/make/).
