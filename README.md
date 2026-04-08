@@ -2238,7 +2238,7 @@ foo:
   echo '{{ hello("World") }}'
 ```
 
-User defined functions are currently unstable.
+User-defined functions are currently unstable.
 
 Functions may reference assignments in the same module:
 
