@@ -1,5 +1,7 @@
 use {super::*, CompileErrorKind::*, TokenKind::*};
 
+static DEDENT_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[ \t\n]*\n[^ \t\n]").unwrap());
+
 /// Just language lexer
 ///
 /// The lexer proceeds character-by-character, as opposed to using regular
@@ -391,6 +393,12 @@ impl<'src> Lexer<'src> {
 
     match indentation {
       Blank => {
+        if DEDENT_RE.is_match(self.rest()) {
+          while self.indented() {
+            self.lex_dedent();
+          }
+        }
+
         if !whitespace.is_empty() {
           while self.next_is_whitespace() {
             self.advance()?;
@@ -1472,8 +1480,8 @@ mod tests {
       Indent:"    ",
       Text:"a",
       Eol,
-      Eol,
       Dedent,
+      Eol,
       Identifier:"b",
       Colon,
       Eol,
@@ -1520,8 +1528,8 @@ mod tests {
       Indent,
       Text:"@mv a b",
       Eol,
-      Eol,
       Dedent,
+      Eol,
       Identifier:"a",
       Colon,
       Eol,
@@ -1531,8 +1539,8 @@ mod tests {
       Whitespace:"  ",
       Text:"@touch a",
       Eol,
-      Eol,
       Dedent,
+      Eol,
       Identifier:"d",
       Colon,
       Whitespace,
@@ -1541,8 +1549,8 @@ mod tests {
       Indent,
       Text:"@rm c",
       Eol,
-      Eol,
       Dedent,
+      Eol,
       Identifier:"c",
       Colon,
       Whitespace,
@@ -1821,6 +1829,34 @@ mod tests {
   }
 
   test! {
+    name: tokenize_continued_indent,
+    text: "
+      hello:
+        foo
+
+        bar
+
+      baz
+    ",
+    tokens: (
+      Identifier:"hello",
+      Colon,
+      Eol,
+      Indent,
+      Text:"foo",
+      Eol,
+      Eol,
+      Whitespace:"  ",
+      Text:"bar",
+      Eol,
+      Dedent,
+      Eol,
+      Identifier:"baz",
+      Eol,
+    ),
+  }
+
+  test! {
     name: tokenize_empty_lines,
     text: "
 
@@ -1856,8 +1892,8 @@ mod tests {
       Whitespace:"  ",
       Text:"dsdf # whatever",
       Eol,
-      Eol,
       Dedent,
+      Eol,
       Comment:"# yolo",
       Eol,
     ),
@@ -1978,8 +2014,8 @@ mod tests {
       Whitespace:"  ",
       Text:"d",
       Eol,
-      Eol,
       Dedent,
+      Eol,
       Comment:"# hello",
       Eol,
       Identifier:"bob",
@@ -2038,8 +2074,8 @@ mod tests {
       Indent,
       Text:"@mv a b",
       Eol,
-      Eol,
       Dedent,
+      Eol,
       Identifier:"a",
       Colon,
       Eol,
@@ -2049,8 +2085,8 @@ mod tests {
       Whitespace:"  ",
       Text:"@touch a",
       Eol,
-      Eol,
       Dedent,
+      Eol,
       Identifier:"d",
       Colon,
       Whitespace,
@@ -2059,8 +2095,8 @@ mod tests {
       Indent,
       Text:"@rm c",
       Eol,
-      Eol,
       Dedent,
+      Eol,
       Identifier:"c",
       Colon,
       Whitespace,
@@ -2223,6 +2259,23 @@ mod tests {
       FormatStringEnd: "}}'''",
       Eol: "\n",
       Identifier: "bar",
+      Colon,
+    ),
+  }
+
+  test! {
+    name:   tokenize_recipe_after_body,
+    text:   "foo:\n echo FOO\n\nfoo:",
+    tokens: (
+      Identifier: "foo",
+      Colon,
+      Eol,
+      Indent: " ",
+      Text: "echo FOO",
+      Eol,
+      Dedent,
+      Eol,
+      Identifier: "foo",
       Colon,
     ),
   }

@@ -98,6 +98,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
               )?);
             }
           }
+          Item::Newline => {}
           Item::Recipe(recipe) => {
             if recipe.enabled() {
               Self::analyze_recipe(recipe)?;

@@ -27,6 +27,7 @@ pub(crate) struct Parser<'run, 'src> {
   expected_tokens: BTreeSet<TokenKind>,
   file_depth: u32,
   import_offsets: Vec<usize>,
+  items: Vec<Item<'src>>,
   module_namepath: Option<&'run Namepath<'src>>,
   next_token: usize,
   numerator: &'run mut Numerator,
@@ -50,6 +51,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       expected_tokens: BTreeSet::new(),
       file_depth,
       import_offsets: import_offsets.to_vec(),
+      items: Vec::new(),
       module_namepath,
       next_token: 0,
       numerator,
@@ -368,181 +370,32 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok(self.accept(kind)?.is_some())
   }
 
-  /// Parse a justfile, consumes self
-  fn parse_ast(mut self) -> CompileResult<'src, Ast<'src>> {
-    fn pop_doc_comment<'src>(
-      items: &mut Vec<Item<'src>>,
-      eol_since_last_comment: bool,
-    ) -> Option<&'src str> {
-      if !eol_since_last_comment {
-        if let Some(Item::Comment(contents)) = items.last() {
-          let doc = Some(contents[1..].trim_start());
-          items.pop();
-          return doc;
-        }
+  fn take_doc_comment(&mut self, attributes: &AttributeSet<'src>) -> Option<String> {
+    for attribute in attributes {
+      if let Attribute::Doc(doc) = attribute {
+        return doc.as_ref().map(|doc| doc.cooked.clone());
       }
-
-      None
     }
 
-    let mut items = Vec::new();
+    match self.items.pop()? {
+      Item::Comment(contents) => Some(contents[1..].trim_start().into()),
+      item => {
+        self.items.push(item);
+        None
+      }
+    }
+  }
 
-    let mut eol_since_last_comment = false;
-
+  /// Parse a justfile, consumes self
+  fn parse_ast(mut self) -> CompileResult<'src, Ast<'src>> {
     self.accept(ByteOrderMark)?;
 
     while !self.accepted(Eof)? {
       let mut attributes = self.parse_attributes()?;
-      let mut take_attributes = || {
-        attributes
-          .take()
-          .map(|(_token, attributes)| attributes)
-          .unwrap_or_default()
-      };
 
-      let next = self.next()?;
+      let item = self.parse_item(&mut attributes)?;
 
-      if let Some(comment) = self.accept(Comment)? {
-        items.push(Item::Comment(comment.lexeme().trim_end()));
-        self.expect_eol()?;
-        eol_since_last_comment = false;
-      } else if self.accepted(Eol)? {
-        eol_since_last_comment = true;
-      } else if self.next_is(Identifier) {
-        match Keyword::from_lexeme(next.lexeme()) {
-          Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
-            items.push(Item::Alias(self.parse_alias(take_attributes())?));
-          }
-          Some(Keyword::Eager) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
-            self.presume_keyword(Keyword::Eager)?;
-            items.push(Item::Assignment(self.parse_assignment(
-              take_attributes(),
-              true,
-              false,
-            )?));
-          }
-          Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
-            self.presume_keyword(Keyword::Export)?;
-            items.push(Item::Assignment(self.parse_assignment(
-              take_attributes(),
-              false,
-              true,
-            )?));
-          }
-          Some(Keyword::Unexport) if self.line_is(&[Identifier, Identifier]) => {
-            self.presume_keyword(Keyword::Unexport)?;
-            let name = self.parse_name()?;
-            self.expect_eol()?;
-            items.push(Item::Unexport { name });
-          }
-          Some(Keyword::Import)
-            if self.next_are(&[Identifier, Identifier, StringToken])
-              || self.next_are(&[Identifier, QuestionMark])
-              || self.next_are(&[Identifier, StringToken]) =>
-          {
-            self.presume_keyword(Keyword::Import)?;
-            let optional = self.accepted(QuestionMark)?;
-            let relative = self.parse_string_literal()?;
-            items.push(Item::Import {
-              absolute: None,
-              optional,
-              relative,
-            });
-          }
-          Some(Keyword::Mod)
-            if self.line_is(&[Identifier, Identifier])
-              || self.next_are(&[Identifier, Identifier, Identifier, StringToken])
-              || self.next_are(&[Identifier, Identifier, StringToken])
-              || self.next_are(&[Identifier, QuestionMark]) =>
-          {
-            let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-
-            self.presume_keyword(Keyword::Mod)?;
-
-            let optional = self.accepted(QuestionMark)?;
-
-            let name = self.parse_name()?;
-
-            let relative = if self.next_is(StringToken) || self.next_are(&[Identifier, StringToken])
-            {
-              Some(self.parse_string_literal()?)
-            } else {
-              None
-            };
-
-            let attributes = take_attributes();
-
-            attributes.ensure_valid_attributes(
-              "Module",
-              *name,
-              &[
-                AttributeDiscriminant::Doc,
-                AttributeDiscriminant::Group,
-                AttributeDiscriminant::Private,
-              ],
-            )?;
-
-            let doc = match attributes.get(AttributeDiscriminant::Doc) {
-              Some(Attribute::Doc(Some(doc))) => Some(doc.cooked.clone()),
-              Some(Attribute::Doc(None)) => None,
-              None => doc.map(ToOwned::to_owned),
-              _ => unreachable!(),
-            };
-
-            let private = attributes.contains(AttributeDiscriminant::Private);
-
-            let mut groups = Vec::new();
-            for attribute in attributes {
-              if let Attribute::Group(group) = attribute {
-                groups.push(group);
-              }
-            }
-
-            items.push(Item::Module {
-              absolute: None,
-              doc,
-              groups,
-              name,
-              optional,
-              private,
-              relative,
-            });
-          }
-          Some(Keyword::Set)
-            if self.next_are(&[Identifier, Identifier, ColonEquals])
-              || self.line_is(&[Identifier, Identifier]) =>
-          {
-            items.push(Item::Set(self.parse_set()?));
-          }
-          _ => {
-            if self.next_are(&[Identifier, ParenL]) {
-              items.push(Item::Function(self.parse_function_definition()?));
-            } else if self.next_are(&[Identifier, ColonEquals]) {
-              items.push(Item::Assignment(self.parse_assignment(
-                take_attributes(),
-                false,
-                false,
-              )?));
-            } else {
-              let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-              items.push(Item::Recipe(self.parse_recipe(
-                take_attributes(),
-                doc,
-                false,
-              )?));
-            }
-          }
-        }
-      } else if self.accepted(At)? {
-        let doc = pop_doc_comment(&mut items, eol_since_last_comment);
-        items.push(Item::Recipe(self.parse_recipe(
-          take_attributes(),
-          doc,
-          true,
-        )?));
-      } else {
-        return Err(self.unexpected_token()?);
-      }
+      self.items.push(item);
 
       if let Some((token, attributes)) = attributes {
         return Err(token.error(CompileErrorKind::ExtraneousAttributes {
@@ -559,12 +412,140 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
 
     Ok(Ast {
-      items,
+      items: self.items,
       modulepath: self.module_namepath.map(Into::into).unwrap_or_default(),
       unstable_features: self.unstable_features,
       warnings: Vec::new(),
       working_directory: self.working_directory.into(),
     })
+  }
+
+  fn parse_item(
+    &mut self,
+    attributes: &mut Option<(Token<'src>, AttributeSet<'src>)>,
+  ) -> CompileResult<'src, Item<'src>> {
+    let mut take_attributes = || {
+      attributes
+        .take()
+        .map(|(_token, attributes)| attributes)
+        .unwrap_or_default()
+    };
+
+    let item = if let Some(comment) = self.accept(Comment)? {
+      self.expect_eol()?;
+      Item::Comment(comment.lexeme().trim_end())
+    } else if self.accepted(Eol)? {
+      Item::Newline
+    } else if self.next_is(Identifier) {
+      let next = self.next()?;
+      match Keyword::from_lexeme(next.lexeme()) {
+        Some(Keyword::Alias) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
+          Item::Alias(self.parse_alias(take_attributes())?)
+        }
+        Some(Keyword::Eager) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
+          self.presume_keyword(Keyword::Eager)?;
+          Item::Assignment(self.parse_assignment(take_attributes(), true, false)?)
+        }
+        Some(Keyword::Export) if self.next_are(&[Identifier, Identifier, ColonEquals]) => {
+          self.presume_keyword(Keyword::Export)?;
+          Item::Assignment(self.parse_assignment(take_attributes(), false, true)?)
+        }
+        Some(Keyword::Unexport) if self.line_is(&[Identifier, Identifier]) => {
+          self.presume_keyword(Keyword::Unexport)?;
+          let name = self.parse_name()?;
+          self.expect_eol()?;
+          Item::Unexport { name }
+        }
+        Some(Keyword::Import)
+          if self.next_are(&[Identifier, Identifier, StringToken])
+            || self.next_are(&[Identifier, QuestionMark])
+            || self.next_are(&[Identifier, StringToken]) =>
+        {
+          self.presume_keyword(Keyword::Import)?;
+          let optional = self.accepted(QuestionMark)?;
+          let relative = self.parse_string_literal()?;
+          Item::Import {
+            absolute: None,
+            optional,
+            relative,
+          }
+        }
+        Some(Keyword::Mod)
+          if self.line_is(&[Identifier, Identifier])
+            || self.next_are(&[Identifier, Identifier, Identifier, StringToken])
+            || self.next_are(&[Identifier, Identifier, StringToken])
+            || self.next_are(&[Identifier, QuestionMark]) =>
+        {
+          self.presume_keyword(Keyword::Mod)?;
+
+          let optional = self.accepted(QuestionMark)?;
+
+          let name = self.parse_name()?;
+
+          let relative = if self.next_is(StringToken) || self.next_are(&[Identifier, StringToken]) {
+            Some(self.parse_string_literal()?)
+          } else {
+            None
+          };
+
+          self.expect_eol()?;
+
+          let attributes = take_attributes();
+
+          attributes.ensure_valid_attributes(
+            "Module",
+            *name,
+            &[
+              AttributeDiscriminant::Doc,
+              AttributeDiscriminant::Group,
+              AttributeDiscriminant::Private,
+            ],
+          )?;
+
+          let doc = self.take_doc_comment(&attributes);
+
+          let private = attributes.contains(AttributeDiscriminant::Private);
+
+          let mut groups = Vec::new();
+          for attribute in attributes {
+            if let Attribute::Group(group) = attribute {
+              groups.push(group);
+            }
+          }
+
+          Item::Module {
+            absolute: None,
+            doc,
+            groups,
+            name,
+            optional,
+            private,
+            relative,
+          }
+        }
+        Some(Keyword::Set)
+          if self.next_are(&[Identifier, Identifier, ColonEquals])
+            || self.line_is(&[Identifier, Identifier]) =>
+        {
+          Item::Set(self.parse_set()?)
+        }
+        _ => {
+          if self.next_are(&[Identifier, ParenL]) {
+            Item::Function(self.parse_function_definition()?)
+          } else if self.next_are(&[Identifier, ColonEquals]) {
+            Item::Assignment(self.parse_assignment(take_attributes(), false, false)?)
+          } else {
+            Item::Recipe(self.parse_recipe(take_attributes(), false)?)
+          }
+        }
+      }
+    } else if self.accepted(At)? {
+      Item::Recipe(self.parse_recipe(take_attributes(), true)?)
+    } else {
+      return Err(self.unexpected_token()?);
+    };
+
+    Ok(item)
   }
 
   /// Parse an alias, e.g `alias name := target`
@@ -1106,7 +1087,6 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_recipe(
     &mut self,
     attributes: AttributeSet<'src>,
-    doc: Option<&'src str>,
     quiet: bool,
   ) -> CompileResult<'src, UnresolvedRecipe<'src>> {
     let name = self.parse_name()?;
@@ -1255,19 +1235,13 @@ impl<'run, 'src> Parser<'run, 'src> {
     let private =
       name.lexeme().starts_with('_') || attributes.contains(AttributeDiscriminant::Private);
 
-    let mut doc = doc.map(ToOwned::to_owned);
-
-    for attribute in &attributes {
-      if let Attribute::Doc(attribute_doc) = attribute {
-        doc = attribute_doc.as_ref().map(|doc| doc.cooked.clone());
-      }
-    }
+    let doc = self.take_doc_comment(&attributes);
 
     Ok(Recipe {
       attributes,
       body,
       dependencies,
-      doc: doc.filter(|doc| !doc.is_empty()),
+      doc,
       file_depth: self.file_depth,
       import_offsets: self.import_offsets.clone(),
       module_path: None,
@@ -1426,6 +1400,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
 
     if let Some(value) = set_bool {
+      self.expect_eol()?;
       return Ok(Set { name, value });
     }
 
@@ -1443,6 +1418,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
 
     if let Some(value) = set_value {
+      self.expect_eol()?;
       return Ok(Set { name, value });
     }
 

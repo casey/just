@@ -30,19 +30,19 @@ fn check_ok() {
     .arg("--check")
     .justfile(
       r#"
-# comment   with   spaces
+        # comment   with   spaces
 
-export x := `backtick
-with
-lines`
+        export x := `backtick
+        with
+        lines`
 
-recipe: deps
-    echo "$x"
+        recipe: deps
+            echo "$x"
 
-deps:
-    echo {{ x }}
-    echo '$x'
-"#,
+        deps:
+            echo {{ x }}
+            echo '$x'
+      "#,
     )
     .success();
 }
@@ -1299,137 +1299,86 @@ fn comment_before_docstring_recipe() {
 }
 
 #[test]
-fn group_recipes() {
+fn newlines_between_items_is_preserved() {
   Test::new()
     .arg("--dump")
     .justfile(
       "
-    foo:
-        echo foo
-    bar:
-        echo bar
-  ",
-    )
-    .stdout(
-      "
-    foo:
-        echo foo
+        foo:
 
-    bar:
-        echo bar
-  ",
-    )
-    .success();
-}
-
-#[test]
-fn group_aliases() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
-    alias f := foo
-
-    alias b := bar
-
-    foo:
-        echo foo
-
-    bar:
-        echo bar
-  ",
-    )
-    .stdout(
-      "
-    alias f := foo
-    alias b := bar
-
-    foo:
-        echo foo
-
-    bar:
-        echo bar
-  ",
-    )
-    .success();
-}
-
-#[test]
-fn group_assignments() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
-    foo := 'foo'
-    bar := 'bar'
-  ",
-    )
-    .stdout(
-      "
-    foo := 'foo'
-    bar := 'bar'
-  ",
-    )
-    .success();
-}
-
-#[test]
-fn group_sets() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
-        set export := true
-        set positional-arguments := true
+        bar:
       ",
     )
     .stdout(
       "
-        set export
-        set positional-arguments
+        foo:
+
+        bar:
       ",
     )
     .success();
 }
 
 #[test]
-fn group_comments() {
+fn multiple_newlines_between_items_are_collapsed() {
   Test::new()
     .arg("--dump")
     .justfile(
       "
-    # foo
+        foo:
 
-    # bar
-  ",
+
+        bar:
+      ",
     )
     .stdout(
       "
-    # foo
-    # bar
-  ",
+        foo:
+
+        bar:
+      ",
     )
     .success();
 }
 
 #[test]
-fn separate_recipes_aliases() {
+fn newline_after_recipe_with_body_is_preserved() {
   Test::new()
     .arg("--dump")
     .justfile(
       "
-    alias f := foo
-    foo:
-        echo foo
-  ",
+        foo:
+            echo FOO
+
+        bar:
+      ",
     )
     .stdout(
       "
-    alias f := foo
+        foo:
+            echo FOO
 
-    foo:
-        echo foo
-  ",
+        bar:
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn adjacency_is_respected() {
+  Test::new()
+    .arg("--dump")
+    .justfile(
+      "
+        foo:
+        bar:
+      ",
+    )
+    .stdout(
+      "
+        foo:
+        bar:
+      ",
     )
     .success();
 }
@@ -1458,17 +1407,19 @@ fn subsequent() {
     .arg("--dump")
     .justfile(
       "
-    bar:
-    foo: && bar
-        echo foo",
+        bar:
+
+        foo: && bar
+            echo foo
+      ",
     )
     .stdout(
       "
-    bar:
+        bar:
 
-    foo: && bar
-        echo foo
-  ",
+        foo: && bar
+            echo foo
+      ",
     )
     .success();
 }
@@ -1522,6 +1473,7 @@ fn doc_attribute_suppresses_comment() {
       "
         set unstable
 
+        # COMMENT
         [doc('ATTRIBUTE')]
         foo:
       ",
@@ -1809,5 +1761,26 @@ fn indentation_env() {
     )
     .test_round_trip(false)
     .stdout("foo:\n  echo bar\n")
+    .success();
+}
+
+#[test]
+fn multi_line_comments_before_recipes_are_not_broken_up() {
+  Test::new()
+    .justfile(
+      "
+        # foo
+        # bar
+        baz:
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        # foo
+        # bar
+        baz:
+      ",
+    )
     .success();
 }

@@ -244,6 +244,7 @@ fn format_no_args() {
     .justfile(
       "
         foo() := 'bar'
+
         a := foo()
       ",
     )
@@ -265,6 +266,7 @@ fn format_one_arg() {
     .justfile(
       "
         foo(x) := x
+
         a := foo('bar')
       ",
     )
@@ -286,6 +288,7 @@ fn format_two_args() {
     .justfile(
       "
         foo(x, y) := x + y
+
         a := foo('bar', 'baz')
       ",
     )

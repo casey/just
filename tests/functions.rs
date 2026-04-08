@@ -1508,3 +1508,23 @@ fn shell_with_powershell() {
     .stdout("bar\r\n")
     .success();
 }
+
+#[test]
+fn module_path() {
+  Test::new()
+    .justfile("foo := module_path()")
+    .args(["--evaluate", "foo"])
+    .stdout("")
+    .success();
+}
+
+#[test]
+fn module_path_in_submodule() {
+  Test::new()
+    .write("foo.just", "mod bar")
+    .write("bar.just", "baz := module_path()")
+    .justfile("mod foo")
+    .args(["--evaluate", "foo::bar::baz"])
+    .stdout("foo::bar")
+    .success();
+}

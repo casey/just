@@ -21,6 +21,7 @@ pub(crate) enum Item<'src> {
     private: bool,
     relative: Option<StringLiteral<'src>>,
   },
+  Newline,
   Recipe(UnresolvedRecipe<'src>),
   Set(Set<'src>),
   Unexport {
@@ -85,6 +86,7 @@ impl ColorDisplay for Item<'_> {
 
         Ok(())
       }
+      Self::Newline => Ok(()),
       Self::Recipe(recipe) => write!(f, "{}", recipe.color_display(color)),
       Self::Set(set) => write!(f, "{set}"),
       Self::Unexport { name } => write!(f, "unexport {name}"),
