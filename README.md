@@ -79,7 +79,7 @@ Yay, all your tests passed!
 
 - And [much more](https://just.systems/man/en/)!
 
-If you need help with `just` please feel free to open an issue or ping me on
+If you need help with `just`, please feel free to open an issue or ping me on
 [Discord](https://discord.gg/ezYScXR). Feature requests and bug reports are
 always welcome!
 
@@ -363,7 +363,7 @@ Pre-built binaries for Linux, macOS, and Windows can be found on
 [the releases page](https://github.com/casey/just/releases).
 
 You can use the following command on Linux, macOS, or Windows to download the
-latest release, just replace `DEST` with the directory where you'd like to put
+latest release. Just replace `DEST` with the directory where you'd like to put
 `just`:
 
 ```console
@@ -648,7 +648,7 @@ another-recipe:
   @echo 'This is another recipe.'
 ```
 
-When you invoke `just` it looks for a file named `justfile` in the current directory
+When you invoke `just`, it looks for a file named `justfile` in the current directory
 and upwards, so you can invoke it from any subdirectory of your project.
 
 The search for a `justfile` is case insensitive, so any case, like `Justfile`,
@@ -1576,7 +1576,7 @@ $ just --evaluate foo
 
 The `/` operator uses the `/` character, even on Windows. Thus, using the `/`
 operator should be avoided with paths that use universal naming convention
-(UNC), i.e., those that start with `\?`, since forward slashes are not
+(UNC), i.e., those that start with `\\?\`, since forward slashes are not
 supported with UNC paths.
 
 #### Escaping `{{`
@@ -4380,7 +4380,7 @@ if the value of `argument` contains single quotes.
 
 The `positional-arguments` setting causes all arguments to be passed as
 positional arguments, allowing them to be accessed with `$1`, `$2`, …, and
-`$@`, which can be then double-quoted to avoid further splitting by the shell:
+`$@`, which can then be double-quoted to avoid further splitting by the shell:
 
 ```just
 set positional-arguments
@@ -4784,7 +4784,7 @@ export PATH := "./node_modules/.bin:" + env_var('PATH')
 ### Paths on Windows
 
 On Windows, all functions that return paths, except `invocation_directory()`,
-will return `\`-separated paths. When not using PowerShell or `cmd.exe` these
+will return `\`-separated paths. When not using PowerShell or `cmd.exe`, these
 paths should be quoted to prevent the `\`s from being interpreted as character
 escapes:
 
