@@ -51,7 +51,7 @@ Yay, all your tests passed!
   [`make`'s complexity and idiosyncrasies](#what-are-the-idiosyncrasies-of-make-that-just-avoids).
   No need for `.PHONY` recipes!
 
-- Linux, MacOS, Windows, and other reasonable unices are supported with no
+- Linux, macOS, Windows, and other reasonable unixes are supported with no
   additional dependencies. (Although if your system doesn't have an `sh`,
   you'll need to [choose a different shell](#shell).)
 
@@ -72,14 +72,14 @@ Yay, all your tests passed!
   [available for most popular shells](#shell-completion-scripts).
 
 - Recipes can be written in
-  [arbitrary languages](#shebang-recipes), like Python or NodeJS.
+  [arbitrary languages](#shebang-recipes), like Python or Node.js.
 
 - `just` can be invoked from any subdirectory, not just the directory that
   contains the `justfile`.
 
 - And [much more](https://just.systems/man/en/)!
 
-If you need help with `just` please feel free to open an issue or ping me on
+If you need help with `just`, please feel free to open an issue or ping me on
 [Discord](https://discord.gg/ezYScXR). Feature requests and bug reports are
 always welcome!
 
@@ -92,7 +92,7 @@ with `cargo install just`.
 
 ### Prerequisites
 
-`just` should run on any system with a reasonable `sh`, including Linux, MacOS,
+`just` should run on any system with a reasonable `sh`, including Linux, macOS,
 and the BSDs.
 
 #### Windows
@@ -130,7 +130,7 @@ You can also set the shell using command-line arguments. For example, to use
 PowerShell, launch `just` with `--shell powershell.exe --shell-arg -c`.
 
 (PowerShell is installed by default on Windows 7 SP1 and Windows Server 2008 R2
-S1 and later, and `cmd.exe` is quite fiddly, so PowerShell is recommended for
+SP1 and later, and `cmd.exe` is quite fiddly, so PowerShell is recommended for
 most Windows users.)
 
 ### Packages
@@ -359,10 +359,10 @@ most Windows users.)
 
 ### Pre-Built Binaries
 
-Pre-built binaries for Linux, MacOS, and Windows can be found on
+Pre-built binaries for Linux, macOS, and Windows can be found on
 [the releases page](https://github.com/casey/just/releases).
 
-You can use the following command on Linux, MacOS, or Windows to download the
+You can use the following command on Linux, macOS, or Windows to download the
 latest release, just replace `DEST` with the directory where you'd like to put
 `just`:
 
@@ -380,7 +380,7 @@ mkdir -p ~/bin
 curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to ~/bin
 
 # add `~/bin` to the paths that your shell searches for executables
-# this line should be added to your shells initialization file,
+# this line should be added to your shell's initialization file,
 # e.g. `~/.bashrc` or `~/.zshrc`
 export PATH="$PATH:$HOME/bin"
 
@@ -412,7 +412,7 @@ shasum --algorithm 256 --ignore-missing --check SHA256SUMS
 
 `just` can be installed on GitHub Actions in a few ways.
 
-Using package managers pre-installed on GitHub Actions runners on MacOS with
+Using package managers pre-installed on GitHub Actions runners on macOS with
 `brew install just`, and on Windows with `choco install just`.
 
 With [extractions/setup-just](https://github.com/extractions/setup-just):
@@ -463,7 +463,7 @@ will install a local, platform-specific binary as part of the `npm install`
 command. This removes the need for every developer to install `just`
 independently using one of the processes mentioned above. After installation,
 the `just` command will work in npm scripts or with npx. It's great for teams
-who want to make the set up process for their project as easy as possible.
+who want to make the setup process for their project as easy as possible.
 
 For more information, see the
 [just-install README file](https://github.com/brombal/just-install#readme).
@@ -506,7 +506,7 @@ leisure.
 Features that aren't yet ready for stabilization are marked as unstable and may
 be changed or removed at any time. Using unstable features produces an error by
 default, which can be suppressed by passing the `--unstable` flag,
-`set unstable`, or setting the environment variable `JUST_UNSTABLE`, to any
+`set unstable`, or setting the environment variable `JUST_UNSTABLE` to any
 value other than `false`, `0`, or the empty string.
 
 Editor Support
@@ -623,7 +623,7 @@ and code completion.
 
 ### Model Context Protocol
 
-[just-mcp](http://github.com/promptexecution/just-mcp) provides a
+[just-mcp](https://github.com/promptexecution/just-mcp) provides a
 [model context protocol](https://en.wikipedia.org/wiki/Model_Context_Protocol)
 adapter to allow LLMs to query the contents of `justfiles` and run recipes.
 
@@ -648,8 +648,9 @@ another-recipe:
   @echo 'This is another recipe.'
 ```
 
-When you invoke `just` it looks for file `justfile` in the current directory
-and upwards, so you can invoke it from any subdirectory of your project.
+When you invoke `just`, it looks for a file named `justfile` in the current
+directory and upwards, so you can invoke it from any subdirectory of your
+project.
 
 The search for a `justfile` is case insensitive, so any case, like `Justfile`,
 `JUSTFILE`, or `JuStFiLe`, will work. `just` will also look for files with the
@@ -930,7 +931,7 @@ By default, recipes run with the working directory set to the directory that
 contains the `justfile`.
 
 The `[no-cd]` attribute can be used to make recipes run with the working
-directory set to directory in which `just` was invoked.
+directory set to the directory in which `just` was invoked.
 
 ```just
 @foo:
@@ -1048,7 +1049,7 @@ foo:
 | `shell` | `[COMMAND, ARGS…]` | - | Set command used to invoke recipes and evaluate backticks. |
 | `tempdir` | string | - | Create temporary directories in `tempdir` instead of the system default temporary directory. |
 | `unstable`<sup>1.31.0</sup> | boolean | `false` | Enable unstable features. |
-| `windows-powershell` | boolean | `false` | Use PowerShell on Windows as default shell. (Deprecated. Use `windows-shell` instead. |
+| `windows-powershell` | boolean | `false` | Use PowerShell on Windows as default shell. (Deprecated. Use `windows-shell` instead.) |
 | `windows-shell` | `[COMMAND, ARGS…]` | - | Set the command used to invoke recipes and evaluate backticks. |
 | `working-directory`<sup>1.33.0</sup> | string | - | Set the working directory for recipes and backticks, relative to the default working directory. |
 
@@ -1125,11 +1126,11 @@ may be absolute, or relative to the working directory.
 The command-line option `--dotenv-path`, short form `-E`, can be used to set or
 override `dotenv-path` at runtime.
 
-If `dotenv-filename` is set `just` will look for a file at the given path,
+If `dotenv-filename` is set, `just` will look for a file at the given path,
 relative to the working directory and each of its ancestors.
 
 If `dotenv-filename` is not set, but `dotenv-load` or `dotenv-required` are
-set, just will look for a file named `.env`, relative to the working directory
+set, `just` will look for a file named `.env`, relative to the working directory
 and each of its ancestors.
 
 `dotenv-filename` and `dotenv-path` are similar, but `dotenv-path` is only
@@ -1174,8 +1175,8 @@ Starting server with database localhost:6379 on port 1337…
 Variables in environment files loaded in parent modules are inherited by
 submodules.
 
-Environment files are loaded in submodules<sup>1.49.0<sup> and may override
-variable defined in parent module environment files.
+Environment files are loaded in submodules<sup>1.49.0</sup> and may override
+variables defined in parent module environment files.
 
 #### Export
 
@@ -1451,7 +1452,7 @@ foo := "hello"
 Or the value of a single variable:
 
 ```console
-$ just --evalaute foo
+$ just --evaluate foo
 hello
 ```
 
@@ -1576,7 +1577,7 @@ $ just --evaluate foo
 
 The `/` operator uses the `/` character, even on Windows. Thus, using the `/`
 operator should be avoided with paths that use universal naming convention
-(UNC), i.e., those that start with `\?`, since forward slashes are not
+(UNC), i.e., those that start with `\\`, since forward slashes are not
 supported with UNC paths.
 
 #### Escaping `{{`
@@ -1745,7 +1746,7 @@ foo:
   echo "This line won't be echoed!"
 ```
 
-The `-` sigil cause recipe execution to continue even if the command returns a
+The `-` sigil causes recipe execution to continue even if the command returns a
 nonzero exit status:
 
 ```just
@@ -1801,7 +1802,7 @@ All functions ending in `_directory` can be abbreviated to `_dir`. So
   `"arm"`, `"asmjs"`, `"hexagon"`, `"mips"`, `"msp430"`, `"powerpc"`,
   `"powerpc64"`, `"s390x"`, `"sparc"`, `"wasm32"`, `"x86"`, `"x86_64"`, and
   `"xcore"`.
-- `num_cpus()`<sup>1.15.0</sup> - Number of logical CPUs.
+- `num_cpus()`<sup>1.15.0</sup> — Number of logical CPUs.
 - `os()` — Operating system. Possible values are: `"android"`, `"bitrig"`,
   `"dragonfly"`, `"emscripten"`, `"freebsd"`, `"haiku"`, `"ios"`, `"linux"`,
   `"macos"`, `"netbsd"`, `"openbsd"`, `"solaris"`, and `"windows"`.
@@ -1812,12 +1813,12 @@ For example:
 
 ```just
 system-info:
-  @echo "This is an {{arch()}} machine".
+  @echo "This is an {{arch()}} machine."
 ```
 
 ```console
 $ just system-info
-This is an x86_64 machine
+This is an x86_64 machine.
 ```
 
 The `os_family()` function can be used to create cross-platform `justfile`s
@@ -1943,14 +1944,14 @@ foo := env('FOO', '') || 'DEFAULT_VALUE'
 #### Invocation Directory
 
 - `invocation_directory()` - Retrieves the absolute path to the current
-  directory when `just` was invoked, before  `just` changed it (chdir'd) prior
+  directory when `just` was invoked, before `just` changed it (chdir'd) prior
   to executing commands. On Windows, `invocation_directory()` uses `cygpath` to
   convert the invocation directory to a Cygwin-compatible `/`-separated path.
   Use `invocation_directory_native()` to return the verbatim invocation
   directory on all platforms.
 
 For example, to call `rustfmt` on files just under the "current directory"
-(from the user/invoker's perspective), use the following rule:
+(from the user/invoker's perspective), use the following recipe:
 
 ```just
 rustfmt:
@@ -1966,7 +1967,7 @@ build:
 ```
 
 - `invocation_directory_native()` - Retrieves the absolute path to the current
-  directory when `just` was invoked, before  `just` changed it (chdir'd) prior
+  directory when `just` was invoked, before `just` changed it (chdir'd) prior
   to executing commands.
 
 #### Justfile and Justfile Directory
@@ -2006,7 +2007,7 @@ called from within an import or submodule.
 `module_file()` and `module_directory()` behave the same as `justfile()` and
 `justfile_directory()` in the root `justfile`, but will return the path and
 directory, respectively, of the current `mod` source file when called from
-within submodule.
+within a submodule.
 
 #### Just Executable
 
@@ -2042,9 +2043,9 @@ The process ID is: 420
 
 #### String Manipulation
 
-- `append(suffix, s)`<sup>1.27.0</sup> Append `suffix` to whitespace-separated
+- `append(suffix, s)`<sup>1.27.0</sup> - Append `suffix` to whitespace-separated
   strings in `s`. `append('/src', 'foo bar baz')` → `'foo/src bar/src baz/src'`
-- `prepend(prefix, s)`<sup>1.27.0</sup> Prepend `prefix` to
+- `prepend(prefix, s)`<sup>1.27.0</sup> - Prepend `prefix` to
   whitespace-separated strings in `s`. `prepend('src/', 'foo bar baz')` →
   `'src/foo src/bar src/baz'`
 - `encode_uri_component(s)`<sup>1.27.0</sup> - Percent-encode characters in `s`
@@ -2113,7 +2114,7 @@ which will halt execution.
   intermediate `.` components, and `..` where possible. `clean("foo//bar")` is
   `foo/bar`, `clean("foo/..")` is `.`, `clean("foo/./bar")` is `foo/bar`.
 - `join(a, b…)` - *This function uses `/` on Unix and `\` on Windows, which can
-  be lead to unwanted behavior. The `/` operator, e.g., `a / b`, which always
+  lead to unwanted behavior. The `/` operator, e.g., `a / b`, which always
   uses `/`, should be considered as a replacement unless `\`s are specifically
   desired on Windows.* Join path `a` with path `b`. `join("foo/bar", "baz")` is
   `foo/bar/baz`. Accepts two or more arguments.
@@ -2194,9 +2195,9 @@ directory.
 On Unix, these functions follow the
 [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html).
 
-On MacOS and Windows, these functions return the system-specified user-specific
+On macOS and Windows, these functions return the system-specified user-specific
 directories. For example, `cache_directory()` returns `~/Library/Caches` on
-MacOS and `{FOLDERID_LocalAppData}` on Windows.
+macOS and `{FOLDERID_LocalAppData}` on Windows.
 
 See the [`dirs`](https://docs.rs/dirs/latest/dirs/index.html) crate for more
 details.
@@ -2238,7 +2239,7 @@ foo:
   echo '{{ hello("World") }}'
 ```
 
-User defined functions are currently unstable.
+User-defined functions are currently unstable.
 
 Functions may reference assignments in the same module:
 
@@ -2343,7 +2344,7 @@ change their behavior.
 | `[freebsd]`<sup>1.47.0</sup> | recipe | Enable recipe on FreeBSD. |
 | `[group(NAME)]`<sup>1.27.0</sup> | module, recipe | Put recipe or module in [group](#groups) `NAME`. |
 | `[linux]`<sup>1.8.0</sup> | recipe | Enable recipe on Linux. |
-| `[macos]`<sup>1.8.0</sup> | recipe | Enable recipe on MacOS. |
+| `[macos]`<sup>1.8.0</sup> | recipe | Enable recipe on macOS. |
 | `[metadata(METADATA)]`<sup>1.42.0</sup> | recipe | Attach `METADATA` to recipe. |
 | `[netbsd]`<sup>1.47.0</sup> | recipe | Enable recipe on NetBSD. |
 | `[no-cd]`<sup>1.9.0</sup> | recipe | Don't change directory before executing recipe. |
@@ -2355,7 +2356,7 @@ change their behavior.
 | `[private]`<sup>1.10.0</sup> | alias, recipe | Make recipe, alias, or variable private. See [Private Recipes](#private-recipes). |
 | `[script(COMMAND)]`<sup>1.32.0</sup> | recipe | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
 | `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
-| `[unix]`<sup>1.8.0</sup> | recipe | Enable recipe on Unixes. (Includes MacOS). |
+| `[unix]`<sup>1.8.0</sup> | recipe | Enable recipe on unixes. (Includes macOS). |
 | `[windows]`<sup>1.8.0</sup> | recipe | Enable recipe on Windows. |
 | `[working-directory(PATH)]`<sup>1.38.0</sup> | recipe | Set recipe working directory. `PATH` may be relative or absolute. If relative, it is interpreted relative to the default working directory. |
 
@@ -2431,7 +2432,7 @@ Can be used with paths that are relative to the current directory, because
 #### Requiring Confirmation for Recipes
 
 `just` normally executes all recipes unless there is an error. The `[confirm]`
-attribute<sup>1.17.0</sup> allows recipes require confirmation in the terminal
+attribute<sup>1.17.0</sup> allows recipes to require confirmation in the terminal
 prior to running. This can be overridden by passing `--yes` to `just`, which
 will automatically confirm any recipes marked by this attribute.
 
@@ -2675,7 +2676,7 @@ foo := if "hello" == "goodbye" {
 }
 ```
 
-Which produce the following error when run:
+Which produces the following error when run:
 
 ```
 error: Call to function `error` failed: 123
@@ -2775,8 +2776,8 @@ variables.
 
 #### Unexporting Environment Variables
 
-Environment variables can be unexported with the `unexport
-keyword`<sup>1.29.0</sup>:
+Environment variables can be unexported with the `unexport`
+keyword<sup>1.29.0</sup>:
 
 ```just
 unexport FOO
@@ -2791,19 +2792,19 @@ $ just foo
 sh: FOO: unbound variable
 ```
 
-#### Getting Environment Variables from the environment
+#### Getting Environment Variables from the Environment
 
 Environment variables from the environment are passed automatically to the
 recipes.
 
 ```just
 print_home_folder:
-  echo "HOME is: '${HOME}'"
+  @echo "HOME is: '${HOME}'"
 ```
 
 ```console
 $ just
-HOME is '/home/myuser'
+HOME is: '/home/myuser'
 ```
 
 #### Setting `just` Variables from Environment Variables
@@ -2854,7 +2855,7 @@ _build version:
 build: (_build target)
 ```
 
-A command's arguments can be passed to dependency by putting the dependency in
+A command's arguments can be passed to a dependency by putting the dependency in
 parentheses along with the arguments:
 
 ```just
@@ -3208,7 +3209,7 @@ cc main.c
 
 #### Running Recipes at the End of a Recipe
 
-Normal dependencies of a recipes always run before a recipe starts. That is to
+Normal dependencies of a recipe always run before a recipe starts. That is to
 say, the dependee always runs before the depender. These dependencies are
 called "prior dependencies".
 
@@ -3326,7 +3327,7 @@ Hola from a nushell script!
 Hello from ruby!
 ```
 
-On Unix-like operating systems, including Linux and MacOS, shebang recipes are
+On Unix-like operating systems, including Linux and macOS, shebang recipes are
 executed by saving the recipe body to a file in a temporary directory, marking
 the file as executable, and executing it. The OS then parses the shebang line
 into a command line and invokes it, including the path to the file. For
@@ -3436,7 +3437,7 @@ foo:
 
 It isn't strictly necessary, but `set -euxo pipefail` turns on a few useful
 features that make `bash` shebang recipes behave more like normal, linewise
-`just` recipe:
+`just` recipes:
 
 - `set -e` makes `bash` exit if a command fails.
 
@@ -3796,7 +3797,7 @@ $ just
 
 Since environment variables are inherited by child processes, command-line
 options set with environment variables are inherited by recursive invocations
-of `just`, where as command line options set with arguments are not.
+of `just`, whereas command-line options set with arguments are not.
 
 Consult `just --help` for which options can be set with environment variables.
 
@@ -3868,7 +3869,7 @@ goodbye
 # all done!
 ```
 
-All recipes in a Justfile can be made quiet with `set quiet`:
+All recipes in a justfile can be made quiet with `set quiet`:
 
 ```just
 set quiet
@@ -4050,7 +4051,7 @@ A
 
 The `import` path can be absolute or relative to the location of the justfile
 containing it. A leading `~/` in the import path is replaced with the current
-users home directory.
+user's home directory.
 
 Justfiles are insensitive to order, so included files can reference variables
 and recipes defined after the `import` statement.
@@ -4166,7 +4167,7 @@ $ just bar::b
 B
 ```
 
-If a module is named `foo`, just will search for the module file in `foo.just`,
+If a module is named `foo`, `just` will search for the module file in `foo.just`,
 `foo/mod.just`, `foo/justfile`, and `foo/.justfile`. In the latter two cases,
 the module file may have any capitalization.
 
@@ -4183,9 +4184,9 @@ containing the module source file with the name `mod.just`, `justfile`, or
 `.justfile`. In the latter two cases, the module file may have any
 capitalization.
 
-Environment files are only loaded for the root justfile, and loaded environment
-variables are available in submodules. Settings in submodules that affect
-environment file loading are ignored.
+Environment files are loaded for each module, respecting that module's related
+settings. Environment variables from parent modules are visible in child
+modules.
 
 Recipes in submodules without the `[no-cd]` attribute run with the working
 directory set to the directory containing the submodule source file.
@@ -4379,7 +4380,7 @@ if the value of `argument` contains single quotes.
 
 The `positional-arguments` setting causes all arguments to be passed as
 positional arguments, allowing them to be accessed with `$1`, `$2`, …, and
-`$@`, which can be then double-quoted to avoid further splitting by the shell:
+`$@`, which can then be double-quoted to avoid further splitting by the shell:
 
 ```just
 set positional-arguments
@@ -4432,7 +4433,7 @@ for all other platforms.
 
 ### Timestamps
 
-`just` can print timestamps before each recipe commands:
+`just` can print timestamps before each recipe command:
 
 ```just
 recipe:
@@ -4508,7 +4509,7 @@ receives a fatal signal, `just` halts execution.
 `SIGINFO` is sent to all processes in the foreground process group when the
 user types `ctrl-t` on
 [BSD](https://en.wikipedia.org/wiki/Berkeley_Software_Distribution)-derived
-operating systems, including MacOS, but not Linux.
+operating systems, including macOS, but not Linux.
 
 `just` responds by printing a list of all child process IDs and
 commands<sup>1.41.0</sup>.
@@ -4690,7 +4691,7 @@ compinit
 [`roff`](https://en.wikipedia.org/wiki/Roff_%28software%29), a venerable markup
 language and one of the first practical applications of Unix. If you have
 [`groff`](https://www.gnu.org/software/groff/) installed you can view the man
-page with  `just --man | groff -mandoc -Tascii | less`.
+page with `just --man | groff -mandoc -Tascii | less`.
 
 ### Grammar
 
@@ -4782,8 +4783,8 @@ export PATH := "./node_modules/.bin:" + env_var('PATH')
 
 ### Paths on Windows
 
-On Windows, all functions that return paths, except `invocation_directory()`
-will return `\`-separated paths. When not using PowerShell or `cmd.exe` these
+On Windows, all functions that return paths, except `invocation_directory()`,
+will return `\`-separated paths. When not using PowerShell or `cmd.exe`, these
 paths should be quoted to prevent the `\`s from being interpreted as character
 escapes:
 
@@ -4804,7 +4805,7 @@ convert the invocation directory into a unix-style `/`-separated path. Use
 `invocation_directory()` and `invocation_directory_native()` both return the
 same unix-style path.
 
-`cygpath.exe` is used also used to convert Unix-style shebang lines into
+`cygpath.exe` is also used to convert Unix-style shebang lines into
 Windows paths. As an alternative, the `[script]` attribute can be used, which
 does not depend on `cygpath.exe`.
 
@@ -4846,7 +4847,7 @@ interpolated into the format string.
 This can be combined with indented, triple quoted strings to emulate shell
 heredocs.
 
-Substitution complex strings into recipe bodies with `{…}` can also lead to
+Substituting complex strings into recipe bodies with `{{…}}` can also lead to
 trouble as it may be split by the shell into multiple arguments depending on
 the presence of whitespace and quotes. Exporting complex strings as environment
 variables and referring to them with `"$NAME"`, note the double quotes, can
@@ -4878,7 +4879,7 @@ There is no shortage of command runners! Some more or less similar alternatives
 to `just` include:
 
 - [make](https://en.wikipedia.org/wiki/Make_(software)): The Unix build tool
-  that inspired `just`. There are a few different modern day descendents of the
+  that inspired `just`. There are a few different modern day descendants of the
   original `make`, including
   [FreeBSD Make](https://www.freebsd.org/cgi/man.cgi?make(1)) and
   [GNU Make](https://www.gnu.org/software/make/).
@@ -4939,13 +4940,13 @@ of tricky edge cases which are easy to exercise with unit tests that call
 Integration tests are useful for making sure that the final behavior of the
 `just` binary is correct. `unindent()` is also covered by integration tests
 which make sure that evaluating a triple-quoted string produces the correct
-unindented value. However, there are not integration tests for all possible
+unindented value. However, there are no integration tests for all possible
 cases. These are covered by faster, more concise unit tests that call
 `unindent()` directly.
 
 Integration tests use the `Test` struct, a builder which allows for easily
 invoking `just` with a given `justfile`, arguments, and environment variables,
-and checking the program's stdout, stderr, and exit code .
+and checking the program's stdout, stderr, and exit code.
 
 ### Contribution Workflow
 
