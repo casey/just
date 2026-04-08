@@ -72,7 +72,7 @@ Yay, all your tests passed!
   [available for most popular shells](#shell-completion-scripts).
 
 - Recipes can be written in
-  [arbitrary languages](#shebang-recipes), like Python or NodeJS.
+  [arbitrary languages](#shebang-recipes), like Python or Node.js.
 
 - `just` can be invoked from any subdirectory, not just the directory that
   contains the `justfile`.
