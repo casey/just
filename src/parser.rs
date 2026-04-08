@@ -370,9 +370,15 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok(self.accept(kind)?.is_some())
   }
 
-  fn pop_doc_comment(&mut self) -> Option<&'src str> {
+  fn take_doc_comment(&mut self, attributes: &AttributeSet<'src>) -> Option<String> {
+    for attribute in attributes {
+      if let Attribute::Doc(doc) = attribute {
+        return doc.as_ref().map(|doc| doc.cooked.clone());
+      }
+    }
+
     match self.items.pop()? {
-      Item::Comment(contents) => Some(contents[1..].trim_start()),
+      Item::Comment(contents) => Some(contents[1..].trim_start().into()),
       item => {
         self.items.push(item);
         None
@@ -470,8 +476,6 @@ impl<'run, 'src> Parser<'run, 'src> {
             || self.next_are(&[Identifier, Identifier, StringToken])
             || self.next_are(&[Identifier, QuestionMark]) =>
         {
-          let doc = self.pop_doc_comment();
-
           self.presume_keyword(Keyword::Mod)?;
 
           let optional = self.accepted(QuestionMark)?;
@@ -498,12 +502,7 @@ impl<'run, 'src> Parser<'run, 'src> {
             ],
           )?;
 
-          let doc = match attributes.get(AttributeDiscriminant::Doc) {
-            Some(Attribute::Doc(Some(doc))) => Some(doc.cooked.clone()),
-            Some(Attribute::Doc(None)) => None,
-            None => doc.map(str::to_owned),
-            _ => unreachable!(),
-          };
+          let doc = self.take_doc_comment(&attributes);
 
           let private = attributes.contains(AttributeDiscriminant::Private);
 
@@ -536,14 +535,12 @@ impl<'run, 'src> Parser<'run, 'src> {
           } else if self.next_are(&[Identifier, ColonEquals]) {
             Item::Assignment(self.parse_assignment(take_attributes(), false, false)?)
           } else {
-            let doc = self.pop_doc_comment();
-            Item::Recipe(self.parse_recipe(take_attributes(), doc, false)?)
+            Item::Recipe(self.parse_recipe(take_attributes(), false)?)
           }
         }
       }
     } else if self.accepted(At)? {
-      let doc = self.pop_doc_comment();
-      Item::Recipe(self.parse_recipe(take_attributes(), doc, true)?)
+      Item::Recipe(self.parse_recipe(take_attributes(), true)?)
     } else {
       return Err(self.unexpected_token()?);
     };
@@ -1090,7 +1087,6 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_recipe(
     &mut self,
     attributes: AttributeSet<'src>,
-    doc: Option<&'src str>,
     quiet: bool,
   ) -> CompileResult<'src, UnresolvedRecipe<'src>> {
     let name = self.parse_name()?;
@@ -1239,19 +1235,13 @@ impl<'run, 'src> Parser<'run, 'src> {
     let private =
       name.lexeme().starts_with('_') || attributes.contains(AttributeDiscriminant::Private);
 
-    let mut doc = doc.map(ToOwned::to_owned);
-
-    for attribute in &attributes {
-      if let Attribute::Doc(attribute_doc) = attribute {
-        doc = attribute_doc.as_ref().map(|doc| doc.cooked.clone());
-      }
-    }
+    let doc = self.take_doc_comment(&attributes);
 
     Ok(Recipe {
       attributes,
       body,
       dependencies,
-      doc: doc.filter(|doc| !doc.is_empty()),
+      doc,
       file_depth: self.file_depth,
       import_offsets: self.import_offsets.clone(),
       module_path: None,
