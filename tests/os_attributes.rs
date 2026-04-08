@@ -63,6 +63,10 @@ fn os() {
       [netbsd]
       foo:
         echo garply
+
+      [android]
+      foo:
+        echo babs
     ",
     )
     .stdout(if cfg!(target_os = "macos") {
@@ -79,6 +83,8 @@ fn os() {
       "grault\n"
     } else if cfg!(target_os = "netbsd") {
       "garply\n"
+    } else if cfg!(target_os = "android") {
+      "babs\n"
     } else {
       panic!("unexpected os family")
     })
@@ -96,6 +102,8 @@ fn os() {
       "echo grault\n"
     } else if cfg!(target_os = "netbsd") {
       "echo garply\n"
+    } else if cfg!(target_os = "android") {
+      "echo babs\n"
     } else {
       panic!("unexpected os family")
     })
@@ -107,6 +115,7 @@ fn all() {
   Test::new()
     .justfile(
       "
+      [android]
       [linux]
       [macos]
       [openbsd]
