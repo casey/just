@@ -10,7 +10,13 @@ pub(crate) trait Node<'src> {
 impl<'src> Node<'src> for Ast<'src> {
   fn tree(&self) -> Tree<'src> {
     Tree::atom("justfile")
-      .extend(self.items.iter().map(Node::tree))
+      .extend(
+        self
+          .items
+          .iter()
+          .filter(|item| !matches!(item, Item::Newline))
+          .map(Node::tree),
+      )
       .extend(self.warnings.iter().map(Node::tree))
   }
 }
@@ -52,6 +58,7 @@ impl<'src> Node<'src> for Item<'src> {
 
         tree
       }
+      Self::Newline => unreachable!(),
       Self::Function(function) => {
         let mut tree = Tree::atom("function");
         tree.push_mut(function.name.lexeme());

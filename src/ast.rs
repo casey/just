@@ -14,18 +14,19 @@ pub(crate) struct Ast<'src> {
 
 impl ColorDisplay for Ast<'_> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
-    let mut iter = self.items.iter().peekable();
-
-    while let Some(item) = iter.next() {
-      writeln!(f, "{}", item.color_display(color))?;
-
-      if let Some(next_item) = iter.peek() {
-        if matches!(item, Item::Recipe(_))
-          || mem::discriminant(item) != mem::discriminant(next_item)
-        {
-          writeln!(f)?;
-        }
+    let mut newline = false;
+    for item in &self.items {
+      if matches!(item, Item::Newline) {
+        newline = true;
+        continue;
       }
+
+      if newline {
+        writeln!(f)?;
+        newline = false;
+      }
+
+      writeln!(f, "{}", item.color_display(color))?;
     }
 
     Ok(())
