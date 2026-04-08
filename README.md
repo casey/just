@@ -2130,8 +2130,10 @@ which will halt execution.
 - `read(path)`<sup>1.39.0</sup> - Returns the content of file at `path` as
   string.
 
-##### Error Reporting
+#### Assertions and Error Reporting
 
+- `assert(CONDITION, EXPRESSION)`<sup>1.27.0</sup> - Error with message
+  `EXPRESSION` if `CONDITION` is false.
 - `error(message)` - Abort execution and report error `message` to user.
 
 #### UUID and Hash Generation
