@@ -363,7 +363,7 @@ Pre-built binaries for Linux, macOS, and Windows can be found on
 [the releases page](https://github.com/casey/just/releases).
 
 You can use the following command on Linux, macOS, or Windows to download the
-latest release. Just replace `DEST` with the directory where you'd like to put
+latest release, just replace `DEST` with the directory where you'd like to put
 `just`:
 
 ```console
