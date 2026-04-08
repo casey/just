@@ -319,7 +319,7 @@ impl<'src> Justfile<'src> {
                   if binding.export || module.settings.export {
                     print!("export ");
                   }
-                  print!("{}=\"", binding.name);
+                  print!("{}=\"", binding.name.lexeme().replace('-', "_"));
                   for c in binding.value.chars() {
                     if matches!(c, '!' | '"' | '$' | '\\' | '`') {
                       print!("\\");

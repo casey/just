@@ -312,3 +312,20 @@ fn format_shell_variables_are_exported_with_setting() {
     )
     .success();
 }
+
+#[test]
+fn format_shell_dashes_in_variables_are_replaced_with_underscores() {
+  Test::new()
+    .args(["--evaluate", "--evaluate-format", "shell"])
+    .justfile(
+      "
+        foo-bar := 'baz'
+      ",
+    )
+    .stdout(
+      r#"
+        foo_bar="baz"
+      "#,
+    )
+    .success();
+}
