@@ -76,6 +76,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "lowercase" => Unary(lowercase),
     "module_directory" => Nullary(module_directory),
     "module_file" => Nullary(module_file),
+    "module_path" => Nullary(module_path),
     "num_cpus" => Nullary(num_cpus),
     "os" => Nullary(os),
     "os_family" => Nullary(os_family),
@@ -461,6 +462,10 @@ fn module_file(context: Context) -> FunctionResult {
       module_file.display(),
     )
   })
+}
+
+fn module_path(context: Context) -> FunctionResult {
+  Ok(context.execution_context.module.modulepath.to_string())
 }
 
 fn num_cpus(_context: Context) -> FunctionResult {
