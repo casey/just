@@ -1817,7 +1817,7 @@ system-info:
 
 ```console
 $ just system-info
-This is an x86_64 machine
+This is an x86_64 machine.
 ```
 
 The `os_family()` function can be used to create cross-platform `justfile`s
@@ -2803,7 +2803,8 @@ print_home_folder:
 
 ```console
 $ just
-HOME is '/home/myuser'
+echo "HOME is: '${HOME}'"
+HOME is: '/home/myuser'
 ```
 
 #### Setting `just` Variables from Environment Variables
@@ -3868,7 +3869,7 @@ goodbye
 # all done!
 ```
 
-All recipes in a Justfile can be made quiet with `set quiet`:
+All recipes in a justfile can be made quiet with `set quiet`:
 
 ```just
 set quiet
