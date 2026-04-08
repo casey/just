@@ -370,7 +370,13 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok(self.accept(kind)?.is_some())
   }
 
-  fn pop_doc_comment(&mut self) -> Option<String> {
+  fn take_doc_comment(&mut self, attributes: &AttributeSet<'src>) -> Option<String> {
+    for attribute in attributes {
+      if let Attribute::Doc(doc) = attribute {
+        return doc.as_ref().map(|doc| doc.cooked.clone());
+      }
+    }
+
     match self.items.pop()? {
       Item::Comment(contents) => Some(contents[1..].trim_start().into()),
       item => {
@@ -496,17 +502,7 @@ impl<'run, 'src> Parser<'run, 'src> {
             ],
           )?;
 
-          let doc = attributes
-            .iter()
-            .find_map(|attribute| {
-              if let Attribute::Doc(doc) = attribute {
-                Some(doc.as_ref().map(|doc| doc.cooked.clone()))
-              } else {
-                None
-              }
-            })
-            .unwrap_or_else(|| self.pop_doc_comment())
-            .filter(|doc| !doc.is_empty());
+          let doc = self.take_doc_comment(&attributes);
 
           let private = attributes.contains(AttributeDiscriminant::Private);
 
@@ -1239,17 +1235,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let private =
       name.lexeme().starts_with('_') || attributes.contains(AttributeDiscriminant::Private);
 
-    let doc = attributes
-      .iter()
-      .find_map(|attribute| {
-        if let Attribute::Doc(doc) = attribute {
-          Some(doc.as_ref().map(|doc| doc.cooked.clone()))
-        } else {
-          None
-        }
-      })
-      .unwrap_or_else(|| self.pop_doc_comment())
-      .filter(|doc| !doc.is_empty());
+    let doc = self.take_doc_comment(&attributes);
 
     Ok(Recipe {
       attributes,
