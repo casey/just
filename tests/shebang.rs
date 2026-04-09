@@ -7,7 +7,7 @@ fn powershell() {
   }
   Test::new()
     .justfile(
-      r"
+      "
         default:
           #!powershell
           Write-Host Hello-World
@@ -24,7 +24,7 @@ fn powershell_exe() {
   }
   Test::new()
     .justfile(
-      r"
+      "
         default:
           #!powershell.exe
            Write-Host Hello-World
@@ -41,7 +41,7 @@ fn cmd() {
   }
   Test::new()
     .justfile(
-      r"
+      "
         default:
           #!cmd /c
           @echo Hello-World
@@ -58,7 +58,7 @@ fn cmd_exe() {
   }
   Test::new()
     .justfile(
-      r"
+      "
         default:
           #!cmd.exe /c
           @echo Hello-World
@@ -75,7 +75,7 @@ fn multi_line_cmd_shebangs_are_removed() {
   }
   Test::new()
     .justfile(
-      r"
+      "
         default:
           #!cmd.exe /c
           #!foo

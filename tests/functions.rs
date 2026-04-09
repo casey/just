@@ -127,7 +127,7 @@ fn path_functions2() {
   }
   Test::new()
     .justfile(
-      r"
+      "
         we  := without_extension('/foo/bar/baz')
         fs  := file_stem('/foo/bar/baz.hello.ciao')
         fn  := file_name('/bar/baz.hello.ciao')
@@ -885,7 +885,7 @@ fn uuid() {
 #[test]
 fn choose() {
   Test::new()
-    .justfile(r"x := choose('10', 'xXyYzZ')")
+    .justfile("x := choose('10', 'xXyYzZ')")
     .args(["--evaluate", "x"])
     .stdout_regex("^[X-Zx-z]{10}$")
     .success();
@@ -1398,10 +1398,10 @@ bar:
 fn style_command_default() {
   Test::new()
     .justfile(
-      r#"
+      "
         foo:
-          @echo '{{ style("command") }}foo{{NORMAL}}'
-      "#,
+          @echo '{{ style('command') }}foo{{NORMAL}}'
+      ",
     )
     .stdout("\x1b[1mfoo\x1b[0m\n")
     .success();
@@ -1411,10 +1411,10 @@ fn style_command_default() {
 fn style_command_non_default() {
   Test::new()
     .justfile(
-      r#"
+      "
         foo:
-          @echo '{{ style("command") }}foo{{NORMAL}}'
-      "#,
+          @echo '{{ style('command') }}foo{{NORMAL}}'
+      ",
     )
     .args(["--command-color", "red"])
     .stdout("\x1b[1;31mfoo\x1b[0m\n")
@@ -1425,10 +1425,10 @@ fn style_command_non_default() {
 fn style_error() {
   Test::new()
     .justfile(
-      r#"
+      "
         foo:
-          @echo '{{ style("error") }}foo{{NORMAL}}'
-      "#,
+          @echo '{{ style('error') }}foo{{NORMAL}}'
+      ",
     )
     .stdout("\x1b[1;31mfoo\x1b[0m\n")
     .success();
@@ -1438,10 +1438,10 @@ fn style_error() {
 fn style_warning() {
   Test::new()
     .justfile(
-      r#"
+      "
         foo:
-          @echo '{{ style("warning") }}foo{{NORMAL}}'
-      "#,
+          @echo '{{ style('warning') }}foo{{NORMAL}}'
+      ",
     )
     .stdout("\x1b[1;33mfoo\x1b[0m\n")
     .success();
@@ -1451,19 +1451,19 @@ fn style_warning() {
 fn style_unknown() {
   Test::new()
     .justfile(
-      r#"
+      "
         foo:
-          @echo '{{ style("hippo") }}foo{{NORMAL}}'
-      "#,
+          @echo '{{ style('hippo') }}foo{{NORMAL}}'
+      ",
     )
     .stderr(
-      r#"
+      "
         error: Call to function `style` failed: unknown style: `hippo`
          ——▶ justfile:2:13
           │
-        2 │   @echo '{{ style("hippo") }}foo{{NORMAL}}'
+        2 │   @echo '{{ style('hippo') }}foo{{NORMAL}}'
           │             ^^^^^
-      "#,
+      ",
     )
     .failure();
 }
@@ -1495,14 +1495,14 @@ fn shell_with_powershell() {
 
   Test::new()
     .justfile(
-      r#"
-        set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
+      "
+        set windows-shell := ['pwsh.exe', '-NoLogo', '-Command']
 
         foo := shell('Write-Output bar')
 
         default:
           @echo {{foo}}
-      "#,
+      ",
     )
     .shell(false)
     .stdout("bar\r\n")

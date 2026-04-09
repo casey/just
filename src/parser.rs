@@ -1729,7 +1729,7 @@ mod tests {
 
   test! {
       name: recipe_named_alias,
-      text: r"
+      text: "
       [private]
       alias:
         echo 'echoing alias'
@@ -1741,7 +1741,7 @@ mod tests {
 
   test! {
     name: export,
-    text: r#"export x := "hello""#,
+    text: "export x := 'hello'",
     tree: (justfile (assignment #export x "hello")),
   }
 
@@ -1756,7 +1756,7 @@ mod tests {
 
   test! {
     name: export_equals,
-    text: r#"export x := "hello""#,
+    text: "export x := 'hello'",
     tree: (justfile
       (assignment #export x "hello")
     ),
@@ -1764,7 +1764,7 @@ mod tests {
 
   test! {
     name: assignment,
-    text: r#"x := "hello""#,
+    text: "x := 'hello'",
     tree: (justfile (assignment x "hello")),
   }
 
@@ -1779,7 +1779,7 @@ mod tests {
 
   test! {
     name: assignment_equals,
-    text: r#"x := "hello""#,
+    text: "x := 'hello'",
     tree: (justfile
       (assignment x "hello")
     ),
@@ -1869,43 +1869,43 @@ mod tests {
 
   test! {
     name: recipe_default_single,
-    text: r#"foo bar="baz":"#,
+    text: "foo bar='baz':",
     tree: (justfile (recipe foo (params (bar "baz")))),
   }
 
   test! {
     name: recipe_default_multiple,
-    text: r#"foo bar="baz" bob="biz":"#,
+    text: "foo bar='baz' bob='biz':",
     tree: (justfile (recipe foo (params (bar "baz") (bob "biz")))),
   }
 
   test! {
     name: recipe_plus_variadic,
-    text: r"foo +bar:",
+    text: "foo +bar:",
     tree: (justfile (recipe foo (params +(bar)))),
   }
 
   test! {
     name: recipe_star_variadic,
-    text: r"foo *bar:",
+    text: "foo *bar:",
     tree: (justfile (recipe foo (params *(bar)))),
   }
 
   test! {
     name: recipe_variadic_string_default,
-    text: r#"foo +bar="baz":"#,
+    text: "foo +bar='baz':",
     tree: (justfile (recipe foo (params +(bar "baz")))),
   }
 
   test! {
     name: recipe_variadic_variable_default,
-    text: r"foo +bar=baz:",
+    text: "foo +bar=baz:",
     tree: (justfile (recipe foo (params +(bar baz)))),
   }
 
   test! {
     name: recipe_variadic_addition_group_default,
-    text: r"foo +bar=(baz + bob):",
+    text: "foo +bar=(baz + bob):",
     tree: (justfile (recipe foo (params +(bar ((+ baz bob)))))),
   }
 
@@ -2185,7 +2185,7 @@ mod tests {
 
   test! {
     name: recipe_variadic_with_default_after_default,
-    text: r"
+    text: "
       f a=b +c=d:
     ",
     tree: (justfile (recipe f (params (a b) +(c d)))),
@@ -2193,11 +2193,11 @@ mod tests {
 
   test! {
     name: parameter_default_concatenation_variable,
-    text: r#"
-      x := "10"
+    text: "
+      x := '10'
 
-      f y=(`echo hello` + x) +z="foo":
-    "#,
+      f y=(`echo hello` + x) +z='foo':
+    ",
     tree: (justfile
       (assignment x "10")
       (recipe f (params (y ((+ (backtick "echo hello") x))) +(z "foo")))
@@ -2206,10 +2206,10 @@ mod tests {
 
   test! {
     name: parameter_default_multiple,
-    text: r#"
-      x := "10"
-      f y=(`echo hello` + x) +z=("foo" + "bar"):
-    "#,
+    text: "
+      x := '10'
+      f y=(`echo hello` + x) +z=('foo' + 'bar'):
+    ",
     tree: (justfile
       (assignment x "10")
       (recipe f (params (y ((+ (backtick "echo hello") x))) +(z ((+ "foo" "bar")))))
@@ -2229,7 +2229,7 @@ mod tests {
 
   test! {
     name: parse_alias_after_target,
-    text: r"
+    text: "
       foo:
         echo a
       alias f := foo
@@ -2351,11 +2351,11 @@ mod tests {
 
   test! {
     name: parse_assignments,
-    text: r#"
-      a := "0"
+    text: "
+      a := '0'
       c := a + b + a + b
-      b := "1"
-    "#,
+      b := '1'
+    ",
     tree: (justfile
       (assignment a "0")
       (assignment c (+ a (+ b (+ a b))))
@@ -2379,10 +2379,10 @@ mod tests {
 
   test! {
     name: parse_interpolation_backticks,
-    text: r#"
+    text: "
       a:
-        echo {{  `echo hello` + "blarg"   }} {{   `echo bob`   }}
-    "#,
+        echo {{  `echo hello` + 'blarg'   }} {{   `echo bob`   }}
+    ",
     tree: (justfile
       (recipe a
         (body ("echo " ((+ (backtick "echo hello") "blarg")) " " ((backtick "echo bob"))))
@@ -2440,12 +2440,12 @@ mod tests {
 
   test! {
     name: env_functions,
-    text: r#"
+    text: "
       x := env_var('foo',)
 
       a:
-        {{env_var_or_default('foo' + 'bar', 'baz',)}} {{env_var(env_var("baz"))}}
-    "#,
+        {{env_var_or_default('foo' + 'bar', 'baz',)}} {{env_var(env_var('baz'))}}
+    ",
     tree: (justfile
       (assignment x (call env_var "foo"))
       (recipe a
@@ -2462,15 +2462,15 @@ mod tests {
 
   test! {
     name: parameter_default_string,
-    text: r#"
-      f x="abc":
-    "#,
+    text: "
+      f x='abc':
+    ",
     tree: (justfile (recipe f (params (x "abc")))),
   }
 
   test! {
     name: parameter_default_raw_string,
-    text: r"
+    text: "
       f x='abc':
     ",
     tree: (justfile (recipe f (params (x "abc")))),
@@ -2488,9 +2488,9 @@ mod tests {
 
   test! {
     name: parameter_default_concatenation_string,
-    text: r#"
-      f x=(`echo hello` + "foo"):
-    "#,
+    text: "
+      f x=(`echo hello` + 'foo'):
+    ",
     tree: (justfile (recipe f (params (x ((+ (backtick "echo hello") "foo")))))),
   }
 

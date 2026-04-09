@@ -4,15 +4,15 @@ use super::*;
 fn success() {
   Test::new()
     .justfile(
-      r#"
-        export FOO := "a"
-        baz := "c"
-        export BAR := "b"
+      "
+        export FOO := 'a'
+        baz := 'c'
+        export BAR := 'b'
         export ABC := FOO + BAR + baz
 
         wut:
           echo $FOO $BAR $ABC
-      "#,
+      ",
     )
     .stdout("a b abc\n")
     .stderr("echo $FOO $BAR $ABC\n")
@@ -62,15 +62,15 @@ fn override_variable() {
     .arg("bye")
     .arg("FOO=hello")
     .justfile(
-      r#"
-        export FOO := "a"
-        baz := "c"
-        export BAR := "b"
-        export ABC := FOO + "-" + BAR + "-" + baz
+      "
+        export FOO := 'a'
+        baz := 'c'
+        export BAR := 'b'
+        export ABC := FOO + '-' + BAR + '-' + baz
 
         wut:
           echo $FOO $BAR $ABC
-      "#,
+      ",
     )
     .stdout("hello bye hello-bye-c\n")
     .stderr("echo $FOO $BAR $ABC\n")
@@ -81,16 +81,16 @@ fn override_variable() {
 fn shebang() {
   Test::new()
     .justfile(
-      r#"
-        export FOO := "a"
-        baz := "c"
-        export BAR := "b"
+      "
+        export FOO := 'a'
+        baz := 'c'
+        export BAR := 'b'
         export ABC := FOO + BAR + baz
 
         wut:
           #!/bin/sh
           echo $FOO $BAR $ABC
-      "#,
+      ",
     )
     .stdout("a b abc\n")
     .success();
@@ -100,12 +100,12 @@ fn shebang() {
 fn recipe_backtick() {
   Test::new()
     .justfile(
-      r#"
-        export EXPORTED_VARIABLE := "A-IS-A"
+      "
+        export EXPORTED_VARIABLE := 'A-IS-A'
 
         recipe:
           echo {{`echo recipe $EXPORTED_VARIABLE`}}
-      "#,
+      ",
     )
     .stdout("recipe A-IS-A\n")
     .stderr("echo recipe A-IS-A\n")

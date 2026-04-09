@@ -24,14 +24,14 @@ fn backtick_with_powershell() {
 
   Test::new()
     .justfile(
-      r#"
-        set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
+      "
+        set windows-shell := ['pwsh.exe', '-NoLogo', '-Command']
 
         foo := `Write-Output bar`
 
         default:
           @echo {{foo}}
-      "#,
+      ",
     )
     .shell(false)
     .stdout("bar\r\n")

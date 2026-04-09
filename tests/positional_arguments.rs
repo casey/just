@@ -149,7 +149,7 @@ fn variadic_shebang() {
 fn default_arguments() {
   Test::new()
     .justfile(
-      r"
+      "
         set positional-arguments
 
         foo bar='baz':
@@ -184,7 +184,7 @@ fn variadic_arguments_are_separate() {
     .arg("a")
     .arg("b")
     .justfile(
-      r"
+      "
         set positional-arguments
 
         foo *bar:

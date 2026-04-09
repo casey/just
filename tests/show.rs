@@ -6,16 +6,16 @@ fn show() {
     .arg("--show")
     .arg("recipe")
     .justfile(
-      r#"hello := "foo"
+      "hello := 'foo'
 bar := hello + hello
 recipe:
- echo {{hello + "bar" + bar}}"#,
+ echo {{hello + 'bar' + bar}}",
     )
     .stdout(
-      r#"
+      "
         recipe:
-            echo {{ hello + "bar" + bar }}
-      "#,
+            echo {{ hello + 'bar' + bar }}
+      ",
     )
     .success();
 }

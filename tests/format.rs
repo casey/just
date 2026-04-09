@@ -249,7 +249,7 @@ fn assignment_indented_singlequote() {
       ",
     )
     .stdout(
-      r"
+      "
         foo := '''
           foo
         '''
@@ -1561,7 +1561,7 @@ fn module_groups_are_preserved() {
 fn module_docs_are_preserved() {
   Test::new()
     .justfile(
-      r"
+      "
         # bar
         mod foo
       ",
@@ -1569,7 +1569,7 @@ fn module_docs_are_preserved() {
     .write("foo.just", "")
     .arg("--dump")
     .stdout(
-      r"
+      "
         # bar
         mod foo
       ",

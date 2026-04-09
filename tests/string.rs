@@ -70,13 +70,13 @@ fn multiline_cooked_string() {
   Test::new()
     .arg("a")
     .justfile(
-      r#"
-        string := "hello
-        whatever"
+      "
+        string := 'hello
+        whatever'
 
         a:
           echo '{{string}}'
-      "#,
+      ",
     )
     .stdout(
       "hello
@@ -187,11 +187,11 @@ fn multiline_raw_string_in_interpolation() {
   Test::new()
     .arg("a")
     .justfile(
-      r#"
+      "
         a:
-          echo '{{"a" + '
-          ' + "b"}}'
-      "#,
+          echo '{{'a' + '
+          ' + 'b'}}'
+      ",
     )
     .stdout(
       "
@@ -213,13 +213,13 @@ fn error_line_after_multiline_raw_string_in_interpolation() {
   Test::new()
     .arg("a")
     .justfile(
-      r#"
+      "
         a:
-          echo '{{"a" + '
-          ' + "b"}}'
+          echo '{{'a' + '
+          ' + 'b'}}'
 
           echo {{b}}
-      "#,
+      ",
     )
     .stderr(
       "error: Variable `b` not defined
@@ -284,7 +284,7 @@ fn unterminated_backtick() {
       ",
     )
     .stderr(
-      r"
+      "
         error: Unterminated backtick
          ——▶ justfile:1:8
           │
@@ -347,7 +347,7 @@ fn unterminated_indented_backtick() {
       ",
     )
     .stderr(
-      r"
+      "
         error: Unterminated backtick
          ——▶ justfile:1:8
           │
@@ -408,7 +408,7 @@ fn indented_cooked_string_contents_indentation_removed() {
 fn indented_backtick_string_contents_indentation_removed() {
   Test::new()
     .justfile(
-      r"
+      "
         a := ```
           printf '
           foo

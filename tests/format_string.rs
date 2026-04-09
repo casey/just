@@ -265,9 +265,9 @@ fn double_quotes_process_escapes() {
 fn single_quotes_do_not_process_escapes() {
   Test::new()
     .justfile(
-      r#"
-        foo := f'\n{{"a"}}\n{{"b"}}\n'
-      "#,
+      "
+        foo := f'\\n{{'a'}}\\n{{'b'}}\\n'
+      ",
     )
     .args(["--evaluate", "foo"])
     .stdout(r"\na\nb\n")
@@ -278,13 +278,13 @@ fn single_quotes_do_not_process_escapes() {
 fn indented_format_strings() {
   Test::new()
     .justfile(
-      r#"
+      "
         foo := f'''
           a
-          {{"b"}}
+          {{'b'}}
           c
         '''
-      "#,
+      ",
     )
     .args(["--evaluate", "foo"])
     .stdout("a\nb\nc\n")
@@ -295,13 +295,13 @@ fn indented_format_strings() {
 fn un_indented_format_strings() {
   Test::new()
     .justfile(
-      r#"
+      "
         foo := f'
           a
-          {{"b"}}
+          {{'b'}}
           c
         '
-      "#,
+      ",
     )
     .args(["--evaluate", "foo"])
     .stdout("\n  a\n  b\n  c\n")
