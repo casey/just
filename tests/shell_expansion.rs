@@ -45,13 +45,14 @@ fn shell_expanded_error_messages_highlight_string_token() {
     .env("JUST_TEST_VARIABLE", "FOO")
     .args(["--evaluate", "x"])
     .stderr(
-    "
-      error: Shell expansion failed: error looking key 'FOOOOOOOOOOOOOOOOOOOOOOOOOOOOO' up: environment variable not found
-       ——▶ justfile:1:7
-        │
-      1 │ x := x'$FOOOOOOOOOOOOOOOOOOOOOOOOOOOOO'
-        │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      ")
+      "
+        error: Shell expansion failed: error looking key 'FOOOOOOOOOOOOOOOOOOOOOOOOOOOOO' up: environment variable not found
+         ——▶ justfile:1:7
+          │
+        1 │ x := x'$FOOOOOOOOOOOOOOOOOOOOOOOOOOOOO'
+          │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      "
+    )
     .failure();
 }
 

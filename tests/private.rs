@@ -5,14 +5,14 @@ fn private_attribute_for_recipe() {
   Test::new()
     .justfile(
       "
-      [private]
-      foo:
+        [private]
+        foo:
       ",
     )
     .args(["--list"])
     .stdout(
       "
-      Available recipes:
+        Available recipes:
       ",
     )
     .success();
@@ -23,17 +23,17 @@ fn private_attribute_for_alias() {
   Test::new()
     .justfile(
       "
-      [private]
-      alias f := foo
+        [private]
+        alias f := foo
 
-      foo:
+        foo:
       ",
     )
     .args(["--list"])
     .stdout(
       "
-      Available recipes:
-          foo
+        Available recipes:
+            foo
       ",
     )
     .success();
@@ -67,10 +67,10 @@ fn private_variables_are_not_listed() {
   Test::new()
     .justfile(
       "
-      [private]
-      foo := 'one'
-      bar := 'two'
-      _baz := 'three'
+        [private]
+        foo := 'one'
+        bar := 'two'
+        _baz := 'three'
       ",
     )
     .args(["--variables"])

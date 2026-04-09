@@ -230,9 +230,9 @@ fn list_groups() {
     .args(["--groups"])
     .stdout(
       "
-      Recipe groups:
-          A
-          B
+        Recipe groups:
+            A
+            B
       ",
     )
     .success();
@@ -254,9 +254,9 @@ fn list_groups_with_custom_prefix() {
     .args(["--groups", "--list-prefix", "..."])
     .stdout(
       "
-      Recipe groups:
-      ...A
-      ...B
+        Recipe groups:
+        ...A
+        ...B
       ",
     )
     .success();
@@ -277,9 +277,9 @@ fn list_groups_with_shorthand_syntax() {
     .arg("--groups")
     .stdout(
       "
-      Recipe groups:
-          A
-          B
+        Recipe groups:
+            A
+            B
       ",
     )
     .success();
@@ -303,10 +303,10 @@ fn list_groups_unsorted() {
     .args(["--groups", "--unsorted"])
     .stdout(
       "
-      Recipe groups:
-          Z
-          B
-          A
+        Recipe groups:
+            Z
+            B
+            A
       ",
     )
     .success();
@@ -331,9 +331,9 @@ fn list_groups_private_unsorted() {
     .args(["--groups", "--unsorted"])
     .stdout(
       "
-      Recipe groups:
-          B
-          A
+        Recipe groups:
+            B
+            A
       ",
     )
     .success();
@@ -355,8 +355,8 @@ fn list_groups_private() {
     .args(["--groups", "--unsorted"])
     .stdout(
       "
-      Recipe groups:
-          B
+        Recipe groups:
+            B
       ",
     )
     .success();

@@ -7,9 +7,9 @@ fn recipe_doubly_nested_module_dependencies() {
     .write("bar.just", "baz:\n @echo BAZ")
     .justfile(
       "
-      mod foo
+        mod foo
 
-      baz: foo::bar::baz
+        baz: foo::bar::baz
       ",
     )
     .arg("baz")
@@ -24,8 +24,8 @@ fn recipe_singly_nested_module_dependencies() {
     .write("bar.just", "baz:\n @echo BAZ")
     .justfile(
       "
-      mod foo
-      baz: foo::baz
+        mod foo
+        baz: foo::baz
       ",
     )
     .arg("baz")
@@ -39,8 +39,8 @@ fn dependency_not_in_submodule() {
     .write("foo.just", "qux: \n @echo QUX")
     .justfile(
       "
-      mod foo
-      baz: foo::baz
+        mod foo
+        baz: foo::baz
       ",
     )
     .arg("baz")
@@ -60,11 +60,11 @@ fn dependency_submodule_missing() {
   Test::new()
     .justfile(
       "
-      foo:
-        @echo FOO
-      bar:
-        @echo BAR
-      baz: foo::bar
+        foo:
+          @echo FOO
+        bar:
+          @echo BAR
+        baz: foo::bar
       ",
     )
     .arg("baz")
@@ -86,8 +86,8 @@ fn recipe_dependency_on_module_fails() {
     .write("bar.just", "baz:\n @echo BAZ")
     .justfile(
       "
-      mod foo
-      baz: foo::bar
+        mod foo
+        baz: foo::bar
       ",
     )
     .arg("baz")
@@ -108,11 +108,11 @@ fn recipe_module_dependency_subsequent_mix() {
     .write("foo.just", "bar: \n @echo BAR")
     .justfile(
       "
-      mod foo
-      baz:
-        @echo BAZ
-      quux: foo::bar && baz
-        @echo QUUX
+        mod foo
+        baz:
+          @echo BAZ
+        quux: foo::bar && baz
+          @echo QUUX
       ",
     )
     .arg("quux")
@@ -126,8 +126,8 @@ fn recipe_module_dependency_only_runs_once() {
     .write("foo.just", "bar: baz \n  \nbaz: \n @echo BAZ")
     .justfile(
       "
-      mod foo
-      qux: foo::bar foo::baz
+        mod foo
+        qux: foo::bar foo::baz
       ",
     )
     .arg("qux")

@@ -23,10 +23,10 @@ fn summary_sorted() {
     .arg("--summary")
     .justfile(
       "
-b:
-c:
-a:
-",
+        b:
+        c:
+        a:
+      ",
     )
     .stdout("a b c\n")
     .success();
@@ -39,10 +39,10 @@ fn summary_unsorted() {
     .arg("--unsorted")
     .justfile(
       "
-b:
-c:
-a:
-",
+        b:
+        c:
+        a:
+      ",
     )
     .stdout("b c a\n")
     .success();

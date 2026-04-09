@@ -37,11 +37,11 @@ fn skip_dependency_multi() {
   Test::new()
     .justfile(
       "
-          a:
-              @echo 'a'
-          b: && a
-              @echo 'b'
-          ",
+        a:
+            @echo 'a'
+        b: && a
+            @echo 'b'
+      ",
     )
     .args(["--no-deps", "b", "a"])
     .stdout("b\na\n")

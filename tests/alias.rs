@@ -7,12 +7,12 @@ fn alias_nested_module() {
     .write("bar.just", "baz:\n @echo BAZ")
     .justfile(
       "
-      mod foo
+        mod foo
 
-      alias b := foo::bar::baz
+        alias b := foo::bar::baz
 
-      baz:
-        @echo 'HERE'
+        baz:
+          @echo 'HERE'
       ",
     )
     .arg("b")
@@ -26,9 +26,9 @@ fn unknown_nested_alias() {
     .write("foo.just", "baz: \n @echo FOO")
     .justfile(
       "
-      mod foo
+        mod foo
 
-      alias b := foo::bar::baz
+        alias b := foo::bar::baz
       ",
     )
     .arg("b")

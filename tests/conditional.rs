@@ -5,9 +5,9 @@ fn then_branch_unevaluated() {
   Test::new()
     .justfile(
       "
-    foo:
-      echo {{ if 'a' == 'b' { `exit 1` } else { 'otherwise' } }}
-  ",
+        foo:
+          echo {{ if 'a' == 'b' { `exit 1` } else { 'otherwise' } }}
+      ",
     )
     .stdout("otherwise\n")
     .stderr("echo otherwise\n")
@@ -19,9 +19,9 @@ fn otherwise_branch_unevaluated() {
   Test::new()
     .justfile(
       "
-    foo:
-      echo {{ if 'a' == 'a' { 'then' } else { `exit 1` } }}
-  ",
+        foo:
+          echo {{ if 'a' == 'a' { 'then' } else { `exit 1` } }}
+      ",
     )
     .stdout("then\n")
     .stderr("echo then\n")
@@ -33,9 +33,9 @@ fn otherwise_branch_unevaluated_inverted() {
   Test::new()
     .justfile(
       "
-    foo:
-      echo {{ if 'a' != 'b' { 'then' } else { `exit 1` } }}
-  ",
+        foo:
+          echo {{ if 'a' != 'b' { 'then' } else { `exit 1` } }}
+      ",
     )
     .stdout("then\n")
     .stderr("echo then\n")
@@ -47,9 +47,9 @@ fn then_branch_unevaluated_inverted() {
   Test::new()
     .justfile(
       "
-    foo:
-      echo {{ if 'a' != 'a' { `exit 1` } else { 'otherwise' } }}
-  ",
+        foo:
+          echo {{ if 'a' != 'a' { `exit 1` } else { 'otherwise' } }}
+      ",
     )
     .stdout("otherwise\n")
     .stderr("echo otherwise\n")
@@ -61,9 +61,9 @@ fn complex_expressions() {
   Test::new()
     .justfile(
       "
-    foo:
-      echo {{ if 'a' + 'b' == `echo ab` { 'c' + 'd' } else { 'e' + 'f' } }}
-  ",
+        foo:
+          echo {{ if 'a' + 'b' == `echo ab` { 'c' + 'd' } else { 'e' + 'f' } }}
+      ",
     )
     .stdout("cd\n")
     .stderr("echo cd\n")
@@ -75,20 +75,20 @@ fn undefined_lhs() {
   Test::new()
     .justfile(
       "
-    a := if b == '' { '' } else { '' }
+        a := if b == '' { '' } else { '' }
 
-    foo:
-      echo {{ a }}
-  ",
+        foo:
+          echo {{ a }}
+      ",
     )
     .stderr(
       "
-    error: Variable `b` not defined
-     ——▶ justfile:1:9
-      │
-    1 │ a := if b == '' { '' } else { '' }
-      │         ^
-  ",
+        error: Variable `b` not defined
+         ——▶ justfile:1:9
+          │
+        1 │ a := if b == '' { '' } else { '' }
+          │         ^
+      ",
     )
     .failure();
 }
@@ -98,20 +98,20 @@ fn undefined_rhs() {
   Test::new()
     .justfile(
       "
-    a := if '' == b { '' } else { '' }
+        a := if '' == b { '' } else { '' }
 
-    foo:
-      echo {{ a }}
-  ",
+        foo:
+          echo {{ a }}
+      ",
     )
     .stderr(
       "
-    error: Variable `b` not defined
-     ——▶ justfile:1:15
-      │
-    1 │ a := if '' == b { '' } else { '' }
-      │               ^
-  ",
+        error: Variable `b` not defined
+         ——▶ justfile:1:15
+          │
+        1 │ a := if '' == b { '' } else { '' }
+          │               ^
+      ",
     )
     .failure();
 }
@@ -121,20 +121,20 @@ fn undefined_then() {
   Test::new()
     .justfile(
       "
-    a := if '' == '' { b } else { '' }
+        a := if '' == '' { b } else { '' }
 
-    foo:
-      echo {{ a }}
-  ",
+        foo:
+          echo {{ a }}
+      ",
     )
     .stderr(
       "
-    error: Variable `b` not defined
-     ——▶ justfile:1:20
-      │
-    1 │ a := if '' == '' { b } else { '' }
-      │                    ^
-  ",
+        error: Variable `b` not defined
+         ——▶ justfile:1:20
+          │
+        1 │ a := if '' == '' { b } else { '' }
+          │                    ^
+      ",
     )
     .failure();
 }
@@ -144,20 +144,20 @@ fn undefined_otherwise() {
   Test::new()
     .justfile(
       "
-    a := if '' == '' { '' } else { b }
+        a := if '' == '' { '' } else { b }
 
-    foo:
-      echo {{ a }}
-  ",
+        foo:
+          echo {{ a }}
+      ",
     )
     .stderr(
       "
-    error: Variable `b` not defined
-     ——▶ justfile:1:32
-      │
-    1 │ a := if '' == '' { '' } else { b }
-      │                                ^
-  ",
+        error: Variable `b` not defined
+         ——▶ justfile:1:32
+          │
+        1 │ a := if '' == '' { '' } else { b }
+          │                                ^
+      ",
     )
     .failure();
 }
@@ -167,20 +167,20 @@ fn unexpected_op() {
   Test::new()
     .justfile(
       "
-    a := if '' a '' { '' } else { b }
+        a := if '' a '' { '' } else { b }
 
-    foo:
-      echo {{ a }}
-  ",
+        foo:
+          echo {{ a }}
+      ",
     )
     .stderr(
       "
-    error: Expected '&&', '!=', '!~', '||', '==', '=~', '+', or '/', but found identifier
-     ——▶ justfile:1:12
-      │
-    1 │ a := if '' a '' { '' } else { b }
-      │            ^
-  ",
+        error: Expected '&&', '!=', '!~', '||', '==', '=~', '+', or '/', but found identifier
+         ——▶ justfile:1:12
+          │
+        1 │ a := if '' a '' { '' } else { b }
+          │            ^
+      ",
     )
     .failure();
 }
@@ -191,19 +191,19 @@ fn dump() {
     .arg("--dump")
     .justfile(
       "
-    a := if '' == '' { '' } else { '' }
+        a := if '' == '' { '' } else { '' }
 
-    foo:
-      echo {{ a }}
-  ",
+        foo:
+          echo {{ a }}
+      ",
     )
     .stdout(
       "
-    a := if '' == '' { '' } else { '' }
+        a := if '' == '' { '' } else { '' }
 
-    foo:
-        echo {{ a }}
-  ",
+        foo:
+            echo {{ a }}
+      ",
     )
     .success();
 }
@@ -213,11 +213,11 @@ fn if_else() {
   Test::new()
     .justfile(
       "
-    x := if '0' == '1' { 'a' } else if '0' == '0' { 'b' } else { 'c' }
+        x := if '0' == '1' { 'a' } else if '0' == '0' { 'b' } else { 'c' }
 
-    foo:
-      echo {{ x }}
-  ",
+        foo:
+          echo {{ x }}
+      ",
     )
     .stdout("b\n")
     .stderr("echo b\n")
@@ -229,17 +229,17 @@ fn missing_else() {
   Test::new()
     .justfile(
       "
-  TEST := if path_exists('/bin/bash') == 'true' {'yes'}
-  ",
+        TEST := if path_exists('/bin/bash') == 'true' {'yes'}
+      ",
     )
     .stderr(
       "
-    error: Expected keyword `else` but found `end of line`
-     ——▶ justfile:1:54
-      │
-    1 │ TEST := if path_exists('/bin/bash') == 'true' {'yes'}
-      │                                                      ^
-  ",
+        error: Expected keyword `else` but found `end of line`
+         ——▶ justfile:1:54
+          │
+        1 │ TEST := if path_exists('/bin/bash') == 'true' {'yes'}
+          │                                                      ^
+      ",
     )
     .failure();
 }
@@ -249,17 +249,17 @@ fn incorrect_else_identifier() {
   Test::new()
     .justfile(
       "
-  TEST := if path_exists('/bin/bash') == 'true' {'yes'} els {'no'}
-  ",
+        TEST := if path_exists('/bin/bash') == 'true' {'yes'} els {'no'}
+      ",
     )
     .stderr(
       "
-    error: Expected keyword `else` but found identifier `els`
-     ——▶ justfile:1:55
-      │
-    1 │ TEST := if path_exists('/bin/bash') == 'true' {'yes'} els {'no'}
-      │                                                       ^^^
-  ",
+        error: Expected keyword `else` but found identifier `els`
+         ——▶ justfile:1:55
+          │
+        1 │ TEST := if path_exists('/bin/bash') == 'true' {'yes'} els {'no'}
+          │                                                       ^^^
+      ",
     )
     .failure();
 }

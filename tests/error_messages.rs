@@ -6,12 +6,12 @@ fn invalid_alias_attribute() {
     .justfile("[private]\n[linux]\nalias t := test\n\ntest:\n")
     .stderr(
       "
-    error: Alias `t` has invalid attribute `linux`
-     ——▶ justfile:3:7
-      │
-    3 │ alias t := test
-      │       ^
-  ",
+        error: Alias `t` has invalid attribute `linux`
+         ——▶ justfile:3:7
+          │
+        3 │ alias t := test
+          │       ^
+      ",
     )
     .failure();
 }
@@ -22,12 +22,12 @@ fn expected_keyword() {
     .justfile("foo := if '' == '' { '' } arlo { '' }")
     .stderr(
       "
-    error: Expected keyword `else` but found identifier `arlo`
-     ——▶ justfile:1:27
-      │
-    1 │ foo := if '' == '' { '' } arlo { '' }
-      │                           ^^^^
-  ",
+        error: Expected keyword `else` but found identifier `arlo`
+         ——▶ justfile:1:27
+          │
+        1 │ foo := if '' == '' { '' } arlo { '' }
+          │                           ^^^^
+      ",
     )
     .failure();
 }
@@ -38,12 +38,12 @@ fn unexpected_character() {
     .justfile("&~")
     .stderr(
       "
-    error: Expected character `&`
-     ——▶ justfile:1:2
-      │
-    1 │ &~
-      │  ^
-  ",
+        error: Expected character `&`
+         ——▶ justfile:1:2
+          │
+        1 │ &~
+          │  ^
+      ",
     )
     .failure();
 }
@@ -55,10 +55,10 @@ fn argument_count_mismatch() {
     .args(["foo"])
     .stderr(
       "
-      error: Recipe `foo` got 0 positional arguments but takes 2
-      usage:
-          just foo a b
-    ",
+        error: Recipe `foo` got 0 positional arguments but takes 2
+        usage:
+            just foo a b
+      ",
     )
     .failure();
 }
@@ -69,12 +69,12 @@ fn file_path_is_indented_if_justfile_is_long() {
     .justfile("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nfoo")
     .stderr(
       "
-error: Expected '*', ':', '$', identifier, or '+', but found end of file
-  ——▶ justfile:20:4
-   │
-20 │ foo
-   │    ^
-",
+        error: Expected '*', ':', '$', identifier, or '+', but found end of file
+          ——▶ justfile:20:4
+           │
+        20 │ foo
+           │    ^
+      ",
     )
     .failure();
 }
@@ -124,12 +124,12 @@ fn redefinition_errors_properly_swap_types() {
     .justfile("foo:\n echo foo\n\nmod foo 'foo.just'")
     .stderr(
       "
-error: Recipe `foo` defined on line 1 is redefined as a module on line 4
- ——▶ justfile:4:5
-  │
-4 │ mod foo 'foo.just'
-  │     ^^^
-",
+        error: Recipe `foo` defined on line 1 is redefined as a module on line 4
+         ——▶ justfile:4:5
+          │
+        4 │ mod foo 'foo.just'
+          │     ^^^
+      ",
     )
     .failure();
 }

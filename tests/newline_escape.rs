@@ -5,16 +5,16 @@ fn newline_escape_deps() {
   Test::new()
     .justfile(
       "
-      default: a \\
-               b \\
-               c
-      a:
-        echo a
-      b:
-        echo b
-      c:
-        echo c
-    ",
+        default: a \\
+                 b \\
+                 c
+        a:
+          echo a
+        b:
+          echo b
+        c:
+          echo c
+      ",
     )
     .stdout("a\nb\nc\n")
     .stderr("echo a\necho b\necho c\n")
@@ -26,16 +26,16 @@ fn newline_escape_deps_no_indent() {
   Test::new()
     .justfile(
       "
-      default: a\\
-      b\\
-      c
-      a:
-        echo a
-      b:
-        echo b
-      c:
-        echo c
-    ",
+        default: a\\
+        b\\
+        c
+        a:
+          echo a
+        b:
+          echo b
+        c:
+          echo c
+      ",
     )
     .stdout("a\nb\nc\n")
     .stderr("echo a\necho b\necho c\n")
@@ -65,8 +65,8 @@ fn newline_escape_deps_invalid_esc() {
   Test::new()
     .justfile(
       "
-      default: a\\ b
-    ",
+        default: a\\ b
+      ",
     )
     .stderr(
       "

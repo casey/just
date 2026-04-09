@@ -5,10 +5,10 @@ fn unexport_environment_variable_linewise() {
   Test::new()
     .justfile(
       "
-     unexport JUST_TEST_VARIABLE
+        unexport JUST_TEST_VARIABLE
 
-     @recipe:
-         echo ${JUST_TEST_VARIABLE:-unset}
+        @recipe:
+            echo ${JUST_TEST_VARIABLE:-unset}
       ",
     )
     .env("JUST_TEST_VARIABLE", "foo")
@@ -21,11 +21,11 @@ fn unexport_environment_variable_shebang() {
   Test::new()
     .justfile(
       "
-     unexport JUST_TEST_VARIABLE
+        unexport JUST_TEST_VARIABLE
 
-     recipe:
-         #!/usr/bin/env bash
-         echo ${JUST_TEST_VARIABLE:-unset}
+        recipe:
+            #!/usr/bin/env bash
+            echo ${JUST_TEST_VARIABLE:-unset}
       ",
     )
     .env("JUST_TEST_VARIABLE", "foo")
@@ -38,12 +38,12 @@ fn duplicate_unexport_fails() {
   Test::new()
     .justfile(
       "
-     unexport JUST_TEST_VARIABLE
+        unexport JUST_TEST_VARIABLE
 
-     recipe:
-         echo \"variable: $JUST_TEST_VARIABLE\"
+        recipe:
+            echo \"variable: $JUST_TEST_VARIABLE\"
 
-     unexport JUST_TEST_VARIABLE
+        unexport JUST_TEST_VARIABLE
       ",
     )
     .env("JUST_TEST_VARIABLE", "foo")
@@ -64,12 +64,12 @@ fn export_unexport_conflict() {
   Test::new()
     .justfile(
       "
-     unexport JUST_TEST_VARIABLE
+        unexport JUST_TEST_VARIABLE
 
-     recipe:
-         echo variable: $JUST_TEST_VARIABLE
+        recipe:
+            echo variable: $JUST_TEST_VARIABLE
 
-     export JUST_TEST_VARIABLE := 'foo'
+        export JUST_TEST_VARIABLE := 'foo'
       ",
     )
     .stderr(
@@ -89,10 +89,10 @@ fn unexport_doesnt_override_local_recipe_export() {
   Test::new()
     .justfile(
       "
-     unexport JUST_TEST_VARIABLE
+        unexport JUST_TEST_VARIABLE
 
-     recipe $JUST_TEST_VARIABLE:
-         @echo \"variable: $JUST_TEST_VARIABLE\"
+        recipe $JUST_TEST_VARIABLE:
+            @echo \"variable: $JUST_TEST_VARIABLE\"
       ",
     )
     .args(["recipe", "value"])

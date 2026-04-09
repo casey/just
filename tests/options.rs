@@ -686,11 +686,11 @@ fn options_arg_passed_as_positional_arguments() {
   Test::new()
     .justfile(
       r#"
-set positional-arguments
+        set positional-arguments
 
-[arg('bar', short='b')]
-@foo bar:
-  echo args="$@"
+        [arg('bar', short='b')]
+        @foo bar:
+          echo args="$@"
       "#,
     )
     .args(["foo", "-b", "baz"])

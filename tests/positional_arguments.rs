@@ -8,30 +8,30 @@ fn linewise() {
     .arg("goodbye")
     .justfile(
       r#"
-    set positional-arguments
+        set positional-arguments
 
-    foo bar baz:
-      echo $0
-      echo $1
-      echo $2
-      echo "$@"
-  "#,
+        foo bar baz:
+          echo $0
+          echo $1
+          echo $2
+          echo "$@"
+      "#,
     )
     .stdout(
       "
-    foo
-    hello
-    goodbye
-    hello goodbye
-  ",
+        foo
+        hello
+        goodbye
+        hello goodbye
+      ",
     )
     .stderr(
       r#"
-    echo $0
-    echo $1
-    echo $2
-    echo "$@"
-  "#,
+        echo $0
+        echo $1
+        echo $2
+        echo "$@"
+      "#,
     )
     .success();
 }
@@ -44,29 +44,29 @@ fn linewise_with_attribute() {
     .arg("goodbye")
     .justfile(
       r#"
-    [positional-arguments]
-    foo bar baz:
-      echo $0
-      echo $1
-      echo $2
-      echo "$@"
-  "#,
+        [positional-arguments]
+        foo bar baz:
+          echo $0
+          echo $1
+          echo $2
+          echo "$@"
+      "#,
     )
     .stdout(
       "
-    foo
-    hello
-    goodbye
-    hello goodbye
-  ",
+        foo
+        hello
+        goodbye
+        hello goodbye
+      ",
     )
     .stderr(
       r#"
-    echo $0
-    echo $1
-    echo $2
-    echo "$@"
-  "#,
+        echo $0
+        echo $1
+        echo $2
+        echo "$@"
+      "#,
     )
     .success();
 }
@@ -77,12 +77,12 @@ fn variadic_linewise() {
     .args(["foo", "a", "b", "c"])
     .justfile(
       r#"
-    set positional-arguments
+        set positional-arguments
 
-    foo *bar:
-      echo $1
-      echo "$@"
-  "#,
+        foo *bar:
+          echo $1
+          echo "$@"
+      "#,
     )
     .stdout("a\na b c\n")
     .stderr("echo $1\necho \"$@\"\n")
@@ -96,12 +96,12 @@ fn shebang() {
     .arg("hello")
     .justfile(
       "
-    set positional-arguments
+        set positional-arguments
 
-    foo bar:
-      #!/bin/sh
-      echo $1
-  ",
+        foo bar:
+          #!/bin/sh
+          echo $1
+      ",
     )
     .stdout("hello\n")
     .success();
@@ -114,11 +114,11 @@ fn shebang_with_attribute() {
     .arg("hello")
     .justfile(
       "
-    [positional-arguments]
-    foo bar:
-      #!/bin/sh
-      echo $1
-  ",
+        [positional-arguments]
+        foo bar:
+          #!/bin/sh
+          echo $1
+      ",
     )
     .stdout("hello\n")
     .success();
@@ -133,13 +133,13 @@ fn variadic_shebang() {
     .arg("c")
     .justfile(
       r#"
-    set positional-arguments
+        set positional-arguments
 
-    foo *bar:
-      #!/bin/sh
-      echo $1
-      echo "$@"
-  "#,
+        foo *bar:
+          #!/bin/sh
+          echo $1
+          echo "$@"
+      "#,
     )
     .stdout("a\na b c\n")
     .success();
@@ -150,11 +150,11 @@ fn default_arguments() {
   Test::new()
     .justfile(
       r"
-    set positional-arguments
+        set positional-arguments
 
-    foo bar='baz':
-      echo $1
-  ",
+        foo bar='baz':
+          echo $1
+      ",
     )
     .stdout("baz\n")
     .stderr("echo $1\n")
@@ -166,11 +166,11 @@ fn empty_variadic_is_undefined() {
   Test::new()
     .justfile(
       r#"
-    set positional-arguments
+        set positional-arguments
 
-    foo *bar:
-      if [ -n "${1+1}" ]; then echo defined; else echo undefined; fi
-  "#,
+        foo *bar:
+          if [ -n "${1+1}" ]; then echo defined; else echo undefined; fi
+      "#,
     )
     .stdout("undefined\n")
     .stderr("if [ -n \"${1+1}\" ]; then echo defined; else echo undefined; fi\n")
@@ -185,12 +185,12 @@ fn variadic_arguments_are_separate() {
     .arg("b")
     .justfile(
       r"
-    set positional-arguments
+        set positional-arguments
 
-    foo *bar:
-      echo $1
-      echo $2
-  ",
+        foo *bar:
+          echo $1
+          echo $2
+      ",
     )
     .stdout("a\nb\n")
     .stderr("echo $1\necho $2\n")
