@@ -1890,3 +1890,102 @@ fn trailing_comment_does_not_become_doc_comment() {
     )
     .success();
 }
+
+#[test]
+fn trailing_comment_recipe_with_body_is_stripped() {
+  Test::new()
+    .arg("--dump")
+    .justfile(
+      "
+        foo: # bar
+          echo baz
+      ",
+    )
+    .stdout(
+      "
+        foo:
+            echo baz
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn trailing_comment_export() {
+  Test::new()
+    .arg("--dump")
+    .justfile(
+      "
+        export foo := 'bar' # baz
+      ",
+    )
+    .stdout(
+      "
+        export foo := 'bar' # baz
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn trailing_comment_recipe_with_dependencies_and_body_is_stripped() {
+  Test::new()
+    .arg("--dump")
+    .justfile(
+      "
+        foo: bar # baz
+          echo qux
+
+        bar:
+      ",
+    )
+    .stdout(
+      "
+        foo: bar
+            echo qux
+
+        bar:
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn multiple_trailing_comments() {
+  Test::new()
+    .arg("--dump")
+    .justfile(
+      "
+        foo := 'bar' # comment1
+        baz := 'qux' # comment2
+      ",
+    )
+    .stdout(
+      "
+        foo := 'bar' # comment1
+        baz := 'qux' # comment2
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn trailing_comments_separated_by_blank_line() {
+  Test::new()
+    .arg("--dump")
+    .justfile(
+      "
+        foo := 'bar' # comment1
+
+        baz := 'qux' # comment2
+      ",
+    )
+    .stdout(
+      "
+        foo := 'bar' # comment1
+
+        baz := 'qux' # comment2
+      ",
+    )
+    .success();
+}
