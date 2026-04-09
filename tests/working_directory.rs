@@ -187,15 +187,15 @@ fn setting() {
   Test::new()
     .justfile(
       r#"
-      set working-directory := 'bar'
+        set working-directory := 'bar'
 
-      print1:
-        echo "$(basename "$PWD")"
+        print1:
+          echo "$(basename "$PWD")"
 
-      [no-cd]
-      print2:
-        echo "$(basename "$PWD")"
-    "#,
+        [no-cd]
+        print2:
+          echo "$(basename "$PWD")"
+      "#,
     )
     .current_dir("foo")
     .tree(tree! {
@@ -217,12 +217,12 @@ fn no_cd_overrides_setting() {
   Test::new()
     .justfile(
       "
-      set working-directory := 'bar'
+        set working-directory := 'bar'
 
-      [no-cd]
-      foo:
-        cat bar
-    ",
+        [no-cd]
+        foo:
+          cat bar
+      ",
     )
     .current_dir("foo")
     .tree(tree! {

@@ -5,24 +5,24 @@ fn success() {
   Test::new()
     .justfile(
       "
-    foo: && bar
-      echo foo
+        foo: && bar
+          echo foo
 
-    bar:
-      echo bar
-  ",
+        bar:
+          echo bar
+      ",
     )
     .stdout(
       "
-    foo
-    bar
-  ",
+        foo
+        bar
+      ",
     )
     .stderr(
       "
-    echo foo
-    echo bar
-  ",
+        echo foo
+        echo bar
+      ",
     )
     .success();
 }
@@ -32,25 +32,25 @@ fn failure() {
   Test::new()
     .justfile(
       "
-    foo: && bar
-      echo foo
-      false
+        foo: && bar
+          echo foo
+          false
 
-    bar:
-      echo bar
-  ",
+        bar:
+          echo bar
+      ",
     )
     .stdout(
       "
-    foo
-  ",
+        foo
+      ",
     )
     .stderr(
       "
-    echo foo
-    false
-    error: Recipe `foo` failed on line 3 with exit code 1
-  ",
+        echo foo
+        false
+        error: Recipe `foo` failed on line 3 with exit code 1
+      ",
     )
     .failure();
 }
@@ -60,17 +60,17 @@ fn circular_dependency() {
   Test::new()
     .justfile(
       "
-    foo: && foo
-  ",
+        foo: && foo
+      ",
     )
     .stderr(
       "
-    error: Recipe `foo` depends on itself
-     ——▶ justfile:1:9
-      │
-    1 │ foo: && foo
-      │         ^^^
-  ",
+        error: Recipe `foo` depends on itself
+         ——▶ justfile:1:9
+          │
+        1 │ foo: && foo
+          │         ^^^
+      ",
     )
     .failure();
 }
@@ -80,17 +80,17 @@ fn unknown() {
   Test::new()
     .justfile(
       "
-    foo: && bar
-  ",
+        foo: && bar
+      ",
     )
     .stderr(
       "
-    error: Recipe `foo` has unknown dependency `bar`
-     ——▶ justfile:1:9
-      │
-    1 │ foo: && bar
-      │         ^^^
-  ",
+        error: Recipe `foo` has unknown dependency `bar`
+         ——▶ justfile:1:9
+          │
+        1 │ foo: && bar
+          │         ^^^
+      ",
     )
     .failure();
 }
@@ -100,19 +100,19 @@ fn unknown_argument() {
   Test::new()
     .justfile(
       "
-    bar x:
+        bar x:
 
-    foo: && (bar y)
-  ",
+        foo: && (bar y)
+      ",
     )
     .stderr(
       "
-    error: Variable `y` not defined
-     ——▶ justfile:3:14
-      │
-    3 │ foo: && (bar y)
-      │              ^
-  ",
+        error: Variable `y` not defined
+         ——▶ justfile:3:14
+          │
+        3 │ foo: && (bar y)
+          │              ^
+      ",
     )
     .failure();
 }
@@ -122,21 +122,21 @@ fn argument() {
   Test::new()
     .justfile(
       "
-    foo: && (bar 'hello')
+        foo: && (bar 'hello')
 
-    bar x:
-      echo {{ x }}
-  ",
+        bar x:
+          echo {{ x }}
+      ",
     )
     .stdout(
       "
-    hello
-  ",
+        hello
+      ",
     )
     .stderr(
       "
-    echo hello
-  ",
+        echo hello
+      ",
     )
     .success();
 }
@@ -146,34 +146,34 @@ fn duplicate_subsequents_dont_run() {
   Test::new()
     .justfile(
       "
-    a: && b c
-      echo a
+        a: && b c
+          echo a
 
-    b: d
-      echo b
+        b: d
+          echo b
 
-    c: d
-      echo c
+        c: d
+          echo c
 
-    d:
-      echo d
-  ",
+        d:
+          echo d
+      ",
     )
     .stdout(
       "
-    a
-    d
-    b
-    c
-  ",
+        a
+        d
+        b
+        c
+      ",
     )
     .stderr(
       "
-    echo a
-    echo d
-    echo b
-    echo c
-  ",
+        echo a
+        echo d
+        echo b
+        echo c
+      ",
     )
     .success();
 }
@@ -183,26 +183,26 @@ fn subsequents_run_even_if_already_ran_as_prior() {
   Test::new()
     .justfile(
       "
-    a: b && b
-      echo a
+        a: b && b
+          echo a
 
-    b:
-      echo b
-  ",
+        b:
+          echo b
+      ",
     )
     .stdout(
       "
-    b
-    a
-    b
-  ",
+        b
+        a
+        b
+      ",
     )
     .stderr(
       "
-    echo b
-    echo a
-    echo b
-  ",
+        echo b
+        echo a
+        echo b
+      ",
     )
     .success();
 }

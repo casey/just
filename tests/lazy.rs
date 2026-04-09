@@ -27,13 +27,13 @@ fn unused_assignment_not_evaluated() {
   Test::new()
     .justfile(
       "
-      set lazy
+        set lazy
 
-      x := `exit 1`
+        x := `exit 1`
 
-      foo:
-        @echo foo
-    ",
+        foo:
+          @echo foo
+      ",
     )
     .stdout("foo\n")
     .success();
@@ -44,13 +44,13 @@ fn used_assignment_evaluated() {
   Test::new()
     .justfile(
       "
-      set lazy
+        set lazy
 
-      x := `exit 1`
+        x := `exit 1`
 
-      foo:
-        @echo {{x}}
-    ",
+        foo:
+          @echo {{x}}
+      ",
     )
     .stderr(
       "
@@ -69,14 +69,14 @@ fn transitively_used_assignment_evaluated() {
   Test::new()
     .justfile(
       "
-      set lazy
+        set lazy
 
-      x := `exit 1`
-      y := x
+        x := `exit 1`
+        y := x
 
-      foo:
-        @echo {{y}}
-    ",
+        foo:
+          @echo {{y}}
+      ",
     )
     .stderr(
       "
@@ -95,12 +95,12 @@ fn assignment_used_in_parameter_default_evaluated() {
   Test::new()
     .justfile(
       "
-      set lazy
+        set lazy
 
-      x := `exit 1`
+        x := `exit 1`
 
-      foo val=x:
-    ",
+        foo val=x:
+      ",
     )
     .stderr(
       "
@@ -119,14 +119,14 @@ fn assignment_used_in_dependency_argument_evaluated() {
   Test::new()
     .justfile(
       "
-      set lazy
+        set lazy
 
-      x := `exit 1`
+        x := `exit 1`
 
-      foo: (bar x)
+        foo: (bar x)
 
-      bar val:
-    ",
+        bar val:
+      ",
     )
     .stderr(
       "
@@ -145,13 +145,13 @@ fn assignment_in_body_interpolation_evaluated() {
   Test::new()
     .justfile(
       "
-      set lazy
+        set lazy
 
-      x := `exit 1`
+        x := `exit 1`
 
-      foo:
-        @echo {{x}}
-    ",
+        foo:
+          @echo {{x}}
+      ",
     )
     .stderr(
       "
@@ -170,18 +170,18 @@ fn multiple_invocations_evaluate_union() {
   Test::new()
     .justfile(
       "
-      set lazy
+        set lazy
 
-      x := 'foo'
-      y := 'bar'
-      z := `exit 1`
+        x := 'foo'
+        y := 'bar'
+        z := `exit 1`
 
-      a:
-        @echo {{x}}
+        a:
+          @echo {{x}}
 
-      b:
-        @echo {{y}}
-    ",
+        b:
+          @echo {{y}}
+      ",
     )
     .args(["a", "b"])
     .stdout("foo\nbar\n")
@@ -193,15 +193,15 @@ fn assignment_used_in_dependency_evaluated() {
   Test::new()
     .justfile(
       "
-      set lazy
+        set lazy
 
-      x := `exit 1`
+        x := `exit 1`
 
-      foo: bar
+        foo: bar
 
-      bar:
-        @echo {{x}}
-    ",
+        bar:
+          @echo {{x}}
+      ",
     )
     .stderr(
       "
@@ -220,17 +220,17 @@ fn assignment_used_in_transitive_dependency_evaluated() {
   Test::new()
     .justfile(
       "
-      set lazy
+        set lazy
 
-      x := `exit 1`
+        x := `exit 1`
 
-      foo: bar
+        foo: bar
 
-      bar: baz
+        bar: baz
 
-      baz:
-        @echo {{x}}
-    ",
+        baz:
+          @echo {{x}}
+      ",
     )
     .stderr(
       "
@@ -249,13 +249,13 @@ fn exported_assignment_is_evaluated() {
   Test::new()
     .justfile(
       "
-      set lazy
+        set lazy
 
-      export x := 'FOO'
+        export x := 'FOO'
 
-      bar:
-        @echo $x
-    ",
+        bar:
+          @echo $x
+      ",
     )
     .stdout("FOO\n")
     .success();
@@ -266,14 +266,14 @@ fn assignment_with_set_export_is_evaluated() {
   Test::new()
     .justfile(
       "
-      set lazy
-      set export
+        set lazy
+        set export
 
-      x := 'FOO'
+        x := 'FOO'
 
-      bar:
-        @echo $x
-    ",
+        bar:
+          @echo $x
+      ",
     )
     .stdout("FOO\n")
     .success();
@@ -284,12 +284,12 @@ fn eager_assignments_are_evaluated() {
   Test::new()
     .justfile(
       "
-      set lazy
+        set lazy
 
-      eager x := `exit 1`
+        eager x := `exit 1`
 
-      foo:
-    ",
+        foo:
+      ",
     )
     .stderr(
       "

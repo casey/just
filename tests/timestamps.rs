@@ -5,10 +5,10 @@ fn quiet() {
   Test::new()
     .justfile(
       "
-      set quiet
-      recipe:
-        echo foo
-    ",
+        set quiet
+        recipe:
+          echo foo
+      ",
     )
     .arg("--timestamp")
     .stderr_regex(concat!(r"\[\d\d:\d\d:\d\d\] echo foo", "\n"))
@@ -21,9 +21,9 @@ fn linewise() {
   Test::new()
     .justfile(
       "
-     recipe:
-        echo 'one'
-    ",
+        recipe:
+           echo 'one'
+      ",
     )
     .arg("--timestamp")
     .stderr_regex(concat!(r"\[\d\d:\d\d:\d\d\] echo 'one'", "\n"))
@@ -36,10 +36,10 @@ fn script() {
   Test::new()
     .justfile(
       "
-     recipe:
-        #!/bin/sh
-        echo 'one'
-    ",
+        recipe:
+           #!/bin/sh
+           echo 'one'
+      ",
     )
     .arg("--timestamp")
     .stderr_regex(concat!(r"\[\d\d:\d\d:\d\d\] recipe", "\n"))
@@ -52,9 +52,9 @@ fn format_string() {
   Test::new()
     .justfile(
       "
-     recipe:
-        echo 'one'
-    ",
+        recipe:
+           echo 'one'
+      ",
     )
     .args(["--timestamp", "--timestamp-format", "%H:%M:%S.%3f"])
     .stderr_regex(concat!(r"\[\d\d:\d\d:\d\d\.\d\d\d] echo 'one'", "\n"))

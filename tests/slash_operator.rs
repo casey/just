@@ -47,12 +47,12 @@ fn no_rhs_once() {
     .justfile("x := 'a' /")
     .stderr(
       "
-      error: Expected backtick, identifier, '(', '/', or string, but found end of file
-       ——▶ justfile:1:11
-        │
-      1 │ x := 'a' /
-        │           ^
-    ",
+        error: Expected backtick, identifier, '(', '/', or string, but found end of file
+         ——▶ justfile:1:11
+          │
+        1 │ x := 'a' /
+          │           ^
+      ",
     )
     .failure();
 }
@@ -62,18 +62,18 @@ fn default_un_parenthesized() {
   Test::new()
     .justfile(
       "
-      foo x='a' / 'b':
-        echo {{x}}
-    ",
+        foo x='a' / 'b':
+          echo {{x}}
+      ",
     )
     .stderr(
       "
-      error: Expected '*', ':', '$', identifier, or '+', but found '/'
-       ——▶ justfile:1:11
-        │
-      1 │ foo x='a' / 'b':
-        │           ^
-    ",
+        error: Expected '*', ':', '$', identifier, or '+', but found '/'
+         ——▶ justfile:1:11
+          │
+        1 │ foo x='a' / 'b':
+          │           ^
+      ",
     )
     .failure();
 }
@@ -83,18 +83,18 @@ fn no_lhs_un_parenthesized() {
   Test::new()
     .justfile(
       "
-      foo x=/ 'a' / 'b':
-        echo {{x}}
-    ",
+        foo x=/ 'a' / 'b':
+          echo {{x}}
+      ",
     )
     .stderr(
       "
-      error: Expected backtick, identifier, '(', or string, but found '/'
-       ——▶ justfile:1:7
-        │
-      1 │ foo x=/ 'a' / 'b':
-        │       ^
-    ",
+        error: Expected backtick, identifier, '(', or string, but found '/'
+         ——▶ justfile:1:7
+          │
+        1 │ foo x=/ 'a' / 'b':
+          │       ^
+      ",
     )
     .failure();
 }
@@ -104,9 +104,9 @@ fn default_parenthesized() {
   Test::new()
     .justfile(
       "
-      foo x=('a' / 'b'):
-        echo {{x}}
-    ",
+        foo x=('a' / 'b'):
+          echo {{x}}
+      ",
     )
     .stderr("echo a/b\n")
     .stdout("a/b\n")
@@ -118,9 +118,9 @@ fn no_lhs_parenthesized() {
   Test::new()
     .justfile(
       "
-      foo x=(/ 'a' / 'b'):
-        echo {{x}}
-    ",
+        foo x=(/ 'a' / 'b'):
+          echo {{x}}
+      ",
     )
     .stderr("echo /a/b\n")
     .stdout("/a/b\n")

@@ -271,13 +271,13 @@ fn shebang_line_numbers_windows() {
 
 
 
-a
+        a
 
-b
+        b
 
 
-c
-",
+        c
+      ",
     )
     .success();
 }

@@ -6,14 +6,14 @@ fn evaluate() {
     .arg("--evaluate")
     .justfile(
       r#"
-foo := "a\t"
-hello := "c"
-bar := "b\t"
-ab := foo + bar + hello
+        foo := "a\t"
+        hello := "c"
+        bar := "b\t"
+        ab := foo + bar + hello
 
-wut:
-  touch /this/is/not/a/file
-"#,
+        wut:
+          touch /this/is/not/a/file
+      "#,
     )
     .stdout(
       r#"ab    := "a	b	c"
@@ -31,13 +31,13 @@ fn evaluate_empty() {
     .arg("--evaluate")
     .justfile(
       "
-    a := 'foo'
-  ",
+        a := 'foo'
+      ",
     )
     .stdout(
       r#"
-    a := "foo"
-  "#,
+        a := "foo"
+      "#,
     )
     .success();
 }
@@ -50,10 +50,10 @@ fn evaluate_multiple() {
     .arg("c")
     .justfile(
       "
-    a := 'x'
-    b := 'y'
-    c := 'z'
-  ",
+        a := 'x'
+        b := 'y'
+        c := 'z'
+      ",
     )
     .stderr("error: `--evaluate` used with unexpected argument: `c`\n")
     .failure();
@@ -66,10 +66,10 @@ fn evaluate_single_free() {
     .arg("b")
     .justfile(
       "
-    a := 'x'
-    b := 'y'
-    c := 'z'
-  ",
+        a := 'x'
+        b := 'y'
+        c := 'z'
+      ",
     )
     .stdout("y")
     .success();
@@ -82,14 +82,14 @@ fn evaluate_with_suggestion() {
     .arg("aby")
     .justfile(
       "
-    abc := 'x'
-  ",
+        abc := 'x'
+      ",
     )
     .stderr(
       "
-    error: Justfile does not contain variable or submodule `aby`.
-    Did you mean `abc`?
-  ",
+        error: Justfile does not contain variable or submodule `aby`.
+        Did you mean `abc`?
+      ",
     )
     .failure();
 }
@@ -101,13 +101,13 @@ fn evaluate_no_suggestion() {
     .arg("goodbye")
     .justfile(
       "
-    hello := 'x'
-  ",
+        hello := 'x'
+      ",
     )
     .stderr(
       "
-    error: Justfile does not contain variable or submodule `goodbye`.
-  ",
+        error: Justfile does not contain variable or submodule `goodbye`.
+      ",
     )
     .failure();
 }
@@ -118,11 +118,11 @@ fn evaluate_private() {
     .arg("--evaluate")
     .justfile(
       "
-    [private]
-    foo := 'one'
-    bar := 'two'
-    _baz := 'three'
-  ",
+        [private]
+        foo := 'one'
+        bar := 'two'
+        _baz := 'three'
+      ",
     )
     .stdout("bar := \"two\"\n")
     .success();
@@ -135,11 +135,11 @@ fn evaluate_single_private() {
     .arg("foo")
     .justfile(
       "
-    [private]
-    foo := 'one'
-    bar := 'two'
-    _baz := 'three'
-  ",
+        [private]
+        foo := 'one'
+        bar := 'two'
+        _baz := 'three'
+      ",
     )
     .stdout("one")
     .success();
@@ -229,10 +229,10 @@ fn dont_evaluate_unnecessary_variables() {
   Test::new()
     .justfile(
       "
-      x := 'FOO'
+        x := 'FOO'
 
-      y := `exit 1`
-    ",
+        y := `exit 1`
+      ",
     )
     .args(["--evaluate", "x"])
     .stdout("FOO")

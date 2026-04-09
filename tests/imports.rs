@@ -36,11 +36,11 @@ fn missing_import_file_error() {
     .arg("a")
     .stderr(
       "
-      error: Could not find source file for import.
-       ——▶ justfile:1:8
-        │
-      1 │ import './import.justfile'
-        │        ^^^^^^^^^^^^^^^^^^^
+        error: Could not find source file for import.
+         ——▶ justfile:1:8
+          │
+        1 │ import './import.justfile'
+          │        ^^^^^^^^^^^^^^^^^^^
       ",
     )
     .failure();
@@ -70,10 +70,10 @@ fn trailing_spaces_after_import_are_ignored() {
     })
     .justfile(
       "
-      import './import.justfile'\x20
-      a:
-        @echo A
-    ",
+        import './import.justfile'\x20
+        a:
+          @echo A
+      ",
     )
     .stdout("A\n")
     .success();
@@ -90,8 +90,8 @@ fn import_after_recipe() {
     })
     .justfile(
       "
-      b: a
-      import './import.justfile'
+        b: a
+        import './import.justfile'
       ",
     )
     .stdout("A\n")
@@ -128,18 +128,18 @@ fn listed_recipes_in_imports_are_in_load_order() {
   Test::new()
     .justfile(
       "
-      import './import.justfile'
-      foo:
-    ",
+        import './import.justfile'
+        foo:
+      ",
     )
     .write("import.justfile", "bar:")
     .args(["--list", "--unsorted"])
     .stdout(
       "
-      Available recipes:
-          foo
-          bar
-    ",
+        Available recipes:
+            foo
+            bar
+      ",
     )
     .success();
 }
@@ -150,11 +150,11 @@ fn include_error() {
     .justfile("!include foo")
     .stderr(
       "
-      error: The `!include` directive has been stabilized as `import`
-       ——▶ justfile:1:1
-        │
-      1 │ !include foo
-        │ ^
+        error: The `!include` directive has been stabilized as `import`
+         ——▶ justfile:1:1
+          │
+        1 │ !include foo
+          │ ^
       ",
     )
     .failure();
@@ -194,15 +194,15 @@ fn variables_in_import_are_overridden_by_variables_in_parent() {
     })
     .justfile(
       "
-      f := 'bar'
+        f := 'bar'
 
-      import './import.justfile'
+        import './import.justfile'
 
-      set allow-duplicate-variables
+        set allow-duplicate-variables
 
-      a:
-        @echo {{f}}
-    ",
+        a:
+          @echo {{f}}
+      ",
     )
     .arg("a")
     .stdout("bar\n")
@@ -345,11 +345,11 @@ fn reused_import_are_allowed() {
   Test::new()
     .justfile(
       "
-      import 'a'
-      import 'b'
+        import 'a'
+        import 'b'
 
-      bar:
-    ",
+        bar:
+      ",
     )
     .tree(tree! {
       a: "import 'c'",
@@ -364,10 +364,10 @@ fn multiply_imported_items_do_not_conflict() {
   Test::new()
     .justfile(
       "
-      import 'a.just'
-      import 'a.just'
-      foo: bar
-    ",
+        import 'a.just'
+        import 'a.just'
+        foo: bar
+      ",
     )
     .write(
       "a.just",
@@ -387,10 +387,10 @@ fn nested_multiply_imported_items_do_not_conflict() {
   Test::new()
     .justfile(
       "
-      import 'a.just'
-      import 'b.just'
-      foo: bar
-    ",
+        import 'a.just'
+        import 'b.just'
+        foo: bar
+      ",
     )
     .write("a.just", "import 'c.just'")
     .write("b.just", "import 'c.just'")

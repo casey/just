@@ -20,10 +20,10 @@ fn setting() {
   Test::new()
     .justfile(
       "
-      set tempdir := '.'
-      foo:
-          #!/usr/bin/env bash
-          cat just*/foo
+        set tempdir := '.'
+        foo:
+            #!/usr/bin/env bash
+            cat just*/foo
       ",
     )
     .shell(false)
@@ -56,10 +56,10 @@ fn argument_overrides_setting() {
     .args(["--tempdir", "."])
     .justfile(
       "
-      set tempdir := 'hello'
-      foo:
-          #!/usr/bin/env bash
-          cat just*/foo
+        set tempdir := 'hello'
+        foo:
+            #!/usr/bin/env bash
+            cat just*/foo
       ",
     )
     .shell(false)

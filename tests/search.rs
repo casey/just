@@ -162,9 +162,9 @@ fn find_dot_justfile() {
   Test::new()
     .justfile(
       "
-      foo:
-        echo bad
-    ",
+        foo:
+          echo bad
+      ",
     )
     .tree(tree! {
       dir: {

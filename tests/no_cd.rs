@@ -5,10 +5,10 @@ fn linewise() {
   Test::new()
     .justfile(
       "
-      [no-cd]
-      foo:
-        cat bar
-    ",
+        [no-cd]
+        foo:
+          cat bar
+      ",
     )
     .current_dir("foo")
     .tree(tree! {
@@ -26,11 +26,11 @@ fn shebang() {
   Test::new()
     .justfile(
       "
-      [no-cd]
-      foo:
-        #!/bin/sh
-        cat bar
-    ",
+        [no-cd]
+        foo:
+          #!/bin/sh
+          cat bar
+      ",
     )
     .current_dir("foo")
     .tree(tree! {

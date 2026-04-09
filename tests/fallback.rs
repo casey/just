@@ -82,16 +82,16 @@ fn runs_recipe_in_parent_if_not_found_in_current() {
     })
     .justfile(
       "
-      foo:
-        echo root
-    ",
+        foo:
+          echo root
+      ",
     )
     .args(["foo"])
     .current_dir("bar")
     .stderr(
       "
-      echo root
-    ",
+        echo root
+      ",
     )
     .stdout("root\n")
     .success();
@@ -112,16 +112,16 @@ fn setting_accepts_value() {
     })
     .justfile(
       "
-      foo:
-        echo root
-    ",
+        foo:
+          echo root
+      ",
     )
     .args(["foo"])
     .current_dir("bar")
     .stderr(
       "
-      echo root
-    ",
+        echo root
+      ",
     )
     .stdout("root\n")
     .success();
@@ -145,12 +145,12 @@ fn print_error_from_parent_if_recipe_not_found_in_current() {
     .current_dir("bar")
     .stderr(
       "
-      error: Variable `bar` not defined
-       ——▶ justfile:2:9
-        │
-      2 │  echo {{bar}}
-        │         ^^^
-    ",
+        error: Variable `bar` not defined
+         ——▶ justfile:2:9
+          │
+        2 │  echo {{bar}}
+          │         ^^^
+      ",
     )
     .failure();
 }
@@ -168,9 +168,9 @@ fn requires_setting() {
     })
     .justfile(
       "
-      foo:
-        echo root
-    ",
+        foo:
+          echo root
+      ",
     )
     .args(["foo"])
     .current_dir("bar")
@@ -193,16 +193,16 @@ fn works_with_provided_search_directory() {
     })
     .justfile(
       "
-      foo:
-        echo root
-    ",
+        foo:
+          echo root
+      ",
     )
     .args(["./foo"])
     .stdout("root\n")
     .stderr(
       "
-      echo root
-    ",
+        echo root
+      ",
     )
     .current_dir("bar")
     .success();
@@ -221,9 +221,9 @@ fn doesnt_work_with_justfile() {
     })
     .justfile(
       "
-      foo:
-        echo root
-    ",
+        foo:
+          echo root
+      ",
     )
     .args(["--justfile", "justfile", "foo"])
     .current_dir("bar")
@@ -244,9 +244,9 @@ fn doesnt_work_with_justfile_and_working_directory() {
     })
     .justfile(
       "
-      foo:
-        echo root
-    ",
+        foo:
+          echo root
+      ",
     )
     .args(["--justfile", "justfile", "--working-directory", ".", "foo"])
     .current_dir("bar")
@@ -269,16 +269,16 @@ fn prints_correct_error_message_when_recipe_not_found() {
     })
     .justfile(
       "
-      bar:
-        echo root
-    ",
+        bar:
+          echo root
+      ",
     )
     .args(["foo"])
     .current_dir("bar")
     .stderr(
       "
-      error: Justfile does not contain recipe `foo`
-    ",
+        error: Justfile does not contain recipe `foo`
+      ",
     )
     .failure();
 }
@@ -306,17 +306,17 @@ fn multiple_levels_of_fallback_work() {
     })
     .justfile(
       "
-      baz:
-        echo root
-    ",
+        baz:
+          echo root
+      ",
     )
     .args(["baz"])
     .current_dir("a/b")
     .stdout("root\n")
     .stderr(
       "
-      echo root
-    ",
+        echo root
+      ",
     )
     .success();
 }
@@ -342,17 +342,17 @@ fn stop_fallback_when_fallback_is_false() {
     })
     .justfile(
       "
-      baz:
-        echo root
-    ",
+        baz:
+          echo root
+      ",
     )
     .args(["baz"])
     .current_dir("a/b")
     .stderr(
       "
-      error: Justfile does not contain recipe `baz`
-      Did you mean `bar`?
-    ",
+        error: Justfile does not contain recipe `baz`
+        Did you mean `bar`?
+      ",
     )
     .failure();
 }

@@ -158,9 +158,9 @@ fn list_submodule() {
     .args(["--list", "foo"])
     .stdout(
       "
-      Available recipes:
-          bar
-    ",
+        Available recipes:
+            bar
+      ",
     )
     .success();
 }
@@ -257,10 +257,10 @@ fn list_displays_recipes_in_submodules() {
     .args(["--list", "--list-submodules"])
     .stdout(
       "
-      Available recipes:
-          foo:
-              bar
-    ",
+        Available recipes:
+            foo:
+                bar
+      ",
     )
     .success();
 }
@@ -280,13 +280,13 @@ fn modules_are_space_separated_in_output() {
     .args(["--list", "--list-submodules"])
     .stdout(
       "
-      Available recipes:
-          bar:
-              bar
+        Available recipes:
+            bar:
+                bar
 
-          foo:
-              foo
-    ",
+            foo:
+                foo
+      ",
     )
     .success();
 }
@@ -334,11 +334,11 @@ fn nested_modules_are_properly_indented() {
     .args(["--list", "--list-submodules"])
     .stdout(
       "
-      Available recipes:
-          foo:
-              bar:
-                  baz
-    ",
+        Available recipes:
+            foo:
+                bar:
+                    baz
+      ",
     )
     .success();
 }
@@ -449,16 +449,16 @@ fn backticks_highlighted() {
     .args(["--list", "--color=always"])
     .stdout(
       "
-        Available recipes:
-            recipe \u{1b}[34m#\u{1b}[0m \u{1b}[34mComment \u{1b}[0m\u{1b}[36m``\u{1b}[0m\u{1b}[34m \u{1b}[0m\u{1b}[36m`with backticks`\u{1b}[0m\u{1b}[34m and trailing text\u{1b}[0m
-      ")
-    .success();
-}
+                Available recipes:
+                    recipe \u{1b}[34m#\u{1b}[0m \u{1b}[34mComment \u{1b}[0m\u{1b}[36m``\u{1b}[0m\u{1b}[34m \u{1b}[0m\u{1b}[36m`with backticks`\u{1b}[0m\u{1b}[34m and trailing text\u{1b}[0m
+              ")
+            .success();
+        }
 
-#[test]
-fn unclosed_backticks() {
-  Test::new()
-    .justfile(
+        #[test]
+        fn unclosed_backticks() {
+          Test::new()
+            .justfile(
       "
         # Comment `with unclosed backtick
         recipe:

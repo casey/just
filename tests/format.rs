@@ -56,14 +56,14 @@ fn check_found_diff() {
     .justfile("x:=``\n")
     .stdout(
       "
-    -x:=``
-    +x := ``
-  ",
+        -x:=``
+        +x := ``
+      ",
     )
     .stderr(
       "
-    error: Formatted justfile differs from original.
-  ",
+        error: Formatted justfile differs from original.
+      ",
     )
     .failure();
 }
@@ -163,19 +163,19 @@ fn alias_good() {
     .arg("--dump")
     .justfile(
       "
-    alias f := foo
+        alias f := foo
 
-    foo:
-        echo foo
-  ",
+        foo:
+            echo foo
+      ",
     )
     .stdout(
       "
-    alias f := foo
+        alias f := foo
 
-    foo:
-        echo foo
-  ",
+        foo:
+            echo foo
+      ",
     )
     .success();
 }
@@ -186,19 +186,19 @@ fn alias_fix_indent() {
     .arg("--dump")
     .justfile(
       "
-    alias f:=    foo
+        alias f:=    foo
 
-    foo:
-        echo foo
-  ",
+        foo:
+            echo foo
+      ",
     )
     .stdout(
       "
-    alias f := foo
+        alias f := foo
 
-    foo:
-        echo foo
-  ",
+        foo:
+            echo foo
+      ",
     )
     .success();
 }
@@ -209,13 +209,13 @@ fn assignment_singlequote() {
     .arg("--dump")
     .justfile(
       "
-    foo := 'foo'
-  ",
+        foo := 'foo'
+      ",
     )
     .stdout(
       "
-    foo := 'foo'
-  ",
+        foo := 'foo'
+      ",
     )
     .success();
 }
@@ -226,13 +226,13 @@ fn assignment_doublequote() {
     .arg("--dump")
     .justfile(
       r#"
-    foo := "foo"
-  "#,
+        foo := "foo"
+      "#,
     )
     .stdout(
       r#"
-    foo := "foo"
-  "#,
+        foo := "foo"
+      "#,
     )
     .success();
 }
@@ -243,17 +243,17 @@ fn assignment_indented_singlequote() {
     .arg("--dump")
     .justfile(
       "
-    foo := '''
-      foo
-    '''
-  ",
+        foo := '''
+          foo
+        '''
+      ",
     )
     .stdout(
       r"
-    foo := '''
-      foo
-    '''
-  ",
+        foo := '''
+          foo
+        '''
+      ",
     )
     .success();
 }
@@ -264,17 +264,17 @@ fn assignment_indented_doublequote() {
     .arg("--dump")
     .justfile(
       r#"
-    foo := """
-      foo
-    """
-  "#,
+        foo := """
+          foo
+        """
+      "#,
     )
     .stdout(
       r#"
-    foo := """
-      foo
-    """
-  "#,
+        foo := """
+          foo
+        """
+      "#,
     )
     .success();
 }
@@ -285,13 +285,13 @@ fn assignment_backtick() {
     .arg("--dump")
     .justfile(
       "
-    foo := `foo`
-  ",
+        foo := `foo`
+      ",
     )
     .stdout(
       "
-    foo := `foo`
-  ",
+        foo := `foo`
+      ",
     )
     .success();
 }
@@ -302,17 +302,17 @@ fn assignment_indented_backtick() {
     .arg("--dump")
     .justfile(
       "
-    foo := ```
-      foo
-    ```
-  ",
+        foo := ```
+          foo
+        ```
+      ",
     )
     .stdout(
       "
-    foo := ```
-      foo
-    ```
-  ",
+        foo := ```
+          foo
+        ```
+      ",
     )
     .success();
 }
@@ -323,15 +323,15 @@ fn assignment_name() {
     .arg("--dump")
     .justfile(
       "
-    bar := 'bar'
-    foo := bar
-  ",
+        bar := 'bar'
+        foo := bar
+      ",
     )
     .stdout(
       "
-    bar := 'bar'
-    foo := bar
-  ",
+        bar := 'bar'
+        foo := bar
+      ",
     )
     .success();
 }
@@ -342,13 +342,13 @@ fn assignment_parenthesized_expression() {
     .arg("--dump")
     .justfile(
       "
-    foo := ('foo')
-  ",
+        foo := ('foo')
+      ",
     )
     .stdout(
       "
-    foo := ('foo')
-  ",
+        foo := ('foo')
+      ",
     )
     .success();
 }
@@ -359,13 +359,13 @@ fn assignment_export() {
     .arg("--dump")
     .justfile(
       "
-    export foo := 'foo'
-  ",
+        export foo := 'foo'
+      ",
     )
     .stdout(
       "
-    export foo := 'foo'
-  ",
+        export foo := 'foo'
+      ",
     )
     .success();
 }
@@ -376,13 +376,13 @@ fn assignment_concat_values() {
     .arg("--dump")
     .justfile(
       "
-    foo := 'foo' + 'bar'
-  ",
+        foo := 'foo' + 'bar'
+      ",
     )
     .stdout(
       "
-    foo := 'foo' + 'bar'
-  ",
+        foo := 'foo' + 'bar'
+      ",
     )
     .success();
 }
@@ -393,13 +393,13 @@ fn assignment_if_oneline() {
     .arg("--dump")
     .justfile(
       "
-    foo := if 'foo' == 'foo' { 'foo' } else { 'bar' }
-  ",
+        foo := if 'foo' == 'foo' { 'foo' } else { 'bar' }
+      ",
     )
     .stdout(
       "
-    foo := if 'foo' == 'foo' { 'foo' } else { 'bar' }
-  ",
+        foo := if 'foo' == 'foo' { 'foo' } else { 'bar' }
+      ",
     )
     .success();
 }
@@ -410,17 +410,17 @@ fn assignment_if_multiline() {
     .arg("--dump")
     .justfile(
       "
-    foo := if 'foo' != 'foo' {
-      'foo'
-    } else {
-      'bar'
-    }
-  ",
+        foo := if 'foo' != 'foo' {
+          'foo'
+        } else {
+          'bar'
+        }
+      ",
     )
     .stdout(
       "
-    foo := if 'foo' != 'foo' { 'foo' } else { 'bar' }
-  ",
+        foo := if 'foo' != 'foo' { 'foo' } else { 'bar' }
+      ",
     )
     .success();
 }
@@ -431,13 +431,13 @@ fn assignment_nullary_function() {
     .arg("--dump")
     .justfile(
       "
-    foo := arch()
-  ",
+        foo := arch()
+      ",
     )
     .stdout(
       "
-    foo := arch()
-  ",
+        foo := arch()
+      ",
     )
     .success();
 }
@@ -448,13 +448,13 @@ fn assignment_unary_function() {
     .arg("--dump")
     .justfile(
       "
-    foo := env_var('foo')
-  ",
+        foo := env_var('foo')
+      ",
     )
     .stdout(
       "
-    foo := env_var('foo')
-  ",
+        foo := env_var('foo')
+      ",
     )
     .success();
 }
@@ -465,13 +465,13 @@ fn assignment_binary_function() {
     .arg("--dump")
     .justfile(
       "
-    foo := env_var_or_default('foo', 'bar')
-  ",
+        foo := env_var_or_default('foo', 'bar')
+      ",
     )
     .stdout(
       "
-    foo := env_var_or_default('foo', 'bar')
-  ",
+        foo := env_var_or_default('foo', 'bar')
+      ",
     )
     .success();
 }
@@ -482,21 +482,21 @@ fn assignment_path_functions() {
     .arg("--dump")
     .justfile(
       "
-    foo  := without_extension('foo/bar.baz')
-    foo2 := file_stem('foo/bar.baz')
-    foo3 := parent_directory('foo/bar.baz')
-    foo4 := file_name('foo/bar.baz')
-    foo5 := extension('foo/bar.baz')
-  ",
+        foo  := without_extension('foo/bar.baz')
+        foo2 := file_stem('foo/bar.baz')
+        foo3 := parent_directory('foo/bar.baz')
+        foo4 := file_name('foo/bar.baz')
+        foo5 := extension('foo/bar.baz')
+      ",
     )
     .stdout(
       "
-  foo := without_extension('foo/bar.baz')
-  foo2 := file_stem('foo/bar.baz')
-  foo3 := parent_directory('foo/bar.baz')
-  foo4 := file_name('foo/bar.baz')
-  foo5 := extension('foo/bar.baz')
-  ",
+        foo := without_extension('foo/bar.baz')
+        foo2 := file_stem('foo/bar.baz')
+        foo3 := parent_directory('foo/bar.baz')
+        foo4 := file_name('foo/bar.baz')
+        foo5 := extension('foo/bar.baz')
+      ",
     )
     .success();
 }
@@ -506,16 +506,16 @@ fn recipe_ordinary() {
   Test::new()
     .justfile(
       "
-    foo:
-        echo bar
-  ",
+        foo:
+            echo bar
+      ",
     )
     .arg("--dump")
     .stdout(
       "
-    foo:
-        echo bar
-  ",
+        foo:
+            echo bar
+      ",
     )
     .success();
 }
@@ -526,17 +526,17 @@ fn recipe_with_docstring() {
     .arg("--dump")
     .justfile(
       "
-    # bar
-    foo:
-        echo bar
-  ",
+        # bar
+        foo:
+            echo bar
+      ",
     )
     .stdout(
       "
-    # bar
-    foo:
-        echo bar
-  ",
+        # bar
+        foo:
+            echo bar
+      ",
     )
     .success();
 }
@@ -547,17 +547,17 @@ fn recipe_with_comments_in_body() {
     .arg("--dump")
     .justfile(
       "
-    foo:
-        # bar
-        echo bar
-  ",
+        foo:
+            # bar
+            echo bar
+      ",
     )
     .stdout(
       "
-    foo:
-        # bar
-        echo bar
-  ",
+        foo:
+            # bar
+            echo bar
+      ",
     )
     .success();
 }
@@ -568,15 +568,15 @@ fn recipe_body_is_comment() {
     .arg("--dump")
     .justfile(
       "
-    foo:
-        # bar
-  ",
+        foo:
+            # bar
+      ",
     )
     .stdout(
       "
-    foo:
-        # bar
-  ",
+        foo:
+            # bar
+      ",
     )
     .success();
 }
@@ -587,17 +587,17 @@ fn recipe_several_commands() {
     .arg("--dump")
     .justfile(
       "
-    foo:
-        echo bar
-        echo baz
-  ",
+        foo:
+            echo bar
+            echo baz
+      ",
     )
     .stdout(
       "
-    foo:
-        echo bar
-        echo baz
-  ",
+        foo:
+            echo bar
+            echo baz
+      ",
     )
     .success();
 }
@@ -608,15 +608,15 @@ fn recipe_quiet() {
     .arg("--dump")
     .justfile(
       "
-    @foo:
-        echo bar
-  ",
+        @foo:
+            echo bar
+      ",
     )
     .stdout(
       "
-    @foo:
-        echo bar
-  ",
+        @foo:
+            echo bar
+      ",
     )
     .success();
 }
@@ -627,15 +627,15 @@ fn recipe_quiet_command() {
     .arg("--dump")
     .justfile(
       "
-    foo:
-        @echo bar
-  ",
+        foo:
+            @echo bar
+      ",
     )
     .stdout(
       "
-    foo:
-        @echo bar
-  ",
+        foo:
+            @echo bar
+      ",
     )
     .success();
 }
@@ -646,15 +646,15 @@ fn recipe_quiet_comment() {
     .arg("--dump")
     .justfile(
       "
-    foo:
-        @# bar
-  ",
+        foo:
+            @# bar
+      ",
     )
     .stdout(
       "
-    foo:
-        @# bar
-  ",
+        foo:
+            @# bar
+      ",
     )
     .success();
 }
@@ -665,15 +665,15 @@ fn recipe_ignore_errors() {
     .arg("--dump")
     .justfile(
       "
-    foo:
-        -echo foo
-  ",
+        foo:
+            -echo foo
+      ",
     )
     .stdout(
       "
-    foo:
-        -echo foo
-  ",
+        foo:
+            -echo foo
+      ",
     )
     .success();
 }
@@ -684,15 +684,15 @@ fn recipe_parameter() {
     .arg("--dump")
     .justfile(
       "
-    foo BAR:
-        echo foo
-  ",
+        foo BAR:
+            echo foo
+      ",
     )
     .stdout(
       "
-    foo BAR:
-        echo foo
-  ",
+        foo BAR:
+            echo foo
+      ",
     )
     .success();
 }
@@ -703,15 +703,15 @@ fn recipe_parameter_default() {
     .arg("--dump")
     .justfile(
       "
-    foo BAR='bar':
-        echo foo
-  ",
+        foo BAR='bar':
+            echo foo
+      ",
     )
     .stdout(
       "
-    foo BAR='bar':
-        echo foo
-  ",
+        foo BAR='bar':
+            echo foo
+      ",
     )
     .success();
 }
@@ -722,15 +722,15 @@ fn recipe_parameter_envar() {
     .arg("--dump")
     .justfile(
       "
-    foo $BAR:
-        echo foo
-  ",
+        foo $BAR:
+            echo foo
+      ",
     )
     .stdout(
       "
-    foo $BAR:
-        echo foo
-  ",
+        foo $BAR:
+            echo foo
+      ",
     )
     .success();
 }
@@ -741,15 +741,15 @@ fn recipe_parameter_default_envar() {
     .arg("--dump")
     .justfile(
       "
-    foo $BAR='foo':
-        echo foo
-  ",
+        foo $BAR='foo':
+            echo foo
+      ",
     )
     .stdout(
       "
-    foo $BAR='foo':
-        echo foo
-  ",
+        foo $BAR='foo':
+            echo foo
+      ",
     )
     .success();
 }
@@ -760,15 +760,15 @@ fn recipe_parameter_concat() {
     .arg("--dump")
     .justfile(
       "
-    foo BAR=('bar' + 'baz'):
-        echo foo
-  ",
+        foo BAR=('bar' + 'baz'):
+            echo foo
+      ",
     )
     .stdout(
       "
-    foo BAR=('bar' + 'baz'):
-        echo foo
-  ",
+        foo BAR=('bar' + 'baz'):
+            echo foo
+      ",
     )
     .success();
 }
@@ -779,15 +779,15 @@ fn recipe_parameters() {
     .arg("--dump")
     .justfile(
       "
-    foo BAR BAZ:
-        echo foo
-  ",
+        foo BAR BAZ:
+            echo foo
+      ",
     )
     .stdout(
       "
-    foo BAR BAZ:
-        echo foo
-  ",
+        foo BAR BAZ:
+            echo foo
+      ",
     )
     .success();
 }
@@ -798,15 +798,15 @@ fn recipe_parameters_envar() {
     .arg("--dump")
     .justfile(
       "
-    foo $BAR $BAZ:
-        echo foo
-  ",
+        foo $BAR $BAZ:
+            echo foo
+      ",
     )
     .stdout(
       "
-    foo $BAR $BAZ:
-        echo foo
-  ",
+        foo $BAR $BAZ:
+            echo foo
+      ",
     )
     .success();
 }
@@ -817,15 +817,15 @@ fn recipe_variadic_plus() {
     .arg("--dump")
     .justfile(
       "
-    foo +BAR:
-        echo foo
-  ",
+        foo +BAR:
+            echo foo
+      ",
     )
     .stdout(
       "
-    foo +BAR:
-        echo foo
-  ",
+        foo +BAR:
+            echo foo
+      ",
     )
     .success();
 }
@@ -836,15 +836,15 @@ fn recipe_variadic_star() {
     .arg("--dump")
     .justfile(
       "
-    foo *BAR:
-        echo foo
-  ",
+        foo *BAR:
+            echo foo
+      ",
     )
     .stdout(
       "
-    foo *BAR:
-        echo foo
-  ",
+        foo *BAR:
+            echo foo
+      ",
     )
     .success();
 }
@@ -855,15 +855,15 @@ fn recipe_positional_variadic() {
     .arg("--dump")
     .justfile(
       "
-    foo BAR *BAZ:
-        echo foo
-  ",
+        foo BAR *BAZ:
+            echo foo
+      ",
     )
     .stdout(
       "
-    foo BAR *BAZ:
-        echo foo
-  ",
+        foo BAR *BAZ:
+            echo foo
+      ",
     )
     .success();
 }
@@ -874,15 +874,15 @@ fn recipe_variadic_default() {
     .arg("--dump")
     .justfile(
       "
-    foo +BAR='bar':
-        echo foo
-  ",
+        foo +BAR='bar':
+            echo foo
+      ",
     )
     .stdout(
       "
-    foo +BAR='bar':
-        echo foo
-  ",
+        foo +BAR='bar':
+            echo foo
+      ",
     )
     .success();
 }
@@ -893,15 +893,15 @@ fn recipe_parameter_in_body() {
     .arg("--dump")
     .justfile(
       "
-    foo BAR:
-        echo {{ BAR }}
-  ",
+        foo BAR:
+            echo {{ BAR }}
+      ",
     )
     .stdout(
       "
-    foo BAR:
-        echo {{ BAR }}
-  ",
+        foo BAR:
+            echo {{ BAR }}
+      ",
     )
     .success();
 }
@@ -912,15 +912,15 @@ fn recipe_parameter_conditional() {
     .arg("--dump")
     .justfile(
       "
-    foo BAR:
-        echo {{ if 'foo' == 'foo' { 'foo' } else { 'bar' } }}
-  ",
+        foo BAR:
+            echo {{ if 'foo' == 'foo' { 'foo' } else { 'bar' } }}
+      ",
     )
     .stdout(
       "
-    foo BAR:
-        echo {{ if 'foo' == 'foo' { 'foo' } else { 'bar' } }}
-  ",
+        foo BAR:
+            echo {{ if 'foo' == 'foo' { 'foo' } else { 'bar' } }}
+      ",
     )
     .success();
 }
@@ -931,15 +931,15 @@ fn recipe_escaped_braces() {
     .arg("--dump")
     .justfile(
       "
-    foo BAR:
-        echo '{{{{BAR}}}}'
-  ",
+        foo BAR:
+            echo '{{{{BAR}}}}'
+      ",
     )
     .stdout(
       "
-    foo BAR:
-        echo '{{{{BAR}}}}'
-  ",
+        foo BAR:
+            echo '{{{{BAR}}}}'
+      ",
     )
     .success();
 }
@@ -950,19 +950,19 @@ fn recipe_assignment_in_body() {
     .arg("--dump")
     .justfile(
       "
-    bar := 'bar'
+        bar := 'bar'
 
-    foo:
-        echo $bar
-  ",
+        foo:
+            echo $bar
+      ",
     )
     .stdout(
       "
-    bar := 'bar'
+        bar := 'bar'
 
-    foo:
-        echo $bar
-  ",
+        foo:
+            echo $bar
+      ",
     )
     .success();
 }
@@ -973,21 +973,21 @@ fn recipe_dependency() {
     .arg("--dump")
     .justfile(
       "
-    bar:
-        echo bar
+        bar:
+            echo bar
 
-    foo: bar
-        echo foo
-  ",
+        foo: bar
+            echo foo
+      ",
     )
     .stdout(
       "
-    bar:
-        echo bar
+        bar:
+            echo bar
 
-    foo: bar
-        echo foo
-  ",
+        foo: bar
+            echo foo
+      ",
     )
     .success();
 }
@@ -998,21 +998,21 @@ fn recipe_dependency_param() {
     .arg("--dump")
     .justfile(
       "
-    bar BAR:
-        echo bar
+        bar BAR:
+            echo bar
 
-    foo: (bar 'bar')
-        echo foo
-  ",
+        foo: (bar 'bar')
+            echo foo
+      ",
     )
     .stdout(
       "
-    bar BAR:
-        echo bar
+        bar BAR:
+            echo bar
 
-    foo: (bar 'bar')
-        echo foo
-  ",
+        foo: (bar 'bar')
+            echo foo
+      ",
     )
     .success();
 }
@@ -1023,21 +1023,21 @@ fn recipe_dependency_params() {
     .arg("--dump")
     .justfile(
       "
-    bar BAR BAZ:
-        echo bar
+        bar BAR BAZ:
+            echo bar
 
-    foo: (bar 'bar' 'baz')
-        echo foo
-  ",
+        foo: (bar 'bar' 'baz')
+            echo foo
+      ",
     )
     .stdout(
       "
-    bar BAR BAZ:
-        echo bar
+        bar BAR BAZ:
+            echo bar
 
-    foo: (bar 'bar' 'baz')
-        echo foo
-  ",
+        foo: (bar 'bar' 'baz')
+            echo foo
+      ",
     )
     .success();
 }
@@ -1048,27 +1048,27 @@ fn recipe_dependencies() {
     .arg("--dump")
     .justfile(
       "
-    bar:
-        echo bar
+        bar:
+            echo bar
 
-    baz:
-        echo baz
+        baz:
+            echo baz
 
-    foo: baz bar
-        echo foo
-  ",
+        foo: baz bar
+            echo foo
+      ",
     )
     .stdout(
       "
-    bar:
-        echo bar
+        bar:
+            echo bar
 
-    baz:
-        echo baz
+        baz:
+            echo baz
 
-    foo: baz bar
-        echo foo
-  ",
+        foo: baz bar
+            echo foo
+      ",
     )
     .success();
 }
@@ -1079,27 +1079,27 @@ fn recipe_dependencies_params() {
     .arg("--dump")
     .justfile(
       "
-    bar BAR:
-        echo bar
+        bar BAR:
+            echo bar
 
-    baz BAZ:
-        echo baz
+        baz BAZ:
+            echo baz
 
-    foo: (baz 'baz') (bar 'bar')
-        echo foo
-  ",
+        foo: (baz 'baz') (bar 'bar')
+            echo foo
+      ",
     )
     .stdout(
       "
-    bar BAR:
-        echo bar
+        bar BAR:
+            echo bar
 
-    baz BAZ:
-        echo baz
+        baz BAZ:
+            echo baz
 
-    foo: (baz 'baz') (bar 'bar')
-        echo foo
-  ",
+        foo: (baz 'baz') (bar 'bar')
+            echo foo
+      ",
     )
     .success();
 }
@@ -1144,13 +1144,13 @@ fn set_false() {
     .arg("--dump")
     .justfile(
       "
-    set export := false
-  ",
+        set export := false
+      ",
     )
     .stdout(
       "
-    set export := false
-  ",
+        set export := false
+      ",
     )
     .success();
 }
@@ -1161,13 +1161,13 @@ fn set_shell() {
     .arg("--dump")
     .justfile(
       r#"
-    set shell := ['sh', "-c"]
-  "#,
+        set shell := ['sh', "-c"]
+      "#,
     )
     .stdout(
       r#"
-    set shell := ['sh', "-c"]
-  "#,
+        set shell := ['sh', "-c"]
+      "#,
     )
     .success();
 }
@@ -1178,13 +1178,13 @@ fn comment() {
     .arg("--dump")
     .justfile(
       "
-    # foo
-  ",
+        # foo
+      ",
     )
     .stdout(
       "
-    # foo
-  ",
+        # foo
+      ",
     )
     .success();
 }
@@ -1195,15 +1195,15 @@ fn comment_multiline() {
     .arg("--dump")
     .justfile(
       "
-    # foo
-    # bar
-  ",
+        # foo
+        # bar
+      ",
     )
     .stdout(
       "
-    # foo
-    # bar
-  ",
+        # foo
+        # bar
+      ",
     )
     .success();
 }
@@ -1214,17 +1214,17 @@ fn comment_leading() {
     .arg("--dump")
     .justfile(
       "
-    # foo
+        # foo
 
-    foo := 'bar'
-  ",
+        foo := 'bar'
+      ",
     )
     .stdout(
       "
-    # foo
+        # foo
 
-    foo := 'bar'
-  ",
+        foo := 'bar'
+      ",
     )
     .success();
 }
@@ -1235,17 +1235,17 @@ fn comment_trailing() {
     .arg("--dump")
     .justfile(
       "
-    foo := 'bar'
+        foo := 'bar'
 
-    # foo
-  ",
+        # foo
+      ",
     )
     .stdout(
       "
-    foo := 'bar'
+        foo := 'bar'
 
-    # foo
-  ",
+        # foo
+      ",
     )
     .success();
 }
@@ -1256,19 +1256,19 @@ fn comment_before_recipe() {
     .arg("--dump")
     .justfile(
       "
-    # foo
+        # foo
 
-    foo:
-        echo foo
-  ",
+        foo:
+            echo foo
+      ",
     )
     .stdout(
       "
-    # foo
+        # foo
 
-    foo:
-        echo foo
-  ",
+        foo:
+            echo foo
+      ",
     )
     .success();
 }
@@ -1279,21 +1279,21 @@ fn comment_before_docstring_recipe() {
     .arg("--dump")
     .justfile(
       "
-    # bar
+        # bar
 
-    # foo
-    foo:
-        echo foo
-  ",
+        # foo
+        foo:
+            echo foo
+      ",
     )
     .stdout(
       "
-    # bar
+        # bar
 
-    # foo
-    foo:
-        echo foo
-  ",
+        # foo
+        foo:
+            echo foo
+      ",
     )
     .success();
 }
@@ -1394,9 +1394,9 @@ fn no_trailing_newline() {
     )
     .stdout(
       "
-    foo:
-        echo foo
-  ",
+        foo:
+            echo foo
+      ",
     )
     .success();
 }
@@ -1677,8 +1677,8 @@ fn undefined_variable() {
     .args(["--unstable", "--fmt", "--check"])
     .justfile(
       "
-      foo:
-          echo {{ ABC }}
+        foo:
+            echo {{ ABC }}
       ",
     )
     .test_round_trip(false)
@@ -1712,8 +1712,8 @@ fn indentation_check_with_custom() {
     .stdout(" foo:\n-    echo bar\n+  echo bar\n")
     .stderr(
       "
-      error: Formatted justfile differs from original.
-    ",
+        error: Formatted justfile differs from original.
+      ",
     )
     .failure();
 }
@@ -1724,8 +1724,8 @@ fn dump_indentation_two_spaces() {
     .args(["--dump", "--indentation", "  "])
     .justfile(
       "
-      foo:
-          echo bar
+        foo:
+            echo bar
       ",
     )
     .test_round_trip(false)
@@ -1739,8 +1739,8 @@ fn dump_indentation_tab() {
     .args(["--dump", "--indentation", "\t"])
     .justfile(
       "
-      foo:
-          echo bar
+        foo:
+            echo bar
       ",
     )
     .test_round_trip(false)
@@ -1755,8 +1755,8 @@ fn indentation_env() {
     .env("JUST_INDENTATION", "  ")
     .justfile(
       "
-      foo:
-          echo bar
+        foo:
+            echo bar
       ",
     )
     .test_round_trip(false)

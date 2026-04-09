@@ -8,9 +8,9 @@ fn long() {
     .arg("foo")
     .justfile(
       "
-    x:
-      echo XYZ
-  ",
+        x:
+          echo XYZ
+      ",
     )
     .stdout("foo")
     .success();
@@ -24,9 +24,9 @@ fn short() {
     .arg("foo")
     .justfile(
       "
-    x:
-      echo XYZ
-  ",
+        x:
+          echo XYZ
+      ",
     )
     .stdout("foo")
     .success();
@@ -41,9 +41,9 @@ fn command_color() {
     .arg("cyan")
     .justfile(
       "
-    x:
-      echo XYZ
-  ",
+        x:
+          echo XYZ
+      ",
     )
     .stdout("XYZ\n")
     .stderr("\u{1b}[1;36mecho XYZ\u{1b}[0m\n")
@@ -56,16 +56,16 @@ fn no_binary() {
     .arg("--command")
     .justfile(
       "
-    x:
-      echo XYZ
-  ",
+        x:
+          echo XYZ
+      ",
     )
     .stderr(
       "
-    error: a value is required for '--command <COMMAND>...' but none was supplied
+        error: a value is required for '--command <COMMAND>...' but none was supplied
 
-    For more information, try '--help'.
-  ",
+        For more information, try '--help'.
+      ",
     )
     .status(2);
 }
@@ -96,11 +96,11 @@ fn exports_are_available() {
     .arg("printf $FOO")
     .justfile(
       "
-    export FOO := 'bar'
+        export FOO := 'bar'
 
-    x:
-      echo XYZ
-  ",
+        x:
+          echo XYZ
+      ",
     )
     .stdout("bar")
     .success();
@@ -118,11 +118,11 @@ fn set_overrides_work() {
     .arg("printf $FOO")
     .justfile(
       "
-    export FOO := 'bar'
+        export FOO := 'bar'
 
-    x:
-      echo XYZ
-  ",
+        x:
+          echo XYZ
+      ",
     )
     .stdout("baz")
     .success();
@@ -136,8 +136,8 @@ fn run_in_shell() {
     .arg("bar baz")
     .justfile(
       "
-    set shell := ['printf']
-  ",
+        set shell := ['printf']
+      ",
     )
     .stdout("bar baz")
     .shell(false)
@@ -151,9 +151,9 @@ fn exit_status() {
     .arg("false")
     .justfile(
       "
-    x:
-      echo XYZ
-  ",
+        x:
+          echo XYZ
+      ",
     )
     .stderr_regex("error: Command `false` failed: exit (code|status): 1\n")
     .failure();
@@ -193,10 +193,10 @@ fn dont_evaluate_unnecessary_variables() {
   Test::new()
     .justfile(
       "
-      export x := 'FOO'
+        export x := 'FOO'
 
-      y := `exit 1`
-    ",
+        y := `exit 1`
+      ",
     )
     .args(["--command", "bash", "-c", "echo $x"])
     .stdout("FOO\n")

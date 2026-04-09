@@ -5,14 +5,14 @@ fn os_family() {
   Test::new()
     .justfile(
       "
-      [unix]
-      foo:
-        echo bar
+        [unix]
+        foo:
+          echo bar
 
-      [windows]
-      foo:
-        echo baz
-    ",
+        [windows]
+        foo:
+          echo baz
+      ",
     )
     .stdout(if cfg!(unix) {
       "bar\n"
@@ -36,38 +36,38 @@ fn os() {
   Test::new()
     .justfile(
       "
-      [macos]
-      foo:
-        echo bar
+        [macos]
+        foo:
+          echo bar
 
-      [windows]
-      foo:
-        echo baz
+        [windows]
+        foo:
+          echo baz
 
-      [linux]
-      foo:
-        echo quxx
+        [linux]
+        foo:
+          echo quxx
 
-      [openbsd]
-      foo:
-        echo bob
+        [openbsd]
+        foo:
+          echo bob
 
-      [freebsd]
-      foo:
-        echo corge
+        [freebsd]
+        foo:
+          echo corge
 
-      [dragonfly]
-      foo:
-        echo grault
+        [dragonfly]
+        foo:
+          echo grault
 
-      [netbsd]
-      foo:
-        echo garply
+        [netbsd]
+        foo:
+          echo garply
 
-      [android]
-      foo:
-        echo babs
-    ",
+        [android]
+        foo:
+          echo babs
+      ",
     )
     .stdout(if cfg!(target_os = "macos") {
       "bar\n"
@@ -115,18 +115,18 @@ fn all() {
   Test::new()
     .justfile(
       "
-      [android]
-      [linux]
-      [macos]
-      [openbsd]
-      [freebsd]
-      [dragonfly]
-      [netbsd]
-      [unix]
-      [windows]
-      foo:
-        echo bar
-    ",
+        [android]
+        [linux]
+        [macos]
+        [openbsd]
+        [freebsd]
+        [dragonfly]
+        [netbsd]
+        [unix]
+        [windows]
+        foo:
+          echo bar
+      ",
     )
     .stdout("bar\n")
     .stderr("echo bar\n")
@@ -138,9 +138,9 @@ fn none() {
   Test::new()
     .justfile(
       "
-      foo:
-        echo bar
-    ",
+        foo:
+          echo bar
+      ",
     )
     .stdout("bar\n")
     .stderr("echo bar\n")

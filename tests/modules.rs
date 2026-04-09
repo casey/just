@@ -205,12 +205,12 @@ foo:
     .arg("foo")
     .stderr(
       "
-      error: Recipe `foo` first defined on line 1 is redefined on line 2
-       ——▶ foo.just:2:1
-        │
-      2 │ foo:
-        │ ^^^
-    ",
+        error: Recipe `foo` first defined on line 1 is redefined on line 2
+         ——▶ foo.just:2:1
+          │
+        2 │ foo:
+          │ ^^^
+      ",
     )
     .failure();
 }
@@ -227,12 +227,12 @@ fn modules_conflict_with_recipes() {
     )
     .stderr(
       "
-      error: Module `foo` defined on line 1 is redefined as a recipe on line 2
-       ——▶ justfile:2:1
-        │
-      2 │ foo:
-        │ ^^^
-    ",
+        error: Module `foo` defined on line 1 is redefined as a recipe on line 2
+         ——▶ justfile:2:1
+          │
+        2 │ foo:
+          │ ^^^
+      ",
     )
     .failure();
 }
@@ -250,12 +250,12 @@ fn modules_conflict_with_aliases() {
     )
     .stderr(
       "
-      error: Module `foo` defined on line 1 is redefined as an alias on line 3
-       ——▶ justfile:3:7
-        │
-      3 │ alias foo := bar
-        │       ^^^
-    ",
+        error: Module `foo` defined on line 1 is redefined as an alias on line 3
+         ——▶ justfile:3:7
+          │
+        3 │ alias foo := bar
+          │       ^^^
+      ",
     )
     .failure();
 }
@@ -274,12 +274,12 @@ fn modules_conflict_with_other_modules() {
     )
     .stderr(
       "
-      error: Module `foo` first defined on line 1 is redefined on line 2
-       ——▶ justfile:2:5
-        │
-      2 │ mod foo
-        │     ^^^
-    ",
+        error: Module `foo` first defined on line 1 is redefined on line 2
+         ——▶ justfile:2:5
+          │
+        2 │ mod foo
+          │     ^^^
+      ",
     )
     .failure();
 }
@@ -384,11 +384,11 @@ fn modules_require_unambiguous_file() {
     )
     .stderr(
       "
-      error: Found multiple source files for module `foo`: `foo/justfile` and `foo.just`
-       ——▶ justfile:1:5
-        │
-      1 │ mod foo
-        │     ^^^
+        error: Found multiple source files for module `foo`: `foo/justfile` and `foo.just`
+         ——▶ justfile:1:5
+          │
+        1 │ mod foo
+          │     ^^^
       "
       .replace('/', MAIN_SEPARATOR_STR),
     )
@@ -405,11 +405,11 @@ fn missing_module_file_error() {
     )
     .stderr(
       "
-      error: Could not find source file for module `foo`.
-       ——▶ justfile:1:5
-        │
-      1 │ mod foo
-        │     ^^^
+        error: Could not find source file for module `foo`.
+         ——▶ justfile:1:5
+          │
+        1 │ mod foo
+          │     ^^^
       ",
     )
     .failure();
