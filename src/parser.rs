@@ -377,12 +377,20 @@ impl<'run, 'src> Parser<'run, 'src> {
       }
     }
 
-    match self.items.pop()? {
-      Item::Comment(contents) => Some(contents[1..].trim_start().into()),
-      item => {
-        self.items.push(item);
-        None
+    let mut items = self.items.iter().rev();
+    if matches!(items.next(), Some(Item::Newline))
+      && matches!(items.next(), Some(Item::Comment(_)))
+      && matches!(items.next(), Some(Item::Newline) | None)
+    {
+      self.items.pop().unwrap();
+
+      if let Item::Comment(contents) = self.items.pop().unwrap() {
+        Some(contents[1..].trim_start().into())
+      } else {
+        unreachable!();
       }
+    } else {
+      None
     }
   }
 
@@ -394,13 +402,36 @@ impl<'run, 'src> Parser<'run, 'src> {
       let mut attributes = self.parse_attributes()?;
 
       let item = self.parse_item(&mut attributes)?;
-
       self.items.push(item);
+
+      let unterminated = match self.items.iter().last().unwrap() {
+        Item::Newline => false,
+        Item::Recipe(recipe) => {
+          if recipe.body.is_empty() {
+            true
+          } else {
+            self.items.push(Item::Newline);
+            false
+          }
+        }
+        _ => true,
+      };
 
       if let Some((token, attributes)) = attributes {
         return Err(token.error(CompileErrorKind::ExtraneousAttributes {
           count: attributes.len(),
         }));
+      }
+
+      if unterminated {
+        if let Some(comment) = self.accept(Comment)? {
+          self.items.push(Item::Comment(comment.lexeme().trim_end()));
+        }
+
+        if !self.next_is(Eof) {
+          self.expect(Eol)?;
+          self.items.push(Item::Newline);
+        }
       }
     }
 
@@ -432,7 +463,6 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
 
     let item = if let Some(comment) = self.accept(Comment)? {
-      self.expect_eol()?;
       Item::Comment(comment.lexeme().trim_end())
     } else if self.accepted(Eol)? {
       Item::Newline
@@ -453,7 +483,6 @@ impl<'run, 'src> Parser<'run, 'src> {
         Some(Keyword::Unexport) if self.line_is(&[Identifier, Identifier]) => {
           self.presume_keyword(Keyword::Unexport)?;
           let name = self.parse_name()?;
-          self.expect_eol()?;
           Item::Unexport { name }
         }
         Some(Keyword::Import)
@@ -487,8 +516,6 @@ impl<'run, 'src> Parser<'run, 'src> {
           } else {
             None
           };
-
-          self.expect_eol()?;
 
           let attributes = take_attributes();
 
@@ -557,7 +584,6 @@ impl<'run, 'src> Parser<'run, 'src> {
     let name = self.parse_name()?;
     self.presume_any(&[Equals, ColonEquals])?;
     let target = self.parse_namepath()?;
-    self.expect_eol()?;
 
     attributes.ensure_valid_attributes("Alias", *name, &[AttributeDiscriminant::Private])?;
 
@@ -591,8 +617,6 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let body = self.parse_expression()?;
 
-    self.expect_eol()?;
-
     Ok(FunctionDefinition {
       body,
       name,
@@ -610,7 +634,6 @@ impl<'run, 'src> Parser<'run, 'src> {
     let name = self.parse_name()?;
     self.presume(ColonEquals)?;
     let value = self.parse_expression()?;
-    self.expect_eol()?;
 
     let private = attributes.contains(AttributeDiscriminant::Private);
 
@@ -1204,7 +1227,9 @@ impl<'run, 'src> Parser<'run, 'src> {
       dependencies.append(&mut subsequents);
     }
 
-    self.expect_eol()?;
+    if self.next_are(&[Comment, Eol, Indent]) || self.next_are(&[Eol, Indent]) {
+      self.expect_eol()?;
+    }
 
     let body = self.parse_body()?;
 
@@ -1400,7 +1425,6 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
 
     if let Some(value) = set_bool {
-      self.expect_eol()?;
       return Ok(Set { name, value });
     }
 
@@ -1418,7 +1442,6 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
 
     if let Some(value) = set_value {
-      self.expect_eol()?;
       return Ok(Set { name, value });
     }
 
@@ -2002,31 +2025,31 @@ mod tests {
   test! {
     name: comment_after_alias,
     text: "alias x := y # foo",
-    tree: (justfile (alias x y)),
+    tree: (justfile (alias x y) (comment "# foo")),
   }
 
   test! {
     name: comment_assignment,
     text: "x := y # foo",
-    tree: (justfile (assignment x y)),
+    tree: (justfile (assignment x y) (comment "# foo")),
   }
 
   test! {
     name: comment_export,
     text: "export x := y # foo",
-    tree: (justfile (assignment #export x y)),
+    tree: (justfile (assignment #export x y) (comment "# foo")),
   }
 
   test! {
     name: comment_recipe,
     text: "foo: # bar",
-    tree: (justfile (recipe foo)),
+    tree: (justfile (recipe foo) (comment "# bar")),
   }
 
   test! {
     name: comment_recipe_dependencies,
     text: "foo: bar # baz",
-    tree: (justfile (recipe foo (deps bar))),
+    tree: (justfile (recipe foo (deps bar)) (comment "# baz")),
   }
 
   test! {
@@ -2256,12 +2279,13 @@ mod tests {
   test! {
     name: parse_alias_with_comment,
     text: "
-      alias f := foo #comment
+      alias f := foo # comment
       foo:
         echo a
     ",
     tree: (justfile
       (alias f foo)
+      (comment "# comment")
       (recipe foo (body ("echo a")))
     ),
   }
@@ -2269,12 +2293,13 @@ mod tests {
   test! {
     name: parse_assignment_with_comment,
     text: "
-      f := foo #comment
+      f := foo # comment
       foo:
         echo a
     ",
     tree: (justfile
       (assignment f foo)
+      (comment "# comment")
       (recipe foo (body ("echo a")))
     ),
   }
@@ -2836,7 +2861,10 @@ mod tests {
     line:   0,
     column: 16,
     width:  1,
-    kind:   UnexpectedToken {expected: vec![ColonColon, Comment, Eof, Eol], found:Colon},
+    kind:   UnexpectedToken {
+      found:    Colon,
+      expected: vec![ColonColon, Comment, Eof, Eol],
+    },
   }
 
   error! {
@@ -2896,7 +2924,7 @@ mod tests {
     column:  9,
     width:   1,
     kind:    UnexpectedToken{
-      expected: vec![AmpersandAmpersand, ColonColon, Comment, Eof, Eol, Identifier, ParenL],
+      expected: vec![AmpersandAmpersand, ColonColon, Comment, Eof, Eol, Identifier, Indent, ParenL],
       found: Equals
     },
   }

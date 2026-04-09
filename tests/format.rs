@@ -1487,7 +1487,7 @@ fn unchanged_justfiles_are_not_written_to_disk() {
 
   let justfile = tmp.path().join("justfile");
 
-  fs::write(&justfile, "").unwrap();
+  fs::write(&justfile, "\n").unwrap();
 
   let mut permissions = fs::metadata(&justfile).unwrap().permissions();
   permissions.set_readonly(true);
@@ -1780,6 +1780,112 @@ fn multi_line_comments_before_recipes_are_not_broken_up() {
         # foo
         # bar
         baz:
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn trailing_comment_assignment() {
+  Test::new()
+    .arg("--dump")
+    .justfile(
+      "
+        foo := 'bar' # baz
+      ",
+    )
+    .stdout(
+      "
+        foo := 'bar' # baz
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn trailing_comment_alias() {
+  Test::new()
+    .arg("--dump")
+    .justfile(
+      "
+        alias f := foo # baz
+        foo:
+      ",
+    )
+    .stdout(
+      "
+        alias f := foo # baz
+        foo:
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn trailing_comment_bodyless_recipe() {
+  Test::new()
+    .arg("--dump")
+    .justfile(
+      "
+        foo: # bar
+      ",
+    )
+    .stdout(
+      "
+        foo: # bar
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn trailing_comment_set() {
+  Test::new()
+    .arg("--dump")
+    .justfile(
+      "
+        set quiet # foo
+      ",
+    )
+    .stdout(
+      "
+        set quiet # foo
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn trailing_comment_unexport() {
+  Test::new()
+    .arg("--dump")
+    .justfile(
+      "
+        unexport FOO # bar
+      ",
+    )
+    .stdout(
+      "
+        unexport FOO # bar
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn trailing_comment_does_not_become_doc_comment() {
+  Test::new()
+    .arg("--dump")
+    .justfile(
+      "
+        foo := 'bar' # baz
+        qux:
+      ",
+    )
+    .stdout(
+      "
+        foo := 'bar' # baz
+        qux:
       ",
     )
     .success();
