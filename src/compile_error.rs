@@ -234,10 +234,10 @@ impl Display for CompileError<'_> {
         f,
         "`\\{}` is not a valid escape sequence",
         match character {
-          '`' => r"\`".to_owned(),
-          '\\' => r"\".to_owned(),
-          '\'' => r"'".to_owned(),
-          '"' => r#"""#.to_owned(),
+          '`' => "\\`".to_owned(),
+          '\\' => "\\".to_owned(),
+          '\'' => "'".to_owned(),
+          '"' => "\"".to_owned(),
           _ => character.escape_default().collect(),
         }
       ),

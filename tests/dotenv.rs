@@ -171,12 +171,12 @@ fn path_flag_overwrites_no_load() {
 fn can_set_dotenv_filename_from_justfile() {
   Test::new()
     .justfile(
-      r#"
-        set dotenv-filename := ".env.special"
+      "
+        set dotenv-filename := '.env.special'
 
         foo:
           @echo $JUST_TEST_VARIABLE
-      "#,
+      ",
     )
     .tree(tree! {
       ".env.special": "JUST_TEST_VARIABLE=bar"
@@ -189,12 +189,12 @@ fn can_set_dotenv_filename_from_justfile() {
 fn can_set_dotenv_path_from_justfile() {
   Test::new()
     .justfile(
-      r#"
-        set dotenv-path := "subdir/.env"
+      "
+        set dotenv-path := 'subdir/.env'
 
         foo:
           @echo $JUST_TEST_VARIABLE
-      "#,
+      ",
     )
     .tree(tree! {
       subdir: {
@@ -209,12 +209,12 @@ fn can_set_dotenv_path_from_justfile() {
 fn program_argument_has_priority_for_dotenv_filename() {
   Test::new()
     .justfile(
-      r#"
-        set dotenv-filename := ".env.special"
+      "
+        set dotenv-filename := '.env.special'
 
         foo:
           @echo $JUST_TEST_VARIABLE
-      "#,
+      ",
     )
     .tree(tree! {
       ".env.special": "JUST_TEST_VARIABLE=bar",

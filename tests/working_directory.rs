@@ -1,6 +1,6 @@
 use super::*;
 
-const JUSTFILE: &str = r#"
+const JUSTFILE: &str = "
 foo := `cat data`
 
 linewise bar=`cat data`: shebang
@@ -10,8 +10,8 @@ linewise bar=`cat data`: shebang
 
 shebang:
   #!/usr/bin/env sh
-  echo "shebang:" `cat data`
-"#;
+  echo 'shebang:' `cat data`
+";
 
 const DATA: &str = "OK";
 

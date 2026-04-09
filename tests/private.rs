@@ -44,7 +44,7 @@ fn private_attribute_for_module() {
   Test::new()
     .write("foo.just", "bar:")
     .justfile(
-      r"
+      "
         [private]
         mod foo
 

@@ -902,11 +902,11 @@ fn doc_attribute_on_module() {
   Test::new()
     .write("foo.just", "")
     .justfile(
-      r#"
+      "
         # Suppressed comment
-        [doc: "Comment"]
+        [doc: 'Comment']
         mod foo
-      "#,
+      ",
     )
     .test_round_trip(false)
     .arg("--list")
@@ -921,7 +921,7 @@ fn group_attribute_on_module() {
     .write("bar.just", "")
     .write("zee.just", "")
     .justfile(
-      r"
+      "
         [group('alpha')]
         mod zee
 
@@ -967,7 +967,7 @@ fn group_attribute_on_module_unsorted() {
     .write("bar.just", "")
     .write("zee.just", "")
     .justfile(
-      r"
+      "
         [group('alpha')]
         mod zee
 
@@ -1014,7 +1014,7 @@ fn group_attribute_on_module_list_submodule() {
     .write("bar.just", "e:")
     .write("zee.just", "f:")
     .justfile(
-      r"
+      "
         [group('alpha')]
         mod zee
 
@@ -1064,7 +1064,7 @@ fn group_attribute_on_module_list_submodule_unsorted() {
     .write("bar.just", "e:")
     .write("zee.just", "f:")
     .justfile(
-      r"
+      "
         [group('alpha')]
         mod zee
 
@@ -1113,7 +1113,7 @@ fn bad_module_attribute_fails() {
   Test::new()
     .write("foo.just", "")
     .justfile(
-      r"
+      "
         [no-cd]
         mod foo
       ",

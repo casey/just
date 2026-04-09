@@ -91,14 +91,14 @@ fn overrides_first() {
     .arg("recipe")
     .arg("baz=bar")
     .justfile(
-      r#"
-foo := "foo"
-a := "a"
-baz := "baz"
+      "
+foo := 'foo'
+a := 'a'
+baz := 'baz'
 
 recipe arg:
  echo arg={{arg}}
- echo {{foo + a + baz}}"#,
+ echo {{foo + a + baz}}",
     )
     .stdout("arg=baz=bar\nbarbbaz\n")
     .stderr("echo arg=baz=bar\necho barbbaz\n")
@@ -113,14 +113,14 @@ fn overrides_not_evaluated() {
     .arg("recipe")
     .arg("baz=bar")
     .justfile(
-      r#"
+      "
 foo := `exit 1`
-a := "a"
-baz := "baz"
+a := 'a'
+baz := 'baz'
 
 recipe arg:
  echo arg={{arg}}
- echo {{foo + a + baz}}"#,
+ echo {{foo + a + baz}}",
     )
     .stdout("arg=baz=bar\nbarbbaz\n")
     .stderr("echo arg=baz=bar\necho barbbaz\n")

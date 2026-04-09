@@ -582,7 +582,7 @@ fn dry_run() {
     .arg("shebang")
     .arg("command")
     .justfile(
-      r"
+      "
 var := `echo stderr 1>&2; echo backtick`
 
 command:
@@ -613,7 +613,7 @@ echo `echo command interpolation`
 fn line_error_spacing() {
   Test::new()
     .justfile(
-      r"
+      "
 
 
 
@@ -952,7 +952,7 @@ fn supply_use_default() {
     .arg("0")
     .arg("1")
     .justfile(
-      r"
+      "
         hello a b='B' c='C':
           echo {{a}} {{b}} {{c}}
       ",
@@ -970,7 +970,7 @@ fn supply_defaults() {
     .arg("1")
     .arg("2")
     .justfile(
-      r"
+      "
         hello a b='B' c='C':
           echo {{a}} {{b}} {{c}}
       ",
@@ -1075,14 +1075,14 @@ fn list_sorted() {
   Test::new()
     .arg("--list")
     .justfile(
-      r"
+      "
         alias c := b
         b:
         a:
       ",
     )
     .stdout(
-      r"
+      "
         Available recipes:
             a
             b # [alias: c]
@@ -1097,14 +1097,14 @@ fn list_unsorted() {
     .arg("--list")
     .arg("--unsorted")
     .justfile(
-      r"
+      "
         alias c := b
         b:
         a:
       ",
     )
     .stdout(
-      r"
+      "
         Available recipes:
             b # [alias: c]
             a
@@ -1120,13 +1120,13 @@ fn list_heading() {
     .arg("--list-heading")
     .arg("Cool stuff…\n")
     .justfile(
-      r"
+      "
         a:
         b:
       ",
     )
     .stdout(
-      r"
+      "
         Cool stuff…
             a
             b
@@ -1142,13 +1142,13 @@ fn list_prefix() {
     .arg("--list-prefix")
     .arg("····")
     .justfile(
-      r"
+      "
         a:
         b:
       ",
     )
     .stdout(
-      r"
+      "
         Available recipes:
         ····a
         ····b
@@ -1166,13 +1166,13 @@ fn list_empty_prefix_and_heading() {
     .arg("--list-prefix")
     .arg("")
     .justfile(
-      r"
+      "
         a:
         b:
       ",
     )
     .stdout(
-      r"
+      "
         a
         b
       ",
@@ -1288,7 +1288,7 @@ fn line_continuation_no_space() {
 fn infallible_command() {
   Test::new()
     .justfile(
-      r"
+      "
         infallible:
           -exit 101
       ",
@@ -1301,14 +1301,14 @@ fn infallible_command() {
 fn infallible_with_failing() {
   Test::new()
     .justfile(
-      r"
+      "
         infallible:
           -exit 101
           exit 202
       ",
     )
     .stderr(
-      r"exit 101
+      "exit 101
 exit 202
 error: Recipe `infallible` failed on line 3 with exit code 202
 ",
@@ -1320,7 +1320,7 @@ error: Recipe `infallible` failed on line 3 with exit code 202
 fn quiet_recipe() {
   Test::new()
     .justfile(
-      r"
+      "
         @quiet:
           # a
           # b
@@ -1336,7 +1336,7 @@ fn quiet_recipe() {
 fn quiet_shebang_recipe() {
   Test::new()
     .justfile(
-      r"
+      "
         @quiet:
           #!/bin/sh
           echo hello
@@ -1352,7 +1352,7 @@ fn complex_dependencies() {
   Test::new()
     .arg("b")
     .justfile(
-      r"
+      "
         a: b
         b:
         c: b a
@@ -1366,16 +1366,16 @@ fn undefined_function_in_assignment() {
   Test::new()
     .arg("bar")
     .justfile(
-      r#"foo := foo() + "hello"
-bar:"#,
+      "foo := foo() + 'hello'
+bar:",
     )
     .stderr(
-      r#"error: Call to undefined function `foo`
+      "error: Call to undefined function `foo`
  ——▶ justfile:1:8
   │
-1 │ foo := foo() + "hello"
+1 │ foo := foo() + 'hello'
   │        ^^^
-"#,
+",
     )
     .failure();
 }
@@ -1982,7 +1982,7 @@ fn unknown_variable_in_default() {
       ",
     )
     .stderr(
-      r"error: Variable `bar` not defined
+      "error: Variable `bar` not defined
  ——▶ justfile:1:7
   │
 1 │ foo x=bar:
@@ -2001,7 +2001,7 @@ fn undefined_function_in_default() {
       ",
     )
     .stderr(
-      r"error: Call to undefined function `bar`
+      "error: Call to undefined function `bar`
  ——▶ justfile:1:7
   │
 1 │ foo x=bar():
@@ -2078,7 +2078,7 @@ fn unterminated_interpolation_eol() {
       ",
     )
     .stderr(
-      r"
+      "
         error: Unterminated interpolation
          ——▶ justfile:2:8
           │
@@ -2099,7 +2099,7 @@ fn unterminated_interpolation_eof() {
       ",
     )
     .stderr(
-      r"
+      "
         error: Unterminated interpolation
          ——▶ justfile:2:8
           │
@@ -2119,7 +2119,7 @@ fn unknown_start_of_token() {
       ",
     )
     .stderr(
-      r"
+      "
         error: Unknown start of token '%'
          ——▶ justfile:1:25
           │
@@ -2524,12 +2524,12 @@ fn pwsh_invocation_directory() {
   }
   Test::new()
     .justfile(
-      r#"
-        set shell := ["pwsh", "-NoProfile", "-c"]
+      "
+        set shell := ['pwsh', '-NoProfile', '-c']
 
         pwd:
           @Test-Path {{invocation_directory()}} > result.txt
-      "#,
+      ",
     )
     .shell(false)
     .success();
@@ -2554,10 +2554,10 @@ fn variables() {
 fn interpolation_evaluation_ignore_quiet() {
   Test::new()
     .justfile(
-      r#"
+      "
         foo:
-          {{"@echo foo 2>/dev/null"}}
-      "#,
+          {{'@echo foo 2>/dev/null'}}
+      ",
     )
     .stderr(
       "
@@ -2649,7 +2649,7 @@ fn windows_interpreter_path_no_base() {
   }
   Test::new()
     .justfile(
-      r"
+      "
         foo:
           #!powershell
 

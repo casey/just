@@ -5,7 +5,7 @@ fn no_stdout() {
   Test::new()
     .arg("--quiet")
     .justfile(
-      r"
+      "
         default:
           @echo hello
       ",
@@ -18,7 +18,7 @@ fn stderr() {
   Test::new()
     .arg("--quiet")
     .justfile(
-      r"
+      "
         default:
           @echo hello 1>&2
       ",
@@ -31,7 +31,7 @@ fn command_echoing() {
   Test::new()
     .arg("--quiet")
     .justfile(
-      r"
+      "
         default:
           exit
       ",
@@ -44,7 +44,7 @@ fn error_messages() {
   Test::new()
     .arg("--quiet")
     .justfile(
-      r"
+      "
         default:
           exit 100
       ",
@@ -57,7 +57,7 @@ fn assignment_backtick_stderr() {
   Test::new()
     .arg("--quiet")
     .justfile(
-      r"
+      "
         a := `echo hello 1>&2`
         default:
           exit 100
@@ -71,7 +71,7 @@ fn interpolation_backtick_stderr() {
   Test::new()
     .arg("--quiet")
     .justfile(
-      r"
+      "
         default:
           echo `echo hello 1>&2`
           exit 100

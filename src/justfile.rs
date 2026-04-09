@@ -770,10 +770,10 @@ mod tests {
 
   run_error! {
     name: run_args,
-    src: r#"
+    src: "
       a return code:
-        @x() { {{return}} {{code + "0"}}; }; x
-    "#,
+        @x() { {{return}} {{code + '0'}}; }; x
+    ",
     args: ["a", "return", "15"],
     error: Code {
       recipe,
@@ -881,15 +881,15 @@ mod tests {
 
   run_error! {
     name: export_failure,
-    src: r#"
-      export foo := "a"
-      baz := "c"
-      export bar := "b"
+    src: "
+      export foo := 'a'
+      baz := 'c'
+      export bar := 'b'
       export abc := foo + bar + baz
 
       wut:
         echo $foo $bar $baz
-    "#,
+    ",
     args: ["--quiet", "wut"],
     error: Code {
       recipe,
@@ -942,10 +942,10 @@ foo a="b\t":
   #[test]
   fn parse_multiple() {
     case(
-      r"
+      "
 a:
 b:
-", r"a:
+", "a:
 
 b:",
     );
@@ -954,26 +954,26 @@ b:",
   #[test]
   fn parse_variadic() {
     case(
-      r"
+      "
 
 foo +a:
 
 
   ",
-      r"foo +a:",
+      "foo +a:",
     );
   }
 
   #[test]
   fn parse_variadic_string_default() {
     case(
-      r#"
+      "
 
-foo +a="Hello":
+foo +a='Hello':
 
 
-  "#,
-      r#"foo +a="Hello":"#,
+  ",
+      "foo +a='Hello':",
     );
   }
 
@@ -993,23 +993,23 @@ foo a='b\t':
   #[test]
   fn parse_export() {
     case(
-      r#"
-export a := "hello"
+      "
+export a := 'hello'
 
-  "#,
-      r#"export a := "hello""#,
+  ",
+      "export a := 'hello'",
     );
   }
 
   #[test]
   fn parse_alias_after_target() {
     case(
-      r"
+      "
 foo:
   echo a
 alias f := foo
 ",
-      r"alias f := foo
+      "alias f := foo
 
 foo:
     echo a",
@@ -1019,12 +1019,12 @@ foo:
   #[test]
   fn parse_alias_before_target() {
     case(
-      r"
+      "
 alias f := foo
 foo:
   echo a
 ",
-      r"alias f := foo
+      "alias f := foo
 
 foo:
     echo a",
@@ -1034,12 +1034,12 @@ foo:
   #[test]
   fn parse_alias_with_comment() {
     case(
-      r"
+      "
 alias f := foo #comment
 foo:
   echo a
 ",
-      r"alias f := foo
+      "alias f := foo
 
 foo:
     echo a",
@@ -1115,15 +1115,15 @@ install:
   #[test]
   fn parse_assignments() {
     case(
-      r#"a := "0"
+      "a := '0'
 c := a + b + a + b
-b := "1"
-"#,
-      r#"a := "0"
+b := '1'
+",
+      "a := '0'
 
-b := "1"
+b := '1'
 
-c := a + b + a + b"#,
+c := a + b + a + b",
     );
   }
 
@@ -1144,10 +1144,10 @@ c := a + b + a + b",
   #[test]
   fn parse_interpolation_backticks() {
     case(
-      r#"a:
-  echo {{  `echo hello` + "blarg"   }} {{   `echo bob`   }}"#,
-      r#"a:
-    echo {{ `echo hello` + "blarg" }} {{ `echo bob` }}"#,
+      "a:
+  echo {{  `echo hello` + 'blarg'   }} {{   `echo bob`   }}",
+      "a:
+    echo {{ `echo hello` + 'blarg' }} {{ `echo bob` }}",
     );
   }
 
@@ -1194,81 +1194,81 @@ a:
   #[test]
   fn env_functions() {
     case(
-      r#"
+      "
 x := env_var('foo',)
 
 a:
-  {{env_var_or_default('foo' + 'bar', 'baz',)}} {{env_var(env_var("baz"))}}"#,
-      r#"x := env_var('foo')
+  {{env_var_or_default('foo' + 'bar', 'baz',)}} {{env_var(env_var('baz'))}}",
+      "x := env_var('foo')
 
 a:
-    {{ env_var_or_default('foo' + 'bar', 'baz') }} {{ env_var(env_var("baz")) }}"#,
+    {{ env_var_or_default('foo' + 'bar', 'baz') }} {{ env_var(env_var('baz')) }}",
     );
   }
 
   #[test]
   fn parameter_default_string() {
     case(
-      r#"
-f x="abc":
-"#,
-      r#"f x="abc":"#,
+      "
+f x='abc':
+",
+      "f x='abc':",
     );
   }
 
   #[test]
   fn parameter_default_raw_string() {
     case(
-      r"
+      "
 f x='abc':
 ",
-      r"f x='abc':",
+      "f x='abc':",
     );
   }
 
   #[test]
   fn parameter_default_backtick() {
     case(
-      r"
+      "
 f x=`echo hello`:
 ",
-      r"f x=`echo hello`:",
+      "f x=`echo hello`:",
     );
   }
 
   #[test]
   fn parameter_default_concatenation_string() {
     case(
-      r#"
-f x=(`echo hello` + "foo"):
-"#,
-      r#"f x=(`echo hello` + "foo"):"#,
+      "
+f x=(`echo hello` + 'foo'):
+",
+      "f x=(`echo hello` + 'foo'):",
     );
   }
 
   #[test]
   fn parameter_default_concatenation_variable() {
     case(
-      r#"
-x := "10"
-f y=(`echo hello` + x) +z="foo":
-"#,
-      r#"x := "10"
+      "
+x := '10'
+f y=(`echo hello` + x) +z='foo':
+",
+      "x := '10'
 
-f y=(`echo hello` + x) +z="foo":"#,
+f y=(`echo hello` + x) +z='foo':",
     );
   }
 
   #[test]
   fn parameter_default_multiple() {
     case(
-      r#"
-x := "10"
-f y=(`echo hello` + x) +z=("foo" + "bar"):
-"#,
-      r#"x := "10"
+      "
+x := '10'
+f y=(`echo hello` + x) +z=('foo' + 'bar'):
+",
+      "x := '10'
 
-f y=(`echo hello` + x) +z=("foo" + "bar"):"#,
+f y=(`echo hello` + x) +z=('foo' + 'bar'):",
     );
   }
 

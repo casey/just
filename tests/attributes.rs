@@ -350,11 +350,11 @@ fn env_attribute_multiple() {
 fn env_attribute_in_recipe_params() {
   Test::new()
     .justfile(
-      r#"
-        [env("foo", "bar")]
+      "
+        [env('foo', 'bar')]
         baz x=`echo ${foo}.txt`:
             @echo {{x}}
-      "#,
+      ",
     )
     .stdout("bar.txt\n")
     .success();
@@ -364,22 +364,22 @@ fn env_attribute_in_recipe_params() {
 fn env_attribute_not_in_env_function() {
   Test::new()
     .justfile(
-      r#"
+      "
 
-        [env("foo", "bar")]
+        [env('foo', 'bar')]
         baz:
-          @echo {{ env("foo") }}.txt
+          @echo {{ env('foo') }}.txt
 
-      "#,
+      ",
     )
     .stderr(
-      r#"
+      "
         error: Call to function `env` failed: environment variable `foo` not present
          ——▶ justfile:4:12
           │
-        4 │   @echo {{ env("foo") }}.txt
+        4 │   @echo {{ env('foo') }}.txt
           │            ^^^
-      "#,
+      ",
     )
     .failure();
 }
