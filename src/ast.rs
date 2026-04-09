@@ -14,20 +14,35 @@ pub(crate) struct Ast<'src> {
 
 impl ColorDisplay for Ast<'_> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
-    let mut newline = false;
-    for item in &self.items {
+    let mut newlines = 0;
+    for (i, item) in self.items.iter().enumerate() {
       if matches!(item, Item::Newline) {
-        newline = true;
+        newlines += 1;
         continue;
       }
 
-      if newline {
-        writeln!(f)?;
-        newline = false;
+      match newlines {
+        0 => {}
+        1 => writeln!(f)?,
+        _ => {
+          writeln!(f)?;
+          writeln!(f)?;
+        }
+      }
+      newlines = 0;
+
+      if let Some(i) = i.checked_sub(1) {
+        if let Some(last) = self.items.get(i) {
+          if !matches!(last, Item::Newline) {
+            write!(f, " ")?;
+          }
+        }
       }
 
-      writeln!(f, "{}", item.color_display(color))?;
+      write!(f, "{}", item.color_display(color))?;
     }
+
+    writeln!(f)?;
 
     Ok(())
   }

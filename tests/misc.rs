@@ -191,7 +191,15 @@ fn unknown_alias_target() {
 #[test]
 fn alias_shadows_recipe() {
   Test::new()
-    .justfile("bar:\n  echo bar\nalias foo := bar\nfoo:\n  echo foo")
+    .justfile(
+      "
+        bar:
+          echo bar
+        alias foo := bar
+        foo:
+          echo foo
+      ",
+    )
     .stderr(
       "
         error: Alias `foo` defined on line 3 is redefined as a recipe on line 4
@@ -1498,7 +1506,7 @@ fn unexpected_token_in_dependency_position() {
     .justfile("foo: 'bar'")
     .stderr(
       "error: Expected '&&', comment, end of file, end of line, \
-    identifier, or '(', but found string
+    identifier, indent, or '(', but found string
  ——▶ justfile:1:6
   │
 1 │ foo: 'bar'

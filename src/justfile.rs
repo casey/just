@@ -1035,7 +1035,7 @@ foo:
   fn parse_alias_with_comment() {
     case(
       "
-alias f := foo #comment
+alias f := foo # comment
 foo:
   echo a
 ",
