@@ -458,7 +458,7 @@ fn backticks_highlighted() {
 #[test]
 fn unclosed_backticks() {
   Test::new()
-            .justfile(
+    .justfile(
       "
         # Comment `with unclosed backtick
         recipe:
