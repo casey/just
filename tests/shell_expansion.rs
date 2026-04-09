@@ -53,13 +53,13 @@ fn shell_expanded_error_messages_highlight_string_token() {
               │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
             ")
           .failure();
-      }
+}
 
-      #[test]
-      fn shell_expanded_strings_are_dumped_correctly() {
-        Test::new()
-          .justfile(
-    "
+#[test]
+fn shell_expanded_strings_are_dumped_correctly() {
+  Test::new()
+    .justfile(
+      "
         x := x'$JUST_TEST_VARIABLE'
       ",
     )

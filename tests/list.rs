@@ -453,11 +453,11 @@ fn backticks_highlighted() {
                     recipe \u{1b}[34m#\u{1b}[0m \u{1b}[34mComment \u{1b}[0m\u{1b}[36m``\u{1b}[0m\u{1b}[34m \u{1b}[0m\u{1b}[36m`with backticks`\u{1b}[0m\u{1b}[34m and trailing text\u{1b}[0m
               ")
             .success();
-        }
+}
 
-        #[test]
-        fn unclosed_backticks() {
-          Test::new()
+#[test]
+fn unclosed_backticks() {
+  Test::new()
             .justfile(
       "
         # Comment `with unclosed backtick
