@@ -356,6 +356,23 @@ fn aliases_completed_with_flag() {
 }
 
 #[test]
+fn aliases_completed_with_environment_variable() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+        alias b := foo
+      ",
+    )
+    .shell(false)
+    .env("JUST_COMPLETE", "fish")
+    .env("JUST_COMPLETE_ALIASES", "true")
+    .args(complete_args(&[""]))
+    .stdout_regex("foo\nb\n--.*")
+    .success();
+}
+
+#[test]
 fn private_aliases_excluded() {
   Test::new()
     .justfile(

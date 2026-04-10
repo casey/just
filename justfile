@@ -221,12 +221,16 @@ test-release-workflow:
 
 [group: 'test']
 test-completions:
+  #!/usr/bin/env bash
   rm -rf tmp/complete
   mkdir -p tmp/complete/bin
   cargo build
   cp target/debug/just tmp/complete/bin
   ./tmp/complete/bin/just --completions bash > tmp/complete/just.bash
-  echo 'mod foo' > tmp/complete/justfile
+  cat > tmp/complete/justfile << EOF
+  alias hello := foo::bar
+  mod foo
+  EOF
   echo 'bar:' > tmp/complete/foo.just
   cd tmp/complete && PATH="`realpath bin`:$PATH" bash --init-file just.bash
 
