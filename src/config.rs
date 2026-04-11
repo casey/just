@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Debug, Default, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub(crate) struct Config {
   pub(crate) alias_style: AliasStyle,
   pub(crate) allow_missing: bool,
@@ -42,6 +42,50 @@ pub(crate) struct Config {
 }
 
 impl Config {
+  pub(crate) fn new() -> ConfigResult<Self> {
+    Ok(Self {
+      alias_style: AliasStyle::Right,
+      allow_missing: false,
+      ceiling: None,
+      check: false,
+      color: Color::default(),
+      command_color: None,
+      complete_aliases: false,
+      cygpath: Arguments::DEFAULT_CYGPATH.into(),
+      dotenv_filename: None,
+      dotenv_path: None,
+      dry_run: false,
+      explain: false,
+      groups: Vec::new(),
+      highlight: true,
+      invocation_directory: env::current_dir().context(config_error::CurrentDir)?,
+      justfile_names: None,
+      list_heading: Arguments::DEFAULT_LIST_HEADING.into(),
+      list_prefix: Arguments::DEFAULT_LIST_PREFIX.into(),
+      list_submodules: false,
+      load_dotenv: true,
+      no_aliases: false,
+      no_dependencies: false,
+      one: false,
+      overrides: BTreeMap::new(),
+      search_config: SearchConfig::FromInvocationDirectory,
+      shell: None,
+      shell_args: None,
+      shell_command: false,
+      subcommand: Subcommand::Run {
+        arguments: Vec::new(),
+      },
+      tempdir: None,
+      time: false,
+      timestamp: false,
+      timestamp_format: Arguments::DEFAULT_TIMESTAMP_FORMAT.into(),
+      unsorted: false,
+      unstable: false,
+      verbosity: Verbosity::Taciturn,
+      yes: false,
+    })
+  }
+
   fn parse_modulepath(values: &[String]) -> ConfigResult<Modulepath> {
     let path = values.iter().map(String::as_str).collect::<Vec<&str>>();
 
@@ -1178,5 +1222,13 @@ mod tests {
       assert_eq!(subcommand, "SUMMARY");
       assert_eq!(overrides, vec!["bar=baz"]);
     },
+  }
+
+  #[test]
+  fn default_config_matches_parsed_config() {
+    assert_eq!(
+      Config::new().unwrap(),
+      Config::from_arguments(Arguments::try_parse_from(["just"]).unwrap()).unwrap()
+    );
   }
 }

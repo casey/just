@@ -420,3 +420,20 @@ fn usage_recipes() {
     .stdout("bar\nfoo\n")
     .success();
 }
+
+#[test]
+fn recipes_with_invalid_config() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+        bar:
+      ",
+    )
+    .shell(false)
+    .env("JUST_COMPLETE", "fish")
+    .env("JUST_ALIAS_STYLE", "foo")
+    .args(complete_args(&[""]))
+    .stdout_regex("bar\nfoo\n--.*")
+    .success();
+}

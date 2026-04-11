@@ -91,11 +91,7 @@ impl<'run, 'src> Completer<'run, 'src> {
       .collect()
   }
 
-  fn new(current: &'run OsStr, loader: &'src Loader) -> Option<Self> {
-    Self::try_new(current.to_str()?, loader).ok()
-  }
-
-  fn try_new(current: &'run str, loader: &'src Loader) -> RunResult<'src, Self> {
+  fn config() -> Option<Config> {
     let mut args = env::args_os().collect::<Vec<OsString>>();
 
     args.drain(1..3);
@@ -103,14 +99,23 @@ impl<'run, 'src> Completer<'run, 'src> {
     let matches = Arguments::command()
       .ignore_errors(true)
       .try_get_matches_from(args)
-      .map_err(|err| Error::internal(format!("failed to parse arguments: {err}")))?;
+      .ok()?;
 
-    let arguments = Arguments::from_arg_matches(&matches).unwrap();
+    let arguments = Arguments::from_arg_matches(&matches).ok()?;
 
-    let config = Config::from_arguments(arguments).unwrap_or(Config {
-      invocation_directory: env::current_dir().context(config_error::CurrentDir)?,
-      ..Config::default()
-    });
+    Config::from_arguments(arguments).ok()
+  }
+
+  fn new(current: &'run OsStr, loader: &'src Loader) -> Option<Self> {
+    Self::try_new(current.to_str()?, loader).ok()
+  }
+
+  fn try_new(current: &'run str, loader: &'src Loader) -> RunResult<'src, Self> {
+    let config = if let Some(config) = Self::config() {
+      config
+    } else {
+      Config::new()?
+    };
 
     let search = Search::search(&config)?;
 

@@ -231,7 +231,7 @@ impl Compiler {
     paths.insert(root.clone(), root.clone());
     Analyzer::analyze(
       &asts,
-      &Config::default(),
+      &Config::new().unwrap(),
       None,
       &[],
       &[],
@@ -261,7 +261,7 @@ mod tests {
 
     let justfile_a_path = tmp.path().join("justfile");
     let loader_output =
-      Compiler::compile(&Config::default(), &loader, &justfile_a_path).unwrap_err();
+      Compiler::compile(&Config::new().unwrap(), &loader, &justfile_a_path).unwrap_err();
 
     assert_matches!(loader_output, Error::CircularImport { current, import }
       if current == tmp.path().join("subdir").join("b").lexiclean() &&
