@@ -1228,7 +1228,7 @@ mod tests {
   fn default_config_matches_parsed_config() {
     assert_eq!(
       Config::new().unwrap(),
-      Config::from_arguments(Arguments::try_parse_from(&["just"]).unwrap()).unwrap()
+      Config::from_arguments(Arguments::try_parse_from(["just"]).unwrap()).unwrap()
     );
   }
 }
