@@ -196,16 +196,16 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut unknown_overrides = Vec::new();
 
     for ((path, name), value) in &config.overrides {
-      if *path == ast.modulepath {
+      if *path == ast.module_path {
         if let Some(assignment) = assignments.get(name) {
           overrides.insert(assignment.number, value.clone());
         } else {
           unknown_overrides.push(path.join(name));
         }
-      } else if path.starts_with(&ast.modulepath)
+      } else if path.starts_with(&ast.module_path)
         && !self
           .modules
-          .contains_key(&path.components[ast.modulepath.components.len()])
+          .contains_key(&path.components[ast.module_path.components.len()])
       {
         unknown_overrides.push(format!("{path}::{name}"));
       }
@@ -257,7 +257,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let recipes = RecipeResolver::resolve_recipes(
       &assignments,
       &functions,
-      &ast.modulepath,
+      &ast.module_path,
       &self.modules,
       &settings,
       deduplicated_recipes,
@@ -311,7 +311,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       functions,
       groups: groups.into(),
       loaded: loaded.into(),
-      modulepath: ast.modulepath.clone(),
+      module_path: ast.module_path.clone(),
       modules: self.modules,
       name,
       private,

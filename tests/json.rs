@@ -40,7 +40,7 @@ struct Module<'a> {
   doc: Option<&'a str>,
   first: Option<&'a str>,
   groups: Vec<&'a str>,
-  modulepath: &'a str,
+  module_path: &'a str,
   modules: BTreeMap<&'a str, Module<'a>>,
   recipes: BTreeMap<&'a str, Recipe<'a>>,
   settings: Settings<'a>,
@@ -888,7 +888,7 @@ fn module() {
         Module {
           doc: Some("hello"),
           first: Some("bar"),
-          modulepath: "foo",
+          module_path: "foo",
           source: "foo.just".into(),
           recipes: [(
             "bar",
@@ -922,7 +922,7 @@ fn module_group() {
         Module {
           first: Some("bar"),
           groups: ["alpha"].into(),
-          modulepath: "foo",
+          module_path: "foo",
           source: "foo.just".into(),
           recipes: [(
             "bar",
