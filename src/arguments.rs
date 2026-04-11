@@ -474,7 +474,7 @@ pub(crate) struct Subcommand {
 }
 
 impl Arguments {
-  pub(crate) const DEFAULT_CYGPATH: &str = "cygwin";
+  pub(crate) const DEFAULT_CYGPATH: &str = "cygpath";
   pub(crate) const DEFAULT_LIST_HEADING: &str = "Available recipes:\n";
   pub(crate) const DEFAULT_LIST_PREFIX: &str = "    ";
   pub(crate) const DEFAULT_TIMESTAMP_FORMAT: &str = "%H:%M:%S";
