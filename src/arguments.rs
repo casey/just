@@ -95,7 +95,7 @@ pub struct Arguments {
   pub(crate) complete_aliases: bool,
   #[arg(
     add = ArgValueCompleter::new(PathCompleter::file()),
-    default_value = "cygpath",
+    default_value = Self::DEFAULT_CYGPATH,
     env = "JUST_CYGPATH",
     help = "Use binary at <CYGPATH> to convert between unix and Windows paths.",
     long,
@@ -196,7 +196,7 @@ pub struct Arguments {
   )]
   pub(crate) justfile_names: Option<Vec<String>>,
   #[arg(
-    default_value = "Available recipes:\n",
+    default_value = Arguments::DEFAULT_LIST_HEADING,
     env = "JUST_LIST_HEADING",
     help = "Print <TEXT> before list",
     long,
@@ -204,7 +204,7 @@ pub struct Arguments {
   )]
   pub(crate) list_heading: String,
   #[arg(
-    default_value = "    ",
+    default_value = Arguments::DEFAULT_LIST_PREFIX,
     env = "JUST_LIST_PREFIX",
     help = "Print <TEXT> before each list item",
     long,
@@ -288,7 +288,7 @@ pub struct Arguments {
   #[arg(env = "JUST_TIMESTAMP", help = "Print recipe command timestamps", long)]
   pub(crate) timestamp: bool,
   #[arg(
-    default_value = "%H:%M:%S",
+    default_value = Self::DEFAULT_TIMESTAMP_FORMAT,
     env = "JUST_TIMESTAMP_FORMAT",
     help = "Timestamp format string",
     long
@@ -471,6 +471,13 @@ pub(crate) struct Subcommand {
     help = "List names of variables",
   )]
   pub(crate) variables: bool,
+}
+
+impl Arguments {
+  pub(crate) const DEFAULT_CYGPATH: &str = "%H:%M:%S";
+  pub(crate) const DEFAULT_LIST_HEADING: &str = "Available recipes:\n";
+  pub(crate) const DEFAULT_LIST_PREFIX: &str = "    ";
+  pub(crate) const DEFAULT_TIMESTAMP_FORMAT: &str = "%H:%M:%S";
 }
 
 impl Subcommand {

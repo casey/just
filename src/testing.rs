@@ -69,7 +69,7 @@ pub(crate) fn analysis_error(
 
   match Analyzer::analyze(
     &asts,
-    &Config::default(),
+    &Config::new().unwrap(),
     None,
     &[],
     &[],

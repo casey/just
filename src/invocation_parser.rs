@@ -393,7 +393,7 @@ mod tests {
     fs::write(&path, "mod foo").unwrap();
     fs::create_dir(tempdir.path().join("foo")).unwrap();
     fs::write(tempdir.path().join("foo/mod.just"), "bar:").unwrap();
-    let compilation = Compiler::compile(&Config::default(), &loader, &path).unwrap();
+    let compilation = Compiler::compile(&Config::new().unwrap(), &loader, &path).unwrap();
 
     let invocations =
       InvocationParser::parse_invocations(&compilation.justfile, &["foo", "bar"]).unwrap();
@@ -411,7 +411,7 @@ mod tests {
     fs::write(&path, "mod foo").unwrap();
     fs::create_dir(tempdir.path().join("foo")).unwrap();
     fs::write(tempdir.path().join("foo/mod.just"), "bar:").unwrap();
-    let compilation = Compiler::compile(&Config::default(), &loader, &path).unwrap();
+    let compilation = Compiler::compile(&Config::new().unwrap(), &loader, &path).unwrap();
 
     assert_matches!(
       InvocationParser::parse_invocations(&compilation.justfile, &["foo", "zzz"]).unwrap_err(),
@@ -430,7 +430,7 @@ mod tests {
 
     let loader = Loader::new();
     let compilation = Compiler::compile(
-      &Config::default(),
+      &Config::new().unwrap(),
       &loader,
       &tempdir.path().join("justfile"),
     )
@@ -453,7 +453,7 @@ mod tests {
 
     let loader = Loader::new();
     let compilation = Compiler::compile(
-      &Config::default(),
+      &Config::new().unwrap(),
       &loader,
       &tempdir.path().join("justfile"),
     )
@@ -474,7 +474,7 @@ mod tests {
 
     let loader = Loader::new();
     let compilation = Compiler::compile(
-      &Config::default(),
+      &Config::new().unwrap(),
       &loader,
       &tempdir.path().join("justfile"),
     )
@@ -493,7 +493,7 @@ mod tests {
 
     let loader = Loader::new();
     let compilation = Compiler::compile(
-      &Config::default(),
+      &Config::new().unwrap(),
       &loader,
       &tempdir.path().join("justfile"),
     )
@@ -516,7 +516,7 @@ mod tests {
 
     let loader = Loader::new();
     let compilation = Compiler::compile(
-      &Config::default(),
+      &Config::new().unwrap(),
       &loader,
       &tempdir.path().join("justfile"),
     )
