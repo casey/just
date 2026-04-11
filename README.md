@@ -4913,7 +4913,8 @@ Contributing
 ------------
 
 > [!NOTE]
-> `just` is currently not accepting pull requests.
+> `just` is not currently accepting pull requests. The contributing section is
+> retained for posterity.
 
 `just` welcomes your contributions! `just` is released under the maximally
 permissive
