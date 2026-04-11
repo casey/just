@@ -21,8 +21,7 @@ pub(crate) struct Justfile<'src> {
   pub(crate) groups: Vec<StringLiteral<'src>>,
   #[serde(skip)]
   pub(crate) loaded: Vec<PathBuf>,
-  #[serde(skip)]
-  pub(crate) modulepath: Modulepath,
+  pub(crate) module_path: Modulepath,
   pub(crate) modules: Table<'src, Self>,
   #[serde(skip)]
   pub(crate) name: Option<Name<'src>>,
@@ -142,7 +141,7 @@ impl<'src> Justfile<'src> {
     )?;
 
     let scope = scope_arena.alloc(scope);
-    scopes.insert(self.modulepath.clone(), (self, scope, dotenv));
+    scopes.insert(self.module_path.clone(), (self, scope, dotenv));
 
     for module in self.modules.values() {
       module.evaluate_scopes(
@@ -260,7 +259,7 @@ impl<'src> Justfile<'src> {
           Some(HashSet::new()).as_ref(),
         )?;
 
-        let (_module, scope, dotenv) = scopes.get(&self.modulepath).unwrap();
+        let (_module, scope, dotenv) = scopes.get(&self.module_path).unwrap();
         let scope = scope.child();
 
         command.export(&self.settings, dotenv, &scope, &self.unexports);
@@ -302,7 +301,7 @@ impl<'src> Justfile<'src> {
           Some(&variable_references),
         )?;
 
-        let scope = scopes.get(&module.modulepath).unwrap().1;
+        let scope = scopes.get(&module.module_path).unwrap().1;
 
         if let Some(variable) = variable {
           print!("{}", scope.value(variable).unwrap());
@@ -601,7 +600,7 @@ impl<'src> Justfile<'src> {
     while let Some(current) = stack.pop() {
       for alias in current.aliases.values() {
         if alias.is_public() {
-          aliases.push((alias, &current.modulepath));
+          aliases.push((alias, &current.module_path));
         }
       }
 

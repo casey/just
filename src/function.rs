@@ -465,7 +465,7 @@ fn module_file(context: Context) -> FunctionResult {
 }
 
 fn module_path(context: Context) -> FunctionResult {
-  Ok(context.execution_context.module.modulepath.to_string())
+  Ok(context.execution_context.module.module_path.to_string())
 }
 
 fn num_cpus(_context: Context) -> FunctionResult {
