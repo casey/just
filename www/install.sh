@@ -21,6 +21,7 @@ OPTIONS:
     --tag TAG       Tag (version) of the crate to install, defaults to latest release
     --to LOCATION   Where to install the binary [default: ~/bin]
     --target TARGET
+    --sha256 SHA256 SHA256 checksum to verify the downloaded archive
 EOF
 }
 
@@ -83,6 +84,10 @@ while test $# -gt 0; do
       ;;
     --to)
       dest=$2
+      shift
+      ;;
+    --sha256)
+      sha256=$2
       shift
       ;;
     *)
@@ -162,11 +167,39 @@ say "Archive:     $archive"
 
 td=$(mktemp -d || mktemp -d -t tmp)
 
-if [ "$extension" = "zip" ]; then
-  download "$archive" "$td/just.zip"
-  unzip -d "$td" "$td/just.zip"
+if [ -n "${sha256-}" ]; then
+  if command -v sha256sum > /dev/null; then
+    sha256cmd="sha256sum"
+  elif command -v shasum > /dev/null; then
+    sha256cmd="shasum -a 256"
+  else
+    err "need sha256sum or shasum to verify checksum (command not found)"
+  fi
+fi
+
+archive_path="$td/$crate-$tag-$target.$extension"
+
+if [ "$extension" = "zip" ] || [ -n "${sha256-}" ]; then
+  download "$archive" "$archive_path"
 else
   download "$archive" - | tar -C "$td" -xz
+fi
+
+if [ -n "${sha256-}" ]; then
+  actual_sha256=$($sha256cmd < "$archive_path" | cut -d' ' -f1)
+  if [ "$actual_sha256" != "$sha256" ]; then
+    err "SHA256 mismatch: expected $sha256, got $actual_sha256"
+  else
+    say "Checksum verified."
+  fi
+fi
+
+if [ -e "$archive_path" ]; then
+  if [ "$extension" = "zip" ]; then
+    unzip -d "$td" "$archive_path"
+  else
+    tar -C "$td" -xzf "$archive_path"
+  fi
 fi
 
 if [ -e "$dest/just" ] && [ "$force" = false ]; then
