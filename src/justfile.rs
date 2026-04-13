@@ -456,7 +456,7 @@ impl<'src> Justfile<'src> {
 
     let mut evaluator = Evaluator::new(&context, BTreeMap::new(), true, &scope);
 
-    if !(config.yes || config.dry_run || recipe.confirm(&mut evaluator)?) {
+    if !(config.dry_run || config.yes || recipe.confirm(&mut evaluator)?) {
       return Err(Error::NotConfirmed {
         recipe: recipe.name(),
       });
