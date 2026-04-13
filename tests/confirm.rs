@@ -191,6 +191,21 @@ fn confirm_with_recipe_parameter() {
 }
 
 #[test]
+fn dry_run_skips_confirm() {
+  Test::new()
+    .justfile(
+      "
+        [confirm]
+        foo:
+          echo foo
+      ",
+    )
+    .arg("--dry-run")
+    .stderr("echo foo\n")
+    .success();
+}
+
+#[test]
 fn confirm_expression_dump() {
   Test::new()
     .justfile(
