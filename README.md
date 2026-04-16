@@ -2127,7 +2127,7 @@ which will halt execution.
   existing entity and the string `false` otherwise. Traverses symbolic links,
   and returns the string `false` if the path is inaccessible or points to a
   broken symlink.
-- `read(path)`<sup>1.39.0</sup> - Returns the content of file at `path` as
+- `read(path)`<sup>1.39.0</sup> - Returns the content of file at `path` as a
   string.
 
 #### Assertions and Error Reporting
