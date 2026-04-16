@@ -1416,6 +1416,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       Keyword::Guards => Some(Setting::Guards(self.parse_set_bool()?)),
       Keyword::IgnoreComments => Some(Setting::IgnoreComments(self.parse_set_bool()?)),
       Keyword::Lazy => Some(Setting::Lazy(self.parse_set_bool()?)),
+      Keyword::NoCd => Some(Setting::NoCd(self.parse_set_bool()?)),
       Keyword::NoExitMessage => Some(Setting::NoExitMessage(self.parse_set_bool()?)),
       Keyword::PositionalArguments => Some(Setting::PositionalArguments(self.parse_set_bool()?)),
       Keyword::Quiet => Some(Setting::Quiet(self.parse_set_bool()?)),
@@ -2648,6 +2649,12 @@ mod tests {
     name: set_quiet_false,
     text: "set quiet := false",
     tree: (justfile (set quiet false)),
+  }
+
+  test! {
+    name: set_no_cd,
+    text: "set no-cd := true",
+    tree: (justfile (set no_cd true)),
   }
 
   test! {

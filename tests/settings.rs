@@ -262,6 +262,43 @@ fn variable() {
 }
 
 #[test]
+fn no_cd_setting_conflicts_with_working_directory_setting() {
+  Test::new()
+    .justfile(
+      "
+        set no-cd := true
+        set working-directory := 'bar'
+      ",
+    )
+    .stderr_regex(
+      "error: Setting `no-cd` first set on line 1 is incompatible with setting `working-directory`\n[\\s\\S]*",
+    )
+    .failure();
+}
+
+#[test]
+fn no_cd_setting_changes_default_recipe_execution() {
+  Test::new()
+    .justfile(
+      "
+        set no-cd := true
+
+        foo:
+          cat bar
+      ",
+    )
+    .current_dir("child")
+    .tree(tree! {
+      bar: "root",
+      child: {
+        bar: "child",
+      }
+    })
+    .stderr("cat bar\n")
+    .stdout("child")
+    .success();
+}
+
 fn unused_non_const_assignments() {
   Test::new()
     .justfile(
