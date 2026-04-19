@@ -360,23 +360,6 @@ impl Subcommand {
       src,
     )?;
 
-    let unstable = config.unstable
-      || ast.items.iter().any(|item| {
-        matches!(
-          item,
-          Item::Set(Set {
-            value: Setting::Unstable(true),
-            ..
-          })
-        )
-      });
-
-    if !unstable {
-      return Err(Error::UnstableFeature {
-        unstable_feature: UnstableFeature::FormatSubcommand,
-      });
-    }
-
     let formatted = ast
       .color_display(config.color.use_color(UseColor::Never))
       .to_string();

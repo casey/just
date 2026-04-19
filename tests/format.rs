@@ -1,15 +1,6 @@
 use super::*;
 
 #[test]
-fn unstable_not_passed() {
-  Test::new()
-    .arg("--fmt")
-    .justfile("")
-    .stderr_regex("error: The `--fmt` command is currently unstable..*")
-    .failure();
-}
-
-#[test]
 fn check_without_fmt() {
   Test::new()
     .arg("--check")
@@ -25,7 +16,6 @@ fn check_without_fmt() {
 #[test]
 fn check_ok() {
   Test::new()
-    .arg("--unstable")
     .arg("--fmt")
     .arg("--check")
     .justfile(
@@ -50,7 +40,6 @@ fn check_ok() {
 #[test]
 fn check_found_diff() {
   Test::new()
-    .arg("--unstable")
     .arg("--fmt")
     .arg("--check")
     .justfile("x:=``\n")
@@ -71,7 +60,6 @@ fn check_found_diff() {
 #[test]
 fn check_found_diff_quiet() {
   Test::new()
-    .arg("--unstable")
     .arg("--fmt")
     .arg("--check")
     .arg("--quiet")
@@ -83,7 +71,6 @@ fn check_found_diff_quiet() {
 fn check_diff_color() {
   Test::new()
         .justfile("x:=``\n")
-        .arg("--unstable")
         .arg("--fmt")
         .arg("--check")
         .arg("--color")
@@ -104,7 +91,6 @@ fn unstable_passed() {
   let output = Command::new(JUST)
     .current_dir(tmp.path())
     .arg("--fmt")
-    .arg("--unstable")
     .output()
     .unwrap();
 
@@ -132,7 +118,7 @@ fn write_error() {
 
   let test = Test::with_tempdir(tempdir)
     .no_justfile()
-    .args(["--fmt", "--unstable"])
+    .arg("--fmt")
     .stderr_regex(if cfg!(windows) {
       r"error: Failed to write justfile to `.*`: Access is denied. \(os error 5\)\n"
     } else {
@@ -1438,8 +1424,6 @@ fn multi_argument_attribute() {
   Test::new()
     .justfile(
       "
-        set unstable
-
         [script('a', 'b', 'c')]
         foo:
       ",
@@ -1447,8 +1431,6 @@ fn multi_argument_attribute() {
     .arg("--dump")
     .stdout(
       "
-        set unstable
-
         [script('a', 'b', 'c')]
         foo:
       ",
@@ -1461,8 +1443,6 @@ fn doc_attribute_suppresses_comment() {
   Test::new()
     .justfile(
       "
-        set unstable
-
         # COMMENT
         [doc('ATTRIBUTE')]
         foo:
@@ -1471,8 +1451,6 @@ fn doc_attribute_suppresses_comment() {
     .arg("--dump")
     .stdout(
       "
-        set unstable
-
         # COMMENT
         [doc('ATTRIBUTE')]
         foo:
@@ -1493,10 +1471,7 @@ fn unchanged_justfiles_are_not_written_to_disk() {
   permissions.set_readonly(true);
   fs::set_permissions(&justfile, permissions).unwrap();
 
-  Test::with_tempdir(tmp)
-    .no_justfile()
-    .args(["--fmt", "--unstable"])
-    .success();
+  Test::with_tempdir(tmp).no_justfile().arg("--fmt").success();
 }
 
 #[test]
@@ -1656,7 +1631,7 @@ fn arg_attribute_help() {
 #[test]
 fn missing_import_file() {
   Test::new()
-    .args(["--unstable", "--fmt", "--check"])
+    .args(["--fmt", "--check"])
     .justfile("import 'foo'\n")
     .test_round_trip(false)
     .success();
@@ -1665,7 +1640,7 @@ fn missing_import_file() {
 #[test]
 fn missing_module_file() {
   Test::new()
-    .args(["--unstable", "--fmt", "--check"])
+    .args(["--fmt", "--check"])
     .justfile("mod foo\n")
     .test_round_trip(false)
     .success();
@@ -1674,7 +1649,7 @@ fn missing_module_file() {
 #[test]
 fn undefined_variable() {
   Test::new()
-    .args(["--unstable", "--fmt", "--check"])
+    .args(["--fmt", "--check"])
     .justfile(
       "
         foo:
@@ -1688,7 +1663,7 @@ fn undefined_variable() {
 #[test]
 fn indentation_two_spaces() {
   Test::new()
-    .args(["--unstable", "--fmt", "--check", "--indentation", "  "])
+    .args(["--fmt", "--check", "--indentation", "  "])
     .justfile("foo:\n  echo bar\n")
     .test_round_trip(false)
     .success();
@@ -1697,7 +1672,7 @@ fn indentation_two_spaces() {
 #[test]
 fn indentation_tab() {
   Test::new()
-    .args(["--unstable", "--fmt", "--check", "--indentation", "\t"])
+    .args(["--fmt", "--check", "--indentation", "\t"])
     .justfile("foo:\n\techo bar\n")
     .test_round_trip(false)
     .success();
@@ -1706,7 +1681,7 @@ fn indentation_tab() {
 #[test]
 fn indentation_check_with_custom() {
   Test::new()
-    .args(["--unstable", "--fmt", "--check", "--indentation", "  "])
+    .args(["--fmt", "--check", "--indentation", "  "])
     .justfile("foo:\n    echo bar\n")
     .test_round_trip(false)
     .stdout(" foo:\n-    echo bar\n+  echo bar\n")

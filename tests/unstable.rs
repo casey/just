@@ -16,10 +16,10 @@ fn set_unstable_true_with_env_var() {
 fn set_unstable_false_with_env_var() {
   for val in ["0", "", "false"] {
     Test::new()
-      .justfile("")
-      .args(["--fmt"])
+      .justfile("f(a) := a")
+      .arg("--dump")
       .env("JUST_UNSTABLE", val)
-      .stderr_regex("error: The `--fmt` command is currently unstable.*")
+      .stderr_regex("error: User-defined functions are currently unstable.*")
       .failure();
   }
 }
@@ -27,9 +27,9 @@ fn set_unstable_false_with_env_var() {
 #[test]
 fn set_unstable_false_with_env_var_unset() {
   Test::new()
-    .justfile("")
-    .args(["--fmt"])
-    .stderr_regex("error: The `--fmt` command is currently unstable.*")
+    .justfile("f(a) := a")
+    .arg("--dump")
+    .stderr_regex("error: User-defined functions are currently unstable.*")
     .failure();
 }
 
