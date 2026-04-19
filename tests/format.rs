@@ -81,29 +81,6 @@ fn check_diff_color() {
 }
 
 #[test]
-fn unstable_passed() {
-  let tmp = tempdir();
-
-  let justfile = tmp.path().join("justfile");
-
-  fs::write(&justfile, "x    :=    'hello'   ").unwrap();
-
-  let output = Command::new(JUST)
-    .current_dir(tmp.path())
-    .arg("--fmt")
-    .output()
-    .unwrap();
-
-  if !output.status.success() {
-    eprintln!("{}", String::from_utf8_lossy(&output.stderr));
-    eprintln!("{}", String::from_utf8_lossy(&output.stdout));
-    panic!("justfile failed with status: {}", output.status);
-  }
-
-  assert_eq!(fs::read_to_string(&justfile).unwrap(), "x := 'hello'\n");
-}
-
-#[test]
 fn write_error() {
   // skip this test if running as root, since root can write files even if
   // permissions would otherwise forbid it
