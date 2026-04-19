@@ -1248,3 +1248,61 @@ fn verbose_message_includes_module_path() {
     .stdout("BAR\n")
     .success();
 }
+
+#[test]
+fn trailing_separator_runs_default_recipe() {
+  Test::new()
+    .write("foo.just", "@bar:\n echo FOO")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .arg("foo::")
+    .stdout("FOO\n")
+    .success();
+}
+
+#[test]
+fn nested_trailing_separator_runs_default_recipe() {
+  Test::new()
+    .write("foo.just", "mod bar")
+    .write("bar.just", "@baz:\n echo BAZ")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .arg("foo::bar::")
+    .stdout("BAZ\n")
+    .success();
+}
+
+#[test]
+fn trailing_separator_no_default_recipe() {
+  Test::new()
+    .write("foo.just", "import 'bar.just'")
+    .write("bar.just", "bar:\n @echo BAR")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .arg("foo::")
+    .stderr("error: Justfile contains no default recipe.\n")
+    .failure();
+}
+
+#[test]
+fn trailing_separator_not_last_argument() {
+  Test::new()
+    .write("foo.just", "bar:\n @echo BAR")
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .args(["foo::", "bar"])
+    .stderr("error: Justfile does not contain recipe `foo::`\n")
+    .failure();
+}

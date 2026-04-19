@@ -601,7 +601,7 @@ impl ColorDisplay for Error<'_> {
         write!(f, "I/O error at `{}`: {source}", path.display())?;
       }
       FlagWithValue { recipe, option } => {
-        write!(f, "Recipe `{recipe}` flag `{option}` does not take value",)?;
+        write!(f, "Recipe `{recipe}` flag `{option}` does not take value")?;
       }
       FormatCheckFoundDiff => {
         write!(f, "Formatted justfile differs from original.")?;

@@ -246,6 +246,25 @@ fn cancelled_by_user() {
 }
 
 #[test]
+fn filter_by_group() {
+  Test::new()
+    .args(["--choose", "--chooser", "head -n1", "--group", "foo"])
+    .justfile(
+      "
+        a:
+          echo A
+
+        [group: 'foo']
+        b:
+          echo B
+      ",
+    )
+    .stderr("echo B\n")
+    .stdout("B\n")
+    .success();
+}
+
+#[test]
 fn default() {
   let tmp = temptree! {
     justfile: "foo:\n echo foo\n",
