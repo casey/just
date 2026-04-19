@@ -99,11 +99,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
     let mut i = 0;
     let mut positional_index = 0;
     let mut positional_accepted = 0;
-    loop {
-      let Some(argument) = rest.get(i) else {
-        break;
-      };
-
+    while let Some(argument) = rest.get(i) {
       if !end_of_options && *argument == "--" {
         end_of_options = true;
         i += 1;
