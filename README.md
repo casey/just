@@ -4303,7 +4303,7 @@ some-recipe:
     echo "foo"
 ```
 
-Note that formatting is not covered by any backwards compatibility guarantee,
+Note that formatting is not covered by any backwards compatibility guarantee
 and is subject to change from time to time.
 
 Invoking `just --fmt --check` runs `--fmt` in check mode. Instead of
