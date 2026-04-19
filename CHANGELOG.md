@@ -1,6 +1,44 @@
 Changelog
 =========
 
+[1.50.0](https://github.com/casey/just/releases/tag/1.50.0) - 2026-04-19
+------------------------------------------------------------------------
+
+### Added
+- Filter `--choose` by `--group` ([#3298](https://github.com/casey/just/pull/3298) by [casey](https://github.com/casey))
+- Add `[android]` recipe attribute ([#2884](https://github.com/casey/just/pull/2884) by [duncanawoods](https://github.com/duncanawoods))
+- Add `module_path()` function ([#3270](https://github.com/casey/just/pull/3270) by [casey](https://github.com/casey))
+
+### Fixed
+- Preserve trailing comments when formatting ([#3282](https://github.com/casey/just/pull/3282) by [casey](https://github.com/casey))
+- Preserve comments before `[doc]` attribute ([#3275](https://github.com/casey/just/pull/3275) by [casey](https://github.com/casey))
+- Allow comments after unexports ([#3264](https://github.com/casey/just/pull/3264) by [casey](https://github.com/casey))
+
+### Changed
+- Stabilize `--fmt` subcommand ([#3301](https://github.com/casey/just/pull/3301) by [casey](https://github.com/casey))
+- Ignore trailing `::` on last argument ([#3300](https://github.com/casey/just/pull/3300) by [casey](https://github.com/casey))
+- Complete files and directories when completing arguments ([#3299](https://github.com/casey/just/pull/3299) by [casey](https://github.com/casey))
+- Include `module_path` field in JSON ([#3288](https://github.com/casey/just/pull/3288) by [casey](https://github.com/casey))
+- Partially collapse blank lines between items ([#3274](https://github.com/casey/just/pull/3274) by [casey](https://github.com/casey))
+- Omit defaults when formatting settings ([#3268](https://github.com/casey/just/pull/3268) by [casey](https://github.com/casey))
+
+### Misc
+- Fix `read()` description ([#3295](https://github.com/casey/just/pull/3295) by [casey](https://github.com/casey))
+- Note that pull requests are not currently being accepted ([#3289](https://github.com/casey/just/pull/3289) by [casey](https://github.com/casey))
+- Improve completer config parsing ([#3287](https://github.com/casey/just/pull/3287) by [casey](https://github.com/casey))
+- Test that aliases complete with environment variable ([#3286](https://github.com/casey/just/pull/3286) by [casey](https://github.com/casey))
+- Replace unnecessary raw strings ([#3281](https://github.com/casey/just/pull/3281) by [casey](https://github.com/casey))
+- Fix test string indentation ([#3280](https://github.com/casey/just/pull/3280) by [casey](https://github.com/casey))
+- Document `assert()` in readme ([#3279](https://github.com/casey/just/pull/3279) by [casey](https://github.com/casey))
+- Replace dashes with underscores when using `--evaluate-format shell` ([#3278](https://github.com/casey/just/pull/3278) by [casey](https://github.com/casey))
+- Fix readme typos ([#3277](https://github.com/casey/just/pull/3277) by [casey](https://github.com/casey))
+- Test multi-line recipe comments ([#3276](https://github.com/casey/just/pull/3276) by [casey](https://github.com/casey))
+- Document `set no-exit-message` and `[exit-message]` ([#3269](https://github.com/casey/just/pull/3269) by [casey](https://github.com/casey))
+- Refactor end-of-file handling in lexer ([#3267](https://github.com/casey/just/pull/3267) by [casey](https://github.com/casey))
+- Fix end-of-file parsing ([#3266](https://github.com/casey/just/pull/3266) by [casey](https://github.com/casey))
+- Update softprops/action-gh-release to 2.6.1 ([#3253](https://github.com/casey/just/pull/3253) by [casey](https://github.com/casey))
+- Include bash completion script in crate ([#3252](https://github.com/casey/just/pull/3252) by [casey](https://github.com/casey))
+
 [1.49.0](https://github.com/casey/just/releases/tag/1.49.0) - 2026-04-04
 ------------------------------------------------------------------------
 
