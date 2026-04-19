@@ -222,7 +222,7 @@ Yay, all your tests passed!
 No need for <code>.PHONY</code> recipes!</p>
 </li>
 <li>
-<p>Linux, MacOS, Windows, and other reasonable unices are supported with no
+<p>Linux, macOS, Windows, and other reasonable unixes are supported with no
 additional dependencies. (Although if your system doesn’t have an <code>sh</code>,
 you’ll need to <a href="settings.html#shell">choose a different shell</a>.)</p>
 </li>
@@ -250,7 +250,7 @@ environment variables.</p>
 </li>
 <li>
 <p>Recipes can be written in
-<a href="shebang-recipes.html">arbitrary languages</a>, like Python or NodeJS.</p>
+<a href="shebang-recipes.html">arbitrary languages</a>, like Python or Node.js.</p>
 </li>
 <li>
 <p><code>just</code> can be invoked from any subdirectory, not just the directory that
@@ -260,7 +260,7 @@ contains the <code>justfile</code>.</p>
 <p>And <a href="https://just.systems/man/en/">much more</a>!</p>
 </li>
 </ul>
-<p>If you need help with <code>just</code> please feel free to open an issue or ping me on
+<p>If you need help with <code>just</code>, please feel free to open an issue or ping me on
 <a href="https://discord.gg/ezYScXR">Discord</a>. Feature requests and bug reports are
 always welcome!</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="installation"><a class="header" href="#installation">Installation</a></h2>
@@ -268,7 +268,7 @@ always welcome!</p>
 downloading <a href="pre-built-binaries.html">pre-built binaries</a>, or building from source
 with <code>cargo install just</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="prerequisites"><a class="header" href="#prerequisites">Prerequisites</a></h3>
-<p><code>just</code> should run on any system with a reasonable <code>sh</code>, including Linux, MacOS,
+<p><code>just</code> should run on any system with a reasonable <code>sh</code>, including Linux, macOS,
 and the BSDs.</p>
 <h4 id="windows"><a class="header" href="#windows">Windows</a></h4>
 <p>On Windows, <code>just</code> works with the <code>sh</code> provided by
@@ -295,7 +295,7 @@ list:
 <p>You can also set the shell using command-line arguments. For example, to use
 PowerShell, launch <code>just</code> with <code>--shell powershell.exe --shell-arg -c</code>.</p>
 <p>(PowerShell is installed by default on Windows 7 SP1 and Windows Server 2008 R2
-S1 and later, and <code>cmd.exe</code> is quite fiddly, so PowerShell is recommended for
+SP1 and later, and <code>cmd.exe</code> is quite fiddly, so PowerShell is recommended for
 most Windows users.)</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="packages"><a class="header" href="#packages">Packages</a></h3>
 <h4 id="cross-platform"><a class="header" href="#cross-platform">Cross-platform</a></h4>
@@ -510,9 +510,9 @@ most Windows users.)</p>
 </table>
 <p><img src="https://repology.org/badge/vertical-allrepos/just.svg" alt="just package version table" /></p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="pre-built-binaries"><a class="header" href="#pre-built-binaries">Pre-Built Binaries</a></h3>
-<p>Pre-built binaries for Linux, MacOS, and Windows can be found on
+<p>Pre-built binaries for Linux, macOS, and Windows can be found on
 <a href="https://github.com/casey/just/releases">the releases page</a>.</p>
-<p>You can use the following command on Linux, MacOS, or Windows to download the
+<p>You can use the following command on Linux, macOS, or Windows to download the
 latest release, just replace <code>DEST</code> with the directory where you’d like to put
 <code>just</code>:</p>
 <pre><code class="language-console">curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to DEST
@@ -525,7 +525,7 @@ mkdir -p ~/bin
 curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to ~/bin
 
 # add `~/bin` to the paths that your shell searches for executables
-# this line should be added to your shells initialization file,
+# this line should be added to your shell's initialization file,
 # e.g. `~/.bashrc` or `~/.zshrc`
 export PATH="$PATH:$HOME/bin"
 
@@ -548,7 +548,7 @@ which can be used to verify the integrity of pre-built binary archives.</p>
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="github-actions"><a class="header" href="#github-actions">GitHub Actions</a></h3>
 <p><code>just</code> can be installed on GitHub Actions in a few ways.</p>
-<p>Using package managers pre-installed on GitHub Actions runners on MacOS with
+<p>Using package managers pre-installed on GitHub Actions runners on macOS with
 <code>brew install just</code>, and on Windows with <code>choco install just</code>.</p>
 <p>With <a href="https://github.com/extractions/setup-just">extractions/setup-just</a>:</p>
 <pre><code class="language-yaml">- uses: extractions/setup-just@v3
@@ -580,7 +580,7 @@ will install a local, platform-specific binary as part of the <code>npm install<
 command. This removes the need for every developer to install <code>just</code>
 independently using one of the processes mentioned above. After installation,
 the <code>just</code> command will work in npm scripts or with npx. It’s great for teams
-who want to make the set up process for their project as easy as possible.</p>
+who want to make the setup process for their project as easy as possible.</p>
 <p>For more information, see the
 <a href="https://github.com/brombal/just-install#readme">just-install README file</a>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="nix-flake"><a class="header" href="#nix-flake">Nix Flake</a></h3>
@@ -611,7 +611,7 @@ leisure.</p>
 <p>Features that aren’t yet ready for stabilization are marked as unstable and may
 be changed or removed at any time. Using unstable features produces an error by
 default, which can be suppressed by passing the <code>--unstable</code> flag,
-<code>set unstable</code>, or setting the environment variable <code>JUST_UNSTABLE</code>, to any
+<code>set unstable</code>, or setting the environment variable <code>JUST_UNSTABLE</code> to any
 value other than <code>false</code>, <code>0</code>, or the empty string.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="editor-support"><a class="header" href="#editor-support">Editor Support</a></h2>
 <p><code>justfile</code> syntax is close enough to <code>make</code> that you may want to tell your
@@ -686,7 +686,7 @@ protocol</a>
 implementation, enabling features such as go-to-definition, inline diagnostics,
 and code completion.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="model-context-protocol"><a class="header" href="#model-context-protocol">Model Context Protocol</a></h3>
-<p><a href="http://github.com/promptexecution/just-mcp">just-mcp</a> provides a
+<p><a href="https://github.com/promptexecution/just-mcp">just-mcp</a> provides a
 <a href="https://en.wikipedia.org/wiki/Model_Context_Protocol">model context protocol</a>
 adapter to allow LLMs to query the contents of <code>justfiles</code> and run recipes.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h2>
@@ -703,8 +703,9 @@ root of your project with the following contents:</p>
 another-recipe:
   @echo 'This is another recipe.'
 </code></pre>
-<p>When you invoke <code>just</code> it looks for file <code>justfile</code> in the current directory
-and upwards, so you can invoke it from any subdirectory of your project.</p>
+<p>When you invoke <code>just</code>, it looks for a file named <code>justfile</code> in the current
+directory and upwards, so you can invoke it from any subdirectory of your
+project.</p>
 <p>The search for a <code>justfile</code> is case insensitive, so any case, like <code>Justfile</code>,
 <code>JUSTFILE</code>, or <code>JuStFiLe</code>, will work. <code>just</code> will also look for files with the
 name <code>.justfile</code>, in case you’d like to hide a <code>justfile</code>.</p>
@@ -897,7 +898,7 @@ error: Expected 1 command-line recipe invocation but found 2.
 <p>By default, recipes run with the working directory set to the directory that
 contains the <code>justfile</code>.</p>
 <p>The <code>[no-cd]</code> attribute can be used to make recipes run with the working
-directory set to directory in which <code>just</code> was invoked.</p>
+directory set to the directory in which <code>just</code> was invoked.</p>
 <pre><code class="language-just">@foo:
   pwd
 
@@ -975,6 +976,7 @@ foo:
 <tr><td><code>export</code></td><td>boolean</td><td><code>false</code></td><td>Export all variables as environment variables.</td></tr>
 <tr><td><code>fallback</code></td><td>boolean</td><td><code>false</code></td><td>Search <code>justfile</code> in parent directory if the first recipe on the command line is not found.</td></tr>
 <tr><td><code>ignore-comments</code></td><td>boolean</td><td><code>false</code></td><td>Ignore recipe lines beginning with <code>#</code>.</td></tr>
+<tr><td><code>no-exit-message</code><sup>1.39.0</sup></td><td>boolean</td><td><code>false</code></td><td>Don’t print exit messages if recipes fail.</td></tr>
 <tr><td><code>lazy</code><sup>1.47.0</sup></td><td>boolean</td><td><code>false</code></td><td>Don’t evaluate unused variables.</td></tr>
 <tr><td><code>positional-arguments</code></td><td>boolean</td><td><code>false</code></td><td>Pass positional arguments.</td></tr>
 <tr><td><code>quiet</code></td><td>boolean</td><td><code>false</code></td><td>Disable echoing recipe lines before executing.</td></tr>
@@ -982,7 +984,7 @@ foo:
 <tr><td><code>shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>-</td><td>Set command used to invoke recipes and evaluate backticks.</td></tr>
 <tr><td><code>tempdir</code></td><td>string</td><td>-</td><td>Create temporary directories in <code>tempdir</code> instead of the system default temporary directory.</td></tr>
 <tr><td><code>unstable</code><sup>1.31.0</sup></td><td>boolean</td><td><code>false</code></td><td>Enable unstable features.</td></tr>
-<tr><td><code>windows-powershell</code></td><td>boolean</td><td><code>false</code></td><td>Use PowerShell on Windows as default shell. (Deprecated. Use <code>windows-shell</code> instead.</td></tr>
+<tr><td><code>windows-powershell</code></td><td>boolean</td><td><code>false</code></td><td>Use PowerShell on Windows as default shell. (Deprecated. Use <code>windows-shell</code> instead.)</td></tr>
 <tr><td><code>windows-shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>-</td><td>Set the command used to invoke recipes and evaluate backticks.</td></tr>
 <tr><td><code>working-directory</code><sup>1.33.0</sup></td><td>string</td><td>-</td><td>Set the working directory for recipes and backticks, relative to the default working directory.</td></tr>
 </tbody></table>
@@ -994,7 +996,7 @@ foo:
 <pre><code class="language-justfile">set NAME := true
 </code></pre>
 <p>Non-boolean settings can be set to both strings and
-expressions.<sup>1.46.0</sup></p>
+expressions<sup>1.46.0</sup>.</p>
 <p>However, because settings affect the behavior of backticks and many functions,
 those expressions may not contain backticks or function calls, directly or
 transitively via reference.</p>
@@ -1036,10 +1038,10 @@ from a file.</p>
 may be absolute, or relative to the working directory.</p>
 <p>The command-line option <code>--dotenv-path</code>, short form <code>-E</code>, can be used to set or
 override <code>dotenv-path</code> at runtime.</p>
-<p>If <code>dotenv-filename</code> is set <code>just</code> will look for a file at the given path,
+<p>If <code>dotenv-filename</code> is set, <code>just</code> will look for a file at the given path,
 relative to the working directory and each of its ancestors.</p>
 <p>If <code>dotenv-filename</code> is not set, but <code>dotenv-load</code> or <code>dotenv-required</code> are
-set, just will look for a file named <code>.env</code>, relative to the working directory
+set, <code>just</code> will look for a file named <code>.env</code>, relative to the working directory
 and each of its ancestors.</p>
 <p><code>dotenv-filename</code> and <code>dotenv-path</code> are similar, but <code>dotenv-path</code> is only
 checked relative to the working directory, whereas <code>dotenv-filename</code> is checked
@@ -1069,8 +1071,8 @@ Starting server with database localhost:6379 on port 1337…
 </code></pre>
 <p>Variables in environment files loaded in parent modules are inherited by
 submodules.</p>
-<p>Environment files are loaded in submodules<sup>1.49.0<sup> and may override
-variable defined in parent module environment files.</p>
+<p>Environment files are loaded in submodules<sup>1.49.0</sup> and may override
+variables defined in parent module environment files.</p>
 <h4 id="export"><a class="header" href="#export">Export</a></h4>
 <p>The <code>export</code> setting causes all <code>just</code> variables to be exported as environment
 variables. Defaults to <code>false</code>.</p>
@@ -1257,7 +1259,7 @@ bar := "world"
 foo := "hello"
 </code></pre>
 <p>Or the value of a single variable:</p>
-<pre><code class="language-console">$ just --evalaute foo
+<pre><code class="language-console">$ just --evaluate foo
 hello
 </code></pre>
 <p>All variables in a submodule or a single variable in a submodule may be printed
@@ -1339,7 +1341,7 @@ a//b
 </code></pre>
 <p>The <code>/</code> operator uses the <code>/</code> character, even on Windows. Thus, using the <code>/</code>
 operator should be avoided with paths that use universal naming convention
-(UNC), i.e., those that start with <code>\?</code>, since forward slashes are not
+(UNC), i.e., those that start with <code>\\</code>, since forward slashes are not
 supported with UNC paths.</p>
 <h4 id="escaping-"><a class="header" href="#escaping-">Escaping <code>{{</code></a></h4>
 <p>To write a recipe containing <code>{{</code>, use <code>{{{{</code>:</p>
@@ -1458,7 +1460,7 @@ evaluated expressions.</p>
   @echo "This line will be echoed!"
   echo "This line won't be echoed!"
 </code></pre>
-<p>The <code>-</code> sigil cause recipe execution to continue even if the command returns a
+<p>The <code>-</code> sigil causes recipe execution to continue even if the command returns a
 nonzero exit status:</p>
 <pre><code class="language-just"># execution will continue, even if bar doesn't exist
 foo:
@@ -1502,7 +1504,7 @@ recipe body <code>{{…}}</code> substitutions, assignments, and default paramet
 <code>"arm"</code>, <code>"asmjs"</code>, <code>"hexagon"</code>, <code>"mips"</code>, <code>"msp430"</code>, <code>"powerpc"</code>,
 <code>"powerpc64"</code>, <code>"s390x"</code>, <code>"sparc"</code>, <code>"wasm32"</code>, <code>"x86"</code>, <code>"x86_64"</code>, and
 <code>"xcore"</code>.</li>
-<li><code>num_cpus()</code><sup>1.15.0</sup> - Number of logical CPUs.</li>
+<li><code>num_cpus()</code><sup>1.15.0</sup> — Number of logical CPUs.</li>
 <li><code>os()</code> — Operating system. Possible values are: <code>"android"</code>, <code>"bitrig"</code>,
 <code>"dragonfly"</code>, <code>"emscripten"</code>, <code>"freebsd"</code>, <code>"haiku"</code>, <code>"ios"</code>, <code>"linux"</code>,
 <code>"macos"</code>, <code>"netbsd"</code>, <code>"openbsd"</code>, <code>"solaris"</code>, and <code>"windows"</code>.</li>
@@ -1511,10 +1513,10 @@ recipe body <code>{{…}}</code> substitutions, assignments, and default paramet
 </ul>
 <p>For example:</p>
 <pre><code class="language-just">system-info:
-  @echo "This is an {{arch()}} machine".
+  @echo "This is an {{arch()}} machine."
 </code></pre>
 <pre><code class="language-console">$ just system-info
-This is an x86_64 machine
+This is an x86_64 machine.
 </code></pre>
 <p>The <code>os_family()</code> function can be used to create cross-platform <code>justfile</code>s
 that work on various operating systems. For an example, see
@@ -1620,14 +1622,14 @@ otherwise returns the string <code>false</code>.</li>
 <h4 id="invocation-directory"><a class="header" href="#invocation-directory">Invocation Directory</a></h4>
 <ul>
 <li><code>invocation_directory()</code> - Retrieves the absolute path to the current
-directory when <code>just</code> was invoked, before  <code>just</code> changed it (chdir’d) prior
+directory when <code>just</code> was invoked, before <code>just</code> changed it (chdir’d) prior
 to executing commands. On Windows, <code>invocation_directory()</code> uses <code>cygpath</code> to
 convert the invocation directory to a Cygwin-compatible <code>/</code>-separated path.
 Use <code>invocation_directory_native()</code> to return the verbatim invocation
 directory on all platforms.</li>
 </ul>
 <p>For example, to call <code>rustfmt</code> on files just under the “current directory”
-(from the user/invoker’s perspective), use the following rule:</p>
+(from the user/invoker’s perspective), use the following recipe:</p>
 <pre><code class="language-just">rustfmt:
   find {{invocation_directory()}} -name \*.rs -exec rustfmt {} \;
 </code></pre>
@@ -1638,7 +1640,7 @@ could use (e.g.):</p>
 </code></pre>
 <ul>
 <li><code>invocation_directory_native()</code> - Retrieves the absolute path to the current
-directory when <code>just</code> was invoked, before  <code>just</code> changed it (chdir’d) prior
+directory when <code>just</code> was invoked, before <code>just</code> changed it (chdir’d) prior
 to executing commands.</li>
 </ul>
 <h4 id="justfile-and-justfile-directory"><a class="header" href="#justfile-and-justfile-directory">Justfile and Justfile Directory</a></h4>
@@ -1673,17 +1675,20 @@ called from within an import or submodule.</p>
 <h4 id="module-and-module-directory"><a class="header" href="#module-and-module-directory">Module and Module Directory</a></h4>
 <ul>
 <li>
-<p><code>module_file()</code> - Retrieves the path of the current module file.</p>
+<p><code>module_file()</code> - Returns the path of the current module file.</p>
 </li>
 <li>
-<p><code>module_directory()</code> - Retrieves the path of the parent directory of the
+<p><code>module_directory()</code> - Returns the path of the parent directory of the
 current module file.</p>
+</li>
+<li>
+<p><code>module_path()</code> - Returns the <code>::</code>-separated path to the current module.</p>
 </li>
 </ul>
 <p><code>module_file()</code> and <code>module_directory()</code> behave the same as <code>justfile()</code> and
 <code>justfile_directory()</code> in the root <code>justfile</code>, but will return the path and
 directory, respectively, of the current <code>mod</code> source file when called from
-within submodule.</p>
+within a submodule.</p>
 <h4 id="just-executable"><a class="header" href="#just-executable">Just Executable</a></h4>
 <ul>
 <li><code>just_executable()</code> - Absolute path to the <code>just</code> executable.</li>
@@ -1708,9 +1713,9 @@ The process ID is: 420
 </code></pre>
 <h4 id="string-manipulation"><a class="header" href="#string-manipulation">String Manipulation</a></h4>
 <ul>
-<li><code>append(suffix, s)</code><sup>1.27.0</sup> Append <code>suffix</code> to whitespace-separated
+<li><code>append(suffix, s)</code><sup>1.27.0</sup> - Append <code>suffix</code> to whitespace-separated
 strings in <code>s</code>. <code>append('/src', 'foo bar baz')</code> → <code>'foo/src bar/src baz/src'</code></li>
-<li><code>prepend(prefix, s)</code><sup>1.27.0</sup> Prepend <code>prefix</code> to
+<li><code>prepend(prefix, s)</code><sup>1.27.0</sup> - Prepend <code>prefix</code> to
 whitespace-separated strings in <code>s</code>. <code>prepend('src/', 'foo bar baz')</code> →
 <code>'src/foo src/bar src/baz'</code></li>
 <li><code>encode_uri_component(s)</code><sup>1.27.0</sup> - Percent-encode characters in <code>s</code>
@@ -1777,7 +1782,7 @@ which will halt execution.</p>
 intermediate <code>.</code> components, and <code>..</code> where possible. <code>clean("foo//bar")</code> is
 <code>foo/bar</code>, <code>clean("foo/..")</code> is <code>.</code>, <code>clean("foo/./bar")</code> is <code>foo/bar</code>.</li>
 <li><code>join(a, b…)</code> - <em>This function uses <code>/</code> on Unix and <code>\</code> on Windows, which can
-be lead to unwanted behavior. The <code>/</code> operator, e.g., <code>a / b</code>, which always
+lead to unwanted behavior. The <code>/</code> operator, e.g., <code>a / b</code>, which always
 uses <code>/</code>, should be considered as a replacement unless <code>\</code>s are specifically
 desired on Windows.</em> Join path <code>a</code> with path <code>b</code>. <code>join("foo/bar", "baz")</code> is
 <code>foo/bar/baz</code>. Accepts two or more arguments.</li>
@@ -1788,11 +1793,13 @@ desired on Windows.</em> Join path <code>a</code> with path <code>b</code>. <cod
 existing entity and the string <code>false</code> otherwise. Traverses symbolic links,
 and returns the string <code>false</code> if the path is inaccessible or points to a
 broken symlink.</li>
-<li><code>read(path)</code><sup>1.39.0</sup> - Returns the content of file at <code>path</code> as
+<li><code>read(path)</code><sup>1.39.0</sup> - Returns the content of file at <code>path</code> as a
 string.</li>
 </ul>
-<h5 id="error-reporting"><a class="header" href="#error-reporting">Error Reporting</a></h5>
+<h4 id="assertions-and-error-reporting"><a class="header" href="#assertions-and-error-reporting">Assertions and Error Reporting</a></h4>
 <ul>
+<li><code>assert(CONDITION, EXPRESSION)</code><sup>1.27.0</sup> - Error with message
+<code>EXPRESSION</code> if <code>CONDITION</code> is false.</li>
 <li><code>error(message)</code> - Abort execution and report error <code>message</code> to user.</li>
 </ul>
 <h4 id="uuid-and-hash-generation"><a class="header" href="#uuid-and-hash-generation">UUID and Hash Generation</a></h4>
@@ -1850,9 +1857,9 @@ things like configuration, data, caches, executables, and the user’s home
 directory.</p>
 <p>On Unix, these functions follow the
 <a href="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">XDG Base Directory Specification</a>.</p>
-<p>On MacOS and Windows, these functions return the system-specified user-specific
+<p>On macOS and Windows, these functions return the system-specified user-specific
 directories. For example, <code>cache_directory()</code> returns <code>~/Library/Caches</code> on
-MacOS and <code>{FOLDERID_LocalAppData}</code> on Windows.</p>
+macOS and <code>{FOLDERID_LocalAppData}</code> on Windows.</p>
 <p>See the <a href="https://docs.rs/dirs/latest/dirs/index.html"><code>dirs</code></a> crate for more
 details.</p>
 <ul>
@@ -1886,7 +1893,7 @@ hello(name) := f"Hello, {{ name }}!"
 foo:
   echo '{{ hello("World") }}'
 </code></pre>
-<p>User defined functions are currently unstable.</p>
+<p>User-defined functions are currently unstable.</p>
 <p>Functions may reference assignments in the same module:</p>
 <pre><code class="language-just">set unstable
 
@@ -1968,10 +1975,12 @@ change their behavior.</p>
 <tr><td><code>[dragonfly]</code><sup>1.47.0</sup></td><td>recipe</td><td>Enable recipe on DragonFly BSD.</td></tr>
 <tr><td><code>[env(ENV_VAR, VALUE)]</code> <sup>1.47.0</sup></td><td>recipe</td><td>Set environment variables for recipe.</td></tr>
 <tr><td><code>[extension(EXT)]</code><sup>1.32.0</sup></td><td>recipe</td><td>Set shebang recipe script’s file extension to <code>EXT</code>. <code>EXT</code> should include a period if one is desired.</td></tr>
+<tr><td><code>[exit-message]</code><sup>1.39.0</sup></td><td>recipe</td><td>Print error message if recipe fails regardless of <code>set no-exit-message</code>.</td></tr>
 <tr><td><code>[freebsd]</code><sup>1.47.0</sup></td><td>recipe</td><td>Enable recipe on FreeBSD.</td></tr>
 <tr><td><code>[group(NAME)]</code><sup>1.27.0</sup></td><td>module, recipe</td><td>Put recipe or module in <a href="groups.html">group</a> <code>NAME</code>.</td></tr>
+<tr><td><code>[android]</code><sup>1.50.0</sup></td><td>recipe</td><td>Enable recipe on Android.</td></tr>
 <tr><td><code>[linux]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on Linux.</td></tr>
-<tr><td><code>[macos]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on MacOS.</td></tr>
+<tr><td><code>[macos]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on macOS.</td></tr>
 <tr><td><code>[metadata(METADATA)]</code><sup>1.42.0</sup></td><td>recipe</td><td>Attach <code>METADATA</code> to recipe.</td></tr>
 <tr><td><code>[netbsd]</code><sup>1.47.0</sup></td><td>recipe</td><td>Enable recipe on NetBSD.</td></tr>
 <tr><td><code>[no-cd]</code><sup>1.9.0</sup></td><td>recipe</td><td>Don’t change directory before executing recipe.</td></tr>
@@ -1983,7 +1992,7 @@ change their behavior.</p>
 <tr><td><code>[private]</code><sup>1.10.0</sup></td><td>alias, recipe</td><td>Make recipe, alias, or variable private. See <a href="private-recipes.html">Private Recipes</a>.</td></tr>
 <tr><td><code>[script(COMMAND)]</code><sup>1.32.0</sup></td><td>recipe</td><td>Execute recipe as a script interpreted by <code>COMMAND</code>. See <a href="script-recipes.html">script recipes</a> for more details.</td></tr>
 <tr><td><code>[script]</code><sup>1.33.0</sup></td><td>recipe</td><td>Execute recipe as script. See <a href="script-recipes.html">script recipes</a> for more details.</td></tr>
-<tr><td><code>[unix]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on Unixes. (Includes MacOS).</td></tr>
+<tr><td><code>[unix]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on unixes. (Includes macOS).</td></tr>
 <tr><td><code>[windows]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on Windows.</td></tr>
 <tr><td><code>[working-directory(PATH)]</code><sup>1.38.0</sup></td><td>recipe</td><td>Set recipe working directory. <code>PATH</code> may be relative or absolute. If relative, it is interpreted relative to the default working directory.</td></tr>
 </tbody></table>
@@ -2039,7 +2048,7 @@ commit file:
 <code>commit</code>.</p>
 <h4 id="requiring-confirmation-for-recipes"><a class="header" href="#requiring-confirmation-for-recipes">Requiring Confirmation for Recipes</a></h4>
 <p><code>just</code> normally executes all recipes unless there is an error. The <code>[confirm]</code>
-attribute<sup>1.17.0</sup> allows recipes require confirmation in the terminal
+attribute<sup>1.17.0</sup> allows recipes to require confirmation in the terminal
 prior to running. This can be overridden by passing <code>--yes</code> to <code>just</code>, which
 will automatically confirm any recipes marked by this attribute.</p>
 <p>Recipes dependent on a recipe that requires confirmation will not be run if the
@@ -2211,7 +2220,7 @@ abc
   error("123")
 }
 </code></pre>
-<p>Which produce the following error when run:</p>
+<p>Which produces the following error when run:</p>
 <pre><code>error: Call to function `error` failed: 123
    |
 16 |   error("123")
@@ -2277,7 +2286,8 @@ a $A $B=`echo $A`:
 <p>When <a href="settings.html#export">export</a> is set, all <code>just</code> variables are exported as environment
 variables.</p>
 <h4 id="unexporting-environment-variables"><a class="header" href="#unexporting-environment-variables">Unexporting Environment Variables</a></h4>
-<p>Environment variables can be unexported with the <code>unexport keyword</code><sup>1.29.0</sup>:</p>
+<p>Environment variables can be unexported with the <code>unexport</code>
+keyword<sup>1.29.0</sup>:</p>
 <pre><code class="language-just">unexport FOO
 
 @foo:
@@ -2287,14 +2297,14 @@ variables.</p>
 $ just foo
 sh: FOO: unbound variable
 </code></pre>
-<h4 id="getting-environment-variables-from-the-environment"><a class="header" href="#getting-environment-variables-from-the-environment">Getting Environment Variables from the environment</a></h4>
+<h4 id="getting-environment-variables-from-the-environment"><a class="header" href="#getting-environment-variables-from-the-environment">Getting Environment Variables from the Environment</a></h4>
 <p>Environment variables from the environment are passed automatically to the
 recipes.</p>
 <pre><code class="language-just">print_home_folder:
-  echo "HOME is: '${HOME}'"
+  @echo "HOME is: '${HOME}'"
 </code></pre>
 <pre><code class="language-console">$ just
-HOME is '/home/myuser'
+HOME is: '/home/myuser'
 </code></pre>
 <h4 id="setting-just-variables-from-environment-variables"><a class="header" href="#setting-just-variables-from-environment-variables">Setting <code>just</code> Variables from Environment Variables</a></h4>
 <p>Environment variables can be propagated to <code>just</code> variables using the <code>env()</code> function.
@@ -2329,7 +2339,7 @@ _build version:
 
 build: (_build target)
 </code></pre>
-<p>A command’s arguments can be passed to dependency by putting the dependency in
+<p>A command’s arguments can be passed to a dependency by putting the dependency in
 parentheses along with the arguments:</p>
 <pre><code class="language-just">build target:
   @echo "Building {{target}}…"
@@ -2561,7 +2571,7 @@ cc main.c
 ./a.out --test bar
 </code></pre>
 <h4 id="running-recipes-at-the-end-of-a-recipe"><a class="header" href="#running-recipes-at-the-end-of-a-recipe">Running Recipes at the End of a Recipe</a></h4>
-<p>Normal dependencies of a recipes always run before a recipe starts. That is to
+<p>Normal dependencies of a recipe always run before a recipe starts. That is to
 say, the dependee always runs before the depender. These dependencies are
 called “prior dependencies”.</p>
 <p>A recipe can also have subsequent dependencies, which run immediately after the
@@ -2658,7 +2668,7 @@ Yo from a shell script!
 Hola from a nushell script!
 Hello from ruby!
 </code></pre>
-<p>On Unix-like operating systems, including Linux and MacOS, shebang recipes are
+<p>On Unix-like operating systems, including Linux and macOS, shebang recipes are
 executed by saving the recipe body to a file in a temporary directory, marking
 the file as executable, and executing it. The OS then parses the shebang line
 into a command line and invokes it, including the path to the file. For
@@ -2746,7 +2756,7 @@ goodbye:
 </code></pre>
 <p>It isn’t strictly necessary, but <code>set -euxo pipefail</code> turns on a few useful
 features that make <code>bash</code> shebang recipes behave more like normal, linewise
-<code>just</code> recipe:</p>
+<code>just</code> recipes:</p>
 <ul>
 <li>
 <p><code>set -e</code> makes <code>bash</code> exit if a command fails.</p>
@@ -3017,7 +3027,7 @@ $ just
 </code></pre>
 <p>Since environment variables are inherited by child processes, command-line
 options set with environment variables are inherited by recursive invocations
-of <code>just</code>, where as command line options set with arguments are not.</p>
+of <code>just</code>, whereas command-line options set with arguments are not.</p>
 <p>Consult <code>just --help</code> for which options can be set with environment variables.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="private-recipes"><a class="header" href="#private-recipes">Private Recipes</a></h3>
 <p>Recipes and aliases whose name starts with a <code>_</code> are omitted from <code>just --list</code>:</p>
@@ -3065,7 +3075,7 @@ hello
 goodbye
 # all done!
 </code></pre>
-<p>All recipes in a Justfile can be made quiet with <code>set quiet</code>:</p>
+<p>All recipes in a justfile can be made quiet with <code>set quiet</code>:</p>
 <pre><code class="language-just">set quiet
 
 foo:
@@ -3105,7 +3115,9 @@ Bar!
 </code></pre>
 <p><code>just</code> normally prints error messages when a recipe line fails. These error
 messages can be suppressed using the <code>[no-exit-message]</code><sup>1.7.0</sup>
-attribute. You may find this especially useful with a recipe that wraps a tool:</p>
+attribute on individual recipes, or module-wide with
+<code>set no-exit-message</code><sup>1.39.0</sup>. You may find this especially useful
+with a recipe that wraps a tool:</p>
 <pre><code class="language-just">git *args:
     @git {{args}}
 </code></pre>
@@ -3194,7 +3206,7 @@ A
 </code></pre>
 <p>The <code>import</code> path can be absolute or relative to the location of the justfile
 containing it. A leading <code>~/</code> in the import path is replaced with the current
-users home directory.</p>
+user’s home directory.</p>
 <p>Justfiles are insensitive to order, so included files can reference variables
 and recipes defined after the <code>import</code> statement.</p>
 <p>Imported files can themselves contain <code>import</code>s, which are processed
@@ -3270,7 +3282,7 @@ B
 <pre><code class="language-console">$ just bar::b
 B
 </code></pre>
-<p>If a module is named <code>foo</code>, just will search for the module file in <code>foo.just</code>,
+<p>If a module is named <code>foo</code>, <code>just</code> will search for the module file in <code>foo.just</code>,
 <code>foo/mod.just</code>, <code>foo/justfile</code>, and <code>foo/.justfile</code>. In the latter two cases,
 the module file may have any capitalization.</p>
 <p>Module statements may be of the form:</p>
@@ -3282,9 +3294,9 @@ directory. <code>PATH</code> may point to the module source file itself, or to a
 containing the module source file with the name <code>mod.just</code>, <code>justfile</code>, or
 <code>.justfile</code>. In the latter two cases, the module file may have any
 capitalization.</p>
-<p>Environment files are only loaded for the root justfile, and loaded environment
-variables are available in submodules. Settings in submodules that affect
-environment file loading are ignored.</p>
+<p>Environment files are loaded for each module, respecting that module’s related
+settings. Environment variables from parent modules are visible in child
+modules.</p>
 <p>Recipes in submodules without the <code>[no-cd]</code> attribute run with the working
 directory set to the directory containing the submodule source file.</p>
 <p><code>justfile()</code> and <code>justfile_directory()</code> always return the path to the root
@@ -3347,7 +3359,7 @@ default:
 <p>Each <code>justfile</code> has a canonical formatting with respect to whitespace and
 newlines.</p>
 <p>You can overwrite the current justfile with a canonically-formatted version
-using the currently-unstable <code>--fmt</code> flag:</p>
+using the <code>--fmt</code> flag:</p>
 <pre><code class="language-console">$ cat justfile
 # A lot of blank lines
 
@@ -3357,14 +3369,16 @@ using the currently-unstable <code>--fmt</code> flag:</p>
 
 some-recipe:
   echo "foo"
-$ just --fmt --unstable
+$ just --fmt
 $ cat justfile
 # A lot of blank lines
 
 some-recipe:
     echo "foo"
 </code></pre>
-<p>Invoking <code>just --fmt --check --unstable</code> runs <code>--fmt</code> in check mode. Instead of
+<p>Note that formatting is not covered by any backwards compatibility guarantee
+and is subject to change from time to time.</p>
+<p>Invoking <code>just --fmt --check</code> runs <code>--fmt</code> in check mode. Instead of
 overwriting the <code>justfile</code>, <code>just</code> will exit with an exit code of 0 if it is
 formatted correctly, and will exit with 1 and print a diff if it is not.</p>
 <p>You can use the <code>--dump</code> command to output a formatted version of the
@@ -3416,7 +3430,7 @@ if the value of <code>argument</code> contains single quotes.</p>
 <h4 id="positional-arguments-1"><a class="header" href="#positional-arguments-1">Positional Arguments</a></h4>
 <p>The <code>positional-arguments</code> setting causes all arguments to be passed as
 positional arguments, allowing them to be accessed with <code>$1</code>, <code>$2</code>, …, and
-<code>$@</code>, which can be then double-quoted to avoid further splitting by the shell:</p>
+<code>$@</code>, which can then be double-quoted to avoid further splitting by the shell:</p>
 <pre><code class="language-just">set positional-arguments
 
 foo argument:
@@ -3454,7 +3468,7 @@ these will cause <code>just</code> to ignore any settings in the current justfil
 <code>set windows-shell</code> to pick a shell on Windows, and <code>set shell</code> to pick a shell
 for all other platforms.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="timestamps"><a class="header" href="#timestamps">Timestamps</a></h3>
-<p><code>just</code> can print timestamps before each recipe commands:</p>
+<p><code>just</code> can print timestamps before each recipe command:</p>
 <pre><code class="language-just">recipe:
   echo one
   sleep 2
@@ -3509,7 +3523,7 @@ receives a fatal signal, <code>just</code> halts execution.</p>
 <p><code>SIGINFO</code> is sent to all processes in the foreground process group when the
 user types <code>ctrl-t</code> on
 <a href="https://en.wikipedia.org/wiki/Berkeley_Software_Distribution">BSD</a>-derived
-operating systems, including MacOS, but not Linux.</p>
+operating systems, including macOS, but not Linux.</p>
 <p><code>just</code> responds by printing a list of all child process IDs and
 commands<sup>1.41.0</sup>.</p>
 <h4 id="windows-2"><a class="header" href="#windows-2">Windows</a></h4>
@@ -3621,7 +3635,7 @@ compinit
 <a href="https://en.wikipedia.org/wiki/Roff_%28software%29"><code>roff</code></a>, a venerable markup
 language and one of the first practical applications of Unix. If you have
 <a href="https://www.gnu.org/software/groff/"><code>groff</code></a> installed you can view the man
-page with  <code>just --man | groff -mandoc -Tascii | less</code>.</p>
+page with <code>just --man | groff -mandoc -Tascii | less</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="grammar"><a class="header" href="#grammar">Grammar</a></h3>
 <p>A non-normative grammar of <code>justfile</code>s can be found in
 <a href="https://github.com/casey/just/blob/master/GRAMMAR.md">GRAMMAR.md</a>.</p>
@@ -3680,8 +3694,8 @@ Node.js <code>package.json</code> files:</p>
 <pre><code class="language-just">export PATH := "./node_modules/.bin:" + env_var('PATH')
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="paths-on-windows"><a class="header" href="#paths-on-windows">Paths on Windows</a></h3>
-<p>On Windows, all functions that return paths, except <code>invocation_directory()</code>
-will return <code>\</code>-separated paths. When not using PowerShell or <code>cmd.exe</code> these
+<p>On Windows, all functions that return paths, except <code>invocation_directory()</code>,
+will return <code>\</code>-separated paths. When not using PowerShell or <code>cmd.exe</code>, these
 paths should be quoted to prevent the <code>\</code>s from being interpreted as character
 escapes:</p>
 <pre><code class="language-just">ls:
@@ -3696,7 +3710,7 @@ convert the invocation directory into a unix-style <code>/</code>-separated path
 <code>invocation_directory_native()</code> to get the native, Windows-style path. On unix,
 <code>invocation_directory()</code> and <code>invocation_directory_native()</code> both return the
 same unix-style path.</p>
-<p><code>cygpath.exe</code> is used also used to convert Unix-style shebang lines into
+<p><code>cygpath.exe</code> is also used to convert Unix-style shebang lines into
 Windows paths. As an alternative, the <code>[script]</code> attribute can be used, which
 does not depend on <code>cygpath.exe</code>.</p>
 <p>If <code>cygpath.exe</code> is available, you can use it to convert between path styles:</p>
@@ -3725,7 +3739,7 @@ sequences, using <code>printf</code> is often a better choice.</p>
 interpolated into the format string.</p>
 <p>This can be combined with indented, triple quoted strings to emulate shell
 heredocs.</p>
-<p>Substitution complex strings into recipe bodies with <code>{…}</code> can also lead to
+<p>Substituting complex strings into recipe bodies with <code>{{…}}</code> can also lead to
 trouble as it may be split by the shell into multiple arguments depending on
 the presence of whitespace and quotes. Exporting complex strings as environment
 variables and referring to them with <code>"$NAME"</code>, note the double quotes, can
@@ -3750,7 +3764,7 @@ be installed manually or with <code>npx skills add casey/just --global</code>.</
 to <code>just</code> include:</p>
 <ul>
 <li><a href="https://en.wikipedia.org/wiki/Make_(software)">make</a>: The Unix build tool
-that inspired <code>just</code>. There are a few different modern day descendents of the
+that inspired <code>just</code>. There are a few different modern day descendants of the
 original <code>make</code>, including
 <a href="https://www.freebsd.org/cgi/man.cgi?make(1)">FreeBSD Make</a> and
 <a href="https://www.gnu.org/software/make/">GNU Make</a>.</li>
@@ -3776,6 +3790,11 @@ written in Rust.</li>
 in Rust supporting tasks in TOML files and standalone scripts.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="contributing"><a class="header" href="#contributing">Contributing</a></h2>
+<blockquote>
+<p>[!NOTE]
+<code>just</code> is not currently accepting pull requests. The contributing section is
+retained for posterity.</p>
+</blockquote>
 <p><code>just</code> welcomes your contributions! <code>just</code> is released under the maximally
 permissive
 <a href="https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt">CC0</a> public
@@ -3803,12 +3822,12 @@ of tricky edge cases which are easy to exercise with unit tests that call
 <p>Integration tests are useful for making sure that the final behavior of the
 <code>just</code> binary is correct. <code>unindent()</code> is also covered by integration tests
 which make sure that evaluating a triple-quoted string produces the correct
-unindented value. However, there are not integration tests for all possible
+unindented value. However, there are no integration tests for all possible
 cases. These are covered by faster, more concise unit tests that call
 <code>unindent()</code> directly.</p>
 <p>Integration tests use the <code>Test</code> struct, a builder which allows for easily
 invoking <code>just</code> with a given <code>justfile</code>, arguments, and environment variables,
-and checking the program’s stdout, stderr, and exit code .</p>
+and checking the program’s stdout, stderr, and exit code.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="contribution-workflow"><a class="header" href="#contribution-workflow">Contribution Workflow</a></h3>
 <ol>
 <li>

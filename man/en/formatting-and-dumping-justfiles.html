@@ -182,7 +182,7 @@
 <p>Each <code>justfile</code> has a canonical formatting with respect to whitespace and
 newlines.</p>
 <p>You can overwrite the current justfile with a canonically-formatted version
-using the currently-unstable <code>--fmt</code> flag:</p>
+using the <code>--fmt</code> flag:</p>
 <pre><code class="language-console">$ cat justfile
 # A lot of blank lines
 
@@ -192,14 +192,16 @@ using the currently-unstable <code>--fmt</code> flag:</p>
 
 some-recipe:
   echo "foo"
-$ just --fmt --unstable
+$ just --fmt
 $ cat justfile
 # A lot of blank lines
 
 some-recipe:
     echo "foo"
 </code></pre>
-<p>Invoking <code>just --fmt --check --unstable</code> runs <code>--fmt</code> in check mode. Instead of
+<p>Note that formatting is not covered by any backwards compatibility guarantee
+and is subject to change from time to time.</p>
+<p>Invoking <code>just --fmt --check</code> runs <code>--fmt</code> in check mode. Instead of
 overwriting the <code>justfile</code>, <code>just</code> will exit with an exit code of 0 if it is
 formatted correctly, and will exit with 1 and print a diff if it is not.</p>
 <p>You can use the <code>--dump</code> command to output a formatted version of the

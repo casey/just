@@ -186,7 +186,7 @@ sequences, using <code>printf</code> is often a better choice.</p>
 interpolated into the format string.</p>
 <p>This can be combined with indented, triple quoted strings to emulate shell
 heredocs.</p>
-<p>Substitution complex strings into recipe bodies with <code>{…}</code> can also lead to
+<p>Substituting complex strings into recipe bodies with <code>{{…}}</code> can also lead to
 trouble as it may be split by the shell into multiple arguments depending on
 the presence of whitespace and quotes. Exporting complex strings as environment
 variables and referring to them with <code>"$NAME"</code>, note the double quotes, can

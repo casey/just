@@ -179,8 +179,8 @@
                 <div id="content" class="content">
                     <main>
                         <h3 id="paths-on-windows"><a class="header" href="#paths-on-windows">Paths on Windows</a></h3>
-<p>On Windows, all functions that return paths, except <code>invocation_directory()</code>
-will return <code>\</code>-separated paths. When not using PowerShell or <code>cmd.exe</code> these
+<p>On Windows, all functions that return paths, except <code>invocation_directory()</code>,
+will return <code>\</code>-separated paths. When not using PowerShell or <code>cmd.exe</code>, these
 paths should be quoted to prevent the <code>\</code>s from being interpreted as character
 escapes:</p>
 <pre><code class="language-just">ls:
@@ -195,7 +195,7 @@ convert the invocation directory into a unix-style <code>/</code>-separated path
 <code>invocation_directory_native()</code> to get the native, Windows-style path. On unix,
 <code>invocation_directory()</code> and <code>invocation_directory_native()</code> both return the
 same unix-style path.</p>
-<p><code>cygpath.exe</code> is used also used to convert Unix-style shebang lines into
+<p><code>cygpath.exe</code> is also used to convert Unix-style shebang lines into
 Windows paths. As an alternative, the <code>[script]</code> attribute can be used, which
 does not depend on <code>cygpath.exe</code>.</p>
 <p>If <code>cygpath.exe</code> is available, you can use it to convert between path styles:</p>

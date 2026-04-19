@@ -202,7 +202,7 @@ B
 <pre><code class="language-console">$ just bar::b
 B
 </code></pre>
-<p>If a module is named <code>foo</code>, just will search for the module file in <code>foo.just</code>,
+<p>If a module is named <code>foo</code>, <code>just</code> will search for the module file in <code>foo.just</code>,
 <code>foo/mod.just</code>, <code>foo/justfile</code>, and <code>foo/.justfile</code>. In the latter two cases,
 the module file may have any capitalization.</p>
 <p>Module statements may be of the form:</p>
@@ -214,9 +214,9 @@ directory. <code>PATH</code> may point to the module source file itself, or to a
 containing the module source file with the name <code>mod.just</code>, <code>justfile</code>, or
 <code>.justfile</code>. In the latter two cases, the module file may have any
 capitalization.</p>
-<p>Environment files are only loaded for the root justfile, and loaded environment
-variables are available in submodules. Settings in submodules that affect
-environment file loading are ignored.</p>
+<p>Environment files are loaded for each module, respecting that module’s related
+settings. Environment variables from parent modules are visible in child
+modules.</p>
 <p>Recipes in submodules without the <code>[no-cd]</code> attribute run with the working
 directory set to the directory containing the submodule source file.</p>
 <p><code>justfile()</code> and <code>justfile_directory()</code> always return the path to the root

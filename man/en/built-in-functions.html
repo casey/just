@@ -191,7 +191,7 @@ recipe body <code>{{…}}</code> substitutions, assignments, and default paramet
 <code>"arm"</code>, <code>"asmjs"</code>, <code>"hexagon"</code>, <code>"mips"</code>, <code>"msp430"</code>, <code>"powerpc"</code>,
 <code>"powerpc64"</code>, <code>"s390x"</code>, <code>"sparc"</code>, <code>"wasm32"</code>, <code>"x86"</code>, <code>"x86_64"</code>, and
 <code>"xcore"</code>.</li>
-<li><code>num_cpus()</code><sup>1.15.0</sup> - Number of logical CPUs.</li>
+<li><code>num_cpus()</code><sup>1.15.0</sup> — Number of logical CPUs.</li>
 <li><code>os()</code> — Operating system. Possible values are: <code>"android"</code>, <code>"bitrig"</code>,
 <code>"dragonfly"</code>, <code>"emscripten"</code>, <code>"freebsd"</code>, <code>"haiku"</code>, <code>"ios"</code>, <code>"linux"</code>,
 <code>"macos"</code>, <code>"netbsd"</code>, <code>"openbsd"</code>, <code>"solaris"</code>, and <code>"windows"</code>.</li>
@@ -200,10 +200,10 @@ recipe body <code>{{…}}</code> substitutions, assignments, and default paramet
 </ul>
 <p>For example:</p>
 <pre><code class="language-just">system-info:
-  @echo "This is an {{arch()}} machine".
+  @echo "This is an {{arch()}} machine."
 </code></pre>
 <pre><code class="language-console">$ just system-info
-This is an x86_64 machine
+This is an x86_64 machine.
 </code></pre>
 <p>The <code>os_family()</code> function can be used to create cross-platform <code>justfile</code>s
 that work on various operating systems. For an example, see
@@ -309,14 +309,14 @@ otherwise returns the string <code>false</code>.</li>
 <h4 id="invocation-directory"><a class="header" href="#invocation-directory">Invocation Directory</a></h4>
 <ul>
 <li><code>invocation_directory()</code> - Retrieves the absolute path to the current
-directory when <code>just</code> was invoked, before  <code>just</code> changed it (chdir’d) prior
+directory when <code>just</code> was invoked, before <code>just</code> changed it (chdir’d) prior
 to executing commands. On Windows, <code>invocation_directory()</code> uses <code>cygpath</code> to
 convert the invocation directory to a Cygwin-compatible <code>/</code>-separated path.
 Use <code>invocation_directory_native()</code> to return the verbatim invocation
 directory on all platforms.</li>
 </ul>
 <p>For example, to call <code>rustfmt</code> on files just under the “current directory”
-(from the user/invoker’s perspective), use the following rule:</p>
+(from the user/invoker’s perspective), use the following recipe:</p>
 <pre><code class="language-just">rustfmt:
   find {{invocation_directory()}} -name \*.rs -exec rustfmt {} \;
 </code></pre>
@@ -327,7 +327,7 @@ could use (e.g.):</p>
 </code></pre>
 <ul>
 <li><code>invocation_directory_native()</code> - Retrieves the absolute path to the current
-directory when <code>just</code> was invoked, before  <code>just</code> changed it (chdir’d) prior
+directory when <code>just</code> was invoked, before <code>just</code> changed it (chdir’d) prior
 to executing commands.</li>
 </ul>
 <h4 id="justfile-and-justfile-directory"><a class="header" href="#justfile-and-justfile-directory">Justfile and Justfile Directory</a></h4>
@@ -362,17 +362,20 @@ called from within an import or submodule.</p>
 <h4 id="module-and-module-directory"><a class="header" href="#module-and-module-directory">Module and Module Directory</a></h4>
 <ul>
 <li>
-<p><code>module_file()</code> - Retrieves the path of the current module file.</p>
+<p><code>module_file()</code> - Returns the path of the current module file.</p>
 </li>
 <li>
-<p><code>module_directory()</code> - Retrieves the path of the parent directory of the
+<p><code>module_directory()</code> - Returns the path of the parent directory of the
 current module file.</p>
+</li>
+<li>
+<p><code>module_path()</code> - Returns the <code>::</code>-separated path to the current module.</p>
 </li>
 </ul>
 <p><code>module_file()</code> and <code>module_directory()</code> behave the same as <code>justfile()</code> and
 <code>justfile_directory()</code> in the root <code>justfile</code>, but will return the path and
 directory, respectively, of the current <code>mod</code> source file when called from
-within submodule.</p>
+within a submodule.</p>
 <h4 id="just-executable"><a class="header" href="#just-executable">Just Executable</a></h4>
 <ul>
 <li><code>just_executable()</code> - Absolute path to the <code>just</code> executable.</li>
@@ -397,9 +400,9 @@ The process ID is: 420
 </code></pre>
 <h4 id="string-manipulation"><a class="header" href="#string-manipulation">String Manipulation</a></h4>
 <ul>
-<li><code>append(suffix, s)</code><sup>1.27.0</sup> Append <code>suffix</code> to whitespace-separated
+<li><code>append(suffix, s)</code><sup>1.27.0</sup> - Append <code>suffix</code> to whitespace-separated
 strings in <code>s</code>. <code>append('/src', 'foo bar baz')</code> → <code>'foo/src bar/src baz/src'</code></li>
-<li><code>prepend(prefix, s)</code><sup>1.27.0</sup> Prepend <code>prefix</code> to
+<li><code>prepend(prefix, s)</code><sup>1.27.0</sup> - Prepend <code>prefix</code> to
 whitespace-separated strings in <code>s</code>. <code>prepend('src/', 'foo bar baz')</code> →
 <code>'src/foo src/bar src/baz'</code></li>
 <li><code>encode_uri_component(s)</code><sup>1.27.0</sup> - Percent-encode characters in <code>s</code>
@@ -466,7 +469,7 @@ which will halt execution.</p>
 intermediate <code>.</code> components, and <code>..</code> where possible. <code>clean("foo//bar")</code> is
 <code>foo/bar</code>, <code>clean("foo/..")</code> is <code>.</code>, <code>clean("foo/./bar")</code> is <code>foo/bar</code>.</li>
 <li><code>join(a, b…)</code> - <em>This function uses <code>/</code> on Unix and <code>\</code> on Windows, which can
-be lead to unwanted behavior. The <code>/</code> operator, e.g., <code>a / b</code>, which always
+lead to unwanted behavior. The <code>/</code> operator, e.g., <code>a / b</code>, which always
 uses <code>/</code>, should be considered as a replacement unless <code>\</code>s are specifically
 desired on Windows.</em> Join path <code>a</code> with path <code>b</code>. <code>join("foo/bar", "baz")</code> is
 <code>foo/bar/baz</code>. Accepts two or more arguments.</li>
@@ -477,11 +480,13 @@ desired on Windows.</em> Join path <code>a</code> with path <code>b</code>. <cod
 existing entity and the string <code>false</code> otherwise. Traverses symbolic links,
 and returns the string <code>false</code> if the path is inaccessible or points to a
 broken symlink.</li>
-<li><code>read(path)</code><sup>1.39.0</sup> - Returns the content of file at <code>path</code> as
+<li><code>read(path)</code><sup>1.39.0</sup> - Returns the content of file at <code>path</code> as a
 string.</li>
 </ul>
-<h5 id="error-reporting"><a class="header" href="#error-reporting">Error Reporting</a></h5>
+<h4 id="assertions-and-error-reporting"><a class="header" href="#assertions-and-error-reporting">Assertions and Error Reporting</a></h4>
 <ul>
+<li><code>assert(CONDITION, EXPRESSION)</code><sup>1.27.0</sup> - Error with message
+<code>EXPRESSION</code> if <code>CONDITION</code> is false.</li>
 <li><code>error(message)</code> - Abort execution and report error <code>message</code> to user.</li>
 </ul>
 <h4 id="uuid-and-hash-generation"><a class="header" href="#uuid-and-hash-generation">UUID and Hash Generation</a></h4>
@@ -539,9 +544,9 @@ things like configuration, data, caches, executables, and the user’s home
 directory.</p>
 <p>On Unix, these functions follow the
 <a href="https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html">XDG Base Directory Specification</a>.</p>
-<p>On MacOS and Windows, these functions return the system-specified user-specific
+<p>On macOS and Windows, these functions return the system-specified user-specific
 directories. For example, <code>cache_directory()</code> returns <code>~/Library/Caches</code> on
-MacOS and <code>{FOLDERID_LocalAppData}</code> on Windows.</p>
+macOS and <code>{FOLDERID_LocalAppData}</code> on Windows.</p>
 <p>See the <a href="https://docs.rs/dirs/latest/dirs/index.html"><code>dirs</code></a> crate for more
 details.</p>
 <ul>

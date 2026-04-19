@@ -194,10 +194,12 @@ change their behavior.</p>
 <tr><td><code>[dragonfly]</code><sup>1.47.0</sup></td><td>recipe</td><td>Enable recipe on DragonFly BSD.</td></tr>
 <tr><td><code>[env(ENV_VAR, VALUE)]</code> <sup>1.47.0</sup></td><td>recipe</td><td>Set environment variables for recipe.</td></tr>
 <tr><td><code>[extension(EXT)]</code><sup>1.32.0</sup></td><td>recipe</td><td>Set shebang recipe script’s file extension to <code>EXT</code>. <code>EXT</code> should include a period if one is desired.</td></tr>
+<tr><td><code>[exit-message]</code><sup>1.39.0</sup></td><td>recipe</td><td>Print error message if recipe fails regardless of <code>set no-exit-message</code>.</td></tr>
 <tr><td><code>[freebsd]</code><sup>1.47.0</sup></td><td>recipe</td><td>Enable recipe on FreeBSD.</td></tr>
 <tr><td><code>[group(NAME)]</code><sup>1.27.0</sup></td><td>module, recipe</td><td>Put recipe or module in <a href="groups.html">group</a> <code>NAME</code>.</td></tr>
+<tr><td><code>[android]</code><sup>1.50.0</sup></td><td>recipe</td><td>Enable recipe on Android.</td></tr>
 <tr><td><code>[linux]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on Linux.</td></tr>
-<tr><td><code>[macos]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on MacOS.</td></tr>
+<tr><td><code>[macos]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on macOS.</td></tr>
 <tr><td><code>[metadata(METADATA)]</code><sup>1.42.0</sup></td><td>recipe</td><td>Attach <code>METADATA</code> to recipe.</td></tr>
 <tr><td><code>[netbsd]</code><sup>1.47.0</sup></td><td>recipe</td><td>Enable recipe on NetBSD.</td></tr>
 <tr><td><code>[no-cd]</code><sup>1.9.0</sup></td><td>recipe</td><td>Don’t change directory before executing recipe.</td></tr>
@@ -209,7 +211,7 @@ change their behavior.</p>
 <tr><td><code>[private]</code><sup>1.10.0</sup></td><td>alias, recipe</td><td>Make recipe, alias, or variable private. See <a href="private-recipes.html">Private Recipes</a>.</td></tr>
 <tr><td><code>[script(COMMAND)]</code><sup>1.32.0</sup></td><td>recipe</td><td>Execute recipe as a script interpreted by <code>COMMAND</code>. See <a href="script-recipes.html">script recipes</a> for more details.</td></tr>
 <tr><td><code>[script]</code><sup>1.33.0</sup></td><td>recipe</td><td>Execute recipe as script. See <a href="script-recipes.html">script recipes</a> for more details.</td></tr>
-<tr><td><code>[unix]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on Unixes. (Includes MacOS).</td></tr>
+<tr><td><code>[unix]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on unixes. (Includes macOS).</td></tr>
 <tr><td><code>[windows]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on Windows.</td></tr>
 <tr><td><code>[working-directory(PATH)]</code><sup>1.38.0</sup></td><td>recipe</td><td>Set recipe working directory. <code>PATH</code> may be relative or absolute. If relative, it is interpreted relative to the default working directory.</td></tr>
 </tbody></table>
@@ -265,7 +267,7 @@ commit file:
 <code>commit</code>.</p>
 <h4 id="requiring-confirmation-for-recipes"><a class="header" href="#requiring-confirmation-for-recipes">Requiring Confirmation for Recipes</a></h4>
 <p><code>just</code> normally executes all recipes unless there is an error. The <code>[confirm]</code>
-attribute<sup>1.17.0</sup> allows recipes require confirmation in the terminal
+attribute<sup>1.17.0</sup> allows recipes to require confirmation in the terminal
 prior to running. This can be overridden by passing <code>--yes</code> to <code>just</code>, which
 will automatically confirm any recipes marked by this attribute.</p>
 <p>Recipes dependent on a recipe that requires confirmation will not be run if the

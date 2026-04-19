@@ -192,7 +192,7 @@ hello
 goodbye
 # all done!
 </code></pre>
-<p>All recipes in a Justfile can be made quiet with <code>set quiet</code>:</p>
+<p>All recipes in a justfile can be made quiet with <code>set quiet</code>:</p>
 <pre><code class="language-just">set quiet
 
 foo:
@@ -232,7 +232,9 @@ Bar!
 </code></pre>
 <p><code>just</code> normally prints error messages when a recipe line fails. These error
 messages can be suppressed using the <code>[no-exit-message]</code><sup>1.7.0</sup>
-attribute. You may find this especially useful with a recipe that wraps a tool:</p>
+attribute on individual recipes, or module-wide with
+<code>set no-exit-message</code><sup>1.39.0</sup>. You may find this especially useful
+with a recipe that wraps a tool:</p>
 <pre><code class="language-just">git *args:
     @git {{args}}
 </code></pre>

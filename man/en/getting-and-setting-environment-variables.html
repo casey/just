@@ -212,7 +212,8 @@ a $A $B=`echo $A`:
 <p>When <a href="settings.html#export">export</a> is set, all <code>just</code> variables are exported as environment
 variables.</p>
 <h4 id="unexporting-environment-variables"><a class="header" href="#unexporting-environment-variables">Unexporting Environment Variables</a></h4>
-<p>Environment variables can be unexported with the <code>unexport keyword</code><sup>1.29.0</sup>:</p>
+<p>Environment variables can be unexported with the <code>unexport</code>
+keyword<sup>1.29.0</sup>:</p>
 <pre><code class="language-just">unexport FOO
 
 @foo:
@@ -222,14 +223,14 @@ variables.</p>
 $ just foo
 sh: FOO: unbound variable
 </code></pre>
-<h4 id="getting-environment-variables-from-the-environment"><a class="header" href="#getting-environment-variables-from-the-environment">Getting Environment Variables from the environment</a></h4>
+<h4 id="getting-environment-variables-from-the-environment"><a class="header" href="#getting-environment-variables-from-the-environment">Getting Environment Variables from the Environment</a></h4>
 <p>Environment variables from the environment are passed automatically to the
 recipes.</p>
 <pre><code class="language-just">print_home_folder:
-  echo "HOME is: '${HOME}'"
+  @echo "HOME is: '${HOME}'"
 </code></pre>
 <pre><code class="language-console">$ just
-HOME is '/home/myuser'
+HOME is: '/home/myuser'
 </code></pre>
 <h4 id="setting-just-variables-from-environment-variables"><a class="header" href="#setting-just-variables-from-environment-variables">Setting <code>just</code> Variables from Environment Variables</a></h4>
 <p>Environment variables can be propagated to <code>just</code> variables using the <code>env()</code> function.
