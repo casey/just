@@ -46,6 +46,8 @@ impl<'run, 'src> Completer<'run, 'src> {
       }
     }
 
+    candidates.extend(PathCompleter::any().complete(current));
+
     candidates
   }
 
