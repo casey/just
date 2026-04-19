@@ -83,7 +83,7 @@ fn skip_private_recipes() {
 #[test]
 fn recipes_in_submodules_can_be_chosen() {
   Test::new()
-    .args(["--unstable", "--choose"])
+    .arg("--choose")
     .env("JUST_CHOOSER", "head -n10")
     .write("bar.just", "baz:\n echo BAZ")
     .justfile(
