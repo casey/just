@@ -227,7 +227,7 @@ impl Subcommand {
     while let Some(module) = stack.pop() {
       recipes.extend(module.public_recipes(config).iter().filter(|recipe| {
         recipe.min_arguments() == 0
-          && (groups.is_empty() || recipe.groups().intersection(&groups).next().is_some())
+          && (groups.is_empty() || groups.intersection(&recipe.groups()).next().is_some())
       }));
       stack.extend(module.modules.values());
     }
