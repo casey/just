@@ -118,7 +118,7 @@ pub(crate) use {
   },
   camino::Utf8Path,
   clap::{CommandFactory, FromArgMatches, Parser as _, ValueEnum},
-  clap_complete::{ArgValueCompleter, CompletionCandidate, PathCompleter},
+  clap_complete::{ArgValueCompleter, CompletionCandidate, PathCompleter, engine::ValueCompleter},
   edit_distance::edit_distance,
   lexiclean::Lexiclean,
   libc::EXIT_FAILURE,

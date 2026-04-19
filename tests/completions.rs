@@ -33,7 +33,7 @@ fn recipes() {
     .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&[""]))
-    .stdout_regex("bar\nfoo\n--.*")
+    .stdout_regex("bar\nfoo\n.\njustfile\n--.*")
     .success();
 }
 
@@ -66,7 +66,7 @@ fn private_recipes_excluded() {
     .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&[""]))
-    .stdout_regex("foo\n--.*")
+    .stdout_regex("foo\n.\njustfile\n--.*")
     .success();
 }
 
@@ -82,7 +82,7 @@ fn doc_comments() {
     .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&[""]))
-    .stdout_regex("foo\tdoc\n--.*")
+    .stdout_regex("foo\tdoc\n.\njustfile\n--.*")
     .success();
 }
 
@@ -162,7 +162,7 @@ fn argument_completion_includes_recipes_and_variables() {
     .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&[""]))
-    .stdout_regex("foo\nx=\n--.*")
+    .stdout_regex("foo\nx=\n.\njustfile\n--.*")
     .success();
 }
 
@@ -178,7 +178,7 @@ fn module_recipes() {
     .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&[""]))
-    .stdout_regex("bar::baz\n--.*")
+    .stdout_regex("bar::baz\n.\nbar.just\njustfile\n--.*")
     .success();
 }
 
@@ -190,7 +190,7 @@ fn justfile_flag_in_completion_words() {
     .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(["--", "just", "--justfile", "foo.just", ""])
-    .stdout_regex("bar\n--.*")
+    .stdout_regex("bar\n.\nfoo.just\n--.*")
     .success();
 }
 
@@ -248,7 +248,7 @@ fn set_malformed_override_path() {
     .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&["--set", ":::", "foo", ""]))
-    .stdout_regex("foo\n--.*")
+    .stdout_regex("foo\n.\njustfile\n--.*")
     .success();
 }
 
@@ -259,7 +259,7 @@ fn positional_malformed_override() {
     .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&[":::=foo", ""]))
-    .stdout_regex("foo\n--.*")
+    .stdout_regex("foo\n.\njustfile\n--.*")
     .success();
 }
 
@@ -270,7 +270,7 @@ fn working_directory_without_justfile() {
     .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&["--working-directory", ".", ""]))
-    .stdout_regex("foo\n--.*")
+    .stdout_regex("foo\n.\njustfile\n--.*")
     .success();
 }
 
@@ -281,7 +281,7 @@ fn show_malformed_path() {
     .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&["--show", ":::", ""]))
-    .stdout_regex("(foo\n)+--.*")
+    .stdout_regex("foo\nfoo\n.\njustfile\n--.*")
     .success();
 }
 
@@ -335,7 +335,7 @@ fn aliases_not_completed_by_default() {
     .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&[""]))
-    .stdout_regex("foo\n--.*")
+    .stdout_regex("foo\n.\njustfile\n--.*")
     .success();
 }
 
@@ -351,7 +351,7 @@ fn aliases_completed_with_flag() {
     .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&["--complete-aliases", ""]))
-    .stdout_regex("foo\nb\n--.*")
+    .stdout_regex("foo\nb\n.\njustfile\n--.*")
     .success();
 }
 
@@ -368,7 +368,7 @@ fn aliases_completed_with_environment_variable() {
     .env("JUST_COMPLETE", "fish")
     .env("JUST_COMPLETE_ALIASES", "true")
     .args(complete_args(&[""]))
-    .stdout_regex("foo\nb\n--.*")
+    .stdout_regex("foo\nb\n.\njustfile\n--.*")
     .success();
 }
 
@@ -385,7 +385,7 @@ fn private_aliases_excluded() {
     .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&["--complete-aliases", ""]))
-    .stdout_regex("foo\nb\n--.*")
+    .stdout_regex("foo\nb\n.\njustfile\n--.*")
     .success();
 }
 
@@ -401,7 +401,7 @@ fn aliases_in_modules() {
     .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&["--complete-aliases", ""]))
-    .stdout_regex("bar::foo\nbar::b\n--.*")
+    .stdout_regex("bar::foo\nbar::b\n.\nbar.just\njustfile\n--.*")
     .success();
 }
 
@@ -434,6 +434,6 @@ fn recipes_with_invalid_config() {
     .env("JUST_COMPLETE", "fish")
     .env("JUST_ALIAS_STYLE", "foo")
     .args(complete_args(&[""]))
-    .stdout_regex("bar\nfoo\n--.*")
+    .stdout_regex("bar\nfoo\n.\njustfile\n--.*")
     .success();
 }
