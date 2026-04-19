@@ -221,9 +221,9 @@ impl Subcommand {
     overrides: &HashMap<Number, String>,
     search: &Search,
   ) -> RunResult<'src> {
+    let groups = config.groups.iter().cloned().collect::<BTreeSet<String>>();
     let mut recipes = Vec::<&Recipe>::new();
     let mut stack = vec![justfile];
-    let groups = config.groups.iter().cloned().collect::<BTreeSet<String>>();
     while let Some(module) = stack.pop() {
       recipes.extend(module.public_recipes(config).iter().filter(|recipe| {
         recipe.min_arguments() == 0
