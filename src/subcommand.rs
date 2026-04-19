@@ -223,13 +223,12 @@ impl Subcommand {
   ) -> RunResult<'src> {
     let mut recipes = Vec::<&Recipe>::new();
     let mut stack = vec![justfile];
+    let groups = config.groups.iter().cloned().collect::<BTreeSet<String>>();
     while let Some(module) = stack.pop() {
-      recipes.extend(
-        module
-          .public_recipes(config)
-          .iter()
-          .filter(|recipe| recipe.min_arguments() == 0),
-      );
+      recipes.extend(module.public_recipes(config).iter().filter(|recipe| {
+        recipe.min_arguments() == 0
+          && (groups.is_empty() || recipe.groups().intersection(&groups).next().is_some())
+      }));
       stack.extend(module.modules.values());
     }
 
