@@ -496,10 +496,16 @@ fn os_family(_context: Context) -> FunctionResult {
 }
 
 fn parent_directory(_context: Context, path: &str) -> FunctionResult {
-  Utf8Path::new(path)
+  let parent = Utf8Path::new(path)
     .parent()
     .map(Utf8Path::to_string)
-    .ok_or_else(|| format!("Could not extract parent directory from `{path}`"))
+    .ok_or_else(|| format!("Could not extract parent directory from `{path}`"))?;
+
+  if parent.is_empty() {
+    Ok(".".into())
+  } else {
+    Ok(parent)
+  }
 }
 
 fn path_exists(context: Context, path: &str) -> FunctionResult {
