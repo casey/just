@@ -339,6 +339,24 @@ fn has_access_to_env_file() {
 }
 
 #[test]
+fn may_reference_overrides() {
+  Test::new()
+    .justfile(
+      "
+        x := 'bar'
+        foo() := x
+
+        a:
+          @echo {{foo()}}
+      ",
+    )
+    .args(["x=baz", "a"])
+    .stdout("baz\n")
+    .env("JUST_UNSTABLE", "1")
+    .success();
+}
+
+#[test]
 fn may_reference_non_const_assignment() {
   Test::new()
     .justfile(
