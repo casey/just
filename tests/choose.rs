@@ -246,6 +246,24 @@ fn cancelled_by_user() {
 }
 
 #[test]
+fn choose_selection_lines_process_separately() {
+  Test::new()
+    .args(["--choose", "--chooser", "cat"])
+    .write("sub.just", "bar:\n @echo bar\n")
+    .justfile(
+      "
+        mod sub
+
+        foo *args:
+          @echo foo {{args}}
+      ",
+    )
+    .stdin("foo\nsub bar\n")
+    .stdout("foo\nbar\n")
+    .success();
+}
+
+#[test]
 fn filter_by_group() {
   Test::new()
     .args(["--choose", "--chooser", "head -n1", "--group", "foo"])

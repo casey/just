@@ -297,12 +297,20 @@ impl Subcommand {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    let recipes = stdout
-      .split_whitespace()
-      .map(str::to_owned)
-      .collect::<Vec<String>>();
+    for line in stdout.lines() {
+      if line.is_empty() {
+        continue;
+      }
 
-    justfile.run(config, search, &recipes, overrides)
+      let recipes = line
+        .split_whitespace()
+        .map(str::to_owned)
+        .collect::<Vec<String>>();
+
+      justfile.run(config, search, &recipes, overrides)?;
+    }
+
+    Ok(())
   }
 
   fn completions(shell: Shell) {
