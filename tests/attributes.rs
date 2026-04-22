@@ -433,14 +433,31 @@ fn env_attribute_overrides_export() {
   Test::new()
     .justfile(
       "
-        export FOO := 'exported'
+        export FOO := 'export'
 
-        [env('FOO', 'from_attr')]
+        [env('FOO', 'attribute')]
         bar:
           @echo $FOO
       ",
     )
-    .stdout("from_attr\n")
+    .stdout("attribute\n")
+    .success();
+}
+
+#[test]
+fn env_attribute_overrides_export_in_script() {
+  Test::new()
+    .justfile(
+      "
+        export FOO := 'export'
+
+        [env('FOO', 'attribute')]
+        bar:
+          #!/bin/sh
+          echo $FOO
+      ",
+    )
+    .stdout("attribute\n")
     .success();
 }
 
