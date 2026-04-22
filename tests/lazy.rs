@@ -297,6 +297,23 @@ fn submodule_lazy_is_respected() {
 }
 
 #[test]
+fn unused_assert_not_evaluated() {
+  Test::new()
+    .justfile(
+      "
+        set lazy
+
+        x := assert('foo' == 'bar', 'fail')
+
+        foo:
+          @echo foo
+      ",
+    )
+    .stdout("foo\n")
+    .success();
+}
+
+#[test]
 fn eager_assignments_are_evaluated() {
   Test::new()
     .justfile(
