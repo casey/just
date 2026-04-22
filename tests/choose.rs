@@ -246,7 +246,7 @@ fn cancelled_by_user() {
 }
 
 #[test]
-fn choose_selection_lines_process_separately() {
+fn chooseer_selections_are_processed_separately() {
   Test::new()
     .args(["--choose", "--chooser", "cat"])
     .write("sub.just", "bar:\n @echo bar\n")
