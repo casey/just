@@ -326,6 +326,19 @@ fn broken_directory_function2() {
 }
 
 #[test]
+fn parent_directory_of_bare_filename() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          @echo {{parent_directory('foo') / 'bar'}}
+      ",
+    )
+    .stdout("./bar\n")
+    .success();
+}
+
+#[test]
 fn env_var_functions_windows() {
   if cfg!(not(windows)) {
     return;
