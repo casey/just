@@ -106,7 +106,7 @@ impl<'src> Justfile<'src> {
     scope_arena: &'run Arena<Scope<'src, 'run>>,
     scopes: &mut Scopes<'src, 'run>,
     search: &'run Search,
-    variable_references: Option<&HashSet<Number>>,
+    variable_references: &HashSet<Number>,
   ) -> RunResult<'src> {
     let dotenv = if config.load_dotenv {
       let working_directory = if self.is_submodule() {
@@ -140,7 +140,11 @@ impl<'src> Justfile<'src> {
       overrides,
       root,
       search,
-      if lazy { variable_references } else { None },
+      if lazy {
+        Some(variable_references)
+      } else {
+        None
+      },
     )?;
 
     let scope = scope_arena.alloc(scope);
@@ -213,7 +217,7 @@ impl<'src> Justfile<'src> {
           &scope_arena,
           &mut scopes,
           search,
-          Some(&variable_references),
+          &variable_references,
         )?;
 
         let ran = Ran::default();
@@ -257,7 +261,7 @@ impl<'src> Justfile<'src> {
           &scope_arena,
           &mut scopes,
           search,
-          Some(&HashSet::new()),
+          &HashSet::new(),
         )?;
 
         let (_module, scope, dotenv) = scopes.get(&self.module_path).unwrap();
@@ -300,7 +304,7 @@ impl<'src> Justfile<'src> {
           &scope_arena,
           &mut scopes,
           search,
-          Some(&variable_references),
+          &variable_references,
         )?;
 
         let scope = scopes.get(&module.module_path).unwrap().1;
