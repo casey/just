@@ -280,6 +280,23 @@ fn assignment_with_set_export_is_evaluated() {
 }
 
 #[test]
+fn submodule_lazy_is_respected() {
+  Test::new()
+    .justfile(
+      "
+        mod sub
+      ",
+    )
+    .write(
+      "sub.just",
+      "set lazy\nunused := `exit 1`\nbar:\n  @echo bar\n",
+    )
+    .args(["sub", "bar"])
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
 fn eager_assignments_are_evaluated() {
   Test::new()
     .justfile(

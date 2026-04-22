@@ -101,11 +101,12 @@ impl<'src> Justfile<'src> {
     dotenv_arena: &'run Arena<BTreeMap<String, String>>,
     overrides: &'run HashMap<Number, String>,
     parent_dotenv: Option<&'run BTreeMap<String, String>>,
+    lazy: bool,
     root: &'run Scope<'src, 'run>,
     scope_arena: &'run Arena<Scope<'src, 'run>>,
     scopes: &mut Scopes<'src, 'run>,
     search: &'run Search,
-    variable_references: Option<&HashSet<Number>>,
+    variable_references: &HashSet<Number>,
   ) -> RunResult<'src> {
     let dotenv = if config.load_dotenv {
       let working_directory = if self.is_submodule() {
@@ -130,6 +131,8 @@ impl<'src> Justfile<'src> {
 
     let dotenv = dotenv_arena.alloc(dotenv);
 
+    let lazy = lazy || self.settings.lazy;
+
     let scope = Evaluator::evaluate_assignments(
       config,
       dotenv,
@@ -137,7 +140,7 @@ impl<'src> Justfile<'src> {
       overrides,
       root,
       search,
-      variable_references,
+      lazy.then_some(variable_references),
     )?;
 
     let scope = scope_arena.alloc(scope);
@@ -149,6 +152,7 @@ impl<'src> Justfile<'src> {
         dotenv_arena,
         overrides,
         Some(dotenv),
+        lazy,
         scope,
         scope_arena,
         scopes,
@@ -184,37 +188,32 @@ impl<'src> Justfile<'src> {
           });
         }
 
-        let variable_references = if self.settings.lazy {
-          let mut variable_references = HashSet::new();
+        let mut variable_references = HashSet::new();
 
-          let mut stack = Vec::new();
+        let mut stack = Vec::new();
 
-          for invocation in &invocations {
-            stack.push(invocation.recipe);
+        for invocation in &invocations {
+          stack.push(invocation.recipe);
+        }
+
+        while let Some(recipe) = stack.pop() {
+          variable_references.extend(&recipe.variable_references);
+          for dependency in &recipe.dependencies {
+            stack.push(&dependency.recipe);
           }
-
-          while let Some(recipe) = stack.pop() {
-            variable_references.extend(&recipe.variable_references);
-            for dependency in &recipe.dependencies {
-              stack.push(&dependency.recipe);
-            }
-          }
-
-          Some(variable_references)
-        } else {
-          None
-        };
+        }
 
         self.evaluate_scopes(
           config,
           &dotenv_arena,
           overrides,
           None,
+          false,
           &root,
           &scope_arena,
           &mut scopes,
           search,
-          variable_references.as_ref(),
+          &variable_references,
         )?;
 
         let ran = Ran::default();
@@ -253,11 +252,12 @@ impl<'src> Justfile<'src> {
           &dotenv_arena,
           overrides,
           None,
+          true,
           &root,
           &scope_arena,
           &mut scopes,
           search,
-          Some(HashSet::new()).as_ref(),
+          &HashSet::new(),
         )?;
 
         let (_module, scope, dotenv) = scopes.get(&self.module_path).unwrap();
@@ -295,11 +295,12 @@ impl<'src> Justfile<'src> {
           &dotenv_arena,
           overrides,
           None,
+          true,
           &root,
           &scope_arena,
           &mut scopes,
           search,
-          Some(&variable_references),
+          &variable_references,
         )?;
 
         let scope = scopes.get(&module.module_path).unwrap().1;
