@@ -152,6 +152,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       config,
       dotenv,
       module,
+      overrides,
       search,
     };
 
@@ -238,14 +239,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       });
     }
 
-    let overrides = HashMap::new();
     let mut evaluator = Evaluator {
       assignments: Some(&context.module.assignments),
       context: Some(context),
       env: BTreeMap::new(),
       is_dependency: false,
       non_const_assignments: Table::new(),
-      overrides: &overrides,
+      overrides: self.overrides,
       scope,
     };
 
@@ -589,14 +589,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     is_dependency: bool,
     scope: &'run Scope<'src, 'run>,
   ) -> Self {
-    static OVERRIDES: LazyLock<HashMap<Number, String>> = LazyLock::new(HashMap::new);
     Self {
       assignments: None,
       context: Some(*context),
       env,
       is_dependency,
       non_const_assignments: Table::new(),
-      overrides: &OVERRIDES,
+      overrides: context.overrides,
       scope: scope.child(),
     }
   }

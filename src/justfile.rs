@@ -223,6 +223,7 @@ impl<'src> Justfile<'src> {
             &invocation.arguments,
             config,
             false,
+            overrides,
             &ran,
             invocation.recipe,
             &scopes,
@@ -419,6 +420,7 @@ impl<'src> Justfile<'src> {
     arguments: &[Vec<String>],
     config: &Config,
     is_dependency: bool,
+    overrides: &HashMap<Number, String>,
     ran: &Ran,
     recipe: &Recipe<'src>,
     scopes: &Scopes<'src, '_>,
@@ -440,6 +442,7 @@ impl<'src> Justfile<'src> {
       config,
       dotenv,
       module,
+      overrides,
       search,
     };
 
@@ -467,6 +470,7 @@ impl<'src> Justfile<'src> {
       &context,
       recipe.priors(),
       &mut evaluator,
+      overrides,
       ran,
       recipe,
       scopes,
@@ -480,6 +484,7 @@ impl<'src> Justfile<'src> {
       &context,
       recipe.subsequents(),
       &mut evaluator,
+      overrides,
       &Ran::default(),
       recipe,
       scopes,
@@ -496,6 +501,7 @@ impl<'src> Justfile<'src> {
     context: &ExecutionContext<'src, 'run>,
     dependencies: &[Dependency<'src>],
     evaluator: &mut Evaluator<'src, 'run>,
+    overrides: &HashMap<Number, String>,
     ran: &Ran,
     recipe: &Recipe<'src>,
     scopes: &Scopes<'src, 'run>,
@@ -523,7 +529,9 @@ impl<'src> Justfile<'src> {
         let mut handles = Vec::new();
         for (recipe, arguments) in evaluated {
           handles.push(thread_scope.spawn(move || {
-            Self::run_recipe(&arguments, config, true, ran, recipe, scopes, search)
+            Self::run_recipe(
+              &arguments, config, true, overrides, ran, recipe, scopes, search,
+            )
           }));
         }
         for handle in handles {
@@ -535,7 +543,9 @@ impl<'src> Justfile<'src> {
       })?;
     } else {
       for (recipe, arguments) in evaluated {
-        Self::run_recipe(&arguments, config, true, ran, recipe, scopes, search)?;
+        Self::run_recipe(
+          &arguments, config, true, overrides, ran, recipe, scopes, search,
+        )?;
       }
     }
 
