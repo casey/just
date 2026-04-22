@@ -440,6 +440,9 @@ impl<'src> Recipe<'src> {
 
     let mut evaluated_lines = Vec::new();
     for line in &self.body {
+      if context.module.settings.ignore_comments && line.is_comment() && !line.is_shebang() {
+        continue;
+      }
       evaluated_lines.push(evaluator.evaluate_line(line, false)?);
     }
 

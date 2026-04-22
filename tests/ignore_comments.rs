@@ -133,3 +133,20 @@ fn comments_still_must_be_parsable_when_ignored() {
     )
     .failure();
 }
+
+#[test]
+fn ignore_comments_in_script() {
+  Test::new()
+    .justfile(
+      "
+        set ignore-comments
+
+        foo:
+          #!/bin/sh
+          # {{undefined_var}}
+          echo foo
+      ",
+    )
+    .stdout("foo\n")
+    .success();
+}
