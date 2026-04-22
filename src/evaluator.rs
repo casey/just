@@ -34,11 +34,26 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       scope: scope.child(),
     };
 
+    let variable_references = sets
+      .values()
+      .flat_map(|set| set.value.expressions())
+      .flat_map(|expression| expression.references())
+      .filter_map(|reference| {
+        if let Reference::Variable(variable) = reference {
+          Some(variable.lexeme())
+        } else {
+          None
+        }
+      })
+      .collect::<BTreeSet<&str>>();
+
     for assignment in assignments.values() {
-      match evaluator.evaluate_assignment(assignment) {
-        Err(Error::Const { .. }) => evaluator.non_const_assignments.insert(assignment.name),
-        Err(err) => return Err(err),
-        Ok(_) => {}
+      if variable_references.contains(assignment.name.lexeme()) {
+        match evaluator.evaluate_assignment(assignment) {
+          Err(Error::Const { .. }) => evaluator.non_const_assignments.insert(assignment.name),
+          Err(err) => return Err(err),
+          Ok(_) => {}
+        }
       }
     }
 
