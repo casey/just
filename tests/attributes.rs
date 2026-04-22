@@ -429,6 +429,22 @@ fn env_attribute_too_many_arguments() {
 }
 
 #[test]
+fn env_attribute_overrides_export() {
+  Test::new()
+    .justfile(
+      "
+        export FOO := 'exported'
+
+        [env('FOO', 'from_attr')]
+        bar:
+          @echo $FOO
+      ",
+    )
+    .stdout("from_attr\n")
+    .success();
+}
+
+#[test]
 fn env_attribute_duplicate_error() {
   Test::new()
     .justfile(
