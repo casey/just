@@ -331,10 +331,10 @@ fn parent_directory_of_bare_filename() {
     .justfile(
       "
         foo:
-          @echo {{parent_directory('foo') / 'bar'}}
+          @echo {{parent_directory('foo')}}
       ",
     )
-    .stdout("./bar\n")
+    .stdout(".\n")
     .success();
 }
 
