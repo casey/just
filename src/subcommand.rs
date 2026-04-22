@@ -298,16 +298,12 @@ impl Subcommand {
     let stdout = String::from_utf8_lossy(&output.stdout);
 
     for line in stdout.lines() {
-      if line.is_empty() {
-        continue;
-      }
-
-      let recipes = line
+      let arguments = line
         .split_whitespace()
         .map(str::to_owned)
         .collect::<Vec<String>>();
 
-      justfile.run(config, search, &recipes, overrides)?;
+      justfile.run(config, search, &arguments, overrides)?;
     }
 
     Ok(())
