@@ -101,7 +101,7 @@ impl<'src> Justfile<'src> {
     dotenv_arena: &'run Arena<BTreeMap<String, String>>,
     overrides: &'run HashMap<Number, String>,
     parent_dotenv: Option<&'run BTreeMap<String, String>>,
-    parent_lazy: bool,
+    lazy: bool,
     root: &'run Scope<'src, 'run>,
     scope_arena: &'run Arena<Scope<'src, 'run>>,
     scopes: &mut Scopes<'src, 'run>,
@@ -131,7 +131,7 @@ impl<'src> Justfile<'src> {
 
     let dotenv = dotenv_arena.alloc(dotenv);
 
-    let lazy = parent_lazy || self.settings.lazy;
+    let lazy = lazy || self.settings.lazy;
 
     let scope = Evaluator::evaluate_assignments(
       config,
@@ -140,11 +140,7 @@ impl<'src> Justfile<'src> {
       overrides,
       root,
       search,
-      if lazy {
-        Some(variable_references)
-      } else {
-        None
-      },
+      lazy.then_some(variable_references),
     )?;
 
     let scope = scope_arena.alloc(scope);
