@@ -203,8 +203,8 @@ impl Display for CompileError<'_> {
       ),
       InconsistentLeadingWhitespace { expected, found } => write!(
         f,
-        "recipe line has inconsistent leading whitespace. Recipe started with `{}` but found \
-           line with `{}`",
+        "recipe line has inconsistent leading whitespace, started with `{}` but found  line with \
+          `{}`",
         ShowWhitespace(expected),
         ShowWhitespace(found)
       ),
@@ -239,14 +239,14 @@ impl Display for CompileError<'_> {
         close,
       } => write!(
         f,
-        "mismatched closing delimiter `{}`. (Did you mean to close the `{}` on line {}?)",
+        "mismatched closing delimiter `{}`, did you mean to close the `{}` on line {}?",
         close.close(),
         open.open(),
         open_line.ordinal(),
       ),
       MixedLeadingWhitespace { whitespace } => write!(
         f,
-        "found a mix of tabs and spaces in leading whitespace: `{}`\nLeading whitespace may \
+        "found a mix of tabs and spaces in leading whitespace: `{}`\nleading whitespace may \
            consist of tabs or spaces, but not both",
         ShowWhitespace(whitespace)
       ),

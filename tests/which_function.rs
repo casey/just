@@ -230,7 +230,7 @@ fn is_unstable() {
     .write("hello.exe", HELLO_SCRIPT)
     .make_executable("hello.exe")
     .env("PATH", path.to_str().unwrap())
-    .stderr_regex(r".*the `which\(\)` function is currently unstable\..*")
+    .stderr_regex(r".*the `which\(\)` function is currently unstable,.*")
     .failure();
 }
 

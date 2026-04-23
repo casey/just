@@ -6,7 +6,7 @@ fn mismatched_delimiter() {
     .justfile("(]")
     .stderr(
       "
-        error: mismatched closing delimiter `]`. (Did you mean to close the `(` on line 1?)
+        error: mismatched closing delimiter `]`, did you mean to close the `(` on line 1?
          ——▶ justfile:1:2
           │
         1 │ (]
