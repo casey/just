@@ -1049,7 +1049,7 @@ foo:
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
 | `no-exit-message`<sup>1.39.0</sup> | boolean | `false` | Don't print exit messages if recipes fail. |
 | `lazy`<sup>1.47.0</sup> | boolean | `false` | Don't evaluate unused variables. |
-| `no-cd` | boolean | `false` | Don't change directory before executing recipes and evaluating backticks, unless overridden by recipe attributes. |
+| `no-cd` | boolean | `false` | Don't change directory before executing recipes, unless overridden by recipe attributes. |
 | `positional-arguments` | boolean | `false` | Pass positional arguments. |
 | `quiet` | boolean | `false` | Disable echoing recipe lines before executing. |
 | `script-interpreter`<sup>1.33.0</sup> | `[COMMAND, ARGS…]` | `['sh', '-eu']` | Set command used to invoke recipes with empty `[script]` attribute. |

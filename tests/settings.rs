@@ -299,6 +299,7 @@ fn no_cd_setting_changes_default_recipe_execution() {
     .success();
 }
 
+#[test]
 fn unused_non_const_assignments() {
   Test::new()
     .justfile(
