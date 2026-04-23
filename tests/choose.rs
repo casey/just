@@ -128,7 +128,7 @@ fn no_choosable_recipes() {
           echo {{BAR}}
       ",
     )
-    .stderr("error: justfile contains no choosable recipes.\n")
+    .stderr("error: justfile contains no choosable recipes\n")
     .failure();
 }
 

@@ -22,7 +22,7 @@ fn all_settings_allow_expressions() {
 
       ",
     )
-    .stderr("Justfile contains no recipes.\n")
+    .stderr("justfile contains no recipes\n")
     .success();
 }
 

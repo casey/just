@@ -549,7 +549,7 @@ impl ColorDisplay for Error<'_> {
         let count = Count("argument", *min_arguments);
         write!(
           f,
-          "recipe `{recipe}` cannot be used as default recipe since it requires at least {min_arguments} {count}.",
+          "recipe `{recipe}` cannot be used as default recipe since it requires at least {min_arguments} {count}",
         )?;
       }
       Dotenv { dotenv_error, path } => {
@@ -580,22 +580,22 @@ impl ColorDisplay for Error<'_> {
         write!(f, "editor `{editor}` failed: {status}")?;
       }
       EvalUnknownSubmodule { component, .. } => {
-        write!(f, "justfile does not contain submodule `{component}`.")?;
+        write!(f, "justfile does not contain submodule `{component}`")?;
       }
       EvalUnknownSubmoduleOrVariable { component, .. } => {
         write!(
           f,
-          "justfile does not contain variable or submodule `{component}`."
+          "justfile does not contain variable or submodule `{component}`"
         )?;
       }
       ExcessInvocations { invocations } => {
         write!(
           f,
-          "expected 1 command-line recipe invocation but found {invocations}.",
+          "expected 1 command-line recipe invocation but found {invocations}",
         )?;
       }
       ExpectedSubmoduleButFoundRecipe { path } => {
-        write!(f, "expected submodule at `{path}` but found recipe.")?;
+        write!(f, "expected submodule at `{path}` but found recipe")?;
       }
       FilesystemIo { source, path } => {
         write!(f, "I/O error at `{}`: {source}", path.display())?;
@@ -604,7 +604,7 @@ impl ColorDisplay for Error<'_> {
         write!(f, "recipe `{recipe}` flag `{option}` does not take value")?;
       }
       FormatCheckFoundDiff => {
-        write!(f, "formatted justfile differs from original.")?;
+        write!(f, "formatted justfile differs from original")?;
       }
       FunctionCall { function, message } => {
         let function = function.lexeme();
@@ -669,9 +669,9 @@ impl ColorDisplay for Error<'_> {
           path.display()
         )?;
       }
-      MissingImportFile { .. } => write!(f, "could not find source file for import.")?,
+      MissingImportFile { .. } => write!(f, "could not find source file for import")?,
       MissingModuleFile { module } => {
-        write!(f, "could not find source file for module `{module}`.")?;
+        write!(f, "could not find source file for module `{module}`")?;
       }
       MissingOption { recipe, option } => {
         write!(f, "recipe `{recipe}` requires option `{option}`")?;
@@ -682,9 +682,9 @@ impl ColorDisplay for Error<'_> {
           "passing multiple short options (`-{options}`) in one argument is not supported"
         )?;
       }
-      NoChoosableRecipes => write!(f, "justfile contains no choosable recipes.")?,
-      NoDefaultRecipe => write!(f, "justfile contains no default recipe.")?,
-      NoRecipes => write!(f, "justfile contains no recipes.")?,
+      NoChoosableRecipes => write!(f, "justfile contains no choosable recipes")?,
+      NoDefaultRecipe => write!(f, "justfile contains no default recipe")?,
+      NoRecipes => write!(f, "justfile contains no recipes")?,
       NotConfirmed { recipe } => {
         write!(f, "recipe `{recipe}` was not confirmed")?;
       }
