@@ -87,7 +87,7 @@ fn dotenv_required() {
         foo:
       ",
     )
-    .stderr("error: Dotenv file not found\n")
+    .stderr("error: dotenv file not found\n")
     .failure();
 }
 
@@ -494,6 +494,6 @@ fn error_message() {
         foo:
       ",
     )
-    .stderr_regex(r"error: Failed to load environment file from `.*\.env`: .*")
+    .stderr_regex(r"error: failed to load environment file from `.*\.env`: .*")
     .failure();
 }

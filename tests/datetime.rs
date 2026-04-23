@@ -31,6 +31,6 @@ fn invalid_format_string_error() {
   Test::new()
     .justfile("x := datetime('%!')")
     .args(["--evaluate", "x"])
-    .stderr_regex("error: Call to function `datetime` failed: invalid format string `%!`: .*\n")
+    .stderr_regex("error: call to function `datetime` failed: invalid format string `%!`: .*\n")
     .failure();
 }

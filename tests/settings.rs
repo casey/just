@@ -36,7 +36,7 @@ fn undefined_variable_in_working_directory() {
     )
     .stderr(
       "
-        error: Variable `foo` not defined
+        error: variable `foo` not defined
          ——▶ justfile:1:26
           │
         1 │ set working-directory := foo
@@ -56,7 +56,7 @@ fn undefined_variable_in_dotenv_filename() {
     )
     .stderr(
       "
-        error: Variable `foo` not defined
+        error: variable `foo` not defined
          ——▶ justfile:1:24
           │
         1 │ set dotenv-filename := foo
@@ -76,7 +76,7 @@ fn undefined_variable_in_dotenv_path() {
     )
     .stderr(
       "
-        error: Variable `foo` not defined
+        error: variable `foo` not defined
          ——▶ justfile:1:20
           │
         1 │ set dotenv-path := foo
@@ -96,7 +96,7 @@ fn undefined_variable_in_tempdir() {
     )
     .stderr(
       "
-        error: Variable `foo` not defined
+        error: variable `foo` not defined
          ——▶ justfile:1:16
           │
         1 │ set tempdir := foo
@@ -116,7 +116,7 @@ fn undefined_variable_in_script_interpreter_command() {
     )
     .stderr(
       "
-        error: Variable `foo` not defined
+        error: variable `foo` not defined
          ——▶ justfile:1:28
           │
         1 │ set script-interpreter := [foo]
@@ -136,7 +136,7 @@ fn undefined_variable_in_script_interpreter_argument() {
     )
     .stderr(
       "
-        error: Variable `bar` not defined
+        error: variable `bar` not defined
          ——▶ justfile:1:35
           │
         1 │ set script-interpreter := ['foo', bar]
@@ -156,7 +156,7 @@ fn undefined_variable_in_shell_command() {
     )
     .stderr(
       "
-        error: Variable `foo` not defined
+        error: variable `foo` not defined
          ——▶ justfile:1:15
           │
         1 │ set shell := [foo]
@@ -176,7 +176,7 @@ fn undefined_variable_in_shell_argument() {
     )
     .stderr(
       "
-        error: Variable `bar` not defined
+        error: variable `bar` not defined
          ——▶ justfile:1:22
           │
         1 │ set shell := ['foo', bar]
@@ -196,7 +196,7 @@ fn undefined_variable_in_windows_shell_command() {
     )
     .stderr(
       "
-        error: Variable `foo` not defined
+        error: variable `foo` not defined
          ——▶ justfile:1:23
           │
         1 │ set windows-shell := [foo]
@@ -216,7 +216,7 @@ fn undefined_variable_in_windows_shell_argument() {
     )
     .stderr(
       "
-        error: Variable `bar` not defined
+        error: variable `bar` not defined
          ——▶ justfile:1:30
           │
         1 │ set windows-shell := ['foo', bar]
@@ -350,7 +350,7 @@ fn backtick() {
     )
     .stderr(
       "
-        error: Cannot call backticks in const context
+        error: cannot call backticks in const context
          ——▶ justfile:1:26
           │
         1 │ set working-directory := `pwd`
@@ -370,7 +370,7 @@ fn function_call() {
     )
     .stderr(
       "
-        error: Cannot call functions in const context
+        error: cannot call functions in const context
          ——▶ justfile:1:26
           │
         1 │ set working-directory := arch()
@@ -392,7 +392,7 @@ fn non_const_variable() {
     )
     .stderr(
       "
-        error: Cannot access non-const variable `foo` in const context
+        error: cannot access non-const variable `foo` in const context
          ——▶ justfile:3:26
           │
         3 │ set working-directory := foo
@@ -412,7 +412,7 @@ fn assert() {
     )
     .stderr(
       "
-        error: Assert failed: fail
+        error: assert failed: fail
          ——▶ justfile:1:26
           │
         1 │ set working-directory := assert('foo' == 'bar', 'fail')

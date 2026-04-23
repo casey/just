@@ -159,7 +159,7 @@ fn broken_without_extension_function() {
     )
     .stderr(
       "
-        error: Call to function `without_extension` failed: Could not extract parent from ``
+        error: call to function `without_extension` failed: could not extract parent from ``
          ——▶ justfile:1:8
           │
         1 │ we  := without_extension('')
@@ -185,7 +185,7 @@ fn broken_extension_function() {
     )
     .stderr(
       "
-        error: Call to function `extension` failed: Could not extract extension from ``
+        error: call to function `extension` failed: could not extract extension from ``
          ——▶ justfile:1:8
           │
         1 │ we  := extension('')
@@ -211,7 +211,7 @@ fn broken_extension_function2() {
     )
     .stderr(
       "
-        error: Call to function `extension` failed: Could not extract extension from `foo`
+        error: call to function `extension` failed: could not extract extension from `foo`
          ——▶ justfile:1:8
           │
         1 │ we  := extension('foo')
@@ -237,7 +237,7 @@ fn broken_file_stem_function() {
     )
     .stderr(
       "
-        error: Call to function `file_stem` failed: Could not extract file stem from ``
+        error: call to function `file_stem` failed: could not extract file stem from ``
          ——▶ justfile:1:8
           │
         1 │ we  := file_stem('')
@@ -263,7 +263,7 @@ fn broken_file_name_function() {
     )
     .stderr(
       "
-        error: Call to function `file_name` failed: Could not extract file name from ``
+        error: call to function `file_name` failed: could not extract file name from ``
          ——▶ justfile:1:8
           │
         1 │ we  := file_name('')
@@ -289,7 +289,7 @@ fn broken_directory_function() {
     )
     .stderr(
       "
-        error: Call to function `parent_directory` failed: Could not extract parent directory from ``
+        error: call to function `parent_directory` failed: could not extract parent directory from ``
          ——▶ justfile:1:8
           │
         1 │ we  := parent_directory('')
@@ -315,7 +315,7 @@ fn broken_directory_function2() {
     )
     .stderr(
       "
-        error: Call to function `parent_directory` failed: Could not extract parent directory from `/`
+        error: call to function `parent_directory` failed: could not extract parent directory from `/`
          ——▶ justfile:1:8
           │
         1 │ we  := parent_directory('/')
@@ -377,7 +377,7 @@ fn env_var_failure() {
     )
     .stderr(
       "
-        error: Call to function `env_var` failed: environment variable `ZADDY` not present
+        error: call to function `env_var` failed: environment variable `ZADDY` not present
          ——▶ justfile:2:10
           │
         2 │   echo {{env_var('ZADDY')}}
@@ -626,7 +626,7 @@ fn invalid_replace_regex() {
     )
     .stderr(
       "
-        error: Call to function `replace_regex` failed: regex parse error:
+        error: call to function `replace_regex` failed: regex parse error:
             foo\\
                ^
         error: incomplete escape sequence, reached end of pattern prematurely
@@ -775,7 +775,7 @@ fn join_argument_count_error() {
     .args(["--evaluate"])
     .stderr(
       "
-        error: Function `join` called with 1 argument but takes 2 or more
+        error: function `join` called with 1 argument but takes 2 or more
          ——▶ justfile:1:6
           │
         1 │ x := join(\'a\')
@@ -813,7 +813,7 @@ fn error_errors_with_message() {
     .args(["--evaluate"])
     .stderr(
       "
-        error: Call to function `error` failed: Thing Not Supported
+        error: call to function `error` failed: Thing Not Supported
          ——▶ justfile:1:6
           │
         1 │ x := error ('Thing Not Supported')
@@ -911,7 +911,7 @@ fn choose_bad_alphabet_empty() {
     .args(["--evaluate"])
     .stderr(
       "
-        error: Call to function `choose` failed: empty alphabet
+        error: call to function `choose` failed: empty alphabet
          ——▶ justfile:1:6
           │
         1 │ x := choose('10', '')
@@ -928,7 +928,7 @@ fn choose_bad_alphabet_repeated() {
     .args(["--evaluate"])
     .stderr(
       "
-        error: Call to function `choose` failed: alphabet contains repeated character `a`
+        error: call to function `choose` failed: alphabet contains repeated character `a`
          ——▶ justfile:1:6
           │
         1 │ x := choose('10', 'aa')
@@ -945,7 +945,7 @@ fn choose_bad_length() {
     .args(["--evaluate"])
     .stderr(
       "
-        error: Call to function `choose` failed: failed to parse `foo` as positive integer: invalid digit found in string
+        error: call to function `choose` failed: failed to parse `foo` as positive integer: invalid digit found in string
          ——▶ justfile:1:6
           │
         1 │ x := choose('foo', HEX)
@@ -997,7 +997,7 @@ fn shell_no_argument() {
     .args(["--evaluate"])
     .stderr(
       "
-        error: Function `shell` called with 0 arguments but takes 1 or more
+        error: function `shell` called with 0 arguments but takes 1 or more
          ——▶ justfile:1:8
           │
         1 │ var := shell()
@@ -1029,7 +1029,7 @@ fn shell_error() {
     .args(["--evaluate"])
     .stderr(
       "
-        error: Call to function `shell` failed: Process exited with status code 1
+        error: call to function `shell` failed: process exited with status code 1
          ——▶ justfile:1:8
           │
         1 │ var := shell('exit 1')
@@ -1282,7 +1282,7 @@ fn unary_argument_count_mismatch_error_message() {
     .args(["--evaluate"])
     .stderr(
       "
-        error: Function `datetime` called with 0 arguments but takes 1
+        error: function `datetime` called with 0 arguments but takes 1
          ——▶ justfile:1:6
           │
         1 │ x := datetime()
@@ -1471,7 +1471,7 @@ fn style_unknown() {
     )
     .stderr(
       "
-        error: Call to function `style` failed: unknown style: `hippo`
+        error: call to function `style` failed: unknown style: `hippo`
          ——▶ justfile:2:13
           │
         2 │   @echo '{{ style('hippo') }}foo{{NORMAL}}'
@@ -1496,7 +1496,7 @@ fn read_file_not_found() {
   Test::new()
     .justfile("foo := read('bar')")
     .args(["--evaluate", "foo"])
-    .stderr_regex(r"error: Call to function `read` failed: I/O error reading `bar`: .*")
+    .stderr_regex(r"error: call to function `read` failed: I/O error reading `bar`: .*")
     .failure();
 }
 

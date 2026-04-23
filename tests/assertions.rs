@@ -23,7 +23,7 @@ fn assert_fail() {
     )
     .stderr(
       "
-        error: Assert failed: error message
+        error: assert failed: error message
          ——▶ justfile:2:6
           │
         2 │   {{ assert('a' != 'a', 'error message') }}

@@ -206,7 +206,7 @@ fn list_nested_submodule() {
 fn list_invalid_path() {
   Test::new()
     .args(["--list", "$hello"])
-    .stderr("error: Invalid module path `$hello`\n")
+    .stderr("error: invalid module path `$hello`\n")
     .failure();
 }
 
@@ -214,7 +214,7 @@ fn list_invalid_path() {
 fn list_unknown_submodule() {
   Test::new()
     .args(["--list", "hello"])
-    .stderr("error: Justfile does not contain submodule `hello`\n")
+    .stderr("error: justfile does not contain submodule `hello`\n")
     .failure();
 }
 

@@ -87,7 +87,7 @@ fn evaluate_with_suggestion() {
     )
     .stderr(
       "
-        error: Justfile does not contain variable or submodule `aby`.
+        error: justfile does not contain variable or submodule `aby`.
         Did you mean `abc`?
       ",
     )
@@ -106,7 +106,7 @@ fn evaluate_no_suggestion() {
     )
     .stderr(
       "
-        error: Justfile does not contain variable or submodule `goodbye`.
+        error: justfile does not contain variable or submodule `goodbye`.
       ",
     )
     .failure();
@@ -217,7 +217,7 @@ fn evaluate_unknown_submodule_with_suggestion() {
     .args(["--evaluate", "fob::a"])
     .stderr(
       "
-        error: Justfile does not contain submodule `fob`.
+        error: justfile does not contain submodule `fob`.
         Did you mean `foo`?
       ",
     )

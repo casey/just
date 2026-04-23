@@ -42,7 +42,7 @@ fn exit_codes_above_one_are_reserved() {
           ?exit 2
       ",
     )
-    .stderr("error: Guard line in recipe `foo` on line 4 returned reserved exit code 2\n")
+    .stderr("error: guard line in recipe `foo` on line 4 returned reserved exit code 2\n")
     .failure();
 }
 
@@ -59,7 +59,7 @@ fn guard_sigil_may_not_be_used_with_infallible_sigil() {
     )
     .stderr(
       "
-        error: The guard `?` and infallible `-` sigils may not be used together
+        error: the guard `?` and infallible `-` sigils may not be used together
          ——▶ justfile:4:3
           │
         4 │   -?exit 2

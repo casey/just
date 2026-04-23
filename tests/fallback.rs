@@ -145,7 +145,7 @@ fn print_error_from_parent_if_recipe_not_found_in_current() {
     .current_dir("bar")
     .stderr(
       "
-        error: Variable `bar` not defined
+        error: variable `bar` not defined
          ——▶ justfile:2:9
           │
         2 │  echo {{bar}}
@@ -174,7 +174,7 @@ fn requires_setting() {
     )
     .args(["foo"])
     .current_dir("bar")
-    .stderr("error: Justfile does not contain recipe `foo`\n")
+    .stderr("error: justfile does not contain recipe `foo`\n")
     .failure();
 }
 
@@ -227,7 +227,7 @@ fn doesnt_work_with_justfile() {
     )
     .args(["--justfile", "justfile", "foo"])
     .current_dir("bar")
-    .stderr("error: Justfile does not contain recipe `foo`\n")
+    .stderr("error: justfile does not contain recipe `foo`\n")
     .failure();
 }
 
@@ -250,7 +250,7 @@ fn doesnt_work_with_justfile_and_working_directory() {
     )
     .args(["--justfile", "justfile", "--working-directory", ".", "foo"])
     .current_dir("bar")
-    .stderr("error: Justfile does not contain recipe `foo`\n")
+    .stderr("error: justfile does not contain recipe `foo`\n")
     .failure();
 }
 
@@ -277,7 +277,7 @@ fn prints_correct_error_message_when_recipe_not_found() {
     .current_dir("bar")
     .stderr(
       "
-        error: Justfile does not contain recipe `foo`
+        error: justfile does not contain recipe `foo`
       ",
     )
     .failure();
@@ -350,7 +350,7 @@ fn stop_fallback_when_fallback_is_false() {
     .current_dir("a/b")
     .stderr(
       "
-        error: Justfile does not contain recipe `baz`
+        error: justfile does not contain recipe `baz`
         Did you mean `bar`?
       ",
     )

@@ -255,14 +255,14 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     if next.kind != Identifier {
       Err(self.internal_error(format!(
-        "Presumed next token would have kind {Identifier}, but found {}",
+        "presumed next token would have kind {Identifier}, but found {}",
         next.kind
       ))?)
     } else if keyword == next.lexeme() {
       Ok(())
     } else {
       Err(self.internal_error(format!(
-        "Presumed next token would have lexeme \"{keyword}\", but found \"{}\"",
+        "presumed next token would have lexeme \"{keyword}\", but found \"{}\"",
         next.lexeme(),
       ))?)
     }
@@ -276,7 +276,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       Ok(next)
     } else {
       Err(self.internal_error(format!(
-        "Presumed next token would have kind {kind:?}, but found {:?}",
+        "presumed next token would have kind {kind:?}, but found {:?}",
         next.kind
       ))?)
     }
@@ -289,7 +289,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       Ok(next)
     } else {
       Err(self.internal_error(format!(
-        "Presumed next token would be {}, but found {}",
+        "presumed next token would be {}, but found {}",
         List::or(kinds),
         next.kind
       ))?)
@@ -437,7 +437,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     if self.next_token != self.tokens.len() {
       return Err(self.internal_error(format!(
-        "Parse completed with {} unparsed tokens",
+        "parse completed with {} unparsed tokens",
         self.tokens.len() - self.next_token,
       ))?);
     }
@@ -520,7 +520,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           let attributes = take_attributes();
 
           attributes.ensure_valid_attributes(
-            "Module",
+            "module",
             *name,
             &[
               AttributeDiscriminant::Doc,
@@ -585,7 +585,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.presume_any(&[Equals, ColonEquals])?;
     let target = self.parse_namepath()?;
 
-    attributes.ensure_valid_attributes("Alias", *name, &[AttributeDiscriminant::Private])?;
+    attributes.ensure_valid_attributes("alias", *name, &[AttributeDiscriminant::Private])?;
 
     Ok(Alias {
       attributes,
@@ -637,7 +637,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let private = attributes.contains(AttributeDiscriminant::Private);
 
-    attributes.ensure_valid_attributes("Assignment", *name, &[AttributeDiscriminant::Private])?;
+    attributes.ensure_valid_attributes("assignment", *name, &[AttributeDiscriminant::Private])?;
 
     Ok(Assignment {
       eager,

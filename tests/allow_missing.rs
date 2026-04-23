@@ -4,7 +4,7 @@ use super::*;
 fn allow_missing_recipes_in_run_invocation() {
   Test::new()
     .arg("foo")
-    .stderr("error: Justfile does not contain recipe `foo`\n")
+    .stderr("error: justfile does not contain recipe `foo`\n")
     .failure();
 
   Test::new().args(["--allow-missing", "foo"]).success();
@@ -14,7 +14,7 @@ fn allow_missing_recipes_in_run_invocation() {
 fn allow_missing_modules_in_run_invocation() {
   Test::new()
     .arg("foo::bar")
-    .stderr("error: Justfile does not contain submodule `foo`\n")
+    .stderr("error: justfile does not contain submodule `foo`\n")
     .failure();
 
   Test::new().args(["--allow-missing", "foo::bar"]).success();
@@ -27,7 +27,7 @@ fn allow_missing_does_not_apply_to_compilation_errors() {
     .args(["--allow-missing", "foo"])
     .stderr(
       "
-        error: Recipe `bar` has unknown dependency `foo`
+        error: recipe `bar` has unknown dependency `foo`
          ——▶ justfile:1:6
           │
         1 │ bar: foo
@@ -41,6 +41,6 @@ fn allow_missing_does_not_apply_to_compilation_errors() {
 fn allow_missing_does_not_apply_to_other_subcommands() {
   Test::new()
     .args(["--allow-missing", "--show", "foo"])
-    .stderr("error: Justfile does not contain recipe `foo`\n")
+    .stderr("error: justfile does not contain recipe `foo`\n")
     .failure();
 }

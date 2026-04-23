@@ -78,7 +78,7 @@ fn do_not_confirm_recipe() {
           echo FOO
       ",
     )
-    .stderr("Run recipe `foo`? error: Recipe `foo` was not confirmed\n")
+    .stderr("Run recipe `foo`? error: recipe `foo` was not confirmed\n")
     .failure();
 }
 
@@ -95,7 +95,7 @@ fn do_not_confirm_recipe_with_confirm_recipe_dependency() {
           echo FOO
       ",
     )
-    .stderr("Run recipe `foo`? error: Recipe `foo` was not confirmed\n")
+    .stderr("Run recipe `foo`? error: recipe `foo` was not confirmed\n")
     .failure();
 }
 
@@ -126,7 +126,7 @@ fn confirm_recipe_with_prompt_too_many_args() {
     )
     .stderr(
       "
-        error: Attribute `confirm` got 2 arguments but takes at most 1 argument
+        error: attribute `confirm` got 2 arguments but takes at most 1 argument
          ——▶ justfile:1:2
           │
         1 │ [confirm('A', 'B')]

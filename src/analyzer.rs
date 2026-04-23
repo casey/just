@@ -399,7 +399,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     if !recipe.is_script() {
       if let Some(attribute) = recipe.attributes.get(AttributeDiscriminant::Extension) {
         return Err(recipe.name.error(InvalidAttribute {
-          item_kind: "Recipe",
+          item_kind: "recipe",
           item_name: recipe.name.lexeme(),
           attribute: Box::new(attribute.clone()),
         }));

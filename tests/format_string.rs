@@ -149,7 +149,7 @@ fn unclosed() {
     .justfile("foo := f'FOO{{")
     .stderr(
       "
-        error: Expected backtick, identifier, '(', '/', or string, but found end of file
+        error: expected backtick, identifier, '(', '/', or string, but found end of file
          ——▶ justfile:1:15
           │
         1 │ foo := f'FOO{{
@@ -342,7 +342,7 @@ fn undefined_variable_error() {
     )
     .stderr(
       "
-        error: Variable `bar` not defined
+        error: variable `bar` not defined
          ——▶ justfile:1:12
           │
         1 │ foo := f'{{bar}}'
