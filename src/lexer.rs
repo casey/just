@@ -126,7 +126,7 @@ impl<'src> Lexer<'src> {
 
   fn presume(&mut self, c: char) -> CompileResult<'src> {
     if !self.next_is(c) {
-      return Err(self.internal_error(format!("lexer presumed character `{c}`")));
+      return Err(self.internal_error(format!("Lexer presumed character `{c}`")));
     }
 
     self.advance()?;
@@ -536,7 +536,7 @@ impl<'src> Lexer<'src> {
       if self.interpolation_stack.pop().is_none() {
         self.presume_str(Self::INTERPOLATION_END)?;
         return Err(self.internal_error(
-          "lexer::lex_interpolation found `}}` but was called with empty interpolation stack.",
+          "Lexer::lex_interpolation found `}}` but was called with empty interpolation stack.",
         ));
       }
       // Emit interpolation end token
@@ -680,7 +680,7 @@ impl<'src> Lexer<'src> {
       ParenR => self.close_delimiter(Delimiter::Paren)?,
       _ => {
         return Err(self.internal_error(format!(
-          "lexer::lex_delimiter called with non-delimiter token: `{kind}`",
+          "Lexer::lex_delimiter called with non-delimiter token: `{kind}`",
         )));
       }
     }
@@ -862,7 +862,7 @@ impl<'src> Lexer<'src> {
     } else {
       let Some(kind) = StringKind::from_token_start(self.rest()) else {
         self.advance()?;
-        return Err(self.internal_error("lexer::lex_string: invalid string start"));
+        return Err(self.internal_error("Lexer::lex_string: invalid string start"));
       };
       self.presume_str(kind.delimiter())?;
       kind
@@ -2542,14 +2542,14 @@ mod tests {
     );
     assert_matches!(&*compile_error.kind,
         Internal { message }
-        if message == "lexer presumed character `-`"
+        if message == "Lexer presumed character `-`"
     );
 
     assert_eq!(
       Error::Compile { compile_error }
         .color_display(Color::never())
         .to_string(),
-      "error: internal error, this may indicate a bug in just: lexer presumed character `-`
+      "error: internal error, this may indicate a bug in just: Lexer presumed character `-`
 consider filing an issue: https://github.com/casey/just/issues/new
  ——▶ justfile:1:1
   │
