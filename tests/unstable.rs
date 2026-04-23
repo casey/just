@@ -19,7 +19,7 @@ fn set_unstable_false_with_env_var() {
       .justfile("f(a) := a")
       .arg("--dump")
       .env("JUST_UNSTABLE", val)
-      .stderr_regex("error: user-defined functions are currently unstable.*")
+      .stderr_regex("error: user-defined functions are currently unstable,.*")
       .failure();
   }
 }
@@ -29,7 +29,7 @@ fn set_unstable_false_with_env_var_unset() {
   Test::new()
     .justfile("f(a) := a")
     .arg("--dump")
-    .stderr_regex("error: user-defined functions are currently unstable.*")
+    .stderr_regex("error: user-defined functions are currently unstable,.*")
     .failure();
 }
 

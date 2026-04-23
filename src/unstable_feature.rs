@@ -12,12 +12,12 @@ impl Display for UnstableFeature {
     match self {
       Self::LogicalOperators => write!(
         f,
-        "the logical operators `&&` and `||` are currently unstable."
+        "the logical operators `&&` and `||` are currently unstable"
       ),
       Self::UserDefinedFunction => {
-        write!(f, "user-defined functions are currently unstable.")
+        write!(f, "user-defined functions are currently unstable")
       }
-      Self::WhichFunction => write!(f, "the `which()` function is currently unstable."),
+      Self::WhichFunction => write!(f, "the `which()` function is currently unstable"),
     }
   }
 }

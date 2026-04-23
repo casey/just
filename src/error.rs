@@ -632,7 +632,7 @@ impl ColorDisplay for Error<'_> {
       Internal { message } => {
         write!(
           f,
-          "internal runtime error, this may indicate a bug in just: {message} \
+          "internal runtime error, this may indicate a bug in just: {message}\n\
           consider filing an issue: https://github.com/casey/just/issues/new",
         )?;
       }
@@ -846,7 +846,7 @@ impl ColorDisplay for Error<'_> {
       UnstableFeature { unstable_feature } => {
         write!(
           f,
-          "{unstable_feature} Invoke `just` with `--unstable`, set the `JUST_UNSTABLE` environment variable, or add `set unstable` to your `justfile` to enable unstable features.",
+          "{unstable_feature}, invoke `just` with `--unstable`, set the `JUST_UNSTABLE` environment variable, or add `set unstable` to your `justfile` to enable unstable features",
         )?;
       }
       WriteJustfile { justfile, io_error } => {

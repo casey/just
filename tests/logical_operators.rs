@@ -15,13 +15,13 @@ fn logical_operators_are_unstable() {
   Test::new()
     .justfile("x := 'foo' && 'bar'")
     .args(["--evaluate", "x"])
-    .stderr_regex(r"error: the logical operators `&&` and `\|\|` are currently unstable. .*")
+    .stderr_regex(r"error: the logical operators `&&` and `\|\|` are currently unstable, .*")
     .failure();
 
   Test::new()
     .justfile("x := 'foo' || 'bar'")
     .args(["--evaluate", "x"])
-    .stderr_regex(r"error: the logical operators `&&` and `\|\|` are currently unstable. .*")
+    .stderr_regex(r"error: the logical operators `&&` and `\|\|` are currently unstable, .*")
     .failure();
 }
 

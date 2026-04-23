@@ -4,7 +4,7 @@ use super::*;
 fn unstable() {
   Test::new()
     .justfile("foo() := 'bar'")
-    .stderr_regex(r"error: user-defined functions are currently unstable\..*")
+    .stderr_regex(r"error: user-defined functions are currently unstable,.*")
     .failure();
 }
 
