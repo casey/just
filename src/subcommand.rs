@@ -297,12 +297,16 @@ impl Subcommand {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    let recipes = stdout
-      .split_whitespace()
-      .map(str::to_owned)
-      .collect::<Vec<String>>();
+    for line in stdout.lines() {
+      let arguments = line
+        .split_whitespace()
+        .map(str::to_owned)
+        .collect::<Vec<String>>();
 
-    justfile.run(config, search, &recipes, overrides)
+      justfile.run(config, search, &arguments, overrides)?;
+    }
+
+    Ok(())
   }
 
   fn completions(shell: Shell) {
@@ -359,23 +363,6 @@ impl Subcommand {
       &Source::root(&search.justfile),
       src,
     )?;
-
-    let unstable = config.unstable
-      || ast.items.iter().any(|item| {
-        matches!(
-          item,
-          Item::Set(Set {
-            value: Setting::Unstable(true),
-            ..
-          })
-        )
-      });
-
-    if !unstable {
-      return Err(Error::UnstableFeature {
-        unstable_feature: UnstableFeature::FormatSubcommand,
-      });
-    }
 
     let formatted = ast
       .color_display(config.color.use_color(UseColor::Never))

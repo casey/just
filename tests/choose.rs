@@ -83,7 +83,7 @@ fn skip_private_recipes() {
 #[test]
 fn recipes_in_submodules_can_be_chosen() {
   Test::new()
-    .args(["--unstable", "--choose"])
+    .arg("--choose")
     .env("JUST_CHOOSER", "head -n10")
     .write("bar.just", "baz:\n echo BAZ")
     .justfile(
@@ -243,6 +243,24 @@ fn cancelled_by_user() {
   assert!(output.stderr.is_empty());
 
   assert!(output.status.success());
+}
+
+#[test]
+fn chooser_selections_are_processed_separately() {
+  Test::new()
+    .args(["--choose", "--chooser", "cat"])
+    .write("sub.just", "bar:\n @echo bar\n")
+    .justfile(
+      "
+        mod sub
+
+        foo *args:
+          @echo foo {{args}}
+      ",
+    )
+    .stdin("foo\nsub bar\n")
+    .stdout("foo\nbar\n")
+    .success();
 }
 
 #[test]

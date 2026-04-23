@@ -25,3 +25,12 @@ fn datetime_utc() {
     .stdout_regex(r"\d\d\d\d-\d\d-\d\d UTC")
     .success();
 }
+
+#[test]
+fn invalid_format_string_error() {
+  Test::new()
+    .justfile("x := datetime('%!')")
+    .args(["--evaluate", "x"])
+    .stderr_regex("error: Call to function `datetime` failed: invalid format string `%!`: .*\n")
+    .failure();
+}

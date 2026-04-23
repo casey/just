@@ -370,13 +370,13 @@ impl<'src> Recipe<'src> {
         cmd.stdout(Stdio::null());
       }
 
+      cmd.export(settings, context.dotenv, scope, &context.module.unexports);
+
       for attribute in &self.attributes {
         if let Attribute::Env(key, value) = attribute {
           cmd.env(&key.cooked, &value.cooked);
         }
       }
-
-      cmd.export(settings, context.dotenv, scope, &context.module.unexports);
 
       let (result, caught) = cmd.status_guard();
 
@@ -535,18 +535,18 @@ impl<'src> Recipe<'src> {
       command.args(positional);
     }
 
-    for attribute in &self.attributes {
-      if let Attribute::Env(key, value) = attribute {
-        command.env(&key.cooked, &value.cooked);
-      }
-    }
-
     command.export(
       &context.module.settings,
       context.dotenv,
       scope,
       &context.module.unexports,
     );
+
+    for attribute in &self.attributes {
+      if let Attribute::Env(key, value) = attribute {
+        command.env(&key.cooked, &value.cooked);
+      }
+    }
 
     // run it!
     let (result, caught) = command.status_guard();
