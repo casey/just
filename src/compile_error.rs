@@ -203,7 +203,7 @@ impl Display for CompileError<'_> {
       ),
       InconsistentLeadingWhitespace { expected, found } => write!(
         f,
-        "recipe line has inconsistent leading whitespace, started with `{}` but found  line with \
+        "recipe line has inconsistent leading whitespace, started with `{}` but found line with \
           `{}`",
         ShowWhitespace(expected),
         ShowWhitespace(found)

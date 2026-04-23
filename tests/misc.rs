@@ -864,7 +864,7 @@ fn inconsistent_leading_whitespace() {
     .justfile("bar:\n\t\techo hello\n\t echo goodbye")
     .stderr(
       "error: recipe line has inconsistent leading whitespace, \
-            started with `␉␉` but found  line with `␉␠`
+            started with `␉␉` but found line with `␉␠`
  ——▶ justfile:3:1
   │
 3 │      echo goodbye
