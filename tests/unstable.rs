@@ -19,7 +19,7 @@ fn set_unstable_false_with_env_var() {
       .justfile("f(a) := a")
       .arg("--dump")
       .env("JUST_UNSTABLE", val)
-      .stderr_regex("error: User-defined functions are currently unstable.*")
+      .stderr_regex("error: user-defined functions are currently unstable.*")
       .failure();
   }
 }
@@ -29,7 +29,7 @@ fn set_unstable_false_with_env_var_unset() {
   Test::new()
     .justfile("f(a) := a")
     .arg("--dump")
-    .stderr_regex("error: User-defined functions are currently unstable.*")
+    .stderr_regex("error: user-defined functions are currently unstable.*")
     .failure();
 }
 
@@ -59,6 +59,6 @@ fn unstable_setting_does_not_affect_submodules() {
     .write("foo.just", "mod bar")
     .write("bar.just", "baz:\n echo hello")
     .args(["foo", "bar"])
-    .stderr_regex("error: Modules are currently unstable.*")
+    .stderr_regex("error: modules are currently unstable.*")
     .failure();
 }

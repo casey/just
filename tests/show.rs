@@ -44,7 +44,7 @@ fn alias_show_missing_target() {
     .justfile("alias f := foo")
     .stderr(
       "
-        error: Alias `f` has an unknown target `foo`
+        error: alias `f` has an unknown target `foo`
          ——▶ justfile:1:7
           │
         1 │ alias f := foo
@@ -67,7 +67,7 @@ fn show_suggestion() {
         a Z="\t z":
       "#,
     )
-    .stderr("error: Justfile does not contain recipe `hell`\nDid you mean `hello`?\n")
+    .stderr("error: justfile does not contain recipe `hell`\nDid you mean `hello`?\n")
     .failure();
 }
 
@@ -88,7 +88,7 @@ fn show_alias_suggestion() {
     )
     .stderr(
       "
-        error: Justfile does not contain recipe `fo`
+        error: justfile does not contain recipe `fo`
         Did you mean `foo`, an alias for `hello`?
       ",
     )
@@ -108,7 +108,7 @@ fn show_no_suggestion() {
         a Z="\t z":
       "#,
     )
-    .stderr("error: Justfile does not contain recipe `hell`\n")
+    .stderr("error: justfile does not contain recipe `hell`\n")
     .failure();
 }
 
@@ -127,7 +127,7 @@ fn show_no_alias_suggestion() {
         a Z="\t z":
       "#,
     )
-    .stderr("error: Justfile does not contain recipe `fooooooo`\n")
+    .stderr("error: justfile does not contain recipe `fooooooo`\n")
     .failure();
 }
 
@@ -149,7 +149,7 @@ fn show_recipe_at_path() {
 fn show_invalid_path() {
   Test::new()
     .args(["--show", "$hello"])
-    .stderr("error: Invalid module path `$hello`\n")
+    .stderr("error: invalid module path `$hello`\n")
     .failure();
 }
 

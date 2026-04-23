@@ -51,7 +51,7 @@ fn check_found_diff() {
     )
     .stderr(
       "
-        error: Formatted justfile differs from original.
+        error: formatted justfile differs from original.
       ",
     )
     .failure();
@@ -76,7 +76,7 @@ fn check_diff_color() {
         .arg("--color")
         .arg("always")
         .stdout("\n    \u{1b}[31m-x:=``\n    \u{1b}[0m\u{1b}[32m+x := ``\n    \u{1b}[0m")
-        .stderr("\n    \u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mFormatted justfile differs from original.\u{1b}[0m\n  ")
+        .stderr("\n    \u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mformatted justfile differs from original.\u{1b}[0m\n  ")
         .failure();
 }
 
@@ -97,9 +97,9 @@ fn write_error() {
     .no_justfile()
     .arg("--fmt")
     .stderr_regex(if cfg!(windows) {
-      r"error: Failed to write justfile to `.*`: Access is denied. \(os error 5\)\n"
+      r"error: failed to write justfile to `.*`: Access is denied. \(os error 5\)\n"
     } else {
-      r"error: Failed to write justfile to `.*`: Permission denied \(os error 13\)\n"
+      r"error: failed to write justfile to `.*`: Permission denied \(os error 13\)\n"
     });
 
   let justfile_path = test.justfile_path();
@@ -1664,7 +1664,7 @@ fn indentation_check_with_custom() {
     .stdout(" foo:\n-    echo bar\n+  echo bar\n")
     .stderr(
       "
-        error: Formatted justfile differs from original.
+        error: formatted justfile differs from original.
       ",
     )
     .failure();

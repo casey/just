@@ -36,7 +36,7 @@ fn missing_import_file_error() {
     .arg("a")
     .stderr(
       "
-        error: Could not find source file for import.
+        error: could not find source file for import.
          ——▶ justfile:1:8
           │
         1 │ import './import.justfile'
@@ -107,7 +107,7 @@ fn circular_import() {
       b: "import 'a'",
     })
     .stderr_regex(path_for_regex(
-      "error: Import `.*/a` in `.*/b` is circular\n",
+      "error: import `.*/a` in `.*/b` is circular\n",
     ))
     .failure();
 }
@@ -119,7 +119,7 @@ fn import_recipes_are_not_default() {
       "import.justfile": "bar:",
     })
     .justfile("import './import.justfile'")
-    .stderr("error: Justfile contains no default recipe.\n")
+    .stderr("error: justfile contains no default recipe.\n")
     .failure();
 }
 
@@ -150,7 +150,7 @@ fn include_error() {
     .justfile("!include foo")
     .stderr(
       "
-        error: The `!include` directive has been stabilized as `import`
+        error: the `!include` directive has been stabilized as `import`
          ——▶ justfile:1:1
           │
         1 │ !include foo

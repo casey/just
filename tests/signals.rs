@@ -138,7 +138,7 @@ fn forwarding() {
     }
 
     // just reports that it was interrupted by first, non-forwarded signal
-    if stderr != format!("error: Interrupted by {signal}\n") {
+    if stderr != format!("error: interrupted by {signal}\n") {
       failures += 1;
       eprintln!("unexpected stderr: {stderr}");
     }

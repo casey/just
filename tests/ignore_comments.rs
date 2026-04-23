@@ -124,7 +124,7 @@ fn comments_still_must_be_parsable_when_ignored() {
     )
     .stderr(
       "
-        error: Expected '&&', '||', '}}', '(', '+', or '/', but found identifier
+        error: expected '&&', '||', '}}', '(', '+', or '/', but found identifier
          ——▶ justfile:4:12
           │
         4 │   # {{ foo bar }}

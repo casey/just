@@ -155,7 +155,7 @@ fn exit_status() {
           echo XYZ
       ",
     )
-    .stderr_regex("error: Command `false` failed: exit (code|status): 1\n")
+    .stderr_regex("error: command `false` failed: exit (code|status): 1\n")
     .failure();
 }
 
@@ -184,7 +184,7 @@ fn working_directory_is_correct() {
 fn command_not_found() {
   Test::new()
     .args(["--command", "asdfasdfasdfasdfadfsadsfadsf", "bar"])
-    .stderr_regex("error: Failed to invoke `asdfasdfasdfasdfadfsadsfadsf` `bar`: .*")
+    .stderr_regex("error: failed to invoke `asdfasdfasdfasdfadfsadsfadsf` `bar`: .*")
     .failure();
 }
 

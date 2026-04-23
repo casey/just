@@ -147,7 +147,7 @@ fn error_line_after_multiline_raw_string() {
       ",
     )
     .stderr(
-      "error: Variable `foo` not defined
+      "error: variable `foo` not defined
  ——▶ justfile:6:11
   │
 6 │   echo '{{foo}}'
@@ -172,7 +172,7 @@ fn error_column_after_multiline_raw_string() {
       ",
     )
     .stderr(
-      "error: Variable `bar` not defined
+      "error: variable `bar` not defined
  ——▶ justfile:3:13
   │
 3 │ whatever' + bar
@@ -222,7 +222,7 @@ fn error_line_after_multiline_raw_string_in_interpolation() {
       ",
     )
     .stderr(
-      "error: Variable `b` not defined
+      "error: variable `b` not defined
  ——▶ justfile:5:10
   │
 5 │   echo {{b}}
@@ -243,7 +243,7 @@ fn unterminated_raw_string() {
     )
     .stderr(
       "
-        error: Unterminated string
+        error: unterminated string
          ——▶ justfile:1:6
           │
         1 │ a b= ':
@@ -264,7 +264,7 @@ fn unterminated_string() {
     )
     .stderr(
       r#"
-        error: Unterminated string
+        error: unterminated string
          ——▶ justfile:1:6
           │
         1 │ a b= ":
@@ -285,7 +285,7 @@ fn unterminated_backtick() {
     )
     .stderr(
       "
-        error: Unterminated backtick
+        error: unterminated backtick
          ——▶ justfile:1:8
           │
         1 │ foo a=    `echo blaaaaaah:
@@ -306,7 +306,7 @@ fn unterminated_indented_raw_string() {
     )
     .stderr(
       "
-        error: Unterminated string
+        error: unterminated string
          ——▶ justfile:1:6
           │
         1 │ a b= ''':
@@ -327,7 +327,7 @@ fn unterminated_indented_string() {
     )
     .stderr(
       r#"
-        error: Unterminated string
+        error: unterminated string
          ——▶ justfile:1:6
           │
         1 │ a b= """:
@@ -348,7 +348,7 @@ fn unterminated_indented_backtick() {
     )
     .stderr(
       "
-        error: Unterminated backtick
+        error: unterminated backtick
          ——▶ justfile:1:8
           │
         1 │ foo a=    ```echo blaaaaaah:
@@ -501,7 +501,7 @@ fn shebang_backtick() {
     )
     .stderr(
       "
-        error: Backticks may not start with `#!`
+        error: backticks may not start with `#!`
          ——▶ justfile:1:6
           │
         1 │ x := `#!/usr/bin/env sh`

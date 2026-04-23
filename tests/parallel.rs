@@ -97,7 +97,7 @@ fn parallel_dependencies_report_errors() {
     .stderr(
       "
         exit 1
-        error: Recipe `bar` failed on line 5 with exit code 1
+        error: recipe `bar` failed on line 5 with exit code 1
       ",
     )
     .failure();

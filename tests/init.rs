@@ -29,7 +29,7 @@ fn exists() {
   Test::with_tempdir(output.tempdir)
     .no_justfile()
     .arg("--init")
-    .stderr_regex("error: Justfile `.*` already exists\n")
+    .stderr_regex("error: justfile `.*` already exists\n")
     .failure();
 }
 
@@ -45,9 +45,9 @@ fn write_error() {
     .no_justfile()
     .args(["--init"])
     .stderr_regex(if cfg!(windows) {
-      r"error: Failed to write justfile to `.*`: Access is denied. \(os error 5\)\n"
+      r"error: failed to write justfile to `.*`: Access is denied. \(os error 5\)\n"
     } else {
-      r"error: Failed to write justfile to `.*`: Is a directory \(os error 21\)\n"
+      r"error: failed to write justfile to `.*`: Is a directory \(os error 21\)\n"
     })
     .failure();
 }
