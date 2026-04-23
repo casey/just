@@ -36,7 +36,7 @@ fn missing_import_file_error() {
     .arg("a")
     .stderr(
       "
-        error: could not find source file for import.
+        error: could not find source file for import
          ——▶ justfile:1:8
           │
         1 │ import './import.justfile'
@@ -119,7 +119,7 @@ fn import_recipes_are_not_default() {
       "import.justfile": "bar:",
     })
     .justfile("import './import.justfile'")
-    .stderr("error: justfile contains no default recipe.\n")
+    .stderr("error: justfile contains no default recipe\n")
     .failure();
 }
 

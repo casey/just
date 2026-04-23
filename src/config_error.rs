@@ -17,7 +17,7 @@ pub(crate) enum ConfigError {
   #[snafu(display("failed to parse request: {source}"))]
   RequestParse { source: serde_json::Error },
   #[snafu(display(
-    "path-prefixed recipes may not be used with `--working-directory` or `--justfile`."
+    "path-prefixed recipes may not be used with `--working-directory` or `--justfile`"
   ))]
   SearchDirConflict,
   #[snafu(display(

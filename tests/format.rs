@@ -51,7 +51,7 @@ fn check_found_diff() {
     )
     .stderr(
       "
-        error: formatted justfile differs from original.
+        error: formatted justfile differs from original
       ",
     )
     .failure();
@@ -76,7 +76,7 @@ fn check_diff_color() {
         .arg("--color")
         .arg("always")
         .stdout("\n    \u{1b}[31m-x:=``\n    \u{1b}[0m\u{1b}[32m+x := ``\n    \u{1b}[0m")
-        .stderr("\n    \u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mformatted justfile differs from original.\u{1b}[0m\n  ")
+        .stderr("\n    \u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mformatted justfile differs from original\u{1b}[0m\n  ")
         .failure();
 }
 
@@ -1664,7 +1664,7 @@ fn indentation_check_with_custom() {
     .stdout(" foo:\n-    echo bar\n+  echo bar\n")
     .stderr(
       "
-        error: formatted justfile differs from original.
+        error: formatted justfile differs from original
       ",
     )
     .failure();

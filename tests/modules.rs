@@ -24,7 +24,7 @@ fn default_recipe_in_submodule_must_have_no_arguments() {
       ",
     )
     .arg("foo")
-    .stderr("error: recipe `foo` cannot be used as default recipe since it requires at least 1 argument.\n")
+    .stderr("error: recipe `foo` cannot be used as default recipe since it requires at least 1 argument\n")
     .failure();
 }
 
@@ -405,7 +405,7 @@ fn missing_module_file_error() {
     )
     .stderr(
       "
-        error: could not find source file for module `foo`.
+        error: could not find source file for module `foo`
          ——▶ justfile:1:5
           │
         1 │ mod foo
@@ -835,7 +835,7 @@ fn colon_separated_path_does_not_run_recipes() {
       ",
     )
     .args(["foo::bar"])
-    .stderr("error: expected submodule at `foo` but found recipe.\n")
+    .stderr("error: expected submodule at `foo` but found recipe\n")
     .failure();
 }
 
@@ -844,7 +844,7 @@ fn expected_submodule_but_found_recipe_in_root_error() {
   Test::new()
     .justfile("foo:")
     .arg("foo::baz")
-    .stderr("error: expected submodule at `foo` but found recipe.\n")
+    .stderr("error: expected submodule at `foo` but found recipe\n")
     .failure();
 }
 
@@ -854,7 +854,7 @@ fn expected_submodule_but_found_recipe_in_submodule_error() {
     .justfile("mod foo")
     .write("foo.just", "bar:")
     .args(["foo::bar::baz"])
-    .stderr("error: expected submodule at `foo::bar` but found recipe.\n")
+    .stderr("error: expected submodule at `foo::bar` but found recipe\n")
     .failure();
 }
 
@@ -863,7 +863,7 @@ fn colon_separated_path_components_are_not_used_as_arguments() {
   Test::new()
     .justfile("foo bar:")
     .args(["foo::bar"])
-    .stderr("error: expected submodule at `foo` but found recipe.\n")
+    .stderr("error: expected submodule at `foo` but found recipe\n")
     .failure();
 }
 
@@ -1267,7 +1267,7 @@ fn trailing_separator_no_default_recipe() {
       ",
     )
     .arg("foo::")
-    .stderr("error: justfile contains no default recipe.\n")
+    .stderr("error: justfile contains no default recipe\n")
     .failure();
 }
 

@@ -793,7 +793,7 @@ impl Subcommand {
     println!();
 
     if recipes.is_empty() && config.verbosity.loud() {
-      eprintln!("Justfile contains no recipes.");
+      eprintln!("justfile contains no recipes");
     }
   }
 

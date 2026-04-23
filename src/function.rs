@@ -430,7 +430,7 @@ fn justfile_directory(context: Context) -> FunctionResult {
     .parent()
     .ok_or_else(|| {
       format!(
-        "Could not resolve justfile directory. Justfile `{}` had no parent.",
+        "could not resolve justfile directory, justfile `{}` had no parent",
         context.execution_context.search.justfile.display()
       )
     })?;
