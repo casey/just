@@ -414,6 +414,6 @@ mod tests {
 
   #[test]
   fn name() {
-    assert_eq!(Attribute::<String>::NoExitMessage.name(), "no-exit-message");
+    assert_eq!(EvaluatedAttribute::NoExitMessage.name(), "no-exit-message");
   }
 }
