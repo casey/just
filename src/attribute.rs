@@ -123,30 +123,27 @@ impl<'src> Attribute<'src> {
       );
     }
 
-    if matches!(discriminant, AttributeDiscriminant::Confirm) {
-      if let Some((_name, (keyword, _literal))) = keyword_arguments.into_iter().next() {
-        return Err(keyword.error(CompileErrorKind::UnknownAttributeKeyword {
-          attribute: name.lexeme(),
-          keyword: keyword.lexeme(),
-        }));
+    match discriminant {
+      AttributeDiscriminant::Confirm | AttributeDiscriminant::WorkingDirectory => {
+        if let Some((_name, (keyword, _literal))) = keyword_arguments.into_iter().next() {
+          return Err(keyword.error(CompileErrorKind::UnknownAttributeKeyword {
+            attribute: name.lexeme(),
+            keyword: keyword.lexeme(),
+          }));
+        }
+
+        let argument = arguments
+          .into_iter()
+          .next()
+          .map(|(_token, expression)| expression);
+
+        return Ok(match discriminant {
+          AttributeDiscriminant::Confirm => Self::Confirm(argument),
+          AttributeDiscriminant::WorkingDirectory => Self::WorkingDirectory(argument.unwrap()),
+          _ => unreachable!(),
+        });
       }
-
-      return Ok(Self::Confirm(
-        arguments.into_iter().next().map(|(_, expr)| expr),
-      ));
-    }
-
-    if matches!(discriminant, AttributeDiscriminant::WorkingDirectory) {
-      if let Some((_name, (keyword, _literal))) = keyword_arguments.into_iter().next() {
-        return Err(keyword.error(CompileErrorKind::UnknownAttributeKeyword {
-          attribute: name.lexeme(),
-          keyword: keyword.lexeme(),
-        }));
-      }
-
-      return Ok(Self::WorkingDirectory(
-        arguments.into_iter().next().map(|(_, expr)| expr).unwrap(),
-      ));
+      _ => {}
     }
 
     let arguments = arguments
