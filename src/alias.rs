@@ -3,7 +3,7 @@ use super::*;
 /// An alias, e.g. `alias name := target`
 #[derive(Debug, PartialEq, Clone, Serialize)]
 pub(crate) struct Alias<'src, T = Arc<Recipe<'src>>> {
-  pub(crate) attributes: AttributeSet<'src, Expression<'src>>,
+  pub(crate) attributes: AttributeSet<'src>,
   pub(crate) name: Name<'src>,
   #[serde(
     bound(serialize = "T: Keyed<'src>"),

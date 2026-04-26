@@ -1,5 +1,7 @@
 use super::*;
 
+pub(crate) type EvaluatedAttribute<'src> = Attribute<'src, String>;
+
 #[allow(clippy::large_enum_variant)]
 #[derive(
   EnumDiscriminants, PartialEq, Eq, PartialOrd, Ord, Debug, Clone, Serialize, IntoStaticStr,
@@ -9,7 +11,7 @@ use super::*;
 #[strum_discriminants(name(AttributeDiscriminant))]
 #[strum_discriminants(derive(EnumString, Ord, PartialOrd))]
 #[strum_discriminants(strum(serialize_all = "kebab-case"))]
-pub(crate) enum Attribute<'src, T = String> {
+pub(crate) enum Attribute<'src, T = Expression<'src>> {
   Android,
   Arg {
     help: Option<StringLiteral<'src>>,
@@ -80,7 +82,7 @@ impl AttributeDiscriminant {
   }
 }
 
-impl<'src> Attribute<'src, Expression<'src>> {
+impl<'src> Attribute<'src> {
   fn check_option_name(
     parameter: &StringLiteral<'src>,
     literal: &StringLiteral<'src>,
@@ -279,7 +281,7 @@ impl<'src> Attribute<'src, Expression<'src>> {
     self,
     assignments: &Table<'src, Assignment<'src>>,
     overrides: &HashMap<Number, String>,
-  ) -> RunResult<'src, Attribute<'src, String>> {
+  ) -> RunResult<'src, EvaluatedAttribute<'src>> {
     Ok(match self {
       Self::Android => Attribute::Android,
       Self::Arg {

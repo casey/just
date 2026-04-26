@@ -1,7 +1,9 @@
 use {super::*, std::collections};
 
+pub(crate) type EvaluatedAttributeSet<'src> = AttributeSet<'src, String>;
+
 #[derive(Debug, Clone, PartialEq, Serialize)]
-pub(crate) struct AttributeSet<'src, T = String>(BTreeSet<Attribute<'src, T>>);
+pub(crate) struct AttributeSet<'src, T = Expression<'src>>(BTreeSet<Attribute<'src, T>>);
 
 impl<T> Default for AttributeSet<'_, T> {
   fn default() -> Self {
@@ -30,7 +32,7 @@ impl<'src, T: Ord> AttributeSet<'src, T> {
   }
 }
 
-impl<'src> AttributeSet<'src, Expression<'src>> {
+impl<'src> AttributeSet<'src> {
   pub(crate) fn ensure_valid_attributes(
     &self,
     item_kind: &'static str,
@@ -54,7 +56,7 @@ impl<'src> AttributeSet<'src, Expression<'src>> {
     self,
     assignments: &Table<'src, Assignment<'src>>,
     overrides: &HashMap<Number, String>,
-  ) -> RunResult<'src, AttributeSet<'src, String>> {
+  ) -> RunResult<'src, EvaluatedAttributeSet<'src>> {
     self
       .0
       .into_iter()
