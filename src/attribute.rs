@@ -123,27 +123,24 @@ impl<'src> Attribute<'src> {
       );
     }
 
-    match discriminant {
-      AttributeDiscriminant::Confirm | AttributeDiscriminant::WorkingDirectory => {
-        if let Some((_name, (keyword, _literal))) = keyword_arguments.into_iter().next() {
-          return Err(keyword.error(CompileErrorKind::UnknownAttributeKeyword {
-            attribute: name.lexeme(),
-            keyword: keyword.lexeme(),
-          }));
-        }
-
-        let argument = arguments
-          .into_iter()
-          .next()
-          .map(|(_token, expression)| expression);
-
-        return Ok(match discriminant {
-          AttributeDiscriminant::Confirm => Self::Confirm(argument),
-          AttributeDiscriminant::WorkingDirectory => Self::WorkingDirectory(argument.unwrap()),
-          _ => unreachable!(),
-        });
+    if let AttributeDiscriminant::Confirm | AttributeDiscriminant::WorkingDirectory = discriminant {
+      if let Some((_name, (keyword, _literal))) = keyword_arguments.into_iter().next() {
+        return Err(keyword.error(CompileErrorKind::UnknownAttributeKeyword {
+          attribute: name.lexeme(),
+          keyword: keyword.lexeme(),
+        }));
       }
-      _ => {}
+
+      let argument = arguments
+        .into_iter()
+        .next()
+        .map(|(_token, expression)| expression);
+
+      return Ok(match discriminant {
+        AttributeDiscriminant::Confirm => Self::Confirm(argument),
+        AttributeDiscriminant::WorkingDirectory => Self::WorkingDirectory(argument.unwrap()),
+        _ => unreachable!(),
+      });
     }
 
     let arguments = arguments
