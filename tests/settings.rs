@@ -270,8 +270,14 @@ fn no_cd_setting_conflicts_with_working_directory_setting() {
         set working-directory := 'bar'
       ",
     )
-    .stderr_regex(
-      "error: Setting `no-cd` first set on line 1 is incompatible with setting `working-directory`\n[\\s\\S]*",
+    .stderr(
+      "
+        error: `no-cd` set on line 1 is incompatible with `working-directory`
+         ——▶ justfile:2:5
+          │
+        2 │ set working-directory := 'bar'
+          │     ^^^^^^^^^^^^^^^^^
+      ",
     )
     .failure();
 }

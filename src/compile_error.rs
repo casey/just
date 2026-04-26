@@ -260,7 +260,7 @@ impl Display for CompileError<'_> {
         second,
       } => write!(
         f,
-        "Setting `{}` first set on line {} is incompatible with setting `{}`",
+        "`{}` set on line {} is incompatible with `{}`",
         first.lexeme(),
         first_line.ordinal(),
         second.lexeme()

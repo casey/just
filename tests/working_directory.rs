@@ -245,7 +245,13 @@ fn working_directory_setting_conflicts_with_no_cd_setting() {
     ",
     )
     .stderr(
-      "error: Setting `working-directory` first set on line 1 is incompatible with setting `no-cd`\n ——▶ justfile:2:5\n  │\n2 │ set no-cd := true\n  │     ^^^^^\n",
+      "
+        error: `working-directory` set on line 1 is incompatible with `no-cd`
+         ——▶ justfile:2:5
+          │
+        2 │ set no-cd := true
+          │     ^^^^^
+      ",
     )
     .failure();
 }
