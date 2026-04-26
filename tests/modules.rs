@@ -219,12 +219,12 @@ foo:
 fn modules_do_not_inherit_no_cd_setting() {
   Test::new()
     .write(
-      "foo.just",
+      "foo/mod.just",
       "bar:
   @cat data.txt
 ",
     )
-    .write("data.txt", "MODULE\n")
+    .write("foo/data.txt", "MODULE\n")
     .justfile(
       "
         set no-cd := true
