@@ -87,14 +87,14 @@ fn working_directory_attribute_overrides_setting() {
 fn paths_stay_module_dir_without_strict() {
   Test::new()
     .justfile(
-      r#"
-      set no-cd := true
+      "
+        set no-cd := true
 
-      file := `cat data.txt`
+        file := `cat data.txt`
 
-      @foo:
-        echo {{file}}
-    "#,
+        @foo:
+          echo {{file}}
+      ",
     )
     .current_dir("inv")
     .write("data.txt", "MODULE")
