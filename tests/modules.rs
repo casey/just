@@ -216,6 +216,28 @@ foo:
 }
 
 #[test]
+fn submodules_do_not_inherit_no_cd_setting() {
+  Test::new()
+    .write(
+      "foo/mod.just",
+      "bar:
+  @cat data.txt
+",
+    )
+    .write("foo/data.txt", "MODULE\n")
+    .justfile(
+      "
+        set no-cd := true
+
+        mod foo
+      ",
+    )
+    .args(["foo", "bar"])
+    .stdout("MODULE\n")
+    .success();
+}
+
+#[test]
 fn modules_conflict_with_recipes() {
   Test::new()
     .write("foo.just", "")

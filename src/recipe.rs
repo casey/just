@@ -169,8 +169,19 @@ impl<'src> Recipe<'src> {
         .contains(AttributeDiscriminant::PositionalArguments)
   }
 
-  pub(crate) fn change_directory(&self) -> bool {
-    !self.attributes.contains(AttributeDiscriminant::NoCd)
+  pub(crate) fn change_directory(&self, settings: &Settings) -> bool {
+    if self
+      .attributes
+      .contains(AttributeDiscriminant::WorkingDirectory)
+    {
+      return true;
+    }
+
+    if self.attributes.contains(AttributeDiscriminant::NoCd) {
+      return false;
+    }
+
+    !settings.no_cd
   }
 
   fn print_exit_message(&self, settings: &Settings) -> bool {
@@ -186,7 +197,7 @@ impl<'src> Recipe<'src> {
   }
 
   fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
-    if !self.change_directory() {
+    if !self.change_directory(&context.module.settings) {
       return None;
     }
 

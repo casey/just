@@ -262,6 +262,27 @@ fn variable() {
 }
 
 #[test]
+fn no_cd_setting_conflicts_with_working_directory_setting() {
+  Test::new()
+    .justfile(
+      "
+        set no-cd := true
+        set working-directory := 'bar'
+      ",
+    )
+    .stderr(
+      "
+        error: `no-cd` set on line 1 is incompatible with `working-directory`
+         ——▶ justfile:2:5
+          │
+        2 │ set working-directory := 'bar'
+          │     ^^^^^^^^^^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn unused_non_const_assignments() {
   Test::new()
     .justfile(

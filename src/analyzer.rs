@@ -417,6 +417,24 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       }));
     }
 
+    if let Some(second) = Keyword::from_lexeme(set.name.lexeme()) {
+      let first = match second {
+        Keyword::NoCd => Keyword::WorkingDirectory,
+        Keyword::WorkingDirectory => Keyword::NoCd,
+        _ => {
+          return Ok(());
+        }
+      };
+
+      if let Some(conflict) = self.sets.get(first.lexeme()) {
+        return Err(set.name.error(NoCdAndWorkingDirectorySetting {
+          first,
+          first_line: conflict.name.line,
+          second,
+        }));
+      }
+    }
+
     Ok(())
   }
 
