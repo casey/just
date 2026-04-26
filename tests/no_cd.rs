@@ -84,7 +84,7 @@ fn working_directory_attribute_overrides_setting() {
 }
 
 #[test]
-fn paths_stay_module_dir_without_strict() {
+fn evaluator_paths_ignore_setting() {
   Test::new()
     .justfile(
       "
