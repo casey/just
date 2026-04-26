@@ -344,6 +344,8 @@ impl<T> Attribute<'_, T> {
 
 impl<T: Display> Display for Attribute<'_, T> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    use Attribute::*;
+
     write!(f, "{}", self.name())?;
 
     match self {
@@ -380,33 +382,16 @@ impl<T: Display> Display for Attribute<'_, T> {
 
         write!(f, ")")?;
       }
-      Self::Android
-      | Self::Confirm(None)
-      | Self::Default
-      | Self::Doc(None)
-      | Self::Dragonfly
-      | Self::ExitMessage
-      | Self::Freebsd
-      | Self::Linux
-      | Self::Macos
-      | Self::Netbsd
-      | Self::NoCd
-      | Self::NoExitMessage
-      | Self::NoQuiet
-      | Self::Openbsd
-      | Self::Parallel
-      | Self::PositionalArguments
-      | Self::Private
-      | Self::Script(None)
-      | Self::Unix
-      | Self::Windows => {}
-      Self::Confirm(Some(argument)) => write!(f, "({argument})")?,
-      Self::WorkingDirectory(argument) => write!(f, "({argument})")?,
-      Self::Doc(Some(argument)) | Self::Extension(argument) | Self::Group(argument) => {
+      Android | Confirm(None) | Default | Doc(None) | Dragonfly | ExitMessage | Freebsd | Linux
+      | Macos | Netbsd | NoCd | NoExitMessage | NoQuiet | Openbsd | Parallel
+      | PositionalArguments | Private | Script(None) | Unix | Windows => {}
+      Confirm(Some(argument)) => write!(f, "({argument})")?,
+      WorkingDirectory(argument) => write!(f, "({argument})")?,
+      Doc(Some(argument)) | Extension(argument) | Group(argument) => {
         write!(f, "({argument})")?;
       }
-      Self::Env(key, value) => write!(f, "({key}, {value})")?,
-      Self::Metadata(arguments) => {
+      Env(key, value) => write!(f, "({key}, {value})")?,
+      Metadata(arguments) => {
         write!(f, "(")?;
         for (i, argument) in arguments.iter().enumerate() {
           if i > 0 {
@@ -416,7 +401,7 @@ impl<T: Display> Display for Attribute<'_, T> {
         }
         write!(f, ")")?;
       }
-      Self::Script(Some(shell)) => write!(f, "({shell})")?,
+      Script(Some(shell)) => write!(f, "({shell})")?,
     }
 
     Ok(())
