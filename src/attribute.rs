@@ -55,29 +55,17 @@ impl AttributeDiscriminant {
   }
 
   fn argument_range(self) -> RangeInclusive<usize> {
+    use AttributeDiscriminant::*;
+
     match self {
-      Self::Android
-      | Self::Default
-      | Self::Dragonfly
-      | Self::ExitMessage
-      | Self::Freebsd
-      | Self::Linux
-      | Self::Macos
-      | Self::Netbsd
-      | Self::NoCd
-      | Self::NoExitMessage
-      | Self::NoQuiet
-      | Self::Openbsd
-      | Self::Parallel
-      | Self::PositionalArguments
-      | Self::Private
-      | Self::Unix
-      | Self::Windows => 0..=0,
-      Self::Confirm | Self::Doc => 0..=1,
-      Self::Script => 0..=usize::MAX,
-      Self::Arg | Self::Extension | Self::Group | Self::WorkingDirectory => 1..=1,
-      Self::Env => 2..=2,
-      Self::Metadata => 1..=usize::MAX,
+      Android | Default | Dragonfly | ExitMessage | Freebsd | Linux | Macos | Netbsd | NoCd
+      | NoExitMessage | NoQuiet | Openbsd | Parallel | PositionalArguments | Private | Unix
+      | Windows => 0..=0,
+      Confirm | Doc => 0..=1,
+      Script => 0..=usize::MAX,
+      Arg | Extension | Group | WorkingDirectory => 1..=1,
+      Env => 2..=2,
+      Metadata => 1..=usize::MAX,
     }
   }
 }
@@ -112,6 +100,8 @@ impl<'src> Attribute<'src> {
     arguments: Vec<(Token<'src>, Expression<'src>)>,
     mut keyword_arguments: BTreeMap<&'src str, (Name<'src>, Option<StringLiteral<'src>>)>,
   ) -> CompileResult<'src, Self> {
+    use AttributeDiscriminant::*;
+
     let found = arguments.len();
     let range = discriminant.argument_range();
     if !range.contains(&found) {
@@ -125,7 +115,7 @@ impl<'src> Attribute<'src> {
       );
     }
 
-    if let AttributeDiscriminant::Confirm | AttributeDiscriminant::WorkingDirectory = discriminant {
+    if let Confirm | WorkingDirectory = discriminant {
       if let Some((_name, (keyword, _literal))) = keyword_arguments.into_iter().next() {
         return Err(keyword.error(CompileErrorKind::UnknownAttributeKeyword {
           attribute: name.lexeme(),
@@ -139,8 +129,8 @@ impl<'src> Attribute<'src> {
         .map(|(_token, expression)| expression);
 
       return Ok(match discriminant {
-        AttributeDiscriminant::Confirm => Self::Confirm(argument),
-        AttributeDiscriminant::WorkingDirectory => Self::WorkingDirectory(argument.unwrap()),
+        Confirm => Self::Confirm(argument),
+        WorkingDirectory => Self::WorkingDirectory(argument.unwrap()),
         _ => unreachable!(),
       });
     }
@@ -158,7 +148,7 @@ impl<'src> Attribute<'src> {
       .collect::<CompileResult<Vec<StringLiteral>>>()?;
 
     let attribute = match discriminant {
-      AttributeDiscriminant::Arg => {
+      Arg => {
         let arg = arguments.into_iter().next().unwrap();
 
         let (long, long_key) = keyword_arguments
@@ -216,39 +206,39 @@ impl<'src> Attribute<'src> {
           value,
         }
       }
-      AttributeDiscriminant::Android => Self::Android,
-      AttributeDiscriminant::Confirm | AttributeDiscriminant::WorkingDirectory => unreachable!(),
-      AttributeDiscriminant::Default => Self::Default,
-      AttributeDiscriminant::Doc => Self::Doc(arguments.into_iter().next()),
-      AttributeDiscriminant::Dragonfly => Self::Dragonfly,
-      AttributeDiscriminant::Env => {
+      Android => Self::Android,
+      Confirm | WorkingDirectory => unreachable!(),
+      Default => Self::Default,
+      Doc => Self::Doc(arguments.into_iter().next()),
+      Dragonfly => Self::Dragonfly,
+      Env => {
         let [key, value]: [StringLiteral; 2] = arguments.try_into().unwrap();
         Self::Env(key, value)
       }
-      AttributeDiscriminant::ExitMessage => Self::ExitMessage,
-      AttributeDiscriminant::Extension => Self::Extension(arguments.into_iter().next().unwrap()),
-      AttributeDiscriminant::Freebsd => Self::Freebsd,
-      AttributeDiscriminant::Group => Self::Group(arguments.into_iter().next().unwrap()),
-      AttributeDiscriminant::Linux => Self::Linux,
-      AttributeDiscriminant::Macos => Self::Macos,
-      AttributeDiscriminant::Metadata => Self::Metadata(arguments),
-      AttributeDiscriminant::Netbsd => Self::Netbsd,
-      AttributeDiscriminant::NoCd => Self::NoCd,
-      AttributeDiscriminant::NoExitMessage => Self::NoExitMessage,
-      AttributeDiscriminant::NoQuiet => Self::NoQuiet,
-      AttributeDiscriminant::Openbsd => Self::Openbsd,
-      AttributeDiscriminant::Parallel => Self::Parallel,
-      AttributeDiscriminant::PositionalArguments => Self::PositionalArguments,
-      AttributeDiscriminant::Private => Self::Private,
-      AttributeDiscriminant::Script => Self::Script({
+      ExitMessage => Self::ExitMessage,
+      Extension => Self::Extension(arguments.into_iter().next().unwrap()),
+      Freebsd => Self::Freebsd,
+      Group => Self::Group(arguments.into_iter().next().unwrap()),
+      Linux => Self::Linux,
+      Macos => Self::Macos,
+      Metadata => Self::Metadata(arguments),
+      Netbsd => Self::Netbsd,
+      NoCd => Self::NoCd,
+      NoExitMessage => Self::NoExitMessage,
+      NoQuiet => Self::NoQuiet,
+      Openbsd => Self::Openbsd,
+      Parallel => Self::Parallel,
+      PositionalArguments => Self::PositionalArguments,
+      Private => Self::Private,
+      Script => Self::Script({
         let mut arguments = arguments.into_iter();
         arguments.next().map(|command| Interpreter {
           command,
           arguments: arguments.collect(),
         })
       }),
-      AttributeDiscriminant::Unix => Self::Unix,
-      AttributeDiscriminant::Windows => Self::Windows,
+      Unix => Self::Unix,
+      Windows => Self::Windows,
     };
 
     if let Some((_name, (keyword_name, _literal))) = keyword_arguments.into_iter().next() {
@@ -282,9 +272,10 @@ impl<'src> Attribute<'src> {
     assignments: &Table<'src, Assignment<'src>>,
     overrides: &HashMap<Number, String>,
   ) -> RunResult<'src, EvaluatedAttribute<'src>> {
+    use Attribute::*;
     Ok(match self {
-      Self::Android => Attribute::Android,
-      Self::Arg {
+      Android => Android,
+      Arg {
         help,
         long,
         long_key,
@@ -292,7 +283,7 @@ impl<'src> Attribute<'src> {
         pattern,
         short,
         value,
-      } => Attribute::Arg {
+      } => Arg {
         help,
         long,
         long_key,
@@ -301,32 +292,35 @@ impl<'src> Attribute<'src> {
         short,
         value,
       },
-      Self::Confirm(argument) => Attribute::Confirm(argument),
-      Self::Default => Attribute::Default,
-      Self::Doc(argument) => Attribute::Doc(argument),
-      Self::Dragonfly => Attribute::Dragonfly,
-      Self::Env(key, value) => Attribute::Env(key, value),
-      Self::ExitMessage => Attribute::ExitMessage,
-      Self::Extension(argument) => Attribute::Extension(argument),
-      Self::Freebsd => Attribute::Freebsd,
-      Self::Group(argument) => Attribute::Group(argument),
-      Self::Linux => Attribute::Linux,
-      Self::Macos => Attribute::Macos,
-      Self::Metadata(arguments) => Attribute::Metadata(arguments),
-      Self::Netbsd => Attribute::Netbsd,
-      Self::NoCd => Attribute::NoCd,
-      Self::NoExitMessage => Attribute::NoExitMessage,
-      Self::NoQuiet => Attribute::NoQuiet,
-      Self::Openbsd => Attribute::Openbsd,
-      Self::Parallel => Attribute::Parallel,
-      Self::PositionalArguments => Attribute::PositionalArguments,
-      Self::Private => Attribute::Private,
-      Self::Script(argument) => Attribute::Script(argument),
-      Self::Unix => Attribute::Unix,
-      Self::Windows => Attribute::Windows,
-      Self::WorkingDirectory(expression) => Attribute::WorkingDirectory(
-        Evaluator::evaluate_const_expression(assignments, overrides, &Scope::root(), &expression)?,
-      ),
+      Confirm(argument) => Confirm(argument),
+      Default => Default,
+      Doc(argument) => Doc(argument),
+      Dragonfly => Dragonfly,
+      Env(key, value) => Env(key, value),
+      ExitMessage => ExitMessage,
+      Extension(argument) => Extension(argument),
+      Freebsd => Freebsd,
+      Group(argument) => Group(argument),
+      Linux => Linux,
+      Macos => Macos,
+      Metadata(arguments) => Metadata(arguments),
+      Netbsd => Netbsd,
+      NoCd => NoCd,
+      NoExitMessage => NoExitMessage,
+      NoQuiet => NoQuiet,
+      Openbsd => Openbsd,
+      Parallel => Parallel,
+      PositionalArguments => PositionalArguments,
+      Private => Private,
+      Script(argument) => Script(argument),
+      Unix => Unix,
+      Windows => Windows,
+      WorkingDirectory(expression) => WorkingDirectory(Evaluator::evaluate_const_expression(
+        assignments,
+        overrides,
+        &Scope::root(),
+        &expression,
+      )?),
     })
   }
 }
