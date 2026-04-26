@@ -216,7 +216,7 @@ foo:
 }
 
 #[test]
-fn modules_do_not_inherit_no_cd_setting() {
+fn submodules_do_not_inherit_no_cd_setting() {
   Test::new()
     .write(
       "foo/mod.just",
