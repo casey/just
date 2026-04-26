@@ -418,26 +418,20 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     }
 
     if let Some(second) = Keyword::from_lexeme(set.name.lexeme()) {
-      match second {
-        Keyword::NoCd => {
-          if let Some(conflict) = self.sets.get(Keyword::WorkingDirectory.lexeme()) {
-            return Err(set.name.error(NoCdAndWorkingDirectorySetting {
-              first: Keyword::WorkingDirectory,
-              first_line: conflict.name.line,
-              second,
-            }));
-          }
+      let first = match second {
+        Keyword::NoCd => Keyword::WorkingDirectory,
+        Keyword::WorkingDirectory => Keyword::NoCd,
+        _ => {
+          return Ok(());
         }
-        Keyword::WorkingDirectory => {
-          if let Some(conflict) = self.sets.get(Keyword::NoCd.lexeme()) {
-            return Err(set.name.error(NoCdAndWorkingDirectorySetting {
-              first: Keyword::NoCd,
-              first_line: conflict.name.line,
-              second,
-            }));
-          }
-        }
-        _ => {}
+      };
+
+      if let Some(conflict) = self.sets.get(first.lexeme()) {
+        return Err(set.name.error(NoCdAndWorkingDirectorySetting {
+          first,
+          first_line: conflict.name.line,
+          second,
+        }));
       }
     }
 
