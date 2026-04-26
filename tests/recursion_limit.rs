@@ -12,6 +12,26 @@ fn bugfix() {
     .failure();
 }
 
+#[test]
+fn user_defined_function_recursion_limit() {
+  Test::new()
+    .justfile(
+      "
+        set unstable
+
+        foo() := foo()
+
+        bar:
+          echo {{foo()}}
+      ",
+    )
+    .stderr(format!(
+      "error: maximum recursion depth of {} exceeded while calling function foo\n",
+      if cfg!(windows) { 48 } else { 256 },
+    ))
+    .failure();
+}
+
 const RECURSION_LIMIT_REACHED: &str = if cfg!(windows) {
   "
 error: Parsing recursion depth exceeded

@@ -7,6 +7,7 @@ pub(crate) struct Evaluator<'src: 'run, 'run> {
   is_dependency: bool,
   non_const_assignments: Table<'src, Name<'src>>,
   overrides: &'run HashMap<Number, String>,
+  recursion_depth: usize,
   scope: Scope<'src, 'run>,
 }
 
@@ -26,6 +27,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   ) -> RunResult<'src, Settings> {
     let mut evaluator = Self {
       assignments: Some(assignments),
+      recursion_depth: 0,
       context: None,
       env: BTreeMap::new(),
       is_dependency: false,
@@ -173,6 +175,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     let mut evaluator = Self {
       assignments: Some(&module.assignments),
+      recursion_depth: 0,
       context: Some(context),
       env: BTreeMap::new(),
       is_dependency: false,
@@ -237,6 +240,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     function: &FunctionDefinition<'src>,
     arguments: &[Expression<'src>],
   ) -> RunResult<'src, String> {
+    let recursion_depth = self.recursion_depth + 1;
+
+    if recursion_depth == RECURSION_LIMIT {
+      return Err(Error::RecursionLimit {
+        last: function.name,
+      });
+    }
+
     let context = *self.context.as_ref().unwrap();
 
     let mut scope = Scope::root();
@@ -261,6 +272,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       is_dependency: false,
       non_const_assignments: Table::new(),
       overrides: self.overrides,
+      recursion_depth,
       scope,
     };
 
@@ -611,6 +623,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       is_dependency,
       non_const_assignments: Table::new(),
       overrides: context.overrides,
+      recursion_depth: 0,
       scope: scope.child(),
     }
   }
