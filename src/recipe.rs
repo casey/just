@@ -196,7 +196,7 @@ impl<'src> Recipe<'src> {
     }
   }
 
-  pub(crate) fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
+  fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
     let module_working_directory = context.working_directory();
 
     for attribute in &self.attributes {
