@@ -11,7 +11,7 @@ impl<T> Default for AttributeSet<'_, T> {
   }
 }
 
-impl<'src, T: Ord> AttributeSet<'src, T> {
+impl<'src, T> AttributeSet<'src, T> {
   pub(crate) fn len(&self) -> usize {
     self.0.len()
   }
