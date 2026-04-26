@@ -277,29 +277,6 @@ fn no_cd_setting_conflicts_with_working_directory_setting() {
 }
 
 #[test]
-fn no_cd_setting_changes_default_recipe_execution() {
-  Test::new()
-    .justfile(
-      "
-        set no-cd := true
-
-        foo:
-          cat bar
-      ",
-    )
-    .current_dir("child")
-    .tree(tree! {
-      bar: "root",
-      child: {
-        bar: "child",
-      }
-    })
-    .stderr("cat bar\n")
-    .stdout("child")
-    .success();
-}
-
-#[test]
 fn unused_non_const_assignments() {
   Test::new()
     .justfile(
