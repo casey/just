@@ -255,14 +255,14 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     if next.kind != Identifier {
       Err(self.internal_error(format!(
-        "Presumed next token would have kind {Identifier}, but found {}",
+        "presumed next token would have kind {Identifier}, but found {}",
         next.kind
       ))?)
     } else if keyword == next.lexeme() {
       Ok(())
     } else {
       Err(self.internal_error(format!(
-        "Presumed next token would have lexeme \"{keyword}\", but found \"{}\"",
+        "presumed next token would have lexeme \"{keyword}\", but found \"{}\"",
         next.lexeme(),
       ))?)
     }
@@ -276,7 +276,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       Ok(next)
     } else {
       Err(self.internal_error(format!(
-        "Presumed next token would have kind {kind:?}, but found {:?}",
+        "presumed next token would have kind {kind:?}, but found {:?}",
         next.kind
       ))?)
     }
@@ -289,7 +289,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       Ok(next)
     } else {
       Err(self.internal_error(format!(
-        "Presumed next token would be {}, but found {}",
+        "presumed next token would be {}, but found {}",
         List::or(kinds),
         next.kind
       ))?)
@@ -437,7 +437,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     if self.next_token != self.tokens.len() {
       return Err(self.internal_error(format!(
-        "Parse completed with {} unparsed tokens",
+        "parse completed with {} unparsed tokens",
         self.tokens.len() - self.next_token,
       ))?);
     }
@@ -520,7 +520,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           let attributes = take_attributes();
 
           attributes.ensure_valid_attributes(
-            "Module",
+            "module",
             *name,
             &[
               AttributeDiscriminant::Doc,
@@ -585,7 +585,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.presume_any(&[Equals, ColonEquals])?;
     let target = self.parse_namepath()?;
 
-    attributes.ensure_valid_attributes("Alias", *name, &[AttributeDiscriminant::Private])?;
+    attributes.ensure_valid_attributes("alias", *name, &[AttributeDiscriminant::Private])?;
 
     Ok(Alias {
       attributes,
@@ -637,7 +637,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let private = attributes.contains(AttributeDiscriminant::Private);
 
-    attributes.ensure_valid_attributes("Assignment", *name, &[AttributeDiscriminant::Private])?;
+    attributes.ensure_valid_attributes("assignment", *name, &[AttributeDiscriminant::Private])?;
 
     Ok(Assignment {
       eager,
@@ -1416,6 +1416,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       Keyword::Guards => Some(Setting::Guards(self.parse_set_bool()?)),
       Keyword::IgnoreComments => Some(Setting::IgnoreComments(self.parse_set_bool()?)),
       Keyword::Lazy => Some(Setting::Lazy(self.parse_set_bool()?)),
+      Keyword::NoCd => Some(Setting::NoCd(self.parse_set_bool()?)),
       Keyword::NoExitMessage => Some(Setting::NoExitMessage(self.parse_set_bool()?)),
       Keyword::PositionalArguments => Some(Setting::PositionalArguments(self.parse_set_bool()?)),
       Keyword::Quiet => Some(Setting::Quiet(self.parse_set_bool()?)),
@@ -2648,6 +2649,12 @@ mod tests {
     name: set_quiet_false,
     text: "set quiet := false",
     tree: (justfile (set quiet false)),
+  }
+
+  test! {
+    name: set_no_cd,
+    text: "set no-cd := true",
+    tree: (justfile (set no_cd true)),
   }
 
   test! {

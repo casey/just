@@ -193,7 +193,7 @@ fn dot_justfile_conflicts_with_justfile() {
         foo:
       ",
     })
-    .stderr_regex("error: Multiple candidate justfiles found in `.*`: `.justfile` and `justfile`\n")
+    .stderr_regex("error: multiple candidate justfiles found in `.*`: `.justfile` and `justfile`\n")
     .failure();
 }
 
@@ -202,7 +202,7 @@ fn not_found() {
   Test::new()
     .no_justfile()
     .test_round_trip(false)
-    .stderr_regex("error: No justfile found\n")
+    .stderr_regex("error: no justfile found\n")
     .failure();
 }
 
@@ -234,7 +234,7 @@ fn justfile_name_not_found() {
   Test::new()
     .justfile("default:\n\techo ok")
     .args(["--justfile-name", "foo"])
-    .stderr_regex("error: No justfile found\n")
+    .stderr_regex("error: no justfile found\n")
     .failure();
 }
 

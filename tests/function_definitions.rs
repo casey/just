@@ -4,7 +4,7 @@ use super::*;
 fn unstable() {
   Test::new()
     .justfile("foo() := 'bar'")
-    .stderr_regex(r"error: User-defined functions are currently unstable\..*")
+    .stderr_regex(r"error: user-defined functions are currently unstable,.*")
     .failure();
 }
 
@@ -19,7 +19,7 @@ fn redefinition() {
     )
     .stderr(
       "
-        error: Function `foo` first defined on line 1 is redefined on line 2
+        error: function `foo` first defined on line 1 is redefined on line 2
          ——▶ justfile:2:1
           │
         2 │ foo() := 'baz'
@@ -41,7 +41,7 @@ fn wrong_argument_count() {
     )
     .stderr(
       "
-        error: Function `foo` called with 2 arguments but takes 1
+        error: function `foo` called with 2 arguments but takes 1
          ——▶ justfile:2:6
           │
         2 │ a := foo('bar', 'baz')
@@ -63,7 +63,7 @@ fn undefined_variable_in_body() {
     )
     .stderr(
       "
-        error: Variable `bar` not defined
+        error: variable `bar` not defined
          ——▶ justfile:1:10
           │
         1 │ foo() := bar
@@ -80,7 +80,7 @@ fn undefined_in_assignment() {
     .justfile("a := foo()")
     .stderr(
       "
-        error: Call to undefined function `foo`
+        error: call to undefined function `foo`
          ——▶ justfile:1:6
           │
         1 │ a := foo()
@@ -97,7 +97,7 @@ fn undefined_in_setting() {
     .justfile("set tempdir := foo()")
     .stderr(
       "
-        error: Call to undefined function `foo`
+        error: call to undefined function `foo`
          ——▶ justfile:1:16
           │
         1 │ set tempdir := foo()
@@ -114,7 +114,7 @@ fn undefined_in_recipe_parameter_default() {
     .justfile("bar x=foo():")
     .stderr(
       "
-        error: Call to undefined function `foo`
+        error: call to undefined function `foo`
          ——▶ justfile:1:7
           │
         1 │ bar x=foo():
@@ -136,7 +136,7 @@ fn undefined_in_dependency_argument() {
     )
     .stderr(
       "
-        error: Call to undefined function `baz`
+        error: call to undefined function `baz`
          ——▶ justfile:2:11
           │
         2 │ foo: (bar baz())
@@ -158,7 +158,7 @@ fn undefined_in_confirm_attribute() {
     )
     .stderr(
       "
-        error: Call to undefined function `foo`
+        error: call to undefined function `foo`
          ——▶ justfile:1:10
           │
         1 │ [confirm(foo())]
@@ -180,7 +180,7 @@ fn undefined_in_interpolation() {
     )
     .stderr(
       "
-        error: Call to undefined function `foo`
+        error: call to undefined function `foo`
          ——▶ justfile:2:10
           │
         2 │   echo {{foo()}}

@@ -140,7 +140,7 @@ fn absolute_path(context: Context, path: &str) -> FunctionResult {
   match abs_path_unchecked.to_str() {
     Some(absolute_path) => Ok(absolute_path.to_owned()),
     None => Err(format!(
-      "Working directory is not valid unicode: {}",
+      "working directory is not valid unicode: {}",
       context.execution_context.search.working_directory.display()
     )),
   }
@@ -168,7 +168,7 @@ fn blake3_file(context: Context, path: &str) -> FunctionResult {
   let mut hasher = blake3::Hasher::new();
   hasher
     .update_mmap_rayon(&path)
-    .map_err(|err| format!("Failed to hash `{}`: {err}", path.display()))?;
+    .map_err(|err| format!("failed to hash `{}`: {err}", path.display()))?;
   Ok(hasher.finalize().to_string())
 }
 
@@ -178,7 +178,7 @@ fn canonicalize(context: Context, path: &str) -> FunctionResult {
 
   canonical.to_str().map(str::to_string).ok_or_else(|| {
     format!(
-      "Canonical path is not valid unicode: {}",
+      "canonical path is not valid unicode: {}",
       canonical.display(),
     )
   })
@@ -325,21 +325,21 @@ fn extension(_context: Context, path: &str) -> FunctionResult {
   Utf8Path::new(path)
     .extension()
     .map(str::to_owned)
-    .ok_or_else(|| format!("Could not extract extension from `{path}`"))
+    .ok_or_else(|| format!("could not extract extension from `{path}`"))
 }
 
 fn file_name(_context: Context, path: &str) -> FunctionResult {
   Utf8Path::new(path)
     .file_name()
     .map(str::to_owned)
-    .ok_or_else(|| format!("Could not extract file name from `{path}`"))
+    .ok_or_else(|| format!("could not extract file name from `{path}`"))
 }
 
 fn file_stem(_context: Context, path: &str) -> FunctionResult {
   Utf8Path::new(path)
     .file_stem()
     .map(str::to_owned)
-    .ok_or_else(|| format!("Could not extract file stem from `{path}`"))
+    .ok_or_else(|| format!("could not extract file stem from `{path}`"))
 }
 
 fn invocation_directory(context: Context) -> FunctionResult {
@@ -348,7 +348,7 @@ fn invocation_directory(context: Context) -> FunctionResult {
     &context.execution_context.search.working_directory,
     &context.execution_context.config.invocation_directory,
   )
-  .map_err(|e| format!("Error getting shell path: {e}"))
+  .map_err(|e| format!("error getting shell path: {e}"))
 }
 
 fn invocation_directory_native(context: Context) -> FunctionResult {
@@ -393,11 +393,11 @@ fn join(_context: Context, base: &str, with: &str, and: &[String]) -> FunctionRe
 
 fn just_executable(_context: Context) -> FunctionResult {
   let exe_path =
-    env::current_exe().map_err(|e| format!("Error getting current executable: {e}"))?;
+    env::current_exe().map_err(|e| format!("error getting current executable: {e}"))?;
 
   exe_path.to_str().map(str::to_owned).ok_or_else(|| {
     format!(
-      "Executable path is not valid unicode: {}",
+      "executable path is not valid unicode: {}",
       exe_path.display()
     )
   })
@@ -430,7 +430,7 @@ fn justfile_directory(context: Context) -> FunctionResult {
     .parent()
     .ok_or_else(|| {
       format!(
-        "Could not resolve justfile directory. Justfile `{}` had no parent.",
+        "could not resolve justfile directory, justfile `{}` had no parent",
         context.execution_context.search.justfile.display()
       )
     })?;
@@ -496,10 +496,16 @@ fn os_family(_context: Context) -> FunctionResult {
 }
 
 fn parent_directory(_context: Context, path: &str) -> FunctionResult {
-  Utf8Path::new(path)
+  let parent = Utf8Path::new(path)
     .parent()
     .map(Utf8Path::to_string)
-    .ok_or_else(|| format!("Could not extract parent directory from `{path}`"))
+    .ok_or_else(|| format!("could not extract parent directory from `{path}`"))?;
+
+  if parent.is_empty() {
+    Ok(".".into())
+  } else {
+    Ok(parent)
+  }
 }
 
 fn path_exists(context: Context, path: &str) -> FunctionResult {
@@ -552,9 +558,9 @@ fn sha256_file(context: Context, path: &str) -> FunctionResult {
   let path = context.execution_context.working_directory().join(path);
   let mut hasher = Sha256::new();
   let mut file =
-    fs::File::open(&path).map_err(|err| format!("Failed to open `{}`: {err}", path.display()))?;
+    fs::File::open(&path).map_err(|err| format!("failed to open `{}`: {err}", path.display()))?;
   std::io::copy(&mut file, &mut hasher)
-    .map_err(|err| format!("Failed to read `{}`: {err}", path.display()))?;
+    .map_err(|err| format!("failed to read `{}`: {err}", path.display()))?;
   let hash = hasher.finalize();
   Ok(format!("{hash:x}"))
 }
@@ -596,7 +602,7 @@ fn source_directory(context: Context) -> FunctionResult {
     .map(str::to_owned)
     .ok_or_else(|| {
       format!(
-        "Source file path not valid unicode: {}",
+        "source file path not valid unicode: {}",
         context.name.token.path.display(),
       )
     })
@@ -614,7 +620,7 @@ fn source_file(context: Context) -> FunctionResult {
     .map(str::to_owned)
     .ok_or_else(|| {
       format!(
-        "Source file path not valid unicode: {}",
+        "source file path not valid unicode: {}",
         context.name.token.path.display(),
       )
     })
@@ -685,11 +691,11 @@ fn which(context: Context, name: &str) -> FunctionResult {
 fn without_extension(_context: Context, path: &str) -> FunctionResult {
   let parent = Utf8Path::new(path)
     .parent()
-    .ok_or_else(|| format!("Could not extract parent from `{path}`"))?;
+    .ok_or_else(|| format!("could not extract parent from `{path}`"))?;
 
   let file_stem = Utf8Path::new(path)
     .file_stem()
-    .ok_or_else(|| format!("Could not extract file stem from `{path}`"))?;
+    .ok_or_else(|| format!("could not extract file stem from `{path}`"))?;
 
   Ok(parent.join(file_stem).to_string())
 }

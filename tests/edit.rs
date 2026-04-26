@@ -43,9 +43,9 @@ fn invoke_error() {
   assert_eq!(
     String::from_utf8_lossy(&output.stderr),
     if cfg!(windows) {
-      "error: Editor `/` invocation failed: program path has no file name\n"
+      "error: editor `/` invocation failed: program path has no file name\n"
     } else {
-      "error: Editor `/` invocation failed: Permission denied (os error 13)\n"
+      "error: editor `/` invocation failed: Permission denied (os error 13)\n"
     }
   );
 }
@@ -82,7 +82,7 @@ fn status_error() {
     .unwrap();
 
   assert!(
-    Regex::new("^error: Editor `exit-2` failed: exit (code|status): 2\n$")
+    Regex::new("^error: editor `exit-2` failed: exit (code|status): 2\n$")
       .unwrap()
       .is_match(str::from_utf8(&output.stderr).unwrap())
   );

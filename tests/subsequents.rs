@@ -49,7 +49,7 @@ fn failure() {
       "
         echo foo
         false
-        error: Recipe `foo` failed on line 3 with exit code 1
+        error: recipe `foo` failed on line 3 with exit code 1
       ",
     )
     .failure();
@@ -65,7 +65,7 @@ fn circular_dependency() {
     )
     .stderr(
       "
-        error: Recipe `foo` depends on itself
+        error: recipe `foo` depends on itself
          ——▶ justfile:1:9
           │
         1 │ foo: && foo
@@ -85,7 +85,7 @@ fn unknown() {
     )
     .stderr(
       "
-        error: Recipe `foo` has unknown dependency `bar`
+        error: recipe `foo` has unknown dependency `bar`
          ——▶ justfile:1:9
           │
         1 │ foo: && bar
@@ -107,7 +107,7 @@ fn unknown_argument() {
     )
     .stderr(
       "
-        error: Variable `y` not defined
+        error: variable `y` not defined
          ——▶ justfile:3:14
           │
         3 │ foo: && (bar y)

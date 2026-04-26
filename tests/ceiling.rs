@@ -24,7 +24,7 @@ fn justfile_run_search_stops_at_ceiling_dir() {
     .create_dir("foo/bar")
     .current_dir("foo/bar")
     .args(["--ceiling", ceiling.to_str().unwrap()])
-    .stderr("error: No justfile found\n")
+    .stderr("error: no justfile found\n")
     .failure();
 }
 
@@ -52,7 +52,7 @@ fn ceiling_can_be_passed_as_environment_variable() {
     .create_dir("foo/bar")
     .current_dir("foo/bar")
     .env("JUST_CEILING", ceiling.to_str().unwrap())
-    .stderr("error: No justfile found\n")
+    .stderr("error: no justfile found\n")
     .failure();
 }
 

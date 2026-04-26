@@ -297,12 +297,16 @@ impl Subcommand {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    let recipes = stdout
-      .split_whitespace()
-      .map(str::to_owned)
-      .collect::<Vec<String>>();
+    for line in stdout.lines() {
+      let arguments = line
+        .split_whitespace()
+        .map(str::to_owned)
+        .collect::<Vec<String>>();
 
-    justfile.run(config, search, &recipes, overrides)
+      justfile.run(config, search, &arguments, overrides)?;
+    }
+
+    Ok(())
   }
 
   fn completions(shell: Shell) {
@@ -789,7 +793,7 @@ impl Subcommand {
     println!();
 
     if recipes.is_empty() && config.verbosity.loud() {
-      eprintln!("Justfile contains no recipes.");
+      eprintln!("justfile contains no recipes");
     }
   }
 

@@ -399,7 +399,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     if !recipe.is_script() {
       if let Some(attribute) = recipe.attributes.get(AttributeDiscriminant::Extension) {
         return Err(recipe.name.error(InvalidAttribute {
-          item_kind: "Recipe",
+          item_kind: "recipe",
           item_name: recipe.name.lexeme(),
           attribute: Box::new(attribute.clone()),
         }));
@@ -415,6 +415,24 @@ impl<'run, 'src> Analyzer<'run, 'src> {
         setting: original.name.lexeme(),
         first: original.name.line,
       }));
+    }
+
+    if let Some(second) = Keyword::from_lexeme(set.name.lexeme()) {
+      let first = match second {
+        Keyword::NoCd => Keyword::WorkingDirectory,
+        Keyword::WorkingDirectory => Keyword::NoCd,
+        _ => {
+          return Ok(());
+        }
+      };
+
+      if let Some(conflict) = self.sets.get(first.lexeme()) {
+        return Err(set.name.error(NoCdAndWorkingDirectorySetting {
+          first,
+          first_line: conflict.name.line,
+          second,
+        }));
+      }
     }
 
     Ok(())

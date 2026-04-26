@@ -12,7 +12,7 @@ fn long_options_may_not_be_empty() {
     )
     .stderr(
       "
-        error: Option name for parameter `bar` is empty
+        error: option name for parameter `bar` is empty
          ——▶ justfile:1:18
           │
         1 │ [arg('bar', long='')]
@@ -34,7 +34,7 @@ fn short_options_may_not_be_empty() {
     )
     .stderr(
       "
-        error: Option name for parameter `bar` is empty
+        error: option name for parameter `bar` is empty
          ——▶ justfile:1:19
           │
         1 │ [arg('bar', short='')]
@@ -56,7 +56,7 @@ fn short_options_may_not_have_multiple_characters() {
     )
     .stderr(
       "
-        error: Short option name for parameter `bar` contains multiple characters
+        error: short option name for parameter `bar` contains multiple characters
          ——▶ justfile:1:19
           │
         1 │ [arg('bar', short='abc')]
@@ -140,7 +140,7 @@ fn parameters_with_both_long_and_short_may_not_use_both() {
   Test::new()
     .justfile(LONG_SHORT)
     .args(["foo", "--bar", "baz", "-b", "baz"])
-    .stderr("error: Recipe `foo` option `-b` cannot be passed more than once\n")
+    .stderr("error: recipe `foo` option `-b` cannot be passed more than once\n")
     .failure();
 }
 
@@ -155,7 +155,7 @@ fn multiple_short_options_in_one_argument_is_an_error() {
       ",
     )
     .args(["foo", "-ab"])
-    .stderr("error: Passing multiple short options (`-ab`) in one argument is not supported\n")
+    .stderr("error: passing multiple short options (`-ab`) in one argument is not supported\n")
     .failure();
 }
 
@@ -171,7 +171,7 @@ fn duplicate_long_option_attributes_are_forbidden() {
     )
     .stderr(
       "
-        error: Recipe `foo` defines option `--bar` multiple times
+        error: recipe `foo` defines option `--bar` multiple times
          ——▶ justfile:2:18
           │
         2 │ [arg('baz', long='bar')]
@@ -196,7 +196,7 @@ fn defaulted_duplicate_long_option() {
     )
     .stderr(
       "
-        error: Recipe `foo` defines option `--bar` multiple times
+        error: recipe `foo` defines option `--bar` multiple times
          ——▶ justfile:5:19
           │
         5 │ [arg(      'bar', long)]
@@ -218,7 +218,7 @@ fn duplicate_short_option_attributes_are_forbidden() {
     )
     .stderr(
       "
-        error: Recipe `foo` defines option `-b` multiple times
+        error: recipe `foo` defines option `-b` multiple times
          ——▶ justfile:2:19
           │
         2 │ [arg('baz', short='b')]
@@ -239,7 +239,7 @@ fn variadics_with_long_options_are_forbidden() {
     )
     .stderr(
       "
-        error: Variadic parameters may not be options
+        error: variadic parameters may not be options
          ——▶ justfile:2:6
           │
         2 │ foo +bar:
@@ -260,7 +260,7 @@ fn variadics_with_short_options_are_forbidden() {
     )
     .stderr(
       "
-        error: Variadic parameters may not be options
+        error: variadic parameters may not be options
          ——▶ justfile:2:6
           │
         2 │ foo +bar:
@@ -281,7 +281,7 @@ fn long_option_names_may_not_contain_equal_sign() {
     )
     .stderr(
       "
-        error: Option name for parameter `bar` contains equal sign
+        error: option name for parameter `bar` contains equal sign
          ——▶ justfile:1:18
           │
         1 │ [arg('bar', long='bar=baz')]
@@ -302,7 +302,7 @@ fn short_option_names_may_not_contain_equal_sign() {
     )
     .stderr(
       "
-        error: Option name for parameter `bar` contains equal sign
+        error: option name for parameter `bar` contains equal sign
          ——▶ justfile:1:19
           │
         1 │ [arg('bar', short='=')]
@@ -424,7 +424,7 @@ fn argument_values_starting_with_dashes_are_an_error_if_recipe_takes_options() {
       ",
     )
     .args(["foo", "--bar=BAR", "--A", "--B", "--C"])
-    .stderr("error: Recipe `foo` does not have option `--A`\n")
+    .stderr("error: recipe `foo` does not have option `--A`\n")
     .failure();
 }
 
@@ -515,7 +515,7 @@ fn unknown_options_are_an_error() {
       ",
     )
     .args(["foo", "--baz", "BAZ"])
-    .stderr("error: Recipe `foo` does not have option `--baz`\n")
+    .stderr("error: recipe `foo` does not have option `--baz`\n")
     .failure();
 }
 
@@ -529,7 +529,7 @@ fn missing_required_options_are_an_error() {
       ",
     )
     .arg("foo")
-    .stderr("error: Recipe `foo` requires option `--bar`\n")
+    .stderr("error: recipe `foo` requires option `--bar`\n")
     .failure();
 }
 
@@ -543,7 +543,7 @@ fn duplicate_long_options_are_an_error() {
       ",
     )
     .args(["foo", "--bar=a", "--bar=b"])
-    .stderr("error: Recipe `foo` option `--bar` cannot be passed more than once\n")
+    .stderr("error: recipe `foo` option `--bar` cannot be passed more than once\n")
     .failure();
 }
 
@@ -557,7 +557,7 @@ fn duplicate_short_options_are_an_error() {
       ",
     )
     .args(["foo", "-b=a", "-b=b"])
-    .stderr("error: Recipe `foo` option `-b` cannot be passed more than once\n")
+    .stderr("error: recipe `foo` option `-b` cannot be passed more than once\n")
     .failure();
 }
 
@@ -571,7 +571,7 @@ fn options_require_value() {
       ",
     )
     .args(["foo", "--bar"])
-    .stderr("error: Recipe `foo` option `--bar` missing value\n")
+    .stderr("error: recipe `foo` option `--bar` missing value\n")
     .failure();
 }
 
@@ -587,7 +587,7 @@ fn recipes_with_long_options_have_correct_positional_argument_mismatch_message()
     .args(["foo", "--bar=value"])
     .stderr(
       "
-        error: Recipe `foo` got 0 positional arguments but takes 1
+        error: recipe `foo` got 0 positional arguments but takes 1
         usage:
             just foo [OPTIONS] baz
       ",
@@ -607,7 +607,7 @@ fn recipes_with_short_options_have_correct_positional_argument_mismatch_message(
     .args(["foo", "-b=value"])
     .stderr(
       "
-        error: Recipe `foo` got 0 positional arguments but takes 1
+        error: recipe `foo` got 0 positional arguments but takes 1
         usage:
             just foo [OPTIONS] baz
       ",
@@ -655,7 +655,7 @@ fn flags_cannot_take_values() {
       ",
     )
     .args(["foo", "-b=hello"])
-    .stderr("error: Recipe `foo` flag `-b` does not take value\n")
+    .stderr("error: recipe `foo` flag `-b` does not take value\n")
     .failure();
 }
 
@@ -671,7 +671,7 @@ fn value_requires_long_or_short() {
     .args(["foo", "-b=hello"])
     .stderr(
       "
-        error: Argument attribute `value` only valid with `long` or `short`
+        error: argument attribute `value` only valid with `long` or `short`
          ——▶ justfile:1:13
           │
         1 │ [arg('bar', value='baz')]

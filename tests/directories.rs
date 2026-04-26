@@ -64,7 +64,7 @@ fn executable_directory() {
       .args(["--evaluate", "x"])
       .stderr(
         "
-          error: Call to function `executable_directory` failed: executable directory not found
+          error: call to function `executable_directory` failed: executable directory not found
            ——▶ justfile:1:6
             │
           1 │ x := executable_directory()
@@ -108,7 +108,7 @@ fn runtime_directory_not_found() {
     .args(["--evaluate", "x"])
     .stderr(
       "
-        error: Call to function `runtime_directory` failed: runtime directory not found
+        error: call to function `runtime_directory` failed: runtime directory not found
          ——▶ justfile:1:6
           │
         1 │ x := runtime_directory()

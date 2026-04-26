@@ -169,8 +169,19 @@ impl<'src> Recipe<'src> {
         .contains(AttributeDiscriminant::PositionalArguments)
   }
 
-  pub(crate) fn change_directory(&self) -> bool {
-    !self.attributes.contains(AttributeDiscriminant::NoCd)
+  pub(crate) fn change_directory(&self, settings: &Settings) -> bool {
+    if self
+      .attributes
+      .contains(AttributeDiscriminant::WorkingDirectory)
+    {
+      return true;
+    }
+
+    if self.attributes.contains(AttributeDiscriminant::NoCd) {
+      return false;
+    }
+
+    !settings.no_cd
   }
 
   fn print_exit_message(&self, settings: &Settings) -> bool {
@@ -186,7 +197,7 @@ impl<'src> Recipe<'src> {
   }
 
   fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
-    if !self.change_directory() {
+    if !self.change_directory(&context.module.settings) {
       return None;
     }
 
@@ -359,13 +370,13 @@ impl<'src> Recipe<'src> {
         cmd.stdout(Stdio::null());
       }
 
+      cmd.export(settings, context.dotenv, scope, &context.module.unexports);
+
       for attribute in &self.attributes {
         if let Attribute::Env(key, value) = attribute {
           cmd.env(&key.cooked, &value.cooked);
         }
       }
-
-      cmd.export(settings, context.dotenv, scope, &context.module.unexports);
 
       let (result, caught) = cmd.status_guard();
 
@@ -524,18 +535,18 @@ impl<'src> Recipe<'src> {
       command.args(positional);
     }
 
-    for attribute in &self.attributes {
-      if let Attribute::Env(key, value) = attribute {
-        command.env(&key.cooked, &value.cooked);
-      }
-    }
-
     command.export(
       &context.module.settings,
       context.dotenv,
       scope,
       &context.module.unexports,
     );
+
+    for attribute in &self.attributes {
+      if let Attribute::Env(key, value) = attribute {
+        command.env(&key.cooked, &value.cooked);
+      }
+    }
 
     // run it!
     let (result, caught) = command.status_guard();

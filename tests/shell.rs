@@ -177,7 +177,7 @@ fn recipe_shell_not_found_error_message() {
     .shell(false)
     .args(["--shell", "NOT_A_REAL_SHELL"])
     .stderr_regex(
-      "error: Recipe `foo` could not be run because just could not find the shell \
+      "error: recipe `foo` could not be run because just could not find the shell \
       `NOT_A_REAL_SHELL`: .*\n",
     )
     .failure();
@@ -196,6 +196,6 @@ fn backtick_recipe_shell_not_found_error_message() {
     )
     .shell(false)
     .args(["--shell", "NOT_A_REAL_SHELL"])
-    .stderr_regex("(?s)error: Backtick could not be run because just could not find the shell:.*")
+    .stderr_regex("(?s)error: backtick could not be run because just could not find the shell:.*")
     .failure();
 }

@@ -128,7 +128,7 @@ fn no_choosable_recipes() {
           echo {{BAR}}
       ",
     )
-    .stderr("error: Justfile contains no choosable recipes.\n")
+    .stderr("error: justfile contains no choosable recipes\n")
     .failure();
 }
 
@@ -165,7 +165,7 @@ fn invoke_error_function() {
       ",
     )
     .stderr_regex(
-      r#"error: Chooser `/ -cu fzf --multi --preview 'just --unstable --color always --justfile ".*justfile" --show \{\}'` invocation failed: .*\n"#,
+      r#"error: chooser `/ -cu fzf --multi --preview 'just --unstable --color always --justfile ".*justfile" --show \{\}'` invocation failed: .*\n"#,
     )
     .shell(false)
     .args(["--shell", "/", "--choose"])
@@ -205,7 +205,7 @@ fn status_error() {
     .unwrap();
 
   assert!(
-    Regex::new("^error: Chooser `exit-2` failed: exit (code|status): 2\n$")
+    Regex::new("^error: chooser `exit-2` failed: exit (code|status): 2\n$")
       .unwrap()
       .is_match(str::from_utf8(&output.stderr).unwrap())
   );
@@ -243,6 +243,24 @@ fn cancelled_by_user() {
   assert!(output.stderr.is_empty());
 
   assert!(output.status.success());
+}
+
+#[test]
+fn chooser_selections_are_processed_separately() {
+  Test::new()
+    .args(["--choose", "--chooser", "cat"])
+    .write("sub.just", "bar:\n @echo bar\n")
+    .justfile(
+      "
+        mod sub
+
+        foo *args:
+          @echo foo {{args}}
+      ",
+    )
+    .stdin("foo\nsub bar\n")
+    .stdout("foo\nbar\n")
+    .success();
 }
 
 #[test]

@@ -24,6 +24,7 @@ pub(crate) enum Keyword {
   Import,
   Lazy,
   Mod,
+  NoCd,
   NoExitMessage,
   PositionalArguments,
   Quiet,

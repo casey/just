@@ -103,6 +103,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         Setting::Lazy(value) => {
           settings.lazy = value;
         }
+        Setting::NoCd(value) => {
+          settings.no_cd = value;
+        }
         Setting::NoExitMessage(value) => {
           settings.no_exit_message = value;
         }

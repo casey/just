@@ -3,9 +3,9 @@ use super::*;
 #[derive(Debug, Snafu)]
 #[snafu(visibility(pub(crate)))]
 pub(crate) enum SearchError {
-  #[snafu(display("Cannot initialize global justfile"))]
+  #[snafu(display("cannot initialize global justfile"))]
   GlobalJustfileInit,
-  #[snafu(display("Global justfile not found"))]
+  #[snafu(display("global justfile not found"))]
   GlobalJustfileNotFound,
   #[snafu(display(
     "I/O error reading directory `{}`: {}",
@@ -16,10 +16,10 @@ pub(crate) enum SearchError {
     directory: PathBuf,
     io_error: io::Error,
   },
-  #[snafu(display("Justfile path had no parent: {}", path.display()))]
+  #[snafu(display("justfile path had no parent: {}", path.display()))]
   JustfileHadNoParent { path: PathBuf },
   #[snafu(display(
-    "Multiple candidate justfiles found in `{}`: {}",
+    "multiple candidate justfiles found in `{}`: {}",
     candidates.iter().next().unwrap().parent().unwrap().display(),
     List::and_ticked(
       candidates
@@ -28,7 +28,7 @@ pub(crate) enum SearchError {
     ),
   ))]
   MultipleCandidates { candidates: BTreeSet<PathBuf> },
-  #[snafu(display("No justfile found"))]
+  #[snafu(display("no justfile found"))]
   NotFound,
 }
 
@@ -47,7 +47,7 @@ mod tests {
 
     assert_eq!(
       error.to_string(),
-      "Multiple candidate justfiles found in `/foo`: `JUSTFILE` and `justfile`"
+      "multiple candidate justfiles found in `/foo`: `JUSTFILE` and `justfile`"
     );
   }
 }
