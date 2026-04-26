@@ -25,7 +25,7 @@ fn pattern_mismatch() {
     .args(["foo", "bar"])
     .stderr(
       "
-        error: Argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
+        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
       ",
     )
     .failure();
@@ -43,7 +43,7 @@ fn patterns_are_regulare_expressions() {
     .args(["foo", r"\d+"])
     .stderr(
       r"
-        error: Argument `\d+` passed to recipe `foo` parameter `bar` does not match pattern '\d+'
+        error: argument `\d+` passed to recipe `foo` parameter `bar` does not match pattern '\d+'
       ",
     )
     .failure();
@@ -61,7 +61,7 @@ fn pattern_must_match_entire_string() {
     .args(["foo", "xbarx"])
     .stderr(
       "
-        error: Argument `xbarx` passed to recipe `foo` parameter `bar` does not match pattern 'bar'
+        error: argument `xbarx` passed to recipe `foo` parameter `bar` does not match pattern 'bar'
       ",
     )
     .failure();
@@ -78,7 +78,7 @@ fn pattern_invalid_regex_error() {
     )
     .stderr(
       "
-        error: Failed to parse argument pattern
+        error: failed to parse argument pattern
          ——▶ justfile:1:21
           │
         1 │ [arg('bar', pattern='{')]
@@ -124,7 +124,7 @@ fn duplicate_attribute_error() {
     .args(["foo", "BAR"])
     .stderr(
       "
-        error: Recipe attribute for argument `bar` first used on line 1 is duplicated on line 2
+        error: recipe attribute for argument `bar` first used on line 1 is duplicated on line 2
          ——▶ justfile:2:2
           │
         2 │ [arg('bar', pattern='BAR')]
@@ -146,7 +146,7 @@ fn extra_keyword_error() {
     .args(["foo", "BAR"])
     .stderr(
       "
-        error: Unknown keyword `foo` for `arg` attribute
+        error: unknown keyword `foo` for `arg` attribute
          ——▶ justfile:1:28
           │
         1 │ [arg('bar', pattern='BAR', foo='foo')]
@@ -168,7 +168,7 @@ fn unknown_argument_error() {
     .arg("foo")
     .stderr(
       "
-        error: Argument attribute for undefined argument `bar`
+        error: argument attribute for undefined argument `bar`
          ——▶ justfile:1:6
           │
         1 │ [arg('bar', pattern='BAR')]
@@ -222,7 +222,7 @@ fn positional_arguments_cannot_follow_keyword_arguments() {
     .args(["foo", "BAR"])
     .stderr(
       "
-        error: Positional attribute arguments cannot follow keyword attribute arguments
+        error: positional attribute arguments cannot follow keyword attribute arguments
          ——▶ justfile:1:21
           │
         1 │ [arg(pattern='BAR', 'bar')]
@@ -247,7 +247,7 @@ fn pattern_mismatches_are_caught_before_running_dependencies() {
     .args(["foo", "bar"])
     .stderr(
       "
-        error: Argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
+        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
       ",
     )
     .failure();
@@ -268,7 +268,7 @@ fn pattern_mismatches_are_caught_before_running_invocation() {
     .args(["baz", "foo", "bar"])
     .stderr(
       "
-        error: Argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
+        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
       ",
     )
     .failure();
@@ -287,7 +287,7 @@ fn pattern_mismatches_are_caught_in_evaluated_arguments() {
     )
     .stderr(
       "
-        error: Argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
+        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
       ",
     )
     .failure();
@@ -305,7 +305,7 @@ fn alternates_do_not_bind_to_anchors() {
     .args(["foo", "aa"])
     .stderr(
       "
-        error: Argument `aa` passed to recipe `foo` parameter `bar` does not match pattern 'a|b'
+        error: argument `aa` passed to recipe `foo` parameter `bar` does not match pattern 'a|b'
       ",
     )
     .failure();
@@ -336,7 +336,7 @@ fn pattern_mismatch_variadic() {
     .args(["foo", "BAR", "BAR"])
     .stderr(
       "
-        error: Argument `BAR` passed to recipe `foo` parameter `bar` does not match pattern 'BAR BAR'
+        error: argument `BAR` passed to recipe `foo` parameter `bar` does not match pattern 'BAR BAR'
       ",
     )
     .failure();
@@ -353,7 +353,7 @@ fn pattern_requires_value() {
     )
     .stderr(
       "
-        error: Attribute key `pattern` requires value
+        error: attribute key `pattern` requires value
          ——▶ justfile:1:13
           │
         1 │ [arg('bar', pattern)]
@@ -374,7 +374,7 @@ fn short_requires_value() {
     )
     .stderr(
       "
-        error: Attribute key `short` requires value
+        error: attribute key `short` requires value
          ——▶ justfile:1:13
           │
         1 │ [arg('bar', short)]
@@ -395,7 +395,7 @@ fn value_requires_value() {
     )
     .stderr(
       "
-        error: Attribute key `value` requires value
+        error: attribute key `value` requires value
          ——▶ justfile:1:19
           │
         1 │ [arg('bar', long, value)]

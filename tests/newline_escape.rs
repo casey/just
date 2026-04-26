@@ -89,7 +89,7 @@ fn newline_escape_unpaired_linefeed() {
     )
     .stderr(
       "
-        error: Unpaired carriage return
+        error: unpaired carriage return
          ——▶ justfile:1:9
           │
         1 │ default:\\\ra

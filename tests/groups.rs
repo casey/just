@@ -10,7 +10,7 @@ fn list_group_unknown() {
       ",
     )
     .args(["--list", "--group", "bar"])
-    .stderr("error: Justfile does not contain group `bar`\n")
+    .stderr("error: justfile does not contain group `bar`\n")
     .failure();
 }
 

@@ -12,7 +12,7 @@ fn unknown_override() {
     .args(["foo=bar", "baz=bob", "a"])
     .stderr(
       "
-        error: Variables `baz` and `foo` overridden on the command line but not present in justfile
+        error: variables `baz` and `foo` overridden on the command line but not present in justfile
       ",
     )
     .failure();
@@ -39,7 +39,7 @@ fn unknown_override_options() {
 a := `exit 222`",
     )
     .stderr(
-      "error: Variables `baz` and `foo` overridden on the command line but not present \
+      "error: variables `baz` and `foo` overridden on the command line but not present \
     in justfile\n",
     )
     .failure();
@@ -60,7 +60,7 @@ fn unknown_override_args() {
 a := `exit 222`",
     )
     .stderr(
-      "error: Variables `baz` and `foo` overridden on the command line but not present \
+      "error: variables `baz` and `foo` overridden on the command line but not present \
     in justfile\n",
     )
     .failure();
@@ -79,7 +79,7 @@ fn unknown_override_arg() {
  echo {{`exit 111`}}
 a := `exit 222`",
     )
-    .stderr("error: Variable `foo` overridden on the command line but not present in justfile\n")
+    .stderr("error: variable `foo` overridden on the command line but not present in justfile\n")
     .failure();
 }
 
@@ -133,7 +133,7 @@ fn invalid_override_path_set() {
     .arg("--set")
     .arg("0::foo")
     .arg("bar")
-    .stderr("error: Invalid override path `0::foo`\n")
+    .stderr("error: invalid override path `0::foo`\n")
     .failure();
 }
 
@@ -141,7 +141,7 @@ fn invalid_override_path_set() {
 fn invalid_override_path_positional() {
   Test::new()
     .arg("0::foo=bar")
-    .stderr("error: Invalid override path `0::foo`\n")
+    .stderr("error: invalid override path `0::foo`\n")
     .failure();
 }
 
@@ -152,7 +152,7 @@ fn unknown_variable_in_submodule_override() {
     .write("foo.just", "bar:\n @echo bar")
     .arg("foo::x=b")
     .arg("foo::bar")
-    .stderr("error: Variable `foo::x` overridden on the command line but not present in justfile\n")
+    .stderr("error: variable `foo::x` overridden on the command line but not present in justfile\n")
     .failure();
 }
 
@@ -219,7 +219,7 @@ fn submodule_override_does_not_affect_parent() {
 fn unknown_submodule_in_override_path() {
   Test::new()
     .arg("foo::x=b")
-    .stderr("error: Variable `foo::x` overridden on the command line but not present in justfile\n")
+    .stderr("error: variable `foo::x` overridden on the command line but not present in justfile\n")
     .failure();
 }
 

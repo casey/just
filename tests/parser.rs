@@ -22,7 +22,7 @@ fn invalid_bang_operator() {
     )
     .stderr(
       "
-        error: Expected character `=` or `~`
+        error: expected character `=` or `~`
          ——▶ justfile:1:13
           │
         1 │ x := if '' !! '' { '' } else { '' }
@@ -38,7 +38,7 @@ fn truncated_bang_operator() {
     .justfile("x := if '' !")
     .stderr(
       "
-        error: Expected character `=` or `~` but found end-of-file
+        error: expected character `=` or `~` but found end-of-file
          ——▶ justfile:1:13
           │
         1 │ x := if '' !
@@ -71,7 +71,7 @@ fn attribute_without_item() {
     )
     .stderr(
       "
-        error: Expected '@', '[', comment, end of line, or identifier, but found end of file
+        error: expected '@', '[', comment, end of line, or identifier, but found end of file
          ——▶ justfile:1:11
           │
         1 │ [confirm]

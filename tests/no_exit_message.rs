@@ -66,7 +66,7 @@ fn unknown_attribute() {
     )
     .stderr(
       "
-        error: Unknown attribute `unknown-attribute`
+        error: unknown attribute `unknown-attribute`
          ——▶ justfile:2:2
           │
         2 │ [unknown-attribute]
@@ -89,7 +89,7 @@ fn empty_attribute() {
     )
     .stderr(
       "
-        error: Expected identifier, but found ']'
+        error: expected identifier, but found ']'
          ——▶ justfile:2:2
           │
         2 │ []
@@ -112,7 +112,7 @@ fn extraneous_attribute_before_comment() {
     )
     .stderr(
       "
-        error: Extraneous attribute
+        error: extraneous attribute
          ——▶ justfile:1:1
           │
         1 │ [no-exit-message]
@@ -135,7 +135,7 @@ fn extraneous_attribute_before_empty_line() {
     )
     .stderr(
       "
-        error: Extraneous attribute
+        error: extraneous attribute
          ——▶ justfile:1:1
           │
         1 │ [no-exit-message]
@@ -188,7 +188,7 @@ fn exit_message() {
       ",
     )
     .stdout("Hello, World!\n")
-    .stderr("error: Recipe `hello` failed on line 4 with exit code 100\n")
+    .stderr("error: recipe `hello` failed on line 4 with exit code 100\n")
     .status(100);
 }
 
@@ -238,7 +238,7 @@ fn exit_message_override_no_exit_setting() {
           @exit 100
       ",
     )
-    .stderr("error: Recipe `fail` failed on line 5 with exit code 100\n")
+    .stderr("error: recipe `fail` failed on line 5 with exit code 100\n")
     .status(100);
 }
 
@@ -253,7 +253,7 @@ fn exit_message_and_no_exit_message_compile_forbidden() {
     )
     .stderr(
       "
-        error: Recipe `bar` has both `[exit-message]` and `[no-exit-message]` attributes
+        error: recipe `bar` has both `[exit-message]` and `[no-exit-message]` attributes
          ——▶ justfile:2:1
           │
         2 │ bar:
@@ -289,7 +289,7 @@ fn signal_exit_message_not_suppressed() {
           kill -TERM $$
       ",
     )
-    .stderr("error: Recipe `default` was terminated by signal 15\n")
+    .stderr("error: recipe `default` was terminated by signal 15\n")
     .status(128 + 15);
 }
 

@@ -116,7 +116,7 @@ fn bad_setting() {
     )
     .stderr(
       "
-        error: Unknown setting `foo`
+        error: unknown setting `foo`
          ——▶ justfile:1:5
           │
         1 │ set foo
@@ -136,7 +136,7 @@ fn bad_setting_with_keyword_name() {
     )
     .stderr(
       "
-        error: Unknown setting `if`
+        error: unknown setting `if`
          ——▶ justfile:1:5
           │
         1 │ set if := 'foo'
@@ -162,7 +162,7 @@ fn duplicate_alias() {
     .justfile("alias foo := bar\nalias foo := baz\n")
     .stderr(
       "
-        error: Alias `foo` first defined on line 1 is redefined on line 2
+        error: alias `foo` first defined on line 1 is redefined on line 2
          ——▶ justfile:2:7
           │
         2 │ alias foo := baz
@@ -178,7 +178,7 @@ fn unknown_alias_target() {
     .justfile("alias foo := bar\n")
     .stderr(
       "
-        error: Alias `foo` has an unknown target `bar`
+        error: alias `foo` has an unknown target `bar`
          ——▶ justfile:1:7
           │
         1 │ alias foo := bar
@@ -202,7 +202,7 @@ fn alias_shadows_recipe() {
     )
     .stderr(
       "
-        error: Alias `foo` defined on line 3 is redefined as a recipe on line 4
+        error: alias `foo` defined on line 3 is redefined as a recipe on line 4
          ——▶ justfile:4:1
           │
         4 │ foo:
@@ -301,7 +301,7 @@ hello:
 recipe:
   @exit 100",
     )
-    .stderr("error: Recipe `recipe` failed on line 5 with exit code 100\n")
+    .stderr("error: recipe `recipe` failed on line 5 with exit code 100\n")
     .status(100);
 }
 
@@ -311,7 +311,7 @@ fn unknown_dependency() {
     .justfile("bar:\nhello:\nfoo: bar baaaaaaaz hello")
     .stderr(
       "
-        error: Recipe `foo` has unknown dependency `baaaaaaaz`
+        error: recipe `foo` has unknown dependency `baaaaaaaz`
          ——▶ justfile:3:10
           │
         3 │ foo: bar baaaaaaaz hello
@@ -345,7 +345,7 @@ fn backtick_code_assignment() {
     .justfile("b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'")
     .stderr(
       "
-        error: Backtick failed with exit code 100
+        error: backtick failed with exit code 100
          ——▶ justfile:2:6
           │
         2 │ a := `exit 100`
@@ -361,7 +361,7 @@ fn backtick_code_interpolation() {
     .justfile("b := a\na := `echo hello`\nbar:\n echo '{{`exit 200`}}'")
     .stderr(
       "
-        error: Backtick failed with exit code 200
+        error: backtick failed with exit code 200
          ——▶ justfile:4:10
           │
         4 │  echo '{{`exit 200`}}'
@@ -377,7 +377,7 @@ fn backtick_code_interpolation_mod() {
     .justfile("f:\n 無{{`exit 200`}}")
     .stderr(
       "
-        error: Backtick failed with exit code 200
+        error: backtick failed with exit code 200
          ——▶ justfile:2:7
           │
         2 │  無{{`exit 200`}}
@@ -397,7 +397,7 @@ fn backtick_code_interpolation_tab() {
       ",
     )
     .stderr(
-      "    error: Backtick failed with exit code 200
+      "    error: backtick failed with exit code 200
      ——▶ justfile:2:9
       │
     2 │     echo {{`exit 200`}}
@@ -417,7 +417,7 @@ fn backtick_code_interpolation_tabs() {
       ",
     )
     .stderr(
-      "error: Backtick failed with exit code 200
+      "error: backtick failed with exit code 200
  ——▶ justfile:2:10
   │
 2 │     echo {{    `exit 200`}}
@@ -438,7 +438,7 @@ fn backtick_code_interpolation_inner_tab() {
     )
     .stderr(
       "
-        error: Backtick failed with exit code 200
+        error: backtick failed with exit code 200
          ——▶ justfile:2:10
           │
         2 │     echo {{    `exit        200`}}
@@ -459,7 +459,7 @@ fn backtick_code_interpolation_leading_emoji() {
     )
     .stderr(
       "
-        error: Backtick failed with exit code 200
+        error: backtick failed with exit code 200
          ——▶ justfile:2:13
           │
         2 │     echo 😬{{`exit 200`}}
@@ -480,7 +480,7 @@ fn backtick_code_interpolation_unicode_hell() {
     )
     .stderr(
       "
-        error: Backtick failed with exit code 200
+        error: backtick failed with exit code 200
          ——▶ justfile:2:24
           │
         2 │     echo             😬鎌鼬{{        `exit 200 #             abc`}}            😬鎌鼬
@@ -509,7 +509,7 @@ fn backtick_code_long() {
     )
     .stderr(
       "
-        error: Backtick failed with exit code 200
+        error: backtick failed with exit code 200
           ——▶ justfile:10:10
            │
         10 │  echo '{{`exit 200`}}'
@@ -530,7 +530,7 @@ fn shebang_backtick_failure() {
     )
     .stderr(
       "
-        error: Backtick failed with exit code 123
+        error: backtick failed with exit code 123
          ——▶ justfile:4:9
           │
         4 │  echo {{`exit 123`}}
@@ -552,7 +552,7 @@ fn command_backtick_failure() {
     .stderr(
       "
         echo hello
-        error: Backtick failed with exit code 123
+        error: backtick failed with exit code 123
          ——▶ justfile:3:9
           │
         3 │  echo {{`exit 123`}}
@@ -573,7 +573,7 @@ a := `exit 222`",
     )
     .stderr(
       "
-        error: Backtick failed with exit code 222
+        error: backtick failed with exit code 222
          ——▶ justfile:4:6
           │
         4 │ a := `exit 222`
@@ -635,7 +635,7 @@ fn line_error_spacing() {
       ",
     )
     .stderr(
-      "error: Unknown start of token '^'
+      "error: unknown start of token '^'
   ——▶ justfile:10:1
    │
 10 │ ^^^
@@ -685,7 +685,7 @@ fn argument_mismatch_more() {
     .arg("ONE")
     .arg("TWO")
     .arg("THREE")
-    .stderr("error: Justfile does not contain recipe `THREE`\n")
+    .stderr("error: justfile does not contain recipe `THREE`\n")
     .justfile(
       "
         foo A B:
@@ -706,7 +706,7 @@ fn argument_mismatch_fewer() {
           echo A:{{A}} B:{{B}}
       ",
     )
-    .stderr("error: Recipe `foo` got 1 positional argument but takes 2\nusage:\n    just foo A B\n")
+    .stderr("error: recipe `foo` got 1 positional argument but takes 2\nusage:\n    just foo A B\n")
     .failure();
 }
 
@@ -723,7 +723,7 @@ fn argument_mismatch_more_with_default() {
           echo A:{{A}} B:{{B}}
       ",
     )
-    .stderr("error: Justfile does not contain recipe `THREE`\n")
+    .stderr("error: justfile does not contain recipe `THREE`\n")
     .failure();
 }
 
@@ -740,7 +740,7 @@ fn argument_mismatch_fewer_with_default() {
     )
     .stderr(
       "
-        error: Recipe `foo` got 1 positional argument but takes at least 2
+        error: recipe `foo` got 1 positional argument but takes at least 2
         usage:
             just foo A B [C]
       ",
@@ -753,7 +753,7 @@ fn unknown_recipe() {
   Test::new()
     .arg("foo")
     .justfile("hello:")
-    .stderr("error: Justfile does not contain recipe `foo`\n")
+    .stderr("error: justfile does not contain recipe `foo`\n")
     .failure();
 }
 
@@ -763,7 +763,7 @@ fn unknown_recipes() {
     .arg("foo")
     .arg("bar")
     .justfile("hello:")
-    .stderr("error: Justfile does not contain recipe `foo`\n")
+    .stderr("error: justfile does not contain recipe `foo`\n")
     .failure();
 }
 
@@ -773,7 +773,7 @@ fn color_always() {
         .arg("--color")
         .arg("always")
         .justfile("b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'")
-        .stderr("\u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mBacktick failed with exit code 100\u{1b}[0m\n \u{1b}[1;34m——▶\u{1b}[0m justfile:2:6\n  \u{1b}[1;34m│\u{1b}[0m\n\u{1b}[1;34m2 │\u{1b}[0m a := `exit 100`\n  \u{1b}[1;34m│\u{1b}[0m      \u{1b}[1;31m^^^^^^^^^^\u{1b}[0m\n")
+        .stderr("\u{1b}[1;31merror\u{1b}[0m: \u{1b}[1mbacktick failed with exit code 100\u{1b}[0m\n \u{1b}[1;34m——▶\u{1b}[0m justfile:2:6\n  \u{1b}[1;34m│\u{1b}[0m\n\u{1b}[1;34m2 │\u{1b}[0m a := `exit 100`\n  \u{1b}[1;34m│\u{1b}[0m      \u{1b}[1;31m^^^^^^^^^^\u{1b}[0m\n")
         .status(100);
 }
 
@@ -784,7 +784,7 @@ fn color_never() {
     .arg("never")
     .justfile("b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'")
     .stderr(
-      "error: Backtick failed with exit code 100
+      "error: backtick failed with exit code 100
  ——▶ justfile:2:6
   │
 2 │ a := `exit 100`
@@ -801,7 +801,7 @@ fn color_auto() {
     .arg("auto")
     .justfile("b := a\na := `exit 100`\nbar:\n echo '{{`exit 200`}}'")
     .stderr(
-      "error: Backtick failed with exit code 100
+      "error: backtick failed with exit code 100
  ——▶ justfile:2:6
   │
 2 │ a := `exit 100`
@@ -817,7 +817,7 @@ fn colors_no_context() {
     .arg("--color=always")
     .stderr(
       "\u{1b}[1;31merror\u{1b}[0m: \u{1b}[1m\
-Recipe `recipe` failed on line 2 with exit code 100\u{1b}[0m\n",
+recipe `recipe` failed on line 2 with exit code 100\u{1b}[0m\n",
     )
     .justfile(
       "
@@ -832,8 +832,8 @@ fn mixed_whitespace() {
   Test::new()
     .justfile("bar:\n\t echo hello")
     .stderr(
-      "error: Found a mix of tabs and spaces in leading whitespace: `␉␠`
-Leading whitespace may consist of tabs or spaces, but not both
+      "error: found a mix of tabs and spaces in leading whitespace: `␉␠`
+leading whitespace may consist of tabs or spaces, but not both
  ——▶ justfile:2:1
   │
 2 │      echo hello
@@ -848,7 +848,7 @@ fn extra_leading_whitespace() {
   Test::new()
     .justfile("bar:\n\t\techo hello\n\t\t\techo goodbye")
     .stderr(
-      "error: Recipe line has extra leading whitespace
+      "error: recipe line has extra leading whitespace
  ——▶ justfile:3:3
   │
 3 │             echo goodbye
@@ -863,8 +863,8 @@ fn inconsistent_leading_whitespace() {
   Test::new()
     .justfile("bar:\n\t\techo hello\n\t echo goodbye")
     .stderr(
-      "error: Recipe line has inconsistent leading whitespace. \
-            Recipe started with `␉␉` but found line with `␉␠`
+      "error: recipe line has inconsistent leading whitespace, \
+            started with `␉␉` but found line with `␉␠`
  ——▶ justfile:3:1
   │
 3 │      echo goodbye
@@ -879,7 +879,7 @@ fn required_after_default() {
   Test::new()
     .justfile("bar:\nhello baz arg='foo' bar:")
     .stderr(
-      "error: Non-default parameter `bar` follows default parameter
+      "error: non-default parameter `bar` follows default parameter
  ——▶ justfile:2:21
   │
 2 │ hello baz arg='foo' bar:
@@ -894,7 +894,7 @@ fn required_after_plus_variadic() {
   Test::new()
     .justfile("bar:\nhello baz +arg bar:")
     .stderr(
-      "error: Parameter `bar` follows variadic parameter
+      "error: parameter `bar` follows variadic parameter
  ——▶ justfile:2:16
   │
 2 │ hello baz +arg bar:
@@ -909,7 +909,7 @@ fn required_after_star_variadic() {
   Test::new()
     .justfile("bar:\nhello baz *arg bar:")
     .stderr(
-      "error: Parameter `bar` follows variadic parameter
+      "error: parameter `bar` follows variadic parameter
  ——▶ justfile:2:16
   │
 2 │ hello baz *arg bar:
@@ -1193,7 +1193,7 @@ fn run_suggestion() {
   Test::new()
     .arg("hell")
     .justfile("hello:")
-    .stderr("error: Justfile does not contain recipe `hell`\nDid you mean `hello`?\n")
+    .stderr("error: justfile does not contain recipe `hell`\nDid you mean `hello`?\n")
     .failure();
 }
 
@@ -1207,7 +1207,7 @@ fn private_recipes_are_not_suggested() {
         hello:
       ",
     )
-    .stderr("error: Justfile does not contain recipe `hell`\n")
+    .stderr("error: justfile does not contain recipe `hell`\n")
     .failure();
 }
 
@@ -1223,7 +1223,7 @@ fn alias_suggestion() {
       ",
     )
     .stderr(
-      "error: Justfile does not contain recipe `hell`\nDid you mean `hello`, an alias for `bar`?\n",
+      "error: justfile does not contain recipe `hell`\nDid you mean `hello`, an alias for `bar`?\n",
     )
     .failure();
 }
@@ -1240,7 +1240,7 @@ fn private_aliases_are_not_suggested() {
         bar:
       ",
     )
-    .stderr("error: Justfile does not contain recipe `hell`\n")
+    .stderr("error: justfile does not contain recipe `hell`\n")
     .failure();
 }
 
@@ -1318,7 +1318,7 @@ fn infallible_with_failing() {
     .stderr(
       "exit 101
 exit 202
-error: Recipe `infallible` failed on line 3 with exit code 202
+error: recipe `infallible` failed on line 3 with exit code 202
 ",
     )
     .status(202);
@@ -1378,7 +1378,7 @@ fn undefined_function_in_assignment() {
 bar:",
     )
     .stderr(
-      "error: Call to undefined function `foo`
+      "error: call to undefined function `foo`
  ——▶ justfile:1:8
   │
 1 │ foo := foo() + 'hello'
@@ -1399,7 +1399,7 @@ fn dependency_takes_arguments_exact() {
       ",
     )
     .stderr(
-      "error: Dependency `a` got 0 arguments but takes 1 argument
+      "error: dependency `a` got 0 arguments but takes 1 argument
  ——▶ justfile:2:4
   │
 2 │ b: a
@@ -1420,7 +1420,7 @@ fn dependency_takes_arguments_at_least() {
       ",
     )
     .stderr(
-      "error: Dependency `a` got 0 arguments but takes at least 1 argument
+      "error: dependency `a` got 0 arguments but takes at least 1 argument
  ——▶ justfile:2:4
   │
 2 │ b: a
@@ -1441,7 +1441,7 @@ fn dependency_takes_arguments_at_most() {
       ",
     )
     .stderr(
-      "error: Dependency `a` got 3 arguments but takes at most 2 arguments
+      "error: dependency `a` got 3 arguments but takes at most 2 arguments
  ——▶ justfile:2:5
   │
 2 │ b: (a '0' '1' '2')
@@ -1457,7 +1457,7 @@ fn duplicate_parameter() {
     .arg("a")
     .justfile("a foo foo:")
     .stderr(
-      "error: Recipe `a` has duplicate parameter `foo`
+      "error: recipe `a` has duplicate parameter `foo`
  ——▶ justfile:1:7
   │
 1 │ a foo foo:
@@ -1473,7 +1473,7 @@ fn duplicate_recipe() {
     .arg("b")
     .justfile("b:\nb:")
     .stderr(
-      "error: Recipe `b` first defined on line 1 is redefined on line 2
+      "error: recipe `b` first defined on line 1 is redefined on line 2
  ——▶ justfile:2:1
   │
 2 │ b:
@@ -1489,7 +1489,7 @@ fn duplicate_variable() {
     .arg("foo")
     .justfile("a := 'hello'\na := 'hello'\nfoo:")
     .stderr(
-      "error: Variable `a` has multiple definitions
+      "error: variable `a` has multiple definitions
  ——▶ justfile:2:1
   │
 2 │ a := 'hello'
@@ -1505,7 +1505,7 @@ fn unexpected_token_in_dependency_position() {
     .arg("foo")
     .justfile("foo: 'bar'")
     .stderr(
-      "error: Expected '&&', comment, end of file, end of line, \
+      "error: expected '&&', comment, end of file, end of line, \
     identifier, indent, or '(', but found string
  ——▶ justfile:1:6
   │
@@ -1522,7 +1522,7 @@ fn unexpected_token_after_name() {
     .arg("foo")
     .justfile("foo 'bar'")
     .stderr(
-      "error: Expected '*', ':', '$', identifier, or '+', but found string
+      "error: expected '*', ':', '$', identifier, or '+', but found string
  ——▶ justfile:1:5
   │
 1 │ foo 'bar'
@@ -1538,7 +1538,7 @@ fn self_dependency() {
     .arg("a")
     .justfile("a: a")
     .stderr(
-      "error: Recipe `a` depends on itself
+      "error: recipe `a` depends on itself
  ——▶ justfile:1:4
   │
 1 │ a: a
@@ -1554,7 +1554,7 @@ fn long_circular_recipe_dependency() {
     .arg("a")
     .justfile("a: b\nb: c\nc: d\nd: a")
     .stderr(
-      "error: Recipe `d` has circular dependency `a -> b -> c -> d -> a`
+      "error: recipe `d` has circular dependency `a -> b -> c -> d -> a`
  ——▶ justfile:4:4
   │
 4 │ d: a
@@ -1570,7 +1570,7 @@ fn variable_self_dependency() {
     .arg("a")
     .justfile("z := z\na:")
     .stderr(
-      "error: Variable `z` is defined in terms of itself
+      "error: variable `z` is defined in terms of itself
  ——▶ justfile:1:1
   │
 1 │ z := z
@@ -1586,7 +1586,7 @@ fn variable_circular_dependency() {
     .arg("a")
     .justfile("x := y\ny := z\nz := x\na:")
     .stderr(
-      "error: Variable `x` depends on its own value: `x -> y -> z -> x`
+      "error: variable `x` depends on its own value: `x -> y -> z -> x`
  ——▶ justfile:1:1
   │
 1 │ x := y
@@ -1610,7 +1610,7 @@ fn variable_circular_dependency_with_additional_variable() {
       ",
     )
     .stderr(
-      "error: Variable `x` depends on its own value: `x -> y -> x`
+      "error: variable `x` depends on its own value: `x -> y -> x`
  ——▶ justfile:2:1
   │
 2 │ x := y
@@ -1691,7 +1691,7 @@ fn plus_variadic_too_few() {
     )
     .stderr(
       "
-        error: Recipe `a` got 2 positional arguments but takes at least 3
+        error: recipe `a` got 2 positional arguments but takes at least 3
         usage:
             just a x y z...
       ",
@@ -1783,7 +1783,7 @@ fn star_then_plus_variadic() {
       ",
     )
     .stderr(
-      "error: Expected \':\' or \'=\', but found \'+\'
+      "error: expected \':\' or \'=\', but found \'+\'
  ——▶ justfile:1:8
   │
 1 │ foo *a +b:
@@ -1803,7 +1803,7 @@ fn plus_then_star_variadic() {
       ",
     )
     .stderr(
-      "error: Expected \':\' or \'=\', but found \'*\'
+      "error: expected \':\' or \'=\', but found \'*\'
  ——▶ justfile:1:8
   │
 1 │ foo +a *b:
@@ -1853,7 +1853,7 @@ fn missing_second_dependency() {
       ",
     )
     .stderr(
-      "error: Recipe `a` has unknown dependency `y`
+      "error: recipe `a` has unknown dependency `y`
  ——▶ justfile:3:6
   │
 3 │ a: x y
@@ -1990,7 +1990,7 @@ fn unknown_variable_in_default() {
       ",
     )
     .stderr(
-      "error: Variable `bar` not defined
+      "error: variable `bar` not defined
  ——▶ justfile:1:7
   │
 1 │ foo x=bar:
@@ -2009,7 +2009,7 @@ fn undefined_function_in_default() {
       ",
     )
     .stderr(
-      "error: Call to undefined function `bar`
+      "error: call to undefined function `bar`
  ——▶ justfile:1:7
   │
 1 │ foo x=bar():
@@ -2087,7 +2087,7 @@ fn unterminated_interpolation_eol() {
     )
     .stderr(
       "
-        error: Unterminated interpolation
+        error: unterminated interpolation
          ——▶ justfile:2:8
           │
         2 │   echo {{
@@ -2108,7 +2108,7 @@ fn unterminated_interpolation_eof() {
     )
     .stderr(
       "
-        error: Unterminated interpolation
+        error: unterminated interpolation
          ——▶ justfile:2:8
           │
         2 │   echo {{
@@ -2128,7 +2128,7 @@ fn unknown_start_of_token() {
     )
     .stderr(
       "
-        error: Unknown start of token '%'
+        error: unknown start of token '%'
          ——▶ justfile:1:25
           │
         1 │ assembly_source_files = %(wildcard src/arch/$(arch)/*.s)
@@ -2148,7 +2148,7 @@ fn unknown_start_of_token_invisible_unicode() {
     )
     .stderr(
       "
-        error: Unknown start of token '\u{200b}' (U+200B)
+        error: unknown start of token '\u{200b}' (U+200B)
          ——▶ justfile:1:1
           │
         1 │ \u{200b}foo := 'bar'
@@ -2168,7 +2168,7 @@ fn unknown_start_of_token_ascii_control_char() {
     )
     .stderr(
       "
-        error: Unknown start of token '\0' (U+0000)
+        error: unknown start of token '\0' (U+0000)
          ——▶ justfile:1:1
           │
         1 │ \0foo := 'bar'
@@ -2300,7 +2300,7 @@ fn old_equals_assignment_syntax_produces_error() {
     )
     .stderr(
       "
-        error: Expected '*', ':', '$', identifier, or '+', but found '='
+        error: expected '*', ':', '$', identifier, or '+', but found '='
          ——▶ justfile:1:5
           │
         1 │ foo = 'bar'
@@ -2570,7 +2570,7 @@ fn interpolation_evaluation_ignore_quiet() {
     .stderr(
       "
         @echo foo 2>/dev/null
-        error: Recipe `foo` failed on line 2 with exit code 127
+        error: recipe `foo` failed on line 2 with exit code 127
       ",
     )
     .shell(false)
@@ -2590,7 +2590,7 @@ fn interpolation_evaluation_ignore_quiet_continuation() {
     .stderr(
       "
         @echo foo 2>/dev/null
-        error: Recipe `foo` failed on line 3 with exit code 127
+        error: recipe `foo` failed on line 3 with exit code 127
       ",
     )
     .shell(false)

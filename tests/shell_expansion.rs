@@ -24,7 +24,7 @@ fn shell_expanded_strings_must_not_have_whitespace() {
     )
     .stderr(
       "
-        error: Expected '&&', '||', comment, end of file, end of line, '(', '+', or '/', but found string
+        error: expected '&&', '||', comment, end of file, end of line, '(', '+', or '/', but found string
          ——▶ justfile:1:8
           │
         1 │ x := x '$JUST_TEST_VARIABLE'
@@ -46,7 +46,7 @@ fn shell_expanded_error_messages_highlight_string_token() {
     .args(["--evaluate", "x"])
     .stderr(
       "
-        error: Shell expansion failed: error looking key 'FOOOOOOOOOOOOOOOOOOOOOOOOOOOOO' up: environment variable not found
+        error: shell expansion failed: error looking key 'FOOOOOOOOOOOOOOOOOOOOOOOOOOOOO' up: environment variable not found
          ——▶ justfile:1:7
           │
         1 │ x := x'$FOOOOOOOOOOOOOOOOOOOOOOOOOOOOO'

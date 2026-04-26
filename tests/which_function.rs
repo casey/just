@@ -230,7 +230,7 @@ fn is_unstable() {
     .write("hello.exe", HELLO_SCRIPT)
     .make_executable("hello.exe")
     .env("PATH", path.to_str().unwrap())
-    .stderr_regex(r".*The `which\(\)` function is currently unstable\..*")
+    .stderr_regex(r".*the `which\(\)` function is currently unstable,.*")
     .failure();
 }
 
@@ -241,7 +241,7 @@ fn require_error() {
     .args(["--evaluate", "p"])
     .stderr(
       "
-        error: Call to function `require` failed: could not find executable `asdfasdf`
+        error: call to function `require` failed: could not find executable `asdfasdf`
          ——▶ justfile:1:6
           │
         1 │ p := require('asdfasdf')

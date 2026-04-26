@@ -10,7 +10,7 @@ fn set_export_parse_error() {
     )
     .stderr(
       "
-        error: Expected keyword `true` or `false` but found identifier `fals`
+        error: expected keyword `true` or `false` but found identifier `fals`
          ——▶ justfile:1:15
           │
         1 │ set export := fals
@@ -30,7 +30,7 @@ fn set_export_parse_error_eol() {
     )
     .stderr(
       "
-        error: Expected identifier, but found end of line
+        error: expected identifier, but found end of line
          ——▶ justfile:1:14
           │
         1 │ set export :=
@@ -52,7 +52,7 @@ fn invalid_attributes_are_an_error() {
     .args(["--evaluate", "x"])
     .stderr(
       "
-        error: Assignment `x` has invalid attribute `group`
+        error: assignment `x` has invalid attribute `group`
          ——▶ justfile:2:1
           │
         2 │ x := 'foo'

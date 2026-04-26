@@ -24,7 +24,7 @@ fn default_recipe_in_submodule_must_have_no_arguments() {
       ",
     )
     .arg("foo")
-    .stderr("error: Recipe `foo` cannot be used as default recipe since it requires at least 1 argument.\n")
+    .stderr("error: recipe `foo` cannot be used as default recipe since it requires at least 1 argument\n")
     .failure();
 }
 
@@ -76,17 +76,17 @@ fn nested_module_recipes_can_be_run_with_path_syntax() {
 fn invalid_path_syntax() {
   Test::new()
     .arg(":foo::foo")
-    .stderr("error: Justfile does not contain recipe `:foo::foo`\n")
+    .stderr("error: justfile does not contain recipe `:foo::foo`\n")
     .failure();
 
   Test::new()
     .arg("foo::foo:")
-    .stderr("error: Justfile does not contain recipe `foo::foo:`\n")
+    .stderr("error: justfile does not contain recipe `foo::foo:`\n")
     .failure();
 
   Test::new()
     .arg("foo:::foo")
-    .stderr("error: Justfile does not contain recipe `foo:::foo`\n")
+    .stderr("error: justfile does not contain recipe `foo:::foo`\n")
     .failure();
 }
 
@@ -95,7 +95,7 @@ fn missing_recipe_after_invalid_path() {
   Test::new()
     .arg(":foo::foo")
     .arg("bar")
-    .stderr("error: Justfile does not contain recipe `:foo::foo`\n")
+    .stderr("error: justfile does not contain recipe `:foo::foo`\n")
     .failure();
 }
 
@@ -160,7 +160,7 @@ fn circular_module_imports_are_detected() {
     .arg("bar")
     .arg("baz")
     .stderr_regex(path_for_regex(
-      "error: Import `.*/foo.just` in `.*/bar.just` is circular\n",
+      "error: import `.*/foo.just` in `.*/bar.just` is circular\n",
     ))
     .failure();
 }
@@ -205,7 +205,7 @@ foo:
     .arg("foo")
     .stderr(
       "
-        error: Recipe `foo` first defined on line 1 is redefined on line 2
+        error: recipe `foo` first defined on line 1 is redefined on line 2
          ——▶ foo.just:2:1
           │
         2 │ foo:
@@ -249,7 +249,7 @@ fn modules_conflict_with_recipes() {
     )
     .stderr(
       "
-        error: Module `foo` defined on line 1 is redefined as a recipe on line 2
+        error: module `foo` defined on line 1 is redefined as a recipe on line 2
          ——▶ justfile:2:1
           │
         2 │ foo:
@@ -272,7 +272,7 @@ fn modules_conflict_with_aliases() {
     )
     .stderr(
       "
-        error: Module `foo` defined on line 1 is redefined as an alias on line 3
+        error: module `foo` defined on line 1 is redefined as an alias on line 3
          ——▶ justfile:3:7
           │
         3 │ alias foo := bar
@@ -296,7 +296,7 @@ fn modules_conflict_with_other_modules() {
     )
     .stderr(
       "
-        error: Module `foo` first defined on line 1 is redefined on line 2
+        error: module `foo` first defined on line 1 is redefined on line 2
          ——▶ justfile:2:5
           │
         2 │ mod foo
@@ -406,7 +406,7 @@ fn modules_require_unambiguous_file() {
     )
     .stderr(
       "
-        error: Found multiple source files for module `foo`: `foo/justfile` and `foo.just`
+        error: found multiple source files for module `foo`: `foo/justfile` and `foo.just`
          ——▶ justfile:1:5
           │
         1 │ mod foo
@@ -427,7 +427,7 @@ fn missing_module_file_error() {
     )
     .stderr(
       "
-        error: Could not find source file for module `foo`.
+        error: could not find source file for module `foo`
          ——▶ justfile:1:5
           │
         1 │ mod foo
@@ -812,7 +812,7 @@ fn recipes_with_same_name_are_both_run() {
 fn submodule_recipe_not_found_error_message() {
   Test::new()
     .args(["foo::bar"])
-    .stderr("error: Justfile does not contain submodule `foo`\n")
+    .stderr("error: justfile does not contain submodule `foo`\n")
     .failure();
 }
 
@@ -826,7 +826,7 @@ fn submodule_recipe_not_found_spaced_error_message() {
       ",
     )
     .args(["foo", "baz"])
-    .stderr("error: Justfile does not contain recipe `foo baz`\nDid you mean `bar`?\n")
+    .stderr("error: justfile does not contain recipe `foo baz`\nDid you mean `bar`?\n")
     .failure();
 }
 
@@ -840,7 +840,7 @@ fn submodule_recipe_not_found_colon_separated_error_message() {
       ",
     )
     .args(["foo::baz"])
-    .stderr("error: Justfile does not contain recipe `foo::baz`\nDid you mean `bar`?\n")
+    .stderr("error: justfile does not contain recipe `foo::baz`\nDid you mean `bar`?\n")
     .failure();
 }
 
@@ -857,7 +857,7 @@ fn colon_separated_path_does_not_run_recipes() {
       ",
     )
     .args(["foo::bar"])
-    .stderr("error: Expected submodule at `foo` but found recipe.\n")
+    .stderr("error: expected submodule at `foo` but found recipe\n")
     .failure();
 }
 
@@ -866,7 +866,7 @@ fn expected_submodule_but_found_recipe_in_root_error() {
   Test::new()
     .justfile("foo:")
     .arg("foo::baz")
-    .stderr("error: Expected submodule at `foo` but found recipe.\n")
+    .stderr("error: expected submodule at `foo` but found recipe\n")
     .failure();
 }
 
@@ -876,7 +876,7 @@ fn expected_submodule_but_found_recipe_in_submodule_error() {
     .justfile("mod foo")
     .write("foo.just", "bar:")
     .args(["foo::bar::baz"])
-    .stderr("error: Expected submodule at `foo::bar` but found recipe.\n")
+    .stderr("error: expected submodule at `foo::bar` but found recipe\n")
     .failure();
 }
 
@@ -885,7 +885,7 @@ fn colon_separated_path_components_are_not_used_as_arguments() {
   Test::new()
     .justfile("foo bar:")
     .args(["foo::bar"])
-    .stderr("error: Expected submodule at `foo` but found recipe.\n")
+    .stderr("error: expected submodule at `foo` but found recipe\n")
     .failure();
 }
 
@@ -1142,7 +1142,7 @@ fn bad_module_attribute_fails() {
     )
     .test_round_trip(false)
     .arg("--list")
-    .stderr("error: Module `foo` has invalid attribute `no-cd`\n ——▶ justfile:2:5\n  │\n2 │ mod foo\n  │     ^^^\n")
+    .stderr("error: module `foo` has invalid attribute `no-cd`\n ——▶ justfile:2:5\n  │\n2 │ mod foo\n  │     ^^^\n")
     .failure();
 }
 
@@ -1289,7 +1289,7 @@ fn trailing_separator_no_default_recipe() {
       ",
     )
     .arg("foo::")
-    .stderr("error: Justfile contains no default recipe.\n")
+    .stderr("error: justfile contains no default recipe\n")
     .failure();
 }
 
@@ -1303,6 +1303,6 @@ fn trailing_separator_not_last_argument() {
       ",
     )
     .args(["foo::", "bar"])
-    .stderr("error: Justfile does not contain recipe `foo::`\n")
+    .stderr("error: justfile does not contain recipe `foo::`\n")
     .failure();
 }

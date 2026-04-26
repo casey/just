@@ -358,7 +358,7 @@ fn attribute_duplicate() {
       ",
     )
     .stderr(
-      "error: Recipe attribute `working-directory` first used on line 1 is duplicated on line 2
+      "error: recipe attribute `working-directory` first used on line 1 is duplicated on line 2
  ——▶ justfile:2:2
   │
 2 │ [working-directory('baz')]
@@ -395,7 +395,7 @@ fn attribute_with_nocd_is_forbidden() {
     )
     .stderr(
       "
-        error: Recipe `bar` has both `[no-cd]` and `[working-directory]` attributes
+        error: recipe `bar` has both `[no-cd]` and `[working-directory]` attributes
          ——▶ justfile:3:1
           │
         3 │ bar:
