@@ -46,7 +46,9 @@ impl<'src> UnresolvedRecipe<'src> {
     }
 
     for attribute in &self.attributes {
-      if let Attribute::Confirm(Some(expression)) = attribute {
+      if let Attribute::Confirm(Some(expression)) | Attribute::WorkingDirectory(expression) =
+        attribute
+      {
         Self::resolve_expression(
           assignments,
           expression,

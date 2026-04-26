@@ -18,6 +18,51 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     self.context.as_ref().ok_or(const_error)
   }
 
+  pub(crate) fn evaluate_const_expression(
+    assignments: &'run Table<'src, Assignment<'src>>,
+    overrides: &'run HashMap<Number, String>,
+    scope: &'run Scope<'src, 'run>,
+    expression: &Expression<'src>,
+  ) -> RunResult<'src, String> {
+    let mut root = scope;
+    while let Some(parent) = root.parent() {
+      root = parent;
+    }
+
+    let mut evaluator = Self {
+      assignments: Some(assignments),
+      context: None,
+      env: BTreeMap::new(),
+      is_dependency: false,
+      non_const_assignments: Table::new(),
+      overrides,
+      scope: root.child(),
+    };
+
+    let variable_references = expression
+      .references()
+      .filter_map(|reference| {
+        if let Reference::Variable(variable) = reference {
+          Some(variable.lexeme())
+        } else {
+          None
+        }
+      })
+      .collect::<BTreeSet<&str>>();
+
+    for assignment in assignments.values() {
+      if variable_references.contains(assignment.name.lexeme()) {
+        match evaluator.evaluate_assignment(assignment) {
+          Err(Error::Const { .. }) => evaluator.non_const_assignments.insert(assignment.name),
+          Err(err) => return Err(err),
+          Ok(_) => {}
+        }
+      }
+    }
+
+    evaluator.evaluate_expression(expression)
+  }
+
   pub(crate) fn evaluate_settings(
     assignments: &'run Table<'src, Assignment<'src>>,
     overrides: &'run HashMap<Number, String>,

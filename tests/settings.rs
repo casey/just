@@ -350,7 +350,7 @@ fn backtick() {
     )
     .stderr(
       "
-        error: cannot call backticks in const context
+        error: cannot evaluate backticks in const context
          ——▶ justfile:1:26
           │
         1 │ set working-directory := `pwd`
@@ -392,7 +392,7 @@ fn non_const_variable() {
     )
     .stderr(
       "
-        error: cannot access non-const variable `foo` in const context
+        error: cannot reference non-const variable `foo` in const context
          ——▶ justfile:3:26
           │
         3 │ set working-directory := foo

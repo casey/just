@@ -44,7 +44,7 @@ pub(crate) enum Attribute<'src> {
   Script(Option<Interpreter<StringLiteral<'src>>>),
   Unix,
   Windows,
-  WorkingDirectory(StringLiteral<'src>),
+  WorkingDirectory(Expression<'src>),
 }
 
 impl AttributeDiscriminant {
@@ -136,6 +136,19 @@ impl<'src> Attribute<'src> {
       ));
     }
 
+    if matches!(discriminant, AttributeDiscriminant::WorkingDirectory) {
+      if let Some((_name, (keyword, _literal))) = keyword_arguments.into_iter().next() {
+        return Err(keyword.error(CompileErrorKind::UnknownAttributeKeyword {
+          attribute: name.lexeme(),
+          keyword: keyword.lexeme(),
+        }));
+      }
+
+      return Ok(Self::WorkingDirectory(
+        arguments.into_iter().next().map(|(_, expr)| expr).unwrap(),
+      ));
+    }
+
     let arguments = arguments
       .into_iter()
       .map(|(token, argument)| {
@@ -208,7 +221,7 @@ impl<'src> Attribute<'src> {
         }
       }
       AttributeDiscriminant::Android => Self::Android,
-      AttributeDiscriminant::Confirm => unreachable!(),
+      AttributeDiscriminant::Confirm | AttributeDiscriminant::WorkingDirectory => unreachable!(),
       AttributeDiscriminant::Default => Self::Default,
       AttributeDiscriminant::Doc => Self::Doc(arguments.into_iter().next()),
       AttributeDiscriminant::Dragonfly => Self::Dragonfly,
@@ -240,9 +253,6 @@ impl<'src> Attribute<'src> {
       }),
       AttributeDiscriminant::Unix => Self::Unix,
       AttributeDiscriminant::Windows => Self::Windows,
-      AttributeDiscriminant::WorkingDirectory => {
-        Self::WorkingDirectory(arguments.into_iter().next().unwrap())
-      }
     };
 
     if let Some((_name, (keyword_name, _literal))) = keyword_arguments.into_iter().next() {
@@ -345,11 +355,12 @@ impl Display for Attribute<'_> {
       | Self::Script(None)
       | Self::Unix
       | Self::Windows => {}
-      Self::Confirm(Some(argument)) => write!(f, "({argument})")?,
-      Self::Doc(Some(argument))
-      | Self::Extension(argument)
-      | Self::Group(argument)
-      | Self::WorkingDirectory(argument) => write!(f, "({argument})")?,
+      Self::Confirm(Some(argument)) | Self::WorkingDirectory(argument) => {
+        write!(f, "({argument})")?;
+      }
+      Self::Doc(Some(argument)) | Self::Extension(argument) | Self::Group(argument) => {
+        write!(f, "({argument})")?;
+      }
       Self::Env(key, value) => write!(f, "({key}, {value})")?,
       Self::Metadata(arguments) => {
         write!(f, "(")?;

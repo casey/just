@@ -406,3 +406,103 @@ fn setting_and_attribute() {
     .expect_file("foo/bar/fred", "bob\n")
     .success();
 }
+
+#[test]
+fn attribute_concatenation() {
+  Test::new()
+    .justfile(
+      "
+        [working-directory('foo' / 'bar')]
+        @qux:
+          echo baz > fred
+      ",
+    )
+    .create_dir("foo/bar")
+    .expect_file("foo/bar/fred", "baz\n")
+    .success();
+}
+
+#[test]
+fn attribute_assignment() {
+  Test::new()
+    .justfile(
+      "
+        dir := 'foo'
+
+        [working-directory(dir)]
+        @qux:
+          echo baz > bar
+      ",
+    )
+    .create_dir("foo")
+    .expect_file("foo/bar", "baz\n")
+    .success();
+}
+
+#[test]
+fn attribute_backtick() {
+  Test::new()
+    .justfile(
+      "
+        [working-directory(`echo foo`)]
+        bar:
+          @echo hello
+      ",
+    )
+    .stderr(
+      "
+        error: cannot evaluate backticks in const context
+         ——▶ justfile:1:20
+          │
+        1 │ [working-directory(`echo foo`)]
+          │                    ^^^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn attribute_function_call() {
+  Test::new()
+    .justfile(
+      "
+        [working-directory(env('HOME'))]
+        bar:
+          @echo hello
+      ",
+    )
+    .stderr(
+      "
+        error: cannot call functions in const context
+         ——▶ justfile:1:20
+          │
+        1 │ [working-directory(env('HOME'))]
+          │                    ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn attribute_non_const_variable() {
+  Test::new()
+    .justfile(
+      "
+        foo := `pwd`
+
+        [working-directory(foo)]
+        bar:
+          @echo hello
+      ",
+    )
+    .stderr(
+      "
+        error: cannot reference non-const variable `foo` in const context
+         ——▶ justfile:3:20
+          │
+        3 │ [working-directory(foo)]
+          │                    ^^^
+      ",
+    )
+    .failure();
+}

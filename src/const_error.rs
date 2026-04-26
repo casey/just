@@ -19,11 +19,11 @@ impl<'src> ConstError<'src> {
 impl Display for ConstError<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     match self {
-      Self::Backtick(_) => write!(f, "cannot call backticks in const context"),
+      Self::Backtick(_) => write!(f, "cannot evaluate backticks in const context"),
       Self::FunctionCall(_) => write!(f, "cannot call functions in const context"),
       Self::Variable(name) => write!(
         f,
-        "cannot access non-const variable `{name}` in const context"
+        "cannot reference non-const variable `{name}` in const context"
       ),
     }
   }

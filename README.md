@@ -984,8 +984,8 @@ $ just foo
 ```
 
 The argument to the `working-directory` setting or `working-directory`
-attribute may be absolute or relative. If it is relative it is interpreted
-relative to the default working directory.
+attribute may be any const expression. If the resulting path is relative it
+is interpreted relative to the default working directory.
 
 ### Aliases
 
@@ -2363,7 +2363,7 @@ change their behavior.
 | `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
 | `[unix]`<sup>1.8.0</sup> | recipe | Enable recipe on unixes. (Includes macOS). |
 | `[windows]`<sup>1.8.0</sup> | recipe | Enable recipe on Windows. |
-| `[working-directory(PATH)]`<sup>1.38.0</sup> | recipe | Set recipe working directory. `PATH` may be relative or absolute. If relative, it is interpreted relative to the default working directory. |
+| `[working-directory(PATH)]`<sup>1.38.0</sup> | recipe | Set recipe working directory. `PATH` may be any const expression, relative or absolute. If relative, it is interpreted relative to the default working directory. |
 
 A recipe can have multiple attributes, either on multiple lines:
 
