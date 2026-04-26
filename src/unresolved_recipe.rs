@@ -1,6 +1,6 @@
 use super::*;
 
-pub(crate) type UnresolvedRecipe<'src> = Recipe<'src, UnresolvedDependency<'src>>;
+pub(crate) type UnresolvedRecipe<'src> = Recipe<'src, UnresolvedDependency<'src>, Expression<'src>>;
 
 impl<'src> UnresolvedRecipe<'src> {
   pub(crate) fn resolve(
@@ -8,9 +8,10 @@ impl<'src> UnresolvedRecipe<'src> {
     assignments: &Table<'src, Assignment<'src>>,
     functions: &Table<'src, FunctionDefinition<'src>>,
     modulepath: &Modulepath,
+    overrides: &HashMap<Number, String>,
     resolved: Vec<Arc<Recipe<'src>>>,
     settings: &Settings,
-  ) -> CompileResult<'src, Recipe<'src>> {
+  ) -> RunResult<'src, Recipe<'src>> {
     assert_eq!(
       self.dependencies.len(),
       resolved.len(),
@@ -83,14 +84,18 @@ impl<'src> UnresolvedRecipe<'src> {
         .argument_range()
         .contains(&unresolved.arguments.len())
       {
-        return Err(unresolved.recipe.last().error(
-          CompileErrorKind::DependencyArgumentCountMismatch {
-            dependency: unresolved.recipe.clone(),
-            found: unresolved.arguments.len(),
-            min: resolved.min_arguments(),
-            max: resolved.max_arguments(),
-          },
-        ));
+        return Err(
+          unresolved
+            .recipe
+            .last()
+            .error(CompileErrorKind::DependencyArgumentCountMismatch {
+              dependency: unresolved.recipe.clone(),
+              found: unresolved.arguments.len(),
+              min: resolved.min_arguments(),
+              max: resolved.max_arguments(),
+            })
+            .into(),
+        );
       }
     }
 
@@ -109,7 +114,7 @@ impl<'src> UnresolvedRecipe<'src> {
     recipe_path.components.push(self.name.lexeme().into());
 
     Ok(Recipe {
-      attributes: self.attributes,
+      attributes: self.attributes.evaluate(assignments, overrides)?,
       body: self.body,
       dependencies,
       doc: self.doc,

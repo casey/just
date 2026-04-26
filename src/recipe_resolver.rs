@@ -5,6 +5,7 @@ pub(crate) struct RecipeResolver<'src: 'run, 'run> {
   functions: &'run Table<'src, FunctionDefinition<'src>>,
   modulepath: &'run Modulepath,
   modules: &'run Table<'src, Justfile<'src>>,
+  overrides: &'run HashMap<Number, String>,
   resolved_recipes: Table<'src, Arc<Recipe<'src>>>,
   settings: &'run Settings,
   unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
@@ -16,14 +17,16 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     functions: &'run Table<'src, FunctionDefinition<'src>>,
     modulepath: &'run Modulepath,
     modules: &'run Table<'src, Justfile<'src>>,
+    overrides: &'run HashMap<Number, String>,
     settings: &'run Settings,
     unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
-  ) -> CompileResult<'src, Table<'src, Arc<Recipe<'src>>>> {
+  ) -> RunResult<'src, Table<'src, Arc<Recipe<'src>>>> {
     let mut resolver = Self {
       assignments,
       functions,
       modulepath,
       modules,
+      overrides,
       resolved_recipes: Table::new(),
       settings,
       unresolved_recipes,
@@ -40,7 +43,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     &mut self,
     stack: &mut Vec<&'src str>,
     recipe: UnresolvedRecipe<'src>,
-  ) -> CompileResult<'src, Arc<Recipe<'src>>> {
+  ) -> RunResult<'src, Arc<Recipe<'src>>> {
     if let Some(resolved) = self.resolved_recipes.get(recipe.name()) {
       return Ok(Arc::clone(resolved));
     }
@@ -54,13 +57,17 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
         self
           .resolve_dependency(dependency, &recipe, stack)?
           .ok_or_else(|| {
-            dependency.recipe.last().error(UnknownDependency {
-              recipe: recipe.name(),
-              unknown: dependency.recipe.clone(),
-            })
+            dependency
+              .recipe
+              .last()
+              .error(UnknownDependency {
+                recipe: recipe.name(),
+                unknown: dependency.recipe.clone(),
+              })
+              .into()
           })
       })
-      .collect::<CompileResult<Vec<Arc<Recipe>>>>()?;
+      .collect::<RunResult<Vec<Arc<Recipe>>>>()?;
 
     stack.pop();
 
@@ -68,6 +75,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       self.assignments,
       self.functions,
       self.modulepath,
+      self.overrides,
       dependencies,
       self.settings,
     )?);
@@ -80,7 +88,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     dependency: &UnresolvedDependency<'src>,
     recipe: &UnresolvedRecipe<'src>,
     stack: &mut Vec<&'src str>,
-  ) -> CompileResult<'src, Option<Arc<Recipe<'src>>>> {
+  ) -> RunResult<'src, Option<Arc<Recipe<'src>>>> {
     let name = dependency.recipe.last().lexeme();
 
     if dependency.recipe.components() > 1 {
@@ -98,14 +106,18 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       let first = stack[0];
       stack.push(first);
       Err(
-        dependency.recipe.last().error(CircularRecipeDependency {
-          recipe: recipe.name(),
-          circle: stack
-            .iter()
-            .skip_while(|name| **name != dependency.recipe.last().lexeme())
-            .copied()
-            .collect(),
-        }),
+        dependency
+          .recipe
+          .last()
+          .error(CircularRecipeDependency {
+            recipe: recipe.name(),
+            circle: stack
+              .iter()
+              .skip_while(|name| **name != dependency.recipe.last().lexeme())
+              .copied()
+              .collect(),
+          })
+          .into(),
       )
     } else if let Some(unresolved) = self.unresolved_recipes.remove(name) {
       // recipe is as of yet unresolved

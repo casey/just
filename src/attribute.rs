@@ -9,7 +9,7 @@ use super::*;
 #[strum_discriminants(name(AttributeDiscriminant))]
 #[strum_discriminants(derive(EnumString, Ord, PartialOrd))]
 #[strum_discriminants(strum(serialize_all = "kebab-case"))]
-pub(crate) enum Attribute<'src> {
+pub(crate) enum Attribute<'src, T = String> {
   Android,
   Arg {
     help: Option<StringLiteral<'src>>,
@@ -44,7 +44,7 @@ pub(crate) enum Attribute<'src> {
   Script(Option<Interpreter<StringLiteral<'src>>>),
   Unix,
   Windows,
-  WorkingDirectory(Expression<'src>),
+  WorkingDirectory(T),
 }
 
 impl AttributeDiscriminant {
@@ -80,7 +80,7 @@ impl AttributeDiscriminant {
   }
 }
 
-impl<'src> Attribute<'src> {
+impl<'src> Attribute<'src, Expression<'src>> {
   fn check_option_name(
     parameter: &StringLiteral<'src>,
     literal: &StringLiteral<'src>,
@@ -275,6 +275,61 @@ impl<'src> Attribute<'src> {
     Ok(Some((key, literal)))
   }
 
+  pub(crate) fn evaluate(
+    self,
+    assignments: &Table<'src, Assignment<'src>>,
+    overrides: &HashMap<Number, String>,
+  ) -> RunResult<'src, Attribute<'src, String>> {
+    Ok(match self {
+      Self::Android => Attribute::Android,
+      Self::Arg {
+        help,
+        long,
+        long_key,
+        name,
+        pattern,
+        short,
+        value,
+      } => Attribute::Arg {
+        help,
+        long,
+        long_key,
+        name,
+        pattern,
+        short,
+        value,
+      },
+      Self::Confirm(argument) => Attribute::Confirm(argument),
+      Self::Default => Attribute::Default,
+      Self::Doc(argument) => Attribute::Doc(argument),
+      Self::Dragonfly => Attribute::Dragonfly,
+      Self::Env(key, value) => Attribute::Env(key, value),
+      Self::ExitMessage => Attribute::ExitMessage,
+      Self::Extension(argument) => Attribute::Extension(argument),
+      Self::Freebsd => Attribute::Freebsd,
+      Self::Group(argument) => Attribute::Group(argument),
+      Self::Linux => Attribute::Linux,
+      Self::Macos => Attribute::Macos,
+      Self::Metadata(arguments) => Attribute::Metadata(arguments),
+      Self::Netbsd => Attribute::Netbsd,
+      Self::NoCd => Attribute::NoCd,
+      Self::NoExitMessage => Attribute::NoExitMessage,
+      Self::NoQuiet => Attribute::NoQuiet,
+      Self::Openbsd => Attribute::Openbsd,
+      Self::Parallel => Attribute::Parallel,
+      Self::PositionalArguments => Attribute::PositionalArguments,
+      Self::Private => Attribute::Private,
+      Self::Script(argument) => Attribute::Script(argument),
+      Self::Unix => Attribute::Unix,
+      Self::Windows => Attribute::Windows,
+      Self::WorkingDirectory(expression) => Attribute::WorkingDirectory(
+        Evaluator::evaluate_const_expression(assignments, overrides, &Scope::root(), &expression)?,
+      ),
+    })
+  }
+}
+
+impl<T> Attribute<'_, T> {
   pub(crate) fn discriminant(&self) -> AttributeDiscriminant {
     self.into()
   }
@@ -291,7 +346,7 @@ impl<'src> Attribute<'src> {
   }
 }
 
-impl Display for Attribute<'_> {
+impl<T: Display> Display for Attribute<'_, T> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(f, "{}", self.name())?;
 
@@ -349,9 +404,8 @@ impl Display for Attribute<'_> {
       | Self::Script(None)
       | Self::Unix
       | Self::Windows => {}
-      Self::Confirm(Some(argument)) | Self::WorkingDirectory(argument) => {
-        write!(f, "({argument})")?;
-      }
+      Self::Confirm(Some(argument)) => write!(f, "({argument})")?,
+      Self::WorkingDirectory(argument) => write!(f, "({argument})")?,
       Self::Doc(Some(argument)) | Self::Extension(argument) | Self::Group(argument) => {
         write!(f, "({argument})")?;
       }
@@ -379,6 +433,6 @@ mod tests {
 
   #[test]
   fn name() {
-    assert_eq!(Attribute::NoExitMessage.name(), "no-exit-message");
+    assert_eq!(Attribute::<String>::NoExitMessage.name(), "no-exit-message");
   }
 }

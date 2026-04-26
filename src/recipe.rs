@@ -2,8 +2,8 @@ use super::*;
 
 /// A recipe, e.g. `foo: bar baz`
 #[derive(PartialEq, Debug, Clone, Serialize)]
-pub(crate) struct Recipe<'src, D = Dependency<'src>> {
-  pub(crate) attributes: AttributeSet<'src>,
+pub(crate) struct Recipe<'src, D = Dependency<'src>, T = String> {
+  pub(crate) attributes: AttributeSet<'src, T>,
   pub(crate) body: Vec<Line<'src>>,
   pub(crate) dependencies: Vec<D>,
   pub(crate) doc: Option<String>,
@@ -25,7 +25,7 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) variable_references: HashSet<Number>,
 }
 
-impl<'src, D> Recipe<'src, D> {
+impl<'src, D, T: Ord> Recipe<'src, D, T> {
   pub(crate) fn enabled(&self) -> bool {
     let android = self.attributes.contains(AttributeDiscriminant::Android);
     let dragonfly = self.attributes.contains(AttributeDiscriminant::Dragonfly);
@@ -185,30 +185,20 @@ impl<'src> Recipe<'src> {
     }
   }
 
-  fn working_directory<'run>(
-    &self,
-    context: &ExecutionContext<'src, 'run>,
-    scope: &Scope<'src, 'run>,
-  ) -> RunResult<'src, Option<PathBuf>> {
+  fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
     if !self.change_directory() {
-      return Ok(None);
+      return None;
     }
 
     let working_directory = context.working_directory();
 
     for attribute in &self.attributes {
-      if let Attribute::WorkingDirectory(expression) = attribute {
-        let evaluated = Evaluator::evaluate_const_expression(
-          &context.module.assignments,
-          context.overrides,
-          scope,
-          expression,
-        )?;
-        return Ok(Some(working_directory.join(evaluated)));
+      if let Attribute::WorkingDirectory(directory) = attribute {
+        return Some(working_directory.join(directory));
       }
     }
 
-    Ok(Some(working_directory))
+    Some(working_directory)
   }
 
   fn no_quiet(&self) -> bool {
@@ -353,7 +343,7 @@ impl<'src> Recipe<'src> {
 
       let mut cmd = settings.shell_command(config);
 
-      if let Some(working_directory) = self.working_directory(context, scope)? {
+      if let Some(working_directory) = self.working_directory(context) {
         cmd.current_dir(working_directory);
       }
 
@@ -523,9 +513,12 @@ impl<'src> Recipe<'src> {
       io_error: error,
     })?;
 
-    let working_directory = self.working_directory(context, scope)?;
-
-    let mut command = executor.command(config, &path, self.name(), working_directory.as_deref())?;
+    let mut command = executor.command(
+      config,
+      &path,
+      self.name(),
+      self.working_directory(context).as_deref(),
+    )?;
 
     if self.takes_positional_arguments(&context.module.settings) {
       command.args(positional);
@@ -613,7 +606,7 @@ impl<'src> Recipe<'src> {
   }
 }
 
-impl<D: Display> ColorDisplay for Recipe<'_, D> {
+impl<D: Display, T: Ord + Display> ColorDisplay for Recipe<'_, D, T> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     if !self
       .attributes
@@ -669,7 +662,7 @@ impl<D: Display> ColorDisplay for Recipe<'_, D> {
   }
 }
 
-impl<'src, D> Keyed<'src> for Recipe<'src, D> {
+impl<'src, D, T> Keyed<'src> for Recipe<'src, D, T> {
   fn key(&self) -> &'src str {
     self.name.lexeme()
   }

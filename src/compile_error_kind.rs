@@ -98,7 +98,7 @@ pub(crate) enum CompileErrorKind<'src> {
   InvalidAttribute {
     item_kind: &'static str,
     item_name: &'src str,
-    attribute: Box<Attribute<'src>>,
+    attribute: Box<Attribute<'src, Expression<'src>>>,
   },
   InvalidEscapeSequence {
     character: char,

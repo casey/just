@@ -6,7 +6,7 @@ pub(crate) struct Analyzer<'run, 'src> {
   assignments: Vec<&'run Binding<'src, Expression<'src>>>,
   functions: Vec<&'run FunctionDefinition<'src>>,
   modules: Table<'src, Justfile<'src>>,
-  recipes: Vec<&'run Recipe<'src, UnresolvedDependency<'src>>>,
+  recipes: Vec<&'run UnresolvedRecipe<'src>>,
   sets: Table<'src, Set<'src>>,
   unexports: HashSet<String>,
   warnings: Vec<Warning>,
@@ -259,6 +259,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       &functions,
       &ast.module_path,
       &self.modules,
+      overrides,
       &settings,
       deduplicated_recipes,
     )?;

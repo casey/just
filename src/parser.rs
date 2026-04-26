@@ -370,7 +370,10 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok(self.accept(kind)?.is_some())
   }
 
-  fn take_doc_comment(&mut self, attributes: &AttributeSet<'src>) -> Option<String> {
+  fn take_doc_comment(
+    &mut self,
+    attributes: &AttributeSet<'src, Expression<'src>>,
+  ) -> Option<String> {
     for attribute in attributes {
       if let Attribute::Doc(doc) = attribute {
         return doc.as_ref().map(|doc| doc.cooked.clone());
@@ -453,7 +456,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   fn parse_item(
     &mut self,
-    attributes: &mut Option<(Token<'src>, AttributeSet<'src>)>,
+    attributes: &mut Option<(Token<'src>, AttributeSet<'src, Expression<'src>>)>,
   ) -> CompileResult<'src, Item<'src>> {
     let mut take_attributes = || {
       attributes
@@ -578,7 +581,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// Parse an alias, e.g `alias name := target`
   fn parse_alias(
     &mut self,
-    attributes: AttributeSet<'src>,
+    attributes: AttributeSet<'src, Expression<'src>>,
   ) -> CompileResult<'src, Alias<'src, Namepath<'src>>> {
     self.presume_keyword(Keyword::Alias)?;
     let name = self.parse_name()?;
@@ -627,7 +630,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// Parse an assignment, e.g. `foo := bar`
   fn parse_assignment(
     &mut self,
-    attributes: AttributeSet<'src>,
+    attributes: AttributeSet<'src, Expression<'src>>,
     eager: bool,
     export: bool,
   ) -> CompileResult<'src, Assignment<'src>> {
@@ -1109,7 +1112,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// Parse a recipe
   fn parse_recipe(
     &mut self,
-    attributes: AttributeSet<'src>,
+    attributes: AttributeSet<'src, Expression<'src>>,
     quiet: bool,
   ) -> CompileResult<'src, UnresolvedRecipe<'src>> {
     let name = self.parse_name()?;
@@ -1474,7 +1477,9 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Item attributes, i.e., `[macos]` or `[confirm: "warning!"]`
-  fn parse_attributes(&mut self) -> CompileResult<'src, Option<(Token<'src>, AttributeSet<'src>)>> {
+  fn parse_attributes(
+    &mut self,
+  ) -> CompileResult<'src, Option<(Token<'src>, AttributeSet<'src, Expression<'src>>)>> {
     let mut arg_attributes = BTreeMap::new();
     let mut attributes = Vec::new();
     let mut discriminants = BTreeMap::new();
