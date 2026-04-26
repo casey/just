@@ -5,12 +5,6 @@ pub(crate) type EvaluatedAttributeSet<'src> = AttributeSet<'src, String>;
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub(crate) struct AttributeSet<'src, T = Expression<'src>>(BTreeSet<Attribute<'src, T>>);
 
-impl<T> Default for AttributeSet<'_, T> {
-  fn default() -> Self {
-    Self(BTreeSet::new())
-  }
-}
-
 impl<'src, T> AttributeSet<'src, T> {
   pub(crate) fn len(&self) -> usize {
     self.0.len()
@@ -61,8 +55,14 @@ impl<'src> AttributeSet<'src> {
       .0
       .into_iter()
       .map(|attribute| attribute.evaluate(assignments, overrides))
-      .collect::<RunResult<BTreeSet<_>>>()
+      .collect::<RunResult<BTreeSet<EvaluatedAttribute>>>()
       .map(AttributeSet)
+  }
+}
+
+impl<T> Default for AttributeSet<'_, T> {
+  fn default() -> Self {
+    Self(BTreeSet::new())
   }
 }
 
