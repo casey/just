@@ -47,11 +47,11 @@ fn setting_applies_to_recipes() {
   Test::new()
     .justfile(
       "
-      set no-cd := true
+        set no-cd := true
 
-      foo:
-        cat bar
-    ",
+        foo:
+          cat bar
+      ",
     )
     .current_dir("child")
     .tree(tree! {
@@ -70,12 +70,12 @@ fn working_directory_attribute_overrides_setting() {
   Test::new()
     .justfile(
       "
-      set no-cd := true
+        set no-cd := true
 
-      [working-directory('workspace')]
-      foo:
-        cat data.txt
-    ",
+        [working-directory('workspace')]
+        foo:
+          cat data.txt
+      ",
     )
     .write("workspace/data.txt", "WORKSPACE")
     .stderr("cat data.txt\n")
