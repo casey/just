@@ -197,16 +197,16 @@ impl<'src> Recipe<'src> {
   }
 
   fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
+    if !self.change_directory(&context.module.settings) {
+      return None;
+    }
+
     let working_directory = context.working_directory();
 
     for attribute in &self.attributes {
       if let Attribute::WorkingDirectory(dir) = attribute {
         return Some(working_directory.join(&dir.cooked));
       }
-    }
-
-    if !self.change_directory(&context.module.settings) {
-      return None;
     }
 
     Some(working_directory)
