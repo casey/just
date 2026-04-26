@@ -950,11 +950,11 @@ $ just bar
 /subdir
 ```
 
-To apply the same behavior to every recipe in a module, use `set no-cd := true`.
-This setting is module-local, so imported modules choose their own default, and
-it can't appear alongside `set working-directory` in the same `justfile`.
-Recipe-level attributes still take precedence: `[working-directory(...)]`
-overrides both, and `[no-cd]` on a recipe overrides `set working-directory`.
+Use `set no-cd`<sup>master</sup> to make all recipes in the current module
+default to the same behavior.
+
+`set no-cd` and `set working-directory` can be overridden on a per-recipe basis
+with the `[no-cd]` and `[working-directory]` attributes.
 
 You can override the working directory for all recipes with
 `set working-directory := '…'`:
