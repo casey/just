@@ -197,11 +197,11 @@ impl<'src> Recipe<'src> {
   }
 
   fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
-    let module_working_directory = context.working_directory();
+    let working_directory = context.working_directory();
 
     for attribute in &self.attributes {
       if let Attribute::WorkingDirectory(dir) = attribute {
-        return Some(module_working_directory.join(&dir.cooked));
+        return Some(working_directory.join(&dir.cooked));
       }
     }
 
@@ -209,7 +209,7 @@ impl<'src> Recipe<'src> {
       return None;
     }
 
-    Some(module_working_directory)
+    Some(working_directory)
   }
 
   fn no_quiet(&self) -> bool {
