@@ -653,7 +653,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   /// Parse an expression, e.g. `1 + 2`
   fn parse_expression(&mut self) -> CompileResult<'src, Expression<'src>> {
-    if self.recursion_depth == if cfg!(windows) { 48 } else { 256 } {
+    if self.recursion_depth == RECURSION_LIMIT {
       let token = self.next()?;
       return Err(CompileError::new(
         token,

@@ -173,6 +173,9 @@ pub(crate) enum Error<'src> {
     min: usize,
     max: usize,
   },
+  RecursionLimit {
+    last: Name<'src>,
+  },
   RegexCompile {
     source: regex::Error,
   },
@@ -721,6 +724,10 @@ impl ColorDisplay for Error<'_> {
           )?;
         }
       }
+      RecursionLimit { last } => write!(
+        f,
+        "maximum recursion depth of {RECURSION_LIMIT} exceeded while calling function {last}"
+      )?,
       RegexCompile { source } => write!(f, "{source}")?,
       RuntimeDirIo { io_error, path } => {
         write!(
