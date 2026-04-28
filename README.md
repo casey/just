@@ -4102,8 +4102,8 @@ next, so earlier imports are actually handled later by the compiler.
 
 This is definitely a bug, but since `just` has very strong backwards
 compatibility guarantees and we take enormous pains not to break anyone's
-`justfile`, we have created issue #2540 to discuss whether or not we can
-actually fix it.
+`justfile`, see issue [#2540](https://github.com/casey/just/issues/2540) for
+discussion on whether or not we can actually fix it.
 
 Imports may be made optional by putting a `?` after the `import` keyword:
 
