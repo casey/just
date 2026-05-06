@@ -87,6 +87,7 @@ mod init;
 mod interpolation;
 mod invocation_directory;
 mod json;
+mod justfile_from_stdin;
 mod lazy;
 mod line_prefixes;
 mod list;
