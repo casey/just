@@ -50,7 +50,7 @@ impl Search {
           working_directory,
         })
       }
-      SearchConfig::FromStandardInput => {
+      SearchConfig::FromStandardInput { working_directory } => {
         let source =
           io::read_to_string(io::stdin()).map_err(|io_error| SearchError::StdinIo { io_error })?;
 
@@ -75,7 +75,10 @@ impl Search {
         Ok(Self {
           justfile,
           tempdir: Some(tempdir),
-          working_directory: config.invocation_directory.clone(),
+          working_directory: working_directory
+            .as_ref()
+            .unwrap_or_else(|| &config.invocation_directory)
+            .clone(),
         })
       }
       SearchConfig::GlobalJustfile => Ok(Self {
@@ -166,7 +169,7 @@ impl Search {
           working_directory,
         })
       }
-      SearchConfig::FromStandardInput => Err(SearchError::InitWithJustfileFromStandardInput),
+      SearchConfig::FromStandardInput { .. } => Err(SearchError::InitWithJustfileFromStandardInput),
       SearchConfig::FromSearchDirectory { search_directory } => {
         let search_directory = Self::clean(&config.invocation_directory, search_directory);
         let working_directory = Self::project_root(config, &search_directory)?;

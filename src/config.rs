@@ -104,6 +104,8 @@ impl Config {
   }
 
   fn search_config(arguments: &Arguments, positional: &Positional) -> ConfigResult<SearchConfig> {
+    const STANDARD_INPUT_ARGUMENT: &str = "-";
+
     if arguments.global_justfile {
       return Ok(SearchConfig::GlobalJustfile);
     }
@@ -121,17 +123,25 @@ impl Config {
       match (justfile, working_directory) {
         (None, None) => Ok(SearchConfig::FromInvocationDirectory),
         (Some(justfile), None) => {
-          if *justfile == *"-" {
-            Ok(SearchConfig::FromStandardInput)
+          if *justfile == *STANDARD_INPUT_ARGUMENT {
+            Ok(SearchConfig::FromStandardInput {
+              working_directory: None,
+            })
           } else {
             Ok(SearchConfig::WithJustfile { justfile })
           }
         }
         (Some(justfile), Some(working_directory)) => {
-          Ok(SearchConfig::WithJustfileAndWorkingDirectory {
-            justfile,
-            working_directory,
-          })
+          if *justfile == *STANDARD_INPUT_ARGUMENT {
+            Ok(SearchConfig::FromStandardInput {
+              working_directory: Some(working_directory),
+            })
+          } else {
+            Ok(SearchConfig::WithJustfileAndWorkingDirectory {
+              justfile,
+              working_directory,
+            })
+          }
         }
         (None, Some(_)) => Err(ConfigError::internal(
           "--working-directory set without --justfile",
