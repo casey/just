@@ -17,11 +17,14 @@ impl Search {
     let mut paths = Vec::new();
 
     if let Some(config_dir) = dirs::config_dir() {
-      paths.push((config_dir.join(DIR), DEFAULT_JUSTFILE_NAME));
+      paths.push((config_dir.join(JUST_DIRECTORY), DEFAULT_JUSTFILE_NAME));
     }
 
     if let Some(home_dir) = dirs::home_dir() {
-      paths.push((home_dir.join(".config").join(DIR), DEFAULT_JUSTFILE_NAME));
+      paths.push((
+        home_dir.join(".config").join(JUST_DIRECTORY),
+        DEFAULT_JUSTFILE_NAME,
+      ));
 
       for justfile_name in JUSTFILE_NAMES {
         paths.push((home_dir.clone(), justfile_name));
