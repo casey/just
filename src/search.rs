@@ -77,7 +77,7 @@ impl Search {
           tempdir: Some(tempdir),
           working_directory: working_directory
             .as_ref()
-            .unwrap_or_else(|| &config.invocation_directory)
+            .unwrap_or(&config.invocation_directory)
             .clone(),
         })
       }
