@@ -18,7 +18,15 @@ fn parse_error() {
     .no_justfile()
     .args(["--justfile", "-"])
     .stdin("garbage[\n")
-    .stderr_regex("error: expected .* but found '\\['\n.*")
+    .stderr(
+      "
+        error: expected '*', ':', '$', identifier, or '+', but found '['
+         ——▶ justfile:1:8
+          │
+        1 │ garbage[
+          │        ^
+      ",
+    )
     .test_round_trip(false)
     .failure();
 }
