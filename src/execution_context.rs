@@ -22,7 +22,7 @@ impl<'src: 'run, 'run> ExecutionContext<'src, 'run> {
         Some(tempdir) => builder.tempdir_in(self.search.working_directory.join(tempdir)),
         None => {
           if let Some(runtime_dir) = dirs::runtime_dir() {
-            let path = runtime_dir.join(TEMPDIR_PREFIX);
+            let path = runtime_dir.join(DIR);
             fs::create_dir_all(&path).map_err(|io_error| Error::RuntimeDirIo {
               io_error,
               path: path.clone(),

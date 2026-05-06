@@ -171,8 +171,8 @@ type FunctionResult = Result<String, String>;
 type RunResult<'a, T = ()> = Result<T, Error<'a>>;
 type SearchResult<T> = Result<T, SearchError>;
 
+const DIR: &str = "just";
 const RECURSION_LIMIT: usize = if cfg!(windows) { 48 } else { 256 };
-
 const TEMPDIR_PREFIX: &str = "just-";
 
 #[cfg(test)]
