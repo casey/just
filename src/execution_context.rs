@@ -13,7 +13,7 @@ impl<'src: 'run, 'run> ExecutionContext<'src, 'run> {
   pub(crate) fn tempdir<D>(&self, recipe: &Recipe<'src, D>) -> RunResult<'src, TempDir> {
     let mut builder = tempfile::Builder::new();
 
-    builder.prefix("just-");
+    builder.prefix(TEMPDIR_PREFIX);
 
     if let Some(tempdir) = &self.config.tempdir {
       builder.tempdir_in(self.search.working_directory.join(tempdir))
