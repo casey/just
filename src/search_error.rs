@@ -30,7 +30,7 @@ pub(crate) enum SearchError {
   NotFound,
   #[snafu(display("error reading from standard input: {io_error}"))]
   StdinIo { io_error: io::Error },
-  #[snafu(display("failed to create temporary directory: {io_error}"))]
+  #[snafu(display("I/O error creating temporary directory: {io_error}"))]
   TempdirIo { io_error: io::Error },
 }
 
