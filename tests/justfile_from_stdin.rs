@@ -97,11 +97,45 @@ fn init_error() {
 }
 
 #[test]
-fn working_directory_argument_treats_dash_as_path() {
+fn init_error_with_working_directory() {
   Test::new()
     .no_justfile()
-    .args(["--justfile", "-", "--working-directory", "."])
-    .stderr_regex(r"error: failed to read justfile at `.*-`: .*\n")
+    .args(["--justfile", "-", "--working-directory", ".", "--init"])
+    .stderr("error: cannot use justfile from standard input with `--init`\n")
     .test_round_trip(false)
     .failure();
+}
+
+#[test]
+fn working_directory_long() {
+  Test::new()
+    .no_justfile()
+    .tree(tree! {
+      sub: {
+        data: "qux\n",
+      },
+    })
+    .args(["--justfile", "-", "--working-directory", "sub"])
+    .stdin("foo:\n  cat data\n")
+    .stderr("cat data\n")
+    .stdout("qux\n")
+    .test_round_trip(false)
+    .success();
+}
+
+#[test]
+fn working_directory_short() {
+  Test::new()
+    .no_justfile()
+    .tree(tree! {
+      sub: {
+        data: "qux\n",
+      },
+    })
+    .args(["-f", "-", "-d", "sub"])
+    .stdin("foo:\n  cat data\n")
+    .stderr("cat data\n")
+    .stdout("qux\n")
+    .test_round_trip(false)
+    .success();
 }
