@@ -182,7 +182,7 @@ pub struct Arguments {
   #[arg(
     add = ArgValueCompleter::new(PathCompleter::file()),
     env = "JUST_JUSTFILE",
-    help = "Use <JUSTFILE> as justfile",
+    help = "Use <JUSTFILE> as justfile or `-` to read from standard input",
     long,
     short = 'f',
     value_name = "JUSTFILE"
