@@ -123,7 +123,7 @@ impl Config {
       match (justfile, working_directory) {
         (None, None) => Ok(SearchConfig::FromInvocationDirectory),
         (Some(justfile), None) => {
-          if *justfile == *STANDARD_INPUT_ARGUMENT {
+          if justfile == Path::new(STANDARD_INPUT_ARGUMENT) {
             Ok(SearchConfig::FromStandardInput {
               working_directory: None,
             })
@@ -132,7 +132,7 @@ impl Config {
           }
         }
         (Some(justfile), Some(working_directory)) => {
-          if *justfile == *STANDARD_INPUT_ARGUMENT {
+          if justfile == Path::new(STANDARD_INPUT_ARGUMENT) {
             Ok(SearchConfig::FromStandardInput {
               working_directory: Some(working_directory),
             })
