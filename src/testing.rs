@@ -19,6 +19,7 @@ pub(crate) fn search(config: &Config) -> Search {
 
   Search {
     justfile,
+    tempdir: None,
     working_directory,
   }
 }

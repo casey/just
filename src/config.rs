@@ -120,7 +120,13 @@ impl Config {
     } else {
       match (justfile, working_directory) {
         (None, None) => Ok(SearchConfig::FromInvocationDirectory),
-        (Some(justfile), None) => Ok(SearchConfig::WithJustfile { justfile }),
+        (Some(justfile), None) => {
+          if *justfile == *"-" {
+            Ok(SearchConfig::FromStandardInput)
+          } else {
+            Ok(SearchConfig::WithJustfile { justfile })
+          }
+        }
         (Some(justfile), Some(working_directory)) => {
           Ok(SearchConfig::WithJustfileAndWorkingDirectory {
             justfile,

@@ -7,6 +7,8 @@ const PROJECT_ROOT_CHILDREN: &[&str] = &[".bzr", ".git", ".hg", ".svn", "_darcs"
 #[derive(Debug)]
 pub(crate) struct Search {
   pub(crate) justfile: PathBuf,
+  #[allow(unused)]
+  pub(crate) tempdir: Option<TempDir>,
   pub(crate) working_directory: PathBuf,
 }
 
@@ -41,11 +43,41 @@ impl Search {
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
         Ok(Self {
           justfile,
+          tempdir: None,
           working_directory,
+        })
+      }
+      SearchConfig::FromStandardInput => {
+        let source =
+          io::read_to_string(io::stdin()).map_err(|io_error| SearchError::StdinIo { io_error })?;
+
+        let mut builder = tempfile::Builder::new();
+
+        builder.prefix(TEMPDIR_PREFIX);
+
+        let tempdir = if let Some(tempdir) = &config.tempdir {
+          builder.tempdir_in(tempdir)
+        } else {
+          builder.tempdir()
+        }
+        .map_err(|io_error| SearchError::TempdirIo { io_error })?;
+
+        let justfile = tempdir.path().join("justfile");
+
+        fs::write(&justfile, source).map_err(|io_error| SearchError::FilesystemIo {
+          io_error,
+          path: justfile.clone(),
+        })?;
+
+        Ok(Self {
+          justfile,
+          tempdir: Some(tempdir),
+          working_directory: config.invocation_directory.clone(),
         })
       }
       SearchConfig::GlobalJustfile => Ok(Self {
         justfile: Self::find_global_justfile()?,
+        tempdir: None,
         working_directory: Self::project_root(config, &config.invocation_directory)?,
       }),
       SearchConfig::WithJustfile { justfile } => {
@@ -53,6 +85,7 @@ impl Search {
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
         Ok(Self {
           justfile,
+          tempdir: None,
           working_directory,
         })
       }
@@ -61,6 +94,7 @@ impl Search {
         working_directory,
       } => Ok(Self {
         justfile: Self::clean(&config.invocation_directory, justfile),
+        tempdir: None,
         working_directory: Self::clean(&config.invocation_directory, working_directory),
       }),
     }
@@ -70,9 +104,9 @@ impl Search {
     for (directory, filename) in Self::global_justfile_paths() {
       if let Ok(read_dir) = fs::read_dir(&directory) {
         for entry in read_dir {
-          let entry = entry.map_err(|io_error| SearchError::Io {
+          let entry = entry.map_err(|io_error| SearchError::FilesystemIo {
             io_error,
-            directory: directory.clone(),
+            path: directory.clone(),
           })?;
           if let Some(candidate) = entry.file_name().to_str() {
             if candidate.eq_ignore_ascii_case(filename) {
@@ -104,6 +138,7 @@ impl Search {
     let working_directory = Self::working_directory_from_justfile(&justfile)?;
     Ok(Self {
       justfile,
+      tempdir: None,
       working_directory,
     })
   }
@@ -124,15 +159,18 @@ impl Search {
         let justfile = working_directory.join(default_justfile_name());
         Ok(Self {
           justfile,
+          tempdir: None,
           working_directory,
         })
       }
+      SearchConfig::FromStandardInput => Err(SearchError::InitWithJustfileFromStandardInput),
       SearchConfig::FromSearchDirectory { search_directory } => {
         let search_directory = Self::clean(&config.invocation_directory, search_directory);
         let working_directory = Self::project_root(config, &search_directory)?;
         let justfile = working_directory.join(default_justfile_name());
         Ok(Self {
           justfile,
+          tempdir: None,
           working_directory,
         })
       }
@@ -142,6 +180,7 @@ impl Search {
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
         Ok(Self {
           justfile,
+          tempdir: None,
           working_directory,
         })
       }
@@ -150,6 +189,7 @@ impl Search {
         working_directory,
       } => Ok(Self {
         justfile: Self::clean(&config.invocation_directory, justfile),
+        tempdir: None,
         working_directory: Self::clean(&config.invocation_directory, working_directory),
       }),
     }
@@ -161,15 +201,15 @@ impl Search {
     for directory in directory.ancestors() {
       let mut candidates = BTreeSet::new();
 
-      let entries = fs::read_dir(directory).map_err(|io_error| SearchError::Io {
+      let entries = fs::read_dir(directory).map_err(|io_error| SearchError::FilesystemIo {
         io_error,
-        directory: directory.to_owned(),
+        path: directory.to_owned(),
       })?;
 
       for entry in entries {
-        let entry = entry.map_err(|io_error| SearchError::Io {
+        let entry = entry.map_err(|io_error| SearchError::FilesystemIo {
           io_error,
-          directory: directory.to_owned(),
+          path: directory.to_owned(),
         })?;
         if let Some(name) = entry.file_name().to_str() {
           let justfile_names: Box<dyn Iterator<Item = &str>> =
@@ -226,15 +266,15 @@ impl Search {
   /// system directories given in `PROJECT_ROOT_CHILDREN`
   fn project_root(config: &Config, directory: &Path) -> SearchResult<PathBuf> {
     for directory in directory.ancestors() {
-      let entries = fs::read_dir(directory).map_err(|io_error| SearchError::Io {
+      let entries = fs::read_dir(directory).map_err(|io_error| SearchError::FilesystemIo {
         io_error,
-        directory: directory.to_owned(),
+        path: directory.to_owned(),
       })?;
 
       for entry in entries {
-        let entry = entry.map_err(|io_error| SearchError::Io {
+        let entry = entry.map_err(|io_error| SearchError::FilesystemIo {
           io_error,
-          directory: directory.to_owned(),
+          path: directory.to_owned(),
         })?;
         for project_root_child in PROJECT_ROOT_CHILDREN.iter().copied() {
           if entry.file_name() == project_root_child {

@@ -163,9 +163,9 @@ impl Compiler {
           }
 
           return Err(
-            SearchError::Io {
+            SearchError::FilesystemIo {
               io_error,
-              directory,
+              path: directory,
             }
             .into(),
           );
@@ -173,9 +173,9 @@ impl Compiler {
       };
 
       for entry in entries {
-        let entry = entry.map_err(|io_error| SearchError::Io {
+        let entry = entry.map_err(|io_error| SearchError::FilesystemIo {
           io_error,
-          directory: directory.clone(),
+          path: directory.clone(),
         })?;
 
         if let Some(name) = entry.file_name().to_str() {

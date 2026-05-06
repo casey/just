@@ -11,25 +11,25 @@ pub(crate) struct ExecutionContext<'src: 'run, 'run> {
 
 impl<'src: 'run, 'run> ExecutionContext<'src, 'run> {
   pub(crate) fn tempdir<D>(&self, recipe: &Recipe<'src, D>) -> RunResult<'src, TempDir> {
-    let mut tempdir_builder = tempfile::Builder::new();
+    let mut builder = tempfile::Builder::new();
 
-    tempdir_builder.prefix("just-");
+    builder.prefix("just-");
 
     if let Some(tempdir) = &self.config.tempdir {
-      tempdir_builder.tempdir_in(self.search.working_directory.join(tempdir))
+      builder.tempdir_in(self.search.working_directory.join(tempdir))
     } else {
       match &self.module.settings.tempdir {
-        Some(tempdir) => tempdir_builder.tempdir_in(self.search.working_directory.join(tempdir)),
+        Some(tempdir) => builder.tempdir_in(self.search.working_directory.join(tempdir)),
         None => {
           if let Some(runtime_dir) = dirs::runtime_dir() {
-            let path = runtime_dir.join("just");
+            let path = runtime_dir.join(TEMPDIR_PREFIX);
             fs::create_dir_all(&path).map_err(|io_error| Error::RuntimeDirIo {
               io_error,
               path: path.clone(),
             })?;
-            tempdir_builder.tempdir_in(path)
+            builder.tempdir_in(path)
           } else {
-            tempdir_builder.tempdir()
+            builder.tempdir()
           }
         }
       }
