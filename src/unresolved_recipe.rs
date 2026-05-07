@@ -47,31 +47,6 @@ impl<'src> UnresolvedRecipe<'src> {
 
     for attribute in &self.attributes {
       match attribute {
-        Attribute::Android
-        | Attribute::Arg { .. }
-        | Attribute::Confirm(None)
-        | Attribute::Default
-        | Attribute::Doc(_)
-        | Attribute::Dragonfly
-        | Attribute::Env(_, _)
-        | Attribute::ExitMessage
-        | Attribute::Extension(_)
-        | Attribute::Freebsd
-        | Attribute::Group(_)
-        | Attribute::Linux
-        | Attribute::Macos
-        | Attribute::Metadata(_)
-        | Attribute::Netbsd
-        | Attribute::NoCd
-        | Attribute::NoExitMessage
-        | Attribute::NoQuiet
-        | Attribute::Openbsd
-        | Attribute::Parallel
-        | Attribute::PositionalArguments
-        | Attribute::Private
-        | Attribute::Script(_)
-        | Attribute::Unix
-        | Attribute::Windows => {}
         Attribute::Confirm(Some(expression)) | Attribute::WorkingDirectory(expression) => {
           Self::resolve_expression(
             assignments,
@@ -81,6 +56,7 @@ impl<'src> UnresolvedRecipe<'src> {
             &mut variable_references,
           )?;
         }
+        _ => {}
       }
     }
 
