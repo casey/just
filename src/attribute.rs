@@ -353,10 +353,10 @@ impl Display for Attribute<'_> {
       | Self::Unix
       | Self::Windows => {}
       Self::Confirm(Some(argument)) | Self::WorkingDirectory(argument) => {
-        write!(f, "({argument})")?
+        write!(f, "({argument})")?;
       }
       Self::Doc(Some(argument)) | Self::Extension(argument) | Self::Group(argument) => {
-        write!(f, "({argument})")?
+        write!(f, "({argument})")?;
       }
       Self::Env(key, value) => write!(f, "({key}, {value})")?,
       Self::Metadata(arguments) => {
