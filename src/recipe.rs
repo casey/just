@@ -269,7 +269,7 @@ impl<'src> Recipe<'src> {
       }
     }
 
-    let evaluator = Evaluator::new(context, BTreeMap::new(), is_dependency, scope);
+    let evaluator = Evaluator::new(context, is_dependency, scope);
 
     let start = Instant::now();
     let result = if self.is_script() {

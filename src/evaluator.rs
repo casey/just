@@ -3,7 +3,6 @@ use super::*;
 pub(crate) struct Evaluator<'src: 'run, 'run> {
   assignments: Option<&'run Table<'src, Assignment<'src>>>,
   context: Option<ExecutionContext<'src, 'run>>,
-  env: BTreeMap<String, String>,
   is_dependency: bool,
   non_const_assignments: Table<'src, Name<'src>>,
   overrides: &'run HashMap<Number, String>,
@@ -29,7 +28,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       assignments: Some(assignments),
       recursion_depth: 0,
       context: None,
-      env: BTreeMap::new(),
       is_dependency: false,
       non_const_assignments: Table::new(),
       overrides,
@@ -180,7 +178,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       assignments: Some(&module.assignments),
       recursion_depth: 0,
       context: Some(context),
-      env: BTreeMap::new(),
       is_dependency: false,
       non_const_assignments: Table::new(),
       overrides,
@@ -271,7 +268,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     let mut evaluator = Evaluator {
       assignments: Some(&context.module.assignments),
       context: Some(context),
-      env: BTreeMap::new(),
       is_dependency: false,
       non_const_assignments: Table::new(),
       overrides: self.overrides,
@@ -371,7 +367,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           return Ok(format!("`{contents}`"));
         }
 
-        Self::run_command(context, &self.env, &self.scope, contents, None).map_err(|output_error| {
+        Self::run_command(context, &self.scope, contents, None).map_err(|output_error| {
           Error::Backtick {
             token: *token,
             output_error,
@@ -474,7 +470,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
   pub(crate) fn run_command(
     context: &ExecutionContext,
-    env: &BTreeMap<String, String>,
     scope: &Scope,
     command: &str,
     args: Option<&[String]>,
@@ -506,10 +501,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         Stdio::inherit()
       })
       .stdout(Stdio::piped());
-
-    for (key, value) in env {
-      cmd.env(key, value);
-    }
 
     cmd.output_guard_stdout()
   }
@@ -549,7 +540,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     recipe: &Recipe<'src>,
     scope: &'run Scope<'src, 'run>,
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>)> {
-    let mut evaluator = Self::new(context, BTreeMap::new(), is_dependency, scope);
+    let mut evaluator = Self::new(context, is_dependency, scope);
 
     let mut positional = Vec::new();
 
@@ -603,14 +594,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
   pub(crate) fn new(
     context: &ExecutionContext<'src, 'run>,
-    env: BTreeMap<String, String>,
     is_dependency: bool,
     scope: &'run Scope<'src, 'run>,
   ) -> Self {
     Self {
       assignments: None,
       context: Some(*context),
-      env,
       is_dependency,
       non_const_assignments: Table::new(),
       overrides: context.overrides,

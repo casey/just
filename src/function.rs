@@ -568,7 +568,6 @@ fn sha256_file(context: Context, path: &str) -> FunctionResult {
 fn shell(context: Context, command: &str, args: &[String]) -> FunctionResult {
   Evaluator::run_command(
     context.execution_context,
-    &BTreeMap::new(),
     context.scope,
     command,
     Some(args),
