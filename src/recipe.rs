@@ -222,7 +222,7 @@ impl<'src> Recipe<'src> {
     self.attributes.contains(AttributeDiscriminant::NoQuiet)
   }
 
-  fn evaluate_env_attributes<'run>(
+  fn evaluate_env<'run>(
     &self,
     evaluator: &mut Evaluator<'src, 'run>,
   ) -> RunResult<'src, Vec<(String, String)>> {
@@ -314,7 +314,7 @@ impl<'src> Recipe<'src> {
     let mut line_number = self.line_number() + 1;
 
     let working_directory = self.working_directory(context, &mut evaluator)?;
-    let env = self.evaluate_env_attributes(&mut evaluator)?;
+    let env = self.evaluate_env(&mut evaluator)?;
 
     loop {
       let Some(line) = lines.peek() else {
@@ -573,7 +573,7 @@ impl<'src> Recipe<'src> {
       &context.module.unexports,
     );
 
-    for (key, value) in self.evaluate_env_attributes(&mut evaluator)? {
+    for (key, value) in self.evaluate_env(&mut evaluator)? {
       command.env(key, value);
     }
 
