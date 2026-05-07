@@ -447,7 +447,7 @@ impl<'src> Justfile<'src> {
       search,
     };
 
-    let (outer, positional) = Evaluator::evaluate_parameters(
+    let (outer, positional, env) = Evaluator::evaluate_parameters(
       arguments,
       &context,
       is_dependency,
@@ -458,7 +458,7 @@ impl<'src> Justfile<'src> {
 
     let scope = outer.child();
 
-    let mut evaluator = Evaluator::new(&context, true, &scope);
+    let mut evaluator = Evaluator::new(&context, BTreeMap::new(), true, &scope);
 
     if !config.yes && !recipe.confirm(&mut evaluator)? {
       return Err(Error::NotConfirmed {
@@ -478,7 +478,7 @@ impl<'src> Justfile<'src> {
       search,
     )?;
 
-    recipe.run(&context, &scope, &positional, is_dependency)?;
+    recipe.run(&context, &scope, &positional, is_dependency, &env)?;
 
     Self::run_dependencies(
       config,

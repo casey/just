@@ -363,18 +363,59 @@ fn env_attribute_with_expression() {
 }
 
 #[test]
-fn env_attribute_with_recipe_parameter() {
+fn env_attribute_in_recipe_params() {
+  Test::new()
+    .justfile(
+      "
+        [env('foo', 'bar')]
+        baz x=`echo ${foo}.txt`:
+            @echo {{x}}
+      ",
+    )
+    .stdout("bar.txt\n")
+    .success();
+}
+
+#[test]
+fn env_attribute_value_cannot_reference_parameter() {
   Test::new()
     .justfile(
       "
         [env('TARGET', target)]
         deploy target:
-          @echo deploying to $TARGET
       ",
     )
-    .args(["deploy", "staging"])
-    .stdout("deploying to staging\n")
-    .success();
+    .stderr(
+      "
+        error: variable `target` not defined
+         ——▶ justfile:1:16
+          │
+        1 │ [env('TARGET', target)]
+          │                ^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn env_attribute_name_cannot_reference_parameter() {
+  Test::new()
+    .justfile(
+      "
+        [env(name, 'value')]
+        foo name:
+      ",
+    )
+    .stderr(
+      "
+        error: variable `name` not defined
+         ——▶ justfile:1:6
+          │
+        1 │ [env(name, 'value')]
+          │      ^^^^
+      ",
+    )
+    .failure();
 }
 
 #[test]

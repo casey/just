@@ -222,35 +222,13 @@ impl<'src> Recipe<'src> {
     self.attributes.contains(AttributeDiscriminant::NoQuiet)
   }
 
-  fn evaluate_env<'run>(
-    &self,
-    evaluator: &mut Evaluator<'src, 'run>,
-  ) -> RunResult<'src, Vec<(String, String)>> {
-    self
-      .attributes
-      .iter()
-      .filter_map(|attribute| {
-        if let Attribute::Env(key, value) = attribute {
-          Some((key, value))
-        } else {
-          None
-        }
-      })
-      .map(|(key, value)| {
-        Ok((
-          evaluator.evaluate_expression(key)?,
-          evaluator.evaluate_expression(value)?,
-        ))
-      })
-      .collect()
-  }
-
   pub(crate) fn run<'run>(
     &self,
     context: &ExecutionContext<'src, 'run>,
     scope: &Scope<'src, 'run>,
     positional: &[String],
     is_dependency: bool,
+    env: &BTreeMap<String, String>,
   ) -> RunResult<'src> {
     let color = context.config.color.stderr().banner();
     let prefix = color.prefix();
@@ -269,13 +247,13 @@ impl<'src> Recipe<'src> {
       }
     }
 
-    let evaluator = Evaluator::new(context, is_dependency, scope);
+    let evaluator = Evaluator::new(context, BTreeMap::new(), is_dependency, scope);
 
     let start = Instant::now();
     let result = if self.is_script() {
-      self.run_script(context, scope, positional, evaluator)
+      self.run_script(context, scope, positional, evaluator, env)
     } else {
-      self.run_linewise(context, scope, positional, evaluator)
+      self.run_linewise(context, scope, positional, evaluator, env)
     };
     let elapsed = start.elapsed();
 
@@ -306,6 +284,7 @@ impl<'src> Recipe<'src> {
     scope: &Scope<'src, 'run>,
     positional: &[String],
     mut evaluator: Evaluator<'src, 'run>,
+    env: &BTreeMap<String, String>,
   ) -> RunResult<'src> {
     let config = &context.config;
     let settings = &context.module.settings;
@@ -314,7 +293,6 @@ impl<'src> Recipe<'src> {
     let mut line_number = self.line_number() + 1;
 
     let working_directory = self.working_directory(context, &mut evaluator)?;
-    let env = self.evaluate_env(&mut evaluator)?;
 
     loop {
       let Some(line) = lines.peek() else {
@@ -405,7 +383,7 @@ impl<'src> Recipe<'src> {
 
       cmd.export(settings, context.dotenv, scope, &context.module.unexports);
 
-      for (key, value) in &env {
+      for (key, value) in env {
         cmd.env(key, value);
       }
 
@@ -466,6 +444,7 @@ impl<'src> Recipe<'src> {
     scope: &Scope<'src, 'run>,
     positional: &[String],
     mut evaluator: Evaluator<'src, 'run>,
+    env: &BTreeMap<String, String>,
   ) -> RunResult<'src> {
     let config = &context.config;
 
@@ -573,7 +552,7 @@ impl<'src> Recipe<'src> {
       &context.module.unexports,
     );
 
-    for (key, value) in self.evaluate_env(&mut evaluator)? {
+    for (key, value) in env {
       command.env(key, value);
     }
 
