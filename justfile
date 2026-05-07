@@ -119,7 +119,8 @@ install-dev-deps:
   cargo +nightly install cargo-fuzz
   cargo install cargo-check
   cargo install cargo-watch
-  cargo install mdbook mdbook-linkcheck
+  cargo install --locked mdbook@0.4.52
+  cargo install --locked mdbook-linkcheck@0.7.7
 
 # everyone's favorite animate paper clip
 [group: 'check']
