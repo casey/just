@@ -23,8 +23,6 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) shebang: bool,
   #[serde(skip)]
   pub(crate) variable_references: HashSet<Number>,
-  #[serde(skip)]
-  pub(crate) working_directory: Option<String>,
 }
 
 impl<'src, D> Recipe<'src, D> {
@@ -198,18 +196,26 @@ impl<'src> Recipe<'src> {
     }
   }
 
-  fn working_directory<'a>(&'a self, context: &'a ExecutionContext) -> Option<PathBuf> {
+  fn working_directory<'a, 'run>(
+    &'a self,
+    context: &'a ExecutionContext,
+    evaluator: &mut Evaluator<'src, 'run>,
+  ) -> RunResult<'src, Option<PathBuf>> {
     if !self.change_directory(&context.module.settings) {
-      return None;
+      return Ok(None);
     }
 
     let working_directory = context.working_directory();
 
-    if let Some(attribute) = &self.working_directory {
-      return Some(working_directory.join(attribute));
+    for attribute in &self.attributes {
+      if let Attribute::WorkingDirectory(expression) = attribute {
+        return Ok(Some(
+          working_directory.join(&evaluator.evaluate_expression(expression)?),
+        ));
+      }
     }
 
-    Some(working_directory)
+    Ok(Some(working_directory))
   }
 
   fn no_quiet(&self) -> bool {
@@ -283,6 +289,9 @@ impl<'src> Recipe<'src> {
 
     let mut lines = self.body.iter().peekable();
     let mut line_number = self.line_number() + 1;
+
+    let working_directory = self.working_directory(context, &mut evaluator)?;
+
     loop {
       let Some(line) = lines.peek() else {
         return Ok(());
@@ -354,7 +363,7 @@ impl<'src> Recipe<'src> {
 
       let mut cmd = settings.shell_command(config);
 
-      if let Some(working_directory) = self.working_directory(context) {
+      if let Some(working_directory) = &working_directory {
         cmd.current_dir(working_directory);
       }
 
@@ -528,7 +537,7 @@ impl<'src> Recipe<'src> {
       config,
       &path,
       self.name(),
-      self.working_directory(context).as_deref(),
+      self.working_directory(context, &mut evaluator)?.as_deref(),
     )?;
 
     if self.takes_positional_arguments(&context.module.settings) {

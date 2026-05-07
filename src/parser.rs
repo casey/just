@@ -1278,7 +1278,6 @@ impl<'run, 'src> Parser<'run, 'src> {
       recipe_path: None,
       shebang: shebang || script,
       variable_references: HashSet::new(),
-      working_directory: None,
     })
   }
 
