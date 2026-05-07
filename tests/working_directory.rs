@@ -427,3 +427,153 @@ fn setting_and_attribute() {
     .expect_file("foo/bar/fred", "bob\n")
     .success();
 }
+
+#[test]
+fn attribute_with_expression() {
+  Test::new()
+    .justfile(
+      "
+        dir := 'foo'
+
+        [working-directory(dir + '-bar')]
+        @baz:
+          echo bob > fred
+      ",
+    )
+    .create_dir("foo-bar")
+    .expect_file("foo-bar/fred", "bob\n")
+    .success();
+}
+
+#[test]
+fn attribute_with_recipe_parameter() {
+  Test::new()
+    .justfile(
+      "
+        [working-directory(target)]
+        @baz target:
+          echo bob > fred
+      ",
+    )
+    .create_dir("foo")
+    .args(["baz", "foo"])
+    .expect_file("foo/fred", "bob\n")
+    .success();
+}
+
+#[test]
+fn attribute_with_backtick() {
+  Test::new()
+    .justfile(
+      "
+        [working-directory(`echo foo`)]
+        @baz:
+          echo bob > fred
+      ",
+    )
+    .create_dir("foo")
+    .expect_file("foo/fred", "bob\n")
+    .success();
+}
+
+#[test]
+fn attribute_with_function_call() {
+  Test::new()
+    .justfile(
+      "
+        [working-directory(parent_directory('foo/bar'))]
+        @baz:
+          echo bob > fred
+      ",
+    )
+    .create_dir("foo")
+    .expect_file("foo/fred", "bob\n")
+    .success();
+}
+
+#[test]
+fn attribute_with_expression_in_submodule_is_relative_to_module_path() {
+  Test::new()
+    .write(
+      "foo/mod.just",
+      "
+dir := 'bar'
+
+[working-directory(dir + '-baz')]
+@foo:
+  cat file.txt
+",
+    )
+    .justfile("mod foo")
+    .write("foo/bar-baz/file.txt", "FILE")
+    .arg("foo")
+    .stdout("FILE")
+    .success();
+}
+
+#[test]
+fn attribute_with_expression_dump() {
+  Test::new()
+    .justfile(
+      "
+        dir := 'foo'
+
+        [working-directory(dir + '-bar')]
+        baz:
+          echo bob
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        dir := 'foo'
+
+        [working-directory(dir + '-bar')]
+        baz:
+            echo bob
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn attribute_undefined_variable() {
+  Test::new()
+    .justfile(
+      "
+        [working-directory(x)]
+        foo:
+      ",
+    )
+    .stderr(
+      "
+        error: variable `x` not defined
+         ——▶ justfile:1:20
+          │
+        1 │ [working-directory(x)]
+          │                    ^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn attribute_undefined_function() {
+  Test::new()
+    .justfile(
+      "
+        [working-directory(foo())]
+        bar:
+      ",
+    )
+    .stderr(
+      "
+        error: call to undefined function `foo`
+         ——▶ justfile:1:20
+          │
+        1 │ [working-directory(foo())]
+          │                    ^^^
+      ",
+    )
+    .failure();
+}
