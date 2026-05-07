@@ -1,7 +1,8 @@
 #[allow(clippy::arbitrary_source_item_ordering)]
-#[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
+#[derive(Copy, Clone, Debug, Default, PartialEq, PartialOrd)]
 pub(crate) enum Verbosity {
   Quiet,
+  #[default]
   Taciturn,
   Loquacious,
   Grandiloquent,
@@ -34,11 +35,5 @@ impl Verbosity {
 
   pub(crate) const fn default() -> Self {
     Self::Taciturn
-  }
-}
-
-impl Default for Verbosity {
-  fn default() -> Self {
-    Self::default()
   }
 }

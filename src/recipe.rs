@@ -46,14 +46,13 @@ impl<'src, D> Recipe<'src, D> {
       && !netbsd
       && !unix
       && !android)
-      || (cfg!(target_os = "android") && (android || unix))
-      || (cfg!(target_os = "dragonfly") && (dragonfly || unix))
-      || (cfg!(target_os = "freebsd") && (freebsd || unix))
-      || (cfg!(target_os = "linux") && (linux || unix))
-      || (cfg!(target_os = "macos") && (macos || unix))
-      || (cfg!(target_os = "netbsd") && (netbsd || unix))
-      || (cfg!(target_os = "openbsd") && (openbsd || unix))
-      || (cfg!(target_os = "windows") && windows)
+      || (cfg!(target_os = "android") && android)
+      || (cfg!(target_os = "dragonfly") && dragonfly)
+      || (cfg!(target_os = "freebsd") && freebsd)
+      || (cfg!(target_os = "linux") && linux)
+      || (cfg!(target_os = "macos") && macos)
+      || (cfg!(target_os = "netbsd") && netbsd)
+      || (cfg!(target_os = "openbsd") && openbsd)
       || (cfg!(unix) && unix)
       || (cfg!(windows) && windows)
   }
