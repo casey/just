@@ -430,12 +430,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1aaf95b3e5c8f23aa320147307562d361db0ae0d51242340f558153b4eb2439b"
 
 [[package]]
-name = "edit-distance"
-version = "2.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "324d428080b707bac399325341bd61af5ded1b30f33b7c949792ca464733c2d5"
-
-[[package]]
 name = "equivalent"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -641,7 +635,6 @@ dependencies = [
  "ctrlc",
  "dirs",
  "dotenvy",
- "edit-distance",
  "heck",
  "is_executable",
  "lexiclean",
@@ -652,7 +645,6 @@ dependencies = [
  "pretty_assertions",
  "rand",
  "regex",
- "rustversion",
  "semver",
  "serde",
  "serde_json",
@@ -660,8 +652,8 @@ dependencies = [
  "shellexpand",
  "similar",
  "snafu",
+ "strsim",
  "strum",
- "target",
  "tempfile",
  "temptree",
  "typed-arena",
@@ -1169,12 +1161,6 @@ dependencies = [
  "quote",
  "syn",
 ]
-
-[[package]]
-name = "target"
-version = "2.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e8f05f774b2db35bdad5a8237a90be1102669f8ea013fea9777b366d34ab145"
 
 [[package]]
 name = "tempfile"

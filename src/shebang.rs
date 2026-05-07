@@ -6,11 +6,8 @@ pub(crate) struct Shebang<'line> {
 
 impl<'line> Shebang<'line> {
   pub(crate) fn new(line: &'line str) -> Option<Self> {
-    if !line.starts_with("#!") {
-      return None;
-    }
-
-    let mut pieces = line[2..]
+    let mut pieces = line
+      .strip_prefix("#!")?
       .lines()
       .next()
       .unwrap_or("")

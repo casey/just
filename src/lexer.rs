@@ -324,17 +324,14 @@ impl<'src> Lexer<'src> {
 
     use Indentation::*;
 
-    let nonblank_index = self
-      .rest()
-      .char_indices()
-      .skip_while(|&(_, c)| c == ' ' || c == '\t')
-      .map(|(i, _)| i)
-      .next()
-      .unwrap_or_else(|| self.rest().len());
+    let line = self.rest();
+    let nonblank_index = line
+      .find(|c| !matches!(c, ' ' | '\t'))
+      .unwrap_or(line.len());
 
-    let rest = &self.rest()[nonblank_index..];
+    let rest = &line[nonblank_index..];
 
-    let whitespace = &self.rest()[..nonblank_index];
+    let whitespace = &line[..nonblank_index];
 
     if self.open_delimiters_or_interpolation() {
       if !whitespace.is_empty() {

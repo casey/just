@@ -404,7 +404,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       let item = self.parse_item(&mut attributes)?;
       self.items.push(item);
 
-      let unterminated = match self.items.iter().last().unwrap() {
+      let unterminated = match self.items.last().unwrap() {
         Item::Newline => false,
         Item::Recipe(recipe) => {
           if recipe.body.is_empty() {
@@ -1201,7 +1201,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     self.expect(Colon)?;
 
-    if let Some((argument, ArgAttribute { name, .. })) = arg_attributes.into_iter().next() {
+    if let Some((argument, ArgAttribute { name, .. })) = arg_attributes.pop_first() {
       return Err(name.error(CompileErrorKind::UndefinedArgAttribute { argument }));
     }
 

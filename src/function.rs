@@ -156,7 +156,7 @@ fn append(_context: Context, suffix: &str, s: &str) -> FunctionResult {
 }
 
 fn arch(_context: Context) -> FunctionResult {
-  Ok(target::arch().to_owned())
+  Ok(env::consts::ARCH.to_owned())
 }
 
 fn blake3(_context: Context, s: &str) -> FunctionResult {
@@ -488,11 +488,11 @@ fn num_cpus(_context: Context) -> FunctionResult {
 }
 
 fn os(_context: Context) -> FunctionResult {
-  Ok(target::os().to_owned())
+  Ok(env::consts::OS.to_owned())
 }
 
 fn os_family(_context: Context) -> FunctionResult {
-  Ok(target::family().to_owned())
+  Ok(env::consts::FAMILY.to_owned())
 }
 
 fn parent_directory(_context: Context, path: &str) -> FunctionResult {

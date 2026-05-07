@@ -12,9 +12,9 @@ fn test_os_arch_functions_in_interpolation() {
     .stdout(
       format!(
         "{} {} {} {}\n",
-        target::arch(),
-        target::os(),
-        target::family(),
+        env::consts::ARCH,
+        env::consts::OS,
+        env::consts::FAMILY,
         num_cpus::get()
       )
       .as_str(),
@@ -22,9 +22,9 @@ fn test_os_arch_functions_in_interpolation() {
     .stderr(
       format!(
         "echo {} {} {} {}\n",
-        target::arch(),
-        target::os(),
-        target::family(),
+        env::consts::ARCH,
+        env::consts::OS,
+        env::consts::FAMILY,
         num_cpus::get()
       )
       .as_str(),
@@ -49,9 +49,9 @@ fn test_os_arch_functions_in_expression() {
     .stdout(
       format!(
         "{} {} {} {}\n",
-        target::arch(),
-        target::os(),
-        target::family(),
+        env::consts::ARCH,
+        env::consts::OS,
+        env::consts::FAMILY,
         num_cpus::get()
       )
       .as_str(),
@@ -59,9 +59,9 @@ fn test_os_arch_functions_in_expression() {
     .stderr(
       format!(
         "echo {} {} {} {}\n",
-        target::arch(),
-        target::os(),
-        target::family(),
+        env::consts::ARCH,
+        env::consts::OS,
+        env::consts::FAMILY,
         num_cpus::get()
       )
       .as_str(),
@@ -413,9 +413,9 @@ fn test_os_arch_functions_in_default() {
     .stdout(
       format!(
         "{} {} {} {}\n",
-        target::arch(),
-        target::os(),
-        target::family(),
+        env::consts::ARCH,
+        env::consts::OS,
+        env::consts::FAMILY,
         num_cpus::get()
       )
       .as_str(),
@@ -423,9 +423,9 @@ fn test_os_arch_functions_in_default() {
     .stderr(
       format!(
         "echo {} {} {} {}\n",
-        target::arch(),
-        target::os(),
-        target::family(),
+        env::consts::ARCH,
+        env::consts::OS,
+        env::consts::FAMILY,
         num_cpus::get()
       )
       .as_str(),

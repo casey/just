@@ -206,7 +206,7 @@ impl Compiler {
         module,
       })
     } else {
-      Ok(found.into_iter().next())
+      Ok(found.pop())
     }
   }
 
