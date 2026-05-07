@@ -363,6 +363,39 @@ fn env_attribute_with_expression() {
 }
 
 #[test]
+fn env_attribute_name_with_expression() {
+  Test::new()
+    .justfile(
+      "
+        prefix := 'MY_'
+
+        [env(prefix + 'VAR', 'value')]
+        foo:
+          @echo $MY_VAR
+      ",
+    )
+    .stdout("value\n")
+    .success();
+}
+
+#[test]
+fn env_attribute_with_expression_in_script() {
+  Test::new()
+    .justfile(
+      "
+        suffix := 'world'
+
+        [env('GREETING', 'hello ' + suffix)]
+        foo:
+          #!/bin/sh
+          echo $GREETING
+      ",
+    )
+    .stdout("hello world\n")
+    .success();
+}
+
+#[test]
 fn env_attribute_in_recipe_params() {
   Test::new()
     .justfile(
