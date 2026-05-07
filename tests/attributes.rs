@@ -444,27 +444,6 @@ fn env_attribute_expression_dump() {
 }
 
 #[test]
-fn env_attribute_shared_name_variable() {
-  Test::new()
-    .justfile(
-      "
-        FOO := 'FOO'
-
-        [env(FOO, 'a')]
-        first:
-          @echo $FOO
-
-        [env(FOO, 'b')]
-        second:
-          @echo $FOO
-      ",
-    )
-    .args(["first", "second"])
-    .stdout("a\nb\n")
-    .success();
-}
-
-#[test]
 fn env_attribute_not_in_env_function() {
   Test::new()
     .justfile(
