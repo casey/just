@@ -140,10 +140,10 @@ impl<'src> Attribute<'src> {
           arguments.into_iter().next().map(|(_, expr)| expr),
         )),
         AttributeDiscriminant::Env => {
-          let mut iter = arguments.into_iter();
-          let (_, key_expression) = iter.next().unwrap();
-          let (_, value_expression) = iter.next().unwrap();
-          Ok(Self::Env(key_expression, value_expression))
+          let mut arguments = arguments.into_iter();
+          let (_, key) = arguments.next().unwrap();
+          let (_, value) = arguments.next().unwrap();
+          Ok(Self::Env(key, value))
         }
         AttributeDiscriminant::WorkingDirectory => Ok(Self::WorkingDirectory(
           arguments.into_iter().next().map(|(_, expr)| expr).unwrap(),
