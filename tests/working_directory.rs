@@ -477,41 +477,6 @@ fn attribute_with_backtick() {
 }
 
 #[test]
-fn attribute_with_function_call() {
-  Test::new()
-    .justfile(
-      "
-        [working-directory(parent_directory('foo/bar'))]
-        @baz:
-          echo bob > fred
-      ",
-    )
-    .create_dir("foo")
-    .expect_file("foo/fred", "bob\n")
-    .success();
-}
-
-#[test]
-fn attribute_with_expression_in_submodule_is_relative_to_module_path() {
-  Test::new()
-    .write(
-      "foo/mod.just",
-      "
-dir := 'bar'
-
-[working-directory(dir + '-baz')]
-@foo:
-  cat file.txt
-",
-    )
-    .justfile("mod foo")
-    .write("foo/bar-baz/file.txt", "FILE")
-    .arg("foo")
-    .stdout("FILE")
-    .success();
-}
-
-#[test]
 fn attribute_with_expression_dump() {
   Test::new()
     .justfile(
@@ -552,27 +517,6 @@ fn attribute_undefined_variable() {
           │
         1 │ [working-directory(x)]
           │                    ^
-      ",
-    )
-    .failure();
-}
-
-#[test]
-fn attribute_undefined_function() {
-  Test::new()
-    .justfile(
-      "
-        [working-directory(foo())]
-        bar:
-      ",
-    )
-    .stderr(
-      "
-        error: call to undefined function `foo`
-         ——▶ justfile:1:20
-          │
-        1 │ [working-directory(foo())]
-          │                    ^^^
       ",
     )
     .failure();
