@@ -225,10 +225,10 @@ impl<'src> Recipe<'src> {
   pub(crate) fn run<'run>(
     &self,
     context: &ExecutionContext<'src, 'run>,
-    scope: &Scope<'src, 'run>,
-    positional: &[String],
-    is_dependency: bool,
     env: &BTreeMap<String, String>,
+    is_dependency: bool,
+    positional: &[String],
+    scope: &Scope<'src, 'run>,
   ) -> RunResult<'src> {
     let color = context.config.color.stderr().banner();
     let prefix = color.prefix();
@@ -281,10 +281,10 @@ impl<'src> Recipe<'src> {
   fn run_linewise<'run>(
     &self,
     context: &ExecutionContext<'src, 'run>,
-    scope: &Scope<'src, 'run>,
-    positional: &[String],
-    mut evaluator: Evaluator<'src, 'run>,
     env: &BTreeMap<String, String>,
+    mut evaluator: Evaluator<'src, 'run>,
+    positional: &[String],
+    scope: &Scope<'src, 'run>,
   ) -> RunResult<'src> {
     let config = &context.config;
     let settings = &context.module.settings;
@@ -441,10 +441,10 @@ impl<'src> Recipe<'src> {
   pub(crate) fn run_script<'run>(
     &self,
     context: &ExecutionContext<'src, 'run>,
-    scope: &Scope<'src, 'run>,
-    positional: &[String],
-    mut evaluator: Evaluator<'src, 'run>,
     env: &BTreeMap<String, String>,
+    mut evaluator: Evaluator<'src, 'run>,
+    positional: &[String],
+    scope: &Scope<'src, 'run>,
   ) -> RunResult<'src> {
     let config = &context.config;
 

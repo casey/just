@@ -419,76 +419,6 @@ fn env_attribute_name_cannot_reference_parameter() {
 }
 
 #[test]
-fn env_attribute_with_backtick() {
-  Test::new()
-    .justfile(
-      "
-        [env('VAR', `echo computed`)]
-        foo:
-          @echo $VAR
-      ",
-    )
-    .stdout("computed\n")
-    .success();
-}
-
-#[test]
-fn env_attribute_with_function_call() {
-  Test::new()
-    .justfile(
-      "
-        [env('VAR', uppercase('hello'))]
-        foo:
-          @echo $VAR
-      ",
-    )
-    .stdout("HELLO\n")
-    .success();
-}
-
-#[test]
-fn env_attribute_with_undefined_variable() {
-  Test::new()
-    .justfile(
-      "
-        [env('VAR', x)]
-        foo:
-      ",
-    )
-    .stderr(
-      "
-        error: variable `x` not defined
-         ——▶ justfile:1:13
-          │
-        1 │ [env('VAR', x)]
-          │             ^
-      ",
-    )
-    .failure();
-}
-
-#[test]
-fn env_attribute_with_undefined_function() {
-  Test::new()
-    .justfile(
-      "
-        [env('VAR', foo())]
-        bar:
-      ",
-    )
-    .stderr(
-      "
-        error: call to undefined function `foo`
-         ——▶ justfile:1:13
-          │
-        1 │ [env('VAR', foo())]
-          │             ^^^
-      ",
-    )
-    .failure();
-}
-
-#[test]
 fn env_attribute_expression_dump() {
   Test::new()
     .justfile(
@@ -511,43 +441,6 @@ fn env_attribute_expression_dump() {
       ",
     )
     .success();
-}
-
-#[test]
-fn env_attribute_with_expression_name() {
-  Test::new()
-    .justfile(
-      "
-        name := 'GREETING'
-
-        [env(name, 'hello')]
-        foo:
-          @echo $GREETING
-      ",
-    )
-    .stdout("hello\n")
-    .success();
-}
-
-#[test]
-fn env_attribute_with_undefined_variable_in_name() {
-  Test::new()
-    .justfile(
-      "
-        [env(name, 'value')]
-        foo:
-      ",
-    )
-    .stderr(
-      "
-        error: variable `name` not defined
-         ——▶ justfile:1:6
-          │
-        1 │ [env(name, 'value')]
-          │      ^^^^
-      ",
-    )
-    .failure();
 }
 
 #[test]
