@@ -9,12 +9,12 @@ log := "warn"
 export JUST_LOG := log
 
 [group: 'dev']
-watch +args='test':
+watch +args='ltest':
   cargo watch --clear --exec '{{ args }}'
 
 [group: 'test']
 test:
-  cargo test --all
+  cargo ltest --all
 
 [group: 'check']
 ci: test clippy build-book forbid
@@ -27,16 +27,16 @@ fuzz:
 
 [group: 'misc']
 run:
-  cargo run
+  cargo lrun
 
 # only run tests matching `PATTERN`
 [group: 'test']
 filter PATTERN:
-  cargo test {{PATTERN}}
+  cargo ltest {{PATTERN}}
 
 [group: 'misc']
 build:
-  cargo build
+  cargo lbuild
 
 [group: 'misc']
 fmt:
@@ -49,7 +49,7 @@ shellcheck:
 [group: 'doc']
 man:
   mkdir -p man
-  cargo run -- --man > man/just.1
+  cargo lrun -- --man > man/just.1
 
 [group: 'doc']
 view-man: man
@@ -63,11 +63,11 @@ update-changelog:
 
 [group: 'release']
 update-contributors:
-  cargo run --release --package update-contributors
+  cargo lrun --release --package update-contributors
 
 [group: 'check']
 action-versions:
-  cargo run --package action-versions
+  cargo lrun --package action-versions
 
 [group: 'check']
 outdated:
@@ -117,7 +117,7 @@ install-dev-deps:
   rustup install nightly
   rustup update nightly
   cargo +nightly install cargo-fuzz
-  cargo install cargo-check
+  cargo install cargo-limit
   cargo install cargo-watch
   cargo install --locked mdbook@0.4.52
   cargo install --locked mdbook-linkcheck@0.7.7
@@ -125,7 +125,7 @@ install-dev-deps:
 # everyone's favorite animate paper clip
 [group: 'check']
 clippy:
-  cargo clippy --all --all-targets --all-features -- --deny warnings
+  cargo lclippy --all --all-targets --all-features -- --deny warnings
 
 [group: 'check']
 forbid:
@@ -137,7 +137,7 @@ replace FROM TO:
 
 [group: 'demo']
 test-quine:
-  cargo run -- quine
+  cargo lrun -- quine
 
 # make a quine, compile it, and verify it
 [group: 'demo']
@@ -170,13 +170,13 @@ quine-text := '
 
 [group: 'check']
 build-book:
-  cargo run --package generate-book
+  cargo lrun --package generate-book
   mdbook build book/en
   mdbook build book/zh
 
 [group: 'dev']
 print-readme-constants-table:
-  cargo test constants::tests::readme_table -- --nocapture
+  cargo ltest constants::tests::readme_table -- --nocapture
 
 # run all polyglot recipes
 [group: 'demo']
@@ -225,7 +225,7 @@ test-completions:
   #!/usr/bin/env bash
   rm -rf tmp/complete
   mkdir -p tmp/complete/bin
-  cargo build
+  cargo lbuild
   cp target/debug/just tmp/complete/bin
   ./tmp/complete/bin/just --completions bash > tmp/complete/just.bash
   cat > tmp/complete/justfile << EOF
