@@ -129,12 +129,6 @@ impl Display for CompileError<'_> {
         first.ordinal(),
         self.token.line.ordinal(),
       ),
-      DuplicateEnvAttribute { variable, first } => write!(
-        f,
-        "environment variable `{variable}` first set on line {} is set again on line {}",
-        first.ordinal(),
-        self.token.line.ordinal(),
-      ),
       DuplicateDefault { recipe } => write!(
         f,
         "recipe `{recipe}` has duplicate `[default]` attribute, which may only appear once per module",

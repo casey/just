@@ -56,6 +56,22 @@ impl<'src> UnresolvedRecipe<'src> {
             &mut variable_references,
           )?;
         }
+        Attribute::Env(key, value) => {
+          Self::resolve_expression(
+            assignments,
+            key,
+            functions,
+            &self.parameters,
+            &mut variable_references,
+          )?;
+          Self::resolve_expression(
+            assignments,
+            value,
+            functions,
+            &self.parameters,
+            &mut variable_references,
+          )?;
+        }
         _ => {}
       }
     }

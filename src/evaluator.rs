@@ -549,19 +549,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     recipe: &Recipe<'src>,
     scope: &'run Scope<'src, 'run>,
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>)> {
-    let env = recipe
-      .attributes
-      .iter()
-      .filter_map(|attribute| {
-        if let Attribute::Env(key, value) = attribute {
-          Some((key.cooked.clone(), value.cooked.clone()))
-        } else {
-          None
-        }
-      })
-      .collect();
-
-    let mut evaluator = Self::new(context, env, is_dependency, scope);
+    let mut evaluator = Self::new(context, BTreeMap::new(), is_dependency, scope);
 
     let mut positional = Vec::new();
 

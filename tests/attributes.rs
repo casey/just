@@ -347,16 +347,186 @@ fn env_attribute_multiple() {
 }
 
 #[test]
-fn env_attribute_in_recipe_params() {
+fn env_attribute_with_expression() {
   Test::new()
     .justfile(
       "
-        [env('foo', 'bar')]
-        baz x=`echo ${foo}.txt`:
-            @echo {{x}}
+        suffix := 'world'
+
+        [env('GREETING', 'hello ' + suffix)]
+        foo:
+          @echo $GREETING
       ",
     )
-    .stdout("bar.txt\n")
+    .stdout("hello world\n")
+    .success();
+}
+
+#[test]
+fn env_attribute_with_recipe_parameter() {
+  Test::new()
+    .justfile(
+      "
+        [env('TARGET', target)]
+        deploy target:
+          @echo deploying to $TARGET
+      ",
+    )
+    .args(["deploy", "staging"])
+    .stdout("deploying to staging\n")
+    .success();
+}
+
+#[test]
+fn env_attribute_with_backtick() {
+  Test::new()
+    .justfile(
+      "
+        [env('VAR', `echo computed`)]
+        foo:
+          @echo $VAR
+      ",
+    )
+    .stdout("computed\n")
+    .success();
+}
+
+#[test]
+fn env_attribute_with_function_call() {
+  Test::new()
+    .justfile(
+      "
+        [env('VAR', uppercase('hello'))]
+        foo:
+          @echo $VAR
+      ",
+    )
+    .stdout("HELLO\n")
+    .success();
+}
+
+#[test]
+fn env_attribute_with_undefined_variable() {
+  Test::new()
+    .justfile(
+      "
+        [env('VAR', x)]
+        foo:
+      ",
+    )
+    .stderr(
+      "
+        error: variable `x` not defined
+         ——▶ justfile:1:13
+          │
+        1 │ [env('VAR', x)]
+          │             ^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn env_attribute_with_undefined_function() {
+  Test::new()
+    .justfile(
+      "
+        [env('VAR', foo())]
+        bar:
+      ",
+    )
+    .stderr(
+      "
+        error: call to undefined function `foo`
+         ——▶ justfile:1:13
+          │
+        1 │ [env('VAR', foo())]
+          │             ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn env_attribute_expression_dump() {
+  Test::new()
+    .justfile(
+      "
+        suffix := 'world'
+
+        [env('GREETING', 'hello ' + suffix)]
+        foo:
+          echo $GREETING
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        suffix := 'world'
+
+        [env('GREETING', 'hello ' + suffix)]
+        foo:
+            echo $GREETING
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn env_attribute_with_expression_name() {
+  Test::new()
+    .justfile(
+      "
+        name := 'GREETING'
+
+        [env(name, 'hello')]
+        foo:
+          @echo $GREETING
+      ",
+    )
+    .stdout("hello\n")
+    .success();
+}
+
+#[test]
+fn env_attribute_with_undefined_variable_in_name() {
+  Test::new()
+    .justfile(
+      "
+        [env(name, 'value')]
+        foo:
+      ",
+    )
+    .stderr(
+      "
+        error: variable `name` not defined
+         ——▶ justfile:1:6
+          │
+        1 │ [env(name, 'value')]
+          │      ^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn env_attribute_shared_name_variable() {
+  Test::new()
+    .justfile(
+      "
+        FOO := 'FOO'
+
+        [env(FOO, 'a')]
+        first:
+          @echo $FOO
+
+        [env(FOO, 'b')]
+        second:
+          @echo $FOO
+      ",
+    )
+    .args(["first", "second"])
+    .stdout("a\nb\n")
     .success();
 }
 
@@ -462,7 +632,7 @@ fn env_attribute_overrides_export_in_script() {
 }
 
 #[test]
-fn env_attribute_duplicate_error() {
+fn env_attribute_duplicate_last_wins() {
   Test::new()
     .justfile(
       "
@@ -472,14 +642,6 @@ fn env_attribute_duplicate_error() {
           @echo $VAR1
       ",
     )
-    .stderr(
-      "
-        error: environment variable `VAR1` first set on line 1 is set again on line 2
-         ——▶ justfile:2:2
-          │
-        2 │ [env('VAR1', 'value 2')]
-          │  ^^^
-      ",
-    )
-    .failure();
+    .stdout("value 2\n")
+    .success();
 }

@@ -222,6 +222,29 @@ impl<'src> Recipe<'src> {
     self.attributes.contains(AttributeDiscriminant::NoQuiet)
   }
 
+  fn evaluate_env_attributes<'run>(
+    &self,
+    evaluator: &mut Evaluator<'src, 'run>,
+  ) -> RunResult<'src, Vec<(String, String)>> {
+    self
+      .attributes
+      .iter()
+      .filter_map(|attribute| {
+        if let Attribute::Env(key, value) = attribute {
+          Some((key, value))
+        } else {
+          None
+        }
+      })
+      .map(|(key, value)| {
+        Ok((
+          evaluator.evaluate_expression(key)?,
+          evaluator.evaluate_expression(value)?,
+        ))
+      })
+      .collect()
+  }
+
   pub(crate) fn run<'run>(
     &self,
     context: &ExecutionContext<'src, 'run>,
@@ -291,6 +314,7 @@ impl<'src> Recipe<'src> {
     let mut line_number = self.line_number() + 1;
 
     let working_directory = self.working_directory(context, &mut evaluator)?;
+    let env = self.evaluate_env_attributes(&mut evaluator)?;
 
     loop {
       let Some(line) = lines.peek() else {
@@ -381,10 +405,8 @@ impl<'src> Recipe<'src> {
 
       cmd.export(settings, context.dotenv, scope, &context.module.unexports);
 
-      for attribute in &self.attributes {
-        if let Attribute::Env(key, value) = attribute {
-          cmd.env(&key.cooked, &value.cooked);
-        }
+      for (key, value) in &env {
+        cmd.env(key, value);
       }
 
       let (result, caught) = cmd.status_guard();
@@ -551,10 +573,8 @@ impl<'src> Recipe<'src> {
       &context.module.unexports,
     );
 
-    for attribute in &self.attributes {
-      if let Attribute::Env(key, value) = attribute {
-        command.env(&key.cooked, &value.cooked);
-      }
+    for (key, value) in self.evaluate_env_attributes(&mut evaluator)? {
+      command.env(key, value);
     }
 
     // run it!

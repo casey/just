@@ -25,7 +25,7 @@ pub(crate) enum Attribute<'src> {
   Default,
   Doc(Option<StringLiteral<'src>>),
   Dragonfly,
-  Env(StringLiteral<'src>, StringLiteral<'src>),
+  Env(Expression<'src>, Expression<'src>),
   ExitMessage,
   Extension(StringLiteral<'src>),
   Freebsd,
@@ -49,7 +49,7 @@ pub(crate) enum Attribute<'src> {
 
 impl AttributeDiscriminant {
   fn accepts_expressions(self) -> bool {
-    matches!(self, Self::Confirm | Self::WorkingDirectory)
+    matches!(self, Self::Confirm | Self::Env | Self::WorkingDirectory)
   }
 
   pub(crate) fn accepts_keyword_arguments(self) -> bool {
@@ -139,6 +139,12 @@ impl<'src> Attribute<'src> {
         AttributeDiscriminant::Confirm => Ok(Self::Confirm(
           arguments.into_iter().next().map(|(_, expr)| expr),
         )),
+        AttributeDiscriminant::Env => {
+          let mut iter = arguments.into_iter();
+          let (_, key_expression) = iter.next().unwrap();
+          let (_, value_expression) = iter.next().unwrap();
+          Ok(Self::Env(key_expression, value_expression))
+        }
         AttributeDiscriminant::WorkingDirectory => Ok(Self::WorkingDirectory(
           arguments.into_iter().next().map(|(_, expr)| expr).unwrap(),
         )),
@@ -218,14 +224,12 @@ impl<'src> Attribute<'src> {
         }
       }
       AttributeDiscriminant::Android => Self::Android,
-      AttributeDiscriminant::Confirm | AttributeDiscriminant::WorkingDirectory => unreachable!(),
+      AttributeDiscriminant::Confirm
+      | AttributeDiscriminant::Env
+      | AttributeDiscriminant::WorkingDirectory => unreachable!(),
       AttributeDiscriminant::Default => Self::Default,
       AttributeDiscriminant::Doc => Self::Doc(arguments.into_iter().next()),
       AttributeDiscriminant::Dragonfly => Self::Dragonfly,
-      AttributeDiscriminant::Env => {
-        let [key, value]: [StringLiteral; 2] = arguments.try_into().unwrap();
-        Self::Env(key, value)
-      }
       AttributeDiscriminant::ExitMessage => Self::ExitMessage,
       AttributeDiscriminant::Extension => Self::Extension(arguments.into_iter().next().unwrap()),
       AttributeDiscriminant::Freebsd => Self::Freebsd,
