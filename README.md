@@ -990,7 +990,7 @@ $ just foo
 ```
 
 The argument to the `working-directory` setting or `working-directory`
-attribute may be an expression<sup>master</sup>, and may be absolute or
+attribute may be an expression<sup>master</sup> whose value is absolute or
 relative. If it is relative it is interpreted relative to the default working
 directory.
 
@@ -2371,7 +2371,7 @@ change their behavior.
 | `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
 | `[unix]`<sup>1.8.0</sup> | recipe | Enable recipe on unixes. (Includes macOS). |
 | `[windows]`<sup>1.8.0</sup> | recipe | Enable recipe on Windows. |
-| `[working-directory(PATH)]`<sup>1.38.0</sup> | recipe | Set recipe working directory. `PATH` may be an expression<sup>master</sup> and may be relative or absolute. If relative, it is interpreted relative to the default working directory. |
+| `[working-directory(PATH)]`<sup>1.38.0</sup> | recipe | Set recipe working directory. `PATH` may be an expression<sup>master</sup> whose value is relative or absolute. If relative, it is interpreted relative to the default working directory. |
 
 A recipe can have multiple attributes, either on multiple lines:
 
