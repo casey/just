@@ -122,6 +122,8 @@ impl<'src> UnresolvedRecipe<'src> {
       recipe_path: Some(recipe_path),
       shebang: self.shebang,
       variable_references,
+      // todo: evaluate
+      working_directory: None,
     })
   }
 

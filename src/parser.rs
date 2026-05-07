@@ -1271,13 +1271,14 @@ impl<'run, 'src> Parser<'run, 'src> {
       import_offsets: self.import_offsets.clone(),
       module_path: None,
       name,
-      recipe_path: None,
       parameters: positional.into_iter().chain(variadic).collect(),
       priors,
       private,
       quiet,
+      recipe_path: None,
       shebang: shebang || script,
       variable_references: HashSet::new(),
+      working_directory: None,
     })
   }
 

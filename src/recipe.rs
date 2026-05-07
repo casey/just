@@ -23,6 +23,8 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) shebang: bool,
   #[serde(skip)]
   pub(crate) variable_references: HashSet<Number>,
+  #[serde(skip)]
+  pub(crate) working_directory: Option<String>,
 }
 
 impl<'src, D> Recipe<'src, D> {
@@ -203,10 +205,8 @@ impl<'src> Recipe<'src> {
 
     let working_directory = context.working_directory();
 
-    for attribute in &self.attributes {
-      if let Attribute::WorkingDirectory(dir) = attribute {
-        return Some(working_directory.join(&dir.cooked));
-      }
+    if let Some(attribute) = &self.working_directory {
+      return Some(working_directory.join(attribute));
     }
 
     Some(working_directory)
