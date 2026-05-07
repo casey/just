@@ -251,9 +251,9 @@ impl<'src> Recipe<'src> {
 
     let start = Instant::now();
     let result = if self.is_script() {
-      self.run_script(context, scope, positional, evaluator, env)
+      self.run_script(context, env, evaluator, positional, scope)
     } else {
-      self.run_linewise(context, scope, positional, evaluator, env)
+      self.run_linewise(context, env, evaluator, positional, scope)
     };
     let elapsed = start.elapsed();
 

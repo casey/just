@@ -478,7 +478,7 @@ impl<'src> Justfile<'src> {
       search,
     )?;
 
-    recipe.run(&context, &scope, &positional, is_dependency, &env)?;
+    recipe.run(&context, &env, is_dependency, &positional, &scope)?;
 
     Self::run_dependencies(
       config,
