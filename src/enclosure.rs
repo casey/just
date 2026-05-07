@@ -1,22 +1,16 @@
 use super::*;
 
-pub(crate) struct Enclosure<T: Display> {
-  enclosure: &'static str,
-  value: T,
-}
+pub(crate) struct Enclosure<T: Display>(T);
 
 impl<T: Display> Enclosure<T> {
   pub(crate) fn tick(value: T) -> Self {
-    Self {
-      enclosure: "`",
-      value,
-    }
+    Self(value)
   }
 }
 
 impl<T: Display> Display for Enclosure<T> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    write!(f, "{}{}{}", self.enclosure, self.value, self.enclosure)
+    write!(f, "`{}`", self.0)
   }
 }
 

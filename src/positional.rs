@@ -37,34 +37,30 @@ pub(crate) struct Positional {
 }
 
 impl Positional {
-  pub(crate) fn from_values<'values>(
-    values: Option<impl IntoIterator<Item = &'values str>>,
-  ) -> Self {
+  pub(crate) fn from_values<'values>(values: impl IntoIterator<Item = &'values str>) -> Self {
     let mut overrides = Vec::new();
     let mut search_directory = None;
     let mut arguments = Vec::new();
 
-    if let Some(values) = values {
-      for value in values {
-        if search_directory.is_none() && arguments.is_empty() {
-          if let Some(o) = Self::override_from_value(value) {
-            overrides.push(o);
-          } else if value == "." || value == ".." {
-            search_directory = Some(value.to_owned());
-          } else if let Some(i) = value.rfind('/') {
-            let (dir, tail) = value.split_at(i + 1);
+    for value in values {
+      if search_directory.is_none() && arguments.is_empty() {
+        if let Some(o) = Self::override_from_value(value) {
+          overrides.push(o);
+        } else if value == "." || value == ".." {
+          search_directory = Some(value.to_owned());
+        } else if let Some(i) = value.rfind('/') {
+          let (dir, tail) = value.split_at(i + 1);
 
-            search_directory = Some(dir.to_owned());
+          search_directory = Some(dir.to_owned());
 
-            if !tail.is_empty() {
-              arguments.push(tail.to_owned());
-            }
-          } else {
-            arguments.push(value.to_owned());
+          if !tail.is_empty() {
+            arguments.push(tail.to_owned());
           }
         } else {
           arguments.push(value.to_owned());
         }
+      } else {
+        arguments.push(value.to_owned());
       }
     }
 
@@ -99,7 +95,7 @@ mod tests {
       #[test]
       fn $name() {
         assert_eq! (
-          Positional::from_values(Some($vals.iter().cloned())),
+          Positional::from_values($vals.iter().cloned()),
           Positional {
             overrides: $overrides
               .iter()

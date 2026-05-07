@@ -1,4 +1,4 @@
-use {super::*, std::path::Component};
+use super::*;
 
 const DEFAULT_JUSTFILE_NAME: &str = JUSTFILE_NAMES[0];
 pub(crate) const JUSTFILE_NAMES: [&str; 2] = ["justfile", ".justfile"];
@@ -235,7 +235,7 @@ impl Search {
 
       match candidates.len() {
         0 => {}
-        1 => return Ok(candidates.into_iter().next().unwrap()),
+        1 => return Ok(candidates.pop_first().unwrap()),
         _ => return Err(SearchError::MultipleCandidates { candidates }),
       }
 
@@ -250,21 +250,7 @@ impl Search {
   }
 
   fn clean(invocation_directory: &Path, path: &Path) -> PathBuf {
-    let path = invocation_directory.join(path);
-
-    let mut clean = Vec::new();
-
-    for component in path.components() {
-      if component == Component::ParentDir {
-        if let Some(Component::Normal(_)) = clean.last() {
-          clean.pop();
-        }
-      } else {
-        clean.push(component);
-      }
-    }
-
-    clean.into_iter().collect()
+    invocation_directory.join(path).lexiclean()
   }
 
   /// Search upwards from `directory` for the root directory of a software

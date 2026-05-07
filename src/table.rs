@@ -46,8 +46,7 @@ impl<'key, V: Keyed<'key>> Table<'key, V> {
   }
 
   pub(crate) fn pop(&mut self) -> Option<V> {
-    let key = self.map.keys().next().copied()?;
-    self.map.remove(key)
+    self.map.pop_first().map(|(_key, value)| value)
   }
 
   pub(crate) fn remove(&mut self, key: &str) -> Option<V> {

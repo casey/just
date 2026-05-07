@@ -18,7 +18,7 @@ pub(crate) enum SearchError {
   JustfileHadNoParent { path: PathBuf },
   #[snafu(display(
     "multiple candidate justfiles found in `{}`: {}",
-    candidates.iter().next().unwrap().parent().unwrap().display(),
+    candidates.first().unwrap().parent().unwrap().display(),
     List::and_ticked(
       candidates
         .iter()

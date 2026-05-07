@@ -1,28 +1,13 @@
 #[must_use]
 pub fn unindent(text: &str) -> String {
-  // find line start and end indices
-  let mut lines = Vec::new();
-  let mut start = 0;
-  for (i, c) in text.char_indices() {
-    if c == '\n' || i == text.len() - c.len_utf8() {
-      let end = i + c.len_utf8();
-      lines.push(&text[start..end]);
-      start = end;
-    }
-  }
+  let lines = text.split_inclusive('\n').collect::<Vec<&str>>();
 
   let common_indentation = lines
     .iter()
     .filter(|line| !blank(line))
     .copied()
     .map(indentation)
-    .fold(
-      None,
-      |common_indentation, line_indentation| match common_indentation {
-        Some(common_indentation) => Some(common(common_indentation, line_indentation)),
-        None => Some(line_indentation),
-      },
-    )
+    .reduce(common)
     .unwrap_or("");
 
   let mut replacements = Vec::with_capacity(lines.len());

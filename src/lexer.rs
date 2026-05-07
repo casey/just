@@ -326,11 +326,8 @@ impl<'src> Lexer<'src> {
 
     let nonblank_index = self
       .rest()
-      .char_indices()
-      .skip_while(|&(_, c)| c == ' ' || c == '\t')
-      .map(|(i, _)| i)
-      .next()
-      .unwrap_or_else(|| self.rest().len());
+      .find(|c| !matches!(c, ' ' | '\t'))
+      .unwrap_or(self.rest().len());
 
     let rest = &self.rest()[nonblank_index..];
 

@@ -122,25 +122,16 @@ impl Config {
     } else {
       match (justfile, working_directory) {
         (None, None) => Ok(SearchConfig::FromInvocationDirectory),
-        (Some(justfile), None) => {
+        (Some(justfile), working_directory) => {
           if justfile == Path::new(STANDARD_INPUT_ARGUMENT) {
-            Ok(SearchConfig::FromStandardInput {
-              working_directory: None,
-            })
-          } else {
-            Ok(SearchConfig::WithJustfile { justfile })
-          }
-        }
-        (Some(justfile), Some(working_directory)) => {
-          if justfile == Path::new(STANDARD_INPUT_ARGUMENT) {
-            Ok(SearchConfig::FromStandardInput {
-              working_directory: Some(working_directory),
-            })
-          } else {
+            Ok(SearchConfig::FromStandardInput { working_directory })
+          } else if let Some(working_directory) = working_directory {
             Ok(SearchConfig::WithJustfileAndWorkingDirectory {
               justfile,
               working_directory,
             })
+          } else {
+            Ok(SearchConfig::WithJustfile { justfile })
           }
         }
         (None, Some(_)) => Err(ConfigError::internal(
@@ -256,7 +247,7 @@ impl Config {
       );
     }
 
-    let positional = Positional::from_values(Some(arguments.arguments.iter().map(String::as_str)));
+    let positional = Positional::from_values(arguments.arguments.iter().map(String::as_str));
 
     for (path, value) in &positional.overrides {
       overrides.insert(Self::parse_override(path)?, value.into());
