@@ -325,6 +325,7 @@ impl<'src> Lexer<'src> {
     use Indentation::*;
 
     let line = self.rest();
+
     let nonblank_index = line
       .find(|c| !matches!(c, ' ' | '\t'))
       .unwrap_or(line.len());
