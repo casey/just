@@ -192,7 +192,7 @@ change their behavior.</p>
 <tr><td><code>[default]</code><sup>1.43.0</sup></td><td>recipe</td><td>Use recipe as module’s default recipe.</td></tr>
 <tr><td><code>[doc(DOC)]</code><sup>1.27.0</sup></td><td>module, recipe</td><td>Set recipe or module’s <a href="documentation-comments.html">documentation comment</a> to <code>DOC</code>.</td></tr>
 <tr><td><code>[dragonfly]</code><sup>1.47.0</sup></td><td>recipe</td><td>Enable recipe on DragonFly BSD.</td></tr>
-<tr><td><code>[env(ENV_VAR, VALUE)]</code> <sup>1.47.0</sup></td><td>recipe</td><td>Set environment variables for recipe.</td></tr>
+<tr><td><code>[env(NAME, VALUE)]</code> <sup>1.47.0</sup></td><td>recipe</td><td>Set environment variable <code>NAME</code> to <code>VALUE</code> for recipe. <code>NAME</code> and <code>VALUE</code> may be expressions<sup>1.51.0</sup>.</td></tr>
 <tr><td><code>[extension(EXT)]</code><sup>1.32.0</sup></td><td>recipe</td><td>Set shebang recipe script’s file extension to <code>EXT</code>. <code>EXT</code> should include a period if one is desired.</td></tr>
 <tr><td><code>[exit-message]</code><sup>1.39.0</sup></td><td>recipe</td><td>Print error message if recipe fails regardless of <code>set no-exit-message</code>.</td></tr>
 <tr><td><code>[freebsd]</code><sup>1.47.0</sup></td><td>recipe</td><td>Enable recipe on FreeBSD.</td></tr>
@@ -213,7 +213,7 @@ change their behavior.</p>
 <tr><td><code>[script]</code><sup>1.33.0</sup></td><td>recipe</td><td>Execute recipe as script. See <a href="script-recipes.html">script recipes</a> for more details.</td></tr>
 <tr><td><code>[unix]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on unixes. (Includes macOS).</td></tr>
 <tr><td><code>[windows]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on Windows.</td></tr>
-<tr><td><code>[working-directory(PATH)]</code><sup>1.38.0</sup></td><td>recipe</td><td>Set recipe working directory. <code>PATH</code> may be relative or absolute. If relative, it is interpreted relative to the default working directory.</td></tr>
+<tr><td><code>[working-directory(PATH)]</code><sup>1.38.0</sup></td><td>recipe</td><td>Set recipe working directory. <code>PATH</code> may be an expression<sup>1.51.0</sup> whose value is relative or absolute. If relative, it is interpreted relative to the default working directory.</td></tr>
 </tbody></table>
 </div>
 <p>A recipe can have multiple attributes, either on multiple lines:</p>

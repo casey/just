@@ -912,6 +912,10 @@ $ just foo
 $ just bar
 /subdir
 </code></pre>
+<p>Use <code>set no-cd</code><sup>1.51.0</sup> to make all recipes in the current module
+default to the same behavior.</p>
+<p><code>set no-cd</code> and <code>set working-directory</code> can be overridden on a per-recipe basis
+with the <code>[no-cd]</code> and <code>[working-directory]</code> attributes.</p>
 <p>You can override the working directory for all recipes with
 <code>set working-directory := '…'</code>:</p>
 <pre><code class="language-just">set working-directory := 'bar'
@@ -936,8 +940,9 @@ $ just foo
 /home/bob/bar
 </code></pre>
 <p>The argument to the <code>working-directory</code> setting or <code>working-directory</code>
-attribute may be absolute or relative. If it is relative it is interpreted
-relative to the default working directory.</p>
+attribute may be an expression<sup>1.51.0</sup> whose value is absolute or
+relative. If it is relative it is interpreted relative to the default working
+directory.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="aliases"><a class="header" href="#aliases">Aliases</a></h3>
 <p>Aliases allow recipes to be invoked on the command line with alternative names:</p>
 <pre><code class="language-just">alias b := build
@@ -978,6 +983,7 @@ foo:
 <tr><td><code>ignore-comments</code></td><td>boolean</td><td><code>false</code></td><td>Ignore recipe lines beginning with <code>#</code>.</td></tr>
 <tr><td><code>no-exit-message</code><sup>1.39.0</sup></td><td>boolean</td><td><code>false</code></td><td>Don’t print exit messages if recipes fail.</td></tr>
 <tr><td><code>lazy</code><sup>1.47.0</sup></td><td>boolean</td><td><code>false</code></td><td>Don’t evaluate unused variables.</td></tr>
+<tr><td><code>no-cd</code><sup>1.51.0</sup></td><td>boolean</td><td><code>false</code></td><td>Don’t change directory when executing recipes by recipe attribute.</td></tr>
 <tr><td><code>positional-arguments</code></td><td>boolean</td><td><code>false</code></td><td>Pass positional arguments.</td></tr>
 <tr><td><code>quiet</code></td><td>boolean</td><td><code>false</code></td><td>Disable echoing recipe lines before executing.</td></tr>
 <tr><td><code>script-interpreter</code><sup>1.33.0</sup></td><td><code>[COMMAND, ARGS…]</code></td><td><code>['sh', '-eu']</code></td><td>Set command used to invoke recipes with empty <code>[script]</code> attribute.</td></tr>
@@ -1973,7 +1979,7 @@ change their behavior.</p>
 <tr><td><code>[default]</code><sup>1.43.0</sup></td><td>recipe</td><td>Use recipe as module’s default recipe.</td></tr>
 <tr><td><code>[doc(DOC)]</code><sup>1.27.0</sup></td><td>module, recipe</td><td>Set recipe or module’s <a href="documentation-comments.html">documentation comment</a> to <code>DOC</code>.</td></tr>
 <tr><td><code>[dragonfly]</code><sup>1.47.0</sup></td><td>recipe</td><td>Enable recipe on DragonFly BSD.</td></tr>
-<tr><td><code>[env(ENV_VAR, VALUE)]</code> <sup>1.47.0</sup></td><td>recipe</td><td>Set environment variables for recipe.</td></tr>
+<tr><td><code>[env(NAME, VALUE)]</code> <sup>1.47.0</sup></td><td>recipe</td><td>Set environment variable <code>NAME</code> to <code>VALUE</code> for recipe. <code>NAME</code> and <code>VALUE</code> may be expressions<sup>1.51.0</sup>.</td></tr>
 <tr><td><code>[extension(EXT)]</code><sup>1.32.0</sup></td><td>recipe</td><td>Set shebang recipe script’s file extension to <code>EXT</code>. <code>EXT</code> should include a period if one is desired.</td></tr>
 <tr><td><code>[exit-message]</code><sup>1.39.0</sup></td><td>recipe</td><td>Print error message if recipe fails regardless of <code>set no-exit-message</code>.</td></tr>
 <tr><td><code>[freebsd]</code><sup>1.47.0</sup></td><td>recipe</td><td>Enable recipe on FreeBSD.</td></tr>
@@ -1994,7 +2000,7 @@ change their behavior.</p>
 <tr><td><code>[script]</code><sup>1.33.0</sup></td><td>recipe</td><td>Execute recipe as script. See <a href="script-recipes.html">script recipes</a> for more details.</td></tr>
 <tr><td><code>[unix]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on unixes. (Includes macOS).</td></tr>
 <tr><td><code>[windows]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on Windows.</td></tr>
-<tr><td><code>[working-directory(PATH)]</code><sup>1.38.0</sup></td><td>recipe</td><td>Set recipe working directory. <code>PATH</code> may be relative or absolute. If relative, it is interpreted relative to the default working directory.</td></tr>
+<tr><td><code>[working-directory(PATH)]</code><sup>1.38.0</sup></td><td>recipe</td><td>Set recipe working directory. <code>PATH</code> may be an expression<sup>1.51.0</sup> whose value is relative or absolute. If relative, it is interpreted relative to the default working directory.</td></tr>
 </tbody></table>
 </div>
 <p>A recipe can have multiple attributes, either on multiple lines:</p>
@@ -3234,8 +3240,8 @@ onto the stack in source-order, and always processing the top of the stack
 next, so earlier imports are actually handled later by the compiler.</p>
 <p>This is definitely a bug, but since <code>just</code> has very strong backwards
 compatibility guarantees and we take enormous pains not to break anyone’s
-<code>justfile</code>, we have created issue #2540 to discuss whether or not we can
-actually fix it.</p>
+<code>justfile</code>, see issue <a href="https://github.com/casey/just/issues/2540">#2540</a> for
+discussion on whether or not we can actually fix it.</p>
 <p>Imports may be made optional by putting a <code>?</code> after the <code>import</code> keyword:</p>
 <pre><code class="language-just">import? 'foo/bar.just'
 </code></pre>

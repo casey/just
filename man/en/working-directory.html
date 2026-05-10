@@ -196,6 +196,10 @@ $ just foo
 $ just bar
 /subdir
 </code></pre>
+<p>Use <code>set no-cd</code><sup>1.51.0</sup> to make all recipes in the current module
+default to the same behavior.</p>
+<p><code>set no-cd</code> and <code>set working-directory</code> can be overridden on a per-recipe basis
+with the <code>[no-cd]</code> and <code>[working-directory]</code> attributes.</p>
 <p>You can override the working directory for all recipes with
 <code>set working-directory := '…'</code>:</p>
 <pre><code class="language-just">set working-directory := 'bar'
@@ -220,8 +224,9 @@ $ just foo
 /home/bob/bar
 </code></pre>
 <p>The argument to the <code>working-directory</code> setting or <code>working-directory</code>
-attribute may be absolute or relative. If it is relative it is interpreted
-relative to the default working directory.</p>
+attribute may be an expression<sup>1.51.0</sup> whose value is absolute or
+relative. If it is relative it is interpreted relative to the default working
+directory.</p>
 
                     </main>
 

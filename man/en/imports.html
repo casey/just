@@ -227,8 +227,8 @@ onto the stack in source-order, and always processing the top of the stack
 next, so earlier imports are actually handled later by the compiler.</p>
 <p>This is definitely a bug, but since <code>just</code> has very strong backwards
 compatibility guarantees and we take enormous pains not to break anyone’s
-<code>justfile</code>, we have created issue #2540 to discuss whether or not we can
-actually fix it.</p>
+<code>justfile</code>, see issue <a href="https://github.com/casey/just/issues/2540">#2540</a> for
+discussion on whether or not we can actually fix it.</p>
 <p>Imports may be made optional by putting a <code>?</code> after the <code>import</code> keyword:</p>
 <pre><code class="language-just">import? 'foo/bar.just'
 </code></pre>
