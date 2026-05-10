@@ -950,7 +950,7 @@ $ just bar
 /subdir
 ```
 
-Use `set no-cd`<sup>master</sup> to make all recipes in the current module
+Use `set no-cd`<sup>1.51.0</sup> to make all recipes in the current module
 default to the same behavior.
 
 `set no-cd` and `set working-directory` can be overridden on a per-recipe basis
@@ -990,7 +990,7 @@ $ just foo
 ```
 
 The argument to the `working-directory` setting or `working-directory`
-attribute may be an expression<sup>master</sup> whose value is absolute or
+attribute may be an expression<sup>1.51.0</sup> whose value is absolute or
 relative. If it is relative it is interpreted relative to the default working
 directory.
 
@@ -1050,7 +1050,7 @@ foo:
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
 | `no-exit-message`<sup>1.39.0</sup> | boolean | `false` | Don't print exit messages if recipes fail. |
 | `lazy`<sup>1.47.0</sup> | boolean | `false` | Don't evaluate unused variables. |
-| `no-cd`<sup>master</sup> | boolean | `false` | Don't change directory when executing recipes by recipe attribute. |
+| `no-cd`<sup>1.51.0</sup> | boolean | `false` | Don't change directory when executing recipes by recipe attribute. |
 | `positional-arguments` | boolean | `false` | Pass positional arguments. |
 | `quiet` | boolean | `false` | Disable echoing recipe lines before executing. |
 | `script-interpreter`<sup>1.33.0</sup> | `[COMMAND, ARGS…]` | `['sh', '-eu']` | Set command used to invoke recipes with empty `[script]` attribute. |
@@ -2350,7 +2350,7 @@ change their behavior.
 | `[default]`<sup>1.43.0</sup> | recipe | Use recipe as module's default recipe. |
 | `[doc(DOC)]`<sup>1.27.0</sup> | module, recipe | Set recipe or module's [documentation comment](#documentation-comments) to `DOC`. |
 | `[dragonfly]`<sup>1.47.0</sup> | recipe | Enable recipe on DragonFly BSD. |
-| `[env(NAME, VALUE)]` <sup>1.47.0</sup> | recipe | Set environment variable `NAME` to `VALUE` for recipe. `NAME` and `VALUE` may be expressions<sup>master</sup>. |
+| `[env(NAME, VALUE)]` <sup>1.47.0</sup> | recipe | Set environment variable `NAME` to `VALUE` for recipe. `NAME` and `VALUE` may be expressions<sup>1.51.0</sup>. |
 | `[extension(EXT)]`<sup>1.32.0</sup> | recipe | Set shebang recipe script's file extension to `EXT`. `EXT` should include a period if one is desired. |
 | `[exit-message]`<sup>1.39.0</sup> | recipe | Print error message if recipe fails regardless of `set no-exit-message`. |
 | `[freebsd]`<sup>1.47.0</sup> | recipe | Enable recipe on FreeBSD. |
@@ -2371,7 +2371,7 @@ change their behavior.
 | `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
 | `[unix]`<sup>1.8.0</sup> | recipe | Enable recipe on unixes. (Includes macOS). |
 | `[windows]`<sup>1.8.0</sup> | recipe | Enable recipe on Windows. |
-| `[working-directory(PATH)]`<sup>1.38.0</sup> | recipe | Set recipe working directory. `PATH` may be an expression<sup>master</sup> whose value is relative or absolute. If relative, it is interpreted relative to the default working directory. |
+| `[working-directory(PATH)]`<sup>1.38.0</sup> | recipe | Set recipe working directory. `PATH` may be an expression<sup>1.51.0</sup> whose value is relative or absolute. If relative, it is interpreted relative to the default working directory. |
 
 A recipe can have multiple attributes, either on multiple lines:
 
