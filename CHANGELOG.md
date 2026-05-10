@@ -1,6 +1,38 @@
 Changelog
 =========
 
+[1.51.0](https://github.com/casey/just/releases/tag/1.50.0) - 2026-05-09
+------------------------------------------------------------------------
+
+### Added
+- Add `no-cd` setting ([#2981](https://github.com/casey/just/pull/2981) by [hans-d](https://github.com/hans-d))
+
+### Changed
+- Allow `[env]` attribute to take expressions ([#3329](https://github.com/casey/just/pull/3329) by [casey](https://github.com/casey))
+- Allow using expressions with `[working-directory]` ([#3326](https://github.com/casey/just/pull/3326) by [casey](https://github.com/casey))
+- Read justfile from standard input with `--justfile -` ([#3325](https://github.com/casey/just/pull/3325) by [casey](https://github.com/casey))
+- Make `parent_directory()` of bare filename return `.` ([#3313](https://github.com/casey/just/pull/3313) by [casey](https://github.com/casey))
+- Make `[env]` override module-level exports ([#3312](https://github.com/casey/just/pull/3312) by [casey](https://github.com/casey))
+
+### Fixed
+- Fail on deep recursion instead of overflowing stack ([#3319](https://github.com/casey/just/pull/3319) by [casey](https://github.com/casey))
+- Invoke chooser selections separately ([#3311](https://github.com/casey/just/pull/3311) by [casey](https://github.com/casey))
+- Don't evaluate unused assertions ([#3310](https://github.com/casey/just/pull/3310) by [casey](https://github.com/casey))
+- Respect lazy setting in submodules ([#3308](https://github.com/casey/just/pull/3308) by [casey](https://github.com/casey))
+- Fix overrides not being visible in user-defined functions ([#3307](https://github.com/casey/just/pull/3307) by [casey](https://github.com/casey))
+- Don't panic on invalid datetime format string ([#3304](https://github.com/casey/just/pull/3304) by [casey](https://github.com/casey))
+
+### Misc
+- Use `cargo-limit` commands in justfile ([#3331](https://github.com/casey/just/pull/3331) by [casey](https://github.com/casey))
+- Simplify code more ([#3330](https://github.com/casey/just/pull/3330) by [casey](https://github.com/casey))
+- Update install-dev-deps recipe with compatible mdbook ([#3328](https://github.com/casey/just/pull/3328) by [casey](https://github.com/casey))
+- Simplify code ([#3327](https://github.com/casey/just/pull/3327) by [casey](https://github.com/casey))
+- Link to duplicate recipe issue in readme ([#3321](https://github.com/casey/just/pull/3321) by [casey](https://github.com/casey))
+- Remove periods from error messages ([#3316](https://github.com/casey/just/pull/3316) by [casey](https://github.com/casey))
+- Avoid multi-sentence error messagess ([#3315](https://github.com/casey/just/pull/3315) by [casey](https://github.com/casey))
+- Make error messages lowercase ([#3314](https://github.com/casey/just/pull/3314) by [casey](https://github.com/casey))
+- Actually bump version to 1.50.0 ([#3303](https://github.com/casey/just/pull/3303) by [casey](https://github.com/casey))
+
 [1.50.0](https://github.com/casey/just/releases/tag/1.50.0) - 2026-04-19
 ------------------------------------------------------------------------
 
