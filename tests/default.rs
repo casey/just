@@ -40,3 +40,85 @@ fn default_attribute_may_only_appear_once_per_justfile() {
     )
     .failure();
 }
+
+#[test]
+fn default_list_lists_recipes() {
+  Test::new()
+    .justfile(
+      "
+        set default-list := true
+
+        foo:
+          @echo foo
+
+        bar:
+      ",
+    )
+    .stdout(
+      "
+        Available recipes:
+            bar
+            foo
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn default_list_false_runs_default_recipe() {
+  Test::new()
+    .justfile(
+      "
+        set default-list := false
+
+        foo:
+          @echo foo
+
+        bar:
+      ",
+    )
+    .stdout("foo\n")
+    .success();
+}
+
+#[test]
+fn default_list_does_not_override_explicit_recipe() {
+  Test::new()
+    .justfile(
+      "
+        set default-list
+
+        foo:
+          @echo foo
+
+        bar:
+          @echo bar
+      ",
+    )
+    .arg("bar")
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
+fn default_list_allows_default_recipe_with_arguments() {
+  Test::new()
+    .justfile(
+      "
+        set default-list
+
+        foo bar:
+          @echo {{bar}}
+
+        baz:
+      ",
+    )
+    .stdout(
+      "
+        Available recipes:
+            baz
+            foo bar
+      ",
+    )
+    .success();
+}

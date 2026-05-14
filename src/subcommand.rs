@@ -136,6 +136,32 @@ impl Subcommand {
     self.into()
   }
 
+  fn default_list_module(justfile: &Justfile, arguments: &[String]) -> Option<Modulepath> {
+    let path = if arguments.is_empty() {
+      Modulepath::default()
+    } else if arguments[0].contains(':') {
+      if arguments.len() != 1 {
+        return None;
+      }
+
+      let path = arguments[0]
+        .strip_suffix("::")
+        .unwrap_or(arguments[0].as_str());
+      Modulepath::try_from([path].as_slice()).ok()?
+    } else {
+      let arguments = arguments.iter().map(String::as_str).collect::<Vec<&str>>();
+      Modulepath::try_from(arguments.as_slice()).ok()?
+    };
+
+    let mut module = justfile;
+
+    for component in &path.components {
+      module = module.modules.get(component)?;
+    }
+
+    module.settings.default_list.then_some(path)
+  }
+
   fn run<'src>(
     config: &Config,
     loader: &'src Loader,
@@ -152,6 +178,10 @@ impl Subcommand {
           config.search_config,
           SearchConfig::FromInvocationDirectory | SearchConfig::FromSearchDirectory { .. }
         );
+
+      if let Some(path) = Self::default_list_module(justfile, arguments) {
+        return Self::list(config, justfile, &path);
+      }
 
       let result = justfile.run(config, &search, arguments, &compilation.overrides);
 

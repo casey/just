@@ -1408,6 +1408,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       Keyword::AllowDuplicateVariables => {
         Some(Setting::AllowDuplicateVariables(self.parse_set_bool()?))
       }
+      Keyword::DefaultList => Some(Setting::DefaultList(self.parse_set_bool()?)),
       Keyword::DotenvLoad => Some(Setting::DotenvLoad(self.parse_set_bool()?)),
       Keyword::DotenvOverride => Some(Setting::DotenvOverride(self.parse_set_bool()?)),
       Keyword::DotenvRequired => Some(Setting::DotenvRequired(self.parse_set_bool()?)),
@@ -2595,6 +2596,24 @@ mod tests {
     name: set_allow_duplicate_variables_implicit,
     text: "set allow-duplicate-variables",
     tree: (justfile (set allow_duplicate_variables true)),
+  }
+
+  test! {
+    name: set_default_list_implicit,
+    text: "set default-list",
+    tree: (justfile (set default_list true)),
+  }
+
+  test! {
+    name: set_default_list_true,
+    text: "set default-list := true",
+    tree: (justfile (set default_list true)),
+  }
+
+  test! {
+    name: set_default_list_false,
+    text: "set default-list := false",
+    tree: (justfile (set default_list false)),
   }
 
   test! {

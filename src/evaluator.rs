@@ -73,6 +73,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         Setting::AllowDuplicateVariables(value) => {
           settings.allow_duplicate_variables = value;
         }
+        Setting::DefaultList(value) => {
+          settings.default_list = value;
+        }
         Setting::DotenvFilename(value) => {
           settings.dotenv_filename = Some(self.evaluate_expression(&value)?);
         }

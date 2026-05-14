@@ -9,6 +9,7 @@ pub(crate) const WINDOWS_POWERSHELL_ARGS: &[&str] = &["-NoLogo", "-Command"];
 pub(crate) struct Settings {
   pub(crate) allow_duplicate_recipes: bool,
   pub(crate) allow_duplicate_variables: bool,
+  pub(crate) default_list: bool,
   pub(crate) dotenv_filename: Option<String>,
   pub(crate) dotenv_load: bool,
   pub(crate) dotenv_override: bool,
