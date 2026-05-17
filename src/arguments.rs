@@ -53,7 +53,6 @@ pub struct Arguments {
     env = "JUST_CEILING",
     help = "Do not ascend above <CEILING> directory when searching for a justfile.",
     long,
-    value_name = "CEILING"
   )]
   pub(crate) ceiling: Option<PathBuf>,
   #[arg(
@@ -99,14 +98,12 @@ pub struct Arguments {
     env = "JUST_CYGPATH",
     help = "Use binary at <CYGPATH> to convert between unix and Windows paths.",
     long,
-    value_name = "CYGPATH"
   )]
   pub(crate) cygpath: PathBuf,
   #[arg(
     conflicts_with = "dotenv_path",
     help = "Search for environment file named <DOTENV-FILENAME> instead of `.env`",
-    long,
-    value_name = "DOTENV-FILENAME"
+    long
   )]
   pub(crate) dotenv_filename: Option<String>,
   #[arg(
@@ -114,7 +111,6 @@ pub struct Arguments {
     help = "Load <DOTENV-PATH> as environment file instead of searching for one",
     long,
     short = 'E',
-    value_name = "DOTENV-PATH"
   )]
   pub(crate) dotenv_path: Option<PathBuf>,
   #[arg(
@@ -161,7 +157,7 @@ pub struct Arguments {
     add = ArgValueCompleter::new(Completer::complete_group),
     env = "JUST_GROUP",
     help = "Only list recipes in <GROUP>",
-    long = "group",
+    long,
     requires = "list"
   )]
   pub(crate) group: Vec<String>,
@@ -185,7 +181,6 @@ pub struct Arguments {
     help = "Use <JUSTFILE> as justfile or `-` to read from standard input",
     long,
     short = 'f',
-    value_name = "JUSTFILE"
   )]
   pub(crate) justfile: Option<PathBuf>,
   #[arg(
@@ -196,7 +191,7 @@ pub struct Arguments {
   )]
   pub(crate) justfile_names: Option<Vec<String>>,
   #[arg(
-    default_value = Arguments::DEFAULT_LIST_HEADING,
+    default_value = Self::DEFAULT_LIST_HEADING,
     env = "JUST_LIST_HEADING",
     help = "Print <TEXT> before list",
     long,
@@ -204,7 +199,7 @@ pub struct Arguments {
   )]
   pub(crate) list_heading: String,
   #[arg(
-    default_value = Arguments::DEFAULT_LIST_PREFIX,
+    default_value = Self::DEFAULT_LIST_PREFIX,
     env = "JUST_LIST_PREFIX",
     help = "Print <TEXT> before each list item",
     long,
@@ -224,7 +219,7 @@ pub struct Arguments {
     alias = "no-dependencies",
     env = "JUST_NO_DEPS",
     help = "Don't run recipe dependencies",
-    long = "no-deps"
+    long
   )]
   pub(crate) no_deps: bool,
   #[arg(env = "JUST_NO_DOTENV", help = "Don't load `.env` file", long)]
@@ -280,7 +275,6 @@ pub struct Arguments {
     env = "JUST_TEMPDIR",
     help = "Save temporary files to <TEMPDIR>.",
     long,
-    value_name = "TEMPDIR"
   )]
   pub(crate) tempdir: Option<PathBuf>,
   #[arg(env = "JUST_TIME", help = "Print recipe execution time", long)]
@@ -323,7 +317,6 @@ pub struct Arguments {
     long,
     requires = "justfile",
     short = 'd',
-    value_name = "WORKING-DIRECTORY"
   )]
   pub(crate) working_directory: Option<PathBuf>,
   #[arg(env = "JUST_YES", help = "Automatically confirm all recipes.", long)]
@@ -391,13 +384,13 @@ pub(crate) struct Subcommand {
     alias = "format",
     help = "Format and overwrite justfile",
     help_heading = Self::HEADING,
-    long = "fmt",
+    long,
   )]
   pub(crate) fmt: bool,
   #[arg(
     help = "List recipe groups",
     help_heading = Self::HEADING,
-    long = "groups",
+    long,
   )]
   pub(crate) groups: bool,
   #[arg(
@@ -466,9 +459,9 @@ pub(crate) struct Subcommand {
   )]
   pub(crate) usage: Option<Vec<String>>,
   #[arg(
-    long,
-    help_heading = Self::HEADING,
     help = "List names of variables",
+    help_heading = Self::HEADING,
+    long,
   )]
   pub(crate) variables: bool,
 }
