@@ -1,6 +1,10 @@
 use {
   super::*,
-  ansi_term::{ANSIGenericString, Color::*, Prefix, Style, Suffix},
+  nu_ansi_term::{
+    AnsiGenericString,
+    Color::{Blue, Cyan, Green, Purple, Red, Yellow},
+    Prefix, Style, Suffix,
+  },
   std::io::{self, IsTerminal},
 };
 
@@ -44,7 +48,7 @@ impl Color {
     self.restyle(Style::new().fg(Cyan).bold())
   }
 
-  pub(crate) fn command(self, foreground: Option<ansi_term::Color>) -> Self {
+  pub(crate) fn command(self, foreground: Option<nu_ansi_term::Color>) -> Self {
     self.restyle(Style {
       foreground,
       is_bold: true,
@@ -103,7 +107,7 @@ impl Color {
     }
   }
 
-  pub(crate) fn paint<'a>(&self, text: &'a str) -> ANSIGenericString<'a, str> {
+  pub(crate) fn paint<'a>(&self, text: &'a str) -> AnsiGenericString<'a, str> {
     self.effective_style().paint(text)
   }
 
