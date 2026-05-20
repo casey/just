@@ -4,7 +4,7 @@ use super::*;
 #[allow(clippy::missing_errors_doc)]
 pub fn run(args: impl Iterator<Item = impl Into<OsString> + Clone>) -> Result<(), i32> {
   #[cfg(windows)]
-  ansi_term::enable_ansi_support().ok();
+  nu_ansi_term::enable_ansi_support().ok();
 
   let arguments = Arguments::try_parse_from(args).map_err(|err| {
     err.print().ok();
