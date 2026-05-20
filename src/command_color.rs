@@ -11,7 +11,7 @@ pub(crate) enum CommandColor {
   Yellow,
 }
 
-impl From<CommandColor> for ansi_term::Color {
+impl From<CommandColor> for nu_ansi_term::Color {
   fn from(command_color: CommandColor) -> Self {
     match command_color {
       CommandColor::Black => Self::Black,

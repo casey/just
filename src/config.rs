@@ -7,7 +7,7 @@ pub(crate) struct Config {
   pub(crate) ceiling: Option<PathBuf>,
   pub(crate) check: bool,
   pub(crate) color: Color,
-  pub(crate) command_color: Option<ansi_term::Color>,
+  pub(crate) command_color: Option<nu_ansi_term::Color>,
   pub(crate) complete_aliases: bool,
   pub(crate) cygpath: PathBuf,
   pub(crate) dotenv_filename: Option<String>,
