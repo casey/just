@@ -480,3 +480,44 @@ fn list_submodules_requires_list() {
     .stderr_regex("error: the following required arguments were not provided:\n  --list .*")
     .status(2);
 }
+
+#[test]
+fn options_are_collapsed_in_signature() {
+  Test::new()
+    .justfile(
+      "
+        [arg('foo', long)]
+        bar foo='baz':
+          echo {{foo}}
+      ",
+    )
+    .arg("--list")
+    .stdout(
+      "
+        Available recipes:
+            bar [OPTIONS]
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn positional_and_option_parameters_in_signature() {
+  Test::new()
+    .justfile(
+      "
+        [arg('foo', long)]
+        [arg('bar', short='b')]
+        recipe qux foo='x' bar='y' baz='z':
+          echo {{foo}} {{bar}} {{baz}} {{qux}}
+      ",
+    )
+    .arg("--list")
+    .stdout(
+      "
+        Available recipes:
+            recipe [OPTIONS] qux baz='z'
+      ",
+    )
+    .success();
+}
