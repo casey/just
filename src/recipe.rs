@@ -528,7 +528,14 @@ impl<'src> Recipe<'src> {
       eprintln!("{}", config.color.doc().stderr().paint(&script));
     }
 
-    fs::write(&path, script).map_err(|error| Error::TempdirIo {
+    let bom = '\u{FEFF}'.to_string();
+    let mut bytes = Vec::with_capacity(script.len() + bom.len());
+    if executor.needs_bom() {
+      bytes.extend_from_slice(bom.as_bytes());
+    }
+    bytes.extend_from_slice(script.as_bytes());
+
+    fs::write(&path, &bytes).map_err(|error| Error::TempdirIo {
       recipe: self.name(),
       io_error: error,
     })?;
