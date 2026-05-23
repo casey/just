@@ -532,7 +532,7 @@ impl<'src> Recipe<'src> {
       script.insert(0, '\u{FEFF}');
     }
 
-    fs::write(&path, &script).map_err(|error| Error::TempdirIo {
+    fs::write(&path, script).map_err(|error| Error::TempdirIo {
       recipe: self.name(),
       io_error: error,
     })?;
