@@ -522,25 +522,20 @@ impl<'src> Recipe<'src> {
 
     path.push(executor.script_filename(self.name(), extension));
 
-    let script = executor.script(self, &evaluated_lines);
+    let mut script = executor.script(self, &evaluated_lines);
 
     if config.verbosity.grandiloquent() {
       eprintln!("{}", config.color.doc().stderr().paint(&script));
     }
 
-    {
-      let bom = '\u{FEFF}'.to_string();
-      let mut bytes = Vec::with_capacity(script.len() + bom.len());
-      if executor.needs_bom() {
-        bytes.extend_from_slice(bom.as_bytes());
-      }
-      bytes.extend_from_slice(script.as_bytes());
-
-      fs::write(&path, &bytes).map_err(|error| Error::TempdirIo {
-        recipe: self.name(),
-        io_error: error,
-      })?;
+    if executor.needs_bom() {
+      script.insert(0, '\u{FEFF}');
     }
+
+    fs::write(&path, &script).map_err(|error| Error::TempdirIo {
+      recipe: self.name(),
+      io_error: error,
+    })?;
 
     let mut command = executor.command(
       config,
