@@ -57,7 +57,7 @@ impl Executor<'_> {
 
   pub(crate) fn needs_bom(&self) -> bool {
     match self.shell_kind() {
-      Cmd | Other => false,
+      ShellKind::Cmd | ShellKind::Other => false,
       ShellKind::Powershell => true,
     }
   }
