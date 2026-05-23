@@ -522,10 +522,14 @@ impl<'src> Recipe<'src> {
 
     path.push(executor.script_filename(self.name(), extension));
 
-    let script = executor.script(self, &evaluated_lines);
+    let mut script = executor.script(self, &evaluated_lines);
 
     if config.verbosity.grandiloquent() {
       eprintln!("{}", config.color.doc().stderr().paint(&script));
+    }
+
+    if executor.needs_bom() {
+      script.insert(0, '\u{FEFF}');
     }
 
     fs::write(&path, script).map_err(|error| Error::TempdirIo {

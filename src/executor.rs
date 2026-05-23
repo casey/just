@@ -55,6 +55,13 @@ impl Executor<'_> {
     .into()
   }
 
+  pub(crate) fn needs_bom(&self) -> bool {
+    match self.shell_kind() {
+      ShellKind::Cmd | ShellKind::Other => false,
+      ShellKind::Powershell => true,
+    }
+  }
+
   pub(crate) fn script_filename(&self, recipe: &str, extension: Option<&str>) -> String {
     format!(
       "{recipe}{}",
@@ -156,5 +163,34 @@ mod tests {
     case("cmd", "foo", None, "foo.bat");
     case("cmd.exe", "foo", None, "foo.bat");
     case("bar", "foo", None, "foo");
+  }
+
+  #[test]
+  fn needs_bom() {
+    #[track_caller]
+    fn case(interpreter: &str, expected: bool) {
+      assert_eq!(
+        Executor::Shebang(Shebang::new(&format!("#!{interpreter}")).unwrap()).needs_bom(),
+        expected,
+      );
+      assert_eq!(
+        Executor::Command(Interpreter {
+          command: interpreter.into(),
+          arguments: Vec::new(),
+        })
+        .needs_bom(),
+        expected,
+      );
+    }
+
+    case("powershell", true);
+    case("powershell.exe", true);
+    case("pwsh", true);
+    case("pwsh.exe", true);
+    case("cmd", false);
+    case("cmd.exe", false);
+    case("bash", false);
+    case("/bin/sh", false);
+    case("python", false);
   }
 }

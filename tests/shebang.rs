@@ -35,6 +35,23 @@ fn powershell_exe() {
 }
 
 #[test]
+fn powershell_utf8() {
+  if cfg!(not(windows)) {
+    return;
+  }
+  Test::new()
+    .justfile(
+      "
+        default:
+          #!powershell.exe
+          $foo = 'café'
+          if ($foo.Length -ne 4) { exit 1 }
+      ",
+    )
+    .success();
+}
+
+#[test]
 fn cmd() {
   if cfg!(not(windows)) {
     return;
