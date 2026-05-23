@@ -56,7 +56,10 @@ impl Executor<'_> {
   }
 
   pub(crate) fn needs_bom(&self) -> bool {
-    matches!(self.shell_kind(), ShellKind::Powershell)
+    match self.shell_kind() {
+      Cmd | Other => false,
+      ShellKind::Powershell => true,
+    }
   }
 
   pub(crate) fn script_filename(&self, recipe: &str, extension: Option<&str>) -> String {
