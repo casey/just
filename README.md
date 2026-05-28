@@ -656,7 +656,8 @@ The search for a `justfile` is case insensitive, so any case, like `Justfile`,
 `JUSTFILE`, or `JuStFiLe`, will work. `just` will also look for files with the
 name `.justfile`, in case you'd like to hide a `justfile`.
 
-Running `just` with no arguments runs the first recipe in the `justfile`:
+By default, running `just` with no arguments runs the first recipe in the
+`justfile`:
 
 ```console
 $ just
@@ -772,12 +773,11 @@ lint:
   echo Linting…
 ```
 
-If no recipe makes sense as the default recipe, you can add a recipe to the
-beginning of your `justfile` that lists the available recipes:
+If no recipe makes sense as the default recipe, you can use
+`default-list`<sup>master</sup> to list the available recipes instead:
 
 ```just
-default:
-  just --list
+set default-list := true
 ```
 
 ### Listing Available Recipes
@@ -840,20 +840,15 @@ $ just --summary --unsorted
 test build
 ```
 
-If you'd like `just` to default to listing the recipes in the `justfile`, you
-can use this as your default recipe:
+If you'd like `just` to default to listing the recipes in the `justfile`, set
+`default-list`<sup>master</sup>:
 
 ```just
-default:
-  @just --list
+set default-list := true
 ```
 
-Note that you may need to add `--justfile {{justfile()}}` to the line above.
-Without it, if you executed `just -f /some/distant/justfile -d .` or
-`just -f ./non-standard-justfile`, the plain `just --list` inside the recipe
-would not necessarily use the file you provided. It would try to find a
-justfile in your current path, maybe even resulting in a `No justfile found`
-error.
+The setting is per-module, so invoking a module path with `default-list`
+enabled lists that module's recipes.
 
 The heading text can be customized with `--list-heading`:
 
@@ -1040,6 +1035,7 @@ foo:
 |------|-------|---------|-------------|
 | `allow-duplicate-recipes` | boolean | `false` | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
 | `allow-duplicate-variables` | boolean | `false` | Allow variables appearing later in a `justfile` to override earlier variables with the same name. |
+| `default-list` | boolean | `false` | List recipes instead of running the default recipe. |
 | `dotenv-filename` | string | - | Load a `.env` file with a custom name, if present. |
 | `dotenv-load` | boolean | `false` | Load a `.env` file, if present. |
 | `dotenv-override` | boolean | `false` | Override existing environment variables with values from the `.env` file. |

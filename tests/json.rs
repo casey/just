@@ -84,6 +84,7 @@ struct Recipe<'a> {
 struct Settings<'a> {
   allow_duplicate_recipes: bool,
   allow_duplicate_variables: bool,
+  default_list: bool,
   dotenv_filename: Option<&'a str>,
   dotenv_load: bool,
   dotenv_override: bool,
@@ -678,6 +679,7 @@ fn settings() {
   case(
     "
       set allow-duplicate-recipes
+      set default-list
       set dotenv-filename := \"filename\"
       set dotenv-load
       set dotenv-path := \"path\"
@@ -705,6 +707,7 @@ fn settings() {
       .into(),
       settings: Settings {
         allow_duplicate_recipes: true,
+        default_list: true,
         dotenv_filename: Some("filename"),
         dotenv_path: Some("path"),
         dotenv_load: true,

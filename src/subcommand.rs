@@ -136,6 +136,33 @@ impl Subcommand {
     self.into()
   }
 
+  fn default_list_module(justfile: &Justfile, arguments: &[String]) -> Option<Modulepath> {
+    let path = if arguments.is_empty() {
+      Modulepath::default()
+    } else if arguments[0].contains(':') {
+      if arguments.len() != 1 {
+        return None;
+      }
+
+      Modulepath::from_argument(&arguments[0]).ok()?
+    } else {
+      Modulepath::try_from(
+        arguments
+          .iter()
+          .map(String::as_str)
+          .collect::<Vec<&str>>()
+          .as_slice(),
+      )
+      .ok()?
+    };
+
+    justfile
+      .submodule(&path)?
+      .settings
+      .default_list
+      .then_some(path)
+  }
+
   fn run<'src>(
     config: &Config,
     loader: &'src Loader,
@@ -152,6 +179,10 @@ impl Subcommand {
           config.search_config,
           SearchConfig::FromInvocationDirectory | SearchConfig::FromSearchDirectory { .. }
         );
+
+      if let Some(path) = Self::default_list_module(justfile, arguments) {
+        return Self::list(config, justfile, &path);
+      }
 
       let result = justfile.run(config, &search, arguments, &compilation.overrides);
 
@@ -471,15 +502,12 @@ impl Subcommand {
     Ok(())
   }
 
-  fn list(config: &Config, mut module: &Justfile, path: &Modulepath) -> RunResult<'static> {
-    for name in &path.components {
-      module = module
-        .modules
-        .get(name)
-        .ok_or_else(|| Error::UnknownSubmodule {
-          path: path.to_string(),
-        })?;
-    }
+  fn list(config: &Config, module: &Justfile, path: &Modulepath) -> RunResult<'static> {
+    let module = module
+      .submodule(path)
+      .ok_or_else(|| Error::UnknownSubmodule {
+        path: path.to_string(),
+      })?;
 
     Self::list_module(config, 0, &config.groups, module)?;
 

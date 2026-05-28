@@ -20,6 +20,10 @@ impl Modulepath {
   pub(crate) fn starts_with(&self, other: &Modulepath) -> bool {
     self.components.starts_with(&other.components)
   }
+
+  pub(crate) fn from_argument(argument: &str) -> Result<Self, ()> {
+    Self::try_from([argument.strip_suffix("::").unwrap_or(argument)].as_slice())
+  }
 }
 
 impl Serialize for Modulepath {

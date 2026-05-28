@@ -413,6 +413,16 @@ impl<'src> Justfile<'src> {
     self.name.is_some()
   }
 
+  pub(crate) fn submodule(&self, path: &Modulepath) -> Option<&Justfile<'src>> {
+    let mut module = self;
+
+    for component in &path.components {
+      module = module.modules.get(component)?;
+    }
+
+    Some(module)
+  }
+
   pub(crate) fn name(&self) -> &'src str {
     self.name.map(|name| name.lexeme()).unwrap_or_default()
   }

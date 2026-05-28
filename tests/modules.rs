@@ -130,6 +130,114 @@ fn module_subcommand_runs_default_recipe() {
 }
 
 #[test]
+fn module_subcommand_lists_recipes_with_default_list() {
+  Test::new()
+    .write(
+      "foo.just",
+      "set default-list := true
+
+foo:
+  @echo FOO
+
+bar:
+",
+    )
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .arg("foo")
+    .stdout(
+      "
+        Available recipes:
+            bar
+            foo
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn root_default_list_does_not_affect_submodule_default_recipe() {
+  Test::new()
+    .write("foo.just", "foo:\n @echo FOO")
+    .justfile(
+      "
+        set default-list := true
+
+        mod foo
+      ",
+    )
+    .arg("foo")
+    .stdout("FOO\n")
+    .success();
+}
+
+#[test]
+fn nested_module_subcommand_lists_recipes_with_default_list() {
+  #[track_caller]
+  fn case(args: &[&str]) {
+    Test::new()
+      .write(
+        "foo.just", "mod bar
+",
+      )
+      .write(
+        "bar.just",
+        "set default-list := true
+
+baz:
+  @echo BAZ
+
+qux:
+",
+      )
+      .justfile(
+        "
+          mod foo
+        ",
+      )
+      .args(args)
+      .stdout(
+        "
+          Available recipes:
+              baz
+              qux
+        ",
+      )
+      .success();
+  }
+
+  case(&["foo", "bar"]);
+  case(&["foo::bar"]);
+  case(&["foo::bar::"]);
+}
+
+#[test]
+fn module_default_list_does_not_override_explicit_recipe() {
+  Test::new()
+    .write(
+      "foo.just",
+      "set default-list := true
+
+bar:
+  @echo BAR
+
+baz:
+",
+    )
+    .justfile(
+      "
+        mod foo
+      ",
+    )
+    .args(["foo", "bar"])
+    .stdout("BAR\n")
+    .success();
+}
+
+#[test]
 fn modules_can_contain_other_modules() {
   Test::new()
     .write("bar.just", "baz:\n @echo BAZ")
