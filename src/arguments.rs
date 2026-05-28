@@ -96,10 +96,16 @@ pub struct Arguments {
     add = ArgValueCompleter::new(PathCompleter::file()),
     default_value = Self::DEFAULT_CYGPATH,
     env = "JUST_CYGPATH",
-    help = "Use binary at <CYGPATH> to convert between unix and Windows paths.",
+    help = "Use binary at <CYGPATH> to convert between unix and Windows paths",
     long,
   )]
   pub(crate) cygpath: PathBuf,
+  #[arg(
+    env = "JUST_DEFAULT_LIST",
+    help = "List recipes when no arguments are provided",
+    long
+  )]
+  pub(crate) default_list: bool,
   #[arg(
     conflicts_with = "dotenv_path",
     help = "Search for environment file named <DOTENV-FILENAME> instead of `.env`",

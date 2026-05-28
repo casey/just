@@ -136,7 +136,11 @@ impl Subcommand {
     self.into()
   }
 
-  fn default_list_module(justfile: &Justfile, arguments: &[String]) -> Option<Modulepath> {
+  fn default_list_module(
+    config: &Config,
+    justfile: &Justfile,
+    arguments: &[String],
+  ) -> Option<Modulepath> {
     let path = if arguments.is_empty() {
       Modulepath::default()
     } else if arguments[0].contains(':') {
@@ -156,11 +160,11 @@ impl Subcommand {
       .ok()?
     };
 
-    justfile
-      .submodule(&path)?
-      .settings
-      .default_list
-      .then_some(path)
+    if config.default_list || justfile.submodule(&path)?.settings.default_list {
+      Some(path)
+    } else {
+      None
+    }
   }
 
   fn run<'src>(
@@ -180,7 +184,7 @@ impl Subcommand {
           SearchConfig::FromInvocationDirectory | SearchConfig::FromSearchDirectory { .. }
         );
 
-      if let Some(path) = Self::default_list_module(justfile, arguments) {
+      if let Some(path) = Self::default_list_module(config, justfile, arguments) {
         return Self::list(config, justfile, &path);
       }
 
