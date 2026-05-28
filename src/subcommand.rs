@@ -144,22 +144,17 @@ impl Subcommand {
         return None;
       }
 
-      let path = arguments[0]
-        .strip_suffix("::")
-        .unwrap_or(arguments[0].as_str());
-      Modulepath::try_from([path].as_slice()).ok()?
+      Modulepath::from_argument(&arguments[0]).ok()?
     } else {
       let arguments = arguments.iter().map(String::as_str).collect::<Vec<&str>>();
       Modulepath::try_from(arguments.as_slice()).ok()?
     };
 
-    let mut module = justfile;
-
-    for component in &path.components {
-      module = module.modules.get(component)?;
-    }
-
-    module.settings.default_list.then_some(path)
+    justfile
+      .module(&path)?
+      .settings
+      .default_list
+      .then_some(path)
   }
 
   fn run<'src>(
@@ -501,15 +496,10 @@ impl Subcommand {
     Ok(())
   }
 
-  fn list(config: &Config, mut module: &Justfile, path: &Modulepath) -> RunResult<'static> {
-    for name in &path.components {
-      module = module
-        .modules
-        .get(name)
-        .ok_or_else(|| Error::UnknownSubmodule {
-          path: path.to_string(),
-        })?;
-    }
+  fn list(config: &Config, module: &Justfile, path: &Modulepath) -> RunResult<'static> {
+    let module = module.module(path).ok_or_else(|| Error::UnknownSubmodule {
+      path: path.to_string(),
+    })?;
 
     Self::list_module(config, 0, &config.groups, module)?;
 

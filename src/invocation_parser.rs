@@ -50,16 +50,15 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
   fn parse_invocation(&mut self) -> RunResult<'src, Invocation<'src, 'run>> {
     let recipe = if let Some(next) = self.next() {
       if next.contains(':') {
-        let path = if self.next + 1 == self.arguments.len() {
-          next.strip_suffix("::").unwrap_or(next)
+        let modulepath = if self.next + 1 == self.arguments.len() {
+          Modulepath::from_argument(next)
         } else {
-          next
-        };
-        let modulepath =
-          Modulepath::try_from([path].as_slice()).map_err(|()| Error::UnknownRecipe {
-            recipe: next.into(),
-            suggestion: None,
-          })?;
+          Modulepath::try_from([next].as_slice())
+        }
+        .map_err(|()| Error::UnknownRecipe {
+          recipe: next.into(),
+          suggestion: None,
+        })?;
         let (recipe, _) = self.resolve_recipe(true, &modulepath.components)?;
         self.next += 1;
         recipe
