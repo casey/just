@@ -413,7 +413,7 @@ impl<'src> Justfile<'src> {
     self.name.is_some()
   }
 
-  pub(crate) fn module(&self, path: &Modulepath) -> Option<&Justfile<'src>> {
+  pub(crate) fn submodule(&self, path: &Modulepath) -> Option<&Justfile<'src>> {
     let mut module = self;
 
     for component in &path.components {

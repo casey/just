@@ -151,7 +151,7 @@ impl Subcommand {
     };
 
     justfile
-      .module(&path)?
+      .submodule(&path)?
       .settings
       .default_list
       .then_some(path)
@@ -497,9 +497,11 @@ impl Subcommand {
   }
 
   fn list(config: &Config, module: &Justfile, path: &Modulepath) -> RunResult<'static> {
-    let module = module.module(path).ok_or_else(|| Error::UnknownSubmodule {
-      path: path.to_string(),
-    })?;
+    let module = module
+      .submodule(path)
+      .ok_or_else(|| Error::UnknownSubmodule {
+        path: path.to_string(),
+      })?;
 
     Self::list_module(config, 0, &config.groups, module)?;
 
