@@ -773,8 +773,8 @@ lint:
   echo Linting…
 ```
 
-If no recipe makes sense as the default recipe, you can use `default-list` to
-list the available recipes instead:
+If no recipe makes sense as the default recipe, you can use
+`default-list`<sup>master</sup> to list the available recipes instead:
 
 ```just
 set default-list := true
@@ -841,7 +841,7 @@ test build
 ```
 
 If you'd like `just` to default to listing the recipes in the `justfile`, set
-`default-list`:
+`default-list`<sup>master</sup>:
 
 ```just
 set default-list := true
