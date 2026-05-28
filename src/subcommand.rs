@@ -146,8 +146,14 @@ impl Subcommand {
 
       Modulepath::from_argument(&arguments[0]).ok()?
     } else {
-      let arguments = arguments.iter().map(String::as_str).collect::<Vec<&str>>();
-      Modulepath::try_from(arguments.as_slice()).ok()?
+      Modulepath::try_from(
+        arguments
+          .iter()
+          .map(String::as_str)
+          .collect::<Vec<&str>>()
+          .as_slice(),
+      )
+      .ok()?
     };
 
     justfile
