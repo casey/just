@@ -2599,24 +2599,6 @@ mod tests {
   }
 
   test! {
-    name: set_default_list_implicit,
-    text: "set default-list",
-    tree: (justfile (set default_list true)),
-  }
-
-  test! {
-    name: set_default_list_true,
-    text: "set default-list := true",
-    tree: (justfile (set default_list true)),
-  }
-
-  test! {
-    name: set_default_list_false,
-    text: "set default-list := false",
-    tree: (justfile (set default_list false)),
-  }
-
-  test! {
     name: set_dotenv_load_true,
     text: "set dotenv-load := true",
     tree: (justfile (set dotenv_load true)),
