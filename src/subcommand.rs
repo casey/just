@@ -160,11 +160,9 @@ impl Subcommand {
       .ok()?
     };
 
-    if config.default_list || justfile.submodule(&path)?.settings.default_list {
-      Some(path)
-    } else {
-      None
-    }
+    let submodule = justfile.submodule(&path)?;
+
+    (config.default_list || submodule.settings.default_list).then_some(path)
   }
 
   fn run<'src>(

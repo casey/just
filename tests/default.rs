@@ -65,6 +65,46 @@ fn default_list_lists_recipes() {
 }
 
 #[test]
+fn default_list_flag_lists_recipes() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          @echo foo
+
+        bar:
+      ",
+    )
+    .arg("--default-list")
+    .stdout(
+      "
+        Available recipes:
+            bar
+            foo
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn default_list_flag_does_not_override_explicit_recipe() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          @echo foo
+
+        bar:
+          @echo bar
+      ",
+    )
+    .arg("--default-list")
+    .arg("bar")
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
 fn default_list_false_runs_default_recipe() {
   Test::new()
     .justfile(
