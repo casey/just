@@ -850,6 +850,11 @@ set default-list := true
 The setting is per-module, so invoking a module path with `default-list`
 enabled lists that module's recipes.
 
+You can also default to listing recipes this behavior by settting the
+environment variable `JUST_DEFAULT_LIST=true` or passing
+`--default-list`<sup>master</sup>.
+
+
 The heading text can be customized with `--list-heading`:
 
 ```console
