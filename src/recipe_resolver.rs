@@ -150,10 +150,10 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
   fn resolve_submodule_dependency(&self, path: &Namepath<'src>) -> DependencyResolution<'src> {
     let (name, prefix) = path.split_last();
 
-    let mut modules = self.modules;
-    let mut recipes = &self.resolved_recipes;
     let mut absent = self.absent;
     let mut disabled = &self.disabled;
+    let mut modules = self.modules;
+    let mut recipes = &self.resolved_recipes;
     let mut walked = Vec::new();
 
     for component in prefix {
@@ -161,10 +161,10 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       walked.push(lexeme.to_string());
 
       if let Some(module) = modules.get(lexeme) {
-        modules = &module.modules;
-        recipes = &module.recipes;
         absent = &module.absent;
         disabled = &module.disabled;
+        modules = &module.modules;
+        recipes = &module.recipes;
       } else if absent.contains(lexeme) {
         return DependencyResolution::Disabled(BTreeSet::from([Modulepath {
           components: walked,
