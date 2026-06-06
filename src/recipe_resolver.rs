@@ -5,12 +5,6 @@ enum Resolution<'src> {
   Resolved(Arc<Recipe<'src>>),
 }
 
-enum DependencyResolution<'src> {
-  Disabled(BTreeSet<Modulepath>),
-  Resolved(Arc<Recipe<'src>>),
-  Unknown,
-}
-
 pub(crate) struct RecipeResolver<'src: 'run, 'run> {
   absent: &'run BTreeSet<String>,
   assignments: &'run Table<'src, Assignment<'src>>,
@@ -71,15 +65,16 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     let mut disabled_by = BTreeSet::new();
 
     for dependency in &recipe.dependencies {
-      match self.resolve_dependency(dependency, &recipe, stack)? {
-        DependencyResolution::Resolved(resolved) => dependencies.push(resolved),
-        DependencyResolution::Disabled(modules) => disabled_by.extend(modules),
-        DependencyResolution::Unknown => {
-          return Err(dependency.recipe.last().error(UnknownDependency {
+      match self
+        .resolve_dependency(dependency, &recipe, stack)?
+        .ok_or_else(|| {
+          dependency.recipe.last().error(UnknownDependency {
             recipe: recipe.name(),
             unknown: dependency.recipe.clone(),
-          }));
-        }
+          })
+        })? {
+        Resolution::Resolved(resolved) => dependencies.push(resolved),
+        Resolution::Disabled(modules) => disabled_by.extend(modules),
       }
     }
 
@@ -109,7 +104,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     dependency: &UnresolvedDependency<'src>,
     recipe: &UnresolvedRecipe<'src>,
     stack: &mut Vec<&'src str>,
-  ) -> CompileResult<'src, DependencyResolution<'src>> {
+  ) -> CompileResult<'src, Option<Resolution<'src>>> {
     let name = dependency.recipe.last().lexeme();
 
     if dependency.recipe.components() > 1 {
@@ -117,10 +112,10 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       Ok(self.resolve_submodule_dependency(&dependency.recipe))
     } else if let Some(resolved) = self.resolved_recipes.get(name) {
       // recipe is the current module and has already been resolved
-      Ok(DependencyResolution::Resolved(Arc::clone(resolved)))
+      Ok(Some(Resolution::Resolved(Arc::clone(resolved))))
     } else if let Some(disabled) = self.disabled.get(name) {
       // recipe is in the current module and has already been disabled
-      Ok(DependencyResolution::Disabled(disabled.modules.clone()))
+      Ok(Some(Resolution::Disabled(disabled.modules.clone())))
     } else if stack.contains(&name) {
       // recipe depends on itself
       let first = stack[0];
@@ -137,17 +132,14 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       )
     } else if let Some(unresolved) = self.unresolved_recipes.remove(name) {
       // recipe is as of yet unresolved
-      Ok(match self.resolve_recipe(stack, unresolved)? {
-        Resolution::Resolved(resolved) => DependencyResolution::Resolved(resolved),
-        Resolution::Disabled(modules) => DependencyResolution::Disabled(modules),
-      })
+      Ok(Some(self.resolve_recipe(stack, unresolved)?))
     } else {
       // recipe is unknown
-      Ok(DependencyResolution::Unknown)
+      Ok(None)
     }
   }
 
-  fn resolve_submodule_dependency(&self, path: &Namepath<'src>) -> DependencyResolution<'src> {
+  fn resolve_submodule_dependency(&self, path: &Namepath<'src>) -> Option<Resolution<'src>> {
     let (name, prefix) = path.split_last();
 
     let mut absent = self.absent;
@@ -166,21 +158,21 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
         modules = &module.modules;
         recipes = &module.recipes;
       } else if absent.contains(lexeme) {
-        return DependencyResolution::Disabled(BTreeSet::from([Modulepath {
+        return Some(Resolution::Disabled(BTreeSet::from([Modulepath {
           components: walked,
           spaced: false,
-        }]));
+        }])));
       } else {
-        return DependencyResolution::Unknown;
+        return None;
       }
     }
 
     if let Some(resolved) = recipes.get(name.lexeme()) {
-      DependencyResolution::Resolved(Arc::clone(resolved))
+      Some(Resolution::Resolved(Arc::clone(resolved)))
     } else if let Some(disabled) = disabled.get(name.lexeme()) {
-      DependencyResolution::Disabled(disabled.modules.clone())
+      Some(Resolution::Disabled(disabled.modules.clone()))
     } else {
-      DependencyResolution::Unknown
+      None
     }
   }
 }
