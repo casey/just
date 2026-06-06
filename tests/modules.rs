@@ -592,7 +592,7 @@ fn recipe_depending_on_absent_optional_module_is_disabled() {
       ",
     )
     .arg("build")
-    .stderr("error: recipe `build` depends on module `foo`, which is not present\n")
+    .stderr("error: recipe `build` depends on absent module `foo`\n")
     .failure();
 }
 
@@ -688,7 +688,7 @@ fn recipe_disabled_by_multiple_modules() {
       ",
     )
     .arg("build")
-    .stderr("error: recipe `build` depends on modules `bar`, `foo`, which are not present\n")
+    .stderr("error: recipe `build` depends on absent modules `bar` and `foo`\n")
     .failure();
 }
 
@@ -707,7 +707,7 @@ fn disabling_is_transitive() {
       ",
     )
     .arg("deploy")
-    .stderr("error: recipe `deploy` depends on module `foo`, which is not present\n")
+    .stderr("error: recipe `deploy` depends on absent module `foo`\n")
     .failure();
 }
 
@@ -724,7 +724,7 @@ fn nested_absent_optional_module_disables_dependent() {
     )
     .write("a/mod.just", "mod? b\n\nay:\n @echo AY")
     .arg("x")
-    .stderr("error: recipe `x` depends on module `a::b`, which is not present\n")
+    .stderr("error: recipe `x` depends on absent module `a::b`\n")
     .failure();
 }
 

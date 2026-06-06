@@ -729,16 +729,11 @@ impl ColorDisplay for Error<'_> {
         }
       }
       RecipeDisabled { recipe, modules } => {
-        let plural = if modules.len() == 1 { "" } else { "s" };
-        let verb = if modules.len() == 1 { "is" } else { "are" };
-        let list = modules
-          .iter()
-          .map(|module| format!("`{module}`"))
-          .collect::<Vec<String>>()
-          .join(", ");
         write!(
           f,
-          "recipe `{recipe}` depends on module{plural} {list}, which {verb} not present"
+          "recipe `{recipe}` depends on absent {} {}",
+          Count("module", modules.len()),
+          List::and_ticked(modules)
         )?;
       }
       RecursionLimit { last } => write!(
