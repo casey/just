@@ -270,11 +270,11 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
         return Ok((recipe, i + 1));
       } else if let Some(disabled) = current.get_disabled(arg) {
         return Err(Error::RecipeDisabled {
-          recipe: if modulepath {
-            path.join("::")
-          } else {
-            path.join(" ")
-          },
+          recipe: Modulepath {
+            components: path,
+            spaced: !modulepath,
+          }
+          .to_string(),
           modules: disabled.modules.clone(),
         });
       } else {
@@ -285,11 +285,11 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
         }
 
         return Err(Error::UnknownRecipe {
-          recipe: if modulepath {
-            path.join("::")
-          } else {
-            path.join(" ")
-          },
+          recipe: Modulepath {
+            components: path,
+            spaced: !modulepath,
+          }
+          .to_string(),
           suggestion: current.suggest_recipe(arg),
         });
       }
