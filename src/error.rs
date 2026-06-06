@@ -174,7 +174,7 @@ pub(crate) enum Error<'src> {
     max: usize,
   },
   RecipeDisabled {
-    recipe: String,
+    recipe: Modulepath,
     modules: BTreeSet<Modulepath>,
   },
   RecursionLimit {

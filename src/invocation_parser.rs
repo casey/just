@@ -273,8 +273,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
           recipe: Modulepath {
             components: path,
             spaced: !modulepath,
-          }
-          .to_string(),
+          },
           modules: disabled.modules.clone(),
         });
       } else {
