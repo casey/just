@@ -268,6 +268,15 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
           });
         }
         return Ok((recipe, i + 1));
+      } else if let Some(disabled) = current.get_disabled(arg) {
+        return Err(Error::RecipeDisabled {
+          recipe: if modulepath {
+            path.join("::")
+          } else {
+            path.join(" ")
+          },
+          modules: disabled.modules.clone(),
+        });
       } else {
         if modulepath && i + 1 < args.len() {
           return Err(Error::UnknownSubmodule {

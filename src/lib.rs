@@ -34,6 +34,7 @@ pub(crate) use {
     count::Count,
     delimiter::Delimiter,
     dependency::Dependency,
+    disabled::Disabled,
     dump_format::DumpFormat,
     enclosure::Enclosure,
     error::Error,
@@ -227,6 +228,7 @@ mod constants;
 mod count;
 mod delimiter;
 mod dependency;
+mod disabled;
 mod dump_format;
 mod enclosure;
 mod error;

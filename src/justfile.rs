@@ -11,10 +11,14 @@ type Scopes<'src, 'run> = BTreeMap<
 
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Justfile<'src> {
+  #[serde(skip)]
+  pub(crate) absent: BTreeSet<String>,
   pub(crate) aliases: Table<'src, Alias<'src>>,
   pub(crate) assignments: Table<'src, Assignment<'src>>,
   #[serde(rename = "first", serialize_with = "keyed::serialize_option")]
   pub(crate) default: Option<Arc<Recipe<'src>>>,
+  #[serde(skip)]
+  pub(crate) disabled: Table<'src, Disabled<'src>>,
   pub(crate) doc: Option<String>,
   #[serde(skip)]
   pub(crate) functions: Table<'src, FunctionDefinition<'src>>,
@@ -407,6 +411,10 @@ impl<'src> Justfile<'src> {
       .get(name)
       .map(Arc::as_ref)
       .or_else(|| self.aliases.get(name).map(|alias| alias.target.as_ref()))
+  }
+
+  pub(crate) fn get_disabled(&self, name: &str) -> Option<&Disabled<'src>> {
+    self.disabled.get(name)
   }
 
   pub(crate) fn is_submodule(&self) -> bool {

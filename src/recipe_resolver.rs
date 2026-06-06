@@ -1,7 +1,20 @@
 use {super::*, CompileErrorKind::*};
 
+enum Resolution<'src> {
+  Disabled(BTreeSet<Modulepath>),
+  Resolved(Arc<Recipe<'src>>),
+}
+
+enum DependencyResolution<'src> {
+  Disabled(BTreeSet<Modulepath>),
+  Resolved(Arc<Recipe<'src>>),
+  Unknown,
+}
+
 pub(crate) struct RecipeResolver<'src: 'run, 'run> {
+  absent: &'run BTreeSet<String>,
   assignments: &'run Table<'src, Assignment<'src>>,
+  disabled: Table<'src, Disabled<'src>>,
   functions: &'run Table<'src, FunctionDefinition<'src>>,
   modulepath: &'run Modulepath,
   modules: &'run Table<'src, Justfile<'src>>,
@@ -12,15 +25,18 @@ pub(crate) struct RecipeResolver<'src: 'run, 'run> {
 
 impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
   pub(crate) fn resolve_recipes(
+    absent: &'run BTreeSet<String>,
     assignments: &'run Table<'src, Assignment<'src>>,
     functions: &'run Table<'src, FunctionDefinition<'src>>,
     modulepath: &'run Modulepath,
     modules: &'run Table<'src, Justfile<'src>>,
     settings: &'run Settings,
     unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
-  ) -> CompileResult<'src, Table<'src, Arc<Recipe<'src>>>> {
+  ) -> CompileResult<'src, (Table<'src, Arc<Recipe<'src>>>, Table<'src, Disabled<'src>>)> {
     let mut resolver = Self {
+      absent,
       assignments,
+      disabled: Table::new(),
       functions,
       modulepath,
       modules,
@@ -33,46 +49,59 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       resolver.resolve_recipe(&mut Vec::new(), unresolved)?;
     }
 
-    Ok(resolver.resolved_recipes)
+    Ok((resolver.resolved_recipes, resolver.disabled))
   }
 
   fn resolve_recipe(
     &mut self,
     stack: &mut Vec<&'src str>,
     recipe: UnresolvedRecipe<'src>,
-  ) -> CompileResult<'src, Arc<Recipe<'src>>> {
+  ) -> CompileResult<'src, Resolution<'src>> {
     if let Some(resolved) = self.resolved_recipes.get(recipe.name()) {
-      return Ok(Arc::clone(resolved));
+      return Ok(Resolution::Resolved(Arc::clone(resolved)));
+    }
+
+    if let Some(disabled) = self.disabled.get(recipe.name()) {
+      return Ok(Resolution::Disabled(disabled.modules.clone()));
     }
 
     stack.push(recipe.name());
 
-    let dependencies = recipe
-      .dependencies
-      .iter()
-      .map(|dependency| {
-        self
-          .resolve_dependency(dependency, &recipe, stack)?
-          .ok_or_else(|| {
-            dependency.recipe.last().error(UnknownDependency {
-              recipe: recipe.name(),
-              unknown: dependency.recipe.clone(),
-            })
-          })
-      })
-      .collect::<CompileResult<Vec<Arc<Recipe>>>>()?;
+    let mut dependencies = Vec::new();
+    let mut disabled_by = BTreeSet::new();
+
+    for dependency in &recipe.dependencies {
+      match self.resolve_dependency(dependency, &recipe, stack)? {
+        DependencyResolution::Resolved(resolved) => dependencies.push(resolved),
+        DependencyResolution::Disabled(modules) => disabled_by.extend(modules),
+        DependencyResolution::Unknown => {
+          return Err(dependency.recipe.last().error(UnknownDependency {
+            recipe: recipe.name(),
+            unknown: dependency.recipe.clone(),
+          }));
+        }
+      }
+    }
 
     stack.pop();
 
-    let resolved = Arc::new(recipe.resolve(
-      self.assignments,
-      self.functions,
-      self.modulepath,
-      dependencies,
-      self.settings,
-    )?);
-    self.resolved_recipes.insert(Arc::clone(&resolved));
-    Ok(resolved)
+    if disabled_by.is_empty() {
+      let resolved = Arc::new(recipe.resolve(
+        self.assignments,
+        self.functions,
+        self.modulepath,
+        dependencies,
+        self.settings,
+      )?);
+      self.resolved_recipes.insert(Arc::clone(&resolved));
+      Ok(Resolution::Resolved(resolved))
+    } else {
+      self.disabled.insert(Disabled {
+        name: recipe.name,
+        modules: disabled_by.clone(),
+      });
+      Ok(Resolution::Disabled(disabled_by))
+    }
   }
 
   fn resolve_dependency(
@@ -80,19 +109,18 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     dependency: &UnresolvedDependency<'src>,
     recipe: &UnresolvedRecipe<'src>,
     stack: &mut Vec<&'src str>,
-  ) -> CompileResult<'src, Option<Arc<Recipe<'src>>>> {
+  ) -> CompileResult<'src, DependencyResolution<'src>> {
     let name = dependency.recipe.last().lexeme();
 
     if dependency.recipe.components() > 1 {
       // recipe is in a submodule and is thus already resolved
-      Ok(Analyzer::resolve_recipe(
-        &dependency.recipe,
-        self.modules,
-        &self.resolved_recipes,
-      ))
+      Ok(self.resolve_submodule_dependency(&dependency.recipe))
     } else if let Some(resolved) = self.resolved_recipes.get(name) {
       // recipe is the current module and has already been resolved
-      Ok(Some(Arc::clone(resolved)))
+      Ok(DependencyResolution::Resolved(Arc::clone(resolved)))
+    } else if let Some(disabled) = self.disabled.get(name) {
+      // recipe is in the current module and has already been disabled
+      Ok(DependencyResolution::Disabled(disabled.modules.clone()))
     } else if stack.contains(&name) {
       // recipe depends on itself
       let first = stack[0];
@@ -109,10 +137,50 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       )
     } else if let Some(unresolved) = self.unresolved_recipes.remove(name) {
       // recipe is as of yet unresolved
-      Ok(Some(self.resolve_recipe(stack, unresolved)?))
+      Ok(match self.resolve_recipe(stack, unresolved)? {
+        Resolution::Resolved(resolved) => DependencyResolution::Resolved(resolved),
+        Resolution::Disabled(modules) => DependencyResolution::Disabled(modules),
+      })
     } else {
       // recipe is unknown
-      Ok(None)
+      Ok(DependencyResolution::Unknown)
+    }
+  }
+
+  fn resolve_submodule_dependency(&self, path: &Namepath<'src>) -> DependencyResolution<'src> {
+    let (name, prefix) = path.split_last();
+
+    let mut modules = self.modules;
+    let mut recipes = &self.resolved_recipes;
+    let mut absent = self.absent;
+    let mut disabled = &self.disabled;
+    let mut walked = Vec::new();
+
+    for component in prefix {
+      let lexeme = component.lexeme();
+      walked.push(lexeme.to_string());
+
+      if let Some(module) = modules.get(lexeme) {
+        modules = &module.modules;
+        recipes = &module.recipes;
+        absent = &module.absent;
+        disabled = &module.disabled;
+      } else if absent.contains(lexeme) {
+        return DependencyResolution::Disabled(BTreeSet::from([Modulepath {
+          components: walked,
+          spaced: false,
+        }]));
+      } else {
+        return DependencyResolution::Unknown;
+      }
+    }
+
+    if let Some(resolved) = recipes.get(name.lexeme()) {
+      DependencyResolution::Resolved(Arc::clone(resolved))
+    } else if let Some(disabled) = disabled.get(name.lexeme()) {
+      DependencyResolution::Disabled(disabled.modules.clone())
+    } else {
+      DependencyResolution::Unknown
     }
   }
 }

@@ -173,6 +173,10 @@ pub(crate) enum Error<'src> {
     min: usize,
     max: usize,
   },
+  RecipeDisabled {
+    recipe: String,
+    modules: BTreeSet<Modulepath>,
+  },
   RecursionLimit {
     last: Name<'src>,
   },
@@ -723,6 +727,19 @@ impl ColorDisplay for Error<'_> {
             recipe.name(),
           )?;
         }
+      }
+      RecipeDisabled { recipe, modules } => {
+        let plural = if modules.len() == 1 { "" } else { "s" };
+        let verb = if modules.len() == 1 { "is" } else { "are" };
+        let list = modules
+          .iter()
+          .map(|module| format!("`{module}`"))
+          .collect::<Vec<String>>()
+          .join(", ");
+        write!(
+          f,
+          "recipe `{recipe}` depends on module{plural} {list}, which {verb} not present"
+        )?;
       }
       RecursionLimit { last } => write!(
         f,

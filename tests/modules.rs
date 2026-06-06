@@ -578,6 +578,157 @@ fn missing_optional_modules_do_not_conflict() {
 }
 
 #[test]
+fn recipe_depending_on_absent_optional_module_is_disabled() {
+  Test::new()
+    .justfile(
+      "
+        mod? foo
+
+        build: foo::setup
+          @echo BUILD
+
+        hello:
+          @echo HELLO
+      ",
+    )
+    .arg("build")
+    .stderr("error: recipe `build` depends on module `foo`, which is not present\n")
+    .failure();
+}
+
+#[test]
+fn recipes_not_depending_on_absent_optional_module_still_run() {
+  Test::new()
+    .justfile(
+      "
+        mod? foo
+
+        build: foo::setup
+          @echo BUILD
+
+        hello:
+          @echo HELLO
+      ",
+    )
+    .arg("hello")
+    .stdout("HELLO\n")
+    .success();
+}
+
+#[test]
+fn disabled_recipes_are_hidden_from_list() {
+  Test::new()
+    .justfile(
+      "
+        mod? foo
+
+        build: foo::setup
+          @echo BUILD
+
+        hello:
+          @echo HELLO
+      ",
+    )
+    .arg("--list")
+    .stdout(
+      "
+        Available recipes:
+            hello
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn disabled_recipes_are_hidden_from_summary() {
+  Test::new()
+    .justfile(
+      "
+        mod? foo
+
+        build: foo::setup
+          @echo BUILD
+
+        hello:
+          @echo HELLO
+      ",
+    )
+    .arg("--summary")
+    .stdout("hello\n")
+    .success();
+}
+
+#[test]
+fn disabled_recipe_runs_once_module_is_present() {
+  Test::new()
+    .justfile(
+      "
+        mod? foo
+
+        build: foo::setup
+          @echo BUILD
+      ",
+    )
+    .write("foo.just", "setup:\n @echo SETUP")
+    .arg("build")
+    .stdout("SETUP\nBUILD\n")
+    .success();
+}
+
+#[test]
+fn recipe_disabled_by_multiple_modules() {
+  Test::new()
+    .justfile(
+      "
+        mod? bar
+        mod? foo
+
+        build: foo::setup bar::ship
+          @echo BUILD
+      ",
+    )
+    .arg("build")
+    .stderr("error: recipe `build` depends on modules `bar`, `foo`, which are not present\n")
+    .failure();
+}
+
+#[test]
+fn disabling_is_transitive() {
+  Test::new()
+    .justfile(
+      "
+        mod? foo
+
+        build: foo::setup
+          @echo BUILD
+
+        deploy: build
+          @echo DEPLOY
+      ",
+    )
+    .arg("deploy")
+    .stderr("error: recipe `deploy` depends on module `foo`, which is not present\n")
+    .failure();
+}
+
+#[test]
+fn nested_absent_optional_module_disables_dependent() {
+  Test::new()
+    .justfile(
+      "
+        mod a
+
+        x: a::b::c
+          @echo X
+      ",
+    )
+    .write("a/mod.just", "mod? b\n\nay:\n @echo AY")
+    .arg("x")
+    .stderr("error: recipe `x` depends on module `a::b`, which is not present\n")
+    .failure();
+}
+
+#[test]
 fn root_dotenv_is_available_to_submodules() {
   Test::new()
     .justfile(
