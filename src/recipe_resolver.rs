@@ -169,10 +169,10 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
 
     if let Some(resolved) = recipes.get(name.lexeme()) {
       Some(Resolution::Resolved(Arc::clone(resolved)))
-    } else if let Some(disabled) = disabled.get(name.lexeme()) {
-      Some(Resolution::Disabled(disabled.modules.clone()))
     } else {
-      None
+      disabled
+        .get(name.lexeme())
+        .map(|disabled| Resolution::Disabled(disabled.modules.clone()))
     }
   }
 }
