@@ -268,7 +268,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
           });
         }
         return Ok((recipe, i + 1));
-      } else if let Some(disabled) = current.get_disabled(arg) {
+      } else if let Some(disabled) = current.disabled.get(arg) {
         return Err(Error::RecipeDisabled {
           recipe: Modulepath {
             components: path,

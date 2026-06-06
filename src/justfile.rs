@@ -413,10 +413,6 @@ impl<'src> Justfile<'src> {
       .or_else(|| self.aliases.get(name).map(|alias| alias.target.as_ref()))
   }
 
-  pub(crate) fn get_disabled(&self, name: &str) -> Option<&Disabled<'src>> {
-    self.disabled.get(name)
-  }
-
   pub(crate) fn is_submodule(&self) -> bool {
     self.name.is_some()
   }
