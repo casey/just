@@ -11,10 +11,14 @@ type Scopes<'src, 'run> = BTreeMap<
 
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Justfile<'src> {
+  #[serde(skip)]
+  pub(crate) absent: BTreeSet<String>,
   pub(crate) aliases: Table<'src, Alias<'src>>,
   pub(crate) assignments: Table<'src, Assignment<'src>>,
   #[serde(rename = "first", serialize_with = "keyed::serialize_option")]
   pub(crate) default: Option<Arc<Recipe<'src>>>,
+  #[serde(skip)]
+  pub(crate) disabled: Table<'src, Disabled<'src>>,
   pub(crate) doc: Option<String>,
   #[serde(skip)]
   pub(crate) functions: Table<'src, FunctionDefinition<'src>>,

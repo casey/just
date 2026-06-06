@@ -43,6 +43,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     private: bool,
     root: &Path,
   ) -> RunResult<'src, Justfile<'src>> {
+    let mut absent = BTreeSet::new();
     let mut definitions = HashMap::new();
     let mut imports = HashSet::new();
     let mut unstable_features = BTreeSet::new();
@@ -79,6 +80,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             doc,
             groups,
             name,
+            optional,
             private,
             ..
           } => {
@@ -96,6 +98,8 @@ impl<'run, 'src> Analyzer<'run, 'src> {
                 *private,
                 absolute,
               )?);
+            } else if *optional {
+              absent.insert(name.lexeme().to_string());
             }
           }
           Item::Newline => {}
@@ -254,7 +258,8 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       }
     }
 
-    let recipes = RecipeResolver::resolve_recipes(
+    let (recipes, disabled) = RecipeResolver::resolve_recipes(
+      &absent,
       &assignments,
       &functions,
       &ast.module_path,
@@ -304,9 +309,11 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     });
 
     Ok(Justfile {
+      absent,
       aliases,
       assignments,
       default,
+      disabled,
       doc: doc.filter(|doc| !doc.is_empty()),
       functions,
       groups: groups.into(),

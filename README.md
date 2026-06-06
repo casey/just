@@ -4215,7 +4215,10 @@ Modules may be made optional by putting a `?` after the `mod` keyword:
 mod? foo
 ```
 
-Missing source files for optional modules do not produce an error.
+Missing source files for optional modules do not produce an error. If a recipe
+depends on a missing optional module, directly, or transitively, it will be
+disabled. Attempting to invoke a disabled recipe is an error, but other
+non-disabled recipes can still be run.<sup>master</sup>
 
 Optional modules with no source file do not conflict, so you can have multiple
 mod statements with the same name, but with different source file paths, as

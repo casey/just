@@ -173,6 +173,10 @@ pub(crate) enum Error<'src> {
     min: usize,
     max: usize,
   },
+  RecipeDisabled {
+    recipe: Modulepath,
+    modules: BTreeSet<Modulepath>,
+  },
   RecursionLimit {
     last: Name<'src>,
   },
@@ -723,6 +727,14 @@ impl ColorDisplay for Error<'_> {
             recipe.name(),
           )?;
         }
+      }
+      RecipeDisabled { recipe, modules } => {
+        write!(
+          f,
+          "recipe `{recipe}` depends on absent {} {}",
+          Count("module", modules.len()),
+          List::and_ticked(modules)
+        )?;
       }
       RecursionLimit { last } => write!(
         f,
