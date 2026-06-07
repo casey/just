@@ -1,6 +1,22 @@
 use super::*;
 
 #[test]
+fn list_recipes_in_search_directory() {
+  Test::new()
+    .justfile("root-recipe:")
+    .write("child/justfile", "child-recipe:")
+    .current_dir("child")
+    .args(["--list", ".."])
+    .stdout(
+      "
+        Available recipes:
+            root-recipe
+      ",
+    )
+    .success();
+}
+
+#[test]
 fn modules_unsorted() {
   Test::new()
     .write("foo.just", "foo:")

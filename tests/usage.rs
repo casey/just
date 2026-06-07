@@ -3,11 +3,18 @@ use super::*;
 #[test]
 fn usage_recipe_in_search_directory() {
   Test::new()
-    .justfile("foo:")
+    .justfile("foo bar:")
     .write("child/justfile", "foo:")
     .current_dir("child")
     .args(["--usage", "../foo"])
-    .stdout("Usage: just foo\n")
+    .stdout(
+      "
+        Usage: just foo bar
+
+        Arguments:
+          bar
+      ",
+    )
     .success();
 }
 
