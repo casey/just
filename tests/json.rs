@@ -85,6 +85,7 @@ struct Settings<'a> {
   allow_duplicate_recipes: bool,
   allow_duplicate_variables: bool,
   default_list: bool,
+  default_script: bool,
   dotenv_filename: Option<&'a str>,
   dotenv_load: bool,
   dotenv_override: bool,
@@ -680,6 +681,7 @@ fn settings() {
     "
       set allow-duplicate-recipes
       set default-list
+      set default-script
       set dotenv-filename := \"filename\"
       set dotenv-load
       set dotenv-path := \"path\"
@@ -708,6 +710,7 @@ fn settings() {
       settings: Settings {
         allow_duplicate_recipes: true,
         default_list: true,
+        default_script: true,
         dotenv_filename: Some("filename"),
         dotenv_path: Some("path"),
         dotenv_load: true,

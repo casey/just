@@ -240,7 +240,8 @@ impl<'run, 'src> Analyzer<'run, 'src> {
         deduplicated_recipes.insert(recipe.clone());
       }
 
-      if !recipe.is_script() {
+      if !recipe.is_script(&settings) {
+        let mut continued = false;
         for line in &recipe.body {
           let sigils = line.sigils(&settings);
 
@@ -248,12 +249,33 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             let Fragment::Text { token } = line.fragments.first().unwrap() else {
               unreachable!();
             };
-            return Err(
-              token
-                .error(CompileErrorKind::GuardAndInfallibleSigil)
-                .into(),
-            );
+            return Err(token.error(GuardAndInfallibleSigil).into());
           }
+
+          if !continued {
+            if let Some(Fragment::Text { token }) = line.fragments.first() {
+              let text = token.lexeme();
+
+              if text.starts_with(' ') || text.starts_with('\t') {
+                return Err(token.error(ExtraLeadingWhitespace).into());
+              }
+            }
+          }
+
+          continued = line.is_continuation();
+        }
+
+        if let Some(attribute) = recipe.attributes.get(AttributeDiscriminant::Extension) {
+          return Err(
+            recipe
+              .name
+              .error(InvalidAttribute {
+                item_kind: "recipe",
+                item_name: recipe.name.lexeme(),
+                attribute: Box::new(attribute.clone()),
+              })
+              .into(),
+          );
         }
       }
     }
@@ -385,31 +407,6 @@ impl<'run, 'src> Analyzer<'run, 'src> {
               parameter: parameter.name.lexeme(),
             }),
         );
-      }
-    }
-
-    let mut continued = false;
-    for line in &recipe.body {
-      if !recipe.is_script() && !continued {
-        if let Some(Fragment::Text { token }) = line.fragments.first() {
-          let text = token.lexeme();
-
-          if text.starts_with(' ') || text.starts_with('\t') {
-            return Err(token.error(ExtraLeadingWhitespace));
-          }
-        }
-      }
-
-      continued = line.is_continuation();
-    }
-
-    if !recipe.is_script() {
-      if let Some(attribute) = recipe.attributes.get(AttributeDiscriminant::Extension) {
-        return Err(recipe.name.error(InvalidAttribute {
-          item_kind: "recipe",
-          item_name: recipe.name.lexeme(),
-          attribute: Box::new(attribute.clone()),
-        }));
       }
     }
 

@@ -8,6 +8,7 @@ pub(crate) enum Keyword {
   AllowDuplicateVariables,
   Assert,
   DefaultList,
+  DefaultScript,
   DotenvFilename,
   DotenvLoad,
   DotenvOverride,

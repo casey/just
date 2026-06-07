@@ -308,6 +308,122 @@ fn no_arguments_with_default_script_interpreter() {
 }
 
 #[test]
+fn default_script_makes_recipes_scripts() {
+  Test::new()
+    .justfile(
+      "
+        set default-script
+
+        foo:
+          bar=baz
+          echo $bar
+      ",
+    )
+    .stdout("baz\n")
+    .success();
+}
+
+#[test]
+fn default_script_uses_script_interpreter() {
+  Test::new()
+    .justfile(
+      "
+        set default-script
+        set script-interpreter := ['sh', '-x']
+
+        foo:
+          echo foo
+      ",
+    )
+    .stdout("foo\n")
+    .stderr("+ echo foo\n")
+    .success();
+}
+
+#[test]
+fn default_script_recipe_with_shebang_uses_shebang() {
+  if cfg!(windows) {
+    return;
+  }
+  Test::new()
+    .justfile(
+      "
+        set default-script
+
+        foo:
+          #!/usr/bin/env cat
+          bar
+      ",
+    )
+    .stdout(
+      "
+        #!/usr/bin/env cat
+
+
+
+        bar
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn default_script_recipe_with_script_attribute() {
+  Test::new()
+    .justfile(
+      "
+        set default-script
+
+        [script('cat')]
+        foo:
+          FOO
+      ",
+    )
+    .stdout(
+      "
+
+
+
+
+        FOO
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn default_script_false_is_linewise() {
+  Test::new()
+    .justfile(
+      "
+        set default-script := false
+
+        foo:
+          echo foo
+      ",
+    )
+    .stdout("foo\n")
+    .stderr("echo foo\n")
+    .success();
+}
+
+#[test]
+fn default_script_allows_extra_leading_whitespace() {
+  Test::new()
+    .justfile(
+      "
+        set default-script
+
+        foo:
+          echo foo
+            echo bar
+      ",
+    )
+    .stdout("foo\nbar\n")
+    .success();
+}
+
+#[test]
 fn no_arguments_with_non_default_script_interpreter() {
   Test::new()
     .justfile(

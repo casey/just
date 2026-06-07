@@ -76,6 +76,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         Setting::DefaultList(value) => {
           settings.default_list = value;
         }
+        Setting::DefaultScript(value) => {
+          settings.default_script = value;
+        }
         Setting::DotenvFilename(value) => {
           settings.dotenv_filename = Some(self.evaluate_expression(&value)?);
         }
