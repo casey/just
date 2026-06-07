@@ -160,15 +160,7 @@ impl Config {
     Ok((path, name))
   }
 
-  fn subcommand(
-    arguments: &Arguments,
-    positional: &Positional,
-    subcommand_positional: Option<&Positional>,
-  ) -> ConfigResult<Subcommand> {
-    let module_arguments = subcommand_positional
-      .map(|positional| positional.arguments.as_slice())
-      .unwrap_or_default();
-
+  fn subcommand(arguments: &Arguments, positional: &Positional) -> ConfigResult<Subcommand> {
     if arguments.subcommand.changelog {
       Ok(Subcommand::Changelog)
     } else if arguments.subcommand.choose {
@@ -216,7 +208,7 @@ impl Config {
       })
     } else if arguments.subcommand.list.is_some() {
       Ok(Subcommand::List {
-        path: Self::parse_modulepath(module_arguments)?,
+        path: Self::parse_modulepath(&positional.arguments)?,
       })
     } else if arguments.subcommand.man {
       Ok(Subcommand::Man)
@@ -227,13 +219,13 @@ impl Config {
       })
     } else if arguments.subcommand.show.is_some() {
       Ok(Subcommand::Show {
-        path: Self::parse_modulepath(module_arguments)?,
+        path: Self::parse_modulepath(&positional.arguments)?,
       })
     } else if arguments.subcommand.summary {
       Ok(Subcommand::Summary)
     } else if arguments.subcommand.usage.is_some() {
       Ok(Subcommand::Usage {
-        path: Self::parse_modulepath(module_arguments)?,
+        path: Self::parse_modulepath(&positional.arguments)?,
       })
     } else if arguments.subcommand.variables {
       Ok(Subcommand::Variables)
@@ -257,24 +249,23 @@ impl Config {
       );
     }
 
-    let positional = Positional::from_values(arguments.arguments.iter().map(String::as_str));
+    let positional = Positional::from_values(
+      arguments
+        .subcommand
+        .list
+        .as_deref()
+        .or(arguments.subcommand.show.as_deref())
+        .or(arguments.subcommand.usage.as_deref())
+        .unwrap_or(arguments.arguments.as_slice())
+        .iter()
+        .map(String::as_str),
+    );
 
     for (path, value) in &positional.overrides {
       overrides.insert(Self::parse_override(path)?, value.into());
     }
 
-    let subcommand_positional = arguments
-      .subcommand
-      .list
-      .as_deref()
-      .or(arguments.subcommand.show.as_deref())
-      .or(arguments.subcommand.usage.as_deref())
-      .map(|values| Positional::from_values(values.iter().map(String::as_str)));
-
-    let search_config = Self::search_config(
-      &arguments,
-      subcommand_positional.as_ref().unwrap_or(&positional),
-    )?;
+    let search_config = Self::search_config(&arguments, &positional)?;
 
     let format_overrides = || {
       overrides
@@ -283,7 +274,7 @@ impl Config {
         .collect()
     };
 
-    let subcommand = Self::subcommand(&arguments, &positional, subcommand_positional.as_ref())?;
+    let subcommand = Self::subcommand(&arguments, &positional)?;
 
     if !subcommand.takes_arguments() {
       match (!overrides.is_empty(), !positional.arguments.is_empty()) {
