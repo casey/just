@@ -163,9 +163,9 @@ impl Config {
   fn subcommand(
     arguments: &Arguments,
     positional: &Positional,
-    module_positional: Option<&Positional>,
+    subcommand_positional: Option<&Positional>,
   ) -> ConfigResult<Subcommand> {
-    let module_arguments = module_positional
+    let module_arguments = subcommand_positional
       .map(|positional| positional.arguments.as_slice())
       .unwrap_or_default();
 
