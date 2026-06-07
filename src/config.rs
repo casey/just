@@ -263,7 +263,7 @@ impl Config {
       overrides.insert(Self::parse_override(path)?, value.into());
     }
 
-    let module_positional = arguments
+    let subcommand_positional = arguments
       .subcommand
       .list
       .as_deref()
@@ -273,7 +273,7 @@ impl Config {
 
     let search_config = Self::search_config(
       &arguments,
-      module_positional.as_ref().unwrap_or(&positional),
+      subcommand_positional.as_ref().unwrap_or(&positional),
     )?;
 
     let format_overrides = || {
@@ -283,7 +283,7 @@ impl Config {
         .collect()
     };
 
-    let subcommand = Self::subcommand(&arguments, &positional, module_positional.as_ref())?;
+    let subcommand = Self::subcommand(&arguments, &positional, subcommand_positional.as_ref())?;
 
     if !subcommand.takes_arguments() {
       match (!overrides.is_empty(), !positional.arguments.is_empty()) {
