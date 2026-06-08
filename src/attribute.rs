@@ -42,6 +42,7 @@ pub(crate) enum Attribute<'src> {
   PositionalArguments,
   Private,
   Script(Option<Interpreter<StringLiteral<'src>>>),
+  Shell,
   Unix,
   Windows,
   WorkingDirectory(Expression<'src>),
@@ -73,6 +74,7 @@ impl AttributeDiscriminant {
       | Self::Parallel
       | Self::PositionalArguments
       | Self::Private
+      | Self::Shell
       | Self::Unix
       | Self::Windows => 0..=0,
       Self::Confirm | Self::Doc => 0..=1,
@@ -252,6 +254,7 @@ impl<'src> Attribute<'src> {
           arguments: arguments.collect(),
         })
       }),
+      AttributeDiscriminant::Shell => Self::Shell,
       AttributeDiscriminant::Unix => Self::Unix,
       AttributeDiscriminant::Windows => Self::Windows,
     };
@@ -354,6 +357,7 @@ impl Display for Attribute<'_> {
       | Self::PositionalArguments
       | Self::Private
       | Self::Script(None)
+      | Self::Shell
       | Self::Unix
       | Self::Windows => {}
       Self::Confirm(Some(argument)) | Self::WorkingDirectory(argument) => {

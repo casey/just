@@ -295,6 +295,10 @@ impl Display for CompileError<'_> {
           )
         }
       }
+      ScriptAndShellAttribute { recipe } => write!(
+        f,
+        "recipe `{recipe}` has both `[script]` and `[shell]` attributes"
+      ),
       ShellExpansion { err } => write!(f, "shell expansion failed: {err}"),
       ShortOptionWithMultipleCharacters { parameter } => {
         write!(

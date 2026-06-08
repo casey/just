@@ -3,10 +3,10 @@ use super::*;
 const JUSTFILE: &str = "
 foo := `cat data`
 
-linewise bar=`cat data`: shebang
+shell bar=`cat data`: shebang
   echo expression: {{foo}}
   echo default: {{bar}}
-  echo linewise: `cat data`
+  echo shell: `cat data`
 
 shebang:
   #!/usr/bin/env sh
@@ -15,7 +15,7 @@ shebang:
 
 const DATA: &str = "OK";
 
-const WANT: &str = "shebang: OK\nexpression: OK\ndefault: OK\nlinewise: OK\n";
+const WANT: &str = "shebang: OK\nexpression: OK\ndefault: OK\nshell: OK\n";
 
 /// Test that just runs with the correct working directory when invoked with
 /// `--justfile` but not `--working-directory`

@@ -263,7 +263,7 @@ fn extension() {
 }
 
 #[test]
-fn extension_on_linewise_error() {
+fn extension_on_shell_error() {
   Test::new()
     .justfile(
       "

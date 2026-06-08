@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn linewise() {
+fn shell() {
   Test::new()
     .justfile(
       "
