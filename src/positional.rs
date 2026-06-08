@@ -18,7 +18,7 @@ use super::*;
 /// - Everything else is an argument.
 ///
 /// Overrides set the values of top-level variables in the justfile being
-/// invoked and are a convenient way to override settings.
+/// invoked.
 ///
 /// For modes that do not take other arguments, the search directory argument
 /// determines where to begin searching for the justfile.  This allows command

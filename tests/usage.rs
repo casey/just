@@ -1,6 +1,24 @@
 use super::*;
 
 #[test]
+fn usage_recipe_in_search_directory() {
+  Test::new()
+    .justfile("foo bar:")
+    .write("child/justfile", "foo:")
+    .current_dir("child")
+    .args(["--usage", "../foo"])
+    .stdout(
+      "
+        Usage: just foo bar
+
+        Arguments:
+          bar
+      ",
+    )
+    .success();
+}
+
+#[test]
 fn usage() {
   Test::new()
     .justfile("mod bar")

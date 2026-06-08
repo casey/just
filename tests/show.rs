@@ -166,3 +166,14 @@ fn show_space_separated_path() {
     .stdout("bar:\n    @echo MODULE\n")
     .success();
 }
+
+#[test]
+fn show_recipe_in_search_directory() {
+  Test::new()
+    .justfile("foo:\n @echo ROOT")
+    .write("child/justfile", "foo:\n @echo CHILD")
+    .current_dir("child")
+    .args(["--show", "../foo"])
+    .stdout("foo:\n    @echo ROOT\n")
+    .success();
+}
