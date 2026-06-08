@@ -5,6 +5,7 @@ pub(crate) enum Setting<'src> {
   AllowDuplicateRecipes(bool),
   AllowDuplicateVariables(bool),
   DefaultList(bool),
+  DefaultScript(bool),
   DotenvFilename(Expression<'src>),
   DotenvLoad(bool),
   DotenvOverride(bool),
@@ -34,6 +35,7 @@ impl<'src> Setting<'src> {
       Self::AllowDuplicateRecipes(value)
       | Self::AllowDuplicateVariables(value)
       | Self::DefaultList(value)
+      | Self::DefaultScript(value)
       | Self::DotenvLoad(value)
       | Self::DotenvOverride(value)
       | Self::DotenvRequired(value)
@@ -85,6 +87,7 @@ impl Display for Setting<'_> {
       Self::AllowDuplicateRecipes(value)
       | Self::AllowDuplicateVariables(value)
       | Self::DefaultList(value)
+      | Self::DefaultScript(value)
       | Self::DotenvLoad(value)
       | Self::DotenvOverride(value)
       | Self::DotenvRequired(value)
