@@ -364,6 +364,10 @@ impl<'src> Justfile<'src> {
 
       if let Some(module) = current.modules.get(component) {
         current = module;
+      } else if current.absent.contains(component) {
+        return Err(Error::ModuleAbsent {
+          module: current.module_path.join(component),
+        });
       } else if last {
         return Err(Error::EvalUnknownSubmoduleOrVariable {
           suggestion: current.suggest_variable_or_submodule(component),
