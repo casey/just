@@ -22,10 +22,10 @@ impl<'src> Resolution<'src> {
       walked.push(lexeme.to_string());
 
       if let Some(module) = modules.get(lexeme) {
-        absent_modules = &module.absent_modules;
-        disabled_recipes = &module.disabled_recipes;
         modules = &module.modules;
+        absent_modules = &module.absent_modules;
         recipes = &module.recipes;
+        disabled_recipes = &module.disabled_recipes;
       } else if absent_modules.contains(lexeme) {
         return Some(Self::Disabled(BTreeSet::from([Modulepath {
           components: walked,
