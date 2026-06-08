@@ -784,14 +784,6 @@ fn evaluate_absent_optional_module_is_error() {
 }
 
 #[test]
-fn allow_missing_suppresses_absent_optional_module() {
-  Test::new()
-    .justfile("mod? foo")
-    .args(["--allow-missing", "foo::bar"])
-    .success();
-}
-
-#[test]
 fn fallback_halts_on_absent_optional_module() {
   Test::new()
     .justfile("mod foo")

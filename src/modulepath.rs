@@ -7,22 +7,15 @@ pub(crate) struct Modulepath {
 }
 
 impl Modulepath {
-  pub(crate) fn join(&self, name: &str) -> String {
-    if self.components.is_empty() {
-      name.into()
-    } else if self.spaced {
-      format!("{self} {name}")
-    } else {
-      format!("{self}::{name}")
-    }
-  }
-
-  pub(crate) fn child(&self, name: &str) -> Self {
-    let mut components = self.components.clone();
-    components.push(name.to_string());
+  pub(crate) fn join(&self, name: &str) -> Self {
     Self {
-      components,
-      spaced: false,
+      components: self
+        .components
+        .iter()
+        .cloned()
+        .chain(iter::once(name.to_owned()))
+        .collect(),
+      spaced: self.spaced,
     }
   }
 

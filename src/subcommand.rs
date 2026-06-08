@@ -513,7 +513,7 @@ impl Subcommand {
         module = submodule;
       } else if module.absent.contains(name) {
         return Err(Error::ModuleAbsent {
-          module: module.module_path.child(name),
+          module: module.module_path.join(name),
         });
       } else {
         return Err(Error::UnknownSubmodule {
@@ -890,7 +890,7 @@ impl Subcommand {
         module = submodule;
       } else if module.absent.contains(name) {
         return Err(Error::ModuleAbsent {
-          module: module.module_path.child(name),
+          module: module.module_path.join(name),
         });
       } else {
         return Err(Error::UnknownSubmodule {

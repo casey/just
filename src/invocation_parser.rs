@@ -278,7 +278,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
         });
       } else if current.absent.contains(arg) {
         return Err(Error::ModuleAbsent {
-          module: current.module_path.child(arg),
+          module: current.module_path.join(arg),
         });
       } else {
         if modulepath && i + 1 < args.len() {

@@ -364,7 +364,7 @@ impl<'src> Justfile<'src> {
         current = module;
       } else if current.absent.contains(component) {
         return Err(Error::ModuleAbsent {
-          module: current.module_path.child(component),
+          module: current.module_path.join(component),
         });
       } else if last {
         return Err(Error::EvalUnknownSubmoduleOrVariable {

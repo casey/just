@@ -20,7 +20,7 @@ impl<'run, 'src> Completer<'run, 'src> {
 
     if self.config.complete_aliases {
       for (alias, modulepath) in self.justfile.public_aliases_recursive(&self.config) {
-        let name = modulepath.join(alias.name.lexeme());
+        let name = modulepath.join(alias.name.lexeme()).to_string();
         if name.starts_with(self.current) {
           candidates
             .push(CompletionCandidate::new(name).help(alias.target.doc.as_ref().map(Into::into)));
