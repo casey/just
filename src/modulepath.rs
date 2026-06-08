@@ -13,7 +13,7 @@ impl Modulepath {
         .components
         .iter()
         .cloned()
-        .chain(iter::once(name.to_owned()))
+        .chain(iter::once(name.into()))
         .collect(),
       spaced: self.spaced,
     }
