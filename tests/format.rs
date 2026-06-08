@@ -38,6 +38,38 @@ fn check_ok() {
 }
 
 #[test]
+fn from_stdin() {
+  Test::new()
+    .no_justfile()
+    .args(["--fmt", "--justfile", "-"])
+    .stdin("x:=``\n")
+    .stdout("x := ``\n")
+    .test_round_trip(false)
+    .success();
+}
+
+#[test]
+fn check_from_stdin() {
+  Test::new()
+    .no_justfile()
+    .args(["--fmt", "--check", "--justfile", "-"])
+    .stdin("x:=``\n")
+    .stdout(
+      "
+        -x:=``
+        +x := ``
+      ",
+    )
+    .stderr(
+      "
+        error: formatted justfile differs from original
+      ",
+    )
+    .test_round_trip(false)
+    .failure();
+}
+
+#[test]
 fn check_found_diff() {
   Test::new()
     .arg("--fmt")

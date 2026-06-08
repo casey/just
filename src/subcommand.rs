@@ -427,6 +427,9 @@ impl Subcommand {
       }
 
       Err(Error::FormatCheckFoundDiff)
+    } else if matches!(config.search_config, SearchConfig::FromStandardInput { .. }) {
+      print!("{formatted}");
+      Ok(())
     } else {
       fs::write(&search.justfile, formatted).map_err(|io_error| Error::WriteJustfile {
         justfile: search.justfile.clone(),
