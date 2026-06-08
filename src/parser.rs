@@ -1257,6 +1257,14 @@ impl<'run, 'src> Parser<'run, 'src> {
       );
     }
 
+    if attributes.contains(AttributeDiscriminant::Script)
+      && attributes.contains(AttributeDiscriminant::Shell)
+    {
+      return Err(name.error(CompileErrorKind::ScriptAndShellAttribute {
+        recipe: name.lexeme(),
+      }));
+    }
+
     let private =
       name.lexeme().starts_with('_') || attributes.contains(AttributeDiscriminant::Private);
 

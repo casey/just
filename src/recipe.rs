@@ -58,7 +58,11 @@ impl<'src, D> Recipe<'src, D> {
   }
 
   pub(crate) fn is_script(&self, settings: &Settings) -> bool {
-    self.shebang || settings.default_script
+    if self.attributes.contains(AttributeDiscriminant::Shell) {
+      false
+    } else {
+      self.shebang || settings.default_script
+    }
   }
 
   pub(crate) fn name(&self) -> &'src str {

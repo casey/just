@@ -443,3 +443,57 @@ fn no_arguments_with_non_default_script_interpreter() {
     )
     .success();
 }
+
+#[test]
+fn shell_attribute_overrides_default_script() {
+  Test::new()
+    .justfile(
+      "
+        set default-script
+
+        [shell]
+        foo:
+          echo foo
+      ",
+    )
+    .stdout("foo\n")
+    .stderr("echo foo\n")
+    .success();
+}
+
+#[test]
+fn shell_attribute_overrides_shebang() {
+  Test::new()
+    .justfile(
+      "
+        [shell]
+        foo:
+          #!/bin/sh
+          echo foo
+      ",
+    )
+    .stdout("foo\n")
+    .stderr("#!/bin/sh\necho foo\n")
+    .success();
+}
+
+#[test]
+fn script_and_shell_attribute_compile_forbidden() {
+  Test::new()
+    .justfile(
+      "
+        [script, shell]
+        bar:
+      ",
+    )
+    .stderr(
+      "
+        error: recipe `bar` has both `[script]` and `[shell]` attributes
+         ——▶ justfile:2:1
+          │
+        2 │ bar:
+          │ ^^^
+      ",
+    )
+    .failure();
+}
