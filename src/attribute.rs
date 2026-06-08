@@ -2,7 +2,7 @@ use super::*;
 
 #[allow(clippy::large_enum_variant)]
 #[derive(
-  EnumDiscriminants, PartialEq, Eq, PartialOrd, Ord, Debug, Clone, Serialize, IntoStaticStr,
+  Clone, Debug, EnumDiscriminants, Eq, IntoStaticStr, Ord, PartialEq, PartialOrd, Serialize,
 )]
 #[strum(serialize_all = "kebab-case")]
 #[serde(rename_all = "kebab-case")]
