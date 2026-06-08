@@ -55,6 +55,10 @@ man:
 view-man: man
   man man/just.1
 
+[group: 'doc']
+doc:
+  cargo doc --all --open
+
 # add git log messages to changelog
 [group: 'release']
 update-changelog:
