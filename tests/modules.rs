@@ -792,14 +792,14 @@ fn allow_missing_suppresses_absent_optional_module() {
 }
 
 #[test]
-fn fallback_applies_to_absent_optional_module() {
+fn fallback_halts_on_absent_optional_module() {
   Test::new()
     .justfile("mod foo")
     .write("foo.just", "bar:\n @echo BAR")
     .write("sub/justfile", "set fallback\n\nmod? foo\n")
     .args(["sub/foo::bar"])
-    .stdout("BAR\n")
-    .success();
+    .stderr("error: optional module `foo` is absent\n")
+    .failure();
 }
 
 #[test]

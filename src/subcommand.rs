@@ -189,12 +189,7 @@ impl Subcommand {
       let result = justfile.run(config, &search, arguments, &compilation.overrides);
 
       if fallback {
-        if let Err(
-          err @ (Error::UnknownRecipe { .. }
-          | Error::UnknownSubmodule { .. }
-          | Error::ModuleAbsent { .. }),
-        ) = result
-        {
+        if let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result {
           search = search.search_parent_directory(config).map_err(|_| err)?;
 
           if config.verbosity.loquacious() {
@@ -220,11 +215,7 @@ impl Subcommand {
       if config.allow_missing
         && matches!(
           result,
-          Err(
-            Error::UnknownRecipe { .. }
-              | Error::UnknownSubmodule { .. }
-              | Error::ModuleAbsent { .. }
-          )
+          Err(Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })
         )
       {
         return Ok(());
