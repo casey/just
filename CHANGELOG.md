@@ -1,7 +1,30 @@
 Changelog
 =========
 
-[1.51.0](https://github.com/casey/just/releases/tag/1.50.0) - 2026-05-09
+[1.52.0](https://github.com/casey/just/releases/tag/1.52.0) - 2026-06-08
+------------------------------------------------------------------------
+
+### Added
+- Add `[shell]` attribute to override `default-script` setting ([#3359](https://github.com/casey/just/pull/3359) by [casey](https://github.com/casey))
+- Add `default-script` setting ([#3354](https://github.com/casey/just/pull/3354) by [casey](https://github.com/casey))
+- Add `--default-list` flag ([#3350](https://github.com/casey/just/pull/3350) by [casey](https://github.com/casey))
+- Add `default-list` setting ([#3337](https://github.com/casey/just/pull/3337) by [casey](https://github.com/casey))
+
+### Changed
+- Disable aliases that depend on absent modules ([#3358](https://github.com/casey/just/pull/3358) by [casey](https://github.com/casey))
+- Print formatted justfile to stdout when source is stdin ([#3356](https://github.com/casey/just/pull/3356) by [casey](https://github.com/casey))
+- Allow search directory with more subcommands ([#3353](https://github.com/casey/just/pull/3353) by [casey](https://github.com/casey))
+- Disable recipes that depend on absent modules ([#3352](https://github.com/casey/just/pull/3352) by [casey](https://github.com/casey))
+
+### Misc
+- Improve absent optional module error messages ([#3357](https://github.com/casey/just/pull/3357) by [casey](https://github.com/casey))
+- Alphabetize Attribute derive macro order ([#3355](https://github.com/casey/just/pull/3355) by [casey](https://github.com/casey))
+- Include UTF-8 byte-order mark in PowerShell scripts ([#3347](https://github.com/casey/just/pull/3347) by [casey](https://github.com/casey))
+- Remove options from `--list` output ([#3346](https://github.com/casey/just/pull/3346) by [casey](https://github.com/casey))
+- Switch from ansi_term to nu_ansi_term ([#3344](https://github.com/casey/just/pull/3344) by [casey](https://github.com/casey))
+- Remove redundant argument parser attributes ([#3340](https://github.com/casey/just/pull/3340) by [casey](https://github.com/casey))
+
+[1.51.0](https://github.com/casey/just/releases/tag/1.51.0) - 2026-05-09
 ------------------------------------------------------------------------
 
 ### Added
