@@ -709,7 +709,8 @@ project.</p>
 <p>The search for a <code>justfile</code> is case insensitive, so any case, like <code>Justfile</code>,
 <code>JUSTFILE</code>, or <code>JuStFiLe</code>, will work. <code>just</code> will also look for files with the
 name <code>.justfile</code>, in case you’d like to hide a <code>justfile</code>.</p>
-<p>Running <code>just</code> with no arguments runs the first recipe in the <code>justfile</code>:</p>
+<p>By default, running <code>just</code> with no arguments runs the first recipe in the
+<code>justfile</code>:</p>
 <pre><code class="language-console">$ just
 echo 'This is a recipe!'
 This is a recipe!
@@ -788,10 +789,9 @@ test:
 lint:
   echo Linting…
 </code></pre>
-<p>If no recipe makes sense as the default recipe, you can add a recipe to the
-beginning of your <code>justfile</code> that lists the available recipes:</p>
-<pre><code class="language-just">default:
-  just --list
+<p>If no recipe makes sense as the default recipe, you can use
+<code>default-list</code><sup>1.52.0</sup> to list the available recipes instead:</p>
+<pre><code class="language-just">set default-list := true
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="listing-available-recipes"><a class="header" href="#listing-available-recipes">Listing Available Recipes</a></h3>
 <p>Recipes can be listed in alphabetical order with <code>just --list</code>:</p>
@@ -836,17 +836,15 @@ Available recipes:
 <pre><code class="language-console">$ just --summary --unsorted
 test build
 </code></pre>
-<p>If you’d like <code>just</code> to default to listing the recipes in the <code>justfile</code>, you
-can use this as your default recipe:</p>
-<pre><code class="language-just">default:
-  @just --list
+<p>If you’d like <code>just</code> to default to listing the recipes in the <code>justfile</code>, set
+<code>default-list</code><sup>1.52.0</sup>:</p>
+<pre><code class="language-just">set default-list := true
 </code></pre>
-<p>Note that you may need to add <code>--justfile {{justfile()}}</code> to the line above.
-Without it, if you executed <code>just -f /some/distant/justfile -d .</code> or
-<code>just -f ./non-standard-justfile</code>, the plain <code>just --list</code> inside the recipe
-would not necessarily use the file you provided. It would try to find a
-justfile in your current path, maybe even resulting in a <code>No justfile found</code>
-error.</p>
+<p>The setting is per-module, so invoking a module path with <code>default-list</code>
+enabled lists that module’s recipes.</p>
+<p>You can also default to listing recipes this behavior by settting the
+environment variable <code>JUST_DEFAULT_LIST=true</code> or passing
+<code>--default-list</code><sup>1.52.0</sup>.</p>
 <p>The heading text can be customized with <code>--list-heading</code>:</p>
 <pre><code class="language-console">$ just --list --list-heading $'Cool stuff…\n'
 Cool stuff…
@@ -973,6 +971,8 @@ foo:
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Value</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>allow-duplicate-recipes</code></td><td>boolean</td><td><code>false</code></td><td>Allow recipes appearing later in a <code>justfile</code> to override earlier recipes with the same name.</td></tr>
 <tr><td><code>allow-duplicate-variables</code></td><td>boolean</td><td><code>false</code></td><td>Allow variables appearing later in a <code>justfile</code> to override earlier variables with the same name.</td></tr>
+<tr><td><code>default-list</code></td><td>boolean</td><td><code>false</code></td><td>List recipes instead of running the default recipe.</td></tr>
+<tr><td><code>default-script</code><sup>1.52.0</sup></td><td>boolean</td><td><code>false</code></td><td>Default recipes to script instead of shell.</td></tr>
 <tr><td><code>dotenv-filename</code></td><td>string</td><td>-</td><td>Load a <code>.env</code> file with a custom name, if present.</td></tr>
 <tr><td><code>dotenv-load</code></td><td>boolean</td><td><code>false</code></td><td>Load a <code>.env</code> file, if present.</td></tr>
 <tr><td><code>dotenv-override</code></td><td>boolean</td><td><code>false</code></td><td>Override existing environment variables with values from the <code>.env</code> file.</td></tr>
@@ -1114,8 +1114,8 @@ with <code>export</code> and assignments in a module with <code>set export</code
 evaluated.</p>
 <h4 id="positional-arguments"><a class="header" href="#positional-arguments">Positional Arguments</a></h4>
 <p>If <code>positional-arguments</code> is <code>true</code>, recipe arguments will be passed as
-positional arguments to commands. For linewise recipes, argument <code>$0</code> will be
-the name of the recipe.</p>
+positional arguments to commands. For shell recipes, argument <code>$0</code> will be the
+name of the recipe.</p>
 <p>For example, running this recipe:</p>
 <pre><code class="language-just">set positional-arguments
 
@@ -1455,7 +1455,7 @@ evaluated expressions.</p>
 <pre><code class="language-justfile">foo := f'I {{{{LOVE} curly braces!'
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="sigils"><a class="header" href="#sigils">Sigils</a></h3>
-<p>Commands in linewise recipes may be prefixed with any combination of the sigils
+<p>Commands in shell recipes may be prefixed with any combination of the sigils
 <code>-</code>, <code>@</code>, and <code>?</code>.</p>
 <p>The <code>@</code> sigil toggles command echoing:</p>
 <pre><code class="language-just">foo:
@@ -1998,6 +1998,7 @@ change their behavior.</p>
 <tr><td><code>[private]</code><sup>1.10.0</sup></td><td>alias, recipe</td><td>Make recipe, alias, or variable private. See <a href="private-recipes.html">Private Recipes</a>.</td></tr>
 <tr><td><code>[script(COMMAND)]</code><sup>1.32.0</sup></td><td>recipe</td><td>Execute recipe as a script interpreted by <code>COMMAND</code>. See <a href="script-recipes.html">script recipes</a> for more details.</td></tr>
 <tr><td><code>[script]</code><sup>1.33.0</sup></td><td>recipe</td><td>Execute recipe as script. See <a href="script-recipes.html">script recipes</a> for more details.</td></tr>
+<tr><td><code>[shell]</code><sup>1.52.0</sup></td><td>recipe</td><td>Execute recipe as a shell recipe, overriding <code>set default-script</code>.</td></tr>
 <tr><td><code>[unix]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on unixes. (Includes macOS).</td></tr>
 <tr><td><code>[windows]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on Windows.</td></tr>
 <tr><td><code>[working-directory(PATH)]</code><sup>1.38.0</sup></td><td>recipe</td><td>Set recipe working directory. <code>PATH</code> may be an expression<sup>1.51.0</sup> whose value is relative or absolute. If relative, it is interpreted relative to the default working directory.</td></tr>
@@ -2703,6 +2704,9 @@ requiring a temporary directory from which files can be executed.</p>
 the value of <code>set shell</code>.</p>
 <p>The body of the recipe is evaluated, written to disk in the temporary
 directory, and run by passing its path as an argument to <code>COMMAND</code>.</p>
+<p>With <code>set default-script := true</code><sup>1.52.0</sup>, recipes default to script
+recipes instead of shell recipes, unless overridden with the <code>[shell]</code>
+attribute<sup>1.52.0</sup>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="script-and-shebang-recipe-temporary-files"><a class="header" href="#script-and-shebang-recipe-temporary-files">Script and Shebang Recipe Temporary Files</a></h3>
 <p>Both script and shebang recipes write the recipe body to a temporary file for
 execution. Script recipes execute that file by passing it to a command, while
@@ -2761,8 +2765,8 @@ goodbye:
   echo "$hello from Bash!"
 </code></pre>
 <p>It isn’t strictly necessary, but <code>set -euxo pipefail</code> turns on a few useful
-features that make <code>bash</code> shebang recipes behave more like normal, linewise
-<code>just</code> recipes:</p>
+features that make <code>bash</code> shebang recipes behave more like normal, shell <code>just</code>
+recipes:</p>
 <ul>
 <li>
 <p><code>set -e</code> makes <code>bash</code> exit if a command fails.</p>
@@ -2775,7 +2779,7 @@ features that make <code>bash</code> shebang recipes behave more like normal, li
 </li>
 <li>
 <p><code>set -o pipefail</code> makes <code>bash</code> exit if a command in a pipeline fails. This is
-<code>bash</code>-specific, so isn’t turned on in normal linewise <code>just</code> recipes.</p>
+<code>bash</code>-specific, so isn’t turned on in normal shell <code>just</code> recipes.</p>
 </li>
 </ul>
 <p>Together, these avoid a lot of shell scripting gotchas.</p>
@@ -3311,7 +3315,10 @@ recipes.</p>
 <p>Modules may be made optional by putting a <code>?</code> after the <code>mod</code> keyword:</p>
 <pre><code class="language-just">mod? foo
 </code></pre>
-<p>Missing source files for optional modules do not produce an error.</p>
+<p>Missing source files for optional modules do not produce an error. If a recipe
+or alias depends on a missing optional module, directly, or transitively, it
+will be disabled. Attempting to invoke a disabled recipe or alias is an error,
+but other non-disabled recipes can still be run.<sup>1.52.0</sup></p>
 <p>Optional modules with no source file do not conflict, so you can have multiple
 mod statements with the same name, but with different source file paths, as
 long as at most one source file exists:</p>
@@ -3382,6 +3389,8 @@ $ cat justfile
 some-recipe:
     echo "foo"
 </code></pre>
+<p>When the <code>justfile</code> is read from standard input with <code>--justfile -</code>, <code>--fmt</code>
+prints the formatted <code>justfile</code> to stdout.</p>
 <p>Note that formatting is not covered by any backwards compatibility guarantee
 and is subject to change from time to time.</p>
 <p>Invoking <code>just --fmt --check</code> runs <code>--fmt</code> in check mode. Instead of
@@ -3460,9 +3469,9 @@ foo argument:
 <code>$argument</code>, but works for all possible values of <code>argument</code>, including those
 with double quotes.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="configuring-the-shell"><a class="header" href="#configuring-the-shell">Configuring the Shell</a></h3>
-<p>There are a number of ways to configure the shell for linewise recipes, which
-are the default when a recipe does not start with a <code>#!</code> shebang. Their
-precedence, from highest to lowest, is:</p>
+<p>There are a number of ways to configure the shell for shell recipes, which are
+the default when a recipe does not start with a <code>#!</code> shebang. Their precedence,
+from highest to lowest, is:</p>
 <ol>
 <li>The <code>--shell</code> and <code>--shell-arg</code> command line options. Passing either of
 these will cause <code>just</code> to ignore any settings in the current justfile.</li>

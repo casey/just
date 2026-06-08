@@ -221,17 +221,15 @@ Available recipes:
 <pre><code class="language-console">$ just --summary --unsorted
 test build
 </code></pre>
-<p>If you’d like <code>just</code> to default to listing the recipes in the <code>justfile</code>, you
-can use this as your default recipe:</p>
-<pre><code class="language-just">default:
-  @just --list
+<p>If you’d like <code>just</code> to default to listing the recipes in the <code>justfile</code>, set
+<code>default-list</code><sup>1.52.0</sup>:</p>
+<pre><code class="language-just">set default-list := true
 </code></pre>
-<p>Note that you may need to add <code>--justfile {{justfile()}}</code> to the line above.
-Without it, if you executed <code>just -f /some/distant/justfile -d .</code> or
-<code>just -f ./non-standard-justfile</code>, the plain <code>just --list</code> inside the recipe
-would not necessarily use the file you provided. It would try to find a
-justfile in your current path, maybe even resulting in a <code>No justfile found</code>
-error.</p>
+<p>The setting is per-module, so invoking a module path with <code>default-list</code>
+enabled lists that module’s recipes.</p>
+<p>You can also default to listing recipes this behavior by settting the
+environment variable <code>JUST_DEFAULT_LIST=true</code> or passing
+<code>--default-list</code><sup>1.52.0</sup>.</p>
 <p>The heading text can be customized with <code>--list-heading</code>:</p>
 <pre><code class="language-console">$ just --list --list-heading $'Cool stuff…\n'
 Cool stuff…

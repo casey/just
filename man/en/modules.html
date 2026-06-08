@@ -225,7 +225,10 @@ recipes.</p>
 <p>Modules may be made optional by putting a <code>?</code> after the <code>mod</code> keyword:</p>
 <pre><code class="language-just">mod? foo
 </code></pre>
-<p>Missing source files for optional modules do not produce an error.</p>
+<p>Missing source files for optional modules do not produce an error. If a recipe
+or alias depends on a missing optional module, directly, or transitively, it
+will be disabled. Attempting to invoke a disabled recipe or alias is an error,
+but other non-disabled recipes can still be run.<sup>1.52.0</sup></p>
 <p>Optional modules with no source file do not conflict, so you can have multiple
 mod statements with the same name, but with different source file paths, as
 long as at most one source file exists:</p>

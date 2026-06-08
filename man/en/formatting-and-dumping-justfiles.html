@@ -199,6 +199,8 @@ $ cat justfile
 some-recipe:
     echo "foo"
 </code></pre>
+<p>When the <code>justfile</code> is read from standard input with <code>--justfile -</code>, <code>--fmt</code>
+prints the formatted <code>justfile</code> to stdout.</p>
 <p>Note that formatting is not covered by any backwards compatibility guarantee
 and is subject to change from time to time.</p>
 <p>Invoking <code>just --fmt --check</code> runs <code>--fmt</code> in check mode. Instead of

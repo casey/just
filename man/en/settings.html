@@ -192,6 +192,8 @@ foo:
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Value</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>allow-duplicate-recipes</code></td><td>boolean</td><td><code>false</code></td><td>Allow recipes appearing later in a <code>justfile</code> to override earlier recipes with the same name.</td></tr>
 <tr><td><code>allow-duplicate-variables</code></td><td>boolean</td><td><code>false</code></td><td>Allow variables appearing later in a <code>justfile</code> to override earlier variables with the same name.</td></tr>
+<tr><td><code>default-list</code></td><td>boolean</td><td><code>false</code></td><td>List recipes instead of running the default recipe.</td></tr>
+<tr><td><code>default-script</code><sup>1.52.0</sup></td><td>boolean</td><td><code>false</code></td><td>Default recipes to script instead of shell.</td></tr>
 <tr><td><code>dotenv-filename</code></td><td>string</td><td>-</td><td>Load a <code>.env</code> file with a custom name, if present.</td></tr>
 <tr><td><code>dotenv-load</code></td><td>boolean</td><td><code>false</code></td><td>Load a <code>.env</code> file, if present.</td></tr>
 <tr><td><code>dotenv-override</code></td><td>boolean</td><td><code>false</code></td><td>Override existing environment variables with values from the <code>.env</code> file.</td></tr>
@@ -333,8 +335,8 @@ with <code>export</code> and assignments in a module with <code>set export</code
 evaluated.</p>
 <h4 id="positional-arguments"><a class="header" href="#positional-arguments">Positional Arguments</a></h4>
 <p>If <code>positional-arguments</code> is <code>true</code>, recipe arguments will be passed as
-positional arguments to commands. For linewise recipes, argument <code>$0</code> will be
-the name of the recipe.</p>
+positional arguments to commands. For shell recipes, argument <code>$0</code> will be the
+name of the recipe.</p>
 <p>For example, running this recipe:</p>
 <pre><code class="language-just">set positional-arguments
 
