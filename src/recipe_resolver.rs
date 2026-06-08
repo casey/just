@@ -104,7 +104,13 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
 
     if dependency.recipe.components() > 1 {
       // recipe is in a submodule and is thus already resolved
-      Ok(self.resolve_submodule_dependency(&dependency.recipe))
+      Ok(Resolution::resolve(
+        &dependency.recipe,
+        self.modules,
+        &self.resolved_recipes,
+        &self.disabled,
+        self.absent,
+      ))
     } else if let Some(resolved) = self.resolved_recipes.get(name) {
       // recipe is the current module and has already been resolved
       Ok(Some(Resolution::Resolved(Arc::clone(resolved))))
@@ -131,43 +137,6 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     } else {
       // recipe is unknown
       Ok(None)
-    }
-  }
-
-  fn resolve_submodule_dependency(&self, path: &Namepath<'src>) -> Option<Resolution<'src>> {
-    let (name, prefix) = path.split_last();
-
-    let mut absent = self.absent;
-    let mut disabled = &self.disabled;
-    let mut modules = self.modules;
-    let mut recipes = &self.resolved_recipes;
-    let mut walked = Vec::new();
-
-    for component in prefix {
-      let lexeme = component.lexeme();
-      walked.push(lexeme.to_string());
-
-      if let Some(module) = modules.get(lexeme) {
-        absent = &module.absent;
-        disabled = &module.disabled;
-        modules = &module.modules;
-        recipes = &module.recipes;
-      } else if absent.contains(lexeme) {
-        return Some(Resolution::Disabled(BTreeSet::from([Modulepath {
-          components: walked,
-          spaced: false,
-        }])));
-      } else {
-        return None;
-      }
-    }
-
-    if let Some(resolved) = recipes.get(name.lexeme()) {
-      Some(Resolution::Resolved(Arc::clone(resolved)))
-    } else {
-      disabled
-        .get(name.lexeme())
-        .map(|disabled| Resolution::Disabled(disabled.modules.clone()))
     }
   }
 }

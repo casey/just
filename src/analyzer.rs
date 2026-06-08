@@ -293,7 +293,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut aliases = Table::new();
     let mut disabled_aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
-      match Self::resolve_alias(&self.modules, &recipes, &disabled, &absent, &alias.target) {
+      match Resolution::resolve(&alias.target, &self.modules, &recipes, &disabled, &absent) {
         Some(Resolution::Resolved(target)) => {
           aliases.insert(alias.resolve(target));
         }
@@ -463,45 +463,6 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     }
 
     Ok(())
-  }
-
-  fn resolve_alias<'a>(
-    mut modules: &'a Table<'src, Justfile<'src>>,
-    mut recipes: &'a Table<'src, Arc<Recipe<'src>>>,
-    mut disabled: &'a Table<'src, Disabled<'src>>,
-    mut absent: &'a BTreeSet<String>,
-    path: &Namepath<'src>,
-  ) -> Option<Resolution<'src>> {
-    let (name, prefix) = path.split_last();
-
-    let mut walked = Vec::new();
-
-    for component in prefix {
-      let lexeme = component.lexeme();
-      walked.push(lexeme.to_string());
-
-      if let Some(module) = modules.get(lexeme) {
-        absent = &module.absent;
-        disabled = &module.disabled;
-        modules = &module.modules;
-        recipes = &module.recipes;
-      } else if absent.contains(lexeme) {
-        return Some(Resolution::Disabled(BTreeSet::from([Modulepath {
-          components: walked,
-          spaced: false,
-        }])));
-      } else {
-        return None;
-      }
-    }
-
-    if let Some(recipe) = recipes.get(name.lexeme()) {
-      Some(Resolution::Resolved(Arc::clone(recipe)))
-    } else {
-      disabled
-        .get(name.lexeme())
-        .map(|disabled| Resolution::Disabled(disabled.modules.clone()))
-    }
   }
 
   pub(crate) fn resolve_call(
