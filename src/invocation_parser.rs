@@ -268,7 +268,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
           });
         }
         return Ok((recipe, i + 1));
-      } else if let Some(disabled) = current.disabled.get(arg) {
+      } else if let Some(disabled) = current.disabled_recipes.get(arg) {
         return Err(Error::RecipeDisabled {
           recipe: Modulepath {
             components: path,
@@ -284,7 +284,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
           },
           modules: disabled.modules.clone(),
         });
-      } else if current.absent.contains(arg) {
+      } else if current.absent_modules.contains(arg) {
         return Err(Error::ModuleAbsent {
           module: current.module_path.join(arg),
         });

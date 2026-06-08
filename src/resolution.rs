@@ -10,8 +10,8 @@ impl<'src> Resolution<'src> {
     path: &Namepath<'src>,
     mut modules: &'a Table<'src, Justfile<'src>>,
     mut recipes: &'a Table<'src, Arc<Recipe<'src>>>,
-    mut disabled: &'a Table<'src, Disabled<'src>>,
-    mut absent: &'a BTreeSet<String>,
+    mut disabled_recipes: &'a Table<'src, Disabled<'src>>,
+    mut absent_modules: &'a BTreeSet<String>,
   ) -> Option<Self> {
     let (name, prefix) = path.split_last();
 
@@ -22,11 +22,11 @@ impl<'src> Resolution<'src> {
       walked.push(lexeme.to_string());
 
       if let Some(module) = modules.get(lexeme) {
-        absent = &module.absent;
-        disabled = &module.disabled;
+        absent_modules = &module.absent_modules;
+        disabled_recipes = &module.disabled_recipes;
         modules = &module.modules;
         recipes = &module.recipes;
-      } else if absent.contains(lexeme) {
+      } else if absent_modules.contains(lexeme) {
         return Some(Self::Disabled(BTreeSet::from([Modulepath {
           components: walked,
           spaced: false,
@@ -39,7 +39,7 @@ impl<'src> Resolution<'src> {
     if let Some(recipe) = recipes.get(name.lexeme()) {
       Some(Self::Resolved(Arc::clone(recipe)))
     } else {
-      disabled
+      disabled_recipes
         .get(name.lexeme())
         .map(|disabled| Self::Disabled(disabled.modules.clone()))
     }

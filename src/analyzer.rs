@@ -43,7 +43,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     private: bool,
     root: &Path,
   ) -> RunResult<'src, Justfile<'src>> {
-    let mut absent = BTreeSet::new();
+    let mut absent_modules = BTreeSet::new();
     let mut definitions = HashMap::new();
     let mut imports = HashSet::new();
     let mut unstable_features = BTreeSet::new();
@@ -99,7 +99,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
                 absolute,
               )?);
             } else if *optional {
-              absent.insert(name.lexeme().to_string());
+              absent_modules.insert(name.lexeme().to_string());
             }
           }
           Item::Newline => {}
@@ -280,8 +280,8 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       }
     }
 
-    let (recipes, disabled) = RecipeResolver::resolve_recipes(
-      &absent,
+    let (recipes, disabled_recipes) = RecipeResolver::resolve_recipes(
+      &absent_modules,
       &assignments,
       &functions,
       &ast.module_path,
@@ -293,7 +293,13 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut aliases = Table::new();
     let mut disabled_aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
-      match Resolution::resolve(&alias.target, &self.modules, &recipes, &disabled, &absent) {
+      match Resolution::resolve(
+        &alias.target,
+        &self.modules,
+        &recipes,
+        &disabled_recipes,
+        &absent_modules,
+      ) {
         Some(Resolution::Resolved(target)) => {
           aliases.insert(alias.resolve(target));
         }
@@ -353,11 +359,11 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     });
 
     Ok(Justfile {
-      absent,
+      absent_modules,
       aliases,
       assignments,
       default,
-      disabled,
+      disabled_recipes,
       disabled_aliases,
       doc: doc.filter(|doc| !doc.is_empty()),
       functions,
