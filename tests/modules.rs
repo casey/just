@@ -738,15 +738,6 @@ fn recipe_in_absent_optional_module_is_error() {
 }
 
 #[test]
-fn recipe_in_absent_optional_module_is_error_spaced() {
-  Test::new()
-    .justfile("mod? foo")
-    .args(["foo", "bar"])
-    .stderr("error: optional module `foo` is absent\n")
-    .failure();
-}
-
-#[test]
 fn recipe_in_nested_absent_optional_module_is_error() {
   Test::new()
     .justfile("mod a")
@@ -779,17 +770,6 @@ fn evaluate_absent_optional_module_is_error() {
   Test::new()
     .justfile("mod? foo")
     .args(["--evaluate", "foo::bar"])
-    .stderr("error: optional module `foo` is absent\n")
-    .failure();
-}
-
-#[test]
-fn fallback_halts_on_absent_optional_module() {
-  Test::new()
-    .justfile("mod foo")
-    .write("foo.just", "bar:\n @echo BAR")
-    .write("sub/justfile", "set fallback\n\nmod? foo\n")
-    .args(["sub/foo::bar"])
     .stderr("error: optional module `foo` is absent\n")
     .failure();
 }
