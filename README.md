@@ -4320,7 +4320,7 @@ some-recipe:
 ```
 
 When the `justfile` is read from standard input with `--justfile -`, `--fmt`
-prints the formatted `justfile` to stdout instead of overwriting a file.
+prints the formatted `justfile` to stdout.
 
 Note that formatting is not covered by any backwards compatibility guarantee
 and is subject to change from time to time.
