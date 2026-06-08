@@ -729,6 +729,103 @@ fn nested_absent_optional_module_disables_dependent() {
 }
 
 #[test]
+fn alias_to_disabled_recipe_is_disabled() {
+  Test::new()
+    .justfile(
+      "
+        mod? foo
+
+        build: foo::setup
+          @echo BUILD
+
+        alias b := build
+      ",
+    )
+    .arg("b")
+    .stderr("error: alias `b` depends on absent module `foo`\n")
+    .failure();
+}
+
+#[test]
+fn disabled_alias_is_hidden_from_list() {
+  Test::new()
+    .justfile(
+      "
+        mod? foo
+
+        build: foo::setup
+          @echo BUILD
+
+        alias b := build
+
+        hello:
+          @echo HELLO
+      ",
+    )
+    .arg("--list")
+    .stdout(
+      "
+        Available recipes:
+            hello
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn disabled_alias_runs_once_module_is_present() {
+  Test::new()
+    .justfile(
+      "
+        mod? foo
+
+        build: foo::setup
+          @echo BUILD
+
+        alias b := build
+      ",
+    )
+    .write("foo.just", "setup:\n @echo SETUP")
+    .arg("b")
+    .stdout("SETUP\nBUILD\n")
+    .success();
+}
+
+#[test]
+fn alias_disabled_by_multiple_modules() {
+  Test::new()
+    .justfile(
+      "
+        mod? bar
+        mod? foo
+
+        build: foo::setup bar::ship
+          @echo BUILD
+
+        alias b := build
+      ",
+    )
+    .arg("b")
+    .stderr("error: alias `b` depends on absent modules `bar` and `foo`\n")
+    .failure();
+}
+
+#[test]
+fn alias_to_recipe_in_absent_module_is_disabled() {
+  Test::new()
+    .justfile(
+      "
+        mod? foo
+
+        alias b := foo::build
+      ",
+    )
+    .arg("b")
+    .stderr("error: alias `b` depends on absent module `foo`\n")
+    .failure();
+}
+
+#[test]
 fn root_dotenv_is_available_to_submodules() {
   Test::new()
     .justfile(

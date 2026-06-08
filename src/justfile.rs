@@ -19,6 +19,8 @@ pub(crate) struct Justfile<'src> {
   pub(crate) default: Option<Arc<Recipe<'src>>>,
   #[serde(skip)]
   pub(crate) disabled: Table<'src, Disabled<'src>>,
+  #[serde(skip)]
+  pub(crate) disabled_aliases: Table<'src, Disabled<'src>>,
   pub(crate) doc: Option<String>,
   #[serde(skip)]
   pub(crate) functions: Table<'src, FunctionDefinition<'src>>,

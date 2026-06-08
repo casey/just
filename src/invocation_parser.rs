@@ -276,6 +276,14 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
           },
           modules: disabled.modules.clone(),
         });
+      } else if let Some(disabled) = current.disabled_aliases.get(arg) {
+        return Err(Error::AliasDisabled {
+          alias: Modulepath {
+            components: path,
+            spaced: !modulepath,
+          },
+          modules: disabled.modules.clone(),
+        });
       } else {
         if modulepath && i + 1 < args.len() {
           return Err(Error::UnknownSubmodule {

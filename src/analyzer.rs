@@ -1,5 +1,11 @@
 use {super::*, CompileErrorKind::*};
 
+enum AliasOutcome<'src> {
+  Disabled(BTreeSet<Modulepath>),
+  Enabled(Arc<Recipe<'src>>),
+  Unknown,
+}
+
 #[derive(Default)]
 pub(crate) struct Analyzer<'run, 'src> {
   aliases: Table<'src, Alias<'src, Namepath<'src>>>,
@@ -291,8 +297,30 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     )?;
 
     let mut aliases = Table::new();
+    let mut disabled_aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
-      aliases.insert(Self::resolve_alias(&self.modules, &recipes, alias)?);
+      match Self::resolve_alias(&self.modules, &recipes, &disabled, &absent, &alias.target) {
+        AliasOutcome::Enabled(target) => {
+          aliases.insert(alias.resolve(target));
+        }
+        AliasOutcome::Disabled(modules) => {
+          disabled_aliases.insert(Disabled {
+            modules,
+            name: alias.name,
+          });
+        }
+        AliasOutcome::Unknown => {
+          return Err(
+            alias
+              .name
+              .error(UnknownAliasTarget {
+                alias: alias.name.lexeme(),
+                target: alias.target,
+              })
+              .into(),
+          );
+        }
+      }
     }
 
     let source = root.to_owned();
@@ -336,6 +364,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       assignments,
       default,
       disabled,
+      disabled_aliases,
       doc: doc.filter(|doc| !doc.is_empty()),
       functions,
       groups: groups.into(),
@@ -443,16 +472,41 @@ impl<'run, 'src> Analyzer<'run, 'src> {
   }
 
   fn resolve_alias<'a>(
-    modules: &'a Table<'src, Justfile<'src>>,
-    recipes: &'a Table<'src, Arc<Recipe<'src>>>,
-    alias: Alias<'src, Namepath<'src>>,
-  ) -> CompileResult<'src, Alias<'src>> {
-    match Self::resolve_recipe(&alias.target, modules, recipes) {
-      Some(target) => Ok(alias.resolve(target)),
-      None => Err(alias.name.error(UnknownAliasTarget {
-        alias: alias.name.lexeme(),
-        target: alias.target,
-      })),
+    mut modules: &'a Table<'src, Justfile<'src>>,
+    mut recipes: &'a Table<'src, Arc<Recipe<'src>>>,
+    mut disabled: &'a Table<'src, Disabled<'src>>,
+    mut absent: &'a BTreeSet<String>,
+    path: &Namepath<'src>,
+  ) -> AliasOutcome<'src> {
+    let (name, prefix) = path.split_last();
+
+    let mut walked = Vec::new();
+
+    for component in prefix {
+      let lexeme = component.lexeme();
+      walked.push(lexeme.to_string());
+
+      if let Some(module) = modules.get(lexeme) {
+        absent = &module.absent;
+        disabled = &module.disabled;
+        modules = &module.modules;
+        recipes = &module.recipes;
+      } else if absent.contains(lexeme) {
+        return AliasOutcome::Disabled(BTreeSet::from([Modulepath {
+          components: walked,
+          spaced: false,
+        }]));
+      } else {
+        return AliasOutcome::Unknown;
+      }
+    }
+
+    if let Some(recipe) = recipes.get(name.lexeme()) {
+      AliasOutcome::Enabled(Arc::clone(recipe))
+    } else if let Some(disabled) = disabled.get(name.lexeme()) {
+      AliasOutcome::Disabled(disabled.modules.clone())
+    } else {
+      AliasOutcome::Unknown
     }
   }
 
@@ -480,22 +534,6 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     }
 
     Ok(())
-  }
-
-  pub(crate) fn resolve_recipe<'a>(
-    path: &Namepath<'src>,
-    mut modules: &'a Table<'src, Justfile<'src>>,
-    mut recipes: &'a Table<'src, Arc<Recipe<'src>>>,
-  ) -> Option<Arc<Recipe<'src>>> {
-    let (name, path) = path.split_last();
-
-    for name in path {
-      let module = modules.get(name.lexeme())?;
-      modules = &module.modules;
-      recipes = &module.recipes;
-    }
-
-    recipes.get(name.lexeme()).cloned()
   }
 }
 
