@@ -774,7 +774,7 @@ lint:
 ```
 
 If no recipe makes sense as the default recipe, you can use
-`default-list`<sup>master</sup> to list the available recipes instead:
+`default-list`<sup>1.52.0</sup> to list the available recipes instead:
 
 ```just
 set default-list := true
@@ -841,7 +841,7 @@ test build
 ```
 
 If you'd like `just` to default to listing the recipes in the `justfile`, set
-`default-list`<sup>master</sup>:
+`default-list`<sup>1.52.0</sup>:
 
 ```just
 set default-list := true
@@ -852,7 +852,7 @@ enabled lists that module's recipes.
 
 You can also default to listing recipes this behavior by settting the
 environment variable `JUST_DEFAULT_LIST=true` or passing
-`--default-list`<sup>master</sup>.
+`--default-list`<sup>1.52.0</sup>.
 
 
 The heading text can be customized with `--list-heading`:
@@ -1041,7 +1041,7 @@ foo:
 | `allow-duplicate-recipes` | boolean | `false` | Allow recipes appearing later in a `justfile` to override earlier recipes with the same name. |
 | `allow-duplicate-variables` | boolean | `false` | Allow variables appearing later in a `justfile` to override earlier variables with the same name. |
 | `default-list` | boolean | `false` | List recipes instead of running the default recipe. |
-| `default-script`<sup>master</sup> | boolean | `false` | Default recipes to script instead of shell. |
+| `default-script`<sup>1.52.0</sup> | boolean | `false` | Default recipes to script instead of shell. |
 | `dotenv-filename` | string | - | Load a `.env` file with a custom name, if present. |
 | `dotenv-load` | boolean | `false` | Load a `.env` file, if present. |
 | `dotenv-override` | boolean | `false` | Override existing environment variables with values from the `.env` file. |
@@ -2371,7 +2371,7 @@ change their behavior.
 | `[private]`<sup>1.10.0</sup> | alias, recipe | Make recipe, alias, or variable private. See [Private Recipes](#private-recipes). |
 | `[script(COMMAND)]`<sup>1.32.0</sup> | recipe | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
 | `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
-| `[shell]`<sup>master</sup> | recipe | Execute recipe as a shell recipe, overriding `set default-script`. |
+| `[shell]`<sup>1.52.0</sup> | recipe | Execute recipe as a shell recipe, overriding `set default-script`. |
 | `[unix]`<sup>1.8.0</sup> | recipe | Enable recipe on unixes. (Includes macOS). |
 | `[windows]`<sup>1.8.0</sup> | recipe | Enable recipe on Windows. |
 | `[working-directory(PATH)]`<sup>1.38.0</sup> | recipe | Set recipe working directory. `PATH` may be an expression<sup>1.51.0</sup> whose value is relative or absolute. If relative, it is interpreted relative to the default working directory. |
@@ -3383,9 +3383,9 @@ the value of `set shell`.
 The body of the recipe is evaluated, written to disk in the temporary
 directory, and run by passing its path as an argument to `COMMAND`.
 
-With `set default-script := true`<sup>master</sup>, recipes default to script
+With `set default-script := true`<sup>1.52.0</sup>, recipes default to script
 recipes instead of shell recipes, unless overridden with the `[shell]`
-attribute<sup>master</sup>.
+attribute<sup>1.52.0</sup>.
 
 ### Script and Shebang Recipe Temporary Files
 
@@ -4224,7 +4224,7 @@ mod? foo
 Missing source files for optional modules do not produce an error. If a recipe
 or alias depends on a missing optional module, directly, or transitively, it
 will be disabled. Attempting to invoke a disabled recipe or alias is an error,
-but other non-disabled recipes can still be run.<sup>master</sup>
+but other non-disabled recipes can still be run.<sup>1.52.0</sup>
 
 Optional modules with no source file do not conflict, so you can have multiple
 mod statements with the same name, but with different source file paths, as
