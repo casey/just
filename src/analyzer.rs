@@ -1,11 +1,5 @@
 use {super::*, CompileErrorKind::*};
 
-enum AliasOutcome<'src> {
-  Disabled(BTreeSet<Modulepath>),
-  Enabled(Arc<Recipe<'src>>),
-  Unknown,
-}
-
 #[derive(Default)]
 pub(crate) struct Analyzer<'run, 'src> {
   aliases: Table<'src, Alias<'src, Namepath<'src>>>,
@@ -300,16 +294,16 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut disabled_aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
       match Self::resolve_alias(&self.modules, &recipes, &disabled, &absent, &alias.target) {
-        AliasOutcome::Enabled(target) => {
+        Some(Resolution::Resolved(target)) => {
           aliases.insert(alias.resolve(target));
         }
-        AliasOutcome::Disabled(modules) => {
+        Some(Resolution::Disabled(modules)) => {
           disabled_aliases.insert(Disabled {
             modules,
             name: alias.name,
           });
         }
-        AliasOutcome::Unknown => {
+        None => {
           return Err(
             alias
               .name
@@ -477,7 +471,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     mut disabled: &'a Table<'src, Disabled<'src>>,
     mut absent: &'a BTreeSet<String>,
     path: &Namepath<'src>,
-  ) -> AliasOutcome<'src> {
+  ) -> Option<Resolution<'src>> {
     let (name, prefix) = path.split_last();
 
     let mut walked = Vec::new();
@@ -492,21 +486,21 @@ impl<'run, 'src> Analyzer<'run, 'src> {
         modules = &module.modules;
         recipes = &module.recipes;
       } else if absent.contains(lexeme) {
-        return AliasOutcome::Disabled(BTreeSet::from([Modulepath {
+        return Some(Resolution::Disabled(BTreeSet::from([Modulepath {
           components: walked,
           spaced: false,
-        }]));
+        }])));
       } else {
-        return AliasOutcome::Unknown;
+        return None;
       }
     }
 
     if let Some(recipe) = recipes.get(name.lexeme()) {
-      AliasOutcome::Enabled(Arc::clone(recipe))
-    } else if let Some(disabled) = disabled.get(name.lexeme()) {
-      AliasOutcome::Disabled(disabled.modules.clone())
+      Some(Resolution::Resolved(Arc::clone(recipe)))
     } else {
-      AliasOutcome::Unknown
+      disabled
+        .get(name.lexeme())
+        .map(|disabled| Resolution::Disabled(disabled.modules.clone()))
     }
   }
 

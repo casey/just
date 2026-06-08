@@ -1,10 +1,5 @@
 use {super::*, CompileErrorKind::*};
 
-enum Resolution<'src> {
-  Disabled(BTreeSet<Modulepath>),
-  Resolved(Arc<Recipe<'src>>),
-}
-
 pub(crate) struct RecipeResolver<'src: 'run, 'run> {
   absent: &'run BTreeSet<String>,
   assignments: &'run Table<'src, Assignment<'src>>,

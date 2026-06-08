@@ -83,6 +83,7 @@ pub(crate) use {
     reference::Reference,
     references::References,
     request::Request,
+    resolution::Resolution,
     scope::Scope,
     search::Search,
     search_config::SearchConfig,
@@ -277,6 +278,7 @@ mod recipe_resolver;
 mod recipe_signature;
 mod reference;
 mod references;
+mod resolution;
 mod run;
 mod scope;
 mod search;
