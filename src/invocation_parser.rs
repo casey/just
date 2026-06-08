@@ -276,6 +276,10 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
           },
           modules: disabled.modules.clone(),
         });
+      } else if current.absent.contains(arg) {
+        return Err(Error::ModuleAbsent {
+          module: current.module_path.child(arg),
+        });
       } else {
         if modulepath && i + 1 < args.len() {
           return Err(Error::UnknownSubmodule {
@@ -450,6 +454,25 @@ mod tests {
         recipe,
         suggestion: None
       } if recipe == "foo::zzz",
+    );
+  }
+
+  #[test]
+  fn recipe_in_absent_optional_module() {
+    let tempdir = tempfile::tempdir().unwrap();
+    tempdir.write("justfile", "mod? foo");
+
+    let loader = Loader::new();
+    let compilation = Compiler::compile(
+      &Config::new().unwrap(),
+      &loader,
+      &tempdir.path().join("justfile"),
+    )
+    .unwrap();
+
+    assert_matches!(
+      InvocationParser::parse_invocations(&compilation.justfile, &["foo::bar"]).unwrap_err(),
+      Error::ModuleAbsent { module } if module.to_string() == "foo",
     );
   }
 

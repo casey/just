@@ -17,6 +17,15 @@ impl Modulepath {
     }
   }
 
+  pub(crate) fn child(&self, name: &str) -> Self {
+    let mut components = self.components.clone();
+    components.push(name.to_string());
+    Self {
+      components,
+      spaced: false,
+    }
+  }
+
   pub(crate) fn starts_with(&self, other: &Modulepath) -> bool {
     self.components.starts_with(&other.components)
   }
