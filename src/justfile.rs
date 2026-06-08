@@ -12,13 +12,15 @@ type Scopes<'src, 'run> = BTreeMap<
 #[derive(Debug, PartialEq, Serialize)]
 pub(crate) struct Justfile<'src> {
   #[serde(skip)]
-  pub(crate) absent: BTreeSet<String>,
+  pub(crate) absent_modules: BTreeSet<String>,
   pub(crate) aliases: Table<'src, Alias<'src>>,
   pub(crate) assignments: Table<'src, Assignment<'src>>,
   #[serde(rename = "first", serialize_with = "keyed::serialize_option")]
   pub(crate) default: Option<Arc<Recipe<'src>>>,
   #[serde(skip)]
-  pub(crate) disabled: Table<'src, Disabled<'src>>,
+  pub(crate) disabled_aliases: Table<'src, Disabled<'src>>,
+  #[serde(skip)]
+  pub(crate) disabled_recipes: Table<'src, Disabled<'src>>,
   pub(crate) doc: Option<String>,
   #[serde(skip)]
   pub(crate) functions: Table<'src, FunctionDefinition<'src>>,
@@ -362,7 +364,7 @@ impl<'src> Justfile<'src> {
 
       if let Some(module) = current.modules.get(component) {
         current = module;
-      } else if current.absent.contains(component) {
+      } else if current.absent_modules.contains(component) {
         return Err(Error::ModuleAbsent {
           module: current.module_path.join(component),
         });

@@ -511,7 +511,7 @@ impl Subcommand {
     for name in &path.components {
       if let Some(submodule) = module.modules.get(name) {
         module = submodule;
-      } else if module.absent.contains(name) {
+      } else if module.absent_modules.contains(name) {
         return Err(Error::ModuleAbsent {
           module: module.module_path.join(name),
         });
@@ -888,7 +888,7 @@ impl Subcommand {
     for name in &path.components[0..path.components.len() - 1] {
       if let Some(submodule) = module.modules.get(name) {
         module = submodule;
-      } else if module.absent.contains(name) {
+      } else if module.absent_modules.contains(name) {
         return Err(Error::ModuleAbsent {
           module: module.module_path.join(name),
         });
