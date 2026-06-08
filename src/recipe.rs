@@ -256,7 +256,7 @@ impl<'src> Recipe<'src> {
     let result = if self.is_script(&context.module.settings) {
       self.run_script(context, env, evaluator, positional, scope)
     } else {
-      self.run_linewise(context, env, evaluator, positional, scope)
+      self.run_shell(context, env, evaluator, positional, scope)
     };
     let elapsed = start.elapsed();
 
@@ -281,7 +281,7 @@ impl<'src> Recipe<'src> {
     result
   }
 
-  fn run_linewise<'run>(
+  fn run_shell<'run>(
     &self,
     context: &ExecutionContext<'src, 'run>,
     env: &BTreeMap<String, String>,

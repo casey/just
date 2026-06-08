@@ -14,7 +14,7 @@ set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
 # If you have PowerShell Core installed and want to use it,
 # use `pwsh.exe` instead of `powershell.exe`
 
-linewise:
+shell:
   Write-Host "Hello, world!"
 
 shebang:

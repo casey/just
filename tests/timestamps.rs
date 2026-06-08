@@ -17,7 +17,7 @@ fn quiet() {
 }
 
 #[test]
-fn linewise() {
+fn shell() {
   Test::new()
     .justfile(
       "

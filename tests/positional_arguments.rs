@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn linewise() {
+fn shell() {
   Test::new()
     .arg("foo")
     .arg("hello")
@@ -37,7 +37,7 @@ fn linewise() {
 }
 
 #[test]
-fn linewise_with_attribute() {
+fn shell_with_attribute() {
   Test::new()
     .arg("foo")
     .arg("hello")
@@ -72,7 +72,7 @@ fn linewise_with_attribute() {
 }
 
 #[test]
-fn variadic_linewise() {
+fn variadic_shell() {
   Test::new()
     .args(["foo", "a", "b", "c"])
     .justfile(

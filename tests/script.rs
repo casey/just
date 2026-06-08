@@ -392,7 +392,7 @@ fn default_script_recipe_with_script_attribute() {
 }
 
 #[test]
-fn default_script_false_is_linewise() {
+fn default_script_false_is_shell() {
   Test::new()
     .justfile(
       "

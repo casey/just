@@ -120,8 +120,7 @@ rustfmt:
 test:
   echo "{{home_dir}}"
 
-
-linewise:
+shell:
   Write-Host "Hello, world!"
 
 serve2:

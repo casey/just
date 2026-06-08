@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn unexport_environment_variable_linewise() {
+fn unexport_environment_variable_shell() {
   Test::new()
     .justfile(
       "

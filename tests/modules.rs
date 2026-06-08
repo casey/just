@@ -1083,7 +1083,7 @@ fn recipes_may_be_named_mod() {
 }
 
 #[test]
-fn submodule_linewise_recipes_run_in_submodule_directory() {
+fn submodule_shell_recipes_run_in_submodule_directory() {
   Test::new()
     .write("foo/bar", "BAR")
     .write("foo/mod.just", "foo:\n @cat bar")
