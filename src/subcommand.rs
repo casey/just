@@ -189,7 +189,12 @@ impl Subcommand {
       let result = justfile.run(config, &search, arguments, &compilation.overrides);
 
       if fallback {
-        if let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result {
+        if let Err(
+          err @ (Error::UnknownRecipe { .. }
+          | Error::UnknownSubmodule { .. }
+          | Error::ModuleAbsent { .. }),
+        ) = result
+        {
           search = search.search_parent_directory(config).map_err(|_| err)?;
 
           if config.verbosity.loquacious() {
@@ -215,7 +220,11 @@ impl Subcommand {
       if config.allow_missing
         && matches!(
           result,
-          Err(Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })
+          Err(
+            Error::UnknownRecipe { .. }
+              | Error::UnknownSubmodule { .. }
+              | Error::ModuleAbsent { .. }
+          )
         )
       {
         return Ok(());
@@ -507,12 +516,20 @@ impl Subcommand {
     Ok(())
   }
 
-  fn list(config: &Config, module: &Justfile, path: &Modulepath) -> RunResult<'static> {
-    let module = module
-      .submodule(path)
-      .ok_or_else(|| Error::UnknownSubmodule {
-        path: path.to_string(),
-      })?;
+  fn list(config: &Config, mut module: &Justfile, path: &Modulepath) -> RunResult<'static> {
+    for name in &path.components {
+      if let Some(submodule) = module.modules.get(name) {
+        module = submodule;
+      } else if module.absent.contains(name) {
+        return Err(Error::ModuleAbsent {
+          module: module.module_path.child(name),
+        });
+      } else {
+        return Err(Error::UnknownSubmodule {
+          path: path.to_string(),
+        });
+      }
+    }
 
     Self::list_module(config, 0, &config.groups, module)?;
 

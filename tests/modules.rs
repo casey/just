@@ -766,6 +766,43 @@ fn show_recipe_in_absent_optional_module_is_error() {
 }
 
 #[test]
+fn list_absent_optional_module_is_error() {
+  Test::new()
+    .justfile("mod? foo")
+    .args(["--list", "foo"])
+    .stderr("error: optional module `foo` is absent\n")
+    .failure();
+}
+
+#[test]
+fn evaluate_absent_optional_module_is_error() {
+  Test::new()
+    .justfile("mod? foo")
+    .args(["--evaluate", "foo::bar"])
+    .stderr("error: optional module `foo` is absent\n")
+    .failure();
+}
+
+#[test]
+fn allow_missing_suppresses_absent_optional_module() {
+  Test::new()
+    .justfile("mod? foo")
+    .args(["--allow-missing", "foo::bar"])
+    .success();
+}
+
+#[test]
+fn fallback_applies_to_absent_optional_module() {
+  Test::new()
+    .justfile("mod foo")
+    .write("foo.just", "bar:\n @echo BAR")
+    .write("sub/justfile", "set fallback\n\nmod? foo\n")
+    .args(["sub/foo::bar"])
+    .stdout("BAR\n")
+    .success();
+}
+
+#[test]
 fn root_dotenv_is_available_to_submodules() {
   Test::new()
     .justfile(
