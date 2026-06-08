@@ -478,7 +478,7 @@ fn shell_attribute_overrides_shebang() {
 }
 
 #[test]
-fn script_and_shell_attribute_compile_forbidden() {
+fn script_and_shell_attribute_forbidden() {
   Test::new()
     .justfile(
       "
