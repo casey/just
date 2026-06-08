@@ -154,6 +154,9 @@ pub(crate) enum Error<'src> {
     recipe: &'src str,
     option: Switch,
   },
+  ModuleAbsent {
+    module: Modulepath,
+  },
   MultipleShortOptions {
     options: String,
   },
@@ -682,6 +685,9 @@ impl ColorDisplay for Error<'_> {
       }
       MissingOption { recipe, option } => {
         write!(f, "recipe `{recipe}` requires option `{option}`")?;
+      }
+      ModuleAbsent { module } => {
+        write!(f, "optional module `{module}` is absent")?;
       }
       MultipleShortOptions { options } => {
         write!(

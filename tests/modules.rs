@@ -729,6 +729,52 @@ fn nested_absent_optional_module_disables_dependent() {
 }
 
 #[test]
+fn recipe_in_absent_optional_module_is_error() {
+  Test::new()
+    .justfile("mod? foo")
+    .arg("foo::bar")
+    .stderr("error: optional module `foo` is absent\n")
+    .failure();
+}
+
+#[test]
+fn recipe_in_nested_absent_optional_module_is_error() {
+  Test::new()
+    .justfile("mod a")
+    .write("a/mod.just", "mod? b")
+    .arg("a::b::c")
+    .stderr("error: optional module `a::b` is absent\n")
+    .failure();
+}
+
+#[test]
+fn show_recipe_in_absent_optional_module_is_error() {
+  Test::new()
+    .justfile("mod? foo")
+    .args(["--show", "foo::bar"])
+    .stderr("error: optional module `foo` is absent\n")
+    .failure();
+}
+
+#[test]
+fn list_absent_optional_module_is_error() {
+  Test::new()
+    .justfile("mod? foo")
+    .args(["--list", "foo"])
+    .stderr("error: optional module `foo` is absent\n")
+    .failure();
+}
+
+#[test]
+fn evaluate_absent_optional_module_is_error() {
+  Test::new()
+    .justfile("mod? foo")
+    .args(["--evaluate", "foo::bar"])
+    .stderr("error: optional module `foo` is absent\n")
+    .failure();
+}
+
+#[test]
 fn root_dotenv_is_available_to_submodules() {
   Test::new()
     .justfile(

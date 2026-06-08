@@ -507,12 +507,20 @@ impl Subcommand {
     Ok(())
   }
 
-  fn list(config: &Config, module: &Justfile, path: &Modulepath) -> RunResult<'static> {
-    let module = module
-      .submodule(path)
-      .ok_or_else(|| Error::UnknownSubmodule {
-        path: path.to_string(),
-      })?;
+  fn list(config: &Config, mut module: &Justfile, path: &Modulepath) -> RunResult<'static> {
+    for name in &path.components {
+      if let Some(submodule) = module.modules.get(name) {
+        module = submodule;
+      } else if module.absent.contains(name) {
+        return Err(Error::ModuleAbsent {
+          module: module.module_path.join(name),
+        });
+      } else {
+        return Err(Error::UnknownSubmodule {
+          path: path.to_string(),
+        });
+      }
+    }
 
     Self::list_module(config, 0, &config.groups, module)?;
 
@@ -878,12 +886,17 @@ impl Subcommand {
     path: &Modulepath,
   ) -> RunResult<'src, (Option<&'run Alias<'src>>, &'run Recipe<'src>)> {
     for name in &path.components[0..path.components.len() - 1] {
-      module = module
-        .modules
-        .get(name)
-        .ok_or_else(|| Error::UnknownSubmodule {
+      if let Some(submodule) = module.modules.get(name) {
+        module = submodule;
+      } else if module.absent.contains(name) {
+        return Err(Error::ModuleAbsent {
+          module: module.module_path.join(name),
+        });
+      } else {
+        return Err(Error::UnknownSubmodule {
           path: path.to_string(),
-        })?;
+        });
+      }
     }
 
     let name = path.components.last().unwrap();
