@@ -9,9 +9,9 @@ impl<'src> Resolution<'src> {
   pub(crate) fn resolve<'a>(
     path: &Namepath<'src>,
     mut modules: &'a Table<'src, Justfile<'src>>,
+    mut absent_modules: &'a BTreeSet<String>,
     mut recipes: &'a Table<'src, Arc<Recipe<'src>>>,
     mut disabled_recipes: &'a Table<'src, Disabled<'src>>,
-    mut absent_modules: &'a BTreeSet<String>,
   ) -> Option<Self> {
     let (name, prefix) = path.split_last();
 

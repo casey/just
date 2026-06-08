@@ -1,9 +1,9 @@
 use {super::*, CompileErrorKind::*};
 
 pub(crate) struct RecipeResolver<'src: 'run, 'run> {
-  absent: &'run BTreeSet<String>,
+  absent_modules: &'run BTreeSet<String>,
   assignments: &'run Table<'src, Assignment<'src>>,
-  disabled: Table<'src, Disabled<'src>>,
+  disabled_recipes: Table<'src, Disabled<'src>>,
   functions: &'run Table<'src, FunctionDefinition<'src>>,
   modulepath: &'run Modulepath,
   modules: &'run Table<'src, Justfile<'src>>,
@@ -14,7 +14,7 @@ pub(crate) struct RecipeResolver<'src: 'run, 'run> {
 
 impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
   pub(crate) fn resolve_recipes(
-    absent: &'run BTreeSet<String>,
+    absent_modules: &'run BTreeSet<String>,
     assignments: &'run Table<'src, Assignment<'src>>,
     functions: &'run Table<'src, FunctionDefinition<'src>>,
     modulepath: &'run Modulepath,
@@ -23,9 +23,9 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
   ) -> CompileResult<'src, (Table<'src, Arc<Recipe<'src>>>, Table<'src, Disabled<'src>>)> {
     let mut resolver = Self {
-      absent,
+      absent_modules,
       assignments,
-      disabled: Table::new(),
+      disabled_recipes: Table::new(),
       functions,
       modulepath,
       modules,
@@ -38,7 +38,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       resolver.resolve_recipe(&mut Vec::new(), unresolved)?;
     }
 
-    Ok((resolver.resolved_recipes, resolver.disabled))
+    Ok((resolver.resolved_recipes, resolver.disabled_recipes))
   }
 
   fn resolve_recipe(
@@ -50,7 +50,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       return Ok(Resolution::Resolved(Arc::clone(resolved)));
     }
 
-    if let Some(disabled) = self.disabled.get(recipe.name()) {
+    if let Some(disabled) = self.disabled_recipes.get(recipe.name()) {
       return Ok(Resolution::Disabled(disabled.modules.clone()));
     }
 
@@ -86,7 +86,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       self.resolved_recipes.insert(Arc::clone(&resolved));
       Ok(Resolution::Resolved(resolved))
     } else {
-      self.disabled.insert(Disabled {
+      self.disabled_recipes.insert(Disabled {
         name: recipe.name,
         modules: disabled_by.clone(),
       });
@@ -107,14 +107,14 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       Ok(Resolution::resolve(
         &dependency.recipe,
         self.modules,
+        self.absent_modules,
         &self.resolved_recipes,
-        &self.disabled,
-        self.absent,
+        &self.disabled_recipes,
       ))
     } else if let Some(resolved) = self.resolved_recipes.get(name) {
       // recipe is the current module and has already been resolved
       Ok(Some(Resolution::Resolved(Arc::clone(resolved))))
-    } else if let Some(disabled) = self.disabled.get(name) {
+    } else if let Some(disabled) = self.disabled_recipes.get(name) {
       // recipe is in the current module and has already been disabled
       Ok(Some(Resolution::Disabled(disabled.modules.clone())))
     } else if stack.contains(&name) {

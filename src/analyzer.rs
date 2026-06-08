@@ -296,9 +296,9 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       match Resolution::resolve(
         &alias.target,
         &self.modules,
+        &absent_modules,
         &recipes,
         &disabled_recipes,
-        &absent_modules,
       ) {
         Some(Resolution::Resolved(target)) => {
           aliases.insert(alias.resolve(target));
