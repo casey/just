@@ -1,69 +1,46 @@
-#[derive(Clone, Copy)]
-enum State {
-  Just { fence: char, len: usize },
-  Other { fence: char, len: usize },
-  Prose,
-}
+use pulldown_cmark::{CodeBlockKind, Event, Parser, Tag, TagEnd};
 
 pub(crate) fn tangle(markdown: &str) -> String {
-  let mut output = String::new();
+  let mut ranges = Vec::new();
 
-  let mut state = State::Prose;
+  let mut keep = false;
 
-  for line in markdown.lines() {
-    match state {
-      State::Just { fence, len } => {
-        if closes(line, fence, len) {
-          state = State::Prose;
-          output.push('\n');
-        } else {
-          output.push_str(line);
-          output.push('\n');
-        }
+  for (event, range) in Parser::new(markdown).into_offset_iter() {
+    match event {
+      Event::Start(Tag::CodeBlock(CodeBlockKind::Fenced(info))) => {
+        keep = info.split_whitespace().next() == Some("just")
+          && (range.start == 0 || markdown.as_bytes()[range.start - 1] == b'\n');
       }
-      State::Other { fence, len } => {
-        if closes(line, fence, len) {
-          state = State::Prose;
-        }
-        output.push('\n');
-      }
-      State::Prose => {
-        if let Some((fence, len, info)) = opening_fence(line) {
-          state = if info.split_whitespace().next() == Some("just") {
-            State::Just { fence, len }
-          } else {
-            State::Other { fence, len }
-          };
-        }
-        output.push('\n');
-      }
+      Event::End(TagEnd::CodeBlock) => keep = false,
+      Event::Text(_) if keep => ranges.push(range),
+      _ => {}
     }
   }
 
+  let mut ranges = ranges.into_iter().peekable();
+
+  let mut output = String::new();
+
+  let mut offset = 0;
+
+  for line in markdown.split_inclusive('\n') {
+    let end = offset + line.len();
+
+    while ranges.next_if(|range| range.end <= offset).is_some() {}
+
+    if ranges
+      .peek()
+      .is_some_and(|range| range.start <= offset && end <= range.end)
+    {
+      output.push_str(line.strip_suffix('\n').unwrap_or(line));
+    }
+
+    output.push('\n');
+
+    offset = end;
+  }
+
   output
-}
-
-fn opening_fence(line: &str) -> Option<(char, usize, &str)> {
-  let fence = line.chars().next().filter(|c| matches!(c, '`' | '~'))?;
-
-  let len = line.chars().take_while(|&c| c == fence).count();
-
-  if len < 3 {
-    return None;
-  }
-
-  let info = &line[len..];
-
-  if fence == '`' && info.contains('`') {
-    return None;
-  }
-
-  Some((fence, len, info))
-}
-
-fn closes(line: &str, fence: char, len: usize) -> bool {
-  let count = line.chars().take_while(|&c| c == fence).count();
-  count >= len && line[count..].trim().is_empty()
 }
 
 #[cfg(test)]
@@ -104,7 +81,7 @@ mod tests {
   fn fences() {
     case("~~~just\nfoo:\n~~~\n", "\nfoo:\n\n");
     case("``just\nfoo\n", "\n\n");
-    case("  ```just\nfoo\n", "\n\n");
+    case("  ```just\nfoo\n```\n", "\n\n\n");
     case("```just\nfoo:\n```  \n", "\nfoo:\n\n");
     case("```just\nfoo:\n`````\n", "\nfoo:\n\n");
     case("```just\nfoo:\n~~~\nbar\n```\n", "\nfoo:\n~~~\nbar\n\n");
@@ -117,5 +94,12 @@ mod tests {
     case("~~~\n```just\nfoo\n```\n~~~\n", "\n\n\n\n\n");
     case("````\n```just\nfoo\n```\n````\n", "\n\n\n\n\n");
     case("```\n```just\nfoo\n", "\n\n\n");
+  }
+
+  #[test]
+  fn invisible() {
+    case("<!--\n```just\nfoo:\n```\n-->\n", "\n\n\n\n\n");
+    case("> ```just\n> foo:\n> ```\n", "\n\n\n");
+    case("- foo\n\n  ```just\n  bar:\n  ```\n", "\n\n\n\n\n");
   }
 }

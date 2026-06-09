@@ -33,6 +33,7 @@ libc = "0.2.0"
 nu-ansi-term = "0.50.3"
 num_cpus = "1.15.0"
 percent-encoding = "2.3.1"
+pulldown-cmark = { version = "0.13.4", default-features = false }
 rand = "0.10.0"
 regex = "1.10.4"
 semver = "1.0.20"
