@@ -45,61 +45,366 @@ pub(crate) fn tangle(markdown: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-  use super::*;
+  use {super::*, crate::unindent::unindent};
 
   #[track_caller]
   fn case(markdown: &str, expected: &str) {
-    assert_eq!(tangle(markdown), expected);
+    assert_eq!(tangle(&unindent(markdown)), unindent(expected));
   }
 
   #[test]
   fn blocks() {
     case("", "");
-    case("foo\nbar\n", "\n\n");
-    case("foo", "\n");
+
     case(
-      "# foo\n\n```just\nbar:\n echo bar\n```\nbaz\n",
-      "\n\n\nbar:\n echo bar\n\n\n",
+      "foo", "
+
+      ",
     );
+
     case(
-      "```just\nfoo := 'bar'\n```\nbaz\n```just\nbob:\n echo {{ foo }}\n```\n",
-      "\nfoo := 'bar'\n\n\n\nbob:\n echo {{ foo }}\n\n",
+      "
+        foo
+        bar
+      ",
+      "
+
+
+      ",
     );
-    case("```sh\nfoo\n```\n", "\n\n\n");
+
+    case(
+      "
+        # foo
+
+        ```just
+        bar:
+         echo bar
+        ```
+        baz
+      ",
+      "
+
+
+
+        bar:
+         echo bar
+
+
+      ",
+    );
+
+    case(
+      "
+        ```just
+        foo := 'bar'
+        ```
+        baz
+        ```just
+        bob:
+         echo {{ foo }}
+        ```
+      ",
+      "
+
+        foo := 'bar'
+
+
+
+        bob:
+         echo {{ foo }}
+
+      ",
+    );
+
+    case(
+      "
+        ```sh
+        foo
+        ```
+      ",
+      "
+
+
+
+      ",
+    );
   }
 
   #[test]
   fn info_strings() {
-    case("```just foo\nbar:\n```\n", "\nbar:\n\n");
-    case("``` just\nfoo:\n```\n", "\nfoo:\n\n");
-    case("```justfile\nfoo\n```\n", "\n\n\n");
-    case("```JUST\nfoo\n```\n", "\n\n\n");
-    case("```just`\nfoo\n", "\n\n");
+    case(
+      "
+        ```just foo
+        bar:
+        ```
+      ",
+      "
+
+        bar:
+
+      ",
+    );
+
+    case(
+      "
+        ``` just
+        foo:
+        ```
+      ",
+      "
+
+        foo:
+
+      ",
+    );
+
+    case(
+      "
+        ```justfile
+        foo
+        ```
+      ",
+      "
+
+
+
+      ",
+    );
+
+    case(
+      "
+        ```JUST
+        foo
+        ```
+      ",
+      "
+
+
+
+      ",
+    );
+
+    case(
+      "
+        ```just`
+        foo
+      ",
+      "
+
+
+      ",
+    );
   }
 
   #[test]
   fn fences() {
-    case("~~~just\nfoo:\n~~~\n", "\nfoo:\n\n");
-    case("``just\nfoo\n", "\n\n");
-    case("  ```just\nfoo\n```\n", "\n\n\n");
-    case("```just\nfoo:\n```  \n", "\nfoo:\n\n");
-    case("```just\nfoo:\n`````\n", "\nfoo:\n\n");
-    case("```just\nfoo:\n~~~\nbar\n```\n", "\nfoo:\n~~~\nbar\n\n");
-    case("````just\nfoo:\n```\n````\n", "\nfoo:\n```\n\n");
-    case("```just\nfoo:\nbar\n", "\nfoo:\nbar\n");
+    case(
+      "
+        ~~~just
+        foo:
+        ~~~
+      ",
+      "
+
+        foo:
+
+      ",
+    );
+
+    case(
+      "
+        ``just
+        foo
+      ",
+      "
+
+
+      ",
+    );
+
+    case(
+      "
+          ```just
+        foo
+        ```
+      ",
+      "
+
+
+
+      ",
+    );
+
+    case(
+      "
+        ```just
+        foo:
+        ```\x20\x20
+      ",
+      "
+
+        foo:
+
+      ",
+    );
+
+    case(
+      "
+        ```just
+        foo:
+        `````
+      ",
+      "
+
+        foo:
+
+      ",
+    );
+
+    case(
+      "
+        ```just
+        foo:
+        ~~~
+        bar
+        ```
+      ",
+      "
+
+        foo:
+        ~~~
+        bar
+
+      ",
+    );
+
+    case(
+      "
+        ````just
+        foo:
+        ```
+        ````
+      ",
+      "
+
+        foo:
+        ```
+
+      ",
+    );
+
+    case(
+      "
+        ```just
+        foo:
+        bar
+      ",
+      "
+
+        foo:
+        bar
+      ",
+    );
   }
 
   #[test]
   fn nested() {
-    case("~~~\n```just\nfoo\n```\n~~~\n", "\n\n\n\n\n");
-    case("````\n```just\nfoo\n```\n````\n", "\n\n\n\n\n");
-    case("```\n```just\nfoo\n", "\n\n\n");
+    case(
+      "
+        ~~~
+        ```just
+        foo
+        ```
+        ~~~
+      ",
+      "
+
+
+
+
+
+      ",
+    );
+
+    case(
+      "
+        ````
+        ```just
+        foo
+        ```
+        ````
+      ",
+      "
+
+
+
+
+
+      ",
+    );
+
+    case(
+      "
+        ```
+        ```just
+        foo
+      ",
+      "
+
+
+
+      ",
+    );
   }
 
   #[test]
   fn invisible() {
-    case("<!--\n```just\nfoo:\n```\n-->\n", "\n\n\n\n\n");
-    case("> ```just\n> foo:\n> ```\n", "\n\n\n");
-    case("- foo\n\n  ```just\n  bar:\n  ```\n", "\n\n\n\n\n");
+    case(
+      "
+        <!--
+        ```just
+        foo:
+        ```
+        -->
+      ",
+      "
+
+
+
+
+
+      ",
+    );
+
+    case(
+      "
+        > ```just
+        > foo:
+        > ```
+      ",
+      "
+
+
+
+      ",
+    );
+
+    case(
+      "
+        - foo
+
+          ```just
+          bar:
+          ```
+      ",
+      "
+
+
+
+
+
+      ",
+    );
   }
 }
