@@ -100,7 +100,9 @@ impl Search {
           path: justfile.clone(),
         })?;
 
-      let (justfile, tempdir) = Self::tempdir_justfile(config, &tangle(&markdown))?;
+      let source = tangle(&markdown);
+
+      let (justfile, tempdir) = Self::tempdir_justfile(config, &source)?;
 
       Ok(Self {
         justfile,
