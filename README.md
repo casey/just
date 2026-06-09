@@ -4295,6 +4295,29 @@ default:
   echo foo
 ```
 
+### Markdown `justfile`s
+
+If the argument to `--justfile` ends in `.md`, `just` extracts the contents of
+unindented `just` fenced code blocks and writes them to a `justfile` in a
+temporary directory<sup>master</sup>:
+
+````markdown
+# Project
+
+Build the project:
+
+```just
+build:
+  echo Building…
+```
+````
+
+```console
+$ just --justfile README.md build
+echo Building…
+Building…
+```
+
 ### Formatting and dumping `justfile`s
 
 Each `justfile` has a canonical formatting with respect to whitespace and
@@ -4321,8 +4344,9 @@ some-recipe:
     echo "foo"
 ```
 
-When the `justfile` is read from standard input with `--justfile -`, `--fmt`
-prints the formatted `justfile` to stdout.
+When the `justfile` is read from standard input with `--justfile -` or
+extracted from a markdown file, `--fmt` prints the formatted `justfile` to
+stdout.
 
 Note that formatting is not covered by any backwards compatibility guarantee
 and is subject to change from time to time.

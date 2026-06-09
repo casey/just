@@ -7,7 +7,6 @@ const PROJECT_ROOT_CHILDREN: &[&str] = &[".bzr", ".git", ".hg", ".svn", "_darcs"
 #[derive(Debug)]
 pub(crate) struct Search {
   pub(crate) justfile: PathBuf,
-  #[allow(unused)]
   pub(crate) tempdir: Option<TempDir>,
   pub(crate) working_directory: PathBuf,
 }
@@ -54,23 +53,7 @@ impl Search {
         let source =
           io::read_to_string(io::stdin()).map_err(|io_error| SearchError::StdinIo { io_error })?;
 
-        let mut builder = tempfile::Builder::new();
-
-        builder.prefix(TEMPDIR_PREFIX);
-
-        let tempdir = if let Some(tempdir) = &config.tempdir {
-          builder.tempdir_in(tempdir)
-        } else {
-          builder.tempdir()
-        }
-        .map_err(|io_error| SearchError::TempdirIo { io_error })?;
-
-        let justfile = tempdir.path().join("justfile");
-
-        fs::write(&justfile, source).map_err(|io_error| SearchError::FilesystemIo {
-          io_error,
-          path: justfile.clone(),
-        })?;
+        let (justfile, tempdir) = Self::tempdir_justfile(config, &source)?;
 
         Ok(Self {
           justfile,
@@ -89,21 +72,72 @@ impl Search {
       SearchConfig::WithJustfile { justfile } => {
         let justfile = Self::clean(&config.invocation_directory, justfile);
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
-        Ok(Self {
-          justfile,
-          tempdir: None,
-          working_directory,
-        })
+        Self::with_justfile(config, justfile, working_directory)
       }
       SearchConfig::WithJustfileAndWorkingDirectory {
         justfile,
         working_directory,
-      } => Ok(Self {
-        justfile: Self::clean(&config.invocation_directory, justfile),
-        tempdir: None,
-        working_directory: Self::clean(&config.invocation_directory, working_directory),
-      }),
+      } => Self::with_justfile(
+        config,
+        Self::clean(&config.invocation_directory, justfile),
+        Self::clean(&config.invocation_directory, working_directory),
+      ),
     }
+  }
+
+  fn with_justfile(
+    config: &Config,
+    justfile: PathBuf,
+    working_directory: PathBuf,
+  ) -> SearchResult<Self> {
+    if justfile
+      .extension()
+      .is_some_and(|extension| extension.eq_ignore_ascii_case("md"))
+    {
+      let markdown =
+        fs::read_to_string(&justfile).map_err(|io_error| SearchError::FilesystemIo {
+          io_error,
+          path: justfile.clone(),
+        })?;
+
+      let source = tangle(&markdown);
+
+      let (justfile, tempdir) = Self::tempdir_justfile(config, &source)?;
+
+      Ok(Self {
+        justfile,
+        tempdir: Some(tempdir),
+        working_directory,
+      })
+    } else {
+      Ok(Self {
+        justfile,
+        tempdir: None,
+        working_directory,
+      })
+    }
+  }
+
+  fn tempdir_justfile(config: &Config, source: &str) -> SearchResult<(PathBuf, TempDir)> {
+    let mut builder = tempfile::Builder::new();
+
+    builder.prefix(TEMPDIR_PREFIX);
+
+    let tempdir = if let Some(tempdir) = &config.tempdir {
+      builder.tempdir_in(tempdir)
+    } else {
+      builder.tempdir()
+    }
+    .map_err(|io_error| SearchError::TempdirIo { io_error })?;
+
+    let justfile = tempdir.path().join("justfile");
+
+    fs::write(&justfile, source).map_err(|io_error| SearchError::FilesystemIo {
+      io_error,
+      path: justfile.clone(),
+    })?;
+
+    Ok((justfile, tempdir))
   }
 
   fn find_global_justfile() -> SearchResult<PathBuf> {

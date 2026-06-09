@@ -93,6 +93,7 @@ mod line_prefixes;
 mod list;
 mod logical_operators;
 mod man;
+mod markdown;
 mod misc;
 mod modules;
 mod multibyte_char;

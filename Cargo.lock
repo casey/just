@@ -488,7 +488,7 @@ dependencies = [
 name = "generate-book"
 version = "0.0.0"
 dependencies = [
- "pulldown-cmark",
+ "pulldown-cmark 0.9.6",
  "pulldown-cmark-to-cmark",
 ]
 
@@ -659,6 +659,7 @@ dependencies = [
  "num_cpus",
  "percent-encoding",
  "pretty_assertions",
+ "pulldown-cmark 0.13.4",
  "rand",
  "regex",
  "semver",
@@ -892,12 +893,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "pulldown-cmark"
+version = "0.13.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e9f068eba8e7071c5f9511831b44f32c740d5adf574e990f946ddb53db2f314e"
+dependencies = [
+ "bitflags",
+ "memchr",
+ "unicase",
+]
+
+[[package]]
 name = "pulldown-cmark-to-cmark"
 version = "10.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0194e6e1966c23cc5fd988714f85b18d548d773e81965413555d96569931833d"
 dependencies = [
- "pulldown-cmark",
+ "pulldown-cmark 0.9.6",
 ]
 
 [[package]]

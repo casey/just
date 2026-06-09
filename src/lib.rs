@@ -107,6 +107,7 @@ pub(crate) use {
     suggestion::Suggestion,
     switch::Switch,
     table::Table,
+    tangle::tangle,
     token::Token,
     token_kind::TokenKind,
     unresolved_dependency::UnresolvedDependency,
@@ -305,6 +306,7 @@ mod subcommand;
 mod suggestion;
 mod switch;
 mod table;
+mod tangle;
 mod token;
 mod token_kind;
 mod unindent;
