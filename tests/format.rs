@@ -49,6 +49,17 @@ fn from_stdin() {
 }
 
 #[test]
+fn already_formatted_from_stdin() {
+  Test::new()
+    .no_justfile()
+    .args(["--fmt", "--justfile", "-"])
+    .stdin("x := ``\n")
+    .stdout("x := ``\n")
+    .test_round_trip(false)
+    .success();
+}
+
+#[test]
 fn check_from_stdin() {
   Test::new()
     .no_justfile()

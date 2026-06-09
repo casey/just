@@ -401,11 +401,11 @@ impl Subcommand {
       .color_display(config.color.use_color(UseColor::Never))
       .to_string();
 
-    if formatted == src {
-      return Ok(());
-    }
-
     if config.check {
+      if formatted == src {
+        return Ok(());
+      }
+
       if !config.verbosity.quiet() {
         use similar::{ChangeTag, TextDiff};
 
@@ -427,17 +427,19 @@ impl Subcommand {
       }
 
       Err(Error::FormatCheckFoundDiff)
-    } else if matches!(config.search_config, SearchConfig::FromStandardInput { .. }) {
+    } else if search.tempdir.is_some() {
       print!("{formatted}");
       Ok(())
     } else {
-      fs::write(&search.justfile, formatted).map_err(|io_error| Error::WriteJustfile {
-        justfile: search.justfile.clone(),
-        io_error,
-      })?;
+      if formatted != src {
+        fs::write(&search.justfile, formatted).map_err(|io_error| Error::WriteJustfile {
+          justfile: search.justfile.clone(),
+          io_error,
+        })?;
 
-      if config.verbosity.loud() {
-        eprintln!("Wrote justfile to `{}`", search.justfile.display());
+        if config.verbosity.loud() {
+          eprintln!("Wrote justfile to `{}`", search.justfile.display());
+        }
       }
 
       Ok(())
