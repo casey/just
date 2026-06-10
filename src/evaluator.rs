@@ -207,12 +207,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     Ok(evaluator.scope)
   }
 
-  fn evaluate_assignment(&mut self, assignment: &Assignment<'src>) -> RunResult<'src, &Val> {
+  fn evaluate_assignment(&mut self, assignment: &Assignment<'src>) -> RunResult<'src, &Value> {
     let name = assignment.name.lexeme();
 
     if !self.scope.bound(name) {
       let value = if let Some(value) = self.overrides.get(&assignment.number) {
-        Val::from(value.clone())
+        Value::from(value.clone())
       } else {
         self.evaluate_expression(&assignment.value)?
       };
@@ -248,7 +248,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     &mut self,
     function: &FunctionDefinition<'src>,
     arguments: &[Expression<'src>],
-  ) -> RunResult<'src, Val> {
+  ) -> RunResult<'src, Value> {
     let recursion_depth = self.recursion_depth + 1;
 
     if recursion_depth == RECURSION_LIMIT {
@@ -293,7 +293,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     name: Name<'src>,
     function: Function,
     arguments: &[Expression<'src>],
-  ) -> RunResult<'src, Val> {
+  ) -> RunResult<'src, Value> {
     match function {
       Function::Nullary(f) => f(self.function_context(name).unwrap()),
       Function::Unary(f) => {
@@ -338,7 +338,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         f(self.function_context(name).unwrap(), &a, &b, &c)
       }
     }
-    .map(Val::from)
+    .map(Value::from)
     .map_err(|message| Error::FunctionCall {
       function: name,
       message,
@@ -355,12 +355,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   pub(crate) fn evaluate_expression(
     &mut self,
     expression: &Expression<'src>,
-  ) -> RunResult<'src, Val> {
+  ) -> RunResult<'src, Value> {
     match expression {
       Expression::And { lhs, rhs } => {
         let lhs = self.evaluate_expression(lhs)?;
         if lhs.is_empty() {
-          return Ok(Val::from(""));
+          return Ok(Value::from(""));
         }
         self.evaluate_expression(rhs)
       }
@@ -370,7 +370,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         name,
       } => {
         if self.evaluate_condition(condition)? {
-          Ok(Val::from(""))
+          Ok(Value::from(""))
         } else {
           Err(Error::Assert {
             message: self.evaluate_string(error)?,
@@ -382,11 +382,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         let context = self.context(ConstError::Backtick(*token))?;
 
         if context.config.dry_run {
-          return Ok(Val::from(format!("`{contents}`")));
+          return Ok(Value::from(format!("`{contents}`")));
         }
 
         Self::run_command(context, &self.env, &self.scope, contents, None)
-          .map(Val::from)
+          .map(Value::from)
           .map_err(|output_error| Error::Backtick {
             token: *token,
             output_error,
@@ -405,7 +405,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       Expression::Concatenation { lhs, rhs } => {
         let lhs = self.evaluate_string(lhs)?;
         let rhs = self.evaluate_string(rhs)?;
-        Ok(Val::from(lhs + &rhs))
+        Ok(Value::from(lhs + &rhs))
       }
       Expression::Conditional {
         condition,
@@ -427,14 +427,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
 
         if start.kind.indented {
-          Ok(Val::from(unindent(&value)))
+          Ok(Value::from(unindent(&value)))
         } else {
-          Ok(Val::from(value))
+          Ok(Value::from(value))
         }
       }
       Expression::Group { contents } => self.evaluate_expression(contents),
       Expression::Join { lhs: None, rhs } => {
-        Ok(Val::from("/".to_string() + &self.evaluate_string(rhs)?))
+        Ok(Value::from("/".to_string() + &self.evaluate_string(rhs)?))
       }
       Expression::Join {
         lhs: Some(lhs),
@@ -442,7 +442,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       } => {
         let lhs = self.evaluate_string(lhs)?;
         let rhs = self.evaluate_string(rhs)?;
-        Ok(Val::from(lhs + "/" + &rhs))
+        Ok(Value::from(lhs + "/" + &rhs))
       }
       Expression::Or { lhs, rhs } => {
         let lhs = self.evaluate_expression(lhs)?;
@@ -451,7 +451,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
         self.evaluate_expression(rhs)
       }
-      Expression::StringLiteral { string_literal } => Ok(Val::from(string_literal.cooked.clone())),
+      Expression::StringLiteral { string_literal } => {
+        Ok(Value::from(string_literal.cooked.clone()))
+      }
       Expression::Variable { name, .. } => {
         let variable = name.lexeme();
         if let Some(value) = self.scope.value(variable) {
@@ -588,7 +590,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           positional.push(value.joined().into_owned());
           value
         } else if parameter.kind == ParameterKind::Star {
-          Val::empty()
+          Value::empty()
         } else {
           return Err(Error::internal("missing parameter without default"));
         }
@@ -602,7 +604,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           ));
         }
         positional.push(group[0].clone());
-        Val::from(group[0].clone())
+        Value::from(group[0].clone())
       };
 
       for part in value.parts() {

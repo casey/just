@@ -2,7 +2,7 @@ use super::*;
 
 /// A binding of `name` to `value`
 #[derive(Debug, Clone, PartialEq, Serialize)]
-pub(crate) struct Binding<'src, V = Val> {
+pub(crate) struct Binding<'src, V = Value> {
   pub(crate) eager: bool,
   pub(crate) export: bool,
   #[serde(skip)]

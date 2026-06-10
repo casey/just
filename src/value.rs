@@ -1,11 +1,11 @@
 use super::*;
 
 #[derive(Clone, Debug, Default, PartialEq)]
-pub(crate) struct Val {
+pub(crate) struct Value {
   parts: Vec<String>,
 }
 
-impl Val {
+impl Value {
   pub(crate) fn empty() -> Self {
     Self::default()
   }
@@ -38,7 +38,7 @@ impl Val {
   }
 }
 
-impl Display for Val {
+impl Display for Value {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     for (i, part) in self.parts.iter().enumerate() {
       if i > 0 {
@@ -50,7 +50,7 @@ impl Display for Val {
   }
 }
 
-impl Serialize for Val {
+impl Serialize for Value {
   fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
   where
     S: Serializer,
@@ -59,19 +59,19 @@ impl Serialize for Val {
   }
 }
 
-impl From<String> for Val {
+impl From<String> for Value {
   fn from(part: String) -> Self {
     Self { parts: vec![part] }
   }
 }
 
-impl From<&str> for Val {
+impl From<&str> for Value {
   fn from(part: &str) -> Self {
     part.to_string().into()
   }
 }
 
-impl FromIterator<String> for Val {
+impl FromIterator<String> for Value {
   fn from_iter<I: IntoIterator<Item = String>>(parts: I) -> Self {
     Self {
       parts: parts.into_iter().collect(),
@@ -87,12 +87,12 @@ mod tests {
   fn joined() {
     #[track_caller]
     fn case(parts: &[&str], expected: &str) {
-      let val = parts.iter().map(ToString::to_string).collect::<Val>();
-      assert_eq!(val.joined(), expected);
-      assert_eq!(val.to_string(), expected);
-      assert_eq!(val.clone().into_joined(), expected);
+      let value = parts.iter().map(ToString::to_string).collect::<Value>();
+      assert_eq!(value.joined(), expected);
+      assert_eq!(value.to_string(), expected);
+      assert_eq!(value.clone().into_joined(), expected);
       assert_eq!(
-        serde_json::to_string(&val).unwrap(),
+        serde_json::to_string(&value).unwrap(),
         format!("{expected:?}")
       );
     }
@@ -109,8 +109,8 @@ mod tests {
   fn is_empty() {
     #[track_caller]
     fn case(parts: &[&str], expected: bool) {
-      let val = parts.iter().map(ToString::to_string).collect::<Val>();
-      assert_eq!(val.is_empty(), expected);
+      let value = parts.iter().map(ToString::to_string).collect::<Value>();
+      assert_eq!(value.is_empty(), expected);
     }
 
     case(&[], true);
@@ -122,8 +122,8 @@ mod tests {
 
   #[test]
   fn from_str() {
-    assert_eq!(Val::from("foo bar").parts(), ["foo bar"]);
-    assert_eq!(Val::from(String::from("foo")).parts(), ["foo"]);
-    assert_eq!(Val::empty().parts(), [] as [&str; 0]);
+    assert_eq!(Value::from("foo bar").parts(), ["foo bar"]);
+    assert_eq!(Value::from(String::from("foo")).parts(), ["foo"]);
+    assert_eq!(Value::empty().parts(), [] as [&str; 0]);
   }
 }

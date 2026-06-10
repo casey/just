@@ -54,7 +54,7 @@ impl<'src, 'run> Scope<'src, 'run> {
     self.bindings.contains_key(name)
   }
 
-  pub(crate) fn value(&self, name: &str) -> Option<&Val> {
+  pub(crate) fn value(&self, name: &str) -> Option<&Value> {
     if let Some(binding) = self.bindings.get(name) {
       Some(&binding.value)
     } else {
