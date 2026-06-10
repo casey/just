@@ -115,6 +115,7 @@ pub(crate) use {
     unstable_feature::UnstableFeature,
     usage::Usage,
     use_color::UseColor,
+    val::Val,
     verbosity::Verbosity,
     warning::Warning,
     which::which,
@@ -315,6 +316,7 @@ mod unresolved_recipe;
 mod unstable_feature;
 mod usage;
 mod use_color;
+mod val;
 mod verbosity;
 mod warning;
 mod which;

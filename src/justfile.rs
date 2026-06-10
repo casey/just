@@ -327,7 +327,7 @@ impl<'src> Justfile<'src> {
                     print!("export ");
                   }
                   print!("{}=\"", binding.name.lexeme().replace('-', "_"));
-                  for c in binding.value.chars() {
+                  for c in binding.value.joined().chars() {
                     if matches!(c, '!' | '"' | '$' | '\\' | '`') {
                       print!("\\");
                     }
@@ -538,7 +538,7 @@ impl<'src> Justfile<'src> {
       for group in arguments {
         let evaluated_group = group
           .iter()
-          .map(|argument| evaluator.evaluate_expression(argument))
+          .map(|argument| evaluator.evaluate_string(argument))
           .collect::<RunResult<Vec<String>>>()?;
         grouped.push(evaluated_group);
       }

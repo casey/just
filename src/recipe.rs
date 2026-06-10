@@ -213,7 +213,7 @@ impl<'src> Recipe<'src> {
     for attribute in &self.attributes {
       if let Attribute::WorkingDirectory(expression) = attribute {
         return Ok(Some(
-          working_directory.join(&evaluator.evaluate_expression(expression)?),
+          working_directory.join(&evaluator.evaluate_string(expression)?),
         ));
       }
     }
