@@ -214,7 +214,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       let value = if let Some(value) = self.overrides.get(&assignment.number) {
         Value::from(value.clone())
       } else {
-        self.evaluate_expression(&assignment.value)?
+        self.evaluate_value(&assignment.value)?
       };
 
       self.scope.bind(Binding {
@@ -261,7 +261,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     let mut scope = Scope::root();
     for ((name, number), argument) in function.parameters.iter().copied().zip(arguments) {
-      let value = self.evaluate_expression(argument)?;
+      let value = self.evaluate_value(argument)?;
       scope.bind(Binding {
         eager: false,
         export: false,
@@ -285,7 +285,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       scope,
     };
 
-    evaluator.evaluate_expression(&function.body)
+    evaluator.evaluate_value(&function.body)
   }
 
   fn evaluate_builtin_function(
@@ -349,20 +349,17 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     &mut self,
     expression: &Expression<'src>,
   ) -> RunResult<'src, String> {
-    Ok(self.evaluate_expression(expression)?.into_joined())
+    Ok(self.evaluate_value(expression)?.into_joined())
   }
 
-  pub(crate) fn evaluate_expression(
-    &mut self,
-    expression: &Expression<'src>,
-  ) -> RunResult<'src, Value> {
+  pub(crate) fn evaluate_value(&mut self, expression: &Expression<'src>) -> RunResult<'src, Value> {
     match expression {
       Expression::And { lhs, rhs } => {
-        let lhs = self.evaluate_expression(lhs)?;
+        let lhs = self.evaluate_value(lhs)?;
         if lhs.is_empty() {
           return Ok(Value::from(""));
         }
-        self.evaluate_expression(rhs)
+        self.evaluate_value(rhs)
       }
       Expression::Assert {
         condition,
@@ -413,9 +410,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         otherwise,
       } => {
         if self.evaluate_condition(condition)? {
-          self.evaluate_expression(then)
+          self.evaluate_value(then)
         } else {
-          self.evaluate_expression(otherwise)
+          self.evaluate_value(otherwise)
         }
       }
       Expression::FormatString { start, expressions } => {
@@ -432,7 +429,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           Ok(Value::from(value))
         }
       }
-      Expression::Group { contents } => self.evaluate_expression(contents),
+      Expression::Group { contents } => self.evaluate_value(contents),
       Expression::Join { lhs: None, rhs } => {
         Ok(Value::from("/".to_string() + &self.evaluate_string(rhs)?))
       }
@@ -445,11 +442,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         Ok(Value::from(lhs + "/" + &rhs))
       }
       Expression::Or { lhs, rhs } => {
-        let lhs = self.evaluate_expression(lhs)?;
+        let lhs = self.evaluate_value(lhs)?;
         if !lhs.is_empty() {
           return Ok(lhs);
         }
-        self.evaluate_expression(rhs)
+        self.evaluate_value(rhs)
       }
       Expression::StringLiteral { string_literal } => {
         Ok(Value::from(string_literal.cooked.clone()))
@@ -586,7 +583,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     for (parameter, group) in parameters.iter().zip(arguments) {
       let value = if group.is_empty() {
         if let Some(ref default) = parameter.default {
-          let value = evaluator.evaluate_expression(default)?;
+          let value = evaluator.evaluate_value(default)?;
           positional.push(value.joined().into_owned());
           value
         } else if parameter.kind == ParameterKind::Star {
