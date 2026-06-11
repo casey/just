@@ -239,6 +239,7 @@ test-completions:
   echo 'bar:' > tmp/complete/foo.just
   cd tmp/complete && PATH="`realpath bin`:$PATH" bash --init-file just.bash
 
+[group: 'demo']
 rule110:
   just -f examples/rule110.just
 
