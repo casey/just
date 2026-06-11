@@ -544,7 +544,7 @@ fn doc_above_wide_signature() {
     .justfile(
       r#"
         # comment
-        foo bar="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx":
+        foo bar="..................................................":
       "#,
     )
     .arg("--list")
@@ -552,7 +552,7 @@ fn doc_above_wide_signature() {
       r#"
         Available recipes:
             # comment
-            foo bar="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            foo bar=".................................................."
       "#,
     )
     .success();
