@@ -439,7 +439,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       } => {
         let lhs = self.evaluate_string(lhs)?;
         let rhs = self.evaluate_string(rhs)?;
-        Ok(Value::from(lhs + "/" + &rhs))
+        Ok((lhs + "/" + &rhs).into())
       }
       Expression::Or { lhs, rhs } => {
         let lhs = self.evaluate_value(lhs)?;
@@ -448,9 +448,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
         self.evaluate_value(rhs)
       }
-      Expression::StringLiteral { string_literal } => {
-        Ok(Value::from(string_literal.cooked.clone()))
-      }
+      Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.deref().into()),
       Expression::Variable { name, .. } => {
         let variable = name.lexeme();
         if let Some(value) = self.scope.value(variable) {
@@ -587,7 +585,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           positional.push(value.joined().into_owned());
           value
         } else if parameter.kind == ParameterKind::Star {
-          Value::empty()
+          Value::new()
         } else {
           return Err(Error::internal("missing parameter without default"));
         }

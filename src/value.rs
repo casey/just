@@ -6,7 +6,7 @@ pub(crate) struct Value {
 }
 
 impl Value {
-  pub(crate) fn empty() -> Self {
+  pub(crate) fn new() -> Self {
     Self::default()
   }
 
@@ -132,6 +132,6 @@ mod tests {
   fn from_str() {
     assert_eq!(Value::from("foo bar").parts(), ["foo bar"]);
     assert_eq!(Value::from(String::from("foo")).parts(), ["foo"]);
-    assert_eq!(Value::empty().parts(), [] as [&str; 0]);
+    assert_eq!(Value::new().parts(), [] as [&str; 0]);
   }
 }
