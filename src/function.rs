@@ -280,7 +280,7 @@ fn encode_uri_component(_context: Context, s: &str) -> FunctionResult {
 
 fn env(context: Context, key: &str, default: Option<&str>) -> FunctionResult {
   match default {
-    Some(val) => env_var_or_default(context, key, val),
+    Some(value) => env_var_or_default(context, key, value),
     None => env_var(context, key),
   }
 }
