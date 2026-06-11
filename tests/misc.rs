@@ -1071,7 +1071,8 @@ fn list_alignment_long() {
       r#"
         Available recipes:
             hello a b='B	' c='C' # this does a thing
-            this-recipe-is-very-very-very-very-very-very-very-very-important Z="\t z" # something else
+            # something else
+            this-recipe-is-very-very-very-very-very-very-very-very-important Z="\t z"
             x a b='B	' c='C'     # this does another thing
       "#,
     )

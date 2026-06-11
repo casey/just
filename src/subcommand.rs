@@ -535,6 +535,8 @@ impl Subcommand {
     groups: &[String],
     module: &Justfile,
   ) -> RunResult<'static> {
+    const MAX_WIDTH: usize = 50;
+
     fn print_doc_and_aliases(
       config: &Config,
       name: &str,
@@ -642,7 +644,7 @@ impl Subcommand {
     let max_signature_width = signature_widths
       .values()
       .copied()
-      .filter(|width| *width <= 50)
+      .filter(|width| *width <= MAX_WIDTH)
       .max()
       .unwrap_or(0);
 
@@ -753,8 +755,11 @@ impl Subcommand {
               Some(Cow::Owned(format!("alias for `{}`", recipe.name)))
             };
 
+            let inline_doc = signature_widths[name] <= MAX_WIDTH
+              && doc.as_ref().is_none_or(|doc| doc.lines().count() <= 1);
+
             if let Some(doc) = &doc {
-              if doc.lines().count() > 1 {
+              if !inline_doc {
                 for line in doc.lines() {
                   println!(
                     "{list_prefix}{} {}",
@@ -773,7 +778,7 @@ impl Subcommand {
             print_doc_and_aliases(
               config,
               name,
-              doc.filter(|doc| doc.lines().count() <= 1).as_deref(),
+              doc.filter(|_| inline_doc).as_deref(),
               aliases
                 .get(recipe.name())
                 .map(Vec::as_slice)
