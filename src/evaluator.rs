@@ -278,7 +278,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       assignments: Some(&context.module.assignments),
       context: Some(context),
       env: BTreeMap::new(),
-      is_dependency: false,
+      is_dependency: self.is_dependency,
       non_const_assignments: Table::new(),
       overrides: self.overrides,
       recursion_depth,
