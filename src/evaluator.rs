@@ -402,7 +402,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       Expression::Concatenation { lhs, rhs } => {
         let lhs = self.evaluate_string(lhs)?;
         let rhs = self.evaluate_string(rhs)?;
-        Ok(Value::from(lhs + &rhs))
+        Ok((lhs + &rhs).into())
       }
       Expression::Conditional {
         condition,
