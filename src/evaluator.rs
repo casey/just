@@ -7,6 +7,7 @@ pub(crate) struct Evaluator<'src: 'run, 'run> {
   is_dependency: bool,
   non_const_assignments: Table<'src, Name<'src>>,
   overrides: &'run HashMap<Number, String>,
+  recipe: Option<Name<'src>>,
   recursion_depth: usize,
   scope: Scope<'src, 'run>,
 }
@@ -33,6 +34,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       is_dependency: false,
       non_const_assignments: Table::new(),
       overrides,
+      recipe: None,
       scope: scope.child(),
     };
 
@@ -190,6 +192,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       is_dependency: false,
       non_const_assignments: Table::new(),
       overrides,
+      recipe: None,
       scope: parent.child(),
     };
 
@@ -240,6 +243,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       execution_context: self.context(ConstError::FunctionCall(name))?,
       is_dependency: self.is_dependency,
       name,
+      recipe: self.recipe,
       scope: &self.scope,
     })
   }
@@ -281,6 +285,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       is_dependency: self.is_dependency,
       non_const_assignments: Table::new(),
       overrides: self.overrides,
+      recipe: self.recipe,
       recursion_depth,
       scope,
     };
@@ -562,7 +567,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     recipe: &Recipe<'src>,
     scope: &'run Scope<'src, 'run>,
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>, BTreeMap<String, String>)> {
-    let mut evaluator = Self::new(context, BTreeMap::new(), is_dependency, scope);
+    let mut evaluator = Self::new(
+      context,
+      BTreeMap::new(),
+      is_dependency,
+      Some(recipe.name),
+      scope,
+    );
 
     for attribute in &recipe.attributes {
       if let Attribute::Env(key, value) = attribute {
@@ -625,6 +636,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     context: &ExecutionContext<'src, 'run>,
     env: BTreeMap<String, String>,
     is_dependency: bool,
+    recipe: Option<Name<'src>>,
     scope: &'run Scope<'src, 'run>,
   ) -> Self {
     Self {
@@ -634,6 +646,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       is_dependency,
       non_const_assignments: Table::new(),
       overrides: context.overrides,
+      recipe,
       recursion_depth: 0,
       scope: scope.child(),
     }

@@ -1276,6 +1276,84 @@ fn is_dependency() {
 }
 
 #[test]
+fn recipe_name() {
+  Test::new()
+    .justfile(
+      "
+        foo: bar
+          @echo 'foo {{recipe_name()}}'
+
+        bar:
+          @echo 'bar {{recipe_name()}}'
+      ",
+    )
+    .args(["foo"])
+    .stdout("bar bar\nfoo foo\n")
+    .success();
+}
+
+#[test]
+fn recipe_name_in_parameter_default() {
+  Test::new()
+    .justfile(
+      "
+        foo x=recipe_name():
+          @echo {{x}}
+      ",
+    )
+    .stdout("foo\n")
+    .success();
+}
+
+#[test]
+fn recipe_name_in_dependency_argument() {
+  Test::new()
+    .justfile(
+      "
+        foo: (bar recipe_name())
+
+        bar x:
+          @echo {{x}}
+      ",
+    )
+    .stdout("foo\n")
+    .success();
+}
+
+#[test]
+fn recipe_name_ignores_alias() {
+  Test::new()
+    .justfile(
+      "
+        alias f := foo
+
+        foo:
+          @echo {{recipe_name()}}
+      ",
+    )
+    .args(["f"])
+    .stdout("foo\n")
+    .success();
+}
+
+#[test]
+fn recipe_name_in_assignment_is_an_error() {
+  Test::new()
+    .justfile("x := recipe_name()")
+    .args(["--evaluate"])
+    .stderr(
+      "
+        error: call to function `recipe_name` failed: `recipe_name()` can only be used within a recipe
+         ——▶ justfile:1:6
+          │
+        1 │ x := recipe_name()
+          │      ^^^^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn unary_argument_count_mismatch_error_message() {
   Test::new()
     .justfile("x := datetime()")

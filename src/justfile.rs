@@ -478,7 +478,7 @@ impl<'src> Justfile<'src> {
 
     let scope = outer.child();
 
-    let mut evaluator = Evaluator::new(&context, BTreeMap::new(), true, &scope);
+    let mut evaluator = Evaluator::new(&context, BTreeMap::new(), true, Some(recipe.name), &scope);
 
     if !config.yes && !recipe.confirm(&mut evaluator)? {
       return Err(Error::NotConfirmed {
