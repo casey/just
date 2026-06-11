@@ -1951,6 +1951,8 @@ foo := env('FOO', '') || 'DEFAULT_VALUE'
   run as a dependency of another recipe, rather than being run directly,
   otherwise returns the string `false`.
 
+- `recipe_name()`<sup>master</sup> - Returns the name of the current recipe.
+
 #### Invocation Directory
 
 - `invocation_directory()` - Retrieves the absolute path to the current

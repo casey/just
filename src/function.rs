@@ -24,6 +24,7 @@ pub(crate) struct Context<'src: 'run, 'run> {
   pub(crate) execution_context: &'run ExecutionContext<'src, 'run>,
   pub(crate) is_dependency: bool,
   pub(crate) name: Name<'src>,
+  pub(crate) recipe: Option<Name<'src>>,
   pub(crate) scope: &'run Scope<'src, 'run>,
 }
 
@@ -85,6 +86,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "prepend" => Binary(prepend),
     "quote" => Unary(quote),
     "read" => Unary(read),
+    "recipe_name" => Nullary(recipe_name),
     "replace" => Ternary(replace),
     "replace_regex" => Ternary(replace_regex),
     "require" => Unary(require),
@@ -526,6 +528,13 @@ fn quote(_context: Context, s: &str) -> FunctionResult {
 fn read(context: Context, filename: &str) -> FunctionResult {
   fs::read_to_string(context.execution_context.working_directory().join(filename))
     .map_err(|err| format!("I/O error reading `{filename}`: {err}"))
+}
+
+fn recipe_name(context: Context) -> FunctionResult {
+  context
+    .recipe
+    .map(|name| name.lexeme().into())
+    .ok_or_else(|| "`recipe_name()` can only be used within a recipe".into())
 }
 
 fn replace(_context: Context, s: &str, from: &str, to: &str) -> FunctionResult {
