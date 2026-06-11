@@ -59,15 +59,23 @@ impl Serialize for Value {
   }
 }
 
-impl From<String> for Value {
-  fn from(part: String) -> Self {
-    Self { parts: vec![part] }
+impl From<&String> for Value {
+  fn from(part: &String) -> Self {
+    Self {
+      parts: vec![part.clone()],
+    }
   }
 }
 
 impl From<&str> for Value {
   fn from(part: &str) -> Self {
     part.to_string().into()
+  }
+}
+
+impl From<String> for Value {
+  fn from(part: String) -> Self {
+    Self { parts: vec![part] }
   }
 }
 

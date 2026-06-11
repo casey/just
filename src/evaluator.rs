@@ -212,7 +212,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     if !self.scope.bound(name) {
       let value = if let Some(value) = self.overrides.get(&assignment.number) {
-        Value::from(value.clone())
+        value.into()
       } else {
         self.evaluate_value(&assignment.value)?
       };
@@ -424,14 +424,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
 
         if start.kind.indented {
-          Ok(Value::from(unindent(&value)))
+          Ok(unindent(&value).into())
         } else {
-          Ok(Value::from(value))
+          Ok(value.into())
         }
       }
       Expression::Group { contents } => self.evaluate_value(contents),
       Expression::Join { lhs: None, rhs } => {
-        Ok(Value::from("/".to_string() + &self.evaluate_string(rhs)?))
+        Ok(("/".to_string() + &self.evaluate_string(rhs)?).into())
       }
       Expression::Join {
         lhs: Some(lhs),
