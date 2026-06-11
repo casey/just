@@ -537,3 +537,23 @@ fn positional_and_option_parameters_in_signature() {
     )
     .success();
 }
+
+#[test]
+fn doc_above_wide_signature() {
+  Test::new()
+    .justfile(
+      r#"
+        # comment
+        foo bar="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx":
+      "#,
+    )
+    .arg("--list")
+    .stdout(
+      r#"
+        Available recipes:
+            # comment
+            foo bar="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      "#,
+    )
+    .success();
+}
