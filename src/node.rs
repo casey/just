@@ -213,7 +213,11 @@ impl<'src> Node<'src> for UnresolvedRecipe<'src> {
         let mut d = dependency.recipe.tree();
 
         for argument in &dependency.arguments {
-          d.push_mut(argument.tree());
+          if argument.starred {
+            d.push_mut(Tree::atom("*"));
+          }
+
+          d.push_mut(argument.expression.tree());
         }
 
         if i < self.priors {

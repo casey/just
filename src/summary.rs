@@ -334,7 +334,7 @@ impl Dependency {
     let mut arguments = Vec::new();
     for group in &dependency.arguments {
       for argument in group {
-        arguments.push(Expression::new(argument));
+        arguments.push(Expression::new(&argument.expression));
       }
     }
 

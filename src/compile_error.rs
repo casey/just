@@ -225,6 +225,13 @@ impl Display for CompileError<'_> {
           _ => character.escape_default().collect(),
         }
       ),
+      MappedDependencyRequiresLists => {
+        write!(f, "mapped dependencies require the `lists` setting")
+      }
+      MappedDependencyWithoutStarredArgument => write!(
+        f,
+        "mapped dependency must star the argument to map over, as in `*(recipe *argument)`"
+      ),
       MismatchedClosingDelimiter {
         open,
         open_line,
@@ -242,6 +249,9 @@ impl Display for CompileError<'_> {
            consist of tabs or spaces, but not both",
         ShowWhitespace(whitespace)
       ),
+      MultipleStarredDependencyArguments => {
+        write!(f, "mapped dependencies may star only one argument")
+      }
       NoCdAndWorkingDirectoryAttribute { recipe } => write!(
         f,
         "recipe `{recipe}` has both `[no-cd]` and `[working-directory]` attributes"
@@ -307,6 +317,11 @@ impl Display for CompileError<'_> {
       RequiredParameterFollowsDefaultParameter { parameter } => write!(
         f,
         "non-default parameter `{parameter}` follows default parameter"
+      ),
+      StarredDependencyArgumentOutsideMappedDependency => write!(
+        f,
+        "dependency arguments are passed whole; to invoke a dependency once per element of a \
+         starred argument, star the dependency, as in `*(recipe *argument)`"
       ),
       UndefinedArgAttribute { argument } => {
         write!(f, "argument attribute for undefined argument `{argument}`")

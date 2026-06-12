@@ -533,13 +533,14 @@ impl<'src> Justfile<'src> {
     }
 
     let mut evaluated = Vec::new();
-    for Dependency { recipe, arguments } in dependencies {
+    for dependency in dependencies {
+      let Dependency { recipe, arguments } = dependency;
       let mut grouped = Vec::new();
       for group in arguments {
         let value = if context.module.settings.lists {
           match group.as_slice() {
             [] => Value::new(),
-            [argument] => evaluator.evaluate_value(argument)?,
+            [argument] => evaluator.evaluate_value(&argument.expression)?,
             _ => {
               return Err(Error::internal(
                 "multiple arguments grouped to one parameter with lists setting",
@@ -549,12 +550,21 @@ impl<'src> Justfile<'src> {
         } else {
           group
             .iter()
-            .map(|argument| evaluator.evaluate_string(argument))
+            .map(|argument| evaluator.evaluate_string(&argument.expression))
             .collect::<RunResult<Value>>()?
         };
         grouped.push(value);
       }
-      evaluated.push((recipe, grouped));
+
+      if let Some(star) = dependency.star() {
+        for element in grouped[star].elements().to_vec() {
+          let mut arguments = grouped.clone();
+          arguments[star] = element.into();
+          evaluated.push((recipe, arguments));
+        }
+      } else {
+        evaluated.push((recipe, grouped));
+      }
     }
 
     if recipe.is_parallel() {
