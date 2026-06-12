@@ -16,12 +16,12 @@ fn quote_quotes_each_element_of_variadic_arguments() {
         set lists
 
         foo *args:
-          @printf '%s\\n' {{ quote(args) }}
+          @echo \"{{ quote(args) }}\"
       ",
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar", "baz bob"])
-    .stdout("bar\nbaz bob\n")
+    .stdout("'bar' 'baz bob'\n")
     .success();
 }
 
@@ -33,12 +33,12 @@ fn quote_of_empty_list_is_empty() {
         set lists
 
         foo *args:
-          @printf '%s\\n' bar {{ quote(args) }} baz
+          @echo \"bar{{ quote(args) }}baz\"
       ",
     )
     .env("JUST_UNSTABLE", "1")
     .arg("foo")
-    .stdout("bar\nbaz\n")
+    .stdout("barbaz\n")
     .success();
 }
 
@@ -48,11 +48,11 @@ fn quote_of_empty_variadic_is_empty_string_without_lists_setting() {
     .justfile(
       "
         foo *args:
-          @printf '%s\\n' bar {{ quote(args) }} baz
+          @echo \"bar{{ quote(args) }}baz\"
       ",
     )
     .arg("foo")
-    .stdout("bar\n\nbaz\n")
+    .stdout("bar''baz\n")
     .success();
 }
 
@@ -64,12 +64,12 @@ fn quote_quotes_single_element_values_whole() {
         set lists
 
         foo bar='baz bob':
-          @printf '%s\\n' {{ quote(bar) }}
+          @echo \"{{ quote(bar) }}\"
       ",
     )
     .env("JUST_UNSTABLE", "1")
     .arg("foo")
-    .stdout("baz bob\n")
+    .stdout("'baz bob'\n")
     .success();
 }
 
