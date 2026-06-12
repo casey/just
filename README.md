@@ -1280,6 +1280,10 @@ A parameter evaluates to the default when the argument is an empty list.
 
 Passing an empty list to a non-`*` parameter without a default is an error.
 
+List arguments are space-joined when passed as positional arguments when
+`positional-arguments` is set, unless they are variadic, in which case they are
+passed as one positional argument per element.
+
 #### Positional Arguments
 
 If `positional-arguments` is `true`, recipe arguments will be passed as
