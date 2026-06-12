@@ -7,17 +7,17 @@ pub(crate) struct Count<T: Display> {
 }
 
 impl<T: Display> Count<T> {
-  pub(crate) fn numbered(noun: T, count: usize) -> Self {
+  pub(crate) fn numbered(noun: T, count: impl Borrow<usize>) -> Self {
     Self {
-      count,
+      count: *count.borrow(),
       noun,
       numbered: true,
     }
   }
 
-  pub(crate) fn unnumbered(noun: T, count: usize) -> Self {
+  pub(crate) fn unnumbered(noun: T, count: impl Borrow<usize>) -> Self {
     Self {
-      count,
+      count: *count.borrow(),
       noun,
       numbered: false,
     }

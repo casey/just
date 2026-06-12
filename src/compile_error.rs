@@ -49,15 +49,15 @@ impl Display for CompileError<'_> {
         write!(
           f,
           "attribute `{attribute}` got {} but takes ",
-          Count::numbered("argument", *found),
+          Count::numbered("argument", found),
         )?;
 
         if min == max {
-          write!(f, "{}", Count::numbered("argument", *min))
+          write!(f, "{}", Count::numbered("argument", min))
         } else if found < min {
-          write!(f, "at least {}", Count::numbered("argument", *min))
+          write!(f, "at least {}", Count::numbered("argument", min))
         } else {
-          write!(f, "at most {}", Count::numbered("argument", *max))
+          write!(f, "at most {}", Count::numbered("argument", max))
         }
       }
       AttributeArgumentExpression { attribute } => {
@@ -104,15 +104,15 @@ impl Display for CompileError<'_> {
         write!(
           f,
           "dependency `{dependency}` got {} but takes ",
-          Count::numbered("argument", *found),
+          Count::numbered("argument", found),
         )?;
 
         if min == max {
-          write!(f, "{}", Count::numbered("argument", *min))
+          write!(f, "{}", Count::numbered("argument", min))
         } else if found < min {
-          write!(f, "at least {}", Count::numbered("argument", *min))
+          write!(f, "at least {}", Count::numbered("argument", min))
         } else {
-          write!(f, "at most {}", Count::numbered("argument", *max))
+          write!(f, "at most {}", Count::numbered("argument", max))
         }
       }
       DuplicateArgAttribute { arg, first } => write!(
@@ -173,7 +173,7 @@ impl Display for CompileError<'_> {
       }
       ExtraLeadingWhitespace => write!(f, "recipe line has extra leading whitespace"),
       ExtraneousAttributes { count } => {
-        write!(f, "extraneous {}", Count::unnumbered("attribute", *count))
+        write!(f, "extraneous {}", Count::unnumbered("attribute", count))
       }
       FunctionArgumentCountMismatch {
         function,
@@ -182,7 +182,7 @@ impl Display for CompileError<'_> {
       } => write!(
         f,
         "function `{function}` called with {} but takes {}",
-        Count::numbered("argument", *arguments),
+        Count::numbered("argument", arguments),
         expected.display(),
       ),
       GuardAndInfallibleSigil => write!(

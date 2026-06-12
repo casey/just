@@ -133,7 +133,7 @@ pub(crate) use {
   },
   snafu::{ResultExt, Snafu},
   std::{
-    borrow::Cow,
+    borrow::{Borrow, Cow},
     cmp::Ordering,
     collections::{BTreeMap, BTreeSet, HashMap, HashSet},
     env,
