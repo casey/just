@@ -48,17 +48,16 @@ impl Display for CompileError<'_> {
       } => {
         write!(
           f,
-          "attribute `{attribute}` got {found} {} but takes ",
-          Count("argument", *found),
+          "attribute `{attribute}` got {} but takes ",
+          Count::numbered("argument", found),
         )?;
 
         if min == max {
-          let expected = min;
-          write!(f, "{expected} {}", Count("argument", *expected))
+          write!(f, "{}", Count::numbered("argument", min))
         } else if found < min {
-          write!(f, "at least {min} {}", Count("argument", *min))
+          write!(f, "at least {}", Count::numbered("argument", min))
         } else {
-          write!(f, "at most {max} {}", Count("argument", *max))
+          write!(f, "at most {}", Count::numbered("argument", max))
         }
       }
       AttributeArgumentExpression { attribute } => {
@@ -104,17 +103,16 @@ impl Display for CompileError<'_> {
       } => {
         write!(
           f,
-          "dependency `{dependency}` got {found} {} but takes ",
-          Count("argument", *found),
+          "dependency `{dependency}` got {} but takes ",
+          Count::numbered("argument", found),
         )?;
 
         if min == max {
-          let expected = min;
-          write!(f, "{expected} {}", Count("argument", *expected))
+          write!(f, "{}", Count::numbered("argument", min))
         } else if found < min {
-          write!(f, "at least {min} {}", Count("argument", *min))
+          write!(f, "at least {}", Count::numbered("argument", min))
         } else {
-          write!(f, "at most {max} {}", Count("argument", *max))
+          write!(f, "at most {}", Count::numbered("argument", max))
         }
       }
       DuplicateArgAttribute { arg, first } => write!(
@@ -175,7 +173,7 @@ impl Display for CompileError<'_> {
       }
       ExtraLeadingWhitespace => write!(f, "recipe line has extra leading whitespace"),
       ExtraneousAttributes { count } => {
-        write!(f, "extraneous {}", Count("attribute", *count))
+        write!(f, "extraneous {}", Count::unnumbered("attribute", count))
       }
       FunctionArgumentCountMismatch {
         function,
@@ -183,8 +181,8 @@ impl Display for CompileError<'_> {
         expected,
       } => write!(
         f,
-        "function `{function}` called with {arguments} {} but takes {}",
-        Count("argument", *arguments),
+        "function `{function}` called with {} but takes {}",
+        Count::numbered("argument", arguments),
         expected.display(),
       ),
       GuardAndInfallibleSigil => write!(
