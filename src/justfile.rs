@@ -327,7 +327,7 @@ impl<'src> Justfile<'src> {
                     print!("export ");
                   }
                   print!("{}=\"", binding.name.lexeme().replace('-', "_"));
-                  for c in binding.value.joined().chars() {
+                  for c in binding.value.join().chars() {
                     if matches!(c, '!' | '"' | '$' | '\\' | '`') {
                       print!("\\");
                     }

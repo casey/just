@@ -325,7 +325,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
         f(self.function_context(name).unwrap(), &a, &rest)
       }
-      Function::UnaryValue(f) => {
+      Function::UnaryList(f) => {
         let a = self.evaluate_value(&arguments[0])?;
         return f(self.function_context(name).unwrap(), &a).map_err(|message| {
           Error::FunctionCall {
@@ -366,7 +366,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     &mut self,
     expression: &Expression<'src>,
   ) -> RunResult<'src, String> {
-    Ok(self.evaluate_value(expression)?.into_joined())
+    Ok(self.evaluate_value(expression)?.into_string())
   }
 
   pub(crate) fn evaluate_value(&mut self, expression: &Expression<'src>) -> RunResult<'src, Value> {
@@ -605,7 +605,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       let value = if group.is_empty() {
         if let Some(ref default) = parameter.default {
           let value = evaluator.evaluate_value(default)?;
-          positional.push(value.joined().into_owned());
+          positional.push(value.join().into_owned());
           value
         } else if parameter.kind == ParameterKind::Star {
           Value::new()
@@ -625,14 +625,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         Value::from(group[0].clone())
       };
 
-      for part in value.parts() {
-        parameter.check_pattern_match(recipe, part)?;
+      for element in value.elements() {
+        parameter.check_pattern_match(recipe, element)?;
       }
 
       let value = if context.module.settings.lists {
         value
       } else {
-        value.into_joined().into()
+        value.into_string().into()
       };
 
       evaluator.scope.bind(Binding {
