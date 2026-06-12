@@ -438,7 +438,7 @@ impl<'src> Justfile<'src> {
   }
 
   fn run_recipe(
-    arguments: &[Vec<String>],
+    arguments: &[Value],
     config: &Config,
     is_dependency: bool,
     overrides: &HashMap<Number, String>,
@@ -536,11 +536,23 @@ impl<'src> Justfile<'src> {
     for Dependency { recipe, arguments } in dependencies {
       let mut grouped = Vec::new();
       for group in arguments {
-        let evaluated_group = group
-          .iter()
-          .map(|argument| evaluator.evaluate_string(argument))
-          .collect::<RunResult<Vec<String>>>()?;
-        grouped.push(evaluated_group);
+        let value = if context.module.settings.lists {
+          match group.as_slice() {
+            [] => Value::new(),
+            [argument] => evaluator.evaluate_value(argument)?,
+            _ => {
+              return Err(Error::internal(
+                "multiple arguments grouped to one parameter with lists setting",
+              ));
+            }
+          }
+        } else {
+          group
+            .iter()
+            .map(|argument| evaluator.evaluate_string(argument))
+            .collect::<RunResult<Value>>()?
+        };
+        grouped.push(value);
       }
       evaluated.push((recipe, grouped));
     }

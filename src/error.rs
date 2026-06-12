@@ -99,6 +99,10 @@ pub(crate) enum Error<'src> {
     editor: OsString,
     status: ExitStatus,
   },
+  EmptyListArgument {
+    parameter: &'src str,
+    recipe: &'src str,
+  },
   EvalUnknownSubmodule {
     component: String,
     suggestion: Option<Suggestion<'src>>,
@@ -600,6 +604,12 @@ impl ColorDisplay for Error<'_> {
       EditorStatus { editor, status } => {
         let editor = editor.to_string_lossy();
         write!(f, "editor `{editor}` failed: {status}")?;
+      }
+      EmptyListArgument { parameter, recipe } => {
+        write!(
+          f,
+          "recipe `{recipe}` parameter `{parameter}` requires at least one element but received an empty list"
+        )?;
       }
       EvalUnknownSubmodule { component, .. } => {
         write!(f, "justfile does not contain submodule `{component}`")?;

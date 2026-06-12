@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, Eq, Ord, PartialEq, PartialOrd)]
 pub(crate) struct Value {
   elements: Vec<String>,
 }
@@ -12,6 +12,10 @@ impl Value {
 
   pub(crate) fn elements(&self) -> &[String] {
     &self.elements
+  }
+
+  pub(crate) fn push(&mut self, element: &str) {
+    self.elements.push(element.into());
   }
 
   pub(crate) fn join(&self) -> Cow<'_, str> {

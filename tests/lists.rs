@@ -238,7 +238,146 @@ fn interpolations_join_lists_with_spaces() {
 }
 
 #[test]
-fn dependency_arguments_join_lists_with_spaces() {
+fn dependency_arguments_join_lists_without_lists_setting() {
+  Test::new()
+    .justfile(
+      "
+        foo *args: (bar args)
+
+        bar first *rest:
+          @echo first={{ first }} rest={{ rest }}
+      ",
+    )
+    .args(["foo", "bar", "baz"])
+    .stdout("first=bar baz rest=\n")
+    .success();
+}
+
+#[test]
+fn dependency_arguments_forward_lists() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        foo *args: (bar args)
+
+        bar *rest:
+          @echo "{{ quote(rest) }}"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "bar", "baz bob"])
+    .stdout("'bar' 'baz bob'\n")
+    .success();
+}
+
+#[test]
+fn dependency_arguments_forward_lists_to_positional_arguments() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+        set positional-arguments
+
+        foo *args: (bar args)
+
+        bar *rest:
+          @echo "$1-$2"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "bar", "baz"])
+    .stdout("bar-baz\n")
+    .success();
+}
+
+#[test]
+fn singular_parameters_contribute_one_positional_argument() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+        set positional-arguments
+
+        foo *args: (bar args 'bob')
+
+        bar first second:
+          @echo "$1-$2"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "bar", "baz"])
+    .stdout("bar baz-bob\n")
+    .success();
+}
+
+#[test]
+fn lists_bind_to_singular_parameters() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        foo *args: (bar args)
+
+        bar first:
+          @echo "{{ quote(first) }}"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "bar", "baz"])
+    .stdout("'bar' 'baz'\n")
+    .success();
+}
+
+#[test]
+fn dependency_arguments_bind_to_one_parameter_each() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        foo *args: (bar 'baz' args)
+
+        bar first *rest:
+          @echo "{{ first }} {{ quote(rest) }}"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "bar", "bob"])
+    .stdout("baz 'bar' 'bob'\n")
+    .success();
+}
+
+#[test]
+fn variadic_parameters_accept_at_most_one_dependency_argument() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        foo *args:
+
+        bar: (foo 'baz' 'bob')
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("bar")
+    .stderr(
+      "
+        error: dependency `foo` got 2 arguments but takes at most 1 argument
+         ——▶ justfile:5:7
+          │
+        5 │ bar: (foo 'baz' 'bob')
+          │       ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn empty_list_for_plus_variadic_is_an_error() {
   Test::new()
     .justfile(
       "
@@ -246,12 +385,111 @@ fn dependency_arguments_join_lists_with_spaces() {
 
         foo *args: (bar args)
 
-        bar first *rest:
-          @echo first={{ first }} rest={{ rest }}
+        bar +rest:
+          @echo {{ rest }}
       ",
     )
     .env("JUST_UNSTABLE", "1")
-    .args(["foo", "bar", "baz"])
-    .stdout("first=bar baz rest=\n")
+    .arg("foo")
+    .stderr("error: recipe `bar` parameter `rest` requires at least one element but received an empty list\n")
+    .failure();
+}
+
+#[test]
+fn empty_list_for_required_parameter_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        foo *args: (bar args)
+
+        bar first:
+          @echo {{ first }}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("foo")
+    .stderr("error: recipe `bar` parameter `first` requires at least one element but received an empty list\n")
+    .failure();
+}
+
+#[test]
+fn empty_list_for_defaulted_parameter_uses_default() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        foo *args: (bar args)
+
+        bar first='baz':
+          @echo {{ first }}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("foo")
+    .stdout("baz\n")
+    .success();
+}
+
+#[test]
+fn omitted_star_variadic_dependency_argument_is_empty_list() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        foo: (bar)
+
+        bar *rest:
+          @echo "baz{{ quote(rest) }}baz"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("foo")
+    .stdout("bazbaz\n")
+    .success();
+}
+
+#[test]
+fn lists_forwarded_to_module_without_lists_setting_are_joined() {
+  Test::new()
+    .write(
+      "foo.just",
+      "baz first *rest:\n @echo first={{ first }} rest={{ rest }}",
+    )
+    .justfile(
+      "
+        set lists
+
+        mod foo
+
+        bar *args: (foo::baz args)
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["bar", "baz", "bob"])
+    .stdout("first=baz bob rest=\n")
+    .success();
+}
+
+#[test]
+fn joined_arguments_forwarded_to_module_with_lists_setting_are_single_elements() {
+  Test::new()
+    .write(
+      "foo.just",
+      "set lists\nbaz *rest:\n @echo \"{{ quote(rest) }}\"",
+    )
+    .justfile(
+      "
+        mod foo
+
+        bar *args: (foo::baz args)
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["bar", "baz", "bob"])
+    .stdout("'baz bob'\n")
     .success();
 }
