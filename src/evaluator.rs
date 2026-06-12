@@ -333,9 +333,18 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         f(self.function_context(name).unwrap(), &a, &rest).map(Value::from)
       }
       Function::BinaryList(f) => {
-        let a = self.evaluate_string(&arguments[0])?;
+        let a = self.evaluate_value(&arguments[0])?;
+        let [a] = a.elements() else {
+          return Err(Error::FunctionCall {
+            function: name,
+            message: format!(
+              "expected first argument to be a single element, but it has {} elements",
+              a.elements().len()
+            ),
+          });
+        };
         let b = self.evaluate_value(&arguments[1])?;
-        f(self.function_context(name).unwrap(), &a, &b)
+        f(self.function_context(name).unwrap(), a, &b)
       }
       Function::Binary(f) => {
         let a = self.evaluate_string(&arguments[0])?;

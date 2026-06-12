@@ -154,6 +154,56 @@ fn prepend_prepends_to_each_element_of_a_list() {
 }
 
 #[test]
+fn append_errors_if_first_argument_has_multiple_elements() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        foo *args:
+          @echo "{{ append(args, 'bar') }}"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "bar", "baz"])
+    .stderr(
+      r#"
+        error: call to function `append` failed: expected first argument to be a single element, but it has 2 elements
+         ——▶ justfile:4:13
+          │
+        4 │   @echo "{{ append(args, 'bar') }}"
+          │             ^^^^^^
+      "#,
+    )
+    .failure();
+}
+
+#[test]
+fn append_errors_if_first_argument_is_empty() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        foo *args:
+          @echo "{{ append(args, 'bar') }}"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("foo")
+    .stderr(
+      r#"
+        error: call to function `append` failed: expected first argument to be a single element, but it has 0 elements
+         ——▶ justfile:4:13
+          │
+        4 │   @echo "{{ append(args, 'bar') }}"
+          │             ^^^^^^
+      "#,
+    )
+    .failure();
+}
+
+#[test]
 fn append_does_not_split_single_strings_with_lists_setting() {
   Test::new()
     .justfile(

@@ -1250,7 +1250,8 @@ space-separated string.
 The exceptions are the `quote()`, `absolute_path()`, `append()`, and
 `prepend()` functions, which apply to each list element individually.
 `append()` and `prepend()` do not split list elements on whitespace, as they
-do strings without `set lists`. For example, with `quote()`:
+do strings without `set lists`, and error unless their first argument is a
+single element. For example, with `quote()`:
 
 ```just
 set unstable
