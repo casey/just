@@ -2,7 +2,7 @@ use super::*;
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub(crate) struct Value {
-  parts: Vec<String>,
+  elements: Vec<String>,
 }
 
 impl Value {
@@ -10,29 +10,29 @@ impl Value {
     Self::default()
   }
 
-  pub(crate) fn parts(&self) -> &[String] {
-    &self.parts
+  pub(crate) fn elements(&self) -> &[String] {
+    &self.elements
   }
 
-  pub(crate) fn joined(&self) -> Cow<'_, str> {
-    match self.parts.as_slice() {
-      [part] => Cow::Borrowed(part),
-      parts => Cow::Owned(parts.join(" ")),
+  pub(crate) fn join(&self) -> Cow<'_, str> {
+    match self.elements.as_slice() {
+      [element] => Cow::Borrowed(element),
+      elements => Cow::Owned(elements.join(" ")),
     }
   }
 
-  pub(crate) fn into_joined(self) -> String {
-    if self.parts.len() == 1 {
-      self.parts.into_iter().next().unwrap()
+  pub(crate) fn into_string(self) -> String {
+    if self.elements.len() == 1 {
+      self.elements.into_iter().next().unwrap()
     } else {
-      self.parts.join(" ")
+      self.elements.join(" ")
     }
   }
 
   pub(crate) fn is_empty(&self) -> bool {
-    match self.parts.as_slice() {
+    match self.elements.as_slice() {
       [] => true,
-      [part] => part.is_empty(),
+      [element] => element.is_empty(),
       _ => false,
     }
   }
@@ -40,11 +40,11 @@ impl Value {
 
 impl Display for Value {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    for (i, part) in self.parts.iter().enumerate() {
+    for (i, element) in self.elements.iter().enumerate() {
       if i > 0 {
         write!(f, " ")?;
       }
-      write!(f, "{part}")?;
+      write!(f, "{element}")?;
     }
     Ok(())
   }
@@ -55,34 +55,36 @@ impl Serialize for Value {
   where
     S: Serializer,
   {
-    serializer.serialize_str(&self.joined())
+    serializer.serialize_str(&self.join())
   }
 }
 
 impl From<&String> for Value {
-  fn from(part: &String) -> Self {
+  fn from(element: &String) -> Self {
     Self {
-      parts: vec![part.clone()],
+      elements: vec![element.clone()],
     }
   }
 }
 
 impl From<&str> for Value {
-  fn from(part: &str) -> Self {
-    part.to_string().into()
+  fn from(element: &str) -> Self {
+    element.to_string().into()
   }
 }
 
 impl From<String> for Value {
-  fn from(part: String) -> Self {
-    Self { parts: vec![part] }
+  fn from(element: String) -> Self {
+    Self {
+      elements: vec![element],
+    }
   }
 }
 
 impl FromIterator<String> for Value {
-  fn from_iter<I: IntoIterator<Item = String>>(parts: I) -> Self {
+  fn from_iter<I: IntoIterator<Item = String>>(elements: I) -> Self {
     Self {
-      parts: parts.into_iter().collect(),
+      elements: elements.into_iter().collect(),
     }
   }
 }
@@ -92,13 +94,13 @@ mod tests {
   use super::*;
 
   #[test]
-  fn joined() {
+  fn join() {
     #[track_caller]
-    fn case(parts: &[&str], expected: &str) {
-      let value = parts.iter().map(ToString::to_string).collect::<Value>();
-      assert_eq!(value.joined(), expected);
+    fn case(elements: &[&str], expected: &str) {
+      let value = elements.iter().map(ToString::to_string).collect::<Value>();
+      assert_eq!(value.join(), expected);
       assert_eq!(value.to_string(), expected);
-      assert_eq!(value.clone().into_joined(), expected);
+      assert_eq!(value.clone().into_string(), expected);
       assert_eq!(
         serde_json::to_string(&value).unwrap(),
         format!("{expected:?}")
@@ -116,8 +118,8 @@ mod tests {
   #[test]
   fn is_empty() {
     #[track_caller]
-    fn case(parts: &[&str], expected: bool) {
-      let value = parts.iter().map(ToString::to_string).collect::<Value>();
+    fn case(elements: &[&str], expected: bool) {
+      let value = elements.iter().map(ToString::to_string).collect::<Value>();
       assert_eq!(value.is_empty(), expected);
     }
 
@@ -130,8 +132,8 @@ mod tests {
 
   #[test]
   fn from_str() {
-    assert_eq!(Value::from("foo bar").parts(), ["foo bar"]);
-    assert_eq!(Value::from(String::from("foo")).parts(), ["foo"]);
-    assert_eq!(Value::new().parts(), [] as [&str; 0]);
+    assert_eq!(Value::from("foo bar").elements(), ["foo bar"]);
+    assert_eq!(Value::from(String::from("foo")).elements(), ["foo"]);
+    assert_eq!(Value::new().elements(), [] as [&str; 0]);
   }
 }

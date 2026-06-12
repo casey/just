@@ -25,6 +25,7 @@ pub(crate) enum Keyword {
   IgnoreComments,
   Import,
   Lazy,
+  Lists,
   Mod,
   NoCd,
   NoExitMessage,

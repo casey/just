@@ -1050,9 +1050,10 @@ foo:
 | `export` | boolean | `false` | Export all variables as environment variables. |
 | `fallback` | boolean | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found. |
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
-| `no-exit-message`<sup>1.39.0</sup> | boolean | `false` | Don't print exit messages if recipes fail. |
 | `lazy`<sup>1.47.0</sup> | boolean | `false` | Don't evaluate unused variables. |
+| `lists`<sup>master</sup> | boolean | `false` | Values may be lists of strings instead of strings. Currently unstable. |
 | `no-cd`<sup>1.51.0</sup> | boolean | `false` | Don't change directory when executing recipes by recipe attribute. |
+| `no-exit-message`<sup>1.39.0</sup> | boolean | `false` | Don't print exit messages if recipes fail. |
 | `positional-arguments` | boolean | `false` | Pass positional arguments. |
 | `quiet` | boolean | `false` | Disable echoing recipe lines before executing. |
 | `script-interpreter`<sup>1.33.0</sup> | `[COMMAND, ARGS…]` | `['sh', '-eu']` | Set command used to invoke recipes with empty `[script]` attribute. |
@@ -1232,6 +1233,39 @@ bar:
 Because `just` cannot determine when exported variables are used, assignments
 with `export` and assignments in a module with `set export` will always be
 evaluated.
+
+#### Lists
+
+The `lists` setting<sup>master</sup> allows values that are lists of strings.
+It is currently unstable and very likely to change in backwards incompatible
+ways.
+
+Currently, the only place that lists of strings are produced are variadic
+recipe parameters. Without `set lists`, they are joined into a single
+space-separated string.
+
+In most places, there is no difference in behavior between a list and
+space-separated string.
+
+The only exception is the `quote()` function, where each list element is quoted
+individually:
+
+```just
+set unstable
+set lists
+
+@foo *args:
+  printf '%s\n' {{ quote(args) }}
+```
+
+```console
+$ just foo bar 'baz bob'
+bar
+baz bob
+```
+
+The return value of `quote(args)` is `'foo' 'bar' 'baz bob'`, instead of
+`'foo bar baz boo'`, as would be the case wihout `set list`.
 
 #### Positional Arguments
 
@@ -2067,7 +2101,8 @@ The process ID is: 420
   [JavaScript `encodeURIComponent` function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent).
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append
   single quotes to `s`. This is sufficient to escape special characters for
-  many shells, including most Bourne shell descendants.
+  many shells, including most Bourne shell descendants. With `set
+  lists`<sup>master</sup>, each element of `s` is quoted individually.
 - `replace(s, from, to)` - Replace all occurrences of `from` in `s` with `to`.
 - `replace_regex(s, regex, replacement)` - Replace all occurrences of `regex`
   in `s` with `replacement`. Regular expressions are provided by the

@@ -13,6 +13,7 @@ use {
 pub(crate) enum Function {
   Nullary(fn(Context) -> FunctionResult),
   Unary(fn(Context, &str) -> FunctionResult),
+  UnaryList(fn(Context, &Value) -> Result<Value, String>),
   UnaryOpt(fn(Context, &str, Option<&str>) -> FunctionResult),
   UnaryPlus(fn(Context, &str, &[String]) -> FunctionResult),
   Binary(fn(Context, &str, &str) -> FunctionResult),
@@ -84,7 +85,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "parent_directory" => Unary(parent_directory),
     "path_exists" => Unary(path_exists),
     "prepend" => Binary(prepend),
-    "quote" => Unary(quote),
+    "quote" => UnaryList(quote),
     "read" => Unary(read),
     "recipe_name" => Nullary(recipe_name),
     "replace" => Ternary(replace),
@@ -123,7 +124,7 @@ impl Function {
   pub(crate) fn expected_arguments(&self) -> RangeInclusive<usize> {
     match *self {
       Nullary(_) => 0..=0,
-      Unary(_) => 1..=1,
+      Unary(_) | UnaryList(_) => 1..=1,
       UnaryOpt(_) => 1..=2,
       UnaryPlus(_) => 1..=usize::MAX,
       Binary(_) => 2..=2,
@@ -521,8 +522,14 @@ fn path_exists(context: Context, path: &str) -> FunctionResult {
   )
 }
 
-fn quote(_context: Context, s: &str) -> FunctionResult {
-  Ok(format!("'{}'", s.replace('\'', "'\\''")))
+fn quote(_context: Context, value: &Value) -> Result<Value, String> {
+  Ok(
+    value
+      .elements()
+      .iter()
+      .map(|element| format!("'{}'", element.replace('\'', "'\\''")))
+      .collect(),
+  )
 }
 
 fn read(context: Context, filename: &str) -> FunctionResult {

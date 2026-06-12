@@ -42,10 +42,6 @@ fn set_unstable_with_setting() {
     .success();
 }
 
-// This test should be re-enabled if we get a new unstable feature which is
-// encountered in source files. (As opposed to, for example, the unstable
-// `--fmt` subcommand, which is encountered on the command line.)
-#[cfg(any())]
 #[test]
 fn unstable_setting_does_not_affect_submodules() {
   Test::new()
@@ -56,9 +52,8 @@ fn unstable_setting_does_not_affect_submodules() {
         mod foo
       ",
     )
-    .write("foo.just", "mod bar")
-    .write("bar.just", "baz:\n echo hello")
+    .write("foo.just", "set lists\nbar:\n echo hello")
     .args(["foo", "bar"])
-    .stderr_regex("error: modules are currently unstable.*")
+    .stderr_regex("error: the `lists` setting is currently unstable.*")
     .failure();
 }

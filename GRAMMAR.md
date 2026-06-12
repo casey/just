@@ -76,14 +76,20 @@ setting       : 'allow-duplicate-recipes' boolean?
               | 'default-script' boolean?
               | 'dotenv-filename' ':=' string
               | 'dotenv-load' boolean?
+              | 'dotenv-override' boolean?
               | 'dotenv-path' ':=' string
               | 'dotenv-required' boolean?
               | 'export' boolean?
               | 'fallback' boolean?
+              | 'guards' boolean?
               | 'ignore-comments' boolean?
+              | 'lazy' boolean?
+              | 'lists' boolean?
+              | 'no-cd' boolean?
+              | 'no-exit-message' boolean?
               | 'positional-arguments' boolean?
-              | 'script-interpreter' ':=' string_list
               | 'quiet' boolean?
+              | 'script-interpreter' ':=' string_list
               | 'shell' ':=' string_list
               | 'tempdir' ':=' string
               | 'unstable' boolean?

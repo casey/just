@@ -1426,6 +1426,10 @@ impl<'run, 'src> Parser<'run, 'src> {
       Keyword::Guards => Some(Setting::Guards(self.parse_set_bool()?)),
       Keyword::IgnoreComments => Some(Setting::IgnoreComments(self.parse_set_bool()?)),
       Keyword::Lazy => Some(Setting::Lazy(self.parse_set_bool()?)),
+      Keyword::Lists => {
+        self.unstable_features.insert(UnstableFeature::ListsSetting);
+        Some(Setting::Lists(self.parse_set_bool()?))
+      }
       Keyword::NoCd => Some(Setting::NoCd(self.parse_set_bool()?)),
       Keyword::NoExitMessage => Some(Setting::NoExitMessage(self.parse_set_bool()?)),
       Keyword::PositionalArguments => Some(Setting::PositionalArguments(self.parse_set_bool()?)),
