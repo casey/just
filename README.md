@@ -1273,7 +1273,8 @@ baz bob
 The return value of `quote(args)` is `'bar' 'baz bob'`, instead of
 `'bar baz bob'`, as would be the case without `set lists`.
 
-Each argument to a dependency binds to exactly one parameter.
+Each argument to a dependency binds to exactly one parameter, and supplying
+extra arguments to a variadic dependency is an error.
 
 A parameter evaluates to the default when the argument is an empty list.
 
