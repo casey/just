@@ -1051,7 +1051,7 @@ foo:
 | `fallback` | boolean | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found. |
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
 | `lazy`<sup>1.47.0</sup> | boolean | `false` | Don't evaluate unused variables. |
-| `lists`<sup>master</sup> | boolean | `false` | Treat values as lists of strings. Currently unstable. |
+| `lists`<sup>master</sup> | boolean | `false` | Values are lists of strings instead of strings. Currently unstable. |
 | `no-cd`<sup>1.51.0</sup> | boolean | `false` | Don't change directory when executing recipes by recipe attribute. |
 | `no-exit-message`<sup>1.39.0</sup> | boolean | `false` | Don't print exit messages if recipes fail. |
 | `positional-arguments` | boolean | `false` | Pass positional arguments. |
@@ -1236,15 +1236,18 @@ evaluated.
 
 #### Lists
 
-The `lists` setting<sup>master</sup> makes values lists of strings, instead of
-strings. It is currently unstable, and its semantics are likely to change.
+The `lists` setting<sup>master</sup> allows values that are lists of strings.
+It is currently unstable and very likely to change in backwards incompatible
+ways.
 
-Without `set lists`, lists are joined with spaces into a single string
-whenever they are produced, so all values are single-element lists, and
-behavior is unchanged.
+Currently, the only place that lists of strings are produced are variadic
+recipe parameters. Without `set lists`, they are joined into a single
+space-separated string.
 
-With `set lists`, variadic parameters are bound to the list of their
-arguments, and the `quote` function quotes each element of a list
+In most places, there is no difference in behavior between a list and
+space-separated string.
+
+The only exception is the `quote()` function, where each list element is quoted
 individually:
 
 ```just
@@ -1261,8 +1264,8 @@ bar
 baz bob
 ```
 
-Elsewhere, including in interpolations and comparisons and when passed to
-recipe dependencies, lists are currently still joined with spaces.
+The return value of `quote(args)` is `'foo' 'bar' 'baz bob'`, instead of
+`'foo bar baz boo'`, as would be the case wihout `set list`.
 
 #### Positional Arguments
 
