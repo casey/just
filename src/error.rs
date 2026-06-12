@@ -568,10 +568,10 @@ impl ColorDisplay for Error<'_> {
         recipe,
         min_arguments,
       } => {
-        let count = Count::numbered("argument", min_arguments);
         write!(
           f,
-          "recipe `{recipe}` cannot be used as default recipe since it requires at least {count}",
+          "recipe `{recipe}` cannot be used as default recipe since it requires at least {}",
+          Count::numbered("argument", min_arguments),
         )?;
       }
       Dotenv { dotenv_error, path } => {
@@ -723,25 +723,25 @@ impl ColorDisplay for Error<'_> {
         max,
         ..
       } => {
-        let count = Count::numbered("positional argument", found);
+        let arguments = Count::numbered("positional argument", found);
         if min == max {
           let expected = min;
           let only = if expected < found { "only " } else { "" };
           write!(
             f,
-            "recipe `{}` got {count} but {only}takes {expected}",
+            "recipe `{}` got {arguments} but {only}takes {expected}",
             recipe.name(),
           )?;
         } else if found < min {
           write!(
             f,
-            "recipe `{}` got {count} but takes at least {min}",
+            "recipe `{}` got {arguments} but takes at least {min}",
             recipe.name(),
           )?;
         } else if found > max {
           write!(
             f,
-            "recipe `{}` got {count} but takes at most {max}",
+            "recipe `{}` got {arguments} but takes at most {max}",
             recipe.name(),
           )?;
         }
