@@ -864,11 +864,11 @@ impl ColorDisplay for Error<'_> {
         write!(f, "recipe `{recipe}` does not have option `{option}`")?;
       }
       UnknownOverrides { overrides } => {
-        let count = Count::unnumbered("variable", overrides.len());
-        let overrides = List::and_ticked(overrides);
         write!(
           f,
-          "{count} {overrides} overridden on the command line but not present in justfile",
+          "{} {} overridden on the command line but not present in justfile",
+          Count::unnumbered("variable", overrides.len()),
+          List::and_ticked(overrides),
         )?;
       }
       UnknownGroup { group } => {
