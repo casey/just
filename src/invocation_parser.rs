@@ -243,7 +243,13 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
 
     self.next += i;
 
-    Ok(Invocation { arguments, recipe })
+    Ok(Invocation {
+      arguments: arguments
+        .into_iter()
+        .map(|group| group.into_iter().collect())
+        .collect(),
+      recipe,
+    })
   }
 
   fn resolve_recipe(
@@ -360,7 +366,7 @@ mod tests {
 
     assert_eq!(invocations.len(), 1);
     assert_eq!(invocations[0].recipe.recipe_path().to_string(), "foo");
-    assert_eq!(invocations[0].arguments, vec![vec![String::from("baz")]]);
+    assert_eq!(invocations[0].arguments, vec![Value::from("baz")]);
   }
 
   #[test]
@@ -590,20 +596,16 @@ BAZ +Z:
 
     assert_eq!(invocations.len(), 3);
     assert_eq!(invocations[0].recipe.recipe_path().to_string(), "BAR");
-    assert_eq!(invocations[0].arguments, vec![vec![String::from("0")]]);
+    assert_eq!(invocations[0].arguments, vec![Value::from("0")]);
     assert_eq!(invocations[1].recipe.recipe_path().to_string(), "FOO");
     assert_eq!(
       invocations[1].arguments,
-      vec![vec![String::from("1")], vec![String::from("2")]]
+      vec![Value::from("1"), Value::from("2")]
     );
     assert_eq!(invocations[2].recipe.recipe_path().to_string(), "BAZ");
     assert_eq!(
       invocations[2].arguments,
-      vec![vec![
-        String::from("3"),
-        String::from("4"),
-        String::from("5")
-      ]]
+      vec![["3", "4", "5"].into_iter().map(String::from).collect()]
     );
   }
 
@@ -621,7 +623,7 @@ foo bar:
 
     assert_eq!(invocations.len(), 1);
     assert_eq!(invocations[0].recipe.recipe_path().to_string(), "foo");
-    assert_eq!(invocations[0].arguments, vec![vec![String::from("baz")]]);
+    assert_eq!(invocations[0].arguments, vec![Value::from("baz")]);
   }
 
   #[test]
@@ -640,7 +642,7 @@ foo baz bar:
     assert_eq!(invocations[0].recipe.recipe_path().to_string(), "foo");
     assert_eq!(
       invocations[0].arguments,
-      vec![vec![String::from("qux")], vec![String::from("baz")]]
+      vec![Value::from("qux"), Value::from("baz")]
     );
   }
 
@@ -660,7 +662,7 @@ foo baz qux='qux' bar='bar':
     assert_eq!(invocations[0].recipe.recipe_path().to_string(), "foo");
     assert_eq!(
       invocations[0].arguments,
-      vec![vec![String::from("--bar")], Vec::new(), Vec::new()]
+      vec![Value::from("--bar"), Value::new(), Value::new()]
     );
   }
 

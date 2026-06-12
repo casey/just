@@ -224,14 +224,8 @@ impl<'src> Justfile<'src> {
 
         let ran = Ran::default();
         for invocation in invocations {
-          let arguments = invocation
-            .arguments
-            .iter()
-            .map(|group| group.iter().cloned().collect())
-            .collect::<Vec<Value>>();
-
           Self::run_recipe(
-            &arguments,
+            &invocation.arguments,
             config,
             false,
             overrides,
