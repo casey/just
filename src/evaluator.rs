@@ -303,15 +303,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     arguments: &[Expression<'src>],
   ) -> RunResult<'src, Value> {
     match function {
-      Function::UnaryValue(f) => {
-        let a = self.evaluate_value(&arguments[0])?;
-        return f(self.function_context(name).unwrap(), &a).map_err(|message| {
-          Error::FunctionCall {
-            function: name,
-            message,
-          }
-        });
-      }
       Function::Nullary(f) => f(self.function_context(name).unwrap()),
       Function::Unary(f) => {
         let a = self.evaluate_string(&arguments[0])?;
@@ -333,6 +324,15 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           rest.push(self.evaluate_string(arg)?);
         }
         f(self.function_context(name).unwrap(), &a, &rest)
+      }
+      Function::UnaryValue(f) => {
+        let a = self.evaluate_value(&arguments[0])?;
+        return f(self.function_context(name).unwrap(), &a).map_err(|message| {
+          Error::FunctionCall {
+            function: name,
+            message,
+          }
+        });
       }
       Function::Binary(f) => {
         let a = self.evaluate_string(&arguments[0])?;
