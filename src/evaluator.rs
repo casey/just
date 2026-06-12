@@ -310,7 +310,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       }
       Function::UnaryList(f) => {
         let a = self.evaluate_value(&arguments[0])?;
-        f(self.function_context(name).unwrap(), &a)
+        a.elements()
+          .iter()
+          .map(|element| f(self.function_context(name).unwrap(), element))
+          .collect()
       }
       Function::UnaryOpt(f) => {
         let a = self.evaluate_string(&arguments[0])?;

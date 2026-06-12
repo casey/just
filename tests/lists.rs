@@ -12,12 +12,12 @@ fn lists_setting_is_unstable() {
 fn quote_quotes_each_element_of_variadic_arguments() {
   Test::new()
     .justfile(
-      "
+      r#"
         set lists
 
         foo *args:
-          @echo \"{{ quote(args) }}\"
-      ",
+          @echo "{{ quote(args) }}"
+      "#,
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar", "baz bob"])
@@ -29,12 +29,12 @@ fn quote_quotes_each_element_of_variadic_arguments() {
 fn quote_of_empty_list_is_empty() {
   Test::new()
     .justfile(
-      "
+      r#"
         set lists
 
         foo *args:
-          @echo \"bar{{ quote(args) }}baz\"
-      ",
+          @echo "bar{{ quote(args) }}baz"
+      "#,
     )
     .env("JUST_UNSTABLE", "1")
     .arg("foo")
@@ -46,10 +46,10 @@ fn quote_of_empty_list_is_empty() {
 fn quote_of_empty_variadic_is_empty_string_without_lists_setting() {
   Test::new()
     .justfile(
-      "
+      r#"
         foo *args:
-          @echo \"bar{{ quote(args) }}baz\"
-      ",
+          @echo "bar{{ quote(args) }}baz"
+      "#,
     )
     .arg("foo")
     .stdout("bar''baz\n")
@@ -60,16 +60,62 @@ fn quote_of_empty_variadic_is_empty_string_without_lists_setting() {
 fn quote_quotes_single_element_values_whole() {
   Test::new()
     .justfile(
-      "
+      r#"
         set lists
 
         foo bar='baz bob':
-          @echo \"{{ quote(bar) }}\"
-      ",
+          @echo "{{ quote(bar) }}"
+      "#,
     )
     .env("JUST_UNSTABLE", "1")
     .arg("foo")
     .stdout("'baz bob'\n")
+    .success();
+}
+
+#[test]
+fn absolute_path_resolves_each_element_of_a_list() {
+  let test = Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        foo *args:
+          @echo "{{ absolute_path(args) }}"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "bar", "baz bob"]);
+
+  let mut tempdir = test.tempdir.path().to_owned();
+
+  if cfg!(unix) {
+    tempdir = tempdir.canonicalize().unwrap();
+  }
+
+  test
+    .stdout(format!(
+      "{} {}\n",
+      tempdir.join("bar").to_str().unwrap(),
+      tempdir.join("baz bob").to_str().unwrap(),
+    ))
+    .success();
+}
+
+#[test]
+fn absolute_path_of_empty_list_is_empty() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        foo *args:
+          @echo "bar{{ absolute_path(args) }}baz"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("foo")
+    .stdout("barbaz\n")
     .success();
 }
 
