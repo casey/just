@@ -13,7 +13,7 @@ use {
 pub(crate) enum Function {
   Nullary(fn(Context) -> FunctionResult),
   Unary(fn(Context, &str) -> FunctionResult),
-  UnaryList(fn(Context, &Value) -> Result<Value, String>),
+  UnaryList(fn(Context, &str) -> FunctionResult),
   UnaryOpt(fn(Context, &str, Option<&str>) -> FunctionResult),
   UnaryPlus(fn(Context, &str, &[String]) -> FunctionResult),
   Binary(fn(Context, &str, &str) -> FunctionResult),
@@ -39,7 +39,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
   };
 
   let function = match name.as_str() {
-    "absolute_path" => Unary(absolute_path),
+    "absolute_path" => UnaryList(absolute_path),
     "append" => Binary(append),
     "arch" => Nullary(arch),
     "blake3" => Unary(blake3),
@@ -522,14 +522,8 @@ fn path_exists(context: Context, path: &str) -> FunctionResult {
   )
 }
 
-fn quote(_context: Context, value: &Value) -> Result<Value, String> {
-  Ok(
-    value
-      .elements()
-      .iter()
-      .map(|element| format!("'{}'", element.replace('\'', "'\\''")))
-      .collect(),
-  )
+fn quote(_context: Context, s: &str) -> FunctionResult {
+  Ok(format!("'{}'", s.replace('\'', "'\\''")))
 }
 
 fn read(context: Context, filename: &str) -> FunctionResult {

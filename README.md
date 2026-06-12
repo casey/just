@@ -1247,8 +1247,8 @@ space-separated string.
 In most places, there is no difference in behavior between a list and
 space-separated string.
 
-The only exception is the `quote()` function, where each list element is quoted
-individually:
+The only exceptions are the `quote()` and `absolute_path()` functions, which
+apply to each list element individually:
 
 ```just
 set unstable
@@ -1264,8 +1264,8 @@ bar
 baz bob
 ```
 
-The return value of `quote(args)` is `'foo' 'bar' 'baz bob'`, instead of
-`'foo bar baz boo'`, as would be the case wihout `set list`.
+The return value of `quote(args)` is `'bar' 'baz bob'`, instead of
+`'bar baz bob'`, as would be the case without `set lists`.
 
 #### Positional Arguments
 
@@ -2101,8 +2101,7 @@ The process ID is: 420
   [JavaScript `encodeURIComponent` function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent).
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append
   single quotes to `s`. This is sufficient to escape special characters for
-  many shells, including most Bourne shell descendants. With `set
-  lists`<sup>master</sup>, each element of `s` is quoted individually.
+  many shells, including most Bourne shell descendants.
 - `replace(s, from, to)` - Replace all occurrences of `from` in `s` with `to`.
 - `replace_regex(s, regex, replacement)` - Replace all occurrences of `regex`
   in `s` with `replacement`. Regular expressions are provided by the
