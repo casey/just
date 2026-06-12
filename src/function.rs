@@ -17,7 +17,7 @@ pub(crate) enum Function {
   UnaryOpt(fn(Context, &str, Option<&str>) -> FunctionResult),
   UnaryPlus(fn(Context, &str, &[String]) -> FunctionResult),
   Binary(fn(Context, &str, &str) -> FunctionResult),
-  BinaryList(fn(Context, &str, &Value) -> Result<Value, String>),
+  BinaryList(fn(Context, &Value, &Value) -> Result<Value, String>),
   BinaryPlus(fn(Context, &str, &str, &[String]) -> FunctionResult),
   Ternary(fn(Context, &str, &str, &str) -> FunctionResult),
 }
@@ -150,7 +150,14 @@ fn absolute_path(context: Context, path: &str) -> FunctionResult {
   }
 }
 
-fn append(context: Context, suffix: &str, s: &Value) -> Result<Value, String> {
+fn append(context: Context, suffix: &Value, s: &Value) -> Result<Value, String> {
+  let [suffix] = suffix.elements() else {
+    return Err(format!(
+      "expected `suffix` to be a single element, but it has {} elements",
+      suffix.elements().len()
+    ));
+  };
+
   Ok(if context.execution_context.module.settings.lists {
     s.elements()
       .iter()
@@ -385,7 +392,14 @@ fn is_dependency(context: Context) -> FunctionResult {
   Ok(context.is_dependency.to_string())
 }
 
-fn prepend(context: Context, prefix: &str, s: &Value) -> Result<Value, String> {
+fn prepend(context: Context, prefix: &Value, s: &Value) -> Result<Value, String> {
+  let [prefix] = prefix.elements() else {
+    return Err(format!(
+      "expected `prefix` to be a single element, but it has {} elements",
+      prefix.elements().len()
+    ));
+  };
+
   Ok(if context.execution_context.module.settings.lists {
     s.elements()
       .iter()

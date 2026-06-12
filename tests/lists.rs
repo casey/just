@@ -168,7 +168,7 @@ fn append_errors_if_first_argument_has_multiple_elements() {
     .args(["foo", "bar", "baz"])
     .stderr(
       r#"
-        error: call to function `append` failed: expected first argument to be a single element, but it has 2 elements
+        error: call to function `append` failed: expected `suffix` to be a single element, but it has 2 elements
          ——▶ justfile:4:13
           │
         4 │   @echo "{{ append(args, 'bar') }}"
@@ -193,7 +193,7 @@ fn append_errors_if_first_argument_is_empty() {
     .arg("foo")
     .stderr(
       r#"
-        error: call to function `append` failed: expected first argument to be a single element, but it has 0 elements
+        error: call to function `append` failed: expected `suffix` to be a single element, but it has 0 elements
          ——▶ justfile:4:13
           │
         4 │   @echo "{{ append(args, 'bar') }}"
