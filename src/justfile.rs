@@ -224,8 +224,14 @@ impl<'src> Justfile<'src> {
 
         let ran = Ran::default();
         for invocation in invocations {
+          let arguments = invocation
+            .arguments
+            .iter()
+            .map(|group| group.iter().cloned().collect())
+            .collect::<Vec<Value>>();
+
           Self::run_recipe(
-            &invocation.arguments,
+            &arguments,
             config,
             false,
             overrides,
@@ -438,7 +444,7 @@ impl<'src> Justfile<'src> {
   }
 
   fn run_recipe(
-    arguments: &[Vec<String>],
+    arguments: &[Value],
     config: &Config,
     is_dependency: bool,
     overrides: &HashMap<Number, String>,
@@ -536,11 +542,19 @@ impl<'src> Justfile<'src> {
     for Dependency { recipe, arguments } in dependencies {
       let mut grouped = Vec::new();
       for group in arguments {
-        let evaluated_group = group
-          .iter()
-          .map(|argument| evaluator.evaluate_string(argument))
-          .collect::<RunResult<Vec<String>>>()?;
-        grouped.push(evaluated_group);
+        let value = if context.module.settings.lists {
+          group
+            .first()
+            .map(|argument| evaluator.evaluate_value(argument))
+            .transpose()?
+            .unwrap_or_default()
+        } else {
+          group
+            .iter()
+            .map(|argument| evaluator.evaluate_string(argument))
+            .collect::<RunResult<Value>>()?
+        };
+        grouped.push(value);
       }
       evaluated.push((recipe, grouped));
     }

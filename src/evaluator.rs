@@ -574,7 +574,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   pub(crate) fn evaluate_parameters(
-    arguments: &[Vec<String>],
+    arguments: &[Value],
     context: &ExecutionContext<'src, 'run>,
     is_dependency: bool,
     parameters: &[Parameter<'src>],
@@ -603,33 +603,36 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       return Err(Error::internal("arguments do not match parameter count"));
     }
 
-    for (parameter, group) in parameters.iter().zip(arguments) {
-      let value = if group.is_empty() {
+    for (parameter, argument) in parameters.iter().zip(arguments) {
+      let argument = if context.module.settings.lists
+        || parameter.kind.is_variadic()
+        || argument.elements().is_empty()
+      {
+        argument.clone()
+      } else {
+        argument.clone().into_string().into()
+      };
+
+      let value = if argument.elements().is_empty() {
         if let Some(ref default) = parameter.default {
-          let value = evaluator.evaluate_value(default)?;
-          positional.push(value.join().into_owned());
-          value
+          evaluator.evaluate_value(default)?
         } else if parameter.kind == ParameterKind::Star {
           Value::new()
         } else {
-          return Err(Error::internal("missing parameter without default"));
+          return Err(Error::EmptyListArgument {
+            parameter: parameter.name.lexeme(),
+            recipe: recipe.name(),
+          });
         }
-      } else if parameter.kind.is_variadic() {
-        positional.extend_from_slice(group);
-        group.iter().cloned().collect()
       } else {
-        if group.len() != 1 {
-          return Err(Error::internal(
-            "multiple values for non-variadic parameter",
-          ));
-        }
-        positional.push(group[0].clone());
-        Value::from(group[0].clone())
+        argument
       };
 
       for element in value.elements() {
         parameter.check_pattern_match(recipe, element)?;
       }
+
+      positional.extend(value.elements().iter().cloned());
 
       let value = if context.module.settings.lists {
         value

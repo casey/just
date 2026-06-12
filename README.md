@@ -1239,9 +1239,10 @@ evaluated.
 The `lists` setting<sup>master</sup> allows values that are lists of strings.
 It is currently unstable and will change in backwards incompatible ways.
 
-Currently, the only place that lists of strings are produced are variadic
-recipe parameters. Without `set lists`, they are joined into a single
-space-separated string.
+This section documents behavior when `set lists` is enabled.
+
+Variadic recipe parameters are lists of strings instead of single
+space-separated strings.
 
 The following functions apply to each list element individually:
 
@@ -1250,11 +1251,10 @@ The following functions apply to each list element individually:
 - `prepend()`
 - `quote()`
 
-Additionally, `append()` and `prepend()` do not split elements on whitespace
-when `set lists` is set, and error if the first argument is not a single
-element.
+`append()` and `prepend()` do not split elements on whitespace and errors if
+the first argument is not a single element.
 
-For example, with `quote()`:
+An example with `quote()`:
 
 ```just
 set unstable
@@ -1272,6 +1272,12 @@ baz bob
 
 The return value of `quote(args)` is `'bar' 'baz bob'`, instead of
 `'bar baz bob'`, as would be the case without `set lists`.
+
+Each argument to a dependency binds to exactly one parameter.
+
+A parameter evaluates to the default when the argument is an empty list.
+
+Passing an empty list to a non-`*` parameter without a default is an error.
 
 #### Positional Arguments
 

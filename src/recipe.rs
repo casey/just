@@ -83,25 +83,26 @@ impl<'src> Recipe<'src> {
     self.recipe_path().to_string().replace("::", " ")
   }
 
-  pub(crate) fn argument_range(&self) -> RangeInclusive<usize> {
-    self.min_arguments()..=self.max_arguments()
+  pub(crate) fn argument_range(&self, settings: &Settings) -> RangeInclusive<usize> {
+    self.min_arguments()..=self.max_arguments(settings)
   }
 
   pub(crate) fn group_arguments(
     &self,
     arguments: &[Expression<'src>],
+    settings: &Settings,
   ) -> Vec<Vec<Expression<'src>>> {
     let mut groups = Vec::new();
     let mut rest = arguments;
 
     for parameter in &self.parameters {
-      let group = if parameter.kind.is_variadic() {
+      let group = if parameter.kind.is_variadic() && !settings.lists {
         mem::take(&mut rest).into()
       } else if let Some(argument) = rest.first() {
         rest = &rest[1..];
         vec![argument.clone()]
       } else {
-        debug_assert!(parameter.default.is_some());
+        debug_assert!(parameter.default.is_some() || parameter.kind == ParameterKind::Star);
         Vec::new()
       };
 
@@ -115,8 +116,8 @@ impl<'src> Recipe<'src> {
     self.parameters.iter().filter(|p| p.is_required()).count()
   }
 
-  pub(crate) fn max_arguments(&self) -> usize {
-    if self.parameters.iter().any(|p| p.kind.is_variadic()) {
+  pub(crate) fn max_arguments(&self, settings: &Settings) -> usize {
+    if !settings.lists && self.parameters.iter().any(|p| p.kind.is_variadic()) {
       usize::MAX - 1
     } else {
       self.parameters.len()

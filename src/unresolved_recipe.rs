@@ -85,7 +85,7 @@ impl<'src> UnresolvedRecipe<'src> {
     for (unresolved, resolved) in self.dependencies.iter().zip(&resolved) {
       assert_eq!(unresolved.recipe.last().lexeme(), resolved.name.lexeme());
       if !resolved
-        .argument_range()
+        .argument_range(settings)
         .contains(&unresolved.arguments.len())
       {
         return Err(unresolved.recipe.last().error(
@@ -93,7 +93,7 @@ impl<'src> UnresolvedRecipe<'src> {
             dependency: unresolved.recipe.clone(),
             found: unresolved.arguments.len(),
             min: resolved.min_arguments(),
-            max: resolved.max_arguments(),
+            max: resolved.max_arguments(settings),
           },
         ));
       }
@@ -104,7 +104,7 @@ impl<'src> UnresolvedRecipe<'src> {
       .into_iter()
       .zip(resolved)
       .map(|(unresolved, resolved)| Dependency {
-        arguments: resolved.group_arguments(&unresolved.arguments),
+        arguments: resolved.group_arguments(&unresolved.arguments, settings),
         recipe: resolved,
       })
       .collect();

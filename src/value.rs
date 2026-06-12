@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, Eq, Ord, PartialEq, PartialOrd)]
 pub(crate) struct Value {
   elements: Vec<String>,
 }
