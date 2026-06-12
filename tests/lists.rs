@@ -37,7 +37,7 @@ fn quote_of_empty_list_is_empty() {
       ",
     )
     .env("JUST_UNSTABLE", "1")
-    .args(["foo"])
+    .arg("foo")
     .stdout("bar\nbaz\n")
     .success();
 }
@@ -51,7 +51,7 @@ fn quote_of_empty_variadic_is_empty_string_without_lists_setting() {
           @printf '%s\\n' bar {{ quote(args) }} baz
       ",
     )
-    .args(["foo"])
+    .arg("foo")
     .stdout("bar\n\nbaz\n")
     .success();
 }
@@ -68,7 +68,7 @@ fn quote_quotes_single_element_values_whole() {
       ",
     )
     .env("JUST_UNSTABLE", "1")
-    .args(["foo"])
+    .arg("foo")
     .stdout("baz bob\n")
     .success();
 }
