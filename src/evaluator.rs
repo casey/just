@@ -604,15 +604,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     }
 
     for (parameter, argument) in parameters.iter().zip(arguments) {
-      let argument = if context.module.settings.lists
-        || parameter.kind.is_variadic()
-        || argument.elements().is_empty()
-      {
-        argument.clone()
-      } else {
-        argument.clone().into_string().into()
-      };
-
       let value = if argument.elements().is_empty() {
         if let Some(ref default) = parameter.default {
           evaluator.evaluate_value(default)?
@@ -625,7 +616,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           });
         }
       } else {
-        argument
+        argument.clone()
       };
 
       for element in value.elements() {
