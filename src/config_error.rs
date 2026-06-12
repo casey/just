@@ -23,7 +23,7 @@ pub(crate) enum ConfigError {
   #[snafu(display(
     "`--{}` used with unexpected {}: {}",
     subcommand.to_lowercase(),
-    Count("argument", arguments.len()),
+    Count::unnumbered("argument", arguments.len()),
     List::and_ticked(arguments)
   ))]
   SubcommandArguments {

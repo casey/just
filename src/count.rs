@@ -1,14 +1,39 @@
 use super::*;
 
-pub(crate) struct Count<T: Display>(pub T, pub usize);
+pub(crate) struct Count<T: Display> {
+  count: usize,
+  noun: T,
+  numbered: bool,
+}
+
+impl<T: Display> Count<T> {
+  pub(crate) fn numbered(noun: T, count: usize) -> Self {
+    Self {
+      count,
+      noun,
+      numbered: true,
+    }
+  }
+
+  pub(crate) fn unnumbered(noun: T, count: usize) -> Self {
+    Self {
+      count,
+      noun,
+      numbered: false,
+    }
+  }
+}
 
 impl<T: Display> Display for Count<T> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    if self.1 == 1 {
-      write!(f, "{}", self.0)
-    } else {
-      write!(f, "{}s", self.0)
+    if self.numbered {
+      write!(f, "{} ", self.count)?;
     }
+    write!(f, "{}", self.noun)?;
+    if self.count != 1 {
+      write!(f, "s")?;
+    }
+    Ok(())
   }
 }
 
@@ -18,8 +43,11 @@ mod tests {
 
   #[test]
   fn count() {
-    assert_eq!(Count("dog", 0).to_string(), "dogs");
-    assert_eq!(Count("dog", 1).to_string(), "dog");
-    assert_eq!(Count("dog", 2).to_string(), "dogs");
+    assert_eq!(Count::unnumbered("dog", 0).to_string(), "dogs");
+    assert_eq!(Count::unnumbered("dog", 1).to_string(), "dog");
+    assert_eq!(Count::unnumbered("dog", 2).to_string(), "dogs");
+    assert_eq!(Count::numbered("dog", 0).to_string(), "0 dogs");
+    assert_eq!(Count::numbered("dog", 1).to_string(), "1 dog");
+    assert_eq!(Count::numbered("dog", 2).to_string(), "2 dogs");
   }
 }

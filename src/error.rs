@@ -409,7 +409,7 @@ impl ColorDisplay for Error<'_> {
         write!(
           f,
           "alias `{alias}` depends on absent {} {}",
-          Count("module", modules.len()),
+          Count::unnumbered("module", modules.len()),
           List::and_ticked(modules)
         )?;
       }
@@ -568,10 +568,10 @@ impl ColorDisplay for Error<'_> {
         recipe,
         min_arguments,
       } => {
-        let count = Count("argument", *min_arguments);
+        let count = Count::numbered("argument", *min_arguments);
         write!(
           f,
-          "recipe `{recipe}` cannot be used as default recipe since it requires at least {min_arguments} {count}",
+          "recipe `{recipe}` cannot be used as default recipe since it requires at least {count}",
         )?;
       }
       Dotenv { dotenv_error, path } => {
@@ -723,25 +723,25 @@ impl ColorDisplay for Error<'_> {
         max,
         ..
       } => {
-        let count = Count("argument", *found);
+        let count = Count::numbered("positional argument", *found);
         if min == max {
           let expected = min;
           let only = if expected < found { "only " } else { "" };
           write!(
             f,
-            "recipe `{}` got {found} positional {count} but {only}takes {expected}",
+            "recipe `{}` got {count} but {only}takes {expected}",
             recipe.name(),
           )?;
         } else if found < min {
           write!(
             f,
-            "recipe `{}` got {found} positional {count} but takes at least {min}",
+            "recipe `{}` got {count} but takes at least {min}",
             recipe.name(),
           )?;
         } else if found > max {
           write!(
             f,
-            "recipe `{}` got {found} positional {count} but takes at most {max}",
+            "recipe `{}` got {count} but takes at most {max}",
             recipe.name(),
           )?;
         }
@@ -750,7 +750,7 @@ impl ColorDisplay for Error<'_> {
         write!(
           f,
           "recipe `{recipe}` depends on absent {} {}",
-          Count("module", modules.len()),
+          Count::unnumbered("module", modules.len()),
           List::and_ticked(modules)
         )?;
       }
@@ -864,7 +864,7 @@ impl ColorDisplay for Error<'_> {
         write!(f, "recipe `{recipe}` does not have option `{option}`")?;
       }
       UnknownOverrides { overrides } => {
-        let count = Count("variable", overrides.len());
+        let count = Count::unnumbered("variable", overrides.len());
         let overrides = List::and_ticked(overrides);
         write!(
           f,
