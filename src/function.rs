@@ -153,8 +153,9 @@ fn absolute_path(context: Context, path: &str) -> FunctionResult {
 fn append(context: Context, suffix: &Value, s: &Value) -> Result<Value, String> {
   let [suffix] = suffix.elements() else {
     return Err(format!(
-      "expected `suffix` to be a single element, but it has {} elements",
-      suffix.elements().len()
+      "`suffix` must be single element list but has {} {}",
+      suffix.elements().len(),
+      Count("element", suffix.elements().len()),
     ));
   };
 
@@ -395,8 +396,9 @@ fn is_dependency(context: Context) -> FunctionResult {
 fn prepend(context: Context, prefix: &Value, s: &Value) -> Result<Value, String> {
   let [prefix] = prefix.elements() else {
     return Err(format!(
-      "expected `prefix` to be a single element, but it has {} elements",
-      prefix.elements().len()
+      "`prefix` must be single element list but has {} {}",
+      prefix.elements().len(),
+      Count("element", prefix.elements().len()),
     ));
   };
 
