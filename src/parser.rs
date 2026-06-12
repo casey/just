@@ -370,8 +370,14 @@ impl<'run, 'src> Parser<'run, 'src> {
           starred = Some(token);
         }
 
+        let expression = if token.is_some() {
+          self.parse_value()?
+        } else {
+          self.parse_expression()?
+        };
+
         arguments.push(DependencyArgument {
-          expression: self.parse_expression()?,
+          expression,
           starred: token.is_some(),
         });
       }

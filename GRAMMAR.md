@@ -156,7 +156,8 @@ dependencies  : dependency* ('&&' dependency+)?
 dependency    : target
               | '*'? '(' target dependency_argument* ')'
 
-dependency_argument : '*'? expression
+dependency_argument : '*' value
+                    | expression
 
 body          : INDENT line+ DEDENT
 

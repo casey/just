@@ -226,6 +226,71 @@ fn multiple_starred_arguments_are_an_error() {
 }
 
 #[test]
+fn starred_arguments_bind_tightly() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        foo *args: *(bar *args + 'bob')
+
+        bar arg:
+          @echo "bar: {{ arg }}"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("foo")
+    .stderr(
+      "
+        error: expected '*', backtick, identifier, '(', ')', '/', or string, but found '+'
+         ——▶ justfile:3:24
+          │
+        3 │ foo *args: *(bar *args + 'bob')
+          │                        ^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn starred_argument_may_be_parenthesized_expression() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        foo *args: *(bar *(args + ' bob'))
+
+        bar arg:
+          @echo "bar: {{ arg }}"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "baz"])
+    .stdout("bar: baz bob\n")
+    .success();
+}
+
+#[test]
+fn starred_argument_may_be_call() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        foo *args: *(bar *prepend('src/', args))
+
+        bar arg:
+          @echo "bar: {{ arg }}"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "baz", "bob"])
+    .stdout("bar: src/baz\nbar: src/bob\n")
+    .success();
+}
+
+#[test]
 fn mapped_dependencies_require_lists_setting() {
   Test::new()
     .justfile(
