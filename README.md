@@ -2102,7 +2102,7 @@ The process ID is: 420
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append
   single quotes to `s`. This is sufficient to escape special characters for
   many shells, including most Bourne shell descendants. With `set
-  lists`<sup>master</sup>, quotes each element of `s` individually.
+  lists`<sup>master</sup>, each element of `s` is quoted individually.
 - `replace(s, from, to)` - Replace all occurrences of `from` in `s` with `to`.
 - `replace_regex(s, regex, replacement)` - Replace all occurrences of `regex`
   in `s` with `replacement`. Regular expressions are provided by the
