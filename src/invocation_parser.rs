@@ -73,7 +73,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
       recipe
     };
 
-    let mut arguments = vec![Vec::<String>::new(); recipe.parameters.len()];
+    let mut arguments = vec![Value::new(); recipe.parameters.len()];
 
     let long = recipe
       .parameters
@@ -236,20 +236,14 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
     }
 
     for (group, parameter) in arguments.iter().zip(&recipe.parameters) {
-      for argument in group {
-        parameter.check_pattern_match(recipe, argument)?;
+      for element in group.elements() {
+        parameter.check_pattern_match(recipe, element)?;
       }
     }
 
     self.next += i;
 
-    Ok(Invocation {
-      arguments: arguments
-        .into_iter()
-        .map(|group| group.into_iter().collect())
-        .collect(),
-      recipe,
-    })
+    Ok(Invocation { arguments, recipe })
   }
 
   fn resolve_recipe(

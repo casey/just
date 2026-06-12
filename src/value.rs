@@ -14,6 +14,10 @@ impl Value {
     &self.elements
   }
 
+  pub(crate) fn push(&mut self, element: &str) {
+    self.elements.push(element.into());
+  }
+
   pub(crate) fn join(&self) -> Cow<'_, str> {
     match self.elements.as_slice() {
       [element] => Cow::Borrowed(element),
