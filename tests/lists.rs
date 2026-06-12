@@ -293,6 +293,26 @@ fn dependency_arguments_forward_lists_to_positional_arguments() {
 }
 
 #[test]
+fn singular_parameters_contribute_one_positional_argument() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+        set positional-arguments
+
+        foo *args: (bar args 'bob')
+
+        bar first second:
+          @echo "$1-$2"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "bar", "baz"])
+    .stdout("bar baz-bob\n")
+    .success();
+}
+
+#[test]
 fn lists_bind_to_singular_parameters() {
   Test::new()
     .justfile(

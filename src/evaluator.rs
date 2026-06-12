@@ -632,7 +632,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         parameter.check_pattern_match(recipe, element)?;
       }
 
-      positional.extend(value.elements().iter().cloned());
+      if parameter.kind.is_variadic() {
+        positional.extend(value.elements().iter().cloned());
+      } else {
+        positional.push(value.join().into_owned());
+      }
 
       let value = if context.module.settings.lists {
         value
