@@ -1237,18 +1237,24 @@ evaluated.
 #### Lists
 
 The `lists` setting<sup>master</sup> allows values that are lists of strings.
-It is currently unstable and very likely to change in backwards incompatible
-ways.
+It is currently unstable and will change in backwards incompatible ways.
 
 Currently, the only place that lists of strings are produced are variadic
 recipe parameters. Without `set lists`, they are joined into a single
 space-separated string.
 
-In most places, there is no difference in behavior between a list and
-space-separated string.
+The following functions apply to each list element individually:
 
-The only exceptions are the `quote()` and `absolute_path()` functions, which
-apply to each list element individually:
+- `absolute_path()`
+- `append()`
+- `prepend()`
+- `quote()`
+
+Additionally, `append()` and `prepend()` do not split elements on whitespace
+when `set lists` is set, and error if the first argument is not a single
+element.
+
+For example, with `quote()`:
 
 ```just
 set unstable

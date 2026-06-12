@@ -17,6 +17,7 @@ pub(crate) enum Function {
   UnaryOpt(fn(Context, &str, Option<&str>) -> FunctionResult),
   UnaryPlus(fn(Context, &str, &[String]) -> FunctionResult),
   Binary(fn(Context, &str, &str) -> FunctionResult),
+  BinaryList(fn(Context, &Value, &Value) -> Result<Value, String>),
   BinaryPlus(fn(Context, &str, &str, &[String]) -> FunctionResult),
   Ternary(fn(Context, &str, &str, &str) -> FunctionResult),
 }
@@ -40,7 +41,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
 
   let function = match name.as_str() {
     "absolute_path" => UnaryList(absolute_path),
-    "append" => Binary(append),
+    "append" => BinaryList(append),
     "arch" => Nullary(arch),
     "blake3" => Unary(blake3),
     "blake3_file" => Unary(blake3_file),
@@ -84,7 +85,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "os_family" => Nullary(os_family),
     "parent_directory" => Unary(parent_directory),
     "path_exists" => Unary(path_exists),
-    "prepend" => Binary(prepend),
+    "prepend" => BinaryList(prepend),
     "quote" => UnaryList(quote),
     "read" => Unary(read),
     "recipe_name" => Nullary(recipe_name),
@@ -127,7 +128,7 @@ impl Function {
       Unary(_) | UnaryList(_) => 1..=1,
       UnaryOpt(_) => 1..=2,
       UnaryPlus(_) => 1..=usize::MAX,
-      Binary(_) => 2..=2,
+      Binary(_) | BinaryList(_) => 2..=2,
       BinaryPlus(_) => 2..=usize::MAX,
       Ternary(_) => 3..=3,
     }
@@ -149,13 +150,28 @@ fn absolute_path(context: Context, path: &str) -> FunctionResult {
   }
 }
 
-fn append(_context: Context, suffix: &str, s: &str) -> FunctionResult {
-  Ok(
-    s.split_whitespace()
-      .map(|s| format!("{s}{suffix}"))
+fn append(context: Context, suffix: &Value, s: &Value) -> Result<Value, String> {
+  let [suffix] = suffix.elements() else {
+    return Err(format!(
+      "`suffix` must be single element list but has {} {}",
+      suffix.elements().len(),
+      Count("element", suffix.elements().len()),
+    ));
+  };
+
+  Ok(if context.execution_context.module.settings.lists {
+    s.elements()
+      .iter()
+      .map(|element| format!("{element}{suffix}"))
+      .collect()
+  } else {
+    s.join()
+      .split_whitespace()
+      .map(|element| format!("{element}{suffix}"))
       .collect::<Vec<String>>()
-      .join(" "),
-  )
+      .join(" ")
+      .into()
+  })
 }
 
 fn arch(_context: Context) -> FunctionResult {
@@ -377,13 +393,28 @@ fn is_dependency(context: Context) -> FunctionResult {
   Ok(context.is_dependency.to_string())
 }
 
-fn prepend(_context: Context, prefix: &str, s: &str) -> FunctionResult {
-  Ok(
-    s.split_whitespace()
-      .map(|s| format!("{prefix}{s}"))
+fn prepend(context: Context, prefix: &Value, s: &Value) -> Result<Value, String> {
+  let [prefix] = prefix.elements() else {
+    return Err(format!(
+      "`prefix` must be single element list but has {} {}",
+      prefix.elements().len(),
+      Count("element", prefix.elements().len()),
+    ));
+  };
+
+  Ok(if context.execution_context.module.settings.lists {
+    s.elements()
+      .iter()
+      .map(|element| format!("{prefix}{element}"))
+      .collect()
+  } else {
+    s.join()
+      .split_whitespace()
+      .map(|element| format!("{prefix}{element}"))
       .collect::<Vec<String>>()
-      .join(" "),
-  )
+      .join(" ")
+      .into()
+  })
 }
 
 fn join(_context: Context, base: &str, with: &str, and: &[String]) -> FunctionResult {

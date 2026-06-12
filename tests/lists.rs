@@ -120,6 +120,107 @@ fn absolute_path_of_empty_list_is_empty() {
 }
 
 #[test]
+fn append_appends_to_each_element_of_a_list() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        foo *args:
+          @echo "{{ append('.c', args) }}"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "bar", "baz bob"])
+    .stdout("bar.c baz bob.c\n")
+    .success();
+}
+
+#[test]
+fn prepend_prepends_to_each_element_of_a_list() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        foo *args:
+          @echo "{{ prepend('src/', args) }}"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "bar", "baz bob"])
+    .stdout("src/bar src/baz bob\n")
+    .success();
+}
+
+#[test]
+fn prepend_errors_if_suffix_is_not_single_element() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        foo *args:
+          @echo "{{ prepend(args, 'bar') }}"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "bar", "baz"])
+    .stderr(
+      r#"
+        error: call to function `prepend` failed: `prefix` must be single element list but has 2 elements
+         ——▶ justfile:4:13
+          │
+        4 │   @echo "{{ prepend(args, 'bar') }}"
+          │             ^^^^^^^
+      "#,
+    )
+    .failure();
+}
+
+#[test]
+fn append_errors_if_suffix_is_not_single_element() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        foo *args:
+          @echo "{{ append(args, 'bar') }}"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "bar", "baz"])
+    .stderr(
+      r#"
+        error: call to function `append` failed: `suffix` must be single element list but has 2 elements
+         ——▶ justfile:4:13
+          │
+        4 │   @echo "{{ append(args, 'bar') }}"
+          │             ^^^^^^
+      "#,
+    )
+    .failure();
+}
+
+#[test]
+fn append_does_not_split_single_strings_with_lists_setting() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        foo:
+          @echo "{{ append('.c', 'foo bar') }}"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("foo")
+    .stdout("foo bar.c\n")
+    .success();
+}
+
+#[test]
 fn interpolations_join_lists_with_spaces() {
   Test::new()
     .justfile(

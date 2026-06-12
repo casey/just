@@ -332,6 +332,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
         f(self.function_context(name).unwrap(), &a, &rest).map(Value::from)
       }
+      Function::BinaryList(f) => {
+        let a = self.evaluate_value(&arguments[0])?;
+        let b = self.evaluate_value(&arguments[1])?;
+        f(self.function_context(name).unwrap(), &a, &b)
+      }
       Function::Binary(f) => {
         let a = self.evaluate_string(&arguments[0])?;
         let b = self.evaluate_string(&arguments[1])?;
