@@ -303,19 +303,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     arguments: &[Expression<'src>],
   ) -> RunResult<'src, Value> {
     match function {
-      Function::Nullary(f) => f(self.function_context(name).unwrap()),
+      Function::Nullary(f) => f(self.function_context(name).unwrap()).map(Value::from),
       Function::Unary(f) => {
         let a = self.evaluate_string(&arguments[0])?;
-        f(self.function_context(name).unwrap(), &a)
+        f(self.function_context(name).unwrap(), &a).map(Value::from)
       }
       Function::UnaryList(f) => {
         let a = self.evaluate_value(&arguments[0])?;
-        return f(self.function_context(name).unwrap(), &a).map_err(|message| {
-          Error::FunctionCall {
-            function: name,
-            message,
-          }
-        });
+        f(self.function_context(name).unwrap(), &a)
       }
       Function::UnaryOpt(f) => {
         let a = self.evaluate_string(&arguments[0])?;
@@ -324,7 +319,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         } else {
           None
         };
-        f(self.function_context(name).unwrap(), &a, b.as_deref())
+        f(self.function_context(name).unwrap(), &a, b.as_deref()).map(Value::from)
       }
       Function::UnaryPlus(f) => {
         let a = self.evaluate_string(&arguments[0])?;
@@ -332,12 +327,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         for arg in &arguments[1..] {
           rest.push(self.evaluate_string(arg)?);
         }
-        f(self.function_context(name).unwrap(), &a, &rest)
+        f(self.function_context(name).unwrap(), &a, &rest).map(Value::from)
       }
       Function::Binary(f) => {
         let a = self.evaluate_string(&arguments[0])?;
         let b = self.evaluate_string(&arguments[1])?;
-        f(self.function_context(name).unwrap(), &a, &b)
+        f(self.function_context(name).unwrap(), &a, &b).map(Value::from)
       }
       Function::BinaryPlus(f) => {
         let a = self.evaluate_string(&arguments[0])?;
@@ -346,16 +341,15 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         for arg in &arguments[2..] {
           rest.push(self.evaluate_string(arg)?);
         }
-        f(self.function_context(name).unwrap(), &a, &b, &rest)
+        f(self.function_context(name).unwrap(), &a, &b, &rest).map(Value::from)
       }
       Function::Ternary(f) => {
         let a = self.evaluate_string(&arguments[0])?;
         let b = self.evaluate_string(&arguments[1])?;
         let c = self.evaluate_string(&arguments[2])?;
-        f(self.function_context(name).unwrap(), &a, &b, &c)
+        f(self.function_context(name).unwrap(), &a, &b, &c).map(Value::from)
       }
     }
-    .map(Value::from)
     .map_err(|message| Error::FunctionCall {
       function: name,
       message,
