@@ -81,6 +81,7 @@ setting       : 'allow-duplicate-recipes' boolean?
               | 'export' boolean?
               | 'fallback' boolean?
               | 'ignore-comments' boolean?
+              | 'lists' boolean?
               | 'positional-arguments' boolean?
               | 'script-interpreter' ':=' string_list
               | 'quiet' boolean?

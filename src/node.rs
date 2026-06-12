@@ -285,6 +285,7 @@ impl<'src> Node<'src> for Set<'src> {
       | Setting::Guards(value)
       | Setting::IgnoreComments(value)
       | Setting::Lazy(value)
+      | Setting::Lists(value)
       | Setting::NoCd(value)
       | Setting::NoExitMessage(value)
       | Setting::PositionalArguments(value)

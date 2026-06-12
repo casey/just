@@ -16,6 +16,7 @@ pub(crate) enum Setting<'src> {
   Guards(bool),
   IgnoreComments(bool),
   Lazy(bool),
+  Lists(bool),
   NoCd(bool),
   NoExitMessage(bool),
   PositionalArguments(bool),
@@ -44,6 +45,7 @@ impl<'src> Setting<'src> {
       | Self::Guards(value)
       | Self::IgnoreComments(value)
       | Self::Lazy(value)
+      | Self::Lists(value)
       | Self::NoCd(value)
       | Self::NoExitMessage(value)
       | Self::PositionalArguments(value)
@@ -96,6 +98,7 @@ impl Display for Setting<'_> {
       | Self::Guards(value)
       | Self::IgnoreComments(value)
       | Self::Lazy(value)
+      | Self::Lists(value)
       | Self::NoCd(value)
       | Self::NoExitMessage(value)
       | Self::PositionalArguments(value)

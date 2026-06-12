@@ -1052,6 +1052,7 @@ foo:
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
 | `no-exit-message`<sup>1.39.0</sup> | boolean | `false` | Don't print exit messages if recipes fail. |
 | `lazy`<sup>1.47.0</sup> | boolean | `false` | Don't evaluate unused variables. |
+| `lists`<sup>master</sup> | boolean | `false` | Treat values as lists of strings. Currently unstable. |
 | `no-cd`<sup>1.51.0</sup> | boolean | `false` | Don't change directory when executing recipes by recipe attribute. |
 | `positional-arguments` | boolean | `false` | Pass positional arguments. |
 | `quiet` | boolean | `false` | Disable echoing recipe lines before executing. |
@@ -1232,6 +1233,36 @@ bar:
 Because `just` cannot determine when exported variables are used, assignments
 with `export` and assignments in a module with `set export` will always be
 evaluated.
+
+#### Lists
+
+The `lists` setting<sup>master</sup> makes values lists of strings, instead of
+strings. It is currently unstable, and its semantics are likely to change.
+
+Without `set lists`, lists are joined with spaces into a single string
+whenever they are produced, so all values are single-element lists, and
+behavior is unchanged.
+
+With `set lists`, variadic parameters are bound to the list of their
+arguments, and the `quote` function quotes each element of a list
+individually:
+
+```just
+set unstable
+set lists
+
+@foo *args:
+  printf '%s\n' {{ quote(args) }}
+```
+
+```console
+$ just foo bar 'baz bob'
+bar
+baz bob
+```
+
+Elsewhere, including in interpolations and comparisons and when passed to
+recipe dependencies, lists are currently still joined with spaces.
 
 #### Positional Arguments
 
@@ -2067,7 +2098,8 @@ The process ID is: 420
   [JavaScript `encodeURIComponent` function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent).
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append
   single quotes to `s`. This is sufficient to escape special characters for
-  many shells, including most Bourne shell descendants.
+  many shells, including most Bourne shell descendants. With `set
+  lists`<sup>master</sup>, quotes each element of `s` individually.
 - `replace(s, from, to)` - Replace all occurrences of `from` in `s` with `to`.
 - `replace_regex(s, regex, replacement)` - Replace all occurrences of `regex`
   in `s` with `replacement`. Regular expressions are provided by the
