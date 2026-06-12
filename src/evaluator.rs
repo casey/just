@@ -308,6 +308,15 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         let a = self.evaluate_string(&arguments[0])?;
         f(self.function_context(name).unwrap(), &a)
       }
+      Function::UnaryList(f) => {
+        let a = self.evaluate_value(&arguments[0])?;
+        return f(self.function_context(name).unwrap(), &a).map_err(|message| {
+          Error::FunctionCall {
+            function: name,
+            message,
+          }
+        });
+      }
       Function::UnaryOpt(f) => {
         let a = self.evaluate_string(&arguments[0])?;
         let b = if arguments.len() > 1 {
@@ -324,15 +333,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           rest.push(self.evaluate_string(arg)?);
         }
         f(self.function_context(name).unwrap(), &a, &rest)
-      }
-      Function::UnaryList(f) => {
-        let a = self.evaluate_value(&arguments[0])?;
-        return f(self.function_context(name).unwrap(), &a).map_err(|message| {
-          Error::FunctionCall {
-            function: name,
-            message,
-          }
-        });
       }
       Function::Binary(f) => {
         let a = self.evaluate_string(&arguments[0])?;
