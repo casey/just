@@ -1266,7 +1266,7 @@ element.
 
 ##### Examples
 
-Quote distributes over lists:
+Each list element is `quote()`'ed separately:
 
 ```just
 set unstable
