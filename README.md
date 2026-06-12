@@ -1247,8 +1247,10 @@ space-separated string.
 In most places, there is no difference in behavior between a list and
 space-separated string.
 
-The only exceptions are the `quote()` and `absolute_path()` functions, which
-apply to each list element individually:
+The exceptions are the `quote()`, `absolute_path()`, `append()`, and
+`prepend()` functions, which apply to each list element individually.
+`append()` and `prepend()` do not split list elements on whitespace, as they
+do strings without `set lists`. For example, with `quote()`:
 
 ```just
 set unstable
