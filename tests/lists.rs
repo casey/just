@@ -14,12 +14,12 @@ fn quote_quotes_each_element_of_variadic_arguments() {
     .justfile(
       "
         set lists
-        set unstable
 
         foo *args:
           @printf '%s\\n' {{ quote(args) }}
       ",
     )
+    .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar", "baz bob"])
     .stdout("bar\nbaz bob\n")
     .success();
@@ -31,12 +31,12 @@ fn quote_of_empty_list_is_empty() {
     .justfile(
       "
         set lists
-        set unstable
 
         foo *args:
           @printf '%s\\n' bar {{ quote(args) }} baz
       ",
     )
+    .env("JUST_UNSTABLE", "1")
     .args(["foo"])
     .stdout("bar\nbaz\n")
     .success();
@@ -62,12 +62,12 @@ fn quote_quotes_single_element_values_whole() {
     .justfile(
       "
         set lists
-        set unstable
 
         foo bar='baz bob':
           @printf '%s\\n' {{ quote(bar) }}
       ",
     )
+    .env("JUST_UNSTABLE", "1")
     .args(["foo"])
     .stdout("baz bob\n")
     .success();
@@ -79,12 +79,12 @@ fn interpolations_join_lists_with_spaces() {
     .justfile(
       "
         set lists
-        set unstable
 
         foo *args:
           @echo {{ args }}
       ",
     )
+    .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar", "baz"])
     .stdout("bar baz\n")
     .success();
@@ -96,7 +96,6 @@ fn dependency_arguments_join_lists_with_spaces() {
     .justfile(
       "
         set lists
-        set unstable
 
         foo *args: (bar args)
 
@@ -104,6 +103,7 @@ fn dependency_arguments_join_lists_with_spaces() {
           @echo first={{ first }} rest={{ rest }}
       ",
     )
+    .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar", "baz"])
     .stdout("first=bar baz rest=\n")
     .success();
