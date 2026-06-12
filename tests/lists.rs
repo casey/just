@@ -1,14 +1,5 @@
 use super::*;
 
-#[track_caller]
-fn case(justfile: &str, args: &[&str], stdout: &str) {
-  Test::new()
-    .justfile(justfile)
-    .args(args)
-    .stdout(stdout)
-    .success();
-}
-
 #[test]
 fn lists_setting_is_unstable() {
   Test::new()
@@ -18,78 +9,102 @@ fn lists_setting_is_unstable() {
 }
 
 #[test]
-fn quote_distributes_over_lists() {
-  case(
-    "
-      set lists
-      set unstable
+fn quote_quotes_each_element_of_variadic_arguments() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set unstable
 
-      foo *args:
-        @printf '%s\\n' {{ quote(args) }}
-    ",
-    &["foo", "bar", "baz bob"],
-    "bar\nbaz bob\n",
-  );
-
-  case(
-    "
-      set lists
-      set unstable
-
-      foo *args:
-        @printf '%s\\n' bar {{ quote(args) }} baz
-    ",
-    &["foo"],
-    "bar\nbaz\n",
-  );
-
-  case(
-    "
-      foo *args:
-        @printf '%s\\n' bar {{ quote(args) }} baz
-    ",
-    &["foo"],
-    "bar\n\nbaz\n",
-  );
-
-  case(
-    "
-      set lists
-      set unstable
-
-      foo bar='baz bob':
-        @printf '%s\\n' {{ quote(bar) }}
-    ",
-    &["foo"],
-    "baz bob\n",
-  );
+        foo *args:
+          @printf '%s\\n' {{ quote(args) }}
+      ",
+    )
+    .args(["foo", "bar", "baz bob"])
+    .stdout("bar\nbaz bob\n")
+    .success();
 }
 
 #[test]
-fn lists_are_joined_with_spaces_when_consumed_as_strings() {
-  case(
-    "
-      set lists
-      set unstable
+fn quote_of_empty_list_is_empty() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set unstable
 
-      foo *args:
-        @echo {{ args }}
-    ",
-    &["foo", "bar", "baz"],
-    "bar baz\n",
-  );
+        foo *args:
+          @printf '%s\\n' bar {{ quote(args) }} baz
+      ",
+    )
+    .args(["foo"])
+    .stdout("bar\nbaz\n")
+    .success();
+}
 
-  case(
-    "
-      set lists
-      set unstable
+#[test]
+fn quote_of_empty_variadic_is_empty_string_without_lists_setting() {
+  Test::new()
+    .justfile(
+      "
+        foo *args:
+          @printf '%s\\n' bar {{ quote(args) }} baz
+      ",
+    )
+    .args(["foo"])
+    .stdout("bar\n\nbaz\n")
+    .success();
+}
 
-      foo *args: (bar args)
+#[test]
+fn quote_quotes_single_element_values_whole() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set unstable
 
-      bar first *rest:
-        @echo first={{ first }} rest={{ rest }}
-    ",
-    &["foo", "bar", "baz"],
-    "first=bar baz rest=\n",
-  );
+        foo bar='baz bob':
+          @printf '%s\\n' {{ quote(bar) }}
+      ",
+    )
+    .args(["foo"])
+    .stdout("baz bob\n")
+    .success();
+}
+
+#[test]
+fn interpolations_join_lists_with_spaces() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set unstable
+
+        foo *args:
+          @echo {{ args }}
+      ",
+    )
+    .args(["foo", "bar", "baz"])
+    .stdout("bar baz\n")
+    .success();
+}
+
+#[test]
+fn dependency_arguments_join_lists_with_spaces() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set unstable
+
+        foo *args: (bar args)
+
+        bar first *rest:
+          @echo first={{ first }} rest={{ rest }}
+      ",
+    )
+    .args(["foo", "bar", "baz"])
+    .stdout("first=bar baz rest=\n")
+    .success();
 }
