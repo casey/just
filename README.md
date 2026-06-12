@@ -1239,7 +1239,7 @@ evaluated.
 The `lists` setting<sup>master</sup> allows values that are lists of strings.
 It is currently unstable and will change in backwards incompatible ways.
 
-This section documents behavior when `set lists` is enabled.
+This section documents the behavior of `set lists`.
 
 Variadic recipe parameters are lists of strings instead of single
 space-separated strings.
@@ -1252,9 +1252,22 @@ The following functions apply to each list element individually:
 - `quote()`
 
 `append()` and `prepend()` do not split elements on whitespace and error if the
-first argument is not a single element.
+first argument is not a single-element list.
 
-An example with `quote()`:
+Each argument to a dependency binds to exactly one parameter, and supplying
+extra arguments to a variadic dependency is an error.
+
+A parameter evaluates to the default when the argument is an empty list.
+
+Passing an empty list to a non-`*` parameter without a default is an error.
+
+When `positional-arguments` is set, list arguments are space-joined unless they
+are variadic, in which case they are passed as one positional argument per
+element.
+
+##### Examples
+
+Quote distributes over lists:
 
 ```just
 set unstable
@@ -1273,16 +1286,7 @@ baz bob
 The return value of `quote(args)` is `'bar' 'baz bob'`, instead of
 `'bar baz bob'`, as would be the case without `set lists`.
 
-Each argument to a dependency binds to exactly one parameter, and supplying
-extra arguments to a variadic dependency is an error.
-
-A parameter evaluates to the default when the argument is an empty list.
-
-Passing an empty list to a non-`*` parameter without a default is an error.
-
-When `positional-arguments` is set, list arguments are space-joined unless they
-are variadic, in which case they are passed as one positional argument per
-element.
+Variadic positional arguments:
 
 ```just
 set unstable
