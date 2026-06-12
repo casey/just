@@ -1237,9 +1237,8 @@ evaluated.
 #### Lists
 
 The `lists` setting<sup>master</sup> allows values that are lists of strings.
-It is currently unstable and will change in backwards incompatible ways.
-
-This section documents the behavior of `set lists`.
+It is currently unstable and will change in backwards incompatible ways. This
+section documents the behavior of `set lists`.
 
 Variadic recipe parameters are lists of strings instead of single
 space-separated strings.
