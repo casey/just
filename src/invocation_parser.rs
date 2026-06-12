@@ -181,7 +181,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
           break;
         };
         let group = &mut arguments[index];
-        group.push((*argument).into());
+        group.push(argument);
         if !recipe.parameters[index].kind.is_variadic() {
           positional_index += 1;
         }

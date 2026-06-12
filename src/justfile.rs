@@ -537,11 +537,15 @@ impl<'src> Justfile<'src> {
       let mut grouped = Vec::new();
       for group in arguments {
         let value = if context.module.settings.lists {
-          group
-            .first()
-            .map(|argument| evaluator.evaluate_value(argument))
-            .transpose()?
-            .unwrap_or_default()
+          match group.as_slice() {
+            [] => Value::new(),
+            [argument] => evaluator.evaluate_value(argument)?,
+            _ => {
+              return Err(Error::internal(
+                "multiple arguments grouped to one parameter with lists setting",
+              ));
+            }
+          }
         } else {
           group
             .iter()
