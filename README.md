@@ -1251,8 +1251,8 @@ The following functions apply to each list element individually:
 - `prepend()`
 - `quote()`
 
-`append()` and `prepend()` do not split elements on whitespace and errors if
-the first argument is not a single element.
+`append()` and `prepend()` do not split elements on whitespace and error if the
+first argument is not a single element.
 
 An example with `quote()`:
 
@@ -1296,7 +1296,8 @@ foo *args: (bar args 'bob') (baz args)
   echo second=$2
 
 @baz *args:
-  echo '$1='$1 '$2='$2
+  echo '$1='$1
+  echo '$2='$2
 ```
 
 ```console
