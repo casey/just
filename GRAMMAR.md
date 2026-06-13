@@ -154,10 +154,10 @@ variadic      : '*' parameter
 dependencies  : dependency* ('&&' dependency+)?
 
 dependency    : target
-              | '*'? '(' target dependency_argument* ')'
+              | '*'? '(' target argument* ')'
 
-dependency_argument : '*' value
-                    | expression
+argument      : '*' value
+              | expression
 
 body          : INDENT line+ DEDENT
 
