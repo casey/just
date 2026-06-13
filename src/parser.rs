@@ -383,15 +383,13 @@ impl<'run, 'src> Parser<'run, 'src> {
       }
 
       match (star, starred) {
+        (None, None) | (Some(_), Some(_)) => {}
         (Some(star), None) => {
           return Err(star.error(CompileErrorKind::MappedDependencyWithoutStarredArgument));
         }
         (None, Some(starred)) => {
-          return Err(
-            starred.error(CompileErrorKind::StarredDependencyArgumentOutsideMappedDependency),
-          );
+          return Err(starred.error(CompileErrorKind::StarredArgumentOutsideMappedDependency));
         }
-        _ => {}
       }
 
       Ok(Some(UnresolvedDependency { arguments, recipe }))
