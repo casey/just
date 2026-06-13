@@ -460,12 +460,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         let rhs = self.evaluate_string(rhs)?;
         Ok((lhs + "/" + &rhs).into())
       }
-      Expression::List { items } => {
-        let mut elements = Vec::new();
-        for item in items {
-          elements.extend(self.evaluate_value(item)?.elements().iter().cloned());
+      Expression::List { elements } => {
+        let mut values = Vec::new();
+        for element in elements {
+          values.extend(self.evaluate_value(element)?.into_elements());
         }
-        Ok(elements.into_iter().collect())
+        Ok(values.into())
       }
       Expression::Or { lhs, rhs } => {
         let lhs = self.evaluate_value(lhs)?;

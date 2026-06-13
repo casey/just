@@ -938,10 +938,10 @@ impl<'run, 'src> Parser<'run, 'src> {
       self.list_literal = Some(bracket);
     }
 
-    let mut items = Vec::new();
+    let mut elements = Vec::new();
 
     while !self.next_is(BracketR) {
-      items.push(self.parse_expression()?);
+      elements.push(self.parse_expression()?);
 
       if !self.accepted(Comma)? {
         break;
@@ -950,7 +950,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     self.expect(BracketR)?;
 
-    Ok(Expression::List { items })
+    Ok(Expression::List { elements })
   }
 
   /// Parse a string literal, e.g. `"FOO"`

@@ -286,8 +286,8 @@ impl Expression {
         lhs: lhs.as_ref().map(|lhs| Self::new(lhs).into()),
         rhs: Self::new(rhs).into(),
       },
-      List { items } => Self::List {
-        items: items.iter().map(Self::new).collect(),
+      List { elements } => Self::List {
+        items: elements.iter().map(Self::new).collect(),
       },
       Or { lhs, rhs } => Self::Or {
         lhs: Self::new(lhs).into(),
