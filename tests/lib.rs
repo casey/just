@@ -55,6 +55,7 @@ mod ceiling;
 mod changelog;
 mod choose;
 mod command;
+mod comparison;
 mod completions;
 mod conditional;
 mod confirm;

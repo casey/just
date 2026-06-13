@@ -438,6 +438,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           unreachable!();
         }
       }
+      Expression::Comparison { .. } => Ok(if self.evaluate_condition(expression)? {
+        Value::from("true")
+      } else {
+        Value::new()
+      }),
       Expression::Concatenation { lhs, rhs } => {
         let lhs = self.evaluate_string(lhs)?;
         let rhs = self.evaluate_string(rhs)?;
@@ -516,10 +521,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     }
   }
 
-  fn evaluate_condition(&mut self, condition: &Condition<'src>) -> RunResult<'src, bool> {
-    let lhs_value = self.evaluate_string(&condition.lhs)?;
-    let rhs_value = self.evaluate_string(&condition.rhs)?;
-    let condition = match condition.operator {
+  fn evaluate_condition(&mut self, condition: &Expression<'src>) -> RunResult<'src, bool> {
+    let Expression::Comparison { lhs, operator, rhs } = condition else {
+      return Ok(self.evaluate_value(condition)?.is_truthy());
+    };
+    let lhs_value = self.evaluate_string(lhs)?;
+    let rhs_value = self.evaluate_string(rhs)?;
+    let condition = match operator {
       ConditionalOperator::Equality => lhs_value == rhs_value,
       ConditionalOperator::Inequality => lhs_value != rhs_value,
       ConditionalOperator::RegexMatch => Regex::new(&rhs_value)

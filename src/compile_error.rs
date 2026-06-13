@@ -225,6 +225,9 @@ impl Display for CompileError<'_> {
           _ => character.escape_default().collect(),
         }
       ),
+      ComparisonOperatorWithoutListsSetting => {
+        write!(f, "comparison operators require `set lists`")
+      }
       ListLiteralWithoutListsSetting => {
         write!(f, "list literals require `set lists`")
       }
@@ -326,6 +329,12 @@ impl Display for CompileError<'_> {
         f,
         "starred arguments may not be used outside mapped dependencies",
       ),
+      TruthyConditionWithoutListsSetting => {
+        write!(
+          f,
+          "`if` and `assert` conditions require `set lists` unless they are comparisons"
+        )
+      }
       RequiredParameterFollowsDefaultParameter { parameter } => write!(
         f,
         "non-default parameter `{parameter}` follows default parameter"

@@ -46,8 +46,10 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut absent_modules = BTreeSet::new();
     let mut definitions = HashMap::new();
     let mut imports = HashSet::new();
+    let mut comparison_operator = None;
     let mut list_literal = None;
     let mut logical_operator = None;
+    let mut truthy_condition = None;
     let mut unstable_features = BTreeSet::new();
 
     let mut stack = Vec::new();
@@ -57,12 +59,20 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     while let Some(ast) = stack.pop() {
       unstable_features.extend(&ast.unstable_features);
 
+      if comparison_operator.is_none() {
+        comparison_operator = ast.comparison_operator;
+      }
+
       if list_literal.is_none() {
         list_literal = ast.list_literal;
       }
 
       if logical_operator.is_none() {
         logical_operator = ast.logical_operator;
+      }
+
+      if truthy_condition.is_none() {
+        truthy_condition = ast.truthy_condition;
       }
 
       for item in &ast.items {
@@ -249,6 +259,26 @@ impl<'run, 'src> Analyzer<'run, 'src> {
         return Err(
           token
             .error(CompileErrorKind::LogicalOperatorWithoutListsSetting)
+            .into(),
+        );
+      }
+    }
+
+    if let Some(token) = comparison_operator {
+      if !settings.lists {
+        return Err(
+          token
+            .error(CompileErrorKind::ComparisonOperatorWithoutListsSetting)
+            .into(),
+        );
+      }
+    }
+
+    if let Some(token) = truthy_condition {
+      if !settings.lists {
+        return Err(
+          token
+            .error(CompileErrorKind::TruthyConditionWithoutListsSetting)
             .into(),
         );
       }

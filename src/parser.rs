@@ -24,6 +24,7 @@ use {super::*, TokenKind::*};
 /// token, the set is cleared. If the parser finds a token which is unexpected,
 /// the elements of the set are printed in the resultant error message.
 pub(crate) struct Parser<'run, 'src> {
+  comparison_operator: Option<Token<'src>>,
   expected_tokens: BTreeSet<TokenKind>,
   file_depth: u32,
   import_offsets: Vec<usize>,
@@ -35,6 +36,7 @@ pub(crate) struct Parser<'run, 'src> {
   numerator: &'run mut Numerator,
   recursion_depth: usize,
   tokens: &'run [Token<'src>],
+  truthy_condition: Option<Token<'src>>,
   unstable_features: BTreeSet<UnstableFeature>,
   working_directory: &'run Path,
 }
@@ -50,6 +52,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     working_directory: &'run Path,
   ) -> CompileResult<'src, Ast<'src>> {
     Self {
+      comparison_operator: None,
       expected_tokens: BTreeSet::new(),
       file_depth,
       import_offsets: import_offsets.to_vec(),
@@ -61,6 +64,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       numerator,
       recursion_depth: 0,
       tokens,
+      truthy_condition: None,
       unstable_features: BTreeSet::new(),
       working_directory,
     }
@@ -480,10 +484,12 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
 
     Ok(Ast {
+      comparison_operator: self.comparison_operator,
       items: self.items,
       list_literal: self.list_literal,
       logical_operator: self.logical_operator,
       module_path: self.module_namepath.map(Into::into).unwrap_or_default(),
+      truthy_condition: self.truthy_condition,
       unstable_features: self.unstable_features,
       warnings: Vec::new(),
       working_directory: self.working_directory.into(),
@@ -692,6 +698,10 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   /// Parse an expression, e.g. `1 + 2`
   fn parse_expression(&mut self) -> CompileResult<'src, Expression<'src>> {
+    self.parse_or(false)
+  }
+
+  fn parse_or(&mut self, condition: bool) -> CompileResult<'src, Expression<'src>> {
     if self.recursion_depth == RECURSION_LIMIT {
       let token = self.next()?;
       return Err(CompileError::new(
@@ -702,17 +712,17 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     self.recursion_depth += 1;
 
-    let disjunct = self.parse_disjunct()?;
+    let lhs = self.parse_and(condition)?;
 
     let expression = if let Some(token) = self.accept(BarBar)? {
       if self.logical_operator.is_none() {
         self.logical_operator = Some(token);
       }
-      let lhs = disjunct.into();
-      let rhs = self.parse_expression()?.into();
+      let lhs = lhs.into();
+      let rhs = self.parse_or(false)?.into();
       Expression::Or { lhs, rhs }
     } else {
-      disjunct
+      lhs
     };
 
     self.recursion_depth -= 1;
@@ -720,21 +730,49 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok(expression)
   }
 
-  fn parse_disjunct(&mut self) -> CompileResult<'src, Expression<'src>> {
-    let conjunct = self.parse_conjunct()?;
+  fn parse_and(&mut self, condition: bool) -> CompileResult<'src, Expression<'src>> {
+    let lhs = self.parse_comparison(condition)?;
 
-    let disjunct = if let Some(token) = self.accept(AmpersandAmpersand)? {
+    let expression = if let Some(token) = self.accept(AmpersandAmpersand)? {
       if self.logical_operator.is_none() {
         self.logical_operator = Some(token);
       }
-      let lhs = conjunct.into();
-      let rhs = self.parse_disjunct()?.into();
+      let lhs = lhs.into();
+      let rhs = self.parse_and(false)?.into();
       Expression::And { lhs, rhs }
     } else {
-      conjunct
+      lhs
     };
 
-    Ok(disjunct)
+    Ok(expression)
+  }
+
+  fn parse_comparison(&mut self, condition: bool) -> CompileResult<'src, Expression<'src>> {
+    let lhs = self.parse_conjunct()?;
+
+    let (token, operator) = if let Some(token) = self.accept(BangEquals)? {
+      (token, ConditionalOperator::Inequality)
+    } else if let Some(token) = self.accept(EqualsTilde)? {
+      (token, ConditionalOperator::RegexMatch)
+    } else if let Some(token) = self.accept(BangTilde)? {
+      (token, ConditionalOperator::RegexMismatch)
+    } else if let Some(token) = self.accept(EqualsEquals)? {
+      (token, ConditionalOperator::Equality)
+    } else {
+      return Ok(lhs);
+    };
+
+    if !condition && self.comparison_operator.is_none() {
+      self.comparison_operator = Some(token);
+    }
+
+    let rhs = self.parse_conjunct()?;
+
+    Ok(Expression::Comparison {
+      lhs: lhs.into(),
+      operator,
+      rhs: rhs.into(),
+    })
   }
 
   fn parse_conjunct(&mut self) -> CompileResult<'src, Expression<'src>> {
@@ -783,30 +821,22 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
 
     Ok(Expression::Conditional {
-      condition,
+      condition: condition.into(),
       then: then.into(),
       otherwise: otherwise.into(),
     })
   }
 
-  fn parse_condition(&mut self) -> CompileResult<'src, Condition<'src>> {
-    let lhs = self.parse_expression()?;
-    let operator = if self.accepted(BangEquals)? {
-      ConditionalOperator::Inequality
-    } else if self.accepted(EqualsTilde)? {
-      ConditionalOperator::RegexMatch
-    } else if self.accepted(BangTilde)? {
-      ConditionalOperator::RegexMismatch
-    } else {
-      self.expect(EqualsEquals)?;
-      ConditionalOperator::Equality
-    };
-    let rhs = self.parse_expression()?;
-    Ok(Condition {
-      lhs: lhs.into(),
-      rhs: rhs.into(),
-      operator,
-    })
+  /// Parse the condition of an `if` or `assert`. A bare comparison is evaluated
+  /// as a boolean and requires no `set lists`; any other condition is evaluated
+  /// for truthiness, which does.
+  fn parse_condition(&mut self) -> CompileResult<'src, Expression<'src>> {
+    let token = self.next()?;
+    let condition = self.parse_or(true)?;
+    if !condition.is_comparison() && self.truthy_condition.is_none() {
+      self.truthy_condition = Some(token);
+    }
+    Ok(condition)
   }
 
   fn parse_format_string(&mut self) -> CompileResult<'src, Expression<'src>> {
@@ -897,7 +927,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     } else if self.next_is(Identifier) {
       if let Some(name) = self.accept_keyword(Keyword::Assert)? {
         self.expect(ParenL)?;
-        let condition = self.parse_condition()?;
+        let condition = Box::new(self.parse_condition()?);
         self.expect(Comma)?;
         let error = Box::new(self.parse_expression()?);
         self.expect(ParenR)?;
@@ -2792,43 +2822,61 @@ mod tests {
   test! {
     name: conditional,
     text: "a := if b == c { d } else { e }",
-    tree: (justfile (assignment a (if b == c d e))),
+    tree: (justfile (assignment a (if (== b c) d e))),
   }
 
   test! {
     name: conditional_inverted,
     text: "a := if b != c { d } else { e }",
-    tree: (justfile (assignment a (if b != c d e))),
+    tree: (justfile (assignment a (if (!= b c) d e))),
   }
 
   test! {
     name: conditional_concatenations,
     text: "a := if b0 + b1 == c0 + c1 { d0 + d1 } else { e0 + e1 }",
-    tree: (justfile (assignment a (if (+ b0 b1) == (+ c0 c1) (+ d0 d1) (+ e0 e1)))),
+    tree: (justfile (assignment a (if (== (+ b0 b1) (+ c0 c1)) (+ d0 d1) (+ e0 e1)))),
   }
 
   test! {
     name: conditional_nested_lhs,
     text: "a := if if b == c { d } else { e } == c { d } else { e }",
-    tree: (justfile (assignment a (if (if b == c d e) == c d e))),
+    tree: (justfile (assignment a (if (== (if (== b c) d e) c) d e))),
   }
 
   test! {
     name: conditional_nested_rhs,
     text: "a := if c == if b == c { d } else { e } { d } else { e }",
-    tree: (justfile (assignment a (if c == (if b == c d e) d e))),
+    tree: (justfile (assignment a (if (== c (if (== b c) d e)) d e))),
   }
 
   test! {
     name: conditional_nested_then,
     text: "a := if b == c { if b == c { d } else { e } } else { e }",
-    tree: (justfile (assignment a (if b == c (if b == c d e) e))),
+    tree: (justfile (assignment a (if (== b c) (if (== b c) d e) e))),
   }
 
   test! {
     name: conditional_nested_otherwise,
     text: "a := if b == c { d } else { if b == c { d } else { e } }",
-    tree: (justfile (assignment a (if b == c d (if b == c d e)))),
+    tree: (justfile (assignment a (if (== b c) d (if (== b c) d e)))),
+  }
+
+  test! {
+    name: comparison,
+    text: "a := b == c",
+    tree: (justfile (assignment a (== b c))),
+  }
+
+  test! {
+    name: comparison_binds_looser_than_concatenation,
+    text: "a := b + c == d + e",
+    tree: (justfile (assignment a (== (+ b c) (+ d e)))),
+  }
+
+  test! {
+    name: comparison_binds_tighter_than_logical_operators,
+    text: "a := b == c && d == e || f == g",
+    tree: (justfile (assignment a (|| (&& (== b c) (== d e)) (== f g)))),
   }
 
   test! {
@@ -2870,13 +2918,13 @@ mod tests {
   test! {
     name: assert,
     text: "a := assert(foo == \"bar\", \"error\")",
-    tree: (justfile (assignment a (assert foo == "bar" "error"))),
+    tree: (justfile (assignment a (assert (== foo "bar") "error"))),
   }
 
   test! {
     name: assert_conditional_condition,
     text: "foo := assert(if a != b { c } else { d } == \"abc\", \"error\")",
-    tree: (justfile (assignment foo (assert (if a != b c d) == "abc" "error"))),
+    tree: (justfile (assignment foo (assert (== (if (!= a b) c d) "abc") "error"))),
   }
 
   test! {
@@ -3160,7 +3208,18 @@ mod tests {
     column: 20,
     width:  0,
     kind:   UnexpectedToken {
-      expected: vec![AmpersandAmpersand, BarBar, BracketR, Comma, Plus, Slash],
+      expected: vec![
+        AmpersandAmpersand,
+        BangEquals,
+        BangTilde,
+        BarBar,
+        BracketR,
+        Comma,
+        EqualsEquals,
+        EqualsTilde,
+        Plus,
+        Slash,
+      ],
       found: Eof,
     },
   }

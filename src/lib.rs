@@ -25,7 +25,6 @@ pub(crate) use {
     compile_error_kind::CompileErrorKind,
     compiler::Compiler,
     completer::Completer,
-    condition::Condition,
     conditional_operator::ConditionalOperator,
     config::Config,
     config_error::ConfigError,
@@ -218,7 +217,6 @@ mod compile_error;
 mod compile_error_kind;
 mod compiler;
 mod completer;
-mod condition;
 mod conditional_operator;
 mod config;
 mod config_error;

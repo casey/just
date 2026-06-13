@@ -21,18 +21,10 @@ impl<'src> Iterator for References<'_, 'src> {
           self.stack.push(rhs);
         }
         Expression::Assert {
-          condition:
-            Condition {
-              lhs,
-              rhs,
-              operator: _,
-            },
-          error,
-          ..
+          condition, error, ..
         } => {
           self.stack.push(error);
-          self.stack.push(rhs);
-          self.stack.push(lhs);
+          self.stack.push(condition);
         }
         Expression::Backtick { .. } | Expression::StringLiteral { .. } => {}
         Expression::Call { name, arguments } => {
@@ -44,24 +36,18 @@ impl<'src> Iterator for References<'_, 'src> {
             arguments: arguments.len(),
           });
         }
-        Expression::Concatenation { lhs, rhs } => {
+        Expression::Comparison { lhs, rhs, .. } | Expression::Concatenation { lhs, rhs } => {
           self.stack.push(rhs);
           self.stack.push(lhs);
         }
         Expression::Conditional {
-          condition:
-            Condition {
-              lhs,
-              rhs,
-              operator: _,
-            },
+          condition,
           then,
           otherwise,
         } => {
           self.stack.push(otherwise);
           self.stack.push(then);
-          self.stack.push(rhs);
-          self.stack.push(lhs);
+          self.stack.push(condition);
         }
         Expression::FormatString { expressions, .. } => {
           for (expression, _string) in expressions {

@@ -5,10 +5,12 @@ use super::*;
 /// are performed by the `Analyzer`, which produces a `Justfile` from an `Ast`.
 #[derive(Debug, Clone)]
 pub(crate) struct Ast<'src> {
+  pub(crate) comparison_operator: Option<Token<'src>>,
   pub(crate) items: Vec<Item<'src>>,
   pub(crate) list_literal: Option<Token<'src>>,
   pub(crate) logical_operator: Option<Token<'src>>,
   pub(crate) module_path: Modulepath,
+  pub(crate) truthy_condition: Option<Token<'src>>,
   pub(crate) unstable_features: BTreeSet<UnstableFeature>,
   pub(crate) warnings: Vec<Warning>,
   pub(crate) working_directory: PathBuf,
