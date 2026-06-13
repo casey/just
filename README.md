@@ -1259,9 +1259,15 @@ first argument is not a single-element list.
 
 Booleans are canonical: true is the string `true` and false is the empty list
 `[]`. The empty list is the only false value; every other value, including the
-empty string `''`, is true. The logical operators `&&` and `||`, which require
-`set lists`, use these values, as do the functions `is_dependency()`,
-`path_exists()`, and `semver_matches()`.
+empty string `''`, is true. The logical operators `&&` and `||` require
+`set lists` and use these values.
+
+The functions `is_dependency()`, `path_exists()`, and `semver_matches()` return
+the canonical boolean values, `true` or the empty list `[]`, instead of the
+strings `true` and `false`.
+
+The `which()` function returns the empty list, rather than the empty string,
+when no executable is found.
 
 Each argument to a dependency binds to exactly one parameter, and supplying
 extra arguments to a variadic dependency is an error.
@@ -2029,8 +2035,7 @@ $ just
 
 - `which(name)`<sup>1.39.0</sup> — Search directories in the `PATH` environment
   variable for the executable `name` and return its full path, or the empty
-  string if no executable with `name` exists. With `set lists`, returns the
-  empty list if no executable with `name` exists. Currently unstable.
+  string if no executable with `name` exists. Currently unstable.
 
 
   ```just
@@ -2051,8 +2056,7 @@ $ just
 
 - `is_dependency()` - Returns the string `true` if the current recipe is being
   run as a dependency of another recipe, rather than being run directly,
-  otherwise returns the string `false`. With `set lists`, returns `true` or the
-  empty list.
+  otherwise returns the string `false`.
 
 - `recipe_name()`<sup>master</sup> - Returns the name of the current recipe.
 
@@ -2241,7 +2245,7 @@ which will halt execution.
 - `path_exists(path)` - Returns the string `true` if the path points at an
   existing entity and the string `false` otherwise. Traverses symbolic links,
   and returns the string `false` if the path is inaccessible or points to a
-  broken symlink. With `set lists`, returns `true` or the empty list.
+  broken symlink.
 - `read(path)`<sup>1.39.0</sup> - Returns the content of file at `path` as a
   string.
 
@@ -2285,8 +2289,7 @@ for details.
 - `semver_matches(version, requirement)`<sup>1.16.0</sup> - Check whether a
   [semantic `version`](https://semver.org), e.g., `"0.1.0"` matches a
   `requirement`, e.g., `">=0.1.0"`, returning the string `"true"` if so and the
-  string `"false"` otherwise. With `set lists`, returns `true` or the empty
-  list.
+  string `"false"` otherwise.
 
 #### Style
 
