@@ -37,6 +37,7 @@ pub(crate) use {
     dependency_argument::DependencyArgument,
     disabled::Disabled,
     dump_format::DumpFormat,
+    element::Element,
     enclosure::Enclosure,
     error::Error,
     evaluate_format::EvaluateFormat,
@@ -235,6 +236,7 @@ mod dependency;
 mod dependency_argument;
 mod disabled;
 mod dump_format;
+mod element;
 mod enclosure;
 mod error;
 mod evaluate_format;

@@ -16,12 +16,47 @@ fn evaluate() {
       "#,
     )
     .stdout(
-      r#"ab    := "a	b	c"
-bar   := "b	"
-foo   := "a	"
+      r#"ab    := "a\tb\tc"
+bar   := "b\t"
+foo   := "a\t"
 hello := "c"
 "#,
     )
+    .success();
+}
+
+#[test]
+fn evaluate_escapes_strings() {
+  Test::new()
+    .arg("--evaluate")
+    .justfile(
+      r#"
+        backslash := "\\"
+        newline := "\n"
+        quote := "\""
+      "#,
+    )
+    .stdout(
+      r#"
+        backslash := "\\"
+        newline   := "\n"
+        quote     := "\""
+      "#,
+    )
+    .success();
+}
+
+#[test]
+fn evaluate_color() {
+  Test::new()
+    .args(["--evaluate", "--color", "always"])
+    .justfile(
+      r#"
+        foo := "a\tb"
+      "#,
+    )
+    .unindent_stdout(false)
+    .stdout("foo := \u{1b}[32m\"a\u{1b}[36m\\t\u{1b}[32mb\"\u{1b}[0m\n")
     .success();
 }
 

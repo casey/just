@@ -493,3 +493,29 @@ fn joined_arguments_forwarded_to_module_with_lists_setting_are_single_elements()
     .stdout("'baz bob'\n")
     .success();
 }
+
+#[test]
+fn evaluate_prints_lists() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        a := 'foo'
+        b := ['bar']
+        c := ['baz', 'bob']
+        d := []
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("--evaluate")
+    .stdout(
+      r#"
+        a := "foo"
+        b := "bar"
+        c := ["baz", "bob"]
+        d := []
+      "#,
+    )
+    .success();
+}

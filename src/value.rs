@@ -18,23 +18,12 @@ impl Value {
     self.elements.push(element.into());
   }
 
-  pub(crate) fn join(&self) -> Cow<'_, str> {
-    match self.elements.as_slice() {
-      [element] => Cow::Borrowed(element),
-      elements => Cow::Owned(elements.join(" ")),
-    }
+  pub(crate) fn join(&self) -> String {
+    self.elements.join(" ")
   }
 
   pub(crate) fn into_elements(self) -> Vec<String> {
     self.elements
-  }
-
-  pub(crate) fn into_string(self) -> String {
-    if self.elements.len() == 1 {
-      self.elements.into_iter().next().unwrap()
-    } else {
-      self.elements.join(" ")
-    }
   }
 
   pub(crate) fn is_empty(&self) -> bool {
@@ -46,15 +35,23 @@ impl Value {
   }
 }
 
-impl Display for Value {
-  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    for (i, element) in self.elements.iter().enumerate() {
-      if i > 0 {
-        write!(f, " ")?;
+impl ColorDisplay for Value {
+  fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
+    if self.elements.len() == 1 {
+      write!(f, "{}", Element(&self.elements[0]).color_display(color))
+    } else {
+      write!(f, "[")?;
+
+      for (i, element) in self.elements.iter().enumerate() {
+        if i > 0 {
+          write!(f, ", ")?;
+        }
+
+        write!(f, "{}", Element(element).color_display(color))?;
       }
-      write!(f, "{element}")?;
+
+      write!(f, "]")
     }
-    Ok(())
   }
 }
 
@@ -113,8 +110,6 @@ mod tests {
     fn case(elements: &[&str], expected: &str) {
       let value = elements.iter().map(ToString::to_string).collect::<Value>();
       assert_eq!(value.join(), expected);
-      assert_eq!(value.to_string(), expected);
-      assert_eq!(value.clone().into_string(), expected);
       assert_eq!(
         serde_json::to_string(&value).unwrap(),
         format!("{expected:?}")
@@ -127,6 +122,31 @@ mod tests {
     case(&["foo", "bar"], "foo bar");
     case(&["foo bar", "baz"], "foo bar baz");
     case(&["", ""], " ");
+  }
+
+  #[test]
+  fn display() {
+    #[track_caller]
+    fn case(elements: &[&str], expected: &str) {
+      let value = elements.iter().map(ToString::to_string).collect::<Value>();
+      assert_eq!(value.color_display(Color::never()).to_string(), expected);
+    }
+
+    case(&[], "[]");
+    case(&["foo"], r#""foo""#);
+    case(&["foo", "bar"], r#"["foo", "bar"]"#);
+    case(&["a\tb\"c"], r#""a\tb\"c""#);
+    case(&["\\", "\n"], r#"["\\", "\n"]"#);
+  }
+
+  #[test]
+  fn color_display() {
+    assert_eq!(
+      Value::from("abc\t\r\nxyz")
+        .color_display(Color::always())
+        .to_string(),
+      "\u{1b}[32m\"abc\u{1b}[36m\\t\\r\\n\u{1b}[32mxyz\"\u{1b}[0m",
+    );
   }
 
   #[test]

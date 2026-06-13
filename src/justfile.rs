@@ -312,7 +312,7 @@ impl<'src> Justfile<'src> {
         let scope = scopes.get(&module.module_path).unwrap().1;
 
         if let Some(variable) = variable {
-          print!("{}", scope.value(variable).unwrap());
+          print!("{}", scope.value(variable).unwrap().join());
         } else {
           let width = scope.names().fold(0, |max, name| name.len().max(max));
 
@@ -320,7 +320,12 @@ impl<'src> Justfile<'src> {
             if !binding.private {
               match format {
                 EvaluateFormat::Just => {
-                  println!("{0:1$} := \"{2}\"", binding.name, width, binding.value);
+                  println!(
+                    "{0:1$} := {2}",
+                    binding.name,
+                    width,
+                    binding.value.color_display(config.color.stdout()),
+                  );
                 }
                 EvaluateFormat::Shell => {
                   if binding.export || module.settings.export {
