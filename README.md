@@ -1243,6 +1243,10 @@ section documents changes in behavior when `set lists` is enabled.
 Variadic recipe parameters are lists of strings instead of single
 space-separated strings.
 
+Lists literals are written `[a, b, c]` and are flattened, since lists may only
+contain strings and not other lists. For example, `[["a", "b"], [], "c"]`
+evaluates to `["a", "b", "c"]`.
+
 The following functions apply to each list element individually:
 
 - `absolute_path()`

@@ -25,6 +25,10 @@ impl Value {
     }
   }
 
+  pub(crate) fn into_elements(self) -> Vec<String> {
+    self.elements
+  }
+
   pub(crate) fn into_string(self) -> String {
     if self.elements.len() == 1 {
       self.elements.into_iter().next().unwrap()
@@ -82,6 +86,12 @@ impl From<String> for Value {
     Self {
       elements: vec![element],
     }
+  }
+}
+
+impl From<Vec<String>> for Value {
+  fn from(elements: Vec<String>) -> Self {
+    Self { elements }
   }
 }
 

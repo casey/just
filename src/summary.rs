@@ -217,6 +217,9 @@ pub enum Expression {
     lhs: Option<Box<Self>>,
     rhs: Box<Self>,
   },
+  List {
+    elements: Vec<Self>,
+  },
   Or {
     lhs: Box<Self>,
     rhs: Box<Self>,
@@ -282,6 +285,9 @@ impl Expression {
       Join { lhs, rhs } => Self::Join {
         lhs: lhs.as_ref().map(|lhs| Self::new(lhs).into()),
         rhs: Self::new(rhs).into(),
+      },
+      List { elements } => Self::List {
+        elements: elements.iter().map(Self::new).collect(),
       },
       Or { lhs, rhs } => Self::Or {
         lhs: Self::new(lhs).into(),

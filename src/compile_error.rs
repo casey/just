@@ -225,13 +225,16 @@ impl Display for CompileError<'_> {
           _ => character.escape_default().collect(),
         }
       ),
+      ListLiteralWithoutListsSetting => {
+        write!(f, "list literals require `set lists`")
+      }
       MappedDependencyMultipleStarredArguments => {
         write!(
           f,
           "mapped dependencies may not have multiple starred arguments"
         )
       }
-      MappedDependencyWithoutListSetting => {
+      MappedDependencyWithoutListsSetting => {
         write!(f, "mapped dependencies require `set lists`")
       }
       MappedDependencyWithoutStarredArgument => {

@@ -46,6 +46,8 @@ pub(crate) enum Expression<'src> {
     lhs: Option<Box<Self>>,
     rhs: Box<Self>,
   },
+  /// `[a, b, c]`
+  List { elements: Vec<Expression<'src>> },
   /// `lhs || rhs`
   Or { lhs: Box<Self>, rhs: Box<Self> },
   /// `"string_literal"` or `'string_literal'`
@@ -105,6 +107,16 @@ impl Display for Expression<'_> {
         lhs: Some(lhs),
         rhs,
       } => write!(f, "{lhs} / {rhs}"),
+      Self::List { elements } => {
+        write!(f, "[")?;
+        for (i, element) in elements.iter().enumerate() {
+          if i > 0 {
+            write!(f, ", ")?;
+          }
+          write!(f, "{element}")?;
+        }
+        write!(f, "]")
+      }
       Self::Or { lhs, rhs } => write!(f, "{lhs} || {rhs}"),
       Self::StringLiteral { string_literal } => write!(f, "{string_literal}"),
       Self::Variable { name } => write!(f, "{name}"),
@@ -184,6 +196,14 @@ impl Serialize for Expression<'_> {
         seq.serialize_element("join")?;
         seq.serialize_element(lhs)?;
         seq.serialize_element(rhs)?;
+        seq.end()
+      }
+      Self::List { elements } => {
+        let mut seq = serializer.serialize_seq(None)?;
+        seq.serialize_element("list")?;
+        for element in elements {
+          seq.serialize_element(element)?;
+        }
         seq.end()
       }
       Self::Or { lhs, rhs } => {

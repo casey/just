@@ -149,7 +149,7 @@ fn unclosed() {
     .justfile("foo := f'FOO{{")
     .stderr(
       "
-        error: expected backtick, identifier, '(', '/', or string, but found end of file
+        error: expected backtick, '[', identifier, '(', '/', or string, but found end of file
          ——▶ justfile:1:15
           │
         1 │ foo := f'FOO{{

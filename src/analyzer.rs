@@ -46,6 +46,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut absent_modules = BTreeSet::new();
     let mut definitions = HashMap::new();
     let mut imports = HashSet::new();
+    let mut list_literal = None;
     let mut unstable_features = BTreeSet::new();
 
     let mut stack = Vec::new();
@@ -54,6 +55,10 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     while let Some(ast) = stack.pop() {
       unstable_features.extend(&ast.unstable_features);
+
+      if list_literal.is_none() {
+        list_literal = ast.list_literal;
+      }
 
       for item in &ast.items {
         match item {
@@ -223,6 +228,16 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     let settings =
       Evaluator::evaluate_settings(&assignments, overrides, &Scope::root(), self.sets)?;
+
+    if let Some(token) = list_literal {
+      if !settings.lists {
+        return Err(
+          token
+            .error(CompileErrorKind::ListLiteralWithoutListsSetting)
+            .into(),
+        );
+      }
+    }
 
     let mut deduplicated_recipes = Table::<'src, UnresolvedRecipe<'src>>::default();
     for recipe in self.recipes {

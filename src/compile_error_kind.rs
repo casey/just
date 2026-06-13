@@ -99,8 +99,9 @@ pub(crate) enum CompileErrorKind<'src> {
   InvalidEscapeSequence {
     character: char,
   },
+  ListLiteralWithoutListsSetting,
   MappedDependencyMultipleStarredArguments,
-  MappedDependencyWithoutListSetting,
+  MappedDependencyWithoutListsSetting,
   MappedDependencyWithoutStarredArgument,
   MismatchedClosingDelimiter {
     close: Delimiter,
