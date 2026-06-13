@@ -379,7 +379,7 @@ pub(crate) fn assert_eval_eq(expression: &str, result: &str) {
     .success();
 }
 
-pub(crate) fn assert_show_eq(expression: &str, result: &str) {
+pub(crate) fn assert_list_eq(expression: &str, result: &str) {
   Test::new()
     .justfile(format!("set lists\n\nx := show({expression})"))
     .env("JUST_UNSTABLE", "1")

@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn list_literals_are_lists() {
-  assert_show_eq(r#"["a", "b"]"#, r#"["a", "b"]"#);
+  assert_list_eq(r#"["a", "b"]"#, r#"["a", "b"]"#);
 }
 
 #[test]
@@ -24,7 +24,7 @@ fn empty_list_literal_is_falsy() {
 
 #[test]
 fn list_literals_flatten_elements() {
-  assert_show_eq(
+  assert_list_eq(
     r#"["pre", ["x", "y"], "post"]"#,
     r#"["pre", "x", "y", "post"]"#,
   );
@@ -32,7 +32,7 @@ fn list_literals_flatten_elements() {
 
 #[test]
 fn list_literals_may_have_trailing_comma() {
-  assert_show_eq(r#"["a", "b",]"#, r#"["a", "b"]"#);
+  assert_list_eq(r#"["a", "b",]"#, r#"["a", "b"]"#);
 }
 
 #[test]

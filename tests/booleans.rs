@@ -2,12 +2,12 @@ use super::*;
 
 #[test]
 fn path_exists_true_is_true_string() {
-  assert_show_eq("path_exists(justfile())", r#""true""#);
+  assert_list_eq("path_exists(justfile())", r#""true""#);
 }
 
 #[test]
 fn path_exists_false_is_empty_list() {
-  assert_show_eq(r#"path_exists("nonexistent")"#, "[]");
+  assert_list_eq(r#"path_exists("nonexistent")"#, "[]");
 }
 
 #[test]
