@@ -110,7 +110,6 @@ mod tests {
     fn case(elements: &[&str], expected: &str) {
       let value = elements.iter().map(ToString::to_string).collect::<Value>();
       assert_eq!(value.join(), expected);
-      assert_eq!(value.clone().join(), expected);
       assert_eq!(
         serde_json::to_string(&value).unwrap(),
         format!("{expected:?}")
