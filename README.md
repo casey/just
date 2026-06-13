@@ -1256,11 +1256,8 @@ first argument is not a single-element list.
 Each argument to a dependency binds to exactly one parameter, and supplying
 extra arguments to a variadic dependency is an error.
 
-Dependencies can be called once per element of a list with
+Dependencies may be invoked once per element of a list with
 `*(recipe *argument)`.
-
-A mapped dependency runs once per element of a list. The dependency and the
-argument to map over are both starred, as in `*(recipe *argument)`.
 
 A parameter evaluates to the default when the argument is an empty list.
 
