@@ -2162,8 +2162,9 @@ The process ID is: 420
 
 #### String Manipulation
 
-- `append(suffix, s)`<sup>1.27.0</sup> - Append `suffix` to whitespace-separated
-  strings in `s`. `append('/src', 'foo bar baz')` → `'foo/src bar/src baz/src'`
+- `append(suffix, s)`<sup>1.27.0</sup> - Append `suffix` to
+  whitespace-separated strings in `s`. `append('/src', 'foo bar baz')` →
+  `'foo/src bar/src baz/src'`
 - `prepend(prefix, s)`<sup>1.27.0</sup> - Prepend `prefix` to
   whitespace-separated strings in `s`. `prepend('src/', 'foo bar baz')` →
   `'src/foo src/bar src/baz'`
@@ -2173,11 +2174,10 @@ The process ID is: 420
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append
   single quotes to `s`. This is sufficient to escape special characters for
   many shells, including most Bourne shell descendants.
-- `show(value)`<sup>master</sup> - Convert `value` to its `just` literal
-  representation, the same form printed by `--evaluate`. Strings are
-  double-quoted with special characters escaped, e.g. `show("foo\tbar")` →
-  `"foo\tbar"`, and, with `set lists`, lists are rendered with brackets, e.g.
-  `show(["a", "b c"])` → `["a", "b c"]`.
+- `show(value)`<sup>master</sup> - Convert `value` to a string containing its
+  literal representation. Brackets are used for empty and multi-element lists,
+  e.g., `"[]"` and `"["foo", "bar"]"`, but not single-element lists, e.g.,
+  `"foo"`.
 - `replace(s, from, to)` - Replace all occurrences of `from` in `s` with `to`.
 - `replace_regex(s, regex, replacement)` - Replace all occurrences of `regex`
   in `s` with `replacement`. Regular expressions are provided by the
