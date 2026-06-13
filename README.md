@@ -1257,9 +1257,9 @@ The following functions apply to each list element individually:
 `append()` and `prepend()` do not split elements on whitespace and error if the
 first argument is not a single-element list.
 
-Booleans are canonical: true is the string `true` and false is the empty list
-`[]`. The empty list is the only false value; every other value, including the
-empty string `''`, is true. The logical operators `&&` and `||` require
+The true value is the string `true` and the false value is the empty list `[]`.
+The empty list is the only false value; every other value, including the empty
+string `''`, is true. The logical operators `&&` and `||` require
 `set lists` and use these values.
 
 The functions `is_dependency()`, `path_exists()`, and `semver_matches()` return
