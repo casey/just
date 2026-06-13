@@ -15,7 +15,12 @@ fn mapped_dependency_runs_once_per_element() {
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "baz", "bob bib"])
-    .stdout("bar: baz\nbar: bob bib\n")
+    .stdout(
+      "
+        bar: baz
+        bar: bob bib
+      ",
+    )
     .success();
 }
 
@@ -34,7 +39,12 @@ fn unstarred_arguments_are_passed_whole_to_each_invocation() {
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "baz", "bob"])
-    .stdout("all: 'baz' 'bob' arg: baz\nall: 'baz' 'bob' arg: bob\n")
+    .stdout(
+      "
+        all: 'baz' 'bob' arg: baz
+        all: 'baz' 'bob' arg: bob
+      ",
+    )
     .success();
 }
 
@@ -53,7 +63,12 @@ fn starred_argument_may_bind_to_variadic_parameter() {
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "baz", "bob"])
-    .stdout("bar: baz\nbar: bob\n")
+    .stdout(
+      "
+        bar: baz
+        bar: bob
+      ",
+    )
     .success();
 }
 
@@ -73,7 +88,11 @@ fn empty_list_runs_dependency_zero_times() {
     )
     .env("JUST_UNSTABLE", "1")
     .arg("foo")
-    .stdout("foo\n")
+    .stdout(
+      "
+        foo
+      ",
+    )
     .success();
 }
 
@@ -92,7 +111,11 @@ fn duplicate_elements_are_deduplicated() {
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "baz", "baz"])
-    .stdout("bar: baz\n")
+    .stdout(
+      "
+        bar: baz
+      ",
+    )
     .success();
 }
 
@@ -112,7 +135,13 @@ fn mapped_dependency_works_as_subsequent() {
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "baz", "bob"])
-    .stdout("foo\nbar: baz\nbar: bob\n")
+    .stdout(
+      "
+        foo
+        bar: baz
+        bar: bob
+      ",
+    )
     .success();
 }
 
@@ -160,8 +189,7 @@ fn starred_argument_without_starred_dependency_is_an_error() {
     .arg("foo")
     .stderr(
       "
-        error: dependency arguments are passed whole; to invoke a dependency once per element of \
-        a starred argument, star the dependency, as in `*(recipe *argument)`
+        error: starred arguments may not be used outside mapped dependencies
          ——▶ justfile:3:17
           │
         3 │ foo *args: (bar *args)
@@ -188,7 +216,7 @@ fn starred_dependency_without_starred_argument_is_an_error() {
     .arg("foo")
     .stderr(
       "
-        error: mapped dependency must star the argument to map over, as in `*(recipe *argument)`
+        error: mapped dependencies must have a starred argument
          ——▶ justfile:3:12
           │
         3 │ foo *args: *(bar args)
@@ -215,7 +243,7 @@ fn multiple_starred_arguments_are_an_error() {
     .arg("foo")
     .stderr(
       "
-        error: mapped dependencies may star only one argument
+        error: mapped dependencies may not have multiple starred arguments
          ——▶ justfile:3:24
           │
         3 │ foo *args: *(bar *args *args)
@@ -267,7 +295,11 @@ fn starred_argument_may_be_parenthesized_expression() {
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "baz"])
-    .stdout("bar: baz bob\n")
+    .stdout(
+      "
+        bar: baz bob
+      ",
+    )
     .success();
 }
 
@@ -286,7 +318,12 @@ fn starred_argument_may_be_call() {
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "baz", "bob"])
-    .stdout("bar: src/baz\nbar: src/bob\n")
+    .stdout(
+      "
+        bar: src/baz
+        bar: src/bob
+      ",
+    )
     .success();
 }
 
@@ -305,7 +342,7 @@ fn mapped_dependencies_require_lists_setting() {
     .arg("foo")
     .stderr(
       "
-        error: mapped dependencies require the `lists` setting
+        error: mapped dependencies require `set lists`
          ——▶ justfile:1:14
           │
         1 │ foo *args: *(bar *args)

@@ -1256,11 +1256,11 @@ first argument is not a single-element list.
 Each argument to a dependency binds to exactly one parameter, and supplying
 extra arguments to a variadic dependency is an error.
 
+Dependencies can be called once per element of a list with
+`*(recipe *argument)`. If `argument` is empty, `recipe` will not be called.
+
 A mapped dependency runs once per element of a list. The dependency and the
-argument to map over are both starred, as in `*(recipe *argument)`. Unstarred
-arguments are evaluated once and passed whole to every invocation. An empty
-list runs the dependency zero times, and invocations with identical arguments
-are deduplicated like any other dependency. Only one argument may be starred.
+argument to map over are both starred, as in `*(recipe *argument)`.
 
 A parameter evaluates to the default when the argument is an empty list.
 
@@ -1317,22 +1317,22 @@ $1=one
 $2=two
 ```
 
-A mapped dependency runs once per element:
+A mapped dependency is invoked once per starred argument element:
 
 ```just
 set unstable
 set lists
 
-build *targets: *(compile *targets)
+build target *platform: *(compile target *platform)
 
-@compile target:
-  echo compiling {{ target }}…
+@compile target plaform:
+  echo compiling {{ target }} for {{ platform }}…
 ```
 
 ```console
-$ just build foo bar
-compiling foo…
-compiling bar…
+$ just build x86 foo bar
+compiling foo for x86…
+compiling bar for x86…
 ```
 
 #### Positional Arguments
