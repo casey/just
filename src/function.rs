@@ -25,6 +25,20 @@ pub(crate) enum Function {
   Ternary(fn(Context, &str, &str, &str) -> FunctionResult),
 }
 
+impl Function {
+  pub(crate) fn expected_arguments(&self) -> RangeInclusive<usize> {
+    match *self {
+      Nullary(_) | NullaryValue(_) => 0..=0,
+      Unary(_) | UnaryList(_) | UnaryValue(_) => 1..=1,
+      UnaryOpt(_) => 1..=2,
+      UnaryPlus(_) => 1..=usize::MAX,
+      Binary(_) | BinaryList(_) | BinaryValue(_) => 2..=2,
+      BinaryPlus(_) => 2..=usize::MAX,
+      Ternary(_) => 3..=3,
+    }
+  }
+}
+
 pub(crate) struct Context<'src: 'run, 'run> {
   pub(crate) execution_context: &'run ExecutionContext<'src, 'run>,
   pub(crate) is_dependency: bool,
@@ -124,17 +138,13 @@ pub(crate) fn get(name: &str) -> Option<Function> {
   Some(function)
 }
 
-impl Function {
-  pub(crate) fn expected_arguments(&self) -> RangeInclusive<usize> {
-    match *self {
-      Nullary(_) | NullaryValue(_) => 0..=0,
-      Unary(_) | UnaryList(_) | UnaryValue(_) => 1..=1,
-      UnaryOpt(_) => 1..=2,
-      UnaryPlus(_) => 1..=usize::MAX,
-      Binary(_) | BinaryList(_) | BinaryValue(_) => 2..=2,
-      BinaryPlus(_) => 2..=usize::MAX,
-      Ternary(_) => 3..=3,
-    }
+fn boolean(context: &Context, condition: bool) -> Value {
+  if condition {
+    Value::from("true")
+  } else if context.execution_context.module.settings.lists {
+    Value::new()
+  } else {
+    Value::from("false")
   }
 }
 
@@ -389,16 +399,6 @@ fn invocation_directory_native(context: Context) -> FunctionResult {
           .display()
       )
     })
-}
-
-fn boolean(context: &Context, condition: bool) -> Value {
-  if condition {
-    Value::from("true")
-  } else if context.execution_context.module.settings.lists {
-    Value::new()
-  } else {
-    Value::from("false")
-  }
 }
 
 fn is_dependency(context: Context) -> Result<Value, String> {
