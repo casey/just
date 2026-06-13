@@ -303,7 +303,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     arguments: &[Expression<'src>],
   ) -> RunResult<'src, Value> {
     macro_rules! context {
-      {} => { self.function_context(name).unwrap() }
+      () => {
+        self.function_context(name).unwrap()
+      };
     }
     match function {
       Function::Nullary(f) => f(context!()).map(Value::from),
