@@ -235,7 +235,7 @@ impl Display for CompileError<'_> {
         write!(f, "mapped dependencies require `set lists`")
       }
       MappedDependencyWithoutStarredArgument => {
-        write!(f, "mapped dependencies must have a starred argument")
+        write!(f, "mapped dependencies must have starred argument")
       }
       MismatchedClosingDelimiter {
         open,
