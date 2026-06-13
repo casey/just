@@ -218,7 +218,7 @@ pub enum Expression {
     rhs: Box<Self>,
   },
   List {
-    items: Vec<Self>,
+    elements: Vec<Self>,
   },
   Or {
     lhs: Box<Self>,
@@ -287,7 +287,7 @@ impl Expression {
         rhs: Self::new(rhs).into(),
       },
       List { elements } => Self::List {
-        items: elements.iter().map(Self::new).collect(),
+        elements: elements.iter().map(Self::new).collect(),
       },
       Or { lhs, rhs } => Self::Or {
         lhs: Self::new(lhs).into(),

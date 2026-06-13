@@ -1243,12 +1243,10 @@ section documents changes in behavior when `set lists` is enabled.
 Variadic recipe parameters are lists of strings instead of single
 space-separated strings.
 
-List literals are written `[a, b, c]`, with an optional trailing comma. They
-require `set lists`. A list literal is the concatenation of the elements of
-its items, so items which are themselves lists are flattened:
-`["--flag", files]` evaluates to `--flag` followed by the elements of `files`,
-and `[["a", "b"], "c"]` is `["a", "b", "c"]`. The empty list `[]` is the empty
-list.
+Lists literals are written `[a, b, c]`. List literals are flattened, since
+lists may only contain strings and not other lists, and evaluate to the
+concatenation of their constituent element expressions. For example,
+`[["a", "b"], [], "c"]` evaluates to `["a", "b", "c"]`.
 
 The following functions apply to each list element individually:
 
