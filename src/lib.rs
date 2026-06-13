@@ -194,12 +194,6 @@ pub mod node;
 #[cfg(fuzzing)]
 pub mod fuzzing;
 
-// Used by Janus, https://github.com/casey/janus, a tool
-// that analyses all public justfiles on GitHub to avoid
-// breaking changes.
-#[doc(hidden)]
-pub mod summary;
-
 // Used for testing with the `--request` subcommand.
 #[doc(hidden)]
 pub mod request;
