@@ -18,23 +18,12 @@ impl Value {
     self.elements.push(element.into());
   }
 
-  pub(crate) fn join(&self) -> Cow<'_, str> {
-    match self.elements.as_slice() {
-      [element] => Cow::Borrowed(element),
-      elements => Cow::Owned(elements.join(" ")),
-    }
+  pub(crate) fn join(&self) -> String {
+    self.elements.join(" ")
   }
 
   pub(crate) fn into_elements(self) -> Vec<String> {
     self.elements
-  }
-
-  pub(crate) fn into_string(self) -> String {
-    if self.elements.len() == 1 {
-      self.elements.into_iter().next().unwrap()
-    } else {
-      self.elements.join(" ")
-    }
   }
 
   pub(crate) fn is_empty(&self) -> bool {
@@ -48,12 +37,22 @@ impl Value {
 
 impl Display for Value {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    for (i, element) in self.elements.iter().enumerate() {
-      if i > 0 {
-        write!(f, " ")?;
+    if self.elements.len() == 1 {
+      write!(f, "\"{}\"", self.elements[0])?;
+    } else {
+      write!(f, "[")?;
+
+      for (i, element) in self.elements.iter().enumerate() {
+        if i > 0 {
+          write!(f, ", ")?;
+        }
+
+        write!(f, "\"{element}\"")?;
       }
-      write!(f, "{element}")?;
+
+      write!(f, "]")?;
     }
+
     Ok(())
   }
 }
@@ -113,8 +112,7 @@ mod tests {
     fn case(elements: &[&str], expected: &str) {
       let value = elements.iter().map(ToString::to_string).collect::<Value>();
       assert_eq!(value.join(), expected);
-      assert_eq!(value.to_string(), expected);
-      assert_eq!(value.clone().into_string(), expected);
+      assert_eq!(value.clone().join(), expected);
       assert_eq!(
         serde_json::to_string(&value).unwrap(),
         format!("{expected:?}")

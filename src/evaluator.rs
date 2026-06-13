@@ -378,7 +378,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     &mut self,
     expression: &Expression<'src>,
   ) -> RunResult<'src, String> {
-    Ok(self.evaluate_value(expression)?.into_string())
+    Ok(self.evaluate_value(expression)?.join())
   }
 
   pub(crate) fn evaluate_value(&mut self, expression: &Expression<'src>) -> RunResult<'src, Value> {
@@ -645,13 +645,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       if parameter.kind.is_variadic() {
         positional.extend(value.elements().iter().cloned());
       } else {
-        positional.push(value.join().into_owned());
+        positional.push(value.join());
       }
 
       let value = if context.module.settings.lists {
         value
       } else {
-        value.into_string().into()
+        value.join().into()
       };
 
       evaluator.scope.bind(Binding {
