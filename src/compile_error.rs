@@ -316,14 +316,13 @@ impl Display for CompileError<'_> {
           "short option name for parameter `{parameter}` contains multiple characters"
         )
       }
+      StarredArgumentOutsideMappedDependency => write!(
+        f,
+        "starred arguments may not be used outside of mapped dependencies",
+      ),
       RequiredParameterFollowsDefaultParameter { parameter } => write!(
         f,
         "non-default parameter `{parameter}` follows default parameter"
-      ),
-      StarredDependencyArgumentOutsideMappedDependency => write!(
-        f,
-        "dependency arguments are passed whole; to invoke a dependency once per element of a \
-         starred argument, star the dependency, as in `*(recipe *argument)`"
       ),
       UndefinedArgAttribute { argument } => {
         write!(f, "argument attribute for undefined argument `{argument}`")
