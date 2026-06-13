@@ -318,7 +318,7 @@ impl Display for CompileError<'_> {
       }
       StarredArgumentOutsideMappedDependency => write!(
         f,
-        "starred arguments may not be used outside of mapped dependencies",
+        "starred arguments may not be used outside mapped dependencies",
       ),
       RequiredParameterFollowsDefaultParameter { parameter } => write!(
         f,
