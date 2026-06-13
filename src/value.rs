@@ -35,10 +35,10 @@ impl Value {
   }
 }
 
-impl Display for Value {
-  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+impl ColorDisplay for Value {
+  fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     if self.elements.len() == 1 {
-      write!(f, "\"{}\"", self.elements[0])?;
+      write!(f, "{}", Escape(&self.elements[0]).color_display(color))
     } else {
       write!(f, "[")?;
 
@@ -47,13 +47,55 @@ impl Display for Value {
           write!(f, ", ")?;
         }
 
-        write!(f, "\"{element}\"")?;
+        write!(f, "{}", Escape(element).color_display(color))?;
       }
 
-      write!(f, "]")?;
+      write!(f, "]")
+    }
+  }
+}
+
+struct Escape<'a>(&'a str);
+
+impl ColorDisplay for Escape<'_> {
+  fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
+    let string = color.string();
+    let string_escape = color.string_escape();
+
+    write!(f, "{}\"", string.prefix())?;
+
+    let mut escaped = false;
+
+    for c in self.0.chars() {
+      let sequence = match c {
+        '\\' => Some("\\\\"),
+        '"' => Some("\\\""),
+        '\n' => Some("\\n"),
+        '\r' => Some("\\r"),
+        '\t' => Some("\\t"),
+        _ => None,
+      };
+
+      if let Some(sequence) = sequence {
+        if !escaped {
+          write!(f, "{}", string_escape.prefix())?;
+          escaped = true;
+        }
+        write!(f, "{sequence}")?;
+      } else {
+        if escaped {
+          write!(f, "{}", string.prefix())?;
+          escaped = false;
+        }
+        write!(f, "{c}")?;
+      }
     }
 
-    Ok(())
+    if escaped {
+      write!(f, "{}", string.prefix())?;
+    }
+
+    write!(f, "\"{}", string.suffix())
   }
 }
 
@@ -125,6 +167,31 @@ mod tests {
     case(&["foo", "bar"], "foo bar");
     case(&["foo bar", "baz"], "foo bar baz");
     case(&["", ""], " ");
+  }
+
+  #[test]
+  fn display() {
+    #[track_caller]
+    fn case(elements: &[&str], expected: &str) {
+      let value = elements.iter().map(ToString::to_string).collect::<Value>();
+      assert_eq!(value.color_display(Color::never()).to_string(), expected);
+    }
+
+    case(&[], "[]");
+    case(&["foo"], r#""foo""#);
+    case(&["foo", "bar"], r#"["foo", "bar"]"#);
+    case(&["a\tb\"c"], r#""a\tb\"c""#);
+    case(&["\\", "\n"], r#"["\\", "\n"]"#);
+  }
+
+  #[test]
+  fn display_color() {
+    assert_eq!(
+      Value::from("a\tb")
+        .color_display(Color::always())
+        .to_string(),
+      "\u{1b}[32m\"a\u{1b}[36m\\t\u{1b}[32mb\"\u{1b}[0m",
+    );
   }
 
   #[test]

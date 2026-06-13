@@ -142,6 +142,10 @@ impl Color {
     self.restyle(Style::new().fg(Green))
   }
 
+  pub(crate) fn string_escape(self) -> Self {
+    self.restyle(Style::new().fg(Cyan))
+  }
+
   pub(crate) fn suffix(&self) -> Suffix {
     self.effective_style().suffix()
   }
