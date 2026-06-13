@@ -140,12 +140,12 @@ mod tests {
   }
 
   #[test]
-  fn display_color() {
+  fn color_display() {
     assert_eq!(
-      Value::from("a\tb")
+      Value::from("abc\t\r\nxyz")
         .color_display(Color::always())
         .to_string(),
-      "\u{1b}[32m\"a\u{1b}[36m\\t\u{1b}[32mb\"\u{1b}[0m",
+      "\u{1b}[32m\"abc\u{1b}[36m\\t\\r\\n\u{1b}[32mxyz\"\u{1b}[0m",
     );
   }
 
