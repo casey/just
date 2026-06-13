@@ -764,15 +764,17 @@ fn without_extension(_context: Context, path: &str) -> FunctionResult {
 /// Check whether a string processes properly as semver (e.x. "0.1.0")
 /// and matches a given semver requirement (e.x. ">=0.1.0")
 fn semver_matches(context: Context, version: &str, requirement: &str) -> Result<Value, String> {
-  let matches = requirement
-    .parse::<VersionReq>()
-    .map_err(|err| format!("invalid semver requirement: {err}"))?
-    .matches(
-      &version
-        .parse::<Version>()
-        .map_err(|err| format!("invalid semver version: {err}"))?,
-    );
-  Ok(boolean(&context, matches))
+  Ok(boolean(
+    &context,
+    requirement
+      .parse::<VersionReq>()
+      .map_err(|err| format!("invalid semver requirement: {err}"))?
+      .matches(
+        &version
+          .parse::<Version>()
+          .map_err(|err| format!("invalid semver version: {err}"))?,
+      ),
+  ))
 }
 
 #[cfg(test)]
