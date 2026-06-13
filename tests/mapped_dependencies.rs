@@ -216,7 +216,7 @@ fn starred_dependency_without_starred_argument_is_an_error() {
     .arg("foo")
     .stderr(
       "
-        error: mapped dependencies must have a starred argument
+        error: mapped dependencies must have starred argument
          ——▶ justfile:3:12
           │
         3 │ foo *args: *(bar args)
