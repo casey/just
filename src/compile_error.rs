@@ -225,7 +225,7 @@ impl Display for CompileError<'_> {
           _ => character.escape_default().collect(),
         }
       ),
-      ListLiteralRequiresLists => {
+      ListLiteralWithoutListsSetting => {
         write!(f, "list literals require `set lists`")
       }
       MappedDependencyMultipleStarredArguments => {
@@ -234,7 +234,7 @@ impl Display for CompileError<'_> {
           "mapped dependencies may not have multiple starred arguments"
         )
       }
-      MappedDependencyWithoutListSetting => {
+      MappedDependencyWithoutListsSetting => {
         write!(f, "mapped dependencies require `set lists`")
       }
       MappedDependencyWithoutStarredArgument => {

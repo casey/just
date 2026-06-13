@@ -234,7 +234,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     {
       return Err(
         token
-          .error(CompileErrorKind::ListLiteralRequiresLists)
+          .error(CompileErrorKind::ListLiteralWithoutListsSetting)
           .into(),
       );
     }
