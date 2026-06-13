@@ -320,7 +320,7 @@ impl<'src> Justfile<'src> {
             if !binding.private {
               match format {
                 EvaluateFormat::Just => {
-                  println!("{0:1$} := {2}", binding.name, width, binding.value)
+                  println!("{0:1$} := {2}", binding.name, width, binding.value);
                 }
                 EvaluateFormat::Shell => {
                   if binding.export || module.settings.export {
