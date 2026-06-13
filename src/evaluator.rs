@@ -302,26 +302,29 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     function: Function,
     arguments: &[Expression<'src>],
   ) -> RunResult<'src, Value> {
+    macro_rules! context {
+      {} => { self.function_context(name).unwrap() }
+    }
     match function {
-      Function::Nullary(f) => f(self.function_context(name).unwrap()).map(Value::from),
-      Function::NullaryValue(f) => f(self.function_context(name).unwrap()),
+      Function::Nullary(f) => f(context!()).map(Value::from),
+      Function::NullaryValue(f) => f(context!()),
       Function::Unary(f) => {
         let a = self.evaluate_string(&arguments[0])?;
-        f(self.function_context(name).unwrap(), &a).map(Value::from)
+        f(context!(), &a).map(Value::from)
       }
       Function::UnaryValue(f) => {
         let a = self.evaluate_string(&arguments[0])?;
-        f(self.function_context(name).unwrap(), &a)
+        f(context!(), &a)
       }
       Function::UnaryList(f) => {
         let a = self.evaluate_value(&arguments[0])?;
-        f(self.function_context(name).unwrap(), &a)
+        f(context!(), &a)
       }
       Function::UnaryMap(f) => {
         let a = self.evaluate_value(&arguments[0])?;
         a.elements()
           .iter()
-          .map(|element| f(self.function_context(name).unwrap(), element))
+          .map(|element| f(context!(), element))
           .collect()
       }
       Function::UnaryOpt(f) => {
@@ -331,7 +334,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         } else {
           None
         };
-        f(self.function_context(name).unwrap(), &a, b.as_deref()).map(Value::from)
+        f(context!(), &a, b.as_deref()).map(Value::from)
       }
       Function::UnaryPlus(f) => {
         let a = self.evaluate_string(&arguments[0])?;
@@ -339,22 +342,22 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         for arg in &arguments[1..] {
           rest.push(self.evaluate_string(arg)?);
         }
-        f(self.function_context(name).unwrap(), &a, &rest).map(Value::from)
+        f(context!(), &a, &rest).map(Value::from)
       }
       Function::BinaryList(f) => {
         let a = self.evaluate_value(&arguments[0])?;
         let b = self.evaluate_value(&arguments[1])?;
-        f(self.function_context(name).unwrap(), &a, &b)
+        f(context!(), &a, &b)
       }
       Function::Binary(f) => {
         let a = self.evaluate_string(&arguments[0])?;
         let b = self.evaluate_string(&arguments[1])?;
-        f(self.function_context(name).unwrap(), &a, &b).map(Value::from)
+        f(context!(), &a, &b).map(Value::from)
       }
       Function::BinaryValue(f) => {
         let a = self.evaluate_string(&arguments[0])?;
         let b = self.evaluate_string(&arguments[1])?;
-        f(self.function_context(name).unwrap(), &a, &b)
+        f(context!(), &a, &b)
       }
       Function::BinaryPlus(f) => {
         let a = self.evaluate_string(&arguments[0])?;
@@ -363,13 +366,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         for arg in &arguments[2..] {
           rest.push(self.evaluate_string(arg)?);
         }
-        f(self.function_context(name).unwrap(), &a, &b, &rest).map(Value::from)
+        f(context!(), &a, &b, &rest).map(Value::from)
       }
       Function::Ternary(f) => {
         let a = self.evaluate_string(&arguments[0])?;
         let b = self.evaluate_string(&arguments[1])?;
         let c = self.evaluate_string(&arguments[2])?;
-        f(self.function_context(name).unwrap(), &a, &b, &c).map(Value::from)
+        f(context!(), &a, &b, &c).map(Value::from)
       }
     }
     .map_err(|message| Error::FunctionCall {
