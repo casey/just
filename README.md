@@ -1243,7 +1243,7 @@ section documents changes in behavior when `set lists` is enabled.
 Variadic recipe parameters are lists of strings instead of single
 space-separated strings.
 
-Lists literals are written `[a, b, c]` and are flattened, since lists may only
+List literals are written `[a, b, c]` and are flattened, since lists may only
 contain strings and not other lists. For example, `[["a", "b"], [], "c"]`
 evaluates to `["a", "b", "c"]`.
 
@@ -1264,7 +1264,7 @@ list are truthy, including `''`.
 The functions `is_dependency()`, `path_exists()`, and `semver_matches()` return
 the canonical booleans.
 
-`which()` function the empty list when no executable is found.
+`which()` returns the empty list when no executable is found.
 
 Each argument to a dependency binds to exactly one parameter, and supplying
 extra arguments to a variadic dependency is an error.
