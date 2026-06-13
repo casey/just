@@ -554,12 +554,14 @@ fn parent_directory(_context: Context, path: &str) -> FunctionResult {
 }
 
 fn path_exists(context: Context, path: &str) -> Result<Value, String> {
-  let exists = context
-    .execution_context
-    .working_directory()
-    .join(path)
-    .exists();
-  Ok(boolean(&context, exists))
+  Ok(boolean(
+    &context,
+    context
+      .execution_context
+      .working_directory()
+      .join(path)
+      .exists(),
+  ))
 }
 
 fn quote(_context: Context, s: &str) -> FunctionResult {
