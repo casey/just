@@ -11,7 +11,7 @@ fn evaluate(expression: &str, expected: &str) {
 }
 
 #[test]
-fn and_is_unstable() {
+fn and_requires_lists_setting() {
   Test::new()
     .justfile(
       "
@@ -36,7 +36,7 @@ fn and_is_unstable() {
 }
 
 #[test]
-fn or_is_unstable() {
+fn or_requires_lists_setting() {
   Test::new()
     .justfile(
       "
