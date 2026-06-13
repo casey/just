@@ -2173,6 +2173,11 @@ The process ID is: 420
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append
   single quotes to `s`. This is sufficient to escape special characters for
   many shells, including most Bourne shell descendants.
+- `show(value)`<sup>master</sup> - Convert `value` to its `just` literal
+  representation, the same form printed by `--evaluate`. Strings are
+  double-quoted with special characters escaped, e.g. `show("foo\tbar")` →
+  `"foo\tbar"`, and, with `set lists`, lists are rendered with brackets, e.g.
+  `show(["a", "b c"])` → `["a", "b c"]`.
 - `replace(s, from, to)` - Replace all occurrences of `from` in `s` with `to`.
 - `replace_regex(s, regex, replacement)` - Replace all occurrences of `regex`
   in `s` with `replacement`. Regular expressions are provided by the
