@@ -378,3 +378,13 @@ pub(crate) fn assert_eval_eq(expression: &str, result: &str) {
     .unindent_stdout(false)
     .success();
 }
+
+pub(crate) fn assert_show_eq(expression: &str, result: &str) {
+  Test::new()
+    .justfile(format!("set lists\n\nx := show({expression})"))
+    .env("JUST_UNSTABLE", "1")
+    .args(["--evaluate", "x"])
+    .stdout(result)
+    .unindent_stdout(false)
+    .success();
+}

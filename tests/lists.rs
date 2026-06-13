@@ -257,18 +257,22 @@ fn dependency_arguments_join_lists_without_lists_setting() {
 fn dependency_arguments_forward_lists() {
   Test::new()
     .justfile(
-      r#"
+      "
         set lists
 
         foo *args: (bar args)
 
         bar *rest:
-          @echo "{{ quote(rest) }}"
-      "#,
+          @echo '{{ show(rest) }}'
+      ",
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar", "baz bob"])
-    .stdout("'bar' 'baz bob'\n")
+    .stdout(
+      r#"
+        ["bar", "baz bob"]
+      "#,
+    )
     .success();
 }
 
@@ -316,18 +320,22 @@ fn singular_parameters_contribute_one_positional_argument() {
 fn lists_bind_to_singular_parameters() {
   Test::new()
     .justfile(
-      r#"
+      "
         set lists
 
         foo *args: (bar args)
 
         bar first:
-          @echo "{{ quote(first) }}"
-      "#,
+          @echo '{{ show(first) }}'
+      ",
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar", "baz"])
-    .stdout("'bar' 'baz'\n")
+    .stdout(
+      r#"
+        ["bar", "baz"]
+      "#,
+    )
     .success();
 }
 
@@ -335,18 +343,22 @@ fn lists_bind_to_singular_parameters() {
 fn dependency_arguments_bind_to_one_parameter_each() {
   Test::new()
     .justfile(
-      r#"
+      "
         set lists
 
         foo *args: (bar 'baz' args)
 
         bar first *rest:
-          @echo "{{ first }} {{ quote(rest) }}"
-      "#,
+          @echo '{{ first }} {{ show(rest) }}'
+      ",
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar", "bob"])
-    .stdout("baz 'bar' 'bob'\n")
+    .stdout(
+      r#"
+        baz ["bar", "bob"]
+      "#,
+    )
     .success();
 }
 
@@ -437,18 +449,18 @@ fn empty_list_for_defaulted_parameter_uses_default() {
 fn omitted_star_variadic_dependency_argument_is_empty_list() {
   Test::new()
     .justfile(
-      r#"
+      "
         set lists
 
         foo: (bar)
 
         bar *rest:
-          @echo "baz{{ quote(rest) }}baz"
-      "#,
+          @echo 'baz{{ show(rest) }}baz'
+      ",
     )
     .env("JUST_UNSTABLE", "1")
     .arg("foo")
-    .stdout("bazbaz\n")
+    .stdout("baz[]baz\n")
     .success();
 }
 
@@ -479,7 +491,7 @@ fn joined_arguments_forwarded_to_module_with_lists_setting_are_single_elements()
   Test::new()
     .write(
       "foo.just",
-      "set lists\nbaz *rest:\n @echo \"{{ quote(rest) }}\"",
+      "set lists\nbaz *rest:\n @echo '{{ show(rest) }}'",
     )
     .justfile(
       "
@@ -490,7 +502,11 @@ fn joined_arguments_forwarded_to_module_with_lists_setting_are_single_elements()
     )
     .env("JUST_UNSTABLE", "1")
     .args(["bar", "baz", "bob"])
-    .stdout("'baz bob'\n")
+    .stdout(
+      r#"
+        "baz bob"
+      "#,
+    )
     .success();
 }
 

@@ -2,19 +2,7 @@ use super::*;
 
 #[test]
 fn list_literals_are_lists() {
-  Test::new()
-    .justfile(
-      r#"
-        set lists
-
-        foo:
-          @echo "{{ quote(["a", "b"]) }}"
-      "#,
-    )
-    .env("JUST_UNSTABLE", "1")
-    .arg("foo")
-    .stdout("'a' 'b'\n")
-    .success();
+  assert_show_eq(r#"["a", "b"]"#, r#"["a", "b"]"#);
 }
 
 #[test]
@@ -36,38 +24,15 @@ fn empty_list_literal_is_falsy() {
 
 #[test]
 fn list_literals_flatten_elements() {
-  Test::new()
-    .justfile(
-      r#"
-        set lists
-
-        list := ["pre", ["x", "y"], "post"]
-
-        foo:
-          @echo "{{ quote(list) }}"
-      "#,
-    )
-    .env("JUST_UNSTABLE", "1")
-    .arg("foo")
-    .stdout("'pre' 'x' 'y' 'post'\n")
-    .success();
+  assert_show_eq(
+    r#"["pre", ["x", "y"], "post"]"#,
+    r#"["pre", "x", "y", "post"]"#,
+  );
 }
 
 #[test]
 fn list_literals_may_have_trailing_comma() {
-  Test::new()
-    .justfile(
-      r#"
-        set lists
-
-        foo:
-          @echo "{{ quote(["a", "b",]) }}"
-      "#,
-    )
-    .env("JUST_UNSTABLE", "1")
-    .arg("foo")
-    .stdout("'a' 'b'\n")
-    .success();
+  assert_show_eq(r#"["a", "b",]"#, r#"["a", "b"]"#);
 }
 
 #[test]
