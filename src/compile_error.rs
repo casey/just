@@ -225,13 +225,18 @@ impl Display for CompileError<'_> {
           _ => character.escape_default().collect(),
         }
       ),
-      MappedDependencyRequiresLists => {
-        write!(f, "mapped dependencies require the `lists` setting")
+      MappedDependencyMultipleStarredArguments => {
+        write!(
+          f,
+          "mapped dependencies may not have multiple starred arguments"
+        )
       }
-      MappedDependencyWithoutStarredArgument => write!(
-        f,
-        "mapped dependency must star the argument to map over, as in `*(recipe *argument)`"
-      ),
+      MappedDependencyWithoutListSetting => {
+        write!(f, "mapped dependencies require `set lists`")
+      }
+      MappedDependencyWithoutStarredArgument => {
+        write!(f, "mapped dependencies must have starred argument`")
+      }
       MismatchedClosingDelimiter {
         open,
         open_line,
@@ -249,9 +254,6 @@ impl Display for CompileError<'_> {
            consist of tabs or spaces, but not both",
         ShowWhitespace(whitespace)
       ),
-      MultipleStarredDependencyArguments => {
-        write!(f, "mapped dependencies may star only one argument")
-      }
       NoCdAndWorkingDirectoryAttribute { recipe } => write!(
         f,
         "recipe `{recipe}` has both `[no-cd]` and `[working-directory]` attributes"

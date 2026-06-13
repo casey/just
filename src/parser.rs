@@ -365,7 +365,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
         if let Some(token) = token {
           if starred.is_some() {
-            return Err(token.error(CompileErrorKind::MultipleStarredDependencyArguments));
+            return Err(token.error(CompileErrorKind::MappedDependencyMultipleStarredArguments));
           }
           starred = Some(token);
         }

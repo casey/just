@@ -39,7 +39,7 @@ impl<'src> UnresolvedRecipe<'src> {
           dependency
             .recipe
             .last()
-            .error(CompileErrorKind::MappedDependencyRequiresLists),
+            .error(CompileErrorKind::MappedDependencyWithoutListSetting),
         );
       }
 

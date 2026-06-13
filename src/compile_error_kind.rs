@@ -99,7 +99,8 @@ pub(crate) enum CompileErrorKind<'src> {
   InvalidEscapeSequence {
     character: char,
   },
-  MappedDependencyRequiresLists,
+  MappedDependencyMultipleStarredArguments,
+  MappedDependencyWithoutListSetting,
   MappedDependencyWithoutStarredArgument,
   MismatchedClosingDelimiter {
     close: Delimiter,
@@ -109,7 +110,6 @@ pub(crate) enum CompileErrorKind<'src> {
   MixedLeadingWhitespace {
     whitespace: &'src str,
   },
-  MultipleStarredDependencyArguments,
   NoCdAndWorkingDirectoryAttribute {
     recipe: &'src str,
   },
