@@ -29,6 +29,7 @@ pub(crate) struct Parser<'run, 'src> {
   import_offsets: Vec<usize>,
   items: Vec<Item<'src>>,
   list_literal: Option<Token<'src>>,
+  logical_operator: Option<Token<'src>>,
   module_namepath: Option<&'run Namepath<'src>>,
   next_token: usize,
   numerator: &'run mut Numerator,
@@ -54,6 +55,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       import_offsets: import_offsets.to_vec(),
       items: Vec::new(),
       list_literal: None,
+      logical_operator: None,
       module_namepath,
       next_token: 0,
       numerator,
@@ -480,6 +482,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok(Ast {
       items: self.items,
       list_literal: self.list_literal,
+      logical_operator: self.logical_operator,
       module_path: self.module_namepath.map(Into::into).unwrap_or_default(),
       unstable_features: self.unstable_features,
       warnings: Vec::new(),
@@ -701,10 +704,10 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let disjunct = self.parse_disjunct()?;
 
-    let expression = if self.accepted(BarBar)? {
-      self
-        .unstable_features
-        .insert(UnstableFeature::LogicalOperators);
+    let expression = if let Some(token) = self.accept(BarBar)? {
+      if self.logical_operator.is_none() {
+        self.logical_operator = Some(token);
+      }
       let lhs = disjunct.into();
       let rhs = self.parse_expression()?.into();
       Expression::Or { lhs, rhs }
@@ -720,10 +723,10 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_disjunct(&mut self) -> CompileResult<'src, Expression<'src>> {
     let conjunct = self.parse_conjunct()?;
 
-    let disjunct = if self.accepted(AmpersandAmpersand)? {
-      self
-        .unstable_features
-        .insert(UnstableFeature::LogicalOperators);
+    let disjunct = if let Some(token) = self.accept(AmpersandAmpersand)? {
+      if self.logical_operator.is_none() {
+        self.logical_operator = Some(token);
+      }
       let lhs = conjunct.into();
       let rhs = self.parse_disjunct()?.into();
       Expression::And { lhs, rhs }

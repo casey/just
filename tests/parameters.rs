@@ -83,6 +83,8 @@ fn empty_star_parameter_is_falsy() {
   Test::new()
     .justfile(
       "
+        set lists
+
         foo *args:
           @echo {{ args || 'fallback' }}
       ",

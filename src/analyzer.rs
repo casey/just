@@ -47,6 +47,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut definitions = HashMap::new();
     let mut imports = HashSet::new();
     let mut list_literal = None;
+    let mut logical_operator = None;
     let mut unstable_features = BTreeSet::new();
 
     let mut stack = Vec::new();
@@ -58,6 +59,10 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
       if list_literal.is_none() {
         list_literal = ast.list_literal;
+      }
+
+      if logical_operator.is_none() {
+        logical_operator = ast.logical_operator;
       }
 
       for item in &ast.items {
@@ -234,6 +239,16 @@ impl<'run, 'src> Analyzer<'run, 'src> {
         return Err(
           token
             .error(CompileErrorKind::ListLiteralWithoutListsSetting)
+            .into(),
+        );
+      }
+    }
+
+    if let Some(token) = logical_operator {
+      if !settings.lists {
+        return Err(
+          token
+            .error(CompileErrorKind::LogicalOperatorWithoutListsSetting)
             .into(),
         );
       }

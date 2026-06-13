@@ -1,6 +1,6 @@
 use super::*;
 
-pub(crate) fn which(context: function::Context, name: &str) -> Result<Option<String>, String> {
+pub(crate) fn which(context: &function::Context, name: &str) -> Result<Option<String>, String> {
   let name = Path::new(name);
 
   let paths = match name.components().count() {

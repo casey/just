@@ -38,11 +38,11 @@ impl Value {
   }
 
   pub(crate) fn is_empty(&self) -> bool {
-    match self.elements.as_slice() {
-      [] => true,
-      [element] => element.is_empty(),
-      _ => false,
-    }
+    self.elements.is_empty()
+  }
+
+  pub(crate) fn is_truthy(&self) -> bool {
+    !self.elements.is_empty()
   }
 }
 
@@ -130,18 +130,18 @@ mod tests {
   }
 
   #[test]
-  fn is_empty() {
+  fn is_truthy() {
     #[track_caller]
     fn case(elements: &[&str], expected: bool) {
       let value = elements.iter().map(ToString::to_string).collect::<Value>();
-      assert_eq!(value.is_empty(), expected);
+      assert_eq!(value.is_truthy(), expected);
     }
 
-    case(&[], true);
+    case(&[], false);
     case(&[""], true);
-    case(&["foo"], false);
-    case(&["", ""], false);
-    case(&["foo", "bar"], false);
+    case(&["foo"], true);
+    case(&["", ""], true);
+    case(&["foo", "bar"], true);
   }
 
   #[test]

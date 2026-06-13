@@ -3,7 +3,7 @@ use super::*;
 #[track_caller]
 fn evaluate(expression: &str, expected: &str) {
   Test::new()
-    .justfile(format!("x := {expression}"))
+    .justfile(format!("set lists\nx := {expression}"))
     .env("JUST_UNSTABLE", "1")
     .args(["--evaluate", "x"])
     .stdout(expected)
@@ -11,71 +11,106 @@ fn evaluate(expression: &str, expected: &str) {
 }
 
 #[test]
-fn logical_operators_are_unstable() {
+fn and_requires_lists_setting() {
   Test::new()
-    .justfile("x := 'foo' && 'bar'")
-    .args(["--evaluate", "x"])
-    .stderr_regex(r"error: the logical operators `&&` and `\|\|` are currently unstable, .*")
-    .failure();
+    .justfile(
+      "
+        x := 'foo' && 'bar'
 
-  Test::new()
-    .justfile("x := 'foo' || 'bar'")
-    .args(["--evaluate", "x"])
-    .stderr_regex(r"error: the logical operators `&&` and `\|\|` are currently unstable, .*")
+        foo:
+          @echo hi
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("foo")
+    .stderr(
+      "
+        error: logical operators require `set lists`
+         ——▶ justfile:1:12
+          │
+        1 │ x := 'foo' && 'bar'
+          │            ^^
+      ",
+    )
     .failure();
 }
 
 #[test]
-fn and_returns_empty_string_if_lhs_is_empty() {
-  evaluate("'' && 'hello'", "");
+fn or_requires_lists_setting() {
+  Test::new()
+    .justfile(
+      "
+        x := 'foo' || 'bar'
+
+        foo:
+          @echo hi
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("foo")
+    .stderr(
+      "
+        error: logical operators require `set lists`
+         ——▶ justfile:1:12
+          │
+        1 │ x := 'foo' || 'bar'
+          │            ^^
+      ",
+    )
+    .failure();
 }
 
 #[test]
-fn and_returns_rhs_if_lhs_is_non_empty() {
+fn and_returns_empty_list_if_lhs_is_falsy() {
+  evaluate("[] && 'hello'", "");
+}
+
+#[test]
+fn and_returns_rhs_if_lhs_is_truthy() {
   evaluate("'hello' && 'goodbye'", "goodbye");
 }
 
 #[test]
-fn and_has_lower_precedence_than_plus() {
-  evaluate("'' && 'goodbye' + 'foo'", "");
-
-  evaluate("'foo' + 'hello' && 'goodbye'", "goodbye");
-
-  evaluate("'foo' + '' && 'goodbye'", "goodbye");
-
-  evaluate("'foo' + 'hello' && 'goodbye' + 'bar'", "goodbyebar");
+fn or_returns_rhs_if_lhs_is_falsy() {
+  evaluate("[] || 'hello'", "hello");
 }
 
 #[test]
-fn or_returns_rhs_if_lhs_is_empty() {
-  evaluate("'' || 'hello'", "hello");
-}
-
-#[test]
-fn or_returns_lhs_if_lhs_is_non_empty() {
+fn or_returns_lhs_if_lhs_is_truthy() {
   evaluate("'hello' || 'goodbye'", "hello");
 }
 
 #[test]
+fn empty_string_is_truthy() {
+  evaluate("'' || 'fallback'", "");
+  evaluate("'' && 'rhs'", "rhs");
+}
+
+#[test]
+fn and_has_lower_precedence_than_plus() {
+  evaluate("[] && 'goodbye' + 'foo'", "");
+  evaluate("'foo' + 'hello' && 'goodbye'", "goodbye");
+  evaluate("'foo' + '' && 'goodbye'", "goodbye");
+  evaluate("'foo' + 'hello' && 'goodbye' + 'bar'", "goodbyebar");
+}
+
+#[test]
 fn or_has_lower_precedence_than_plus() {
-  evaluate("'' || 'goodbye' + 'foo'", "goodbyefoo");
-
+  evaluate("[] || 'goodbye' + 'foo'", "goodbyefoo");
   evaluate("'foo' + 'hello' || 'goodbye'", "foohello");
-
   evaluate("'foo' + '' || 'goodbye'", "foo");
-
   evaluate("'foo' + 'hello' || 'goodbye' + 'bar'", "foohello");
 }
 
 #[test]
 fn and_has_higher_precedence_than_or() {
-  evaluate("('' && 'foo') || 'bar'", "bar");
-  evaluate("'' && 'foo' || 'bar'", "bar");
+  evaluate("([] && 'foo') || 'bar'", "bar");
+  evaluate("[] && 'foo' || 'bar'", "bar");
   evaluate("'a' && 'b' || 'c'", "b");
 }
 
 #[test]
 fn nesting() {
-  evaluate("'' || '' || '' || '' || 'foo'", "foo");
+  evaluate("[] || [] || [] || [] || 'foo'", "foo");
   evaluate("'foo' && 'foo' && 'foo' && 'foo' && 'bar'", "bar");
 }
