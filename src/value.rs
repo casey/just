@@ -37,6 +37,10 @@ impl Value {
     }
   }
 
+  pub(crate) fn is_empty(&self) -> bool {
+    self.elements.is_empty()
+  }
+
   pub(crate) fn is_truthy(&self) -> bool {
     !self.elements.is_empty()
   }
