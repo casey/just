@@ -1257,17 +1257,14 @@ The following functions apply to each list element individually:
 `append()` and `prepend()` do not split elements on whitespace and error if the
 first argument is not a single-element list.
 
-The true value is the string `true` and the false value is the empty list `[]`.
-The empty list is the only false value; every other value, including the empty
-string `''`, is true. The logical operators `&&` and `||` require
-`set lists` and use these values.
+The canonical boolean true value is the string `"true"`, and the canonical
+boolean false value is the empty list `[]`. All values other than the empty
+list are truthy, including `''`.
 
 The functions `is_dependency()`, `path_exists()`, and `semver_matches()` return
-the canonical boolean values, `true` or the empty list `[]`, instead of the
-strings `true` and `false`.
+the canonical booleans.
 
-The `which()` function returns the empty list, rather than the empty string,
-when no executable is found.
+`which()` function the empty list when no executable is found.
 
 Each argument to a dependency binds to exactly one parameter, and supplying
 extra arguments to a variadic dependency is an error.
@@ -1647,7 +1644,8 @@ values<sup>1.37.0</sup>, similar to Python's `and` and `or`. The only false
 value is the empty list `[]`; every other value, including the empty string
 `''`, is true.
 
-These operators require the `lists` setting, which is currently unstable.
+These operators require `set lists`<sup>master</sup>, which is currently
+unstable.
 
 The `&&` operator returns the empty list if the left-hand argument is false,
 otherwise it returns the right-hand argument:
