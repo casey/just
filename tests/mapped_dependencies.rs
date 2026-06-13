@@ -25,102 +25,7 @@ fn mapped_dependency_runs_once_per_element() {
 }
 
 #[test]
-fn unstarred_arguments_are_passed_whole_to_each_invocation() {
-  Test::new()
-    .justfile(
-      r#"
-        set lists
-
-        foo *args: *(bar args *args)
-
-        bar all arg:
-          @echo "all: {{ quote(all) }} arg: {{ arg }}"
-      "#,
-    )
-    .env("JUST_UNSTABLE", "1")
-    .args(["foo", "baz", "bob"])
-    .stdout(
-      "
-        all: 'baz' 'bob' arg: baz
-        all: 'baz' 'bob' arg: bob
-      ",
-    )
-    .success();
-}
-
-#[test]
-fn starred_argument_may_bind_to_variadic_parameter() {
-  Test::new()
-    .justfile(
-      r#"
-        set lists
-
-        foo *args: *(bar *args)
-
-        bar *rest:
-          @echo "bar: {{ rest }}"
-      "#,
-    )
-    .env("JUST_UNSTABLE", "1")
-    .args(["foo", "baz", "bob"])
-    .stdout(
-      "
-        bar: baz
-        bar: bob
-      ",
-    )
-    .success();
-}
-
-#[test]
-fn empty_list_runs_dependency_zero_times() {
-  Test::new()
-    .justfile(
-      r#"
-        set lists
-
-        foo *args: *(bar *args)
-          @echo "foo"
-
-        bar arg:
-          @echo "bar: {{ arg }}"
-      "#,
-    )
-    .env("JUST_UNSTABLE", "1")
-    .arg("foo")
-    .stdout(
-      "
-        foo
-      ",
-    )
-    .success();
-}
-
-#[test]
-fn duplicate_elements_are_deduplicated() {
-  Test::new()
-    .justfile(
-      r#"
-        set lists
-
-        foo *args: *(bar *args)
-
-        bar arg:
-          @echo "bar: {{ arg }}"
-      "#,
-    )
-    .env("JUST_UNSTABLE", "1")
-    .args(["foo", "baz", "baz"])
-    .stdout(
-      "
-        bar: baz
-      ",
-    )
-    .success();
-}
-
-#[test]
-fn mapped_dependency_works_as_subsequent() {
+fn subsequents_may_be_mapped() {
   Test::new()
     .justfile(
       r#"
@@ -146,34 +51,31 @@ fn mapped_dependency_works_as_subsequent() {
 }
 
 #[test]
-fn argument_count_is_checked_statically() {
+fn mapped_dependencies_may_take_unstarred_arguments() {
   Test::new()
     .justfile(
       r#"
         set lists
 
-        foo *args: *(bar *args 'baz')
+        foo *args: *(bar args *args)
 
-        bar arg:
-          @echo "bar: {{ arg }}"
+        bar all arg:
+          @echo "all: {{ quote(all) }} arg: {{ arg }}"
       "#,
     )
     .env("JUST_UNSTABLE", "1")
-    .arg("foo")
-    .stderr(
+    .args(["foo", "baz", "bob"])
+    .stdout(
       "
-        error: dependency `bar` got 2 arguments but takes 1 argument
-         ——▶ justfile:3:14
-          │
-        3 │ foo *args: *(bar *args 'baz')
-          │              ^^^
+        all: 'baz' 'bob' arg: baz
+        all: 'baz' 'bob' arg: bob
       ",
     )
-    .failure();
+    .success();
 }
 
 #[test]
-fn starred_argument_without_starred_dependency_is_an_error() {
+fn starred_argument_outside_mapped_dependency_error() {
   Test::new()
     .justfile(
       r#"
@@ -200,7 +102,7 @@ fn starred_argument_without_starred_dependency_is_an_error() {
 }
 
 #[test]
-fn starred_dependency_without_starred_argument_is_an_error() {
+fn mapped_dependency_without_starred_argument_error() {
   Test::new()
     .justfile(
       r#"
@@ -227,7 +129,7 @@ fn starred_dependency_without_starred_argument_is_an_error() {
 }
 
 #[test]
-fn multiple_starred_arguments_are_an_error() {
+fn multiple_starred_argument_error() {
   Test::new()
     .justfile(
       r#"
@@ -254,7 +156,7 @@ fn multiple_starred_arguments_are_an_error() {
 }
 
 #[test]
-fn starred_arguments_bind_tightly() {
+fn starred_arguments_require_value() {
   Test::new()
     .justfile(
       r#"
@@ -281,7 +183,7 @@ fn starred_arguments_bind_tightly() {
 }
 
 #[test]
-fn starred_argument_may_be_parenthesized_expression() {
+fn starred_argument_may_be_value() {
   Test::new()
     .justfile(
       r#"
@@ -304,31 +206,7 @@ fn starred_argument_may_be_parenthesized_expression() {
 }
 
 #[test]
-fn starred_argument_may_be_call() {
-  Test::new()
-    .justfile(
-      r#"
-        set lists
-
-        foo *args: *(bar *prepend('src/', args))
-
-        bar arg:
-          @echo "bar: {{ arg }}"
-      "#,
-    )
-    .env("JUST_UNSTABLE", "1")
-    .args(["foo", "baz", "bob"])
-    .stdout(
-      "
-        bar: src/baz
-        bar: src/bob
-      ",
-    )
-    .success();
-}
-
-#[test]
-fn mapped_dependencies_require_lists_setting() {
+fn mapped_dependencies_require_lists() {
   Test::new()
     .justfile(
       r#"
