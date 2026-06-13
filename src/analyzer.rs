@@ -229,14 +229,14 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let settings =
       Evaluator::evaluate_settings(&assignments, overrides, &Scope::root(), self.sets)?;
 
-    if let Some(token) = list_literal {
-      if !settings.lists {
-        return Err(
-          token
-            .error(CompileErrorKind::ListLiteralRequiresLists)
-            .into(),
-        );
-      }
+    if let Some(token) = list_literal
+      && !settings.lists
+    {
+      return Err(
+        token
+          .error(CompileErrorKind::ListLiteralRequiresLists)
+          .into(),
+      );
     }
 
     let mut deduplicated_recipes = Table::<'src, UnresolvedRecipe<'src>>::default();
