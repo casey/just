@@ -524,7 +524,7 @@ impl<'src> Justfile<'src> {
     evaluator: &mut Evaluator<'src, 'run>,
     overrides: &HashMap<Number, String>,
     ran: &Ran,
-    recipe: &Recipe<'src>,
+    dependent: &Recipe<'src>,
     scopes: &Scopes<'src, 'run>,
     search: &Search,
   ) -> RunResult<'src> {
@@ -534,9 +534,8 @@ impl<'src> Justfile<'src> {
 
     let mut evaluated = Vec::new();
     for dependency in dependencies {
-      let Dependency { recipe, arguments } = dependency;
       let mut grouped = Vec::new();
-      for group in arguments {
+      for group in &dependency.arguments {
         let value = if context.module.settings.lists {
           match group.as_slice() {
             [] => Value::new(),
@@ -560,14 +559,14 @@ impl<'src> Justfile<'src> {
         for element in grouped[star].elements().to_vec() {
           let mut arguments = grouped.clone();
           arguments[star] = element.into();
-          evaluated.push((recipe, arguments));
+          evaluated.push((&dependency.recipe, arguments));
         }
       } else {
-        evaluated.push((recipe, grouped));
+        evaluated.push((&dependency.recipe, grouped));
       }
     }
 
-    if recipe.is_parallel() {
+    if dependent.is_parallel() {
       thread::scope::<_, RunResult>(|thread_scope| {
         let mut handles = Vec::new();
         for (recipe, arguments) in evaluated {

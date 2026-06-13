@@ -1322,7 +1322,7 @@ set lists
 
 build target *platform: *(compile target *platform)
 
-@compile target plaform:
+@compile target platform:
   echo compiling {{ target }} for {{ platform }}…
 ```
 
