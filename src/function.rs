@@ -392,14 +392,12 @@ fn invocation_directory_native(context: Context) -> FunctionResult {
 }
 
 fn boolean(context: &Context, condition: bool) -> Value {
-  if context.execution_context.module.settings.lists {
-    if condition {
-      Value::from("true")
-    } else {
-      Value::new()
-    }
+  if condition {
+    Value::from("true")
+  } else if context.execution_context.module.settings.lists {
+    Value::new()
   } else {
-    Value::from(condition.to_string())
+    Value::from("false")
   }
 }
 
