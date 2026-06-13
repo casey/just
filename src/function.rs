@@ -585,7 +585,7 @@ fn replace(_context: Context, s: &str, from: &str, to: &str) -> FunctionResult {
 }
 
 fn require(context: Context, name: &str) -> FunctionResult {
-  crate::which(context, name)?.ok_or_else(|| format!("could not find executable `{name}`"))
+  crate::which(&context, name)?.ok_or_else(|| format!("could not find executable `{name}`"))
 }
 
 fn replace_regex(_context: Context, s: &str, regex: &str, replacement: &str) -> FunctionResult {
@@ -737,11 +737,15 @@ fn uuid(_context: Context) -> FunctionResult {
 }
 
 fn which(context: Context, name: &str) -> Result<Value, String> {
-  let lists = context.execution_context.module.settings.lists;
-  Ok(match crate::which(context, name)? {
+  Ok(match crate::which(&context, name)? {
     Some(path) => Value::from(path),
-    None if lists => Value::new(),
-    None => Value::from(""),
+    None => {
+      if context.execution_context.module.settings.lists {
+        Value::new()
+      } else {
+        Value::from("")
+      }
+    }
   })
 }
 
