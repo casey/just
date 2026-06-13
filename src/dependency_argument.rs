@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Clone, PartialEq, Debug, Serialize)]
+#[derive(Clone, PartialEq, Debug)]
 pub(crate) struct DependencyArgument<'src> {
   pub(crate) expression: Expression<'src>,
   pub(crate) starred: bool,
