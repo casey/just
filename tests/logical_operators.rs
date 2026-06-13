@@ -11,36 +11,53 @@ fn evaluate(expression: &str, expected: &str) {
 }
 
 #[test]
-fn logical_operators_require_lists_setting() {
-  #[track_caller]
-  fn case(expression: &str, operator: &str, column: usize) {
-    let carets = "^".repeat(operator.len());
-    Test::new()
-      .justfile(format!(
-        "
-          x := {expression}
+fn and_is_unstable() {
+  Test::new()
+    .justfile(
+      "
+        x := 'foo' && 'bar'
 
-          foo:
-            @echo hi
-        "
-      ))
-      .env("JUST_UNSTABLE", "1")
-      .arg("foo")
-      .stderr(format!(
-        "
-          error: logical operators require `set lists`
-           ——▶ justfile:1:{column}
-            │
-          1 │ x := {expression}
-            │ {0}{carets}
-        ",
-        " ".repeat(column - 1),
-      ))
-      .failure();
-  }
+        foo:
+          @echo hi
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("foo")
+    .stderr(
+      "
+        error: logical operators require `set lists`
+         ——▶ justfile:1:12
+          │
+        1 │ x := 'foo' && 'bar'
+          │            ^^
+      ",
+    )
+    .failure();
+}
 
-  case("'foo' && 'bar'", "&&", 12);
-  case("'foo' || 'bar'", "||", 12);
+#[test]
+fn or_is_unstable() {
+  Test::new()
+    .justfile(
+      "
+        x := 'foo' || 'bar'
+
+        foo:
+          @echo hi
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("foo")
+    .stderr(
+      "
+        error: logical operators require `set lists`
+         ——▶ justfile:1:12
+          │
+        1 │ x := 'foo' || 'bar'
+          │            ^^
+      ",
+    )
+    .failure();
 }
 
 #[test]
