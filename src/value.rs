@@ -38,7 +38,7 @@ impl Value {
 impl ColorDisplay for Value {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     if self.elements.len() == 1 {
-      write!(f, "{}", Escape(&self.elements[0]).color_display(color))
+      write!(f, "{}", Element(&self.elements[0]).color_display(color))
     } else {
       write!(f, "[")?;
 
@@ -47,55 +47,11 @@ impl ColorDisplay for Value {
           write!(f, ", ")?;
         }
 
-        write!(f, "{}", Escape(element).color_display(color))?;
+        write!(f, "{}", Element(element).color_display(color))?;
       }
 
       write!(f, "]")
     }
-  }
-}
-
-struct Escape<'a>(&'a str);
-
-impl ColorDisplay for Escape<'_> {
-  fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
-    let string = color.string();
-    let string_escape = color.string_escape();
-
-    write!(f, "{}\"", string.prefix())?;
-
-    let mut escaped = false;
-
-    for c in self.0.chars() {
-      let sequence = match c {
-        '\\' => Some("\\\\"),
-        '"' => Some("\\\""),
-        '\n' => Some("\\n"),
-        '\r' => Some("\\r"),
-        '\t' => Some("\\t"),
-        _ => None,
-      };
-
-      if let Some(sequence) = sequence {
-        if !escaped {
-          write!(f, "{}", string_escape.prefix())?;
-          escaped = true;
-        }
-        write!(f, "{sequence}")?;
-      } else {
-        if escaped {
-          write!(f, "{}", string.prefix())?;
-          escaped = false;
-        }
-        write!(f, "{c}")?;
-      }
-    }
-
-    if escaped {
-      write!(f, "{}", string.prefix())?;
-    }
-
-    write!(f, "\"{}", string.suffix())
   }
 }
 
