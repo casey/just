@@ -1314,7 +1314,7 @@ $1=one
 $2=two
 ```
 
-A mapped dependency is invoked once per starred argument element:
+A mapped dependency is invoked once per element of its starred argument:
 
 ```just
 set unstable
