@@ -1257,6 +1257,12 @@ The following functions apply to each list element individually:
 `append()` and `prepend()` do not split elements on whitespace and error if the
 first argument is not a single-element list.
 
+Booleans are canonical: true is the string `true` and false is the empty list
+`[]`. The empty list is the only false value; every other value, including the
+empty string `''`, is true. The logical operators `&&` and `||`, which require
+`set lists`, use these values, as do the functions `is_dependency()`,
+`path_exists()`, and `semver_matches()`.
+
 Each argument to a dependency binds to exactly one parameter, and supplying
 extra arguments to a variadic dependency is an error.
 
@@ -1630,25 +1636,26 @@ foobar := 'foo' + 'bar'
 
 #### Logical Operators
 
-The logical operators `&&` and `||` can be used to coalesce string
-values<sup>1.37.0</sup>, similar to Python's `and` and `or`. These operators
-consider the empty string `''` to be false, and all other strings to be true.
+The logical operators `&&` and `||` can be used to coalesce
+values<sup>1.37.0</sup>, similar to Python's `and` and `or`. The only false
+value is the empty list `[]`; every other value, including the empty string
+`''`, is true.
 
-These operators are currently unstable.
+These operators require the `lists` setting, which is currently unstable.
 
-The `&&` operator returns the empty string if the left-hand argument is the
-empty string, otherwise it returns the right-hand argument:
+The `&&` operator returns the empty list if the left-hand argument is false,
+otherwise it returns the right-hand argument:
 
 ```justfile
-foo := '' && 'goodbye'      # ''
+foo := [] && 'goodbye'      # []
 bar := 'hello' && 'goodbye' # 'goodbye'
 ```
 
-The `||` operator returns the left-hand argument if it is non-empty, otherwise
-it returns the right-hand argument:
+The `||` operator returns the left-hand argument if it is true, otherwise it
+returns the right-hand argument:
 
 ```justfile
-foo := '' || 'goodbye'      # 'goodbye'
+foo := [] || 'goodbye'      # 'goodbye'
 bar := 'hello' || 'goodbye' # 'hello'
 ```
 
@@ -2002,15 +2009,6 @@ $ just
 - `env_var(key)` — Deprecated alias for `env(key)`.
 - `env_var_or_default(key, default)` — Deprecated alias for `env(key, default)`.
 
-A default can be substituted for an empty environment variable value with the
-`||` operator, currently unstable:
-
-```just
-set unstable
-
-foo := env('FOO', '') || 'DEFAULT_VALUE'
-```
-
 #### Executables
 
 - `require(name)`<sup>1.39.0</sup> — Search directories in the `PATH`
@@ -2031,7 +2029,8 @@ foo := env('FOO', '') || 'DEFAULT_VALUE'
 
 - `which(name)`<sup>1.39.0</sup> — Search directories in the `PATH` environment
   variable for the executable `name` and return its full path, or the empty
-  string if no executable with `name` exists. Currently unstable.
+  string if no executable with `name` exists. With `set lists`, returns the
+  empty list if no executable with `name` exists. Currently unstable.
 
 
   ```just
@@ -2052,7 +2051,8 @@ foo := env('FOO', '') || 'DEFAULT_VALUE'
 
 - `is_dependency()` - Returns the string `true` if the current recipe is being
   run as a dependency of another recipe, rather than being run directly,
-  otherwise returns the string `false`.
+  otherwise returns the string `false`. With `set lists`, returns `true` or the
+  empty list.
 
 - `recipe_name()`<sup>master</sup> - Returns the name of the current recipe.
 
@@ -2241,7 +2241,7 @@ which will halt execution.
 - `path_exists(path)` - Returns the string `true` if the path points at an
   existing entity and the string `false` otherwise. Traverses symbolic links,
   and returns the string `false` if the path is inaccessible or points to a
-  broken symlink.
+  broken symlink. With `set lists`, returns `true` or the empty list.
 - `read(path)`<sup>1.39.0</sup> - Returns the content of file at `path` as a
   string.
 
@@ -2285,7 +2285,8 @@ for details.
 - `semver_matches(version, requirement)`<sup>1.16.0</sup> - Check whether a
   [semantic `version`](https://semver.org), e.g., `"0.1.0"` matches a
   `requirement`, e.g., `">=0.1.0"`, returning the string `"true"` if so and the
-  string `"false"` otherwise.
+  string `"false"` otherwise. With `set lists`, returns `true` or the empty
+  list.
 
 #### Style
 

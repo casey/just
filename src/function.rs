@@ -12,13 +12,16 @@ use {
 #[allow(clippy::arbitrary_source_item_ordering)]
 pub(crate) enum Function {
   Nullary(fn(Context) -> FunctionResult),
+  NullaryValue(fn(Context) -> Result<Value, String>),
   Unary(fn(Context, &str) -> FunctionResult),
   UnaryList(fn(Context, &str) -> FunctionResult),
   UnaryOpt(fn(Context, &str, Option<&str>) -> FunctionResult),
   UnaryPlus(fn(Context, &str, &[String]) -> FunctionResult),
+  UnaryValue(fn(Context, &str) -> Result<Value, String>),
   Binary(fn(Context, &str, &str) -> FunctionResult),
   BinaryList(fn(Context, &Value, &Value) -> Result<Value, String>),
   BinaryPlus(fn(Context, &str, &str, &[String]) -> FunctionResult),
+  BinaryValue(fn(Context, &str, &str) -> Result<Value, String>),
   Ternary(fn(Context, &str, &str, &str) -> FunctionResult),
 }
 
@@ -68,7 +71,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "home_directory" => Nullary(|_| dir("home", dirs::home_dir)),
     "invocation_directory" => Nullary(invocation_directory),
     "invocation_directory_native" => Nullary(invocation_directory_native),
-    "is_dependency" => Nullary(is_dependency),
+    "is_dependency" => NullaryValue(is_dependency),
     "join" => BinaryPlus(join),
     "just_executable" => Nullary(just_executable),
     "just_pid" => Nullary(just_pid),
@@ -84,7 +87,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "os" => Nullary(os),
     "os_family" => Nullary(os_family),
     "parent_directory" => Unary(parent_directory),
-    "path_exists" => Unary(path_exists),
+    "path_exists" => UnaryValue(path_exists),
     "prepend" => BinaryList(prepend),
     "quote" => UnaryList(quote),
     "read" => Unary(read),
@@ -93,7 +96,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "replace_regex" => Ternary(replace_regex),
     "require" => Unary(require),
     "runtime_directory" => Nullary(|_| dir("runtime", dirs::runtime_dir)),
-    "semver_matches" => Binary(semver_matches),
+    "semver_matches" => BinaryValue(semver_matches),
     "sha256" => Unary(sha256),
     "sha256_file" => Unary(sha256_file),
     "shell" => UnaryPlus(shell),
@@ -114,7 +117,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "uppercamelcase" => Unary(uppercamelcase),
     "uppercase" => Unary(uppercase),
     "uuid" => Nullary(uuid),
-    "which" => Unary(which),
+    "which" => UnaryValue(which),
     "without_extension" => Unary(without_extension),
     _ => return None,
   };
@@ -124,11 +127,11 @@ pub(crate) fn get(name: &str) -> Option<Function> {
 impl Function {
   pub(crate) fn expected_arguments(&self) -> RangeInclusive<usize> {
     match *self {
-      Nullary(_) => 0..=0,
-      Unary(_) | UnaryList(_) => 1..=1,
+      Nullary(_) | NullaryValue(_) => 0..=0,
+      Unary(_) | UnaryList(_) | UnaryValue(_) => 1..=1,
       UnaryOpt(_) => 1..=2,
       UnaryPlus(_) => 1..=usize::MAX,
-      Binary(_) | BinaryList(_) => 2..=2,
+      Binary(_) | BinaryList(_) | BinaryValue(_) => 2..=2,
       BinaryPlus(_) => 2..=usize::MAX,
       Ternary(_) => 3..=3,
     }
@@ -388,8 +391,20 @@ fn invocation_directory_native(context: Context) -> FunctionResult {
     })
 }
 
-fn is_dependency(context: Context) -> FunctionResult {
-  Ok(context.is_dependency.to_string())
+fn boolean(context: &Context, condition: bool) -> Value {
+  if context.execution_context.module.settings.lists {
+    if condition {
+      Value::from("true")
+    } else {
+      Value::new()
+    }
+  } else {
+    Value::from(condition.to_string())
+  }
+}
+
+fn is_dependency(context: Context) -> Result<Value, String> {
+  Ok(boolean(&context, context.is_dependency))
 }
 
 fn prepend(context: Context, prefix: &Value, s: &Value) -> Result<Value, String> {
@@ -540,15 +555,13 @@ fn parent_directory(_context: Context, path: &str) -> FunctionResult {
   }
 }
 
-fn path_exists(context: Context, path: &str) -> FunctionResult {
-  Ok(
-    context
-      .execution_context
-      .working_directory()
-      .join(path)
-      .exists()
-      .to_string(),
-  )
+fn path_exists(context: Context, path: &str) -> Result<Value, String> {
+  let exists = context
+    .execution_context
+    .working_directory()
+    .join(path)
+    .exists();
+  Ok(boolean(&context, exists))
 }
 
 fn quote(_context: Context, s: &str) -> FunctionResult {
@@ -723,8 +736,13 @@ fn uuid(_context: Context) -> FunctionResult {
   Ok(uuid::Uuid::new_v4().to_string())
 }
 
-fn which(context: Context, name: &str) -> FunctionResult {
-  Ok(crate::which(context, name)?.unwrap_or_default())
+fn which(context: Context, name: &str) -> Result<Value, String> {
+  let lists = context.execution_context.module.settings.lists;
+  Ok(match crate::which(context, name)? {
+    Some(path) => Value::from(path),
+    None if lists => Value::new(),
+    None => Value::from(""),
+  })
 }
 
 fn without_extension(_context: Context, path: &str) -> FunctionResult {
@@ -741,18 +759,16 @@ fn without_extension(_context: Context, path: &str) -> FunctionResult {
 
 /// Check whether a string processes properly as semver (e.x. "0.1.0")
 /// and matches a given semver requirement (e.x. ">=0.1.0")
-fn semver_matches(_context: Context, version: &str, requirement: &str) -> FunctionResult {
-  Ok(
-    requirement
-      .parse::<VersionReq>()
-      .map_err(|err| format!("invalid semver requirement: {err}"))?
-      .matches(
-        &version
-          .parse::<Version>()
-          .map_err(|err| format!("invalid semver version: {err}"))?,
-      )
-      .to_string(),
-  )
+fn semver_matches(context: Context, version: &str, requirement: &str) -> Result<Value, String> {
+  let matches = requirement
+    .parse::<VersionReq>()
+    .map_err(|err| format!("invalid semver requirement: {err}"))?
+    .matches(
+      &version
+        .parse::<Version>()
+        .map_err(|err| format!("invalid semver version: {err}"))?,
+    );
+  Ok(boolean(&context, matches))
 }
 
 #[cfg(test)]

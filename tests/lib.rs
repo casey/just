@@ -49,6 +49,7 @@ mod assertions;
 mod assignment;
 mod attributes;
 mod backticks;
+mod booleans;
 mod byte_order_mark;
 mod ceiling;
 mod changelog;

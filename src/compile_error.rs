@@ -228,6 +228,9 @@ impl Display for CompileError<'_> {
       ListLiteralWithoutListsSetting => {
         write!(f, "list literals require `set lists`")
       }
+      LogicalOperatorWithoutListsSetting => {
+        write!(f, "logical operators require `set lists`")
+      }
       MappedDependencyMultipleStarredArguments => {
         write!(
           f,

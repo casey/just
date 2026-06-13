@@ -100,6 +100,7 @@ pub(crate) enum CompileErrorKind<'src> {
     character: char,
   },
   ListLiteralWithoutListsSetting,
+  LogicalOperatorWithoutListsSetting,
   MappedDependencyMultipleStarredArguments,
   MappedDependencyWithoutListsSetting,
   MappedDependencyWithoutStarredArgument,

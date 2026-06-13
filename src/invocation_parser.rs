@@ -168,7 +168,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
 
         let group = &mut arguments[index];
 
-        if !group.is_empty() {
+        if !group.elements().is_empty() {
           return Err(Error::DuplicateOption {
             recipe: recipe.name(),
             option: switch,
@@ -193,7 +193,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
     let mut missing_positional = 0;
 
     for (parameter, group) in recipe.parameters.iter().zip(&arguments) {
-      if !group.is_empty() {
+      if !group.elements().is_empty() {
         continue;
       }
 

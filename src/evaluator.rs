@@ -304,9 +304,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   ) -> RunResult<'src, Value> {
     match function {
       Function::Nullary(f) => f(self.function_context(name).unwrap()).map(Value::from),
+      Function::NullaryValue(f) => f(self.function_context(name).unwrap()),
       Function::Unary(f) => {
         let a = self.evaluate_string(&arguments[0])?;
         f(self.function_context(name).unwrap(), &a).map(Value::from)
+      }
+      Function::UnaryValue(f) => {
+        let a = self.evaluate_string(&arguments[0])?;
+        f(self.function_context(name).unwrap(), &a)
       }
       Function::UnaryList(f) => {
         let a = self.evaluate_value(&arguments[0])?;
@@ -342,6 +347,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         let b = self.evaluate_string(&arguments[1])?;
         f(self.function_context(name).unwrap(), &a, &b).map(Value::from)
       }
+      Function::BinaryValue(f) => {
+        let a = self.evaluate_string(&arguments[0])?;
+        let b = self.evaluate_string(&arguments[1])?;
+        f(self.function_context(name).unwrap(), &a, &b)
+      }
       Function::BinaryPlus(f) => {
         let a = self.evaluate_string(&arguments[0])?;
         let b = self.evaluate_string(&arguments[1])?;
@@ -375,10 +385,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     match expression {
       Expression::And { lhs, rhs } => {
         let lhs = self.evaluate_value(lhs)?;
-        if lhs.is_empty() {
-          return Ok(Value::from(""));
+        if lhs.is_truthy() {
+          self.evaluate_value(rhs)
+        } else {
+          Ok(Value::new())
         }
-        self.evaluate_value(rhs)
       }
       Expression::Assert {
         condition,
@@ -469,10 +480,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       }
       Expression::Or { lhs, rhs } => {
         let lhs = self.evaluate_value(lhs)?;
-        if !lhs.is_empty() {
-          return Ok(lhs);
+        if lhs.is_truthy() {
+          Ok(lhs)
+        } else {
+          self.evaluate_value(rhs)
         }
-        self.evaluate_value(rhs)
       }
       Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.deref().into()),
       Expression::Variable { name, .. } => {
