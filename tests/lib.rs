@@ -94,6 +94,7 @@ mod list;
 mod lists;
 mod logical_operators;
 mod man;
+mod mapped_dependencies;
 mod markdown;
 mod misc;
 mod modules;

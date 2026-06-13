@@ -1256,6 +1256,9 @@ first argument is not a single-element list.
 Each argument to a dependency binds to exactly one parameter, and supplying
 extra arguments to a variadic dependency is an error.
 
+Dependencies may be invoked once per element of a list with
+`*(recipe *argument)`.
+
 A parameter evaluates to the default when the argument is an empty list.
 
 Passing an empty list to a non-`*` parameter without a default is an error.
@@ -1309,6 +1312,24 @@ first=one two
 second=bob
 $1=one
 $2=two
+```
+
+A mapped dependency is invoked once per element of its starred argument:
+
+```just
+set unstable
+set lists
+
+build target *platform: *(compile target *platform)
+
+@compile target platform:
+  echo compiling {{ target }} for {{ platform }}…
+```
+
+```console
+$ just build x86 foo bar
+compiling foo for x86…
+compiling bar for x86…
 ```
 
 #### Positional Arguments

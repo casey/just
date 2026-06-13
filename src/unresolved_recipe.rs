@@ -34,10 +34,19 @@ impl<'src> UnresolvedRecipe<'src> {
     }
 
     for dependency in &self.dependencies {
+      if dependency.starred() && !settings.lists {
+        return Err(
+          dependency
+            .recipe
+            .last()
+            .error(CompileErrorKind::MappedDependencyWithoutListSetting),
+        );
+      }
+
       for argument in &dependency.arguments {
         Self::resolve_expression(
           assignments,
-          argument,
+          &argument.expression,
           functions,
           &self.parameters,
           &mut variable_references,

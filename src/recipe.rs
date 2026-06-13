@@ -89,9 +89,9 @@ impl<'src> Recipe<'src> {
 
   pub(crate) fn group_arguments(
     &self,
-    arguments: &[Expression<'src>],
+    arguments: &[DependencyArgument<'src>],
     settings: &Settings,
-  ) -> Vec<Vec<Expression<'src>>> {
+  ) -> Vec<Vec<DependencyArgument<'src>>> {
     let mut groups = Vec::new();
     let mut rest = arguments;
 

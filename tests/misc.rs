@@ -1506,7 +1506,7 @@ fn unexpected_token_in_dependency_position() {
     .arg("foo")
     .justfile("foo: 'bar'")
     .stderr(
-      "error: expected '&&', comment, end of file, end of line, \
+      "error: expected '&&', '*', comment, end of file, end of line, \
     identifier, indent, or '(', but found string
  ——▶ justfile:1:6
   │

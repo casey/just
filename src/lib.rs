@@ -34,6 +34,7 @@ pub(crate) use {
     count::Count,
     delimiter::Delimiter,
     dependency::Dependency,
+    dependency_argument::DependencyArgument,
     disabled::Disabled,
     dump_format::DumpFormat,
     enclosure::Enclosure,
@@ -129,7 +130,7 @@ pub(crate) use {
   regex::Regex,
   serde::{
     Deserialize, Serialize, Serializer,
-    ser::{SerializeMap, SerializeSeq},
+    ser::{SerializeMap, SerializeSeq, SerializeStruct},
   },
   snafu::{ResultExt, Snafu},
   std::{
@@ -231,6 +232,7 @@ mod constants;
 mod count;
 mod delimiter;
 mod dependency;
+mod dependency_argument;
 mod disabled;
 mod dump_format;
 mod enclosure;

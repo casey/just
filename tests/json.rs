@@ -23,6 +23,7 @@ struct Assignment<'a> {
 struct Dependency<'a> {
   arguments: Vec<Value>,
   recipe: &'a str,
+  star: Option<usize>,
 }
 
 #[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
@@ -368,6 +369,7 @@ fn dependency_argument() {
                 json!(["call", "replace", "a", "b", "c"]),
               ]
               .into(),
+              star: None,
             }]
             .into(),
             priors: 1,

@@ -350,13 +350,46 @@ impl<'run, 'src> Parser<'run, 'src> {
         arguments: Vec::new(),
         recipe,
       }))
-    } else if self.accepted(ParenL)? {
+    } else if self.next_is(Asterisk) || self.next_is(ParenL) {
+      let star = self.accept(Asterisk)?;
+
+      self.expect(ParenL)?;
+
       let recipe = self.parse_namepath()?;
 
       let mut arguments = Vec::new();
+      let mut starred_argument = None;
 
       while !self.accepted(ParenR)? {
-        arguments.push(self.parse_expression()?);
+        let token = self.accept(Asterisk)?;
+
+        if let Some(token) = token {
+          if starred_argument.is_some() {
+            return Err(token.error(CompileErrorKind::MappedDependencyMultipleStarredArguments));
+          }
+          starred_argument = Some(token);
+        }
+
+        let expression = if token.is_some() {
+          self.parse_value()?
+        } else {
+          self.parse_expression()?
+        };
+
+        arguments.push(DependencyArgument {
+          expression,
+          starred: token.is_some(),
+        });
+      }
+
+      match (star, starred_argument) {
+        (None, None) | (Some(_), Some(_)) => {}
+        (Some(star), None) => {
+          return Err(star.error(CompileErrorKind::MappedDependencyWithoutStarredArgument));
+        }
+        (None, Some(starred)) => {
+          return Err(starred.error(CompileErrorKind::StarredArgumentOutsideMappedDependency));
+        }
       }
 
       Ok(Some(UnresolvedDependency { arguments, recipe }))
@@ -2933,7 +2966,17 @@ mod tests {
     column:  9,
     width:   1,
     kind:    UnexpectedToken{
-      expected: vec![AmpersandAmpersand, ColonColon, Comment, Eof, Eol, Identifier, Indent, ParenL],
+      expected: vec![
+        AmpersandAmpersand,
+        Asterisk,
+        ColonColon,
+        Comment,
+        Eof,
+        Eol,
+        Identifier,
+        Indent,
+        ParenL,
+      ],
       found: Equals
     },
   }

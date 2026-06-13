@@ -225,6 +225,18 @@ impl Display for CompileError<'_> {
           _ => character.escape_default().collect(),
         }
       ),
+      MappedDependencyMultipleStarredArguments => {
+        write!(
+          f,
+          "mapped dependencies may not have multiple starred arguments"
+        )
+      }
+      MappedDependencyWithoutListSetting => {
+        write!(f, "mapped dependencies require `set lists`")
+      }
+      MappedDependencyWithoutStarredArgument => {
+        write!(f, "mapped dependencies must have starred argument")
+      }
       MismatchedClosingDelimiter {
         open,
         open_line,
@@ -304,6 +316,10 @@ impl Display for CompileError<'_> {
           "short option name for parameter `{parameter}` contains multiple characters"
         )
       }
+      StarredArgumentOutsideMappedDependency => write!(
+        f,
+        "starred arguments may not be used outside mapped dependencies",
+      ),
       RequiredParameterFollowsDefaultParameter { parameter } => write!(
         f,
         "non-default parameter `{parameter}` follows default parameter"
