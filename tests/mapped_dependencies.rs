@@ -60,15 +60,15 @@ fn mapped_dependencies_may_take_unstarred_arguments() {
         foo *args: *(bar args *args)
 
         bar all arg:
-          @echo 'all: {{ show(all) }} arg: {{ arg }}'
+          @echo 'all: {{ show(all) }} arg: {{ show(arg )}}'
       ",
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "baz", "bob"])
     .stdout(
       r#"
-        all: ["baz", "bob"] arg: baz
-        all: ["baz", "bob"] arg: bob
+        all: ["baz", "bob"] arg: "baz"
+        all: ["baz", "bob"] arg: "bob"
       "#,
     )
     .success();

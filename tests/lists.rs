@@ -349,14 +349,14 @@ fn dependency_arguments_bind_to_one_parameter_each() {
         foo *args: (bar 'baz' args)
 
         bar first *rest:
-          @echo '{{ first }} {{ show(rest) }}'
+          @echo '{{ show(first) }} {{ show(rest) }}'
       ",
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar", "bob"])
     .stdout(
       r#"
-        baz ["bar", "bob"]
+        "baz" ["bar", "bob"]
       "#,
     )
     .success();
@@ -455,12 +455,12 @@ fn omitted_star_variadic_dependency_argument_is_empty_list() {
         foo: (bar)
 
         bar *rest:
-          @echo 'baz{{ show(rest) }}baz'
+          @echo '{{ show(rest) }}'
       ",
     )
     .env("JUST_UNSTABLE", "1")
     .arg("foo")
-    .stdout("baz[]baz\n")
+    .stdout("[]\n")
     .success();
 }
 
