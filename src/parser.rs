@@ -358,16 +358,16 @@ impl<'run, 'src> Parser<'run, 'src> {
       let recipe = self.parse_namepath()?;
 
       let mut arguments = Vec::new();
-      let mut starred = None;
+      let mut starred_argument = None;
 
       while !self.accepted(ParenR)? {
         let token = self.accept(Asterisk)?;
 
         if let Some(token) = token {
-          if starred.is_some() {
+          if starred_argument.is_some() {
             return Err(token.error(CompileErrorKind::MappedDependencyMultipleStarredArguments));
           }
-          starred = Some(token);
+          starred_argument = Some(token);
         }
 
         let expression = if token.is_some() {
@@ -382,7 +382,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         });
       }
 
-      match (star, starred) {
+      match (star, starred_argument) {
         (None, None) | (Some(_), Some(_)) => {}
         (Some(star), None) => {
           return Err(star.error(CompileErrorKind::MappedDependencyWithoutStarredArgument));
