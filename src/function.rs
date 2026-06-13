@@ -14,7 +14,8 @@ pub(crate) enum Function {
   Nullary(fn(Context) -> FunctionResult),
   NullaryValue(fn(Context) -> Result<Value, String>),
   Unary(fn(Context, &str) -> FunctionResult),
-  UnaryList(fn(Context, &str) -> FunctionResult),
+  UnaryList(fn(Context, &Value) -> Result<Value, String>),
+  UnaryMap(fn(Context, &str) -> FunctionResult),
   UnaryOpt(fn(Context, &str, Option<&str>) -> FunctionResult),
   UnaryPlus(fn(Context, &str, &[String]) -> FunctionResult),
   UnaryValue(fn(Context, &str) -> Result<Value, String>),
@@ -29,7 +30,7 @@ impl Function {
   pub(crate) fn expected_arguments(&self) -> RangeInclusive<usize> {
     match *self {
       Nullary(_) | NullaryValue(_) => 0..=0,
-      Unary(_) | UnaryList(_) | UnaryValue(_) => 1..=1,
+      Unary(_) | UnaryList(_) | UnaryMap(_) | UnaryValue(_) => 1..=1,
       UnaryOpt(_) => 1..=2,
       UnaryPlus(_) => 1..=usize::MAX,
       Binary(_) | BinaryList(_) | BinaryValue(_) => 2..=2,
@@ -57,7 +58,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
   };
 
   let function = match name.as_str() {
-    "absolute_path" => UnaryList(absolute_path),
+    "absolute_path" => UnaryMap(absolute_path),
     "append" => BinaryList(append),
     "arch" => Nullary(arch),
     "blake3" => Unary(blake3),
@@ -103,7 +104,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "parent_directory" => Unary(parent_directory),
     "path_exists" => UnaryValue(path_exists),
     "prepend" => BinaryList(prepend),
-    "quote" => UnaryList(quote),
+    "quote" => UnaryMap(quote),
     "read" => Unary(read),
     "recipe_name" => Nullary(recipe_name),
     "replace" => Ternary(replace),
@@ -116,6 +117,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "shell" => UnaryPlus(shell),
     "shoutykebabcase" => Unary(shoutykebabcase),
     "shoutysnakecase" => Unary(shoutysnakecase),
+    "show" => UnaryList(show),
     "snakecase" => Unary(snakecase),
     "source_directory" => Nullary(source_directory),
     "source_file" => Nullary(source_file),
@@ -634,6 +636,10 @@ fn shoutykebabcase(_context: Context, s: &str) -> FunctionResult {
 
 fn shoutysnakecase(_context: Context, s: &str) -> FunctionResult {
   Ok(s.to_shouty_snake_case())
+}
+
+fn show(_context: Context, value: &Value) -> Result<Value, String> {
+  Ok(value.color_display(Color::never()).to_string().into())
 }
 
 fn snakecase(_context: Context, s: &str) -> FunctionResult {
