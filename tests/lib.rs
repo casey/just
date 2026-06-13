@@ -3,7 +3,7 @@ use {
     assert_stdout::assert_stdout,
     assert_success::assert_success,
     tempdir::tempdir,
-    test::{Output, Test, assert_eval_eq},
+    test::{Output, Test, assert_eval_eq, assert_list_eq},
   },
   just::{Response, unindent},
   pretty_assertions::Comparison,

@@ -1,37 +1,13 @@
 use super::*;
 
 #[test]
-fn path_exists_true_quotes_as_true() {
-  Test::new()
-    .justfile(
-      r#"
-        set lists
-
-        foo:
-          @echo "{{ quote(path_exists(justfile())) }}"
-      "#,
-    )
-    .env("JUST_UNSTABLE", "1")
-    .arg("foo")
-    .stdout("'true'\n")
-    .success();
+fn path_exists_true_is_true_string() {
+  assert_list_eq("path_exists(justfile())", r#""true""#);
 }
 
 #[test]
-fn path_exists_false_quotes_as_empty() {
-  Test::new()
-    .justfile(
-      r#"
-        set lists
-
-        foo:
-          @echo "{{ quote(path_exists("nonexistent")) }}end"
-      "#,
-    )
-    .env("JUST_UNSTABLE", "1")
-    .arg("foo")
-    .stdout("end\n")
-    .success();
+fn path_exists_false_is_empty_list() {
+  assert_list_eq(r#"path_exists("nonexistent")"#, "[]");
 }
 
 #[test]
