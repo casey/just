@@ -167,6 +167,13 @@ impl<'src> Node<'src> for Expression<'src> {
         lhs: Some(lhs),
         rhs,
       } => Tree::atom("/").push(lhs.tree()).push(rhs.tree()),
+      Self::List { items } => {
+        let mut tree = Tree::atom("list");
+        for item in items {
+          tree.push_mut(item.tree());
+        }
+        tree
+      }
       Self::Or { lhs, rhs } => Tree::atom("||").push(lhs.tree()).push(rhs.tree()),
       Self::StringLiteral {
         string_literal: StringLiteral { cooked, .. },

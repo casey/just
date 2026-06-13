@@ -126,8 +126,11 @@ value         : NAME '(' sequence? ')'
               | BACKTICK
               | INDENTED_BACKTICK
               | NAME
+              | list
               | string
               | '(' expression ')'
+
+list          : '[' (expression (',' expression)* ','?)? ']'
 
 string        : 'x'? STRING
               | 'x'? INDENTED_STRING

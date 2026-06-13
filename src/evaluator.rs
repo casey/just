@@ -460,6 +460,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         let rhs = self.evaluate_string(rhs)?;
         Ok((lhs + "/" + &rhs).into())
       }
+      Expression::List { items } => {
+        let mut elements = Vec::new();
+        for item in items {
+          elements.extend(self.evaluate_value(item)?.elements().iter().cloned());
+        }
+        Ok(elements.into_iter().collect())
+      }
       Expression::Or { lhs, rhs } => {
         let lhs = self.evaluate_value(lhs)?;
         if !lhs.is_empty() {

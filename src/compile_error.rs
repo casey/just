@@ -225,6 +225,9 @@ impl Display for CompileError<'_> {
           _ => character.escape_default().collect(),
         }
       ),
+      ListLiteralRequiresLists => {
+        write!(f, "list literals require `set lists`")
+      }
       MappedDependencyMultipleStarredArguments => {
         write!(
           f,

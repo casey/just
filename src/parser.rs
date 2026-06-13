@@ -28,6 +28,7 @@ pub(crate) struct Parser<'run, 'src> {
   file_depth: u32,
   import_offsets: Vec<usize>,
   items: Vec<Item<'src>>,
+  list_literal: Option<Token<'src>>,
   module_namepath: Option<&'run Namepath<'src>>,
   next_token: usize,
   numerator: &'run mut Numerator,
@@ -52,6 +53,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       file_depth,
       import_offsets: import_offsets.to_vec(),
       items: Vec::new(),
+      list_literal: None,
       module_namepath,
       next_token: 0,
       numerator,
@@ -477,6 +479,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     Ok(Ast {
       items: self.items,
+      list_literal: self.list_literal,
       module_path: self.module_namepath.map(Into::into).unwrap_or_default(),
       unstable_features: self.unstable_features,
       warnings: Vec::new(),
@@ -920,9 +923,34 @@ impl<'run, 'src> Parser<'run, 'src> {
       let contents = self.parse_expression()?.into();
       self.expect(ParenR)?;
       Ok(Expression::Group { contents })
+    } else if self.next_is(BracketL) {
+      self.parse_list()
     } else {
       Err(self.unexpected_token()?)
     }
+  }
+
+  /// Parse a list literal, e.g. `[a, b, c]`
+  fn parse_list(&mut self) -> CompileResult<'src, Expression<'src>> {
+    let bracket = self.presume(BracketL)?;
+
+    if self.list_literal.is_none() {
+      self.list_literal = Some(bracket);
+    }
+
+    let mut items = Vec::new();
+
+    while !self.next_is(BracketR) {
+      items.push(self.parse_expression()?);
+
+      if !self.accepted(Comma)? {
+        break;
+      }
+    }
+
+    self.expect(BracketR)?;
+
+    Ok(Expression::List { items })
   }
 
   /// Parse a string literal, e.g. `"FOO"`
@@ -2932,6 +2960,7 @@ mod tests {
     kind:   UnexpectedToken {
       expected: vec![
         Backtick,
+        BracketL,
         Identifier,
         ParenL,
         StringToken,
@@ -2950,6 +2979,7 @@ mod tests {
     kind:   UnexpectedToken {
       expected: vec![
         Backtick,
+        BracketL,
         Identifier,
         ParenL,
         StringToken,
@@ -3004,6 +3034,7 @@ mod tests {
     kind: UnexpectedToken{
       expected: vec![
         Backtick,
+        BracketL,
         Identifier,
         ParenL,
         ParenR,
@@ -3087,6 +3118,7 @@ mod tests {
     kind:   UnexpectedToken {
       expected: vec![
         Backtick,
+        BracketL,
         Identifier,
         ParenL,
         Slash,
@@ -3106,6 +3138,7 @@ mod tests {
     kind:   UnexpectedToken {
       expected: vec![
         Backtick,
+        BracketL,
         BracketR,
         Identifier,
         ParenL,

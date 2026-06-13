@@ -91,6 +91,7 @@ mod justfile_from_stdin;
 mod lazy;
 mod line_prefixes;
 mod list;
+mod list_literals;
 mod lists;
 mod logical_operators;
 mod man;
