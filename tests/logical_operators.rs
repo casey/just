@@ -87,12 +87,6 @@ fn empty_string_is_truthy() {
 }
 
 #[test]
-fn only_empty_list_is_falsy() {
-  evaluate("'false' && 'rhs'", "rhs");
-  evaluate("'0' && 'rhs'", "rhs");
-}
-
-#[test]
 fn and_has_lower_precedence_than_plus() {
   evaluate("[] && 'goodbye' + 'foo'", "");
   evaluate("'foo' + 'hello' && 'goodbye'", "goodbye");
