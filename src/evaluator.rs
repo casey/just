@@ -405,7 +405,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         error,
         name,
       } => {
-        if self.evaluate_condition(condition)? {
+        if self.evaluate_boolean(condition)? {
           Ok(Value::from(""))
         } else {
           Err(Error::Assert {
@@ -438,7 +438,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           unreachable!();
         }
       }
-      Expression::Comparison { .. } => Ok(self.evaluate_condition(expression)?.into()),
+      Expression::Comparison { .. } => Ok(self.evaluate_boolean(expression)?.into()),
       Expression::Concatenation { lhs, rhs } => {
         let lhs = self.evaluate_string(lhs)?;
         let rhs = self.evaluate_string(rhs)?;
@@ -449,7 +449,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         then,
         otherwise,
       } => {
-        if self.evaluate_condition(condition)? {
+        if self.evaluate_boolean(condition)? {
           self.evaluate_value(then)
         } else {
           self.evaluate_value(otherwise)
@@ -517,7 +517,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     }
   }
 
-  fn evaluate_condition(&mut self, condition: &Expression<'src>) -> RunResult<'src, bool> {
+  fn evaluate_boolean(&mut self, condition: &Expression<'src>) -> RunResult<'src, bool> {
     let Expression::Comparison { lhs, operator, rhs } = condition else {
       return Ok(self.evaluate_value(condition)?.is_truthy());
     };
