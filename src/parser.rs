@@ -715,17 +715,17 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     self.recursion_depth += 1;
 
-    let lhs = self.parse_disjunct(condition)?;
+    let disjunct = self.parse_disjunct(condition)?;
 
     let expression = if let Some(token) = self.accept(BarBar)? {
       if self.logical_operator.is_none() {
         self.logical_operator = Some(token);
       }
-      let lhs = lhs.into();
+      let lhs = disjunct.into();
       let rhs = self.parse_expression_with_condition(false)?.into();
       Expression::Or { lhs, rhs }
     } else {
-      lhs
+      disjunct
     };
 
     self.recursion_depth -= 1;
