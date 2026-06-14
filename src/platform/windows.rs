@@ -57,7 +57,7 @@ impl PlatformInterface for Platform {
     None
   }
 
-  fn convert_native_path(config: &Config, working_directory: &Path, path: &Path) -> FunctionResult {
+  fn convert_native_path(config: &Config, working_directory: &Path, path: &Path) -> StringResult {
     // Translate path from windows style to unix style
     let mut cygpath = Command::resolve(&config.cygpath);
 
