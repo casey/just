@@ -17,22 +17,6 @@ fn invalid_alias_attribute() {
 }
 
 #[test]
-fn expected_keyword() {
-  Test::new()
-    .justfile("foo := if '' == '' { '' } arlo { '' }")
-    .stderr(
-      "
-        error: expected keyword `else` but found identifier `arlo`
-         ——▶ justfile:1:27
-          │
-        1 │ foo := if '' == '' { '' } arlo { '' }
-          │                           ^^^^
-      ",
-    )
-    .failure();
-}
-
-#[test]
 fn unexpected_character() {
   Test::new()
     .justfile("&~")

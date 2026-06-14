@@ -1293,6 +1293,10 @@ element.
 The condition of an `if` or `assert()` may be any expression, which is
 evaluated for truthiness.
 
+An `if` may be written without an `else`, in which case it evaluates to the
+empty list `[]` when the condition is false. For example, `if x == y { "foo" }`
+evaluates to `"foo"` when `x` and `y` are equal, and to `[]` otherwise.
+
 The comparison operators `==`, `!=`, `=~`, and `!~` may be used anywhere, not
 just in `if` and `assert()`, and evaluate to `"true"` or `[]`.
 

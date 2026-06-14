@@ -411,6 +411,28 @@ fn assignment_if_oneline() {
 }
 
 #[test]
+fn assignment_if_without_else() {
+  Test::new()
+    .arg("--dump")
+    .justfile(
+      "
+        set lists
+
+        foo := if 'foo' == 'foo' { 'foo' }
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout(
+      "
+        set lists
+
+        foo := if 'foo' == 'foo' { 'foo' }
+      ",
+    )
+    .success();
+}
+
+#[test]
 fn assignment_if_multiline() {
   Test::new()
     .arg("--dump")

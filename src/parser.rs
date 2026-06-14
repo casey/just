@@ -152,8 +152,11 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Check if the next significant token is `keyword`
-  fn next_is_keyword(&mut self, keyword: Keyword) -> bool {
-    todo!()
+  fn next_is_keyword(&self, keyword: Keyword) -> bool {
+    self
+      .rest()
+      .next()
+      .is_some_and(|token| token.kind == Identifier && token.lexeme() == keyword.lexeme())
   }
 
   /// Check if the next significant tokens are of kinds `kinds`
@@ -822,7 +825,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.expect(BraceR)?;
 
     let otherwise = if self.accepted_keyword(Keyword::Else)? {
-      if self.next_is_keyword(Keyword::If)? {
+      if self.next_is_keyword(Keyword::If) {
         Some(self.parse_conditional()?.into())
       } else {
         self.expect(BraceL)?;
@@ -831,7 +834,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         Some(otherwise.into())
       }
     } else {
-      self.list_feature(ListFeature::IfWithoutElse, if_token);
+      self.list_feature(ListFeature::IfWithoutElse, if_token.token);
       None
     };
 
@@ -2914,6 +2917,12 @@ mod tests {
     name: conditional,
     text: "a := if b { c } else { d }",
     tree: (justfile (assignment a (if b c d))),
+  }
+
+  test! {
+    name: conditional_without_otherwise,
+    text: "a := if b { c }",
+    tree: (justfile (assignment a (if b c))),
   }
 
   test! {

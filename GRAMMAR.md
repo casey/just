@@ -117,7 +117,7 @@ comparison    : conjunct '==' conjunct
               | conjunct '!~' conjunct
               | conjunct
 
-conjunct      : 'if' expression '{' expression '}' 'else' '{' expression '}'
+conjunct      : 'if' expression '{' expression '}' ('else' '{' expression '}')?
               | 'assert' '(' expression ',' expression ')'
               | '/' expression
               | value '/' expression
