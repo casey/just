@@ -1286,8 +1286,8 @@ evaluated for truthiness.
 The comparison operators `==`, `!=`, `=~`, and `!~` may be used anywhere, not
 just in `if` and `assert()`, and evaluate to `"true"` or `[]`.
 
-Values may be negated with `!`. `!expression` evaluates to `true` if
-`expression` is the empty list `[]`, otherwise it evaluates to `[]`.
+Values may be negated with `!`. `!expression` evaluates to `"true"` if
+`expression` is `[]`, otherwise it evaluates to `[]`.
 
 ##### Examples
 
