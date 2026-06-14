@@ -2,47 +2,47 @@ use super::*;
 
 #[test]
 fn equality_true() {
-  assert_list_eq(r#""foo" == "foo""#, r#""true""#);
+  assert_list_eq(r#""foo" == "foo""#, TRUE);
 }
 
 #[test]
 fn equality_false() {
-  assert_list_eq(r#""foo" == "bar""#, "[]");
+  assert_list_eq(r#""foo" == "bar""#, FALSE);
 }
 
 #[test]
 fn inequality_true() {
-  assert_list_eq(r#""foo" != "bar""#, r#""true""#);
+  assert_list_eq(r#""foo" != "bar""#, TRUE);
 }
 
 #[test]
 fn inequality_false() {
-  assert_list_eq(r#""foo" != "foo""#, "[]");
+  assert_list_eq(r#""foo" != "foo""#, FALSE);
 }
 
 #[test]
 fn regex_match() {
-  assert_list_eq(r#""foo" =~ "f.""#, r#""true""#);
+  assert_list_eq(r#""foo" =~ "f.""#, TRUE);
 }
 
 #[test]
 fn regex_mismatch() {
-  assert_list_eq(r#""foo" !~ "b.""#, r#""true""#);
+  assert_list_eq(r#""foo" !~ "b.""#, TRUE);
 }
 
 #[test]
 fn combined_with_and() {
-  assert_list_eq(r#""foo" == "foo" && "bar" == "bar""#, r#""true""#);
+  assert_list_eq(r#""foo" == "foo" && "bar" == "bar""#, TRUE);
 }
 
 #[test]
 fn and_short_circuits_on_false_comparison() {
-  assert_list_eq(r#""foo" == "bar" && "baz" == "baz""#, "[]");
+  assert_list_eq(r#""foo" == "bar" && "baz" == "baz""#, FALSE);
 }
 
 #[test]
 fn or_falls_through_false_comparison() {
-  assert_list_eq(r#""foo" == "bar" || "baz" == "baz""#, r#""true""#);
+  assert_list_eq(r#""foo" == "bar" || "baz" == "baz""#, TRUE);
 }
 
 #[test]
