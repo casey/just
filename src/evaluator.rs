@@ -488,6 +488,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
         Ok(values.into())
       }
+      Expression::Not { operand } => Ok((!self.evaluate_value(operand)?.is_truthy()).into()),
       Expression::Or { lhs, rhs } => {
         let lhs = self.evaluate_value(lhs)?;
         if lhs.is_truthy() {

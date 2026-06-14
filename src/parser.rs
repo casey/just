@@ -896,7 +896,12 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   /// Parse a value, e.g. `(bar)`
   fn parse_value(&mut self) -> CompileResult<'src, Expression<'src>> {
-    if self.next_is(StringToken) || self.next_is_shell_expanded_string() {
+    if let Some(token) = self.accept(Bang)? {
+      self.list_feature(ListFeature::NegationOperator, token);
+      Ok(Expression::Not {
+        operand: self.parse_value()?.into(),
+      })
+    } else if self.next_is(StringToken) || self.next_is_shell_expanded_string() {
       Ok(Expression::StringLiteral {
         string_literal: self.parse_string_literal()?,
       })
@@ -2872,6 +2877,24 @@ mod tests {
   }
 
   test! {
+    name: negation,
+    text: "a := !b",
+    tree: (justfile (assignment a (! b))),
+  }
+
+  test! {
+    name: negation_binds_tighter_than_comparison,
+    text: "a := !b == c",
+    tree: (justfile (assignment a (== (! b) c))),
+  }
+
+  test! {
+    name: double_negation,
+    text: "a := !!b",
+    tree: (justfile (assignment a (! (! b)))),
+  }
+
+  test! {
     name: import,
     text: "import \"some/file/path.txt\"     \n",
     tree: (justfile (import "some/file/path.txt")),
@@ -3003,6 +3026,7 @@ mod tests {
     kind:   UnexpectedToken {
       expected: vec![
         Backtick,
+        Bang,
         BracketL,
         Identifier,
         ParenL,
@@ -3022,6 +3046,7 @@ mod tests {
     kind:   UnexpectedToken {
       expected: vec![
         Backtick,
+        Bang,
         BracketL,
         Identifier,
         ParenL,
@@ -3077,6 +3102,7 @@ mod tests {
     kind: UnexpectedToken{
       expected: vec![
         Backtick,
+        Bang,
         BracketL,
         Identifier,
         ParenL,
@@ -3161,6 +3187,7 @@ mod tests {
     kind:   UnexpectedToken {
       expected: vec![
         Backtick,
+        Bang,
         BracketL,
         Identifier,
         ParenL,
@@ -3181,6 +3208,7 @@ mod tests {
     kind:   UnexpectedToken {
       expected: vec![
         Backtick,
+        Bang,
         BracketL,
         BracketR,
         Identifier,

@@ -171,6 +171,7 @@ impl<'src> Node<'src> for Expression<'src> {
         }
         tree
       }
+      Self::Not { operand } => Tree::atom("!").push(operand.tree()),
       Self::Or { lhs, rhs } => Tree::atom("||").push(lhs.tree()).push(rhs.tree()),
       Self::StringLiteral {
         string_literal: StringLiteral { cooked, .. },

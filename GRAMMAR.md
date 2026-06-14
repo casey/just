@@ -124,7 +124,8 @@ conjunct      : 'if' expression '{' expression '}' 'else' '{' expression '}'
               | value '+' expression
               | value
 
-value         : NAME '(' sequence? ')'
+value         : '!' value
+              | NAME '(' sequence? ')'
               | BACKTICK
               | INDENTED_BACKTICK
               | NAME

@@ -5,6 +5,7 @@ pub(crate) enum ListFeature {
   ComparisonOperator,
   ListLiteral,
   LogicalOperator,
+  NegationOperator,
   NonComparisonCondition,
 }
 
@@ -14,6 +15,7 @@ impl ListFeature {
       Self::ComparisonOperator => CompileErrorKind::ComparisonOperatorWithoutListsSetting,
       Self::ListLiteral => CompileErrorKind::ListLiteralWithoutListsSetting,
       Self::LogicalOperator => CompileErrorKind::LogicalOperatorWithoutListsSetting,
+      Self::NegationOperator => CompileErrorKind::NegationOperatorWithoutListsSetting,
       Self::NonComparisonCondition => CompileErrorKind::NonComparisonConditionWithoutListsSetting,
     }
   }

@@ -68,6 +68,9 @@ impl<'src> Iterator for References<'_, 'src> {
             self.stack.push(element);
           }
         }
+        Expression::Not { operand } => {
+          self.stack.push(operand);
+        }
         Expression::Variable { name, .. } => return Some(Reference::Variable(*name)),
       }
     }

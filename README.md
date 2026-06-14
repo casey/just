@@ -1669,6 +1669,23 @@ foo := [] || 'goodbye'      # 'goodbye'
 bar := 'hello' || 'goodbye' # 'hello'
 ```
 
+The negation operator `!`<sup>master</sup> returns `true` if its argument is
+false, otherwise it returns the empty list `[]`:
+
+```justfile
+foo := ![]       # 'true'
+bar := !'hello'  # []
+```
+
+`!` binds more tightly than every other operator, so negate a comparison or
+other expression by parenthesizing it:
+
+```justfile
+foo := !('a' == 'b') # 'true'
+```
+
+Like `&&` and `||`, `!` requires `set lists`, which is currently unstable.
+
 #### Joining Paths
 
 The `/` operator can be used to join two strings with a slash:

@@ -172,7 +172,7 @@ fn starred_arguments_require_value() {
     .arg("foo")
     .stderr(
       "
-        error: expected '*', backtick, '[', identifier, '(', ')', '/', or string, but found '+'
+        error: expected '*', backtick, '!', '[', identifier, '(', ')', '/', or string, but found '+'
          ——▶ justfile:3:24
           │
         3 │ foo *args: *(bar *args + 'bob')

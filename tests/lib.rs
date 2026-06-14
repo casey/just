@@ -104,6 +104,7 @@ mod markdown;
 mod misc;
 mod modules;
 mod multibyte_char;
+mod negation;
 mod newline_escape;
 mod no_aliases;
 mod no_cd;
