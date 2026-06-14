@@ -1368,6 +1368,16 @@ compiling foo for x86…
 compiling bar for x86…
 ```
 
+The canonical false value `[]` is recommended as a default for options:
+
+```just
+set unstable
+set lists
+
+#[arg(bar, long)]
+foo bar=[]:
+```
+
 #### Positional Arguments
 
 If `positional-arguments` is `true`, recipe arguments will be passed as
