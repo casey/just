@@ -149,7 +149,7 @@ pub(crate) enum Error<'src> {
     signal: Signal,
   },
   ListInStringContext {
-    context: StringContext,
+    context: StringContext<'src>,
     value: Value,
   },
   Load {
