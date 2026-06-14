@@ -51,6 +51,36 @@ fn regex_mismatch() {
 }
 
 #[test]
+fn regex_match_is_true_if_any_element_matches() {
+  assert_list_eq(r#"["foo", "bar"] =~ "b.""#, TRUE);
+}
+
+#[test]
+fn regex_match_is_false_if_no_element_matches() {
+  assert_list_eq(r#"["foo", "bar"] =~ "z""#, FALSE);
+}
+
+#[test]
+fn regex_match_of_empty_list_is_false() {
+  assert_list_eq(r#"[] =~ ".""#, FALSE);
+}
+
+#[test]
+fn regex_mismatch_is_true_if_no_element_matches() {
+  assert_list_eq(r#"["foo", "bar"] !~ "z""#, TRUE);
+}
+
+#[test]
+fn regex_mismatch_is_false_if_any_element_matches() {
+  assert_list_eq(r#"["foo", "bar"] !~ "b.""#, FALSE);
+}
+
+#[test]
+fn regex_mismatch_of_empty_list_is_true() {
+  assert_list_eq(r#"[] !~ ".""#, TRUE);
+}
+
+#[test]
 fn combined_with_and() {
   assert_list_eq(r#""foo" == "foo" && "bar" == "bar""#, TRUE);
 }

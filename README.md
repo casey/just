@@ -1303,7 +1303,7 @@ just in `if` and `assert()`, and evaluate to `"true"` or `[]`.
 `[] =~ regex` is false.
 
 `value !~ regex` is true if no element in `value` matches `regex`.
-`[] =~ regex` is true.
+`[] !~ regex` is true.
 
 Values may be negated with `!`. `!expression` evaluates to `"true"` if
 `expression` is `[]`, otherwise it evaluates to `[]`.
