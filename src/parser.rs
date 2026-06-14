@@ -1730,17 +1730,6 @@ impl<'run, 'src> Parser<'run, 'src> {
 mod tests {
   use {super::*, CompileErrorKind::*, pretty_assertions::assert_eq};
 
-  // To keep these tests resilient to unrelated changes:
-  //
-  // - Each `test!` should exercise a single production. Use bare variables (`b`)
-  //   and simple strings (`"foo"`) for sub-expressions that aren't its subject,
-  //   so changes to other productions don't churn the expected tree.
-  //
-  // - `error!` tests for unexpected tokens use the `found:` form, which doesn't
-  //   assert the `expected` token set. That set is pinned by a single golden
-  //   test, `missing_default_eol`, so a new operator or literal only updates one
-  //   test instead of every error test for that parse position.
-
   macro_rules! test {
     {
       name: $name:ident,
@@ -3281,18 +3270,6 @@ mod tests {
 
   error! {
     name:   set_unknown,
-    input:  "set shall := []",
-    offset: 4,
-    line:   0,
-    column: 4,
-    width:  5,
-    kind:   UnknownSetting {
-      setting: "shall",
-    },
-  }
-
-  error! {
-    name:   set_shell_non_string,
     input:  "set shall := []",
     offset: 4,
     line:   0,
