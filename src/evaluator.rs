@@ -411,7 +411,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     let value = self.evaluate_value(expression)?;
 
     if value.elements().len() != 1 {
-      return Err(Error::ListInStringContext { context, value });
+      return Err(Error::ListInStringContext {
+        context,
+        token: expression.token().map(Box::new),
+        value,
+      });
     }
 
     Ok(value.join())

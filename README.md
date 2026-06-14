@@ -1271,6 +1271,15 @@ containing its literal representation. Brackets are used for empty and
 multi-element lists, e.g., `"[]"` and `"["foo", "bar"]"`, but not
 single-element lists, e.g., `"foo"`.
 
+A `join_list(value)` function is available for joining the elements of `value`
+into a single string, separated by single spaces.
+
+Using a list where a single string is required, for example as a function
+argument, as an operand of `+` or `/`, or in an interpolation, is an error. The
+ideal behavior of lists in many such contexts is undecided, so they are errors
+for now. Use `join_list()` to explicitly convert a list into a space-separated
+string.
+
 The functions `is_dependency()`, `path_exists()`, and `semver_matches()` return
 the canonical booleans.
 

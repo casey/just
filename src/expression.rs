@@ -68,6 +68,27 @@ impl<'src> Expression<'src> {
   pub(crate) fn references<'a>(&'a self) -> References<'a, 'src> {
     References::new(self)
   }
+
+  pub(crate) fn token(&self) -> Option<Token<'src>> {
+    match self {
+      Self::And { lhs, .. }
+      | Self::Comparison { lhs, .. }
+      | Self::Concatenation { lhs, .. }
+      | Self::Join { lhs: Some(lhs), .. }
+      | Self::Or { lhs, .. } => lhs.token(),
+      Self::Assert { name, .. } | Self::Call { name, .. } | Self::Variable { name } => {
+        Some(name.token)
+      }
+      Self::Backtick { token, .. } => Some(*token),
+      Self::Conditional { condition, .. } => condition.token(),
+      Self::FormatString { start, .. } => Some(start.token),
+      Self::Group { contents } => contents.token(),
+      Self::Join { lhs: None, rhs } => rhs.token(),
+      Self::List { elements } => elements.first().and_then(Self::token),
+      Self::Not { operand } => operand.token(),
+      Self::StringLiteral { string_literal } => Some(string_literal.token),
+    }
+  }
 }
 
 impl Display for Expression<'_> {

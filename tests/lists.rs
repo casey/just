@@ -12,20 +12,16 @@ fn lists_setting_is_unstable() {
 fn quote_quotes_each_element_of_variadic_arguments() {
   Test::new()
     .justfile(
-      r"
+      r#"
         set lists
 
         foo *args:
-          @echo {{ quote(show(quote(args))) }}
-      ",
+          @echo "{{ join_list(quote(args)) }}"
+      "#,
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar", "baz bob"])
-    .stdout(
-      r#"
-        ["'bar'", "'baz bob'"]
-      "#,
-    )
+    .stdout("'bar' 'baz bob'\n")
     .success();
 }
 
@@ -33,16 +29,16 @@ fn quote_quotes_each_element_of_variadic_arguments() {
 fn quote_of_empty_list_is_empty() {
   Test::new()
     .justfile(
-      r"
+      r#"
         set lists
 
         foo *args:
-          @echo '{{ show(quote(args)) }}'
-      ",
+          @echo "bar{{ join_list(quote(args)) }}baz"
+      "#,
     )
     .env("JUST_UNSTABLE", "1")
     .arg("foo")
-    .stdout("[]\n")
+    .stdout("barbaz\n")
     .success();
 }
 
@@ -81,12 +77,12 @@ fn quote_quotes_single_element_values_whole() {
 fn absolute_path_resolves_each_element_of_a_list() {
   let test = Test::new()
     .justfile(
-      r"
+      r#"
         set lists
 
         foo *args:
-          @echo '{{ show(absolute_path(args)) }}'
-      ",
+          @echo "{{ join_list(absolute_path(args)) }}"
+      "#,
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar", "baz bob"]);
@@ -99,7 +95,7 @@ fn absolute_path_resolves_each_element_of_a_list() {
 
   test
     .stdout(format!(
-      "[{:?}, {:?}]\n",
+      "{} {}\n",
       tempdir.join("bar").to_str().unwrap(),
       tempdir.join("baz bob").to_str().unwrap(),
     ))
@@ -110,16 +106,16 @@ fn absolute_path_resolves_each_element_of_a_list() {
 fn absolute_path_of_empty_list_is_empty() {
   Test::new()
     .justfile(
-      r"
+      r#"
         set lists
 
         foo *args:
-          @echo '{{ show(absolute_path(args)) }}'
-      ",
+          @echo "bar{{ join_list(absolute_path(args)) }}baz"
+      "#,
     )
     .env("JUST_UNSTABLE", "1")
     .arg("foo")
-    .stdout("[]\n")
+    .stdout("barbaz\n")
     .success();
 }
 
@@ -127,20 +123,16 @@ fn absolute_path_of_empty_list_is_empty() {
 fn append_appends_to_each_element_of_a_list() {
   Test::new()
     .justfile(
-      r"
+      r#"
         set lists
 
         foo *args:
-          @echo '{{ show(append('.c', args)) }}'
-      ",
+          @echo "{{ join_list(append('.c', args)) }}"
+      "#,
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar", "baz bob"])
-    .stdout(
-      r#"
-        ["bar.c", "baz bob.c"]
-      "#,
-    )
+    .stdout("bar.c baz bob.c\n")
     .success();
 }
 
@@ -148,20 +140,16 @@ fn append_appends_to_each_element_of_a_list() {
 fn prepend_prepends_to_each_element_of_a_list() {
   Test::new()
     .justfile(
-      r"
+      r#"
         set lists
 
         foo *args:
-          @echo '{{ show(prepend('src/', args)) }}'
-      ",
+          @echo "{{ join_list(prepend('src/', args)) }}"
+      "#,
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar", "baz bob"])
-    .stdout(
-      r#"
-        ["src/bar", "src/baz bob"]
-      "#,
-    )
+    .stdout("src/bar src/baz bob\n")
     .success();
 }
 
@@ -250,6 +238,44 @@ fn interpolating_a_list_is_an_error() {
         error: list value ["bar", "baz"] used in an interpolation
         the ideal behavior of lists in many contexts is undecided, see https://github.com/casey/just/issues/3377
         consider leaving a comment explaining your use case
+         ——▶ justfile:4:12
+          │
+        4 │   @echo {{ args }}
+          │            ^^^^
+      "#,
+    )
+    .failure();
+}
+
+#[test]
+fn join_list_joins_lists_with_spaces() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        foo *args:
+          @echo {{ join_list(args) }}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "bar", "baz"])
+    .stdout("bar baz\n")
+    .success();
+}
+
+#[test]
+fn join_list_requires_lists_setting() {
+  Test::new()
+    .justfile(r#"x := join_list("foo")"#)
+    .args(["--evaluate", "x"])
+    .stderr(
+      r#"
+        error: the `join_list()` function requires `set lists`
+         ——▶ justfile:1:6
+          │
+        1 │ x := join_list("foo")
+          │      ^^^^^^^^^
       "#,
     )
     .failure();

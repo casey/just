@@ -89,6 +89,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "invocation_directory_native" => Nullary(invocation_directory_native),
     "is_dependency" => NullaryValue(is_dependency),
     "join" => BinaryPlus(join),
+    "join_list" => UnaryList(join_list),
     "just_executable" => Nullary(just_executable),
     "just_pid" => Nullary(just_pid),
     "justfile" => Nullary(justfile),
@@ -450,6 +451,10 @@ fn join(_context: Context, base: &str, with: &str, and: &[String]) -> StringResu
     result.push(arg);
   }
   Ok(result.to_string())
+}
+
+fn join_list(_context: Context, value: &Value) -> ValueResult {
+  Ok(value.join().into())
 }
 
 fn just_executable(_context: Context) -> StringResult {

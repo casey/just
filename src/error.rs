@@ -150,6 +150,7 @@ pub(crate) enum Error<'src> {
   },
   ListInStringContext {
     context: StringContext<'src>,
+    token: Option<Box<Token<'src>>>,
     value: Value,
   },
   Load {
@@ -320,6 +321,7 @@ impl<'src> Error<'src> {
       Self::Compile { compile_error } => Some(compile_error.context()),
       Self::Const { const_error } => Some(const_error.context()),
       Self::FunctionCall { function, .. } => Some(function.token),
+      Self::ListInStringContext { token, .. } => token.as_deref().copied(),
       Self::MissingImportFile { path } => Some(*path),
       _ => None,
     }
@@ -675,7 +677,7 @@ impl ColorDisplay for Error<'_> {
       Interrupted { signal } => {
         write!(f, "interrupted by {signal}")?;
       }
-      ListInStringContext { context, value } => {
+      ListInStringContext { context, value, .. } => {
         write!(
           f,
           "list value {} {context}\n\
