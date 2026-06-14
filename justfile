@@ -240,8 +240,8 @@ test-completions:
   cd tmp/complete && PATH="`realpath bin`:$PATH" bash --init-file just.bash
 
 [group: 'demo']
-rule110:
-  just -f examples/rule110.just
+rule124:
+  just -f examples/rule124.just
 
 # Local Variables:
 # mode: makefile
