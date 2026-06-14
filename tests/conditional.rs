@@ -268,16 +268,16 @@ fn incorrect_else_identifier() {
 fn if_without_else_is_empty_when_condition_is_false() {
   Test::new()
     .justfile(
-      r#"
+      "
         set lists
 
         foo:
-          @echo "bar{{ if 'a' == 'b' { 'baz' } }}bob"
-      "#,
+          @echo '{{ show(if 'a' == 'b' { 'baz' }) }}'
+      ",
     )
     .env("JUST_UNSTABLE", "1")
     .arg("foo")
-    .stdout("barbob\n")
+    .stdout("[]\n")
     .success();
 }
 
@@ -285,16 +285,16 @@ fn if_without_else_is_empty_when_condition_is_false() {
 fn if_without_else_is_then_when_condition_is_true() {
   Test::new()
     .justfile(
-      r#"
+      "
         set lists
 
         foo:
-          @echo "bar{{ if 'a' == 'a' { 'baz' } }}bob"
-      "#,
+          @echo '{{ show(if 'a' == 'a' { 'baz' }) }}'
+      ",
     )
     .env("JUST_UNSTABLE", "1")
     .arg("foo")
-    .stdout("barbazbob\n")
+    .stdout("\"baz\"\n")
     .success();
 }
 
@@ -302,15 +302,15 @@ fn if_without_else_is_then_when_condition_is_true() {
 fn else_if_without_final_else_is_empty_when_all_conditions_are_false() {
   Test::new()
     .justfile(
-      r#"
+      "
         set lists
 
         foo:
-          @echo "bar{{ if 'a' == 'b' { 'baz' } else if 'a' == 'c' { 'bob' } }}fiz"
-      "#,
+          @echo '{{ show(if 'a' == 'b' { 'baz' } else if 'a' == 'c' { 'bob' }) }}'
+      ",
     )
     .env("JUST_UNSTABLE", "1")
     .arg("foo")
-    .stdout("barfiz\n")
+    .stdout("[]\n")
     .success();
 }

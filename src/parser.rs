@@ -259,11 +259,11 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.expect(Eol).map(|_| ())
   }
 
-  fn expect_keyword(&mut self, expected: Keyword) -> CompileResult<'src, Name<'src>> {
+  fn expect_keyword(&mut self, expected: Keyword) -> CompileResult<'src> {
     let found = self.advance()?;
 
     if found.kind == Identifier && expected == found.lexeme() {
-      Ok(Name::from_identifier(found))
+      Ok(())
     } else {
       Err(found.error(CompileErrorKind::ExpectedKeyword {
         expected: vec![expected],
@@ -273,8 +273,8 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Return an internal error if the next token is not of kind `Identifier`
-  /// with lexeme `lexeme`.
-  fn presume_keyword(&mut self, keyword: Keyword) -> CompileResult<'src> {
+  /// with lexeme `keyword`.
+  fn presume_keyword(&mut self, keyword: Keyword) -> CompileResult<'src, Token<'src>> {
     let next = self.advance()?;
 
     if next.kind != Identifier {
@@ -283,7 +283,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         next.kind
       ))?)
     } else if keyword == next.lexeme() {
-      Ok(())
+      Ok(next)
     } else {
       Err(self.internal_error(format!(
         "presumed next token would have lexeme \"{keyword}\", but found \"{}\"",
@@ -814,7 +814,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   /// Parse a conditional, e.g. `if a == b { "foo" } else { "bar" }`
   fn parse_conditional(&mut self) -> CompileResult<'src, Expression<'src>> {
-    let if_token = self.expect_keyword(Keyword::If)?;
+    let if_token = self.presume_keyword(Keyword::If)?;
 
     let condition = self.parse_condition()?;
 
@@ -834,7 +834,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         Some(otherwise.into())
       }
     } else {
-      self.list_feature(ListFeature::IfWithoutElse, if_token.token);
+      self.list_feature(ListFeature::IfWithoutElse, if_token);
       None
     };
 
@@ -856,7 +856,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   fn parse_format_string(&mut self) -> CompileResult<'src, Expression<'src>> {
-    self.expect_keyword(Keyword::F)?;
+    self.presume_keyword(Keyword::F)?;
 
     let start = self.parse_string_literal_in_state(StringState::FormatStart)?;
 
