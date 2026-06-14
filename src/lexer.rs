@@ -471,7 +471,7 @@ impl<'src> Lexer<'src> {
     match start {
       ' ' | '\t' => self.lex_whitespace(),
       '!' if self.rest().starts_with("!include") => Err(self.error(Include)),
-      '!' => self.lex_choices('!', &[('=', BangEquals), ('~', BangTilde)], Some(Bang)),
+      '!' => self.lex_choices('!', &[('=', BangEquals), ('~', BangTilde)], Bang),
       '#' => self.lex_comment(),
       '$' => self.lex_single(Dollar),
       '&' => self.lex_digraph('&', '&', AmpersandAmpersand),
@@ -482,11 +482,7 @@ impl<'src> Lexer<'src> {
       ',' => self.lex_single(Comma),
       '/' => self.lex_single(Slash),
       ':' => self.lex_colon(),
-      '=' => self.lex_choices(
-        '=',
-        &[('=', EqualsEquals), ('~', EqualsTilde)],
-        Some(Equals),
-      ),
+      '=' => self.lex_choices('=', &[('=', EqualsEquals), ('~', EqualsTilde)], Equals),
       '?' => self.lex_single(QuestionMark),
       '@' => self.lex_single(At),
       '[' => self.lex_delimiter(BracketL),
@@ -633,7 +629,7 @@ impl<'src> Lexer<'src> {
     &mut self,
     first: char,
     choices: &[(char, TokenKind)],
-    otherwise: Option<TokenKind>,
+    otherwise: TokenKind,
   ) -> CompileResult<'src> {
     self.presume(first)?;
 
@@ -644,24 +640,7 @@ impl<'src> Lexer<'src> {
       }
     }
 
-    if let Some(token) = otherwise {
-      self.token(token);
-    } else {
-      // Emit an unspecified token to consume the current character,
-      self.token(Unspecified);
-
-      let expected = choices.iter().map(|choice| choice.0).collect();
-
-      if self.at_eof() {
-        return Err(self.error(UnexpectedEndOfToken { expected }));
-      }
-
-      // …and advance past another character,
-      self.advance()?;
-
-      // …so that the error we produce highlights the unexpected character.
-      return Err(self.error(UnexpectedCharacter { expected }));
-    }
+    self.token(otherwise);
 
     Ok(())
   }
