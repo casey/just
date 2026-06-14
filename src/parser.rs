@@ -698,10 +698,13 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   /// Parse an expression, e.g. `1 + 2`
   fn parse_expression(&mut self) -> CompileResult<'src, Expression<'src>> {
-    self.parse_or(false)
+    self.parse_expression_with_condition(false)
   }
 
-  fn parse_or(&mut self, condition: bool) -> CompileResult<'src, Expression<'src>> {
+  fn parse_expression_with_condition(
+    &mut self,
+    condition: bool,
+  ) -> CompileResult<'src, Expression<'src>> {
     if self.recursion_depth == RECURSION_LIMIT {
       let token = self.next()?;
       return Err(CompileError::new(
@@ -712,14 +715,14 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     self.recursion_depth += 1;
 
-    let lhs = self.parse_and(condition)?;
+    let lhs = self.parse_disjunct(condition)?;
 
     let expression = if let Some(token) = self.accept(BarBar)? {
       if self.logical_operator.is_none() {
         self.logical_operator = Some(token);
       }
       let lhs = lhs.into();
-      let rhs = self.parse_or(false)?.into();
+      let rhs = self.parse_expression_with_condition(false)?.into();
       Expression::Or { lhs, rhs }
     } else {
       lhs
@@ -730,7 +733,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok(expression)
   }
 
-  fn parse_and(&mut self, condition: bool) -> CompileResult<'src, Expression<'src>> {
+  fn parse_disjunct(&mut self, condition: bool) -> CompileResult<'src, Expression<'src>> {
     let lhs = self.parse_comparison(condition)?;
 
     let expression = if let Some(token) = self.accept(AmpersandAmpersand)? {
@@ -738,7 +741,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         self.logical_operator = Some(token);
       }
       let lhs = lhs.into();
-      let rhs = self.parse_and(false)?.into();
+      let rhs = self.parse_disjunct(false)?.into();
       Expression::And { lhs, rhs }
     } else {
       lhs
@@ -832,7 +835,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// for truthiness, which does.
   fn parse_condition(&mut self) -> CompileResult<'src, Expression<'src>> {
     let token = self.next()?;
-    let condition = self.parse_or(true)?;
+    let condition = self.parse_expression_with_condition(true)?;
     if !matches!(condition, Expression::Comparison { .. })
       && self.non_comparison_condition.is_none()
     {
