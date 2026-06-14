@@ -21,6 +21,26 @@ fn inequality_false() {
 }
 
 #[test]
+fn list_equality_is_structural() {
+  assert_list_eq(r#"["foo", "bar"] == ["foo", "bar"]"#, TRUE);
+}
+
+#[test]
+fn equality_distinguishes_element_boundaries() {
+  assert_list_eq(r#"["foo", "bar"] == ["foo bar"]"#, FALSE);
+}
+
+#[test]
+fn inequality_distinguishes_element_boundaries() {
+  assert_list_eq(r#"["foo", "bar"] != ["foo bar"]"#, TRUE);
+}
+
+#[test]
+fn empty_list_does_not_equal_empty_string() {
+  assert_list_eq(r#"[] == """#, FALSE);
+}
+
+#[test]
 fn regex_match() {
   assert_list_eq(r#""foo" =~ "f.""#, TRUE);
 }
