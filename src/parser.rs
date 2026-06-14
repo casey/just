@@ -833,7 +833,9 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_condition(&mut self) -> CompileResult<'src, Expression<'src>> {
     let token = self.next()?;
     let condition = self.parse_or(true)?;
-    if !condition.is_comparison() && self.non_comparison_condition.is_none() {
+    if !matches!(condition, Expression::Comparison { .. })
+      && self.non_comparison_condition.is_none()
+    {
       self.non_comparison_condition = Some(token);
     }
     Ok(condition)

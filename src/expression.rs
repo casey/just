@@ -66,10 +66,6 @@ impl<'src> Expression<'src> {
   pub(crate) fn references<'a>(&'a self) -> References<'a, 'src> {
     References::new(self)
   }
-
-  pub(crate) fn is_comparison(&self) -> bool {
-    matches!(self, Self::Comparison { .. })
-  }
 }
 
 impl Display for Expression<'_> {
