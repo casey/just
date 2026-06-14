@@ -413,12 +413,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         error,
         name,
       } => {
-        if self.evaluate_boolean(condition)? {
-          if self.lists {
-            Ok(Value::from(true))
-          } else {
-            Ok(Value::from(""))
-          }
+        let value = self.evaluate_value(condition)?;
+        if value.is_truthy() {
+          Ok(if self.lists { value } else { Value::from("") })
         } else {
           Err(Error::Assert {
             message: self.evaluate_string(error)?,
