@@ -113,6 +113,7 @@ pub(crate) enum CompileErrorKind<'src> {
   MixedLeadingWhitespace {
     whitespace: &'src str,
   },
+  NegationOperatorWithoutListsSetting,
   NoCdAndWorkingDirectoryAttribute {
     recipe: &'src str,
   },

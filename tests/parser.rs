@@ -13,42 +13,6 @@ fn dont_run_duplicate_recipes() {
 }
 
 #[test]
-fn invalid_bang_operator() {
-  Test::new()
-    .justfile(
-      "
-        x := if '' !! '' { '' } else { '' }
-      ",
-    )
-    .stderr(
-      "
-        error: expected character `=` or `~`
-         ——▶ justfile:1:13
-          │
-        1 │ x := if '' !! '' { '' } else { '' }
-          │             ^
-      ",
-    )
-    .failure();
-}
-
-#[test]
-fn truncated_bang_operator() {
-  Test::new()
-    .justfile("x := if '' !")
-    .stderr(
-      "
-        error: expected character `=` or `~` but found end-of-file
-         ——▶ justfile:1:13
-          │
-        1 │ x := if '' !
-          │             ^
-      ",
-    )
-    .failure();
-}
-
-#[test]
 fn comment_after_unexport() {
   Test::new()
     .justfile(

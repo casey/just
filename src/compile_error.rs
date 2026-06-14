@@ -329,6 +329,9 @@ impl Display for CompileError<'_> {
         f,
         "starred arguments may not be used outside mapped dependencies",
       ),
+      NegationOperatorWithoutListsSetting => {
+        write!(f, "negation operator requires `set lists`")
+      }
       NonComparisonConditionWithoutListsSetting => {
         write!(
           f,
