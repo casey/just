@@ -196,8 +196,14 @@ fn bool_multiple_elements() {
     )
     .env("JUST_UNSTABLE", "1")
     .args(["--evaluate", "x"])
-    .stderr_regex(
-      r"error: call to function `bool` failed: expected single element list but got 2 elements\n.*",
+    .stderr(
+      "
+        error: call to function `bool` failed: multi-element lists cannot be converted into booleans
+         ——▶ justfile:3:6
+          │
+        3 │ x := bool(['foo', 'bar'])
+          │      ^^^^
+      ",
     )
     .failure();
 }
