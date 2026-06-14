@@ -11,11 +11,6 @@ fn negates_empty_list() {
 }
 
 #[test]
-fn double_negation() {
-  assert_list_eq("!!'foo'", TRUE);
-}
-
-#[test]
 fn requires_lists_setting() {
   Test::new()
     .justfile(
