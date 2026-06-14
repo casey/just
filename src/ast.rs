@@ -5,6 +5,7 @@ use super::*;
 /// are performed by the `Analyzer`, which produces a `Justfile` from an `Ast`.
 #[derive(Debug, Clone)]
 pub(crate) struct Ast<'src> {
+  pub(crate) function_features: Vec<(FunctionFeature, Token<'src>)>,
   pub(crate) items: Vec<Item<'src>>,
   pub(crate) list_feature: Option<(ListFeature, Token<'src>)>,
   pub(crate) module_path: Modulepath,

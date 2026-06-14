@@ -48,6 +48,7 @@ pub(crate) use {
     fragment::Fragment,
     function::Function,
     function_definition::FunctionDefinition,
+    function_feature::FunctionFeature,
     indentation::Indentation,
     interpreter::Interpreter,
     invocation::Invocation,
@@ -242,6 +243,7 @@ mod format_string_part;
 mod fragment;
 mod function;
 mod function_definition;
+mod function_feature;
 mod indentation;
 mod interpreter;
 mod invocation;

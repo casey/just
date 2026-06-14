@@ -26,6 +26,7 @@ use {super::*, TokenKind::*};
 pub(crate) struct Parser<'run, 'src> {
   expected_tokens: BTreeSet<TokenKind>,
   file_depth: u32,
+  function_features: Vec<(FunctionFeature, Token<'src>)>,
   import_offsets: Vec<usize>,
   items: Vec<Item<'src>>,
   list_feature: Option<(ListFeature, Token<'src>)>,
@@ -51,6 +52,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     Self {
       expected_tokens: BTreeSet::new(),
       file_depth,
+      function_features: Vec::new(),
       import_offsets: import_offsets.to_vec(),
       items: Vec::new(),
       list_feature: None,
@@ -99,6 +101,10 @@ impl<'run, 'src> Parser<'run, 'src> {
     if self.list_feature.is_none() {
       self.list_feature = Some((list_feature, token));
     }
+  }
+
+  fn function_feature(&mut self, function_feature: FunctionFeature, name: Name<'src>) {
+    self.function_features.push((function_feature, name.token));
   }
 
   /// Construct an unexpected token error with the token returned by
@@ -484,6 +490,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
 
     Ok(Ast {
+      function_features: self.function_features,
       items: self.items,
       list_feature: self.list_feature,
       module_path: self.module_namepath.map(Into::into).unwrap_or_default(),
@@ -941,12 +948,13 @@ impl<'run, 'src> Parser<'run, 'src> {
         if self.next_is(ParenL) {
           let arguments = self.parse_sequence()?;
           match name.lexeme() {
-            "bool" => self.list_feature(ListFeature::BoolFunction, name.token),
-            "show" => self.list_feature(ListFeature::ShowFunction, name.token),
+            "bool" => self.function_feature(FunctionFeature::List(ListFeature::BoolFunction), name),
+            "show" => self.function_feature(FunctionFeature::List(ListFeature::ShowFunction), name),
             "which" => {
-              self
-                .unstable_features
-                .insert(UnstableFeature::WhichFunction);
+              self.function_feature(
+                FunctionFeature::Unstable(UnstableFeature::WhichFunction),
+                name,
+              );
             }
             _ => {}
           }

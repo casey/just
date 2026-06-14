@@ -409,3 +409,20 @@ fn may_reference_non_const_assignment() {
     .env("JUST_UNSTABLE", "1")
     .success();
 }
+
+#[test]
+fn shadow_builtin() {
+  #[track_caller]
+  fn case(name: &str) {
+    Test::new()
+      .justfile(format!("{name}(x) := x\na := {name}('bar')"))
+      .args(["--evaluate", "a"])
+      .stdout("bar")
+      .env("JUST_UNSTABLE", "1")
+      .success();
+  }
+
+  case("bool");
+  case("show");
+  case("which");
+}
