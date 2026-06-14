@@ -830,9 +830,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     })
   }
 
-  /// Parse the condition of an `if` or `assert`. A bare comparison is evaluated
-  /// as a boolean and requires no `set lists`; any other condition is evaluated
-  /// for truthiness, which does.
+  /// Parse the condition of an `if` or `assert`
   fn parse_condition(&mut self) -> CompileResult<'src, Expression<'src>> {
     let token = self.next()?;
     let condition = self.parse_expression_with_condition(true)?;
