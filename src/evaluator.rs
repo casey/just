@@ -451,8 +451,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       } => {
         if self.evaluate_boolean(condition)? {
           self.evaluate_value(then)
-        } else {
+        } else if let Some(otherwise) = otherwise {
           self.evaluate_value(otherwise)
+        } else {
+          Ok(Value::new())
         }
       }
       Expression::FormatString { start, expressions } => {

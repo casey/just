@@ -38,7 +38,7 @@ pub(crate) enum Expression<'src> {
   Conditional {
     condition: Box<Self>,
     then: Box<Self>,
-    otherwise: Box<Self>,
+    otherwise: Option<Box<Self>>,
   },
   // `f"format string"`
   FormatString {
@@ -95,10 +95,14 @@ impl Display for Expression<'_> {
         then,
         otherwise,
       } => {
-        if let Self::Conditional { .. } = **otherwise {
-          write!(f, "if {condition} {{ {then} }} else {otherwise}")
+        if let Some(otherwise) = otherwise {
+          if let Self::Conditional { .. } = **otherwise {
+            write!(f, "if {condition} {{ {then} }} else {otherwise}")
+          } else {
+            write!(f, "if {condition} {{ {then} }} else {{ {otherwise} }}")
+          }
         } else {
-          write!(f, "if {condition} {{ {then} }} else {{ {otherwise} }}")
+          write!(f, "if {condition} {{ {then} }}")
         }
       }
       Self::FormatString { start, expressions } => {

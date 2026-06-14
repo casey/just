@@ -151,6 +151,11 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.next_are(&[kind])
   }
 
+  /// Check if the next significant token is `keyword`
+  fn next_is_keyword(&mut self, keyword: Keyword) -> bool {
+    todo!()
+  }
+
   /// Check if the next significant tokens are of kinds `kinds`
   ///
   /// The first token in `kinds` will be added to the expected token set.
@@ -251,11 +256,11 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.expect(Eol).map(|_| ())
   }
 
-  fn expect_keyword(&mut self, expected: Keyword) -> CompileResult<'src> {
+  fn expect_keyword(&mut self, expected: Keyword) -> CompileResult<'src, Name<'src>> {
     let found = self.advance()?;
 
     if found.kind == Identifier && expected == found.lexeme() {
-      Ok(())
+      Ok(Name::from_identifier(found))
     } else {
       Err(found.error(CompileErrorKind::ExpectedKeyword {
         expected: vec![expected],
@@ -781,7 +786,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   fn parse_conjunct(&mut self) -> CompileResult<'src, Expression<'src>> {
-    if self.accepted_keyword(Keyword::If)? {
+    if self.next_is_keyword(Keyword::If) {
       self.parse_conditional()
     } else if self.accepted(Slash)? {
       let lhs = None;
@@ -806,6 +811,8 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   /// Parse a conditional, e.g. `if a == b { "foo" } else { "bar" }`
   fn parse_conditional(&mut self) -> CompileResult<'src, Expression<'src>> {
+    let if_token = self.expect_keyword(Keyword::If)?;
+
     let condition = self.parse_condition()?;
 
     self.expect(BraceL)?;
@@ -814,21 +821,24 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     self.expect(BraceR)?;
 
-    self.expect_keyword(Keyword::Else)?;
-
-    let otherwise = if self.accepted_keyword(Keyword::If)? {
-      self.parse_conditional()?
+    let otherwise = if self.accepted_keyword(Keyword::Else)? {
+      if self.next_is_keyword(Keyword::If)? {
+        Some(self.parse_conditional()?.into())
+      } else {
+        self.expect(BraceL)?;
+        let otherwise = self.parse_expression()?;
+        self.expect(BraceR)?;
+        Some(otherwise.into())
+      }
     } else {
-      self.expect(BraceL)?;
-      let otherwise = self.parse_expression()?;
-      self.expect(BraceR)?;
-      otherwise
+      self.list_feature(ListFeature::IfWithoutElse, if_token);
+      None
     };
 
     Ok(Expression::Conditional {
       condition: condition.into(),
       then: then.into(),
-      otherwise: otherwise.into(),
+      otherwise,
     })
   }
 
