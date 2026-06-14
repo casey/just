@@ -63,6 +63,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "arch" => Nullary(arch),
     "blake3" => Unary(blake3),
     "blake3_file" => Unary(blake3_file),
+    "bool" => UnaryList(bool),
     "cache_directory" => Nullary(|_| dir("cache", dirs::cache_dir)),
     "canonicalize" => Unary(canonicalize),
     "capitalize" => Unary(capitalize),
@@ -141,13 +142,26 @@ pub(crate) fn get(name: &str) -> Option<Function> {
 }
 
 fn boolean(context: &Context, condition: bool) -> Value {
-  if condition {
-    Value::from("true")
-  } else if context.execution_context.module.settings.lists {
-    Value::new()
+  if context.execution_context.module.settings.lists {
+    condition.into()
   } else {
-    Value::from("false")
+    Value::from(condition.to_string())
   }
+}
+
+fn bool(context: Context, value: &Value) -> Result<Value, String> {
+  let condition = match value.elements() {
+    [] => false,
+    [element] => match element.as_str() {
+      "" | "0" | "false" => false,
+      "1" | "true" => true,
+      _ => return Err(format!("`{element}` is not a valid boolean string")),
+    },
+    _ => {
+      return Err("multi-element lists cannot be converted into booleans".into());
+    }
+  };
+  Ok(boolean(&context, condition))
 }
 
 fn absolute_path(context: Context, path: &str) -> FunctionResult {

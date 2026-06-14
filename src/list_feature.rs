@@ -2,6 +2,7 @@ use super::*;
 
 #[derive(Copy, Clone, Debug)]
 pub(crate) enum ListFeature {
+  BoolFunction,
   ComparisonOperator,
   ListLiteral,
   LogicalOperator,
@@ -12,6 +13,7 @@ pub(crate) enum ListFeature {
 impl ListFeature {
   pub(crate) fn error_kind(self) -> CompileErrorKind<'static> {
     match self {
+      Self::BoolFunction => CompileErrorKind::BoolFunctionWithoutListsSetting,
       Self::ComparisonOperator => CompileErrorKind::ComparisonOperatorWithoutListsSetting,
       Self::ListLiteral => CompileErrorKind::ListLiteralWithoutListsSetting,
       Self::LogicalOperator => CompileErrorKind::LogicalOperatorWithoutListsSetting,

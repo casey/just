@@ -1261,6 +1261,11 @@ The canonical boolean true value is the string `"true"`, and the canonical
 boolean false value is the empty list `[]`. All values other than the empty
 list are truthy, including `''`.
 
+A `bool(value)` function is available for converting to the canonical boolean
+values. It returns `[]` when `value` is `""` `"0"` `"false"`, or `[]`, and
+`"true"` when `value` is `"1"` or `"true"`. All other values are an error. It
+can be used to parse booleans passed as arguments or environment variables.
+
 The functions `is_dependency()`, `path_exists()`, and `semver_matches()` return
 the canonical booleans.
 
