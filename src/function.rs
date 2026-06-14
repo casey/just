@@ -158,10 +158,7 @@ fn bool(context: Context, value: &Value) -> Result<Value, String> {
       _ => return Err(format!("`{element}` is not valid boolean string")),
     },
     elements => {
-      return Err(format!(
-        "expected single element list but got {}",
-        Count::numbered("element", elements.len()),
-      ));
+      return Err("multi-element lists cannot be converted into booleans".into());
     }
   };
   Ok(boolean(&context, condition))
