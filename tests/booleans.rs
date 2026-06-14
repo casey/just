@@ -15,20 +15,68 @@ fn bool_false_values() {
 }
 
 #[test]
-fn bool_false_falls_through_or() {
+fn bool_invalid_value() {
   Test::new()
     .justfile(
-      r#"
+      "
         set lists
 
-        foo:
-          @echo {{ bool("0") || "fallback" }}
-      "#,
+        x := bool('foo')
+      ",
     )
     .env("JUST_UNSTABLE", "1")
-    .arg("foo")
-    .stdout("fallback\n")
-    .success();
+    .args(["--evaluate", "x"])
+    .stderr(
+      "
+        error: call to function `bool` failed: `foo` is not a valid boolean string
+         ——▶ justfile:3:6
+          │
+        3 │ x := bool('foo')
+          │      ^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn bool_requires_lists_setting() {
+  Test::new()
+    .justfile("x := bool('true')")
+    .args(["--evaluate", "x"])
+    .stderr(
+      "
+        error: the `bool()` function requires `set lists`
+         ——▶ justfile:1:6
+          │
+        1 │ x := bool('true')
+          │      ^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn bool_multiple_elements() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        x := bool(['foo', 'bar'])
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["--evaluate", "x"])
+    .stderr(
+      "
+        error: call to function `bool` failed: multi-element lists cannot be converted into booleans
+         ——▶ justfile:3:6
+          │
+        3 │ x := bool(['foo', 'bar'])
+          │      ^^^^
+      ",
+    )
+    .failure();
 }
 
 #[test]
