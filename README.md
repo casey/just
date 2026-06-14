@@ -1280,6 +1280,12 @@ When `positional-arguments` is set, list arguments are space-joined unless they
 are variadic, in which case they are passed as one positional argument per
 element.
 
+The condition of an `if` or `assert()` may be any expression, which is
+evaluated for truthiness.
+
+The comparison operators `==`, `!=`, `=~`, and `!~` may be used anywhere, not
+just in `if` and `assert()`, and evaluate to `"true"` or `[]`.
+
 ##### Examples
 
 Each list element is `quote()`'ed separately:
@@ -2789,32 +2795,6 @@ bar:
 $ just bar
 abc
 ```
-
-Comparison operators may also be used outside of `if` and `assert`. In that case
-they evaluate to the canonical boolean values: the string `"true"` if the
-comparison holds, and the empty list `[]` if it does not. This makes them
-convenient to combine with the [logical operators](#logical-operators) `&&` and
-`||`:
-
-```justfile
-set lists
-
-ok := "foo" == "foo" && "bar" != "baz"  # "true"
-```
-
-Comparisons bind more tightly than `&&` and `||`, so `a == b && c == d` is parsed
-as `(a == b) && (c == d)`. They are non-associative, so `a == b == c` is a syntax
-error; parenthesize to chain them.
-
-Used as a value, like list literals and the logical operators, comparisons
-require `set lists`<sup>master</sup>, which is currently unstable. Used directly
-as the condition of an `if` or `assert`, they are evaluated as booleans and
-require no settings, as before.
-
-The condition of an `if` or `assert` may be any expression, not just a
-comparison. A non-comparison condition is evaluated for truthiness — only the
-empty list `[]` is false — and, like the logical operators, requires
-`set lists`.
 
 ### Stopping execution with error
 
