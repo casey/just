@@ -157,7 +157,7 @@ fn bool_invalid_value() {
     .args(["--evaluate", "x"])
     .stderr(
       "
-        error: call to function `bool` failed: `foo` is not a boolean
+        error: call to function `bool` failed: `foo` is not a valid boolean string
          ——▶ justfile:3:6
           │
         3 │ x := bool('foo')

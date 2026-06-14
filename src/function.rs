@@ -157,7 +157,7 @@ fn bool(context: Context, value: &Value) -> Result<Value, String> {
     [element] => match element.as_str() {
       "" | "0" | "false" => false,
       "1" | "true" => true,
-      _ => return Err(format!("`{element}` is not a boolean")),
+      _ => return Err(format!("`{element}` is not valid boolean string")),
     },
     elements => {
       return Err(format!(
