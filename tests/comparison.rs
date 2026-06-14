@@ -85,7 +85,7 @@ fn non_comparison_condition_requires_lists_setting() {
     .arg("foo")
     .stderr(
       r#"
-        error: `if` and `assert` conditions require `set lists` unless they are comparisons
+        error: `if` and `assert` conditions other than comparisons require `set lists`
          ——▶ justfile:1:9
           │
         1 │ x := if "foo" { "t" } else { "f" }
