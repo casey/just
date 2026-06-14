@@ -328,6 +328,9 @@ impl Display for CompileError<'_> {
           "short option name for parameter `{parameter}` contains multiple characters"
         )
       }
+      ShowFunctionWithoutListsSetting => {
+        write!(f, "the `show()` function requires `set lists`")
+      }
       StarredArgumentOutsideMappedDependency => write!(
         f,
         "starred arguments may not be used outside mapped dependencies",

@@ -152,6 +152,7 @@ pub(crate) enum CompileErrorKind<'src> {
   ShortOptionWithMultipleCharacters {
     parameter: String,
   },
+  ShowFunctionWithoutListsSetting,
   StarredArgumentOutsideMappedDependency,
   UndefinedArgAttribute {
     argument: String,
