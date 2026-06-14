@@ -438,11 +438,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           unreachable!();
         }
       }
-      Expression::Comparison { .. } => Ok(if self.evaluate_condition(expression)? {
-        Value::from("true")
-      } else {
-        Value::new()
-      }),
+      Expression::Comparison { .. } => Ok(self.evaluate_condition(expression)?.into()),
       Expression::Concatenation { lhs, rhs } => {
         let lhs = self.evaluate_string(lhs)?;
         let rhs = self.evaluate_string(rhs)?;
