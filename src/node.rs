@@ -166,7 +166,7 @@ impl<'src> Node<'src> for Expression<'src> {
         lhs: Some(lhs),
         rhs,
       } => Tree::atom("/").push(lhs.tree()).push(rhs.tree()),
-      Self::List { elements } => {
+      Self::List { elements, .. } => {
         let mut tree = Tree::atom("list");
         for element in elements {
           tree.push_mut(element.tree());

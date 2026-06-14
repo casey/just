@@ -413,7 +413,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     if value.elements().len() != 1 {
       return Err(Error::ListInStringContext {
         context,
-        token: expression.token().map(Box::new),
+        token: Box::new(expression.token()),
         value,
       });
     }
@@ -515,7 +515,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         let rhs = self.evaluate_string(rhs, StringContext::Join)?;
         Ok((lhs + "/" + &rhs).into())
       }
-      Expression::List { elements } => {
+      Expression::List { elements, .. } => {
         let mut values = Vec::new();
         for element in elements {
           values.extend(self.evaluate_value(element)?.into_elements());

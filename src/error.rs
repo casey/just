@@ -150,7 +150,7 @@ pub(crate) enum Error<'src> {
   },
   ListInStringContext {
     context: StringContext<'src>,
-    token: Option<Box<Token<'src>>>,
+    token: Box<Token<'src>>,
     value: Value,
   },
   Load {
@@ -321,7 +321,7 @@ impl<'src> Error<'src> {
       Self::Compile { compile_error } => Some(compile_error.context()),
       Self::Const { const_error } => Some(const_error.context()),
       Self::FunctionCall { function, .. } => Some(function.token),
-      Self::ListInStringContext { token, .. } => token.as_deref().copied(),
+      Self::ListInStringContext { token, .. } => Some(**token),
       Self::MissingImportFile { path } => Some(*path),
       _ => None,
     }
@@ -682,7 +682,8 @@ impl ColorDisplay for Error<'_> {
           f,
           "list value {} {context}\n\
           the ideal behavior of lists in many contexts is undecided, see https://github.com/casey/just/issues/3377\n\
-          consider leaving a comment explaining your use case",
+          consider leaving a comment explaining your use case\n\
+          note that the source location of this error may be inaccurate",
           value.color_display(color),
         )?;
       }

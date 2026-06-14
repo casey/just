@@ -53,7 +53,10 @@ pub(crate) enum Expression<'src> {
     rhs: Box<Self>,
   },
   /// `[a, b, c]`
-  List { elements: Vec<Expression<'src>> },
+  List {
+    elements: Vec<Expression<'src>>,
+    open: Token<'src>,
+  },
   /// `!operand`
   Not { operand: Box<Self> },
   /// `lhs || rhs`
@@ -69,24 +72,22 @@ impl<'src> Expression<'src> {
     References::new(self)
   }
 
-  pub(crate) fn token(&self) -> Option<Token<'src>> {
+  pub(crate) fn token(&self) -> Token<'src> {
     match self {
       Self::And { lhs, .. }
       | Self::Comparison { lhs, .. }
       | Self::Concatenation { lhs, .. }
       | Self::Join { lhs: Some(lhs), .. }
       | Self::Or { lhs, .. } => lhs.token(),
-      Self::Assert { name, .. } | Self::Call { name, .. } | Self::Variable { name } => {
-        Some(name.token)
-      }
-      Self::Backtick { token, .. } => Some(*token),
+      Self::Assert { name, .. } | Self::Call { name, .. } | Self::Variable { name } => name.token,
+      Self::Backtick { token, .. } => *token,
       Self::Conditional { condition, .. } => condition.token(),
-      Self::FormatString { start, .. } => Some(start.token),
+      Self::FormatString { start, .. } => start.token,
       Self::Group { contents } => contents.token(),
       Self::Join { lhs: None, rhs } => rhs.token(),
-      Self::List { elements } => elements.first().and_then(Self::token),
+      Self::List { open, .. } => *open,
       Self::Not { operand } => operand.token(),
-      Self::StringLiteral { string_literal } => Some(string_literal.token),
+      Self::StringLiteral { string_literal } => string_literal.token,
     }
   }
 }
@@ -141,7 +142,7 @@ impl Display for Expression<'_> {
         lhs: Some(lhs),
         rhs,
       } => write!(f, "{lhs} / {rhs}"),
-      Self::List { elements } => {
+      Self::List { elements, .. } => {
         write!(f, "[")?;
         for (i, element) in elements.iter().enumerate() {
           if i > 0 {
@@ -240,7 +241,7 @@ impl Serialize for Expression<'_> {
         seq.serialize_element(rhs)?;
         seq.end()
       }
-      Self::List { elements } => {
+      Self::List { elements, .. } => {
         let mut seq = serializer.serialize_seq(None)?;
         seq.serialize_element("list")?;
         for element in elements {

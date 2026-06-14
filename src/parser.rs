@@ -1018,7 +1018,10 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     self.expect(BracketR)?;
 
-    Ok(Expression::List { elements })
+    Ok(Expression::List {
+      elements,
+      open: bracket,
+    })
   }
 
   /// Parse a string literal, e.g. `"FOO"`
