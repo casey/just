@@ -174,7 +174,7 @@ fn bool_requires_lists_setting() {
     .args(["--evaluate", "x"])
     .stderr(
       "
-        error: the `bool` function requires `set lists`
+        error: the `bool()` function requires `set lists`
          ——▶ justfile:1:6
           │
         1 │ x := bool('true')
