@@ -95,15 +95,15 @@ impl Display for Expression<'_> {
         then,
         otherwise,
       } => {
+        write!(f, "if {condition} {{ {then} }}")?;
         if let Some(otherwise) = otherwise {
           if let Self::Conditional { .. } = **otherwise {
-            write!(f, "if {condition} {{ {then} }} else {otherwise}")
+            write!(f, " else {otherwise}")?;
           } else {
-            write!(f, "if {condition} {{ {then} }} else {{ {otherwise} }}")
+            write!(f, " else {{ {otherwise} }}")?;
           }
-        } else {
-          write!(f, "if {condition} {{ {then} }}")
         }
+        Ok(())
       }
       Self::FormatString { start, expressions } => {
         write!(f, "{start}")?;
