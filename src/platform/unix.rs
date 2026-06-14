@@ -36,11 +36,7 @@ impl PlatformInterface for Platform {
     exit_status.signal()
   }
 
-  fn convert_native_path(
-    _config: &Config,
-    _working_directory: &Path,
-    path: &Path,
-  ) -> FunctionResult {
+  fn convert_native_path(_config: &Config, _working_directory: &Path, path: &Path) -> StringResult {
     path
       .to_str()
       .map(str::to_string)
