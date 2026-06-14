@@ -1350,12 +1350,14 @@ $1=one
 $2=two
 ```
 
-A mapped dependency is invoked once per element of its starred argument:
+A mapped dependency is invoked once per element of its starred argument, with
+`[parallel]` to run them in parallel:
 
 ```just
 set unstable
 set lists
 
+[parallel]
 build target *platform: *(compile target *platform)
 
 @compile target platform:
