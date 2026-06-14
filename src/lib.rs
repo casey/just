@@ -86,6 +86,7 @@ pub(crate) use {
     references::References,
     request::Request,
     resolution::Resolution,
+    restricted_function::RestrictedFunction,
     scope::Scope,
     search::Search,
     search_config::SearchConfig,
@@ -279,6 +280,7 @@ mod recipe_signature;
 mod reference;
 mod references;
 mod resolution;
+mod restricted_function;
 mod run;
 mod scope;
 mod search;

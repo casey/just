@@ -33,6 +33,7 @@ pub(crate) struct Parser<'run, 'src> {
   next_token: usize,
   numerator: &'run mut Numerator,
   recursion_depth: usize,
+  restricted_functions: Vec<(RestrictedFunction, Token<'src>)>,
   tokens: &'run [Token<'src>],
   unstable_features: BTreeSet<UnstableFeature>,
   working_directory: &'run Path,
@@ -58,6 +59,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       next_token: 0,
       numerator,
       recursion_depth: 0,
+      restricted_functions: Vec::new(),
       tokens,
       unstable_features: BTreeSet::new(),
       working_directory,
@@ -99,6 +101,12 @@ impl<'run, 'src> Parser<'run, 'src> {
     if self.list_feature.is_none() {
       self.list_feature = Some((list_feature, token));
     }
+  }
+
+  fn restricted_function(&mut self, restricted_function: RestrictedFunction, name: Name<'src>) {
+    self
+      .restricted_functions
+      .push((restricted_function, name.token));
   }
 
   /// Construct an unexpected token error with the token returned by
@@ -487,6 +495,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       items: self.items,
       list_feature: self.list_feature,
       module_path: self.module_namepath.map(Into::into).unwrap_or_default(),
+      restricted_functions: self.restricted_functions,
       unstable_features: self.unstable_features,
       warnings: Vec::new(),
       working_directory: self.working_directory.into(),
@@ -941,12 +950,17 @@ impl<'run, 'src> Parser<'run, 'src> {
         if self.next_is(ParenL) {
           let arguments = self.parse_sequence()?;
           match name.lexeme() {
-            "bool" => self.list_feature(ListFeature::BoolFunction, name.token),
-            "show" => self.list_feature(ListFeature::ShowFunction, name.token),
+            "bool" => {
+              self.restricted_function(RestrictedFunction::List(ListFeature::BoolFunction), name);
+            }
+            "show" => {
+              self.restricted_function(RestrictedFunction::List(ListFeature::ShowFunction), name);
+            }
             "which" => {
-              self
-                .unstable_features
-                .insert(UnstableFeature::WhichFunction);
+              self.restricted_function(
+                RestrictedFunction::Unstable(UnstableFeature::WhichFunction),
+                name,
+              );
             }
             _ => {}
           }

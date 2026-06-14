@@ -44,14 +44,14 @@ evolve(cells) := step('0', cells, '')
 
 pixel(c) := if c == '1' { '█' } else { ' ' }
 
-render(s) := if s == '' { '' } else { pixel(head(s)) + render(tail(s)) }
+show(s) := if s == '' { '' } else { pixel(head(s)) + show(tail(s)) }
 
 dec(n) := trim_start_match(n, '.')
 
 run(cells, n) := if n == '' {
-  render(cells)
+  show(cells)
 } else {
-  render(cells) + "\n" + run(evolve(cells), dec(n))
+  show(cells) + "\n" + run(evolve(cells), dec(n))
 }
 
 initial := '1000000000000000000000000000000000000000000000000000000000000'
