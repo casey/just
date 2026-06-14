@@ -687,7 +687,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         positional.push(value.join());
       }
 
-      let value = if context.module.settings.lists {
+      let value = if evaluator.lists {
         value
       } else {
         value.join().into()
