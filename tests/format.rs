@@ -1592,6 +1592,25 @@ fn arg_attribute_long() {
 }
 
 #[test]
+fn arg_attribute_long_bare() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long)]
+        @foo bar:
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        [arg('bar', long)]
+        @foo bar:
+      ",
+    )
+    .success();
+}
+
+#[test]
 fn arg_attribute_pattern() {
   Test::new()
     .justfile(

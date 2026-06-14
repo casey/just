@@ -309,7 +309,7 @@ impl Display for Attribute<'_> {
       Self::Arg {
         help,
         long,
-        long_key: _,
+        long_key,
         name,
         pattern,
         short,
@@ -317,7 +317,9 @@ impl Display for Attribute<'_> {
       } => {
         write!(f, "({name}")?;
 
-        if let Some(long) = long {
+        if long_key.is_some() {
+          write!(f, ", long")?;
+        } else if let Some(long) = long {
           write!(f, ", long={long}")?;
         }
 
