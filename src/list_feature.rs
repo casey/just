@@ -9,7 +9,7 @@ pub(crate) enum ListFeature {
 }
 
 impl ListFeature {
-  pub(crate) fn error_kind<'src>(self) -> CompileErrorKind<'src> {
+  pub(crate) fn error_kind(self) -> CompileErrorKind<'static> {
     match self {
       Self::ComparisonOperator => CompileErrorKind::ComparisonOperatorWithoutListsSetting,
       Self::ListLiteral => CompileErrorKind::ListLiteralWithoutListsSetting,
