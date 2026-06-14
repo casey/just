@@ -33,10 +33,10 @@ pub(crate) struct Parser<'run, 'src> {
   logical_operator: Option<Token<'src>>,
   module_namepath: Option<&'run Namepath<'src>>,
   next_token: usize,
+  non_comparison_condition: Option<Token<'src>>,
   numerator: &'run mut Numerator,
   recursion_depth: usize,
   tokens: &'run [Token<'src>],
-  truthy_condition: Option<Token<'src>>,
   unstable_features: BTreeSet<UnstableFeature>,
   working_directory: &'run Path,
 }
@@ -61,10 +61,10 @@ impl<'run, 'src> Parser<'run, 'src> {
       logical_operator: None,
       module_namepath,
       next_token: 0,
+      non_comparison_condition: None,
       numerator,
       recursion_depth: 0,
       tokens,
-      truthy_condition: None,
       unstable_features: BTreeSet::new(),
       working_directory,
     }
@@ -489,7 +489,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       list_literal: self.list_literal,
       logical_operator: self.logical_operator,
       module_path: self.module_namepath.map(Into::into).unwrap_or_default(),
-      truthy_condition: self.truthy_condition,
+      non_comparison_condition: self.non_comparison_condition,
       unstable_features: self.unstable_features,
       warnings: Vec::new(),
       working_directory: self.working_directory.into(),
@@ -833,8 +833,8 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_condition(&mut self) -> CompileResult<'src, Expression<'src>> {
     let token = self.next()?;
     let condition = self.parse_or(true)?;
-    if !condition.is_comparison() && self.truthy_condition.is_none() {
-      self.truthy_condition = Some(token);
+    if !condition.is_comparison() && self.non_comparison_condition.is_none() {
+      self.non_comparison_condition = Some(token);
     }
     Ok(condition)
   }

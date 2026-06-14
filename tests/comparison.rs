@@ -71,7 +71,7 @@ fn value_comparison_requires_lists_setting() {
 }
 
 #[test]
-fn truthy_condition_requires_lists_setting() {
+fn non_comparison_condition_requires_lists_setting() {
   Test::new()
     .justfile(
       r#"

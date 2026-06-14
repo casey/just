@@ -49,7 +49,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut comparison_operator = None;
     let mut list_literal = None;
     let mut logical_operator = None;
-    let mut truthy_condition = None;
+    let mut non_comparison_condition = None;
     let mut unstable_features = BTreeSet::new();
 
     let mut stack = Vec::new();
@@ -71,8 +71,8 @@ impl<'run, 'src> Analyzer<'run, 'src> {
         logical_operator = ast.logical_operator;
       }
 
-      if truthy_condition.is_none() {
-        truthy_condition = ast.truthy_condition;
+      if non_comparison_condition.is_none() {
+        non_comparison_condition = ast.non_comparison_condition;
       }
 
       for item in &ast.items {
@@ -274,11 +274,11 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       }
     }
 
-    if let Some(token) = truthy_condition {
+    if let Some(token) = non_comparison_condition {
       if !settings.lists {
         return Err(
           token
-            .error(CompileErrorKind::TruthyConditionWithoutListsSetting)
+            .error(CompileErrorKind::NonComparisonConditionWithoutListsSetting)
             .into(),
         );
       }

@@ -329,7 +329,7 @@ impl Display for CompileError<'_> {
         f,
         "starred arguments may not be used outside mapped dependencies",
       ),
-      TruthyConditionWithoutListsSetting => {
+      NonComparisonConditionWithoutListsSetting => {
         write!(
           f,
           "`if` and `assert` conditions require `set lists` unless they are comparisons"

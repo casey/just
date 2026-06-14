@@ -121,6 +121,7 @@ pub(crate) enum CompileErrorKind<'src> {
     first_line: usize,
     second: Keyword,
   },
+  NonComparisonConditionWithoutListsSetting,
   OptionNameContainsEqualSign {
     parameter: String,
   },
@@ -150,7 +151,6 @@ pub(crate) enum CompileErrorKind<'src> {
     parameter: String,
   },
   StarredArgumentOutsideMappedDependency,
-  TruthyConditionWithoutListsSetting,
   UndefinedArgAttribute {
     argument: String,
   },
