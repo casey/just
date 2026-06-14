@@ -225,18 +225,7 @@ impl Display for CompileError<'_> {
           _ => character.escape_default().collect(),
         }
       ),
-      BoolFunctionWithoutListsSetting => {
-        write!(f, "the `bool()` function requires `set lists`")
-      }
-      ComparisonOperatorWithoutListsSetting => {
-        write!(f, "comparison operators require `set lists`")
-      }
-      ListLiteralWithoutListsSetting => {
-        write!(f, "list literals require `set lists`")
-      }
-      LogicalOperatorWithoutListsSetting => {
-        write!(f, "logical operators require `set lists`")
-      }
+      ListFeature(feature) => write!(f, "{feature}"),
       MappedDependencyMultipleStarredArguments => {
         write!(
           f,
@@ -328,22 +317,10 @@ impl Display for CompileError<'_> {
           "short option name for parameter `{parameter}` contains multiple characters"
         )
       }
-      ShowFunctionWithoutListsSetting => {
-        write!(f, "the `show()` function requires `set lists`")
-      }
       StarredArgumentOutsideMappedDependency => write!(
         f,
         "starred arguments may not be used outside mapped dependencies",
       ),
-      NegationOperatorWithoutListsSetting => {
-        write!(f, "negation operator requires `set lists`")
-      }
-      NonComparisonConditionWithoutListsSetting => {
-        write!(
-          f,
-          "`if` and `assert` conditions other than comparisons require `set lists`",
-        )
-      }
       RequiredParameterFollowsDefaultParameter { parameter } => write!(
         f,
         "non-default parameter `{parameter}` follows default parameter"
