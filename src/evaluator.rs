@@ -522,17 +522,23 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     let Expression::Comparison { lhs, operator, rhs } = condition else {
       return Ok(self.evaluate_value(condition)?.is_truthy());
     };
-    let lhs_value = self.evaluate_string(lhs)?;
-    let rhs_value = self.evaluate_string(rhs)?;
     let condition = match operator {
-      ConditionalOperator::Equality => lhs_value == rhs_value,
-      ConditionalOperator::Inequality => lhs_value != rhs_value,
-      ConditionalOperator::RegexMatch => Regex::new(&rhs_value)
-        .map_err(|source| Error::RegexCompile { source })?
-        .is_match(&lhs_value),
-      ConditionalOperator::RegexMismatch => !Regex::new(&rhs_value)
-        .map_err(|source| Error::RegexCompile { source })?
-        .is_match(&lhs_value),
+      ConditionalOperator::Equality => self.evaluate_value(lhs)? == self.evaluate_value(rhs)?,
+      ConditionalOperator::Inequality => self.evaluate_value(lhs)? != self.evaluate_value(rhs)?,
+      ConditionalOperator::RegexMatch => {
+        let lhs = self.evaluate_string(lhs)?;
+        let rhs = self.evaluate_string(rhs)?;
+        Regex::new(&rhs)
+          .map_err(|source| Error::RegexCompile { source })?
+          .is_match(&lhs)
+      }
+      ConditionalOperator::RegexMismatch => {
+        let lhs = self.evaluate_string(lhs)?;
+        let rhs = self.evaluate_string(rhs)?;
+        !Regex::new(&rhs)
+          .map_err(|source| Error::RegexCompile { source })?
+          .is_match(&lhs)
+      }
     };
     Ok(condition)
   }
