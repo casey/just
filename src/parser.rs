@@ -734,17 +734,17 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   fn parse_disjunct(&mut self, condition: bool) -> CompileResult<'src, Expression<'src>> {
-    let lhs = self.parse_comparison(condition)?;
+    let conjunct = self.parse_comparison(condition)?;
 
     let expression = if let Some(token) = self.accept(AmpersandAmpersand)? {
       if self.logical_operator.is_none() {
         self.logical_operator = Some(token);
       }
-      let lhs = lhs.into();
+      let lhs = conjunct.into();
       let rhs = self.parse_disjunct(false)?.into();
       Expression::And { lhs, rhs }
     } else {
-      lhs
+      conjunct
     };
 
     Ok(expression)
