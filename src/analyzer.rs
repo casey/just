@@ -45,9 +45,9 @@ impl<'run, 'src> Analyzer<'run, 'src> {
   ) -> RunResult<'src, Justfile<'src>> {
     let mut absent_modules = BTreeSet::new();
     let mut definitions = HashMap::new();
-    let mut function_features = Vec::new();
     let mut imports = HashSet::new();
     let mut list_feature = None;
+    let mut restricted_functions = Vec::new();
     let mut unstable_features = BTreeSet::new();
 
     let mut stack = Vec::new();
@@ -57,7 +57,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     while let Some(ast) = stack.pop() {
       unstable_features.extend(&ast.unstable_features);
 
-      function_features.extend(&ast.function_features);
+      restricted_functions.extend(&ast.restricted_functions);
 
       if list_feature.is_none() {
         list_feature = ast.list_feature;
@@ -185,18 +185,18 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       functions.insert(function.clone());
     }
 
-    for (feature, token) in function_features {
+    for (restricted_function, token) in restricted_functions {
       if functions.contains_key(token.lexeme()) {
         continue;
       }
 
-      match feature {
-        FunctionFeature::List(feature) => {
+      match restricted_function {
+        RestrictedFunction::List(feature) => {
           if list_feature.is_none() {
             list_feature = Some((feature, token));
           }
         }
-        FunctionFeature::Unstable(feature) => {
+        RestrictedFunction::Unstable(feature) => {
           unstable_features.insert(feature);
         }
       }

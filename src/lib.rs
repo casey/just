@@ -48,7 +48,6 @@ pub(crate) use {
     fragment::Fragment,
     function::Function,
     function_definition::FunctionDefinition,
-    function_feature::FunctionFeature,
     indentation::Indentation,
     interpreter::Interpreter,
     invocation::Invocation,
@@ -87,6 +86,7 @@ pub(crate) use {
     references::References,
     request::Request,
     resolution::Resolution,
+    restricted_function::RestrictedFunction,
     scope::Scope,
     search::Search,
     search_config::SearchConfig,
@@ -243,7 +243,6 @@ mod format_string_part;
 mod fragment;
 mod function;
 mod function_definition;
-mod function_feature;
 mod indentation;
 mod interpreter;
 mod invocation;
@@ -281,6 +280,7 @@ mod recipe_signature;
 mod reference;
 mod references;
 mod resolution;
+mod restricted_function;
 mod run;
 mod scope;
 mod search;

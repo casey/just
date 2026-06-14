@@ -26,7 +26,6 @@ use {super::*, TokenKind::*};
 pub(crate) struct Parser<'run, 'src> {
   expected_tokens: BTreeSet<TokenKind>,
   file_depth: u32,
-  function_features: Vec<(FunctionFeature, Token<'src>)>,
   import_offsets: Vec<usize>,
   items: Vec<Item<'src>>,
   list_feature: Option<(ListFeature, Token<'src>)>,
@@ -34,6 +33,7 @@ pub(crate) struct Parser<'run, 'src> {
   next_token: usize,
   numerator: &'run mut Numerator,
   recursion_depth: usize,
+  restricted_functions: Vec<(RestrictedFunction, Token<'src>)>,
   tokens: &'run [Token<'src>],
   unstable_features: BTreeSet<UnstableFeature>,
   working_directory: &'run Path,
@@ -52,7 +52,6 @@ impl<'run, 'src> Parser<'run, 'src> {
     Self {
       expected_tokens: BTreeSet::new(),
       file_depth,
-      function_features: Vec::new(),
       import_offsets: import_offsets.to_vec(),
       items: Vec::new(),
       list_feature: None,
@@ -60,6 +59,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       next_token: 0,
       numerator,
       recursion_depth: 0,
+      restricted_functions: Vec::new(),
       tokens,
       unstable_features: BTreeSet::new(),
       working_directory,
@@ -103,8 +103,10 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
   }
 
-  fn function_feature(&mut self, function_feature: FunctionFeature, name: Name<'src>) {
-    self.function_features.push((function_feature, name.token));
+  fn restricted_function(&mut self, restricted_function: RestrictedFunction, name: Name<'src>) {
+    self
+      .restricted_functions
+      .push((restricted_function, name.token));
   }
 
   /// Construct an unexpected token error with the token returned by
@@ -490,10 +492,10 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
 
     Ok(Ast {
-      function_features: self.function_features,
       items: self.items,
       list_feature: self.list_feature,
       module_path: self.module_namepath.map(Into::into).unwrap_or_default(),
+      restricted_functions: self.restricted_functions,
       unstable_features: self.unstable_features,
       warnings: Vec::new(),
       working_directory: self.working_directory.into(),
@@ -948,11 +950,15 @@ impl<'run, 'src> Parser<'run, 'src> {
         if self.next_is(ParenL) {
           let arguments = self.parse_sequence()?;
           match name.lexeme() {
-            "bool" => self.function_feature(FunctionFeature::List(ListFeature::BoolFunction), name),
-            "show" => self.function_feature(FunctionFeature::List(ListFeature::ShowFunction), name),
+            "bool" => {
+              self.restricted_function(RestrictedFunction::List(ListFeature::BoolFunction), name);
+            }
+            "show" => {
+              self.restricted_function(RestrictedFunction::List(ListFeature::ShowFunction), name);
+            }
             "which" => {
-              self.function_feature(
-                FunctionFeature::Unstable(UnstableFeature::WhichFunction),
+              self.restricted_function(
+                RestrictedFunction::Unstable(UnstableFeature::WhichFunction),
                 name,
               );
             }
