@@ -63,6 +63,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "arch" => Nullary(arch),
     "blake3" => Unary(blake3),
     "blake3_file" => Unary(blake3_file),
+    "bool" => UnaryList(bool),
     "cache_directory" => Nullary(|_| dir("cache", dirs::cache_dir)),
     "canonicalize" => Unary(canonicalize),
     "capitalize" => Unary(capitalize),
@@ -148,6 +149,24 @@ fn boolean(context: &Context, condition: bool) -> Value {
   } else {
     Value::from("false")
   }
+}
+
+fn bool(context: Context, value: &Value) -> Result<Value, String> {
+  let condition = match value.elements() {
+    [] => false,
+    [element] => match element.as_str() {
+      "" | "0" | "false" => false,
+      "1" | "true" => true,
+      _ => return Err(format!("`{element}` is not a boolean")),
+    },
+    elements => {
+      return Err(format!(
+        "expected single element list but got {}",
+        Count::numbered("element", elements.len()),
+      ));
+    }
+  };
+  Ok(boolean(&context, condition))
 }
 
 fn absolute_path(context: Context, path: &str) -> FunctionResult {

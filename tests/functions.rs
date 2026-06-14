@@ -144,6 +144,65 @@ fn path_functions2() {
 }
 
 #[test]
+fn bool_invalid_value() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        x := bool('foo')
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["--evaluate", "x"])
+    .stderr(
+      "
+        error: call to function `bool` failed: `foo` is not a boolean
+         ——▶ justfile:3:6
+          │
+        3 │ x := bool('foo')
+          │      ^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn bool_requires_lists_setting() {
+  Test::new()
+    .justfile("x := bool('true')")
+    .args(["--evaluate", "x"])
+    .stderr(
+      "
+        error: the `bool` function requires `set lists`
+         ——▶ justfile:1:6
+          │
+        1 │ x := bool('true')
+          │      ^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn bool_multiple_elements() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        x := bool(['foo', 'bar'])
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["--evaluate", "x"])
+    .stderr_regex(
+      r"error: call to function `bool` failed: expected single element list but got 2 elements\n.*",
+    )
+    .failure();
+}
+
+#[test]
 fn broken_without_extension_function() {
   if cfg!(windows) {
     return;

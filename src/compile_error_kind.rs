@@ -20,6 +20,7 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   AttributePositionalFollowsKeyword,
   BacktickShebang,
+  BoolFunctionWithoutListsSetting,
   CircularRecipeDependency {
     recipe: &'src str,
     circle: Vec<&'src str>,

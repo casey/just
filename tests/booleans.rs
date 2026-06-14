@@ -1,6 +1,37 @@
 use super::*;
 
 #[test]
+fn bool_true_values() {
+  assert_list_eq(r#"bool("1")"#, TRUE);
+  assert_list_eq(r#"bool("true")"#, TRUE);
+}
+
+#[test]
+fn bool_false_values() {
+  assert_list_eq("bool([])", FALSE);
+  assert_list_eq(r#"bool("")"#, FALSE);
+  assert_list_eq(r#"bool("0")"#, FALSE);
+  assert_list_eq(r#"bool("false")"#, FALSE);
+}
+
+#[test]
+fn bool_false_falls_through_or() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        foo:
+          @echo {{ bool("0") || "fallback" }}
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("foo")
+    .stdout("fallback\n")
+    .success();
+}
+
+#[test]
 fn path_exists_true_is_true_string() {
   assert_list_eq("path_exists(justfile())", TRUE);
 }

@@ -945,6 +945,9 @@ impl<'run, 'src> Parser<'run, 'src> {
               .unstable_features
               .insert(UnstableFeature::WhichFunction);
           }
+          if name.lexeme() == "bool" {
+            self.list_feature(ListFeature::BoolFunction, name.token);
+          }
           Ok(Expression::Call { name, arguments })
         } else {
           Ok(Expression::Variable { name })

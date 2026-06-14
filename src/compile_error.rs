@@ -225,6 +225,9 @@ impl Display for CompileError<'_> {
           _ => character.escape_default().collect(),
         }
       ),
+      BoolFunctionWithoutListsSetting => {
+        write!(f, "the `bool` function requires `set lists`")
+      }
       ComparisonOperatorWithoutListsSetting => {
         write!(f, "comparison operators require `set lists`")
       }
