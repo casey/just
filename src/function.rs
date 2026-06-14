@@ -12,17 +12,17 @@ use {
 #[allow(clippy::arbitrary_source_item_ordering)]
 pub(crate) enum Function {
   Nullary(fn(Context) -> FunctionResult),
-  NullaryValue(fn(Context) -> Result<Value, String>),
+  NullaryValue(fn(Context) -> ValueResult),
   Unary(fn(Context, &str) -> FunctionResult),
-  UnaryList(fn(Context, &Value) -> Result<Value, String>),
+  UnaryList(fn(Context, &Value) -> ValueResult),
   UnaryMap(fn(Context, &str) -> FunctionResult),
   UnaryOpt(fn(Context, &str, Option<&str>) -> FunctionResult),
   UnaryPlus(fn(Context, &str, &[String]) -> FunctionResult),
-  UnaryValue(fn(Context, &str) -> Result<Value, String>),
+  UnaryValue(fn(Context, &str) -> ValueResult),
   Binary(fn(Context, &str, &str) -> FunctionResult),
-  BinaryList(fn(Context, &Value, &Value) -> Result<Value, String>),
+  BinaryList(fn(Context, &Value, &Value) -> ValueResult),
   BinaryPlus(fn(Context, &str, &str, &[String]) -> FunctionResult),
-  BinaryValue(fn(Context, &str, &str) -> Result<Value, String>),
+  BinaryValue(fn(Context, &str, &str) -> ValueResult),
   Ternary(fn(Context, &str, &str, &str) -> FunctionResult),
 }
 
@@ -149,7 +149,7 @@ fn boolean(context: &Context, condition: bool) -> Value {
   }
 }
 
-fn bool(context: Context, value: &Value) -> Result<Value, String> {
+fn bool(context: Context, value: &Value) -> ValueResult {
   let condition = match value.elements() {
     [] => false,
     [element] => match element.as_str() {
@@ -179,7 +179,7 @@ fn absolute_path(context: Context, path: &str) -> FunctionResult {
   }
 }
 
-fn append(context: Context, suffix: &Value, s: &Value) -> Result<Value, String> {
+fn append(context: Context, suffix: &Value, s: &Value) -> ValueResult {
   let [suffix] = suffix.elements() else {
     return Err(format!(
       "`suffix` must be single element list but has {}",
@@ -417,11 +417,11 @@ fn invocation_directory_native(context: Context) -> FunctionResult {
     })
 }
 
-fn is_dependency(context: Context) -> Result<Value, String> {
+fn is_dependency(context: Context) -> ValueResult {
   Ok(boolean(&context, context.is_dependency))
 }
 
-fn prepend(context: Context, prefix: &Value, s: &Value) -> Result<Value, String> {
+fn prepend(context: Context, prefix: &Value, s: &Value) -> ValueResult {
   let [prefix] = prefix.elements() else {
     return Err(format!(
       "`prefix` must be single element list but has {}",
@@ -569,7 +569,7 @@ fn parent_directory(_context: Context, path: &str) -> FunctionResult {
   }
 }
 
-fn path_exists(context: Context, path: &str) -> Result<Value, String> {
+fn path_exists(context: Context, path: &str) -> ValueResult {
   Ok(boolean(
     &context,
     context
@@ -652,7 +652,7 @@ fn shoutysnakecase(_context: Context, s: &str) -> FunctionResult {
   Ok(s.to_shouty_snake_case())
 }
 
-fn show(_context: Context, value: &Value) -> Result<Value, String> {
+fn show(_context: Context, value: &Value) -> ValueResult {
   Ok(value.color_display(Color::never()).to_string().into())
 }
 
@@ -756,7 +756,7 @@ fn uuid(_context: Context) -> FunctionResult {
   Ok(uuid::Uuid::new_v4().to_string())
 }
 
-fn which(context: Context, name: &str) -> Result<Value, String> {
+fn which(context: Context, name: &str) -> ValueResult {
   Ok(match crate::which(&context, name)? {
     Some(path) => Value::from(path),
     None => {
@@ -783,7 +783,7 @@ fn without_extension(_context: Context, path: &str) -> FunctionResult {
 
 /// Check whether a string processes properly as semver (e.x. "0.1.0")
 /// and matches a given semver requirement (e.x. ">=0.1.0")
-fn semver_matches(context: Context, version: &str, requirement: &str) -> Result<Value, String> {
+fn semver_matches(context: Context, version: &str, requirement: &str) -> ValueResult {
   Ok(boolean(
     &context,
     requirement
