@@ -44,7 +44,7 @@ evolve(cells) := step('0', cells, '')
 
 pixel(c) := if c == '1' { '█' } else { ' ' }
 
-render(s) := if s == '' { '' } else { pixel(head(s)) + render(tail(s)) }
+render(s) := if s == '' { '' } else { render(tail(s)) + pixel(head(s)) }
 
 dec(n) := trim_start_match(n, '.')
 
