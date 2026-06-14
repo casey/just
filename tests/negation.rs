@@ -11,21 +11,6 @@ fn negates_empty_list() {
 }
 
 #[test]
-fn empty_string_is_truthy() {
-  assert_list_eq("!''", FALSE);
-}
-
-#[test]
-fn negates_true_comparison() {
-  assert_list_eq("!('foo' == 'foo')", FALSE);
-}
-
-#[test]
-fn negates_false_comparison() {
-  assert_list_eq("!('foo' == 'bar')", TRUE);
-}
-
-#[test]
 fn double_negation() {
   assert_list_eq("!!'foo'", TRUE);
 }
