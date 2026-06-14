@@ -48,22 +48,20 @@ fn assert_empty_string_without_lists() {
     .success();
 }
 
-#[cfg(unix)]
 #[test]
 fn assert_true_in_setting_with_lists() {
   Test::new()
     .justfile(
       "
         set lists
-        set working-directory := assert('a' == 'a', 'fail')
+        set dotenv-filename := assert('a' == 'a', 'fail')
 
         foo:
-          @cat marker
+          @echo $KEY
       ",
     )
-    .write("true/marker", "ran\n")
+    .write("true", "KEY=VAR\n")
     .env("JUST_UNSTABLE", "1")
-    .arg("foo")
-    .stdout("ran\n")
+    .stdout("VAR\n")
     .success();
 }
