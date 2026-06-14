@@ -1299,6 +1299,10 @@ just in `if` and `assert()`, and evaluate to `"true"` or `[]`.
 Values may be negated with `!`. `!expression` evaluates to `"true"` if
 `expression` is `[]`, otherwise it evaluates to `[]`.
 
+The `[arg]` `flag` attribute, makes the parameter a flag which does not take a
+value on the command line. For example, with `[arg(foo, long, flag)]`, `foo`
+will be `"true"` when `--foo` is passed, and `[]` otherwise.
+
 ##### Examples
 
 Each list element is `quote()`'ed separately:
@@ -1362,6 +1366,16 @@ build target *platform: *(compile target *platform)
 $ just build x86 foo bar
 compiling foo for x86…
 compiling bar for x86…
+```
+
+The canonical false value `[]` is recommended as a default for options:
+
+```just
+set unstable
+set lists
+
+#[arg(bar, long)]
+foo bar=[]:
 ```
 
 #### Positional Arguments

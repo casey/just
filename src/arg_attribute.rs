@@ -1,6 +1,7 @@
 use super::*;
 
 pub(crate) struct ArgAttribute<'src> {
+  pub(crate) flag: bool,
   pub(crate) help: Option<String>,
   pub(crate) long: Option<String>,
   pub(crate) name: Token<'src>,

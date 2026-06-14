@@ -12,6 +12,8 @@ use super::*;
 pub(crate) enum Attribute<'src> {
   Android,
   Arg {
+    #[serde(skip)]
+    flag: Option<Token<'src>>,
     help: Option<StringLiteral<'src>>,
     long: Option<StringLiteral<'src>>,
     #[serde(skip)]
@@ -206,9 +208,37 @@ impl<'src> Attribute<'src> {
         let value = Self::remove_required(&mut keyword_arguments, "value")?
           .map(|(key, literal)| {
             if long.is_none() && short.is_none() {
-              return Err(key.error(CompileErrorKind::ArgAttributeValueRequiresOption));
+              return Err(
+                key.error(CompileErrorKind::ArgAttributeRequiresOption { keyword: "value" }),
+              );
             }
             Ok(literal)
+          })
+          .transpose()?;
+
+        let flag = keyword_arguments
+          .remove("flag")
+          .map(|(key, literal)| {
+            if let Some(literal) = literal {
+              return Err(
+                literal
+                  .token
+                  .error(CompileErrorKind::FlagAttributeTakesNoValue {
+                    parameter: arg.cooked.clone(),
+                  }),
+              );
+            }
+            if long.is_none() && short.is_none() {
+              return Err(
+                key.error(CompileErrorKind::ArgAttributeRequiresOption { keyword: "flag" }),
+              );
+            }
+            if value.is_some() {
+              return Err(key.error(CompileErrorKind::FlagAndValueArgAttribute {
+                parameter: arg.cooked.clone(),
+              }));
+            }
+            Ok(*key)
           })
           .transpose()?;
 
@@ -216,6 +246,7 @@ impl<'src> Attribute<'src> {
           Self::remove_required(&mut keyword_arguments, "help")?.map(|(_key, literal)| literal);
 
         Self::Arg {
+          flag,
           help,
           long,
           long_key,
@@ -307,6 +338,7 @@ impl Display for Attribute<'_> {
 
     match self {
       Self::Arg {
+        flag,
         help,
         long,
         long_key,
@@ -333,6 +365,10 @@ impl Display for Attribute<'_> {
 
         if let Some(value) = value {
           write!(f, ", value={value}")?;
+        }
+
+        if flag.is_some() {
+          write!(f, ", flag")?;
         }
 
         if let Some(help) = help {

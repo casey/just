@@ -197,7 +197,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
         continue;
       }
 
-      if parameter.default.is_some() || parameter.kind == ParameterKind::Star {
+      if parameter.default.is_some() || parameter.kind == ParameterKind::Star || parameter.flag {
         continue;
       }
 

@@ -4,6 +4,7 @@ use super::*;
 pub(crate) enum ListFeature {
   BoolFunction,
   ComparisonOperator,
+  Flag,
   ListLiteral,
   LogicalOperator,
   NegationOperator,
@@ -16,6 +17,7 @@ impl Display for ListFeature {
     match self {
       Self::BoolFunction => write!(f, "the `bool()` function requires `set lists`"),
       Self::ComparisonOperator => write!(f, "comparison operators require `set lists`"),
+      Self::Flag => write!(f, "`flag` arguments require `set lists`"),
       Self::ListLiteral => write!(f, "list literals require `set lists`"),
       Self::LogicalOperator => write!(f, "logical operators require `set lists`"),
       Self::NegationOperator => write!(f, "negation operator requires `set lists`"),
