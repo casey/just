@@ -1294,7 +1294,7 @@ The condition of an `if` or `assert()` may be any expression, which is
 evaluated for truthiness.
 
 The `else` of an `if` may be omitted, in which case the `if` evaluates to `[]`
-when false.
+when its condition is false.
 
 The comparison operators `==`, `!=`, `=~`, and `!~` may be used anywhere, not
 just in `if` and `assert()`, and evaluate to `"true"` or `[]`.
