@@ -552,10 +552,11 @@ impl<'src> Justfile<'src> {
             }
           }
         } else {
-          group
-            .iter()
-            .map(|argument| evaluator.evaluate_string(&argument.expression))
-            .collect::<RunResult<Value>>()?
+          let mut elements = Vec::new();
+          for argument in group {
+            elements.push(evaluator.evaluate_value(&argument.expression)?.join());
+          }
+          elements.into()
         };
         grouped.push(value);
       }
