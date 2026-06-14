@@ -175,7 +175,7 @@ fn unexpected_op() {
     )
     .stderr(
       "
-        error: expected '&&', '!=', '!~', '||', '==', '=~', '+', or '/', but found identifier
+        error: expected '&&', '!=', '!~', '||', '{', '==', '=~', '+', or '/', but found identifier
          ——▶ justfile:1:12
           │
         1 │ a := if '' a '' { '' } else { b }

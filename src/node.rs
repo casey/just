@@ -121,13 +121,9 @@ impl<'src> Node<'src> for Expression<'src> {
     match self {
       Self::And { lhs, rhs } => Tree::atom("&&").push(lhs.tree()).push(rhs.tree()),
       Self::Assert {
-        condition: Condition { lhs, rhs, operator },
-        error,
-        ..
+        condition, error, ..
       } => Tree::atom(Keyword::Assert.lexeme())
-        .push(lhs.tree())
-        .push(operator.to_string())
-        .push(rhs.tree())
+        .push(condition.tree())
         .push(error.tree()),
       Self::Backtick { contents, .. } => Tree::atom("backtick").push(Tree::string(contents)),
       Self::Call { name, arguments } => {
@@ -138,16 +134,17 @@ impl<'src> Node<'src> for Expression<'src> {
         }
         tree
       }
+      Self::Comparison { lhs, operator, rhs } => Tree::atom(operator.to_string())
+        .push(lhs.tree())
+        .push(rhs.tree()),
       Self::Concatenation { lhs, rhs } => Tree::atom("+").push(lhs.tree()).push(rhs.tree()),
       Self::Conditional {
-        condition: Condition { lhs, rhs, operator },
+        condition,
         then,
         otherwise,
       } => {
         let mut tree = Tree::atom(Keyword::If.lexeme());
-        tree.push_mut(lhs.tree());
-        tree.push_mut(operator.to_string());
-        tree.push_mut(rhs.tree());
+        tree.push_mut(condition.tree());
         tree.push_mut(then.tree());
         tree.push_mut(otherwise.tree());
         tree

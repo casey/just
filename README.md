@@ -1243,9 +1243,9 @@ section documents changes in behavior when `set lists` is enabled.
 Variadic recipe parameters are lists of strings instead of single
 space-separated strings.
 
-Lists literals are written `[a, b, c]` and are flattened, since lists may only
-contain strings and not other lists. For example, `[["a", "b"], [], "c"]`
-evaluates to `["a", "b", "c"]`.
+List literals are written `[a, b, c]`. List literals flatten their arguments,
+lists may only contain strings and not other lists. For example,
+`[["a", "b"], [], "c"]` evaluates to `["a", "b", "c"]`.
 
 The following functions apply to each list element individually:
 
@@ -1264,7 +1264,7 @@ list are truthy, including `''`.
 The functions `is_dependency()`, `path_exists()`, and `semver_matches()` return
 the canonical booleans.
 
-`which()` function the empty list when no executable is found.
+`which()` returns the empty list when no executable is found.
 
 Each argument to a dependency binds to exactly one parameter, and supplying
 extra arguments to a variadic dependency is an error.
@@ -1279,6 +1279,12 @@ Passing an empty list to a non-`*` parameter without a default is an error.
 When `positional-arguments` is set, list arguments are space-joined unless they
 are variadic, in which case they are passed as one positional argument per
 element.
+
+The condition of an `if` or `assert()` may be any expression, which is
+evaluated for truthiness.
+
+The comparison operators `==`, `!=`, `=~`, and `!~` may be used anywhere, not
+just in `if` and `assert()`, and evaluate to `"true"` or `[]`.
 
 ##### Examples
 

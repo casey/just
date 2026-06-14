@@ -24,7 +24,7 @@ fn shell_expanded_strings_must_not_have_whitespace() {
     )
     .stderr(
       "
-        error: expected '&&', '||', comment, end of file, end of line, '(', '+', or '/', but found string
+        error: expected '&&', '!=', '!~', '||', comment, end of file, end of line, '==', '=~', '(', '+', or '/', but found string
          ——▶ justfile:1:8
           │
         1 │ x := x '$JUST_TEST_VARIABLE'

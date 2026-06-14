@@ -72,6 +72,16 @@ impl From<&String> for Value {
   }
 }
 
+impl From<bool> for Value {
+  fn from(condition: bool) -> Self {
+    if condition {
+      "true".into()
+    } else {
+      Self::new()
+    }
+  }
+}
+
 impl From<&str> for Value {
   fn from(element: &str) -> Self {
     element.to_string().into()

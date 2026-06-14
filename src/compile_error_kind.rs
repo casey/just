@@ -28,6 +28,7 @@ pub(crate) enum CompileErrorKind<'src> {
     variable: &'src str,
     circle: Vec<&'src str>,
   },
+  ComparisonOperatorWithoutListsSetting,
   DependencyArgumentCountMismatch {
     dependency: Namepath<'src>,
     found: usize,
@@ -120,6 +121,7 @@ pub(crate) enum CompileErrorKind<'src> {
     first_line: usize,
     second: Keyword,
   },
+  NonComparisonConditionWithoutListsSetting,
   OptionNameContainsEqualSign {
     parameter: String,
   },

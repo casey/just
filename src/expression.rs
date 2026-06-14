@@ -13,7 +13,7 @@ pub(crate) enum Expression<'src> {
   /// `assert(condition, error)`
   Assert {
     name: Name<'src>,
-    condition: Condition<'src>,
+    condition: Box<Self>,
     error: Box<Self>,
   },
   /// `contents`
@@ -26,11 +26,17 @@ pub(crate) enum Expression<'src> {
     name: Name<'src>,
     arguments: Vec<Expression<'src>>,
   },
+  /// `lhs == rhs`
+  Comparison {
+    lhs: Box<Self>,
+    operator: ConditionalOperator,
+    rhs: Box<Self>,
+  },
   /// `lhs + rhs`
   Concatenation { lhs: Box<Self>, rhs: Box<Self> },
   /// `if condition { then } else { otherwise }`
   Conditional {
-    condition: Condition<'src>,
+    condition: Box<Self>,
     then: Box<Self>,
     otherwise: Box<Self>,
   },
@@ -80,6 +86,7 @@ impl Display for Expression<'_> {
         }
         write!(f, ")")
       }
+      Self::Comparison { lhs, operator, rhs } => write!(f, "{lhs} {operator} {rhs}"),
       Self::Concatenation { lhs, rhs } => write!(f, "{lhs} + {rhs}"),
       Self::Conditional {
         condition,
@@ -159,6 +166,13 @@ impl Serialize for Expression<'_> {
         for argument in arguments {
           seq.serialize_element(argument)?;
         }
+        seq.end()
+      }
+      Self::Comparison { lhs, operator, rhs } => {
+        let mut seq = serializer.serialize_seq(None)?;
+        seq.serialize_element(&operator.to_string())?;
+        seq.serialize_element(lhs)?;
+        seq.serialize_element(rhs)?;
         seq.end()
       }
       Self::Concatenation { lhs, rhs } => {

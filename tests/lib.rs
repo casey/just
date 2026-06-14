@@ -28,7 +28,9 @@ use {
   which::which,
 };
 
+const FALSE: &str = "[]";
 const JUST: &str = env!("CARGO_BIN_EXE_just");
+const TRUE: &str = "\"true\"";
 
 fn default<T: Default>() -> T {
   Default::default()
@@ -55,6 +57,7 @@ mod ceiling;
 mod changelog;
 mod choose;
 mod command;
+mod comparison;
 mod completions;
 mod conditional;
 mod confirm;
