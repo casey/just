@@ -32,3 +32,36 @@ fn assert_fail() {
     )
     .failure();
 }
+
+#[test]
+fn assert_true_with_lists() {
+  assert_list_eq("assert('a' == 'a', 'fail')", TRUE);
+}
+
+#[test]
+fn assert_empty_string_without_lists() {
+  Test::new()
+    .justfile("x := assert('a' == 'a', 'fail')")
+    .args(["--evaluate", "x"])
+    .stdout("")
+    .unindent_stdout(false)
+    .success();
+}
+
+#[test]
+fn assert_true_in_setting_with_lists() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set dotenv-filename := assert('a' == 'a', 'fail')
+
+        foo:
+          @echo $KEY
+      ",
+    )
+    .write("true", "KEY=VAR\n")
+    .env("JUST_UNSTABLE", "1")
+    .stdout("VAR\n")
+    .success();
+}
