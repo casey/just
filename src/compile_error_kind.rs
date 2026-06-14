@@ -20,7 +20,6 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   AttributePositionalFollowsKeyword,
   BacktickShebang,
-  BoolFunctionWithoutListsSetting,
   CircularRecipeDependency {
     recipe: &'src str,
     circle: Vec<&'src str>,
@@ -29,7 +28,6 @@ pub(crate) enum CompileErrorKind<'src> {
     variable: &'src str,
     circle: Vec<&'src str>,
   },
-  ComparisonOperatorWithoutListsSetting,
   DependencyArgumentCountMismatch {
     dependency: Namepath<'src>,
     found: usize,
@@ -101,8 +99,7 @@ pub(crate) enum CompileErrorKind<'src> {
   InvalidEscapeSequence {
     character: char,
   },
-  ListLiteralWithoutListsSetting,
-  LogicalOperatorWithoutListsSetting,
+  ListFeature(ListFeature),
   MappedDependencyMultipleStarredArguments,
   MappedDependencyWithoutListsSetting,
   MappedDependencyWithoutStarredArgument,
@@ -114,7 +111,6 @@ pub(crate) enum CompileErrorKind<'src> {
   MixedLeadingWhitespace {
     whitespace: &'src str,
   },
-  NegationOperatorWithoutListsSetting,
   NoCdAndWorkingDirectoryAttribute {
     recipe: &'src str,
   },
@@ -123,7 +119,6 @@ pub(crate) enum CompileErrorKind<'src> {
     first_line: usize,
     second: Keyword,
   },
-  NonComparisonConditionWithoutListsSetting,
   OptionNameContainsEqualSign {
     parameter: String,
   },
@@ -152,7 +147,6 @@ pub(crate) enum CompileErrorKind<'src> {
   ShortOptionWithMultipleCharacters {
     parameter: String,
   },
-  ShowFunctionWithoutListsSetting,
   StarredArgumentOutsideMappedDependency,
   UndefinedArgAttribute {
     argument: String,

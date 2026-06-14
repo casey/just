@@ -231,7 +231,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     if let Some((feature, token)) = list_feature {
       if !settings.lists {
-        return Err(token.error(feature.error_kind()).into());
+        return Err(token.error(CompileErrorKind::ListFeature(feature)).into());
       }
     }
 
