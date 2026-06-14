@@ -12,16 +12,20 @@ fn lists_setting_is_unstable() {
 fn quote_quotes_each_element_of_variadic_arguments() {
   Test::new()
     .justfile(
-      r#"
+      r"
         set lists
 
         foo *args:
-          @echo "{{ quote(args) }}"
-      "#,
+          @echo {{ quote(show(quote(args))) }}
+      ",
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar", "baz bob"])
-    .stdout("'bar' 'baz bob'\n")
+    .stdout(
+      r#"
+        ["'bar'", "'baz bob'"]
+      "#,
+    )
     .success();
 }
 
@@ -29,16 +33,16 @@ fn quote_quotes_each_element_of_variadic_arguments() {
 fn quote_of_empty_list_is_empty() {
   Test::new()
     .justfile(
-      r#"
+      r"
         set lists
 
         foo *args:
-          @echo "bar{{ quote(args) }}baz"
-      "#,
+          @echo '{{ show(quote(args)) }}'
+      ",
     )
     .env("JUST_UNSTABLE", "1")
     .arg("foo")
-    .stdout("barbaz\n")
+    .stdout("[]\n")
     .success();
 }
 
@@ -77,12 +81,12 @@ fn quote_quotes_single_element_values_whole() {
 fn absolute_path_resolves_each_element_of_a_list() {
   let test = Test::new()
     .justfile(
-      r#"
+      r"
         set lists
 
         foo *args:
-          @echo "{{ absolute_path(args) }}"
-      "#,
+          @echo '{{ show(absolute_path(args)) }}'
+      ",
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar", "baz bob"]);
@@ -95,7 +99,7 @@ fn absolute_path_resolves_each_element_of_a_list() {
 
   test
     .stdout(format!(
-      "{} {}\n",
+      "[{:?}, {:?}]\n",
       tempdir.join("bar").to_str().unwrap(),
       tempdir.join("baz bob").to_str().unwrap(),
     ))
@@ -106,16 +110,16 @@ fn absolute_path_resolves_each_element_of_a_list() {
 fn absolute_path_of_empty_list_is_empty() {
   Test::new()
     .justfile(
-      r#"
+      r"
         set lists
 
         foo *args:
-          @echo "bar{{ absolute_path(args) }}baz"
-      "#,
+          @echo '{{ show(absolute_path(args)) }}'
+      ",
     )
     .env("JUST_UNSTABLE", "1")
     .arg("foo")
-    .stdout("barbaz\n")
+    .stdout("[]\n")
     .success();
 }
 
@@ -123,16 +127,20 @@ fn absolute_path_of_empty_list_is_empty() {
 fn append_appends_to_each_element_of_a_list() {
   Test::new()
     .justfile(
-      r#"
+      r"
         set lists
 
         foo *args:
-          @echo "{{ append('.c', args) }}"
-      "#,
+          @echo '{{ show(append('.c', args)) }}'
+      ",
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar", "baz bob"])
-    .stdout("bar.c baz bob.c\n")
+    .stdout(
+      r#"
+        ["bar.c", "baz bob.c"]
+      "#,
+    )
     .success();
 }
 
@@ -140,16 +148,20 @@ fn append_appends_to_each_element_of_a_list() {
 fn prepend_prepends_to_each_element_of_a_list() {
   Test::new()
     .justfile(
-      r#"
+      r"
         set lists
 
         foo *args:
-          @echo "{{ prepend('src/', args) }}"
-      "#,
+          @echo '{{ show(prepend('src/', args)) }}'
+      ",
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar", "baz bob"])
-    .stdout("src/bar src/baz bob\n")
+    .stdout(
+      r#"
+        ["src/bar", "src/baz bob"]
+      "#,
+    )
     .success();
 }
 
@@ -221,7 +233,7 @@ fn append_does_not_split_single_strings_with_lists_setting() {
 }
 
 #[test]
-fn interpolations_join_lists_with_spaces() {
+fn interpolating_a_list_is_an_error() {
   Test::new()
     .justfile(
       "
@@ -233,8 +245,14 @@ fn interpolations_join_lists_with_spaces() {
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar", "baz"])
-    .stdout("bar baz\n")
-    .success();
+    .stderr(
+      r#"
+        error: list value ["bar", "baz"] used in an interpolation
+        the ideal behavior of lists in many contexts is undecided, see https://github.com/casey/just/issues/3377
+        consider leaving a comment explaining your use case
+      "#,
+    )
+    .failure();
 }
 
 #[test]

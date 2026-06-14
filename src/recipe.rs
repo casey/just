@@ -131,7 +131,10 @@ impl<'src> Recipe<'src> {
   pub(crate) fn confirm(&self, evaluator: &mut Evaluator<'src, '_>) -> RunResult<'src, bool> {
     if let Some(Attribute::Confirm(prompt)) = self.attributes.get(AttributeDiscriminant::Confirm) {
       if let Some(expression) = prompt {
-        eprint!("{} ", evaluator.evaluate_string(expression)?);
+        eprint!(
+          "{} ",
+          evaluator.evaluate_string(expression, StringContext::ConfirmPrompt)?
+        );
       } else {
         eprint!("Run recipe `{}`? ", self.name);
       }
@@ -213,9 +216,10 @@ impl<'src> Recipe<'src> {
 
     for attribute in &self.attributes {
       if let Attribute::WorkingDirectory(expression) = attribute {
-        return Ok(Some(
-          working_directory.join(&evaluator.evaluate_string(expression)?),
-        ));
+        return Ok(Some(working_directory.join(&evaluator.evaluate_string(
+          expression,
+          StringContext::WorkingDirectoryAttribute,
+        )?)));
       }
     }
 
