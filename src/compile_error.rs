@@ -332,7 +332,7 @@ impl Display for CompileError<'_> {
       NonComparisonConditionWithoutListsSetting => {
         write!(
           f,
-          "`if` and `assert` conditions require `set lists` unless they are comparisons"
+          "`if` and `assert` conditions other than comparisons require `set lists`",
         )
       }
       RequiredParameterFollowsDefaultParameter { parameter } => write!(
