@@ -34,8 +34,8 @@ fn assert_fail() {
 }
 
 #[test]
-fn assert_true_with_lists() {
-  assert_list_eq("assert('a' == 'a', 'fail')", TRUE);
+fn assert_evaluates_to_condition_with_lists() {
+  assert_list_eq("assert(['foo', 'bar'], 'fail')", r#"["foo", "bar"]"#);
 }
 
 #[test]

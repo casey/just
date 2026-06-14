@@ -1293,6 +1293,8 @@ element.
 The condition of an `if` or `assert()` may be any expression, which is
 evaluated for truthiness.
 
+`assert(condition)` evalutes to `condition`.
+
 The `else` of an `if` may be omitted, in which case the `if` evaluates to `[]`
 when its condition is false.
 
