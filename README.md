@@ -1261,8 +1261,13 @@ The canonical boolean true value is the string `"true"`, and the canonical
 boolean false value is the empty list `[]`. All values other than the empty
 list are truthy, including `''`.
 
-The functions `bool()`, `is_dependency()`, `path_exists()`, and
-`semver_matches()` return the canonical booleans.
+A `bool(value)` function is available for converting to the canonical boolean
+values. It returns `[]` when `value` is `""` `"0"` `"false"`, or `[]`, and
+`"true"` when `value` is `"1"` or `"true"`. All other values are an error. It
+can be used to parse booleans passed as arguments or environment variables.
+
+The functions `is_dependency()`, `path_exists()`, and `semver_matches()` return
+the canonical booleans.
 
 `which()` returns the empty list when no executable is found.
 
@@ -2260,13 +2265,6 @@ which will halt execution.
   broken symlink.
 - `read(path)`<sup>1.39.0</sup> - Returns the content of file at `path` as a
   string.
-
-#### Booleans
-
-- `bool(value)`<sup>master</sup> - Convert `value` to a boolean. The empty list
-  `[]`, `''`, `'0'`, and `'false'` are `false`; `'1'` and `'true'` are `true`.
-  A list with more than one element, or any other value, is an error. Requires
-  `set lists`, which is currently unstable.
 
 #### Assertions and Error Reporting
 
