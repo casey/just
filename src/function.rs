@@ -157,7 +157,7 @@ fn bool(context: Context, value: &Value) -> Result<Value, String> {
       "1" | "true" => true,
       _ => return Err(format!("`{element}` is not valid boolean string")),
     },
-    elements => {
+    _ => {
       return Err("multi-element lists cannot be converted into booleans".into());
     }
   };
