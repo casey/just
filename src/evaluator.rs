@@ -319,7 +319,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       Function::Nullary(f) => f(context!()).map(Value::from),
       Function::NullaryValue(f) => f(context!()),
       Function::Unary(f) => {
-        let a = self.evaluate_string(&arguments[0])?;
+        let a = self.evaluate_string_with_context(
+          &arguments[0],
+          StringContext::Function {
+            name: name.to_string(),
+          },
+        )?;
         f(context!(), &a).map(Value::from)
       }
       Function::UnaryValue(f) => {
@@ -396,6 +401,20 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     expression: &Expression<'src>,
   ) -> RunResult<'src, String> {
     Ok(self.evaluate_value(expression)?.join())
+  }
+
+  pub(crate) fn evaluate_string_with_context(
+    &mut self,
+    expression: &Expression<'src>,
+    context: StringContext,
+  ) -> RunResult<'src, String> {
+    let value = self.evaluate_value(expression)?;
+
+    if value.elements().len() != 1 {
+      return Err(Error::ListInStringContext { context, value });
+    }
+
+    Ok(value.join())
   }
 
   pub(crate) fn evaluate_value(&mut self, expression: &Expression<'src>) -> RunResult<'src, Value> {

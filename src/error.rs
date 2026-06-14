@@ -148,6 +148,10 @@ pub(crate) enum Error<'src> {
   Interrupted {
     signal: Signal,
   },
+  ListInStringContext {
+    context: StringContext,
+    value: Value,
+  },
   Load {
     path: PathBuf,
     io_error: io::Error,
@@ -670,6 +674,15 @@ impl ColorDisplay for Error<'_> {
       }
       Interrupted { signal } => {
         write!(f, "interrupted by {signal}")?;
+      }
+      ListInStringContext { context, value } => {
+        write!(
+          f,
+          "list value {} {context}\n\
+          the ideal behavior of lists in many contexts is undecided, see https://github.com/casey/just/issues/3377\n\
+          consider leaving a comment explaining your use case",
+          value.color_display(color),
+        )?;
       }
       ShellIo {
         recipe,

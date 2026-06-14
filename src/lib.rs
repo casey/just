@@ -102,6 +102,7 @@ pub(crate) use {
     signal::Signal,
     signal_handler::SignalHandler,
     source::Source,
+    string_context::StringContext,
     string_delimiter::StringDelimiter,
     string_kind::StringKind,
     string_literal::StringLiteral,
@@ -300,6 +301,7 @@ mod signal_handler;
 #[cfg(unix)]
 mod signals;
 mod source;
+mod string_context;
 mod string_delimiter;
 mod string_kind;
 mod string_literal;
