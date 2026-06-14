@@ -226,7 +226,7 @@ impl Display for CompileError<'_> {
         }
       ),
       BoolFunctionWithoutListsSetting => {
-        write!(f, "the `bool` function requires `set lists`")
+        write!(f, "the `bool()` function requires `set lists`")
       }
       ComparisonOperatorWithoutListsSetting => {
         write!(f, "comparison operators require `set lists`")
