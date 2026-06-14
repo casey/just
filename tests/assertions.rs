@@ -34,7 +34,7 @@ fn assert_fail() {
 }
 
 #[test]
-fn assert_evaluates_to_condition() {
+fn assert_evaluates_to_condition_with_lists() {
   assert_list_eq("assert(['foo', 'bar'], 'fail')", r#"["foo", "bar"]"#);
 }
 
