@@ -192,7 +192,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
       match feature {
         FunctionFeature::List(feature) => {
-          if list_feature.is_none_or(|(_, first)| token.offset < first.offset) {
+          if list_feature.is_none() {
             list_feature = Some((feature, token));
           }
         }
