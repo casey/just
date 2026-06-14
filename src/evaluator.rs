@@ -533,10 +533,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
         let regex = Regex::new(&rhs).map_err(|source| Error::RegexCompile { source })?;
 
-        lhs
-          .elements()
-          .iter()
-          .any(|element| regex.is_match(&element))
+        lhs.elements().iter().any(|element| regex.is_match(element))
       }
       ConditionalOperator::RegexMismatch => {
         let lhs = self.evaluate_value(lhs)?;
@@ -547,7 +544,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         lhs
           .elements()
           .iter()
-          .all(|element| !regex.is_match(&element))
+          .all(|element| !regex.is_match(element))
       }
     };
     Ok(condition)
