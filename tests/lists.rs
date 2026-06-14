@@ -236,8 +236,8 @@ fn interpolating_a_list_is_an_error() {
     .stderr(
       r#"
         error: list value ["bar", "baz"] used in an interpolation
-        the ideal behavior of lists in many contexts is undecided, see https://github.com/casey/just/issues/3377
-        consider leaving a comment explaining your use case
+        the ideal behavior of lists in many contexts is undecided
+        see https://github.com/casey/just#lists
         note that the source location of this error may be inaccurate
          ——▶ justfile:4:12
           │
