@@ -142,12 +142,10 @@ pub(crate) fn get(name: &str) -> Option<Function> {
 }
 
 fn boolean(context: &Context, condition: bool) -> Value {
-  if condition {
-    Value::from("true")
-  } else if context.execution_context.module.settings.lists {
-    Value::new()
+  if context.execution_context.module.settings.lists {
+    condition.into()
   } else {
-    Value::from("false")
+    Value::from(condition.to_string())
   }
 }
 
