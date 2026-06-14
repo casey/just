@@ -681,8 +681,8 @@ impl ColorDisplay for Error<'_> {
         write!(
           f,
           "list value {} {context}\n\
-          the ideal behavior of lists in many contexts is undecided, see https://github.com/casey/just/issues/3377\n\
-          consider leaving a comment explaining your use case\n\
+          the ideal behavior of lists in many contexts is undecided\n\
+          see https://github.com/casey/just#lists\n\
           note that the source location of this error may be inaccurate",
           value.color_display(color),
         )?;
