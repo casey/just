@@ -1730,6 +1730,17 @@ impl<'run, 'src> Parser<'run, 'src> {
 mod tests {
   use {super::*, CompileErrorKind::*, pretty_assertions::assert_eq};
 
+  // To keep these tests resilient to unrelated changes:
+  //
+  // - Each `test!` should exercise a single production. Use bare variables (`b`)
+  //   and simple strings (`"foo"`) for sub-expressions that aren't its subject,
+  //   so changes to other productions don't churn the expected tree.
+  //
+  // - `error!` tests for unexpected tokens use the `found:` form, which doesn't
+  //   assert the `expected` token set. That set is pinned by a single golden
+  //   test, `missing_default_eol`, so a new operator or literal only updates one
+  //   test instead of every error test for that parse position.
+
   macro_rules! test {
     {
       name: $name:ident,
@@ -1761,6 +1772,20 @@ mod tests {
   }
 
   macro_rules! error {
+    (
+      name:   $name:ident,
+      input:  $input:expr,
+      offset: $offset:expr,
+      line:   $line:expr,
+      column: $column:expr,
+      width:  $width:expr,
+      found:  $found:expr,
+    ) => {
+      #[test]
+      fn $name() {
+        unexpected_token($input, $offset, $line, $column, $width, $found);
+      }
+    };
     (
       name:   $name:ident,
       input:  $input:expr,
@@ -1804,6 +1829,40 @@ mod tests {
           kind: kind.into(),
         };
         assert_eq!(have, want);
+      }
+    }
+  }
+
+  #[track_caller]
+  fn unexpected_token(
+    src: &str,
+    offset: usize,
+    line: usize,
+    column: usize,
+    length: usize,
+    found: TokenKind,
+  ) {
+    let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
+
+    match Parser::parse_tokens(&mut Numerator::new(), &tokens) {
+      Ok(_) => panic!("Parsing unexpectedly succeeded"),
+      Err(have) => {
+        assert_eq!(
+          have.token,
+          Token {
+            kind: have.token.kind,
+            src,
+            offset,
+            line,
+            column,
+            length,
+            path: "justfile".as_ref(),
+          },
+        );
+        match *have.kind {
+          UnexpectedToken { found: actual, .. } => assert_eq!(actual, found),
+          kind => panic!("expected `UnexpectedToken`, but got: {kind:?}"),
+        }
       }
     }
   }
@@ -2854,8 +2913,8 @@ mod tests {
 
   test! {
     name: conditional,
-    text: "a := if b == c { d } else { e }",
-    tree: (justfile (assignment a (if (== b c) d e))),
+    text: "a := if b { c } else { d }",
+    tree: (justfile (assignment a (if b c d))),
   }
 
   test! {
@@ -2866,8 +2925,8 @@ mod tests {
 
   test! {
     name: conditional_concatenations,
-    text: "a := if b0 + b1 == c0 + c1 { d0 + d1 } else { e0 + e1 }",
-    tree: (justfile (assignment a (if (== (+ b0 b1) (+ c0 c1)) (+ d0 d1) (+ e0 e1)))),
+    text: "a := if b0 + b1 { c0 + c1 } else { d0 + d1 }",
+    tree: (justfile (assignment a (if (+ b0 b1) (+ c0 c1) (+ d0 d1)))),
   }
 
   test! {
@@ -2884,14 +2943,14 @@ mod tests {
 
   test! {
     name: conditional_nested_then,
-    text: "a := if b == c { if b == c { d } else { e } } else { e }",
-    tree: (justfile (assignment a (if (== b c) (if (== b c) d e) e))),
+    text: "a := if b { if c { d } else { e } } else { f }",
+    tree: (justfile (assignment a (if b (if c d e) f))),
   }
 
   test! {
     name: conditional_nested_otherwise,
-    text: "a := if b == c { d } else { if b == c { d } else { e } }",
-    tree: (justfile (assignment a (if (== b c) d (if (== b c) d e)))),
+    text: "a := if b { c } else { if d { e } else { f } }",
+    tree: (justfile (assignment a (if b c (if d e f)))),
   }
 
   test! {
@@ -2968,14 +3027,14 @@ mod tests {
 
   test! {
     name: assert,
-    text: "a := assert(foo == \"bar\", \"error\")",
-    tree: (justfile (assignment a (assert (== foo "bar") "error"))),
+    text: "a := assert(b, \"error\")",
+    tree: (justfile (assignment a (assert b "error"))),
   }
 
   test! {
     name: assert_conditional_condition,
-    text: "foo := assert(if a != b { c } else { d } == \"abc\", \"error\")",
-    tree: (justfile (assignment foo (assert (== (if (!= a b) c d) "abc") "error"))),
+    text: "foo := assert(if a { b } else { c }, \"error\")",
+    tree: (justfile (assignment foo (assert (if a b c) "error"))),
   }
 
   test! {
@@ -3003,7 +3062,7 @@ mod tests {
     line:   0,
     column: 17,
     width:  3,
-    kind:   UnexpectedToken { expected: vec![ColonColon, Comment, Eof, Eol], found: Identifier },
+    found:  Identifier,
   }
 
   error! {
@@ -3013,7 +3072,7 @@ mod tests {
     line:   0,
     column: 13,
     width:  1,
-    kind:   UnexpectedToken {expected: vec![Identifier], found:Eol},
+    found:  Eol,
   }
 
   error! {
@@ -3023,7 +3082,7 @@ mod tests {
     line:   0,
     column: 18,
     width:  1,
-    kind:   UnexpectedToken {expected: vec![Identifier], found:Eol},
+    found:  Eol,
   }
 
   error! {
@@ -3033,10 +3092,7 @@ mod tests {
     line:   0,
     column: 16,
     width:  1,
-    kind:   UnexpectedToken {
-      found:    Colon,
-      expected: vec![ColonColon, Comment, Eof, Eol],
-    },
+    found:  Colon,
   }
 
   error! {
@@ -3046,12 +3102,13 @@ mod tests {
     line:   0,
     column: 5,
     width:  1,
-    kind:   UnexpectedToken{
-      expected: vec![Asterisk, Colon, Dollar, Equals, Identifier, Plus],
-      found:    Eol
-    },
+    found:  Eol,
   }
 
+  // Golden test pinning the full `UnexpectedToken` `expected` set at the start
+  // of an expression, where new operators and literals most often appear. Other
+  // `UnexpectedToken` tests use the `found:` form and don't assert `expected`,
+  // so adding such a token only updates this test.
   error! {
     name:   missing_default_eol,
     input:  "hello arg=\n",
@@ -3079,17 +3136,7 @@ mod tests {
     line:   0,
     column: 10,
     width:  0,
-    kind:   UnexpectedToken {
-      expected: vec![
-        Backtick,
-        Bang,
-        BracketL,
-        Identifier,
-        ParenL,
-        StringToken,
-      ],
-      found: Eof,
-    },
+    found:  Eof,
   }
 
   error! {
@@ -3099,20 +3146,7 @@ mod tests {
     line:    0,
     column:  9,
     width:   1,
-    kind:    UnexpectedToken{
-      expected: vec![
-        AmpersandAmpersand,
-        Asterisk,
-        ColonColon,
-        Comment,
-        Eof,
-        Eol,
-        Identifier,
-        Indent,
-        ParenL,
-      ],
-      found: Equals
-    },
+    found:  Equals,
   }
 
   error! {
@@ -3122,10 +3156,7 @@ mod tests {
     line:   0,
     column: 0,
     width:  1,
-    kind: UnexpectedToken {
-      expected: vec![At, BracketL, Comment, Eof, Eol, Identifier],
-      found: BraceL,
-    },
+    found:  BraceL,
   }
 
   error! {
@@ -3135,19 +3166,7 @@ mod tests {
     line:   0,
     column: 9,
     width:  0,
-    kind: UnexpectedToken{
-      expected: vec![
-        Backtick,
-        Bang,
-        BracketL,
-        Identifier,
-        ParenL,
-        ParenR,
-        Slash,
-        StringToken,
-      ],
-      found: Eof,
-    },
+    found:  Eof,
   }
 
   error! {
@@ -3157,7 +3176,7 @@ mod tests {
     line:   0,
     column: 6,
     width:  1,
-    kind:   UnexpectedToken{expected: vec![Dollar, Identifier], found: Colon},
+    found:  Colon,
   }
 
   error! {
@@ -3177,10 +3196,7 @@ mod tests {
     line:   0,
     column: 8,
     width:  0,
-    kind:   UnexpectedToken {
-      expected: vec![Asterisk, Colon, Dollar, Equals, Identifier, Plus],
-      found:    Eof
-    },
+    found:  Eof,
   }
 
   error! {
@@ -3220,18 +3236,7 @@ mod tests {
     line:   0,
     column: 14,
     width:  1,
-    kind:   UnexpectedToken {
-      expected: vec![
-        Backtick,
-        Bang,
-        BracketL,
-        Identifier,
-        ParenL,
-        Slash,
-        StringToken,
-      ],
-      found: BracketR,
-    },
+    found:  BracketR,
   }
 
   error! {
@@ -3241,19 +3246,7 @@ mod tests {
     line:   0,
     column: 21,
     width:  0,
-    kind:   UnexpectedToken {
-      expected: vec![
-        Backtick,
-        Bang,
-        BracketL,
-        BracketR,
-        Identifier,
-        ParenL,
-        Slash,
-        StringToken,
-      ],
-      found: Eof,
-    },
+    found:  Eof,
   }
 
   error! {
@@ -3263,21 +3256,7 @@ mod tests {
     line:   0,
     column: 20,
     width:  0,
-    kind:   UnexpectedToken {
-      expected: vec![
-        AmpersandAmpersand,
-        BangEquals,
-        BangTilde,
-        BarBar,
-        BracketR,
-        Comma,
-        EqualsEquals,
-        EqualsTilde,
-        Plus,
-        Slash,
-      ],
-      found: Eof,
-    },
+    found:  Eof,
   }
 
   error! {
@@ -3287,10 +3266,7 @@ mod tests {
     line:   0,
     column: 1,
     width:  1,
-    kind:   UnexpectedToken {
-      expected: vec![Identifier],
-      found: BracketR,
-    },
+    found:  BracketR,
   }
 
   error! {
