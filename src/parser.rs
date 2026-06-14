@@ -940,13 +940,14 @@ impl<'run, 'src> Parser<'run, 'src> {
 
         if self.next_is(ParenL) {
           let arguments = self.parse_sequence()?;
-          if name.lexeme() == "which" {
-            self
-              .unstable_features
-              .insert(UnstableFeature::WhichFunction);
-          }
-          if name.lexeme() == "bool" {
-            self.list_feature(ListFeature::BoolFunction, name.token);
+          match name.lexeme() {
+            "bool" => self.list_feature(ListFeature::BoolFunction, name.token),
+            "which" => {
+              self
+                .unstable_features
+                .insert(UnstableFeature::WhichFunction);
+            }
+            _ => {}
           }
           Ok(Expression::Call { name, arguments })
         } else {
