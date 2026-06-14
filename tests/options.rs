@@ -697,3 +697,162 @@ fn options_arg_passed_as_positional_arguments() {
     .stdout("args=baz\n")
     .success();
 }
+
+#[test]
+fn flag_passed_is_true() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, flag)]
+        @foo bar:
+          echo bar={{bar}}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "--bar"])
+    .stdout("bar=true\n")
+    .success();
+}
+
+#[test]
+fn flag_omitted_is_empty() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, flag)]
+        @foo bar:
+          echo bar={{bar}}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo"])
+    .stdout("bar=\n")
+    .success();
+}
+
+#[test]
+fn flag_requires_set_lists() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long, flag)]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: `flag` arguments require `set lists`
+         ——▶ justfile:1:19
+          │
+        1 │ [arg('bar', long, flag)]
+          │                   ^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn flag_conflicts_with_value() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long, flag, value='baz')]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: argument `bar` may not have both `flag` and `value` attributes
+         ——▶ justfile:1:19
+          │
+        1 │ [arg('bar', long, flag, value='baz')]
+          │                   ^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn flag_requires_long_or_short() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', flag)]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: argument attribute `flag` only valid with `long` or `short`
+         ——▶ justfile:1:13
+          │
+        1 │ [arg('bar', flag)]
+          │             ^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn flag_takes_no_value() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long, flag='baz')]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: `flag` attribute for argument `bar` takes no value
+         ——▶ justfile:1:24
+          │
+        1 │ [arg('bar', long, flag='baz')]
+          │                        ^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn flag_with_default_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long, flag)]
+        foo bar='baz':
+      ",
+    )
+    .stderr(
+      "
+        error: flag parameter `bar` may not have a default
+         ——▶ justfile:2:5
+          │
+        2 │ foo bar='baz':
+          │     ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn flags_passed_with_a_value_are_an_error() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, flag)]
+        @foo bar:
+          echo bar={{bar}}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "--bar=baz"])
+    .stderr("error: recipe `foo` flag `--bar` does not take value\n")
+    .failure();
+}

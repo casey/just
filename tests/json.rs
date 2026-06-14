@@ -55,6 +55,7 @@ struct Module<'a> {
 struct Parameter<'a> {
   default: Option<&'a str>,
   export: bool,
+  flag: bool,
   help: Option<&'a str>,
   kind: &'a str,
   long: Option<&'a str>,
@@ -1213,6 +1214,51 @@ fn arg_value() {
         },
       )]
       .into(),
+      ..default()
+    },
+  );
+}
+
+#[test]
+fn arg_flag() {
+  case(
+    "set unstable\nset lists\n[arg('bar', long, flag)]\nfoo bar:",
+    Module {
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          name: "foo",
+          namepath: "foo",
+          attributes: [json!({
+            "arg": {
+              "help": null,
+              "long": "bar",
+              "name": "bar",
+              "pattern": null,
+              "short": null,
+              "value": null,
+            }
+          })]
+          .into(),
+          parameters: [Parameter {
+            flag: true,
+            kind: "singular",
+            long: Some("bar"),
+            name: "bar",
+            value: Some("true"),
+            ..default()
+          }]
+          .into(),
+          ..default()
+        },
+      )]
+      .into(),
+      settings: Settings {
+        lists: true,
+        unstable: true,
+        ..default()
+      },
       ..default()
     },
   );

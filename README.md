@@ -2469,6 +2469,7 @@ change their behavior.
 
 | Name | Type | Description |
 |------|------|-------------|
+| `[arg(ARG, flag)]`<sup>master</sup> | recipe | Makes option `ARG` a flag taking value `"true"` when passed and `[]` when omitted. Requires `set lists`. |
 | `[arg(ARG, help="HELP")]`<sup>1.46.0</sup> | recipe | Print help string `HELP` for `ARG` in usage messages. |
 | `[arg(ARG, long="LONG")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as `--LONG` option. |
 | `[arg(ARG, pattern="PATTERN")]`<sup>1.45.0</sup> | recipe | Require values of argument `ARG` to match regular expression `PATTERN`. |
@@ -3269,6 +3270,41 @@ Causing it to receive the default when not passed in the invocation:
 $ just foo
 bar=goodbye
 ```
+
+The `[arg(ARG, flag)]`<sup>master</sup> attribute is a more convenient way to
+make a parameter a boolean flag. It can be used with `long` or `short`, requires
+[`set lists`](#lists), and conflicts with `value`.
+
+In this `justfile`:
+
+```justfile
+set lists
+
+[arg("bar", long="bar", flag)]
+foo bar:
+```
+
+The parameter `bar` takes the value `"true"` when `--bar` is passed, and the
+empty list `[]` when it is omitted:
+
+```console
+$ just foo --bar
+bar=true
+$ just foo
+bar=
+```
+
+Since `"true"` is truthy and `[]` is falsey, a flag can be tested directly:
+
+```justfile
+set lists
+
+[arg("force", long, flag)]
+deploy force:
+  ./deploy {{ if force { "--force" } else { "" } }}
+```
+
+A flag parameter may not have a default.
 
 ### Dependencies
 

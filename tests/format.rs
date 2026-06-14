@@ -1668,6 +1668,30 @@ fn arg_attribute_help() {
 }
 
 #[test]
+fn arg_attribute_flag() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long='bar', flag)]
+        @foo bar:
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("--dump")
+    .stdout(
+      "
+        set lists
+
+        [arg('bar', long='bar', flag)]
+        @foo bar:
+      ",
+    )
+    .success();
+}
+
+#[test]
 fn missing_import_file() {
   Test::new()
     .args(["--fmt", "--check"])

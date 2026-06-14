@@ -2,7 +2,9 @@ use super::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) enum CompileErrorKind<'src> {
-  ArgAttributeValueRequiresOption,
+  ArgAttributeRequiresOption {
+    keyword: &'static str,
+  },
   ArgumentPatternRegex {
     source: regex::Error,
   },
@@ -76,6 +78,15 @@ pub(crate) enum CompileErrorKind<'src> {
   ExtraLeadingWhitespace,
   ExtraneousAttributes {
     count: usize,
+  },
+  FlagAndValueArgAttribute {
+    parameter: String,
+  },
+  FlagAttributeTakesNoValue {
+    parameter: String,
+  },
+  FlagWithDefault {
+    parameter: String,
   },
   FunctionArgumentCountMismatch {
     arguments: usize,

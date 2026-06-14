@@ -31,10 +31,10 @@ impl Display for CompileError<'_> {
     use CompileErrorKind::*;
 
     match &*self.kind {
-      ArgAttributeValueRequiresOption => {
+      ArgAttributeRequiresOption { keyword } => {
         write!(
           f,
-          "argument attribute `value` only valid with `long` or `short`"
+          "argument attribute `{keyword}` only valid with `long` or `short`"
         )
       }
       ArgumentPatternRegex { .. } => {
@@ -174,6 +174,21 @@ impl Display for CompileError<'_> {
       ExtraLeadingWhitespace => write!(f, "recipe line has extra leading whitespace"),
       ExtraneousAttributes { count } => {
         write!(f, "extraneous {}", Count::unnumbered("attribute", count))
+      }
+      FlagAndValueArgAttribute { parameter } => {
+        write!(
+          f,
+          "argument `{parameter}` may not have both `flag` and `value` attributes"
+        )
+      }
+      FlagAttributeTakesNoValue { parameter } => {
+        write!(
+          f,
+          "`flag` attribute for argument `{parameter}` takes no value"
+        )
+      }
+      FlagWithDefault { parameter } => {
+        write!(f, "flag parameter `{parameter}` may not have a default")
       }
       FunctionArgumentCountMismatch {
         function,

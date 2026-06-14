@@ -1233,6 +1233,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     for attribute in &attributes {
       let Attribute::Arg {
+        flag,
         help,
         long,
         long_key,
@@ -1240,11 +1241,14 @@ impl<'run, 'src> Parser<'run, 'src> {
         pattern,
         short,
         value,
-        ..
       } = attribute
       else {
         continue;
       };
+
+      if let Some(token) = flag {
+        self.list_feature(ListFeature::Flag, *token);
+      }
 
       if let Some(option) = long {
         if !longs.insert(&option.cooked) {
@@ -1271,6 +1275,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       arg_attributes.insert(
         arg.cooked.clone(),
         ArgAttribute {
+          flag: flag.is_some(),
           help: help.as_ref().map(|literal| literal.cooked.clone()),
           name: arg.token,
           pattern: pattern.clone(),
@@ -1415,6 +1420,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       None
     };
 
+    let mut flag = false;
     let mut help = None;
     let mut long = None;
     let mut pattern = None;
@@ -1422,6 +1428,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let mut value = None;
 
     if let Some(arg) = arg_attributes.remove(name.lexeme()) {
+      flag = arg.flag;
       help = arg.help;
       long = arg.long;
       pattern = arg.pattern;
@@ -1433,9 +1440,19 @@ impl<'run, 'src> Parser<'run, 'src> {
       return Err(name.error(CompileErrorKind::VariadicParameterWithOption));
     }
 
+    if flag {
+      if default.is_some() {
+        return Err(name.error(CompileErrorKind::FlagWithDefault {
+          parameter: name.lexeme().into(),
+        }));
+      }
+      value = Some("true".into());
+    }
+
     Ok(Parameter {
       default,
       export,
+      flag,
       help,
       kind,
       long,

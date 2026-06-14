@@ -640,7 +640,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       let value = if argument.elements().is_empty() {
         if let Some(ref default) = parameter.default {
           evaluator.evaluate_value(default)?
-        } else if parameter.kind == ParameterKind::Star {
+        } else if parameter.kind == ParameterKind::Star || parameter.flag {
           Value::new()
         } else {
           return Err(Error::EmptyListArgument {
