@@ -725,12 +725,12 @@ fn flag_omitted_is_empty() {
 
         [arg('bar', long, flag)]
         @foo bar:
-          echo bar={{bar}}
+          echo bar={{show(bar)}}
       ",
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo"])
-    .stdout("bar=\n")
+    .stdout("bar=[]\n")
     .success();
 }
 
