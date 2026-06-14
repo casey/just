@@ -46,10 +46,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut absent_modules = BTreeSet::new();
     let mut definitions = HashMap::new();
     let mut imports = HashSet::new();
-    let mut comparison_operator = None;
-    let mut list_literal = None;
-    let mut logical_operator = None;
-    let mut non_comparison_condition = None;
+    let mut list_feature = None;
     let mut unstable_features = BTreeSet::new();
 
     let mut stack = Vec::new();
@@ -59,20 +56,8 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     while let Some(ast) = stack.pop() {
       unstable_features.extend(&ast.unstable_features);
 
-      if comparison_operator.is_none() {
-        comparison_operator = ast.comparison_operator;
-      }
-
-      if list_literal.is_none() {
-        list_literal = ast.list_literal;
-      }
-
-      if logical_operator.is_none() {
-        logical_operator = ast.logical_operator;
-      }
-
-      if non_comparison_condition.is_none() {
-        non_comparison_condition = ast.non_comparison_condition;
+      if list_feature.is_none() {
+        list_feature = ast.list_feature;
       }
 
       for item in &ast.items {
@@ -244,43 +229,9 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let settings =
       Evaluator::evaluate_settings(&assignments, overrides, &Scope::root(), self.sets)?;
 
-    if let Some(token) = list_literal {
+    if let Some((feature, token)) = list_feature {
       if !settings.lists {
-        return Err(
-          token
-            .error(CompileErrorKind::ListLiteralWithoutListsSetting)
-            .into(),
-        );
-      }
-    }
-
-    if let Some(token) = logical_operator {
-      if !settings.lists {
-        return Err(
-          token
-            .error(CompileErrorKind::LogicalOperatorWithoutListsSetting)
-            .into(),
-        );
-      }
-    }
-
-    if let Some(token) = comparison_operator {
-      if !settings.lists {
-        return Err(
-          token
-            .error(CompileErrorKind::ComparisonOperatorWithoutListsSetting)
-            .into(),
-        );
-      }
-    }
-
-    if let Some(token) = non_comparison_condition {
-      if !settings.lists {
-        return Err(
-          token
-            .error(CompileErrorKind::NonComparisonConditionWithoutListsSetting)
-            .into(),
-        );
+        return Err(token.error(feature.error_kind()).into());
       }
     }
 

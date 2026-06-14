@@ -24,16 +24,13 @@ use {super::*, TokenKind::*};
 /// token, the set is cleared. If the parser finds a token which is unexpected,
 /// the elements of the set are printed in the resultant error message.
 pub(crate) struct Parser<'run, 'src> {
-  comparison_operator: Option<Token<'src>>,
   expected_tokens: BTreeSet<TokenKind>,
   file_depth: u32,
   import_offsets: Vec<usize>,
   items: Vec<Item<'src>>,
-  list_literal: Option<Token<'src>>,
-  logical_operator: Option<Token<'src>>,
+  list_feature: Option<(ListFeature, Token<'src>)>,
   module_namepath: Option<&'run Namepath<'src>>,
   next_token: usize,
-  non_comparison_condition: Option<Token<'src>>,
   numerator: &'run mut Numerator,
   recursion_depth: usize,
   tokens: &'run [Token<'src>],
@@ -52,16 +49,13 @@ impl<'run, 'src> Parser<'run, 'src> {
     working_directory: &'run Path,
   ) -> CompileResult<'src, Ast<'src>> {
     Self {
-      comparison_operator: None,
       expected_tokens: BTreeSet::new(),
       file_depth,
       import_offsets: import_offsets.to_vec(),
       items: Vec::new(),
-      list_literal: None,
-      logical_operator: None,
+      list_feature: None,
       module_namepath,
       next_token: 0,
-      non_comparison_condition: None,
       numerator,
       recursion_depth: 0,
       tokens,
@@ -99,6 +93,12 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   fn error(&self, kind: CompileErrorKind<'src>) -> CompileResult<'src, CompileError<'src>> {
     Ok(self.next()?.error(kind))
+  }
+
+  fn list_feature(&mut self, list_feature: ListFeature, token: Token<'src>) {
+    if self.list_feature.is_none() {
+      self.list_feature = Some((list_feature, token));
+    }
   }
 
   /// Construct an unexpected token error with the token returned by
@@ -484,12 +484,9 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
 
     Ok(Ast {
-      comparison_operator: self.comparison_operator,
       items: self.items,
-      list_literal: self.list_literal,
-      logical_operator: self.logical_operator,
+      list_feature: self.list_feature,
       module_path: self.module_namepath.map(Into::into).unwrap_or_default(),
-      non_comparison_condition: self.non_comparison_condition,
       unstable_features: self.unstable_features,
       warnings: Vec::new(),
       working_directory: self.working_directory.into(),
@@ -718,9 +715,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let disjunct = self.parse_disjunct(condition)?;
 
     let expression = if let Some(token) = self.accept(BarBar)? {
-      if self.logical_operator.is_none() {
-        self.logical_operator = Some(token);
-      }
+      self.list_feature(ListFeature::LogicalOperator, token);
       let lhs = disjunct.into();
       let rhs = self.parse_expression_with_condition(false)?.into();
       Expression::Or { lhs, rhs }
@@ -737,9 +732,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let conjunct = self.parse_comparison(condition)?;
 
     let expression = if let Some(token) = self.accept(AmpersandAmpersand)? {
-      if self.logical_operator.is_none() {
-        self.logical_operator = Some(token);
-      }
+      self.list_feature(ListFeature::LogicalOperator, token);
       let lhs = conjunct.into();
       let rhs = self.parse_disjunct(false)?.into();
       Expression::And { lhs, rhs }
@@ -765,8 +758,8 @@ impl<'run, 'src> Parser<'run, 'src> {
       return Ok(lhs);
     };
 
-    if !condition && self.comparison_operator.is_none() {
-      self.comparison_operator = Some(token);
+    if !condition {
+      self.list_feature(ListFeature::ComparisonOperator, token);
     }
 
     let rhs = self.parse_conjunct()?;
@@ -834,10 +827,8 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_condition(&mut self) -> CompileResult<'src, Expression<'src>> {
     let token = self.next()?;
     let condition = self.parse_expression_with_condition(true)?;
-    if !matches!(condition, Expression::Comparison { .. })
-      && self.non_comparison_condition.is_none()
-    {
-      self.non_comparison_condition = Some(token);
+    if !matches!(condition, Expression::Comparison { .. }) {
+      self.list_feature(ListFeature::NonComparisonCondition, token);
     }
     Ok(condition)
   }
@@ -970,9 +961,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_list(&mut self) -> CompileResult<'src, Expression<'src>> {
     let bracket = self.presume(BracketL)?;
 
-    if self.list_literal.is_none() {
-      self.list_literal = Some(bracket);
-    }
+    self.list_feature(ListFeature::ListLiteral, bracket);
 
     let mut elements = Vec::new();
 
