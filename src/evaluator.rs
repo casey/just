@@ -5,6 +5,7 @@ pub(crate) struct Evaluator<'src: 'run, 'run> {
   context: Option<ExecutionContext<'src, 'run>>,
   env: BTreeMap<String, String>,
   is_dependency: bool,
+  lists: bool,
   non_const_assignments: Table<'src, Name<'src>>,
   overrides: &'run HashMap<Number, String>,
   recipe: Option<Name<'src>>,
@@ -26,12 +27,17 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     scope: &'run Scope<'src, 'run>,
     sets: Table<'src, Set<'src>>,
   ) -> RunResult<'src, Settings> {
+    let lists = sets
+      .values()
+      .any(|set| matches!(set.value, Setting::Lists(true)));
+
     let mut evaluator = Self {
       assignments: Some(assignments),
       recursion_depth: 0,
       context: None,
       env: BTreeMap::new(),
       is_dependency: false,
+      lists,
       non_const_assignments: Table::new(),
       overrides,
       recipe: None,
@@ -193,6 +199,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       context: Some(context),
       env: BTreeMap::new(),
       is_dependency: false,
+      lists: module.settings.lists,
       non_const_assignments: Table::new(),
       overrides,
       recipe: None,
@@ -286,6 +293,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       context: Some(context),
       env: BTreeMap::new(),
       is_dependency: self.is_dependency,
+      lists: self.lists,
       non_const_assignments: Table::new(),
       overrides: self.overrides,
       recipe: self.recipe,
@@ -406,7 +414,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         name,
       } => {
         if self.evaluate_boolean(condition)? {
-          Ok(Value::from(""))
+          if self.lists {
+            Ok(Value::from(true))
+          } else {
+            Ok(Value::from(""))
+          }
         } else {
           Err(Error::Assert {
             message: self.evaluate_string(error)?,
@@ -708,6 +720,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       context: Some(*context),
       env,
       is_dependency,
+      lists: context.module.settings.lists,
       non_const_assignments: Table::new(),
       overrides: context.overrides,
       recipe,
