@@ -56,15 +56,11 @@ fn variadic_arguments_are_joined_when_passed_to_functions() {
     .justfile(
       "
         foo *args:
-          @echo '{{ show(args) }}'
+          @printf '%s\\n' {{ quote(args) }}
       ",
     )
     .args(["foo", "bar", "baz bob"])
-    .stdout(
-      r#"
-        "bar baz bob"
-      "#,
-    )
+    .stdout("bar baz bob\n")
     .success();
 }
 
@@ -121,14 +117,10 @@ fn variadic_parameter_passed_to_dependency_is_joined_with_spaces() {
         foo *args: (bar args)
 
         bar first *rest:
-          @echo 'first={{ show(first) }} rest={{ show(rest) }}'
+          @echo first={{ quote(first) }} rest={{ quote(rest) }}
       ",
     )
     .args(["foo", "bar", "baz"])
-    .stdout(
-      r#"
-        first="bar baz" rest=""
-      "#,
-    )
+    .stdout("first=bar baz rest=\n")
     .success();
 }

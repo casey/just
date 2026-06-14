@@ -748,12 +748,29 @@ fn prepend() {
 
 #[test]
 fn show_string() {
-  assert_eval_eq(r#"show("foo")"#, r#""foo""#);
+  assert_list_eq(r#""foo""#, r#""foo""#);
 }
 
 #[test]
 fn show_escapes_contents() {
-  assert_eval_eq(r#"show("a\tb\"c")"#, r#""a\tb\"c""#);
+  assert_list_eq(r#""a\tb\"c""#, r#""a\tb\"c""#);
+}
+
+#[test]
+fn show_requires_lists_setting() {
+  Test::new()
+    .justfile(r#"x := show("foo")"#)
+    .args(["--evaluate", "x"])
+    .stderr(
+      r#"
+        error: the `show()` function requires `set lists`
+         ——▶ justfile:1:6
+          │
+        1 │ x := show("foo")
+          │      ^^^^
+      "#,
+    )
+    .failure();
 }
 
 #[test]

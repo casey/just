@@ -942,6 +942,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           let arguments = self.parse_sequence()?;
           match name.lexeme() {
             "bool" => self.list_feature(ListFeature::BoolFunction, name.token),
+            "show" => self.list_feature(ListFeature::ShowFunction, name.token),
             "which" => {
               self
                 .unstable_features

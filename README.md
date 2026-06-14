@@ -1266,6 +1266,11 @@ values. It returns `[]` when `value` is `""` `"0"` `"false"`, or `[]`, and
 `"true"` when `value` is `"1"` or `"true"`. All other values are an error. It
 can be used to parse booleans passed as arguments or environment variables.
 
+A `show(value)` function is available for converting `value` into a string
+containing its literal representation. Brackets are used for empty and
+multi-element lists, e.g., `"[]"` and `"["foo", "bar"]"`, but not
+single-element lists, e.g., `"foo"`.
+
 The functions `is_dependency()`, `path_exists()`, and `semver_matches()` return
 the canonical booleans.
 
@@ -2188,10 +2193,6 @@ The process ID is: 420
 - `quote(s)` - Replace all single quotes with `'\''` and prepend and append
   single quotes to `s`. This is sufficient to escape special characters for
   many shells, including most Bourne shell descendants.
-- `show(value)`<sup>master</sup> - Convert `value` to a string containing its
-  literal representation. Brackets are used for empty and multi-element lists,
-  e.g., `"[]"` and `"["foo", "bar"]"`, but not single-element lists, e.g.,
-  `"foo"`.
 - `replace(s, from, to)` - Replace all occurrences of `from` in `s` with `to`.
 - `replace_regex(s, regex, replacement)` - Replace all occurrences of `regex`
   in `s` with `replacement`. Regular expressions are provided by the
