@@ -225,7 +225,7 @@ fn if_else() {
 }
 
 #[test]
-fn missing_else() {
+fn if_without_else_requires_lists_setting() {
   Test::new()
     .justfile(
       "
@@ -234,11 +234,11 @@ fn missing_else() {
     )
     .stderr(
       "
-        error: expected keyword `else` but found `end of line`
-         ——▶ justfile:1:54
+        error: `if` without `else` requires `set lists`
+         ——▶ justfile:1:9
           │
         1 │ TEST := if path_exists('/bin/bash') == 'true' {'yes'}
-          │                                                      ^
+          │         ^^
       ",
     )
     .failure();
@@ -254,7 +254,7 @@ fn incorrect_else_identifier() {
     )
     .stderr(
       "
-        error: expected keyword `else` but found identifier `els`
+        error: expected '&&', '!=', '!~', '||', comment, end of file, end of line, '==', or '=~', but found identifier
          ——▶ justfile:1:55
           │
         1 │ TEST := if path_exists('/bin/bash') == 'true' {'yes'} els {'no'}
@@ -262,4 +262,55 @@ fn incorrect_else_identifier() {
       ",
     )
     .failure();
+}
+
+#[test]
+fn if_without_else_is_empty_when_condition_is_false() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        foo:
+          @echo '{{ show(if 'a' == 'b' { 'baz' }) }}'
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("foo")
+    .stdout("[]\n")
+    .success();
+}
+
+#[test]
+fn if_without_else_is_then_when_condition_is_true() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        foo:
+          @echo '{{ show(if 'a' == 'a' { 'baz' }) }}'
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("foo")
+    .stdout("\"baz\"\n")
+    .success();
+}
+
+#[test]
+fn else_if_without_final_else_is_empty_when_all_conditions_are_false() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        foo:
+          @echo '{{ show(if 'a' == 'b' { 'baz' } else if 'a' == 'c' { 'bob' }) }}'
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("foo")
+    .stdout("[]\n")
+    .success();
 }

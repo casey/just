@@ -23,6 +23,22 @@ fn import_succeeds() {
 }
 
 #[test]
+fn import_with_non_x_string_prefix_is_an_error() {
+  Test::new()
+    .justfile(r#"import foo"bar.just""#)
+    .stderr(
+      r#"
+        error: expected keyword `x` but found identifier `foo`
+         ——▶ justfile:1:8
+          │
+        1 │ import foo"bar.just"
+          │        ^^^
+      "#,
+    )
+    .failure();
+}
+
+#[test]
 fn missing_import_file_error() {
   Test::new()
     .justfile(

@@ -151,6 +151,14 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.next_are(&[kind])
   }
 
+  /// Check if the next significant token is `keyword`
+  fn next_is_keyword(&self, keyword: Keyword) -> bool {
+    self
+      .rest()
+      .next()
+      .is_some_and(|token| token.kind == Identifier && token.lexeme() == keyword.lexeme())
+  }
+
   /// Check if the next significant tokens are of kinds `kinds`
   ///
   /// The first token in `kinds` will be added to the expected token set.
@@ -265,8 +273,8 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Return an internal error if the next token is not of kind `Identifier`
-  /// with lexeme `lexeme`.
-  fn presume_keyword(&mut self, keyword: Keyword) -> CompileResult<'src> {
+  /// with lexeme `keyword`.
+  fn presume_keyword(&mut self, keyword: Keyword) -> CompileResult<'src, Token<'src>> {
     let next = self.advance()?;
 
     if next.kind != Identifier {
@@ -275,7 +283,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         next.kind
       ))?)
     } else if keyword == next.lexeme() {
-      Ok(())
+      Ok(next)
     } else {
       Err(self.internal_error(format!(
         "presumed next token would have lexeme \"{keyword}\", but found \"{}\"",
@@ -781,7 +789,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   fn parse_conjunct(&mut self) -> CompileResult<'src, Expression<'src>> {
-    if self.accepted_keyword(Keyword::If)? {
+    if self.next_is_keyword(Keyword::If) {
       self.parse_conditional()
     } else if self.accepted(Slash)? {
       let lhs = None;
@@ -806,6 +814,8 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   /// Parse a conditional, e.g. `if a == b { "foo" } else { "bar" }`
   fn parse_conditional(&mut self) -> CompileResult<'src, Expression<'src>> {
+    let if_token = self.presume_keyword(Keyword::If)?;
+
     let condition = self.parse_condition()?;
 
     self.expect(BraceL)?;
@@ -814,21 +824,24 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     self.expect(BraceR)?;
 
-    self.expect_keyword(Keyword::Else)?;
-
-    let otherwise = if self.accepted_keyword(Keyword::If)? {
-      self.parse_conditional()?
+    let otherwise = if self.accepted_keyword(Keyword::Else)? {
+      if self.next_is_keyword(Keyword::If) {
+        Some(self.parse_conditional()?.into())
+      } else {
+        self.expect(BraceL)?;
+        let otherwise = self.parse_expression()?;
+        self.expect(BraceR)?;
+        Some(otherwise.into())
+      }
     } else {
-      self.expect(BraceL)?;
-      let otherwise = self.parse_expression()?;
-      self.expect(BraceR)?;
-      otherwise
+      self.list_feature(ListFeature::IfWithoutElse, if_token);
+      None
     };
 
     Ok(Expression::Conditional {
       condition: condition.into(),
       then: then.into(),
-      otherwise: otherwise.into(),
+      otherwise,
     })
   }
 
@@ -843,7 +856,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   fn parse_format_string(&mut self) -> CompileResult<'src, Expression<'src>> {
-    self.expect_keyword(Keyword::F)?;
+    self.presume_keyword(Keyword::F)?;
 
     let start = self.parse_string_literal_in_state(StringState::FormatStart)?;
 
@@ -2904,6 +2917,12 @@ mod tests {
     name: conditional,
     text: "a := if b { c } else { d }",
     tree: (justfile (assignment a (if b c d))),
+  }
+
+  test! {
+    name: conditional_without_otherwise,
+    text: "a := if b { c }",
+    tree: (justfile (assignment a (if b c))),
   }
 
   test! {
