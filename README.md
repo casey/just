@@ -1286,6 +1286,9 @@ evaluated for truthiness.
 The comparison operators `==`, `!=`, `=~`, and `!~` may be used anywhere, not
 just in `if` and `assert()`, and evaluate to `"true"` or `[]`.
 
+Values may be negated with `!`. `!expression` evaluates to `true` if
+`expression` is the empty list `[]`, otherwise it evaluates to `[]`.
+
 ##### Examples
 
 Each list element is `quote()`'ed separately:
@@ -1668,23 +1671,6 @@ returns the right-hand argument:
 foo := [] || 'goodbye'      # 'goodbye'
 bar := 'hello' || 'goodbye' # 'hello'
 ```
-
-The negation operator `!`<sup>master</sup> returns `true` if its argument is
-false, otherwise it returns the empty list `[]`:
-
-```justfile
-foo := ![]       # 'true'
-bar := !'hello'  # []
-```
-
-`!` binds more tightly than every other operator, so negate a comparison or
-other expression by parenthesizing it:
-
-```justfile
-foo := !('a' == 'b') # 'true'
-```
-
-Like `&&` and `||`, `!` requires `set lists`, which is currently unstable.
 
 #### Joining Paths
 
