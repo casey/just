@@ -3094,10 +3094,6 @@ mod tests {
     found:  Eol,
   }
 
-  // Golden test pinning the full `UnexpectedToken` `expected` set at the start
-  // of an expression, where new operators and literals most often appear. Other
-  // `UnexpectedToken` tests use the `found:` form and don't assert `expected`,
-  // so adding such a token only updates this test.
   error! {
     name:   missing_default_eol,
     input:  "hello arg=\n",
