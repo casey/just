@@ -618,13 +618,13 @@ impl ColorDisplay for Error<'_> {
       EmptyInterpreter { setting } => {
         write!(
           f,
-          "`{setting}` setting requires at least one element but evaluated to an empty list"
+          "`{setting}` setting requires at least one element but evaluated to empty list"
         )?;
       }
       EmptyListArgument { parameter, recipe } => {
         write!(
           f,
-          "recipe `{recipe}` parameter `{parameter}` requires at least one element but received an empty list"
+          "recipe `{recipe}` parameter `{parameter}` requires at least one element but received empty list"
         )?;
       }
       EvalUnknownSubmodule { component, .. } => {
