@@ -6,12 +6,12 @@ pub(crate) fn load_dotenv(
   working_directory: &Path,
 ) -> RunResult<'static, BTreeMap<String, String>> {
   let filenames = match &config.dotenv_filename {
-    Some(filename) => vec![filename.clone()],
+    Some(filename) => filename.into(),
     None => settings.dotenv_filename.clone(),
   };
 
   let paths = match &config.dotenv_path {
-    Some(path) => vec![path.clone()],
+    Some(path) => path.into(),
     None => settings.dotenv_path.clone(),
   };
 
@@ -27,7 +27,7 @@ pub(crate) fn load_dotenv(
   let mut dotenv = BTreeMap::new();
   let mut found = false;
 
-  for path in &paths {
+  for path in paths.elements() {
     let path = working_directory.join(path);
     if let Some(map) = load_from_file(&path, settings)? {
       dotenv.extend(map);
@@ -40,7 +40,7 @@ pub(crate) fn load_dotenv(
     let filenames = if filenames.is_empty() {
       &default[..]
     } else {
-      &filenames[..]
+      filenames.elements()
     };
 
     for directory in working_directory.ancestors() {

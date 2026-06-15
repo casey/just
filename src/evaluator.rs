@@ -88,18 +88,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           settings.default_script = value;
         }
         Setting::DotenvFilename(value) => {
-          settings.dotenv_filename = self.evaluate_value(&value)?.into_elements();
+          settings.dotenv_filename = self.evaluate_value(&value)?;
         }
         Setting::DotenvLoad(value) => {
           settings.dotenv_load = value;
         }
         Setting::DotenvPath(value) => {
-          settings.dotenv_path = self
-            .evaluate_value(&value)?
-            .into_elements()
-            .into_iter()
-            .map(PathBuf::from)
-            .collect();
+          settings.dotenv_path = self.evaluate_value(&value)?;
         }
         Setting::DotenvOverride(value) => {
           settings.dotenv_override = value;

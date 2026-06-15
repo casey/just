@@ -6,12 +6,11 @@ pub(crate) const WINDOWS_POWERSHELL_SHELL: &str = "powershell.exe";
 pub(crate) const WINDOWS_POWERSHELL_ARGS: &[&str] = &["-NoLogo", "-Command"];
 
 #[allow(clippy::ptr_arg)]
-fn serialize_dotenv<S, T>(value: &Vec<T>, serializer: S) -> Result<S::Ok, S::Error>
+fn serialize_dotenv<S>(value: &Value, serializer: S) -> Result<S::Ok, S::Error>
 where
   S: Serializer,
-  T: Serialize,
 {
-  match value.as_slice() {
+  match value.elements() {
     [] => serializer.serialize_none(),
     [one] => one.serialize(serializer),
     many => many.serialize(serializer),
@@ -25,11 +24,11 @@ pub(crate) struct Settings {
   pub(crate) default_list: bool,
   pub(crate) default_script: bool,
   #[serde(serialize_with = "serialize_dotenv")]
-  pub(crate) dotenv_filename: Vec<String>,
+  pub(crate) dotenv_filename: Value,
   pub(crate) dotenv_load: bool,
   pub(crate) dotenv_override: bool,
   #[serde(serialize_with = "serialize_dotenv")]
-  pub(crate) dotenv_path: Vec<PathBuf>,
+  pub(crate) dotenv_path: Value,
   pub(crate) dotenv_required: bool,
   pub(crate) export: bool,
   pub(crate) fallback: bool,
