@@ -12,7 +12,7 @@ pub(crate) struct Config {
   pub(crate) cygpath: PathBuf,
   pub(crate) default_list: bool,
   pub(crate) dotenv_filename: Option<String>,
-  pub(crate) dotenv_path: Option<PathBuf>,
+  pub(crate) dotenv_path: Option<String>,
   pub(crate) dry_run: bool,
   pub(crate) explain: bool,
   pub(crate) groups: Vec<String>,

@@ -88,18 +88,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           settings.default_script = value;
         }
         Setting::DotenvFilename(value) => {
-          settings.dotenv_filename =
-            Some(self.evaluate_string(&value, StringContext::Setting(set.name))?);
+          settings.dotenv_filename = self.evaluate_value(&value)?;
         }
         Setting::DotenvLoad(value) => {
           settings.dotenv_load = value;
         }
         Setting::DotenvPath(value) => {
-          settings.dotenv_path = Some(
-            self
-              .evaluate_string(&value, StringContext::Setting(set.name))?
-              .into(),
-          );
+          settings.dotenv_path = self.evaluate_value(&value)?;
         }
         Setting::DotenvOverride(value) => {
           settings.dotenv_override = value;

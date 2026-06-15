@@ -81,6 +81,13 @@ struct Recipe<'a> {
   shebang: bool,
 }
 
+#[derive(Debug, Deserialize, PartialEq, Serialize)]
+#[serde(untagged)]
+enum Dotenv<'a> {
+  Many(Vec<&'a str>),
+  One(&'a str),
+}
+
 #[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
 #[serde(deny_unknown_fields)]
 struct Settings<'a> {
@@ -88,10 +95,10 @@ struct Settings<'a> {
   allow_duplicate_variables: bool,
   default_list: bool,
   default_script: bool,
-  dotenv_filename: Option<&'a str>,
+  dotenv_filename: Option<Dotenv<'a>>,
   dotenv_load: bool,
   dotenv_override: bool,
-  dotenv_path: Option<&'a str>,
+  dotenv_path: Option<Dotenv<'a>>,
   dotenv_required: bool,
   export: bool,
   fallback: bool,
@@ -715,8 +722,8 @@ fn settings() {
         allow_duplicate_recipes: true,
         default_list: true,
         default_script: true,
-        dotenv_filename: Some("filename"),
-        dotenv_path: Some("path"),
+        dotenv_filename: Some(Dotenv::One("filename")),
+        dotenv_path: Some(Dotenv::One("path")),
         dotenv_load: true,
         export: true,
         fallback: true,
@@ -732,6 +739,48 @@ fn settings() {
       ..default()
     },
   );
+}
+
+#[test]
+fn dotenv_filename_list() {
+  let test = Test::new()
+    .justfile(
+      "
+        set lists
+        set dotenv-filename := ['foo', 'bar']
+
+        foo:
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["--dump", "--dump-format", "json"])
+    .stdout_regex(".*");
+
+  let mut expected = Module {
+    first: Some("foo"),
+    recipes: [(
+      "foo",
+      Recipe {
+        name: "foo",
+        namepath: "foo",
+        ..default()
+      },
+    )]
+    .into(),
+    settings: Settings {
+      dotenv_filename: Some(Dotenv::Many(vec!["foo", "bar"])),
+      lists: true,
+      ..default()
+    },
+    ..default()
+  };
+
+  fix_source(test.tempdir.path(), &mut expected);
+
+  let stdout = test.success().stdout;
+  let actual = serde_json::from_str::<Module>(&stdout).unwrap();
+
+  pretty_assertions::assert_eq!(actual, expected);
 }
 
 #[test]

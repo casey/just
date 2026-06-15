@@ -118,7 +118,7 @@ pub struct Arguments {
     long,
     short = 'E',
   )]
-  pub(crate) dotenv_path: Option<PathBuf>,
+  pub(crate) dotenv_path: Option<String>,
   #[arg(
     conflicts_with = "quiet",
     env = "JUST_DRY_RUN",
