@@ -1258,6 +1258,9 @@ lists may only contain strings and not other lists. For example,
 Lists in recipe and `f`-string interpolations are joined with spaces into a
 single string.
 
+In `[env(variable, value)]` if `value` is `[]`, `variable` is not set.
+Otherwise it is set to `value` joined with spaces.
+
 The following functions apply to each list element individually:
 
 - `absolute_path()`
