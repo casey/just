@@ -336,11 +336,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       Function::Nullary(f) => f(context!()).map(Value::from),
       Function::NullaryValue(f) => f(context!()),
       Function::Unary(f) => {
-        let a = self.evaluate_string(&arguments[0], StringContext::Function { name })?;
+        let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
         f(context!(), &a).map(Value::from)
       }
       Function::UnaryValue(f) => {
-        let a = self.evaluate_string(&arguments[0], StringContext::Function { name })?;
+        let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
         f(context!(), &a)
       }
       Function::UnaryList(f) => {
@@ -355,50 +355,50 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           .collect()
       }
       Function::UnaryOpt(f) => {
-        let a = self.evaluate_string(&arguments[0], StringContext::Function { name })?;
+        let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
         let b = if arguments.len() > 1 {
-          Some(self.evaluate_string(&arguments[1], StringContext::Function { name })?)
+          Some(self.evaluate_string(&arguments[1], StringContext::Function(name))?)
         } else {
           None
         };
         f(context!(), &a, b.as_deref()).map(Value::from)
       }
       Function::UnaryPlus(f) => {
-        let a = self.evaluate_string(&arguments[0], StringContext::Function { name })?;
+        let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
         let mut rest = Vec::new();
         for arg in &arguments[1..] {
-          rest.push(self.evaluate_string(arg, StringContext::Function { name })?);
+          rest.push(self.evaluate_string(arg, StringContext::Function(name))?);
         }
         f(context!(), &a, &rest).map(Value::from)
       }
       Function::BinaryList(f) => {
-        let a = self.evaluate_string(&arguments[0], StringContext::Function { name })?;
+        let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
         let b = self.evaluate_value(&arguments[1])?;
         f(context!(), &a, &b)
       }
       Function::Binary(f) => {
-        let a = self.evaluate_string(&arguments[0], StringContext::Function { name })?;
-        let b = self.evaluate_string(&arguments[1], StringContext::Function { name })?;
+        let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
+        let b = self.evaluate_string(&arguments[1], StringContext::Function(name))?;
         f(context!(), &a, &b).map(Value::from)
       }
       Function::BinaryValue(f) => {
-        let a = self.evaluate_string(&arguments[0], StringContext::Function { name })?;
-        let b = self.evaluate_string(&arguments[1], StringContext::Function { name })?;
+        let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
+        let b = self.evaluate_string(&arguments[1], StringContext::Function(name))?;
         f(context!(), &a, &b)
       }
       Function::BinaryPlus(f) => {
-        let a = self.evaluate_string(&arguments[0], StringContext::Function { name })?;
-        let b = self.evaluate_string(&arguments[1], StringContext::Function { name })?;
+        let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
+        let b = self.evaluate_string(&arguments[1], StringContext::Function(name))?;
         let mut rest = Vec::new();
         for arg in &arguments[2..] {
-          rest.push(self.evaluate_string(arg, StringContext::Function { name })?);
+          rest.push(self.evaluate_string(arg, StringContext::Function(name))?);
         }
         f(context!(), &a, &b, &rest).map(Value::from)
       }
       Function::Ternary(f) => {
-        let a = self.evaluate_string(&arguments[0], StringContext::Function { name })?;
-        let b = self.evaluate_string(&arguments[1], StringContext::Function { name })?;
-        let c = self.evaluate_string(&arguments[2], StringContext::Function { name })?;
+        let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
+        let b = self.evaluate_string(&arguments[1], StringContext::Function(name))?;
+        let c = self.evaluate_string(&arguments[2], StringContext::Function(name))?;
         f(context!(), &a, &b, &c).map(Value::from)
       }
     }
