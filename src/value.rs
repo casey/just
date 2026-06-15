@@ -22,6 +22,29 @@ impl Value {
     self.elements.join(" ")
   }
 
+  pub(crate) fn concatenate(&self, other: &Self, separator: &str) -> Option<Self> {
+    let (a, b) = (&self.elements, &other.elements);
+    match (a.len(), b.len()) {
+      (m, n) if m == n => Some(
+        a.iter()
+          .zip(b)
+          .map(|(a, b)| format!("{a}{separator}{b}"))
+          .collect(),
+      ),
+      (1, n) if n >= 2 => Some(
+        b.iter()
+          .map(|b| format!("{}{separator}{b}", a[0]))
+          .collect(),
+      ),
+      (m, 1) if m >= 2 => Some(
+        a.iter()
+          .map(|a| format!("{a}{separator}{}", b[0]))
+          .collect(),
+      ),
+      _ => None,
+    }
+  }
+
   pub(crate) fn into_elements(self) -> Vec<String> {
     self.elements
   }
@@ -179,5 +202,32 @@ mod tests {
     assert_eq!(Value::from("foo bar").elements(), ["foo bar"]);
     assert_eq!(Value::from(String::from("foo")).elements(), ["foo"]);
     assert_eq!(Value::new().elements(), [] as [&str; 0]);
+  }
+
+  #[test]
+  fn concatenate() {
+    #[track_caller]
+    fn case(a: &[&str], b: &[&str], separator: &str, expected: Option<&[&str]>) {
+      let a = a.iter().map(ToString::to_string).collect::<Value>();
+      let b = b.iter().map(ToString::to_string).collect::<Value>();
+      let expected = expected.map(|expected| expected.iter().map(ToString::to_string).collect());
+      assert_eq!(a.concatenate(&b, separator), expected);
+    }
+
+    case(&[], &[], "", Some(&[]));
+    case(&["a"], &["b"], "", Some(&["ab"]));
+    case(&["a"], &["b"], "/", Some(&["a/b"]));
+    case(&["a", "b"], &["c", "d"], "", Some(&["ac", "bd"]));
+    case(&["a", "b"], &["c", "d"], "/", Some(&["a/c", "b/d"]));
+    case(&["a"], &["b", "c"], "", Some(&["ab", "ac"]));
+    case(&["a"], &["b", "c", "d"], "", Some(&["ab", "ac", "ad"]));
+    case(&["a", "b"], &["c"], "/", Some(&["a/c", "b/c"]));
+    case(&["a", "b", "c"], &["d"], "", Some(&["ad", "bd", "cd"]));
+
+    case(&[], &["a"], "", None);
+    case(&["a"], &[], "", None);
+    case(&[], &["a", "b"], "", None);
+    case(&["a", "b"], &[], "", None);
+    case(&["a", "b"], &["c", "d", "e"], "", None);
   }
 }

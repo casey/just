@@ -473,9 +473,19 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       }
       Expression::Comparison { .. } => Ok(self.evaluate_boolean(expression)?.into()),
       Expression::Concatenation { lhs, rhs } => {
-        let lhs = self.evaluate_string(lhs, StringContext::Concatenation)?;
-        let rhs = self.evaluate_string(rhs, StringContext::Concatenation)?;
-        Ok((lhs + &rhs).into())
+        let token = lhs.token();
+        let lhs = self.evaluate_value(lhs)?;
+        let rhs = self.evaluate_value(rhs)?;
+        if let Some(value) = lhs.concatenate(&rhs, "") {
+          Ok(value)
+        } else {
+          Err(Error::ListOperator {
+            operator: "+",
+            lhs,
+            rhs,
+            token: Box::new(token),
+          })
+        }
       }
       Expression::Conditional {
         condition,
@@ -506,15 +516,36 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       }
       Expression::Group { contents } => self.evaluate_value(contents),
       Expression::Join { lhs: None, rhs } => {
-        Ok(("/".to_string() + &self.evaluate_string(rhs, StringContext::Join)?).into())
+        let token = rhs.token();
+        let rhs = self.evaluate_value(rhs)?;
+        if let Some(value) = Value::from("/").concatenate(&rhs, "") {
+          Ok(value)
+        } else {
+          Err(Error::ListOperator {
+            operator: "/",
+            lhs: Value::from("/"),
+            rhs,
+            token: Box::new(token),
+          })
+        }
       }
       Expression::Join {
         lhs: Some(lhs),
         rhs,
       } => {
-        let lhs = self.evaluate_string(lhs, StringContext::Join)?;
-        let rhs = self.evaluate_string(rhs, StringContext::Join)?;
-        Ok((lhs + "/" + &rhs).into())
+        let token = lhs.token();
+        let lhs = self.evaluate_value(lhs)?;
+        let rhs = self.evaluate_value(rhs)?;
+        if let Some(value) = lhs.concatenate(&rhs, "/") {
+          Ok(value)
+        } else {
+          Err(Error::ListOperator {
+            operator: "/",
+            lhs,
+            rhs,
+            token: Box::new(token),
+          })
+        }
       }
       Expression::List { elements, .. } => {
         let mut values = Vec::new();

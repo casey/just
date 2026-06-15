@@ -434,29 +434,95 @@ fn evaluate_prints_lists() {
 }
 
 #[test]
-fn string_in_list_context_error() {
-  Test::new()
-    .justfile(
-      "
-        set lists
+fn concatenation_broadcasts_string_over_list() {
+  assert_list_eq("'foo' + ['bar', 'baz']", r#"["foobar", "foobaz"]"#);
+  assert_list_eq("['bar', 'baz'] + 'foo'", r#"["barfoo", "bazfoo"]"#);
+}
 
-        foo *args:
-          @echo {{ args + 'foo'}}
+#[test]
+fn concatenation_combines_equal_length_lists_pairwise() {
+  assert_list_eq("['a', 'b'] + ['c', 'd']", r#"["ac", "bd"]"#);
+}
+
+#[test]
+fn concatenation_of_strings_is_a_string() {
+  assert_list_eq("'foo' + 'bar'", r#""foobar""#);
+}
+
+#[test]
+fn concatenation_of_empty_lists_is_empty() {
+  assert_list_eq("[] + []", "[]");
+}
+
+#[test]
+fn join_broadcasts_string_over_list() {
+  assert_list_eq("'foo' / ['bar', 'baz']", r#"["foo/bar", "foo/baz"]"#);
+  assert_list_eq("['bar', 'baz'] / 'foo'", r#"["bar/foo", "baz/foo"]"#);
+}
+
+#[test]
+fn join_combines_equal_length_lists_pairwise() {
+  assert_list_eq("['a', 'b'] / ['c', 'd']", r#"["a/c", "b/d"]"#);
+}
+
+#[test]
+fn unary_join_broadcasts_over_list() {
+  assert_list_eq("/ ['bar', 'baz']", r#"["/bar", "/baz"]"#);
+}
+
+#[test]
+fn concatenation_with_empty_list_is_an_error() {
+  Test::new()
+    .justfile("set lists\n\nx := 'foo' + []")
+    .env("JUST_UNSTABLE", "1")
+    .args(["--evaluate", "x"])
+    .stderr(
+      r"
+        error: operator `+` cannot be applied to the empty list
+        see https://github.com/casey/just#lists
+         ——▶ justfile:3:6
+          │
+        3 │ x := 'foo' + []
+          │      ^^^^^
       ",
     )
+    .failure();
+}
+
+#[test]
+fn concatenation_of_different_length_lists_is_an_error() {
+  Test::new()
+    .justfile("set lists\n\nx := ['a', 'b'] + ['c', 'd', 'e']")
     .env("JUST_UNSTABLE", "1")
-    .args(["foo", "bar", "baz"])
+    .args(["--evaluate", "x"])
     .stderr(
       r#"
-        error: list value ["bar", "baz"] used as `+` operand
-        the ideal behavior of lists in many contexts is undecided
+        error: operator `+` cannot be applied to lists of different lengths, ["a", "b"] and ["c", "d", "e"]
         see https://github.com/casey/just#lists
-        note that the source location of this error may be inaccurate
-         ——▶ justfile:4:12
+         ——▶ justfile:3:6
           │
-        4 │   @echo {{ args + 'foo'}}
-          │            ^^^^
+        3 │ x := ['a', 'b'] + ['c', 'd', 'e']
+          │      ^
       "#,
+    )
+    .failure();
+}
+
+#[test]
+fn unary_join_with_empty_list_is_an_error() {
+  Test::new()
+    .justfile("set lists\n\nx := / []")
+    .env("JUST_UNSTABLE", "1")
+    .args(["--evaluate", "x"])
+    .stderr(
+      r"
+        error: operator `/` cannot be applied to the empty list
+        see https://github.com/casey/just#lists
+         ——▶ justfile:3:8
+          │
+        3 │ x := / []
+          │        ^
+      ",
     )
     .failure();
 }

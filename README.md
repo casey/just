@@ -1242,11 +1242,11 @@ section documents changes in behavior when `set lists` is enabled.
 
 Lists may be used in many contexts, and their behavior in many of those
 contexts has not yet been decided. Using a list in those contexts, such as with
-`+` or `/`, or with many functions, is an error. The `join_list()` function can
-be used to convert a list into a space-separated string for use in these
-contexts. Feedback on how lists should behave in these contexts, and on lists
-in general, is most welcome. Feel free to open an issue or leave a comment in
-the [`set lists` tracking issue](https://github.com/casey/just/issues/3377).
+many functions, is an error. The `join_list()` function can be used to convert
+a list into a space-separated string for use in these contexts. Feedback on how
+lists should behave in these contexts, and on lists in general, is most welcome.
+Feel free to open an issue or leave a comment in the [`set lists` tracking
+issue](https://github.com/casey/just/issues/3377).
 
 Variadic recipe parameters are lists of strings instead of single
 space-separated strings.
@@ -1338,6 +1338,13 @@ just in `if` and `assert()`, and evaluate to `"true"` or `[]`.
 
 Values may be negated with `!`. `!expression` evaluates to `"true"` if
 `expression` is `[]`, otherwise it evaluates to `[]`.
+
+The `+` and `/` operators combine strings and lists. Operands of the same length
+are combined elementwise, so `["a", "b"] + ["c", "d"]` is `["ac", "bd"]` and `[]
++ []` is `[]`. A single string and a longer list are combined by applying the
+string to each element, so `"a" + ["b", "c"]` is `["ab", "ac"]` and `["a", "b"]
+/ "c"` is `["a/c", "b/c"]`. Combining two lists of different lengths, or the
+empty list with a non-empty value, is an error.
 
 The `[arg]` `flag` attribute, makes the parameter a flag which does not take a
 value on the command line. For example, with `[arg(foo, long, flag)]`, `foo`
