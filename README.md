@@ -1340,12 +1340,10 @@ just in `if` and `assert()`, and evaluate to `"true"` or `[]`.
 Values may be negated with `!`. `!expression` evaluates to `"true"` if
 `expression` is `[]`, otherwise it evaluates to `[]`.
 
-The `+` and `/` operators combine strings and lists. Operands of the same length
-are combined elementwise, so `["a", "b"] + ["c", "d"]` is `["ac", "bd"]` and `[]
-+ []` is `[]`. A single string and a longer list are combined by applying the
-string to each element, so `"a" + ["b", "c"]` is `["ab", "ac"]` and `["a", "b"]
-/ "c"` is `["a/c", "b/c"]`. Combining two lists of different lengths, or the
-empty list with a non-empty value, is an error.
+The `+` and `/` operators combine strings and lists. A string and a list are
+combined by concatenating the string with each element of the list. Two lists
+of the same length result in a list of the pairwise concatenated elements of
+both lists. Combining two lists of different lengths is an error.
 
 The `[arg]` `flag` attribute, makes the parameter a flag which does not take a
 value on the command line. For example, with `[arg(foo, long, flag)]`, `foo`
