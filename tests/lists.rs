@@ -554,3 +554,47 @@ fn env_attribute_empty_string_sets_variable() {
     .stdout("[]\n")
     .success();
 }
+
+#[test]
+fn interpreter_settings_flatten_lists() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set shell := ['echo', ['foo', 'bar']]
+
+        baz:
+          hello
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("foo bar hello\n")
+    .stderr("hello\n")
+    .shell(false)
+    .success();
+}
+
+#[test]
+fn empty_interpreter_setting_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set shell := [[]]
+
+        foo:
+          @echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      "
+        error: `shell` setting requires at least one element but evaluated to an empty list
+         ——▶ justfile:2:15
+          │
+        2 │ set shell := [[]]
+          │               ^
+      ",
+    )
+    .failure();
+}

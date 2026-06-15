@@ -139,10 +139,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
         Setting::ScriptInterpreter(value) => {
           settings.script_interpreter =
-            Some(self.evaluate_interpreter(&value, StringContext::ScriptInterpreter)?);
+            Some(self.evaluate_interpreter(&value, Keyword::ScriptInterpreter)?);
         }
         Setting::Shell(value) => {
-          settings.shell = Some(self.evaluate_interpreter(&value, StringContext::Shell)?);
+          settings.shell = Some(self.evaluate_interpreter(&value, Keyword::Shell)?);
         }
         Setting::Unstable(value) => {
           settings.unstable = value;
@@ -151,8 +151,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           settings.windows_powershell = value;
         }
         Setting::WindowsShell(value) => {
-          settings.windows_shell =
-            Some(self.evaluate_interpreter(&value, StringContext::WindowsShell)?);
+          settings.windows_shell = Some(self.evaluate_interpreter(&value, Keyword::WindowsShell)?);
         }
         Setting::Tempdir(value) => {
           settings.tempdir = Some(self.evaluate_string(&value, StringContext::Tempdir)?);
@@ -173,15 +172,24 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   pub(crate) fn evaluate_interpreter(
     &mut self,
     interpreter: &Interpreter<Expression<'src>>,
-    context: StringContext<'src>,
+    keyword: Keyword,
   ) -> RunResult<'src, Interpreter<String>> {
+    let token = interpreter.command.token();
+
+    let mut elements = self.evaluate_value(&interpreter.command)?.into_elements();
+    for argument in &interpreter.arguments {
+      elements.extend(self.evaluate_value(argument)?.into_elements());
+    }
+
+    let mut elements = elements.into_iter();
+
+    let Some(command) = elements.next() else {
+      return Err(Error::EmptyInterpreter { keyword, token });
+    };
+
     Ok(Interpreter {
-      command: self.evaluate_string(&interpreter.command, context)?,
-      arguments: interpreter
-        .arguments
-        .iter()
-        .map(|argument| self.evaluate_string(argument, context))
-        .collect::<RunResult<Vec<String>>>()?,
+      command,
+      arguments: elements.collect(),
     })
   }
 
