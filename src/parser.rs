@@ -28,8 +28,7 @@ pub(crate) struct Parser<'run, 'src> {
   file_depth: u32,
   import_offsets: Vec<usize>,
   items: Vec<Item<'src>>,
-  list_feature: Option<(ListFeature, Token<'src>)>,
-  list_functions: Vec<(ListFeature, Token<'src>)>,
+  list_features: Vec<(ListFeature, Token<'src>)>,
   module_namepath: Option<&'run Namepath<'src>>,
   next_token: usize,
   numerator: &'run mut Numerator,
@@ -54,8 +53,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       file_depth,
       import_offsets: import_offsets.to_vec(),
       items: Vec::new(),
-      list_feature: None,
-      list_functions: Vec::new(),
+      list_features: Vec::new(),
       module_namepath,
       next_token: 0,
       numerator,
@@ -97,14 +95,8 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok(self.next()?.error(kind))
   }
 
-  fn list_feature(&mut self, list_feature: ListFeature, token: Token<'src>) {
-    if self.list_feature.is_none() {
-      self.list_feature = Some((list_feature, token));
-    }
-  }
-
-  fn restricted_function(&mut self, list_feature: ListFeature, name: Name<'src>) {
-    self.list_functions.push((list_feature, name.token));
+  fn list_feature(&mut self, feature: ListFeature, token: Token<'src>) {
+    self.list_features.push((feature, token));
   }
 
   /// Construct an unexpected token error with the token returned by
@@ -499,9 +491,8 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     Ok(Ast {
       items: self.items,
-      list_feature: self.list_feature,
+      list_features: self.list_features,
       module_path: self.module_namepath.map(Into::into).unwrap_or_default(),
-      list_functions: self.list_functions,
       unstable_features: self.unstable_features,
       warnings: Vec::new(),
       working_directory: self.working_directory.into(),
@@ -962,16 +953,16 @@ impl<'run, 'src> Parser<'run, 'src> {
           let arguments = self.parse_sequence()?;
           match name.lexeme() {
             "bool" => {
-              self.restricted_function(ListFeature::BoolFunction, name);
+              self.list_feature(ListFeature::BoolFunction, name.token);
             }
             "join_list" => {
-              self.restricted_function(ListFeature::JoinListFunction, name);
+              self.list_feature(ListFeature::JoinListFunction, name.token);
             }
             "show" => {
-              self.restricted_function(ListFeature::ShowFunction, name);
+              self.list_feature(ListFeature::ShowFunction, name.token);
             }
             "which" => {
-              self.restricted_function(ListFeature::WhichFunction, name);
+              self.list_feature(ListFeature::WhichFunction, name.token);
             }
             _ => {}
           }

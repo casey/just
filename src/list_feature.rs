@@ -15,6 +15,23 @@ pub(crate) enum ListFeature {
   WhichFunction,
 }
 
+impl ListFeature {
+  pub(crate) fn function(self) -> bool {
+    match self {
+      Self::BoolFunction | Self::JoinListFunction | Self::ShowFunction | Self::WhichFunction => {
+        true
+      }
+      Self::ComparisonOperator
+      | Self::Flag
+      | Self::IfWithoutElse
+      | Self::ListLiteral
+      | Self::LogicalOperator
+      | Self::NegationOperator
+      | Self::NonComparisonCondition => false,
+    }
+  }
+}
+
 impl Display for ListFeature {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     match self {

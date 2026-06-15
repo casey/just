@@ -46,8 +46,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut absent_modules = BTreeSet::new();
     let mut definitions = HashMap::new();
     let mut imports = HashSet::new();
-    let mut list_feature = None;
-    let mut list_functions = Vec::new();
+    let mut list_features = Vec::new();
     let mut unstable_features = BTreeSet::new();
 
     let mut stack = Vec::new();
@@ -57,11 +56,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     while let Some(ast) = stack.pop() {
       unstable_features.extend(&ast.unstable_features);
 
-      list_functions.extend(&ast.list_functions);
-
-      if list_feature.is_none() {
-        list_feature = ast.list_feature;
-      }
+      list_features.extend(&ast.list_features);
 
       for item in &ast.items {
         match item {
@@ -185,15 +180,9 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       functions.insert(function.clone());
     }
 
-    for (feature, token) in list_functions {
-      if functions.contains_key(token.lexeme()) {
-        continue;
-      }
-
-      if list_feature.is_none() {
-        list_feature = Some((feature, token));
-      }
-    }
+    let list_feature = list_features
+      .into_iter()
+      .find(|(feature, token)| !(feature.function() && functions.contains_key(token.lexeme())));
 
     AssignmentResolver::resolve_assignments(&assignments, &functions)?;
 
