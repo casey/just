@@ -467,22 +467,17 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
       }
       Expression::Comparison { .. } => Ok(self.evaluate_boolean(expression)?.into()),
-      Expression::Concatenation {
-        lhs,
-        operator: token,
-        rhs,
-      } => {
-        let operator = ListOperator::Concatenate;
+      Expression::Concatenation { lhs, operator, rhs } => {
         let lhs = self.evaluate_value(lhs)?;
         let rhs = self.evaluate_value(rhs)?;
-        if let Some(value) = lhs.apply(&rhs, operator) {
+        if let Some(value) = lhs.apply(&rhs, ListOperator::Concatenate) {
           Ok(value)
         } else {
           Err(Error::ListOperation {
-            operator,
+            operator: ListOperator::Concatenate,
             lhs,
             rhs,
-            token: Box::new(*token),
+            token: Box::new(*operator),
           })
         }
       }
@@ -516,7 +511,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       Expression::Group { contents } => self.evaluate_value(contents),
       Expression::Join {
         lhs: None,
-        operator: token,
+        operator,
         rhs,
       } => {
         let rhs = self.evaluate_value(rhs)?;
@@ -527,26 +522,25 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             operator: ListOperator::Join,
             lhs: Value::from("/"),
             rhs,
-            token: Box::new(*token),
+            token: Box::new(*operator),
           })
         }
       }
       Expression::Join {
         lhs: Some(lhs),
-        operator: token,
+        operator,
         rhs,
       } => {
-        let operator = ListOperator::Join;
         let lhs = self.evaluate_value(lhs)?;
         let rhs = self.evaluate_value(rhs)?;
-        if let Some(value) = lhs.apply(&rhs, operator) {
+        if let Some(value) = lhs.apply(&rhs, ListOperator::Join) {
           Ok(value)
         } else {
           Err(Error::ListOperation {
-            operator,
+            operator: ListOperator::Join,
             lhs,
             rhs,
-            token: Box::new(*token),
+            token: Box::new(*operator),
           })
         }
       }
