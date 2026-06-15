@@ -28,12 +28,11 @@ pub(crate) struct Parser<'run, 'src> {
   file_depth: u32,
   import_offsets: Vec<usize>,
   items: Vec<Item<'src>>,
-  list_feature: Option<(ListFeature, Token<'src>)>,
+  list_features: Vec<(ListFeature, Token<'src>)>,
   module_namepath: Option<&'run Namepath<'src>>,
   next_token: usize,
   numerator: &'run mut Numerator,
   recursion_depth: usize,
-  restricted_functions: Vec<(RestrictedFunction, Token<'src>)>,
   tokens: &'run [Token<'src>],
   unstable_features: BTreeSet<UnstableFeature>,
   working_directory: &'run Path,
@@ -54,12 +53,11 @@ impl<'run, 'src> Parser<'run, 'src> {
       file_depth,
       import_offsets: import_offsets.to_vec(),
       items: Vec::new(),
-      list_feature: None,
+      list_features: Vec::new(),
       module_namepath,
       next_token: 0,
       numerator,
       recursion_depth: 0,
-      restricted_functions: Vec::new(),
       tokens,
       unstable_features: BTreeSet::new(),
       working_directory,
@@ -97,16 +95,8 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok(self.next()?.error(kind))
   }
 
-  fn list_feature(&mut self, list_feature: ListFeature, token: Token<'src>) {
-    if self.list_feature.is_none() {
-      self.list_feature = Some((list_feature, token));
-    }
-  }
-
-  fn restricted_function(&mut self, restricted_function: RestrictedFunction, name: Name<'src>) {
-    self
-      .restricted_functions
-      .push((restricted_function, name.token));
+  fn list_feature(&mut self, feature: ListFeature, token: Token<'src>) {
+    self.list_features.push((feature, token));
   }
 
   /// Construct an unexpected token error with the token returned by
@@ -501,9 +491,8 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     Ok(Ast {
       items: self.items,
-      list_feature: self.list_feature,
+      list_features: self.list_features,
       module_path: self.module_namepath.map(Into::into).unwrap_or_default(),
-      restricted_functions: self.restricted_functions,
       unstable_features: self.unstable_features,
       warnings: Vec::new(),
       working_directory: self.working_directory.into(),
@@ -964,22 +953,16 @@ impl<'run, 'src> Parser<'run, 'src> {
           let arguments = self.parse_sequence()?;
           match name.lexeme() {
             "bool" => {
-              self.restricted_function(RestrictedFunction::List(ListFeature::BoolFunction), name);
+              self.list_feature(ListFeature::BoolFunction, name.token);
             }
             "join_list" => {
-              self.restricted_function(
-                RestrictedFunction::List(ListFeature::JoinListFunction),
-                name,
-              );
+              self.list_feature(ListFeature::JoinListFunction, name.token);
             }
             "show" => {
-              self.restricted_function(RestrictedFunction::List(ListFeature::ShowFunction), name);
+              self.list_feature(ListFeature::ShowFunction, name.token);
             }
             "which" => {
-              self.restricted_function(
-                RestrictedFunction::Unstable(UnstableFeature::WhichFunction),
-                name,
-              );
+              self.list_feature(ListFeature::WhichFunction, name.token);
             }
             _ => {}
           }

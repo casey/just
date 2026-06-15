@@ -12,6 +12,24 @@ pub(crate) enum ListFeature {
   NegationOperator,
   NonComparisonCondition,
   ShowFunction,
+  WhichFunction,
+}
+
+impl ListFeature {
+  pub(crate) fn function(self) -> bool {
+    match self {
+      Self::BoolFunction | Self::JoinListFunction | Self::ShowFunction | Self::WhichFunction => {
+        true
+      }
+      Self::ComparisonOperator
+      | Self::Flag
+      | Self::IfWithoutElse
+      | Self::ListLiteral
+      | Self::LogicalOperator
+      | Self::NegationOperator
+      | Self::NonComparisonCondition => false,
+    }
+  }
 }
 
 impl Display for ListFeature {
@@ -30,6 +48,7 @@ impl Display for ListFeature {
         "`if` and `assert` conditions other than comparisons require `set lists`"
       ),
       Self::ShowFunction => write!(f, "the `show()` function requires `set lists`"),
+      Self::WhichFunction => write!(f, "the `which()` function requires `set lists`"),
     }
   }
 }

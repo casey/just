@@ -181,6 +181,33 @@ fn non_comparison_condition_requires_lists_setting() {
 }
 
 #[test]
+fn non_comparison_condition_calling_defined_function_requires_lists_setting() {
+  Test::new()
+    .justfile(
+      r#"
+        foo() := "t"
+
+        x := if foo() { "t" } else { "f" }
+
+        bar:
+          @echo hi
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("bar")
+    .stderr(
+      r#"
+        error: `if` and `assert` conditions other than comparisons require `set lists`
+         ——▶ justfile:3:9
+          │
+        3 │ x := if foo() { "t" } else { "f" }
+          │         ^^^
+      "#,
+    )
+    .failure();
+}
+
+#[test]
 fn comparison_condition_without_lists() {
   Test::new()
     .justfile(

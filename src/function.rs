@@ -752,13 +752,7 @@ fn uuid(_context: Context) -> StringResult {
 fn which(context: Context, name: &str) -> ValueResult {
   Ok(match crate::which(&context, name)? {
     Some(path) => Value::from(path),
-    None => {
-      if context.execution_context.module.settings.lists {
-        Value::new()
-      } else {
-        Value::from("")
-      }
-    }
+    None => Value::new(),
   })
 }
 
