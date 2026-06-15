@@ -646,6 +646,143 @@ fn list_in_env_attribute_name_points_at_attribute_name() {
 }
 
 #[test]
+fn env_returns_first_present_variable() {
+  Test::new()
+    .justfile("set lists\n\nx := env(['ZADDY', 'BAR'])")
+    .env("JUST_UNSTABLE", "1")
+    .env("BAR", "bar")
+    .args(["--evaluate", "x"])
+    .stdout("bar")
+    .unindent_stdout(false)
+    .success();
+}
+
+#[test]
+fn env_stops_at_first_present_variable_including_empty() {
+  Test::new()
+    .justfile("set lists\n\nx := show(env(['ZADDY', 'BAR']))")
+    .env("JUST_UNSTABLE", "1")
+    .env("ZADDY", "")
+    .env("BAR", "bar")
+    .args(["--evaluate", "x"])
+    .stdout(r#""""#)
+    .unindent_stdout(false)
+    .success();
+}
+
+#[test]
+fn env_returns_default_when_no_variable_present() {
+  assert_list_eq("env(['ZADDY', 'XYZ'], 'baz')", r#""baz""#);
+}
+
+#[test]
+fn env_returns_empty_list_default() {
+  assert_list_eq("env(['ZADDY', 'XYZ'], [])", "[]");
+}
+
+#[test]
+fn env_returns_list_default_unmodified() {
+  assert_list_eq("env(['ZADDY'], ['a', 'b'])", r#"["a", "b"]"#);
+}
+
+#[test]
+fn env_with_empty_key_list_uses_default() {
+  assert_list_eq("env([], 'baz')", r#""baz""#);
+}
+
+#[test]
+fn env_with_empty_key_list_and_no_default_is_an_error() {
+  Test::new()
+    .arg("a")
+    .justfile(
+      "
+        set lists
+
+        a:
+          echo {{env([])}}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      "
+        error: call to function `env` failed: empty environment variable list and no default
+         ——▶ justfile:4:10
+          │
+        4 │   echo {{env([])}}
+          │          ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn env_missing_keys_error_names_all_keys() {
+  Test::new()
+    .arg("a")
+    .justfile(
+      "
+        set lists
+
+        a:
+          echo {{env(['ZADDY', 'XYZ'])}}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      "
+        error: call to function `env` failed: none of the environment variables `ZADDY`, `XYZ` are present
+         ——▶ justfile:4:10
+          │
+        4 │   echo {{env(['ZADDY', 'XYZ'])}}
+          │          ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn env_single_missing_key_keeps_singular_message() {
+  Test::new()
+    .arg("a")
+    .justfile(
+      "
+        set lists
+
+        a:
+          echo {{env('ZADDY')}}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      "
+        error: call to function `env` failed: environment variable `ZADDY` not present
+         ——▶ justfile:4:10
+          │
+        4 │   echo {{env('ZADDY')}}
+          │          ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn env_var_accepts_list_of_keys() {
+  Test::new()
+    .justfile("set lists\n\nx := env_var(['ZADDY', 'BAR'])")
+    .env("JUST_UNSTABLE", "1")
+    .env("BAR", "bar")
+    .args(["--evaluate", "x"])
+    .stdout("bar")
+    .unindent_stdout(false)
+    .success();
+}
+
+#[test]
+fn env_var_or_default_accepts_list_of_keys() {
+  assert_list_eq("env_var_or_default(['ZADDY', 'XYZ'], [])", "[]");
+}
+
+#[test]
 fn list_in_working_directory_attribute_points_at_attribute_name() {
   Test::new()
     .justfile(

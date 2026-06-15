@@ -16,11 +16,12 @@ pub(crate) enum Function {
   Unary(fn(Context, &str) -> StringResult),
   UnaryList(fn(Context, &Value) -> ValueResult),
   UnaryMap(fn(Context, &str) -> StringResult),
-  UnaryOpt(fn(Context, &str, Option<&str>) -> StringResult),
+  UnaryListOpt(fn(Context, &Value, Option<&Value>) -> ValueResult),
   UnaryPlus(fn(Context, &str, &[String]) -> StringResult),
   UnaryValue(fn(Context, &str) -> ValueResult),
   Binary(fn(Context, &str, &str) -> StringResult),
   BinaryList(fn(Context, &str, &Value) -> ValueResult),
+  BinaryListList(fn(Context, &Value, &Value) -> ValueResult),
   BinaryPlus(fn(Context, &str, &str, &[String]) -> StringResult),
   BinaryValue(fn(Context, &str, &str) -> ValueResult),
   Ternary(fn(Context, &str, &str, &str) -> StringResult),
@@ -31,9 +32,9 @@ impl Function {
     match *self {
       Nullary(_) | NullaryValue(_) => 0..=0,
       Unary(_) | UnaryList(_) | UnaryMap(_) | UnaryValue(_) => 1..=1,
-      UnaryOpt(_) => 1..=2,
+      UnaryListOpt(_) => 1..=2,
       UnaryPlus(_) => 1..=usize::MAX,
-      Binary(_) | BinaryList(_) | BinaryValue(_) => 2..=2,
+      Binary(_) | BinaryList(_) | BinaryListList(_) | BinaryValue(_) => 2..=2,
       BinaryPlus(_) => 2..=usize::MAX,
       Ternary(_) => 3..=3,
     }
@@ -76,9 +77,9 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "datetime" => Unary(datetime),
     "datetime_utc" => Unary(datetime_utc),
     "encode_uri_component" => Unary(encode_uri_component),
-    "env" => UnaryOpt(env),
-    "env_var" => Unary(env_var),
-    "env_var_or_default" => Binary(env_var_or_default),
+    "env" => UnaryListOpt(env),
+    "env_var" => UnaryList(env_var),
+    "env_var_or_default" => BinaryListList(env_var_or_default),
     "error" => Unary(error),
     "executable_directory" => Nullary(|_| dir("executable", dirs::executable_dir)),
     "extension" => Unary(extension),
@@ -319,43 +320,55 @@ fn encode_uri_component(_context: Context, s: &str) -> StringResult {
   Ok(percent_encoding::utf8_percent_encode(s, &PERCENT_ENCODE).to_string())
 }
 
-fn env(context: Context, key: &str, default: Option<&str>) -> StringResult {
-  match default {
-    Some(value) => env_var_or_default(context, key, value),
-    None => env_var(context, key),
-  }
-}
-
-fn env_var(context: Context, key: &str) -> StringResult {
+fn env_lookup(context: &Context, key: &str) -> Result<Option<String>, String> {
   use std::env::VarError::*;
 
   if let Some(value) = context.execution_context.dotenv.get(key) {
-    return Ok(value.clone());
+    return Ok(Some(value.clone()));
   }
 
   match env::var(key) {
-    Err(NotPresent) => Err(format!("environment variable `{key}` not present")),
+    Ok(value) => Ok(Some(value)),
+    Err(NotPresent) => Ok(None),
     Err(NotUnicode(os_string)) => Err(format!(
       "environment variable `{key}` not unicode: {os_string:?}"
     )),
-    Ok(value) => Ok(value),
   }
 }
 
-fn env_var_or_default(context: Context, key: &str, default: &str) -> StringResult {
-  use std::env::VarError::*;
-
-  if let Some(value) = context.execution_context.dotenv.get(key) {
-    return Ok(value.clone());
+fn env(context: Context, keys: &Value, default: Option<&Value>) -> ValueResult {
+  for key in keys.elements() {
+    if let Some(value) = env_lookup(&context, key)? {
+      return Ok(value.into());
+    }
   }
 
-  match env::var(key) {
-    Err(NotPresent) => Ok(default.to_owned()),
-    Err(NotUnicode(os_string)) => Err(format!(
-      "environment variable `{key}` not unicode: {os_string:?}"
-    )),
-    Ok(value) => Ok(value),
+  if let Some(default) = default {
+    Ok(default.clone())
+  } else {
+    match keys.elements() {
+      [] => Err("empty environment variable list and no default".into()),
+      [key] => Err(format!("environment variable `{key}` not present")),
+      keys => {
+        let names = keys
+          .iter()
+          .map(|key| format!("`{key}`"))
+          .collect::<Vec<String>>()
+          .join(", ");
+        Err(format!(
+          "none of the environment variables {names} are present"
+        ))
+      }
+    }
   }
+}
+
+fn env_var(context: Context, keys: &Value) -> ValueResult {
+  env(context, keys, None)
+}
+
+fn env_var_or_default(context: Context, keys: &Value, default: &Value) -> ValueResult {
+  env(context, keys, Some(default))
 }
 
 fn error(_context: Context, message: &str) -> StringResult {

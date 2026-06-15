@@ -349,14 +349,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           .map(|element| f(context!(), element))
           .collect()
       }
-      Function::UnaryOpt(f) => {
-        let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
+      Function::UnaryListOpt(f) => {
+        let a = self.evaluate_value(&arguments[0])?;
         let b = if arguments.len() > 1 {
-          Some(self.evaluate_string(&arguments[1], StringContext::Function(name))?)
+          Some(self.evaluate_value(&arguments[1])?)
         } else {
           None
         };
-        f(context!(), &a, b.as_deref()).map(Value::from)
+        f(context!(), &a, b.as_ref())
       }
       Function::UnaryPlus(f) => {
         let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
@@ -368,6 +368,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       }
       Function::BinaryList(f) => {
         let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
+        let b = self.evaluate_value(&arguments[1])?;
+        f(context!(), &a, &b)
+      }
+      Function::BinaryListList(f) => {
+        let a = self.evaluate_value(&arguments[0])?;
         let b = self.evaluate_value(&arguments[1])?;
         f(context!(), &a, &b)
       }
