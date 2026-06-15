@@ -731,7 +731,6 @@ impl ColorDisplay for Error<'_> {
             rhs.color_display(color),
           )?;
         }
-        write!(f, "\nsee https://github.com/casey/just#lists")?;
       }
       ShellIo {
         recipe,
