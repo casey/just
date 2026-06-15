@@ -953,16 +953,19 @@ impl<'run, 'src> Parser<'run, 'src> {
           let arguments = self.parse_sequence()?;
           match name.lexeme() {
             "bool" => {
-              self.list_feature(ListFeature::BoolFunction, name.token);
+              self.list_feature(ListFeature::BoolFunction, *name);
             }
             "join_list" => {
-              self.list_feature(ListFeature::JoinListFunction, name.token);
+              self.list_feature(ListFeature::JoinListFunction, *name);
             }
             "show" => {
-              self.list_feature(ListFeature::ShowFunction, name.token);
+              self.list_feature(ListFeature::ShowFunction, *name);
+            }
+            "split" => {
+              self.list_feature(ListFeature::SplitFunction, *name);
             }
             "which" => {
-              self.list_feature(ListFeature::WhichFunction, name.token);
+              self.list_feature(ListFeature::WhichFunction, *name);
             }
             _ => {}
           }

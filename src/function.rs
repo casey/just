@@ -24,6 +24,7 @@ pub(crate) enum Function {
   ValueUnary(fn(Context, &Value) -> ValueResult),
   ValueBinary(fn(Context, &Value, &Value) -> ValueResult),
   ValueBinaryOpt(fn(Context, &Value, Option<&Value>) -> ValueResult),
+  ValueStrOpt(fn(Context, &Value, Option<&str>) -> ValueResult),
 }
 
 impl Function {
@@ -31,7 +32,7 @@ impl Function {
     match *self {
       Nullary(_) | ValueNullary(_) => 0..=0,
       Unary(_) | ValueUnary(_) | UnaryMap(_) | UnaryToValue(_) => 1..=1,
-      ValueBinaryOpt(_) => 1..=2,
+      ValueBinaryOpt(_) | ValueStrOpt(_) => 1..=2,
       UnaryPlus(_) => 1..=usize::MAX,
       Binary(_) | BinaryStrValue(_) | ValueBinary(_) | BinaryToValue(_) => 2..=2,
       BinaryPlus(_) => 2..=usize::MAX,
@@ -89,7 +90,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "invocation_directory_native" => Nullary(invocation_directory_native),
     "is_dependency" => ValueNullary(is_dependency),
     "join" => BinaryPlus(join),
-    "join_list" => ValueUnary(join_list),
+    "join_list" => ValueStrOpt(join_list),
     "just_executable" => Nullary(just_executable),
     "just_pid" => Nullary(just_pid),
     "justfile" => Nullary(justfile),
@@ -123,6 +124,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "snakecase" => Unary(snakecase),
     "source_directory" => Nullary(source_directory),
     "source_file" => Nullary(source_file),
+    "split" => BinaryToValue(split),
     "style" => Unary(style),
     "titlecase" => Unary(titlecase),
     "trim" => Unary(trim),
@@ -441,8 +443,8 @@ fn join(_context: Context, base: &str, with: &str, and: &[String]) -> StringResu
   Ok(result.to_string())
 }
 
-fn join_list(_context: Context, value: &Value) -> ValueResult {
-  Ok(value.join().into())
+fn join_list(_context: Context, value: &Value, separator: Option<&str>) -> ValueResult {
+  Ok(value.elements().join(separator.unwrap_or(" ")).into())
 }
 
 fn just_executable(_context: Context) -> StringResult {
@@ -689,6 +691,10 @@ fn source_file(context: Context) -> StringResult {
         context.name.token.path.display(),
       )
     })
+}
+
+fn split(_context: Context, s: &str, separator: &str) -> ValueResult {
+  Ok(s.split(separator).map(str::to_string).collect())
 }
 
 fn style(context: Context, s: &str) -> StringResult {
