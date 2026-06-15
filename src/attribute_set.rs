@@ -1,7 +1,7 @@
 use {super::*, std::collections};
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize)]
-pub(crate) struct AttributeSet<'src>(BTreeSet<Attribute<'src>>);
+#[derive(Default, Debug, Clone)]
+pub(crate) struct AttributeSet<'src>(BTreeMap<Attribute<'src>, Name<'src>>);
 
 impl<'src> AttributeSet<'src> {
   pub(crate) fn len(&self) -> usize {
@@ -9,18 +9,22 @@ impl<'src> AttributeSet<'src> {
   }
 
   pub(crate) fn contains(&self, target: AttributeDiscriminant) -> bool {
-    self.0.iter().any(|attr| attr.discriminant() == target)
+    self.0.keys().any(|attr| attr.discriminant() == target)
   }
 
   pub(crate) fn get(&self, discriminant: AttributeDiscriminant) -> Option<&Attribute<'src>> {
     self
       .0
-      .iter()
+      .keys()
       .find(|attr| discriminant == attr.discriminant())
   }
 
-  pub(crate) fn iter<'a>(&'a self) -> collections::btree_set::Iter<'a, Attribute<'src>> {
-    self.0.iter()
+  pub(crate) fn name(&self, attribute: &Attribute<'src>) -> Name<'src> {
+    self.0[attribute]
+  }
+
+  pub(crate) fn iter(&self) -> collections::btree_map::Keys<'_, Attribute<'src>, Name<'src>> {
+    self.0.keys()
   }
 
   pub(crate) fn ensure_valid_attributes(
@@ -29,7 +33,7 @@ impl<'src> AttributeSet<'src> {
     item_token: Token<'src>,
     valid: &[AttributeDiscriminant],
   ) -> Result<(), CompileError<'src>> {
-    for attribute in &self.0 {
+    for attribute in self.0.keys() {
       let discriminant = attribute.discriminant();
       if !valid.contains(&discriminant) {
         return Err(item_token.error(CompileErrorKind::InvalidAttribute {
@@ -43,8 +47,23 @@ impl<'src> AttributeSet<'src> {
   }
 }
 
-impl<'src> FromIterator<Attribute<'src>> for AttributeSet<'src> {
-  fn from_iter<T: IntoIterator<Item = attribute::Attribute<'src>>>(iter: T) -> Self {
+impl PartialEq for AttributeSet<'_> {
+  fn eq(&self, other: &Self) -> bool {
+    self.0.keys().eq(other.0.keys())
+  }
+}
+
+impl Serialize for AttributeSet<'_> {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: Serializer,
+  {
+    serializer.collect_seq(self.0.keys())
+  }
+}
+
+impl<'src> FromIterator<(Attribute<'src>, Name<'src>)> for AttributeSet<'src> {
+  fn from_iter<T: IntoIterator<Item = (Attribute<'src>, Name<'src>)>>(iter: T) -> Self {
     Self(iter.into_iter().collect())
   }
 }
@@ -52,19 +71,19 @@ impl<'src> FromIterator<Attribute<'src>> for AttributeSet<'src> {
 impl<'src, 'a> IntoIterator for &'a AttributeSet<'src> {
   type Item = &'a Attribute<'src>;
 
-  type IntoIter = collections::btree_set::Iter<'a, Attribute<'src>>;
+  type IntoIter = collections::btree_map::Keys<'a, Attribute<'src>, Name<'src>>;
 
   fn into_iter(self) -> Self::IntoIter {
-    self.0.iter()
+    self.0.keys()
   }
 }
 
 impl<'src> IntoIterator for AttributeSet<'src> {
   type Item = Attribute<'src>;
 
-  type IntoIter = collections::btree_set::IntoIter<Attribute<'src>>;
+  type IntoIter = collections::btree_map::IntoKeys<Attribute<'src>, Name<'src>>;
 
   fn into_iter(self) -> Self::IntoIter {
-    self.0.into_iter()
+    self.0.into_keys()
   }
 }

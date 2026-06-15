@@ -556,6 +556,60 @@ fn env_attribute_empty_string_sets_variable() {
 }
 
 #[test]
+fn list_in_env_attribute_name_points_at_attribute_name() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [env(['FOO', 'BAR'], 'baz')]
+        foo:
+          @echo hi
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      r#"
+        error: list value ["FOO", "BAR"] used as `env` attribute name
+        the ideal behavior of lists in many contexts is undecided
+        see https://github.com/casey/just#lists
+         ——▶ justfile:3:2
+          │
+        3 │ [env(['FOO', 'BAR'], 'baz')]
+          │  ^^^
+      "#,
+    )
+    .failure();
+}
+
+#[test]
+fn list_in_working_directory_attribute_points_at_attribute_name() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [working-directory(['foo', 'bar'])]
+        baz:
+          @echo hi
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      r#"
+        error: list value ["foo", "bar"] used as a `[working-directory]` attribute
+        the ideal behavior of lists in many contexts is undecided
+        see https://github.com/casey/just#lists
+         ——▶ justfile:3:2
+          │
+        3 │ [working-directory(['foo', 'bar'])]
+          │  ^^^^^^^^^^^^^^^^^
+      "#,
+    )
+    .failure();
+}
+
+#[test]
 fn interpreter_settings_flatten_lists() {
   Test::new()
     .justfile(

@@ -215,7 +215,7 @@ impl<'src> Recipe<'src> {
       if let Attribute::WorkingDirectory(expression) = attribute {
         return Ok(Some(working_directory.join(&evaluator.evaluate_string(
           expression,
-          StringContext::WorkingDirectoryAttribute,
+          StringContext::WorkingDirectoryAttribute(self.attributes.name(attribute)),
         )?)));
       }
     }
