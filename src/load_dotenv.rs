@@ -35,28 +35,30 @@ pub(crate) fn load_dotenv(
     }
   }
 
-  if !found {
-    let default = [".env".to_string()];
-    let filenames = if filenames.is_empty() {
-      &default[..]
-    } else {
-      filenames.elements()
-    };
+  if found {
+    return Ok(dotenv);
+  }
 
-    for directory in working_directory.ancestors() {
-      let mut matched = Vec::new();
-      for filename in filenames {
-        if let Some(map) = load_from_file(&directory.join(filename), settings)? {
-          matched.push(map);
-        }
+  let default = [".env".to_string()];
+  let filenames = if filenames.is_empty() {
+    &default[..]
+  } else {
+    filenames.elements()
+  };
+
+  for directory in working_directory.ancestors() {
+    let mut matched = Vec::new();
+    for filename in filenames {
+      if let Some(map) = load_from_file(&directory.join(filename), settings)? {
+        matched.push(map);
       }
-      if !matched.is_empty() {
-        for map in matched {
-          dotenv.extend(map);
-        }
-        found = true;
-        break;
+    }
+    if !matched.is_empty() {
+      for map in matched {
+        dotenv.extend(map);
       }
+      found = true;
+      break;
     }
   }
 
