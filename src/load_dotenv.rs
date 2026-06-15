@@ -54,14 +54,14 @@ pub(crate) fn load_dotenv(
     }
 
     if found {
-      break;
+      return Ok(dotenv);
     }
   }
 
-  if !found && settings.dotenv_required {
+  if settings.dotenv_required {
     Err(Error::DotenvRequired)
   } else {
-    Ok(dotenv)
+    Ok(BTreeMap::new())
   }
 }
 
