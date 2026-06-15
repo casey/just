@@ -332,7 +332,7 @@ impl<'src> Error<'src> {
       Self::Const { const_error } => Some(const_error.context()),
       Self::FunctionCall { function, .. } => Some(function.token),
       Self::EmptyInterpreter { setting } => Some(**setting),
-      Self::ListInStringContext { token, .. } | Self::ListOperator { token, .. } => Some(**token),
+      Self::ListInStringContext { token, .. } | Self::ListOperation { token, .. } => Some(**token),
       Self::MissingImportFile { path } => Some(*path),
       _ => None,
     }
@@ -715,7 +715,7 @@ impl ColorDisplay for Error<'_> {
           )?;
         }
       }
-      ListOperator {
+      ListOperation {
         operator, lhs, rhs, ..
       } => {
         if lhs.is_empty() || rhs.is_empty() {
