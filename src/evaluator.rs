@@ -89,7 +89,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
         Setting::DotenvFilename(value) => {
           settings.dotenv_filename =
-            Some(self.evaluate_string(&value, StringContext::DotenvFilename)?);
+            Some(self.evaluate_string(&value, StringContext::Setting(set.name))?);
         }
         Setting::DotenvLoad(value) => {
           settings.dotenv_load = value;
@@ -97,7 +97,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         Setting::DotenvPath(value) => {
           settings.dotenv_path = Some(
             self
-              .evaluate_string(&value, StringContext::DotenvPath)?
+              .evaluate_string(&value, StringContext::Setting(set.name))?
               .into(),
           );
         }
@@ -138,11 +138,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           settings.quiet = value;
         }
         Setting::ScriptInterpreter(value) => {
-          settings.script_interpreter =
-            Some(self.evaluate_interpreter(&value, Keyword::ScriptInterpreter)?);
+          settings.script_interpreter = Some(self.evaluate_interpreter(&value, set.name)?);
         }
         Setting::Shell(value) => {
-          settings.shell = Some(self.evaluate_interpreter(&value, Keyword::Shell)?);
+          settings.shell = Some(self.evaluate_interpreter(&value, set.name)?);
         }
         Setting::Unstable(value) => {
           settings.unstable = value;
@@ -151,15 +150,15 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           settings.windows_powershell = value;
         }
         Setting::WindowsShell(value) => {
-          settings.windows_shell = Some(self.evaluate_interpreter(&value, Keyword::WindowsShell)?);
+          settings.windows_shell = Some(self.evaluate_interpreter(&value, set.name)?);
         }
         Setting::Tempdir(value) => {
-          settings.tempdir = Some(self.evaluate_string(&value, StringContext::Tempdir)?);
+          settings.tempdir = Some(self.evaluate_string(&value, StringContext::Setting(set.name))?);
         }
         Setting::WorkingDirectory(value) => {
           settings.working_directory = Some(
             self
-              .evaluate_string(&value, StringContext::WorkingDirectorySetting)?
+              .evaluate_string(&value, StringContext::Setting(set.name))?
               .into(),
           );
         }
@@ -172,10 +171,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   pub(crate) fn evaluate_interpreter(
     &mut self,
     interpreter: &Interpreter<Expression<'src>>,
-    keyword: Keyword,
+    setting: Name<'src>,
   ) -> RunResult<'src, Interpreter<String>> {
-    let token = interpreter.command.token();
-
     let mut elements = self.evaluate_value(&interpreter.command)?.into_elements();
     for argument in &interpreter.arguments {
       elements.extend(self.evaluate_value(argument)?.into_elements());
@@ -184,7 +181,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     let mut elements = elements.into_iter();
 
     let Some(command) = elements.next() else {
-      return Err(Error::EmptyInterpreter { keyword, token });
+      return Err(Error::EmptyInterpreter { setting });
     };
 
     Ok(Interpreter {
@@ -419,9 +416,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     let value = self.evaluate_value(expression)?;
 
     if value.elements().len() != 1 {
+      let token = context.token().unwrap_or_else(|| expression.token());
       return Err(Error::ListInStringContext {
         context,
-        token: Box::new(expression.token()),
+        token: Box::new(token),
         value,
       });
     }

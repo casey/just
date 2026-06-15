@@ -100,8 +100,7 @@ pub(crate) enum Error<'src> {
     status: ExitStatus,
   },
   EmptyInterpreter {
-    keyword: Keyword,
-    token: Token<'src>,
+    setting: Name<'src>,
   },
   EmptyListArgument {
     parameter: &'src str,
@@ -325,7 +324,7 @@ impl<'src> Error<'src> {
       Self::Compile { compile_error } => Some(compile_error.context()),
       Self::Const { const_error } => Some(const_error.context()),
       Self::FunctionCall { function, .. } => Some(function.token),
-      Self::EmptyInterpreter { token, .. } => Some(*token),
+      Self::EmptyInterpreter { setting } => Some(**setting),
       Self::ListInStringContext { token, .. } => Some(**token),
       Self::MissingImportFile { path } => Some(*path),
       _ => None,
@@ -616,10 +615,10 @@ impl ColorDisplay for Error<'_> {
         let editor = editor.to_string_lossy();
         write!(f, "editor `{editor}` failed: {status}")?;
       }
-      EmptyInterpreter { keyword, .. } => {
+      EmptyInterpreter { setting } => {
         write!(
           f,
-          "`{keyword}` setting requires at least one element but evaluated to an empty list"
+          "`{setting}` setting requires at least one element but evaluated to an empty list"
         )?;
       }
       EmptyListArgument { parameter, recipe } => {
