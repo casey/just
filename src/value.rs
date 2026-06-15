@@ -22,6 +22,40 @@ impl Value {
     self.elements.join(" ")
   }
 
+  pub(crate) fn apply<'src>(
+    &self,
+    other: &Self,
+    operator: ListOperator,
+    token: Token<'src>,
+  ) -> RunResult<'src, Self> {
+    let separator = operator.separator();
+    let (a, b) = (&self.elements, &other.elements);
+    match (a.len(), b.len()) {
+      (1, 1..) => Ok(
+        b.iter()
+          .map(|b| format!("{}{separator}{b}", a[0]))
+          .collect(),
+      ),
+      (1.., 1) => Ok(
+        a.iter()
+          .map(|a| format!("{a}{separator}{}", b[0]))
+          .collect(),
+      ),
+      (m, n) if m == n => Ok(
+        a.iter()
+          .zip(b)
+          .map(|(a, b)| format!("{a}{separator}{b}"))
+          .collect(),
+      ),
+      _ => Err(Error::ListOperation {
+        lhs: self.clone(),
+        operator,
+        rhs: other.clone(),
+        token: Box::new(token),
+      }),
+    }
+  }
+
   pub(crate) fn into_elements(self) -> Vec<String> {
     self.elements
   }
@@ -179,5 +213,60 @@ mod tests {
     assert_eq!(Value::from("foo bar").elements(), ["foo bar"]);
     assert_eq!(Value::from(String::from("foo")).elements(), ["foo"]);
     assert_eq!(Value::new().elements(), [] as [&str; 0]);
+  }
+
+  #[test]
+  fn apply() {
+    use ListOperator::{Concatenate, Join};
+
+    #[track_caller]
+    fn case(a: &[&str], b: &[&str], operator: ListOperator, expected: Option<&[&str]>) {
+      let a = a.iter().map(ToString::to_string).collect::<Value>();
+      let b = b.iter().map(ToString::to_string).collect::<Value>();
+      let expected = expected.map(|expected| expected.iter().map(ToString::to_string).collect());
+      assert_eq!(
+        a.apply(
+          &b,
+          operator,
+          Token {
+            column: 0,
+            kind: TokenKind::Plus,
+            length: 0,
+            line: 0,
+            offset: 0,
+            path: Path::new(""),
+            src: "",
+          }
+        )
+        .ok(),
+        expected
+      );
+    }
+
+    case(&[], &[], Concatenate, Some(&[]));
+    case(&["a"], &["b"], Concatenate, Some(&["ab"]));
+    case(&["a"], &["b"], Join, Some(&["a/b"]));
+    case(&["a", "b"], &["c", "d"], Concatenate, Some(&["ac", "bd"]));
+    case(&["a", "b"], &["c", "d"], Join, Some(&["a/c", "b/d"]));
+    case(&["a"], &["b", "c"], Concatenate, Some(&["ab", "ac"]));
+    case(
+      &["a"],
+      &["b", "c", "d"],
+      Concatenate,
+      Some(&["ab", "ac", "ad"]),
+    );
+    case(&["a", "b"], &["c"], Join, Some(&["a/c", "b/c"]));
+    case(
+      &["a", "b", "c"],
+      &["d"],
+      Concatenate,
+      Some(&["ad", "bd", "cd"]),
+    );
+
+    case(&[], &["a"], Concatenate, None);
+    case(&["a"], &[], Concatenate, None);
+    case(&[], &["a", "b"], Concatenate, None);
+    case(&["a", "b"], &[], Concatenate, None);
+    case(&["a", "b"], &["c", "d", "e"], Concatenate, None);
   }
 }

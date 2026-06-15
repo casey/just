@@ -1240,13 +1240,14 @@ The `lists` setting<sup>master</sup> allows values that are lists of strings.
 It is currently unstable and will change in backwards incompatible ways. This
 section documents changes in behavior when `set lists` is enabled.
 
-Lists may be used in many contexts, and their behavior in many of those
-contexts has not yet been decided. Using a list in those contexts, such as with
-`+` or `/`, or with many functions, is an error. The `join_list()` function can
-be used to convert a list into a space-separated string for use in these
-contexts. Feedback on how lists should behave in these contexts, and on lists
-in general, is most welcome. Feel free to open an issue or leave a comment in
-the [`set lists` tracking issue](https://github.com/casey/just/issues/3377).
+It has not yet been decided how lists should behave with many of the built-in
+functions. Functions that have been updated to accept lists are mentioned in
+this section. Using lists with any other function is an error. The
+`join_list()` function can be used to convert lists into space-separated
+strings for use with un-upgraded functions. Feedback on how built-in functions
+should behave with lists, and on lists in general, is most welcome! Feel free
+to open an issue or leave a comment in the
+[`set lists` tracking issue](https://github.com/casey/just/issues/3377).
 
 Variadic recipe parameters are lists of strings instead of single
 space-separated strings.
@@ -1338,6 +1339,12 @@ just in `if` and `assert()`, and evaluate to `"true"` or `[]`.
 
 Values may be negated with `!`. `!expression` evaluates to `"true"` if
 `expression` is `[]`, otherwise it evaluates to `[]`.
+
+The `+` and `/` operators combine strings and lists. A string and a non-empty
+list are combined by concatenating the string with each element of the list.
+Two lists of the same length are combined into a list containing the pairwise
+concatenated elements of both operands. Combining two lists of different
+lengths is an error.
 
 The `[arg]` `flag` attribute, makes the parameter a flag which does not take a
 value on the command line. For example, with `[arg(foo, long, flag)]`, `foo`

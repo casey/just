@@ -33,7 +33,11 @@ pub(crate) enum Expression<'src> {
     rhs: Box<Self>,
   },
   /// `lhs + rhs`
-  Concatenation { lhs: Box<Self>, rhs: Box<Self> },
+  Concatenation {
+    lhs: Box<Self>,
+    operator: Token<'src>,
+    rhs: Box<Self>,
+  },
   /// `if condition { then } else { otherwise }`
   Conditional {
     condition: Box<Self>,
@@ -50,6 +54,7 @@ pub(crate) enum Expression<'src> {
   /// `lhs / rhs`
   Join {
     lhs: Option<Box<Self>>,
+    operator: Token<'src>,
     rhs: Box<Self>,
   },
   /// `[a, b, c]`
@@ -70,25 +75,6 @@ pub(crate) enum Expression<'src> {
 impl<'src> Expression<'src> {
   pub(crate) fn references<'a>(&'a self) -> References<'a, 'src> {
     References::new(self)
-  }
-
-  pub(crate) fn token(&self) -> Token<'src> {
-    match self {
-      Self::And { lhs, .. }
-      | Self::Comparison { lhs, .. }
-      | Self::Concatenation { lhs, .. }
-      | Self::Join { lhs: Some(lhs), .. }
-      | Self::Or { lhs, .. } => lhs.token(),
-      Self::Assert { name, .. } | Self::Call { name, .. } | Self::Variable { name } => name.token,
-      Self::Backtick { token, .. } => *token,
-      Self::Conditional { condition, .. } => condition.token(),
-      Self::FormatString { start, .. } => start.token,
-      Self::Group { contents } => contents.token(),
-      Self::Join { lhs: None, rhs } => rhs.token(),
-      Self::List { open, .. } => *open,
-      Self::Not { operand } => operand.token(),
-      Self::StringLiteral { string_literal } => string_literal.token,
-    }
   }
 }
 
@@ -111,7 +97,7 @@ impl Display for Expression<'_> {
         write!(f, ")")
       }
       Self::Comparison { lhs, operator, rhs } => write!(f, "{lhs} {operator} {rhs}"),
-      Self::Concatenation { lhs, rhs } => write!(f, "{lhs} + {rhs}"),
+      Self::Concatenation { lhs, rhs, .. } => write!(f, "{lhs} + {rhs}"),
       Self::Conditional {
         condition,
         then,
@@ -137,10 +123,11 @@ impl Display for Expression<'_> {
         Ok(())
       }
       Self::Group { contents } => write!(f, "({contents})"),
-      Self::Join { lhs: None, rhs } => write!(f, "/ {rhs}"),
+      Self::Join { lhs: None, rhs, .. } => write!(f, "/ {rhs}"),
       Self::Join {
         lhs: Some(lhs),
         rhs,
+        ..
       } => write!(f, "{lhs} / {rhs}"),
       Self::List { elements, .. } => {
         write!(f, "[")?;
@@ -204,7 +191,7 @@ impl Serialize for Expression<'_> {
         seq.serialize_element(rhs)?;
         seq.end()
       }
-      Self::Concatenation { lhs, rhs } => {
+      Self::Concatenation { lhs, rhs, .. } => {
         let mut seq = serializer.serialize_seq(None)?;
         seq.serialize_element("concatenate")?;
         seq.serialize_element(lhs)?;
@@ -234,7 +221,7 @@ impl Serialize for Expression<'_> {
         seq.end()
       }
       Self::Group { contents } => contents.serialize(serializer),
-      Self::Join { lhs, rhs } => {
+      Self::Join { lhs, rhs, .. } => {
         let mut seq = serializer.serialize_seq(None)?;
         seq.serialize_element("join")?;
         seq.serialize_element(lhs)?;

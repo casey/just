@@ -60,6 +60,7 @@ pub(crate) use {
     line::Line,
     list::List,
     list_feature::ListFeature,
+    list_operator::ListOperator,
     load_dotenv::load_dotenv,
     loader::Loader,
     modulepath::Modulepath,
@@ -257,6 +258,7 @@ mod lexer;
 mod line;
 mod list;
 mod list_feature;
+mod list_operator;
 mod load_dotenv;
 mod loader;
 mod modulepath;

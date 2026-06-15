@@ -411,12 +411,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     let value = self.evaluate_value(expression)?;
 
     if value.elements().len() != 1 {
-      let token = context.token().unwrap_or_else(|| expression.token());
-      return Err(Error::ListInStringContext {
-        context,
-        token: Box::new(token),
-        value,
-      });
+      return Err(Error::ListInStringContext { context, value });
     }
 
     Ok(value.join())
@@ -472,10 +467,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
       }
       Expression::Comparison { .. } => Ok(self.evaluate_boolean(expression)?.into()),
-      Expression::Concatenation { lhs, rhs } => {
-        let lhs = self.evaluate_string(lhs, StringContext::Concatenation)?;
-        let rhs = self.evaluate_string(rhs, StringContext::Concatenation)?;
-        Ok((lhs + &rhs).into())
+      Expression::Concatenation { lhs, operator, rhs } => {
+        let lhs = self.evaluate_value(lhs)?;
+        let rhs = self.evaluate_value(rhs)?;
+        lhs.apply(&rhs, ListOperator::Concatenate, *operator)
       }
       Expression::Conditional {
         condition,
@@ -505,16 +500,22 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
       }
       Expression::Group { contents } => self.evaluate_value(contents),
-      Expression::Join { lhs: None, rhs } => {
-        Ok(("/".to_string() + &self.evaluate_string(rhs, StringContext::Join)?).into())
+      Expression::Join {
+        lhs: None,
+        operator,
+        rhs,
+      } => {
+        let rhs = self.evaluate_value(rhs)?;
+        Value::from("").apply(&rhs, ListOperator::Join, *operator)
       }
       Expression::Join {
         lhs: Some(lhs),
+        operator,
         rhs,
       } => {
-        let lhs = self.evaluate_string(lhs, StringContext::Join)?;
-        let rhs = self.evaluate_string(rhs, StringContext::Join)?;
-        Ok((lhs + "/" + &rhs).into())
+        let lhs = self.evaluate_value(lhs)?;
+        let rhs = self.evaluate_value(rhs)?;
+        lhs.apply(&rhs, ListOperator::Join, *operator)
       }
       Expression::List { elements, .. } => {
         let mut values = Vec::new();
