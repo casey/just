@@ -2121,8 +2121,8 @@ $ just
   ```
 
 - `which(name)`<sup>1.39.0</sup> — Search directories in the `PATH` environment
-  variable for the executable `name` and return its full path. Requires `set
-  lists`<sup>master</sup>.
+  variable for the executable `name` and return its full path, or the empty
+  list if not found. Requires `set lists`<sup>master</sup>.
 
 
   ```just
