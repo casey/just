@@ -1262,12 +1262,9 @@ single string.
 In `[env(variable, value)]` if `value` is `[]`, `variable` is not set.
 Otherwise it is set to `value` joined with spaces.
 
-The `env(keys, default)` function searches the variable names in `keys` in
-order and returns the value of the first that is present, including a variable
-set to the empty string. If none are present it returns `default`, or, if
-`default` is omitted, is an error. `default` is returned unmodified. The
-deprecated aliases `env_var(keys)` and `env_var_or_default(keys, default)`
-behave the same.
+The `env(keys, default)` function checks for the environment variables named in
+`keys` in order and the returns the value of the first that is set. If none are
+set it returns `default`, or an error if `default` omitted.
 
 The `script-interpreter`, `shell`, and `windows-shell` settings flatten their
 elements like list literals.
