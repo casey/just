@@ -329,7 +329,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     }
     match function {
       Function::Nullary(f) => f(context!()).map(Value::from),
-      Function::ValueNullary(f) => f(context!()),
       Function::Unary(f) => {
         let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
         f(context!(), &a).map(Value::from)
@@ -338,25 +337,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
         f(context!(), &a)
       }
-      Function::ValueUnary(f) => {
-        let a = self.evaluate_value(&arguments[0])?;
-        f(context!(), &a)
-      }
       Function::UnaryMap(f) => {
         let a = self.evaluate_value(&arguments[0])?;
         a.elements()
           .iter()
           .map(|element| f(context!(), element))
           .collect()
-      }
-      Function::ValueBinaryOpt(f) => {
-        let a = self.evaluate_value(&arguments[0])?;
-        let b = if arguments.len() > 1 {
-          Some(self.evaluate_value(&arguments[1])?)
-        } else {
-          None
-        };
-        f(context!(), &a, b.as_ref())
       }
       Function::UnaryPlus(f) => {
         let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
@@ -368,11 +354,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       }
       Function::BinaryStrValue(f) => {
         let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
-        let b = self.evaluate_value(&arguments[1])?;
-        f(context!(), &a, &b)
-      }
-      Function::ValueBinary(f) => {
-        let a = self.evaluate_value(&arguments[0])?;
         let b = self.evaluate_value(&arguments[1])?;
         f(context!(), &a, &b)
       }
@@ -400,6 +381,25 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         let b = self.evaluate_string(&arguments[1], StringContext::Function(name))?;
         let c = self.evaluate_string(&arguments[2], StringContext::Function(name))?;
         f(context!(), &a, &b, &c).map(Value::from)
+      }
+      Function::ValueNullary(f) => f(context!()),
+      Function::ValueUnary(f) => {
+        let a = self.evaluate_value(&arguments[0])?;
+        f(context!(), &a)
+      }
+      Function::ValueBinary(f) => {
+        let a = self.evaluate_value(&arguments[0])?;
+        let b = self.evaluate_value(&arguments[1])?;
+        f(context!(), &a, &b)
+      }
+      Function::ValueBinaryOpt(f) => {
+        let a = self.evaluate_value(&arguments[0])?;
+        let b = if arguments.len() > 1 {
+          Some(self.evaluate_value(&arguments[1])?)
+        } else {
+          None
+        };
+        f(context!(), &a, b.as_ref())
       }
     }
     .map_err(|message| Error::FunctionCall {
