@@ -966,6 +966,9 @@ impl<'run, 'src> Parser<'run, 'src> {
             "bool" => {
               self.restricted_function(RestrictedFunction::List(ListFeature::BoolFunction), name);
             }
+            "glob" => {
+              self.restricted_function(RestrictedFunction::List(ListFeature::GlobFunction), name);
+            }
             "join_list" => {
               self.restricted_function(
                 RestrictedFunction::List(ListFeature::JoinListFunction),

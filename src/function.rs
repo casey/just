@@ -84,6 +84,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "extension" => Unary(extension),
     "file_name" => Unary(file_name),
     "file_stem" => Unary(file_stem),
+    "glob" => ValueUnary(glob),
     "home_directory" => Nullary(|_| dir("home", dirs::home_dir)),
     "invocation_directory" => Nullary(invocation_directory),
     "invocation_directory_native" => Nullary(invocation_directory_native),
@@ -383,6 +384,44 @@ fn file_stem(_context: Context, path: &str) -> StringResult {
     .file_stem()
     .map(str::to_owned)
     .ok_or_else(|| format!("could not extract file stem from `{path}`"))
+}
+
+fn glob(context: Context, patterns: &Value) -> ValueResult {
+  let base = context.execution_context.working_directory();
+
+  let base_str = base
+    .to_str()
+    .ok_or_else(|| format!("working directory is not valid unicode: {}", base.display()))?;
+
+  let escaped_base = glob::Pattern::escape(base_str);
+
+  let options = glob::MatchOptions {
+    require_literal_leading_dot: true,
+    ..glob::MatchOptions::new()
+  };
+
+  let mut matches = Vec::new();
+
+  for pattern in patterns.elements() {
+    let pattern = Path::new(&escaped_base).join(pattern);
+
+    let pattern = pattern
+      .to_str()
+      .ok_or_else(|| format!("glob pattern is not valid unicode: {}", pattern.display()))?;
+
+    for entry in glob::glob_with(pattern, options).map_err(|err| err.to_string())? {
+      let path = entry.map_err(|err| err.to_string())?;
+      let path = path.strip_prefix(&base).unwrap_or(&path);
+      matches.push(
+        path
+          .to_str()
+          .ok_or_else(|| format!("glob match is not valid unicode: {}", path.display()))?
+          .to_owned(),
+      );
+    }
+  }
+
+  Ok(matches.into())
 }
 
 fn invocation_directory(context: Context) -> StringResult {

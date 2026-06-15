@@ -26,6 +26,7 @@ clap_complete = { version = "=4.6.5", features = ["unstable-dynamic"] }
 clap_mangen = "0.3.0"
 dirs = "6.0.0"
 dotenvy = "0.15.0"
+glob = "0.3.3"
 heck = "0.5.0"
 is_executable = "1.0.4"
 lexiclean = "0.0.1"

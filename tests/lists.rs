@@ -900,3 +900,115 @@ fn list_in_setting_value_points_at_setting_name() {
     )
     .failure();
 }
+
+#[test]
+fn glob_requires_lists_setting() {
+  Test::new()
+    .justfile(r#"x := glob("*")"#)
+    .args(["--evaluate", "x"])
+    .stderr(
+      r#"
+        error: the `glob()` function requires `set lists`
+         ——▶ justfile:1:6
+          │
+        1 │ x := glob("*")
+          │      ^^^^
+      "#,
+    )
+    .failure();
+}
+
+#[test]
+fn glob_matches_files_relative_to_working_directory() {
+  Test::new()
+    .justfile("set lists\n\nx := show(glob('*.txt'))")
+    .env("JUST_UNSTABLE", "1")
+    .write("bar.txt", "")
+    .write("baz.txt", "")
+    .write("foo.rs", "")
+    .args(["--evaluate", "x"])
+    .stdout(r#"["bar.txt", "baz.txt"]"#)
+    .unindent_stdout(false)
+    .success();
+}
+
+#[test]
+fn glob_no_matches_is_empty_list() {
+  Test::new()
+    .justfile("set lists\n\nx := show(glob('*.txt'))")
+    .env("JUST_UNSTABLE", "1")
+    .args(["--evaluate", "x"])
+    .stdout("[]")
+    .unindent_stdout(false)
+    .success();
+}
+
+#[test]
+fn glob_of_empty_list_is_empty() {
+  assert_list_eq("glob([])", "[]");
+}
+
+#[test]
+fn glob_unions_matches_for_each_pattern_in_order() {
+  Test::new()
+    .justfile("set lists\n\nx := show(glob(['*.rs', '*.txt']))")
+    .env("JUST_UNSTABLE", "1")
+    .write("bar.txt", "")
+    .write("foo.rs", "")
+    .args(["--evaluate", "x"])
+    .stdout(r#"["foo.rs", "bar.txt"]"#)
+    .unindent_stdout(false)
+    .success();
+}
+
+#[test]
+fn glob_does_not_match_hidden_files() {
+  Test::new()
+    .justfile("set lists\n\nx := show(glob('*.txt'))")
+    .env("JUST_UNSTABLE", "1")
+    .write(".foo.txt", "")
+    .write("bar.txt", "")
+    .args(["--evaluate", "x"])
+    .stdout(r#""bar.txt""#)
+    .unindent_stdout(false)
+    .success();
+}
+
+#[cfg(unix)]
+#[test]
+fn glob_descends_into_literal_hidden_directory() {
+  Test::new()
+    .justfile("set lists\n\nx := show(glob('.foo/*.txt'))")
+    .env("JUST_UNSTABLE", "1")
+    .write(".foo/bar.txt", "")
+    .args(["--evaluate", "x"])
+    .stdout(r#"".foo/bar.txt""#)
+    .unindent_stdout(false)
+    .success();
+}
+
+#[cfg(unix)]
+#[test]
+fn glob_matches_recursively() {
+  Test::new()
+    .justfile("set lists\n\nx := show(glob('**/*.txt'))")
+    .env("JUST_UNSTABLE", "1")
+    .write("bar.txt", "")
+    .write("sub/baz.txt", "")
+    .args(["--evaluate", "x"])
+    .stdout(r#"["bar.txt", "sub/baz.txt"]"#)
+    .unindent_stdout(false)
+    .success();
+}
+
+#[test]
+fn glob_invalid_pattern_is_error() {
+  Test::new()
+    .justfile("set lists\n\nx := glob('[')")
+    .env("JUST_UNSTABLE", "1")
+    .args(["--evaluate", "x"])
+    .stderr_regex(
+      r".*call to function `glob` failed: Pattern syntax error near position \d+: invalid range pattern.*",
+    )
+    .failure();
+}

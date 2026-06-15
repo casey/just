@@ -1305,6 +1305,17 @@ single-element lists, e.g., `"foo"`.
 A `join_list(value)` function is available for joining the elements of `value`
 into a space-separated string.
 
+A `glob(patterns)` function is available for matching paths against Unix
+shell-style patterns. Each element of `patterns` is matched against the files in
+the working directory, and the union of all matches is returned as a list of
+paths relative to the working directory, in alphabetical order. The metacharacters
+`?`, `*`, `**`, `[…]`, and `[!…]` are supported, but brace expansion `{…}` is
+not. Pass multiple patterns to combine their matches, e.g.,
+`glob(['*.rs', '*.toml'])`. Wildcards do not match files and directories whose
+names begin with `.`, which must instead be matched with a literal `.`, e.g.,
+`glob('.config/*')`. No matches returns the empty list, and an invalid pattern
+is an error.
+
 The functions `is_dependency()`, `path_exists()`, and `semver_matches()` return
 the canonical booleans.
 
