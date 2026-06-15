@@ -16,6 +16,7 @@ pub(crate) enum Function {
   UnaryPlus(fn(Context, &str, &[String]) -> StringResult),
   UnaryToValue(fn(Context, &str) -> ValueResult),
   Binary(fn(Context, &str, &str) -> StringResult),
+  BinaryOptStrStrToValue(fn(Context, &str, Option<&str>) -> ValueResult),
   BinaryOptValueStrToValue(fn(Context, &Value, Option<&str>) -> ValueResult),
   BinaryPlus(fn(Context, &str, &str, &[String]) -> StringResult),
   BinaryStrValue(fn(Context, &str, &Value) -> ValueResult),
@@ -32,7 +33,7 @@ impl Function {
     match *self {
       Nullary(_) | ValueNullary(_) => 0..=0,
       Unary(_) | ValueUnary(_) | UnaryMap(_) | UnaryToValue(_) => 1..=1,
-      ValueBinaryOpt(_) | BinaryOptValueStrToValue(_) => 1..=2,
+      ValueBinaryOpt(_) | BinaryOptStrStrToValue(_) | BinaryOptValueStrToValue(_) => 1..=2,
       UnaryPlus(_) => 1..=usize::MAX,
       Binary(_) | BinaryStrValue(_) | ValueBinary(_) | BinaryToValue(_) => 2..=2,
       BinaryPlus(_) => 2..=usize::MAX,
@@ -124,7 +125,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "snakecase" => Unary(snakecase),
     "source_directory" => Nullary(source_directory),
     "source_file" => Nullary(source_file),
-    "split" => BinaryToValue(split),
+    "split" => BinaryOptStrStrToValue(split),
     "style" => Unary(style),
     "titlecase" => Unary(titlecase),
     "trim" => Unary(trim),
@@ -693,8 +694,12 @@ fn source_file(context: Context) -> StringResult {
     })
 }
 
-fn split(_context: Context, s: &str, separator: &str) -> ValueResult {
-  Ok(s.split(separator).map(str::to_string).collect())
+fn split(_context: Context, s: &str, separator: Option<&str>) -> ValueResult {
+  Ok(if let Some(separator) = separator {
+    s.split(separator).map(str::to_string).collect()
+  } else {
+    s.split_whitespace().map(str::to_string).collect()
+  })
 }
 
 fn style(context: Context, s: &str) -> StringResult {

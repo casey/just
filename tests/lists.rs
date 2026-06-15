@@ -171,8 +171,23 @@ fn split_splits_string_on_separator() {
 }
 
 #[test]
-fn split_of_string_without_separator_is_single_element() {
+fn split_of_string_not_containing_separator_is_single_element() {
   assert_list_eq("split('foo', ',')", r#""foo""#);
+}
+
+#[test]
+fn split_keeps_empty_elements_with_explicit_separator() {
+  assert_list_eq("split('foo,,bar,', ',')", r#"["foo", "", "bar", ""]"#);
+}
+
+#[test]
+fn split_without_separator_splits_on_whitespace() {
+  assert_list_eq("split('  foo \t bar  baz ')", r#"["foo", "bar", "baz"]"#);
+}
+
+#[test]
+fn split_without_separator_of_whitespace_is_empty() {
+  assert_list_eq("split('  \t ')", "[]");
 }
 
 #[test]
