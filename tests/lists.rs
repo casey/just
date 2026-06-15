@@ -479,10 +479,10 @@ fn concatenation_with_empty_list_is_an_error() {
     .stderr(
       r"
         error: operator `+` cannot be applied to empty lists
-         ——▶ justfile:3:6
+         ——▶ justfile:3:12
           │
         3 │ x := 'foo' + []
-          │      ^^^^^
+          │            ^
       ",
     )
     .failure();
@@ -497,10 +497,10 @@ fn concatenation_of_different_length_lists_is_an_error() {
     .stderr(
       r#"
         error: operator `+` cannot be applied to lists of different lengths: ["a", "b"] + ["c", "d", "e"]
-         ——▶ justfile:3:6
+         ——▶ justfile:3:17
           │
         3 │ x := ['a', 'b'] + ['c', 'd', 'e']
-          │      ^
+          │                 ^
       "#,
     )
     .failure();
@@ -515,10 +515,10 @@ fn unary_join_with_empty_list_is_an_error() {
     .stderr(
       r"
         error: operator `/` cannot be applied to empty lists
-         ——▶ justfile:3:8
+         ——▶ justfile:3:6
           │
         3 │ x := / []
-          │        ^
+          │      ^
       ",
     )
     .failure();

@@ -154,7 +154,6 @@ pub(crate) enum Error<'src> {
   },
   ListInStringContext {
     context: StringContext<'src>,
-    token: Box<Token<'src>>,
     value: Value,
   },
   ListOperation {
@@ -332,7 +331,8 @@ impl<'src> Error<'src> {
       Self::Const { const_error } => Some(const_error.context()),
       Self::FunctionCall { function, .. } => Some(function.token),
       Self::EmptyInterpreter { setting } => Some(**setting),
-      Self::ListInStringContext { token, .. } | Self::ListOperation { token, .. } => Some(**token),
+      Self::ListInStringContext { context, .. } => Some(context.token()),
+      Self::ListOperation { token, .. } => Some(**token),
       Self::MissingImportFile { path } => Some(*path),
       _ => None,
     }
@@ -708,12 +708,6 @@ impl ColorDisplay for Error<'_> {
           see https://github.com/casey/just#lists",
           value.color_display(color),
         )?;
-        if context.token().is_none() {
-          write!(
-            f,
-            "\nnote that the source location of this error may be inaccurate"
-          )?;
-        }
       }
       ListOperation {
         operator, lhs, rhs, ..

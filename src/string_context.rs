@@ -9,12 +9,12 @@ pub(crate) enum StringContext<'src> {
 }
 
 impl<'src> StringContext<'src> {
-  pub(crate) fn token(&self) -> Option<Token<'src>> {
+  pub(crate) fn token(&self) -> Token<'src> {
     match self {
       Self::EnvKey(name)
       | Self::Function(name)
       | Self::Setting(name)
-      | Self::WorkingDirectoryAttribute(name) => Some(name.token),
+      | Self::WorkingDirectoryAttribute(name) => name.token,
     }
   }
 }

@@ -36,7 +36,7 @@ impl<'src> Iterator for References<'_, 'src> {
             arguments: arguments.len(),
           });
         }
-        Expression::Comparison { lhs, rhs, .. } | Expression::Concatenation { lhs, rhs } => {
+        Expression::Comparison { lhs, rhs, .. } | Expression::Concatenation { lhs, rhs, .. } => {
           self.stack.push(rhs);
           self.stack.push(lhs);
         }
@@ -59,7 +59,7 @@ impl<'src> Iterator for References<'_, 'src> {
         Expression::Group { contents } => {
           self.stack.push(contents);
         }
-        Expression::Join { lhs, rhs } => {
+        Expression::Join { lhs, rhs, .. } => {
           self.stack.push(rhs);
           if let Some(lhs) = lhs {
             self.stack.push(lhs);

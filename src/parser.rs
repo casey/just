@@ -791,21 +791,21 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_conjunct(&mut self) -> CompileResult<'src, Expression<'src>> {
     if self.next_is_keyword(Keyword::If) {
       self.parse_conditional()
-    } else if self.accepted(Slash)? {
+    } else if let Some(operator) = self.accept(Slash)? {
       let lhs = None;
       let rhs = self.parse_conjunct()?.into();
-      Ok(Expression::Join { lhs, rhs })
+      Ok(Expression::Join { lhs, operator, rhs })
     } else {
       let value = self.parse_value()?;
 
-      if self.accepted(Slash)? {
+      if let Some(operator) = self.accept(Slash)? {
         let lhs = Some(Box::new(value));
         let rhs = self.parse_conjunct()?.into();
-        Ok(Expression::Join { lhs, rhs })
-      } else if self.accepted(Plus)? {
+        Ok(Expression::Join { lhs, operator, rhs })
+      } else if let Some(operator) = self.accept(Plus)? {
         let lhs = value.into();
         let rhs = self.parse_conjunct()?.into();
-        Ok(Expression::Concatenation { lhs, rhs })
+        Ok(Expression::Concatenation { lhs, operator, rhs })
       } else {
         Ok(value)
       }
