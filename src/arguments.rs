@@ -111,14 +111,14 @@ pub struct Arguments {
     help = "Search for environment file named <DOTENV-FILENAME> instead of `.env`",
     long
   )]
-  pub(crate) dotenv_filename: Option<String>,
+  pub(crate) dotenv_filename: Vec<String>,
   #[arg(
     add = ArgValueCompleter::new(PathCompleter::file()),
     help = "Load <DOTENV-PATH> as environment file instead of searching for one",
     long,
     short = 'E',
   )]
-  pub(crate) dotenv_path: Option<String>,
+  pub(crate) dotenv_path: Vec<String>,
   #[arg(
     conflicts_with = "quiet",
     env = "JUST_DRY_RUN",
