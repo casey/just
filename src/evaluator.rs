@@ -401,7 +401,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         };
         f(context!(), &a, b.as_ref())
       }
-      Function::ValueStrOpt(f) => {
+      Function::BinaryOptValueStrToValue(f) => {
         let a = self.evaluate_value(&arguments[0])?;
         let b = if arguments.len() > 1 {
           Some(self.evaluate_string(&arguments[1], StringContext::Function(name))?)

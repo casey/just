@@ -16,15 +16,15 @@ pub(crate) enum Function {
   UnaryPlus(fn(Context, &str, &[String]) -> StringResult),
   UnaryToValue(fn(Context, &str) -> ValueResult),
   Binary(fn(Context, &str, &str) -> StringResult),
-  BinaryStrValue(fn(Context, &str, &Value) -> ValueResult),
+  BinaryOptValueStrToValue(fn(Context, &Value, Option<&str>) -> ValueResult),
   BinaryPlus(fn(Context, &str, &str, &[String]) -> StringResult),
+  BinaryStrValue(fn(Context, &str, &Value) -> ValueResult),
   BinaryToValue(fn(Context, &str, &str) -> ValueResult),
   Ternary(fn(Context, &str, &str, &str) -> StringResult),
   ValueNullary(fn(Context) -> ValueResult),
   ValueUnary(fn(Context, &Value) -> ValueResult),
   ValueBinary(fn(Context, &Value, &Value) -> ValueResult),
   ValueBinaryOpt(fn(Context, &Value, Option<&Value>) -> ValueResult),
-  ValueStrOpt(fn(Context, &Value, Option<&str>) -> ValueResult),
 }
 
 impl Function {
@@ -32,7 +32,7 @@ impl Function {
     match *self {
       Nullary(_) | ValueNullary(_) => 0..=0,
       Unary(_) | ValueUnary(_) | UnaryMap(_) | UnaryToValue(_) => 1..=1,
-      ValueBinaryOpt(_) | ValueStrOpt(_) => 1..=2,
+      ValueBinaryOpt(_) | BinaryOptValueStrToValue(_) => 1..=2,
       UnaryPlus(_) => 1..=usize::MAX,
       Binary(_) | BinaryStrValue(_) | ValueBinary(_) | BinaryToValue(_) => 2..=2,
       BinaryPlus(_) => 2..=usize::MAX,
@@ -90,7 +90,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "invocation_directory_native" => Nullary(invocation_directory_native),
     "is_dependency" => ValueNullary(is_dependency),
     "join" => BinaryPlus(join),
-    "join_list" => ValueStrOpt(join_list),
+    "join_list" => BinaryOptValueStrToValue(join_list),
     "just_executable" => Nullary(just_executable),
     "just_pid" => Nullary(just_pid),
     "justfile" => Nullary(justfile),
