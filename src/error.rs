@@ -719,10 +719,7 @@ impl ColorDisplay for Error<'_> {
         operator, lhs, rhs, ..
       } => {
         if lhs.is_empty() || rhs.is_empty() {
-          write!(
-            f,
-            "operator `{operator}` cannot be applied to the empty list"
-          )?;
+          write!(f, "operator `{operator}` cannot be applied to empty lists")?;
         } else {
           write!(
             f,

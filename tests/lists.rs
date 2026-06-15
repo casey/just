@@ -478,8 +478,7 @@ fn concatenation_with_empty_list_is_an_error() {
     .args(["--evaluate", "x"])
     .stderr(
       r"
-        error: operator `+` cannot be applied to the empty list
-        see https://github.com/casey/just#lists
+        error: operator `+` cannot be applied to empty lists
          ——▶ justfile:3:6
           │
         3 │ x := 'foo' + []
@@ -516,8 +515,7 @@ fn unary_join_with_empty_list_is_an_error() {
     .args(["--evaluate", "x"])
     .stderr(
       r"
-        error: operator `/` cannot be applied to the empty list
-        see https://github.com/casey/just#lists
+        error: operator `/` cannot be applied to empty lists
          ——▶ justfile:3:8
           │
         3 │ x := / []
