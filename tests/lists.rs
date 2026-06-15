@@ -82,54 +82,6 @@ fn prepend_prepends_to_each_element_of_a_list() {
 }
 
 #[test]
-fn prepend_errors_if_suffix_is_not_single_element() {
-  Test::new()
-    .justfile(
-      "
-        set lists
-
-        x := prepend(['bar', 'baz'], 'bar')
-      ",
-    )
-    .env("JUST_UNSTABLE", "1")
-    .args(["--evaluate", "x"])
-    .stderr(
-      r"
-        error: call to function `prepend` failed: `prefix` must be single element list but has 2 elements
-         ——▶ justfile:3:6
-          │
-        3 │ x := prepend(['bar', 'baz'], 'bar')
-          │      ^^^^^^^
-      ",
-    )
-    .failure();
-}
-
-#[test]
-fn append_errors_if_suffix_is_not_single_element() {
-  Test::new()
-    .justfile(
-      "
-        set lists
-
-        x := append(['bar', 'baz'], 'bar')
-      ",
-    )
-    .env("JUST_UNSTABLE", "1")
-    .args(["--evaluate", "x"])
-    .stderr(
-      r"
-        error: call to function `append` failed: `suffix` must be single element list but has 2 elements
-         ——▶ justfile:3:6
-          │
-        3 │ x := append(['bar', 'baz'], 'bar')
-          │      ^^^^^^
-      ",
-    )
-    .failure();
-}
-
-#[test]
 fn append_does_not_split_single_strings_with_lists_setting() {
   assert_list_eq("append('.c', 'foo bar')", r#""foo bar.c""#);
 }

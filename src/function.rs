@@ -20,7 +20,7 @@ pub(crate) enum Function {
   UnaryPlus(fn(Context, &str, &[String]) -> StringResult),
   UnaryValue(fn(Context, &str) -> ValueResult),
   Binary(fn(Context, &str, &str) -> StringResult),
-  BinaryList(fn(Context, &Value, &Value) -> ValueResult),
+  BinaryList(fn(Context, &str, &Value) -> ValueResult),
   BinaryPlus(fn(Context, &str, &str, &[String]) -> StringResult),
   BinaryValue(fn(Context, &str, &str) -> ValueResult),
   Ternary(fn(Context, &str, &str, &str) -> StringResult),
@@ -180,14 +180,7 @@ fn absolute_path(context: Context, path: &str) -> StringResult {
   }
 }
 
-fn append(context: Context, suffix: &Value, s: &Value) -> ValueResult {
-  let [suffix] = suffix.elements() else {
-    return Err(format!(
-      "`suffix` must be single element list but has {}",
-      Count::numbered("element", suffix.elements().len()),
-    ));
-  };
-
+fn append(context: Context, suffix: &str, s: &Value) -> ValueResult {
   Ok(if context.execution_context.module.settings.lists {
     s.elements()
       .iter()
@@ -422,14 +415,7 @@ fn is_dependency(context: Context) -> ValueResult {
   Ok(boolean(&context, context.is_dependency))
 }
 
-fn prepend(context: Context, prefix: &Value, s: &Value) -> ValueResult {
-  let [prefix] = prefix.elements() else {
-    return Err(format!(
-      "`prefix` must be single element list but has {}",
-      Count::numbered("element", prefix.elements().len()),
-    ));
-  };
-
+fn prepend(context: Context, prefix: &str, s: &Value) -> ValueResult {
   Ok(if context.execution_context.module.settings.lists {
     s.elements()
       .iter()
