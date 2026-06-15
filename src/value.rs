@@ -22,7 +22,8 @@ impl Value {
     self.elements.join(" ")
   }
 
-  pub(crate) fn concatenate(&self, other: &Self, separator: &str) -> Option<Self> {
+  pub(crate) fn apply(&self, other: &Self, operator: ListOperator) -> Option<Self> {
+    let separator = operator.separator();
     let (a, b) = (&self.elements, &other.elements);
     match (a.len(), b.len()) {
       (m, n) if m == n => Some(
@@ -206,28 +207,40 @@ mod tests {
 
   #[test]
   fn concatenate() {
+    use ListOperator::{Concatenate, Join};
+
     #[track_caller]
-    fn case(a: &[&str], b: &[&str], separator: &str, expected: Option<&[&str]>) {
+    fn case(a: &[&str], b: &[&str], operator: ListOperator, expected: Option<&[&str]>) {
       let a = a.iter().map(ToString::to_string).collect::<Value>();
       let b = b.iter().map(ToString::to_string).collect::<Value>();
       let expected = expected.map(|expected| expected.iter().map(ToString::to_string).collect());
-      assert_eq!(a.concatenate(&b, separator), expected);
+      assert_eq!(a.apply(&b, operator), expected);
     }
 
-    case(&[], &[], "", Some(&[]));
-    case(&["a"], &["b"], "", Some(&["ab"]));
-    case(&["a"], &["b"], "/", Some(&["a/b"]));
-    case(&["a", "b"], &["c", "d"], "", Some(&["ac", "bd"]));
-    case(&["a", "b"], &["c", "d"], "/", Some(&["a/c", "b/d"]));
-    case(&["a"], &["b", "c"], "", Some(&["ab", "ac"]));
-    case(&["a"], &["b", "c", "d"], "", Some(&["ab", "ac", "ad"]));
-    case(&["a", "b"], &["c"], "/", Some(&["a/c", "b/c"]));
-    case(&["a", "b", "c"], &["d"], "", Some(&["ad", "bd", "cd"]));
+    case(&[], &[], Concatenate, Some(&[]));
+    case(&["a"], &["b"], Concatenate, Some(&["ab"]));
+    case(&["a"], &["b"], Join, Some(&["a/b"]));
+    case(&["a", "b"], &["c", "d"], Concatenate, Some(&["ac", "bd"]));
+    case(&["a", "b"], &["c", "d"], Join, Some(&["a/c", "b/d"]));
+    case(&["a"], &["b", "c"], Concatenate, Some(&["ab", "ac"]));
+    case(
+      &["a"],
+      &["b", "c", "d"],
+      Concatenate,
+      Some(&["ab", "ac", "ad"]),
+    );
+    case(&["a", "b"], &["c"], Join, Some(&["a/c", "b/c"]));
+    case(
+      &["a", "b", "c"],
+      &["d"],
+      Concatenate,
+      Some(&["ad", "bd", "cd"]),
+    );
 
-    case(&[], &["a"], "", None);
-    case(&["a"], &[], "", None);
-    case(&[], &["a", "b"], "", None);
-    case(&["a", "b"], &[], "", None);
-    case(&["a", "b"], &["c", "d", "e"], "", None);
+    case(&[], &["a"], Concatenate, None);
+    case(&["a"], &[], Concatenate, None);
+    case(&[], &["a", "b"], Concatenate, None);
+    case(&["a", "b"], &[], Concatenate, None);
+    case(&["a", "b"], &["c", "d", "e"], Concatenate, None);
   }
 }

@@ -473,14 +473,15 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       }
       Expression::Comparison { .. } => Ok(self.evaluate_boolean(expression)?.into()),
       Expression::Concatenation { lhs, rhs } => {
+        let operator = ListOperator::Concatenate;
         let token = lhs.token();
         let lhs = self.evaluate_value(lhs)?;
         let rhs = self.evaluate_value(rhs)?;
-        if let Some(value) = lhs.concatenate(&rhs, "") {
+        if let Some(value) = lhs.apply(&rhs, operator) {
           Ok(value)
         } else {
-          Err(Error::ListOperator {
-            operator: "+",
+          Err(Error::ListOperands {
+            operator,
             lhs,
             rhs,
             token: Box::new(token),
@@ -518,11 +519,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       Expression::Join { lhs: None, rhs } => {
         let token = rhs.token();
         let rhs = self.evaluate_value(rhs)?;
-        if let Some(value) = Value::from("/").concatenate(&rhs, "") {
+        if let Some(value) = Value::from("/").apply(&rhs, ListOperator::Concatenate) {
           Ok(value)
         } else {
-          Err(Error::ListOperator {
-            operator: "/",
+          Err(Error::ListOperands {
+            operator: ListOperator::Join,
             lhs: Value::from("/"),
             rhs,
             token: Box::new(token),
@@ -533,14 +534,15 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         lhs: Some(lhs),
         rhs,
       } => {
+        let operator = ListOperator::Join;
         let token = lhs.token();
         let lhs = self.evaluate_value(lhs)?;
         let rhs = self.evaluate_value(rhs)?;
-        if let Some(value) = lhs.concatenate(&rhs, "/") {
+        if let Some(value) = lhs.apply(&rhs, ListOperator::Join) {
           Ok(value)
         } else {
-          Err(Error::ListOperator {
-            operator: "/",
+          Err(Error::ListOperands {
+            operator,
             lhs,
             rhs,
             token: Box::new(token),
