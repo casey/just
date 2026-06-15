@@ -320,26 +320,23 @@ fn encode_uri_component(_context: Context, s: &str) -> StringResult {
   Ok(percent_encoding::utf8_percent_encode(s, &PERCENT_ENCODE).to_string())
 }
 
-fn env_lookup(context: &Context, key: &str) -> Result<Option<String>, String> {
+fn env(context: Context, keys: &Value, default: Option<&Value>) -> ValueResult {
   use std::env::VarError::*;
 
-  if let Some(value) = context.execution_context.dotenv.get(key) {
-    return Ok(Some(value.clone()));
-  }
-
-  match env::var(key) {
-    Ok(value) => Ok(Some(value)),
-    Err(NotPresent) => Ok(None),
-    Err(NotUnicode(os_string)) => Err(format!(
-      "environment variable `{key}` not unicode: {os_string:?}"
-    )),
-  }
-}
-
-fn env(context: Context, keys: &Value, default: Option<&Value>) -> ValueResult {
   for key in keys.elements() {
-    if let Some(value) = env_lookup(&context, key)? {
+    if let Some(value) = context.execution_context.dotenv.get(key) {
       return Ok(value.into());
+    }
+
+    match env::var(key) {
+      Ok(value) => return Ok(value.into()),
+      Err(NotPresent) => {}
+      Err(NotUnicode(os_string)) => {
+        return Err(format!(
+          "environment variable `{key}` not unicode: `{}`",
+          os_string.to_string_lossy(),
+        ));
+      }
     }
   }
 
