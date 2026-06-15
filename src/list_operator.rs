@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub(crate) enum ListOperator {
   Concatenate,
   Join,

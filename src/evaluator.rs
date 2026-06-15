@@ -470,16 +470,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       Expression::Concatenation { lhs, operator, rhs } => {
         let lhs = self.evaluate_value(lhs)?;
         let rhs = self.evaluate_value(rhs)?;
-        if let Some(value) = lhs.apply(&rhs, ListOperator::Concatenate) {
-          Ok(value)
-        } else {
-          Err(Error::ListOperation {
-            operator: ListOperator::Concatenate,
-            lhs,
-            rhs,
-            token: Box::new(*operator),
-          })
-        }
+        lhs.apply(&rhs, ListOperator::Concatenate, *operator)
       }
       Expression::Conditional {
         condition,
@@ -515,16 +506,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         rhs,
       } => {
         let rhs = self.evaluate_value(rhs)?;
-        if let Some(value) = Value::from("/").apply(&rhs, ListOperator::Concatenate) {
-          Ok(value)
-        } else {
-          Err(Error::ListOperation {
-            operator: ListOperator::Join,
-            lhs: Value::from("/"),
-            rhs,
-            token: Box::new(*operator),
-          })
-        }
+        Value::from("").apply(&rhs, ListOperator::Join, *operator)
       }
       Expression::Join {
         lhs: Some(lhs),
@@ -533,16 +515,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       } => {
         let lhs = self.evaluate_value(lhs)?;
         let rhs = self.evaluate_value(rhs)?;
-        if let Some(value) = lhs.apply(&rhs, ListOperator::Join) {
-          Ok(value)
-        } else {
-          Err(Error::ListOperation {
-            operator: ListOperator::Join,
-            lhs,
-            rhs,
-            token: Box::new(*operator),
-          })
-        }
+        lhs.apply(&rhs, ListOperator::Join, *operator)
       }
       Expression::List { elements, .. } => {
         let mut values = Vec::new();

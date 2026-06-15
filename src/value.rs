@@ -22,27 +22,37 @@ impl Value {
     self.elements.join(" ")
   }
 
-  pub(crate) fn apply(&self, other: &Self, operator: ListOperator) -> Option<Self> {
+  pub(crate) fn apply<'src>(
+    &self,
+    other: &Self,
+    operator: ListOperator,
+    token: Token<'src>,
+  ) -> RunResult<'src, Self> {
     let separator = operator.separator();
     let (a, b) = (&self.elements, &other.elements);
     match (a.len(), b.len()) {
-      (m, n) if m == n => Some(
+      (m, n) if m == n => Ok(
         a.iter()
           .zip(b)
           .map(|(a, b)| format!("{a}{separator}{b}"))
           .collect(),
       ),
-      (1, n) if n >= 2 => Some(
+      (1, n) if n >= 2 => Ok(
         b.iter()
           .map(|b| format!("{}{separator}{b}", a[0]))
           .collect(),
       ),
-      (m, 1) if m >= 2 => Some(
+      (m, 1) if m >= 2 => Ok(
         a.iter()
           .map(|a| format!("{a}{separator}{}", b[0]))
           .collect(),
       ),
-      _ => None,
+      _ => Err(Error::ListOperation {
+        operator,
+        lhs: self.clone(),
+        rhs: other.clone(),
+        token: Box::new(token),
+      }),
     }
   }
 
@@ -214,7 +224,23 @@ mod tests {
       let a = a.iter().map(ToString::to_string).collect::<Value>();
       let b = b.iter().map(ToString::to_string).collect::<Value>();
       let expected = expected.map(|expected| expected.iter().map(ToString::to_string).collect());
-      assert_eq!(a.apply(&b, operator), expected);
+      assert_eq!(
+        a.apply(
+          &b,
+          operator,
+          Token {
+            column: 0,
+            kind: TokenKind::Plus,
+            length: 0,
+            line: 0,
+            offset: 0,
+            path: Path::new(""),
+            src: "",
+          }
+        )
+        .ok(),
+        expected
+      );
     }
 
     case(&[], &[], Concatenate, Some(&[]));
