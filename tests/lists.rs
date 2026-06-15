@@ -91,7 +91,7 @@ fn append_does_not_split_single_strings_with_lists_setting() {
 }
 
 #[test]
-fn interpolations_space_join_lists() {
+fn recipe_interpolations_space_join_lists() {
   Test::new()
     .justfile(
       "
@@ -105,6 +105,11 @@ fn interpolations_space_join_lists() {
     .args(["foo", "bar", "baz"])
     .stdout("bar baz\n")
     .success();
+}
+
+#[test]
+fn fstring_interpolations_space_join_lists() {
+  assert_list_eq(r#"f"{{['bar', 'baz']}}""#, r#""bar baz""#);
 }
 
 #[test]
