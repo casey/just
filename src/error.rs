@@ -726,7 +726,7 @@ impl ColorDisplay for Error<'_> {
         } else {
           write!(
             f,
-            "operator `{operator}` cannot be applied to lists of different lengths, {} and {}",
+            "operator `{operator}` cannot be applied to lists of different lengths: {} {operator} {}",
             lhs.color_display(color),
             rhs.color_display(color),
           )?;
