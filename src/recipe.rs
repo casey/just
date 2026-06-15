@@ -133,7 +133,7 @@ impl<'src> Recipe<'src> {
       if let Some(expression) = prompt {
         eprint!(
           "{} ",
-          evaluator.evaluate_string(expression, StringContext::ConfirmPrompt)?
+          evaluator.evaluate_value(expression)?.join()
         );
       } else {
         eprint!("Run recipe `{}`? ", self.name);
