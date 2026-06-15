@@ -31,20 +31,20 @@ impl Value {
     let separator = operator.separator();
     let (a, b) = (&self.elements, &other.elements);
     match (a.len(), b.len()) {
-      (m, n) if m == n => Ok(
-        a.iter()
-          .zip(b)
-          .map(|(a, b)| format!("{a}{separator}{b}"))
-          .collect(),
-      ),
-      (1, n) if n >= 2 => Ok(
+      (1, 1..) => Ok(
         b.iter()
           .map(|b| format!("{}{separator}{b}", a[0]))
           .collect(),
       ),
-      (m, 1) if m >= 2 => Ok(
+      (1.., 1) => Ok(
         a.iter()
           .map(|a| format!("{a}{separator}{}", b[0]))
+          .collect(),
+      ),
+      (m, n) if m == n => Ok(
+        a.iter()
+          .zip(b)
+          .map(|(a, b)| format!("{a}{separator}{b}"))
           .collect(),
       ),
       _ => Err(Error::ListOperation {
