@@ -1261,10 +1261,8 @@ single string.
 In `[env(variable, value)]` if `value` is `[]`, `variable` is not set.
 Otherwise it is set to `value` joined with spaces.
 
-The `script-interpreter`, `shell`, and `windows-shell` setting values flatten
-their elements like list literals, so a list within one is spread into the
-interpreter's command and arguments. The first element is the command and the
-rest are arguments, so flattening to an empty list is an error.
+The `script-interpreter`, `shell`, and `windows-shell` settings flatten their
+elements like list literals.
 
 The following functions apply to each list element individually:
 
