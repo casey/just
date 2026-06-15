@@ -503,3 +503,54 @@ fn confirm_prompt_space_joins_lists() {
     .stdin("y")
     .success();
 }
+
+#[test]
+fn env_attribute_value_space_joins_lists() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [env('FOO', ['bar', 'baz'])]
+        foo:
+          @echo $FOO
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("bar baz\n")
+    .success();
+}
+
+#[test]
+fn env_attribute_empty_list_leaves_variable_unset() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        [env('FOO', [])]
+        foo:
+          @echo "[${FOO-unset}]"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("[unset]\n")
+    .success();
+}
+
+#[test]
+fn env_attribute_empty_string_sets_variable() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        [env('FOO', [''])]
+        foo:
+          @echo "[${FOO-unset}]"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("[]\n")
+    .success();
+}
