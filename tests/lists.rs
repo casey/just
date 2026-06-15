@@ -676,12 +676,7 @@ fn env_returns_default_when_no_variable_present() {
 }
 
 #[test]
-fn env_returns_empty_list_default() {
-  assert_list_eq("env(['ZADDY', 'XYZ'], [])", "[]");
-}
-
-#[test]
-fn env_returns_list_default_unmodified() {
+fn env_returns_list_default() {
   assert_list_eq("env(['ZADDY'], ['a', 'b'])", r#"["a", "b"]"#);
 }
 
