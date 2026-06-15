@@ -14,7 +14,7 @@ pub(crate) enum StringContext<'src> {
 impl<'src> StringContext<'src> {
   pub(crate) fn token(&self) -> Option<Token<'src>> {
     match self {
-      Self::Setting(name) => Some(name.token),
+      Self::Function { name } | Self::Setting(name) => Some(name.token),
       _ => None,
     }
   }

@@ -600,6 +600,32 @@ fn empty_interpreter_setting_is_an_error() {
 }
 
 #[test]
+fn list_in_function_argument_points_at_function_name() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        foo:
+          @echo {{ uppercase(['bar', 'baz']) }}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      r#"
+        error: list value ["bar", "baz"] passed to `uppercase()`
+        the ideal behavior of lists in many contexts is undecided
+        see https://github.com/casey/just#lists
+         ——▶ justfile:4:12
+          │
+        4 │   @echo {{ uppercase(['bar', 'baz']) }}
+          │            ^^^^^^^^^
+      "#,
+    )
+    .failure();
+}
+
+#[test]
 fn list_in_setting_value_points_at_setting_name() {
   Test::new()
     .justfile(
