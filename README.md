@@ -1241,13 +1241,12 @@ It is currently unstable and will change in backwards incompatible ways. This
 section documents changes in behavior when `set lists` is enabled.
 
 Lists may be used in many contexts, and their behavior in many of those
-contexts has not yet been decided. Using a list in those contexts, such as in
-an interpolation, with `+` or `/`, or with many functions, is an error. The
-`join_list()` function can be used to convert a list into a space-separated
-string for use in these contexts. Feedback on how lists should behave in these
-contexts, and on lists in general, is most welcome. Feel free to open an issue
-or leave a comment in the
-[`set lists` tracking issue](https://github.com/casey/just/issues/3377).
+contexts has not yet been decided. Using a list in those contexts, such as with
+`+` or `/`, or with many functions, is an error. The `join_list()` function can
+be used to convert a list into a space-separated string for use in these
+contexts. Feedback on how lists should behave in these contexts, and on lists
+in general, is most welcome. Feel free to open an issue or leave a comment in
+the [`set lists` tracking issue](https://github.com/casey/just/issues/3377).
 
 Variadic recipe parameters are lists of strings instead of single
 space-separated strings.
@@ -1255,6 +1254,9 @@ space-separated strings.
 List literals are written `[a, b, c]`. List literals flatten their arguments,
 lists may only contain strings and not other lists. For example,
 `[["a", "b"], [], "c"]` evaluates to `["a", "b", "c"]`.
+
+Lists in recipe and `f`-string interpolations are joined with spaces into a
+single string.
 
 The following functions apply to each list element individually:
 
