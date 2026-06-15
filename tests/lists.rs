@@ -118,6 +118,11 @@ fn join_list_joins_lists_with_spaces() {
 }
 
 #[test]
+fn join_list_joins_with_separator() {
+  assert_list_eq("join_list(['bar', 'baz'], ', ')", r#""bar, baz""#);
+}
+
+#[test]
 fn join_list_requires_lists_setting() {
   Test::new()
     .justfile(r#"x := join_list("foo")"#)
@@ -129,6 +134,100 @@ fn join_list_requires_lists_setting() {
           │
         1 │ x := join_list("foo")
           │      ^^^^^^^^^
+      "#,
+    )
+    .failure();
+}
+
+#[test]
+fn join_list_separator_must_not_be_a_list() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        foo:
+          @echo {{ join_list(['bar', 'baz'], [',', ';']) }}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      r#"
+        error: list value [",", ";"] passed to `join_list()`
+        the behavior of lists with many built-in functions is undecided
+        see https://github.com/casey/just#lists
+         ——▶ justfile:4:12
+          │
+        4 │   @echo {{ join_list(['bar', 'baz'], [',', ';']) }}
+          │            ^^^^^^^^^
+      "#,
+    )
+    .failure();
+}
+
+#[test]
+fn split_splits_string_on_separator() {
+  assert_list_eq("split('foo,bar,baz', ',')", r#"["foo", "bar", "baz"]"#);
+}
+
+#[test]
+fn split_of_string_not_containing_separator_is_single_element() {
+  assert_list_eq("split('foo', ',')", r#""foo""#);
+}
+
+#[test]
+fn split_keeps_empty_elements_with_explicit_separator() {
+  assert_list_eq("split('foo,,bar,', ',')", r#"["foo", "", "bar", ""]"#);
+}
+
+#[test]
+fn split_without_separator_splits_on_whitespace() {
+  assert_list_eq("split('  foo \t bar  baz ')", r#"["foo", "bar", "baz"]"#);
+}
+
+#[test]
+fn split_without_separator_of_whitespace_is_empty() {
+  assert_list_eq("split('  \t ')", "[]");
+}
+
+#[test]
+fn split_requires_lists_setting() {
+  Test::new()
+    .justfile(r#"x := split("foo", ",")"#)
+    .args(["--evaluate", "x"])
+    .stderr(
+      r#"
+        error: the `split()` function requires `set lists`
+         ——▶ justfile:1:6
+          │
+        1 │ x := split("foo", ",")
+          │      ^^^^^
+      "#,
+    )
+    .failure();
+}
+
+#[test]
+fn split_argument_must_not_be_a_list() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        foo:
+          @echo {{ split(['bar', 'baz'], ',') }}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      r#"
+        error: list value ["bar", "baz"] passed to `split()`
+        the behavior of lists with many built-in functions is undecided
+        see https://github.com/casey/just#lists
+         ——▶ justfile:4:12
+          │
+        4 │   @echo {{ split(['bar', 'baz'], ',') }}
+          │            ^^^^^
       "#,
     )
     .failure();
