@@ -48,8 +48,8 @@ impl Value {
           .collect(),
       ),
       _ => Err(Error::ListOperation {
-        operator,
         lhs: self.clone(),
+        operator,
         rhs: other.clone(),
         token: Box::new(token),
       }),
