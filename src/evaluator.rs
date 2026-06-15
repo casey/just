@@ -333,7 +333,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
         f(context!(), &a).map(Value::from)
       }
-      Function::UnaryValue(f) => {
+      Function::UnaryToValue(f) => {
         let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
         f(context!(), &a)
       }

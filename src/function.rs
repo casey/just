@@ -14,7 +14,7 @@ pub(crate) enum Function {
   Unary(fn(Context, &str) -> StringResult),
   UnaryMap(fn(Context, &str) -> StringResult),
   UnaryPlus(fn(Context, &str, &[String]) -> StringResult),
-  UnaryValue(fn(Context, &str) -> ValueResult),
+  UnaryToValue(fn(Context, &str) -> ValueResult),
   Binary(fn(Context, &str, &str) -> StringResult),
   BinaryStrValue(fn(Context, &str, &Value) -> ValueResult),
   BinaryPlus(fn(Context, &str, &str, &[String]) -> StringResult),
@@ -30,7 +30,7 @@ impl Function {
   pub(crate) fn expected_arguments(&self) -> RangeInclusive<usize> {
     match *self {
       Nullary(_) | ValueNullary(_) => 0..=0,
-      Unary(_) | ValueUnary(_) | UnaryMap(_) | UnaryValue(_) => 1..=1,
+      Unary(_) | ValueUnary(_) | UnaryMap(_) | UnaryToValue(_) => 1..=1,
       ValueBinaryOpt(_) => 1..=2,
       UnaryPlus(_) => 1..=usize::MAX,
       Binary(_) | BinaryStrValue(_) | ValueBinary(_) | BinaryToValue(_) => 2..=2,
@@ -104,7 +104,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "os" => Nullary(os),
     "os_family" => Nullary(os_family),
     "parent_directory" => Unary(parent_directory),
-    "path_exists" => UnaryValue(path_exists),
+    "path_exists" => UnaryToValue(path_exists),
     "prepend" => BinaryStrValue(prepend),
     "quote" => UnaryMap(quote),
     "read" => Unary(read),
@@ -135,7 +135,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "uppercamelcase" => Unary(uppercamelcase),
     "uppercase" => Unary(uppercase),
     "uuid" => Nullary(uuid),
-    "which" => UnaryValue(which),
+    "which" => UnaryToValue(which),
     "without_extension" => Unary(without_extension),
     _ => return None,
   };
