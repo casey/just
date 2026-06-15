@@ -669,3 +669,62 @@ fn filename_list_requires_lists_setting() {
     )
     .failure();
 }
+
+#[test]
+fn path_argument_list() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        @foo:
+          echo $KEY
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .write("foo.env", "KEY=foo")
+    .write("bar.env", "KEY=bar")
+    .args(["--dotenv-path", "foo.env", "--dotenv-path", "bar.env"])
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
+fn filename_argument_list() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        @foo:
+          echo $FOO $BAR
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .write(".env.foo", "FOO=foo")
+    .write(".env.bar", "BAR=bar")
+    .args([
+      "--dotenv-filename",
+      ".env.foo",
+      "--dotenv-filename",
+      ".env.bar",
+    ])
+    .stdout("foo bar\n")
+    .success();
+}
+
+#[test]
+fn multiple_arguments_require_lists_setting() {
+  Test::new()
+    .justfile(
+      "
+        @foo:
+          echo $KEY
+      ",
+    )
+    .args(["--dotenv-path", "foo.env", "--dotenv-path", "bar.env"])
+    .stderr(
+      "error: multiple `--dotenv-filename` or `--dotenv-path` arguments require `set lists`\n",
+    )
+    .failure();
+}

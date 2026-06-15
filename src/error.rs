@@ -83,6 +83,7 @@ pub(crate) enum Error<'src> {
     dotenv_error: dotenvy::Error,
     path: PathBuf,
   },
+  DotenvArgumentsRequireLists,
   DotenvRequired,
   DumpJson {
     source: serde_json::Error,
@@ -593,6 +594,12 @@ impl ColorDisplay for Error<'_> {
           f,
           "failed to load environment file from `{}`: {dotenv_error}",
           path.display(),
+        )?;
+      }
+      DotenvArgumentsRequireLists => {
+        write!(
+          f,
+          "multiple `--dotenv-filename` or `--dotenv-path` arguments require `set lists`"
         )?;
       }
       DotenvRequired => {

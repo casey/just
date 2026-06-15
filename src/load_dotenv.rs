@@ -5,14 +5,20 @@ pub(crate) fn load_dotenv(
   settings: &Settings,
   working_directory: &Path,
 ) -> RunResult<'static, BTreeMap<String, String>> {
-  let filenames = match &config.dotenv_filename {
-    Some(filename) => filename.into(),
-    None => settings.dotenv_filename.clone(),
+  if !settings.lists && (config.dotenv_filename.len() > 1 || config.dotenv_path.len() > 1) {
+    return Err(Error::DotenvArgumentsRequireLists);
+  }
+
+  let filenames = if config.dotenv_filename.is_empty() {
+    settings.dotenv_filename.clone()
+  } else {
+    config.dotenv_filename.clone().into()
   };
 
-  let paths = match &config.dotenv_path {
-    Some(path) => path.into(),
-    None => settings.dotenv_path.clone(),
+  let paths = if config.dotenv_path.is_empty() {
+    settings.dotenv_path.clone()
+  } else {
+    config.dotenv_path.clone().into()
   };
 
   if !settings.dotenv_load
