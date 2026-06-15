@@ -1343,7 +1343,7 @@ Values may be negated with `!`. `!expression` evaluates to `"true"` if
 The `+` and `/` operators combine strings and lists. A string and a list are
 combined by concatenating the string with each element of the list. Two lists
 of the same length are combined into a list containing the pairwise
-concatenated elements of both operands. Combining two lists of different
+concatenated elements of both operands. Combining lists of two different
 lengths is an error.
 
 The `[arg]` `flag` attribute, makes the parameter a flag which does not take a
