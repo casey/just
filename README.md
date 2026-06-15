@@ -1244,9 +1244,9 @@ It has not yet been decided how lists should behave with many of the built-in
 functions. Functions that have been updated to accept lists are mentioned in
 this section. Using lists with any other function is an error. The
 `join_list()` function can be used to convert lists into space-separated
-strings for use with un-upgraded functions. Feedback on how the built-in
-functions should behave with lists, and on lists in general, is most welcome!
-Feel free to open an issue or leave a comment in the
+strings for use with un-upgraded functions. Feedback on how built-in functions
+should behave with lists, and on lists in general, is most welcome! Feel free
+to open an issue or leave a comment in the
 [`set lists` tracking issue](https://github.com/casey/just/issues/3377).
 
 Variadic recipe parameters are lists of strings instead of single
