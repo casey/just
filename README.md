@@ -1242,8 +1242,8 @@ section documents changes in behavior when `set lists` is enabled.
 
 The behavior of lists in many contexts has not yet been decided. Using a list
 in these contexts, such as in an interpolation, as an operand of `+` or `/`, or
-as a argument to non-list functions is an error. The `join_list()` function can
-be used to convert a list into a space-separated string for use in these
+as a argument to a non-list function is an error. The `join_list()` function
+can be used to convert a list into a space-separated string for use in these
 contexts. Feedback on how lists should behave in these contexts, and on lists
 in general, is most welcome. Feel free to open an issue or leave a comment in
 the [`set lists` tracking issue](https://github.com/casey/just/issues/3377).
