@@ -180,10 +180,6 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       functions.insert(function.clone());
     }
 
-    let list_feature = list_features
-      .into_iter()
-      .find(|(feature, token)| !(feature.function() && functions.contains_key(token.lexeme())));
-
     AssignmentResolver::resolve_assignments(&assignments, &functions)?;
 
     for set in self.sets.values() {
@@ -231,8 +227,12 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let settings =
       Evaluator::evaluate_settings(&assignments, overrides, &Scope::root(), self.sets)?;
 
-    if let Some((feature, token)) = list_feature {
-      if !settings.lists {
+    if !settings.lists {
+      for (feature, token) in list_features {
+        if feature.function() && functions.contains_key(token.lexeme()) {
+          continue;
+        }
+
         return Err(token.error(CompileErrorKind::ListFeature(feature)).into());
       }
     }
