@@ -99,6 +99,9 @@ pub(crate) enum Error<'src> {
     editor: OsString,
     status: ExitStatus,
   },
+  EmptyInterpreter {
+    setting: Name<'src>,
+  },
   EmptyListArgument {
     parameter: &'src str,
     recipe: &'src str,
@@ -321,6 +324,7 @@ impl<'src> Error<'src> {
       Self::Compile { compile_error } => Some(compile_error.context()),
       Self::Const { const_error } => Some(const_error.context()),
       Self::FunctionCall { function, .. } => Some(function.token),
+      Self::EmptyInterpreter { setting } => Some(**setting),
       Self::ListInStringContext { token, .. } => Some(**token),
       Self::MissingImportFile { path } => Some(*path),
       _ => None,
@@ -611,10 +615,16 @@ impl ColorDisplay for Error<'_> {
         let editor = editor.to_string_lossy();
         write!(f, "editor `{editor}` failed: {status}")?;
       }
+      EmptyInterpreter { setting } => {
+        write!(
+          f,
+          "`{setting}` setting requires at least one element but evaluated to empty list"
+        )?;
+      }
       EmptyListArgument { parameter, recipe } => {
         write!(
           f,
-          "recipe `{recipe}` parameter `{parameter}` requires at least one element but received an empty list"
+          "recipe `{recipe}` parameter `{parameter}` requires at least one element but received empty list"
         )?;
       }
       EvalUnknownSubmodule { component, .. } => {
@@ -682,10 +692,15 @@ impl ColorDisplay for Error<'_> {
           f,
           "list value {} {context}\n\
           the ideal behavior of lists in many contexts is undecided\n\
-          see https://github.com/casey/just#lists\n\
-          note that the source location of this error may be inaccurate",
+          see https://github.com/casey/just#lists",
           value.color_display(color),
         )?;
+        if context.token().is_none() {
+          write!(
+            f,
+            "\nnote that the source location of this error may be inaccurate"
+          )?;
+        }
       }
       ShellIo {
         recipe,

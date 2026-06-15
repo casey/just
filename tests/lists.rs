@@ -300,7 +300,7 @@ fn empty_list_for_plus_variadic_is_an_error() {
     )
     .env("JUST_UNSTABLE", "1")
     .arg("foo")
-    .stderr("error: recipe `bar` parameter `rest` requires at least one element but received an empty list\n")
+    .stderr("error: recipe `bar` parameter `rest` requires at least one element but received empty list\n")
     .failure();
 }
 
@@ -319,7 +319,7 @@ fn empty_list_for_required_parameter_is_an_error() {
     )
     .env("JUST_UNSTABLE", "1")
     .arg("foo")
-    .stderr("error: recipe `bar` parameter `first` requires at least one element but received an empty list\n")
+    .stderr("error: recipe `bar` parameter `first` requires at least one element but received empty list\n")
     .failure();
 }
 
@@ -553,4 +553,101 @@ fn env_attribute_empty_string_sets_variable() {
     .env("JUST_UNSTABLE", "1")
     .stdout("[]\n")
     .success();
+}
+
+#[test]
+fn interpreter_settings_flatten_lists() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set shell := ['echo', ['foo', 'bar']]
+
+        baz:
+          hello
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("foo bar hello\n")
+    .stderr("hello\n")
+    .shell(false)
+    .success();
+}
+
+#[test]
+fn empty_interpreter_setting_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set shell := [[]]
+
+        foo:
+          @echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      "
+        error: `shell` setting requires at least one element but evaluated to empty list
+         ——▶ justfile:2:5
+          │
+        2 │ set shell := [[]]
+          │     ^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn list_in_function_argument_points_at_function_name() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        foo:
+          @echo {{ uppercase(['bar', 'baz']) }}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      r#"
+        error: list value ["bar", "baz"] passed to `uppercase()`
+        the ideal behavior of lists in many contexts is undecided
+        see https://github.com/casey/just#lists
+         ——▶ justfile:4:12
+          │
+        4 │   @echo {{ uppercase(['bar', 'baz']) }}
+          │            ^^^^^^^^^
+      "#,
+    )
+    .failure();
+}
+
+#[test]
+fn list_in_setting_value_points_at_setting_name() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set tempdir := ['foo', 'bar']
+
+        foo:
+          @echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      r#"
+        error: list value ["foo", "bar"] assigned to `tempdir` setting
+        the ideal behavior of lists in many contexts is undecided
+        see https://github.com/casey/just#lists
+         ——▶ justfile:2:5
+          │
+        2 │ set tempdir := ['foo', 'bar']
+          │     ^^^^^^^
+      "#,
+    )
+    .failure();
 }
