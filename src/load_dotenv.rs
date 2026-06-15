@@ -39,16 +39,15 @@ pub(crate) fn load_dotenv(
     return Ok(dotenv);
   }
 
-  let default = [".env".to_string()];
   let filenames = if filenames.is_empty() {
-    &default[..]
+    ".env".into()
   } else {
-    filenames.elements()
+    filenames
   };
 
   for directory in working_directory.ancestors() {
     let mut matched = Vec::new();
-    for filename in filenames {
+    for filename in filenames.elements() {
       if let Some(map) = load_from_file(&directory.join(filename), settings)? {
         matched.push(map);
       }
