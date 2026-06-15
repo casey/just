@@ -9,37 +9,13 @@ fn lists_setting_is_unstable() {
 }
 
 #[test]
-fn quote_quotes_each_element_of_variadic_arguments() {
-  Test::new()
-    .justfile(
-      r#"
-        set lists
-
-        foo *args:
-          @echo "{{ join_list(quote(args)) }}"
-      "#,
-    )
-    .env("JUST_UNSTABLE", "1")
-    .args(["foo", "bar", "baz bob"])
-    .stdout("'bar' 'baz bob'\n")
-    .success();
+fn quote_quotes_each_element_of_a_list() {
+  assert_list_eq("quote(['bar', 'baz bob'])", r#"["'bar'", "'baz bob'"]"#);
 }
 
 #[test]
 fn quote_of_empty_list_is_empty() {
-  Test::new()
-    .justfile(
-      r#"
-        set lists
-
-        foo *args:
-          @echo "bar{{ join_list(quote(args)) }}baz"
-      "#,
-    )
-    .env("JUST_UNSTABLE", "1")
-    .arg("foo")
-    .stdout("barbaz\n")
-    .success();
+  assert_list_eq("quote([])", "[]");
 }
 
 #[test]
@@ -58,34 +34,15 @@ fn quote_of_empty_variadic_is_empty_string_without_lists_setting() {
 
 #[test]
 fn quote_quotes_single_element_values_whole() {
-  Test::new()
-    .justfile(
-      r#"
-        set lists
-
-        foo bar='baz bob':
-          @echo "{{ quote(bar) }}"
-      "#,
-    )
-    .env("JUST_UNSTABLE", "1")
-    .arg("foo")
-    .stdout("'baz bob'\n")
-    .success();
+  assert_list_eq("quote('baz bob')", r#""'baz bob'""#);
 }
 
 #[test]
 fn absolute_path_resolves_each_element_of_a_list() {
   let test = Test::new()
-    .justfile(
-      r#"
-        set lists
-
-        foo *args:
-          @echo "{{ join_list(absolute_path(args)) }}"
-      "#,
-    )
+    .justfile("set lists\n\nx := show(absolute_path(['bar', 'baz bob']))")
     .env("JUST_UNSTABLE", "1")
-    .args(["foo", "bar", "baz bob"]);
+    .args(["--evaluate", "x"]);
 
   let mut tempdir = test.tempdir.path().to_owned();
 
@@ -95,85 +52,55 @@ fn absolute_path_resolves_each_element_of_a_list() {
 
   test
     .stdout(format!(
-      "{} {}\n",
+      "[{:?}, {:?}]",
       tempdir.join("bar").to_str().unwrap(),
       tempdir.join("baz bob").to_str().unwrap(),
     ))
+    .unindent_stdout(false)
     .success();
 }
 
 #[test]
 fn absolute_path_of_empty_list_is_empty() {
-  Test::new()
-    .justfile(
-      r#"
-        set lists
-
-        foo *args:
-          @echo "bar{{ join_list(absolute_path(args)) }}baz"
-      "#,
-    )
-    .env("JUST_UNSTABLE", "1")
-    .arg("foo")
-    .stdout("barbaz\n")
-    .success();
+  assert_list_eq("absolute_path([])", "[]");
 }
 
 #[test]
 fn append_appends_to_each_element_of_a_list() {
-  Test::new()
-    .justfile(
-      r#"
-        set lists
-
-        foo *args:
-          @echo "{{ join_list(append('.c', args)) }}"
-      "#,
-    )
-    .env("JUST_UNSTABLE", "1")
-    .args(["foo", "bar", "baz bob"])
-    .stdout("bar.c baz bob.c\n")
-    .success();
+  assert_list_eq(
+    "append('.c', ['bar', 'baz bob'])",
+    r#"["bar.c", "baz bob.c"]"#,
+  );
 }
 
 #[test]
 fn prepend_prepends_to_each_element_of_a_list() {
-  Test::new()
-    .justfile(
-      r#"
-        set lists
-
-        foo *args:
-          @echo "{{ join_list(prepend('src/', args)) }}"
-      "#,
-    )
-    .env("JUST_UNSTABLE", "1")
-    .args(["foo", "bar", "baz bob"])
-    .stdout("src/bar src/baz bob\n")
-    .success();
+  assert_list_eq(
+    "prepend('src/', ['bar', 'baz bob'])",
+    r#"["src/bar", "src/baz bob"]"#,
+  );
 }
 
 #[test]
 fn prepend_errors_if_suffix_is_not_single_element() {
   Test::new()
     .justfile(
-      r#"
+      "
         set lists
 
-        foo *args:
-          @echo "{{ prepend(args, 'bar') }}"
-      "#,
+        x := prepend(['bar', 'baz'], 'bar')
+      ",
     )
     .env("JUST_UNSTABLE", "1")
-    .args(["foo", "bar", "baz"])
+    .args(["--evaluate", "x"])
     .stderr(
-      r#"
+      r"
         error: call to function `prepend` failed: `prefix` must be single element list but has 2 elements
-         ——▶ justfile:4:13
+         ——▶ justfile:3:6
           │
-        4 │   @echo "{{ prepend(args, 'bar') }}"
-          │             ^^^^^^^
-      "#,
+        3 │ x := prepend(['bar', 'baz'], 'bar')
+          │      ^^^^^^^
+      ",
     )
     .failure();
 }
@@ -182,42 +109,29 @@ fn prepend_errors_if_suffix_is_not_single_element() {
 fn append_errors_if_suffix_is_not_single_element() {
   Test::new()
     .justfile(
-      r#"
+      "
         set lists
 
-        foo *args:
-          @echo "{{ append(args, 'bar') }}"
-      "#,
+        x := append(['bar', 'baz'], 'bar')
+      ",
     )
     .env("JUST_UNSTABLE", "1")
-    .args(["foo", "bar", "baz"])
+    .args(["--evaluate", "x"])
     .stderr(
-      r#"
+      r"
         error: call to function `append` failed: `suffix` must be single element list but has 2 elements
-         ——▶ justfile:4:13
+         ——▶ justfile:3:6
           │
-        4 │   @echo "{{ append(args, 'bar') }}"
-          │             ^^^^^^
-      "#,
+        3 │ x := append(['bar', 'baz'], 'bar')
+          │      ^^^^^^
+      ",
     )
     .failure();
 }
 
 #[test]
 fn append_does_not_split_single_strings_with_lists_setting() {
-  Test::new()
-    .justfile(
-      r#"
-        set lists
-
-        foo:
-          @echo "{{ append('.c', 'foo bar') }}"
-      "#,
-    )
-    .env("JUST_UNSTABLE", "1")
-    .arg("foo")
-    .stdout("foo bar.c\n")
-    .success();
+  assert_list_eq("append('.c', 'foo bar')", r#""foo bar.c""#);
 }
 
 #[test]
@@ -250,19 +164,7 @@ fn interpolating_a_list_is_an_error() {
 
 #[test]
 fn join_list_joins_lists_with_spaces() {
-  Test::new()
-    .justfile(
-      "
-        set lists
-
-        foo *args:
-          @echo {{ join_list(args) }}
-      ",
-    )
-    .env("JUST_UNSTABLE", "1")
-    .args(["foo", "bar", "baz"])
-    .stdout("bar baz\n")
-    .success();
+  assert_list_eq("join_list(['bar', 'baz'])", r#""bar baz""#);
 }
 
 #[test]
