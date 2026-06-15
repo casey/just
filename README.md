@@ -1262,6 +1262,10 @@ single string.
 In `[env(variable, value)]` if `value` is `[]`, `variable` is not set.
 Otherwise it is set to `value` joined with spaces.
 
+The `env(keys, default)` function checks for the environment variables named in
+`keys` in order and returns the value of the first that is set. If none are set
+it returns `default`, or an error if `default` is omitted.
+
 The `script-interpreter`, `shell`, and `windows-shell` settings flatten their
 elements like list literals.
 

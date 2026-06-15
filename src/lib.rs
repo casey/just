@@ -141,7 +141,7 @@ pub(crate) use {
     borrow::{Borrow, Cow},
     cmp::Ordering,
     collections::{BTreeMap, BTreeSet, HashMap, HashSet},
-    env,
+    env::{self, VarError},
     ffi::{OsStr, OsString},
     fmt::{self, Debug, Display, Formatter},
     fs::{self, File},

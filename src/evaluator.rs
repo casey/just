@@ -329,17 +329,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     }
     match function {
       Function::Nullary(f) => f(context!()).map(Value::from),
-      Function::NullaryValue(f) => f(context!()),
       Function::Unary(f) => {
         let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
         f(context!(), &a).map(Value::from)
       }
-      Function::UnaryValue(f) => {
+      Function::UnaryToValue(f) => {
         let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
-        f(context!(), &a)
-      }
-      Function::UnaryList(f) => {
-        let a = self.evaluate_value(&arguments[0])?;
         f(context!(), &a)
       }
       Function::UnaryMap(f) => {
@@ -349,15 +344,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           .map(|element| f(context!(), element))
           .collect()
       }
-      Function::UnaryOpt(f) => {
-        let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
-        let b = if arguments.len() > 1 {
-          Some(self.evaluate_string(&arguments[1], StringContext::Function(name))?)
-        } else {
-          None
-        };
-        f(context!(), &a, b.as_deref()).map(Value::from)
-      }
       Function::UnaryPlus(f) => {
         let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
         let mut rest = Vec::new();
@@ -366,7 +352,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
         f(context!(), &a, &rest).map(Value::from)
       }
-      Function::BinaryList(f) => {
+      Function::BinaryStrValue(f) => {
         let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
         let b = self.evaluate_value(&arguments[1])?;
         f(context!(), &a, &b)
@@ -376,7 +362,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         let b = self.evaluate_string(&arguments[1], StringContext::Function(name))?;
         f(context!(), &a, &b).map(Value::from)
       }
-      Function::BinaryValue(f) => {
+      Function::BinaryToValue(f) => {
         let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
         let b = self.evaluate_string(&arguments[1], StringContext::Function(name))?;
         f(context!(), &a, &b)
@@ -395,6 +381,25 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         let b = self.evaluate_string(&arguments[1], StringContext::Function(name))?;
         let c = self.evaluate_string(&arguments[2], StringContext::Function(name))?;
         f(context!(), &a, &b, &c).map(Value::from)
+      }
+      Function::ValueNullary(f) => f(context!()),
+      Function::ValueUnary(f) => {
+        let a = self.evaluate_value(&arguments[0])?;
+        f(context!(), &a)
+      }
+      Function::ValueBinary(f) => {
+        let a = self.evaluate_value(&arguments[0])?;
+        let b = self.evaluate_value(&arguments[1])?;
+        f(context!(), &a, &b)
+      }
+      Function::ValueBinaryOpt(f) => {
+        let a = self.evaluate_value(&arguments[0])?;
+        let b = if arguments.len() > 1 {
+          Some(self.evaluate_value(&arguments[1])?)
+        } else {
+          None
+        };
+        f(context!(), &a, b.as_ref())
       }
     }
     .map_err(|message| Error::FunctionCall {
