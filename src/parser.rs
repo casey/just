@@ -33,7 +33,7 @@ pub(crate) struct Parser<'run, 'src> {
   next_token: usize,
   numerator: &'run mut Numerator,
   recursion_depth: usize,
-  restricted_functions: Vec<(RestrictedFunction, Token<'src>)>,
+  restricted_functions: Vec<(ListFeature, Token<'src>)>,
   tokens: &'run [Token<'src>],
   unstable_features: BTreeSet<UnstableFeature>,
   working_directory: &'run Path,
@@ -103,10 +103,8 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
   }
 
-  fn restricted_function(&mut self, restricted_function: RestrictedFunction, name: Name<'src>) {
-    self
-      .restricted_functions
-      .push((restricted_function, name.token));
+  fn restricted_function(&mut self, list_feature: ListFeature, name: Name<'src>) {
+    self.restricted_functions.push((list_feature, name.token));
   }
 
   /// Construct an unexpected token error with the token returned by
@@ -964,22 +962,16 @@ impl<'run, 'src> Parser<'run, 'src> {
           let arguments = self.parse_sequence()?;
           match name.lexeme() {
             "bool" => {
-              self.restricted_function(RestrictedFunction::List(ListFeature::BoolFunction), name);
+              self.restricted_function(ListFeature::BoolFunction, name);
             }
             "join_list" => {
-              self.restricted_function(
-                RestrictedFunction::List(ListFeature::JoinListFunction),
-                name,
-              );
+              self.restricted_function(ListFeature::JoinListFunction, name);
             }
             "show" => {
-              self.restricted_function(RestrictedFunction::List(ListFeature::ShowFunction), name);
+              self.restricted_function(ListFeature::ShowFunction, name);
             }
             "which" => {
-              self.restricted_function(
-                RestrictedFunction::Unstable(UnstableFeature::WhichFunction),
-                name,
-              );
+              self.restricted_function(ListFeature::WhichFunction, name);
             }
             _ => {}
           }

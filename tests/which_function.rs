@@ -10,7 +10,12 @@ fn finds_executable() {
   let path = PathBuf::from(tmp.path());
 
   Test::with_tempdir(tmp)
-    .justfile("p := which('hello.exe')")
+    .justfile(
+      "
+        set lists
+        p := which('hello.exe')
+      ",
+    )
     .args(["--evaluate", "p"])
     .write("hello.exe", HELLO_SCRIPT)
     .make_executable("hello.exe")
@@ -21,17 +26,23 @@ fn finds_executable() {
 }
 
 #[test]
-fn prints_empty_string_for_missing_executable() {
+fn returns_empty_list_for_missing_executable() {
   let tmp = tempdir();
   let path = PathBuf::from(tmp.path());
 
   Test::with_tempdir(tmp)
-    .justfile("p := which('goodbye.exe')")
+    .justfile(
+      "
+        set lists
+        p := show(which('goodbye.exe'))
+      ",
+    )
     .args(["--evaluate", "p"])
     .write("hello.exe", HELLO_SCRIPT)
     .make_executable("hello.exe")
     .env("PATH", path.to_str().unwrap())
     .env("JUST_UNSTABLE", "1")
+    .stdout("[]")
     .success();
 }
 
@@ -41,7 +52,12 @@ fn skips_non_executable_files() {
   let path = PathBuf::from(tmp.path());
 
   Test::with_tempdir(tmp)
-    .justfile("p := which('hi')")
+    .justfile(
+      "
+        set lists
+        p := which('hi')
+      ",
+    )
     .args(["--evaluate", "p"])
     .write("hello.exe", HELLO_SCRIPT)
     .make_executable("hello.exe")
@@ -62,7 +78,12 @@ fn supports_multiple_paths() {
   .unwrap();
 
   Test::with_tempdir(tmp)
-    .justfile("p := which('hello1.exe') + '+' + which('hello2.exe')")
+    .justfile(
+      "
+        set lists
+        p := which('hello1.exe') + '+' + which('hello2.exe')
+      ",
+    )
     .args(["--evaluate", "p"])
     .write("subdir1/hello1.exe", HELLO_SCRIPT)
     .make_executable("subdir1/hello1.exe")
@@ -107,7 +128,12 @@ fn supports_shadowed_executables() {
     };
 
     Test::with_tempdir(tmp)
-      .justfile("p := which('shadowed.exe')")
+      .justfile(
+        "
+          set lists
+          p := which('shadowed.exe')
+        ",
+      )
       .args(["--evaluate", "p"])
       .write("dir1/shadowed.exe", HELLO_SCRIPT)
       .make_executable("dir1/shadowed.exe")
@@ -139,7 +165,12 @@ fn ignores_nonexecutable_candidates() {
   };
 
   Test::with_tempdir(tmp)
-    .justfile("p := which('foo.exe')")
+    .justfile(
+      "
+        set lists
+        p := which('foo.exe')
+      ",
+    )
     .args(["--evaluate", "p"])
     .write("subdir/foo.exe", HELLO_SCRIPT)
     .make_executable("subdir/foo.exe")
@@ -157,7 +188,13 @@ fn handles_absolute_path() {
   let abspath = path.join("subdir").join("foo.exe");
 
   Test::with_tempdir(tmp)
-    .justfile(format!("p := which('{}')", abspath.display()))
+    .justfile(format!(
+      "
+        set lists
+        p := which('{}')
+      ",
+      abspath.display()
+    ))
     .write("subdir/foo.exe", HELLO_SCRIPT)
     .make_executable("subdir/foo.exe")
     .write("pathdir/foo.exe", HELLO_SCRIPT)
@@ -182,7 +219,12 @@ fn handles_dotslash() {
   };
 
   Test::with_tempdir(tmp)
-    .justfile("p := which('./foo.exe')")
+    .justfile(
+      "
+        set lists
+        p := which('./foo.exe')
+      ",
+    )
     .args(["--evaluate", "p"])
     .write("foo.exe", HELLO_SCRIPT)
     .make_executable("foo.exe")
@@ -207,7 +249,12 @@ fn handles_dir_slash() {
   };
 
   Test::with_tempdir(tmp)
-    .justfile("p := which('subdir/foo.exe')")
+    .justfile(
+      "
+        set lists
+        p := which('subdir/foo.exe')
+      ",
+    )
     .args(["--evaluate", "p"])
     .write("subdir/foo.exe", HELLO_SCRIPT)
     .make_executable("subdir/foo.exe")
@@ -220,7 +267,7 @@ fn handles_dir_slash() {
 }
 
 #[test]
-fn is_unstable() {
+fn requires_lists_setting() {
   let tmp = tempdir();
   let path = PathBuf::from(tmp.path());
 
@@ -230,7 +277,16 @@ fn is_unstable() {
     .write("hello.exe", HELLO_SCRIPT)
     .make_executable("hello.exe")
     .env("PATH", path.to_str().unwrap())
-    .stderr_regex(r".*the `which\(\)` function is currently unstable,.*")
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      "
+        error: the `which()` function requires `set lists`
+         ——▶ justfile:1:6
+          │
+        1 │ p := which('hello.exe')
+          │      ^^^^^
+      ",
+    )
     .failure();
 }
 
@@ -261,7 +317,12 @@ fn finds_executable_via_pathext() {
   let path = PathBuf::from(tmp.path());
 
   Test::with_tempdir(tmp)
-    .justfile("p := which('foo')")
+    .justfile(
+      "
+        set lists
+        p := which('foo')
+      ",
+    )
     .args(["--evaluate", "p"])
     .write("foo.exe", HELLO_SCRIPT)
     .make_executable("foo.exe")
@@ -282,7 +343,12 @@ fn pathext_not_applied_when_candidate_has_extension() {
   let path = PathBuf::from(tmp.path());
 
   Test::with_tempdir(tmp)
-    .justfile("p := which('foo.bat')")
+    .justfile(
+      "
+        set lists
+        p := which('foo.bat')
+      ",
+    )
     .args(["--evaluate", "p"])
     .write("foo.bat.exe", HELLO_SCRIPT)
     .make_executable("foo.bat.exe")
@@ -302,7 +368,12 @@ fn pathext_custom_extension() {
   let path = PathBuf::from(tmp.path());
 
   Test::with_tempdir(tmp)
-    .justfile("p := which('foo')")
+    .justfile(
+      "
+        set lists
+        p := which('foo')
+      ",
+    )
     .args(["--evaluate", "p"])
     .write("foo.bar", HELLO_SCRIPT)
     .env("PATH", path.to_str().unwrap())
@@ -322,7 +393,12 @@ fn pathext_entry_missing_dot_is_error() {
   let path = PathBuf::from(tmp.path());
 
   Test::with_tempdir(tmp)
-    .justfile("p := which('foo')")
+    .justfile(
+      "
+        set lists
+        p := which('foo')
+      ",
+    )
     .args(["--evaluate", "p"])
     .write("foo.exe", HELLO_SCRIPT)
     .make_executable("foo.exe")
@@ -343,7 +419,12 @@ fn pathext_ignored_on_non_windows() {
   let path = PathBuf::from(tmp.path());
 
   Test::with_tempdir(tmp)
-    .justfile("p := which('foo')")
+    .justfile(
+      "
+        set lists
+        p := which('foo')
+      ",
+    )
     .args(["--evaluate", "p"])
     .write("foo.exe", HELLO_SCRIPT)
     .make_executable("foo.exe")

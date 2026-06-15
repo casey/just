@@ -2121,12 +2121,13 @@ $ just
   ```
 
 - `which(name)`<sup>1.39.0</sup> — Search directories in the `PATH` environment
-  variable for the executable `name` and return its full path, or the empty
-  string if no executable with `name` exists. Currently unstable.
+  variable for the executable `name` and return its full path. Requires `set
+  lists`<sup>master</sup>.
 
 
   ```just
   set unstable
+  set lists
 
   bosh := which("bosh")
 

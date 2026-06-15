@@ -185,20 +185,13 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       functions.insert(function.clone());
     }
 
-    for (restricted_function, token) in restricted_functions {
+    for (feature, token) in restricted_functions {
       if functions.contains_key(token.lexeme()) {
         continue;
       }
 
-      match restricted_function {
-        RestrictedFunction::List(feature) => {
-          if list_feature.is_none() {
-            list_feature = Some((feature, token));
-          }
-        }
-        RestrictedFunction::Unstable(feature) => {
-          unstable_features.insert(feature);
-        }
+      if list_feature.is_none() {
+        list_feature = Some((feature, token));
       }
     }
 

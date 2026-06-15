@@ -4,7 +4,6 @@ use super::*;
 pub(crate) enum UnstableFeature {
   ListsSetting,
   UserDefinedFunction,
-  WhichFunction,
 }
 
 impl Display for UnstableFeature {
@@ -14,7 +13,6 @@ impl Display for UnstableFeature {
       Self::UserDefinedFunction => {
         write!(f, "user-defined functions are currently unstable")
       }
-      Self::WhichFunction => write!(f, "the `which()` function is currently unstable"),
     }
   }
 }
