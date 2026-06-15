@@ -47,7 +47,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut definitions = HashMap::new();
     let mut imports = HashSet::new();
     let mut list_feature = None;
-    let mut restricted_functions = Vec::new();
+    let mut list_functions = Vec::new();
     let mut unstable_features = BTreeSet::new();
 
     let mut stack = Vec::new();
@@ -57,7 +57,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     while let Some(ast) = stack.pop() {
       unstable_features.extend(&ast.unstable_features);
 
-      restricted_functions.extend(&ast.restricted_functions);
+      list_functions.extend(&ast.list_functions);
 
       if list_feature.is_none() {
         list_feature = ast.list_feature;
@@ -185,7 +185,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       functions.insert(function.clone());
     }
 
-    for (feature, token) in restricted_functions {
+    for (feature, token) in list_functions {
       if functions.contains_key(token.lexeme()) {
         continue;
       }

@@ -29,11 +29,11 @@ pub(crate) struct Parser<'run, 'src> {
   import_offsets: Vec<usize>,
   items: Vec<Item<'src>>,
   list_feature: Option<(ListFeature, Token<'src>)>,
+  list_functions: Vec<(ListFeature, Token<'src>)>,
   module_namepath: Option<&'run Namepath<'src>>,
   next_token: usize,
   numerator: &'run mut Numerator,
   recursion_depth: usize,
-  restricted_functions: Vec<(ListFeature, Token<'src>)>,
   tokens: &'run [Token<'src>],
   unstable_features: BTreeSet<UnstableFeature>,
   working_directory: &'run Path,
@@ -55,11 +55,11 @@ impl<'run, 'src> Parser<'run, 'src> {
       import_offsets: import_offsets.to_vec(),
       items: Vec::new(),
       list_feature: None,
+      list_functions: Vec::new(),
       module_namepath,
       next_token: 0,
       numerator,
       recursion_depth: 0,
-      restricted_functions: Vec::new(),
       tokens,
       unstable_features: BTreeSet::new(),
       working_directory,
@@ -104,7 +104,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   fn restricted_function(&mut self, list_feature: ListFeature, name: Name<'src>) {
-    self.restricted_functions.push((list_feature, name.token));
+    self.list_functions.push((list_feature, name.token));
   }
 
   /// Construct an unexpected token error with the token returned by
@@ -501,7 +501,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       items: self.items,
       list_feature: self.list_feature,
       module_path: self.module_namepath.map(Into::into).unwrap_or_default(),
-      restricted_functions: self.restricted_functions,
+      list_functions: self.list_functions,
       unstable_features: self.unstable_features,
       warnings: Vec::new(),
       working_directory: self.working_directory.into(),
