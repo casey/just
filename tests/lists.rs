@@ -53,8 +53,12 @@ fn absolute_path_resolves_each_element_of_a_list() {
   test
     .stdout(format!(
       r#"["{}", "{}"]"#,
-      tempdir.join("bar").to_str().unwrap(),
-      tempdir.join("baz bob").to_str().unwrap(),
+      tempdir.join("bar").to_str().unwrap().replace('\\', "\\\\"),
+      tempdir
+        .join("baz bob")
+        .to_str()
+        .unwrap()
+        .replace('\\', "\\\\"),
     ))
     .unindent_stdout(false)
     .success();
