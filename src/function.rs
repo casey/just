@@ -21,9 +21,9 @@ pub(crate) enum Function {
   BinaryToValue(fn(Context, &str, &str) -> ValueResult),
   Ternary(fn(Context, &str, &str, &str) -> StringResult),
   ValueNullary(fn(Context) -> ValueResult),
+  ValueUnary(fn(Context, &Value) -> ValueResult),
   ValueBinary(fn(Context, &Value, &Value) -> ValueResult),
   ValueBinaryOpt(fn(Context, &Value, Option<&Value>) -> ValueResult),
-  ValueUnary(fn(Context, &Value) -> ValueResult),
 }
 
 impl Function {
