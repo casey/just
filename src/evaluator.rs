@@ -480,7 +480,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         if let Some(value) = lhs.apply(&rhs, operator) {
           Ok(value)
         } else {
-          Err(Error::ListOperands {
+          Err(Error::ListOperator {
             operator,
             lhs,
             rhs,
@@ -522,7 +522,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         if let Some(value) = Value::from("/").apply(&rhs, ListOperator::Concatenate) {
           Ok(value)
         } else {
-          Err(Error::ListOperands {
+          Err(Error::ListOperator {
             operator: ListOperator::Join,
             lhs: Value::from("/"),
             rhs,
@@ -541,7 +541,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         if let Some(value) = lhs.apply(&rhs, ListOperator::Join) {
           Ok(value)
         } else {
-          Err(Error::ListOperands {
+          Err(Error::ListOperator {
             operator,
             lhs,
             rhs,
