@@ -706,7 +706,7 @@ impl ColorDisplay for Error<'_> {
         if matches!(context, StringContext::Function { .. }) {
           write!(
             f,
-            "\nthe behavior of lists with of many built-in functions is undecided\n\
+            "\nthe behavior of lists with many built-in functions is undecided\n\
             see https://github.com/casey/just#lists",
           )?;
         }
