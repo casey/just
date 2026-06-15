@@ -1340,9 +1340,9 @@ just in `if` and `assert()`, and evaluate to `"true"` or `[]`.
 Values may be negated with `!`. `!expression` evaluates to `"true"` if
 `expression` is `[]`, otherwise it evaluates to `[]`.
 
-The `+` and `/` operators combine strings and lists. A string and a list are
-combined by concatenating the string with each element of the list. Two lists
-of the same length are combined into a list containing the pairwise
+The `+` and `/` operators combine strings and lists. A string and a non-empty
+list are combined by concatenating the string with each element of the list.
+Two lists of the same length are combined into a list containing the pairwise
 concatenated elements of both operands. Combining two lists of different
 lengths is an error.
 

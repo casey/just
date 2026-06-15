@@ -216,7 +216,7 @@ mod tests {
   }
 
   #[test]
-  fn concatenate() {
+  fn apply() {
     use ListOperator::{Concatenate, Join};
 
     #[track_caller]
