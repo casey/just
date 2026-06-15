@@ -675,7 +675,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     for attribute in &recipe.attributes {
       if let Attribute::Env(key, value) = attribute {
-        let key = evaluator.evaluate_string(key, StringContext::EnvKey)?;
+        let context = StringContext::EnvKey(recipe.attributes.name(attribute));
+        let key = evaluator.evaluate_string(key, context)?;
         let value = evaluator.evaluate_value(value)?;
         if !value.is_empty() {
           evaluator.env.insert(key, value.join());

@@ -1730,7 +1730,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
         discriminants.insert(attribute.discriminant(), name.line);
 
-        attributes.push(attribute);
+        attributes.push((attribute, name));
 
         if !self.accepted(Comma)? {
           break;
