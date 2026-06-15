@@ -1330,11 +1330,11 @@ when its condition is false.
 The comparison operators `==`, `!=`, `=~`, and `!~` may be used anywhere, not
 just in `if` and `assert()`, and evaluate to `"true"` or `[]`.
 
-`value =~ regex` is true if any element in `value` matches `regex`.
-`[] =~ regex` is false.
+`value =~ regexes` is true if any element in `value` matches any regex in
+`regexes`. It is false if either `value` or `regexes` is empty.
 
-`value !~ regex` is true if no element in `value` matches `regex`.
-`[] !~ regex` is true.
+`value !~ regexes` is true if no element in `value` matches any regex in
+`regexes`. It is true if either `value` or `regexes` is empty.
 
 Values may be negated with `!`. `!expression` evaluates to `"true"` if
 `expression` is `[]`, otherwise it evaluates to `[]`.

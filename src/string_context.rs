@@ -6,7 +6,6 @@ pub(crate) enum StringContext<'src> {
   EnvKey(Name<'src>),
   Function(Name<'src>),
   Join,
-  Regex,
   Setting(Name<'src>),
   WorkingDirectoryAttribute(Name<'src>),
 }
@@ -30,7 +29,6 @@ impl Display for StringContext<'_> {
       Self::EnvKey(_) => write!(f, "used as `env` attribute name"),
       Self::Function(name) => write!(f, "passed to `{name}()`"),
       Self::Join => write!(f, "used as `/` operand"),
-      Self::Regex => write!(f, "used as regular expression"),
       Self::Setting(name) => write!(f, "assigned to `{name}` setting"),
       Self::WorkingDirectoryAttribute(_) => {
         write!(f, "used as a `[working-directory]` attribute")

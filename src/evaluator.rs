@@ -560,24 +560,27 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     let condition = match operator {
       ConditionalOperator::Equality => self.evaluate_value(lhs)? == self.evaluate_value(rhs)?,
       ConditionalOperator::Inequality => self.evaluate_value(lhs)? != self.evaluate_value(rhs)?,
-      ConditionalOperator::RegexMatch => {
+      ConditionalOperator::RegexMatch | ConditionalOperator::RegexMismatch => {
         let lhs = self.evaluate_value(lhs)?;
-        let rhs = self.evaluate_string(rhs, StringContext::Regex)?;
+        let rhs = self.evaluate_value(rhs)?;
 
-        let regex = Regex::new(&rhs).map_err(|source| Error::RegexCompile { source })?;
-
-        lhs.elements().iter().any(|element| regex.is_match(element))
-      }
-      ConditionalOperator::RegexMismatch => {
-        let lhs = self.evaluate_value(lhs)?;
-        let rhs = self.evaluate_string(rhs, StringContext::Regex)?;
-
-        let regex = Regex::new(&rhs).map_err(|source| Error::RegexCompile { source })?;
-
-        lhs
+        let regexes = rhs
           .elements()
           .iter()
-          .all(|element| !regex.is_match(element))
+          .map(|regex| Regex::new(regex))
+          .collect::<Result<Vec<Regex>, regex::Error>>()
+          .map_err(|source| Error::RegexCompile { source })?;
+
+        let matched = lhs
+          .elements()
+          .iter()
+          .any(|element| regexes.iter().any(|regex| regex.is_match(element)));
+
+        match operator {
+          ConditionalOperator::RegexMatch => matched,
+          ConditionalOperator::RegexMismatch => !matched,
+          _ => unreachable!(),
+        }
       }
     };
     Ok(condition)

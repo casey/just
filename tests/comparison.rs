@@ -81,6 +81,41 @@ fn regex_mismatch_of_empty_list_is_true() {
 }
 
 #[test]
+fn regex_match_with_list_is_true_if_any_pattern_matches() {
+  assert_list_eq(r#""foo" =~ ["x", "f."]"#, TRUE);
+}
+
+#[test]
+fn regex_match_with_list_is_false_if_no_pattern_matches() {
+  assert_list_eq(r#""foo" =~ ["x", "y"]"#, FALSE);
+}
+
+#[test]
+fn regex_match_with_empty_pattern_list_is_false() {
+  assert_list_eq(r#""foo" =~ []"#, FALSE);
+}
+
+#[test]
+fn regex_mismatch_with_list_is_true_if_no_pattern_matches() {
+  assert_list_eq(r#""foo" !~ ["x", "y"]"#, TRUE);
+}
+
+#[test]
+fn regex_mismatch_with_list_is_false_if_any_pattern_matches() {
+  assert_list_eq(r#""foo" !~ ["x", "f."]"#, FALSE);
+}
+
+#[test]
+fn regex_mismatch_with_empty_pattern_list_is_true() {
+  assert_list_eq(r#""foo" !~ []"#, TRUE);
+}
+
+#[test]
+fn regex_match_both_operands_lists() {
+  assert_list_eq(r#"["foo", "bar"] =~ ["z", "b."]"#, TRUE);
+}
+
+#[test]
 fn combined_with_and() {
   assert_list_eq(r#""foo" == "foo" && "bar" == "bar""#, TRUE);
 }
