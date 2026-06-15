@@ -5,7 +5,6 @@ pub(crate) const DEFAULT_SHELL_ARGS: &[&str] = &["-cu"];
 pub(crate) const WINDOWS_POWERSHELL_SHELL: &str = "powershell.exe";
 pub(crate) const WINDOWS_POWERSHELL_ARGS: &[&str] = &["-NoLogo", "-Command"];
 
-#[allow(clippy::ptr_arg)]
 fn serialize_dotenv<S>(value: &Value, serializer: S) -> Result<S::Ok, S::Error>
 where
   S: Serializer,
