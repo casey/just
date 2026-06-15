@@ -5,16 +5,31 @@ pub(crate) const DEFAULT_SHELL_ARGS: &[&str] = &["-cu"];
 pub(crate) const WINDOWS_POWERSHELL_SHELL: &str = "powershell.exe";
 pub(crate) const WINDOWS_POWERSHELL_ARGS: &[&str] = &["-NoLogo", "-Command"];
 
+#[allow(clippy::ptr_arg)]
+fn serialize_dotenv<S, T>(value: &Vec<T>, serializer: S) -> Result<S::Ok, S::Error>
+where
+  S: Serializer,
+  T: Serialize,
+{
+  match value.as_slice() {
+    [] => serializer.serialize_none(),
+    [one] => one.serialize(serializer),
+    many => many.serialize(serializer),
+  }
+}
+
 #[derive(Debug, PartialEq, Serialize, Default)]
 pub(crate) struct Settings {
   pub(crate) allow_duplicate_recipes: bool,
   pub(crate) allow_duplicate_variables: bool,
   pub(crate) default_list: bool,
   pub(crate) default_script: bool,
-  pub(crate) dotenv_filename: Option<String>,
+  #[serde(serialize_with = "serialize_dotenv")]
+  pub(crate) dotenv_filename: Vec<String>,
   pub(crate) dotenv_load: bool,
   pub(crate) dotenv_override: bool,
-  pub(crate) dotenv_path: Option<PathBuf>,
+  #[serde(serialize_with = "serialize_dotenv")]
+  pub(crate) dotenv_path: Vec<PathBuf>,
   pub(crate) dotenv_required: bool,
   pub(crate) export: bool,
   pub(crate) fallback: bool,

@@ -497,3 +497,175 @@ fn error_message() {
     .stderr_regex(r"error: failed to load environment file from `.*\.env`: .*")
     .failure();
 }
+
+#[test]
+fn path_list_last_wins() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set dotenv-path := ['foo.env', 'bar.env']
+
+        @foo:
+          echo $KEY
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .write("foo.env", "KEY=foo")
+    .write("bar.env", "KEY=bar")
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
+fn filename_list_loads_all_in_directory() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set dotenv-filename := ['.env.foo', '.env.bar']
+
+        @foo:
+          echo $FOO $BAR $SHARED
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .write(".env.foo", "FOO=foo\nSHARED=from-foo")
+    .write(".env.bar", "BAR=bar\nSHARED=from-bar")
+    .stdout("foo bar from-bar\n")
+    .success();
+}
+
+#[test]
+fn filename_list_stops_at_first_directory() {
+  Test::new()
+    .write(
+      "sub/justfile",
+      "set lists\nset dotenv-filename := ['.env.foo', '.env.bar']\n@foo:\n\techo \"${FOO:-unset} ${BAR:-unset}\"",
+    )
+    .write("sub/.env.foo", "FOO=foo")
+    .write(".env.bar", "BAR=bar")
+    .env("JUST_UNSTABLE", "1")
+    .current_dir("sub")
+    .args(["foo"])
+    .stdout("foo unset\n")
+    .success();
+}
+
+#[test]
+fn path_list_falls_through_to_filename_search() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set dotenv-path := ['foo.env', 'bar.env']
+
+        @foo:
+          echo $KEY
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .write(".env", "KEY=foo")
+    .stdout("foo\n")
+    .success();
+}
+
+#[test]
+fn list_override() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set dotenv-override
+        set dotenv-path := ['foo.env', 'bar.env']
+
+        @foo:
+          echo $KEY
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .env("KEY", "environment")
+    .write("foo.env", "KEY=foo")
+    .write("bar.env", "KEY=bar")
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
+fn list_does_not_override_environment() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set dotenv-path := ['foo.env', 'bar.env']
+
+        @foo:
+          echo $KEY
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .env("KEY", "environment")
+    .write("foo.env", "KEY=foo")
+    .write("bar.env", "KEY=bar")
+    .stdout("environment\n")
+    .success();
+}
+
+#[test]
+fn required_satisfied_by_one_file() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set dotenv-required
+        set dotenv-path := ['missing.env', 'present.env']
+
+        @foo:
+          echo $KEY
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .write("present.env", "KEY=foo")
+    .stdout("foo\n")
+    .success();
+}
+
+#[test]
+fn empty_filename_list_is_unset() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set dotenv-filename := []
+
+        @foo:
+          echo ${KEY:-unset}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .write(".env", "KEY=foo")
+    .stdout("unset\n")
+    .success();
+}
+
+#[test]
+fn filename_list_requires_lists_setting() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-filename := ['foo', 'bar']
+
+        foo:
+      ",
+    )
+    .stderr(
+      "
+        error: list literals require `set lists`
+         ——▶ justfile:1:24
+          │
+        1 │ set dotenv-filename := ['foo', 'bar']
+          │                        ^
+      ",
+    )
+    .failure();
+}

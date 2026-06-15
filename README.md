@@ -1264,6 +1264,14 @@ Otherwise it is set to `value` joined with spaces.
 The `script-interpreter`, `shell`, and `windows-shell` settings flatten their
 elements like list literals.
 
+The `dotenv-filename` and `dotenv-path` settings accept lists, in which case
+multiple environment files may be loaded. The values of `dotenv-path` are
+tried, if none are found the current directory is searched for the names in
+`dotenv-filename`, followed by its ancestors, stopping in the first directory
+that contains any of them and loading all maching files in that directory. If
+multiple environment files are loaded, variables in files later in list take
+precedence over earlier ones.
+
 The following functions apply to each list element individually:
 
 - `absolute_path()`
