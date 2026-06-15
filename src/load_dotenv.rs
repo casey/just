@@ -46,17 +46,14 @@ pub(crate) fn load_dotenv(
   };
 
   for directory in working_directory.ancestors() {
-    let mut matched = Vec::new();
     for filename in filenames.elements() {
       if let Some(map) = load_from_file(&directory.join(filename), settings)? {
-        matched.push(map);
+        dotenv.extend(map);
+        found = true;
       }
     }
-    if !matched.is_empty() {
-      for map in matched {
-        dotenv.extend(map);
-      }
-      found = true;
+
+    if found {
       break;
     }
   }
