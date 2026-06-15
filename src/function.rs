@@ -6,7 +6,6 @@ use {
     ToUpperCamelCase,
   },
   semver::{Version, VersionReq},
-  std::collections::HashSet,
 };
 
 #[allow(clippy::arbitrary_source_item_ordering)]
@@ -321,8 +320,6 @@ fn encode_uri_component(_context: Context, s: &str) -> StringResult {
 }
 
 fn env(context: Context, keys: &Value, default: Option<&Value>) -> ValueResult {
-  use std::env::VarError::*;
-
   for key in keys.elements() {
     if let Some(value) = context.execution_context.dotenv.get(key) {
       return Ok(value.into());
@@ -330,34 +327,29 @@ fn env(context: Context, keys: &Value, default: Option<&Value>) -> ValueResult {
 
     match env::var(key) {
       Ok(value) => return Ok(value.into()),
-      Err(NotPresent) => {}
-      Err(NotUnicode(os_string)) => {
+      Err(VarError::NotPresent) => {}
+      Err(VarError::NotUnicode(value)) => {
         return Err(format!(
           "environment variable `{key}` not unicode: `{}`",
-          os_string.to_string_lossy(),
+          value.to_string_lossy(),
         ));
       }
     }
   }
 
   if let Some(default) = default {
-    Ok(default.clone())
-  } else {
-    match keys.elements() {
-      [] => Err("empty environment variable list and no default".into()),
-      [key] => Err(format!("environment variable `{key}` not present")),
-      keys => {
-        let names = keys
-          .iter()
-          .map(|key| format!("`{key}`"))
-          .collect::<Vec<String>>()
-          .join(", ");
-        Err(format!(
-          "none of the environment variables {names} are present"
-        ))
-      }
-    }
+    return Ok(default.clone());
   }
+
+  if keys.is_empty() {
+    return Err("empty environment variable list with no default".into());
+  }
+
+  Err(format!(
+    "{} {} not present",
+    Count::unnumbered("environment variable", keys.elements().len()),
+    List::and_ticked(keys.elements()),
+  ))
 }
 
 fn env_var(context: Context, keys: &Value) -> ValueResult {

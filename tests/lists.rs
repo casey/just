@@ -705,7 +705,7 @@ fn env_with_empty_key_list_and_no_default_is_an_error() {
     .env("JUST_UNSTABLE", "1")
     .stderr(
       "
-        error: call to function `env` failed: empty environment variable list and no default
+        error: call to function `env` failed: empty environment variable list with no default
          ——▶ justfile:4:10
           │
         4 │   echo {{env([])}}
@@ -730,7 +730,7 @@ fn env_missing_keys_error_names_all_keys() {
     .env("JUST_UNSTABLE", "1")
     .stderr(
       "
-        error: call to function `env` failed: none of the environment variables `ZADDY`, `XYZ` are present
+        error: call to function `env` failed: environment variables `ZADDY` and `XYZ` not present
          ——▶ justfile:4:10
           │
         4 │   echo {{env(['ZADDY', 'XYZ'])}}
