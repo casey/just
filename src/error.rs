@@ -701,13 +701,15 @@ impl ColorDisplay for Error<'_> {
         write!(f, "interrupted by {signal}")?;
       }
       ListInStringContext { context, value, .. } => {
-        write!(
-          f,
-          "list value {} {context}\n\
-          the ideal behavior of lists in many contexts is undecided\n\
-          see https://github.com/casey/just#lists",
-          value.color_display(color),
-        )?;
+        write!(f, "list value {} {context}", value.color_display(color))?;
+
+        if matches!(context, StringContext::Function { .. }) {
+          write!(
+            f,
+            "\nthe behavior of lists with of many built-in functions is undecided\n\
+            see https://github.com/casey/just#lists",
+          )?;
+        }
       }
       ListOperation {
         operator, lhs, rhs, ..

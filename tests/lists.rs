@@ -634,8 +634,6 @@ fn list_in_env_attribute_name_points_at_attribute_name() {
     .stderr(
       r#"
         error: list value ["FOO", "BAR"] used as `env` attribute name
-        the ideal behavior of lists in many contexts is undecided
-        see https://github.com/casey/just#lists
          ——▶ justfile:3:2
           │
         3 │ [env(['FOO', 'BAR'], 'baz')]
@@ -793,8 +791,6 @@ fn list_in_working_directory_attribute_points_at_attribute_name() {
     .stderr(
       r#"
         error: list value ["foo", "bar"] used as a `[working-directory]` attribute
-        the ideal behavior of lists in many contexts is undecided
-        see https://github.com/casey/just#lists
          ——▶ justfile:3:2
           │
         3 │ [working-directory(['foo', 'bar'])]
@@ -863,7 +859,7 @@ fn list_in_function_argument_points_at_function_name() {
     .stderr(
       r#"
         error: list value ["bar", "baz"] passed to `uppercase()`
-        the ideal behavior of lists in many contexts is undecided
+        the behavior of lists with many built-in functions is undecided
         see https://github.com/casey/just#lists
          ——▶ justfile:4:12
           │
@@ -890,8 +886,6 @@ fn list_in_setting_value_points_at_setting_name() {
     .stderr(
       r#"
         error: list value ["foo", "bar"] assigned to `tempdir` setting
-        the ideal behavior of lists in many contexts is undecided
-        see https://github.com/casey/just#lists
          ——▶ justfile:2:5
           │
         2 │ set tempdir := ['foo', 'bar']
