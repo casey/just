@@ -1306,10 +1306,9 @@ A `join_list(value, separator)` function is available for joining the elements
 of `value` into a single string. Elements are joined with `separator`, or with
 a single space if `separator` is omitted.
 
-A `split(string, separator)` function is available for splitting `string` into a
-list on each occurrence of `separator`. If `separator` is omitted, `string` is
-split on runs of whitespace, with leading and trailing whitespace ignored, so
-empty elements are not produced.
+A `split(string, separator)` function is available for splitting `string` into
+a list on each occurrence of `separator`. If `separator` is omitted, `string`
+is split on whitespace, with leading and trailing whitespace trimmed.
 
 The functions `is_dependency()`, `path_exists()`, and `semver_matches()` return
 the canonical booleans.
