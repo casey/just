@@ -17,6 +17,9 @@ test:
   cargo ltest --all
 
 [group: 'check']
+check: (watch 'lcheck --tests --all --all-targets')
+
+[group: 'check']
 ci: test clippy build-book forbid
   cargo fmt --all -- --check
   cargo update --locked --package just

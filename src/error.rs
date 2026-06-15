@@ -148,6 +148,11 @@ pub(crate) enum Error<'src> {
   Interrupted {
     signal: Signal,
   },
+  ListInStringContext {
+    context: StringContext<'src>,
+    token: Box<Token<'src>>,
+    value: Value,
+  },
   Load {
     path: PathBuf,
     io_error: io::Error,
@@ -316,6 +321,7 @@ impl<'src> Error<'src> {
       Self::Compile { compile_error } => Some(compile_error.context()),
       Self::Const { const_error } => Some(const_error.context()),
       Self::FunctionCall { function, .. } => Some(function.token),
+      Self::ListInStringContext { token, .. } => Some(**token),
       Self::MissingImportFile { path } => Some(*path),
       _ => None,
     }
@@ -670,6 +676,16 @@ impl ColorDisplay for Error<'_> {
       }
       Interrupted { signal } => {
         write!(f, "interrupted by {signal}")?;
+      }
+      ListInStringContext { context, value, .. } => {
+        write!(
+          f,
+          "list value {} {context}\n\
+          the ideal behavior of lists in many contexts is undecided\n\
+          see https://github.com/casey/just#lists\n\
+          note that the source location of this error may be inaccurate",
+          value.color_display(color),
+        )?;
       }
       ShellIo {
         recipe,

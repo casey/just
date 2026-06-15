@@ -966,6 +966,12 @@ impl<'run, 'src> Parser<'run, 'src> {
             "bool" => {
               self.restricted_function(RestrictedFunction::List(ListFeature::BoolFunction), name);
             }
+            "join_list" => {
+              self.restricted_function(
+                RestrictedFunction::List(ListFeature::JoinListFunction),
+                name,
+              );
+            }
             "show" => {
               self.restricted_function(RestrictedFunction::List(ListFeature::ShowFunction), name);
             }
@@ -1012,7 +1018,10 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     self.expect(BracketR)?;
 
-    Ok(Expression::List { elements })
+    Ok(Expression::List {
+      elements,
+      open: bracket,
+    })
   }
 
   /// Parse a string literal, e.g. `"FOO"`

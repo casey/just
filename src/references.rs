@@ -65,7 +65,7 @@ impl<'src> Iterator for References<'_, 'src> {
             self.stack.push(lhs);
           }
         }
-        Expression::List { elements } => {
+        Expression::List { elements, .. } => {
           for element in elements.iter().rev() {
             self.stack.push(element);
           }
