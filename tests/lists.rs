@@ -300,7 +300,7 @@ fn empty_list_for_plus_variadic_is_an_error() {
     )
     .env("JUST_UNSTABLE", "1")
     .arg("foo")
-    .stderr("error: recipe `bar` parameter `rest` requires at least one element but received an empty list\n")
+    .stderr("error: recipe `bar` parameter `rest` requires at least one element but received empty list\n")
     .failure();
 }
 
@@ -319,7 +319,7 @@ fn empty_list_for_required_parameter_is_an_error() {
     )
     .env("JUST_UNSTABLE", "1")
     .arg("foo")
-    .stderr("error: recipe `bar` parameter `first` requires at least one element but received an empty list\n")
+    .stderr("error: recipe `bar` parameter `first` requires at least one element but received empty list\n")
     .failure();
 }
 
@@ -589,7 +589,7 @@ fn empty_interpreter_setting_is_an_error() {
     .env("JUST_UNSTABLE", "1")
     .stderr(
       "
-        error: `shell` setting requires at least one element but evaluated to an empty list
+        error: `shell` setting requires at least one element but evaluated to empty list
          ——▶ justfile:2:5
           │
         2 │ set shell := [[]]
