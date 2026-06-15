@@ -91,7 +91,7 @@ fn append_does_not_split_single_strings_with_lists_setting() {
 }
 
 #[test]
-fn interpolating_a_list_is_an_error() {
+fn interpolations_space_join_lists() {
   Test::new()
     .justfile(
       "
@@ -103,19 +103,8 @@ fn interpolating_a_list_is_an_error() {
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar", "baz"])
-    .stderr(
-      r#"
-        error: list value ["bar", "baz"] used in interpolation
-        the ideal behavior of lists in many contexts is undecided
-        see https://github.com/casey/just#lists
-        note that the source location of this error may be inaccurate
-         ——▶ justfile:4:12
-          │
-        4 │   @echo {{ args }}
-          │            ^^^^
-      "#,
-    )
-    .failure();
+    .stdout("bar baz\n")
+    .success();
 }
 
 #[test]
@@ -437,4 +426,32 @@ fn evaluate_prints_lists() {
       "#,
     )
     .success();
+}
+
+#[test]
+fn string_in_list_context_error() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        foo *args:
+          @echo {{ args + 'foo'}}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "bar", "baz"])
+    .stderr(
+      r#"
+        error: list value ["bar", "baz"] used as `+` operand
+        the ideal behavior of lists in many contexts is undecided
+        see https://github.com/casey/just#lists
+        note that the source location of this error may be inaccurate
+         ——▶ justfile:4:12
+          │
+        4 │   @echo {{ args + 'foo'}}
+          │            ^^^^
+      "#,
+    )
+    .failure();
 }

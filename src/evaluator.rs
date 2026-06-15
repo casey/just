@@ -493,7 +493,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         let mut value = start.cooked.clone();
 
         for (expression, string) in expressions {
-          value.push_str(&self.evaluate_string(expression, StringContext::Interpolation)?);
+          value.push_str(&self.evaluate_value(expression)?.join());
           value.push_str(&string.cooked);
         }
 
@@ -644,7 +644,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           }
         }
         Fragment::Interpolation { expression } => {
-          evaluated += &self.evaluate_string(expression, StringContext::Interpolation)?;
+          evaluated += &self.evaluate_value(expression)?.join();
         }
       }
     }
