@@ -692,10 +692,15 @@ impl ColorDisplay for Error<'_> {
           f,
           "list value {} {context}\n\
           the ideal behavior of lists in many contexts is undecided\n\
-          see https://github.com/casey/just#lists\n\
-          note that the source location of this error may be inaccurate",
+          see https://github.com/casey/just#lists",
           value.color_display(color),
         )?;
+        if context.token().is_none() {
+          write!(
+            f,
+            "\nnote that the source location of this error may be inaccurate"
+          )?;
+        }
       }
       ShellIo {
         recipe,

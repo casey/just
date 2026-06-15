@@ -590,11 +590,38 @@ fn empty_interpreter_setting_is_an_error() {
     .stderr(
       "
         error: `shell` setting requires at least one element but evaluated to an empty list
-         ——▶ justfile:2:15
+         ——▶ justfile:2:5
           │
         2 │ set shell := [[]]
-          │               ^
+          │     ^^^^^
       ",
+    )
+    .failure();
+}
+
+#[test]
+fn list_in_setting_value_points_at_setting_name() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set tempdir := ['foo', 'bar']
+
+        foo:
+          @echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      r#"
+        error: list value ["foo", "bar"] assigned to `tempdir` setting
+        the ideal behavior of lists in many contexts is undecided
+        see https://github.com/casey/just#lists
+         ——▶ justfile:2:5
+          │
+        2 │ set tempdir := ['foo', 'bar']
+          │     ^^^^^^^
+      "#,
     )
     .failure();
 }
