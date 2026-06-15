@@ -497,7 +497,6 @@ fn concatenation_of_different_length_lists_is_an_error() {
     .stderr(
       r#"
         error: operator `+` cannot be applied to lists of different lengths: ["a", "b"] + ["c", "d", "e"]
-        see https://github.com/casey/just#lists
          ——▶ justfile:3:6
           │
         3 │ x := ['a', 'b'] + ['c', 'd', 'e']
