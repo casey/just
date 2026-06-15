@@ -568,7 +568,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           .elements()
           .iter()
           .map(|regex| Regex::new(regex))
-          .collect::<Result<Vec<Regex>, _>>()
+          .collect::<Result<Vec<Regex>, regex::Error>>()
           .map_err(|source| Error::RegexCompile { source })?;
 
         let matched = lhs
@@ -576,7 +576,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           .iter()
           .any(|element| regexes.iter().any(|regex| regex.is_match(element)));
 
-        matches!(operator, ConditionalOperator::RegexMatch) == matched
+        match operator {
+          ConditionalOperator::RegexMatch => matched,
+          ConditionalOperator::RegexMismatch => !matched,
+          _ => unreachable!(),
+        }
       }
     };
     Ok(condition)
