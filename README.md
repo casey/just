@@ -1328,6 +1328,9 @@ The `[arg]` `flag` attribute, makes the parameter a flag which does not take a
 value on the command line. For example, with `[arg(foo, long, flag)]`, `foo`
 will be `"true"` when `--foo` is passed, and `[]` otherwise.
 
+Message values in `assert(condition, message)` and `[confirm(message)]` are
+space-joined for display.
+
 ##### Examples
 
 Each list element is `quote()`'ed separately:

@@ -441,7 +441,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           Ok(if self.lists { value } else { Value::from("") })
         } else {
           Err(Error::Assert {
-            message: self.evaluate_string(error, StringContext::Assert)?,
+            message: self.evaluate_value(error)?.join(),
             name: *name,
           })
         }

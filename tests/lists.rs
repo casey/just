@@ -460,3 +460,46 @@ fn string_in_list_context_error() {
     )
     .failure();
 }
+
+#[test]
+fn assert_message_space_joins_lists() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        foo:
+          {{ assert('a' != 'a', ['foo', 'bar']) }}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      "
+        error: assert failed: foo bar
+         ——▶ justfile:4:6
+          │
+        4 │   {{ assert('a' != 'a', ['foo', 'bar']) }}
+          │      ^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn confirm_prompt_space_joins_lists() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [confirm(['foo', 'bar'])]
+        @foo:
+          echo FOO
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr("foo bar ")
+    .stdout("FOO\n")
+    .stdin("y")
+    .success();
+}
