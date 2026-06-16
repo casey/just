@@ -1259,62 +1259,6 @@ lists may only contain strings and not other lists. For example,
 Lists in recipe and `f`-string interpolations are joined with spaces into a
 single string.
 
-In `[env(variable, value)]` if `value` is `[]`, `variable` is not set.
-Otherwise it is set to `value` joined with spaces.
-
-The `env(keys, default)` function checks for the environment variables named in
-`keys` in order and returns the value of the first that is set. If none are set
-it returns `default`, or an error if `default` is omitted.
-
-The `script-interpreter`, `shell`, and `windows-shell` settings flatten their
-elements like list literals.
-
-The `--dotenv-filename` and `--dotenv-path` options may be passed multiple
-times, and the `dotenv-filename` and `dotenv-path` settings accept lists, in
-which case multiple environment files may be loaded. The values of
-`dotenv-path` are tried first. If none are found the current directory is
-searched for the names in `dotenv-filename`, followed by its ancestors,
-stopping in the first directory that contains any of them and loading all
-matching files in that directory. If multiple environment files are loaded,
-variables in files later in list take precedence over earlier ones.
-
-The following functions apply to each list element individually:
-
-- `absolute_path()`
-- `append()`
-- `prepend()`
-- `quote()`
-
-`append()` and `prepend()` do not split elements on whitespace and error if the
-first argument is not a single-element list.
-
-The canonical boolean true value is the string `"true"`, and the canonical
-boolean false value is the empty list `[]`. All values other than the empty
-list are truthy, including `''`.
-
-A `bool(value)` function is available for converting to the canonical boolean
-values. It returns `[]` when `value` is `""` `"0"` `"false"`, or `[]`, and
-`"true"` when `value` is `"1"` or `"true"`. All other values are an error. It
-can be used to parse booleans passed as arguments or environment variables.
-
-A `show(value)` function is available for converting `value` into a string
-containing its literal representation. Brackets are used for empty and
-multi-element lists, e.g., `"[]"` and `"["foo", "bar"]"`, but not
-single-element lists, e.g., `"foo"`.
-
-A `join_list(value, separator)` function is available for joining the elements
-of `value` into a single string. Elements are joined with `separator`, or with
-a single space if `separator` is omitted.
-
-A `split(string, separator)` function is available for splitting `string` into
-a list on each occurrence of `separator`. If `separator` is omitted, `string`
-is split on whitespace, with leading and trailing whitespace trimmed.
-
-The functions `is_dependency()`, `path_exists()`, and `semver_matches()` return
-the canonical booleans.
-
-`which()` returns the empty list when no executable is found.
-
 Each argument to a dependency binds to exactly one parameter, and supplying
 extra arguments to a variadic dependency is an error.
 
@@ -1325,17 +1269,26 @@ A parameter evaluates to the default when the argument is an empty list.
 
 Passing an empty list to a non-`*` parameter without a default is an error.
 
-When `positional-arguments` is set, list arguments are space-joined unless they
-are variadic, in which case they are passed as one positional argument per
-element.
+The `else` of an `if` may be omitted, in which case the `if` evaluates to `[]`
+when its condition is false.
+
+Message values in `assert(condition, message)` and `[confirm(message)]` are
+space-joined for display.
+
+The `+` and `/` operators combine strings and lists. A string and a non-empty
+list are combined by concatenating the string with each element of the list.
+Two lists of the same length are combined into a list containing the pairwise
+concatenated elements of both operands. Combining two lists of different
+lengths is an error.
+
+##### Booleans
+
+The canonical boolean true value is the string `"true"`, and the canonical
+boolean false value is the empty list `[]`. All values other than the empty
+list are truthy, including `''`.
 
 The condition of an `if` or `assert()` may be any expression, which is
 evaluated for truthiness.
-
-`assert(condition)` evalutes to `condition`.
-
-The `else` of an `if` may be omitted, in which case the `if` evaluates to `[]`
-when its condition is false.
 
 The comparison operators `==`, `!=`, `=~`, and `!~` may be used anywhere, not
 just in `if` and `assert()`, and evaluate to `"true"` or `[]`.
@@ -1349,18 +1302,62 @@ just in `if` and `assert()`, and evaluate to `"true"` or `[]`.
 Values may be negated with `!`. `!expression` evaluates to `"true"` if
 `expression` is `[]`, otherwise it evaluates to `[]`.
 
-The `+` and `/` operators combine strings and lists. A string and a non-empty
-list are combined by concatenating the string with each element of the list.
-Two lists of the same length are combined into a list containing the pairwise
-concatenated elements of both operands. Combining two lists of different
-lengths is an error.
+##### Settings
 
-The `[arg]` `flag` attribute, makes the parameter a flag which does not take a
+The `script-interpreter`, `shell`, and `windows-shell` settings flatten their
+elements like list literals.
+
+When `positional-arguments` is set, list arguments are space-joined unless they
+are variadic, in which case they are passed as one positional argument per
+element.
+
+The `--dotenv-filename` and `--dotenv-path` options may be passed multiple
+times, and the `dotenv-filename` and `dotenv-path` settings accept lists, in
+which case multiple environment files may be loaded. The values of
+`dotenv-path` are tried first. If none are found the current directory is
+searched for the names in `dotenv-filename`, followed by its ancestors,
+stopping in the first directory that contains any of them and loading all
+matching files in that directory. If multiple environment files are loaded,
+variables in files later in list take precedence over earlier ones.
+
+##### Attributes
+
+The `[arg]` `flag` attribute makes the parameter a flag which does not take a
 value on the command line. For example, with `[arg(foo, long, flag)]`, `foo`
 will be `"true"` when `--foo` is passed, and `[]` otherwise.
 
-Message values in `assert(condition, message)` and `[confirm(message)]` are
-space-joined for display.
+In `[env(variable, value)]` if `value` is `[]`, `variable` is not set.
+Otherwise it is set to `value` joined with spaces.
+
+##### Functions
+
+- `absolute_path()` - Applies to each list element individually.
+- `append()` - Applies to each list element individually and does not split
+  elements on whitespace.
+- `assert(condition)` - Evalutes to `condition`.
+- `bool(value)` Converts `value` to the canonical boolean values. Returns `[]`
+  when `value` is `""` `"0"` `"false"`, or `[]`, and `"true"` when `value` is
+  `"1"` or `"true"`. All other values are an error. Can be used to parse
+  booleans passed as arguments or environment variables.
+- `env(keys, default)` Checks for the environment variables named in `keys` in
+  order and returns the value of the first that is set. Returns `default` if
+  none are set or an error if `default` is omitted.
+- `is_dependency()` - Returns the canonical booleans.
+- `join_list(value, separator)` - Joins `value` into a single string. Elements
+  are joined with `separator`, or with a single space if `separator` is
+  omitted.
+- `path_exists()` - Returns the canonical booleans.
+- `prepend()` - Applies to each list element individually and does not split
+  elements on whitespace.
+- `quote()` - Applies to each list element individually.
+- `semver_matches()` - Returns the canonical booleans.
+- `show(value)` - Converts `value` into a string containing its literal
+  representation. Brackets are used for empty and multi-element lists, e.g.,
+  `"[]"` and `"["foo", "bar"]"`, but not single-element lists, e.g., `"foo"`.
+- `split(string, separator)` - Splits `string` into a list on each occurrence
+  of `separator`. If `separator` is omitted, `string` is split on whitespace,
+  with leading and trailing whitespace trimmed.
+- `which()` - Returns the empty list when no executable is found.
 
 ##### Examples
 
