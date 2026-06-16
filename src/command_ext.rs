@@ -49,7 +49,7 @@ impl CommandExt for Command {
     }
 
     for binding in scope.bindings() {
-      if binding.export || (settings.export && !binding.prelude) {
+      if (binding.export || (settings.export && !binding.prelude)) && !binding.value.is_empty() {
         self.env(binding.name.lexeme(), &*binding.value.join());
       }
     }
