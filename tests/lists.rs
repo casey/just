@@ -692,11 +692,11 @@ fn env_attribute_empty_list_leaves_variable_unset() {
 
         [env('FOO', [])]
         foo:
-          @echo "[${FOO-unset}]"
+          @echo "${FOO-unset}"
       "#,
     )
     .env("JUST_UNSTABLE", "1")
-    .stdout("[unset]\n")
+    .stdout("unset\n")
     .success();
 }
 
@@ -714,6 +714,77 @@ fn env_attribute_empty_string_sets_variable() {
     )
     .env("JUST_UNSTABLE", "1")
     .stdout("[]\n")
+    .success();
+}
+
+#[test]
+fn empty_list_export_leaves_variable_unset() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        export FOO := []
+
+        foo:
+          @echo "${FOO-unset}"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("unset\n")
+    .success();
+}
+
+#[test]
+fn non_empty_list_export_sets_variable() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        export FOO := ['bar', 'baz']
+
+        foo:
+          @echo "$FOO"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("bar baz\n")
+    .success();
+}
+
+#[test]
+fn empty_list_exported_parameter_leaves_variable_unset() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+
+        foo $bar=[]:
+          @echo "${bar-unset}"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("unset\n")
+    .success();
+}
+
+#[test]
+fn empty_list_set_export_leaves_variable_unset() {
+  Test::new()
+    .justfile(
+      r#"
+        set lists
+        set export
+
+        FOO := []
+
+        foo:
+          @echo "${FOO-unset}"
+      "#,
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("unset\n")
     .success();
 }
 
