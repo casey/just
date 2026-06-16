@@ -938,12 +938,15 @@ impl<'run, 'src> Parser<'run, 'src> {
       if let Some(name) = self.accept_keyword(Keyword::Assert)? {
         self.expect(ParenL)?;
         let condition = Box::new(self.parse_condition()?);
-        self.expect(Comma)?;
-        let error = Box::new(self.parse_expression()?);
+        let message = if self.accepted(Comma)? {
+          Some(Box::new(self.parse_expression()?))
+        } else {
+          None
+        };
         self.expect(ParenR)?;
         Ok(Expression::Assert {
           condition,
-          error,
+          message,
           name,
         })
       } else {

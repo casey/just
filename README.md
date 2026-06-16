@@ -1335,7 +1335,7 @@ Otherwise it is set to `value` joined with spaces.
 - `absolute_path()` - Applies to each list element individually.
 - `append()` - Applies to each list element individually and does not split
   elements on whitespace.
-- `assert(condition)` - Evalutes to `condition`.
+- `assert(condition, message)` - Evaluates to `condition`.
 - `bool(value)` Converts `value` to the canonical boolean values. Returns `[]`
   when `value` is `""` `"0"` `"false"`, or `[]`, and `"true"` when `value` is
   `"1"` or `"true"`. All other values are an error. Can be used to parse
@@ -2344,7 +2344,8 @@ which will halt execution.
 #### Assertions and Error Reporting
 
 - `assert(CONDITION, EXPRESSION)`<sup>1.27.0</sup> - Error with message
-  `EXPRESSION` if `CONDITION` is false.
+  `EXPRESSION` if `CONDITION` is false. `EXPRESSION` may be
+  omitted<sup>master</sup>,
 - `error(message)` - Abort execution and report error `message` to user.
 
 #### UUID and Hash Generation

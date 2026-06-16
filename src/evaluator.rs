@@ -452,7 +452,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       }
       Expression::Assert {
         condition,
-        error,
+        message,
         name,
       } => {
         let value = self.evaluate_value(condition)?;
@@ -460,7 +460,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           Ok(if self.lists { value } else { Value::from("") })
         } else {
           Err(Error::Assert {
-            message: self.evaluate_value(error)?.join(),
+            message: if let Some(message) = message {
+              self.evaluate_value(message)?.join()
+            } else {
+              format!("`{condition}`")
+            },
             name: *name,
           })
         }

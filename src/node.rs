@@ -121,10 +121,14 @@ impl<'src> Node<'src> for Expression<'src> {
     match self {
       Self::And { lhs, rhs } => Tree::atom("&&").push(lhs.tree()).push(rhs.tree()),
       Self::Assert {
-        condition, error, ..
-      } => Tree::atom(Keyword::Assert.lexeme())
-        .push(condition.tree())
-        .push(error.tree()),
+        condition, message, ..
+      } => {
+        let mut tree = Tree::atom(Keyword::Assert.lexeme()).push(condition.tree());
+        if let Some(message) = message {
+          tree = tree.push(message.tree());
+        }
+        tree
+      }
       Self::Backtick { contents, .. } => Tree::atom("backtick").push(Tree::string(contents)),
       Self::Call { name, arguments } => {
         let mut tree = Tree::atom("call");

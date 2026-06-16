@@ -12,9 +12,9 @@ pub(crate) enum Expression<'src> {
   And { lhs: Box<Self>, rhs: Box<Self> },
   /// `assert(condition, error)`
   Assert {
-    name: Name<'src>,
     condition: Box<Self>,
-    error: Box<Self>,
+    message: Option<Box<Self>>,
+    name: Name<'src>,
   },
   /// `contents`
   Backtick {
@@ -83,8 +83,14 @@ impl Display for Expression<'_> {
     match self {
       Self::And { lhs, rhs } => write!(f, "{lhs} && {rhs}"),
       Self::Assert {
-        condition, error, ..
-      } => write!(f, "assert({condition}, {error})"),
+        condition, message, ..
+      } => {
+        if let Some(error) = message {
+          write!(f, "assert({condition}, {error})")
+        } else {
+          write!(f, "assert({condition})")
+        }
+      }
       Self::Backtick { token, .. } => write!(f, "{}", token.lexeme()),
       Self::Call { name, arguments } => {
         write!(f, "{name}(")?;
@@ -161,12 +167,12 @@ impl Serialize for Expression<'_> {
         seq.end()
       }
       Self::Assert {
-        condition, error, ..
+        condition, message, ..
       } => {
         let mut seq: <S as Serializer>::SerializeSeq = serializer.serialize_seq(None)?;
         seq.serialize_element("assert")?;
         seq.serialize_element(condition)?;
-        seq.serialize_element(error)?;
+        seq.serialize_element(message)?;
         seq.end()
       }
       Self::Backtick { contents, .. } => {
