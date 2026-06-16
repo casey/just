@@ -463,7 +463,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             message: if let Some(message) = message {
               self.evaluate_value(message)?.join()
             } else {
-              format!("asertion `{condition}` failed")
+              format!("`{condition}`")
             },
             name: *name,
           })
