@@ -1051,7 +1051,7 @@ foo:
 | `fallback` | boolean | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found. |
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
 | `lazy`<sup>1.47.0</sup> | boolean | `false` | Don't evaluate unused variables. |
-| `lists`<sup>master</sup> | boolean | `false` | Values may be lists of strings instead of strings. Currently unstable. |
+| `lists`<sup>1.53.0</sup> | boolean | `false` | Values may be lists of strings instead of strings. Currently unstable. |
 | `no-cd`<sup>1.51.0</sup> | boolean | `false` | Don't change directory when executing recipes by recipe attribute. |
 | `no-exit-message`<sup>1.39.0</sup> | boolean | `false` | Don't print exit messages if recipes fail. |
 | `positional-arguments` | boolean | `false` | Pass positional arguments. |
@@ -1236,7 +1236,7 @@ evaluated.
 
 #### Lists
 
-The `lists` setting<sup>master</sup> allows values that are lists of strings.
+The `lists` setting<sup>1.53.0</sup> allows values that are lists of strings.
 It is currently unstable and will change in backwards incompatible ways. This
 section documents changes in behavior when `set lists` is enabled.
 
@@ -1738,7 +1738,7 @@ values<sup>1.37.0</sup>, similar to Python's `and` and `or`. The only false
 value is the empty list `[]`; every other value, including the empty string
 `''`, is true.
 
-These operators require `set lists`<sup>master</sup>, which is currently
+These operators require `set lists`<sup>1.53.0</sup>, which is currently
 unstable.
 
 The `&&` operator returns the empty list if the left-hand argument is false,
@@ -2127,7 +2127,7 @@ $ just
 
 - `which(name)`<sup>1.39.0</sup> — Search directories in the `PATH` environment
   variable for the executable `name` and return its full path, or the empty
-  list if not found. Requires `set lists`<sup>master</sup>.
+  list if not found. Requires `set lists`<sup>1.53.0</sup>.
 
 
   ```just
@@ -2151,7 +2151,7 @@ $ just
   run as a dependency of another recipe, rather than being run directly,
   otherwise returns the string `false`.
 
-- `recipe_name()`<sup>master</sup> - Returns the name of the current recipe.
+- `recipe_name()`<sup>1.53.0</sup> - Returns the name of the current recipe.
 
 #### Invocation Directory
 
@@ -2347,7 +2347,7 @@ which will halt execution.
 
 - `assert(CONDITION, EXPRESSION)`<sup>1.27.0</sup> - Error with message
   `EXPRESSION` if `CONDITION` is false. `EXPRESSION` may be
-  omitted<sup>master</sup>,
+  omitted<sup>1.53.0</sup>,
 - `error(message)` - Abort execution and report error `message` to user.
 
 #### UUID and Hash Generation
@@ -4503,7 +4503,7 @@ default:
 
 If the argument to `--justfile` ends in `.md`, `just` extracts the contents of
 unindented `just` fenced code blocks and writes them to a `justfile` in a
-temporary directory<sup>master</sup>:
+temporary directory<sup>1.53.0</sup>:
 
 ````markdown
 # Project
