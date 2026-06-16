@@ -38,11 +38,6 @@ pub(crate) enum Expression<'src> {
     operator: Token<'src>,
     rhs: Box<Self>,
   },
-  ListConcatenation {
-    lhs: Box<Self>,
-    operator: Token<'src>,
-    rhs: Box<Self>,
-  },
   /// `if condition { then } else { otherwise }`
   Conditional {
     condition: Box<Self>,
@@ -66,6 +61,11 @@ pub(crate) enum Expression<'src> {
   List {
     elements: Vec<Expression<'src>>,
     open: Token<'src>,
+  },
+  ListConcatenation {
+    lhs: Box<Self>,
+    operator: Token<'src>,
+    rhs: Box<Self>,
   },
   /// `!operand`
   Not { operand: Box<Self> },
