@@ -263,12 +263,6 @@ name <code>key</code>, returning <code>default</code> if it is not present.</li>
 <li><code>env_var(key)</code> — Deprecated alias for <code>env(key)</code>.</li>
 <li><code>env_var_or_default(key, default)</code> — Deprecated alias for <code>env(key, default)</code>.</li>
 </ul>
-<p>A default can be substituted for an empty environment variable value with the
-<code>||</code> operator, currently unstable:</p>
-<pre><code class="language-just">set unstable
-
-foo := env('FOO', '') || 'DEFAULT_VALUE'
-</code></pre>
 <h4 id="executables"><a class="header" href="#executables">Executables</a></h4>
 <ul>
 <li>
@@ -287,8 +281,9 @@ bash: '/bin/bash'
 <li>
 <p><code>which(name)</code><sup>1.39.0</sup> — Search directories in the <code>PATH</code> environment
 variable for the executable <code>name</code> and return its full path, or the empty
-string if no executable with <code>name</code> exists. Currently unstable.</p>
+list if not found. Requires <code>set lists</code><sup>1.53.0</sup>.</p>
 <pre><code class="language-just">set unstable
+set lists
 
 bosh := which("bosh")
 
@@ -302,9 +297,14 @@ bosh: ''
 </ul>
 <h4 id="invocation-information"><a class="header" href="#invocation-information">Invocation Information</a></h4>
 <ul>
-<li><code>is_dependency()</code> - Returns the string <code>true</code> if the current recipe is being
+<li>
+<p><code>is_dependency()</code> - Returns the string <code>true</code> if the current recipe is being
 run as a dependency of another recipe, rather than being run directly,
-otherwise returns the string <code>false</code>.</li>
+otherwise returns the string <code>false</code>.</p>
+</li>
+<li>
+<p><code>recipe_name()</code><sup>1.53.0</sup> - Returns the name of the current recipe.</p>
+</li>
 </ul>
 <h4 id="invocation-directory"><a class="header" href="#invocation-directory">Invocation Directory</a></h4>
 <ul>
@@ -400,8 +400,9 @@ The process ID is: 420
 </code></pre>
 <h4 id="string-manipulation"><a class="header" href="#string-manipulation">String Manipulation</a></h4>
 <ul>
-<li><code>append(suffix, s)</code><sup>1.27.0</sup> - Append <code>suffix</code> to whitespace-separated
-strings in <code>s</code>. <code>append('/src', 'foo bar baz')</code> → <code>'foo/src bar/src baz/src'</code></li>
+<li><code>append(suffix, s)</code><sup>1.27.0</sup> - Append <code>suffix</code> to
+whitespace-separated strings in <code>s</code>. <code>append('/src', 'foo bar baz')</code> →
+<code>'foo/src bar/src baz/src'</code></li>
 <li><code>prepend(prefix, s)</code><sup>1.27.0</sup> - Prepend <code>prefix</code> to
 whitespace-separated strings in <code>s</code>. <code>prepend('src/', 'foo bar baz')</code> →
 <code>'src/foo src/bar src/baz'</code></li>
@@ -486,7 +487,8 @@ string.</li>
 <h4 id="assertions-and-error-reporting"><a class="header" href="#assertions-and-error-reporting">Assertions and Error Reporting</a></h4>
 <ul>
 <li><code>assert(CONDITION, EXPRESSION)</code><sup>1.27.0</sup> - Error with message
-<code>EXPRESSION</code> if <code>CONDITION</code> is false.</li>
+<code>EXPRESSION</code> if <code>CONDITION</code> is false. <code>EXPRESSION</code> may be
+omitted<sup>1.53.0</sup>,</li>
 <li><code>error(message)</code> - Abort execution and report error <code>message</code> to user.</li>
 </ul>
 <h4 id="uuid-and-hash-generation"><a class="header" href="#uuid-and-hash-generation">UUID and Hash Generation</a></h4>

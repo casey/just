@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Formatting and dumping justfiles - Just Programmer&#x27;s Manual</title>
+        <title>Markdown justfiles - Just Programmer&#x27;s Manual</title>
 
 
         <!-- Custom HTML head -->
@@ -178,51 +178,33 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h3 id="formatting-and-dumping-justfiles"><a class="header" href="#formatting-and-dumping-justfiles">Formatting and dumping <code>justfile</code>s</a></h3>
-<p>Each <code>justfile</code> has a canonical formatting with respect to whitespace and
-newlines.</p>
-<p>You can overwrite the current justfile with a canonically-formatted version
-using the <code>--fmt</code> flag:</p>
-<pre><code class="language-console">$ cat justfile
-# A lot of blank lines
+                        <h3 id="markdown-justfiles"><a class="header" href="#markdown-justfiles">Markdown <code>justfile</code>s</a></h3>
+<p>If the argument to <code>--justfile</code> ends in <code>.md</code>, <code>just</code> extracts the contents of
+unindented <code>just</code> fenced code blocks and writes them to a <code>justfile</code> in a
+temporary directory<sup>1.53.0</sup>:</p>
+<pre><code class="language-markdown"># Project
 
+Build the project:
 
-
-
-
-some-recipe:
-  echo "foo"
-$ just --fmt
-$ cat justfile
-# A lot of blank lines
-
-some-recipe:
-    echo "foo"
+```just
+build:
+  echo Building…
+```
 </code></pre>
-<p>When the <code>justfile</code> is read from standard input with <code>--justfile -</code> or
-extracted from a markdown file, <code>--fmt</code> prints the formatted <code>justfile</code> to
-stdout.</p>
-<p>Note that formatting is not covered by any backwards compatibility guarantee
-and is subject to change from time to time.</p>
-<p>Invoking <code>just --fmt --check</code> runs <code>--fmt</code> in check mode. Instead of
-overwriting the <code>justfile</code>, <code>just</code> will exit with an exit code of 0 if it is
-formatted correctly, and will exit with 1 and print a diff if it is not.</p>
-<p>You can use the <code>--dump</code> command to output a formatted version of the
-<code>justfile</code> to stdout:</p>
-<pre><code class="language-console">$ just --dump &gt; formatted-justfile
+<pre><code class="language-console">$ just --justfile README.md build
+echo Building…
+Building…
 </code></pre>
-<p>The <code>--dump</code> command can be used with <code>--dump-format json</code> to print a JSON
-representation of a <code>justfile</code>.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="markdown-justfiles.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="just-scripts.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="fallback-to-parent-justfiles.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="formatting-and-dumping-justfiles.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -232,11 +214,11 @@ representation of a <code>justfile</code>.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="markdown-justfiles.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="just-scripts.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="fallback-to-parent-justfiles.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="formatting-and-dumping-justfiles.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

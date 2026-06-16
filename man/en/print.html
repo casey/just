@@ -981,9 +981,10 @@ foo:
 <tr><td><code>export</code></td><td>boolean</td><td><code>false</code></td><td>Export all variables as environment variables.</td></tr>
 <tr><td><code>fallback</code></td><td>boolean</td><td><code>false</code></td><td>Search <code>justfile</code> in parent directory if the first recipe on the command line is not found.</td></tr>
 <tr><td><code>ignore-comments</code></td><td>boolean</td><td><code>false</code></td><td>Ignore recipe lines beginning with <code>#</code>.</td></tr>
-<tr><td><code>no-exit-message</code><sup>1.39.0</sup></td><td>boolean</td><td><code>false</code></td><td>Don’t print exit messages if recipes fail.</td></tr>
 <tr><td><code>lazy</code><sup>1.47.0</sup></td><td>boolean</td><td><code>false</code></td><td>Don’t evaluate unused variables.</td></tr>
+<tr><td><code>lists</code><sup>1.53.0</sup></td><td>boolean</td><td><code>false</code></td><td>Values may be lists of strings instead of strings. Currently unstable.</td></tr>
 <tr><td><code>no-cd</code><sup>1.51.0</sup></td><td>boolean</td><td><code>false</code></td><td>Don’t change directory when executing recipes by recipe attribute.</td></tr>
+<tr><td><code>no-exit-message</code><sup>1.39.0</sup></td><td>boolean</td><td><code>false</code></td><td>Don’t print exit messages if recipes fail.</td></tr>
 <tr><td><code>positional-arguments</code></td><td>boolean</td><td><code>false</code></td><td>Pass positional arguments.</td></tr>
 <tr><td><code>quiet</code></td><td>boolean</td><td><code>false</code></td><td>Disable echoing recipe lines before executing.</td></tr>
 <tr><td><code>script-interpreter</code><sup>1.33.0</sup></td><td><code>[COMMAND, ARGS…]</code></td><td><code>['sh', '-eu']</code></td><td>Set command used to invoke recipes with empty <code>[script]</code> attribute.</td></tr>
@@ -1112,6 +1113,163 @@ bar:
 <p>Because <code>just</code> cannot determine when exported variables are used, assignments
 with <code>export</code> and assignments in a module with <code>set export</code> will always be
 evaluated.</p>
+<h4 id="lists"><a class="header" href="#lists">Lists</a></h4>
+<p>The <code>lists</code> setting<sup>1.53.0</sup> allows values that are lists of strings.
+It is currently unstable and will change in backwards incompatible ways. This
+section documents changes in behavior when <code>set lists</code> is enabled.</p>
+<p>It has not yet been decided how lists should behave with many of the built-in
+functions. Functions that have been updated to accept lists are mentioned in
+this section. Using lists with any other function is an error. The
+<code>join_list()</code> function can be used to convert lists into space-separated
+strings for use with un-upgraded functions. Feedback on how built-in functions
+should behave with lists, and on lists in general, is most welcome! Feel free
+to open an issue or leave a comment in the
+<a href="https://github.com/casey/just/issues/3377"><code>set lists</code> tracking issue</a>.</p>
+<p>Variadic recipe parameters are lists of strings instead of single
+space-separated strings.</p>
+<p>List literals are written <code>[a, b, c]</code>. List literals flatten their arguments,
+lists may only contain strings and not other lists. For example,
+<code>[["a", "b"], [], "c"]</code> evaluates to <code>["a", "b", "c"]</code>.</p>
+<p>Lists in recipe and <code>f</code>-string interpolations are joined with spaces into a
+single string.</p>
+<p>Each argument to a dependency binds to exactly one parameter, and supplying
+extra arguments to a variadic dependency is an error.</p>
+<p>Dependencies may be invoked once per element of a list with
+<code>*(recipe *argument)</code>.</p>
+<p>A parameter evaluates to the default when the argument is an empty list.</p>
+<p>Passing an empty list to a non-<code>*</code> parameter without a default is an error.</p>
+<p>The <code>else</code> of an <code>if</code> may be omitted, in which case the <code>if</code> evaluates to <code>[]</code>
+when its condition is false.</p>
+<p>Message values in <code>assert(condition, message)</code> and <code>[confirm(message)]</code> are
+space-joined for display.</p>
+<p>The <code>+</code> and <code>/</code> operators combine strings and lists. A string and a non-empty
+list are combined by concatenating the string with each element of the list.
+Two lists of the same length are combined into a list containing the pairwise
+concatenated elements of both operands. Combining two lists of different
+lengths is an error.</p>
+<p>The <code>++</code> operator performs list concatenation.</p>
+<h5 id="booleans"><a class="header" href="#booleans">Booleans</a></h5>
+<p>The canonical boolean true value is the string <code>"true"</code>, and the canonical
+boolean false value is the empty list <code>[]</code>. All values other than the empty
+list are truthy, including <code>''</code>.</p>
+<p>The condition of an <code>if</code> or <code>assert()</code> may be any expression, which is
+evaluated for truthiness.</p>
+<p>The comparison operators <code>==</code>, <code>!=</code>, <code>=~</code>, and <code>!~</code> may be used anywhere, not
+just in <code>if</code> and <code>assert()</code>, and evaluate to <code>"true"</code> or <code>[]</code>.</p>
+<p><code>value =~ regexes</code> is true if any element in <code>value</code> matches any regex in
+<code>regexes</code>. It is false if either <code>value</code> or <code>regexes</code> is empty.</p>
+<p><code>value !~ regexes</code> is true if no element in <code>value</code> matches any regex in
+<code>regexes</code>. It is true if either <code>value</code> or <code>regexes</code> is empty.</p>
+<p>Values may be negated with <code>!</code>. <code>!expression</code> evaluates to <code>"true"</code> if
+<code>expression</code> is <code>[]</code>, otherwise it evaluates to <code>[]</code>.</p>
+<h5 id="settings-1"><a class="header" href="#settings-1">Settings</a></h5>
+<p>The <code>script-interpreter</code>, <code>shell</code>, and <code>windows-shell</code> settings flatten their
+elements like list literals.</p>
+<p>When <code>positional-arguments</code> is set, list arguments are space-joined unless they
+are variadic, in which case they are passed as one positional argument per
+element.</p>
+<p>The <code>--dotenv-filename</code> and <code>--dotenv-path</code> options may be passed multiple
+times, and the <code>dotenv-filename</code> and <code>dotenv-path</code> settings accept lists, in
+which case multiple environment files may be loaded. The values of
+<code>dotenv-path</code> are tried first. If none are found the current directory is
+searched for the names in <code>dotenv-filename</code>, followed by its ancestors,
+stopping in the first directory that contains any of them and loading all
+matching files in that directory. If multiple environment files are loaded,
+variables in files later in list take precedence over earlier ones.</p>
+<h5 id="attributes"><a class="header" href="#attributes">Attributes</a></h5>
+<p>The <code>[arg]</code> <code>flag</code> attribute makes the parameter a flag which does not take a
+value on the command line. For example, with <code>[arg('foo', long, flag)]</code>, <code>foo</code>
+will be <code>"true"</code> when <code>--foo</code> is passed, and <code>[]</code> otherwise. Flag parameters may
+not have a default.</p>
+<p>In <code>[env(variable, value)]</code> if <code>value</code> is <code>[]</code>, <code>variable</code> is not set.
+Otherwise it is set to <code>value</code> joined with spaces.</p>
+<h5 id="functions"><a class="header" href="#functions">Functions</a></h5>
+<ul>
+<li><code>absolute_path()</code> - Applies to each list element individually.</li>
+<li><code>append()</code> - Applies to each list element individually and does not split
+elements on whitespace.</li>
+<li><code>assert(condition, message)</code> - Evaluates to <code>condition</code>.</li>
+<li><code>bool(value)</code> Converts <code>value</code> to the canonical boolean values. Returns <code>[]</code>
+when <code>value</code> is <code>""</code> <code>"0"</code> <code>"false"</code>, or <code>[]</code>, and <code>"true"</code> when <code>value</code> is
+<code>"1"</code> or <code>"true"</code>. All other values are an error. Can be used to parse
+booleans passed as arguments or environment variables.</li>
+<li><code>env(keys, default)</code> Checks for the environment variables named in <code>keys</code> in
+order and returns the value of the first that is set. Returns <code>default</code> if
+none are set or an error if <code>default</code> is omitted.</li>
+<li><code>is_dependency()</code> - Returns the canonical booleans.</li>
+<li><code>join_list(value, separator)</code> - Joins <code>value</code> into a single string. Elements
+are joined with <code>separator</code>, or with a single space if <code>separator</code> is
+omitted.</li>
+<li><code>path_exists()</code> - Returns the canonical booleans.</li>
+<li><code>prepend()</code> - Applies to each list element individually and does not split
+elements on whitespace.</li>
+<li><code>quote()</code> - Applies to each list element individually.</li>
+<li><code>semver_matches()</code> - Returns the canonical booleans.</li>
+<li><code>show(value)</code> - Converts <code>value</code> into a string containing its literal
+representation. Brackets are used for empty and multi-element lists, e.g.,
+<code>"[]"</code> and <code>"["foo", "bar"]"</code>, but not single-element lists, e.g., <code>"foo"</code>.</li>
+<li><code>split(string, separator)</code> - Splits <code>string</code> into a list on each occurrence
+of <code>separator</code>. If <code>separator</code> is omitted, <code>string</code> is split on whitespace,
+with leading and trailing whitespace trimmed.</li>
+<li><code>which()</code> - Returns the empty list when no executable is found.</li>
+</ul>
+<h5 id="examples-1"><a class="header" href="#examples-1">Examples</a></h5>
+<p>Each list element is <code>quote()</code>’ed separately:</p>
+<pre><code class="language-just">set unstable
+set lists
+
+@foo *args:
+  printf '%s\n' {{ quote(args) }}
+</code></pre>
+<pre><code class="language-console">$ just foo bar 'baz bob'
+bar
+baz bob
+</code></pre>
+<p>The return value of <code>quote(args)</code> is <code>'bar' 'baz bob'</code>, instead of
+<code>'bar baz bob'</code>, as would be the case without <code>set lists</code>.</p>
+<p>Variadic positional arguments:</p>
+<pre><code class="language-just">set unstable
+set lists
+set positional-arguments
+
+foo *args: (bar args 'bob') (baz args)
+
+@bar first second:
+  echo first=$1
+  echo second=$2
+
+@baz *args:
+  echo '$1='$1
+  echo '$2='$2
+</code></pre>
+<pre><code class="language-console">$ just foo one two
+first=one two
+second=bob
+$1=one
+$2=two
+</code></pre>
+<p>A mapped dependency is invoked once per element of its starred argument, with
+<code>[parallel]</code> to run them in parallel:</p>
+<pre><code class="language-just">set unstable
+set lists
+
+[parallel]
+build target *platform: *(compile target *platform)
+
+@compile target platform:
+  echo compiling {{ target }} for {{ platform }}…
+</code></pre>
+<pre><code class="language-console">$ just build x86 foo bar
+compiling foo for x86…
+compiling bar for x86…
+</code></pre>
+<p>The canonical false value <code>[]</code> is recommended as a default for options:</p>
+<pre><code class="language-just">set unstable
+set lists
+
+[arg('bar', long)]
+foo bar=[]:
+</code></pre>
 <h4 id="positional-arguments"><a class="header" href="#positional-arguments">Positional Arguments</a></h4>
 <p>If <code>positional-arguments</code> is <code>true</code>, recipe arguments will be passed as
 positional arguments to commands. For shell recipes, argument <code>$0</code> will be the
@@ -1311,18 +1469,20 @@ right-hand argument:</p>
 <pre><code class="language-just">foobar := 'foo' + 'bar'
 </code></pre>
 <h4 id="logical-operators"><a class="header" href="#logical-operators">Logical Operators</a></h4>
-<p>The logical operators <code>&amp;&amp;</code> and <code>||</code> can be used to coalesce string
-values<sup>1.37.0</sup>, similar to Python’s <code>and</code> and <code>or</code>. These operators
-consider the empty string <code>''</code> to be false, and all other strings to be true.</p>
-<p>These operators are currently unstable.</p>
-<p>The <code>&amp;&amp;</code> operator returns the empty string if the left-hand argument is the
-empty string, otherwise it returns the right-hand argument:</p>
-<pre><code class="language-justfile">foo := '' &amp;&amp; 'goodbye'      # ''
+<p>The logical operators <code>&amp;&amp;</code> and <code>||</code> can be used to coalesce
+values<sup>1.37.0</sup>, similar to Python’s <code>and</code> and <code>or</code>. The only false
+value is the empty list <code>[]</code>; every other value, including the empty string
+<code>''</code>, is true.</p>
+<p>These operators require <code>set lists</code><sup>1.53.0</sup>, which is currently
+unstable.</p>
+<p>The <code>&amp;&amp;</code> operator returns the empty list if the left-hand argument is false,
+otherwise it returns the right-hand argument:</p>
+<pre><code class="language-justfile">foo := [] &amp;&amp; 'goodbye'      # []
 bar := 'hello' &amp;&amp; 'goodbye' # 'goodbye'
 </code></pre>
-<p>The <code>||</code> operator returns the left-hand argument if it is non-empty, otherwise
-it returns the right-hand argument:</p>
-<pre><code class="language-justfile">foo := '' || 'goodbye'      # 'goodbye'
+<p>The <code>||</code> operator returns the left-hand argument if it is true, otherwise it
+returns the right-hand argument:</p>
+<pre><code class="language-justfile">foo := [] || 'goodbye'      # 'goodbye'
 bar := 'hello' || 'goodbye' # 'hello'
 </code></pre>
 <h4 id="joining-paths"><a class="header" href="#joining-paths">Joining Paths</a></h4>
@@ -1582,12 +1742,6 @@ name <code>key</code>, returning <code>default</code> if it is not present.</li>
 <li><code>env_var(key)</code> — Deprecated alias for <code>env(key)</code>.</li>
 <li><code>env_var_or_default(key, default)</code> — Deprecated alias for <code>env(key, default)</code>.</li>
 </ul>
-<p>A default can be substituted for an empty environment variable value with the
-<code>||</code> operator, currently unstable:</p>
-<pre><code class="language-just">set unstable
-
-foo := env('FOO', '') || 'DEFAULT_VALUE'
-</code></pre>
 <h4 id="executables"><a class="header" href="#executables">Executables</a></h4>
 <ul>
 <li>
@@ -1606,8 +1760,9 @@ bash: '/bin/bash'
 <li>
 <p><code>which(name)</code><sup>1.39.0</sup> — Search directories in the <code>PATH</code> environment
 variable for the executable <code>name</code> and return its full path, or the empty
-string if no executable with <code>name</code> exists. Currently unstable.</p>
+list if not found. Requires <code>set lists</code><sup>1.53.0</sup>.</p>
 <pre><code class="language-just">set unstable
+set lists
 
 bosh := which("bosh")
 
@@ -1621,9 +1776,14 @@ bosh: ''
 </ul>
 <h4 id="invocation-information"><a class="header" href="#invocation-information">Invocation Information</a></h4>
 <ul>
-<li><code>is_dependency()</code> - Returns the string <code>true</code> if the current recipe is being
+<li>
+<p><code>is_dependency()</code> - Returns the string <code>true</code> if the current recipe is being
 run as a dependency of another recipe, rather than being run directly,
-otherwise returns the string <code>false</code>.</li>
+otherwise returns the string <code>false</code>.</p>
+</li>
+<li>
+<p><code>recipe_name()</code><sup>1.53.0</sup> - Returns the name of the current recipe.</p>
+</li>
 </ul>
 <h4 id="invocation-directory"><a class="header" href="#invocation-directory">Invocation Directory</a></h4>
 <ul>
@@ -1719,8 +1879,9 @@ The process ID is: 420
 </code></pre>
 <h4 id="string-manipulation"><a class="header" href="#string-manipulation">String Manipulation</a></h4>
 <ul>
-<li><code>append(suffix, s)</code><sup>1.27.0</sup> - Append <code>suffix</code> to whitespace-separated
-strings in <code>s</code>. <code>append('/src', 'foo bar baz')</code> → <code>'foo/src bar/src baz/src'</code></li>
+<li><code>append(suffix, s)</code><sup>1.27.0</sup> - Append <code>suffix</code> to
+whitespace-separated strings in <code>s</code>. <code>append('/src', 'foo bar baz')</code> →
+<code>'foo/src bar/src baz/src'</code></li>
 <li><code>prepend(prefix, s)</code><sup>1.27.0</sup> - Prepend <code>prefix</code> to
 whitespace-separated strings in <code>s</code>. <code>prepend('src/', 'foo bar baz')</code> →
 <code>'src/foo src/bar src/baz'</code></li>
@@ -1805,7 +1966,8 @@ string.</li>
 <h4 id="assertions-and-error-reporting"><a class="header" href="#assertions-and-error-reporting">Assertions and Error Reporting</a></h4>
 <ul>
 <li><code>assert(CONDITION, EXPRESSION)</code><sup>1.27.0</sup> - Error with message
-<code>EXPRESSION</code> if <code>CONDITION</code> is false.</li>
+<code>EXPRESSION</code> if <code>CONDITION</code> is false. <code>EXPRESSION</code> may be
+omitted<sup>1.53.0</sup>,</li>
 <li><code>error(message)</code> - Abort execution and report error <code>message</code> to user.</li>
 </ul>
 <h4 id="uuid-and-hash-generation"><a class="header" href="#uuid-and-hash-generation">UUID and Hash Generation</a></h4>
@@ -1965,7 +2127,7 @@ by some shells.</p>
 <pre><code class="language-just">@foo:
   echo '{{BOLD + STRIKETHROUGH + CYAN + BG_BLUE}}Hi!{{NORMAL}}'
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h3 id="attributes"><a class="header" href="#attributes">Attributes</a></h3>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="attributes-1"><a class="header" href="#attributes-1">Attributes</a></h3>
 <p>Recipes, <code>mod</code> statements, and aliases may be annotated with attributes that
 change their behavior.</p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
@@ -3368,6 +3530,23 @@ pass the <code>-S</code> flag to <code>env</code>:</p>
 default:
   echo foo
 </code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="markdown-justfiles"><a class="header" href="#markdown-justfiles">Markdown <code>justfile</code>s</a></h3>
+<p>If the argument to <code>--justfile</code> ends in <code>.md</code>, <code>just</code> extracts the contents of
+unindented <code>just</code> fenced code blocks and writes them to a <code>justfile</code> in a
+temporary directory<sup>1.53.0</sup>:</p>
+<pre><code class="language-markdown"># Project
+
+Build the project:
+
+```just
+build:
+  echo Building…
+```
+</code></pre>
+<pre><code class="language-console">$ just --justfile README.md build
+echo Building…
+Building…
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="formatting-and-dumping-justfiles"><a class="header" href="#formatting-and-dumping-justfiles">Formatting and dumping <code>justfile</code>s</a></h3>
 <p>Each <code>justfile</code> has a canonical formatting with respect to whitespace and
 newlines.</p>
@@ -3389,8 +3568,9 @@ $ cat justfile
 some-recipe:
     echo "foo"
 </code></pre>
-<p>When the <code>justfile</code> is read from standard input with <code>--justfile -</code>, <code>--fmt</code>
-prints the formatted <code>justfile</code> to stdout.</p>
+<p>When the <code>justfile</code> is read from standard input with <code>--justfile -</code> or
+extracted from a markdown file, <code>--fmt</code> prints the formatted <code>justfile</code> to
+stdout.</p>
 <p>Note that formatting is not covered by any backwards compatibility guarantee
 and is subject to change from time to time.</p>
 <p>Invoking <code>just --fmt --check</code> runs <code>--fmt</code> in check mode. Instead of
