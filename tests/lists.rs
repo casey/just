@@ -554,6 +554,28 @@ fn concatenation_of_empty_lists_is_empty() {
 }
 
 #[test]
+fn list_concatenation_appends_lists() {
+  assert_list_eq("['foo', 'bar'] ++ ['baz']", r#"["foo", "bar", "baz"]"#);
+}
+
+#[test]
+fn list_concatenation_requires_lists_setting() {
+  Test::new()
+    .justfile("x := 'foo' ++ 'bar'")
+    .args(["--evaluate", "x"])
+    .stderr(
+      r"
+        error: list concatenation operator `++` requires `set lists`
+         ——▶ justfile:1:12
+          │
+        1 │ x := 'foo' ++ 'bar'
+          │            ^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn join_broadcasts_string_over_list() {
   assert_list_eq("'foo' / ['bar', 'baz']", r#"["foo/bar", "foo/baz"]"#);
   assert_list_eq("['bar', 'baz'] / 'foo'", r#"["bar/foo", "baz/foo"]"#);

@@ -142,6 +142,9 @@ impl<'src> Node<'src> for Expression<'src> {
         .push(lhs.tree())
         .push(rhs.tree()),
       Self::Concatenation { lhs, rhs, .. } => Tree::atom("+").push(lhs.tree()).push(rhs.tree()),
+      Self::ListConcatenation { lhs, rhs, .. } => {
+        Tree::atom("++").push(lhs.tree()).push(rhs.tree())
+      }
       Self::Conditional {
         condition,
         then,

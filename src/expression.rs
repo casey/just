@@ -62,6 +62,12 @@ pub(crate) enum Expression<'src> {
     elements: Vec<Expression<'src>>,
     open: Token<'src>,
   },
+  /// `lhs ++ rhs`
+  ListConcatenation {
+    lhs: Box<Self>,
+    operator: Token<'src>,
+    rhs: Box<Self>,
+  },
   /// `!operand`
   Not { operand: Box<Self> },
   /// `lhs || rhs`
@@ -104,6 +110,7 @@ impl Display for Expression<'_> {
       }
       Self::Comparison { lhs, operator, rhs } => write!(f, "{lhs} {operator} {rhs}"),
       Self::Concatenation { lhs, rhs, .. } => write!(f, "{lhs} + {rhs}"),
+      Self::ListConcatenation { lhs, rhs, .. } => write!(f, "{lhs} ++ {rhs}"),
       Self::Conditional {
         condition,
         then,
@@ -200,6 +207,13 @@ impl Serialize for Expression<'_> {
       Self::Concatenation { lhs, rhs, .. } => {
         let mut seq = serializer.serialize_seq(None)?;
         seq.serialize_element("concatenate")?;
+        seq.serialize_element(lhs)?;
+        seq.serialize_element(rhs)?;
+        seq.end()
+      }
+      Self::ListConcatenation { lhs, rhs, .. } => {
+        let mut seq = serializer.serialize_seq(None)?;
+        seq.serialize_element("list-concatenate")?;
         seq.serialize_element(lhs)?;
         seq.serialize_element(rhs)?;
         seq.end()

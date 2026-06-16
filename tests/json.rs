@@ -784,6 +784,45 @@ fn dotenv_filename_list() {
 }
 
 #[test]
+fn list_concatenation() {
+  let test = Test::new()
+    .justfile(
+      "
+        set lists
+
+        foo := ['bar'] ++ ['baz']
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["--dump", "--dump-format", "json"])
+    .stdout_regex(".*");
+
+  let mut expected = Module {
+    assignments: [(
+      "foo",
+      Assignment {
+        name: "foo",
+        value: json!(["list-concatenate", ["list", "bar"], ["list", "baz"]]),
+        ..default()
+      },
+    )]
+    .into(),
+    settings: Settings {
+      lists: true,
+      ..default()
+    },
+    ..default()
+  };
+
+  fix_source(test.tempdir.path(), &mut expected);
+
+  let stdout = test.success().stdout;
+  let actual = serde_json::from_str::<Module>(&stdout).unwrap();
+
+  pretty_assertions::assert_eq!(actual, expected);
+}
+
+#[test]
 fn shebang() {
   case(
     "

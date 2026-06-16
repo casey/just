@@ -4,6 +4,10 @@ use {super::*, std::borrow::Cow};
 /// Tree type, are only used in the Parser unit tests, providing a concise
 /// notation for representing the expected results of parsing a given string.
 macro_rules! tree {
+  { (++ $($child:tt)*) } => {
+    $crate::tree::Tree::atom("++")$(.push(tree!($child)))*
+  };
+
   { ($($child:tt)*) } => {
     $crate::tree::Tree::List(vec![$(tree!($child),)*])
   };
@@ -26,6 +30,10 @@ macro_rules! tree {
 
   { + } => {
     $crate::tree::Tree::atom("+")
+  };
+
+  { ++ } => {
+    $crate::tree::Tree::atom("++")
   };
 
   { * } => {

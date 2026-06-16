@@ -7,6 +7,7 @@ pub(crate) enum ListFeature {
   Flag,
   IfWithoutElse,
   JoinListFunction,
+  ListConcatenationOperator,
   ListLiteral,
   LogicalOperator,
   NegationOperator,
@@ -27,6 +28,7 @@ impl ListFeature {
       Self::ComparisonOperator
       | Self::Flag
       | Self::IfWithoutElse
+      | Self::ListConcatenationOperator
       | Self::ListLiteral
       | Self::LogicalOperator
       | Self::NegationOperator
@@ -43,6 +45,9 @@ impl Display for ListFeature {
       Self::Flag => write!(f, "`flag` arguments require `set lists`"),
       Self::IfWithoutElse => write!(f, "`if` without `else` requires `set lists`"),
       Self::JoinListFunction => write!(f, "the `join_list()` function requires `set lists`"),
+      Self::ListConcatenationOperator => {
+        write!(f, "list concatenation operator `++` requires `set lists`")
+      }
       Self::ListLiteral => write!(f, "list literals require `set lists`"),
       Self::LogicalOperator => write!(f, "logical operators require `set lists`"),
       Self::NegationOperator => write!(f, "negation operator requires `set lists`"),

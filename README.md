@@ -1281,6 +1281,8 @@ Two lists of the same length are combined into a list containing the pairwise
 concatenated elements of both operands. Combining two lists of different
 lengths is an error.
 
+The `++` operator performs list concatenation.
+
 ##### Booleans
 
 The canonical boolean true value is the string `"true"`, and the canonical
