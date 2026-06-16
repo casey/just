@@ -70,7 +70,7 @@ update-changelog:
 
 [group: 'release']
 update-contributors:
-  cargo lrun --release --package update-contributors
+  changeling update-contributors
 
 [group: 'check']
 action-versions:

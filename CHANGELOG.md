@@ -1,6 +1,77 @@
 Changelog
 =========
 
+[1.53.0](https://github.com/casey/just/releases/tag/1.53.0) - 2026-06-16
+------------------------------------------------------------------------
+
+### Added
+- Add `recipe_name()` function ([#3366](https://github.com/casey/just/pull/3366) by [casey](https://github.com/casey))
+- Support markdown justfiles ([#3361](https://github.com/casey/just/pull/3361) by [casey](https://github.com/casey))
+
+### Changed
+- Allow omitting `assert()` message ([#3423](https://github.com/casey/just/pull/3423) by [casey](https://github.com/casey))
+- Preserve bare `[arg]` long key when formatting ([#3397](https://github.com/casey/just/pull/3397) by [casey](https://github.com/casey))
+
+### Lists
+- Add list concatenation operator ([#3427](https://github.com/casey/just/pull/3427) by [casey](https://github.com/casey))
+- Do not export empty lists ([#3424](https://github.com/casey/just/pull/3424) by [casey](https://github.com/casey))
+- Add `split()` function ([#3420](https://github.com/casey/just/pull/3420) by [casey](https://github.com/casey))
+- Make `which()` require `set lists` ([#3418](https://github.com/casey/just/pull/3418) by [casey](https://github.com/casey))
+- Make `env()` functions work with lists ([#3416](https://github.com/casey/just/pull/3416) by [casey](https://github.com/casey))
+- Make `+` and `/` work with lists ([#3415](https://github.com/casey/just/pull/3415) by [casey](https://github.com/casey))
+- Allow lists as regex operands of `=~` and `!~` ([#3414](https://github.com/casey/just/pull/3414) by [casey](https://github.com/casey))
+- Allow multiple `--dotenv-filename` and `--dotenv-path` options ([#3413](https://github.com/casey/just/pull/3413) by [casey](https://github.com/casey))
+- Load multiple `.env` files ([#3412](https://github.com/casey/just/pull/3412) by [casey](https://github.com/casey))
+- Flatten interpreter settings ([#3410](https://github.com/casey/just/pull/3410) by [casey](https://github.com/casey))
+- Make `[env]` work with lists ([#3409](https://github.com/casey/just/pull/3409) by [casey](https://github.com/casey))
+- Join lists in `assert()` and `[confirm]` messages ([#3408](https://github.com/casey/just/pull/3408) by [casey](https://github.com/casey))
+- Join lists in interpolations ([#3407](https://github.com/casey/just/pull/3407) by [casey](https://github.com/casey))
+- Using lists in string contexts is an error ([#3406](https://github.com/casey/just/pull/3406) by [casey](https://github.com/casey))
+- `assert(condition)` evaluates to `condition` ([#3405](https://github.com/casey/just/pull/3405) by [casey](https://github.com/casey))
+- Make `assert()` evaluate to `"true"` when `set lists` is enabled ([#3404](https://github.com/casey/just/pull/3404) by [casey](https://github.com/casey))
+- Make `=~` and `!~` work with lists ([#3403](https://github.com/casey/just/pull/3403) by [casey](https://github.com/casey))
+- `if` without `else` evalutes to `[]` when false ([#3401](https://github.com/casey/just/pull/3401) by [casey](https://github.com/casey))
+- Check structural equality in `!=` and `==` ([#3402](https://github.com/casey/just/pull/3402) by [casey](https://github.com/casey))
+- Add `flag` `[arg]` attribute ([#3398](https://github.com/casey/just/pull/3398) by [casey](https://github.com/casey))
+- Make `show()` require `set lists` ([#3392](https://github.com/casey/just/pull/3392) by [casey](https://github.com/casey))
+- Add `bool()` function ([#3391](https://github.com/casey/just/pull/3391) by [casey](https://github.com/casey))
+- Add negation operator `!` ([#3389](https://github.com/casey/just/pull/3389) by [casey](https://github.com/casey))
+- Allow conditions to be used in arbitrary expressions ([#3387](https://github.com/casey/just/pull/3387) by [casey](https://github.com/casey))
+- Add `show()` function ([#3383](https://github.com/casey/just/pull/3383) by [casey](https://github.com/casey))
+- Print lists in `--evaluate` ([#3382](https://github.com/casey/just/pull/3382) by [casey](https://github.com/casey))
+- Reform booleans ([#3381](https://github.com/casey/just/pull/3381) by [casey](https://github.com/casey))
+- Add list literals ([#3380](https://github.com/casey/just/pull/3380) by [casey](https://github.com/casey))
+- Allow mapping dependencies over lists ([#3379](https://github.com/casey/just/pull/3379) by [casey](https://github.com/casey))
+- Forwards lists to dependencies ([#3378](https://github.com/casey/just/pull/3378) by [casey](https://github.com/casey))
+- Map `append()` and `prepend()` over lists ([#3375](https://github.com/casey/just/pull/3375) by [casey](https://github.com/casey))
+- Map `absolute_path()` over lists ([#3374](https://github.com/casey/just/pull/3374) by [casey](https://github.com/casey))
+- Add `set lists` ([#3372](https://github.com/casey/just/pull/3372) by [casey](https://github.com/casey))
+- Preserve variadic arguments as lists of strings ([#3362](https://github.com/casey/just/pull/3362) by [casey](https://github.com/casey))
+
+### Misc
+- Improve broken WSL bash workaround ([#3426](https://github.com/casey/just/pull/3426) by [casey](https://github.com/casey))
+- Fix `[arg]` attribute examples in readme ([#3422](https://github.com/casey/just/pull/3422) by [casey](https://github.com/casey))
+- Organize lists readme section ([#3421](https://github.com/casey/just/pull/3421) by [casey](https://github.com/casey))
+- Remove extra detail from most list in string context errors ([#3417](https://github.com/casey/just/pull/3417) by [casey](https://github.com/casey))
+- Add tokens to `[env]` and `[working-directory]` string context errors ([#3411](https://github.com/casey/just/pull/3411) by [casey](https://github.com/casey))
+- Reduce parser test churn ([#3400](https://github.com/casey/just/pull/3400) by [casey](https://github.com/casey))
+- Add example using `[parallel]` with mapped dependencies ([#3399](https://github.com/casey/just/pull/3399) by [casey](https://github.com/casey))
+- Use `StringResult` and `ValueResult` instead of `FunctionResult` ([#3396](https://github.com/casey/just/pull/3396) by [casey](https://github.com/casey))
+- Allow stable calls to user-defined functions that shadow unstable functions ([#3395](https://github.com/casey/just/pull/3395) by [casey](https://github.com/casey))
+- Replace rule 110 with rule 124 ([#3394](https://github.com/casey/just/pull/3394) by [casey](https://github.com/casey))
+- Consolidate list feature errors ([#3393](https://github.com/casey/just/pull/3393) by [casey](https://github.com/casey))
+- Simplify `Lexer::lex_choices()` ([#3390](https://github.com/casey/just/pull/3390) by [casey](https://github.com/casey))
+- Consolidate list feature tracking ([#3388](https://github.com/casey/just/pull/3388) by [casey](https://github.com/casey))
+- Refactor function context retrieval ([#3386](https://github.com/casey/just/pull/3386) by [casey](https://github.com/casey))
+- Remove `summary` module ([#3385](https://github.com/casey/just/pull/3385) by [casey](https://github.com/casey))
+- Use `show()` and `--evaluate` in tests ([#3384](https://github.com/casey/just/pull/3384) by [casey](https://github.com/casey))
+- Include number in counts ([#3376](https://github.com/casey/just/pull/3376) by [casey](https://github.com/casey))
+- Improve list tests ([#3373](https://github.com/casey/just/pull/3373) by [casey](https://github.com/casey))
+- Add `rule110` recipe to `demo` group ([#3368](https://github.com/casey/just/pull/3368) by [casey](https://github.com/casey))
+- Move doc comments above long recipe signatures in `--list` ([#3367](https://github.com/casey/just/pull/3367) by [casey](https://github.com/casey))
+- Propagate `is_dependency` to defined function evaluators ([#3365](https://github.com/casey/just/pull/3365) by [casey](https://github.com/casey))
+- Use `value` consistently in functions ([#3364](https://github.com/casey/just/pull/3364) by [casey](https://github.com/casey))
+
 [1.52.0](https://github.com/casey/just/releases/tag/1.52.0) - 2026-06-08
 ------------------------------------------------------------------------
 
