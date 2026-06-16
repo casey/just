@@ -21,12 +21,10 @@ impl<'src> Iterator for References<'_, 'src> {
           self.stack.push(rhs);
         }
         Expression::Assert {
-          condition,
-          message: error,
-          ..
+          condition, message, ..
         } => {
-          if let Some(error) = error {
-            self.stack.push(error);
+          if let Some(message) = message {
+            self.stack.push(message);
           }
           self.stack.push(condition);
         }
