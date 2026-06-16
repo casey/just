@@ -1323,8 +1323,9 @@ variables in files later in list take precedence over earlier ones.
 ##### Attributes
 
 The `[arg]` `flag` attribute makes the parameter a flag which does not take a
-value on the command line. For example, with `[arg(foo, long, flag)]`, `foo`
-will be `"true"` when `--foo` is passed, and `[]` otherwise.
+value on the command line. For example, with `[arg('foo', long, flag)]`, `foo`
+will be `"true"` when `--foo` is passed, and `[]` otherwise. Flag parameters may
+not have a default.
 
 In `[env(variable, value)]` if `value` is `[]`, `variable` is not set.
 Otherwise it is set to `value` joined with spaces.
@@ -1432,7 +1433,7 @@ The canonical false value `[]` is recommended as a default for options:
 set unstable
 set lists
 
-#[arg(bar, long)]
+[arg('bar', long)]
 foo bar=[]:
 ```
 
