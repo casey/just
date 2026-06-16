@@ -167,14 +167,12 @@ impl Serialize for Expression<'_> {
         seq.end()
       }
       Self::Assert {
-        condition,
-        message: error,
-        ..
+        condition, message, ..
       } => {
         let mut seq: <S as Serializer>::SerializeSeq = serializer.serialize_seq(None)?;
         seq.serialize_element("assert")?;
         seq.serialize_element(condition)?;
-        seq.serialize_element(error)?;
+        seq.serialize_element(message)?;
         seq.end()
       }
       Self::Backtick { contents, .. } => {
