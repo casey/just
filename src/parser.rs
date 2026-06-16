@@ -791,6 +791,11 @@ impl<'run, 'src> Parser<'run, 'src> {
         let lhs = Some(Box::new(value));
         let rhs = self.parse_conjunct()?.into();
         Ok(Expression::Join { lhs, operator, rhs })
+      } else if let Some(operator) = self.accept(PlusPlus)? {
+        self.list_feature(ListFeature::ListConcatenationOperator, operator);
+        let lhs = value.into();
+        let rhs = self.parse_conjunct()?.into();
+        Ok(Expression::ListConcatenation { lhs, operator, rhs })
       } else if let Some(operator) = self.accept(Plus)? {
         let lhs = value.into();
         let rhs = self.parse_conjunct()?.into();
@@ -2019,6 +2024,12 @@ mod tests {
     name: addition_single,
     text: "x := a + b",
     tree: (justfile (assignment x (+ a b))),
+  }
+
+  test! {
+    name: list_concatenation_single,
+    text: "x := a ++ b",
+    tree: (justfile (assignment x (++ a b))),
   }
 
   test! {

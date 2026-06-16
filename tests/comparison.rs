@@ -268,7 +268,7 @@ fn comparisons_are_not_associative() {
     )
     .stderr(
       r#"
-        error: expected '&&', '||', comment, end of file, end of line, '+', or '/', but found '=='
+        error: expected '&&', '||', comment, end of file, end of line, '+', '++', or '/', but found '=='
          ——▶ justfile:1:21
           │
         1 │ x := "foo" == "bar" == "baz"

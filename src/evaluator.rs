@@ -499,6 +499,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         let rhs = self.evaluate_value(rhs)?;
         lhs.apply(&rhs, ListOperator::Concatenate, *operator)
       }
+      Expression::ListConcatenation { lhs, rhs, .. } => {
+        let lhs = self.evaluate_value(lhs)?;
+        let rhs = self.evaluate_value(rhs)?;
+        let mut elements = lhs.into_elements();
+        elements.extend(rhs.into_elements());
+        Ok(elements.into())
+      }
       Expression::Conditional {
         condition,
         then,

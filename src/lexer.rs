@@ -478,7 +478,7 @@ impl<'src> Lexer<'src> {
       '(' => self.lex_delimiter(ParenL),
       ')' => self.lex_delimiter(ParenR),
       '*' => self.lex_single(Asterisk),
-      '+' => self.lex_single(Plus),
+      '+' => self.lex_choices('+', &[('+', PlusPlus)], Plus),
       ',' => self.lex_single(Comma),
       '/' => self.lex_single(Slash),
       ':' => self.lex_colon(),
@@ -1027,6 +1027,7 @@ mod tests {
       ParenL => "(",
       ParenR => ")",
       Plus => "+",
+      PlusPlus => "++",
       QuestionMark => "?",
       Slash => "/",
       Whitespace => " ",
@@ -1146,6 +1147,12 @@ mod tests {
     name:   ampersand_ampersand,
     text:   "&&",
     tokens: (AmpersandAmpersand),
+  }
+
+  test! {
+    name:   plus_plus,
+    text:   "++",
+    tokens: (PlusPlus),
   }
 
   test! {

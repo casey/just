@@ -38,7 +38,9 @@ impl<'src> Iterator for References<'_, 'src> {
             arguments: arguments.len(),
           });
         }
-        Expression::Comparison { lhs, rhs, .. } | Expression::Concatenation { lhs, rhs, .. } => {
+        Expression::Comparison { lhs, rhs, .. }
+        | Expression::Concatenation { lhs, rhs, .. }
+        | Expression::ListConcatenation { lhs, rhs, .. } => {
           self.stack.push(rhs);
           self.stack.push(lhs);
         }
