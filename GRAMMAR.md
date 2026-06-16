@@ -120,9 +120,9 @@ comparison    : conjunct '==' conjunct
 conjunct      : 'if' expression '{' expression '}' ('else' '{' expression '}')?
               | 'assert' '(' expression ',' expression ')'
               | '/' expression
-              | value '/' expression
-              | value '++' expression
               | value '+' expression
+              | value '++' expression
+              | value '/' expression
               | value
 
 value         : '!' value
