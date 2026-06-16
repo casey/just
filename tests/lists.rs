@@ -565,7 +565,7 @@ fn list_concatenation_requires_lists_setting() {
     .args(["--evaluate", "x"])
     .stderr(
       r"
-        error: operator `++` requires `set lists`
+        error: list concatenation operator `++` requires `set lists`
          ——▶ justfile:1:12
           │
         1 │ x := 'foo' ++ 'bar'
