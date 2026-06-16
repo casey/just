@@ -709,15 +709,11 @@ fn env_attribute_empty_string_sets_variable() {
 
         [env('FOO', [''])]
         foo:
-          @echo "${FOO-unset}"
+          @echo "[${FOO-unset}]"
       "#,
     )
     .env("JUST_UNSTABLE", "1")
-    .stdout(
-      "
-
-      ",
-    )
+    .stdout("[]\n")
     .success();
 }
 
