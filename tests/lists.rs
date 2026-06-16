@@ -692,11 +692,11 @@ fn env_attribute_empty_list_leaves_variable_unset() {
 
         [env('FOO', [])]
         foo:
-          @echo "[${FOO-unset}]"
+          @echo "${FOO-unset}"
       "#,
     )
     .env("JUST_UNSTABLE", "1")
-    .stdout("[unset]\n")
+    .stdout("unset\n")
     .success();
 }
 
@@ -709,11 +709,11 @@ fn env_attribute_empty_string_sets_variable() {
 
         [env('FOO', [''])]
         foo:
-          @echo "[${FOO-unset}]"
+          @echo "${FOO-unset}"
       "#,
     )
     .env("JUST_UNSTABLE", "1")
-    .stdout("[]\n")
+    .stdout("\n")
     .success();
 }
 
@@ -727,11 +727,11 @@ fn empty_list_export_leaves_variable_unset() {
         export FOO := []
 
         foo:
-          @echo "[${FOO-unset}]"
+          @echo "${FOO-unset}"
       "#,
     )
     .env("JUST_UNSTABLE", "1")
-    .stdout("[unset]\n")
+    .stdout("unset\n")
     .success();
 }
 
@@ -745,11 +745,11 @@ fn non_empty_list_export_sets_variable() {
         export FOO := ['bar', 'baz']
 
         foo:
-          @echo "[$FOO]"
+          @echo "$FOO"
       "#,
     )
     .env("JUST_UNSTABLE", "1")
-    .stdout("[bar baz]\n")
+    .stdout("bar baz\n")
     .success();
 }
 
@@ -761,11 +761,11 @@ fn empty_list_exported_parameter_leaves_variable_unset() {
         set lists
 
         foo $bar=[]:
-          @echo "[${bar-unset}]"
+          @echo "${bar-unset}"
       "#,
     )
     .env("JUST_UNSTABLE", "1")
-    .stdout("[unset]\n")
+    .stdout("unset\n")
     .success();
 }
 
@@ -780,11 +780,11 @@ fn empty_list_set_export_leaves_variable_unset() {
         FOO := []
 
         foo:
-          @echo "[${FOO-unset}]"
+          @echo "${FOO-unset}"
       "#,
     )
     .env("JUST_UNSTABLE", "1")
-    .stdout("[unset]\n")
+    .stdout("unset\n")
     .success();
 }
 
