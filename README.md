@@ -2343,7 +2343,8 @@ which will halt execution.
 #### Assertions and Error Reporting
 
 - `assert(CONDITION, EXPRESSION)`<sup>1.27.0</sup> - Error with message
-  `EXPRESSION` if `CONDITION` is false. `EXPRESSION` may be omitted<sup>master</sup>,
+  `EXPRESSION` if `CONDITION` is false. `EXPRESSION` may be
+  omitted<sup>master</sup>,
 - `error(message)` - Abort execution and report error `message` to user.
 
 #### UUID and Hash Generation
