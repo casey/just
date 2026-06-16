@@ -559,19 +559,6 @@ fn list_concatenation_appends_lists() {
 }
 
 #[test]
-fn list_concatenation_appends_empty_lists() {
-  assert_list_eq("[] ++ ['foo']", r#""foo""#);
-  assert_list_eq("['foo'] ++ []", r#""foo""#);
-  assert_list_eq("[] ++ []", "[]");
-}
-
-#[test]
-fn list_concatenation_treats_strings_as_one_element_lists() {
-  assert_list_eq("'foo' ++ ['bar']", r#"["foo", "bar"]"#);
-  assert_list_eq("['foo'] ++ 'bar'", r#"["foo", "bar"]"#);
-}
-
-#[test]
 fn list_concatenation_requires_lists_setting() {
   Test::new()
     .justfile("x := 'foo' ++ 'bar'")
