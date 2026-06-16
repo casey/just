@@ -1331,33 +1331,33 @@ Otherwise it is set to `value` joined with spaces.
 
 ##### Functions
 
-- `which()` - Returns the empty list when no executable is found.
-- `show(value)` - Converts `value` into a string containing its literal
-  representation. Brackets are used for empty and multi-element lists, e.g.,
-  `"[]"` and `"["foo", "bar"]"`, but not single-element lists, e.g., `"foo"`.
-- `join_list(value, separator)` - Joins `value` into a single string. Elements
-  are joined with `separator`, or with a single space if `separator` is
-  omitted.
-- `split(string, separator)` - Splits `string` into a list on each occurrence
-  of `separator`. If `separator` is omitted, `string` is split on whitespace,
-  with leading and trailing whitespace trimmed.
-- `is_dependency()` - Returns the canonical booleans.
-- `path_exists()` - Returns the canonical booleans.
-- `semver_matches()` - Returns the canonical booleans.
+- `absolute_path()` - Applies to each list element individually.
+- `append()` - Applies to each list element individually and does not split
+  elements on whitespace.
+- `assert(condition)` - Evalutes to `condition`.
 - `bool(value)` Converts `value` to the canonical boolean values. Returns `[]`
   when `value` is `""` `"0"` `"false"`, or `[]`, and `"true"` when `value` is
   `"1"` or `"true"`. All other values are an error. Can be used to parse
   booleans passed as arguments or environment variables.
-- `absolute_path()` - Applies to each list element individually.
-- `append()` - Applies to each list element individually and does not split
-  elements on whitespace.
-- `prepend()` - Applies to each list element individually and does not split
-  elements on whitespace.
-- `quote()` - Applies to each list element individually.
 - `env(keys, default)` Checks for the environment variables named in `keys` in
   order and returns the value of the first that is set. Returns `default` if
   none are set or an error if `default` is omitted.
-- `assert(condition)` - Evalutes to `condition`.
+- `is_dependency()` - Returns the canonical booleans.
+- `join_list(value, separator)` - Joins `value` into a single string. Elements
+  are joined with `separator`, or with a single space if `separator` is
+  omitted.
+- `path_exists()` - Returns the canonical booleans.
+- `prepend()` - Applies to each list element individually and does not split
+  elements on whitespace.
+- `quote()` - Applies to each list element individually.
+- `semver_matches()` - Returns the canonical booleans.
+- `show(value)` - Converts `value` into a string containing its literal
+  representation. Brackets are used for empty and multi-element lists, e.g.,
+  `"[]"` and `"["foo", "bar"]"`, but not single-element lists, e.g., `"foo"`.
+- `split(string, separator)` - Splits `string` into a list on each occurrence
+  of `separator`. If `separator` is omitted, `string` is split on whitespace,
+  with leading and trailing whitespace trimmed.
+- `which()` - Returns the empty list when no executable is found.
 
 ##### Examples
 
