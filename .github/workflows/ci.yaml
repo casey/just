@@ -89,20 +89,14 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
-    - name: Remove Broken WSL bash executable
-      if: ${{ matrix.os == 'windows-latest' }}
-      shell: cmd
-      run: |
-        takeown /F C:\Windows\System32\bash.exe
-        icacls C:\Windows\System32\bash.exe /grant administrators:F
-        del C:\Windows\System32\bash.exe
-
     - uses: Swatinem/rust-cache@v2
 
     - name: Test
+      shell: bash
       run: cargo test --all
 
     - name: Test install.sh
+      shell: bash
       run: |
         bash www/install.sh --to /tmp --tag 1.25.0
         /tmp/just --version
