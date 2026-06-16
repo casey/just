@@ -713,7 +713,11 @@ fn env_attribute_empty_string_sets_variable() {
       "#,
     )
     .env("JUST_UNSTABLE", "1")
-    .stdout("\n")
+    .stdout(
+      "
+
+      ",
+    )
     .success();
 }
 
