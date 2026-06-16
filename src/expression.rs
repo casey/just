@@ -62,6 +62,7 @@ pub(crate) enum Expression<'src> {
     elements: Vec<Expression<'src>>,
     open: Token<'src>,
   },
+  /// `lhs ++ rhs`
   ListConcatenation {
     lhs: Box<Self>,
     operator: Token<'src>,
