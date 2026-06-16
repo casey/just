@@ -1281,9 +1281,7 @@ Two lists of the same length are combined into a list containing the pairwise
 concatenated elements of both operands. Combining two lists of different
 lengths is an error.
 
-The `++` operator concatenates two values as lists. The elements of the left
-operand are followed by the elements of the right operand. Strings are treated
-as single-element lists, and empty lists are allowed.
+The `++` operator performs list concatenation.
 
 ##### Booleans
 
