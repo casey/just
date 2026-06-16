@@ -502,9 +502,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       Expression::ListConcatenation { lhs, rhs, .. } => {
         let lhs = self.evaluate_value(lhs)?;
         let rhs = self.evaluate_value(rhs)?;
-        let mut elements = lhs.into_elements();
-        elements.extend(rhs.into_elements());
-        Ok(elements.into())
+        Ok(
+          lhs
+            .into_elements()
+            .into_iter()
+            .chain(rhs.into_elements())
+            .collect(),
+        )
       }
       Expression::Conditional {
         condition,
