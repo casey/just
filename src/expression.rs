@@ -83,11 +83,9 @@ impl Display for Expression<'_> {
     match self {
       Self::And { lhs, rhs } => write!(f, "{lhs} && {rhs}"),
       Self::Assert {
-        condition,
-        message: error,
-        ..
+        condition, message, ..
       } => {
-        if let Some(error) = error {
+        if let Some(error) = message {
           write!(f, "assert({condition}, {error})")
         } else {
           write!(f, "assert({condition})")
