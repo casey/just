@@ -701,12 +701,24 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   /// Parse an expression, e.g. `1 + 2`
   fn parse_expression(&mut self) -> CompileResult<'src, Expression<'src>> {
-    self.parse_expression_with_condition(false)
+    self.parse_expr(0, false)
   }
 
-  fn parse_expression_with_condition(
+  /// Parse an expression using a Pratt parser driven by the binding powers
+  /// returned by `Parser::infix_operator`.
+  ///
+  /// `min_bp` is the minimum left binding power an infix operator must have to
+  /// be consumed at this level. Right-associativity is expressed by recursing
+  /// into the right-hand side with a lower binding power than the operator's
+  /// left binding power.
+  ///
+  /// `condition` is true when parsing the condition of an `if` or `assert`, in
+  /// which case the leftmost comparison operator is not recorded as a list
+  /// feature.
+  fn parse_expr(
     &mut self,
-    condition: bool,
+    min_bp: u8,
+    mut condition: bool,
   ) -> CompileResult<'src, Expression<'src>> {
     if self.recursion_depth == RECURSION_LIMIT {
       let token = self.next()?;
@@ -718,87 +730,113 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     self.recursion_depth += 1;
 
-    let disjunct = self.parse_disjunct(condition)?;
+    let mut lhs = self.parse_operand()?;
 
-    let expression = if let Some(token) = self.accept(BarBar)? {
-      self.list_feature(ListFeature::LogicalOperator, token);
-      let lhs = disjunct.into();
-      let rhs = self.parse_expression_with_condition(false)?.into();
-      Expression::Or { lhs, rhs }
-    } else {
-      disjunct
-    };
+    while let Some((kind, left_bp, right_bp)) = self.infix_operator() {
+      if left_bp < min_bp {
+        break;
+      }
+
+      let operator = self.advance()?;
+
+      match kind {
+        BarBar | AmpersandAmpersand => self.list_feature(ListFeature::LogicalOperator, operator),
+        Plus | Slash => {}
+        _ => {
+          if !condition {
+            self.list_feature(ListFeature::ComparisonOperator, operator);
+          }
+          condition = false;
+        }
+      }
+
+      let lhs_box = lhs.into();
+      let rhs = self.parse_expr(right_bp, false)?.into();
+
+      lhs = match kind {
+        BarBar => Expression::Or { lhs: lhs_box, rhs },
+        AmpersandAmpersand => Expression::And { lhs: lhs_box, rhs },
+        Plus => Expression::Concatenation {
+          lhs: lhs_box,
+          operator,
+          rhs,
+        },
+        Slash => Expression::Join {
+          lhs: Some(lhs_box),
+          operator,
+          rhs,
+        },
+        BangEquals => Expression::Comparison {
+          lhs: lhs_box,
+          operator: ConditionalOperator::Inequality,
+          rhs,
+        },
+        EqualsTilde => Expression::Comparison {
+          lhs: lhs_box,
+          operator: ConditionalOperator::RegexMatch,
+          rhs,
+        },
+        BangTilde => Expression::Comparison {
+          lhs: lhs_box,
+          operator: ConditionalOperator::RegexMismatch,
+          rhs,
+        },
+        EqualsEquals => Expression::Comparison {
+          lhs: lhs_box,
+          operator: ConditionalOperator::Equality,
+          rhs,
+        },
+        _ => unreachable!(),
+      };
+    }
 
     self.recursion_depth -= 1;
 
-    Ok(expression)
+    Ok(lhs)
   }
 
-  fn parse_disjunct(&mut self, condition: bool) -> CompileResult<'src, Expression<'src>> {
-    let conjunct = self.parse_comparison(condition)?;
-
-    let expression = if let Some(token) = self.accept(AmpersandAmpersand)? {
-      self.list_feature(ListFeature::LogicalOperator, token);
-      let lhs = conjunct.into();
-      let rhs = self.parse_disjunct(false)?.into();
-      Expression::And { lhs, rhs }
-    } else {
-      conjunct
-    };
-
-    Ok(expression)
-  }
-
-  fn parse_comparison(&mut self, condition: bool) -> CompileResult<'src, Expression<'src>> {
-    let lhs = self.parse_conjunct()?;
-
-    let (token, operator) = if let Some(token) = self.accept(BangEquals)? {
-      (token, ConditionalOperator::Inequality)
-    } else if let Some(token) = self.accept(EqualsTilde)? {
-      (token, ConditionalOperator::RegexMatch)
-    } else if let Some(token) = self.accept(BangTilde)? {
-      (token, ConditionalOperator::RegexMismatch)
-    } else if let Some(token) = self.accept(EqualsEquals)? {
-      (token, ConditionalOperator::Equality)
-    } else {
-      return Ok(lhs);
-    };
-
-    if !condition {
-      self.list_feature(ListFeature::ComparisonOperator, token);
-    }
-
-    let rhs = self.parse_conjunct()?;
-
-    Ok(Expression::Comparison {
-      lhs: lhs.into(),
-      operator,
-      rhs: rhs.into(),
-    })
-  }
-
-  fn parse_conjunct(&mut self) -> CompileResult<'src, Expression<'src>> {
+  /// Parse the operand of an expression: an `if` conditional, a leading `/`, or
+  /// a value
+  fn parse_operand(&mut self) -> CompileResult<'src, Expression<'src>> {
     if self.next_is_keyword(Keyword::If) {
       self.parse_conditional()
     } else if let Some(operator) = self.accept(Slash)? {
-      let lhs = None;
-      let rhs = self.parse_conjunct()?.into();
-      Ok(Expression::Join { lhs, operator, rhs })
+      // A leading `/` joins its right-hand side, parsed at the right binding
+      // power of `/`, to the empty string.
+      let rhs = self.parse_expr(7, false)?.into();
+      Ok(Expression::Join {
+        lhs: None,
+        operator,
+        rhs,
+      })
     } else {
-      let value = self.parse_value()?;
+      self.parse_value()
+    }
+  }
 
-      if let Some(operator) = self.accept(Slash)? {
-        let lhs = Some(Box::new(value));
-        let rhs = self.parse_conjunct()?.into();
-        Ok(Expression::Join { lhs, operator, rhs })
-      } else if let Some(operator) = self.accept(Plus)? {
-        let lhs = value.into();
-        let rhs = self.parse_conjunct()?.into();
-        Ok(Expression::Concatenation { lhs, operator, rhs })
-      } else {
-        Ok(value)
+  /// If the next significant token is an infix operator, return its kind and
+  /// its left and right binding powers.
+  ///
+  /// Each candidate operator is probed with `next_is`, which records it in the
+  /// expected token set, so that when none match the resultant error lists all
+  /// of them.
+  fn infix_operator(&mut self) -> Option<(TokenKind, u8, u8)> {
+    for (kind, left_bp, right_bp) in [
+      (BarBar, 2, 1),
+      (AmpersandAmpersand, 4, 3),
+      (BangEquals, 6, 5),
+      (EqualsTilde, 6, 5),
+      (BangTilde, 6, 5),
+      (EqualsEquals, 6, 5),
+      (Plus, 8, 7),
+      (Slash, 8, 7),
+    ] {
+      if self.next_is(kind) {
+        return Some((kind, left_bp, right_bp));
       }
     }
+
+    None
   }
 
   /// Parse a conditional, e.g. `if a == b { "foo" } else { "bar" }`
@@ -837,7 +875,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// Parse the condition of an `if` or `assert`
   fn parse_condition(&mut self) -> CompileResult<'src, Expression<'src>> {
     let token = self.next()?;
-    let condition = self.parse_expression_with_condition(true)?;
+    let condition = self.parse_expr(0, true)?;
     if !matches!(condition, Expression::Comparison { .. }) {
       self.list_feature(ListFeature::NonComparisonCondition, token);
     }
@@ -2972,6 +3010,24 @@ mod tests {
     name: comparison_binds_tighter_than_logical_operators,
     text: "a := b == c && d == e || f == g",
     tree: (justfile (assignment a (|| (&& (== b c) (== d e)) (== f g)))),
+  }
+
+  test! {
+    name: comparison_is_right_associative,
+    text: "a := b == c == d",
+    tree: (justfile (assignment a (== b (== c d)))),
+  }
+
+  test! {
+    name: conditional_then_concatenation,
+    text: "a := if b { c } else { d } + e",
+    tree: (justfile (assignment a (+ (if b c d) e))),
+  }
+
+  test! {
+    name: conditional_then_join,
+    text: "a := if b { c } else { d } / e",
+    tree: (justfile (assignment a (/ (if b c d) e))),
   }
 
   test! {

@@ -105,26 +105,28 @@ import        : 'import' '?'? string? eol
 
 module        : 'mod' '?'? NAME string? eol
 
-expression    : disjunct || expression
+expression    : disjunct '||' expression
               | disjunct
 
-disjunct      : comparison && disjunct
+disjunct      : comparison '&&' disjunct
               | comparison
 
-comparison    : conjunct '==' conjunct
-              | conjunct '!=' conjunct
-              | conjunct '=~' conjunct
-              | conjunct '!~' conjunct
+comparison    : conjunct '==' comparison
+              | conjunct '!=' comparison
+              | conjunct '=~' comparison
+              | conjunct '!~' comparison
               | conjunct
 
-conjunct      : 'if' expression '{' expression '}' ('else' '{' expression '}')?
-              | 'assert' '(' expression ',' expression ')'
-              | '/' expression
-              | value '/' expression
-              | value '+' expression
+conjunct      : operand '/' conjunct
+              | operand '+' conjunct
+              | operand
+
+operand       : 'if' expression '{' expression '}' ('else' '{' expression '}')?
+              | '/' conjunct
               | value
 
 value         : '!' value
+              | 'assert' '(' expression ',' expression ')'
               | NAME '(' sequence? ')'
               | BACKTICK
               | INDENTED_BACKTICK

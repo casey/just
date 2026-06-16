@@ -256,24 +256,19 @@ fn non_empty_value_is_truthy_condition() {
 }
 
 #[test]
-fn comparisons_are_not_associative() {
+fn comparisons_are_right_associative() {
   Test::new()
     .justfile(
       r#"
-        x := "foo" == "bar" == "baz"
+        set unstable
+        set lists
+
+        x := "true" == "a" == "a"
 
         foo:
-          @echo hi
+          @echo {{ x }}
       "#,
     )
-    .stderr(
-      r#"
-        error: expected '&&', '||', comment, end of file, end of line, '+', or '/', but found '=='
-         ——▶ justfile:1:21
-          │
-        1 │ x := "foo" == "bar" == "baz"
-          │                     ^^
-      "#,
-    )
-    .failure();
+    .stdout("true\n")
+    .success();
 }

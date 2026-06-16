@@ -254,7 +254,7 @@ fn incorrect_else_identifier() {
     )
     .stderr(
       "
-        error: expected '&&', '!=', '!~', '||', comment, end of file, end of line, '==', or '=~', but found identifier
+        error: expected '&&', '!=', '!~', '||', comment, end of file, end of line, '==', '=~', '+', or '/', but found identifier
          ——▶ justfile:1:55
           │
         1 │ TEST := if path_exists('/bin/bash') == 'true' {'yes'} els {'no'}
