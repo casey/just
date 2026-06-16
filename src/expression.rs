@@ -14,7 +14,7 @@ pub(crate) enum Expression<'src> {
   Assert {
     name: Name<'src>,
     condition: Box<Self>,
-    error: Box<Self>,
+    error: Option<Box<Self>>,
   },
   /// `contents`
   Backtick {
@@ -84,7 +84,13 @@ impl Display for Expression<'_> {
       Self::And { lhs, rhs } => write!(f, "{lhs} && {rhs}"),
       Self::Assert {
         condition, error, ..
-      } => write!(f, "assert({condition}, {error})"),
+      } => {
+        if let Some(error) = error {
+          write!(f, "assert({condition}, {error})")
+        } else {
+          write!(f, "assert({condition})")
+        }
+      }
       Self::Backtick { token, .. } => write!(f, "{}", token.lexeme()),
       Self::Call { name, arguments } => {
         write!(f, "{name}(")?;

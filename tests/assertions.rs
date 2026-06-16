@@ -39,6 +39,42 @@ fn assert_evaluates_to_condition_with_lists() {
 }
 
 #[test]
+fn assert_message_may_be_omitted() {
+  Test::new()
+    .justfile("x := assert('a' == 'a')")
+    .args(["--evaluate", "x"])
+    .stdout("")
+    .unindent_stdout(false)
+    .success();
+}
+
+#[test]
+fn assert_without_message_reports_condition() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          {{ assert('a' != 'a') }}
+      ",
+    )
+    .stderr(
+      "
+        error: assert failed: `'a' != 'a'` was false
+         ——▶ justfile:2:6
+          │
+        2 │   {{ assert('a' != 'a') }}
+          │      ^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn assert_without_message_evaluates_to_condition_with_lists() {
+  assert_list_eq("assert(['foo', 'bar'])", r#"["foo", "bar"]"#);
+}
+
+#[test]
 fn assert_empty_string_without_lists() {
   Test::new()
     .justfile("x := assert('a' == 'a', 'fail')")

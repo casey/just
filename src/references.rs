@@ -23,7 +23,9 @@ impl<'src> Iterator for References<'_, 'src> {
         Expression::Assert {
           condition, error, ..
         } => {
-          self.stack.push(error);
+          if let Some(error) = error {
+            self.stack.push(error);
+          }
           self.stack.push(condition);
         }
         Expression::Backtick { .. } | Expression::StringLiteral { .. } => {}
