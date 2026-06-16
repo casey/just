@@ -59,7 +59,7 @@ fn assert_without_message_reports_condition() {
     )
     .stderr(
       "
-        error: assert failed: `'a' != 'a'` was false
+        error: assert failed: `'a' != 'a'`
          ——▶ justfile:2:6
           │
         2 │   {{ assert('a' != 'a') }}
