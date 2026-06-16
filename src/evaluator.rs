@@ -442,14 +442,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
   pub(crate) fn evaluate_value(&mut self, expression: &Expression<'src>) -> RunResult<'src, Value> {
     match expression {
-      Expression::And { lhs, rhs } => {
-        let lhs = self.evaluate_value(lhs)?;
-        if lhs.is_truthy() {
-          self.evaluate_value(rhs)
-        } else {
-          Ok(Value::new())
-        }
-      }
       Expression::Assert {
         condition,
         error,
@@ -479,6 +471,43 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             output_error,
           })
       }
+      Expression::Binary {
+        operator,
+        operator_token,
+        lhs,
+        rhs,
+      } => match operator {
+        BinaryOperator::LogicalAnd => {
+          let lhs = self.evaluate_value(lhs)?;
+          if lhs.is_truthy() {
+            self.evaluate_value(rhs)
+          } else {
+            Ok(Value::new())
+          }
+        }
+        BinaryOperator::LogicalOr => {
+          let lhs = self.evaluate_value(lhs)?;
+          if lhs.is_truthy() {
+            Ok(lhs)
+          } else {
+            self.evaluate_value(rhs)
+          }
+        }
+        BinaryOperator::Equality
+        | BinaryOperator::Inequality
+        | BinaryOperator::RegexMatch
+        | BinaryOperator::RegexMismatch => Ok(self.evaluate_boolean(expression)?.into()),
+        BinaryOperator::Concatenation => {
+          let lhs = self.evaluate_value(lhs)?;
+          let rhs = self.evaluate_value(rhs)?;
+          lhs.apply(&rhs, ListOperator::Concatenate, *operator_token)
+        }
+        BinaryOperator::Join => {
+          let lhs = self.evaluate_value(lhs)?;
+          let rhs = self.evaluate_value(rhs)?;
+          lhs.apply(&rhs, ListOperator::Join, *operator_token)
+        }
+      },
       Expression::Call { name, arguments } => {
         let module = self.context(ConstError::FunctionCall(*name))?.module;
         if let Some(function) = module.functions.get(name.lexeme()) {
@@ -488,12 +517,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         } else {
           unreachable!();
         }
-      }
-      Expression::Comparison { .. } => Ok(self.evaluate_boolean(expression)?.into()),
-      Expression::Concatenation { lhs, operator, rhs } => {
-        let lhs = self.evaluate_value(lhs)?;
-        let rhs = self.evaluate_value(rhs)?;
-        lhs.apply(&rhs, ListOperator::Concatenate, *operator)
       }
       Expression::Conditional {
         condition,
@@ -523,23 +546,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
       }
       Expression::Group { contents } => self.evaluate_value(contents),
-      Expression::Join {
-        lhs: None,
-        operator,
-        rhs,
-      } => {
-        let rhs = self.evaluate_value(rhs)?;
-        Value::from("").apply(&rhs, ListOperator::Join, *operator)
-      }
-      Expression::Join {
-        lhs: Some(lhs),
-        operator,
-        rhs,
-      } => {
-        let lhs = self.evaluate_value(lhs)?;
-        let rhs = self.evaluate_value(rhs)?;
-        lhs.apply(&rhs, ListOperator::Join, *operator)
-      }
       Expression::List { elements, .. } => {
         let mut values = Vec::new();
         for element in elements {
@@ -547,16 +553,18 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
         Ok(values.into())
       }
-      Expression::Not { operand } => Ok((!self.evaluate_value(operand)?.is_truthy()).into()),
-      Expression::Or { lhs, rhs } => {
-        let lhs = self.evaluate_value(lhs)?;
-        if lhs.is_truthy() {
-          Ok(lhs)
-        } else {
-          self.evaluate_value(rhs)
-        }
-      }
       Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.deref().into()),
+      Expression::Unary {
+        operator,
+        operator_token,
+        operand,
+      } => match operator {
+        UnaryOperator::Not => Ok((!self.evaluate_value(operand)?.is_truthy()).into()),
+        UnaryOperator::Slash => {
+          let operand = self.evaluate_value(operand)?;
+          Value::from("").apply(&operand, ListOperator::Join, *operator_token)
+        }
+      },
       Expression::Variable { name, .. } => {
         let variable = name.lexeme();
         if let Some(value) = self.scope.value(variable) {
@@ -578,13 +586,23 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   fn evaluate_boolean(&mut self, condition: &Expression<'src>) -> RunResult<'src, bool> {
-    let Expression::Comparison { lhs, operator, rhs } = condition else {
+    let Expression::Binary {
+      operator:
+        operator @ (BinaryOperator::Equality
+        | BinaryOperator::Inequality
+        | BinaryOperator::RegexMatch
+        | BinaryOperator::RegexMismatch),
+      lhs,
+      rhs,
+      ..
+    } = condition
+    else {
       return Ok(self.evaluate_value(condition)?.is_truthy());
     };
     let condition = match operator {
-      ConditionalOperator::Equality => self.evaluate_value(lhs)? == self.evaluate_value(rhs)?,
-      ConditionalOperator::Inequality => self.evaluate_value(lhs)? != self.evaluate_value(rhs)?,
-      ConditionalOperator::RegexMatch | ConditionalOperator::RegexMismatch => {
+      BinaryOperator::Equality => self.evaluate_value(lhs)? == self.evaluate_value(rhs)?,
+      BinaryOperator::Inequality => self.evaluate_value(lhs)? != self.evaluate_value(rhs)?,
+      BinaryOperator::RegexMatch | BinaryOperator::RegexMismatch => {
         let lhs = self.evaluate_value(lhs)?;
         let rhs = self.evaluate_value(rhs)?;
 
@@ -601,11 +619,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           .any(|element| regexes.iter().any(|regex| regex.is_match(element)));
 
         match operator {
-          ConditionalOperator::RegexMatch => matched,
-          ConditionalOperator::RegexMismatch => !matched,
+          BinaryOperator::RegexMatch => matched,
+          BinaryOperator::RegexMismatch => !matched,
           _ => unreachable!(),
         }
       }
+      _ => unreachable!(),
     };
     Ok(condition)
   }

@@ -15,6 +15,7 @@ pub(crate) use {
     ast::Ast,
     attribute::{Attribute, AttributeDiscriminant},
     attribute_set::AttributeSet,
+    binary_operator::BinaryOperator,
     binding::Binding,
     color::Color,
     color_display::ColorDisplay,
@@ -25,7 +26,6 @@ pub(crate) use {
     compile_error_kind::CompileErrorKind,
     compiler::Compiler,
     completer::Completer,
-    conditional_operator::ConditionalOperator,
     config::Config,
     config_error::ConfigError,
     const_error::ConstError,
@@ -114,6 +114,7 @@ pub(crate) use {
     tangle::tangle,
     token::Token,
     token_kind::TokenKind,
+    unary_operator::UnaryOperator,
     unresolved_dependency::UnresolvedDependency,
     unresolved_recipe::UnresolvedRecipe,
     unstable_feature::UnstableFeature,
@@ -211,6 +212,7 @@ mod assignment_resolver;
 mod ast;
 mod attribute;
 mod attribute_set;
+mod binary_operator;
 mod binding;
 mod color;
 mod color_display;
@@ -221,7 +223,6 @@ mod compile_error;
 mod compile_error_kind;
 mod compiler;
 mod completer;
-mod conditional_operator;
 mod config;
 mod config_error;
 mod const_error;
@@ -313,6 +314,7 @@ mod table;
 mod tangle;
 mod token;
 mod token_kind;
+mod unary_operator;
 mod unindent;
 mod unresolved_dependency;
 mod unresolved_recipe;

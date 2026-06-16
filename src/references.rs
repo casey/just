@@ -16,10 +16,6 @@ impl<'src> Iterator for References<'_, 'src> {
   fn next(&mut self) -> Option<Self::Item> {
     loop {
       match self.stack.pop()? {
-        Expression::And { lhs, rhs } | Expression::Or { lhs, rhs } => {
-          self.stack.push(lhs);
-          self.stack.push(rhs);
-        }
         Expression::Assert {
           condition, error, ..
         } => {
@@ -27,6 +23,10 @@ impl<'src> Iterator for References<'_, 'src> {
           self.stack.push(condition);
         }
         Expression::Backtick { .. } | Expression::StringLiteral { .. } => {}
+        Expression::Binary { lhs, rhs, .. } => {
+          self.stack.push(rhs);
+          self.stack.push(lhs);
+        }
         Expression::Call { name, arguments } => {
           for arg in arguments.iter().rev() {
             self.stack.push(arg);
@@ -35,10 +35,6 @@ impl<'src> Iterator for References<'_, 'src> {
             name: *name,
             arguments: arguments.len(),
           });
-        }
-        Expression::Comparison { lhs, rhs, .. } | Expression::Concatenation { lhs, rhs, .. } => {
-          self.stack.push(rhs);
-          self.stack.push(lhs);
         }
         Expression::Conditional {
           condition,
@@ -59,18 +55,12 @@ impl<'src> Iterator for References<'_, 'src> {
         Expression::Group { contents } => {
           self.stack.push(contents);
         }
-        Expression::Join { lhs, rhs, .. } => {
-          self.stack.push(rhs);
-          if let Some(lhs) = lhs {
-            self.stack.push(lhs);
-          }
-        }
         Expression::List { elements, .. } => {
           for element in elements.iter().rev() {
             self.stack.push(element);
           }
         }
-        Expression::Not { operand } => {
+        Expression::Unary { operand, .. } => {
           self.stack.push(operand);
         }
         Expression::Variable { name, .. } => return Some(Reference::Variable(*name)),

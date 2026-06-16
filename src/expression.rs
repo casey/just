@@ -8,8 +8,6 @@ use super::*;
 /// The parser parses both values and expressions into `Expression`s.
 #[derive(PartialEq, Eq, Debug, Clone, Ord, PartialOrd)]
 pub(crate) enum Expression<'src> {
-  /// `lhs && rhs`
-  And { lhs: Box<Self>, rhs: Box<Self> },
   /// `assert(condition, error)`
   Assert {
     name: Name<'src>,
@@ -21,22 +19,17 @@ pub(crate) enum Expression<'src> {
     contents: String,
     token: Token<'src>,
   },
+  /// `lhs operator rhs`
+  Binary {
+    operator: BinaryOperator,
+    operator_token: Token<'src>,
+    lhs: Box<Self>,
+    rhs: Box<Self>,
+  },
   /// `name(arguments)`
   Call {
     name: Name<'src>,
     arguments: Vec<Expression<'src>>,
-  },
-  /// `lhs == rhs`
-  Comparison {
-    lhs: Box<Self>,
-    operator: ConditionalOperator,
-    rhs: Box<Self>,
-  },
-  /// `lhs + rhs`
-  Concatenation {
-    lhs: Box<Self>,
-    operator: Token<'src>,
-    rhs: Box<Self>,
   },
   /// `if condition { then } else { otherwise }`
   Conditional {
@@ -51,23 +44,19 @@ pub(crate) enum Expression<'src> {
   },
   /// `(contents)`
   Group { contents: Box<Self> },
-  /// `lhs / rhs`
-  Join {
-    lhs: Option<Box<Self>>,
-    operator: Token<'src>,
-    rhs: Box<Self>,
-  },
   /// `[a, b, c]`
   List {
     elements: Vec<Expression<'src>>,
     open: Token<'src>,
   },
-  /// `!operand`
-  Not { operand: Box<Self> },
-  /// `lhs || rhs`
-  Or { lhs: Box<Self>, rhs: Box<Self> },
   /// `"string_literal"` or `'string_literal'`
   StringLiteral { string_literal: StringLiteral<'src> },
+  /// `operator operand`
+  Unary {
+    operator: UnaryOperator,
+    operator_token: Token<'src>,
+    operand: Box<Self>,
+  },
   /// `variable`
   Variable { name: Name<'src> },
 }
@@ -81,11 +70,13 @@ impl<'src> Expression<'src> {
 impl Display for Expression<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     match self {
-      Self::And { lhs, rhs } => write!(f, "{lhs} && {rhs}"),
       Self::Assert {
         condition, error, ..
       } => write!(f, "assert({condition}, {error})"),
       Self::Backtick { token, .. } => write!(f, "{}", token.lexeme()),
+      Self::Binary {
+        operator, lhs, rhs, ..
+      } => write!(f, "{lhs} {operator} {rhs}"),
       Self::Call { name, arguments } => {
         write!(f, "{name}(")?;
         for (i, argument) in arguments.iter().enumerate() {
@@ -96,8 +87,6 @@ impl Display for Expression<'_> {
         }
         write!(f, ")")
       }
-      Self::Comparison { lhs, operator, rhs } => write!(f, "{lhs} {operator} {rhs}"),
-      Self::Concatenation { lhs, rhs, .. } => write!(f, "{lhs} + {rhs}"),
       Self::Conditional {
         condition,
         then,
@@ -123,12 +112,6 @@ impl Display for Expression<'_> {
         Ok(())
       }
       Self::Group { contents } => write!(f, "({contents})"),
-      Self::Join { lhs: None, rhs, .. } => write!(f, "/ {rhs}"),
-      Self::Join {
-        lhs: Some(lhs),
-        rhs,
-        ..
-      } => write!(f, "{lhs} / {rhs}"),
       Self::List { elements, .. } => {
         write!(f, "[")?;
         for (i, element) in elements.iter().enumerate() {
@@ -139,8 +122,16 @@ impl Display for Expression<'_> {
         }
         write!(f, "]")
       }
-      Self::Not { operand } => write!(f, "!{operand}"),
-      Self::Or { lhs, rhs } => write!(f, "{lhs} || {rhs}"),
+      Self::Unary {
+        operator: UnaryOperator::Not,
+        operand,
+        ..
+      } => write!(f, "!{operand}"),
+      Self::Unary {
+        operator: UnaryOperator::Slash,
+        operand,
+        ..
+      } => write!(f, "/ {operand}"),
       Self::StringLiteral { string_literal } => write!(f, "{string_literal}"),
       Self::Variable { name } => write!(f, "{name}"),
     }
@@ -153,13 +144,6 @@ impl Serialize for Expression<'_> {
     S: Serializer,
   {
     match self {
-      Self::And { lhs, rhs } => {
-        let mut seq = serializer.serialize_seq(None)?;
-        seq.serialize_element("and")?;
-        seq.serialize_element(lhs)?;
-        seq.serialize_element(rhs)?;
-        seq.end()
-      }
       Self::Assert {
         condition, error, ..
       } => {
@@ -175,6 +159,15 @@ impl Serialize for Expression<'_> {
         seq.serialize_element(contents)?;
         seq.end()
       }
+      Self::Binary {
+        operator, lhs, rhs, ..
+      } => {
+        let mut seq = serializer.serialize_seq(None)?;
+        seq.serialize_element(operator.serialization())?;
+        seq.serialize_element(lhs)?;
+        seq.serialize_element(rhs)?;
+        seq.end()
+      }
       Self::Call { name, arguments } => {
         let mut seq = serializer.serialize_seq(None)?;
         seq.serialize_element("call")?;
@@ -182,20 +175,6 @@ impl Serialize for Expression<'_> {
         for argument in arguments {
           seq.serialize_element(argument)?;
         }
-        seq.end()
-      }
-      Self::Comparison { lhs, operator, rhs } => {
-        let mut seq = serializer.serialize_seq(None)?;
-        seq.serialize_element(&operator.to_string())?;
-        seq.serialize_element(lhs)?;
-        seq.serialize_element(rhs)?;
-        seq.end()
-      }
-      Self::Concatenation { lhs, rhs, .. } => {
-        let mut seq = serializer.serialize_seq(None)?;
-        seq.serialize_element("concatenate")?;
-        seq.serialize_element(lhs)?;
-        seq.serialize_element(rhs)?;
         seq.end()
       }
       Self::Conditional {
@@ -221,13 +200,6 @@ impl Serialize for Expression<'_> {
         seq.end()
       }
       Self::Group { contents } => contents.serialize(serializer),
-      Self::Join { lhs, rhs, .. } => {
-        let mut seq = serializer.serialize_seq(None)?;
-        seq.serialize_element("join")?;
-        seq.serialize_element(lhs)?;
-        seq.serialize_element(rhs)?;
-        seq.end()
-      }
       Self::List { elements, .. } => {
         let mut seq = serializer.serialize_seq(None)?;
         seq.serialize_element("list")?;
@@ -236,17 +208,12 @@ impl Serialize for Expression<'_> {
         }
         seq.end()
       }
-      Self::Not { operand } => {
+      Self::Unary {
+        operator, operand, ..
+      } => {
         let mut seq = serializer.serialize_seq(None)?;
-        seq.serialize_element("not")?;
+        seq.serialize_element(operator.serialization())?;
         seq.serialize_element(operand)?;
-        seq.end()
-      }
-      Self::Or { lhs, rhs } => {
-        let mut seq = serializer.serialize_seq(None)?;
-        seq.serialize_element("or")?;
-        seq.serialize_element(lhs)?;
-        seq.serialize_element(rhs)?;
         seq.end()
       }
       Self::StringLiteral { string_literal } => string_literal.serialize(serializer),

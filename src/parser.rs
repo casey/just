@@ -732,61 +732,32 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let mut lhs = self.parse_operand()?;
 
-    while let Some((kind, left_bp, right_bp)) = self.infix_operator() {
+    while let Some((operator, left_bp, right_bp)) = self.infix_operator() {
       if left_bp < min_bp {
         break;
       }
 
-      let operator = self.advance()?;
+      let operator_token = self.advance()?;
 
-      match kind {
-        BarBar | AmpersandAmpersand => self.list_feature(ListFeature::LogicalOperator, operator),
-        Plus | Slash => {}
-        _ => {
+      if let Some(feature) = operator.list_feature() {
+        if feature == ListFeature::ComparisonOperator {
           if !condition {
-            self.list_feature(ListFeature::ComparisonOperator, operator);
+            self.list_feature(feature, operator_token);
           }
           condition = false;
+        } else {
+          self.list_feature(feature, operator_token);
         }
       }
 
       let lhs_box = lhs.into();
       let rhs = self.parse_expr(right_bp, false)?.into();
 
-      lhs = match kind {
-        BarBar => Expression::Or { lhs: lhs_box, rhs },
-        AmpersandAmpersand => Expression::And { lhs: lhs_box, rhs },
-        Plus => Expression::Concatenation {
-          lhs: lhs_box,
-          operator,
-          rhs,
-        },
-        Slash => Expression::Join {
-          lhs: Some(lhs_box),
-          operator,
-          rhs,
-        },
-        BangEquals => Expression::Comparison {
-          lhs: lhs_box,
-          operator: ConditionalOperator::Inequality,
-          rhs,
-        },
-        EqualsTilde => Expression::Comparison {
-          lhs: lhs_box,
-          operator: ConditionalOperator::RegexMatch,
-          rhs,
-        },
-        BangTilde => Expression::Comparison {
-          lhs: lhs_box,
-          operator: ConditionalOperator::RegexMismatch,
-          rhs,
-        },
-        EqualsEquals => Expression::Comparison {
-          lhs: lhs_box,
-          operator: ConditionalOperator::Equality,
-          rhs,
-        },
-        _ => unreachable!(),
+      lhs = Expression::Binary {
+        operator,
+        operator_token,
+        lhs: lhs_box,
+        rhs,
       };
     }
 
@@ -800,39 +771,39 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_operand(&mut self) -> CompileResult<'src, Expression<'src>> {
     if self.next_is_keyword(Keyword::If) {
       self.parse_conditional()
-    } else if let Some(operator) = self.accept(Slash)? {
+    } else if let Some(operator_token) = self.accept(Slash)? {
       // A leading `/` joins its right-hand side, parsed at the right binding
       // power of `/`, to the empty string.
-      let rhs = self.parse_expr(7, false)?.into();
-      Ok(Expression::Join {
-        lhs: None,
-        operator,
-        rhs,
+      let operand = self.parse_expr(7, false)?.into();
+      Ok(Expression::Unary {
+        operator: UnaryOperator::Slash,
+        operator_token,
+        operand,
       })
     } else {
       self.parse_value()
     }
   }
 
-  /// If the next significant token is an infix operator, return its kind and
-  /// its left and right binding powers.
+  /// If the next significant token is an infix operator, return its
+  /// `BinaryOperator` and its left and right binding powers.
   ///
   /// Each candidate operator is probed with `next_is`, which records it in the
   /// expected token set, so that when none match the resultant error lists all
   /// of them.
-  fn infix_operator(&mut self) -> Option<(TokenKind, u8, u8)> {
-    for (kind, left_bp, right_bp) in [
-      (BarBar, 2, 1),
-      (AmpersandAmpersand, 4, 3),
-      (BangEquals, 6, 5),
-      (EqualsTilde, 6, 5),
-      (BangTilde, 6, 5),
-      (EqualsEquals, 6, 5),
-      (Plus, 8, 7),
-      (Slash, 8, 7),
+  fn infix_operator(&mut self) -> Option<(BinaryOperator, u8, u8)> {
+    for (kind, operator, left_bp, right_bp) in [
+      (BarBar, BinaryOperator::LogicalOr, 2, 1),
+      (AmpersandAmpersand, BinaryOperator::LogicalAnd, 4, 3),
+      (BangEquals, BinaryOperator::Inequality, 6, 5),
+      (EqualsTilde, BinaryOperator::RegexMatch, 6, 5),
+      (BangTilde, BinaryOperator::RegexMismatch, 6, 5),
+      (EqualsEquals, BinaryOperator::Equality, 6, 5),
+      (Plus, BinaryOperator::Concatenation, 8, 7),
+      (Slash, BinaryOperator::Join, 8, 7),
     ] {
       if self.next_is(kind) {
-        return Some((kind, left_bp, right_bp));
+        return Some((operator, left_bp, right_bp));
       }
     }
 
@@ -876,7 +847,16 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_condition(&mut self) -> CompileResult<'src, Expression<'src>> {
     let token = self.next()?;
     let condition = self.parse_expr(0, true)?;
-    if !matches!(condition, Expression::Comparison { .. }) {
+    if !matches!(
+      condition,
+      Expression::Binary {
+        operator: BinaryOperator::Equality
+          | BinaryOperator::Inequality
+          | BinaryOperator::RegexMatch
+          | BinaryOperator::RegexMismatch,
+        ..
+      }
+    ) {
       self.list_feature(ListFeature::NonComparisonCondition, token);
     }
     Ok(condition)
@@ -945,9 +925,11 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   /// Parse a value, e.g. `(bar)`
   fn parse_value(&mut self) -> CompileResult<'src, Expression<'src>> {
-    if let Some(token) = self.accept(Bang)? {
-      self.list_feature(ListFeature::NegationOperator, token);
-      Ok(Expression::Not {
+    if let Some(operator_token) = self.accept(Bang)? {
+      self.list_feature(ListFeature::NegationOperator, operator_token);
+      Ok(Expression::Unary {
+        operator: UnaryOperator::Not,
+        operator_token,
         operand: self.parse_value()?.into(),
       })
     } else if self.next_is(StringToken) || self.next_is_shell_expanded_string() {
