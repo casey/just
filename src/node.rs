@@ -121,7 +121,9 @@ impl<'src> Node<'src> for Expression<'src> {
     match self {
       Self::And { lhs, rhs } => Tree::atom("&&").push(lhs.tree()).push(rhs.tree()),
       Self::Assert {
-        condition, error, ..
+        condition,
+        message: error,
+        ..
       } => {
         let mut tree = Tree::atom(Keyword::Assert.lexeme()).push(condition.tree());
         if let Some(error) = error {

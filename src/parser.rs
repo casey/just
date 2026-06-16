@@ -946,7 +946,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         self.expect(ParenR)?;
         Ok(Expression::Assert {
           condition,
-          error,
+          message: error,
           name,
         })
       } else {

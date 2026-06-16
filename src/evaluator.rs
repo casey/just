@@ -452,7 +452,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       }
       Expression::Assert {
         condition,
-        error,
+        message: error,
         name,
       } => {
         let value = self.evaluate_value(condition)?;
