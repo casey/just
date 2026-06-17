@@ -245,7 +245,3 @@ test-completions:
 [group: 'demo']
 rule124:
   just -f examples/rule124.just
-
-# Local Variables:
-# mode: makefile
-# End:
