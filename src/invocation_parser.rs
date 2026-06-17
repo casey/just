@@ -144,7 +144,6 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
         };
 
         let parameter = &recipe.parameters[index];
-
         let value = if parameter.flag || parameter.value.is_some() {
           if value.is_some() {
             return Err(Error::FlagWithValue {
@@ -241,6 +240,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
       if parameter.value.is_some() {
         continue;
       }
+
       for element in group.elements() {
         parameter.check_pattern_match(recipe, element)?;
       }
