@@ -693,7 +693,7 @@ fn value_may_be_an_expression() {
           echo {{ bar }}
       ",
     )
-    .args(["foo", "hello"])
+    .args(["foo", "hello", "--bar"])
     .stdout("hellobaz\n")
     .success();
 }
