@@ -1299,7 +1299,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           short: short
             .as_ref()
             .map(|short| short.cooked.chars().next().unwrap()),
-          value: value.as_ref().map(|value| value.cooked.clone()),
+          value: value.clone(),
         },
       );
     }
@@ -1456,13 +1456,10 @@ impl<'run, 'src> Parser<'run, 'src> {
       return Err(name.error(CompileErrorKind::VariadicParameterWithOption));
     }
 
-    if flag {
-      if default.is_some() {
-        return Err(name.error(CompileErrorKind::FlagWithDefault {
-          parameter: name.lexeme().into(),
-        }));
-      }
-      value = Some("true".into());
+    if flag && default.is_some() {
+      return Err(name.error(CompileErrorKind::FlagWithDefault {
+        parameter: name.lexeme().into(),
+      }));
     }
 
     Ok(Parameter {
@@ -1672,7 +1669,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
                 let value = self
                   .accepted(Equals)?
-                  .then(|| self.parse_string_literal())
+                  .then(|| self.parse_expression())
                   .transpose()?;
 
                 keyword_arguments.insert(key.lexeme(), (key, value));

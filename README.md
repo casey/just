@@ -2550,7 +2550,7 @@ change their behavior.
 | `[arg(ARG, long="LONG")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as `--LONG` option. |
 | `[arg(ARG, pattern="PATTERN")]`<sup>1.45.0</sup> | recipe | Require values of argument `ARG` to match regular expression `PATTERN`. |
 | `[arg(ARG, short="S")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as short `-S` option. |
-| `[arg(ARG, value="VALUE")]`<sup>1.46.0</sup> | recipe | Makes option `ARG` a flag which does not take a value. |
+| `[arg(ARG, value=VALUE)]`<sup>1.46.0</sup> | recipe | Makes option `ARG` a flag which does not take a value, using expression `VALUE` instead. |
 | `[confirm(PROMPT)]`<sup>1.23.0</sup> | recipe | Require confirmation prior to executing recipe with a custom prompt. |
 | `[confirm]`<sup>1.17.0</sup> | recipe | Require confirmation prior to executing recipe. |
 | `[default]`<sup>1.43.0</sup> | recipe | Use recipe as module's default recipe. |
@@ -3332,6 +3332,21 @@ bar=hello
 
 This is useful for unconditionally requiring a flag like `--force` on dangerous
 commands.
+
+`VALUE` may be any expression,<sup>1.54.0</sup> for example a global variable or
+a call to `env(…)`, and is evaluated when the recipe is invoked:
+
+```just
+DEFAULT_MODE := env("MODE", "fast")
+
+[arg("mode", long="mode", value=DEFAULT_MODE)]
+foo mode="slow":
+```
+
+```console
+$ just foo --mode
+mode=fast
+```
 
 A flag is optional if its parameter has a default:
 

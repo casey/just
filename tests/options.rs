@@ -682,6 +682,132 @@ fn value_requires_long_or_short() {
 }
 
 #[test]
+fn value_may_be_a_variable() {
+  Test::new()
+    .justfile(
+      "
+        BAZ := 'baz'
+
+        [arg('bar', long='bar', value=BAZ)]
+        @foo bar:
+          echo bar={{bar}}
+      ",
+    )
+    .args(["foo", "--bar"])
+    .stdout("bar=baz\n")
+    .success();
+}
+
+#[test]
+fn value_may_be_an_expression() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='bar', value='ba' + env('FOO', 'z'))]
+        @foo bar:
+          echo bar={{bar}}
+      ",
+    )
+    .args(["foo", "--bar"])
+    .stdout("bar=baz\n")
+    .success();
+}
+
+#[test]
+fn value_may_reference_preceding_parameter() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='bar', value=baz)]
+        @foo baz bar:
+          echo bar={{bar}}
+      ",
+    )
+    .args(["foo", "qux", "--bar"])
+    .stdout("bar=qux\n")
+    .success();
+}
+
+#[test]
+fn value_expression_evaluation_may_fail() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='bar', value=env('FOO'))]
+        @foo bar:
+          echo bar={{bar}}
+      ",
+    )
+    .args(["foo", "--bar"])
+    .stderr(
+      "
+        error: call to function `env` failed: environment variable `FOO` not present
+         ——▶ justfile:1:31
+          │
+        1 │ [arg('bar', long='bar', value=env('FOO'))]
+          │                               ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn value_with_undefined_variable_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='bar', value=BAZ)]
+        @foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: variable `BAZ` not defined
+         ——▶ justfile:1:31
+          │
+        1 │ [arg('bar', long='bar', value=BAZ)]
+          │                               ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn value_expression_is_pattern_checked() {
+  Test::new()
+    .justfile(
+      "
+        BAZ := 'baz'
+
+        [arg('bar', long='bar', value=BAZ, pattern='[0-9]+')]
+        @foo bar:
+      ",
+    )
+    .args(["foo", "--bar"])
+    .stderr(
+      "error: argument `baz` passed to recipe `foo` parameter `bar` does not match pattern '[0-9]+'\n",
+    )
+    .failure();
+}
+
+#[test]
+fn value_omitted_uses_default() {
+  Test::new()
+    .justfile(
+      "
+        BAZ := 'baz'
+
+        [arg('bar', long='bar', value=BAZ)]
+        @foo bar='qux':
+          echo bar={{bar}}
+      ",
+    )
+    .args(["foo"])
+    .stdout("bar=qux\n")
+    .success();
+}
+
+#[test]
 fn options_arg_passed_as_positional_arguments() {
   Test::new()
     .justfile(
@@ -809,10 +935,10 @@ fn flag_takes_no_value() {
     .stderr(
       "
         error: `flag` attribute for argument `bar` takes no value
-         ——▶ justfile:1:24
+         ——▶ justfile:1:19
           │
         1 │ [arg('bar', long, flag='baz')]
-          │                        ^^^^^
+          │                   ^^^^
       ",
     )
     .failure();

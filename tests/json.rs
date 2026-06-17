@@ -1334,7 +1334,6 @@ fn arg_flag() {
             kind: "singular",
             long: Some("bar"),
             name: "bar",
-            value: Some("true"),
             ..default()
           }]
           .into(),

@@ -1736,6 +1736,48 @@ fn arg_attribute_flag() {
 }
 
 #[test]
+fn arg_attribute_value_string() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='bar', value='baz')]
+        @foo bar:
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        [arg('bar', long='bar', value='baz')]
+        @foo bar:
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn arg_attribute_value_expression() {
+  Test::new()
+    .justfile(
+      "
+        BAZ := 'baz'
+
+        [arg('bar', long='bar', value=BAZ + env('FOO', 'foo'))]
+        @foo bar:
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        BAZ := 'baz'
+
+        [arg('bar', long='bar', value=BAZ + env('FOO', 'foo'))]
+        @foo bar:
+      ",
+    )
+    .success();
+}
+
+#[test]
 fn missing_import_file() {
   Test::new()
     .args(["--fmt", "--check"])

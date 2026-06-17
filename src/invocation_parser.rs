@@ -143,7 +143,9 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
           });
         };
 
-        let value = if let Some(flag_value) = &recipe.parameters[index].value {
+        let parameter = &recipe.parameters[index];
+
+        let value = if parameter.flag || parameter.value.is_some() {
           if value.is_some() {
             return Err(Error::FlagWithValue {
               recipe: recipe.name(),
@@ -151,7 +153,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
             });
           }
           i += 1;
-          flag_value
+          "true"
         } else if let Some(value) = value {
           i += 1;
           value
@@ -236,6 +238,9 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
     }
 
     for (group, parameter) in arguments.iter().zip(&recipe.parameters) {
+      if parameter.value.is_some() {
+        continue;
+      }
       for element in group.elements() {
         parameter.check_pattern_match(recipe, element)?;
       }

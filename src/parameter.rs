@@ -13,7 +13,7 @@ pub(crate) struct Parameter<'src> {
   pub(crate) number: Number,
   pub(crate) pattern: Option<Pattern<'src>>,
   pub(crate) short: Option<char>,
-  pub(crate) value: Option<String>,
+  pub(crate) value: Option<Expression<'src>>,
 }
 
 impl<'src> Parameter<'src> {
