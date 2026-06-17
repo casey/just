@@ -3314,6 +3314,7 @@ Variadic `*` and `+` parameters cannot be options.
 
 The `[arg(ARG, value=VALUE, …)]`<sup>1.46.0</sup> attribute can be used with
 `long` or `short` to make a parameter a flag which does not take a value.
+`VALUE` may be an expression<sup>master</sup>.
 
 In this `justfile`:
 
@@ -3332,28 +3333,6 @@ bar=hello
 
 This is useful for unconditionally requiring a flag like `--force` on dangerous
 commands.
-
-`VALUE` may be any expression,<sup>1.54.0</sup> for example a global variable or
-a call to `env(…)`, and is evaluated when the recipe is invoked:
-
-```just
-DEFAULT_MODE := env("MODE", "fast")
-
-[arg("mode", long="mode", value=DEFAULT_MODE)]
-foo mode="slow":
-```
-
-```console
-$ just foo --mode
-mode=fast
-```
-
-A flag is optional if its parameter has a default:
-
-```just
-[arg("bar", long="bar", value="hello")]
-foo bar="goodbye":
-```
 
 Causing it to receive the default when not passed in the invocation:
 
