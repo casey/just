@@ -1736,26 +1736,7 @@ fn arg_attribute_flag() {
 }
 
 #[test]
-fn arg_attribute_value_string() {
-  Test::new()
-    .justfile(
-      "
-        [arg('bar', long='bar', value='baz')]
-        @foo bar:
-      ",
-    )
-    .arg("--dump")
-    .stdout(
-      "
-        [arg('bar', long='bar', value='baz')]
-        @foo bar:
-      ",
-    )
-    .success();
-}
-
-#[test]
-fn arg_attribute_value_expression() {
+fn arg_attribute_value() {
   Test::new()
     .justfile(
       "
