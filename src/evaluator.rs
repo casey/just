@@ -739,6 +739,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             recipe: recipe.name(),
           });
         }
+      } else if let Some(ref value) = parameter.value {
+        evaluator.evaluate_value(value)?
       } else {
         argument.clone()
       };
