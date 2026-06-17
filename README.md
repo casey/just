@@ -1253,7 +1253,7 @@ Variadic recipe parameters are lists of strings instead of single
 space-separated strings.
 
 List literals are written `[a, b, c]`. List literals flatten their arguments,
-lists may only contain strings and not other lists. For example,
+since lists may only contain strings and not other lists. For example,
 `[["a", "b"], [], "c"]` evaluates to `["a", "b", "c"]`.
 
 Lists in recipe and `f`-string interpolations are joined with spaces into a
@@ -1265,7 +1265,7 @@ extra arguments to a variadic dependency is an error.
 Dependencies may be invoked once per element of a list with
 `*(recipe *argument)`.
 
-A parameter evaluates to the default when the argument is an empty list.
+A parameter evaluates to the default when the argument is the empty list.
 
 Passing an empty list to a non-`*` parameter without a default is an error.
 
