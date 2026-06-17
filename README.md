@@ -3334,6 +3334,13 @@ bar=hello
 This is useful for unconditionally requiring a flag like `--force` on dangerous
 commands.
 
+A flag is optional if its parameter has a default:
+
+```just
+[arg("bar", long="bar", value="hello")]
+foo bar="goodbye":
+```
+
 Causing it to receive the default when not passed in the invocation:
 
 ```console
