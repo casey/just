@@ -682,49 +682,19 @@ fn value_requires_long_or_short() {
 }
 
 #[test]
-fn value_may_be_a_variable() {
+fn value_may_be_an_expression() {
   Test::new()
     .justfile(
       "
         BAZ := 'baz'
 
-        [arg('bar', long='bar', value=BAZ)]
-        @foo bar:
-          echo bar={{bar}}
+        [arg('bar', long='bar', value=bob + BAZ)]
+        @foo bob bar:
+          echo {{ bar }}
       ",
     )
-    .args(["foo", "--bar"])
-    .stdout("bar=baz\n")
-    .success();
-}
-
-#[test]
-fn value_may_be_an_expression() {
-  Test::new()
-    .justfile(
-      "
-        [arg('bar', long='bar', value='ba' + env('FOO', 'z'))]
-        @foo bar:
-          echo bar={{bar}}
-      ",
-    )
-    .args(["foo", "--bar"])
-    .stdout("bar=baz\n")
-    .success();
-}
-
-#[test]
-fn value_may_reference_preceding_parameter() {
-  Test::new()
-    .justfile(
-      "
-        [arg('bar', long='bar', value=baz)]
-        @foo baz bar:
-          echo bar={{bar}}
-      ",
-    )
-    .args(["foo", "qux", "--bar"])
-    .stdout("bar=qux\n")
+    .args(["foo", "hello"])
+    .stdout("hellobaz\n")
     .success();
 }
 
