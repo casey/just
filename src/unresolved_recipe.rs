@@ -31,6 +31,15 @@ impl<'src> UnresolvedRecipe<'src> {
           &mut variable_references,
         )?;
       }
+      if let Some(expression) = &parameter.value {
+        Self::resolve_expression(
+          assignments,
+          expression,
+          functions,
+          &self.parameters[..i],
+          &mut variable_references,
+        )?;
+      }
     }
 
     for dependency in &self.dependencies {
