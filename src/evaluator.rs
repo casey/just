@@ -728,21 +728,21 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     }
 
     for (parameter, argument) in parameters.iter().zip(arguments) {
-      let value = if !argument.elements().is_empty() {
-        if let Some(ref value) = parameter.value {
-          evaluator.evaluate_value(value)?
+      let value = if argument.elements().is_empty() {
+        if let Some(ref default) = parameter.default {
+          evaluator.evaluate_value(default)?
+        } else if parameter.kind == ParameterKind::Star || parameter.flag {
+          Value::new()
         } else {
-          argument.clone()
+          return Err(Error::EmptyListArgument {
+            parameter: parameter.name.lexeme(),
+            recipe: recipe.name(),
+          });
         }
-      } else if let Some(ref default) = parameter.default {
-        evaluator.evaluate_value(default)?
-      } else if parameter.kind == ParameterKind::Star || parameter.flag {
-        Value::new()
+      } else if let Some(ref value) = parameter.value {
+        evaluator.evaluate_value(value)?
       } else {
-        return Err(Error::EmptyListArgument {
-          parameter: parameter.name.lexeme(),
-          recipe: recipe.name(),
-        });
+        argument.clone()
       };
 
       for element in value.elements() {
