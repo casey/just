@@ -246,10 +246,10 @@ impl<'src> Recipe<'src> {
       );
     }
 
-    if context.config.explain {
-      if let Some(doc) = self.doc() {
-        eprintln!("{prefix}#### {doc}{suffix}");
-      }
+    if context.config.explain
+      && let Some(doc) = self.doc()
+    {
+      eprintln!("{prefix}#### {doc}{suffix}");
     }
 
     let evaluator = Evaluator::new(
@@ -441,10 +441,8 @@ impl<'src> Recipe<'src> {
         }
       }
 
-      if !infallible {
-        if let Some(signal) = caught {
-          return Err(Error::Interrupted { signal });
-        }
+      if !infallible && let Some(signal) = caught {
+        return Err(Error::Interrupted { signal });
       }
     }
   }
@@ -655,10 +653,9 @@ impl<D: Display> ColorDisplay for Recipe<'_, D> {
       .attributes
       .iter()
       .any(|attribute| matches!(attribute, Attribute::Doc(_)))
+      && let Some(doc) = &self.doc
     {
-      if let Some(doc) = &self.doc {
-        writeln!(f, "# {doc}")?;
-      }
+      writeln!(f, "# {doc}")?;
     }
 
     for attribute in &self.attributes {

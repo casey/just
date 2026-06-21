@@ -188,28 +188,28 @@ impl Subcommand {
 
       let result = justfile.run(config, &search, arguments, &compilation.overrides);
 
-      if fallback {
-        if let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result {
-          search = search.search_parent_directory(config).map_err(|_| err)?;
+      if fallback
+        && let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result
+      {
+        search = search.search_parent_directory(config).map_err(|_| err)?;
 
-          if config.verbosity.loquacious() {
-            eprintln!(
-              "Trying {}",
-              starting_parent
-                .strip_prefix(search.justfile.parent().unwrap())
-                .unwrap()
-                .components()
-                .map(|_| path::Component::ParentDir)
-                .collect::<PathBuf>()
-                .join(search.justfile.file_name().unwrap())
-                .display()
-            );
-          }
-
-          compilation = Self::compile(config, loader, &search)?;
-
-          continue;
+        if config.verbosity.loquacious() {
+          eprintln!(
+            "Trying {}",
+            starting_parent
+              .strip_prefix(search.justfile.parent().unwrap())
+              .unwrap()
+              .components()
+              .map(|_| path::Component::ParentDir)
+              .collect::<PathBuf>()
+              .join(search.justfile.file_name().unwrap())
+              .display()
+          );
         }
+
+        compilation = Self::compile(config, loader, &search)?;
+
+        continue;
       }
 
       if config.allow_missing
@@ -303,10 +303,10 @@ impl Subcommand {
 
     let stdin = child.stdin.as_mut().unwrap();
     for recipe in recipes {
-      if let Err(io_error) = writeln!(stdin, "{}", recipe.spaced_recipe_path()) {
-        if io_error.kind() != std::io::ErrorKind::BrokenPipe {
-          return Err(Error::ChooserWrite { io_error, chooser });
-        }
+      if let Err(io_error) = writeln!(stdin, "{}", recipe.spaced_recipe_path())
+        && io_error.kind() != std::io::ErrorKind::BrokenPipe
+      {
+        return Err(Error::ChooserWrite { io_error, chooser });
       }
     }
 
@@ -728,13 +728,11 @@ impl Subcommand {
         println!();
       }
 
-      if !no_groups {
-        if let Some(group) = &group {
-          println!(
-            "{list_prefix}{}",
-            config.color.stdout().group().paint(&format!("[{group}]"))
-          );
-        }
+      if !no_groups && let Some(group) = &group {
+        println!(
+          "{list_prefix}{}",
+          config.color.stdout().group().paint(&format!("[{group}]"))
+        );
       }
 
       if let Some(recipes) = recipe_groups.get(&group) {
@@ -758,15 +756,15 @@ impl Subcommand {
             let inline_doc = signature_widths[name] <= MAX_WIDTH
               && doc.as_ref().is_none_or(|doc| doc.lines().count() <= 1);
 
-            if let Some(doc) = &doc {
-              if !inline_doc {
-                for line in doc.lines() {
-                  println!(
-                    "{list_prefix}{} {}",
-                    config.color.stdout().doc().paint("#"),
-                    config.color.stdout().doc().paint(line),
-                  );
-                }
+            if let Some(doc) = &doc
+              && !inline_doc
+            {
+              for line in doc.lines() {
+                println!(
+                  "{list_prefix}{} {}",
+                  config.color.stdout().doc().paint("#"),
+                  config.color.stdout().doc().paint(line),
+                );
               }
             }
 

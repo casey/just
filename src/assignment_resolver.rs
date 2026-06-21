@@ -72,13 +72,12 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
   ) -> CompileResult<'src> {
     let name = variable.lexeme();
 
-    if let Some(parameters) = parameters {
-      if parameters
+    if let Some(parameters) = parameters
+      && parameters
         .iter()
         .any(|(parameter, _number)| parameter.lexeme() == name)
-      {
-        return Ok(());
-      }
+    {
+      return Ok(());
     }
 
     if self.evaluated.contains(name) || constants().contains_key(name) {

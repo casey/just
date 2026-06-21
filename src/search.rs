@@ -148,10 +148,10 @@ impl Search {
             io_error,
             path: directory.clone(),
           })?;
-          if let Some(candidate) = entry.file_name().to_str() {
-            if candidate.eq_ignore_ascii_case(filename) {
-              return Ok(entry.path());
-            }
+          if let Some(candidate) = entry.file_name().to_str()
+            && candidate.eq_ignore_ascii_case(filename)
+          {
+            return Ok(entry.path());
           }
         }
       }
@@ -273,10 +273,10 @@ impl Search {
         _ => return Err(SearchError::MultipleCandidates { candidates }),
       }
 
-      if let Some(ceiling) = &config.ceiling {
-        if directory == ceiling {
-          break;
-        }
+      if let Some(ceiling) = &config.ceiling
+        && directory == ceiling
+      {
+        break;
       }
     }
 
@@ -309,10 +309,10 @@ impl Search {
         }
       }
 
-      if let Some(ceiling) = &config.ceiling {
-        if directory == ceiling {
-          break;
-        }
+      if let Some(ceiling) = &config.ceiling
+        && directory == ceiling
+      {
+        break;
       }
     }
 
