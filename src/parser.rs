@@ -192,10 +192,10 @@ impl<'run, 'src> Parser<'run, 'src> {
       }
     }
 
-    if let Some(token) = rest.next() {
-      if matches!(token.kind, Comment | Eof | Eol) {
-        return true;
-      }
+    if let Some(token) = rest.next()
+      && matches!(token.kind, Comment | Eof | Eol)
+    {
+      return true;
     }
 
     false
@@ -1266,26 +1266,26 @@ impl<'run, 'src> Parser<'run, 'src> {
         self.list_feature(ListFeature::Flag, *token);
       }
 
-      if let Some(option) = long {
-        if !longs.insert(&option.cooked) {
-          return Err(
-            long_key
-              .unwrap_or(option.token)
-              .error(CompileErrorKind::DuplicateOption {
-                option: Switch::Long(option.cooked.clone()),
-                recipe: name.lexeme(),
-              }),
-          );
-        }
+      if let Some(option) = long
+        && !longs.insert(&option.cooked)
+      {
+        return Err(
+          long_key
+            .unwrap_or(option.token)
+            .error(CompileErrorKind::DuplicateOption {
+              option: Switch::Long(option.cooked.clone()),
+              recipe: name.lexeme(),
+            }),
+        );
       }
 
-      if let Some(option) = short {
-        if !shorts.insert(&option.cooked) {
-          return Err(option.token.error(CompileErrorKind::DuplicateOption {
-            option: Switch::Short(option.cooked.chars().next().unwrap()),
-            recipe: name.lexeme(),
-          }));
-        }
+      if let Some(option) = short
+        && !shorts.insert(&option.cooked)
+      {
+        return Err(option.token.error(CompileErrorKind::DuplicateOption {
+          option: Switch::Short(option.cooked.chars().next().unwrap()),
+          recipe: name.lexeme(),
+        }));
       }
 
       arg_attributes.insert(

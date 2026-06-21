@@ -29,21 +29,22 @@ pub(crate) fn which(context: &function::Context, name: &str) -> Result<Option<St
 
     let mut candidates = vec![path.clone()];
 
-    if cfg!(windows) && path.extension().is_none() {
-      if let Some(pathext) = env::var_os("PATHEXT") {
-        let pathext = pathext.to_str().ok_or_else(|| {
-          format!(
-            "`PATHEXT` environment variable is not valid unicode: {}",
-            pathext.to_string_lossy(),
-          )
-        })?;
+    if cfg!(windows)
+      && path.extension().is_none()
+      && let Some(pathext) = env::var_os("PATHEXT")
+    {
+      let pathext = pathext.to_str().ok_or_else(|| {
+        format!(
+          "`PATHEXT` environment variable is not valid unicode: {}",
+          pathext.to_string_lossy(),
+        )
+      })?;
 
-        for extension in pathext.split(';') {
-          let extension = extension
-            .strip_prefix('.')
-            .ok_or_else(|| format!("`PATHEXT` entry `{extension}` does not start with `.`"))?;
-          candidates.push(path.with_extension(extension));
-        }
+      for extension in pathext.split(';') {
+        let extension = extension
+          .strip_prefix('.')
+          .ok_or_else(|| format!("`PATHEXT` entry `{extension}` does not start with `.`"))?;
+        candidates.push(path.with_extension(extension));
       }
     }
 

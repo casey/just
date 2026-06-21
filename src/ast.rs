@@ -32,12 +32,11 @@ impl ColorDisplay for Ast<'_> {
       }
       newlines = 0;
 
-      if let Some(i) = i.checked_sub(1) {
-        if let Some(last) = self.items.get(i) {
-          if !matches!(last, Item::Newline) {
-            write!(f, " ")?;
-          }
-        }
+      if let Some(i) = i.checked_sub(1)
+        && let Some(last) = self.items.get(i)
+        && !matches!(last, Item::Newline)
+      {
+        write!(f, " ")?;
       }
 
       write!(f, "{}", item.color_display(color))?;

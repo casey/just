@@ -91,11 +91,12 @@ impl CommandExt for Command {
     let mut candidates = vec![program.into()];
 
     let mut components = program.components();
-    if matches!(components.next(), Some(Component::Normal(_))) && components.next().is_none() {
-      if let Some(path) = env::var_os("PATH") {
-        for path in env::split_paths(&path) {
-          candidates.push(path.join(program));
-        }
+    if matches!(components.next(), Some(Component::Normal(_)))
+      && components.next().is_none()
+      && let Some(path) = env::var_os("PATH")
+    {
+      for path in env::split_paths(&path) {
+        candidates.push(path.join(program));
       }
     }
 
