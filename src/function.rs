@@ -333,7 +333,7 @@ fn env(context: Context, keys: &Value, default: Option<&Value>) -> ValueResult {
       Err(VarError::NotPresent) => {}
       Err(VarError::NotUnicode(value)) => {
         return Err(format!(
-          "environment variable `{key}` not unicode: `{}`",
+          "environment variable `{key}` is not unicode: `{}`",
           value.to_string_lossy(),
         ));
       }
@@ -670,7 +670,7 @@ fn source_directory(context: Context) -> StringResult {
     .map(str::to_owned)
     .ok_or_else(|| {
       format!(
-        "source file path not valid unicode: {}",
+        "source file path is not valid unicode: {}",
         context.name.token.path.display(),
       )
     })
@@ -688,7 +688,7 @@ fn source_file(context: Context) -> StringResult {
     .map(str::to_owned)
     .ok_or_else(|| {
       format!(
-        "source file path not valid unicode: {}",
+        "source file path is not valid unicode: {}",
         context.name.token.path.display(),
       )
     })
