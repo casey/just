@@ -24,6 +24,9 @@ pub(crate) enum Error<'src> {
     token: Token<'src>,
     output_error: OutputError,
   },
+  CacheKeySerialize {
+    source: serde_json::Error,
+  },
   ChooserInvoke {
     shell_binary: String,
     shell_arguments: String,
@@ -481,6 +484,7 @@ impl ColorDisplay for Error<'_> {
           "backtick succeeded but stdout was not utf8: {utf8_error}",
         )?,
       },
+      CacheKeySerialize { source } => write!(f, "failed to serialize cache key: {source}")?,
       ChooserInvoke {
         shell_binary,
         shell_arguments,

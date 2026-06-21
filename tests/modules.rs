@@ -1646,7 +1646,7 @@ fn verbose_message_includes_module_path() {
       ",
     )
     .args(["--verbose", "foo::bar"])
-    .stderr("===> Running recipe `foo::bar`...\necho BAR\n")
+    .stderr("===> running recipe `foo::bar`...\necho BAR\n")
     .stdout("BAR\n")
     .success();
 }

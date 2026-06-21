@@ -1651,6 +1651,12 @@ impl<'run, 'src> Parser<'run, 'src> {
             })
           })?;
 
+        if discriminant == AttributeDiscriminant::Cache {
+          self
+            .unstable_features
+            .insert(UnstableFeature::CachedRecipes);
+        }
+
         let mut arguments = Vec::new();
         let mut keyword_arguments = BTreeMap::new();
 

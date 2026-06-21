@@ -59,7 +59,7 @@ fn fallback_from_subdir_verbose_message() {
     .stderr(path(
       "
       Trying ../justfile
-      ===> Running recipe `bar`...
+      ===> running recipe `bar`...
       echo bar
       ",
     ))

@@ -20,7 +20,8 @@ test:
 check: (watch 'lcheck --tests --all --all-targets')
 
 [group: 'check']
-ci: test clippy build-book forbid
+ci: test build-book forbid
+  cargo lclippy --all --all-targets --all-features -- --deny warnings
   cargo fmt --all -- --check
   cargo update --locked --package just
 
@@ -131,8 +132,7 @@ install-dev-deps:
 
 # everyone's favorite animate paper clip
 [group: 'check']
-clippy:
-  cargo lclippy --all --all-targets --all-features -- --deny warnings
+clippy: (watch 'lclippy --all --all-targets --all-features -- --deny warnings')
 
 [group: 'check']
 forbid:

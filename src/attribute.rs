@@ -23,6 +23,7 @@ pub(crate) enum Attribute<'src> {
     short: Option<StringLiteral<'src>>,
     value: Option<Expression<'src>>,
   },
+  Cache,
   Confirm(Option<Expression<'src>>),
   Default,
   Doc(Option<StringLiteral<'src>>),
@@ -62,6 +63,7 @@ impl AttributeDiscriminant {
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
       Self::Android
+      | Self::Cache
       | Self::Default
       | Self::Dragonfly
       | Self::ExitMessage
@@ -259,6 +261,7 @@ impl<'src> Attribute<'src> {
         }
       }
       AttributeDiscriminant::Android => Self::Android,
+      AttributeDiscriminant::Cache => Self::Cache,
       AttributeDiscriminant::Confirm
       | AttributeDiscriminant::Env
       | AttributeDiscriminant::WorkingDirectory => unreachable!(),
@@ -394,6 +397,7 @@ impl Display for Attribute<'_> {
         write!(f, ")")?;
       }
       Self::Android
+      | Self::Cache
       | Self::Confirm(None)
       | Self::Default
       | Self::Doc(None)

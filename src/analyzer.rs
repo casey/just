@@ -276,17 +276,22 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           continued = line.is_continuation();
         }
 
-        if let Some(attribute) = recipe.attributes.get(AttributeDiscriminant::Extension) {
-          return Err(
-            recipe
-              .name
-              .error(InvalidAttribute {
-                item_kind: "recipe",
-                item_name: recipe.name.lexeme(),
-                attribute: Box::new(attribute.clone()),
-              })
-              .into(),
-          );
+        for attribute in [
+          AttributeDiscriminant::Cache,
+          AttributeDiscriminant::Extension,
+        ] {
+          if let Some(attribute) = recipe.attributes.get(attribute) {
+            return Err(
+              recipe
+                .name
+                .error(InvalidAttribute {
+                  item_kind: "recipe",
+                  item_name: recipe.name.lexeme(),
+                  attribute: Box::new(attribute.clone()),
+                })
+                .into(),
+            );
+          }
         }
       }
     }

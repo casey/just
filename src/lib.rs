@@ -16,6 +16,9 @@ pub(crate) use {
     attribute::{Attribute, AttributeDiscriminant},
     attribute_set::AttributeSet,
     binding::Binding,
+    cache::Cache,
+    cache_entry::CacheEntry,
+    cache_status::CacheStatus,
     color::Color,
     color_display::ColorDisplay,
     command_color::CommandColor,
@@ -212,6 +215,9 @@ mod ast;
 mod attribute;
 mod attribute_set;
 mod binding;
+mod cache;
+mod cache_entry;
+mod cache_status;
 mod color;
 mod color_display;
 mod command_color;
