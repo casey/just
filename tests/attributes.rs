@@ -655,7 +655,7 @@ fn cache_outputs_dump() {
 }
 
 #[test]
-fn cache_unknown_keyword() {
+fn unknown_keyword() {
   Test::new()
     .justfile(
       "
@@ -668,7 +668,7 @@ fn cache_unknown_keyword() {
     .env("JUST_UNSTABLE", "1")
     .stderr(
       "
-        error: unknown keyword `input` for `cache` attribute
+        error: unknown key `input` for `cache` attribute
          ——▶ justfile:1:8
           │
         1 │ [cache(input = 'foo')]
