@@ -4031,23 +4031,24 @@ Consult `just --help` for which options can be set with environment variables.
 
 `just` will skip invocations of recipes with the `[cache]`
 attribute<sup>master</sup> if it finds an entry matching the invocation in the
-cache. The `[cache]` attribute may only be used with script recipes, and is
+cache. The `[cache]` attribute may only be used with script recipes and is
 currently unstable and meaningfully incomplete.
 
 Unlike many other features of `just`, which are, hopefully, well thought-out
 and user-friendly, cached recipes are inherently fragile, and it is important
-to understand their limitations before using them. Please read this section
-thoroughly, including the friendly admonitions below.
+to understand their limitations before relying on them. Please read this
+section thoroughly, including the friendly admonitions below.
 
 The cache is a directory named `.justcache` alongside the `justfile` and should
-be added to `.gitignore`. It contains cache entry files named `HASH.json`,
-where `HASH` is the BLAKE3 hash of a serialized cache key JSON object.
+not be committed to version control systems. It contains cache entry named
+`HASH.json`, where `HASH` is the BLAKE3 hash of a serialized cache key JSON
+object.
 
 The keys of the cache key object are:
 
-- The `::`-separated module path to the invoked recipe.
-- The evaluated recipe body.
-- The cache version, currently 0.
+- The `::`-separated module path to the invoked recipe
+- The evaluated recipe body
+- The cache version, currently 0
 
 Before `just` runs a cached recipe, it creates a cache key, hashes it, and
 looks for the corresponding cache entry.
