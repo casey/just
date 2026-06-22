@@ -5,10 +5,13 @@ pub(crate) fn load_dotenv(
   settings: &Settings,
   working_directory: &Path,
 ) -> RunResult<'static, BTreeMap<String, String>> {
-  let command = config
-    .dotenv_command
-    .clone()
-    .or_else(|| (!settings.dotenv_command.is_empty()).then(|| settings.dotenv_command.join()));
+  let command = if let Some(command) = &config.dotenv_command {
+    Some(command.clone())
+  } else if !settings.dotenv_command.is_empty() {
+    Some(settings.dotenv_command.join())
+  } else {
+    None
+  };
 
   if let Some(command) = command {
     return load_from_command(&command, settings, config, working_directory);
