@@ -88,7 +88,6 @@ fn file_paths_not_in_subdir_are_absolute() {
   Test::new()
     .write("foo/justfile", "import '../bar.just'")
     .write("bar.just", "baz")
-    .no_justfile()
     .args(["--justfile", "foo/justfile"])
     .stderr_regex(
       r"error: expected '\*', ':', '\$', identifier, or '\+', but found end of file

@@ -229,6 +229,7 @@ fn list_invalid_path() {
 #[test]
 fn list_unknown_submodule() {
   Test::new()
+    .justfile("")
     .args(["--list", "hello"])
     .stderr("error: justfile does not contain submodule `hello`\n")
     .failure();

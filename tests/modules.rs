@@ -75,16 +75,19 @@ fn nested_module_recipes_can_be_run_with_path_syntax() {
 #[test]
 fn invalid_path_syntax() {
   Test::new()
+    .justfile("")
     .arg(":foo::foo")
     .stderr("error: justfile does not contain recipe `:foo::foo`\n")
     .failure();
 
   Test::new()
+    .justfile("")
     .arg("foo::foo:")
     .stderr("error: justfile does not contain recipe `foo::foo:`\n")
     .failure();
 
   Test::new()
+    .justfile("")
     .arg("foo:::foo")
     .stderr("error: justfile does not contain recipe `foo:::foo`\n")
     .failure();
@@ -93,6 +96,7 @@ fn invalid_path_syntax() {
 #[test]
 fn missing_recipe_after_invalid_path() {
   Test::new()
+    .justfile("")
     .arg(":foo::foo")
     .arg("bar")
     .stderr("error: justfile does not contain recipe `:foo::foo`\n")
@@ -1213,6 +1217,7 @@ fn recipes_with_same_name_are_both_run() {
 #[test]
 fn submodule_recipe_not_found_error_message() {
   Test::new()
+    .justfile("")
     .args(["foo::bar"])
     .stderr("error: justfile does not contain submodule `foo`\n")
     .failure();

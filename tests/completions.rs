@@ -11,6 +11,7 @@ fn complete_args<'a>(words: &[&'a str]) -> Vec<&'a str> {
 fn completion_scripts() {
   for shell in ["bash", "elvish", "fish", "nushell", "powershell", "zsh"] {
     Test::new()
+      .justfile("")
       .args(["--completions", shell])
       .stdout_regex(if shell == "nushell" {
         ".*"
@@ -185,7 +186,6 @@ fn module_recipes() {
 #[test]
 fn justfile_flag_in_completion_words() {
   Test::new()
-    .no_justfile()
     .write("foo.just", "bar:")
     .shell(false)
     .env("JUST_COMPLETE", "fish")
