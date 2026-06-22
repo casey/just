@@ -37,24 +37,17 @@ impl Cache {
 
     file.lock().map_err(context)?;
 
-    let len = file.metadata().map_err(context)?.len();
-
-    let hit = len > 0 && {
-      let mut present = true;
-      for output in outputs {
-        if !filesystem::exists(output)? {
-          present = false;
-          break;
-        }
-      }
-      present
-    };
-
-    if hit {
-      Ok(CacheStatus::Hit)
-    } else {
-      Ok(CacheStatus::Miss(CacheEntry { file, path }))
+    if file.metadata().map_err(context)?.len() == 0 {
+      return Ok(CacheStatus::Miss(CacheEntry { file, path }));
     }
+
+    for output in outputs {
+      if !filesystem::exists(output)? {
+        return Ok(CacheStatus::Miss(CacheEntry { file, path }));
+      }
+    }
+
+    Ok(CacheStatus::Hit)
   }
 
   pub(crate) fn new(search: &Search) -> Self {

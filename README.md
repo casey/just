@@ -4168,6 +4168,7 @@ runs without producing `main`:
 
 ```just
 set unstable
+set lists
 
 [script]
 [cache(inputs = ["lib.c", "main.c"], outputs = "main")]
