@@ -115,27 +115,29 @@ fn body_change_invalidates_cache() {
 
 #[test]
 fn different_recipes_do_not_share_entries() {
-  let justfile = "
-    [cache]
-    [script]
-    foo:
-      echo bar
-
-    [cache]
-    [script]
-    bar:
-      echo bar
-  ";
-
   let output = Test::new()
-    .justfile(justfile)
+    .justfile(
+      "
+        [cache]
+        [script]
+        foo:
+          echo bar
+      ",
+    )
     .env("JUST_UNSTABLE", "1")
     .arg("foo")
     .stdout("bar\n")
     .success();
 
   Test::with_tempdir(output.tempdir)
-    .justfile(justfile)
+    .justfile(
+      "
+        [cache]
+        [script]
+        bob:
+          echo bar
+      ",
+    )
     .env("JUST_UNSTABLE", "1")
     .arg("bar")
     .stdout("bar\n")
