@@ -4039,9 +4039,9 @@ and user-friendly, cached recipes are inherently fragile, and it is important
 to understand their limitations before using them. Please read this section
 thoroughly, including the friendly admonitions below.
 
-The cache is a directory named `.justcache` alongside the `justfile`. It
-contains cache entry files named `HASH.json`, where `HASH` is the BLAKE3 hash
-of a serialized cache key JSON object.
+The cache is a directory named `.justcache` alongside the `justfile` and should
+be added to `.gitignore`. It contains cache entry files named `HASH.json`,
+where `HASH` is the BLAKE3 hash of a serialized cache key JSON object.
 
 The keys of the cache key object are:
 
@@ -4088,8 +4088,8 @@ These include the current time, input files, output files, system binaries, the
 operating system, databases, systems over the network, and any of the myriad
 other things which may change the execution of a computer program.
 
-Additionally, `just` reliably detect unrelated or cosmetic changes, like
-changes to whitespace or formatting, which don't affect execution.
+Additionally, `just` cannot determine when changes are unrelated or changes,
+such as changes to whitespace and formatting which don't affect execution.
 
 ### Private Recipes
 
