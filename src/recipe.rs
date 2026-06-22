@@ -566,7 +566,7 @@ impl<'src> Recipe<'src> {
 
     let entry = if self.attributes.contains(AttributeDiscriminant::Cache) {
       let key = CacheKey {
-        body: evaluated_lines.join("\n"),
+        body: &evaluated_lines,
         environment: &environment,
         executor: &executor,
         positional: self
