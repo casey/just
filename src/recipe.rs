@@ -560,18 +560,18 @@ impl<'src> Recipe<'src> {
     }
 
     let entry = if self.attributes.contains(AttributeDiscriminant::Cache) {
-      let status = cache.status(
-        &environment,
-        &executor,
-        &evaluated_lines,
-        self
+      let key = CacheKey {
+        environment: &environment,
+        executor: &executor,
+        lines: &evaluated_lines,
+        positional: self
           .takes_positional_arguments(&context.module.settings)
           .then_some(positional),
-        self.recipe_path(),
-        working_directory.as_deref(),
-      )?;
+        recipe: self.recipe_path(),
+        working_directory: working_directory.as_deref(),
+      };
 
-      match status {
+      match cache.status(key)? {
         CacheStatus::Hit => {
           if config.verbosity.loquacious() {
             eprintln!(

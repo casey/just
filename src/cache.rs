@@ -1,18 +1,6 @@
 use super::*;
 
 const DIR: &str = ".justcache";
-const VERSION: u64 = 0;
-
-#[derive(Serialize)]
-struct Key<'a> {
-  environment: &'a BTreeMap<String, Option<String>>,
-  executor: &'a Executor<'a>,
-  lines: &'a [String],
-  positional: Option<&'a [String]>,
-  recipe: &'a Modulepath,
-  version: u64,
-  working_directory: Option<&'a Path>,
-}
 
 pub(crate) struct Cache {
   initialized: Mutex<bool>,
@@ -20,25 +8,7 @@ pub(crate) struct Cache {
 }
 
 impl Cache {
-  pub(crate) fn status(
-    &self,
-    environment: &BTreeMap<String, Option<String>>,
-    executor: &Executor,
-    lines: &[String],
-    positional: Option<&[String]>,
-    recipe: &Modulepath,
-    working_directory: Option<&Path>,
-  ) -> RunResult<'static, CacheStatus> {
-    let key = Key {
-      environment,
-      executor,
-      lines,
-      positional,
-      recipe,
-      version: VERSION,
-      working_directory,
-    };
-
+  pub(crate) fn status(&self, key: CacheKey) -> RunResult<'static, CacheStatus> {
     let mut hasher = blake3::Hasher::new();
 
     serde_json::to_writer(&mut hasher, &key)
