@@ -564,8 +564,9 @@ impl<'src> Recipe<'src> {
         .insert(name.clone(), Some(value.clone()));
     }
 
-    let entry = if self.attributes.contains(AttributeDiscriminant::Cache) {
-      let Some(Attribute::Cache { inputs }) = self.attributes.get(AttributeDiscriminant::Cache)
+    let (inputs, outputs) = if self.attributes.contains(AttributeDiscriminant::Cache) {
+      let Some(Attribute::Cache { inputs, outputs }) =
+        self.attributes.get(AttributeDiscriminant::Cache)
       else {
         unreachable!()
       };
@@ -578,6 +579,20 @@ impl<'src> Recipe<'src> {
         })
         .transpose()?;
 
+      let outputs = match outputs {
+        Some(outputs) => {
+          let outputs = evaluator.evaluate_value(outputs)?;
+          Cache::outputs(context, outputs, working_directory.as_deref())
+        }
+        None => Vec::new(),
+      };
+
+      (inputs, outputs)
+    } else {
+      (None, Vec::new())
+    };
+
+    let entry = if self.attributes.contains(AttributeDiscriminant::Cache) {
       let key = CacheKey {
         body: &evaluated_lines,
         environment: &environment,
@@ -590,7 +605,7 @@ impl<'src> Recipe<'src> {
         working_directory: working_directory.as_deref(),
       };
 
-      match cache.status(key)? {
+      match cache.status(key, &outputs)? {
         CacheStatus::Hit => {
           if config.verbosity.loquacious() {
             eprintln!(
@@ -682,6 +697,15 @@ impl<'src> Recipe<'src> {
         SignalHandler::clear();
       } else {
         return Err(Error::Interrupted { signal });
+      }
+    }
+
+    for output in &outputs {
+      if !filesystem::exists(output)? {
+        return Err(Error::CacheOutputMissing {
+          recipe: self.name(),
+          path: output.clone(),
+        });
       }
     }
 

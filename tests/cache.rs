@@ -456,6 +456,188 @@ fn dry_run_skips_input_checking() {
 }
 
 #[test]
+fn missing_output_invalidates_cache() {
+  let output = Test::new()
+    .justfile(
+      "
+        [cache(outputs = 'foo')]
+        [script]
+        bar:
+          echo bar
+          touch foo
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("bar\n")
+    .success();
+
+  let output = Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .success();
+
+  fs::remove_file(output.tempdir.path().join("foo")).unwrap();
+
+  Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
+fn output_expression_evaluated_with_arguments() {
+  let output = Test::new()
+    .justfile(
+      "
+        [cache(outputs = file)]
+        [script]
+        bar file:
+          echo bar
+          touch {{file}}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["bar", "foo"])
+    .stdout("bar\n")
+    .success();
+
+  let output = Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .args(["bar", "foo"])
+    .success();
+
+  fs::remove_file(output.tempdir.path().join("foo")).unwrap();
+
+  Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .args(["bar", "foo"])
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
+fn multiple_outputs() {
+  let output = Test::new()
+    .justfile(
+      "
+        set lists
+
+        [cache(outputs = ['foo', 'baz'])]
+        [script]
+        bar:
+          echo bar
+          touch foo baz
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("bar\n")
+    .success();
+
+  let output = Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .success();
+
+  fs::remove_file(output.tempdir.path().join("baz")).unwrap();
+
+  Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
+fn output_directory_is_allowed() {
+  let output = Test::new()
+    .justfile(
+      "
+        [cache(outputs = 'foo')]
+        [script]
+        bar:
+          echo bar
+          mkdir -p foo
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("bar\n")
+    .success();
+
+  Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .success();
+}
+
+#[test]
+fn outputs_resolve_against_working_directory() {
+  let output = Test::new()
+    .justfile(
+      "
+        [cache(outputs = 'foo')]
+        [working-directory('sub')]
+        [script]
+        bar:
+          echo bar
+          touch foo
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .create_dir("sub")
+    .stdout("bar\n")
+    .success();
+
+  let output = Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .success();
+
+  fs::remove_file(output.tempdir.path().join("sub").join("foo")).unwrap();
+
+  Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
+fn missing_output_after_run_is_an_error() {
+  let output = Test::new()
+    .justfile(
+      "
+        [cache(outputs = 'foo')]
+        [script]
+        bar:
+          echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("bar\n")
+    .stderr_regex(r"error: recipe `bar` failed to produce cache output: `.*foo`\n")
+    .failure();
+
+  let entries = fs::read_dir(output.tempdir.path().join(".justcache"))
+    .unwrap()
+    .map(|entry| entry.unwrap().path())
+    .collect::<Vec<PathBuf>>();
+
+  assert_eq!(entries.len(), 1);
+  assert_eq!(fs::read_to_string(&entries[0]).unwrap(), "");
+}
+
+#[test]
+fn dry_run_skips_output_checking() {
+  Test::new()
+    .justfile(
+      "
+        [cache(outputs = 'foo')]
+        [script]
+        bar:
+          echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("--dry-run")
+    .stderr("echo bar\n")
+    .success();
+}
+
+#[test]
 fn hit_prints_verbose_message() {
   let output = Test::new()
     .justfile(

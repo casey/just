@@ -25,6 +25,7 @@ pub(crate) enum Attribute<'src> {
   },
   Cache {
     inputs: Option<Expression<'src>>,
+    outputs: Option<Expression<'src>>,
   },
   Confirm(Option<Expression<'src>>),
   Continue(BTreeSet<Signal>),
@@ -267,6 +268,8 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::Cache => Self::Cache {
         inputs: Self::remove_required(&mut keyword_arguments, "inputs")?
           .map(|(_key, expression)| expression),
+        outputs: Self::remove_required(&mut keyword_arguments, "outputs")?
+          .map(|(_key, expression)| expression),
       },
       AttributeDiscriminant::Continue => Self::Continue(
         arguments
@@ -415,7 +418,6 @@ impl Display for Attribute<'_> {
         write!(f, ")")?;
       }
       Self::Android
-      | Self::Cache { inputs: None }
       | Self::Confirm(None)
       | Self::Default
       | Self::Doc(None)
@@ -436,9 +438,18 @@ impl Display for Attribute<'_> {
       | Self::Shell
       | Self::Unix
       | Self::Windows => {}
-      Self::Cache {
-        inputs: Some(inputs),
-      } => write!(f, "(inputs={inputs})")?,
+      Self::Cache { inputs, outputs } => {
+        let mut arguments = Vec::new();
+        if let Some(inputs) = inputs {
+          arguments.push(format!("inputs={inputs}"));
+        }
+        if let Some(outputs) = outputs {
+          arguments.push(format!("outputs={outputs}"));
+        }
+        if !arguments.is_empty() {
+          write!(f, "({})", arguments.join(", "))?;
+        }
+      }
       Self::Confirm(Some(argument)) | Self::WorkingDirectory(argument) => {
         write!(f, "({argument})")?;
       }

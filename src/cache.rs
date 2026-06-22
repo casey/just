@@ -8,7 +8,11 @@ pub(crate) struct Cache {
 }
 
 impl Cache {
-  pub(crate) fn status(&self, key: CacheKey) -> RunResult<'static, CacheStatus> {
+  pub(crate) fn status(
+    &self,
+    key: CacheKey,
+    outputs: &[PathBuf],
+  ) -> RunResult<'static, CacheStatus> {
     let mut hasher = blake3::Hasher::new();
 
     serde_json::to_writer(&mut hasher, &key)
@@ -35,7 +39,18 @@ impl Cache {
 
     let len = file.metadata().map_err(context)?.len();
 
-    if len > 0 {
+    let hit = len > 0 && {
+      let mut present = true;
+      for output in outputs {
+        if !filesystem::exists(output)? {
+          present = false;
+          break;
+        }
+      }
+      present
+    };
+
+    if hit {
       Ok(CacheStatus::Hit)
     } else {
       Ok(CacheStatus::Miss(CacheEntry { file, path }))
@@ -103,5 +118,22 @@ impl Cache {
     }
 
     Ok(inputs)
+  }
+
+  pub(crate) fn outputs(
+    context: &ExecutionContext,
+    value: Value,
+    working_directory: Option<&Path>,
+  ) -> Vec<PathBuf> {
+    let base = match working_directory {
+      Some(working_directory) => working_directory.to_owned(),
+      None => context.working_directory(),
+    };
+
+    value
+      .elements()
+      .iter()
+      .map(|output| base.join(output))
+      .collect()
   }
 }
