@@ -4101,9 +4101,9 @@ object.
 
 The keys of the cache key object are:
 
+- `body`: evaluated recipe body
 - `environment`: map of environment variable names to values
 - `executor`: script interpreter or shebang
-- `lines`: evaluated recipe body
 - `positional`: positional arguments
 - `recipe`: `::`-separated module path to invoked recipe
 - `working_directory`: current working directory

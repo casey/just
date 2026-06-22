@@ -561,9 +561,9 @@ impl<'src> Recipe<'src> {
 
     let entry = if self.attributes.contains(AttributeDiscriminant::Cache) {
       let key = CacheKey {
+        body: evaluated_lines.join("\n"),
         environment: &environment,
         executor: &executor,
-        lines: &evaluated_lines,
         positional: self
           .takes_positional_arguments(&context.module.settings)
           .then_some(positional),
