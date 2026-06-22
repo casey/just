@@ -456,9 +456,9 @@ impl<'src> Recipe<'src> {
       }
 
       if let Some(signal) = caught {
-        if self.continue_on(signal) {
+        if self.continue_on(signal) || infallible {
           SignalHandler::clear();
-        } else if !infallible {
+        } else {
           return Err(Error::Interrupted { signal });
         }
       }
