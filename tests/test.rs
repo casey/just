@@ -281,14 +281,14 @@ impl Test {
     let output_stdout = str::from_utf8(&output.stdout).unwrap();
     let output_stderr = str::from_utf8(&output.stderr).unwrap();
 
-    if let Some(ref stdout_regex) = self.stdout_regex {
+    if let Some(stdout_regex) = &self.stdout_regex {
       assert!(
         stdout_regex.is_match(output_stdout),
         "Stdout regex mismatch:\n{output_stdout:?}\n!~=\n/{stdout_regex:?}/",
       );
     }
 
-    if let Some(ref stderr_regex) = self.stderr_regex {
+    if let Some(stderr_regex) = &self.stderr_regex {
       assert!(
         stderr_regex.is_match(output_stderr),
         "Stderr regex mismatch:\n{output_stderr:?}\n!~=\n/{stderr_regex:?}/",
@@ -302,7 +302,7 @@ impl Test {
       panic!("Output mismatch.");
     }
 
-    if let Some(ref response) = self.response {
+    if let Some(response) = &self.response {
       assert_eq!(
         &serde_json::from_str::<Response>(output_stdout)
           .expect("failed to deserialize stdout as response"),

@@ -818,7 +818,7 @@ fn command_failure() {
         foo:
       ",
     )
-    .stderr("error: failed to run dotenv-command `exit 1`: process exited with status code 1\n")
+    .stderr("error: dotenv command `exit 1` failed: process exited with status code 1\n")
     .failure();
 }
 

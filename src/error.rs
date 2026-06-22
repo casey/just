@@ -620,10 +620,7 @@ impl ColorDisplay for Error<'_> {
         command,
         output_error,
       } => {
-        write!(
-          f,
-          "failed to run dotenv-command `{command}`: {output_error}"
-        )?;
+        write!(f, "dotenv command `{command}` failed: {output_error}")?;
       }
       DotenvRequired => {
         write!(f, "dotenv file not found")?;
