@@ -2,30 +2,6 @@ use super::*;
 
 type Environment = BTreeMap<String, Option<String>>;
 
-fn export_scope(
-  environment: &mut Environment,
-  scope: &Scope,
-  settings: &Settings,
-  unexports: &HashSet<String>,
-) {
-  if let Some(parent) = scope.parent() {
-    export_scope(environment, parent, settings, unexports);
-  }
-
-  for unexport in unexports {
-    environment.insert(unexport.clone(), None);
-  }
-
-  for binding in scope.bindings() {
-    if (binding.export || (settings.export && !binding.prelude)) && !binding.value.is_empty() {
-      environment.insert(
-        binding.name.lexeme().to_string(),
-        Some(binding.value.join()),
-      );
-    }
-  }
-}
-
 pub(crate) trait CommandExt {
   fn export(
     &mut self,
@@ -48,10 +24,34 @@ pub(crate) trait CommandExt {
     }
 
     if let Some(parent) = scope.parent() {
-      export_scope(&mut environment, parent, settings, unexports);
+      Self::environment_scope(&mut environment, parent, settings, unexports);
     }
 
     environment
+  }
+
+  fn environment_scope(
+    environment: &mut Environment,
+    scope: &Scope,
+    settings: &Settings,
+    unexports: &HashSet<String>,
+  ) {
+    if let Some(parent) = scope.parent() {
+      Self::environment_scope(environment, parent, settings, unexports);
+    }
+
+    for unexport in unexports {
+      environment.insert(unexport.clone(), None);
+    }
+
+    for binding in scope.bindings() {
+      if (binding.export || (settings.export && !binding.prelude)) && !binding.value.is_empty() {
+        environment.insert(
+          binding.name.lexeme().to_string(),
+          Some(binding.value.join()),
+        );
+      }
+    }
   }
 
   fn export_environment(&mut self, environment: Environment) -> &mut Command;
