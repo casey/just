@@ -267,7 +267,7 @@ impl<'src> Attribute<'src> {
       }
       AttributeDiscriminant::Android => Self::Android,
       AttributeDiscriminant::Cache => Self::Cache {
-        extra: Self::remove_required(&mut keyword_arguments, "inputs")?
+        extra: Self::remove_required(&mut keyword_arguments, "extra")?
           .map(|(_key, expression)| expression),
         inputs: Self::remove_required(&mut keyword_arguments, "inputs")?
           .map(|(_key, expression)| expression),
