@@ -213,7 +213,6 @@ fn unexported_variable_does_not_invalidate_cache() {
   Test::with_tempdir(output.tempdir)
     .env("JUST_UNSTABLE", "1")
     .args(["value=baz", "foo"])
-    .stdout("")
     .success();
 }
 
@@ -385,7 +384,6 @@ fn symlink_to_file_is_followed() {
 
   Test::with_tempdir(output.tempdir)
     .env("JUST_UNSTABLE", "1")
-    .stdout("")
     .success();
 }
 
@@ -441,7 +439,7 @@ fn symlink_to_directory_is_an_error() {
 }
 
 #[test]
-fn dry_run_skips_input_hashing() {
+fn dry_run_skips_input_checking() {
   Test::new()
     .justfile(
       "
