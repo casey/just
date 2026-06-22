@@ -84,6 +84,9 @@ pub(crate) enum Error<'src> {
   Const {
     const_error: ConstError<'src>,
   },
+  CurrentDirectory {
+    source: io::Error,
+  },
   Cygpath {
     recipe: &'src str,
     output_error: OutputError,
@@ -577,6 +580,7 @@ impl ColorDisplay for Error<'_> {
       Compile { compile_error } => Display::fmt(compile_error, f)?,
       Config { config_error } => Display::fmt(config_error, f)?,
       Const { const_error } => write!(f, "{const_error}")?,
+      CurrentDirectory { source } => write!(f, "failed to get current directory: {source}")?,
       Cygpath {
         recipe,
         output_error,
