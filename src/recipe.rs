@@ -627,12 +627,7 @@ impl<'src> Recipe<'src> {
       command.args(positional);
     }
 
-    for (name, value) in &environment {
-      match value {
-        Some(value) => command.env(name, value),
-        None => command.env_remove(name),
-      };
-    }
+    command.export_environment(environment);
 
     // run it!
     let (result, caught) = command.status_guard();
