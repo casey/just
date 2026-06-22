@@ -587,7 +587,7 @@ fn outputs_resolve_against_working_directory() {
     .env("JUST_UNSTABLE", "1")
     .success();
 
-  fs::remove_file(output.tempdir.path().join("sub").join("foo")).unwrap();
+  fs::remove_file(output.tempdir.path().join("sub/foo")).unwrap();
 
   Test::with_tempdir(output.tempdir)
     .env("JUST_UNSTABLE", "1")
@@ -637,7 +637,7 @@ fn missing_output_after_run_is_an_error() {
     )
     .env("JUST_UNSTABLE", "1")
     .stdout("bar\n")
-    .stderr_regex(r"error: recipe `bar` failed to produce cache output: `.*foo`\n")
+    .stderr_regex(r"error: recipe `bar` failed to produce cache output `foo`\n")
     .failure();
 
   let entries = fs::read_dir(output.tempdir.path().join(".justcache"))

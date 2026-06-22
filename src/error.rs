@@ -35,7 +35,7 @@ pub(crate) enum Error<'src> {
   },
   CacheOutputMissing {
     recipe: &'src str,
-    path: PathBuf,
+    output: String,
   },
   ChooserInvoke {
     shell_binary: String,
@@ -505,11 +505,10 @@ impl ColorDisplay for Error<'_> {
         write!(f, "cache input does not exist: `{}`", path.display())?;
       }
       CacheKeySerialize { source } => write!(f, "failed to serialize cache key: {source}")?,
-      CacheOutputMissing { recipe, path } => {
+      CacheOutputMissing { recipe, output } => {
         write!(
           f,
-          "recipe `{recipe}` failed to produce cache output: `{}`",
-          path.display(),
+          "recipe `{recipe}` failed to produce cache output `{output}`",
         )?;
       }
       ChooserInvoke {

@@ -11,7 +11,7 @@ impl Cache {
   pub(crate) fn status(
     &self,
     key: CacheKey,
-    outputs: &[PathBuf],
+    outputs: &BTreeMap<String, PathBuf>,
   ) -> RunResult<'static, CacheStatus> {
     let mut hasher = blake3::Hasher::new();
 
@@ -41,7 +41,7 @@ impl Cache {
       return Ok(CacheStatus::Miss(CacheEntry { file, path }));
     }
 
-    for output in outputs {
+    for output in outputs.values() {
       if !filesystem::exists(output)? {
         return Ok(CacheStatus::Miss(CacheEntry { file, path }));
       }

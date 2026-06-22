@@ -586,13 +586,13 @@ impl<'src> Recipe<'src> {
 
       let outputs = outputs
         .as_ref()
-        .map(|outputs| -> RunResult<Vec<PathBuf>> {
+        .map(|outputs| -> RunResult<BTreeMap<String, PathBuf>> {
           let outputs = evaluator.evaluate_value(outputs)?;
           Ok(
             outputs
-              .elements()
-              .iter()
-              .map(|output| working_directory.join(output))
+              .into_elements()
+              .into_iter()
+              .map(|output| (output.clone(), working_directory.join(output)))
               .collect(),
           )
         })
@@ -631,7 +631,7 @@ impl<'src> Recipe<'src> {
 
       (Some(entry), outputs)
     } else {
-      (None, Vec::new())
+      (None, BTreeMap::new())
     };
 
     let tempdir = context.tempdir(self)?;
@@ -708,11 +708,11 @@ impl<'src> Recipe<'src> {
       }
     }
 
-    for output in &outputs {
-      if !filesystem::exists(output)? {
+    for (output, path) in outputs {
+      if !filesystem::exists(&path)? {
         return Err(Error::CacheOutputMissing {
           recipe: self.name(),
-          path: output.clone(),
+          output,
         });
       }
     }
