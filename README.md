@@ -4135,8 +4135,7 @@ Each input file is hashed with BLAKE3 and added to the `inputs` cache key,
 which contains a map of paths to hashes.
 
 Any changes to the contents of an input file changes the cache key, which
-causes the next invocation that would otherwise hit the cache to miss and
-re-run.
+causes the next invocation to miss the cache and re-run.
 
 Missing inputs and paths to directories are errors.
 
