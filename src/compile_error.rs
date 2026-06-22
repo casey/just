@@ -243,6 +243,11 @@ impl Display for CompileError<'_> {
         "{item_kind} `{item_name}` has invalid attribute `{}`",
         attribute.name(),
       ),
+      InvalidShellRecipeAttribute { attribute, recipe } => write!(
+        f,
+        "shell recipe `{recipe}` has script recipe attribute `{}`",
+        attribute.name(),
+      ),
       InvalidEscapeSequence { character } => write!(
         f,
         "`\\{}` is not a valid escape sequence",

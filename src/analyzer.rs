@@ -284,10 +284,9 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             return Err(
               recipe
                 .name
-                .error(InvalidAttribute {
-                  item_kind: "recipe",
-                  item_name: recipe.name.lexeme(),
+                .error(InvalidShellRecipeAttribute {
                   attribute: Box::new(attribute.clone()),
+                  recipe: recipe.name.lexeme(),
                 })
                 .into(),
             );

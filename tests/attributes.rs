@@ -294,7 +294,7 @@ fn extension_on_shell_error() {
     )
     .stderr(
       "
-        error: recipe `baz` has invalid attribute `extension`
+        error: shell recipe `baz` has script recipe attribute `extension`
          ——▶ justfile:2:1
           │
         2 │ baz:
