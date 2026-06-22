@@ -22,7 +22,7 @@ pub(crate) use {
     color::Color,
     color_display::ColorDisplay,
     command_color::CommandColor,
-    command_ext::CommandExt,
+    command_ext::{CommandExt, exported_environment},
     compilation::Compilation,
     compile_error::CompileError,
     compile_error_kind::CompileErrorKind,

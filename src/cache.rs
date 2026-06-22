@@ -5,9 +5,13 @@ const VERSION: u64 = 0;
 
 #[derive(Serialize)]
 struct Key<'a> {
+  environment: &'a BTreeMap<String, Option<String>>,
+  interpreter: Option<&'a Interpreter<String>>,
   lines: &'a [String],
+  positional: &'a [String],
   recipe: &'a Modulepath,
   version: u64,
+  working_directory: Option<&'a Path>,
 }
 
 pub(crate) struct Cache {
@@ -18,13 +22,21 @@ pub(crate) struct Cache {
 impl Cache {
   pub(crate) fn status(
     &self,
-    recipe: &Recipe,
+    environment: &BTreeMap<String, Option<String>>,
+    interpreter: Option<&Interpreter<String>>,
     lines: &[String],
+    positional: &[String],
+    recipe: &Modulepath,
+    working_directory: Option<&Path>,
   ) -> RunResult<'static, CacheStatus> {
     let key = Key {
+      environment,
+      interpreter,
       lines,
-      recipe: recipe.recipe_path(),
+      positional,
+      recipe,
       version: VERSION,
+      working_directory,
     };
 
     let mut hasher = blake3::Hasher::new();

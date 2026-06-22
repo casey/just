@@ -145,6 +145,151 @@ fn different_recipes_do_not_share_entries() {
 }
 
 #[test]
+fn positional_arguments_invalidate_cache() {
+  let justfile = "
+    [cache]
+    [positional-arguments]
+    [script]
+    foo *args:
+      echo $1 >> count
+  ";
+
+  let output = Test::new()
+    .justfile(justfile)
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "bar"])
+    .expect_file("count", "bar\n")
+    .success();
+
+  Test::with_tempdir(output.tempdir)
+    .justfile(justfile)
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "baz"])
+    .expect_file("count", "bar\nbaz\n")
+    .success();
+}
+
+#[test]
+fn environment_invalidates_cache() {
+  let justfile = "
+    set export
+
+    value := 'default'
+
+    [cache]
+    [script]
+    foo:
+      echo $value >> count
+  ";
+
+  let output = Test::new()
+    .justfile(justfile)
+    .env("JUST_UNSTABLE", "1")
+    .args(["value=bar", "foo"])
+    .expect_file("count", "bar\n")
+    .success();
+
+  Test::with_tempdir(output.tempdir)
+    .justfile(justfile)
+    .env("JUST_UNSTABLE", "1")
+    .args(["value=baz", "foo"])
+    .expect_file("count", "bar\nbaz\n")
+    .success();
+}
+
+#[test]
+fn unexported_variable_does_not_invalidate_cache() {
+  let justfile = "
+    value := 'default'
+
+    [cache]
+    [script]
+    foo:
+      echo bar >> count
+  ";
+
+  let output = Test::new()
+    .justfile(justfile)
+    .env("JUST_UNSTABLE", "1")
+    .args(["value=bar", "foo"])
+    .expect_file("count", "bar\n")
+    .success();
+
+  Test::with_tempdir(output.tempdir)
+    .justfile(justfile)
+    .env("JUST_UNSTABLE", "1")
+    .args(["value=baz", "foo"])
+    .expect_file("count", "bar\n")
+    .success();
+}
+
+#[test]
+fn interpreter_invalidates_cache() {
+  let output = Test::new()
+    .justfile(
+      "
+        set script-interpreter := ['sh', '-eu']
+
+        [cache]
+        [script]
+        foo:
+          echo bar >> count
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .expect_file("count", "bar\n")
+    .success();
+
+  Test::with_tempdir(output.tempdir)
+    .justfile(
+      "
+        set script-interpreter := ['sh', '-u']
+
+        [cache]
+        [script]
+        foo:
+          echo bar >> count
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .expect_file("count", "bar\nbar\n")
+    .success();
+}
+
+#[test]
+fn working_directory_invalidates_cache() {
+  let output = Test::new()
+    .justfile(
+      "
+        [cache]
+        [working-directory('a')]
+        [script]
+        foo:
+          echo bar >> count
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .create_dir("a")
+    .expect_file("a/count", "bar\n")
+    .success();
+
+  Test::with_tempdir(output.tempdir)
+    .justfile(
+      "
+        [cache]
+        [working-directory('b')]
+        [script]
+        foo:
+          echo bar >> count
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .create_dir("b")
+    .expect_file("b/count", "bar\n")
+    .success();
+}
+
+#[test]
 fn hit_prints_verbose_message() {
   let justfile = "
     [cache]

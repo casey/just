@@ -1,5 +1,48 @@
 use super::*;
 
+pub(crate) fn exported_environment(
+  settings: &Settings,
+  dotenv: &BTreeMap<String, String>,
+  scope: &Scope,
+  unexports: &HashSet<String>,
+) -> BTreeMap<String, Option<String>> {
+  let mut environment = BTreeMap::new();
+
+  for (name, value) in dotenv {
+    environment.insert(name.clone(), Some(value.clone()));
+  }
+
+  if let Some(parent) = scope.parent() {
+    export_scope(settings, parent, unexports, &mut environment);
+  }
+
+  environment
+}
+
+fn export_scope(
+  settings: &Settings,
+  scope: &Scope,
+  unexports: &HashSet<String>,
+  environment: &mut BTreeMap<String, Option<String>>,
+) {
+  if let Some(parent) = scope.parent() {
+    export_scope(settings, parent, unexports, environment);
+  }
+
+  for unexport in unexports {
+    environment.insert(unexport.clone(), None);
+  }
+
+  for binding in scope.bindings() {
+    if (binding.export || (settings.export && !binding.prelude)) && !binding.value.is_empty() {
+      environment.insert(
+        binding.name.lexeme().to_string(),
+        Some(binding.value.join()),
+      );
+    }
+  }
+}
+
 pub(crate) trait CommandExt {
   fn export(
     &mut self,
@@ -8,8 +51,6 @@ pub(crate) trait CommandExt {
     scope: &Scope,
     unexports: &HashSet<String>,
   ) -> &mut Command;
-
-  fn export_scope(&mut self, settings: &Settings, scope: &Scope, unexports: &HashSet<String>);
 
   fn output_guard(self) -> (io::Result<process::Output>, Option<Signal>);
 
@@ -28,31 +69,14 @@ impl CommandExt for Command {
     scope: &Scope,
     unexports: &HashSet<String>,
   ) -> &mut Command {
-    for (name, value) in dotenv {
-      self.env(name, value);
-    }
-
-    if let Some(parent) = scope.parent() {
-      self.export_scope(settings, parent, unexports);
+    for (name, value) in exported_environment(settings, dotenv, scope, unexports) {
+      match value {
+        Some(value) => self.env(name, value),
+        None => self.env_remove(name),
+      };
     }
 
     self
-  }
-
-  fn export_scope(&mut self, settings: &Settings, scope: &Scope, unexports: &HashSet<String>) {
-    if let Some(parent) = scope.parent() {
-      self.export_scope(settings, parent, unexports);
-    }
-
-    for unexport in unexports {
-      self.env_remove(unexport);
-    }
-
-    for binding in scope.bindings() {
-      if (binding.export || (settings.export && !binding.prelude)) && !binding.value.is_empty() {
-        self.env(binding.name.lexeme(), &*binding.value.join());
-      }
-    }
   }
 
   fn output_guard(self) -> (io::Result<process::Output>, Option<Signal>) {
