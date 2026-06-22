@@ -3,14 +3,6 @@ use super::*;
 type Environment = BTreeMap<String, Option<String>>;
 
 pub(crate) trait CommandExt {
-  fn export(
-    &mut self,
-    settings: &Settings,
-    dotenv: &BTreeMap<String, String>,
-    scope: &Scope,
-    unexports: &HashSet<String>,
-  ) -> &mut Command;
-
   fn environment(
     dotenv: &BTreeMap<String, String>,
     scope: &Scope,
@@ -53,6 +45,14 @@ pub(crate) trait CommandExt {
       }
     }
   }
+
+  fn export(
+    &mut self,
+    settings: &Settings,
+    dotenv: &BTreeMap<String, String>,
+    scope: &Scope,
+    unexports: &HashSet<String>,
+  ) -> &mut Command;
 
   fn export_environment(&mut self, environment: Environment) -> &mut Command;
 
