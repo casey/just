@@ -1,9 +1,9 @@
 use super::*;
 
 pub(crate) fn exported_environment(
-  settings: &Settings,
   dotenv: &BTreeMap<String, String>,
   scope: &Scope,
+  settings: &Settings,
   unexports: &HashSet<String>,
 ) -> BTreeMap<String, Option<String>> {
   let mut environment = BTreeMap::new();
@@ -13,20 +13,20 @@ pub(crate) fn exported_environment(
   }
 
   if let Some(parent) = scope.parent() {
-    export_scope(settings, parent, unexports, &mut environment);
+    export_scope(&mut environment, parent, settings, unexports);
   }
 
   environment
 }
 
 fn export_scope(
-  settings: &Settings,
-  scope: &Scope,
-  unexports: &HashSet<String>,
   environment: &mut BTreeMap<String, Option<String>>,
+  scope: &Scope,
+  settings: &Settings,
+  unexports: &HashSet<String>,
 ) {
   if let Some(parent) = scope.parent() {
-    export_scope(settings, parent, unexports, environment);
+    export_scope(environment, parent, settings, unexports);
   }
 
   for unexport in unexports {
@@ -69,7 +69,7 @@ impl CommandExt for Command {
     scope: &Scope,
     unexports: &HashSet<String>,
   ) -> &mut Command {
-    for (name, value) in exported_environment(settings, dotenv, scope, unexports) {
+    for (name, value) in exported_environment(dotenv, scope, settings, unexports) {
       match value {
         Some(value) => self.env(name, value),
         None => self.env_remove(name),

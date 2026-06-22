@@ -549,9 +549,9 @@ impl<'src> Recipe<'src> {
     let working_directory = self.working_directory(context, &mut evaluator)?;
 
     let mut environment = exported_environment(
-      &context.module.settings,
       context.dotenv,
       scope,
+      &context.module.settings,
       &context.module.unexports,
     );
 
