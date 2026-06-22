@@ -759,19 +759,36 @@ fn command_option() {
 }
 
 #[test]
-fn command_list_is_space_joined() {
+fn command_list_runs_each_and_merges() {
   Test::new()
     .justfile(
       "
         set lists
-        set dotenv-command := ['echo', 'KEY=command']
+        set dotenv-command := ['echo FOO=bar', 'echo BAZ=qux']
+
+        @foo:
+          echo $FOO $BAZ
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("bar qux\n")
+    .success();
+}
+
+#[test]
+fn command_list_last_wins() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set dotenv-command := ['echo KEY=foo', 'echo KEY=bar']
 
         @foo:
           echo $KEY
       ",
     )
     .env("JUST_UNSTABLE", "1")
-    .stdout("command\n")
+    .stdout("bar\n")
     .success();
 }
 

@@ -1335,8 +1335,8 @@ stopping in the first directory that contains any of them and loading all
 matching files in that directory. If multiple environment files are loaded,
 variables in files later in list take precedence over earlier ones.
 
-If value of `set dotenv-command` is a list it is space-joined into a single
-string.
+Each element of the value of `set dotenv-command` is run as a command, with
+variables in commands later in the list taking precedence.
 
 ##### Attributes
 
