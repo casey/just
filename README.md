@@ -4068,10 +4068,11 @@ lock, see that the entry is non-empty, and skip the invocation.
 
 `just` will happily skip cached recipes, but it is your responsibility to make
 sure that this is safe, and that the contents of the cache key capture enough
-information about the recipe for caching to make sense in the first place.
+information about recipe invocations for caching to make sense in the first
+place.
 
 The cached recipes feature is incomplete, and many cache keys that should be
-automatically or optionally included, are not yet implemented, including:
+automatically or optionally included are not yet implemented, including:
 
 - Exported arguments
 - Global exports
@@ -4082,12 +4083,11 @@ automatically or optionally included, are not yet implemented, including:
 - `.env` variables
 
 Outside of existing and contemplated cache keys there are many details about
-the context in which a recipe runs that cannot practically be automatically
-included in cache keys.
+the context in which a recipe runs that cannot included in cache keys.
 
-These include the current time, input files, output files, system binaries, the
-operating system, databases, systems over the network, and any of the myriad
-other things which may change the execution of a computer program.
+These include the time, input files, output files, system binaries, operating
+system version, databases, systems over the network, the DNS, and any of the
+myriad other things which may change the execution of a computer program.
 
 Additionally, `just` cannot determine when changes are unrelated or changes,
 such as changes to whitespace and formatting which don't affect execution.
