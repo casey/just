@@ -110,19 +110,21 @@ pub struct Arguments {
     conflicts_with = "dotenv_filename",
     conflicts_with = "dotenv_path",
     conflicts_with = "no_dotenv",
-    help = "Run <DOTENV-COMMAND> and load its output as an environment file",
-    long
+    env = "JUST_DOTENV_COMMAND",
+    help = "Run <COMMAND> and load its output as an environment file",
+    long,
+    value_name = "COMMAND"
   )]
   pub(crate) dotenv_command: Option<String>,
   #[arg(
     conflicts_with = "dotenv_path",
-    help = "Search for environment file named <DOTENV-FILENAME> instead of `.env`",
+    help = "Search for an environment file named <DOTENV-FILENAME> instead of `.env`",
     long
   )]
   pub(crate) dotenv_filename: Vec<String>,
   #[arg(
     add = ArgValueCompleter::new(PathCompleter::file()),
-    help = "Load <DOTENV-PATH> as environment file instead of searching for one",
+    help = "Load <DOTENV-PATH> as an environment file instead of searching for one",
     long,
     short = 'E',
   )]
