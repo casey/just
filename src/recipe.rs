@@ -571,21 +571,33 @@ impl<'src> Recipe<'src> {
         unreachable!()
       };
 
+      let working_directory = match &working_directory {
+        Some(working_directory) => working_directory.to_owned(),
+        None => context.working_directory(),
+      };
+
       let inputs = inputs
         .as_ref()
         .map(|inputs| {
           let inputs = evaluator.evaluate_value(inputs)?;
-          Cache::inputs(context, inputs, working_directory.as_deref())
+          Cache::inputs(inputs, &working_directory)
         })
         .transpose()?;
 
-      let outputs = match outputs {
-        Some(outputs) => {
+      let outputs = outputs
+        .as_ref()
+        .map(|outputs| -> RunResult<Vec<PathBuf>> {
           let outputs = evaluator.evaluate_value(outputs)?;
-          Cache::outputs(context, outputs, working_directory.as_deref())
-        }
-        None => Vec::new(),
-      };
+          Ok(
+            outputs
+              .elements()
+              .iter()
+              .map(|output| working_directory.join(output))
+              .collect(),
+          )
+        })
+        .transpose()?
+        .unwrap_or_default();
 
       (inputs, outputs)
     } else {

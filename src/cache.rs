@@ -72,19 +72,13 @@ impl Cache {
   }
 
   pub(crate) fn inputs(
-    context: &ExecutionContext,
     value: Value,
-    working_directory: Option<&Path>,
+    working_directory: &Path,
   ) -> RunResult<'static, BTreeMap<String, blake3::Hash>> {
-    let base = match working_directory {
-      Some(working_directory) => working_directory.to_owned(),
-      None => context.working_directory(),
-    };
-
     let mut inputs = BTreeMap::new();
 
     for input in value.elements() {
-      let path = base.join(input);
+      let path = working_directory.join(input);
 
       let metadata = match fs::metadata(&path) {
         Ok(metadata) => metadata,
@@ -111,22 +105,5 @@ impl Cache {
     }
 
     Ok(inputs)
-  }
-
-  pub(crate) fn outputs(
-    context: &ExecutionContext,
-    value: Value,
-    working_directory: Option<&Path>,
-  ) -> Vec<PathBuf> {
-    let base = match working_directory {
-      Some(working_directory) => working_directory.to_owned(),
-      None => context.working_directory(),
-    };
-
-    value
-      .elements()
-      .iter()
-      .map(|output| base.join(output))
-      .collect()
   }
 }
