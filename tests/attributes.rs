@@ -713,7 +713,6 @@ fn env_attribute_duplicate_last_wins() {
     .success();
 }
 
-
 #[test]
 fn extra_keyword_error() {
   Test::new()
@@ -736,7 +735,7 @@ fn extra_keyword_error() {
     .failure();
 }
 
-[test]
+#[test]
 fn split_across_multiple_lines() {
   Test::new()
     .justfile(
@@ -789,5 +788,3 @@ fn positional_arguments_cannot_follow_keyword_arguments() {
     )
     .failure();
 }
-
-
