@@ -564,7 +564,7 @@ impl<'src> Recipe<'src> {
         .insert(name.clone(), Some(value.clone()));
     }
 
-    let (entry, outputs) = if self.attributes.contains(AttributeDiscriminant::Cache) {
+    let (cache_lock, outputs) = if self.attributes.contains(AttributeDiscriminant::Cache) {
       let Some(Attribute::Cache {
         extra,
         inputs,
@@ -620,7 +620,7 @@ impl<'src> Recipe<'src> {
         working_directory: Some(&working_directory),
       };
 
-      let entry = match cache.status(key, &outputs)? {
+      let lock = match cache.status(key, &outputs)? {
         CacheStatus::Hit => {
           if config.verbosity.loquacious() {
             eprintln!(
@@ -635,10 +635,10 @@ impl<'src> Recipe<'src> {
           }
           return Ok(());
         }
-        CacheStatus::Miss(entry) => entry,
+        CacheStatus::Miss(lock) => lock,
       };
 
-      (Some(entry), outputs)
+      (Some(lock), outputs)
     } else {
       (None, BTreeMap::new())
     };
@@ -726,9 +726,7 @@ impl<'src> Recipe<'src> {
       }
     }
 
-    if let Some(entry) = entry {
-      entry.save()?;
-    }
+    cache_lock.map(CacheLock::save).transpose()?;
 
     Ok(())
   }

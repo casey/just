@@ -2,5 +2,5 @@ use super::*;
 
 pub(crate) enum CacheStatus {
   Hit,
-  Miss(CacheEntry),
+  Miss(CacheLock),
 }

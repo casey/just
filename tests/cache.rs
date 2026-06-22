@@ -39,7 +39,7 @@ fn cache_attribute_requires_script_recipe() {
 }
 
 #[test]
-fn entry_is_created_with_empty_object() {
+fn entry_is_created_with_recipe_name() {
   let output = Test::new()
     .justfile(
       "
@@ -60,7 +60,10 @@ fn entry_is_created_with_empty_object() {
 
   assert_eq!(entries.len(), 1);
   assert_eq!(entries[0].extension().unwrap(), "json");
-  assert_eq!(fs::read_to_string(&entries[0]).unwrap(), "{}");
+  assert_eq!(
+    fs::read_to_string(&entries[0]).unwrap(),
+    r#"{"recipe":"foo"}"#
+  );
 }
 
 #[test]

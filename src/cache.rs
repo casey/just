@@ -38,12 +38,20 @@ impl Cache {
     file.lock().map_err(context)?;
 
     if file.metadata().map_err(context)?.len() == 0 {
-      return Ok(CacheStatus::Miss(CacheEntry { file, path }));
+      return Ok(CacheStatus::Miss(CacheLock {
+        file,
+        path,
+        recipe: key.recipe.clone(),
+      }));
     }
 
     for output in outputs.values() {
       if !filesystem::exists(output)? {
-        return Ok(CacheStatus::Miss(CacheEntry { file, path }));
+        return Ok(CacheStatus::Miss(CacheLock {
+          file,
+          path,
+          recipe: key.recipe.clone(),
+        }));
       }
     }
 

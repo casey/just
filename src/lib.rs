@@ -17,8 +17,8 @@ pub(crate) use {
     attribute_set::AttributeSet,
     binding::Binding,
     cache::Cache,
-    cache_entry::CacheEntry,
     cache_key::CacheKey,
+    cache_lock::CacheLock,
     cache_status::CacheStatus,
     color::Color,
     color_display::ColorDisplay,
@@ -218,8 +218,8 @@ mod attribute;
 mod attribute_set;
 mod binding;
 mod cache;
-mod cache_entry;
 mod cache_key;
+mod cache_lock;
 mod cache_status;
 mod color;
 mod color_display;
