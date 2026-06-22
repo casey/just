@@ -44,7 +44,7 @@ fn entry_is_created_with_empty_object() {
     .justfile(
       "
         [cache]
-        [script('sh')]
+        [script]
         foo:
           echo bar >> count
       ",
@@ -67,7 +67,7 @@ fn entry_is_created_with_empty_object() {
 fn hit_skips_execution() {
   let justfile = "
     [cache]
-    [script('sh')]
+    [script]
     foo:
       echo bar >> count
   ";
@@ -91,7 +91,7 @@ fn body_change_invalidates_cache() {
     .justfile(
       "
         [cache]
-        [script('sh')]
+        [script]
         foo:
           echo bar >> count
       ",
@@ -104,7 +104,7 @@ fn body_change_invalidates_cache() {
     .justfile(
       "
         [cache]
-        [script('sh')]
+        [script]
         foo:
           echo baz >> count
       ",
@@ -118,7 +118,7 @@ fn body_change_invalidates_cache() {
 fn hit_prints_verbose_message() {
   let justfile = "
     [cache]
-    [script('sh')]
+    [script]
     foo:
       echo bar >> count
   ";
