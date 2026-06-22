@@ -4137,9 +4137,6 @@ These include the time, input files, output files, system binaries, operating
 system version, databases, systems over the network, the DNS, and any of the
 myriad other things which may change the execution of a computer program.
 
-`just` will also unavoidably run cached recipes even when changes are unrelated
-or cosmetic, such as changes to whitespace and formatting.
-
 Attempting to skip execution based on the type of crude heuristics that `just`
 employs has a long and sordid history. However, it is an undeniably convenient
 and powerful tool, and it is provided in the hopes that you find it useful.
