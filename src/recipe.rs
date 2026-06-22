@@ -560,14 +560,9 @@ impl<'src> Recipe<'src> {
     }
 
     let entry = if self.attributes.contains(AttributeDiscriminant::Cache) {
-      let interpreter = match &executor {
-        Executor::Command(interpreter) => Some(interpreter),
-        Executor::Shebang(_) => None,
-      };
-
       match cache.status(
         &environment,
-        interpreter,
+        &executor,
         &evaluated_lines,
         self
           .takes_positional_arguments(&context.module.settings)

@@ -6,7 +6,7 @@ const VERSION: u64 = 0;
 #[derive(Serialize)]
 struct Key<'a> {
   environment: &'a BTreeMap<String, Option<String>>,
-  interpreter: Option<&'a Interpreter<String>>,
+  executor: &'a Executor<'a>,
   lines: &'a [String],
   positional: Option<&'a [String]>,
   recipe: &'a Modulepath,
@@ -23,7 +23,7 @@ impl Cache {
   pub(crate) fn status(
     &self,
     environment: &BTreeMap<String, Option<String>>,
-    interpreter: Option<&Interpreter<String>>,
+    executor: &Executor,
     lines: &[String],
     positional: Option<&[String]>,
     recipe: &Modulepath,
@@ -31,7 +31,7 @@ impl Cache {
   ) -> RunResult<'static, CacheStatus> {
     let key = Key {
       environment,
-      interpreter,
+      executor,
       lines,
       positional,
       recipe,
