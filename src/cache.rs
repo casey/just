@@ -102,7 +102,7 @@ impl Cache {
           path: path.clone(),
         })?;
 
-      inputs.insert(input.clone(), hasher.finalize());
+      inputs.insert(input.into(), hasher.finalize());
     }
 
     Ok(inputs)
