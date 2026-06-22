@@ -62,4 +62,49 @@ impl Cache {
 
     Ok(self.path.join(format!("{key}.json")))
   }
+
+  pub(crate) fn inputs<'src>(
+    context: &ExecutionContext,
+    evaluator: &mut Evaluator<'src, '_>,
+    expression: &Expression<'src>,
+    working_directory: Option<&Path>,
+  ) -> RunResult<'src, BTreeMap<String, blake3::Hash>> {
+    let value = evaluator.evaluate_value(expression)?;
+
+    let base = match working_directory {
+      Some(working_directory) => working_directory.to_owned(),
+      None => context.working_directory(),
+    };
+
+    let mut inputs = BTreeMap::new();
+
+    for input in value.elements() {
+      let path = base.join(input);
+
+      let metadata = match fs::metadata(&path) {
+        Ok(metadata) => metadata,
+        Err(source) if source.kind() == io::ErrorKind::NotFound => {
+          return Err(Error::CacheInputMissing { path });
+        }
+        Err(source) => return Err(Error::FilesystemIo { source, path }),
+      };
+
+      if metadata.is_dir() {
+        return Err(Error::CacheInputDirectory { path });
+      }
+
+      let mut hasher = blake3::Hasher::new();
+
+      hasher
+        .update_mmap_rayon(&path)
+        .map_err(|source| Error::FilesystemIo {
+          source,
+          path: path.clone(),
+        })?;
+
+      inputs.insert(input.clone(), hasher.finalize());
+    }
+
+    Ok(inputs)
+  }
 }

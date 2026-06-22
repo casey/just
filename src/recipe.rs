@@ -236,50 +236,6 @@ impl<'src> Recipe<'src> {
     Ok(Some(working_directory))
   }
 
-  fn cache_inputs(
-    context: &ExecutionContext,
-    evaluator: &mut Evaluator<'src, '_>,
-    working_directory: Option<&Path>,
-    expression: &Expression<'src>,
-  ) -> RunResult<'src, BTreeMap<String, String>> {
-    let value = evaluator.evaluate_value(expression)?;
-
-    let base = match working_directory {
-      Some(working_directory) => working_directory.to_owned(),
-      None => context.working_directory(),
-    };
-
-    let mut inputs = BTreeMap::new();
-
-    for input in value.elements() {
-      let path = base.join(input);
-
-      let metadata = match fs::metadata(&path) {
-        Ok(metadata) => metadata,
-        Err(source) if source.kind() == io::ErrorKind::NotFound => {
-          return Err(Error::CacheInputMissing { path });
-        }
-        Err(source) => return Err(Error::FilesystemIo { source, path }),
-      };
-
-      if metadata.is_dir() {
-        return Err(Error::CacheInputDirectory { path });
-      }
-
-      let mut hasher = blake3::Hasher::new();
-      hasher
-        .update_mmap_rayon(&path)
-        .map_err(|source| Error::FilesystemIo {
-          source,
-          path: path.clone(),
-        })?;
-
-      inputs.insert(input.clone(), hasher.finalize().to_string());
-    }
-
-    Ok(inputs)
-  }
-
   fn no_quiet(&self) -> bool {
     self.attributes.contains(AttributeDiscriminant::NoQuiet)
   }
@@ -608,24 +564,26 @@ impl<'src> Recipe<'src> {
         .insert(name.clone(), Some(value.clone()));
     }
 
-    let entry = if self.attributes.contains(AttributeDiscriminant::Cache) {
-      let inputs = match self.attributes.get(AttributeDiscriminant::Cache) {
-        Some(Attribute::Cache {
-          inputs: Some(expression),
-        }) => Some(Self::cache_inputs(
-          context,
-          &mut evaluator,
-          working_directory.as_deref(),
-          expression,
-        )?),
-        _ => None,
-      };
+    let entry = if let Some(Attribute::Cache { inputs }) =
+      self.attributes.get(AttributeDiscriminant::Cache)
+    {
+      let inputs = inputs
+        .as_ref()
+        .map(|inputs| {
+          Cache::inputs(
+            context,
+            &mut evaluator,
+            inputs,
+            working_directory.as_deref(),
+          )
+        })
+        .transpose()?;
 
       let key = CacheKey {
         body: &evaluated_lines,
         environment: &environment,
         executor: &executor,
-        inputs: inputs.as_ref(),
+        inputs,
         positional: self
           .takes_positional_arguments(&context.module.settings)
           .then_some(positional),

@@ -18,7 +18,7 @@ rust-version = "1.89.0"
 members = [".", "crates/*"]
 
 [dependencies]
-blake3 = { version = "1.5.0", features = ["rayon", "mmap"] }
+blake3 = { version = "1.5.0", features = ["mmap", "rayon", "serde"] }
 camino = "1.0.4"
 chrono = "0.4.38"
 clap = { version = "4.0.0", features = ["derive", "env", "wrap_help"] }
