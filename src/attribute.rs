@@ -25,7 +25,7 @@ pub(crate) enum Attribute<'src> {
   },
   Cache,
   Confirm(Option<Expression<'src>>),
-  Continue(Vec<Signal>),
+  Continue(BTreeSet<Signal>),
   Default,
   Doc(Option<StringLiteral<'src>>),
   Dragonfly,
@@ -273,7 +273,7 @@ impl<'src> Attribute<'src> {
               })
             })
           })
-          .collect::<CompileResult<Vec<Signal>>>()?,
+          .collect::<CompileResult<BTreeSet<Signal>>>()?,
       ),
       AttributeDiscriminant::Confirm
       | AttributeDiscriminant::Env
