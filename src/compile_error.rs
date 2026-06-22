@@ -127,8 +127,8 @@ impl Display for CompileError<'_> {
         first.ordinal(),
         self.token.line.ordinal(),
       ),
-      DuplicateAttributeKeyword { keyword } => {
-        write!(f, "duplicate attribute keyword argument `{keyword}`")
+      DuplicateAttributeKey { key } => {
+        write!(f, "duplicate attribute key `{key}`")
       }
       DuplicateDefault { recipe } => write!(
         f,
@@ -393,8 +393,8 @@ impl Display for CompileError<'_> {
       AttributeKeyMissingValue { key } => {
         write!(f, "attribute key `{key}` requires value")
       }
-      UnknownAttributeKeyword { attribute, keyword } => {
-        write!(f, "unknown keyword `{keyword}` for `{attribute}` attribute")
+      UnknownAttributeKey { attribute, key } => {
+        write!(f, "unknown key `{key}` for `{attribute}` attribute")
       }
       UnknownAttribute { attribute } => write!(f, "unknown attribute `{attribute}`"),
       UnknownDependency { recipe, unknown } => {

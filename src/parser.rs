@@ -1683,9 +1683,9 @@ impl<'run, 'src> Parser<'run, 'src> {
                   .insert(key.lexeme(), (key, value))
                   .is_some()
                 {
-                  return Err(key.error(CompileErrorKind::DuplicateAttributeKeyword {
-                    keyword: key.lexeme(),
-                  }));
+                  return Err(
+                    key.error(CompileErrorKind::DuplicateAttributeKey { key: key.lexeme() }),
+                  );
                 }
               } else {
                 let token = self.next()?;
