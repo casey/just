@@ -509,28 +509,6 @@ impl<'src> Recipe<'src> {
       return Ok(());
     }
 
-    let entry = if self.attributes.contains(AttributeDiscriminant::Cache) {
-      match cache.status(self, &evaluated_lines)? {
-        CacheStatus::Hit => {
-          if config.verbosity.loquacious() {
-            eprintln!(
-              "{}",
-              context
-                .config
-                .color
-                .stderr()
-                .banner()
-                .paint("===> cache hit, skipping invocation"),
-            );
-          }
-          return Ok(());
-        }
-        CacheStatus::Miss(entry) => Some(entry),
-      }
-    } else {
-      None
-    };
-
     let executor = if let Some(Attribute::Script(interpreter)) =
       self.attributes.get(AttributeDiscriminant::Script)
     {
@@ -568,6 +546,52 @@ impl<'src> Recipe<'src> {
       )
     };
 
+    let working_directory = self.working_directory(context, &mut evaluator)?;
+
+    let mut environment = Command::environment(
+      context.dotenv,
+      scope,
+      &context.module.settings,
+      &context.module.unexports,
+    );
+
+    for (name, value) in env {
+      environment.insert(name.clone(), Some(value.clone()));
+    }
+
+    let entry = if self.attributes.contains(AttributeDiscriminant::Cache) {
+      let key = CacheKey {
+        environment: &environment,
+        executor: &executor,
+        lines: &evaluated_lines,
+        positional: self
+          .takes_positional_arguments(&context.module.settings)
+          .then_some(positional),
+        recipe: self.recipe_path(),
+        working_directory: working_directory.as_deref(),
+      };
+
+      match cache.status(key)? {
+        CacheStatus::Hit => {
+          if config.verbosity.loquacious() {
+            eprintln!(
+              "{}",
+              context
+                .config
+                .color
+                .stderr()
+                .banner()
+                .paint("===> cache hit, skipping invocation"),
+            );
+          }
+          return Ok(());
+        }
+        CacheStatus::Miss(entry) => Some(entry),
+      }
+    } else {
+      None
+    };
+
     let tempdir = context.tempdir(self)?;
 
     let mut path = tempdir.path().to_path_buf();
@@ -597,27 +621,13 @@ impl<'src> Recipe<'src> {
       io_error: error,
     })?;
 
-    let mut command = executor.command(
-      config,
-      &path,
-      self.name(),
-      self.working_directory(context, &mut evaluator)?.as_deref(),
-    )?;
+    let mut command = executor.command(config, &path, self.name(), working_directory.as_deref())?;
 
     if self.takes_positional_arguments(&context.module.settings) {
       command.args(positional);
     }
 
-    command.export(
-      &context.module.settings,
-      context.dotenv,
-      scope,
-      &context.module.unexports,
-    );
-
-    for (key, value) in env {
-      command.env(key, value);
-    }
+    command.export_environment(environment);
 
     // run it!
     let (result, caught) = command.status_guard();

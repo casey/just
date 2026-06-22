@@ -1,14 +1,6 @@
 use super::*;
 
 const DIR: &str = ".justcache";
-const VERSION: u64 = 0;
-
-#[derive(Serialize)]
-struct Key<'a> {
-  lines: &'a [String],
-  recipe: &'a Modulepath,
-  version: u64,
-}
 
 pub(crate) struct Cache {
   initialized: Mutex<bool>,
@@ -16,17 +8,7 @@ pub(crate) struct Cache {
 }
 
 impl Cache {
-  pub(crate) fn status(
-    &self,
-    recipe: &Recipe,
-    lines: &[String],
-  ) -> RunResult<'static, CacheStatus> {
-    let key = Key {
-      lines,
-      recipe: recipe.recipe_path(),
-      version: VERSION,
-    };
-
+  pub(crate) fn status(&self, key: CacheKey) -> RunResult<'static, CacheStatus> {
     let mut hasher = blake3::Hasher::new();
 
     serde_json::to_writer(&mut hasher, &key)

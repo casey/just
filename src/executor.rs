@@ -1,5 +1,6 @@
 use super::*;
 
+#[derive(Serialize)]
 pub(crate) enum Executor<'a> {
   Command(Interpreter<String>),
   Shebang(Shebang<'a>),

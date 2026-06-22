@@ -1,6 +1,51 @@
 use super::*;
 
+type Environment = BTreeMap<String, Option<String>>;
+
 pub(crate) trait CommandExt {
+  fn environment(
+    dotenv: &BTreeMap<String, String>,
+    scope: &Scope,
+    settings: &Settings,
+    unexports: &HashSet<String>,
+  ) -> Environment {
+    let mut environment = BTreeMap::new();
+
+    for (name, value) in dotenv {
+      environment.insert(name.clone(), Some(value.clone()));
+    }
+
+    if let Some(parent) = scope.parent() {
+      Self::environment_scope(&mut environment, parent, settings, unexports);
+    }
+
+    environment
+  }
+
+  fn environment_scope(
+    environment: &mut Environment,
+    scope: &Scope,
+    settings: &Settings,
+    unexports: &HashSet<String>,
+  ) {
+    if let Some(parent) = scope.parent() {
+      Self::environment_scope(environment, parent, settings, unexports);
+    }
+
+    for unexport in unexports {
+      environment.insert(unexport.clone(), None);
+    }
+
+    for binding in scope.bindings() {
+      if (binding.export || (settings.export && !binding.prelude)) && !binding.value.is_empty() {
+        environment.insert(
+          binding.name.lexeme().to_string(),
+          Some(binding.value.join()),
+        );
+      }
+    }
+  }
+
   fn export(
     &mut self,
     settings: &Settings,
@@ -9,7 +54,7 @@ pub(crate) trait CommandExt {
     unexports: &HashSet<String>,
   ) -> &mut Command;
 
-  fn export_scope(&mut self, settings: &Settings, scope: &Scope, unexports: &HashSet<String>);
+  fn export_environment(&mut self, environment: Environment) -> &mut Command;
 
   fn output_guard(self) -> (io::Result<process::Output>, Option<Signal>);
 
@@ -28,31 +73,17 @@ impl CommandExt for Command {
     scope: &Scope,
     unexports: &HashSet<String>,
   ) -> &mut Command {
-    for (name, value) in dotenv {
-      self.env(name, value);
-    }
-
-    if let Some(parent) = scope.parent() {
-      self.export_scope(settings, parent, unexports);
-    }
-
-    self
+    self.export_environment(Self::environment(dotenv, scope, settings, unexports))
   }
 
-  fn export_scope(&mut self, settings: &Settings, scope: &Scope, unexports: &HashSet<String>) {
-    if let Some(parent) = scope.parent() {
-      self.export_scope(settings, parent, unexports);
+  fn export_environment(&mut self, environment: BTreeMap<String, Option<String>>) -> &mut Self {
+    for (name, value) in environment {
+      match value {
+        Some(value) => self.env(name, value),
+        None => self.env_remove(name),
+      };
     }
-
-    for unexport in unexports {
-      self.env_remove(unexport);
-    }
-
-    for binding in scope.bindings() {
-      if (binding.export || (settings.export && !binding.prelude)) && !binding.value.is_empty() {
-        self.env(binding.name.lexeme(), &*binding.value.join());
-      }
-    }
+    self
   }
 
   fn output_guard(self) -> (io::Result<process::Output>, Option<Signal>) {

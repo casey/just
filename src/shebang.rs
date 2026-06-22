@@ -1,4 +1,6 @@
-#[derive(Copy, Clone)]
+use super::*;
+
+#[derive(Copy, Clone, Serialize)]
 pub(crate) struct Shebang<'line> {
   pub(crate) argument: Option<&'line str>,
   pub(crate) interpreter: &'line str,
