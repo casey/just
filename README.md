@@ -4105,8 +4105,7 @@ The keys of the cache key object are:
 - `body`: evaluated recipe body
 - `environment`: map of environment variable names to values
 - `executor`: script interpreter or shebang
-- `inputs`: map of declared input file paths to the BLAKE3 hash of their
-  contents
+- `inputs`: input file paths to BLAKE3 hash of contents
 - `positional`: positional arguments
 - `recipe`: `::`-separated module path to invoked recipe
 - `working_directory`: current working directory
@@ -4128,39 +4127,31 @@ and skip the invocation.
 
 #### Input Files
 
-The `[cache(inputs = …)]`<sup>master</sup> attribute declares the recipe's
-input files. `inputs` is an expression that evaluates to a list of paths, and
-has access to the recipe's arguments:
+Input files can be provided with `[cache(inputs = FILES)]`, where `FILES` is an
+expression that is evaluated with recipe arguments in scope, and whose
+evaluated elements are paths which may be absolute or relative to the recipe's
+working directory.
+
+Each input file is hashed with BLAKE3 and added to the `inputs` cache key,
+which contains a map of paths to hashes.
+
+Any changes to the contents of an input file changes the cache key, which
+causes the next invocation that would otherwise hit the cache to miss and
+re-run.
+
+Missing inputs and paths to directories are errors.
+
+In this example, the `build` recipe will re-run if `lib.c` or `main.c` change:
 
 ```just
+[cache]
 set unstable
 set lists
 
-[cache(inputs = ['src/main.c', 'src/util.c'])]
-[script]
+[cache(inputs = ["lib.c", "main.c"])]
 build:
-  cc src/main.c src/util.c -o main
+  cc lib.c main.c -o main
 ```
-
-Each input is hashed with BLAKE3 and the resulting map of paths to hashes is
-included in the cache key, so changing the contents of any declared input
-invalidates the cache.
-
-Input paths are resolved relative to the recipe's working directory, and the
-path is stored in the cache key exactly as written, so relative paths keep the
-cache key portable.
-
-`just` is strict about inputs, to catch mistakes:
-
-- A missing input is an error.
-- An input that is a directory is an error. Symlinks to files are followed and
-  the target's contents are hashed, but a path that resolves to a directory,
-  including a symlink to a directory, is an error.
-
-Input files are not hashed during `--dry-run`.
-
-These restrictions may be relaxed in the future, for example to allow missing
-inputs or to recursively hash directories.
 
 #### Friendly Admonitions
 
