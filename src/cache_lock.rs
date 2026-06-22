@@ -6,13 +6,13 @@ pub(crate) struct CacheLock {
   pub(crate) recipe: Modulepath,
 }
 
-#[derive(Serialize)]
-struct Entry {
-  recipe: Modulepath,
-}
-
 impl CacheLock {
   pub(crate) fn save(mut self) -> RunResult<'static> {
+    #[derive(Serialize)]
+    struct Entry {
+      recipe: Modulepath,
+    }
+
     let entry = Entry {
       recipe: self.recipe,
     };
