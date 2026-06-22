@@ -172,9 +172,7 @@ fn positional_arguments_invalidate_cache() {
 #[test]
 fn environment_invalidates_cache() {
   let justfile = "
-    set export
-
-    value := 'default'
+    export value := 'default'
 
     [cache]
     [script]
