@@ -564,9 +564,12 @@ impl<'src> Recipe<'src> {
         .insert(name.clone(), Some(value.clone()));
     }
 
-    let entry = if let Some(Attribute::Cache { inputs }) =
-      self.attributes.get(AttributeDiscriminant::Cache)
-    {
+    let entry = if self.attributes.contains(AttributeDiscriminant::Cache) {
+      let Some(Attribute::Cache { inputs }) = self.attributes.get(AttributeDiscriminant::Cache)
+      else {
+        unreachable!()
+      };
+
       let inputs = inputs
         .as_ref()
         .map(|inputs| {
