@@ -69,19 +69,18 @@ fn hit_skips_execution() {
     [cache]
     [script]
     foo:
-      echo bar >> count
+      echo bar
   ";
 
   let output = Test::new()
     .justfile(justfile)
     .env("JUST_UNSTABLE", "1")
-    .expect_file("count", "bar\n")
+    .stdout("bar\n")
     .success();
 
   Test::with_tempdir(output.tempdir)
     .justfile(justfile)
     .env("JUST_UNSTABLE", "1")
-    .expect_file("count", "bar\n")
     .success();
 }
 
@@ -93,11 +92,11 @@ fn body_change_invalidates_cache() {
         [cache]
         [script]
         foo:
-          echo bar >> count
+          echo bar
       ",
     )
     .env("JUST_UNSTABLE", "1")
-    .expect_file("count", "bar\n")
+    .stdout("bar\n")
     .success();
 
   Test::with_tempdir(output.tempdir)
@@ -106,11 +105,11 @@ fn body_change_invalidates_cache() {
         [cache]
         [script]
         foo:
-          echo baz >> count
+          echo baz
       ",
     )
     .env("JUST_UNSTABLE", "1")
-    .expect_file("count", "bar\nbaz\n")
+    .stdout("baz\n")
     .success();
 }
 
