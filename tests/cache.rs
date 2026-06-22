@@ -46,11 +46,11 @@ fn entry_is_created_with_empty_object() {
         [cache]
         [script]
         foo:
-          echo bar >> count
+          echo bar
       ",
     )
     .env("JUST_UNSTABLE", "1")
-    .expect_file("count", "bar\n")
+    .stdout("bar\n")
     .success();
 
   let entries = fs::read_dir(output.tempdir.path().join(".justcache"))
@@ -295,12 +295,13 @@ fn hit_prints_verbose_message() {
     [cache]
     [script]
     foo:
-      echo bar >> count
+      echo bar
   ";
 
   let output = Test::new()
     .justfile(justfile)
     .env("JUST_UNSTABLE", "1")
+    .stdout("bar\n")
     .success();
 
   Test::with_tempdir(output.tempdir)
