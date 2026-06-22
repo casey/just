@@ -495,10 +495,10 @@ impl ColorDisplay for Error<'_> {
         )?,
       },
       CacheInputDirectory { path } => {
-        write!(f, "cache input is a directory: `{}`", path.display())?;
+        write!(f, "cache input is directory: `{}`", path.display())?;
       }
       CacheInputMissing { path } => {
-        write!(f, "cache input file does not exist: `{}`", path.display())?;
+        write!(f, "cache input does not exist: `{}`", path.display())?;
       }
       CacheKeySerialize { source } => write!(f, "failed to serialize cache key: {source}")?,
       ChooserInvoke {
