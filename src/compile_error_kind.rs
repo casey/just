@@ -46,7 +46,6 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   DuplicateAttributeKeyword {
     keyword: &'src str,
-    first: usize,
   },
   DuplicateDefault {
     recipe: &'src str,
