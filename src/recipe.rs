@@ -573,12 +573,8 @@ impl<'src> Recipe<'src> {
       let inputs = inputs
         .as_ref()
         .map(|inputs| {
-          Cache::inputs(
-            context,
-            &mut evaluator,
-            inputs,
-            working_directory.as_deref(),
-          )
+          let inputs = evaluator.evaluate_value(inputs)?;
+          Cache::inputs(context, inputs, working_directory.as_deref())
         })
         .transpose()?;
 

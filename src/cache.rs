@@ -65,12 +65,9 @@ impl Cache {
 
   pub(crate) fn inputs<'src>(
     context: &ExecutionContext,
-    evaluator: &mut Evaluator<'src, '_>,
-    expression: &Expression<'src>,
+    value: Value,
     working_directory: Option<&Path>,
   ) -> RunResult<'src, BTreeMap<String, blake3::Hash>> {
-    let value = evaluator.evaluate_value(expression)?;
-
     let base = match working_directory {
       Some(working_directory) => working_directory.to_owned(),
       None => context.working_directory(),
