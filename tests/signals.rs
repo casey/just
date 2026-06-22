@@ -215,6 +215,22 @@ fn continue_explicit_excludes_unlisted() {
   );
 }
 
+#[test]
+#[ignore]
+fn infallible_line_clears_caught_signal() {
+  signal_test(
+    &[],
+    "
+        default:
+          -@sleep 1
+          @echo foo
+      ",
+    Signal::SIGINT,
+    0,
+    "foo\n",
+  );
+}
+
 // This test is ignored because it is sensitive to the process signal mask.
 // Programs like `watchexec` and `cargo-watch` change the signal mask to ignore
 // `SIGHUP`, which causes this test to fail.
