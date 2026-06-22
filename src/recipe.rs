@@ -503,7 +503,7 @@ impl<'src> Recipe<'src> {
                 .color
                 .stderr()
                 .banner()
-                .paint("===> cache hit, skipping execution"),
+                .paint("===> cache hit, skipping invocation"),
             );
           }
           return Ok(());

@@ -163,7 +163,7 @@ fn hit_prints_verbose_message() {
     .stderr(
       "
         ===> running recipe `foo`...
-        ===> cache hit, skipping execution
+        ===> cache hit, skipping invocation
       ",
     )
     .success();
