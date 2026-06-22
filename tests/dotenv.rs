@@ -759,6 +759,25 @@ fn command_option() {
 }
 
 #[test]
+fn command_option_multiple() {
+  Test::new()
+    .justfile(
+      "
+        @foo:
+          echo $FOO $BAZ
+      ",
+    )
+    .args([
+      "--dotenv-command",
+      "echo FOO=bar",
+      "--dotenv-command",
+      "echo BAZ=qux",
+    ])
+    .stdout("bar qux\n")
+    .success();
+}
+
+#[test]
 fn command_list_runs_each_and_merges() {
   Test::new()
     .justfile(

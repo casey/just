@@ -5,9 +5,10 @@ pub(crate) fn load_dotenv(
   settings: &Settings,
   working_directory: &Path,
 ) -> RunResult<'static, BTreeMap<String, String>> {
-  let commands = match &config.dotenv_command {
-    Some(command) => slice::from_ref(command),
-    None => settings.dotenv_command.elements(),
+  let commands = if config.dotenv_command.is_empty() {
+    settings.dotenv_command.elements()
+  } else {
+    &config.dotenv_command
   };
 
   if !commands.is_empty() {

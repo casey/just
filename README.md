@@ -1168,7 +1168,9 @@ set dotenv-command := 'sops -d .enc.env'
 ```
 
 The command-line option `--dotenv-command` can be used to set or override
-`dotenv-command` at runtime.
+`dotenv-command` at runtime, and may be passed multiple times. Each value is
+run as a command, with variables from later commands taking precedence over
+variables earlier commands.
 
 For example, if your `.env` file contains:
 
