@@ -84,6 +84,24 @@ impl<'src> Setting<'src> {
 
     first.into_iter().chain(rest)
   }
+
+  pub(crate) fn conflicts(&self) -> &'static [Keyword] {
+    match self {
+      Self::DotenvCommand(_) => &[
+        Keyword::DotenvFilename,
+        Keyword::DotenvLoad,
+        Keyword::DotenvPath,
+        Keyword::DotenvRequired,
+      ],
+      Self::DotenvFilename(_)
+      | Self::DotenvLoad(_)
+      | Self::DotenvPath(_)
+      | Self::DotenvRequired(_) => &[Keyword::DotenvCommand],
+      Self::NoCd(_) => &[Keyword::WorkingDirectory],
+      Self::WorkingDirectory(_) => &[Keyword::NoCd],
+      _ => &[],
+    }
+  }
 }
 
 impl Display for Setting<'_> {
