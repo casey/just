@@ -125,6 +125,7 @@ dependencies = [
  "cpufeatures 0.3.0",
  "memmap2",
  "rayon-core",
+ "serde",
 ]
 
 [[package]]

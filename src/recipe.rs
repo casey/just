@@ -565,10 +565,24 @@ impl<'src> Recipe<'src> {
     }
 
     let entry = if self.attributes.contains(AttributeDiscriminant::Cache) {
+      let Some(Attribute::Cache { inputs }) = self.attributes.get(AttributeDiscriminant::Cache)
+      else {
+        unreachable!()
+      };
+
+      let inputs = inputs
+        .as_ref()
+        .map(|inputs| {
+          let inputs = evaluator.evaluate_value(inputs)?;
+          Cache::inputs(context, inputs, working_directory.as_deref())
+        })
+        .transpose()?;
+
       let key = CacheKey {
         body: &evaluated_lines,
         environment: &environment,
         executor: &executor,
+        inputs,
         positional: self
           .takes_positional_arguments(&context.module.settings)
           .then_some(positional),

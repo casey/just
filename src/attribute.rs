@@ -23,7 +23,9 @@ pub(crate) enum Attribute<'src> {
     short: Option<StringLiteral<'src>>,
     value: Option<Expression<'src>>,
   },
-  Cache,
+  Cache {
+    inputs: Option<Expression<'src>>,
+  },
   Confirm(Option<Expression<'src>>),
   Continue(BTreeSet<Signal>),
   Default,
@@ -58,7 +60,7 @@ impl AttributeDiscriminant {
   }
 
   pub(crate) fn accepts_keyword_arguments(self) -> bool {
-    matches!(self, Self::Arg)
+    matches!(self, Self::Arg | Self::Cache)
   }
 
   fn argument_range(self) -> RangeInclusive<usize> {
@@ -262,7 +264,10 @@ impl<'src> Attribute<'src> {
         }
       }
       AttributeDiscriminant::Android => Self::Android,
-      AttributeDiscriminant::Cache => Self::Cache,
+      AttributeDiscriminant::Cache => Self::Cache {
+        inputs: Self::remove_required(&mut keyword_arguments, "inputs")?
+          .map(|(_key, expression)| expression),
+      },
       AttributeDiscriminant::Continue => Self::Continue(
         arguments
           .into_iter()
@@ -410,7 +415,7 @@ impl Display for Attribute<'_> {
         write!(f, ")")?;
       }
       Self::Android
-      | Self::Cache
+      | Self::Cache { inputs: None }
       | Self::Confirm(None)
       | Self::Default
       | Self::Doc(None)
@@ -431,6 +436,9 @@ impl Display for Attribute<'_> {
       | Self::Shell
       | Self::Unix
       | Self::Windows => {}
+      Self::Cache {
+        inputs: Some(inputs),
+      } => write!(f, "(inputs={inputs})")?,
       Self::Confirm(Some(argument)) | Self::WorkingDirectory(argument) => {
         write!(f, "({argument})")?;
       }

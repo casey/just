@@ -599,6 +599,58 @@ fn env_attribute_overrides_export_in_script() {
 }
 
 #[test]
+fn cache_inputs_dump() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [cache(inputs = ['foo', 'bar'])]
+        [script]
+        baz:
+          echo baz
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("--dump")
+    .stdout(
+      "
+        set lists
+
+        [cache(inputs=['foo', 'bar'])]
+        [script]
+        baz:
+            echo baz
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn cache_unknown_keyword() {
+  Test::new()
+    .justfile(
+      "
+        [cache(input = 'foo')]
+        [script]
+        baz:
+          echo baz
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      "
+        error: unknown keyword `input` for `cache` attribute
+         ——▶ justfile:1:8
+          │
+        1 │ [cache(input = 'foo')]
+          │        ^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn env_attribute_duplicate_last_wins() {
   Test::new()
     .justfile(

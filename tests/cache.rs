@@ -213,7 +213,6 @@ fn unexported_variable_does_not_invalidate_cache() {
   Test::with_tempdir(output.tempdir)
     .env("JUST_UNSTABLE", "1")
     .args(["value=baz", "foo"])
-    .stdout("")
     .success();
 }
 
@@ -280,6 +279,179 @@ fn working_directory_invalidates_cache() {
     .env("JUST_UNSTABLE", "1")
     .create_dir("b")
     .stdout("bar\n")
+    .success();
+}
+
+#[test]
+fn input_invalidates_cache() {
+  let output = Test::new()
+    .justfile(
+      "
+        [cache(inputs = 'foo')]
+        [script]
+        bar:
+          echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .write("foo", "a")
+    .stdout("bar\n")
+    .success();
+
+  let output = Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .success();
+
+  Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .write("foo", "b")
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
+fn multiple_inputs_invalidate_cache() {
+  let output = Test::new()
+    .justfile(
+      "
+        set lists
+
+        [cache(inputs = ['foo', 'baz'])]
+        [script]
+        bar:
+          echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .write("foo", "a")
+    .write("baz", "a")
+    .stdout("bar\n")
+    .success();
+
+  Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .write("baz", "b")
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
+fn input_expression_evaluated_with_arguments() {
+  let output = Test::new()
+    .justfile(
+      "
+        [cache(inputs = file)]
+        [script]
+        bar file:
+          echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .write("foo", "a")
+    .args(["bar", "foo"])
+    .stdout("bar\n")
+    .success();
+
+  let output = Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .args(["bar", "foo"])
+    .success();
+
+  Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .write("foo", "b")
+    .args(["bar", "foo"])
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
+fn symlink_to_file_is_followed() {
+  let output = Test::new()
+    .justfile(
+      "
+        [cache(inputs = 'link')]
+        [script]
+        bar:
+          echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .write("foo", "a")
+    .symlink("foo", "link")
+    .stdout("bar\n")
+    .success();
+
+  Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .success();
+}
+
+#[test]
+fn missing_input_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        [cache(inputs = 'foo')]
+        [script]
+        bar:
+          echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr_regex(r"error: cache input does not exist: `.*foo`\n")
+    .failure();
+}
+
+#[test]
+fn directory_input_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        [cache(inputs = 'foo')]
+        [script]
+        bar:
+          echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .create_dir("foo")
+    .stderr_regex(r"error: cache input is directory: `.*foo`\n")
+    .failure();
+}
+
+#[test]
+fn symlink_to_directory_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        [cache(inputs = 'link')]
+        [script]
+        bar:
+          echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .create_dir("foo")
+    .symlink("foo", "link")
+    .stderr_regex(r"error: cache input is directory: `.*link`\n")
+    .failure();
+}
+
+#[test]
+fn dry_run_skips_input_checking() {
+  Test::new()
+    .justfile(
+      "
+        [cache(inputs = 'foo')]
+        [script]
+        bar:
+          echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("--dry-run")
+    .stderr("echo bar\n")
     .success();
 }
 

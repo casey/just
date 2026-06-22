@@ -24,6 +24,12 @@ pub(crate) enum Error<'src> {
     token: Token<'src>,
     output_error: OutputError,
   },
+  CacheInputDirectory {
+    path: PathBuf,
+  },
+  CacheInputMissing {
+    path: PathBuf,
+  },
   CacheKeySerialize {
     source: serde_json::Error,
   },
@@ -488,6 +494,12 @@ impl ColorDisplay for Error<'_> {
           "backtick succeeded but stdout was not utf8: {utf8_error}",
         )?,
       },
+      CacheInputDirectory { path } => {
+        write!(f, "cache input is directory: `{}`", path.display())?;
+      }
+      CacheInputMissing { path } => {
+        write!(f, "cache input does not exist: `{}`", path.display())?;
+      }
       CacheKeySerialize { source } => write!(f, "failed to serialize cache key: {source}")?,
       ChooserInvoke {
         shell_binary,
