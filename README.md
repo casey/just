@@ -4889,12 +4889,11 @@ receives a fatal signal, `just` halts execution.
 #### Continuing Execution
 
 The `[continue]`<sup>master</sup> attribute can be used to make `just` continue
-execution if it receives a fatal signal and the child process exits
-successfully.
+execution even if it receives a fatal signal as long as the child process it's
+running exits successfully.
 
-With no arguments, `[continue]` applies only to `SIGINT` (`ctrl-c`) so
-`SIGQUIT` (`ctrl-\`) can still be used to stop the execution, regardless of the
-child process's status.
+With no arguments, `[continue]` handles `SIGINT` (`ctrl-c`) so `SIGQUIT`
+(`ctrl-\`) can still be used to stop execution.
 
 With arguments, one or more signals to handle may be given explicitly, as
 `"SIGHUP"`, `"SIGINT"`, and `"SIGQUIT"`.
