@@ -1159,20 +1159,16 @@ If `dotenv-override` is set, variables from the environment file will override
 existing environment variables.
 
 If `dotenv-command` is set, `just` runs it with the configured `shell` and loads
-its standard output as an environment file, instead of reading one from disk.
-This is useful for sourcing secrets from a secret manager or vault without first
-writing them to disk:
+its standard output as an environment file.
+
+This is useful for sourcing secrets from a secret manager or vault:
 
 ```just
 set dotenv-command := 'sops -d .enc.env'
 ```
 
 The command-line option `--dotenv-command` can be used to set or override
-`dotenv-command` at runtime. `dotenv-command` is incompatible with the other
-dotenv settings, except `dotenv-override`, which still controls whether the
-command's output overrides existing environment variables. With `set lists`, the
-value of `dotenv-command` may be a list, which is space-joined into a single
-command.
+`dotenv-command` at runtime.
 
 For example, if your `.env` file contains:
 
@@ -1338,6 +1334,9 @@ searched for the names in `dotenv-filename`, followed by its ancestors,
 stopping in the first directory that contains any of them and loading all
 matching files in that directory. If multiple environment files are loaded,
 variables in files later in list take precedence over earlier ones.
+
+If value of `set dotenv-command` is a list it is space-joined into a single
+string.
 
 ##### Attributes
 
