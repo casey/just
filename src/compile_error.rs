@@ -208,6 +208,17 @@ impl Display for CompileError<'_> {
         f,
         "the `!include` directive has been stabilized as `import`"
       ),
+      IncompatibleSettings {
+        first,
+        first_line,
+        second,
+      } => write!(
+        f,
+        "`{}` set on line {} is incompatible with `{}`",
+        first.lexeme(),
+        first_line.ordinal(),
+        second.lexeme()
+      ),
       InconsistentLeadingWhitespace { expected, found } => write!(
         f,
         "recipe line has inconsistent leading whitespace, started with `{}` but found line with \
@@ -273,17 +284,6 @@ impl Display for CompileError<'_> {
       NoCdAndWorkingDirectoryAttribute { recipe } => write!(
         f,
         "recipe `{recipe}` has both `[no-cd]` and `[working-directory]` attributes"
-      ),
-      NoCdAndWorkingDirectorySetting {
-        first,
-        first_line,
-        second,
-      } => write!(
-        f,
-        "`{}` set on line {} is incompatible with `{}`",
-        first.lexeme(),
-        first_line.ordinal(),
-        second.lexeme()
       ),
       OptionNameContainsEqualSign { parameter } => {
         write!(

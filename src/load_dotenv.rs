@@ -5,6 +5,15 @@ pub(crate) fn load_dotenv(
   settings: &Settings,
   working_directory: &Path,
 ) -> RunResult<'static, BTreeMap<String, String>> {
+  let command = config
+    .dotenv_command
+    .clone()
+    .or_else(|| (!settings.dotenv_command.is_empty()).then(|| settings.dotenv_command.join()));
+
+  if let Some(command) = command {
+    return load_from_command(&command, settings, config, working_directory);
+  }
+
   if !settings.lists && (config.dotenv_filename.len() > 1 || config.dotenv_path.len() > 1) {
     return Err(Error::DotenvArgumentsRequireLists);
   }
@@ -69,6 +78,48 @@ pub(crate) fn load_dotenv(
   } else {
     Ok(BTreeMap::new())
   }
+}
+
+fn load_from_command(
+  command: &str,
+  settings: &Settings,
+  config: &Config,
+  working_directory: &Path,
+) -> RunResult<'static, BTreeMap<String, String>> {
+  let mut cmd = settings.shell_command(config);
+
+  cmd
+    .arg(command)
+    .current_dir(working_directory)
+    .stdin(Stdio::inherit())
+    .stderr(if config.verbosity.quiet() {
+      Stdio::null()
+    } else {
+      Stdio::inherit()
+    })
+    .stdout(Stdio::piped());
+
+  let output = cmd
+    .output_guard_stdout()
+    .map_err(|output_error| Error::DotenvCommand {
+      command: command.into(),
+      output_error,
+    })?;
+
+  let mut dotenv = BTreeMap::new();
+
+  for result in dotenvy::from_read_iter(output.as_bytes()) {
+    let (key, value) = result.map_err(|dotenv_error| Error::Dotenv {
+      dotenv_error,
+      path: working_directory.into(),
+    })?;
+
+    if settings.dotenv_override || env::var_os(&key).is_none() {
+      dotenv.insert(key, value);
+    }
+  }
+
+  Ok(dotenv)
 }
 
 fn load_from_file(

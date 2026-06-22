@@ -459,11 +459,38 @@ impl<'run, 'src> Analyzer<'run, 'src> {
   }
 
   fn analyze_set(&self, set: &Set<'src>) -> CompileResult<'src> {
+    const DOTENV_COMMAND_CONFLICTS: &[Keyword] = &[
+      Keyword::DotenvFilename,
+      Keyword::DotenvLoad,
+      Keyword::DotenvPath,
+      Keyword::DotenvRequired,
+    ];
+
     if let Some(original) = self.sets.get(set.name.lexeme()) {
       return Err(set.name.error(DuplicateSet {
         setting: original.name.lexeme(),
         first: original.name.line,
       }));
+    }
+
+    if let Some(second) = Keyword::from_lexeme(set.name.lexeme()) {
+      let conflict = if second == Keyword::DotenvCommand {
+        DOTENV_COMMAND_CONFLICTS
+          .iter()
+          .find_map(|keyword| self.sets.get(keyword.lexeme()))
+      } else if DOTENV_COMMAND_CONFLICTS.contains(&second) {
+        self.sets.get(Keyword::DotenvCommand.lexeme())
+      } else {
+        None
+      };
+
+      if let Some(conflict) = conflict {
+        return Err(set.name.error(IncompatibleSettings {
+          first: Keyword::from_lexeme(conflict.name.lexeme()).unwrap(),
+          first_line: conflict.name.line,
+          second,
+        }));
+      }
     }
 
     if let Some(second) = Keyword::from_lexeme(set.name.lexeme()) {
@@ -476,7 +503,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       };
 
       if let Some(conflict) = self.sets.get(first.lexeme()) {
-        return Err(set.name.error(NoCdAndWorkingDirectorySetting {
+        return Err(set.name.error(IncompatibleSettings {
           first,
           first_line: conflict.name.line,
           second,

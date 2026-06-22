@@ -6,6 +6,7 @@ pub(crate) enum Setting<'src> {
   AllowDuplicateVariables(bool),
   DefaultList(bool),
   DefaultScript(bool),
+  DotenvCommand(Expression<'src>),
   DotenvFilename(Expression<'src>),
   DotenvLoad(bool),
   DotenvOverride(bool),
@@ -52,7 +53,8 @@ impl<'src> Setting<'src> {
       | Self::Quiet(value)
       | Self::Unstable(value)
       | Self::WindowsPowerShell(value) => *value,
-      Self::DotenvFilename(_value)
+      Self::DotenvCommand(_value)
+      | Self::DotenvFilename(_value)
       | Self::DotenvPath(_value)
       | Self::Tempdir(_value)
       | Self::WorkingDirectory(_value) => false,
@@ -62,7 +64,8 @@ impl<'src> Setting<'src> {
 
   pub(crate) fn expressions(&self) -> impl Iterator<Item = &Expression<'src>> {
     let first = match self {
-      Self::DotenvFilename(value)
+      Self::DotenvCommand(value)
+      | Self::DotenvFilename(value)
       | Self::DotenvPath(value)
       | Self::Tempdir(value)
       | Self::WorkingDirectory(value) => Some(value),
@@ -105,7 +108,8 @@ impl Display for Setting<'_> {
       | Self::Quiet(value)
       | Self::Unstable(value)
       | Self::WindowsPowerShell(value) => write!(f, "{value}"),
-      Self::DotenvFilename(value)
+      Self::DotenvCommand(value)
+      | Self::DotenvFilename(value)
       | Self::DotenvPath(value)
       | Self::Tempdir(value)
       | Self::WorkingDirectory(value) => {

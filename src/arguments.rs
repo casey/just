@@ -107,6 +107,14 @@ pub struct Arguments {
   )]
   pub(crate) default_list: bool,
   #[arg(
+    conflicts_with = "dotenv_filename",
+    conflicts_with = "dotenv_path",
+    conflicts_with = "no_dotenv",
+    help = "Run <DOTENV-COMMAND> and load its output as an environment file",
+    long
+  )]
+  pub(crate) dotenv_command: Option<String>,
+  #[arg(
     conflicts_with = "dotenv_path",
     help = "Search for environment file named <DOTENV-FILENAME> instead of `.env`",
     long

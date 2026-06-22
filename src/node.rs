@@ -313,7 +313,8 @@ impl<'src> Node<'src> for Set<'src> {
       | Setting::WindowsPowerShell(value) => {
         set.push_mut(value.to_string());
       }
-      Setting::DotenvFilename(value)
+      Setting::DotenvCommand(value)
+      | Setting::DotenvFilename(value)
       | Setting::DotenvPath(value)
       | Setting::Tempdir(value)
       | Setting::WorkingDirectory(value) => {

@@ -728,3 +728,159 @@ fn multiple_arguments_require_lists_setting() {
     )
     .failure();
 }
+
+#[test]
+fn command() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-command := 'echo KEY=command'
+
+        @foo:
+          echo $KEY
+      ",
+    )
+    .stdout("command\n")
+    .success();
+}
+
+#[test]
+fn command_argument() {
+  Test::new()
+    .justfile(
+      "
+        @foo:
+          echo $KEY
+      ",
+    )
+    .args(["--dotenv-command", "echo KEY=command"])
+    .stdout("command\n")
+    .success();
+}
+
+#[test]
+fn command_list_is_space_joined() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set dotenv-command := ['echo', 'KEY=command']
+
+        @foo:
+          echo $KEY
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("command\n")
+    .success();
+}
+
+#[test]
+fn command_does_not_override_environment() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-command := 'echo KEY=command'
+
+        @foo:
+          echo $KEY
+      ",
+    )
+    .env("KEY", "environment")
+    .stdout("environment\n")
+    .success();
+}
+
+#[test]
+fn command_override() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-command := 'echo KEY=command'
+        set dotenv-override := true
+
+        @foo:
+          echo $KEY
+      ",
+    )
+    .env("KEY", "environment")
+    .stdout("command\n")
+    .success();
+}
+
+#[test]
+fn command_failure() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-command := 'exit 1'
+
+        foo:
+      ",
+    )
+    .stderr("error: failed to run dotenv-command `exit 1`: process exited with status code 1\n")
+    .failure();
+}
+
+#[test]
+fn command_conflicts_with_dotenv_path_setting() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-command := 'true'
+        set dotenv-path := 'foo'
+
+        foo:
+      ",
+    )
+    .stderr(
+      "
+        error: `dotenv-command` set on line 1 is incompatible with `dotenv-path`
+         ——▶ justfile:2:5
+          │
+        2 │ set dotenv-path := 'foo'
+          │     ^^^^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn command_conflicts_with_dotenv_required_setting() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-required
+        set dotenv-command := 'true'
+
+        foo:
+      ",
+    )
+    .stderr(
+      "
+        error: `dotenv-required` set on line 1 is incompatible with `dotenv-command`
+         ——▶ justfile:2:5
+          │
+        2 │ set dotenv-command := 'true'
+          │     ^^^^^^^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn command_composes_with_dotenv_override_setting() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-override := true
+        set dotenv-command := 'echo KEY=command'
+
+        @foo:
+          echo $KEY
+      ",
+    )
+    .env("KEY", "environment")
+    .stdout("command\n")
+    .success();
+}

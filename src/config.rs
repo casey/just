@@ -11,6 +11,7 @@ pub(crate) struct Config {
   pub(crate) complete_aliases: bool,
   pub(crate) cygpath: PathBuf,
   pub(crate) default_list: bool,
+  pub(crate) dotenv_command: Option<String>,
   pub(crate) dotenv_filename: Vec<String>,
   pub(crate) dotenv_path: Vec<String>,
   pub(crate) dry_run: bool,
@@ -54,6 +55,7 @@ impl Config {
       complete_aliases: false,
       cygpath: Arguments::DEFAULT_CYGPATH.into(),
       default_list: false,
+      dotenv_command: None,
       dotenv_filename: Vec::new(),
       dotenv_path: Vec::new(),
       dry_run: false,
@@ -318,6 +320,7 @@ impl Config {
       complete_aliases: arguments.complete_aliases,
       cygpath: arguments.cygpath,
       default_list: arguments.default_list,
+      dotenv_command: arguments.dotenv_command,
       dotenv_filename: arguments.dotenv_filename,
       dotenv_path: arguments.dotenv_path,
       dry_run: arguments.dry_run,
@@ -670,6 +673,21 @@ mod tests {
   error! {
     name: dotenv_both_filename_and_path,
     args: ["--dotenv-filename", "foo", "--dotenv-path", "bar"],
+  }
+
+  error! {
+    name: dotenv_command_conflicts_with_filename,
+    args: ["--dotenv-command", "foo", "--dotenv-filename", "bar"],
+  }
+
+  error! {
+    name: dotenv_command_conflicts_with_path,
+    args: ["--dotenv-command", "foo", "--dotenv-path", "bar"],
+  }
+
+  error! {
+    name: dotenv_command_conflicts_with_no_dotenv,
+    args: ["--dotenv-command", "foo", "--no-dotenv"],
   }
 
   test! {

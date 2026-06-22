@@ -1042,6 +1042,7 @@ foo:
 | `allow-duplicate-variables` | boolean | `false` | Allow variables appearing later in a `justfile` to override earlier variables with the same name. |
 | `default-list` | boolean | `false` | List recipes instead of running the default recipe. |
 | `default-script`<sup>1.52.0</sup> | boolean | `false` | Default recipes to script instead of shell. |
+| `dotenv-command`<sup>master</sup> | string | - | Run a command and load its output as an environment file. |
 | `dotenv-filename` | string | - | Load a `.env` file with a custom name, if present. |
 | `dotenv-load` | boolean | `false` | Load a `.env` file, if present. |
 | `dotenv-override` | boolean | `false` | Override existing environment variables with values from the `.env` file. |
@@ -1156,6 +1157,22 @@ must be accessed using `$VARIABLE_NAME` in recipes and backticks.
 
 If `dotenv-override` is set, variables from the environment file will override
 existing environment variables.
+
+If `dotenv-command` is set, `just` runs it with the configured `shell` and loads
+its standard output as an environment file, instead of reading one from disk.
+This is useful for sourcing secrets from a secret manager or vault without first
+writing them to disk:
+
+```just
+set dotenv-command := 'sops -d .enc.env'
+```
+
+The command-line option `--dotenv-command` can be used to set or override
+`dotenv-command` at runtime. `dotenv-command` is incompatible with the other
+dotenv settings, except `dotenv-override`, which still controls whether the
+command's output overrides existing environment variables. With `set lists`, the
+value of `dotenv-command` may be a list, which is space-joined into a single
+command.
 
 For example, if your `.env` file contains:
 
