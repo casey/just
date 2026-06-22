@@ -4104,10 +4104,16 @@ The keys of the cache key object are:
 - `body`: evaluated recipe body
 - `environment`: map of environment variable names to values
 - `executor`: script interpreter or shebang
+- `extra`: optional user-supplied key
 - `inputs`: map of file paths to content hashs
 - `positional`: positional arguments
 - `recipe`: `::`-separated module path to invoked recipe
 - `working_directory`: current working directory
+
+The value of the `extra` value may be supplied with `[cache(extra =
+EXPRESSION)]`, where `EXPRESSION` is an arbitrary expression evaluated with
+recipe arguments in scope. Changes to the value of `extra` will cause a cache
+miss.
 
 Before `just` runs a cached recipe, it creates a cache key, hashes it, and
 looks for the corresponding cache entry.

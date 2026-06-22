@@ -565,8 +565,11 @@ impl<'src> Recipe<'src> {
     }
 
     let (entry, outputs) = if self.attributes.contains(AttributeDiscriminant::Cache) {
-      let Some(Attribute::Cache { inputs, outputs }) =
-        self.attributes.get(AttributeDiscriminant::Cache)
+      let Some(Attribute::Cache {
+        extra,
+        inputs,
+        outputs,
+      }) = self.attributes.get(AttributeDiscriminant::Cache)
       else {
         unreachable!()
       };
@@ -575,6 +578,11 @@ impl<'src> Recipe<'src> {
         Some(working_directory) => working_directory.to_owned(),
         None => env::current_dir().map_err(|source| Error::CurrentDirectory { source })?,
       };
+
+      let extra = extra
+        .as_ref()
+        .map(|extra| evaluator.evaluate_value(extra))
+        .transpose()?;
 
       let inputs = inputs
         .as_ref()
@@ -603,6 +611,7 @@ impl<'src> Recipe<'src> {
         body: &evaluated_lines,
         environment: &environment,
         executor: &executor,
+        extra,
         inputs,
         positional: self
           .takes_positional_arguments(&context.module.settings)
