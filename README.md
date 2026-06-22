@@ -4127,9 +4127,9 @@ and skip the invocation.
 #### Input Files
 
 Input files can be provided with `[cache(inputs = FILES)]`, where `FILES` is an
-expression that is evaluated with recipe arguments in scope, and whose
-evaluated elements are paths which may be absolute or relative to the recipe's
-working directory.
+expression that is evaluated with recipe arguments in scope and whose evaluated
+elements are paths. Pahts may be absolute or relative to the recipe's working
+directory.
 
 Each input file is hashed with BLAKE3 and added to the `inputs` cache key,
 which contains a map of paths to hashes.
