@@ -967,7 +967,7 @@ fn continue_attribute_signals() {
       recipes: [(
         "foo",
         Recipe {
-          attributes: [json!({"continue": ["SIGINT", "SIGHUP"]})].into(),
+          attributes: [json!({"continue": ["SIGHUP", "SIGINT"]})].into(),
           name: "foo",
           namepath: "foo",
           ..default()
