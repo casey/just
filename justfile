@@ -34,8 +34,7 @@ run:
 
 # only run tests matching `PATTERN`
 [group: 'test']
-filter PATTERN:
-  cargo ltest {{PATTERN}}
+filter PATTERN: (watch f'ltest --tests --all --all-targets {{PATTERN}}')
 
 [group: 'misc']
 build:

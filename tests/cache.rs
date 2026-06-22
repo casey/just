@@ -299,6 +299,10 @@ fn input_invalidates_cache() {
     .stdout("bar\n")
     .success();
 
+  let output = Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .success();
+
   Test::with_tempdir(output.tempdir)
     .env("JUST_UNSTABLE", "1")
     .write("foo", "b")
@@ -414,7 +418,7 @@ fn missing_input_is_an_error() {
       ",
     )
     .env("JUST_UNSTABLE", "1")
-    .stderr_regex(r"error: cache input file does not exist: `.*foo`\n")
+    .stderr_regex(r"error: cache input does not exist: `.*foo`\n")
     .failure();
 }
 
@@ -431,7 +435,7 @@ fn directory_input_is_an_error() {
     )
     .env("JUST_UNSTABLE", "1")
     .create_dir("foo")
-    .stderr_regex(r"error: cache input is a directory: `.*foo`\n")
+    .stderr_regex(r"error: cache input is directory: `.*foo`\n")
     .failure();
 }
 
@@ -449,7 +453,7 @@ fn symlink_to_directory_is_an_error() {
     .env("JUST_UNSTABLE", "1")
     .create_dir("foo")
     .symlink("foo", "link")
-    .stderr_regex(r"error: cache input is a directory: `.*link`\n")
+    .stderr_regex(r"error: cache input is directory: `.*link`\n")
     .failure();
 }
 
