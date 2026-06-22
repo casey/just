@@ -14,7 +14,7 @@ pub(crate) fn load_dotenv(
   };
 
   if let Some(command) = command {
-    return load_from_command(&command, settings, config, working_directory);
+    return load_from_command(&command, config, settings, working_directory);
   }
 
   if !settings.lists && (config.dotenv_filename.len() > 1 || config.dotenv_path.len() > 1) {
@@ -85,8 +85,8 @@ pub(crate) fn load_dotenv(
 
 fn load_from_command(
   command: &str,
-  settings: &Settings,
   config: &Config,
+  settings: &Settings,
   working_directory: &Path,
 ) -> RunResult<'static, BTreeMap<String, String>> {
   let mut cmd = settings.shell_command(config);
