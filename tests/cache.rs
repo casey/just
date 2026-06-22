@@ -28,7 +28,7 @@ fn cache_attribute_requires_script_recipe() {
     .env("JUST_UNSTABLE", "1")
     .stderr(
       "
-        error: recipe `foo` has invalid attribute `cache`
+        error: shell recipe `foo` has script recipe attribute `cache`
          ——▶ justfile:2:1
           │
         2 │ foo:

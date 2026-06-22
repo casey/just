@@ -254,6 +254,11 @@ impl Display for CompileError<'_> {
           _ => character.escape_default().collect(),
         }
       ),
+      InvalidShellRecipeAttribute { attribute, recipe } => write!(
+        f,
+        "shell recipe `{recipe}` has script recipe attribute `{}`",
+        attribute.name(),
+      ),
       InvalidSignal { signal } => write!(
         f,
         "invalid signal `{signal}`: expected `SIGHUP`, `SIGINT`, or `SIGQUIT`"

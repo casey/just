@@ -119,6 +119,10 @@ pub(crate) enum CompileErrorKind<'src> {
   InvalidEscapeSequence {
     character: char,
   },
+  InvalidShellRecipeAttribute {
+    attribute: Box<Attribute<'src>>,
+    recipe: &'src str,
+  },
   InvalidSignal {
     signal: String,
   },
