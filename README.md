@@ -4142,7 +4142,6 @@ Missing inputs and paths to directories are errors.
 In this example, the `build` recipe will re-run if `lib.c` or `main.c` change:
 
 ```just
-[cache]
 set unstable
 set lists
 
