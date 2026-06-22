@@ -271,7 +271,9 @@ impl<'src> Justfile<'src> {
         let (_module, scope, dotenv) = scopes.get(&self.module_path).unwrap();
         let scope = scope.child();
 
-        command.export(&self.settings, dotenv, &scope, &self.unexports);
+        let environment = Environment::new(dotenv, &scope, &self.settings, &self.unexports);
+
+        environment.export(&mut command);
 
         let (result, caught) = command.status_guard();
 

@@ -406,7 +406,10 @@ impl<'src> Recipe<'src> {
         cmd.stdout(Stdio::null());
       }
 
-      cmd.export(settings, context.dotenv, scope, &context.module.unexports);
+      let environment =
+        Environment::new(context.dotenv, scope, settings, &context.module.unexports);
+
+      environment.export(&mut cmd);
 
       for (key, value) in env {
         cmd.env(key, value);
@@ -548,7 +551,7 @@ impl<'src> Recipe<'src> {
 
     let working_directory = self.working_directory(context, &mut evaluator)?;
 
-    let mut environment = Command::environment(
+    let mut environment = Environment::new(
       context.dotenv,
       scope,
       &context.module.settings,
@@ -556,7 +559,9 @@ impl<'src> Recipe<'src> {
     );
 
     for (name, value) in env {
-      environment.insert(name.clone(), Some(value.clone()));
+      environment
+        .variables
+        .insert(name.clone(), Some(value.clone()));
     }
 
     let entry = if self.attributes.contains(AttributeDiscriminant::Cache) {
@@ -627,7 +632,7 @@ impl<'src> Recipe<'src> {
       command.args(positional);
     }
 
-    command.export_environment(environment);
+    environment.export(&mut command);
 
     // run it!
     let (result, caught) = command.status_guard();
