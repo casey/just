@@ -1336,7 +1336,8 @@ matching files in that directory. If multiple environment files are loaded,
 variables in files later in list take precedence over earlier ones.
 
 Each element of the value of `set dotenv-command` is run as a command, with
-variables in commands later in the list taking precedence.
+variables from commands later in the list taking precedence over variables from
+commands earlier in the list.
 
 ##### Attributes
 
