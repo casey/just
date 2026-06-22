@@ -52,7 +52,7 @@ impl Display for TokenKind {
     write!(
       f,
       "{}",
-      match *self {
+      match self {
         AmpersandAmpersand => "'&&'",
         Asterisk => "'*'",
         At => "'@'",
