@@ -31,16 +31,16 @@ impl OutputError {
 
 impl Display for OutputError {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    match *self {
+    match self {
       Self::Code(code) => write!(f, "process exited with status code {code}"),
       Self::Interrupted(signal) => write!(
         f,
         "process succeeded but `just` was interrupted by signal {signal}"
       ),
-      Self::Io(ref io_error) => write!(f, "error executing process: {io_error}"),
+      Self::Io(io_error) => write!(f, "error executing process: {io_error}"),
       Self::Signal(signal) => write!(f, "process terminated by signal {signal}"),
       Self::Unknown => write!(f, "process experienced an unknown failure"),
-      Self::Utf8(ref err) => write!(f, "could not convert process stdout to UTF-8: {err}"),
+      Self::Utf8(err) => write!(f, "could not convert process stdout to UTF-8: {err}"),
     }
   }
 }

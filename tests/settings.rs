@@ -87,6 +87,26 @@ fn undefined_variable_in_dotenv_path() {
 }
 
 #[test]
+fn undefined_variable_in_dotenv_command() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-command := foo
+      ",
+    )
+    .stderr(
+      "
+        error: variable `foo` not defined
+         ——▶ justfile:1:23
+          │
+        1 │ set dotenv-command := foo
+          │                       ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn undefined_variable_in_tempdir() {
   Test::new()
     .justfile(

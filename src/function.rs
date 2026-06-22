@@ -30,7 +30,7 @@ pub(crate) enum Function {
 
 impl Function {
   pub(crate) fn expected_arguments(&self) -> RangeInclusive<usize> {
-    match *self {
+    match self {
       Nullary(_) | ValueNullary(_) => 0..=0,
       Unary(_) | ValueUnary(_) | UnaryMap(_) | UnaryToValue(_) => 1..=1,
       ValueBinaryOpt(_) | BinaryOptToValue(_) | BinaryOptValueStrToValue(_) => 1..=2,

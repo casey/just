@@ -74,6 +74,7 @@ setting       : 'allow-duplicate-recipes' boolean?
               | 'allow-duplicate-variables' boolean?
               | 'default-list' boolean?
               | 'default-script' boolean?
+              | 'dotenv-command' ':=' string
               | 'dotenv-filename' ':=' string
               | 'dotenv-load' boolean?
               | 'dotenv-override' boolean?

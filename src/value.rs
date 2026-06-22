@@ -1,6 +1,7 @@
 use super::*;
 
-#[derive(Clone, Debug, Default, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Default, Eq, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(transparent)]
 pub(crate) struct Value {
   elements: Vec<String>,
 }
@@ -89,15 +90,6 @@ impl ColorDisplay for Value {
   }
 }
 
-impl Serialize for Value {
-  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-  where
-    S: Serializer,
-  {
-    serializer.serialize_str(&self.join())
-  }
-}
-
 impl From<&String> for Value {
   fn from(element: &String) -> Self {
     Self {
@@ -154,10 +146,6 @@ mod tests {
     fn case(elements: &[&str], expected: &str) {
       let value = elements.iter().map(ToString::to_string).collect::<Value>();
       assert_eq!(value.join(), expected);
-      assert_eq!(
-        serde_json::to_string(&value).unwrap(),
-        format!("{expected:?}")
-      );
     }
 
     case(&[], "");

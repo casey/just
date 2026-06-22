@@ -56,7 +56,7 @@ impl ColorDisplay for Parameter<'_> {
       write!(f, "$")?;
     }
     write!(f, "{}", color.parameter().paint(self.name.lexeme()))?;
-    if let Some(ref default) = self.default {
+    if let Some(default) = &self.default {
       write!(f, "={}", color.string().paint(&default.to_string()))?;
     }
     Ok(())

@@ -87,6 +87,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         Setting::DefaultScript(value) => {
           settings.default_script = value;
         }
+        Setting::DotenvCommand(value) => {
+          settings.dotenv_command = self.evaluate_value(&value)?;
+        }
         Setting::DotenvFilename(value) => {
           settings.dotenv_filename = self.evaluate_value(&value)?;
         }
@@ -729,7 +732,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     for (parameter, argument) in parameters.iter().zip(arguments) {
       let value = if argument.elements().is_empty() {
-        if let Some(ref default) = parameter.default {
+        if let Some(default) = &parameter.default {
           evaluator.evaluate_value(default)?
         } else if parameter.kind == ParameterKind::Star || parameter.flag {
           Value::new()
@@ -739,7 +742,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             recipe: recipe.name(),
           });
         }
-      } else if let Some(ref value) = parameter.value {
+      } else if let Some(value) = &parameter.value {
         evaluator.evaluate_value(value)?
       } else {
         argument.clone()

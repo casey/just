@@ -95,6 +95,7 @@ struct Settings<'a> {
   allow_duplicate_variables: bool,
   default_list: bool,
   default_script: bool,
+  dotenv_command: Vec<String>,
   dotenv_filename: Option<Dotenv<'a>>,
   dotenv_load: bool,
   dotenv_override: bool,
@@ -770,6 +771,45 @@ fn dotenv_filename_list() {
     settings: Settings {
       dotenv_filename: Some(Dotenv::Many(vec!["foo", "bar"])),
       lists: true,
+      ..default()
+    },
+    ..default()
+  };
+
+  fix_source(test.tempdir.path(), &mut expected);
+
+  let stdout = test.success().stdout;
+  let actual = serde_json::from_str::<Module>(&stdout).unwrap();
+
+  pretty_assertions::assert_eq!(actual, expected);
+}
+
+#[test]
+fn dotenv_command() {
+  let test = Test::new()
+    .justfile(
+      "
+        set dotenv-command := 'echo FOO=bar'
+
+        foo:
+      ",
+    )
+    .args(["--dump", "--dump-format", "json"])
+    .stdout_regex(".*");
+
+  let mut expected = Module {
+    first: Some("foo"),
+    recipes: [(
+      "foo",
+      Recipe {
+        name: "foo",
+        namepath: "foo",
+        ..default()
+      },
+    )]
+    .into(),
+    settings: Settings {
+      dotenv_command: vec!["echo FOO=bar".into()],
       ..default()
     },
     ..default()

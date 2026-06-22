@@ -87,6 +87,10 @@ pub(crate) enum Error<'src> {
     path: PathBuf,
   },
   DotenvArgumentsRequireLists,
+  DotenvCommand {
+    command: String,
+    output_error: OutputError,
+  },
   DotenvRequired,
   DumpJson {
     source: serde_json::Error,
@@ -611,6 +615,12 @@ impl ColorDisplay for Error<'_> {
           f,
           "multiple `--dotenv-filename` or `--dotenv-path` arguments require `set lists`"
         )?;
+      }
+      DotenvCommand {
+        command,
+        output_error,
+      } => {
+        write!(f, "dotenv command `{command}` failed: {output_error}")?;
       }
       DotenvRequired => {
         write!(f, "dotenv file not found")?;
