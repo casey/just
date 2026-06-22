@@ -26,15 +26,15 @@ impl Cache {
     interpreter: Option<&Interpreter<String>>,
     lines: &[String],
     positional: Option<&[String]>,
+    recipe: &Modulepath,
     working_directory: Option<&Path>,
-    recipe: &Recipe,
   ) -> RunResult<'static, CacheStatus> {
     let key = Key {
       environment,
       interpreter,
       lines,
       positional,
-      recipe: recipe.recipe_path(),
+      recipe,
       version: VERSION,
       working_directory,
     };

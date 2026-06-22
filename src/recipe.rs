@@ -572,8 +572,8 @@ impl<'src> Recipe<'src> {
         self
           .takes_positional_arguments(&context.module.settings)
           .then_some(positional),
+        self.recipe_path(),
         working_directory.as_deref(),
-        self,
       )? {
         CacheStatus::Hit => {
           if config.verbosity.loquacious() {
