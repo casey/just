@@ -730,7 +730,7 @@ fn multiple_arguments_require_lists_setting() {
 }
 
 #[test]
-fn command() {
+fn command_setting() {
   Test::new()
     .justfile(
       "
@@ -745,7 +745,7 @@ fn command() {
 }
 
 #[test]
-fn command_argument() {
+fn command_option() {
   Test::new()
     .justfile(
       "
@@ -792,7 +792,7 @@ fn command_does_not_override_environment() {
 }
 
 #[test]
-fn command_override() {
+fn command_with_override() {
   Test::new()
     .justfile(
       "
