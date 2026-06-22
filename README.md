@@ -4145,6 +4145,7 @@ In this example, the `build` recipe will re-run if `lib.c` or `main.c` change:
 set unstable
 set lists
 
+[script]
 [cache(inputs = ["lib.c", "main.c"])]
 build:
   cc lib.c main.c -o main
