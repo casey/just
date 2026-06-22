@@ -44,6 +44,10 @@ pub(crate) enum CompileErrorKind<'src> {
     attribute: &'src str,
     first: usize,
   },
+  DuplicateAttributeKey {
+    attribute: &'src str,
+    key: &'src str,
+  },
   DuplicateDefault {
     recipe: &'src str,
   },
@@ -205,9 +209,9 @@ pub(crate) enum CompileErrorKind<'src> {
   UnknownAttribute {
     attribute: &'src str,
   },
-  UnknownAttributeKeyword {
+  UnknownAttributeKey {
     attribute: &'src str,
-    keyword: &'src str,
+    key: &'src str,
   },
   UnknownDependency {
     recipe: &'src str,

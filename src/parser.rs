@@ -1679,7 +1679,15 @@ impl<'run, 'src> Parser<'run, 'src> {
                   .then(|| self.parse_expression())
                   .transpose()?;
 
-                keyword_arguments.insert(key.lexeme(), (key, value));
+                if keyword_arguments
+                  .insert(key.lexeme(), (key, value))
+                  .is_some()
+                {
+                  return Err(key.error(CompileErrorKind::DuplicateAttributeKey {
+                    attribute: name.lexeme(),
+                    key: key.lexeme(),
+                  }));
+                }
               } else {
                 let token = self.next()?;
                 let expression = self.parse_expression()?;

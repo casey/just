@@ -138,10 +138,10 @@ impl<'src> Attribute<'src> {
     }
 
     if discriminant.accepts_expressions() {
-      if let Some((_name, (keyword, _literal))) = keyword_arguments.pop_first() {
-        return Err(keyword.error(CompileErrorKind::UnknownAttributeKeyword {
+      if let Some((_name, (key, _literal))) = keyword_arguments.pop_first() {
+        return Err(key.error(CompileErrorKind::UnknownAttributeKey {
           attribute: name.lexeme(),
-          keyword: keyword.lexeme(),
+          key: key.lexeme(),
         }));
       }
 
@@ -316,13 +316,11 @@ impl<'src> Attribute<'src> {
       AttributeDiscriminant::Windows => Self::Windows,
     };
 
-    if let Some((_name, (keyword_name, _literal))) = keyword_arguments.pop_first() {
-      return Err(
-        keyword_name.error(CompileErrorKind::UnknownAttributeKeyword {
-          attribute: name.lexeme(),
-          keyword: keyword_name.lexeme(),
-        }),
-      );
+    if let Some((_name, (key, _literal))) = keyword_arguments.pop_first() {
+      return Err(key.error(CompileErrorKind::UnknownAttributeKey {
+        attribute: name.lexeme(),
+        key: key.lexeme(),
+      }));
     }
 
     Ok(attribute)

@@ -127,6 +127,9 @@ impl Display for CompileError<'_> {
         first.ordinal(),
         self.token.line.ordinal(),
       ),
+      DuplicateAttributeKey { attribute, key } => {
+        write!(f, "duplicate key `{key}` for `{attribute}` attribute")
+      }
       DuplicateDefault { recipe } => write!(
         f,
         "recipe `{recipe}` has duplicate `[default]` attribute, which may only appear once per module",
@@ -390,8 +393,8 @@ impl Display for CompileError<'_> {
       AttributeKeyMissingValue { key } => {
         write!(f, "attribute key `{key}` requires value")
       }
-      UnknownAttributeKeyword { attribute, keyword } => {
-        write!(f, "unknown keyword `{keyword}` for `{attribute}` attribute")
+      UnknownAttributeKey { attribute, key } => {
+        write!(f, "unknown key `{key}` for `{attribute}` attribute")
       }
       UnknownAttribute { attribute } => write!(f, "unknown attribute `{attribute}`"),
       UnknownDependency { recipe, unknown } => {

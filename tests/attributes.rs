@@ -655,7 +655,7 @@ fn cache_outputs_dump() {
 }
 
 #[test]
-fn cache_unknown_keyword() {
+fn unknown_keyword() {
   Test::new()
     .justfile(
       "
@@ -668,7 +668,7 @@ fn cache_unknown_keyword() {
     .env("JUST_UNSTABLE", "1")
     .stderr(
       "
-        error: unknown keyword `input` for `cache` attribute
+        error: unknown key `input` for `cache` attribute
          ——▶ justfile:1:8
           │
         1 │ [cache(input = 'foo')]
@@ -678,6 +678,26 @@ fn cache_unknown_keyword() {
     .failure();
 }
 
+#[test]
+fn duplicate_keyword_argument() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='a', long='b')]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: duplicate key `long` for `arg` attribute
+         ——▶ justfile:1:23
+          │
+        1 │ [arg('bar', long='a', long='b')]
+          │                       ^^^^
+      ",
+    )
+    .failure();
+}
 #[test]
 fn env_attribute_duplicate_last_wins() {
   Test::new()
@@ -691,4 +711,80 @@ fn env_attribute_duplicate_last_wins() {
     )
     .stdout("value 2\n")
     .success();
+}
+
+#[test]
+fn extra_keyword_error() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', pattern='BAR', foo='foo')]
+        foo bar:
+      ",
+    )
+    .args(["foo", "BAR"])
+    .stderr(
+      "
+        error: unknown key `foo` for `arg` attribute
+         ——▶ justfile:1:28
+          │
+        1 │ [arg('bar', pattern='BAR', foo='foo')]
+          │                            ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn split_across_multiple_lines() {
+  Test::new()
+    .justfile(
+      "
+        [arg(
+          'bar',
+          pattern='BAR'
+        )]
+        foo bar:
+      ",
+    )
+    .args(["foo", "BAR"])
+    .success();
+}
+
+#[test]
+fn optional_trailing_comma() {
+  Test::new()
+    .justfile(
+      "
+        [arg(
+          'bar',
+          pattern='BAR',
+        )]
+        foo bar:
+      ",
+    )
+    .args(["foo", "BAR"])
+    .success();
+}
+
+#[test]
+fn positional_arguments_cannot_follow_keyword_arguments() {
+  Test::new()
+    .justfile(
+      "
+        [arg(pattern='BAR', 'bar')]
+        foo bar:
+      ",
+    )
+    .args(["foo", "BAR"])
+    .stderr(
+      "
+        error: positional attribute arguments cannot follow keyword attribute arguments
+         ——▶ justfile:1:21
+          │
+        1 │ [arg(pattern='BAR', 'bar')]
+          │                     ^^^^^
+      ",
+    )
+    .failure();
 }
