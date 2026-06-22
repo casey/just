@@ -40,6 +40,10 @@ impl Signal {
     128i32.checked_add(self.number()).unwrap()
   }
 
+  pub(crate) fn interrupt(self) -> bool {
+    matches!(self, Self::Interrupt | Self::Quit)
+  }
+
   pub(crate) fn is_fatal(self) -> bool {
     match self {
       Self::Hangup | Self::Interrupt | Self::Quit | Self::Terminate => true,

@@ -18,6 +18,10 @@ impl SignalHandler {
     Ok(())
   }
 
+  pub(crate) fn clear() {
+    Self::instance().caught = None;
+  }
+
   pub(crate) fn instance() -> MutexGuard<'static, Self> {
     static INSTANCE: Mutex<SignalHandler> = Mutex::new(SignalHandler::new());
 

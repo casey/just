@@ -5,6 +5,16 @@ fn kill(child: &Child, signal: Signal) {
 }
 
 fn interrupt_test(arguments: &[&str], justfile: &str) {
+  signal_test(arguments, justfile, Signal::SIGINT, 130, "");
+}
+
+fn signal_test(
+  arguments: &[&str],
+  justfile: &str,
+  signal: Signal,
+  expected_code: i32,
+  expected_stdout: &str,
+) {
   let tmp = tempdir();
   let mut justfile_path = tmp.path().to_path_buf();
   justfile_path.push("justfile");
@@ -12,7 +22,7 @@ fn interrupt_test(arguments: &[&str], justfile: &str) {
 
   let start = Instant::now();
 
-  let mut child = Command::new(JUST)
+  let child = Command::new(JUST)
     .current_dir(&tmp)
     .args(arguments)
     .stdout(Stdio::piped())
@@ -22,9 +32,9 @@ fn interrupt_test(arguments: &[&str], justfile: &str) {
 
   while start.elapsed() < Duration::from_millis(500) {}
 
-  kill(&child, Signal::SIGINT);
+  kill(&child, signal);
 
-  let status = child.wait().unwrap();
+  let output = child.wait_with_output().unwrap();
 
   let elapsed = start.elapsed();
 
@@ -38,7 +48,9 @@ fn interrupt_test(arguments: &[&str], justfile: &str) {
     "process returned too early : {elapsed:?}"
   );
 
-  assert_eq!(status.code(), Some(130));
+  assert_eq!(output.status.code(), Some(expected_code));
+
+  assert_eq!(str::from_utf8(&output.stdout).unwrap(), expected_stdout);
 }
 
 #[test]
@@ -84,6 +96,91 @@ fn interrupt_backtick() {
 #[ignore]
 fn interrupt_command() {
   interrupt_test(&["--command", "sleep", "1"], "");
+}
+
+#[test]
+#[ignore]
+fn continue_on_interrupt_line() {
+  signal_test(
+    &[],
+    "
+        [continue-on-interrupt]
+        default:
+          @trap 'exit 0' INT; sleep 1
+      ",
+    Signal::SIGINT,
+    0,
+    "",
+  );
+}
+
+#[test]
+#[ignore]
+fn continue_on_interrupt_shebang() {
+  signal_test(
+    &[],
+    "
+        [continue-on-interrupt]
+        default:
+          #!/usr/bin/env sh
+          trap 'exit 0' INT
+          sleep 1
+      ",
+    Signal::SIGINT,
+    0,
+    "",
+  );
+}
+
+#[test]
+#[ignore]
+fn continue_on_interrupt_quit() {
+  signal_test(
+    &[],
+    "
+        [continue-on-interrupt]
+        default:
+          @trap 'exit 0' QUIT; sleep 1
+      ",
+    Signal::SIGQUIT,
+    0,
+    "",
+  );
+}
+
+#[test]
+#[ignore]
+fn continue_on_interrupt_runs_subsequents() {
+  signal_test(
+    &[],
+    "
+        [continue-on-interrupt]
+        default: && cleanup
+          @trap 'exit 0' INT; sleep 1
+
+        cleanup:
+          @echo cleanup
+      ",
+    Signal::SIGINT,
+    0,
+    "cleanup\n",
+  );
+}
+
+#[test]
+#[ignore]
+fn continue_on_interrupt_hangup_still_fatal() {
+  signal_test(
+    &[],
+    "
+        [continue-on-interrupt]
+        default:
+          @trap 'exit 0' HUP; sleep 1
+      ",
+    Signal::SIGHUP,
+    129,
+    "",
+  );
 }
 
 // This test is ignored because it is sensitive to the process signal mask.

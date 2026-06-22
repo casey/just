@@ -932,6 +932,30 @@ fn attribute() {
 }
 
 #[test]
+fn continue_on_interrupt_attribute() {
+  case(
+    "
+      [continue-on-interrupt]
+      foo:
+    ",
+    Module {
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          attributes: [json!("continue-on-interrupt")].into(),
+          name: "foo",
+          namepath: "foo",
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
+  );
+}
+
+#[test]
 fn single_metadata_attribute() {
   case(
     "

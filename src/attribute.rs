@@ -25,6 +25,7 @@ pub(crate) enum Attribute<'src> {
   },
   Cache,
   Confirm(Option<Expression<'src>>),
+  ContinueOnInterrupt,
   Default,
   Doc(Option<StringLiteral<'src>>),
   Dragonfly,
@@ -64,6 +65,7 @@ impl AttributeDiscriminant {
     match self {
       Self::Android
       | Self::Cache
+      | Self::ContinueOnInterrupt
       | Self::Default
       | Self::Dragonfly
       | Self::ExitMessage
@@ -262,6 +264,7 @@ impl<'src> Attribute<'src> {
       }
       AttributeDiscriminant::Android => Self::Android,
       AttributeDiscriminant::Cache => Self::Cache,
+      AttributeDiscriminant::ContinueOnInterrupt => Self::ContinueOnInterrupt,
       AttributeDiscriminant::Confirm
       | AttributeDiscriminant::Env
       | AttributeDiscriminant::WorkingDirectory => unreachable!(),
@@ -399,6 +402,7 @@ impl Display for Attribute<'_> {
       Self::Android
       | Self::Cache
       | Self::Confirm(None)
+      | Self::ContinueOnInterrupt
       | Self::Default
       | Self::Doc(None)
       | Self::Dragonfly
