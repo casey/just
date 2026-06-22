@@ -65,21 +65,21 @@ fn entry_is_created_with_empty_object() {
 
 #[test]
 fn hit_skips_execution() {
-  let justfile = "
-    [cache]
-    [script]
-    foo:
-      echo bar
-  ";
-
   let output = Test::new()
-    .justfile(justfile)
+    .justfile(
+      "
+        [cache]
+        [script]
+        foo:
+          echo bar
+      ",
+    )
     .env("JUST_UNSTABLE", "1")
     .stdout("bar\n")
     .success();
 
   Test::with_tempdir(output.tempdir)
-    .justfile(justfile)
+    .no_justfile()
     .env("JUST_UNSTABLE", "1")
     .success();
 }
@@ -146,23 +146,23 @@ fn different_recipes_do_not_share_entries() {
 
 #[test]
 fn positional_arguments_invalidate_cache() {
-  let justfile = "
-    [cache]
-    [positional-arguments]
-    [script]
-    foo *args:
-      echo $1
-  ";
-
   let output = Test::new()
-    .justfile(justfile)
+    .justfile(
+      "
+        [cache]
+        [positional-arguments]
+        [script]
+        foo *args:
+          echo $1
+      ",
+    )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar"])
     .stdout("bar\n")
     .success();
 
   Test::with_tempdir(output.tempdir)
-    .justfile(justfile)
+    .no_justfile()
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "baz"])
     .stdout("baz\n")
@@ -171,24 +171,24 @@ fn positional_arguments_invalidate_cache() {
 
 #[test]
 fn environment_invalidates_cache() {
-  let justfile = "
-    export value := 'default'
-
-    [cache]
-    [script]
-    foo:
-      echo $value
-  ";
-
   let output = Test::new()
-    .justfile(justfile)
+    .justfile(
+      "
+        export value := 'default'
+
+        [cache]
+        [script]
+        foo:
+          echo $value
+      ",
+    )
     .env("JUST_UNSTABLE", "1")
     .args(["value=bar", "foo"])
     .stdout("bar\n")
     .success();
 
   Test::with_tempdir(output.tempdir)
-    .justfile(justfile)
+    .no_justfile()
     .env("JUST_UNSTABLE", "1")
     .args(["value=baz", "foo"])
     .stdout("baz\n")
@@ -197,24 +197,24 @@ fn environment_invalidates_cache() {
 
 #[test]
 fn unexported_variable_does_not_invalidate_cache() {
-  let justfile = "
-    value := 'default'
-
-    [cache]
-    [script]
-    foo:
-      echo bar
-  ";
-
   let output = Test::new()
-    .justfile(justfile)
+    .justfile(
+      "
+        value := 'default'
+
+        [cache]
+        [script]
+        foo:
+          echo bar
+      ",
+    )
     .env("JUST_UNSTABLE", "1")
     .args(["value=bar", "foo"])
     .stdout("bar\n")
     .success();
 
   Test::with_tempdir(output.tempdir)
-    .justfile(justfile)
+    .no_justfile()
     .env("JUST_UNSTABLE", "1")
     .args(["value=baz", "foo"])
     .stdout("")
@@ -289,21 +289,21 @@ fn working_directory_invalidates_cache() {
 
 #[test]
 fn hit_prints_verbose_message() {
-  let justfile = "
-    [cache]
-    [script]
-    foo:
-      echo bar
-  ";
-
   let output = Test::new()
-    .justfile(justfile)
+    .justfile(
+      "
+        [cache]
+        [script]
+        foo:
+          echo bar
+      ",
+    )
     .env("JUST_UNSTABLE", "1")
     .stdout("bar\n")
     .success();
 
   Test::with_tempdir(output.tempdir)
-    .justfile(justfile)
+    .no_justfile()
     .env("JUST_UNSTABLE", "1")
     .arg("--verbose")
     .stderr(
