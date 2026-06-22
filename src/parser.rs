@@ -645,7 +645,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_function_definition(&mut self) -> CompileResult<'src, FunctionDefinition<'src>> {
     self
       .unstable_features
-      .insert(UnstableFeature::UserDefinedFunction);
+      .insert(UnstableFeature::UserDefinedFunctions);
 
     let name = self.parse_name()?;
 
