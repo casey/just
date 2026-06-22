@@ -564,7 +564,7 @@ impl<'src> Recipe<'src> {
         .insert(name.clone(), Some(value.clone()));
     }
 
-    let (inputs, outputs) = if self.attributes.contains(AttributeDiscriminant::Cache) {
+    let (entry, outputs) = if self.attributes.contains(AttributeDiscriminant::Cache) {
       let Some(Attribute::Cache { inputs, outputs }) =
         self.attributes.get(AttributeDiscriminant::Cache)
       else {
@@ -599,12 +599,6 @@ impl<'src> Recipe<'src> {
         .transpose()?
         .unwrap_or_default();
 
-      (inputs, outputs)
-    } else {
-      (None, Vec::new())
-    };
-
-    let entry = if self.attributes.contains(AttributeDiscriminant::Cache) {
       let key = CacheKey {
         body: &evaluated_lines,
         environment: &environment,
@@ -614,10 +608,10 @@ impl<'src> Recipe<'src> {
           .takes_positional_arguments(&context.module.settings)
           .then_some(positional),
         recipe: self.recipe_path(),
-        working_directory: working_directory.as_deref(),
+        working_directory: Some(&working_directory),
       };
 
-      match cache.status(key, &outputs)? {
+      let entry = match cache.status(key, &outputs)? {
         CacheStatus::Hit => {
           if config.verbosity.loquacious() {
             eprintln!(
@@ -632,10 +626,12 @@ impl<'src> Recipe<'src> {
           }
           return Ok(());
         }
-        CacheStatus::Miss(entry) => Some(entry),
-      }
+        CacheStatus::Miss(entry) => entry,
+      };
+
+      (Some(entry), outputs)
     } else {
-      None
+      (None, Vec::new())
     };
 
     let tempdir = context.tempdir(self)?;
