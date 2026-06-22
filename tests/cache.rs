@@ -139,7 +139,7 @@ fn different_recipes_do_not_share_entries() {
       ",
     )
     .env("JUST_UNSTABLE", "1")
-    .arg("bar")
+    .arg("bob")
     .stdout("bar\n")
     .success();
 }
