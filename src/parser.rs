@@ -1659,7 +1659,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         }
 
         let mut arguments = Vec::new();
-        let mut keyword_arguments = BTreeMap::new();
+        let mut keyword_arguments = BTreeMap::<&str, (Name, Option<Expression>)>::new();
 
         if self.accepted(Colon)? {
           let token = self.next()?;
@@ -1678,6 +1678,13 @@ impl<'run, 'src> Parser<'run, 'src> {
                   .accepted(Equals)?
                   .then(|| self.parse_expression())
                   .transpose()?;
+
+                if let Some((first, _)) = keyword_arguments.get(key.lexeme()) {
+                  return Err(key.error(CompileErrorKind::DuplicateAttributeKeyword {
+                    keyword: key.lexeme(),
+                    first: first.line,
+                  }));
+                }
 
                 keyword_arguments.insert(key.lexeme(), (key, value));
               } else {

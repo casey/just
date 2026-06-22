@@ -24,7 +24,7 @@ fn all() {
 }
 
 #[test]
-fn duplicate_attributes_are_disallowed() {
+fn duplicate_attribute_error() {
   Test::new()
     .justfile(
       "
@@ -673,6 +673,52 @@ fn cache_unknown_keyword() {
           │
         1 │ [cache(input = 'foo')]
           │        ^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn duplicate_keyword_argument() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='a', long='b')]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: duplicate attribute keyword argument `long`
+         ——▶ justfile:1:23
+          │
+        1 │ [arg('bar', long='a', long='b')]
+          │                       ^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn duplicate_keyword_argument_on_different_lines() {
+  Test::new()
+    .justfile(
+      "
+        [arg(
+          'bar',
+          long='a',
+          long='b',
+        )]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: attribute keyword argument `long` first used on line 3 is duplicated on line 4
+         ——▶ justfile:4:3
+          │
+        4 │   long='b',
+          │   ^^^^
       ",
     )
     .failure();

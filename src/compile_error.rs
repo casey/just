@@ -127,6 +127,18 @@ impl Display for CompileError<'_> {
         first.ordinal(),
         self.token.line.ordinal(),
       ),
+      DuplicateAttributeKeyword { keyword, first } => {
+        if *first == self.token.line {
+          write!(f, "duplicate attribute keyword argument `{keyword}`")
+        } else {
+          write!(
+            f,
+            "attribute keyword argument `{keyword}` first used on line {} is duplicated on line {}",
+            first.ordinal(),
+            self.token.line.ordinal(),
+          )
+        }
+      }
       DuplicateDefault { recipe } => write!(
         f,
         "recipe `{recipe}` has duplicate `[default]` attribute, which may only appear once per module",
