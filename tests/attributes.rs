@@ -712,3 +712,82 @@ fn env_attribute_duplicate_last_wins() {
     .stdout("value 2\n")
     .success();
 }
+
+
+#[test]
+fn extra_keyword_error() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', pattern='BAR', foo='foo')]
+        foo bar:
+      ",
+    )
+    .args(["foo", "BAR"])
+    .stderr(
+      "
+        error: unknown key `foo` for `arg` attribute
+         ——▶ justfile:1:28
+          │
+        1 │ [arg('bar', pattern='BAR', foo='foo')]
+          │                            ^^^
+      ",
+    )
+    .failure();
+}
+
+[test]
+fn split_across_multiple_lines() {
+  Test::new()
+    .justfile(
+      "
+        [arg(
+          'bar',
+          pattern='BAR'
+        )]
+        foo bar:
+      ",
+    )
+    .args(["foo", "BAR"])
+    .success();
+}
+
+#[test]
+fn optional_trailing_comma() {
+  Test::new()
+    .justfile(
+      "
+        [arg(
+          'bar',
+          pattern='BAR',
+        )]
+        foo bar:
+      ",
+    )
+    .args(["foo", "BAR"])
+    .success();
+}
+
+#[test]
+fn positional_arguments_cannot_follow_keyword_arguments() {
+  Test::new()
+    .justfile(
+      "
+        [arg(pattern='BAR', 'bar')]
+        foo bar:
+      ",
+    )
+    .args(["foo", "BAR"])
+    .stderr(
+      "
+        error: positional attribute arguments cannot follow keyword attribute arguments
+         ——▶ justfile:1:21
+          │
+        1 │ [arg(pattern='BAR', 'bar')]
+          │                     ^^^^^
+      ",
+    )
+    .failure();
+}
+
+
