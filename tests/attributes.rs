@@ -47,6 +47,27 @@ fn duplicate_attributes_are_disallowed() {
 }
 
 #[test]
+fn continue_attribute_rejects_invalid_signal() {
+  Test::new()
+    .justfile(
+      "
+        [continue('SIGTERM')]
+        foo:
+      ",
+    )
+    .stderr(
+      "
+        error: invalid signal `SIGTERM`: expected `SIGHUP`, `SIGINT`, or `SIGQUIT`
+         ——▶ justfile:1:11
+          │
+        1 │ [continue('SIGTERM')]
+          │           ^^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn multiple_attributes_one_line() {
   Test::new()
     .justfile(

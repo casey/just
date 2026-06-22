@@ -25,7 +25,7 @@ pub(crate) enum Attribute<'src> {
   },
   Cache,
   Confirm(Option<Expression<'src>>),
-  ContinueOnInterrupt,
+  Continue(Vec<Signal>),
   Default,
   Doc(Option<StringLiteral<'src>>),
   Dragonfly,
@@ -65,7 +65,6 @@ impl AttributeDiscriminant {
     match self {
       Self::Android
       | Self::Cache
-      | Self::ContinueOnInterrupt
       | Self::Default
       | Self::Dragonfly
       | Self::ExitMessage
@@ -84,7 +83,7 @@ impl AttributeDiscriminant {
       | Self::Unix
       | Self::Windows => 0..=0,
       Self::Confirm | Self::Doc => 0..=1,
-      Self::Script => 0..=usize::MAX,
+      Self::Continue | Self::Script => 0..=usize::MAX,
       Self::Arg | Self::Extension | Self::Group | Self::WorkingDirectory => 1..=1,
       Self::Env => 2..=2,
       Self::Metadata => 1..=usize::MAX,
@@ -264,7 +263,18 @@ impl<'src> Attribute<'src> {
       }
       AttributeDiscriminant::Android => Self::Android,
       AttributeDiscriminant::Cache => Self::Cache,
-      AttributeDiscriminant::ContinueOnInterrupt => Self::ContinueOnInterrupt,
+      AttributeDiscriminant::Continue => Self::Continue(
+        arguments
+          .into_iter()
+          .map(|literal| {
+            Signal::from_name(&literal.cooked).ok_or_else(|| {
+              literal.token.error(CompileErrorKind::InvalidSignal {
+                signal: literal.cooked.clone(),
+              })
+            })
+          })
+          .collect::<CompileResult<Vec<Signal>>>()?,
+      ),
       AttributeDiscriminant::Confirm
       | AttributeDiscriminant::Env
       | AttributeDiscriminant::WorkingDirectory => unreachable!(),
@@ -402,7 +412,6 @@ impl Display for Attribute<'_> {
       Self::Android
       | Self::Cache
       | Self::Confirm(None)
-      | Self::ContinueOnInterrupt
       | Self::Default
       | Self::Doc(None)
       | Self::Dragonfly
@@ -427,6 +436,18 @@ impl Display for Attribute<'_> {
       }
       Self::Doc(Some(argument)) | Self::Extension(argument) | Self::Group(argument) => {
         write!(f, "({argument})")?;
+      }
+      Self::Continue(signals) => {
+        if !signals.is_empty() {
+          write!(f, "(")?;
+          for (i, signal) in signals.iter().enumerate() {
+            if i > 0 {
+              write!(f, ", ")?;
+            }
+            write!(f, "\"{signal}\"")?;
+          }
+          write!(f, ")")?;
+        }
       }
       Self::Env(key, value) => write!(f, "({key}, {value})")?,
       Self::Metadata(arguments) => {

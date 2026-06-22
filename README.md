@@ -2571,7 +2571,7 @@ change their behavior.
 | `[cache]`<sup>master</sup> | recipe | Skip recipe invocations when a matching entry exists in the cache. See [cached recipes](#cached-recipes) for details. Currently unstable. |
 | `[confirm(PROMPT)]`<sup>1.23.0</sup> | recipe | Require confirmation prior to executing recipe with a custom prompt. |
 | `[confirm]`<sup>1.17.0</sup> | recipe | Require confirmation prior to executing recipe. |
-| `[continue-on-interrupt]`<sup>master</sup> | recipe | Don't exit if the recipe is interrupted by `SIGINT` or `SIGQUIT` and the command exits successfully. |
+| `[continue(SIGNALS)]`<sup>master</sup> | recipe | Don't exit if the recipe is interrupted by one of `SIGNALS` and the command exits successfully. Defaults to `SIGINT`. |
 | `[default]`<sup>1.43.0</sup> | recipe | Use recipe as module's default recipe. |
 | `[doc(DOC)]`<sup>1.27.0</sup> | module, recipe | Set recipe or module's [documentation comment](#documentation-comments) to `DOC`. |
 | `[dragonfly]`<sup>1.47.0</sup> | recipe | Enable recipe on DragonFly BSD. |
@@ -2711,16 +2711,16 @@ Pressing `Ctrl-C` sends `SIGINT` to `just` and to the command it is running. By
 default, if `just` is interrupted in this way it exits with a status of 130, even
 if the interrupted command handled the signal and exited successfully.
 
-The `[continue-on-interrupt]`<sup>master</sup> attribute makes `just` defer to the
-command's own exit status: if the recipe is interrupted by `SIGINT` (`Ctrl-C`) or
-`SIGQUIT` (`Ctrl-\`) and the command exits successfully, `just` continues instead
-of exiting, running any subsequent recipe lines and dependencies.
+The `[continue]`<sup>master</sup> attribute makes `just` defer to the command's own
+exit status: if the recipe is interrupted by one of the configured signals and the
+command exits successfully, `just` continues instead of exiting, running any
+subsequent recipe lines and dependencies.
 
 For example, if `main.py` catches `KeyboardInterrupt` and exits successfully, this
 recipe will run `cleanup` and exit successfully when interrupted with `Ctrl-C`:
 
 ```just
-[continue-on-interrupt]
+[continue]
 test: && cleanup
   python3 main.py
 
@@ -2728,11 +2728,24 @@ cleanup:
   echo cleanup
 ```
 
-Only `SIGINT` and `SIGQUIT` are affected. `SIGHUP`, sent when the controlling
-terminal is closed, always causes `just` to exit. A command that is killed by the
-signal, rather than exiting on its own, also always causes `just` to exit. If the
-command exits with a non-zero status, the recipe fails as usual, unless the line is
-prefixed with `-` to ignore errors.
+With no arguments, `[continue]` applies only to `SIGINT` (`Ctrl-C`), so `SIGQUIT`
+(`Ctrl-\`) can still be used to stop the recipe without running anything afterward.
+The signals may instead be given explicitly, as `SIGHUP`, `SIGINT`, `SIGQUIT`, or a
+list thereof:
+
+```just
+[continue('SIGINT')]
+serve:
+  ./server
+
+[continue('SIGINT', 'SIGHUP')]
+watch:
+  ./watcher
+```
+
+A command that is killed by the signal, rather than exiting on its own, always
+causes `just` to exit. If the command exits with a non-zero status, the recipe
+fails as usual, unless the line is prefixed with `-` to ignore errors.
 
 #### Metadata
 

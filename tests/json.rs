@@ -932,10 +932,10 @@ fn attribute() {
 }
 
 #[test]
-fn continue_on_interrupt_attribute() {
+fn continue_attribute_default() {
   case(
     "
-      [continue-on-interrupt]
+      [continue]
       foo:
     ",
     Module {
@@ -943,7 +943,31 @@ fn continue_on_interrupt_attribute() {
       recipes: [(
         "foo",
         Recipe {
-          attributes: [json!("continue-on-interrupt")].into(),
+          attributes: [json!({"continue": []})].into(),
+          name: "foo",
+          namepath: "foo",
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
+  );
+}
+
+#[test]
+fn continue_attribute_signals() {
+  case(
+    "
+      [continue('SIGINT', 'SIGHUP')]
+      foo:
+    ",
+    Module {
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          attributes: [json!({"continue": ["SIGINT", "SIGHUP"]})].into(),
           name: "foo",
           namepath: "foo",
           ..default()

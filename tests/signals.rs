@@ -100,11 +100,11 @@ fn interrupt_command() {
 
 #[test]
 #[ignore]
-fn continue_on_interrupt_line() {
+fn continue_default_line() {
   signal_test(
     &[],
     "
-        [continue-on-interrupt]
+        [continue]
         default:
           @trap 'exit 0' INT; sleep 1
       ",
@@ -116,11 +116,11 @@ fn continue_on_interrupt_line() {
 
 #[test]
 #[ignore]
-fn continue_on_interrupt_shebang() {
+fn continue_default_shebang() {
   signal_test(
     &[],
     "
-        [continue-on-interrupt]
+        [continue]
         default:
           #!/usr/bin/env sh
           trap 'exit 0' INT
@@ -134,27 +134,27 @@ fn continue_on_interrupt_shebang() {
 
 #[test]
 #[ignore]
-fn continue_on_interrupt_quit() {
+fn continue_default_excludes_quit() {
   signal_test(
     &[],
     "
-        [continue-on-interrupt]
+        [continue]
         default:
           @trap 'exit 0' QUIT; sleep 1
       ",
     Signal::SIGQUIT,
-    0,
+    131,
     "",
   );
 }
 
 #[test]
 #[ignore]
-fn continue_on_interrupt_runs_subsequents() {
+fn continue_runs_subsequents() {
   signal_test(
     &[],
     "
-        [continue-on-interrupt]
+        [continue]
         default: && cleanup
           @trap 'exit 0' INT; sleep 1
 
@@ -169,16 +169,48 @@ fn continue_on_interrupt_runs_subsequents() {
 
 #[test]
 #[ignore]
-fn continue_on_interrupt_hangup_still_fatal() {
+fn continue_default_excludes_hangup() {
   signal_test(
     &[],
     "
-        [continue-on-interrupt]
+        [continue]
         default:
           @trap 'exit 0' HUP; sleep 1
       ",
     Signal::SIGHUP,
     129,
+    "",
+  );
+}
+
+#[test]
+#[ignore]
+fn continue_hangup_opt_in() {
+  signal_test(
+    &[],
+    "
+        [continue('SIGHUP')]
+        default:
+          @trap 'exit 0' HUP; sleep 1
+      ",
+    Signal::SIGHUP,
+    0,
+    "",
+  );
+}
+
+#[test]
+#[ignore]
+fn continue_explicit_excludes_unlisted() {
+  signal_test(
+    &[],
+    "
+        [continue('SIGINT')]
+        default:
+          @trap 'exit 0' QUIT; sleep 1
+      ",
+    Signal::SIGQUIT,
+    131,
     "",
   );
 }
