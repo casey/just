@@ -1659,7 +1659,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         }
 
         let mut arguments = Vec::new();
-        let mut keyword_arguments = BTreeMap::<&str, (Name, Option<Expression>)>::new();
+        let mut keyword_arguments = BTreeMap::new();
 
         if self.accepted(Colon)? {
           let token = self.next()?;
