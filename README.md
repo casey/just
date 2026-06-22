@@ -4094,7 +4094,8 @@ cosmetic, such as changes to whitespace and formatting.
 
 Attempting to skip execution based on the type of crude heuristics that `just`
 employs has a long and sordid history. However, it is an undeniably convenient
-and powerful tool, and it is provided in the hopes that it will be useful.
+and powerful tool, and it is provided in the hopes that you will find it
+useful.
 
 ### Private Recipes
 
