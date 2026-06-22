@@ -158,6 +158,19 @@ impl<'src> Recipe<'src> {
     Ok(())
   }
 
+  fn continue_on(&self, signal: Signal) -> bool {
+    let Some(Attribute::Continue(signals)) = self.attributes.get(AttributeDiscriminant::Continue)
+    else {
+      return false;
+    };
+
+    if signals.is_empty() {
+      signal == Signal::Interrupt
+    } else {
+      signals.contains(&signal)
+    }
+  }
+
   pub(crate) fn is_parallel(&self) -> bool {
     self.attributes.contains(AttributeDiscriminant::Parallel)
   }
@@ -442,8 +455,12 @@ impl<'src> Recipe<'src> {
         }
       }
 
-      if !infallible && let Some(signal) = caught {
-        return Err(Error::Interrupted { signal });
+      if let Some(signal) = caught {
+        if self.continue_on(signal) {
+          SignalHandler::clear();
+        } else if !infallible {
+          return Err(Error::Interrupted { signal });
+        }
       }
     }
   }
@@ -632,7 +649,11 @@ impl<'src> Recipe<'src> {
     }
 
     if let Some(signal) = caught {
-      return Err(Error::Interrupted { signal });
+      if self.continue_on(signal) {
+        SignalHandler::clear();
+      } else {
+        return Err(Error::Interrupted { signal });
+      }
     }
 
     if let Some(entry) = entry {

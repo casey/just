@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 #[repr(i32)]
 pub(crate) enum Signal {
   Hangup = 1,
@@ -40,6 +40,15 @@ impl Signal {
     128i32.checked_add(self.number()).unwrap()
   }
 
+  pub(crate) fn from_name(name: &str) -> Option<Self> {
+    match name {
+      "SIGHUP" => Some(Self::Hangup),
+      "SIGINT" => Some(Self::Interrupt),
+      "SIGQUIT" => Some(Self::Quit),
+      _ => None,
+    }
+  }
+
   pub(crate) fn is_fatal(self) -> bool {
     match self {
       Self::Hangup | Self::Interrupt | Self::Quit | Self::Terminate => true,
@@ -57,6 +66,15 @@ impl Signal {
 
   pub(crate) fn number(self) -> i32 {
     self as libc::c_int
+  }
+}
+
+impl Serialize for Signal {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: Serializer,
+  {
+    serializer.collect_str(self)
   }
 }
 

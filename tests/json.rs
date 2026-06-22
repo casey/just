@@ -932,6 +932,54 @@ fn attribute() {
 }
 
 #[test]
+fn continue_attribute_default() {
+  case(
+    "
+      [continue]
+      foo:
+    ",
+    Module {
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          attributes: [json!({"continue": []})].into(),
+          name: "foo",
+          namepath: "foo",
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
+  );
+}
+
+#[test]
+fn continue_attribute_signals() {
+  case(
+    "
+      [continue('SIGINT', 'SIGHUP')]
+      foo:
+    ",
+    Module {
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          attributes: [json!({"continue": ["SIGHUP", "SIGINT"]})].into(),
+          name: "foo",
+          namepath: "foo",
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
+  );
+}
+
+#[test]
 fn single_metadata_attribute() {
   case(
     "

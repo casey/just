@@ -2571,6 +2571,7 @@ change their behavior.
 | `[cache]`<sup>master</sup> | recipe | Skip recipe invocations when a matching entry exists in the cache. See [cached recipes](#cached-recipes) for details. Currently unstable. |
 | `[confirm(PROMPT)]`<sup>1.23.0</sup> | recipe | Require confirmation prior to executing recipe with a custom prompt. |
 | `[confirm]`<sup>1.17.0</sup> | recipe | Require confirmation prior to executing recipe. |
+| `[continue(SIGNALS)]`<sup>master</sup> | recipe | Continue execution normally if a command is interrupted by any of `SIGNALS` and exits successfully. Defaults to `SIGINT`. |
 | `[default]`<sup>1.43.0</sup> | recipe | Use recipe as module's default recipe. |
 | `[doc(DOC)]`<sup>1.27.0</sup> | module, recipe | Set recipe or module's [documentation comment](#documentation-comments) to `DOC`. |
 | `[dragonfly]`<sup>1.47.0</sup> | recipe | Enable recipe on DragonFly BSD. |
@@ -4884,6 +4885,30 @@ was likely sent to `just` alone.
 
 Regardless of whether a child process terminates successfully after `just`
 receives a fatal signal, `just` halts execution.
+
+#### Continuing Execution
+
+The `[continue]`<sup>master</sup> attribute can be used to make `just` continue
+execution even if it receives a fatal signal as long as the child process it's
+running exits successfully.
+
+With no arguments, `[continue]` handles `SIGINT` (`ctrl-c`) so `SIGQUIT`
+(`ctrl-\`) can still be used to stop execution.
+
+With arguments, one or more signals to handle may be given explicitly, as
+`"SIGHUP"`, `"SIGINT"`, and `"SIGQUIT"`.
+
+In this example, if `main.py` catches `SIGINT` and exits successfully,
+`cleanup` will still run and `just` will exit successfully:
+
+```just
+[continue]
+test: && cleanup
+  python3 main.py
+
+cleanup:
+  echo cleanup
+```
 
 #### `SIGINFO`
 

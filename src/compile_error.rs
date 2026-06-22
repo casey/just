@@ -251,6 +251,10 @@ impl Display for CompileError<'_> {
           _ => character.escape_default().collect(),
         }
       ),
+      InvalidSignal { signal } => write!(
+        f,
+        "invalid signal `{signal}`: expected `SIGHUP`, `SIGINT`, or `SIGQUIT`"
+      ),
       ListFeature(feature) => write!(f, "{feature}"),
       MappedDependencyMultipleStarredArguments => {
         write!(
