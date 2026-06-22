@@ -5,7 +5,6 @@ pub(crate) trait CommandExt {
 
   fn output_guard_stdout(self) -> Result<String, OutputError>;
 
-  // todo: remove?
   fn resolve(program: impl AsRef<OsStr>) -> Command;
 
   fn status_guard(self) -> (io::Result<ExitStatus>, Option<Signal>);
