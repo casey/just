@@ -5,7 +5,7 @@ pub(crate) const DEFAULT_SHELL_ARGS: &[&str] = &["-cu"];
 pub(crate) const WINDOWS_POWERSHELL_SHELL: &str = "powershell.exe";
 pub(crate) const WINDOWS_POWERSHELL_ARGS: &[&str] = &["-NoLogo", "-Command"];
 
-fn serialize_dotenv<S>(value: &Value, serializer: S) -> Result<S::Ok, S::Error>
+fn serialize_compatible<S>(value: &Value, serializer: S) -> Result<S::Ok, S::Error>
 where
   S: Serializer,
 {
@@ -22,13 +22,12 @@ pub(crate) struct Settings {
   pub(crate) allow_duplicate_variables: bool,
   pub(crate) default_list: bool,
   pub(crate) default_script: bool,
-  #[serde(serialize_with = "serialize_dotenv")]
   pub(crate) dotenv_command: Value,
-  #[serde(serialize_with = "serialize_dotenv")]
+  #[serde(serialize_with = "serialize_compatible")]
   pub(crate) dotenv_filename: Value,
   pub(crate) dotenv_load: bool,
   pub(crate) dotenv_override: bool,
-  #[serde(serialize_with = "serialize_dotenv")]
+  #[serde(serialize_with = "serialize_compatible")]
   pub(crate) dotenv_path: Value,
   pub(crate) dotenv_required: bool,
   pub(crate) export: bool,

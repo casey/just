@@ -95,7 +95,7 @@ struct Settings<'a> {
   allow_duplicate_variables: bool,
   default_list: bool,
   default_script: bool,
-  dotenv_command: Option<Dotenv<'a>>,
+  dotenv_command: Vec<String>,
   dotenv_filename: Option<Dotenv<'a>>,
   dotenv_load: bool,
   dotenv_override: bool,
@@ -809,7 +809,7 @@ fn dotenv_command() {
     )]
     .into(),
     settings: Settings {
-      dotenv_command: Some(Dotenv::One("echo FOO=bar")),
+      dotenv_command: vec!["echo FOO=bar".into()],
       ..default()
     },
     ..default()
