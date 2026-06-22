@@ -4854,7 +4854,7 @@ for details.
 
 [Signals](https://en.wikipedia.org/wiki/Signal_(IPC)) are messages sent to
 running programs to trigger specific behavior. For example, `SIGINT` is sent to
-all processes in the terminal foreground process group when `CTRL-C` is pressed.
+all processes in the terminal foreground process group when `ctrl-c` is pressed.
 
 `just` tries to exit when requested by a signal, but it also tries to avoid
 leaving behind running child processes, two goals which are somewhat in
