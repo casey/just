@@ -595,6 +595,7 @@ fn outputs_resolve_against_working_directory() {
     .success();
 }
 
+#[cfg(unix)]
 #[test]
 fn dangling_symlink_output_invalidates_cache() {
   let output = Test::new()
