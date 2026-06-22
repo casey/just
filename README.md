@@ -3760,8 +3760,8 @@ Some tools require an activation step, such as Python virtual environments:
 ```
 
 Because these tools modify the environment of a running shell, it is not
-possible for `just` to perform this activation step for you. However, many
-workarounds are possible.
+possible for `just` to perform this activation step for you. However, there are
+some workarounds.
 
 The best workaround for Python environment management is to switch to
 [`uv`](https://docs.astral.sh/uv/). `uv` sets up the correct environment for
