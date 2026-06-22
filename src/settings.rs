@@ -22,7 +22,6 @@ pub(crate) struct Settings {
   pub(crate) allow_duplicate_variables: bool,
   pub(crate) default_list: bool,
   pub(crate) default_script: bool,
-  #[serde(serialize_with = "serialize_dotenv")]
   pub(crate) dotenv_command: Value,
   #[serde(serialize_with = "serialize_dotenv")]
   pub(crate) dotenv_filename: Value,
