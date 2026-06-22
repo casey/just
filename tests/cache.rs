@@ -311,28 +311,6 @@ fn input_invalidates_cache() {
 }
 
 #[test]
-fn unchanged_input_hits_cache() {
-  let output = Test::new()
-    .justfile(
-      "
-        [cache(inputs = 'foo')]
-        [script]
-        bar:
-          echo bar
-      ",
-    )
-    .env("JUST_UNSTABLE", "1")
-    .write("foo", "a")
-    .stdout("bar\n")
-    .success();
-
-  Test::with_tempdir(output.tempdir)
-    .env("JUST_UNSTABLE", "1")
-    .stdout("")
-    .success();
-}
-
-#[test]
 fn multiple_inputs_invalidate_cache() {
   let output = Test::new()
     .justfile(
@@ -359,7 +337,7 @@ fn multiple_inputs_invalidate_cache() {
 }
 
 #[test]
-fn input_expression_has_access_to_arguments() {
+fn input_expression_evaluated_with_arguments() {
   let output = Test::new()
     .justfile(
       "
@@ -373,6 +351,11 @@ fn input_expression_has_access_to_arguments() {
     .write("foo", "a")
     .args(["bar", "foo"])
     .stdout("bar\n")
+    .success();
+
+  let output = Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .args(["bar", "foo"])
     .success();
 
   Test::with_tempdir(output.tempdir)
