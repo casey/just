@@ -151,21 +151,21 @@ fn positional_arguments_invalidate_cache() {
     [positional-arguments]
     [script]
     foo *args:
-      echo $1 >> count
+      echo $1
   ";
 
   let output = Test::new()
     .justfile(justfile)
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar"])
-    .expect_file("count", "bar\n")
+    .stdout("bar\n")
     .success();
 
   Test::with_tempdir(output.tempdir)
     .justfile(justfile)
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "baz"])
-    .expect_file("count", "bar\nbaz\n")
+    .stdout("baz\n")
     .success();
 }
 
@@ -179,21 +179,21 @@ fn environment_invalidates_cache() {
     [cache]
     [script]
     foo:
-      echo $value >> count
+      echo $value
   ";
 
   let output = Test::new()
     .justfile(justfile)
     .env("JUST_UNSTABLE", "1")
     .args(["value=bar", "foo"])
-    .expect_file("count", "bar\n")
+    .stdout("bar\n")
     .success();
 
   Test::with_tempdir(output.tempdir)
     .justfile(justfile)
     .env("JUST_UNSTABLE", "1")
     .args(["value=baz", "foo"])
-    .expect_file("count", "bar\nbaz\n")
+    .stdout("baz\n")
     .success();
 }
 
@@ -205,21 +205,21 @@ fn unexported_variable_does_not_invalidate_cache() {
     [cache]
     [script]
     foo:
-      echo bar >> count
+      echo bar
   ";
 
   let output = Test::new()
     .justfile(justfile)
     .env("JUST_UNSTABLE", "1")
     .args(["value=bar", "foo"])
-    .expect_file("count", "bar\n")
+    .stdout("bar\n")
     .success();
 
   Test::with_tempdir(output.tempdir)
     .justfile(justfile)
     .env("JUST_UNSTABLE", "1")
     .args(["value=baz", "foo"])
-    .expect_file("count", "bar\n")
+    .stdout("")
     .success();
 }
 
@@ -233,11 +233,11 @@ fn interpreter_invalidates_cache() {
         [cache]
         [script]
         foo:
-          echo bar >> count
+          echo bar
       ",
     )
     .env("JUST_UNSTABLE", "1")
-    .expect_file("count", "bar\n")
+    .stdout("bar\n")
     .success();
 
   Test::with_tempdir(output.tempdir)
@@ -248,11 +248,11 @@ fn interpreter_invalidates_cache() {
         [cache]
         [script]
         foo:
-          echo bar >> count
+          echo bar
       ",
     )
     .env("JUST_UNSTABLE", "1")
-    .expect_file("count", "bar\nbar\n")
+    .stdout("bar\n")
     .success();
 }
 
@@ -265,12 +265,12 @@ fn working_directory_invalidates_cache() {
         [working-directory('a')]
         [script]
         foo:
-          echo bar >> count
+          echo bar
       ",
     )
     .env("JUST_UNSTABLE", "1")
     .create_dir("a")
-    .expect_file("a/count", "bar\n")
+    .stdout("bar\n")
     .success();
 
   Test::with_tempdir(output.tempdir)
@@ -280,12 +280,12 @@ fn working_directory_invalidates_cache() {
         [working-directory('b')]
         [script]
         foo:
-          echo bar >> count
+          echo bar
       ",
     )
     .env("JUST_UNSTABLE", "1")
     .create_dir("b")
-    .expect_file("b/count", "bar\n")
+    .stdout("bar\n")
     .success();
 }
 
