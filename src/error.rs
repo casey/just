@@ -508,7 +508,7 @@ impl ColorDisplay for Error<'_> {
       CacheOutputMissing { recipe, output } => {
         write!(
           f,
-          "recipe `{recipe}` failed to produce cache output `{output}`",
+          "recipe `{recipe}` failed to create cache output `{output}`",
         )?;
       }
       ChooserInvoke {

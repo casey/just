@@ -637,7 +637,7 @@ fn missing_output_after_run_is_an_error() {
     )
     .env("JUST_UNSTABLE", "1")
     .stdout("bar\n")
-    .stderr_regex(r"error: recipe `bar` failed to produce cache output `foo`\n")
+    .stderr_regex(r"error: recipe `bar` failed to create cache output `foo`\n")
     .failure();
 
   let entries = fs::read_dir(output.tempdir.path().join(".justcache"))
