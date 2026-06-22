@@ -596,6 +596,35 @@ fn outputs_resolve_against_working_directory() {
 }
 
 #[test]
+fn dangling_symlink_output_invalidates_cache() {
+  let output = Test::new()
+    .justfile(
+      "
+        [cache(outputs = 'link')]
+        [script]
+        bar:
+          echo bar
+          touch foo
+          ln -sf foo link
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("bar\n")
+    .success();
+
+  let output = Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .success();
+
+  fs::remove_file(output.tempdir.path().join("foo")).unwrap();
+
+  Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
 fn missing_output_after_run_is_an_error() {
   let output = Test::new()
     .justfile(
