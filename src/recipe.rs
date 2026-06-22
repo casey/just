@@ -564,19 +564,40 @@ impl<'src> Recipe<'src> {
         .insert(name.clone(), Some(value.clone()));
     }
 
-    let entry = if self.attributes.contains(AttributeDiscriminant::Cache) {
-      let Some(Attribute::Cache { inputs }) = self.attributes.get(AttributeDiscriminant::Cache)
+    let (entry, outputs) = if self.attributes.contains(AttributeDiscriminant::Cache) {
+      let Some(Attribute::Cache { inputs, outputs }) =
+        self.attributes.get(AttributeDiscriminant::Cache)
       else {
         unreachable!()
+      };
+
+      let working_directory = match &working_directory {
+        Some(working_directory) => working_directory.to_owned(),
+        None => context.working_directory(),
       };
 
       let inputs = inputs
         .as_ref()
         .map(|inputs| {
           let inputs = evaluator.evaluate_value(inputs)?;
-          Cache::inputs(context, inputs, working_directory.as_deref())
+          Cache::inputs(inputs, &working_directory)
         })
         .transpose()?;
+
+      let outputs = outputs
+        .as_ref()
+        .map(|outputs| -> RunResult<BTreeMap<String, PathBuf>> {
+          let outputs = evaluator.evaluate_value(outputs)?;
+          Ok(
+            outputs
+              .into_elements()
+              .into_iter()
+              .map(|output| (output.clone(), working_directory.join(output)))
+              .collect(),
+          )
+        })
+        .transpose()?
+        .unwrap_or_default();
 
       let key = CacheKey {
         body: &evaluated_lines,
@@ -587,10 +608,10 @@ impl<'src> Recipe<'src> {
           .takes_positional_arguments(&context.module.settings)
           .then_some(positional),
         recipe: self.recipe_path(),
-        working_directory: working_directory.as_deref(),
+        working_directory: Some(&working_directory),
       };
 
-      match cache.status(key)? {
+      let entry = match cache.status(key, &outputs)? {
         CacheStatus::Hit => {
           if config.verbosity.loquacious() {
             eprintln!(
@@ -605,10 +626,12 @@ impl<'src> Recipe<'src> {
           }
           return Ok(());
         }
-        CacheStatus::Miss(entry) => Some(entry),
-      }
+        CacheStatus::Miss(entry) => entry,
+      };
+
+      (Some(entry), outputs)
     } else {
-      None
+      (None, BTreeMap::new())
     };
 
     let tempdir = context.tempdir(self)?;
@@ -682,6 +705,15 @@ impl<'src> Recipe<'src> {
         SignalHandler::clear();
       } else {
         return Err(Error::Interrupted { signal });
+      }
+    }
+
+    for (output, path) in outputs {
+      if !filesystem::exists(&path)? {
+        return Err(Error::CacheOutputMissing {
+          recipe: self.name(),
+          output,
+        });
       }
     }
 

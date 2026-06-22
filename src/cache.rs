@@ -8,7 +8,11 @@ pub(crate) struct Cache {
 }
 
 impl Cache {
-  pub(crate) fn status(&self, key: CacheKey) -> RunResult<'static, CacheStatus> {
+  pub(crate) fn status(
+    &self,
+    key: CacheKey,
+    outputs: &BTreeMap<String, PathBuf>,
+  ) -> RunResult<'static, CacheStatus> {
     let mut hasher = blake3::Hasher::new();
 
     serde_json::to_writer(&mut hasher, &key)
@@ -33,13 +37,17 @@ impl Cache {
 
     file.lock().map_err(context)?;
 
-    let len = file.metadata().map_err(context)?.len();
-
-    if len > 0 {
-      Ok(CacheStatus::Hit)
-    } else {
-      Ok(CacheStatus::Miss(CacheEntry { file, path }))
+    if file.metadata().map_err(context)?.len() == 0 {
+      return Ok(CacheStatus::Miss(CacheEntry { file, path }));
     }
+
+    for output in outputs.values() {
+      if !filesystem::exists(output)? {
+        return Ok(CacheStatus::Miss(CacheEntry { file, path }));
+      }
+    }
+
+    Ok(CacheStatus::Hit)
   }
 
   pub(crate) fn new(search: &Search) -> Self {
@@ -63,20 +71,14 @@ impl Cache {
     Ok(self.path.join(format!("{key}.json")))
   }
 
-  pub(crate) fn inputs<'src>(
-    context: &ExecutionContext,
+  pub(crate) fn inputs(
     value: Value,
-    working_directory: Option<&Path>,
-  ) -> RunResult<'src, BTreeMap<String, blake3::Hash>> {
-    let base = match working_directory {
-      Some(working_directory) => working_directory.to_owned(),
-      None => context.working_directory(),
-    };
-
+    working_directory: &Path,
+  ) -> RunResult<'static, BTreeMap<String, blake3::Hash>> {
     let mut inputs = BTreeMap::new();
 
     for input in value.elements() {
-      let path = base.join(input);
+      let path = working_directory.join(input);
 
       let metadata = match fs::metadata(&path) {
         Ok(metadata) => metadata,

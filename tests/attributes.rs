@@ -627,6 +627,34 @@ fn cache_inputs_dump() {
 }
 
 #[test]
+fn cache_outputs_dump() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [cache(inputs = ['foo'], outputs = ['bar'])]
+        [script]
+        baz:
+          echo baz
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("--dump")
+    .stdout(
+      "
+        set lists
+
+        [cache(inputs=['foo'], outputs=['bar'])]
+        [script]
+        baz:
+            echo baz
+      ",
+    )
+    .success();
+}
+
+#[test]
 fn cache_unknown_keyword() {
   Test::new()
     .justfile(
