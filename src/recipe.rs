@@ -565,19 +565,15 @@ impl<'src> Recipe<'src> {
         Executor::Shebang(_) => None,
       };
 
-      let positional: &[String] = if self.takes_positional_arguments(&context.module.settings) {
-        positional
-      } else {
-        &[]
-      };
-
       match cache.status(
         &environment,
         interpreter,
         &evaluated_lines,
-        positional,
-        self.recipe_path(),
+        self
+          .takes_positional_arguments(&context.module.settings)
+          .then_some(positional),
         working_directory.as_deref(),
+        self,
       )? {
         CacheStatus::Hit => {
           if config.verbosity.loquacious() {

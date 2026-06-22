@@ -8,7 +8,7 @@ struct Key<'a> {
   environment: &'a BTreeMap<String, Option<String>>,
   interpreter: Option<&'a Interpreter<String>>,
   lines: &'a [String],
-  positional: &'a [String],
+  positional: Option<&'a [String]>,
   recipe: &'a Modulepath,
   version: u64,
   working_directory: Option<&'a Path>,
@@ -25,16 +25,16 @@ impl Cache {
     environment: &BTreeMap<String, Option<String>>,
     interpreter: Option<&Interpreter<String>>,
     lines: &[String],
-    positional: &[String],
-    recipe: &Modulepath,
+    positional: Option<&[String]>,
     working_directory: Option<&Path>,
+    recipe: &Recipe,
   ) -> RunResult<'static, CacheStatus> {
     let key = Key {
       environment,
       interpreter,
       lines,
       positional,
-      recipe,
+      recipe: recipe.recipe_path(),
       version: VERSION,
       working_directory,
     };
