@@ -636,7 +636,7 @@ impl<'src> Recipe<'src> {
     }
 
     if let Some(entry) = entry {
-      entry.cache()?;
+      entry.save()?;
     }
 
     Ok(())

@@ -6,7 +6,7 @@ pub(crate) struct CacheEntry {
 }
 
 impl CacheEntry {
-  pub(crate) fn cache(mut self) -> RunResult<'static> {
+  pub(crate) fn save(mut self) -> RunResult<'static> {
     self
       .file
       .write_all(b"{}")
