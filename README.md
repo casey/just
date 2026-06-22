@@ -4158,10 +4158,10 @@ an expression that is evaluated with recipe arguments in scope and whose
 evaluated elements are paths. Paths may be absolute or relative to the recipe's
 working directory.
 
-All output files must exist for an invocation to be skipped. After an
-invocation runs, it is an error if any output file does not exist.
+Outputs are not part of the cache key.
 
-Unlike outputs are not part of the cache key.
+All output files must exist for an invocation to be skipped, and after an
+invocation runs successfully, it is an error if any output file does not exist.
 
 In this example, `build` re-runs whenever `main` is missing, and errors if it
 runs without producing `main`:
