@@ -668,6 +668,32 @@ fn dry_run_skips_output_checking() {
 }
 
 #[test]
+fn current_directory_invalidates_cache() {
+  let output = Test::new()
+    .justfile(
+      "
+        [cache]
+        [no-cd]
+        [script]
+        foo:
+          echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .create_dir("a")
+    .create_dir("b")
+    .current_dir("a")
+    .stdout("bar\n")
+    .success();
+
+  Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .current_dir("b")
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
 fn hit_prints_verbose_message() {
   let output = Test::new()
     .justfile(

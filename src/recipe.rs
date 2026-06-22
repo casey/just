@@ -573,7 +573,7 @@ impl<'src> Recipe<'src> {
 
       let working_directory = match &working_directory {
         Some(working_directory) => working_directory.to_owned(),
-        None => context.working_directory(),
+        None => env::current_dir().map_err(|source| Error::CurrentDirectory { source })?,
       };
 
       let inputs = inputs
