@@ -560,7 +560,7 @@ impl<'src> Recipe<'src> {
     }
 
     let entry = if self.attributes.contains(AttributeDiscriminant::Cache) {
-      match cache.status(
+      let status = cache.status(
         &environment,
         &executor,
         &evaluated_lines,
@@ -569,7 +569,9 @@ impl<'src> Recipe<'src> {
           .then_some(positional),
         self.recipe_path(),
         working_directory.as_deref(),
-      )? {
+      )?;
+
+      match status {
         CacheStatus::Hit => {
           if config.verbosity.loquacious() {
             eprintln!(
