@@ -4101,12 +4101,12 @@ object.
 
 The keys of the cache key object are:
 
-- `environment`: A map of environment variable names to values
-- `executor`: The script interpreter or shebang
-- `lines`: The evaluated recipe body
-- `positional`: Positional arguments
-- `recipe`: `::`-separated module path to the invoked recipe
-- `working_directory`: The current working directory
+- `environment`: map of environment variable names to values
+- `executor`: script interpreter or shebang
+- `lines`: evaluated recipe body
+- `positional`: positional arguments
+- `recipe`: `::`-separated module path to invoked recipe
+- `working_directory`: current working directory
 
 Before `just` runs a cached recipe, it creates a cache key, hashes it, and
 looks for the corresponding cache entry.
