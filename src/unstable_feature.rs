@@ -4,7 +4,7 @@ use super::*;
 pub(crate) enum UnstableFeature {
   CachedRecipes,
   ListsSetting,
-  UserDefinedFunction,
+  UserDefinedFunctions,
 }
 
 impl Display for UnstableFeature {
@@ -12,7 +12,7 @@ impl Display for UnstableFeature {
     match self {
       Self::CachedRecipes => write!(f, "cached recipes are currently unstable"),
       Self::ListsSetting => write!(f, "the `lists` setting is currently unstable"),
-      Self::UserDefinedFunction => {
+      Self::UserDefinedFunctions => {
         write!(f, "user-defined functions are currently unstable")
       }
     }
