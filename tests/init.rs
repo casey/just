@@ -21,13 +21,11 @@ fn current_dir() {
 #[test]
 fn exists() {
   let output = Test::new()
-    .no_justfile()
     .arg("--init")
     .stderr_regex("Wrote justfile to `.*`\n")
     .success();
 
   Test::with_tempdir(output.tempdir)
-    .no_justfile()
     .arg("--init")
     .stderr_regex("error: justfile `.*` already exists\n")
     .failure();
@@ -42,7 +40,6 @@ fn write_error() {
   fs::create_dir(justfile_path).unwrap();
 
   test
-    .no_justfile()
     .args(["--init"])
     .stderr_regex(if cfg!(windows) {
       r"error: failed to write justfile to `.*`: Access is denied. \(os error 5\)\n"
@@ -63,7 +60,6 @@ fn invocation_directory() {
   let justfile_path = test.justfile_path();
 
   let _tmp = test
-    .no_justfile()
     .stderr_regex("Wrote justfile to `.*`\n")
     .arg("--init")
     .success();
@@ -188,7 +184,6 @@ fn justfile_and_working_directory() {
 #[test]
 fn justfile_name_from_invocation_directory() {
   Test::new()
-    .no_justfile()
     .test_round_trip(false)
     .create_dir(".git")
     .args(["--init", "--justfile-name", "foo"])
@@ -200,7 +195,6 @@ fn justfile_name_from_invocation_directory() {
 #[test]
 fn justfile_name_from_search_directory() {
   Test::new()
-    .no_justfile()
     .test_round_trip(false)
     .create_dir("sub/.git")
     .args(["--init", "--justfile-name", "foo", "sub/"])
@@ -212,12 +206,10 @@ fn justfile_name_from_search_directory() {
 #[test]
 fn fmt_compatibility() {
   let output = Test::new()
-    .no_justfile()
     .arg("--init")
     .stderr_regex("Wrote justfile to `.*`\n")
     .success();
   Test::with_tempdir(output.tempdir)
-    .no_justfile()
     .arg("--unstable")
     .arg("--check")
     .arg("--fmt")

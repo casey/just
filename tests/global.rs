@@ -10,7 +10,6 @@ fn macos() {
   let path = tempdir.path().to_owned();
 
   Test::with_tempdir(tempdir)
-    .no_justfile()
     .test_round_trip(false)
     .write(
       "Library/Application Support/just/justfile",
@@ -32,7 +31,6 @@ fn not_macos() {
   let path = tempdir.path().to_owned();
 
   Test::with_tempdir(tempdir)
-    .no_justfile()
     .test_round_trip(false)
     .write("just/justfile", "@default:\n  echo foo")
     .env("XDG_CONFIG_HOME", path.to_str().unwrap())
@@ -51,7 +49,6 @@ fn unix() {
   let path = tempdir.path().to_owned();
 
   let tempdir = Test::with_tempdir(tempdir)
-    .no_justfile()
     .test_round_trip(false)
     .write("justfile", "@default:\n  echo foo")
     .env("HOME", path.to_str().unwrap())
@@ -61,7 +58,6 @@ fn unix() {
     .tempdir;
 
   Test::with_tempdir(tempdir)
-    .no_justfile()
     .test_round_trip(false)
     .write(".config/just/justfile", "@default:\n  echo bar")
     .env("HOME", path.to_str().unwrap())
@@ -80,7 +76,6 @@ fn case_insensitive() {
   let path = tempdir.path().to_owned();
 
   Test::with_tempdir(tempdir)
-    .no_justfile()
     .test_round_trip(false)
     .write("just/JUSTFILE", "@default:\n  echo foo")
     .env("XDG_CONFIG_HOME", path.to_str().unwrap())

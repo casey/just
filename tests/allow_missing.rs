@@ -3,21 +3,29 @@ use super::*;
 #[test]
 fn allow_missing_recipes_in_run_invocation() {
   Test::new()
+    .justfile("")
     .arg("foo")
     .stderr("error: justfile does not contain recipe `foo`\n")
     .failure();
 
-  Test::new().args(["--allow-missing", "foo"]).success();
+  Test::new()
+    .justfile("")
+    .args(["--allow-missing", "foo"])
+    .success();
 }
 
 #[test]
 fn allow_missing_modules_in_run_invocation() {
   Test::new()
+    .justfile("")
     .arg("foo::bar")
     .stderr("error: justfile does not contain submodule `foo`\n")
     .failure();
 
-  Test::new().args(["--allow-missing", "foo::bar"]).success();
+  Test::new()
+    .justfile("")
+    .args(["--allow-missing", "foo::bar"])
+    .success();
 }
 
 #[test]
@@ -40,6 +48,7 @@ fn allow_missing_does_not_apply_to_compilation_errors() {
 #[test]
 fn allow_missing_does_not_apply_to_other_subcommands() {
   Test::new()
+    .justfile("")
     .args(["--allow-missing", "--show", "foo"])
     .stderr("error: justfile does not contain recipe `foo`\n")
     .failure();

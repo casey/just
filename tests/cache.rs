@@ -79,7 +79,6 @@ fn hit_skips_execution() {
     .success();
 
   Test::with_tempdir(output.tempdir)
-    .no_justfile()
     .env("JUST_UNSTABLE", "1")
     .success();
 }
@@ -162,7 +161,6 @@ fn positional_arguments_invalidate_cache() {
     .success();
 
   Test::with_tempdir(output.tempdir)
-    .no_justfile()
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "baz"])
     .stdout("baz\n")
@@ -188,7 +186,6 @@ fn environment_invalidates_cache() {
     .success();
 
   Test::with_tempdir(output.tempdir)
-    .no_justfile()
     .env("JUST_UNSTABLE", "1")
     .args(["value=baz", "foo"])
     .stdout("baz\n")
@@ -214,7 +211,6 @@ fn unexported_variable_does_not_invalidate_cache() {
     .success();
 
   Test::with_tempdir(output.tempdir)
-    .no_justfile()
     .env("JUST_UNSTABLE", "1")
     .args(["value=baz", "foo"])
     .stdout("")
@@ -303,7 +299,6 @@ fn hit_prints_verbose_message() {
     .success();
 
   Test::with_tempdir(output.tempdir)
-    .no_justfile()
     .env("JUST_UNSTABLE", "1")
     .arg("--verbose")
     .stderr(

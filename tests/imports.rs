@@ -343,6 +343,7 @@ fn shebang_recipes_in_imports_in_root_run_in_justfile_directory() {
 #[test]
 fn recipes_imported_in_root_run_in_command_line_provided_working_directory() {
   Test::new()
+    .justfile("")
     .write("subdir/b.justfile", "@b:\n  cat baz")
     .write("subdir/a.justfile", "import 'b.justfile'\n@a: b\n  cat baz")
     .write("baz", "BAZ")

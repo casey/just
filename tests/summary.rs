@@ -61,6 +61,7 @@ fn summary_none() {
 #[test]
 fn no_recipes() {
   Test::new()
+    .justfile("")
     .arg("--summary")
     .stderr("justfile contains no recipes\n")
     .stdout("\n\n\n")

@@ -3,6 +3,7 @@ use super::*;
 #[test]
 fn dotenv() {
   Test::new()
+    .justfile("")
     .write(".env", "KEY=ROOT")
     .write("sub/.env", "KEY=SUB")
     .write("sub/justfile", "default:\n\techo KEY=${KEY:-unset}")
@@ -424,6 +425,7 @@ fn dotenv_path_usable_from_subdir() {
 #[test]
 fn dotenv_path_does_not_override_dotenv_file() {
   Test::new()
+    .justfile("")
     .write(".env", "KEY=ROOT")
     .write(
       "sub/justfile",
@@ -539,6 +541,7 @@ fn filename_list_loads_all_in_directory() {
 #[test]
 fn filename_list_stops_at_first_directory() {
   Test::new()
+    .justfile("")
     .write(
       "sub/justfile",
       "set lists\nset dotenv-filename := ['.env.foo', '.env.bar']\n@foo:\n\techo \"${FOO:-unset} ${BAR:-unset}\"",

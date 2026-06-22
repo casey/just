@@ -3,7 +3,6 @@ use super::*;
 #[test]
 fn code_blocks_are_concatenated() {
   Test::new()
-    .no_justfile()
     .write(
       "foo.md",
       "# foo\n\n```just\nbar := 'baz'\n```\nprose\n```just\n@bob:\n echo {{ bar }}\n```\n",
@@ -17,7 +16,6 @@ fn code_blocks_are_concatenated() {
 #[test]
 fn non_just_code_blocks_are_ignored() {
   Test::new()
-    .no_justfile()
     .write(
       "foo.md",
       "```sh\ngarbage[\n```\n\n````\n```just\ngarbage[\n```\n````\n\n```just\n@foo:\n echo bar\n```\n",
@@ -31,7 +29,6 @@ fn non_just_code_blocks_are_ignored() {
 #[test]
 fn extension_is_case_insensitive() {
   Test::new()
-    .no_justfile()
     .write("foo.MD", "```just\n@foo:\n echo bar\n```\n")
     .args(["--justfile", "foo.MD"])
     .stdout("bar\n")
@@ -42,7 +39,6 @@ fn extension_is_case_insensitive() {
 #[test]
 fn working_directory_is_markdown_file_directory() {
   Test::new()
-    .no_justfile()
     .write("sub/foo.md", "```just\n@foo:\n cat bar\n```\n")
     .write("sub/bar", "baz")
     .args(["--justfile", "sub/foo.md"])
@@ -54,7 +50,6 @@ fn working_directory_is_markdown_file_directory() {
 #[test]
 fn with_working_directory() {
   Test::new()
-    .no_justfile()
     .write("foo.md", "```just\n@foo:\n cat baz\n```\n")
     .write("bar/baz", "qux")
     .args(["--justfile", "foo.md", "--working-directory", "bar"])
@@ -66,7 +61,6 @@ fn with_working_directory() {
 #[test]
 fn line_numbers_are_preserved() {
   Test::new()
-    .no_justfile()
     .write("foo.md", "# foo\n\n```just\ngarbage[\n```\n")
     .args(["--justfile", "foo.md"])
     .stderr(
@@ -85,7 +79,6 @@ fn line_numbers_are_preserved() {
 #[test]
 fn no_code_blocks() {
   Test::new()
-    .no_justfile()
     .write("foo.md", "# foo\n")
     .args(["--justfile", "foo.md"])
     .stderr("error: justfile contains no recipes\n")
@@ -96,7 +89,6 @@ fn no_code_blocks() {
 #[test]
 fn format_prints_to_stdout() {
   Test::new()
-    .no_justfile()
     .write("foo.md", "```just\nfoo:\n echo bar\n```\n")
     .args(["--fmt", "--justfile", "foo.md"])
     .stdout("\nfoo:\n    echo bar\n")
@@ -109,7 +101,6 @@ fn format_prints_to_stdout() {
 #[test]
 fn dump() {
   Test::new()
-    .no_justfile()
     .write("foo.md", "```just\nfoo:\n echo bar\n```\n")
     .args(["--dump", "--justfile", "foo.md"])
     .stdout("\nfoo:\n    echo bar\n")
@@ -121,7 +112,6 @@ fn dump() {
 #[test]
 fn init_error() {
   Test::new()
-    .no_justfile()
     .write("foo.md", "# foo\n")
     .args(["--init", "--justfile", "foo.md"])
     .stderr_regex("error: justfile `.*foo.md` already exists\n")

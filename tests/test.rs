@@ -39,7 +39,7 @@ impl Test {
       current_dir: PathBuf::new(),
       env: BTreeMap::new(),
       expected_files: BTreeMap::new(),
-      justfile: Some(String::new()),
+      justfile: None,
       response: None,
       shell: true,
       stderr: String::new(),
@@ -109,11 +109,6 @@ impl Test {
       std::os::windows::fs::symlink_file(original, link).unwrap();
     }
 
-    self
-  }
-
-  pub(crate) fn no_justfile(mut self) -> Self {
-    self.justfile = None;
     self
   }
 

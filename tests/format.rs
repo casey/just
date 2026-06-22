@@ -40,7 +40,6 @@ fn check_ok() {
 #[test]
 fn from_stdin() {
   Test::new()
-    .no_justfile()
     .args(["--fmt", "--justfile", "-"])
     .stdin("x:=``\n")
     .stdout("x := ``\n")
@@ -51,7 +50,6 @@ fn from_stdin() {
 #[test]
 fn already_formatted_from_stdin() {
   Test::new()
-    .no_justfile()
     .args(["--fmt", "--justfile", "-"])
     .stdin("x := ``\n")
     .stdout("x := ``\n")
@@ -62,7 +60,6 @@ fn already_formatted_from_stdin() {
 #[test]
 fn check_from_stdin() {
   Test::new()
-    .no_justfile()
     .args(["--fmt", "--check", "--justfile", "-"])
     .stdin("x:=``\n")
     .stdout(
@@ -137,7 +134,6 @@ fn write_error() {
   };
 
   let test = Test::with_tempdir(tempdir)
-    .no_justfile()
     .arg("--fmt")
     .stderr_regex(if cfg!(windows) {
       r"error: failed to write justfile to `.*`: Access is denied. \(os error 5\)\n"
@@ -1535,7 +1531,7 @@ fn unchanged_justfiles_are_not_written_to_disk() {
   permissions.set_readonly(true);
   fs::set_permissions(&justfile, permissions).unwrap();
 
-  Test::with_tempdir(tmp).no_justfile().arg("--fmt").success();
+  Test::with_tempdir(tmp).arg("--fmt").success();
 }
 
 #[test]

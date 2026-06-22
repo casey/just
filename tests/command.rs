@@ -183,6 +183,7 @@ fn working_directory_is_correct() {
 #[test]
 fn command_not_found() {
   Test::new()
+    .justfile("")
     .args(["--command", "asdfasdfasdfasdfadfsadsfadsf", "bar"])
     .stderr_regex("error: failed to invoke `asdfasdfasdfasdfadfsadsfadsf` `bar`: .*")
     .failure();

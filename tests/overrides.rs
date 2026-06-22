@@ -218,6 +218,7 @@ fn submodule_override_does_not_affect_parent() {
 #[test]
 fn unknown_submodule_in_override_path() {
   Test::new()
+    .justfile("")
     .arg("foo::x=b")
     .stderr("error: variable `foo::x` overridden on the command line but not present in justfile\n")
     .failure();

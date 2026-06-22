@@ -3,6 +3,7 @@ use super::*;
 #[test]
 fn fallback_from_subdir_bugfix() {
   Test::new()
+    .justfile("")
     .write(
       "sub/justfile",
       unindent(

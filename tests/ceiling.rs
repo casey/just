@@ -71,7 +71,6 @@ fn justfile_init_search_stops_at_ceiling_dir() {
   };
 
   let Output { tempdir, .. } = Test::with_tempdir(tempdir)
-    .no_justfile()
     .test_round_trip(false)
     .create_dir(".git")
     .create_dir("foo/bar")
