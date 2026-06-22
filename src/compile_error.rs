@@ -127,8 +127,8 @@ impl Display for CompileError<'_> {
         first.ordinal(),
         self.token.line.ordinal(),
       ),
-      DuplicateAttributeKey { key } => {
-        write!(f, "duplicate attribute key `{key}`")
+      DuplicateAttributeKey { attribute, key } => {
+        write!(f, "duplicate key `{key}` for `{attribute}` attribute")
       }
       DuplicateDefault { recipe } => write!(
         f,

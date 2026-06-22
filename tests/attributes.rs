@@ -689,7 +689,7 @@ fn duplicate_keyword_argument() {
     )
     .stderr(
       "
-        error: duplicate attribute key `long`
+        error: duplicate key `long` for `arg` attribute
          ——▶ justfile:1:23
           │
         1 │ [arg('bar', long='a', long='b')]
