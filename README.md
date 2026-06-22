@@ -2571,6 +2571,7 @@ change their behavior.
 | `[arg(ARG, short="S")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as short `-S` option. |
 | `[arg(ARG, value=VALUE)]`<sup>1.46.0</sup> | recipe | Makes option `ARG` a flag which does not take a value. |
 | `[cache]`<sup>master</sup> | recipe | Skip recipe invocations when a matching entry exists in the cache. See [cached recipes](#cached-recipes) for details. Currently unstable. |
+| `[cache(inputs = FILES)]`<sup>master</sup> | recipe | Hash the input files `FILES` into the cache key. See [cached recipes](#cached-recipes) for details. Currently unstable. |
 | `[confirm(PROMPT)]`<sup>1.23.0</sup> | recipe | Require confirmation prior to executing recipe with a custom prompt. |
 | `[confirm]`<sup>1.17.0</sup> | recipe | Require confirmation prior to executing recipe. |
 | `[continue(SIGNALS)]`<sup>master</sup> | recipe | Continue execution normally if a command is interrupted by any of `SIGNALS` and exits successfully. Defaults to `SIGINT`. |
@@ -4104,6 +4105,8 @@ The keys of the cache key object are:
 - `body`: evaluated recipe body
 - `environment`: map of environment variable names to values
 - `executor`: script interpreter or shebang
+- `inputs`: map of declared input file paths to the BLAKE3 hash of their
+  contents
 - `positional`: positional arguments
 - `recipe`: `::`-separated module path to invoked recipe
 - `working_directory`: current working directory
@@ -4122,6 +4125,42 @@ invocation with the same cache key, the first will take the lock, run the
 recipe, write to the cache entry, and relinquish the lock. The second will
 block until the first relinquishes the lock, see that the entry is non-empty,
 and skip the invocation.
+
+#### Input Files
+
+The `[cache(inputs = …)]`<sup>master</sup> attribute declares the recipe's
+input files. `inputs` is an expression that evaluates to a list of paths, and
+has access to the recipe's arguments:
+
+```just
+set unstable
+set lists
+
+[cache(inputs = ['src/main.c', 'src/util.c'])]
+[script]
+build:
+  cc src/main.c src/util.c -o main
+```
+
+Each input is hashed with BLAKE3 and the resulting map of paths to hashes is
+included in the cache key, so changing the contents of any declared input
+invalidates the cache.
+
+Input paths are resolved relative to the recipe's working directory, and the
+path is stored in the cache key exactly as written, so relative paths keep the
+cache key portable.
+
+`just` is strict about inputs, to catch mistakes:
+
+- A missing input is an error.
+- An input that is a directory is an error. Symlinks to files are followed and
+  the target's contents are hashed, but a path that resolves to a directory,
+  including a symlink to a directory, is an error.
+
+Input files are not hashed during `--dry-run`.
+
+These restrictions may be relaxed in the future, for example to allow missing
+inputs or to recursively hash directories.
 
 #### Friendly Admonitions
 
