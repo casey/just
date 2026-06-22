@@ -283,6 +283,36 @@ fn working_directory_invalidates_cache() {
 }
 
 #[test]
+fn extra_invalidates_cache() {
+  let output = Test::new()
+    .justfile(
+      "
+        value := 'default'
+
+        [cache(extra = value)]
+        [script]
+        foo:
+          echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["value=a", "foo"])
+    .stdout("bar\n")
+    .success();
+
+  let output = Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .args(["value=a", "foo"])
+    .success();
+
+  Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .args(["value=b", "foo"])
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
 fn input_invalidates_cache() {
   let output = Test::new()
     .justfile(

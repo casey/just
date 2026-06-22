@@ -599,6 +599,34 @@ fn env_attribute_overrides_export_in_script() {
 }
 
 #[test]
+fn cache_extra_dump() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [cache(extra = 'a', inputs = ['foo'], outputs = ['bar'])]
+        [script]
+        baz:
+          echo baz
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("--dump")
+    .stdout(
+      "
+        set lists
+
+        [cache(extra='a', inputs=['foo'], outputs=['bar'])]
+        [script]
+        baz:
+            echo baz
+      ",
+    )
+    .success();
+}
+
+#[test]
 fn cache_inputs_dump() {
   Test::new()
     .justfile(
