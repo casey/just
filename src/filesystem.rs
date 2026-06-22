@@ -1,7 +1,7 @@
 use super::*;
 
 pub(crate) fn exists(path: &Path) -> RunResult<'static, bool> {
-  match path.symlink_metadata() {
+  match path.metadata() {
     Ok(_) => Ok(true),
     Err(source) => {
       if source.kind() == io::ErrorKind::NotFound {
