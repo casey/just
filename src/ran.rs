@@ -15,4 +15,8 @@ impl Ran {
       .or_default()
       .clone()
   }
+
+  pub(crate) fn new() -> Self {
+    Self::default()
+  }
 }

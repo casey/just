@@ -197,7 +197,7 @@ impl Subcommand {
           eprintln!(
             "Trying {}",
             starting_parent
-              .strip_prefix(search.justfile.parent().unwrap())
+              .strip_prefix(search.justfile_parent())
               .unwrap()
               .components()
               .map(|_| path::Component::ParentDir)
@@ -386,7 +386,7 @@ impl Subcommand {
   }
 
   fn format<'src>(config: &Config, loader: &'src Loader, search: &Search) -> RunResult<'src> {
-    let root = search.justfile.parent().unwrap();
+    let root = search.justfile_parent();
 
     let (path, src) = loader.load(config, root, &search.justfile)?;
 

@@ -222,7 +222,8 @@ impl<'src> Justfile<'src> {
           &variable_references,
         )?;
 
-        let ran = Ran::default();
+        let ran = Ran::new();
+        let cache = Cache::new(search);
         for invocation in invocations {
           Self::run_recipe(
             &invocation.arguments,
@@ -233,6 +234,7 @@ impl<'src> Justfile<'src> {
             invocation.recipe,
             &scopes,
             search,
+            &cache,
           )?;
         }
 
@@ -451,6 +453,7 @@ impl<'src> Justfile<'src> {
     recipe: &Recipe<'src>,
     scopes: &Scopes<'src, '_>,
     search: &Search,
+    cache: &Cache,
   ) -> RunResult<'src> {
     let mutex = ran.mutex(recipe, arguments);
 
@@ -501,9 +504,10 @@ impl<'src> Justfile<'src> {
       ran,
       scopes,
       search,
+      cache,
     )?;
 
-    recipe.run(&context, &env, is_dependency, &positional, &scope)?;
+    recipe.run(&context, &env, is_dependency, &positional, &scope, cache)?;
 
     Self::run_dependencies(
       config,
@@ -512,9 +516,10 @@ impl<'src> Justfile<'src> {
       recipe,
       &mut evaluator,
       overrides,
-      &Ran::default(),
+      &Ran::new(),
       scopes,
       search,
+      cache,
     )?;
 
     *guard = true;
@@ -532,6 +537,7 @@ impl<'src> Justfile<'src> {
     ran: &Ran,
     scopes: &Scopes<'src, 'run>,
     search: &Search,
+    cache: &Cache,
   ) -> RunResult<'src> {
     if context.config.no_dependencies {
       return Ok(());
@@ -578,7 +584,7 @@ impl<'src> Justfile<'src> {
         for (recipe, arguments) in evaluated {
           handles.push(thread_scope.spawn(move || {
             Self::run_recipe(
-              &arguments, config, true, overrides, ran, recipe, scopes, search,
+              &arguments, config, true, overrides, ran, recipe, scopes, search, cache,
             )
           }));
         }
@@ -592,7 +598,7 @@ impl<'src> Justfile<'src> {
     } else {
       for (recipe, arguments) in evaluated {
         Self::run_recipe(
-          &arguments, config, true, overrides, ran, recipe, scopes, search,
+          &arguments, config, true, overrides, ran, recipe, scopes, search, cache,
         )?;
       }
     }

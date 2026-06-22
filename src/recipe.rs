@@ -234,6 +234,7 @@ impl<'src> Recipe<'src> {
     is_dependency: bool,
     positional: &[String],
     scope: &Scope<'src, 'run>,
+    cache: &Cache,
   ) -> RunResult<'src> {
     let color = context.config.color.stderr().banner();
     let prefix = color.prefix();
@@ -241,7 +242,7 @@ impl<'src> Recipe<'src> {
 
     if context.config.verbosity.loquacious() {
       eprintln!(
-        "{prefix}===> Running recipe `{}`...{suffix}",
+        "{prefix}===> running recipe `{}`...{suffix}",
         self.recipe_path(),
       );
     }
@@ -262,7 +263,7 @@ impl<'src> Recipe<'src> {
 
     let start = Instant::now();
     let result = if self.is_script(&context.module.settings) {
-      self.run_script(context, env, evaluator, positional, scope)
+      self.run_script(context, env, evaluator, positional, scope, cache)
     } else {
       self.run_shell(context, env, evaluator, positional, scope)
     };
@@ -454,6 +455,7 @@ impl<'src> Recipe<'src> {
     mut evaluator: Evaluator<'src, 'run>,
     positional: &[String],
     scope: &Scope<'src, 'run>,
+    cache: &Cache,
   ) -> RunResult<'src> {
     let config = &context.config;
 
@@ -489,6 +491,28 @@ impl<'src> Recipe<'src> {
     if config.dry_run {
       return Ok(());
     }
+
+    let entry = if self.attributes.contains(AttributeDiscriminant::Cache) {
+      match cache.status(self, &evaluated_lines)? {
+        CacheStatus::Hit => {
+          if config.verbosity.loquacious() {
+            eprintln!(
+              "{}",
+              context
+                .config
+                .color
+                .stderr()
+                .banner()
+                .paint("===> cache hit, skipping invocation"),
+            );
+          }
+          return Ok(());
+        }
+        CacheStatus::Miss(entry) => Some(entry),
+      }
+    } else {
+      None
+    };
 
     let executor = if let Some(Attribute::Script(interpreter)) =
       self.attributes.get(AttributeDiscriminant::Script)
@@ -609,6 +633,10 @@ impl<'src> Recipe<'src> {
 
     if let Some(signal) = caught {
       return Err(Error::Interrupted { signal });
+    }
+
+    if let Some(entry) = entry {
+      entry.save()?;
     }
 
     Ok(())

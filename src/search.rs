@@ -12,6 +12,10 @@ pub(crate) struct Search {
 }
 
 impl Search {
+  pub(crate) fn justfile_parent(&self) -> &Path {
+    self.justfile.parent().unwrap()
+  }
+
   fn global_justfile_paths() -> Vec<(PathBuf, &'static str)> {
     let mut paths = Vec::new();
 

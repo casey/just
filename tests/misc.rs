@@ -235,7 +235,7 @@ fn verbose() {
     .arg("--verbose")
     .justfile("default:\n @echo hello")
     .stdout("hello\n")
-    .stderr("===> Running recipe `default`...\necho hello\n")
+    .stderr("===> running recipe `default`...\necho hello\n")
     .success();
 }
 
@@ -1904,7 +1904,7 @@ fn run_colors() {
       ",
     )
     .stdout("hi\n")
-    .stderr("\u{1b}[1;36m===> Running recipe `a`...\u{1b}[0m\n\u{1b}[1mecho hi\u{1b}[0m\n")
+    .stderr("\u{1b}[1;36m===> running recipe `a`...\u{1b}[0m\n\u{1b}[1mecho hi\u{1b}[0m\n")
     .success();
 }
 
@@ -1924,7 +1924,7 @@ fn no_highlight() {
       ",
     )
     .stdout("hi\n")
-    .stderr("\u{1b}[1;36m===> Running recipe `a`...\u{1b}[0m\necho hi\n")
+    .stderr("\u{1b}[1;36m===> running recipe `a`...\u{1b}[0m\necho hi\n")
     .success();
 }
 

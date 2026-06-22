@@ -53,6 +53,7 @@ mod attributes;
 mod backticks;
 mod booleans;
 mod byte_order_mark;
+mod cache;
 mod ceiling;
 mod changelog;
 mod choose;
