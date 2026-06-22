@@ -42,6 +42,7 @@ pub(crate) use {
     dump_format::DumpFormat,
     element::Element,
     enclosure::Enclosure,
+    environment::Environment,
     error::Error,
     evaluate_format::EvaluateFormat,
     evaluator::Evaluator,
@@ -242,6 +243,7 @@ mod disabled;
 mod dump_format;
 mod element;
 mod enclosure;
+mod environment;
 mod error;
 mod evaluate_format;
 mod evaluator;

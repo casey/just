@@ -647,14 +647,17 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       cmd.args(args);
     }
 
+    let environment = Environment::new(
+      context.dotenv,
+      scope,
+      &context.module.settings,
+      &context.module.unexports,
+    );
+
+    environment.export(&mut cmd);
+
     cmd
       .current_dir(context.working_directory())
-      .export(
-        &context.module.settings,
-        context.dotenv,
-        scope,
-        &context.module.unexports,
-      )
       .stdin(Stdio::inherit())
       .stderr(if context.config.verbosity.quiet() {
         Stdio::null()
