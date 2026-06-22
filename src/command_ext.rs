@@ -1,26 +1,9 @@
 use super::*;
 
-pub(crate) fn exported_environment(
-  dotenv: &BTreeMap<String, String>,
-  scope: &Scope,
-  settings: &Settings,
-  unexports: &HashSet<String>,
-) -> BTreeMap<String, Option<String>> {
-  let mut environment = BTreeMap::new();
-
-  for (name, value) in dotenv {
-    environment.insert(name.clone(), Some(value.clone()));
-  }
-
-  if let Some(parent) = scope.parent() {
-    export_scope(&mut environment, parent, settings, unexports);
-  }
-
-  environment
-}
+type Environment = BTreeMap<String, Option<String>>;
 
 fn export_scope(
-  environment: &mut BTreeMap<String, Option<String>>,
+  environment: &mut Environment,
   scope: &Scope,
   settings: &Settings,
   unexports: &HashSet<String>,
@@ -52,6 +35,27 @@ pub(crate) trait CommandExt {
     unexports: &HashSet<String>,
   ) -> &mut Command;
 
+  fn environment(
+    dotenv: &BTreeMap<String, String>,
+    scope: &Scope,
+    settings: &Settings,
+    unexports: &HashSet<String>,
+  ) -> Environment {
+    let mut environment = BTreeMap::new();
+
+    for (name, value) in dotenv {
+      environment.insert(name.clone(), Some(value.clone()));
+    }
+
+    if let Some(parent) = scope.parent() {
+      export_scope(&mut environment, parent, settings, unexports);
+    }
+
+    environment
+  }
+
+  fn export_environment(&mut self, environment: Environment) -> &mut Command;
+
   fn output_guard(self) -> (io::Result<process::Output>, Option<Signal>);
 
   fn output_guard_stdout(self) -> Result<String, OutputError>;
@@ -69,13 +73,16 @@ impl CommandExt for Command {
     scope: &Scope,
     unexports: &HashSet<String>,
   ) -> &mut Command {
-    for (name, value) in exported_environment(dotenv, scope, settings, unexports) {
+    self.export_environment(Self::environment(dotenv, scope, settings, unexports))
+  }
+
+  fn export_environment(&mut self, environment: BTreeMap<String, Option<String>>) -> &mut Self {
+    for (name, value) in environment {
       match value {
         Some(value) => self.env(name, value),
         None => self.env_remove(name),
       };
     }
-
     self
   }
 
