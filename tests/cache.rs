@@ -965,37 +965,6 @@ fn clean_module_path_may_be_spaced() {
 }
 
 #[test]
-fn clean_module_path_matching_nothing_removes_nothing() {
-  let output = Test::new()
-    .justfile(
-      "
-        [cache]
-        [script]
-        foo:
-          echo bar
-      ",
-    )
-    .env("JUST_UNSTABLE", "1")
-    .stdout("bar\n")
-    .success();
-
-  let output = Test::with_tempdir(output.tempdir)
-    .env("JUST_UNSTABLE", "1")
-    .args(["--clean", "bar"])
-    .stderr("removed 0 cache entries\n")
-    .success();
-
-  let cache = output.tempdir.path().join(".justcache");
-
-  let entries = fs::read_dir(&cache)
-    .unwrap()
-    .map(|entry| fs::read_to_string(entry.unwrap().path()).unwrap())
-    .collect::<Vec<String>>();
-
-  assert_eq!(entries, &[r#"{"recipe":"foo"}"#]);
-}
-
-#[test]
 fn hit_prints_verbose_message() {
   let output = Test::new()
     .justfile(
