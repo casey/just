@@ -2,7 +2,7 @@ use {super::*, CompileErrorKind::*};
 
 #[derive(Default)]
 pub(crate) struct Analyzer<'run, 'src> {
-  aliases: Table<'src, Alias<'src, Namepath<'src>>>,
+  aliases: Table<'src, RecipeAlias<'src, Namepath<'src>>>,
   assignments: Vec<&'run Binding<'src, Expression<'src>>>,
   functions: Vec<&'run FunctionDefinition<'src>>,
   modules: Table<'src, Justfile<'src>>,
