@@ -48,11 +48,11 @@ impl<'src> Resolution<Arc<Recipe<'src>>> {
 
 impl<'src> Resolution<Modulepath> {
   pub(crate) fn resolve_module<'a>(
-    target: &Namepath<'src>,
+    path: &Namepath<'src>,
     mut modules: &'a Table<'src, Justfile<'src>>,
     mut absent: &'a BTreeSet<String>,
   ) -> Option<Self> {
-    let (last, prefix) = target.split_last();
+    let (last, prefix) = path.split_last();
 
     let mut walked = Vec::new();
 
