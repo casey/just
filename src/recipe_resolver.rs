@@ -45,7 +45,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     &mut self,
     stack: &mut Vec<&'src str>,
     recipe: UnresolvedRecipe<'src>,
-  ) -> CompileResult<'src, Resolution<'src>> {
+  ) -> CompileResult<'src, Resolution<Arc<Recipe<'src>>>> {
     if let Some(resolved) = self.resolved_recipes.get(recipe.name()) {
       return Ok(Resolution::Resolved(Arc::clone(resolved)));
     }
@@ -99,7 +99,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     dependency: &UnresolvedDependency<'src>,
     recipe: &UnresolvedRecipe<'src>,
     stack: &mut Vec<&'src str>,
-  ) -> CompileResult<'src, Option<Resolution<'src>>> {
+  ) -> CompileResult<'src, Option<Resolution<Arc<Recipe<'src>>>>> {
     let name = dependency.recipe.last().lexeme();
 
     if dependency.recipe.components() > 1 {

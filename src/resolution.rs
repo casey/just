@@ -1,11 +1,11 @@
 use super::*;
 
-pub(crate) enum Resolution<'src> {
+pub(crate) enum Resolution<T> {
   Disabled(BTreeSet<Modulepath>),
-  Resolved(Arc<Recipe<'src>>),
+  Resolved(T),
 }
 
-impl<'src> Resolution<'src> {
+impl<'src> Resolution<Arc<Recipe<'src>>> {
   pub(crate) fn resolve<'a>(
     path: &Namepath<'src>,
     mut modules: &'a Table<'src, Justfile<'src>>,

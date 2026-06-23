@@ -1,10 +1,5 @@
 use {super::*, CompileErrorKind::*};
 
-enum ModuleTarget {
-  Absent(BTreeSet<Modulepath>),
-  Present(Modulepath),
-}
-
 #[derive(Default)]
 pub(crate) struct Analyzer<'run, 'src> {
   aliases: Table<'src, Alias<'src, Namepath<'src>>>,
@@ -312,7 +307,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut module_aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
       match Self::resolve_module(&alias.target, &self.modules, &absent_modules) {
-        Some(ModuleTarget::Present(target)) => {
+        Some(Resolution::Resolved(target)) => {
           module_aliases.insert(ModuleAlias {
             attributes: alias.attributes,
             name: alias.name,
@@ -320,7 +315,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           });
           continue;
         }
-        Some(ModuleTarget::Absent(modules)) => {
+        Some(Resolution::Disabled(modules)) => {
           disabled_aliases.insert(Disabled {
             modules,
             name: alias.name,
@@ -425,7 +420,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     target: &Namepath<'src>,
     mut modules: &'a Table<'src, Justfile<'src>>,
     mut absent: &'a BTreeSet<String>,
-  ) -> Option<ModuleTarget> {
+  ) -> Option<Resolution<Modulepath>> {
     let (last, prefix) = target.split_last();
 
     let mut walked = Vec::new();
@@ -440,10 +435,10 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let lexeme = last.lexeme();
 
     if let Some(module) = modules.get(lexeme) {
-      Some(ModuleTarget::Present(module.module_path.clone()))
+      Some(Resolution::Resolved(module.module_path.clone()))
     } else if absent.contains(lexeme) {
       walked.push(lexeme.to_string());
-      Some(ModuleTarget::Absent(BTreeSet::from([Modulepath {
+      Some(Resolution::Disabled(BTreeSet::from([Modulepath {
         components: walked,
         spaced: false,
       }])))
