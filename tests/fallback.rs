@@ -68,11 +68,11 @@ fn runs_recipe_in_parent_if_not_found_in_current() {
     .write(
       "bar/justfile",
       "
-          set fallback := true
+        set fallback := true
 
-          baz:
-            echo subdir
-        ",
+        baz:
+          echo subdir
+      ",
     )
     .justfile(
       "
@@ -97,11 +97,11 @@ fn setting_accepts_value() {
     .write(
       "bar/justfile",
       "
-          set fallback := true
+        set fallback := true
 
-          baz:
-            echo subdir
-        ",
+        baz:
+          echo subdir
+      ",
     )
     .justfile(
       "
@@ -126,11 +126,11 @@ fn print_error_from_parent_if_recipe_not_found_in_current() {
     .write(
       "bar/justfile",
       "
-          set fallback := true
+        set fallback := true
 
-          baz:
-            echo subdir
-        ",
+        baz:
+          echo subdir
+      ",
     )
     .justfile("foo:\n echo {{bar}}")
     .args(["foo"])
@@ -153,9 +153,9 @@ fn requires_setting() {
     .write(
       "bar/justfile",
       "
-          baz:
-            echo subdir
-        ",
+        baz:
+          echo subdir
+      ",
     )
     .justfile(
       "
@@ -175,11 +175,11 @@ fn works_with_provided_search_directory() {
     .write(
       "bar/justfile",
       "
-          set fallback := true
+        set fallback := true
 
-          baz:
-            echo subdir
-        ",
+        baz:
+          echo subdir
+      ",
     )
     .justfile(
       "
@@ -204,9 +204,9 @@ fn doesnt_work_with_justfile() {
     .write(
       "bar/justfile",
       "
-          baz:
-            echo subdir
-        ",
+        baz:
+          echo subdir
+      ",
     )
     .justfile(
       "
@@ -226,9 +226,9 @@ fn doesnt_work_with_justfile_and_working_directory() {
     .write(
       "bar/justfile",
       "
-          baz:
-            echo subdir
-        ",
+        baz:
+          echo subdir
+      ",
     )
     .justfile(
       "
@@ -248,11 +248,11 @@ fn prints_correct_error_message_when_recipe_not_found() {
     .write(
       "bar/justfile",
       "
-          set fallback := true
+        set fallback := true
 
-          bar:
-            echo subdir
-        ",
+        bar:
+          echo subdir
+      ",
     )
     .justfile(
       "
@@ -276,20 +276,20 @@ fn multiple_levels_of_fallback_work() {
     .write(
       "a/b/justfile",
       "
-            set fallback := true
+        set fallback := true
 
-            foo:
-              echo subdir
-          ",
+        foo:
+          echo subdir
+      ",
     )
     .write(
       "a/justfile",
       "
-          set fallback := true
+        set fallback := true
 
-          bar:
-            echo subdir
-        ",
+        bar:
+          echo subdir
+      ",
     )
     .justfile(
       "
@@ -314,18 +314,18 @@ fn stop_fallback_when_fallback_is_false() {
     .write(
       "a/b/justfile",
       "
-            set fallback := true
+        set fallback := true
 
-            foo:
-              echo subdir
-          ",
+        foo:
+          echo subdir
+      ",
     )
     .write(
       "a/justfile",
       "
-          bar:
-            echo subdir
-        ",
+        bar:
+          echo subdir
+      ",
     )
     .justfile(
       "

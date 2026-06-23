@@ -147,9 +147,9 @@ fn find_dot_justfile() {
     .write(
       "dir/.justfile",
       "
-          foo:
-            echo ok
-        ",
+        foo:
+          echo ok
+      ",
     )
     .current_dir("dir")
     .stderr("echo ok\n")

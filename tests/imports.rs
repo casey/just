@@ -203,8 +203,8 @@ fn variables_in_import_are_overridden_by_variables_in_parent() {
     .write(
       "import.justfile",
       "
-    f := 'foo'
-    ",
+        f := 'foo'
+      ",
     )
     .justfile(
       "
