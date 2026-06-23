@@ -862,7 +862,7 @@ fn clean_reports_plural_count() {
 }
 
 #[test]
-fn clean_module_path_removes_subtree() {
+fn clean_path_removes_subtree() {
   let output = Test::new()
     .justfile(
       "
@@ -903,7 +903,7 @@ fn clean_module_path_removes_subtree() {
 }
 
 #[test]
-fn clean_module_path_removes_exact_recipe() {
+fn clean_path_removes_exact_recipe() {
   let output = Test::new()
     .justfile(
       "
