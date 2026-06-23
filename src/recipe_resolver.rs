@@ -106,10 +106,10 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       // recipe is in a submodule and is thus already resolved
       Ok(Resolution::resolve_recipe(
         &dependency.recipe,
-        self.modules,
         self.absent_modules,
-        &self.resolved_recipes,
         &self.disabled_recipes,
+        self.modules,
+        &self.resolved_recipes,
       ))
     } else if let Some(resolved) = self.resolved_recipes.get(name) {
       // recipe is the current module and has already been resolved

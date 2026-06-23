@@ -8,10 +8,10 @@ pub(crate) enum Resolution<T> {
 impl<'src> Resolution<Arc<Recipe<'src>>> {
   pub(crate) fn resolve_recipe<'a>(
     path: &Namepath<'src>,
-    mut modules: &'a Table<'src, Justfile<'src>>,
     mut absent_modules: &'a BTreeSet<String>,
-    mut recipes: &'a Table<'src, Arc<Recipe<'src>>>,
     mut disabled_recipes: &'a Table<'src, Disabled<'src>>,
+    mut modules: &'a Table<'src, Justfile<'src>>,
+    mut recipes: &'a Table<'src, Arc<Recipe<'src>>>,
   ) -> Option<Self> {
     let (name, prefix) = path.split_last();
 
@@ -49,8 +49,8 @@ impl<'src> Resolution<Arc<Recipe<'src>>> {
 impl<'src> Resolution<Modulepath> {
   pub(crate) fn resolve_module<'a>(
     path: &Namepath<'src>,
-    mut modules: &'a Table<'src, Justfile<'src>>,
     mut absent: &'a BTreeSet<String>,
+    mut modules: &'a Table<'src, Justfile<'src>>,
   ) -> Option<Self> {
     let (last, prefix) = path.split_last();
 

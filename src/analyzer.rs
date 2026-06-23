@@ -307,7 +307,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut disabled_aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
       if let Some(resolution) =
-        Resolution::resolve_module(&alias.target, &self.modules, &absent_modules)
+        Resolution::resolve_module(&alias.target, &absent_modules, &self.modules)
       {
         match resolution {
           Resolution::Resolved(target) => {
@@ -326,10 +326,10 @@ impl<'run, 'src> Analyzer<'run, 'src> {
         }
       } else if let Some(resolution) = Resolution::resolve_recipe(
         &alias.target,
-        &self.modules,
         &absent_modules,
-        &recipes,
         &disabled_recipes,
+        &self.modules,
+        &recipes,
       ) {
         match resolution {
           Resolution::Resolved(target) => {
