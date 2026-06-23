@@ -15,8 +15,9 @@ fn macos() {
       "Library/Application Support/just/justfile",
       unindent(
         "
-        @default:
-          echo foo",
+          @default:
+            echo foo
+        ",
       ),
     )
     .env("HOME", path.to_str().unwrap())
@@ -40,8 +41,9 @@ fn not_macos() {
       "just/justfile",
       unindent(
         "
-        @default:
-          echo foo",
+          @default:
+            echo foo
+        ",
       ),
     )
     .env("XDG_CONFIG_HOME", path.to_str().unwrap())
@@ -65,8 +67,9 @@ fn unix() {
       "justfile",
       unindent(
         "
-        @default:
-          echo foo",
+          @default:
+            echo foo
+        ",
       ),
     )
     .env("HOME", path.to_str().unwrap())
@@ -81,8 +84,9 @@ fn unix() {
       ".config/just/justfile",
       unindent(
         "
-        @default:
-          echo bar",
+          @default:
+            echo bar
+        ",
       ),
     )
     .env("HOME", path.to_str().unwrap())
@@ -106,8 +110,9 @@ fn case_insensitive() {
       "just/JUSTFILE",
       unindent(
         "
-        @default:
-          echo foo",
+          @default:
+            echo foo
+        ",
       ),
     )
     .env("XDG_CONFIG_HOME", path.to_str().unwrap())

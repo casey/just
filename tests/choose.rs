@@ -89,8 +89,9 @@ fn recipes_in_submodules_can_be_chosen() {
       "bar.just",
       unindent(
         "
-        baz:
-         echo BAZ",
+          baz:
+           echo BAZ
+        ",
       ),
     )
     .justfile(
@@ -260,8 +261,8 @@ fn chooser_selections_are_processed_separately() {
       "sub.just",
       unindent(
         "
-        bar:
-         @echo bar
+          bar:
+           @echo bar
         ",
       ),
     )

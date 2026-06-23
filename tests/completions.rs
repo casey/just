@@ -401,8 +401,9 @@ fn aliases_in_modules() {
       "bar.just",
       unindent(
         "
-        foo:
-        alias b := foo",
+          foo:
+          alias b := foo
+        ",
       ),
     )
     .shell(false)

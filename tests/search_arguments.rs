@@ -21,8 +21,9 @@ fn passing_dot_as_argument_is_allowed() {
       "child/justfile",
       unindent(
         "
-        say ARG:
-         '{{just_executable()}}' ../say {{ARG}}",
+          say ARG:
+           '{{just_executable()}}' ../say {{ARG}}
+        ",
       ),
     )
     .current_dir("child")
@@ -30,8 +31,8 @@ fn passing_dot_as_argument_is_allowed() {
     .stdout(".\n")
     .stderr_regex(unindent(
       "
-      '.*' ../say .
-      echo .
+        '.*' ../say .
+        echo .
       ",
     ))
     .success();

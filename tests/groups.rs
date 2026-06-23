@@ -379,8 +379,9 @@ fn list_group_with_submodules() {
       "bar.just",
       unindent(
         "
-        c:
-        d:",
+          c:
+          d:
+        ",
       ),
     )
     .args(["--list", "--group", "foo", "--list-submodules"])

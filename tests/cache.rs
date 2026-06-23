@@ -878,10 +878,10 @@ fn clean_path_removes_subtree() {
       "foo.just",
       unindent(
         "
-        [cache]
-        [script]
-        baz:
-          echo baz
+          [cache]
+          [script]
+          baz:
+            echo baz
         ",
       ),
     )
@@ -929,10 +929,10 @@ fn clean_path_removes_exact_recipe() {
       "foo.just",
       unindent(
         "
-        [cache]
-        [script]
-        baz:
-          echo baz
+          [cache]
+          [script]
+          baz:
+            echo baz
         ",
       ),
     )

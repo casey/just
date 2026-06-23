@@ -138,8 +138,9 @@ fn show_recipe_at_path() {
       "foo.just",
       unindent(
         "
-        bar:
-         @echo MODULE",
+          bar:
+           @echo MODULE
+        ",
       ),
     )
     .justfile(
@@ -167,8 +168,9 @@ fn show_space_separated_path() {
       "foo.just",
       unindent(
         "
-        bar:
-         @echo MODULE",
+          bar:
+           @echo MODULE
+        ",
       ),
     )
     .justfile(
@@ -189,8 +191,9 @@ fn show_recipe_in_search_directory() {
       "child/justfile",
       unindent(
         "
-        foo:
-         @echo CHILD",
+          foo:
+           @echo CHILD
+        ",
       ),
     )
     .current_dir("child")

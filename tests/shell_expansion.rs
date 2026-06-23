@@ -101,8 +101,9 @@ fn shell_expanded_strings_can_be_used_in_import_paths() {
       "import.just",
       unindent(
         "
-        @bar:
-         echo BAR",
+          @bar:
+           echo BAR
+        ",
       ),
     )
     .env("JUST_TEST_VARIABLE", "import.just")
@@ -122,8 +123,9 @@ fn shell_expanded_strings_can_be_used_in_mod_paths() {
       "mod.just",
       unindent(
         "
-        @bar:
-         echo BAR",
+          @bar:
+           echo BAR
+        ",
       ),
     )
     .env("JUST_TEST_VARIABLE", "mod.just")

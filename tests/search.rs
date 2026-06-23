@@ -245,8 +245,9 @@ fn justfile_name_skips_default_justfile() {
       "foo",
       unindent(
         "
-        default:
-        \techo ok",
+          default:
+          \techo ok
+        ",
       ),
     )
     .create_dir("subdir")
@@ -254,8 +255,9 @@ fn justfile_name_skips_default_justfile() {
       "subdir/justfile",
       unindent(
         "
-        default:
-        \techo bad",
+          default:
+          \techo bad
+        ",
       ),
     )
     .current_dir("subdir")
@@ -273,8 +275,8 @@ fn justfile_symlink_parent() {
       "src",
       unindent(
         "
-        foo:
-        \techo bar
+          foo:
+          \techo bar
         ",
       ),
     )

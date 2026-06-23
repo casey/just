@@ -17,8 +17,9 @@ fn shell_on_custom_path() {
       "myshell.exe",
       unindent(
         "
-        #!/bin/sh
-        /bin/sh \"$@\"",
+          #!/bin/sh
+          /bin/sh \"$@\"
+        ",
       ),
     )
     .make_executable("myshell.exe")
@@ -42,8 +43,9 @@ fn command_on_custom_path() {
       "foo.exe",
       unindent(
         "
-        #!/bin/sh
-        echo bar",
+          #!/bin/sh
+          echo bar
+        ",
       ),
     )
     .make_executable("foo.exe")

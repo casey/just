@@ -153,8 +153,9 @@ fn unknown_variable_in_submodule_override() {
       "foo.just",
       unindent(
         "
-        bar:
-         @echo bar",
+          bar:
+           @echo bar
+        ",
       ),
     )
     .arg("foo::x=b")
@@ -171,9 +172,10 @@ fn override_variable_in_submodule() {
       "foo.just",
       unindent(
         "
-        x := 'a'
-        bar:
-         @echo {{x}}",
+          x := 'a'
+          bar:
+           @echo {{x}}
+        ",
       ),
     )
     .arg("foo::x=b")
@@ -191,9 +193,10 @@ fn override_variable_in_nested_submodule() {
       "foo/bar.just",
       unindent(
         "
-        x := 'a'
-        baz:
-         @echo {{x}}",
+          x := 'a'
+          baz:
+           @echo {{x}}
+        ",
       ),
     )
     .arg("foo::bar::x=b")
@@ -235,9 +238,10 @@ fn submodule_override_does_not_affect_parent() {
       "foo.just",
       unindent(
         "
-        x := 'a'
-        baz:
-         @echo {{x}}",
+          x := 'a'
+          baz:
+           @echo {{x}}
+        ",
       ),
     )
     .arg("foo::x=b")
@@ -263,9 +267,10 @@ fn submodule_override_not_evaluated() {
       "foo.just",
       unindent(
         "
-        x := `exit 1`
-        bar:
-         @echo {{x}}",
+          x := `exit 1`
+          bar:
+           @echo {{x}}
+        ",
       ),
     )
     .arg("foo::x=b")

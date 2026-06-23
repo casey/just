@@ -56,9 +56,10 @@ fn unstable_setting_does_not_affect_submodules() {
       "foo.just",
       unindent(
         "
-        set lists
-        bar:
-         echo hello",
+          set lists
+          bar:
+           echo hello
+        ",
       ),
     )
     .args(["foo", "bar"])

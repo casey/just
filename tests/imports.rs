@@ -235,8 +235,9 @@ fn import_paths_beginning_with_tilde_are_expanded_to_homdir() {
       "foobar/mod.just",
       unindent(
         "
-        foo:
-         @echo FOOBAR",
+          foo:
+           @echo FOOBAR
+        ",
       ),
     )
     .justfile(
@@ -285,8 +286,9 @@ fn imports_in_root_run_in_justfile_directory() {
       "foo/import.justfile",
       unindent(
         "
-        bar:
-         @cat baz",
+          bar:
+           @cat baz
+        ",
       ),
     )
     .write("baz", "BAZ")
@@ -309,8 +311,9 @@ fn imports_in_submodules_run_in_submodule_directory() {
       "foo/import.just",
       unindent(
         "
-        bar:
-         @cat baz",
+          bar:
+           @cat baz
+        ",
       ),
     )
     .write("foo/baz", "BAZ")
@@ -329,8 +332,9 @@ fn nested_import_paths_are_relative_to_containing_submodule() {
       "foo/bar.just",
       unindent(
         "
-        bar:
-         @echo BAR",
+          bar:
+           @echo BAR
+        ",
       ),
     )
     .arg("bar")
@@ -347,8 +351,9 @@ fn recipes_in_nested_imports_run_in_parent_module() {
       "foo/bar/import.just",
       unindent(
         "
-        bar:
-         @cat baz",
+          bar:
+           @cat baz
+        ",
       ),
     )
     .write("baz", "BAZ")
@@ -364,9 +369,10 @@ fn shebang_recipes_in_imports_in_root_run_in_justfile_directory() {
       "foo/import.justfile",
       unindent(
         "
-        bar:
-         #!/usr/bin/env bash
-         cat baz",
+          bar:
+           #!/usr/bin/env bash
+           cat baz
+        ",
       ),
     )
     .write("baz", "BAZ")
@@ -388,17 +394,19 @@ fn recipes_imported_in_root_run_in_command_line_provided_working_directory() {
       "subdir/b.justfile",
       unindent(
         "
-        @b:
-          cat baz",
+          @b:
+            cat baz
+        ",
       ),
     )
     .write(
       "subdir/a.justfile",
       unindent(
         "
-        import 'b.justfile'
-        @a: b
-          cat baz",
+          import 'b.justfile'
+          @a: b
+            cat baz
+        ",
       ),
     )
     .write("baz", "BAZ")
@@ -445,10 +453,10 @@ fn multiply_imported_items_do_not_conflict() {
       "a.just",
       unindent(
         "
-        x := 'y'
+          x := 'y'
 
-        @bar:
-          echo hello
+          @bar:
+            echo hello
         ",
       ),
     )
@@ -472,10 +480,10 @@ fn nested_multiply_imported_items_do_not_conflict() {
       "c.just",
       unindent(
         "
-        x := 'y'
+          x := 'y'
 
-        @bar:
-          echo hello
+          @bar:
+            echo hello
         ",
       ),
     )

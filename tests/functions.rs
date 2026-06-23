@@ -1172,9 +1172,10 @@ fn source_file() {
       "foo.just",
       unindent(
         "
-        x := source_file()
-        bar:
-         @echo '{{x}}'",
+          x := source_file()
+          bar:
+           @echo '{{x}}'
+        ",
       ),
     )
     .stdout_regex(r".*[/\\]foo.just\n")
@@ -1194,9 +1195,10 @@ fn source_directory() {
       "foo/mod.just",
       unindent(
         "
-        x := source_directory()
-        bar:
-         @echo '{{x}}'",
+          x := source_directory()
+          bar:
+           @echo '{{x}}'
+        ",
       ),
     )
     .stdout_regex(r".*[/\\]foo\n")
@@ -1210,19 +1212,19 @@ fn module_paths() {
       "foo/bar.just",
       unindent(
         "
-        imf := module_file()
-        imd := module_directory()
+          imf := module_file()
+          imd := module_directory()
 
-        import-outer: import-inner
+          import-outer: import-inner
 
-        @import-inner pmf=module_file() pmd=module_directory():
-          echo import
-          echo '{{ imf }}'
-          echo '{{ imd }}'
-          echo '{{ pmf }}'
-          echo '{{ pmd }}'
-          echo '{{ module_file() }}'
-          echo '{{ module_directory() }}'
+          @import-inner pmf=module_file() pmd=module_directory():
+            echo import
+            echo '{{ imf }}'
+            echo '{{ imd }}'
+            echo '{{ pmf }}'
+            echo '{{ pmd }}'
+            echo '{{ module_file() }}'
+            echo '{{ module_directory() }}'
         ",
       ),
     )
@@ -1230,21 +1232,21 @@ fn module_paths() {
       "baz/mod.just",
       unindent(
         "
-        import 'foo/bar.just'
+          import 'foo/bar.just'
 
-        mmf := module_file()
-        mmd := module_directory()
+          mmf := module_file()
+          mmd := module_directory()
 
-        outer: inner
+          outer: inner
 
-        @inner pmf=module_file() pmd=module_directory():
-          echo module
-          echo '{{ mmf }}'
-          echo '{{ mmd }}'
-          echo '{{ pmf }}'
-          echo '{{ pmd }}'
-          echo '{{ module_file() }}'
-          echo '{{ module_directory() }}'
+          @inner pmf=module_file() pmd=module_directory():
+            echo module
+            echo '{{ mmf }}'
+            echo '{{ mmd }}'
+            echo '{{ pmf }}'
+            echo '{{ pmd }}'
+            echo '{{ module_file() }}'
+            echo '{{ module_directory() }}'
         ",
       ),
     )
@@ -1252,19 +1254,19 @@ fn module_paths() {
       "baz/foo/bar.just",
       unindent(
         "
-        imf := module_file()
-        imd := module_directory()
+          imf := module_file()
+          imd := module_directory()
 
-        import-outer: import-inner
+          import-outer: import-inner
 
-        @import-inner pmf=module_file() pmd=module_directory():
-          echo import
-          echo '{{ imf }}'
-          echo '{{ imd }}'
-          echo '{{ pmf }}'
-          echo '{{ pmd }}'
-          echo '{{ module_file() }}'
-          echo '{{ module_directory() }}'
+          @import-inner pmf=module_file() pmd=module_directory():
+            echo import
+            echo '{{ imf }}'
+            echo '{{ imd }}'
+            echo '{{ pmf }}'
+            echo '{{ pmd }}'
+            echo '{{ module_file() }}'
+            echo '{{ module_directory() }}'
         ",
       ),
     )
@@ -1487,8 +1489,8 @@ fn absolute_path_argument_is_relative_to_submodule_working_directory() {
       "foo/mod.just",
       unindent(
         "
-        bar:
-          @echo \"{{ absolute_path('baz') }}\"
+          bar:
+            @echo \"{{ absolute_path('baz') }}\"
         ",
       ),
     )
@@ -1506,8 +1508,8 @@ fn blake3_file_argument_is_relative_to_submodule_working_directory() {
       "foo/mod.just",
       unindent(
         "
-        bar:
-          @echo {{ blake3_file('baz') }}
+          bar:
+            @echo {{ blake3_file('baz') }}
         ",
       ),
     )
@@ -1525,8 +1527,8 @@ fn canonicalize_argument_is_relative_to_submodule_working_directory() {
       "foo/mod.just",
       unindent(
         "
-        bar:
-          @echo \"{{ canonicalize('baz') }}\"
+          bar:
+            @echo \"{{ canonicalize('baz') }}\"
         ",
       ),
     )
@@ -1544,8 +1546,8 @@ fn path_exists_argument_is_relative_to_submodule_working_directory() {
       "foo/mod.just",
       unindent(
         "
-        bar:
-          @echo {{ path_exists('baz') }}
+          bar:
+            @echo {{ path_exists('baz') }}
         ",
       ),
     )
@@ -1563,8 +1565,8 @@ fn sha256_file_argument_is_relative_to_submodule_working_directory() {
       "foo/mod.just",
       unindent(
         "
-        bar:
-          @echo {{ sha256_file('baz') }}
+          bar:
+            @echo {{ sha256_file('baz') }}
         ",
       ),
     )

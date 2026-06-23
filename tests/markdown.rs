@@ -7,16 +7,16 @@ fn code_blocks_are_concatenated() {
       "foo.md",
       unindent(
         "
-        # foo
+          # foo
 
-        ```just
-        bar := 'baz'
-        ```
-        prose
-        ```just
-        @bob:
-         echo {{ bar }}
-        ```
+          ```just
+          bar := 'baz'
+          ```
+          prose
+          ```just
+          @bob:
+           echo {{ bar }}
+          ```
         ",
       ),
     )
@@ -33,20 +33,20 @@ fn non_just_code_blocks_are_ignored() {
       "foo.md",
       unindent(
         "
-        ```sh
-        garbage[
-        ```
+          ```sh
+          garbage[
+          ```
 
-        ````
-        ```just
-        garbage[
-        ```
-        ````
+          ````
+          ```just
+          garbage[
+          ```
+          ````
 
-        ```just
-        @foo:
-         echo bar
-        ```
+          ```just
+          @foo:
+           echo bar
+          ```
         ",
       ),
     )
@@ -63,10 +63,10 @@ fn extension_is_case_insensitive() {
       "foo.MD",
       unindent(
         "
-        ```just
-        @foo:
-         echo bar
-        ```
+          ```just
+          @foo:
+           echo bar
+          ```
         ",
       ),
     )
@@ -83,10 +83,10 @@ fn working_directory_is_markdown_file_directory() {
       "sub/foo.md",
       unindent(
         "
-        ```just
-        @foo:
-         cat bar
-        ```
+          ```just
+          @foo:
+           cat bar
+          ```
         ",
       ),
     )
@@ -104,10 +104,10 @@ fn with_working_directory() {
       "foo.md",
       unindent(
         "
-        ```just
-        @foo:
-         cat baz
-        ```
+          ```just
+          @foo:
+           cat baz
+          ```
         ",
       ),
     )
@@ -125,11 +125,11 @@ fn line_numbers_are_preserved() {
       "foo.md",
       unindent(
         "
-        # foo
+          # foo
 
-        ```just
-        garbage[
-        ```
+          ```just
+          garbage[
+          ```
         ",
       ),
     )
@@ -164,10 +164,10 @@ fn format_prints_to_stdout() {
       "foo.md",
       unindent(
         "
-        ```just
-        foo:
-         echo bar
-        ```
+          ```just
+          foo:
+           echo bar
+          ```
         ",
       ),
     )
@@ -178,10 +178,10 @@ fn format_prints_to_stdout() {
       "foo.md",
       unindent(
         "
-        ```just
-        foo:
-         echo bar
-        ```
+          ```just
+          foo:
+           echo bar
+          ```
         ",
       ),
     )
@@ -196,10 +196,10 @@ fn dump() {
       "foo.md",
       unindent(
         "
-        ```just
-        foo:
-         echo bar
-        ```
+          ```just
+          foo:
+           echo bar
+          ```
         ",
       ),
     )

@@ -8,11 +8,11 @@ fn fallback_from_subdir_bugfix() {
       "sub/justfile",
       unindent(
         "
-        set fallback
+          set fallback
 
-        @default:
-          echo foo
-      ",
+          @default:
+            echo foo
+        ",
       ),
     )
     .args(["sub/default"])
@@ -28,11 +28,11 @@ fn fallback_from_subdir_message() {
       "sub/justfile",
       unindent(
         "
-        set fallback
+          set fallback
 
-        @foo:
-          echo foo
-      ",
+          @foo:
+            echo foo
+        ",
       ),
     )
     .args(["sub/bar"])
@@ -49,11 +49,11 @@ fn fallback_from_subdir_verbose_message() {
       "sub/justfile",
       unindent(
         "
-        set fallback
+          set fallback
 
-        @foo:
-          echo foo
-      ",
+          @foo:
+            echo foo
+        ",
       ),
     )
     .args(["--verbose", "sub/bar"])
@@ -366,8 +366,9 @@ fn works_with_modules() {
       "foo.just",
       unindent(
         "
-        baz:
-         @echo BAZ",
+          baz:
+           @echo BAZ
+        ",
       ),
     )
     .justfile("mod foo")

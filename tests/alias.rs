@@ -7,17 +7,19 @@ fn alias_nested_module() {
       "foo.just",
       unindent(
         "
-        mod bar
-        baz:
-         @echo FOO",
+          mod bar
+          baz:
+           @echo FOO
+        ",
       ),
     )
     .write(
       "bar.just",
       unindent(
         "
-        baz:
-         @echo BAZ",
+          baz:
+           @echo BAZ
+        ",
       ),
     )
     .justfile(
@@ -42,8 +44,9 @@ fn unknown_nested_alias() {
       "foo.just",
       unindent(
         "
-        baz:
-         @echo FOO",
+          baz:
+           @echo FOO
+        ",
       ),
     )
     .justfile(
@@ -73,10 +76,10 @@ fn alias_in_submodule() {
       "foo.just",
       unindent(
         "
-        alias b := bar
+          alias b := bar
 
-        bar:
-          @echo BAR
+          bar:
+            @echo BAR
         ",
       ),
     )

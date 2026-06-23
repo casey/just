@@ -219,8 +219,8 @@ fn evaluate_submodule() {
       "foo.just",
       unindent(
         "
-        a := 'x'
-        b := 'y'
+          a := 'x'
+          b := 'y'
         ",
       ),
     )
@@ -241,8 +241,8 @@ fn evaluate_variable_in_submodule() {
       "foo.just",
       unindent(
         "
-        a := 'x'
-        b := 'y'
+          a := 'x'
+          b := 'y'
         ",
       ),
     )

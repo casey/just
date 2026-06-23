@@ -108,32 +108,36 @@ fn unsorted_list_order() {
       "a.just",
       unindent(
         "
-        a:
-        import 'e.just'",
+          a:
+          import 'e.just'
+        ",
       ),
     )
     .write(
       "b.just",
       unindent(
         "
-        b:
-        import 'f.just'",
+          b:
+          import 'f.just'
+        ",
       ),
     )
     .write(
       "c.just",
       unindent(
         "
-        c:
-        import 'g.just'",
+          c:
+          import 'g.just'
+        ",
       ),
     )
     .write(
       "d.just",
       unindent(
         "
-        d:
-        import 'h.just'",
+          d:
+          import 'h.just'
+        ",
       ),
     )
     .write("e.just", "e:")
@@ -278,8 +282,9 @@ fn list_with_groups_in_modules() {
       "bar.just",
       unindent(
         "
-        [group('BAZ')]
-        baz:",
+          [group('BAZ')]
+          baz:
+        ",
       ),
     )
     .args(["--list", "--list-submodules"])
@@ -304,8 +309,9 @@ fn list_displays_recipes_in_submodules() {
       "foo.just",
       unindent(
         "
-        bar:
-         @echo FOO",
+          bar:
+           @echo FOO
+        ",
       ),
     )
     .justfile(
@@ -357,16 +363,16 @@ fn module_recipe_list_alignment_ignores_private_recipes() {
       "foo.just",
       unindent(
         "
-        # foos
-        foo:
-         @echo FOO
+          # foos
+          foo:
+           @echo FOO
 
-        [private]
-        barbarbar:
-         @echo BAR
+          [private]
+          barbarbar:
+           @echo BAR
 
-        @_bazbazbaz:
-         @echo BAZ
+          @_bazbazbaz:
+           @echo BAZ
         ",
       ),
     )
@@ -390,8 +396,9 @@ fn nested_modules_are_properly_indented() {
       "bar.just",
       unindent(
         "
-        baz:
-         @echo FOO",
+          baz:
+           @echo FOO
+        ",
       ),
     )
     .justfile(
@@ -547,8 +554,8 @@ fn list_submodules_requires_list() {
     .arg("--list-submodules")
     .stderr_regex(unindent(
       "
-      error: the following required arguments were not provided:
-        --list .*",
+        error: the following required arguments were not provided:
+          --list .*",
     ))
     .status(2);
 }

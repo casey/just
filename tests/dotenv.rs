@@ -10,8 +10,9 @@ fn dotenv() {
       "sub/justfile",
       unindent(
         "
-        default:
-        \techo KEY=${KEY:-unset}",
+          default:
+          \techo KEY=${KEY:-unset}
+        ",
       ),
     )
     .args(["sub/default"])
@@ -438,9 +439,10 @@ fn dotenv_path_does_not_override_dotenv_file() {
       "sub/justfile",
       unindent(
         "
-        set dotenv-path := '.'
-        @foo:
-         echo ${KEY}",
+          set dotenv-path := '.'
+          @foo:
+           echo ${KEY}
+        ",
       ),
     )
     .current_dir("sub")
@@ -548,16 +550,18 @@ fn filename_list_loads_all_in_directory() {
       ".env.foo",
       unindent(
         "
-        FOO=foo
-        SHARED=from-foo",
+          FOO=foo
+          SHARED=from-foo
+        ",
       ),
     )
     .write(
       ".env.bar",
       unindent(
         "
-        BAR=bar
-        SHARED=from-bar",
+          BAR=bar
+          SHARED=from-bar
+        ",
       ),
     )
     .stdout("foo bar from-bar\n")
@@ -572,10 +576,11 @@ fn filename_list_stops_at_first_directory() {
       "sub/justfile",
       unindent(
         "
-        set lists
-        set dotenv-filename := ['.env.foo', '.env.bar']
-        @foo:
-        \techo \"${FOO:-unset} ${BAR:-unset}\"",
+          set lists
+          set dotenv-filename := ['.env.foo', '.env.bar']
+          @foo:
+          \techo \"${FOO:-unset} ${BAR:-unset}\"
+        ",
       ),
     )
     .write("sub/.env.foo", "FOO=foo")
