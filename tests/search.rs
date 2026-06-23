@@ -1,160 +1,138 @@
 use super::*;
 
-fn search_test<P: AsRef<Path>>(path: P, args: &[&str]) {
-  let output = Command::new(JUST)
-    .current_dir(path)
-    .args(args)
-    .output()
-    .expect("just invocation failed");
-
-  assert_eq!(output.status.code().unwrap(), 0);
-
-  let stdout = str::from_utf8(&output.stdout).unwrap();
-  assert_eq!(stdout, "ok\n");
-
-  let stderr = str::from_utf8(&output.stderr).unwrap();
-  assert_eq!(stderr, "echo ok\n");
-}
-
 #[test]
 fn test_justfile_search() {
-  let tmp = temptree! {
-    justfile: "default:\n\techo ok",
-    a: {
-      b: {
-        c: {
-          d: {},
-        },
-      },
-    },
-  };
-
-  search_test(tmp.path().join("a/b/c/d"), &[]);
+  Test::new()
+    .justfile("default:\n\techo ok")
+    .create_dir("a/b/c/d")
+    .current_dir("a/b/c/d")
+    .stderr("echo ok\n")
+    .stdout("ok\n")
+    .success();
 }
 
 #[test]
 fn test_capitalized_justfile_search() {
-  let tmp = temptree! {
-    Justfile: "default:\n\techo ok",
-    a: {
-      b: {
-        c: {
-          d: {},
-        },
-      },
-    },
-  };
-
-  search_test(tmp.path().join("a/b/c/d"), &[]);
+  Test::new()
+    .write("Justfile", "default:\n\techo ok")
+    .create_dir("a/b/c/d")
+    .current_dir("a/b/c/d")
+    .stderr("echo ok\n")
+    .stdout("ok\n")
+    .success();
 }
 
 #[test]
 fn test_upwards_path_argument() {
-  let tmp = temptree! {
-    justfile: "default:\n\techo ok",
-    a: {
-      justfile: "default:\n\techo bad",
-    },
-  };
+  #[track_caller]
+  fn case(args: &[&str]) {
+    Test::new()
+      .justfile("default:\n\techo ok")
+      .write("a/justfile", "default:\n\techo bad")
+      .current_dir("a")
+      .args(args)
+      .stderr("echo ok\n")
+      .stdout("ok\n")
+      .success();
+  }
 
-  search_test(tmp.path().join("a"), &["../"]);
-  search_test(tmp.path().join("a"), &["../default"]);
+  case(&["../"]);
+  case(&["../default"]);
 }
 
 #[test]
 fn test_downwards_path_argument() {
-  let tmp = temptree! {
-    justfile: "default:\n\techo bad",
-    a: {
-      justfile: "default:\n\techo ok",
-    },
-  };
+  #[track_caller]
+  fn case(args: &[&str]) {
+    Test::new()
+      .justfile("default:\n\techo bad")
+      .write("a/justfile", "default:\n\techo ok")
+      .args(args)
+      .stderr("echo ok\n")
+      .stdout("ok\n")
+      .success();
+  }
 
-  let path = tmp.path();
-
-  search_test(path, &["a/"]);
-  search_test(path, &["a/default"]);
-  search_test(path, &["./a/"]);
-  search_test(path, &["./a/default"]);
-  search_test(path, &["./a/"]);
-  search_test(path, &["./a/default"]);
+  case(&["a/"]);
+  case(&["a/default"]);
+  case(&["./a/"]);
+  case(&["./a/default"]);
+  case(&["./a/"]);
+  case(&["./a/default"]);
 }
 
 #[test]
 fn test_upwards_multiple_path_argument() {
-  let tmp = temptree! {
-    justfile: "default:\n\techo ok",
-    a: {
-      b: {
-        justfile: "default:\n\techo bad",
-      },
-    },
-  };
+  #[track_caller]
+  fn case(args: &[&str]) {
+    Test::new()
+      .justfile("default:\n\techo ok")
+      .write("a/b/justfile", "default:\n\techo bad")
+      .current_dir("a/b")
+      .args(args)
+      .stderr("echo ok\n")
+      .stdout("ok\n")
+      .success();
+  }
 
-  let path = tmp.path().join("a").join("b");
-  search_test(&path, &["../../"]);
-  search_test(&path, &["../../default"]);
+  case(&["../../"]);
+  case(&["../../default"]);
 }
 
 #[test]
 fn test_downwards_multiple_path_argument() {
-  let tmp = temptree! {
-    justfile: "default:\n\techo bad",
-    a: {
-      b: {
-        justfile: "default:\n\techo ok",
-      },
-    },
-  };
+  #[track_caller]
+  fn case(args: &[&str]) {
+    Test::new()
+      .justfile("default:\n\techo bad")
+      .write("a/b/justfile", "default:\n\techo ok")
+      .args(args)
+      .stderr("echo ok\n")
+      .stdout("ok\n")
+      .success();
+  }
 
-  let path = tmp.path();
-
-  search_test(path, &["a/b/"]);
-  search_test(path, &["a/b/default"]);
-  search_test(path, &["./a/b/"]);
-  search_test(path, &["./a/b/default"]);
-  search_test(path, &["./a/b/"]);
-  search_test(path, &["./a/b/default"]);
+  case(&["a/b/"]);
+  case(&["a/b/default"]);
+  case(&["./a/b/"]);
+  case(&["./a/b/default"]);
+  case(&["./a/b/"]);
+  case(&["./a/b/default"]);
 }
 
 #[test]
 fn single_downwards() {
-  let tmp = temptree! {
-    justfile: "default:\n\techo ok",
-    child: {},
-  };
-
-  let path = tmp.path();
-
-  search_test(path, &["child/"]);
+  Test::new()
+    .justfile("default:\n\techo ok")
+    .create_dir("child")
+    .args(["child/"])
+    .stderr("echo ok\n")
+    .stdout("ok\n")
+    .success();
 }
 
 #[test]
 fn single_upwards() {
-  let tmp = temptree! {
-    justfile: "default:\n\techo ok",
-    child: {},
-  };
-
-  let path = tmp.path().join("child");
-
-  search_test(path, &["../"]);
+  Test::new()
+    .justfile("default:\n\techo ok")
+    .create_dir("child")
+    .current_dir("child")
+    .args(["../"])
+    .stderr("echo ok\n")
+    .stdout("ok\n")
+    .success();
 }
 
 #[test]
 fn double_upwards() {
-  let tmp = temptree! {
-    justfile: "default:\n\techo ok",
-    foo: {
-      bar: {
-        justfile: "default:\n\techo foo",
-      },
-    },
-  };
-
-  let path = tmp.path().join("foo/bar");
-
-  search_test(path, &["../default"]);
+  Test::new()
+    .justfile("default:\n\techo ok")
+    .write("foo/bar/justfile", "default:\n\techo foo")
+    .current_dir("foo/bar")
+    .args(["../default"])
+    .stderr("echo ok\n")
+    .stdout("ok\n")
+    .success();
 }
 
 #[test]
@@ -166,14 +144,13 @@ fn find_dot_justfile() {
           echo bad
       ",
     )
-    .tree(tree! {
-      dir: {
-        ".justfile": "
-          foo:
-            echo ok
-        "
-      }
-    })
+    .write(
+      "dir/.justfile",
+      "
+        foo:
+          echo ok
+      ",
+    )
     .current_dir("dir")
     .stderr("echo ok\n")
     .stdout("ok\n")
@@ -188,11 +165,12 @@ fn dot_justfile_conflicts_with_justfile() {
         foo:
     ",
     )
-    .tree(tree! {
-      ".justfile": "
+    .write(
+      ".justfile",
+      "
         foo:
       ",
-    })
+    )
     .stderr_regex("error: multiple candidate justfiles found in `.*`: `.justfile` and `justfile`\n")
     .failure();
 }
@@ -207,25 +185,25 @@ fn not_found() {
 
 #[test]
 fn found_spongebob_case() {
-  let tmp = temptree! {
-    JuStFiLe: "default:\n\techo ok",
-    a: {},
-  };
-
-  search_test(tmp.path().join("a"), &[]);
+  Test::new()
+    .write("JuStFiLe", "default:\n\techo ok")
+    .create_dir("a")
+    .current_dir("a")
+    .stderr("echo ok\n")
+    .stdout("ok\n")
+    .success();
 }
 
 #[test]
 fn search_stops_at_closest_justfile() {
-  let tmp = temptree! {
-    justfile: "default:\n\techo bad",
-    a: {
-      justfile: "default:\n\techo ok",
-      b: {},
-    },
-  };
-
-  search_test(tmp.path().join("a/b"), &[]);
+  Test::new()
+    .justfile("default:\n\techo bad")
+    .write("a/justfile", "default:\n\techo ok")
+    .create_dir("a/b")
+    .current_dir("a/b")
+    .stderr("echo ok\n")
+    .stdout("ok\n")
+    .success();
 }
 
 #[test]

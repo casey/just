@@ -21,10 +21,9 @@ const WANT: &str = "shebang: OK\nexpression: OK\ndefault: OK\nshell: OK\n";
 /// `--justfile` but not `--working-directory`
 #[test]
 fn justfile_without_working_directory() -> Result<(), Box<dyn Error>> {
-  let tmp = temptree! {
-    justfile: JUSTFILE,
-    data: DATA,
-  };
+  let tmp = tempdir();
+  fs::write(tmp.path().join("justfile"), JUSTFILE).unwrap();
+  fs::write(tmp.path().join("data"), DATA).unwrap();
 
   let output = Command::new(JUST)
     .arg("--justfile")
@@ -47,10 +46,9 @@ fn justfile_without_working_directory() -> Result<(), Box<dyn Error>> {
 /// `--justfile` but not `--working-directory`, and justfile path has no parent
 #[test]
 fn justfile_without_working_directory_relative() -> Result<(), Box<dyn Error>> {
-  let tmp = temptree! {
-    justfile: JUSTFILE,
-    data: DATA,
-  };
+  let tmp = tempdir();
+  fs::write(tmp.path().join("justfile"), JUSTFILE).unwrap();
+  fs::write(tmp.path().join("data"), DATA).unwrap();
 
   let output = Command::new(JUST)
     .current_dir(tmp.path())
@@ -74,11 +72,10 @@ fn justfile_without_working_directory_relative() -> Result<(), Box<dyn Error>> {
 /// found
 #[test]
 fn change_working_directory_to_search_justfile_parent() -> Result<(), Box<dyn Error>> {
-  let tmp = temptree! {
-    justfile: JUSTFILE,
-    data: DATA,
-    subdir: {},
-  };
+  let tmp = tempdir();
+  fs::write(tmp.path().join("justfile"), JUSTFILE).unwrap();
+  fs::write(tmp.path().join("data"), DATA).unwrap();
+  fs::create_dir(tmp.path().join("subdir")).unwrap();
 
   let output = Command::new(JUST)
     .current_dir(tmp.path().join("subdir"))
@@ -100,12 +97,10 @@ fn change_working_directory_to_search_justfile_parent() -> Result<(), Box<dyn Er
 /// `--justfile` but not `--working-directory`
 #[test]
 fn justfile_and_working_directory() -> Result<(), Box<dyn Error>> {
-  let tmp = temptree! {
-    justfile: JUSTFILE,
-    sub: {
-      data: DATA,
-    },
-  };
+  let tmp = tempdir();
+  fs::write(tmp.path().join("justfile"), JUSTFILE).unwrap();
+  fs::create_dir(tmp.path().join("sub")).unwrap();
+  fs::write(tmp.path().join("sub/data"), DATA).unwrap();
 
   let output = Command::new(JUST)
     .arg("--justfile")
@@ -130,12 +125,10 @@ fn justfile_and_working_directory() -> Result<(), Box<dyn Error>> {
 /// `--justfile` but not `--working-directory`
 #[test]
 fn search_dir_child() -> Result<(), Box<dyn Error>> {
-  let tmp = temptree! {
-    child: {
-      justfile: JUSTFILE,
-      data: DATA,
-    },
-  };
+  let tmp = tempdir();
+  fs::create_dir(tmp.path().join("child")).unwrap();
+  fs::write(tmp.path().join("child/justfile"), JUSTFILE).unwrap();
+  fs::write(tmp.path().join("child/data"), DATA).unwrap();
 
   let output = Command::new(JUST)
     .current_dir(tmp.path())
@@ -158,12 +151,10 @@ fn search_dir_child() -> Result<(), Box<dyn Error>> {
 /// `--justfile` but not `--working-directory`
 #[test]
 fn search_dir_parent() -> Result<(), Box<dyn Error>> {
-  let tmp = temptree! {
-    child: {
-    },
-    justfile: JUSTFILE,
-    data: DATA,
-  };
+  let tmp = tempdir();
+  fs::create_dir(tmp.path().join("child")).unwrap();
+  fs::write(tmp.path().join("justfile"), JUSTFILE).unwrap();
+  fs::write(tmp.path().join("data"), DATA).unwrap();
 
   let output = Command::new(JUST)
     .current_dir(tmp.path().join("child"))
@@ -198,10 +189,8 @@ fn setting() {
       "#,
     )
     .current_dir("foo")
-    .tree(tree! {
-      foo: {},
-      bar: {}
-    })
+    .create_dir("foo")
+    .create_dir("bar")
     .args(["print1", "print2"])
     .stderr(
       r#"echo "$(basename "$PWD")"
@@ -225,11 +214,7 @@ fn no_cd_overrides_setting() {
       ",
     )
     .current_dir("foo")
-    .tree(tree! {
-      foo: {
-        bar: "hello",
-      }
-    })
+    .write("foo/bar", "hello")
     .stderr("cat bar\n")
     .stdout("hello")
     .success();

@@ -152,12 +152,6 @@ impl Test {
     self
   }
 
-  pub(crate) fn tree(self, mut tree: Tree) -> Self {
-    tree.map(|_name, content| unindent(content));
-    tree.instantiate(self.tempdir.path()).unwrap();
-    self
-  }
-
   pub(crate) fn unindent_stdout(mut self, unindent_stdout: bool) -> Self {
     self.unindent_stdout = unindent_stdout;
     self

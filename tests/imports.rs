@@ -3,12 +3,13 @@ use super::*;
 #[test]
 fn import_succeeds() {
   Test::new()
-    .tree(tree! {
-      "import.justfile": "
+    .write(
+      "import.justfile",
+      "
         b:
           @echo B
       ",
-    })
+    )
     .justfile(
       "
         import './import.justfile'
@@ -81,9 +82,7 @@ fn missing_optional_imports_are_ignored() {
 #[test]
 fn trailing_spaces_after_import_are_ignored() {
   Test::new()
-    .tree(tree! {
-      "import.justfile": "",
-    })
+    .write("import.justfile", "")
     .justfile(
       "
         import './import.justfile'\x20
@@ -98,12 +97,13 @@ fn trailing_spaces_after_import_are_ignored() {
 #[test]
 fn import_after_recipe() {
   Test::new()
-    .tree(tree! {
-      "import.justfile": "
+    .write(
+      "import.justfile",
+      "
         a:
           @echo A
       ",
-    })
+    )
     .justfile(
       "
         b: a
@@ -118,10 +118,8 @@ fn import_after_recipe() {
 fn circular_import() {
   Test::new()
     .justfile("import 'a'")
-    .tree(tree! {
-      a: "import 'b'",
-      b: "import 'a'",
-    })
+    .write("a", "import 'b'")
+    .write("b", "import 'a'")
     .stderr_regex(path_for_regex(
       "error: import `.*/a` in `.*/b` is circular\n",
     ))
@@ -131,9 +129,7 @@ fn circular_import() {
 #[test]
 fn import_recipes_are_not_default() {
   Test::new()
-    .tree(tree! {
-      "import.justfile": "bar:",
-    })
+    .write("import.justfile", "bar:")
     .justfile("import './import.justfile'")
     .stderr("error: justfile contains no default recipe\n")
     .failure();
@@ -179,12 +175,13 @@ fn include_error() {
 #[test]
 fn recipes_in_import_are_overridden_by_recipes_in_parent() {
   Test::new()
-    .tree(tree! {
-      "import.justfile": "
+    .write(
+      "import.justfile",
+      "
         a:
           @echo IMPORT
       ",
-    })
+    )
     .justfile(
       "
         a:
@@ -203,11 +200,12 @@ fn recipes_in_import_are_overridden_by_recipes_in_parent() {
 #[test]
 fn variables_in_import_are_overridden_by_variables_in_parent() {
   Test::new()
-    .tree(tree! {
-      "import.justfile": "
-    f := 'foo'
-    ",
-    })
+    .write(
+      "import.justfile",
+      "
+        f := 'foo'
+      ",
+    )
     .justfile(
       "
         f := 'bar'
@@ -415,11 +413,9 @@ fn reused_import_are_allowed() {
         bar:
       ",
     )
-    .tree(tree! {
-      a: "import 'c'",
-      b: "import 'c'",
-      c: "",
-    })
+    .write("a", "import 'c'")
+    .write("b", "import 'c'")
+    .write("c", "")
     .success();
 }
 

@@ -642,7 +642,6 @@ dependencies = [
  "strsim",
  "strum",
  "tempfile",
- "temptree",
  "typed-arena",
  "unicode-width",
  "uuid",
@@ -1182,15 +1181,6 @@ dependencies = [
  "once_cell",
  "rustix",
  "windows-sys",
-]
-
-[[package]]
-name = "temptree"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8fda94d8251b40088cb769576f436da19ac1d1ae792c97d0afe1cadc890c8630"
-dependencies = [
- "tempfile",
 ]
 
 [[package]]

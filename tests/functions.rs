@@ -847,9 +847,7 @@ fn join_argument_count_error() {
 #[test]
 fn test_path_exists_filepath_exist() {
   Test::new()
-    .tree(tree! {
-      testfile: ""
-    })
+    .write("testfile", "")
     .justfile("x := path_exists('testfile')")
     .args(["--evaluate", "x"])
     .stdout("true")
@@ -933,11 +931,8 @@ fn test_absolute_path_resolves_parent() {
 #[test]
 fn path_exists_subdir() {
   Test::new()
-    .tree(tree! {
-      foo: "",
-      bar: {
-      }
-    })
+    .write("foo", "")
+    .create_dir("bar")
     .justfile("x := path_exists('foo')")
     .current_dir("bar")
     .args(["--evaluate", "x"])
@@ -1027,11 +1022,7 @@ fn sha256() {
 fn sha256_file() {
   Test::new()
     .justfile("x := sha256_file('sub/shafile')")
-    .tree(tree! {
-      sub: {
-        shafile: "just is great\n",
-      }
-    })
+    .write("sub/shafile", "just is great\n")
     .current_dir("sub")
     .args(["--evaluate", "x"])
     .stdout("177b3d79aaafb53a7a4d7aaba99a82f27c73370e8cb0295571aade1e4fea1cd2")
@@ -1111,11 +1102,7 @@ fn blake3() {
 fn blake3_file() {
   Test::new()
     .justfile("x := blake3_file('sub/blakefile')")
-    .tree(tree! {
-      sub: {
-        blakefile: "just is great\n",
-      }
-    })
+    .write("sub/blakefile", "just is great\n")
     .current_dir("sub")
     .args(["--evaluate", "x"])
     .stdout("8379241877190ca4b94076a8c8f89fe5747f95c62f3e4bf41f7408a0088ae16d")

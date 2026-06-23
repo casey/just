@@ -5,9 +5,8 @@ const JUSTFILE: &str = "Yooooooo, hopefully this never becomes valid syntax.";
 /// Test that --edit doesn't require a valid justfile
 #[test]
 fn invalid_justfile() {
-  let tmp = temptree! {
-    justfile: JUSTFILE,
-  };
+  let tmp = tempdir();
+  fs::write(tmp.path().join("justfile"), JUSTFILE).unwrap();
 
   let output = Command::new(JUST).current_dir(tmp.path()).output().unwrap();
 
@@ -25,9 +24,8 @@ fn invalid_justfile() {
 
 #[test]
 fn invoke_error() {
-  let tmp = temptree! {
-    justfile: JUSTFILE,
-  };
+  let tmp = tempdir();
+  fs::write(tmp.path().join("justfile"), JUSTFILE).unwrap();
 
   let output = Command::new(JUST).current_dir(tmp.path()).output().unwrap();
 
@@ -55,10 +53,9 @@ fn status_error() {
   if cfg!(windows) {
     return;
   }
-  let tmp = temptree! {
-    justfile: JUSTFILE,
-    "exit-2": "#!/usr/bin/env bash\nexit 2\n",
-  };
+  let tmp = tempdir();
+  fs::write(tmp.path().join("justfile"), JUSTFILE).unwrap();
+  fs::write(tmp.path().join("exit-2"), "#!/usr/bin/env bash\nexit 2\n").unwrap();
 
   let output = Command::new("chmod")
     .arg("+x")
@@ -93,9 +90,8 @@ fn status_error() {
 /// Test that editor is $VISUAL, $EDITOR, or "vim" in that order
 #[test]
 fn editor_precedence() {
-  let tmp = temptree! {
-    justfile: JUSTFILE,
-  };
+  let tmp = tempdir();
+  fs::write(tmp.path().join("justfile"), JUSTFILE).unwrap();
 
   let output = Command::new(JUST)
     .current_dir(tmp.path())
@@ -147,11 +143,10 @@ fn editor_precedence() {
 #[cfg(unix)]
 #[test]
 fn editor_working_directory() {
-  let tmp = temptree! {
-    justfile: JUSTFILE,
-    child: {},
-    editor: "#!/usr/bin/env sh\ncat $1\npwd",
-  };
+  let tmp = tempdir();
+  fs::write(tmp.path().join("justfile"), JUSTFILE).unwrap();
+  fs::create_dir(tmp.path().join("child")).unwrap();
+  fs::write(tmp.path().join("editor"), "#!/usr/bin/env sh\ncat $1\npwd").unwrap();
 
   let editor = tmp.path().join("editor");
 

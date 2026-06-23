@@ -246,16 +246,14 @@ impl Compiler {
 
 #[cfg(test)]
 mod tests {
-  use {super::*, temptree::temptree};
+  use super::*;
 
   #[test]
   fn recursive_includes_fail() {
-    let tmp = temptree! {
-      justfile: "import './subdir/b'\na: b",
-      subdir: {
-        b: "import '../justfile'\nb:"
-      }
-    };
+    let tmp = tempfile::tempdir().unwrap();
+    fs::write(tmp.path().join("justfile"), "import './subdir/b'\na: b").unwrap();
+    fs::create_dir_all(tmp.path().join("subdir")).unwrap();
+    fs::write(tmp.path().join("subdir/b"), "import '../justfile'\nb:").unwrap();
 
     let loader = Loader::new();
 

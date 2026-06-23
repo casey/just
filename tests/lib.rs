@@ -24,7 +24,6 @@ use {
     time::{Duration, Instant},
   },
   tempfile::TempDir,
-  temptree::{Tree, temptree, tree},
   which::which,
 };
 
