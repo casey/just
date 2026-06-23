@@ -8,11 +8,11 @@ impl<'src> AttributeSet<'src> {
     self.0.len()
   }
 
-  pub(crate) fn contains(&self, target: AttributeDiscriminant) -> bool {
+  pub(crate) fn contains(&self, target: AttributeKind) -> bool {
     self.0.keys().any(|attr| attr.discriminant() == target)
   }
 
-  pub(crate) fn get(&self, discriminant: AttributeDiscriminant) -> Option<&Attribute<'src>> {
+  pub(crate) fn get(&self, discriminant: AttributeKind) -> Option<&Attribute<'src>> {
     self
       .0
       .keys()
@@ -31,7 +31,7 @@ impl<'src> AttributeSet<'src> {
     &self,
     item_kind: &'static str,
     item_token: Token<'src>,
-    valid: &[AttributeDiscriminant],
+    valid: &[AttributeKind],
   ) -> Result<(), CompileError<'src>> {
     for attribute in self.0.keys() {
       let discriminant = attribute.discriminant();

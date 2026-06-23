@@ -26,8 +26,7 @@ impl<'src> Alias<'src, Namepath<'src>> {
 
 impl Alias<'_> {
   pub(crate) fn is_public(&self) -> bool {
-    !self.name.lexeme().starts_with('_')
-      && !self.attributes.contains(AttributeDiscriminant::Private)
+    !self.name.lexeme().starts_with('_') && !self.attributes.contains(AttributeKind::Private)
   }
 }
 

@@ -571,15 +571,15 @@ impl<'run, 'src> Parser<'run, 'src> {
             "module",
             *name,
             &[
-              AttributeDiscriminant::Doc,
-              AttributeDiscriminant::Group,
-              AttributeDiscriminant::Private,
+              AttributeKind::Doc,
+              AttributeKind::Group,
+              AttributeKind::Private,
             ],
           )?;
 
           let doc = self.take_doc_comment(&attributes);
 
-          let private = attributes.contains(AttributeDiscriminant::Private);
+          let private = attributes.contains(AttributeKind::Private);
 
           let mut groups = Vec::new();
           for attribute in attributes {
@@ -633,7 +633,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.presume_any(&[Equals, ColonEquals])?;
     let target = self.parse_namepath()?;
 
-    attributes.ensure_valid_attributes("alias", *name, &[AttributeDiscriminant::Private])?;
+    attributes.ensure_valid_attributes("alias", *name, &[AttributeKind::Private])?;
 
     Ok(Alias {
       attributes,
@@ -683,9 +683,9 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.presume(ColonEquals)?;
     let value = self.parse_expression()?;
 
-    let private = attributes.contains(AttributeDiscriminant::Private);
+    let private = attributes.contains(AttributeKind::Private);
 
-    attributes.ensure_valid_attributes("assignment", *name, &[AttributeDiscriminant::Private])?;
+    attributes.ensure_valid_attributes("assignment", *name, &[AttributeKind::Private])?;
 
     Ok(Assignment {
       eager,
@@ -1366,10 +1366,10 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let shebang = body.first().is_some_and(Line::is_shebang);
 
-    let script = attributes.contains(AttributeDiscriminant::Script);
+    let script = attributes.contains(AttributeKind::Script);
 
-    if attributes.contains(AttributeDiscriminant::WorkingDirectory)
-      && attributes.contains(AttributeDiscriminant::NoCd)
+    if attributes.contains(AttributeKind::WorkingDirectory)
+      && attributes.contains(AttributeKind::NoCd)
     {
       return Err(
         name.error(CompileErrorKind::NoCdAndWorkingDirectoryAttribute {
@@ -1378,8 +1378,8 @@ impl<'run, 'src> Parser<'run, 'src> {
       );
     }
 
-    if attributes.contains(AttributeDiscriminant::ExitMessage)
-      && attributes.contains(AttributeDiscriminant::NoExitMessage)
+    if attributes.contains(AttributeKind::ExitMessage)
+      && attributes.contains(AttributeKind::NoExitMessage)
     {
       return Err(
         name.error(CompileErrorKind::ExitMessageAndNoExitMessageAttribute {
@@ -1388,16 +1388,13 @@ impl<'run, 'src> Parser<'run, 'src> {
       );
     }
 
-    if attributes.contains(AttributeDiscriminant::Script)
-      && attributes.contains(AttributeDiscriminant::Shell)
-    {
+    if attributes.contains(AttributeKind::Script) && attributes.contains(AttributeKind::Shell) {
       return Err(name.error(CompileErrorKind::ScriptAndShellAttribute {
         recipe: name.lexeme(),
       }));
     }
 
-    let private =
-      name.lexeme().starts_with('_') || attributes.contains(AttributeDiscriminant::Private);
+    let private = name.lexeme().starts_with('_') || attributes.contains(AttributeKind::Private);
 
     let doc = self.take_doc_comment(&attributes);
 
@@ -1643,16 +1640,13 @@ impl<'run, 'src> Parser<'run, 'src> {
       loop {
         let name = self.parse_name()?;
 
-        let discriminant = name
-          .lexeme()
-          .parse::<AttributeDiscriminant>()
-          .map_err(|_| {
-            name.error(CompileErrorKind::UnknownAttribute {
-              attribute: name.lexeme(),
-            })
-          })?;
+        let discriminant = name.lexeme().parse::<AttributeKind>().map_err(|_| {
+          name.error(CompileErrorKind::UnknownAttribute {
+            attribute: name.lexeme(),
+          })
+        })?;
 
-        if discriminant == AttributeDiscriminant::Cache {
+        if discriminant == AttributeKind::Cache {
           self
             .unstable_features
             .insert(UnstableFeature::CachedRecipes);
