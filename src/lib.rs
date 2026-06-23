@@ -6,6 +6,7 @@
 
 pub(crate) use {
   crate::{
+    alias::Alias,
     alias_style::AliasStyle,
     analyzer::Analyzer,
     arg_attribute::ArgAttribute,
@@ -87,7 +88,6 @@ pub(crate) use {
     ran::Ran,
     range_ext::RangeExt,
     recipe::Recipe,
-    recipe_alias::Alias,
     recipe_resolver::RecipeResolver,
     recipe_signature::RecipeSignature,
     reference::Reference,
@@ -208,6 +208,7 @@ pub mod fuzzing;
 #[doc(hidden)]
 pub mod request;
 
+mod alias;
 mod alias_style;
 mod analyzer;
 mod arg_attribute;
@@ -291,7 +292,6 @@ mod positional;
 mod ran;
 mod range_ext;
 mod recipe;
-mod recipe_alias;
 mod recipe_resolver;
 mod recipe_signature;
 mod reference;
