@@ -383,14 +383,16 @@ impl Subcommand {
           path: path.clone(),
         })?;
 
-        let entry =
-          serde_json::from_str::<CacheEntry>(&json).map_err(|source| Error::CacheEntryRead {
-            source,
-            path: path.clone(),
-          })?;
+        if !json.is_empty() {
+          let entry =
+            serde_json::from_str::<CacheEntry>(&json).map_err(|source| Error::CacheEntryRead {
+              source,
+              path: path.clone(),
+            })?;
 
-        if !entry.recipe.starts_with(prefix) {
-          continue;
+          if !entry.recipe.starts_with(prefix) {
+            continue;
+          }
         }
       }
 
