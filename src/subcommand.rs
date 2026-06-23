@@ -358,7 +358,9 @@ impl Subcommand {
 
     let dir = match fs::read_dir(&path) {
       Err(err) if err.kind() == io::ErrorKind::NotFound => {
-        eprintln!("recipe cache not found");
+        if config.verbosity.loud() {
+          eprintln!("recipe cache not found");
+        }
         return Ok(());
       }
       result => result.map_err(context)?,
