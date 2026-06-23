@@ -27,6 +27,8 @@ pub(crate) struct Justfile<'src> {
   pub(crate) groups: Vec<StringLiteral<'src>>,
   #[serde(skip)]
   pub(crate) loaded: Vec<PathBuf>,
+  #[serde(skip)]
+  pub(crate) module_aliases: Table<'src, ModuleAlias<'src>>,
   pub(crate) module_path: Modulepath,
   pub(crate) modules: Table<'src, Self>,
   #[serde(skip)]

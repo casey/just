@@ -304,7 +304,17 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     let mut aliases = Table::new();
     let mut disabled_aliases = Table::new();
+    let mut module_aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
+      if let Some(module) = Self::resolve_module(&alias.target, &self.modules) {
+        module_aliases.insert(ModuleAlias {
+          attributes: alias.attributes,
+          name: alias.name,
+          target: module.module_path.clone(),
+        });
+        continue;
+      }
+
       match Resolution::resolve(
         &alias.target,
         &self.modules,
@@ -381,6 +391,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       functions,
       groups: groups.into(),
       loaded: loaded.into(),
+      module_aliases,
       module_path: ast.module_path.clone(),
       modules: self.modules,
       name,
@@ -393,6 +404,21 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       warnings: self.warnings,
       working_directory: ast.working_directory.clone(),
     })
+  }
+
+  fn resolve_module<'a>(
+    target: &Namepath<'src>,
+    mut modules: &'a Table<'src, Justfile<'src>>,
+  ) -> Option<&'a Justfile<'src>> {
+    let mut module = None;
+
+    for name in target.iter() {
+      let next = modules.get(name.lexeme())?;
+      modules = &next.modules;
+      module = Some(next);
+    }
+
+    module
   }
 
   fn define(
