@@ -2,6 +2,7 @@ use super::*;
 
 pub(crate) struct Count<T: Display> {
   count: usize,
+  irregular: Option<T>,
   noun: T,
   numbered: bool,
 }
@@ -10,6 +11,16 @@ impl<T: Display> Count<T> {
   pub(crate) fn numbered(noun: T, count: impl Borrow<usize>) -> Self {
     Self {
       count: *count.borrow(),
+      irregular: None,
+      noun,
+      numbered: true,
+    }
+  }
+
+  pub(crate) fn numbered_irregular(noun: T, irregular: T, count: impl Borrow<usize>) -> Self {
+    Self {
+      count: *count.borrow(),
+      irregular: Some(irregular),
       noun,
       numbered: true,
     }
@@ -18,6 +29,7 @@ impl<T: Display> Count<T> {
   pub(crate) fn unnumbered(noun: T, count: impl Borrow<usize>) -> Self {
     Self {
       count: *count.borrow(),
+      irregular: None,
       noun,
       numbered: false,
     }
@@ -29,10 +41,20 @@ impl<T: Display> Display for Count<T> {
     if self.numbered {
       write!(f, "{} ", self.count)?;
     }
-    write!(f, "{}", self.noun)?;
-    if self.count != 1 {
-      write!(f, "s")?;
+
+    if let Some(irregular) = &self.irregular {
+      if self.count == 1 {
+        write!(f, "{}", self.noun)?;
+      } else {
+        write!(f, "{irregular}")?;
+      }
+    } else {
+      write!(f, "{}", self.noun)?;
+      if self.count != 1 {
+        write!(f, "s")?;
+      }
     }
+
     Ok(())
   }
 }

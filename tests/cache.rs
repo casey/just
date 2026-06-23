@@ -747,7 +747,7 @@ fn clean_removes_cache_directory() {
   let output = Test::with_tempdir(output.tempdir)
     .env("JUST_UNSTABLE", "1")
     .arg("--clean")
-    .stderr("Removed 1 cache entry\n")
+    .stderr("removed 1 cache entry\n")
     .success();
 
   assert!(!output.tempdir.path().join(".justcache").exists());
@@ -772,7 +772,7 @@ fn clean_removes_entries_but_leaves_unexpected_entries() {
     .env("JUST_UNSTABLE", "1")
     .write(".justcache/foo", "bar")
     .arg("--clean")
-    .stderr("Removed 1 cache entry\n")
+    .stderr("removed 1 cache entry\n")
     .success();
 
   let cache = output.tempdir.path().join(".justcache");
@@ -795,7 +795,7 @@ fn clean_succeeds_without_cache_directory() {
       ",
     )
     .arg("--clean")
-    .stderr("Removed 0 cache entries\n")
+    .stderr("recipe cache not found\n")
     .success();
 
   assert!(!output.tempdir.path().join(".justcache").exists());
@@ -852,7 +852,7 @@ fn clean_reports_plural_count() {
   Test::with_tempdir(output.tempdir)
     .env("JUST_UNSTABLE", "1")
     .arg("--clean")
-    .stderr("Removed 2 cache entries\n")
+    .stderr("removed 2 cache entries\n")
     .success();
 }
 
@@ -884,7 +884,7 @@ fn clean_module_path_removes_subtree() {
   let output = Test::with_tempdir(output.tempdir)
     .env("JUST_UNSTABLE", "1")
     .args(["--clean", "foo"])
-    .stderr("Removed 1 cache entry\n")
+    .stderr("removed 1 cache entry\n")
     .success();
 
   let cache = output.tempdir.path().join(".justcache");
@@ -925,7 +925,7 @@ fn clean_module_path_removes_exact_recipe() {
   let output = Test::with_tempdir(output.tempdir)
     .env("JUST_UNSTABLE", "1")
     .args(["--clean", "foo::baz"])
-    .stderr("Removed 1 cache entry\n")
+    .stderr("removed 1 cache entry\n")
     .success();
 
   let cache = output.tempdir.path().join(".justcache");
@@ -955,7 +955,7 @@ fn clean_module_path_may_be_spaced() {
   Test::with_tempdir(output.tempdir)
     .env("JUST_UNSTABLE", "1")
     .args(["--clean", "foo", "baz"])
-    .stderr("Removed 1 cache entry\n")
+    .stderr("removed 1 cache entry\n")
     .success();
 }
 
@@ -977,7 +977,7 @@ fn clean_module_path_matching_nothing_removes_nothing() {
   let output = Test::with_tempdir(output.tempdir)
     .env("JUST_UNSTABLE", "1")
     .args(["--clean", "bar"])
-    .stderr("Removed 0 cache entries\n")
+    .stderr("removed 0 cache entries\n")
     .success();
 
   let cache = output.tempdir.path().join(".justcache");

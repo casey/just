@@ -346,7 +346,7 @@ impl Subcommand {
     Ok(())
   }
 
-  fn clean(config: &Config, search: &Search, path: Option<&Modulepath>) -> RunResult<'static> {
+  fn clean(config: &Config, search: &Search, prefix: Option<&Modulepath>) -> RunResult<'static> {
     let entry_re = Regex::new(r"^[0-9a-f]{64}\.json$").unwrap();
 
     let dir = Cache::dir(search);
@@ -356,57 +356,60 @@ impl Subcommand {
       path: dir.clone(),
     };
 
+    let entries = match fs::read_dir(&dir) {
+      Err(err) if err.kind() == io::ErrorKind::NotFound => {
+        eprintln!("recipe cache not found");
+        return Ok(());
+      }
+      result => result.map_err(context)?,
+    };
+
     let mut removed = 0;
 
-    match fs::read_dir(&dir) {
-      Err(err) if err.kind() == io::ErrorKind::NotFound => {}
-      result => {
-        for entry in result.map_err(context)? {
-          let entry = entry.map_err(context)?;
+    for entry in entries {
+      let entry = entry.map_err(context)?;
 
-          if !entry_re.is_match(&entry.file_name().to_string_lossy()) {
-            continue;
-          }
+      if !entry_re.is_match(&entry.file_name().to_string_lossy()) {
+        continue;
+      }
 
-          let entry_path = entry.path();
+      let entry_path = entry.path();
 
-          let matches = match path {
-            None => true,
-            Some(path) => serde_json::from_str::<CacheEntry>(
-              &fs::read_to_string(&entry_path).map_err(|source| Error::FilesystemIo {
-                source,
-                path: entry_path.clone(),
-              })?,
-            )
-            .map_err(|source| Error::CacheEntryRead {
-              source,
-              path: entry_path.clone(),
-            })?
-            .recipe
-            .starts_with(path),
-          };
+      if let Some(prefix) = prefix {
+        let json = fs::read_to_string(&entry_path).map_err(|source| Error::FilesystemIo {
+          source,
+          path: entry_path.clone(),
+        })?;
 
-          if matches {
-            fs::remove_file(&entry_path).map_err(|source| Error::FilesystemIo {
-              source,
-              path: entry_path.clone(),
-            })?;
-            removed += 1;
-          }
-        }
+        let entry =
+          serde_json::from_str::<CacheEntry>(&json).map_err(|source| Error::CacheEntryRead {
+            source,
+            path: entry_path.clone(),
+          })?;
 
-        if let Err(err) = fs::remove_dir(&dir)
-          && err.kind() != io::ErrorKind::DirectoryNotEmpty
-        {
-          return Err(context(err));
+        if !entry.recipe.starts_with(prefix) {
+          continue;
         }
       }
+
+      fs::remove_file(&entry_path).map_err(|source| Error::FilesystemIo {
+        source,
+        path: entry_path.clone(),
+      })?;
+
+      removed += 1;
+    }
+
+    if let Err(err) = fs::remove_dir(&dir)
+      && err.kind() != io::ErrorKind::DirectoryNotEmpty
+    {
+      return Err(context(err));
     }
 
     if config.verbosity.loud() {
       eprintln!(
-        "Removed {removed} cache {}",
-        if removed == 1 { "entry" } else { "entries" }
+        "removed {}",
+        Count::numbered_irregular("cache entry", "cache entries", removed)
       );
     }
 

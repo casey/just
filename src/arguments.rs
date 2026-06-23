@@ -357,11 +357,11 @@ pub(crate) struct Subcommand {
   pub(crate) choose: bool,
   #[arg(
     conflicts_with = "arguments",
-    help = "Clear the recipe cache, optionally restricted to recipes in <MODULE>",
+    help = "Clear recipe cache, optionally restricted to recipes whose path begins with <PATH>",
     help_heading = Self::HEADING,
     long,
     num_args = 0..,
-    value_name = "MODULE",
+    value_name = "PATH",
   )]
   pub(crate) clean: Option<Vec<String>>,
   #[arg(
