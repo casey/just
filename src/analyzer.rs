@@ -305,7 +305,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut recipe_aliases = Table::new();
     let mut module_aliases = Table::new();
     let mut disabled_aliases = Table::new();
-    while let Some(alias) = self.aliases.pop() {
+    for alias in self.aliases.into_values() {
       if let Some(resolution) =
         Resolution::resolve_module(&alias.target, &absent_modules, &self.modules)
       {
