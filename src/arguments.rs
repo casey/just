@@ -231,6 +231,8 @@ pub struct Arguments {
   pub(crate) list_submodules: bool,
   #[arg(env = "JUST_NO_ALIASES", help = "Don't show aliases in list", long)]
   pub(crate) no_aliases: bool,
+  #[arg(env = "JUST_NO_CACHE", help = "Bypass recipe cache", long)]
+  pub(crate) no_cache: bool,
   #[arg(
     alias = "no-dependencies",
     env = "JUST_NO_DEPS",

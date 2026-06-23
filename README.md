@@ -4129,6 +4129,8 @@ recipe, write to the cache entry, and relinquish the lock. The second will
 block until the first relinquishes the lock, see that the entry is non-empty,
 and skip the invocation.
 
+The cache can be bypassed entirely with the `--no-cache` flag.
+
 #### Clearing the Cache
 
 The recipe cache is stored in a directory named `.justcache` alongside the
