@@ -24,6 +24,10 @@ pub(crate) enum Error<'src> {
     token: Token<'src>,
     output_error: OutputError,
   },
+  CacheEntryRead {
+    path: PathBuf,
+    source: serde_json::Error,
+  },
   CacheEntryWrite {
     path: PathBuf,
     source: serde_json::Error,
@@ -505,6 +509,11 @@ impl ColorDisplay for Error<'_> {
           "backtick succeeded but stdout was not utf8: {utf8_error}",
         )?,
       },
+      CacheEntryRead { path, source } => write!(
+        f,
+        "failed to read cache entry at `{}`: {source}",
+        path.display(),
+      )?,
       CacheEntryWrite { path, source } => write!(
         f,
         "failed to write cache entry at `{}`: {source}",

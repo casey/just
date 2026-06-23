@@ -17,6 +17,7 @@ pub(crate) use {
     attribute_set::AttributeSet,
     binding::Binding,
     cache::Cache,
+    cache_entry::CacheEntry,
     cache_key::CacheKey,
     cache_lock::CacheLock,
     cache_status::CacheStatus,
@@ -137,7 +138,7 @@ pub(crate) use {
   rand::seq::IndexedRandom,
   regex::Regex,
   serde::{
-    Deserialize, Serialize, Serializer,
+    Deserialize, Deserializer, Serialize, Serializer, de,
     ser::{SerializeMap, SerializeSeq, SerializeStruct},
   },
   snafu::{ResultExt, Snafu},
@@ -218,6 +219,7 @@ mod attribute;
 mod attribute_set;
 mod binding;
 mod cache;
+mod cache_entry;
 mod cache_key;
 mod cache_lock;
 mod cache_status;

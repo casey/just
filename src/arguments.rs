@@ -356,11 +356,14 @@ pub(crate) struct Subcommand {
   )]
   pub(crate) choose: bool,
   #[arg(
-    help = "Clear the recipe cache",
+    conflicts_with = "arguments",
+    help = "Clear the recipe cache, optionally restricted to recipes in <MODULE>",
     help_heading = Self::HEADING,
     long,
+    num_args = 0..,
+    value_name = "MODULE",
   )]
-  pub(crate) clean: bool,
+  pub(crate) clean: Option<Vec<String>>,
   #[arg(
     allow_hyphen_values = true,
     help = "Run an arbitrary command with the working directory, `.env`, overrides, and exports \
