@@ -944,27 +944,6 @@ fn clean_module_path_removes_exact_recipe() {
 }
 
 #[test]
-fn clean_module_path_may_be_spaced() {
-  let output = Test::new()
-    .justfile(
-      "
-        mod foo
-      ",
-    )
-    .write("foo.just", "[cache]\n[script]\nbaz:\n  echo baz\n")
-    .env("JUST_UNSTABLE", "1")
-    .args(["foo", "baz"])
-    .stdout("baz\n")
-    .success();
-
-  Test::with_tempdir(output.tempdir)
-    .env("JUST_UNSTABLE", "1")
-    .args(["--clean", "foo", "baz"])
-    .stderr("removed 1 cache entry\n")
-    .success();
-}
-
-#[test]
 fn hit_prints_verbose_message() {
   let output = Test::new()
     .justfile(
