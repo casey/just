@@ -4110,6 +4110,9 @@ The keys of the cache key object are:
 - `recipe`: `::`-separated module path to invoked recipe
 - `working_directory`: current working directory
 
+The cache key JSON objects for invoked recipes can be printed to standard error
+with `just -vv`.
+
 The value of `extra` may be supplied with `[cache(extra = EXPRESSION)]`, where
 `EXPRESSION` is an arbitrary expression evaluated with recipe arguments in
 scope. Changes to the value of `extra` will cause a cache miss.
