@@ -1,14 +1,14 @@
 use super::*;
 
-pub(crate) struct Count<T: Display> {
+pub(crate) struct Count {
   count: usize,
-  irregular: Option<T>,
-  noun: T,
+  irregular: Option<&'static str>,
+  noun: &'static str,
   numbered: bool,
 }
 
-impl<T: Display> Count<T> {
-  pub(crate) fn numbered(noun: T, count: impl Borrow<usize>) -> Self {
+impl Count {
+  pub(crate) fn numbered(noun: &'static str, count: impl Borrow<usize>) -> Self {
     Self {
       count: *count.borrow(),
       irregular: None,
@@ -17,7 +17,11 @@ impl<T: Display> Count<T> {
     }
   }
 
-  pub(crate) fn numbered_irregular(noun: T, irregular: T, count: impl Borrow<usize>) -> Self {
+  pub(crate) fn numbered_irregular(
+    noun: &'static str,
+    irregular: &'static str,
+    count: impl Borrow<usize>,
+  ) -> Self {
     Self {
       count: *count.borrow(),
       irregular: Some(irregular),
@@ -26,7 +30,7 @@ impl<T: Display> Count<T> {
     }
   }
 
-  pub(crate) fn unnumbered(noun: T, count: impl Borrow<usize>) -> Self {
+  pub(crate) fn unnumbered(noun: &'static str, count: impl Borrow<usize>) -> Self {
     Self {
       count: *count.borrow(),
       irregular: None,
@@ -36,7 +40,7 @@ impl<T: Display> Count<T> {
   }
 }
 
-impl<T: Display> Display for Count<T> {
+impl Display for Count {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     if self.numbered {
       write!(f, "{} ", self.count)?;
@@ -65,23 +69,19 @@ mod tests {
 
   #[test]
   fn count() {
-    assert_eq!(Count::numbered("dog", 0).to_string(), "0 dogs");
-    assert_eq!(Count::numbered("dog", 1).to_string(), "1 dog");
-    assert_eq!(Count::numbered("dog", 2).to_string(), "2 dogs");
-    assert_eq!(
-      Count::numbered_irregular("foot", "feet", 0).to_string(),
-      "0 feet"
-    );
-    assert_eq!(
-      Count::numbered_irregular("foot", "feet", 1).to_string(),
-      "1 foot"
-    );
-    assert_eq!(
-      Count::numbered_irregular("foot", "feet", 2).to_string(),
-      "2 feet"
-    );
-    assert_eq!(Count::unnumbered("dog", 0).to_string(), "dogs");
-    assert_eq!(Count::unnumbered("dog", 1).to_string(), "dog");
-    assert_eq!(Count::unnumbered("dog", 2).to_string(), "dogs");
+    #[track_caller]
+    fn case(count: Count, expected: &str) {
+      assert_eq!(count.to_string(), expected);
+    }
+
+    case(Count::numbered("dog", 0), "0 dogs");
+    case(Count::numbered("dog", 1), "1 dog");
+    case(Count::numbered("dog", 2), "2 dogs");
+    case(Count::numbered_irregular("foot", "feet", 0), "0 feet");
+    case(Count::numbered_irregular("foot", "feet", 1), "1 foot");
+    case(Count::numbered_irregular("foot", "feet", 2), "2 feet");
+    case(Count::unnumbered("dog", 0), "dogs");
+    case(Count::unnumbered("dog", 1), "dog");
+    case(Count::unnumbered("dog", 2), "dogs");
   }
 }
