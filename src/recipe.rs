@@ -556,16 +556,13 @@ impl<'src> Recipe<'src> {
         .insert(name.clone(), Some(value.clone()));
     }
 
-    let (cache_lock, outputs) = if self.attributes.contains(AttributeKind::Cache) {
-      let Some(Attribute::Cache {
+    let (cache_lock, outputs) = if !config.no_cache
+      && let Some(Attribute::Cache {
         extra,
         inputs,
         outputs,
       }) = self.attributes.get(AttributeKind::Cache)
-      else {
-        unreachable!()
-      };
-
+    {
       let working_directory = match &working_directory {
         Some(working_directory) => working_directory.to_owned(),
         None => env::current_dir().map_err(|source| Error::CurrentDirectory { source })?,

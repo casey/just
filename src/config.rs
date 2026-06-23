@@ -25,6 +25,7 @@ pub(crate) struct Config {
   pub(crate) list_submodules: bool,
   pub(crate) load_dotenv: bool,
   pub(crate) no_aliases: bool,
+  pub(crate) no_cache: bool,
   pub(crate) no_dependencies: bool,
   pub(crate) one: bool,
   pub(crate) overrides: BTreeMap<(Modulepath, String), String>,
@@ -69,6 +70,7 @@ impl Config {
       list_submodules: false,
       load_dotenv: true,
       no_aliases: false,
+      no_cache: false,
       no_dependencies: false,
       one: false,
       overrides: BTreeMap::new(),
@@ -343,6 +345,7 @@ impl Config {
       list_submodules: arguments.list_submodules,
       load_dotenv: !arguments.no_dotenv,
       no_aliases: arguments.no_aliases,
+      no_cache: arguments.no_cache,
       no_dependencies: arguments.no_deps,
       one: arguments.one,
       overrides,
@@ -414,6 +417,7 @@ mod tests {
       $(dry_run: $dry_run:expr,)?
       $(dump_format: $dump_format:expr,)?
       $(highlight: $highlight:expr,)?
+      $(no_cache: $no_cache:expr,)?
       $(no_dependencies: $no_dependencies:expr,)?
       $(overrides: $overrides:expr,)?
       $(search_config: $search_config:expr,)?
@@ -436,6 +440,7 @@ mod tests {
           $(dry_run: $dry_run,)?
           $(dump_format: $dump_format,)?
           $(highlight: $highlight,)?
+          $(no_cache: $no_cache,)?
           $(no_dependencies: $no_dependencies,)?
           $(overrides: $overrides,)?
           $(search_config: $search_config,)?
@@ -629,6 +634,12 @@ mod tests {
     name: highlight_yes_no,
     args: ["--highlight", "--no-highlight"],
     highlight: false,
+  }
+
+  test! {
+    name: no_cache,
+    args: ["--no-cache"],
+    no_cache: true,
   }
 
   test! {

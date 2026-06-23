@@ -1002,3 +1002,52 @@ fn hit_prints_verbose_message() {
     )
     .success();
 }
+
+#[test]
+fn no_cache_reruns_on_hit() {
+  let output = Test::new()
+    .justfile(
+      "
+        [cache]
+        [script]
+        foo:
+          echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("bar\n")
+    .success();
+
+  let output = Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .args(["--no-cache", "--verbose"])
+    .stdout("bar\n")
+    .stderr("===> running recipe `foo`...\n")
+    .success();
+
+  let entries = fs::read_dir(output.tempdir.path().join(".justcache"))
+    .unwrap()
+    .map(|entry| fs::read_to_string(entry.unwrap().path()).unwrap())
+    .collect::<Vec<String>>();
+
+  assert_eq!(entries, &[r#"{"recipe":"foo"}"#]);
+}
+
+#[test]
+fn no_cache_does_not_write_cache_entries() {
+  let output = Test::new()
+    .justfile(
+      "
+        [cache]
+        [script]
+        foo:
+          echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("--no-cache")
+    .stdout("bar\n")
+    .success();
+
+  assert!(!output.tempdir.path().join(".justcache").exists());
+}
