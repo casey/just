@@ -6,7 +6,7 @@ pub(crate) enum Resolution<T> {
 }
 
 impl<'src> Resolution<Arc<Recipe<'src>>> {
-  pub(crate) fn resolve<'a>(
+  pub(crate) fn resolve_recipe<'a>(
     path: &Namepath<'src>,
     mut modules: &'a Table<'src, Justfile<'src>>,
     mut absent_modules: &'a BTreeSet<String>,

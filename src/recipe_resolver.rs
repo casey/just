@@ -104,7 +104,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
 
     if dependency.recipe.components() > 1 {
       // recipe is in a submodule and is thus already resolved
-      Ok(Resolution::resolve(
+      Ok(Resolution::resolve_recipe(
         &dependency.recipe,
         self.modules,
         self.absent_modules,

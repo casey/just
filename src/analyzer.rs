@@ -325,7 +325,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
         None => {}
       }
 
-      match Resolution::resolve(
+      match Resolution::resolve_recipe(
         &alias.target,
         &self.modules,
         &absent_modules,
