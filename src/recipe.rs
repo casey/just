@@ -503,43 +503,41 @@ impl<'src> Recipe<'src> {
       return Ok(());
     }
 
-    let executor = if self.attributes.contains(AttributeKind::Script) {
-      let Some(Attribute::Script(interpreter)) = self.attributes.get(AttributeKind::Script) else {
-        unreachable!();
+    let executor =
+      if let Some(Attribute::Script(interpreter)) = self.attributes.get(AttributeKind::Script) {
+        Executor::Command(
+          interpreter
+            .as_ref()
+            .map(|interpreter| Interpreter {
+              command: interpreter.command.cooked.clone(),
+              arguments: interpreter
+                .arguments
+                .iter()
+                .map(|argument| argument.cooked.clone())
+                .collect(),
+            })
+            .or_else(|| context.module.settings.script_interpreter.clone())
+            .unwrap_or_else(|| Interpreter::default_script_interpreter().clone()),
+        )
+      } else if self.body.first().is_some_and(Line::is_shebang) {
+        let line = evaluated_lines
+          .first()
+          .ok_or_else(|| Error::internal("evaluated_lines was empty"))?;
+
+        let shebang =
+          Shebang::new(line).ok_or_else(|| Error::internal(format!("bad shebang line: {line}")))?;
+
+        Executor::Shebang(shebang)
+      } else {
+        Executor::Command(
+          context
+            .module
+            .settings
+            .script_interpreter
+            .clone()
+            .unwrap_or_else(|| Interpreter::default_script_interpreter().clone()),
+        )
       };
-      Executor::Command(
-        interpreter
-          .as_ref()
-          .map(|interpreter| Interpreter {
-            command: interpreter.command.cooked.clone(),
-            arguments: interpreter
-              .arguments
-              .iter()
-              .map(|argument| argument.cooked.clone())
-              .collect(),
-          })
-          .or_else(|| context.module.settings.script_interpreter.clone())
-          .unwrap_or_else(|| Interpreter::default_script_interpreter().clone()),
-      )
-    } else if self.body.first().is_some_and(Line::is_shebang) {
-      let line = evaluated_lines
-        .first()
-        .ok_or_else(|| Error::internal("evaluated_lines was empty"))?;
-
-      let shebang =
-        Shebang::new(line).ok_or_else(|| Error::internal(format!("bad shebang line: {line}")))?;
-
-      Executor::Shebang(shebang)
-    } else {
-      Executor::Command(
-        context
-          .module
-          .settings
-          .script_interpreter
-          .clone()
-          .unwrap_or_else(|| Interpreter::default_script_interpreter().clone()),
-      )
-    };
 
     let working_directory = self.working_directory(context, &mut evaluator)?;
 
