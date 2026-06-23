@@ -609,7 +609,7 @@ impl<'src> Recipe<'src> {
         working_directory: Some(&working_directory),
       };
 
-      let lock = match cache.status(key, &outputs)? {
+      let lock = match cache.status(config, key, &outputs)? {
         CacheStatus::Hit => {
           if config.verbosity.loquacious() {
             eprintln!(

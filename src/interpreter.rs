@@ -2,8 +2,8 @@ use super::*;
 
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Serialize)]
 pub(crate) struct Interpreter<T> {
-  pub(crate) arguments: Vec<T>,
   pub(crate) command: T,
+  pub(crate) arguments: Vec<T>,
 }
 
 impl Interpreter<String> {
