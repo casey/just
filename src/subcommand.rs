@@ -349,14 +349,14 @@ impl Subcommand {
   fn clean(config: &Config, search: &Search, prefix: Option<&Modulepath>) -> RunResult<'static> {
     let entry_re = Regex::new(r"^[0-9a-f]{64}\.json$").unwrap();
 
-    let dir = Cache::dir(search);
+    let path = Cache::dir(search);
 
     let context = |source| Error::FilesystemIo {
       source,
-      path: dir.clone(),
+      path: path.clone(),
     };
 
-    let entries = match fs::read_dir(&dir) {
+    let dir = match fs::read_dir(&path) {
       Err(err) if err.kind() == io::ErrorKind::NotFound => {
         eprintln!("recipe cache not found");
         return Ok(());
@@ -366,25 +366,25 @@ impl Subcommand {
 
     let mut removed = 0;
 
-    for entry in entries {
+    for entry in dir {
       let entry = entry.map_err(context)?;
 
       if !entry_re.is_match(&entry.file_name().to_string_lossy()) {
         continue;
       }
 
-      let entry_path = entry.path();
+      let path = entry.path();
 
       if let Some(prefix) = prefix {
-        let json = fs::read_to_string(&entry_path).map_err(|source| Error::FilesystemIo {
+        let json = fs::read_to_string(&path).map_err(|source| Error::FilesystemIo {
           source,
-          path: entry_path.clone(),
+          path: path.clone(),
         })?;
 
         let entry =
           serde_json::from_str::<CacheEntry>(&json).map_err(|source| Error::CacheEntryRead {
             source,
-            path: entry_path.clone(),
+            path: path.clone(),
           })?;
 
         if !entry.recipe.starts_with(prefix) {
@@ -392,15 +392,15 @@ impl Subcommand {
         }
       }
 
-      fs::remove_file(&entry_path).map_err(|source| Error::FilesystemIo {
+      fs::remove_file(&path).map_err(|source| Error::FilesystemIo {
         source,
-        path: entry_path.clone(),
+        path: path.clone(),
       })?;
 
       removed += 1;
     }
 
-    if let Err(err) = fs::remove_dir(&dir)
+    if let Err(err) = fs::remove_dir(&path)
       && err.kind() != io::ErrorKind::DirectoryNotEmpty
     {
       return Err(context(err));
