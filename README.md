@@ -1042,7 +1042,7 @@ foo:
 | `allow-duplicate-variables` | boolean | `false` | Allow variables appearing later in a `justfile` to override earlier variables with the same name. |
 | `default-list` | boolean | `false` | List recipes instead of running the default recipe. |
 | `default-script`<sup>1.52.0</sup> | boolean | `false` | Default recipes to script instead of shell. |
-| `dotenv-command`<sup>master</sup> | string | - | Run a command and load its output as an environment file. |
+| `dotenv-command`<sup>1.54.0</sup> | string | - | Run a command and load its output as an environment file. |
 | `dotenv-filename` | string | - | Load a `.env` file with a custom name, if present. |
 | `dotenv-load` | boolean | `false` | Load a `.env` file, if present. |
 | `dotenv-override` | boolean | `false` | Override existing environment variables with values from the `.env` file. |
@@ -2570,10 +2570,10 @@ change their behavior.
 | `[arg(ARG, pattern="PATTERN")]`<sup>1.45.0</sup> | recipe | Require values of argument `ARG` to match regular expression `PATTERN`. |
 | `[arg(ARG, short="S")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as short `-S` option. |
 | `[arg(ARG, value=VALUE)]`<sup>1.46.0</sup> | recipe | Makes option `ARG` a flag which does not take a value. |
-| `[cache]`<sup>master</sup> | recipe | Skip recipe invocations when a matching entry exists in the cache. See [cached recipes](#cached-recipes) for details. Currently unstable. |
+| `[cache]`<sup>1.54.0</sup> | recipe | Skip recipe invocations when a matching entry exists in the cache. See [cached recipes](#cached-recipes) for details. Currently unstable. |
 | `[confirm(PROMPT)]`<sup>1.23.0</sup> | recipe | Require confirmation prior to executing recipe with a custom prompt. |
 | `[confirm]`<sup>1.17.0</sup> | recipe | Require confirmation prior to executing recipe. |
-| `[continue(SIGNALS)]`<sup>master</sup> | recipe | Continue execution normally if a command is interrupted by any of `SIGNALS` and exits successfully. Defaults to `SIGINT`. |
+| `[continue(SIGNALS)]`<sup>1.54.0</sup> | recipe | Continue execution normally if a command is interrupted by any of `SIGNALS` and exits successfully. Defaults to `SIGINT`. |
 | `[default]`<sup>1.43.0</sup> | recipe | Use recipe as module's default recipe. |
 | `[doc(DOC)]`<sup>1.27.0</sup> | module, recipe | Set recipe or module's [documentation comment](#documentation-comments) to `DOC`. |
 | `[dragonfly]`<sup>1.47.0</sup> | recipe | Enable recipe on DragonFly BSD. |
@@ -3335,7 +3335,7 @@ Variadic `*` and `+` parameters cannot be options.
 
 The `[arg(ARG, value=VALUE, …)]`<sup>1.46.0</sup> attribute can be used with
 `long` or `short` to make a parameter a flag which does not take a value.
-`VALUE` may be an expression<sup>master</sup>.
+`VALUE` may be an expression<sup>1.54.0</sup>.
 
 In this `justfile`:
 
@@ -4085,7 +4085,7 @@ Consult `just --help` for which options can be set with environment variables.
 ### Cached Recipes
 
 `just` will skip invocations of recipes with the `[cache]`
-attribute<sup>master</sup> if it finds an entry matching the invocation in the
+attribute<sup>1.54.0</sup> if it finds an entry matching the invocation in the
 cache. The `[cache]` attribute may only be used with script recipes and is
 currently unstable.
 
@@ -4972,7 +4972,7 @@ receives a fatal signal, `just` halts execution.
 
 #### Continuing Execution
 
-The `[continue]`<sup>master</sup> attribute can be used to make `just` continue
+The `[continue]`<sup>1.54.0</sup> attribute can be used to make `just` continue
 execution even if it receives a fatal signal as long as the child process it's
 running exits successfully.
 
