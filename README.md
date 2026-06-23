@@ -4095,9 +4095,9 @@ understand their limitations before relying on them. Please read this section
 thoroughly, including the friendly admonitions below.
 
 The cache is a directory named `.justcache` alongside the `justfile` and should
-not be committed to version control systems. It contains cache entry named
+not be committed to version control systems. It contains cache entries named
 `HASH.json`, where `HASH` is the BLAKE3 hash of a serialized cache key JSON
-object.
+object. The cache can be cleared with `just --clean`.
 
 The keys of the cache key object are:
 
