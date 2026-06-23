@@ -52,7 +52,7 @@ impl<'src> Resolution<Modulepath> {
     mut absent: &'a BTreeSet<String>,
     mut modules: &'a Table<'src, Justfile<'src>>,
   ) -> Option<Self> {
-    let (last, prefix) = path.split_last();
+    let (name, prefix) = path.split_last();
 
     let mut walked = Vec::new();
 
@@ -63,7 +63,7 @@ impl<'src> Resolution<Modulepath> {
       walked.push(component.lexeme().to_string());
     }
 
-    let lexeme = last.lexeme();
+    let lexeme = name.lexeme();
 
     if let Some(module) = modules.get(lexeme) {
       Some(Self::Resolved(module.module_path.clone()))
