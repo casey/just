@@ -18,6 +18,7 @@ pub(crate) enum Subcommand {
   Choose {
     chooser: Option<PathBuf>,
   },
+  Clean,
   Command {
     arguments: Vec<OsString>,
     binary: OsString,
@@ -109,6 +110,7 @@ impl Subcommand {
       Command { .. } | Evaluate { .. } => {
         justfile.run(config, &search, &[], &compilation.overrides)?;
       }
+      Clean => Self::clean(search)?,
       Dump { format } => Self::dump(config, compilation, *format)?,
       Groups => Self::groups(config, justfile),
       List { path } => Self::list(config, justfile, path)?,
@@ -338,6 +340,29 @@ impl Subcommand {
 
       justfile.run(config, search, &arguments, overrides)?;
     }
+
+    Ok(())
+  }
+
+  fn clean(search: Search) -> RunResult<'static> {
+    let entry_re = Regex::new(r"^[0-9a-f]{64}\.json$").unwrap();
+
+    let path = Cache::dir(&search);
+
+    let context = |source| Error::FilesystemIo {
+      source,
+      path: path.clone(),
+    };
+
+    for entry in fs::read_dir(&path).map_err(context)? {
+      let entry = entry.map_err(context)?;
+
+      if !entry_re.is_match(&entry.file_name().to_string_lossy()) {
+        return Err(Error::UnexpectedCacheEntry { path: entry.path() });
+      }
+    }
+
+    fs::remove_dir_all(&path).map_err(context)?;
 
     Ok(())
   }
@@ -846,6 +871,7 @@ impl Subcommand {
   pub(crate) fn takes_arguments(&self) -> bool {
     match self {
       Self::Changelog
+      | Self::Clean
       | Self::Dump { .. }
       | Self::Edit
       | Self::Format

@@ -289,6 +289,9 @@ pub(crate) enum Error<'src> {
     recipe: &'src str,
     io_error: io::Error,
   },
+  UnexpectedCacheEntry {
+    path: PathBuf,
+  },
   Unknown {
     line_number: Option<usize>,
     print_message: bool,
@@ -959,6 +962,11 @@ impl ColorDisplay for Error<'_> {
           directory or write a file to that directory: {io_error}",
         )?;
       }
+      UnexpectedCacheEntry { path } => write!(
+        f,
+        "unexpected cache directory entry, refusing to remove recipe cache: {}",
+        path.display()
+      )?,
       Unknown {
         recipe,
         line_number,

@@ -169,6 +169,8 @@ impl Config {
       Ok(Subcommand::Choose {
         chooser: arguments.chooser.clone(),
       })
+    } else if arguments.subcommand.clean {
+      Ok(Subcommand::Clean)
     } else if let Some(mut command) = arguments.subcommand.command.clone() {
       Ok(Subcommand::Command {
         binary: command.remove(0),
