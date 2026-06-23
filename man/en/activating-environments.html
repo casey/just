@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Signal Handling - Just Programmer&#x27;s Manual</title>
+        <title>Activating Environments - Just Programmer&#x27;s Manual</title>
 
 
         <!-- Custom HTML head -->
@@ -178,68 +178,41 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h3 id="signal-handling"><a class="header" href="#signal-handling">Signal Handling</a></h3>
-<p><a href="https://en.wikipedia.org/wiki/Signal_(IPC)">Signals</a> are messages sent to
-running programs to trigger specific behavior. For example, <code>SIGINT</code> is sent to
-all processes in the terminal foreground process group when <code>ctrl-c</code> is pressed.</p>
-<p><code>just</code> tries to exit when requested by a signal, but it also tries to avoid
-leaving behind running child processes, two goals which are somewhat in
-conflict.</p>
-<p>If <code>just</code> exits leaving behind child processes, the user will have no recourse
-but to <code>ps aux | grep</code> for the children and manually <code>kill</code> them, a tedious
-endeavor.</p>
-<h4 id="fatal-signals"><a class="header" href="#fatal-signals">Fatal Signals</a></h4>
-<p><code>SIGHUP</code>, <code>SIGINT</code>, and <code>SIGQUIT</code> are generated when the user closes the
-terminal, types <code>ctrl-c</code>, or types <code>ctrl-\</code>, respectively, and are sent to all
-processes in the foreground process group.</p>
-<p><code>SIGTERM</code> is the default signal sent by the <code>kill</code> command, and is delivered
-only to its intended victim.</p>
-<p>When a child process is not running, <code>just</code> will exit immediately on receipt of
-any of the above signals.</p>
-<p>When a child process <em>is</em> running, <code>just</code> will wait until it terminates, to
-avoid leaving it behind.</p>
-<p>Additionally, on receipt of <code>SIGTERM</code>, <code>just</code> will forward <code>SIGTERM</code> to any
-running children<sup>1.41.0</sup>, since unlike other fatal signals, <code>SIGTERM</code>,
-was likely sent to <code>just</code> alone.</p>
-<p>Regardless of whether a child process terminates successfully after <code>just</code>
-receives a fatal signal, <code>just</code> halts execution.</p>
-<h4 id="continuing-execution"><a class="header" href="#continuing-execution">Continuing Execution</a></h4>
-<p>The <code>[continue]</code><sup>1.54.0</sup> attribute can be used to make <code>just</code> continue
-execution even if it receives a fatal signal as long as the child process it’s
-running exits successfully.</p>
-<p>With no arguments, <code>[continue]</code> handles <code>SIGINT</code> (<code>ctrl-c</code>) so <code>SIGQUIT</code>
-(<code>ctrl-\</code>) can still be used to stop execution.</p>
-<p>With arguments, one or more signals to handle may be given explicitly, as
-<code>"SIGHUP"</code>, <code>"SIGINT"</code>, and <code>"SIGQUIT"</code>.</p>
-<p>In this example, if <code>main.py</code> catches <code>SIGINT</code> and exits successfully,
-<code>cleanup</code> will still run and <code>just</code> will exit successfully:</p>
-<pre><code class="language-just">[continue]
-test: &amp;&amp; cleanup
-  python3 main.py
-
-cleanup:
-  echo cleanup
+                        <h3 id="activating-environments"><a class="header" href="#activating-environments">Activating Environments</a></h3>
+<p>Some tools require an activation step, such as Python virtual environments:</p>
+<pre><code class="language-sh">. .venv/bin/activate
 </code></pre>
-<h4 id="siginfo"><a class="header" href="#siginfo"><code>SIGINFO</code></a></h4>
-<p><code>SIGINFO</code> is sent to all processes in the foreground process group when the
-user types <code>ctrl-t</code> on
-<a href="https://en.wikipedia.org/wiki/Berkeley_Software_Distribution">BSD</a>-derived
-operating systems, including macOS, but not Linux.</p>
-<p><code>just</code> responds by printing a list of all child process IDs and
-commands<sup>1.41.0</sup>.</p>
-<h4 id="windows"><a class="header" href="#windows">Windows</a></h4>
-<p>On Windows, <code>just</code> behaves as if it had received <code>SIGINT</code> when the user types
-<code>ctrl-c</code>. Other signals are unsupported.</p>
+<p>Because these tools modify the environment of a running shell, it is not
+possible for <code>just</code> to perform this activation step for you. However, there are
+some workarounds.</p>
+<p>The best workaround for Python environment management is to switch to
+<a href="https://docs.astral.sh/uv/"><code>uv</code></a>. <code>uv</code> sets up the correct environment for
+each command, so no activation step is needed.</p>
+<p>If that isn’t possible, and for other tools, you can create a shared prelude
+and include it in script recipes that need it. It can span multiple lines and
+include any number of steps:</p>
+<pre><code class="language-just">prelude := '''
+  set -eux
+  . .venv/bin/activate
+'''
+
+[script]
+run:
+  {{ prelude }}
+  python script.py
+</code></pre>
+<p>This workaround doesn’t work with shell recipes, which spawn a new shell for
+each command.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="timestamps.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="sharing-environment-variables-between-recipes.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="changelog.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="changing-the-working-directory-in-a-recipe.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -249,11 +222,11 @@ commands<sup>1.41.0</sup>.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="timestamps.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="sharing-environment-variables-between-recipes.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="changelog.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="changing-the-working-directory-in-a-recipe.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
