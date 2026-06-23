@@ -354,13 +354,24 @@ impl Subcommand {
       path: path.clone(),
     };
 
-    for entry in fs::read_dir(&path).map_err(context)? {
+    let dir = match fs::read_dir(&path) {
+      Err(err) if err.kind() == io::ErrorKind::NotFound => return Ok(()),
+      result => result.map_err(context)?,
+    };
+
+    for entry in dir {
       let entry = entry.map_err(context)?;
 
       if entry_re.is_match(&entry.file_name().to_string_lossy()) {
         let path = entry.path();
         fs::remove_file(&path).map_err(|source| Error::FilesystemIo { source, path })?;
       }
+    }
+
+    if let Err(err) = fs::remove_dir(&path)
+      && err.kind() != io::ErrorKind::DirectoryNotEmpty
+    {
+      return Err(context(err));
     }
 
     Ok(())
