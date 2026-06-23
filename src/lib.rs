@@ -87,7 +87,7 @@ pub(crate) use {
     ran::Ran,
     range_ext::RangeExt,
     recipe::Recipe,
-    recipe_alias::RecipeAlias,
+    recipe_alias::Alias,
     recipe_resolver::RecipeResolver,
     recipe_signature::RecipeSignature,
     reference::Reference,

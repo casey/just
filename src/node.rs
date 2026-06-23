@@ -92,7 +92,7 @@ impl<'src> Node<'src> for Namepath<'src> {
   }
 }
 
-impl<'src> Node<'src> for RecipeAlias<'src, Namepath<'src>> {
+impl<'src> Node<'src> for Alias<'src, Namepath<'src>> {
   fn tree(&self) -> Tree<'src> {
     let target = self.target.tree();
 

@@ -627,7 +627,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_alias(
     &mut self,
     attributes: AttributeSet<'src>,
-  ) -> CompileResult<'src, RecipeAlias<'src, Namepath<'src>>> {
+  ) -> CompileResult<'src, Alias<'src, Namepath<'src>>> {
     self.presume_keyword(Keyword::Alias)?;
     let name = self.parse_name()?;
     self.presume_any(&[Equals, ColonEquals])?;
@@ -635,7 +635,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     attributes.ensure_valid_attributes("alias", *name, &[AttributeKind::Private])?;
 
-    Ok(RecipeAlias {
+    Ok(Alias {
       attributes,
       name,
       target,

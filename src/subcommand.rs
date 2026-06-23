@@ -972,7 +972,7 @@ impl Subcommand {
   fn resolve_path<'src, 'run>(
     mut module: &'run Justfile<'src>,
     path: &Modulepath,
-  ) -> RunResult<'src, (Option<&'run RecipeAlias<'src>>, &'run Recipe<'src>)> {
+  ) -> RunResult<'src, (Option<&'run Alias<'src>>, &'run Recipe<'src>)> {
     for name in &path.components[0..path.components.len() - 1] {
       if let Some(submodule) = module.modules.get(name) {
         module = submodule;

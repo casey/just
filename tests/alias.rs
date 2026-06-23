@@ -105,7 +105,17 @@ fn module_alias() {
 #[test]
 fn module_alias_default_recipe() {
   Test::new()
-    .write("foo.just", "bar:\n @echo BAR")
+    .write(
+      "foo.just",
+      "
+        bar:
+          @echo BAR
+
+        [default]
+        baz:
+          @echo BAZ
+      ",
+    )
     .justfile(
       "
         mod foo
@@ -114,7 +124,7 @@ fn module_alias_default_recipe() {
       ",
     )
     .arg("f")
-    .stdout("BAR\n")
+    .stdout("BAZ\n")
     .success();
 }
 

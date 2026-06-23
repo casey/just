@@ -5,7 +5,7 @@ pub(crate) struct Analyzer<'run, 'src> {
   assignments: Vec<&'run Binding<'src, Expression<'src>>>,
   functions: Vec<&'run FunctionDefinition<'src>>,
   modules: Table<'src, Justfile<'src>>,
-  recipe_aliases: Table<'src, RecipeAlias<'src, Namepath<'src>>>,
+  recipe_aliases: Table<'src, Alias<'src, Namepath<'src>>>,
   recipes: Vec<&'run Recipe<'src, UnresolvedDependency<'src>>>,
   sets: Table<'src, Set<'src>>,
   unexports: HashSet<String>,
