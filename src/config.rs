@@ -169,8 +169,14 @@ impl Config {
       Ok(Subcommand::Choose {
         chooser: arguments.chooser.clone(),
       })
-    } else if arguments.subcommand.clean {
-      Ok(Subcommand::Clean)
+    } else if arguments.subcommand.clean.is_some() {
+      Ok(Subcommand::Clean {
+        path: if positional.arguments.is_empty() {
+          None
+        } else {
+          Some(Self::parse_modulepath(&positional.arguments)?)
+        },
+      })
     } else if let Some(mut command) = arguments.subcommand.command.clone() {
       Ok(Subcommand::Command {
         binary: command.remove(0),
@@ -258,6 +264,7 @@ impl Config {
         .subcommand
         .list
         .as_deref()
+        .or(arguments.subcommand.clean.as_deref())
         .or(arguments.subcommand.show.as_deref())
         .or(arguments.subcommand.usage.as_deref())
         .unwrap_or(arguments.arguments.as_slice())

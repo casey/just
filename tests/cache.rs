@@ -747,6 +747,7 @@ fn clean_removes_cache_directory() {
   let output = Test::with_tempdir(output.tempdir)
     .env("JUST_UNSTABLE", "1")
     .arg("--clean")
+    .stderr("removed 1 cache entry\n")
     .success();
 
   assert!(!output.tempdir.path().join(".justcache").exists());
@@ -771,6 +772,7 @@ fn clean_removes_entries_but_leaves_unexpected_entries() {
     .env("JUST_UNSTABLE", "1")
     .write(".justcache/foo", "bar")
     .arg("--clean")
+    .stderr("removed 1 cache entry\n")
     .success();
 
   let cache = output.tempdir.path().join(".justcache");
@@ -793,9 +795,152 @@ fn clean_succeeds_without_cache_directory() {
       ",
     )
     .arg("--clean")
+    .stderr("recipe cache not found\n")
     .success();
 
   assert!(!output.tempdir.path().join(".justcache").exists());
+}
+
+#[test]
+fn clean_quiet_suppresses_count() {
+  let output = Test::new()
+    .justfile(
+      "
+        [cache]
+        [script]
+        foo:
+          echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("bar\n")
+    .success();
+
+  let output = Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .args(["--quiet", "--clean"])
+    .success();
+
+  Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .args(["--quiet", "--clean"])
+    .success();
+}
+
+#[test]
+fn clean_reports_plural_count() {
+  let output = Test::new()
+    .justfile(
+      "
+        [cache]
+        [script]
+        foo:
+          echo foo
+
+        [cache]
+        [script]
+        bar:
+          echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("foo")
+    .stdout("foo\n")
+    .success();
+
+  let output = Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .arg("bar")
+    .stdout("bar\n")
+    .success();
+
+  Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .arg("--clean")
+    .stderr("removed 2 cache entries\n")
+    .success();
+}
+
+#[test]
+fn clean_path_removes_subtree() {
+  let output = Test::new()
+    .justfile(
+      "
+        mod foo
+
+        [cache]
+        [script]
+        bar:
+          echo bar
+      ",
+    )
+    .write("foo.just", "[cache]\n[script]\nbaz:\n  echo baz\n")
+    .env("JUST_UNSTABLE", "1")
+    .arg("bar")
+    .stdout("bar\n")
+    .success();
+
+  let output = Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "baz"])
+    .stdout("baz\n")
+    .success();
+
+  let output = Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .args(["--clean", "foo"])
+    .stderr("removed 1 cache entry\n")
+    .success();
+
+  let cache = output.tempdir.path().join(".justcache");
+
+  let entries = fs::read_dir(&cache)
+    .unwrap()
+    .map(|entry| fs::read_to_string(entry.unwrap().path()).unwrap())
+    .collect::<Vec<String>>();
+
+  assert_eq!(entries, &[r#"{"recipe":"bar"}"#]);
+}
+
+#[test]
+fn clean_path_removes_exact_recipe() {
+  let output = Test::new()
+    .justfile(
+      "
+        mod foo
+
+        [cache]
+        [script]
+        bar:
+          echo bar
+      ",
+    )
+    .write("foo.just", "[cache]\n[script]\nbaz:\n  echo baz\n")
+    .env("JUST_UNSTABLE", "1")
+    .arg("bar")
+    .stdout("bar\n")
+    .success();
+
+  let output = Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "baz"])
+    .stdout("baz\n")
+    .success();
+
+  let output = Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .args(["--clean", "foo::baz"])
+    .stderr("removed 1 cache entry\n")
+    .success();
+
+  let cache = output.tempdir.path().join(".justcache");
+
+  let entries = fs::read_dir(&cache)
+    .unwrap()
+    .map(|entry| fs::read_to_string(entry.unwrap().path()).unwrap())
+    .collect::<Vec<String>>();
+
+  assert_eq!(entries, &[r#"{"recipe":"bar"}"#]);
 }
 
 #[test]

@@ -37,6 +37,17 @@ impl Serialize for Modulepath {
   }
 }
 
+impl<'de> Deserialize<'de> for Modulepath {
+  fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+  where
+    D: Deserializer<'de>,
+  {
+    let string = String::deserialize(deserializer)?;
+    Modulepath::from_argument(&string)
+      .map_err(|()| serde::de::Error::custom(format!("invalid module path: `{string}`")))
+  }
+}
+
 impl From<&Namepath<'_>> for Modulepath {
   fn from(namepath: &Namepath) -> Self {
     Self {
