@@ -61,10 +61,10 @@ fn show_suggestion() {
     .arg("hell")
     .justfile(
       r#"
-        hello a b='B	' c='C':
+        hello a b='B' c='C':
           echo {{a}} {{b}} {{c}}
 
-        a Z="\t z":
+        a Z="z":
       "#,
     )
     .stderr("error: justfile does not contain recipe `hell`\nDid you mean `hello`?\n")
@@ -78,12 +78,12 @@ fn show_alias_suggestion() {
     .arg("fo")
     .justfile(
       r#"
-        hello a b='B	' c='C':
+        hello a b='B' c='C':
           echo {{a}} {{b}} {{c}}
 
         alias foo := hello
 
-        a Z="\t z":
+        a Z="z":
       "#,
     )
     .stderr(
@@ -102,10 +102,10 @@ fn show_no_suggestion() {
     .arg("hell")
     .justfile(
       r#"
-        helloooooo a b='B	' c='C':
+        helloooooo a b='B' c='C':
           echo {{a}} {{b}} {{c}}
 
-        a Z="\t z":
+        a Z="z":
       "#,
     )
     .stderr("error: justfile does not contain recipe `hell`\n")
@@ -119,12 +119,12 @@ fn show_no_alias_suggestion() {
     .arg("fooooooo")
     .justfile(
       r#"
-        hello a b='B	' c='C':
+        hello a b='B' c='C':
           echo {{a}} {{b}} {{c}}
 
         alias foo := hello
 
-        a Z="\t z":
+        a Z="z":
       "#,
     )
     .stderr("error: justfile does not contain recipe `fooooooo`\n")
