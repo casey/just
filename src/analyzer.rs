@@ -306,7 +306,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut disabled_aliases = Table::new();
     let mut module_aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
-      match Self::resolve_module(&alias.target, &self.modules, &absent_modules) {
+      match Resolution::resolve_module(&alias.target, &self.modules, &absent_modules) {
         Some(Resolution::Resolved(target)) => {
           module_aliases.insert(ModuleAlias {
             attributes: alias.attributes,
@@ -414,37 +414,6 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       warnings: self.warnings,
       working_directory: ast.working_directory.clone(),
     })
-  }
-
-  fn resolve_module<'a>(
-    target: &Namepath<'src>,
-    mut modules: &'a Table<'src, Justfile<'src>>,
-    mut absent: &'a BTreeSet<String>,
-  ) -> Option<Resolution<Modulepath>> {
-    let (last, prefix) = target.split_last();
-
-    let mut walked = Vec::new();
-
-    for component in prefix {
-      let module = modules.get(component.lexeme())?;
-      modules = &module.modules;
-      absent = &module.absent_modules;
-      walked.push(component.lexeme().to_string());
-    }
-
-    let lexeme = last.lexeme();
-
-    if let Some(module) = modules.get(lexeme) {
-      Some(Resolution::Resolved(module.module_path.clone()))
-    } else if absent.contains(lexeme) {
-      walked.push(lexeme.to_string());
-      Some(Resolution::Disabled(BTreeSet::from([Modulepath {
-        components: walked,
-        spaced: false,
-      }])))
-    } else {
-      None
-    }
   }
 
   fn define(

@@ -45,3 +45,36 @@ impl<'src> Resolution<Arc<Recipe<'src>>> {
     }
   }
 }
+
+impl<'src> Resolution<Modulepath> {
+  pub(crate) fn resolve_module<'a>(
+    target: &Namepath<'src>,
+    mut modules: &'a Table<'src, Justfile<'src>>,
+    mut absent: &'a BTreeSet<String>,
+  ) -> Option<Self> {
+    let (last, prefix) = target.split_last();
+
+    let mut walked = Vec::new();
+
+    for component in prefix {
+      let module = modules.get(component.lexeme())?;
+      modules = &module.modules;
+      absent = &module.absent_modules;
+      walked.push(component.lexeme().to_string());
+    }
+
+    let lexeme = last.lexeme();
+
+    if let Some(module) = modules.get(lexeme) {
+      Some(Self::Resolved(module.module_path.clone()))
+    } else if absent.contains(lexeme) {
+      walked.push(lexeme.to_string());
+      Some(Self::Disabled(BTreeSet::from([Modulepath {
+        components: walked,
+        spaced: false,
+      }])))
+    } else {
+      None
+    }
+  }
+}
