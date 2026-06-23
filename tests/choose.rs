@@ -183,10 +183,13 @@ fn status_error() {
   if cfg!(windows) {
     return;
   }
-  let tmp = temptree! {
-    justfile: "foo:\n echo foo\nbar:\n echo bar\n",
-    "exit-2": "#!/usr/bin/env bash\nexit 2\n",
-  };
+  let tmp = tempdir();
+  fs::write(
+    tmp.path().join("justfile"),
+    "foo:\n echo foo\nbar:\n echo bar\n",
+  )
+  .unwrap();
+  fs::write(tmp.path().join("exit-2"), "#!/usr/bin/env bash\nexit 2\n").unwrap();
 
   let output = Command::new("chmod")
     .arg("+x")
@@ -225,10 +228,17 @@ fn cancelled_by_user() {
     return;
   }
 
-  let tmp = temptree! {
-    justfile: "foo:\n echo foo\nbar:\n echo bar\n",
-    chooser: "#!/usr/bin/env bash\nexit 130\n",
-  };
+  let tmp = tempdir();
+  fs::write(
+    tmp.path().join("justfile"),
+    "foo:\n echo foo\nbar:\n echo bar\n",
+  )
+  .unwrap();
+  fs::write(
+    tmp.path().join("chooser"),
+    "#!/usr/bin/env bash\nexit 130\n",
+  )
+  .unwrap();
 
   let output = Command::new("chmod")
     .arg("+x")
@@ -296,9 +306,8 @@ fn filter_by_group() {
 
 #[test]
 fn default() {
-  let tmp = temptree! {
-    justfile: "foo:\n echo foo\n",
-  };
+  let tmp = tempdir();
+  fs::write(tmp.path().join("justfile"), "foo:\n echo foo\n").unwrap();
 
   let cat = which("cat").unwrap();
   let fzf = tmp.path().join(format!("fzf{EXE_SUFFIX}"));

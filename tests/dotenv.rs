@@ -107,11 +107,7 @@ fn path_resolves() {
           @echo $JUST_TEST_VARIABLE
       ",
     )
-    .tree(tree! {
-      subdir: {
-        ".env": "JUST_TEST_VARIABLE=bar"
-      }
-    })
+    .write("subdir/.env", "JUST_TEST_VARIABLE=bar")
     .args(["--dotenv-path", "subdir/.env"])
     .stdout("bar\n")
     .success();
@@ -126,9 +122,7 @@ fn filename_resolves() {
           @echo $JUST_TEST_VARIABLE
       ",
     )
-    .tree(tree! {
-      ".env.special": "JUST_TEST_VARIABLE=bar"
-    })
+    .write(".env.special", "JUST_TEST_VARIABLE=bar")
     .args(["--dotenv-filename", ".env.special"])
     .stdout("bar\n")
     .success();
@@ -145,9 +139,7 @@ fn filename_flag_overwrites_no_load() {
           @echo $JUST_TEST_VARIABLE
       ",
     )
-    .tree(tree! {
-      ".env.special": "JUST_TEST_VARIABLE=bar"
-    })
+    .write(".env.special", "JUST_TEST_VARIABLE=bar")
     .args(["--dotenv-filename", ".env.special"])
     .stdout("bar\n")
     .success();
@@ -164,11 +156,7 @@ fn path_flag_overwrites_no_load() {
           @echo $JUST_TEST_VARIABLE
       ",
     )
-    .tree(tree! {
-      subdir: {
-        ".env": "JUST_TEST_VARIABLE=bar"
-      }
-    })
+    .write("subdir/.env", "JUST_TEST_VARIABLE=bar")
     .args(["--dotenv-path", "subdir/.env"])
     .stdout("bar\n")
     .success();
@@ -185,9 +173,7 @@ fn can_set_dotenv_filename_from_justfile() {
           @echo $JUST_TEST_VARIABLE
       ",
     )
-    .tree(tree! {
-      ".env.special": "JUST_TEST_VARIABLE=bar"
-    })
+    .write(".env.special", "JUST_TEST_VARIABLE=bar")
     .stdout("bar\n")
     .success();
 }
@@ -203,11 +189,7 @@ fn can_set_dotenv_path_from_justfile() {
           @echo $JUST_TEST_VARIABLE
       ",
     )
-    .tree(tree! {
-      subdir: {
-        ".env": "JUST_TEST_VARIABLE=bar"
-      }
-    })
+    .write("subdir/.env", "JUST_TEST_VARIABLE=bar")
     .stdout("bar\n")
     .success();
 }
@@ -223,10 +205,8 @@ fn program_argument_has_priority_for_dotenv_filename() {
           @echo $JUST_TEST_VARIABLE
       ",
     )
-    .tree(tree! {
-      ".env.special": "JUST_TEST_VARIABLE=bar",
-      ".env.superspecial": "JUST_TEST_VARIABLE=baz"
-    })
+    .write(".env.special", "JUST_TEST_VARIABLE=bar")
+    .write(".env.superspecial", "JUST_TEST_VARIABLE=baz")
     .args(["--dotenv-filename", ".env.superspecial"])
     .stdout("baz\n")
     .success();
@@ -243,12 +223,8 @@ fn program_argument_has_priority_for_dotenv_path() {
           @echo $JUST_TEST_VARIABLE
       ",
     )
-    .tree(tree! {
-      subdir: {
-        ".env": "JUST_TEST_VARIABLE=bar",
-        ".env.special": "JUST_TEST_VARIABLE=baz"
-      }
-    })
+    .write("subdir/.env", "JUST_TEST_VARIABLE=bar")
+    .write("subdir/.env.special", "JUST_TEST_VARIABLE=baz")
     .args(["--dotenv-path", "subdir/.env.special"])
     .stdout("baz\n")
     .success();
@@ -266,7 +242,7 @@ fn dotenv_path_is_relative_to_working_directory() {
       ",
     )
     .write(".env", "DOTENV_KEY=dotenv-value")
-    .tree(tree! { subdir: { } })
+    .create_dir("subdir")
     .current_dir("subdir")
     .stdout("dotenv-value\n")
     .success();

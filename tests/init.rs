@@ -51,11 +51,7 @@ fn write_error() {
 
 #[test]
 fn invocation_directory() {
-  let tmp = temptree! {
-    ".git": {},
-  };
-
-  let test = Test::with_tempdir(tmp);
+  let test = Test::new().create_dir(".git");
 
   let justfile_path = test.justfile_path();
 
@@ -69,10 +65,9 @@ fn invocation_directory() {
 
 #[test]
 fn parent_dir() {
-  let tmp = temptree! {
-    ".git": {},
-    sub: {},
-  };
+  let tmp = tempdir();
+  fs::create_dir(tmp.path().join(".git")).unwrap();
+  fs::create_dir(tmp.path().join("sub")).unwrap();
 
   let output = Command::new(JUST)
     .current_dir(tmp.path().join("sub"))
@@ -90,9 +85,8 @@ fn parent_dir() {
 
 #[test]
 fn alternate_marker() {
-  let tmp = temptree! {
-    "_darcs": {},
-  };
+  let tmp = tempdir();
+  fs::create_dir(tmp.path().join("_darcs")).unwrap();
 
   let output = Command::new(JUST)
     .current_dir(tmp.path())
@@ -110,11 +104,8 @@ fn alternate_marker() {
 
 #[test]
 fn search_directory() {
-  let tmp = temptree! {
-    sub: {
-      ".git": {},
-    },
-  };
+  let tmp = tempdir();
+  fs::create_dir_all(tmp.path().join("sub/.git")).unwrap();
 
   let output = Command::new(JUST)
     .current_dir(tmp.path())
@@ -133,11 +124,8 @@ fn search_directory() {
 
 #[test]
 fn justfile() {
-  let tmp = temptree! {
-    sub: {
-      ".git": {},
-    },
-  };
+  let tmp = tempdir();
+  fs::create_dir_all(tmp.path().join("sub/.git")).unwrap();
 
   let output = Command::new(JUST)
     .current_dir(tmp.path().join("sub"))
@@ -157,11 +145,8 @@ fn justfile() {
 
 #[test]
 fn justfile_and_working_directory() {
-  let tmp = temptree! {
-    sub: {
-      ".git": {},
-    },
-  };
+  let tmp = tempdir();
+  fs::create_dir_all(tmp.path().join("sub/.git")).unwrap();
 
   let output = Command::new(JUST)
     .current_dir(tmp.path().join("sub"))

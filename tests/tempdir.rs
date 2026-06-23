@@ -27,10 +27,7 @@ fn setting() {
       ",
     )
     .shell(false)
-    .tree(tree! {
-      bar: {
-      }
-    })
+    .create_dir("bar")
     .current_dir("bar")
     .stdout(if cfg!(windows) {
       "
@@ -63,10 +60,7 @@ fn argument_overrides_setting() {
       ",
     )
     .shell(false)
-    .tree(tree! {
-      bar: {
-      }
-    })
+    .create_dir("bar")
     .current_dir("bar")
     .stdout(if cfg!(windows) {
       "

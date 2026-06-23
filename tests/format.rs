@@ -129,11 +129,8 @@ fn write_error() {
     return;
   }
 
-  let tempdir = temptree! {
-    justfile: "x    :=    'hello'   ",
-  };
-
-  let test = Test::with_tempdir(tempdir)
+  let test = Test::new()
+    .write("justfile", "x    :=    'hello'   ")
     .arg("--fmt")
     .stderr_regex(if cfg!(windows) {
       r"error: failed to write justfile to `.*`: Access is denied. \(os error 5\)\n"
