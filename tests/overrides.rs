@@ -149,7 +149,13 @@ fn invalid_override_path_positional() {
 fn unknown_variable_in_submodule_override() {
   Test::new()
     .justfile("mod foo")
-    .write("foo.just", "bar:\n @echo bar")
+    .write(
+      "foo.just",
+      "
+        bar:
+         @echo bar
+      ",
+    )
     .arg("foo::x=b")
     .arg("foo::bar")
     .stderr("error: variable `foo::x` overridden on the command line but not present in justfile\n")
@@ -160,7 +166,14 @@ fn unknown_variable_in_submodule_override() {
 fn override_variable_in_submodule() {
   Test::new()
     .justfile("mod foo")
-    .write("foo.just", "x := 'a'\nbar:\n @echo {{x}}")
+    .write(
+      "foo.just",
+      "
+        x := 'a'
+        bar:
+         @echo {{x}}
+      ",
+    )
     .arg("foo::x=b")
     .arg("foo::bar")
     .stdout("b\n")
@@ -172,7 +185,14 @@ fn override_variable_in_nested_submodule() {
   Test::new()
     .justfile("mod foo")
     .write("foo/mod.just", "mod bar")
-    .write("foo/bar.just", "x := 'a'\nbaz:\n @echo {{x}}")
+    .write(
+      "foo/bar.just",
+      "
+        x := 'a'
+        baz:
+         @echo {{x}}
+      ",
+    )
     .arg("foo::bar::x=b")
     .arg("foo::bar::baz")
     .stdout("b\n")
@@ -208,7 +228,14 @@ fn submodule_override_does_not_affect_parent() {
           @echo {{x}}
       ",
     )
-    .write("foo.just", "x := 'a'\nbaz:\n @echo {{x}}")
+    .write(
+      "foo.just",
+      "
+        x := 'a'
+        baz:
+         @echo {{x}}
+      ",
+    )
     .arg("foo::x=b")
     .arg("bar")
     .stdout("root\n")
@@ -228,7 +255,14 @@ fn unknown_submodule_in_override_path() {
 fn submodule_override_not_evaluated() {
   Test::new()
     .justfile("mod foo")
-    .write("foo.just", "x := `exit 1`\nbar:\n @echo {{x}}")
+    .write(
+      "foo.just",
+      "
+        x := `exit 1`
+        bar:
+         @echo {{x}}
+      ",
+    )
     .arg("foo::x=b")
     .arg("foo::bar")
     .stdout("b\n")

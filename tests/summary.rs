@@ -71,9 +71,27 @@ fn no_recipes() {
 #[test]
 fn submodule_recipes() {
   Test::new()
-    .write("foo.just", "mod bar\nfoo:")
-    .write("bar.just", "mod baz\nbar:")
-    .write("baz.just", "mod biz\nbaz:")
+    .write(
+      "foo.just",
+      "
+        mod bar
+        foo:
+      ",
+    )
+    .write(
+      "bar.just",
+      "
+        mod baz
+        bar:
+      ",
+    )
+    .write(
+      "baz.just",
+      "
+        mod biz
+        baz:
+      ",
+    )
     .write("biz.just", "biz:")
     .justfile(
       "

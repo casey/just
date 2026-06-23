@@ -6,7 +6,13 @@ fn dotenv() {
     .justfile("")
     .write(".env", "KEY=ROOT")
     .write("sub/.env", "KEY=SUB")
-    .write("sub/justfile", "default:\n\techo KEY=${KEY:-unset}")
+    .write(
+      "sub/justfile",
+      "
+        default:
+        \techo KEY=${KEY:-unset}
+      ",
+    )
     .args(["sub/default"])
     .stdout("KEY=unset\n")
     .stderr("echo KEY=${KEY:-unset}\n")
@@ -429,7 +435,11 @@ fn dotenv_path_does_not_override_dotenv_file() {
     .write(".env", "KEY=ROOT")
     .write(
       "sub/justfile",
-      "set dotenv-path := '.'\n@foo:\n echo ${KEY}",
+      "
+        set dotenv-path := '.'
+        @foo:
+         echo ${KEY}
+      ",
     )
     .current_dir("sub")
     .stdout("ROOT\n")
@@ -532,8 +542,20 @@ fn filename_list_loads_all_in_directory() {
       ",
     )
     .env("JUST_UNSTABLE", "1")
-    .write(".env.foo", "FOO=foo\nSHARED=from-foo")
-    .write(".env.bar", "BAR=bar\nSHARED=from-bar")
+    .write(
+      ".env.foo",
+      "
+        FOO=foo
+        SHARED=from-foo
+      ",
+    )
+    .write(
+      ".env.bar",
+      "
+        BAR=bar
+        SHARED=from-bar
+      ",
+    )
     .stdout("foo bar from-bar\n")
     .success();
 }
@@ -544,7 +566,12 @@ fn filename_list_stops_at_first_directory() {
     .justfile("")
     .write(
       "sub/justfile",
-      "set lists\nset dotenv-filename := ['.env.foo', '.env.bar']\n@foo:\n\techo \"${FOO:-unset} ${BAR:-unset}\"",
+      "
+        set lists
+        set dotenv-filename := ['.env.foo', '.env.bar']
+        @foo:
+        \techo \"${FOO:-unset} ${BAR:-unset}\"
+      ",
     )
     .write("sub/.env.foo", "FOO=foo")
     .write(".env.bar", "BAR=bar")

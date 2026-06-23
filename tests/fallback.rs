@@ -6,14 +6,12 @@ fn fallback_from_subdir_bugfix() {
     .justfile("")
     .write(
       "sub/justfile",
-      unindent(
-        "
+      "
         set fallback
 
         @default:
           echo foo
       ",
-      ),
     )
     .args(["sub/default"])
     .stdout("foo\n")
@@ -26,14 +24,12 @@ fn fallback_from_subdir_message() {
     .justfile("bar:\n echo bar")
     .write(
       "sub/justfile",
-      unindent(
-        "
+      "
         set fallback
 
         @foo:
           echo foo
       ",
-      ),
     )
     .args(["sub/bar"])
     .stderr(path("echo bar\n"))
@@ -47,14 +43,12 @@ fn fallback_from_subdir_verbose_message() {
     .justfile("bar:\n echo bar")
     .write(
       "sub/justfile",
-      unindent(
-        "
+      "
         set fallback
 
         @foo:
           echo foo
       ",
-      ),
     )
     .args(["--verbose", "sub/bar"])
     .stderr(path(
@@ -362,7 +356,13 @@ fn stop_fallback_when_fallback_is_false() {
 fn works_with_modules() {
   Test::new()
     .write("bar/justfile", "set fallback := true")
-    .write("foo.just", "baz:\n @echo BAZ")
+    .write(
+      "foo.just",
+      "
+        baz:
+         @echo BAZ
+      ",
+    )
     .justfile("mod foo")
     .args(["foo::baz"])
     .current_dir("bar")

@@ -13,7 +13,13 @@ fn shell_on_custom_path() {
           echo bar
       ",
     )
-    .write("myshell.exe", "#!/bin/sh\n/bin/sh \"$@\"")
+    .write(
+      "myshell.exe",
+      "
+        #!/bin/sh
+        /bin/sh \"$@\"
+      ",
+    )
     .make_executable("myshell.exe")
     .path("")
     .args(["--shell", "myshell.exe", "--shell-arg", "-c"])
@@ -31,7 +37,13 @@ fn command_on_custom_path() {
 
   Test::new()
     .justfile("")
-    .write("foo.exe", "#!/bin/sh\necho bar")
+    .write(
+      "foo.exe",
+      "
+        #!/bin/sh
+        echo bar
+      ",
+    )
     .make_executable("foo.exe")
     .path("")
     .args(["--command", "foo.exe"])

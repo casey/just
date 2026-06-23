@@ -1168,7 +1168,14 @@ fn source_file() {
         mod foo
       ",
     )
-    .write("foo.just", "x := source_file()\nbar:\n @echo '{{x}}'")
+    .write(
+      "foo.just",
+      "
+        x := source_file()
+        bar:
+         @echo '{{x}}'
+      ",
+    )
     .stdout_regex(r".*[/\\]foo.just\n")
     .success();
 }
@@ -1184,7 +1191,11 @@ fn source_directory() {
     )
     .write(
       "foo/mod.just",
-      "x := source_directory()\nbar:\n @echo '{{x}}'",
+      "
+        x := source_directory()
+        bar:
+         @echo '{{x}}'
+      ",
     )
     .stdout_regex(r".*[/\\]foo\n")
     .success();
@@ -1196,57 +1207,57 @@ fn module_paths() {
     .write(
       "foo/bar.just",
       "
-imf := module_file()
-imd := module_directory()
+        imf := module_file()
+        imd := module_directory()
 
-import-outer: import-inner
+        import-outer: import-inner
 
-@import-inner pmf=module_file() pmd=module_directory():
-  echo import
-  echo '{{ imf }}'
-  echo '{{ imd }}'
-  echo '{{ pmf }}'
-  echo '{{ pmd }}'
-  echo '{{ module_file() }}'
-  echo '{{ module_directory() }}'
+        @import-inner pmf=module_file() pmd=module_directory():
+          echo import
+          echo '{{ imf }}'
+          echo '{{ imd }}'
+          echo '{{ pmf }}'
+          echo '{{ pmd }}'
+          echo '{{ module_file() }}'
+          echo '{{ module_directory() }}'
       ",
     )
     .write(
       "baz/mod.just",
       "
-import 'foo/bar.just'
+        import 'foo/bar.just'
 
-mmf := module_file()
-mmd := module_directory()
+        mmf := module_file()
+        mmd := module_directory()
 
-outer: inner
+        outer: inner
 
-@inner pmf=module_file() pmd=module_directory():
-  echo module
-  echo '{{ mmf }}'
-  echo '{{ mmd }}'
-  echo '{{ pmf }}'
-  echo '{{ pmd }}'
-  echo '{{ module_file() }}'
-  echo '{{ module_directory() }}'
+        @inner pmf=module_file() pmd=module_directory():
+          echo module
+          echo '{{ mmf }}'
+          echo '{{ mmd }}'
+          echo '{{ pmf }}'
+          echo '{{ pmd }}'
+          echo '{{ module_file() }}'
+          echo '{{ module_directory() }}'
       ",
     )
     .write(
       "baz/foo/bar.just",
       "
-imf := module_file()
-imd := module_directory()
+        imf := module_file()
+        imd := module_directory()
 
-import-outer: import-inner
+        import-outer: import-inner
 
-@import-inner pmf=module_file() pmd=module_directory():
-  echo import
-  echo '{{ imf }}'
-  echo '{{ imd }}'
-  echo '{{ pmf }}'
-  echo '{{ pmd }}'
-  echo '{{ module_file() }}'
-  echo '{{ module_directory() }}'
+        @import-inner pmf=module_file() pmd=module_directory():
+          echo import
+          echo '{{ imf }}'
+          echo '{{ imd }}'
+          echo '{{ pmf }}'
+          echo '{{ pmd }}'
+          echo '{{ module_file() }}'
+          echo '{{ module_directory() }}'
       ",
     )
     .justfile(
@@ -1466,10 +1477,10 @@ fn absolute_path_argument_is_relative_to_submodule_working_directory() {
     .write("foo/baz", "")
     .write(
       "foo/mod.just",
-      r#"
-bar:
-  @echo "{{ absolute_path('baz') }}"
-"#,
+      "
+        bar:
+          @echo \"{{ absolute_path('baz') }}\"
+      ",
     )
     .stdout_regex(r".*[/\\]foo[/\\]baz\n")
     .args(["foo", "bar"])
@@ -1484,9 +1495,9 @@ fn blake3_file_argument_is_relative_to_submodule_working_directory() {
     .write(
       "foo/mod.just",
       "
-bar:
-  @echo {{ blake3_file('baz') }}
-",
+        bar:
+          @echo {{ blake3_file('baz') }}
+      ",
     )
     .stdout("af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262\n")
     .args(["foo", "bar"])
@@ -1500,10 +1511,10 @@ fn canonicalize_argument_is_relative_to_submodule_working_directory() {
     .write("foo/baz", "")
     .write(
       "foo/mod.just",
-      r#"
-bar:
-  @echo "{{ canonicalize('baz') }}"
-"#,
+      "
+        bar:
+          @echo \"{{ canonicalize('baz') }}\"
+      ",
     )
     .stdout_regex(r".*[/\\]foo[/\\]baz\n")
     .args(["foo", "bar"])
@@ -1518,9 +1529,9 @@ fn path_exists_argument_is_relative_to_submodule_working_directory() {
     .write(
       "foo/mod.just",
       "
-bar:
-  @echo {{ path_exists('baz') }}
-",
+        bar:
+          @echo {{ path_exists('baz') }}
+      ",
     )
     .stdout_regex("true\n")
     .args(["foo", "bar"])
@@ -1535,9 +1546,9 @@ fn sha256_file_argument_is_relative_to_submodule_working_directory() {
     .write(
       "foo/mod.just",
       "
-bar:
-  @echo {{ sha256_file('baz') }}
-",
+        bar:
+          @echo {{ sha256_file('baz') }}
+      ",
     )
     .stdout_regex("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n")
     .args(["foo", "bar"])

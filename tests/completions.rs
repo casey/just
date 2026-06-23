@@ -397,7 +397,13 @@ fn aliases_in_modules() {
         mod bar
       ",
     )
-    .write("bar.just", "foo:\nalias b := foo")
+    .write(
+      "bar.just",
+      "
+        foo:
+        alias b := foo
+      ",
+    )
     .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&["--complete-aliases", ""]))

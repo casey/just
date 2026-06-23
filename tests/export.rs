@@ -238,7 +238,13 @@ fn setting_variable_not_visible() {
 #[test]
 fn variables_exported_with_setting_are_visible_in_child() {
   Test::new()
-    .write("foo.just", "bar:\n @echo $x")
+    .write(
+      "foo.just",
+      "
+        bar:
+         @echo $x
+      ",
+    )
     .justfile(
       "
         set export

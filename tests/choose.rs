@@ -85,7 +85,13 @@ fn recipes_in_submodules_can_be_chosen() {
   Test::new()
     .arg("--choose")
     .env("JUST_CHOOSER", "head -n10")
-    .write("bar.just", "baz:\n echo BAZ")
+    .write(
+      "bar.just",
+      "
+        baz:
+         echo BAZ
+      ",
+    )
     .justfile(
       "
         mod bar
@@ -249,7 +255,13 @@ fn cancelled_by_user() {
 fn chooser_selections_are_processed_separately() {
   Test::new()
     .args(["--choose", "--chooser", "cat"])
-    .write("sub.just", "bar:\n @echo bar\n")
+    .write(
+      "sub.just",
+      "
+        bar:
+         @echo bar
+      ",
+    )
     .justfile(
       "
         mod sub

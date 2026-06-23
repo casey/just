@@ -231,7 +231,13 @@ fn import_paths_beginning_with_tilde_are_expanded_to_homdir() {
     return;
   }
   Test::new()
-    .write("foobar/mod.just", "foo:\n @echo FOOBAR")
+    .write(
+      "foobar/mod.just",
+      "
+        foo:
+         @echo FOOBAR
+      ",
+    )
     .justfile(
       "
         import '~/mod.just'
@@ -274,7 +280,13 @@ fn optional_imports_dump_correctly() {
 #[test]
 fn imports_in_root_run_in_justfile_directory() {
   Test::new()
-    .write("foo/import.justfile", "bar:\n @cat baz")
+    .write(
+      "foo/import.justfile",
+      "
+        bar:
+         @cat baz
+      ",
+    )
     .write("baz", "BAZ")
     .justfile(
       "
@@ -291,7 +303,13 @@ fn imports_in_submodules_run_in_submodule_directory() {
   Test::new()
     .justfile("mod foo")
     .write("foo/mod.just", "import 'import.just'")
-    .write("foo/import.just", "bar:\n @cat baz")
+    .write(
+      "foo/import.just",
+      "
+        bar:
+         @cat baz
+      ",
+    )
     .write("foo/baz", "BAZ")
     .arg("foo")
     .arg("bar")
@@ -304,7 +322,13 @@ fn nested_import_paths_are_relative_to_containing_submodule() {
   Test::new()
     .justfile("import 'foo/import.just'")
     .write("foo/import.just", "import 'bar.just'")
-    .write("foo/bar.just", "bar:\n @echo BAR")
+    .write(
+      "foo/bar.just",
+      "
+        bar:
+         @echo BAR
+      ",
+    )
     .arg("bar")
     .stdout("BAR\n")
     .success();
@@ -315,7 +339,13 @@ fn recipes_in_nested_imports_run_in_parent_module() {
   Test::new()
     .justfile("import 'foo/import.just'")
     .write("foo/import.just", "import 'bar/import.just'")
-    .write("foo/bar/import.just", "bar:\n @cat baz")
+    .write(
+      "foo/bar/import.just",
+      "
+        bar:
+         @cat baz
+      ",
+    )
     .write("baz", "BAZ")
     .arg("bar")
     .stdout("BAZ")
@@ -327,7 +357,11 @@ fn shebang_recipes_in_imports_in_root_run_in_justfile_directory() {
   Test::new()
     .write(
       "foo/import.justfile",
-      "bar:\n #!/usr/bin/env bash\n cat baz",
+      "
+        bar:
+         #!/usr/bin/env bash
+         cat baz
+      ",
     )
     .write("baz", "BAZ")
     .justfile(
@@ -344,8 +378,21 @@ fn shebang_recipes_in_imports_in_root_run_in_justfile_directory() {
 fn recipes_imported_in_root_run_in_command_line_provided_working_directory() {
   Test::new()
     .justfile("")
-    .write("subdir/b.justfile", "@b:\n  cat baz")
-    .write("subdir/a.justfile", "import 'b.justfile'\n@a: b\n  cat baz")
+    .write(
+      "subdir/b.justfile",
+      "
+        @b:
+          cat baz
+      ",
+    )
+    .write(
+      "subdir/a.justfile",
+      "
+        import 'b.justfile'
+        @a: b
+          cat baz
+      ",
+    )
     .write("baz", "BAZ")
     .args([
       "--working-directory",
@@ -389,11 +436,11 @@ fn multiply_imported_items_do_not_conflict() {
     .write(
       "a.just",
       "
-x := 'y'
+        x := 'y'
 
-@bar:
-  echo hello
-",
+        @bar:
+          echo hello
+      ",
     )
     .stdout("hello\n")
     .success();
@@ -414,11 +461,11 @@ fn nested_multiply_imported_items_do_not_conflict() {
     .write(
       "c.just",
       "
-x := 'y'
+        x := 'y'
 
-@bar:
-  echo hello
-",
+        @bar:
+          echo hello
+      ",
     )
     .stdout("hello\n")
     .success();

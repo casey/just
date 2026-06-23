@@ -13,7 +13,10 @@ fn macos() {
     .test_round_trip(false)
     .write(
       "Library/Application Support/just/justfile",
-      "@default:\n  echo foo",
+      "
+        @default:
+          echo foo
+      ",
     )
     .env("HOME", path.to_str().unwrap())
     .args(["--global-justfile"])
@@ -32,7 +35,13 @@ fn not_macos() {
 
   Test::with_tempdir(tempdir)
     .test_round_trip(false)
-    .write("just/justfile", "@default:\n  echo foo")
+    .write(
+      "just/justfile",
+      "
+        @default:
+          echo foo
+      ",
+    )
     .env("XDG_CONFIG_HOME", path.to_str().unwrap())
     .args(["--global-justfile"])
     .stdout("foo\n")
@@ -50,7 +59,13 @@ fn unix() {
 
   let tempdir = Test::with_tempdir(tempdir)
     .test_round_trip(false)
-    .write("justfile", "@default:\n  echo foo")
+    .write(
+      "justfile",
+      "
+        @default:
+          echo foo
+      ",
+    )
     .env("HOME", path.to_str().unwrap())
     .args(["--global-justfile"])
     .stdout("foo\n")
@@ -59,7 +74,13 @@ fn unix() {
 
   Test::with_tempdir(tempdir)
     .test_round_trip(false)
-    .write(".config/just/justfile", "@default:\n  echo bar")
+    .write(
+      ".config/just/justfile",
+      "
+        @default:
+          echo bar
+      ",
+    )
     .env("HOME", path.to_str().unwrap())
     .args(["--global-justfile"])
     .stdout("bar\n")
@@ -77,7 +98,13 @@ fn case_insensitive() {
 
   Test::with_tempdir(tempdir)
     .test_round_trip(false)
-    .write("just/JUSTFILE", "@default:\n  echo foo")
+    .write(
+      "just/JUSTFILE",
+      "
+        @default:
+          echo foo
+      ",
+    )
     .env("XDG_CONFIG_HOME", path.to_str().unwrap())
     .args(["--global-justfile"])
     .stdout("foo\n")
