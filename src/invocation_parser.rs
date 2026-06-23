@@ -268,7 +268,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
         current = module;
       } else if let Some(alias) = current.module_aliases.get(arg) {
         current = self.root.submodule(&alias.target).unwrap();
-      } else if let Some(recipe) = current.get_recipe(arg) {
+      } else if let Some(recipe) = current.recipe(arg) {
         if modulepath && i + 1 < args.len() {
           return Err(Error::ExpectedSubmoduleButFoundRecipe {
             path: path.join("::"),

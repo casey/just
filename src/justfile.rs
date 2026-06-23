@@ -419,11 +419,11 @@ impl<'src> Justfile<'src> {
     Ok(())
   }
 
-  pub(crate) fn get_recipe_alias(&self, name: &str) -> Option<&Alias<'src>> {
+  pub(crate) fn recipe_alias(&self, name: &str) -> Option<&Alias<'src>> {
     self.recipe_aliases.get(name)
   }
 
-  pub(crate) fn get_recipe(&self, name: &str) -> Option<&Recipe<'src>> {
+  pub(crate) fn recipe(&self, name: &str) -> Option<&Recipe<'src>> {
     self.recipes.get(name).map(Arc::as_ref).or_else(|| {
       self
         .recipe_aliases

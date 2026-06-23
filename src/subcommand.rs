@@ -989,9 +989,9 @@ impl Subcommand {
 
     let name = path.components.last().unwrap();
 
-    if let Some(alias) = module.get_recipe_alias(name) {
+    if let Some(alias) = module.recipe_alias(name) {
       Ok((Some(alias), &alias.target))
-    } else if let Some(recipe) = module.get_recipe(name) {
+    } else if let Some(recipe) = module.recipe(name) {
       Ok((None, recipe))
     } else {
       Err(Error::UnknownRecipe {
