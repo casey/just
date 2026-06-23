@@ -69,6 +69,7 @@ pub(crate) use {
     list_operator::ListOperator,
     load_dotenv::load_dotenv,
     loader::Loader,
+    module_alias::ModuleAlias,
     modulepath::Modulepath,
     name::Name,
     namepath::Namepath,
@@ -272,6 +273,7 @@ mod list_feature;
 mod list_operator;
 mod load_dotenv;
 mod loader;
+mod module_alias;
 mod modulepath;
 mod name;
 mod namepath;

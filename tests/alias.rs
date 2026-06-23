@@ -84,3 +84,35 @@ fn alias_in_submodule() {
     .stdout("BAR\n")
     .success();
 }
+
+#[test]
+fn module_alias() {
+  Test::new()
+    .write("foo.just", "bar:\n @echo BAR")
+    .justfile(
+      "
+        mod foo
+
+        alias f := foo
+      ",
+    )
+    .arg("f")
+    .arg("bar")
+    .stdout("BAR\n")
+    .success();
+}
+
+#[test]
+fn alias_to_absent_optional_module_is_disabled() {
+  Test::new()
+    .justfile(
+      "
+        mod? foo
+
+        alias f := foo
+      ",
+    )
+    .arg("f")
+    .stderr("error: alias `f` depends on absent module `foo`\n")
+    .failure();
+}

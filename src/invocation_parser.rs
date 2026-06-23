@@ -266,7 +266,9 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
 
       if let Some(module) = current.modules.get(arg) {
         current = module;
-      } else if let Some(recipe) = current.get_recipe(arg) {
+      } else if let Some(alias) = current.module_aliases.get(arg) {
+        current = self.root.submodule(&alias.target).unwrap();
+      } else if let Some(recipe) = current.recipe(arg) {
         if modulepath && i + 1 < args.len() {
           return Err(Error::ExpectedSubmoduleButFoundRecipe {
             path: path.join("::"),
@@ -422,6 +424,28 @@ mod tests {
 
     let invocations =
       InvocationParser::parse_invocations(&compilation.justfile, &["foo", "bar"]).unwrap();
+
+    assert_eq!(invocations.len(), 1);
+    assert_eq!(invocations[0].recipe.recipe_path().to_string(), "foo::bar");
+    assert!(invocations[0].arguments.is_empty());
+  }
+
+  #[test]
+  fn module_alias() {
+    let tempdir = tempfile::tempdir().unwrap();
+    tempdir.write("justfile", "mod foo\nalias f := foo");
+    tempdir.write("foo.just", "bar:");
+
+    let loader = Loader::new();
+    let compilation = Compiler::compile(
+      &Config::new().unwrap(),
+      &loader,
+      &tempdir.path().join("justfile"),
+    )
+    .unwrap();
+
+    let invocations =
+      InvocationParser::parse_invocations(&compilation.justfile, &["f", "bar"]).unwrap();
 
     assert_eq!(invocations.len(), 1);
     assert_eq!(invocations[0].recipe.recipe_path().to_string(), "foo::bar");

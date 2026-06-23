@@ -13,7 +13,6 @@ type Scopes<'src, 'run> = BTreeMap<
 pub(crate) struct Justfile<'src> {
   #[serde(skip)]
   pub(crate) absent_modules: BTreeSet<String>,
-  pub(crate) aliases: Table<'src, Alias<'src>>,
   pub(crate) assignments: Table<'src, Assignment<'src>>,
   #[serde(rename = "first", serialize_with = "keyed::serialize_option")]
   pub(crate) default: Option<Arc<Recipe<'src>>>,
@@ -27,12 +26,16 @@ pub(crate) struct Justfile<'src> {
   pub(crate) groups: Vec<StringLiteral<'src>>,
   #[serde(skip)]
   pub(crate) loaded: Vec<PathBuf>,
+  #[serde(skip)]
+  pub(crate) module_aliases: Table<'src, ModuleAlias<'src>>,
   pub(crate) module_path: Modulepath,
   pub(crate) modules: Table<'src, Self>,
   #[serde(skip)]
   pub(crate) name: Option<Name<'src>>,
   #[serde(skip)]
   pub(crate) private: bool,
+  #[serde(rename = "aliases")]
+  pub(crate) recipe_aliases: Table<'src, Alias<'src>>,
   pub(crate) recipes: Table<'src, Arc<Recipe<'src>>>,
   pub(crate) settings: Settings,
   pub(crate) source: PathBuf,
@@ -69,7 +72,7 @@ impl<'src> Justfile<'src> {
         })
         .chain(
           self
-            .aliases
+            .recipe_aliases
             .values()
             .filter(|alias| alias.is_public())
             .map(|alias| Suggestion {
@@ -416,16 +419,17 @@ impl<'src> Justfile<'src> {
     Ok(())
   }
 
-  pub(crate) fn get_alias(&self, name: &str) -> Option<&Alias<'src>> {
-    self.aliases.get(name)
+  pub(crate) fn recipe_alias(&self, name: &str) -> Option<&Alias<'src>> {
+    self.recipe_aliases.get(name)
   }
 
-  pub(crate) fn get_recipe(&self, name: &str) -> Option<&Recipe<'src>> {
-    self
-      .recipes
-      .get(name)
-      .map(Arc::as_ref)
-      .or_else(|| self.aliases.get(name).map(|alias| alias.target.as_ref()))
+  pub(crate) fn recipe(&self, name: &str) -> Option<&Recipe<'src>> {
+    self.recipes.get(name).map(Arc::as_ref).or_else(|| {
+      self
+        .recipe_aliases
+        .get(name)
+        .map(|alias| alias.target.as_ref())
+    })
   }
 
   pub(crate) fn is_submodule(&self) -> bool {
@@ -664,7 +668,7 @@ impl<'src> Justfile<'src> {
 
     let mut stack = vec![self];
     while let Some(current) = stack.pop() {
-      for alias in current.aliases.values() {
+      for alias in current.recipe_aliases.values() {
         if alias.is_public() {
           aliases.push((alias, &current.module_path));
         }
@@ -719,7 +723,7 @@ impl<'src> Justfile<'src> {
 
 impl ColorDisplay for Justfile<'_> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
-    let mut items = self.recipes.len() + self.assignments.len() + self.aliases.len();
+    let mut items = self.recipes.len() + self.assignments.len() + self.recipe_aliases.len();
     for (name, assignment) in &self.assignments {
       if assignment.export {
         write!(f, "export ")?;
@@ -730,7 +734,7 @@ impl ColorDisplay for Justfile<'_> {
         write!(f, "\n\n")?;
       }
     }
-    for alias in self.aliases.values() {
+    for alias in self.recipe_aliases.values() {
       write!(f, "{alias}")?;
       items -= 1;
       if items != 0 {

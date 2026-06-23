@@ -1019,6 +1019,18 @@ mod foo
 alias baz := foo::bar
 ```
 
+Or a module<sup>master</sup>:
+
+```justfile
+mod frontend
+
+alias f := frontend
+```
+
+```console
+$ just f build
+```
+
 ### Settings
 
 Settings control interpretation and execution. Each setting may be specified at
