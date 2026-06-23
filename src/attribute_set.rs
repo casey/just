@@ -13,7 +13,7 @@ impl<'src> AttributeSet<'src> {
   }
 
   pub(crate) fn get(&self, kind: AttributeKind) -> Option<&Attribute<'src>> {
-    self.0.keys().find(|attribute| attribute.kind == kind)
+    self.0.keys().find(|attribute| attribute.kind() == kind)
   }
 
   pub(crate) fn name(&self, attribute: &Attribute<'src>) -> Name<'src> {
