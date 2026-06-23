@@ -10,6 +10,7 @@ pub(crate) struct Cache {
 impl Cache {
   pub(crate) fn status(
     &self,
+    config: &Config,
     key: CacheKey,
     outputs: &BTreeMap<String, PathBuf>,
   ) -> RunResult<'static, CacheStatus> {
@@ -21,6 +22,17 @@ impl Cache {
     let hash = hasher.finalize();
 
     let path = self.entry(hash)?;
+
+    if config.verbosity.grandiloquent() {
+      let json =
+        serde_json::to_string_pretty(&key).map_err(|source| Error::CacheKeySerialize { source })?;
+      let stderr = config.color.stderr();
+      eprintln!(
+        "{}",
+        stderr.banner().paint(&format!("===> cache key {hash}:")),
+      );
+      eprintln!("{}", stderr.doc().paint(&json));
+    }
 
     let context = |source| Error::FilesystemIo {
       path: path.clone(),

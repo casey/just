@@ -1623,7 +1623,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     self.expect(BracketR)?;
 
-    Ok(Interpreter { arguments, command })
+    Ok(Interpreter { command, arguments })
   }
 
   /// Item attributes, i.e., `[macos]` or `[confirm: "warning!"]`

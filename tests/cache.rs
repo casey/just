@@ -1051,3 +1051,49 @@ fn no_cache_does_not_write_cache_entries() {
 
   assert!(!output.tempdir.path().join(".justcache").exists());
 }
+
+#[test]
+fn prints_cache_key() {
+  Test::new()
+    .justfile(
+      "
+        [cache]
+        [script]
+        foo:
+          echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("-vv")
+    .stdout("bar\n")
+    .stderr_regex(unindent(
+      r#"
+        ===> running recipe `foo`...
+        ===> cache key [[:xdigit:]]{64}:
+        \{
+          "body": \[
+            .*
+          \],
+          "environment": \{\},
+          "executor": \{
+            "type": "command",
+            "command": ".*",
+            "arguments": \[
+              .*
+            \]
+          \},
+          "extra": null,
+          "inputs": null,
+          "positional": null,
+          "recipe": "foo",
+          "working_directory": ".*"
+        \}
+
+
+
+        echo bar
+
+      "#,
+    ))
+    .success();
+}

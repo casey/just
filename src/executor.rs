@@ -1,6 +1,7 @@
 use super::*;
 
 #[derive(Serialize)]
+#[serde(rename_all = "kebab-case", tag = "type")]
 pub(crate) enum Executor<'a> {
   Command(Interpreter<String>),
   Shebang(Shebang<'a>),

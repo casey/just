@@ -1,7 +1,4 @@
-.DS_Store
-.idea
-/.vagrant
-/.vscode
+/.justcache
 /README.html
 /book/en/build
 /book/en/src
