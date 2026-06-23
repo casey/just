@@ -44,7 +44,7 @@ impl<'de> Deserialize<'de> for Modulepath {
   {
     let string = String::deserialize(deserializer)?;
     Modulepath::from_argument(&string)
-      .map_err(|()| de::Error::custom(format!("invalid module path: `{string}`")))
+      .map_err(|()| serde::de::Error::custom(format!("invalid module path: `{string}`")))
   }
 }
 
