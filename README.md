@@ -1019,8 +1019,7 @@ mod foo
 alias baz := foo::bar
 ```
 
-The target of an alias may also be a module<sup>master</sup>, in which case the
-alias may be used anywhere the module could be:
+Or a module<sup>master</sup>:
 
 ```justfile
 mod frontend
@@ -1030,12 +1029,6 @@ alias f := frontend
 
 ```console
 $ just f build
-```
-
-is equivalent to:
-
-```console
-$ just frontend build
 ```
 
 ### Settings
