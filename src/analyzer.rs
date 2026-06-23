@@ -392,7 +392,6 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     Ok(Justfile {
       absent_modules,
-      recipe_aliases,
       assignments,
       default,
       disabled_aliases,
@@ -406,6 +405,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       modules: self.modules,
       name,
       private,
+      recipe_aliases,
       recipes,
       settings,
       source,
