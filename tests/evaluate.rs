@@ -215,7 +215,15 @@ fn evaluate_submodule_chosen_over_variable_in_path() {
 #[test]
 fn evaluate_submodule() {
   Test::new()
-    .write("foo.just", "a := 'x'\nb := 'y'\n")
+    .write(
+      "foo.just",
+      unindent(
+        "
+        a := 'x'
+        b := 'y'
+        ",
+      ),
+    )
     .justfile(
       "
         mod foo
@@ -229,7 +237,15 @@ fn evaluate_submodule() {
 #[test]
 fn evaluate_variable_in_submodule() {
   Test::new()
-    .write("foo.just", "a := 'x'\nb := 'y'\n")
+    .write(
+      "foo.just",
+      unindent(
+        "
+        a := 'x'
+        b := 'y'
+        ",
+      ),
+    )
     .justfile(
       "
         mod foo

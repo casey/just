@@ -52,7 +52,15 @@ fn unstable_setting_does_not_affect_submodules() {
         mod foo
       ",
     )
-    .write("foo.just", "set lists\nbar:\n echo hello")
+    .write(
+      "foo.just",
+      unindent(
+        "
+        set lists
+        bar:
+         echo hello",
+      ),
+    )
     .args(["foo", "bar"])
     .stderr_regex("error: the `lists` setting is currently unstable.*")
     .failure();

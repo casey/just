@@ -134,7 +134,14 @@ fn show_no_alias_suggestion() {
 #[test]
 fn show_recipe_at_path() {
   Test::new()
-    .write("foo.just", "bar:\n @echo MODULE")
+    .write(
+      "foo.just",
+      unindent(
+        "
+        bar:
+         @echo MODULE",
+      ),
+    )
     .justfile(
       "
         mod foo
@@ -156,7 +163,14 @@ fn show_invalid_path() {
 #[test]
 fn show_space_separated_path() {
   Test::new()
-    .write("foo.just", "bar:\n @echo MODULE")
+    .write(
+      "foo.just",
+      unindent(
+        "
+        bar:
+         @echo MODULE",
+      ),
+    )
     .justfile(
       "
         mod foo
@@ -171,7 +185,14 @@ fn show_space_separated_path() {
 fn show_recipe_in_search_directory() {
   Test::new()
     .justfile("foo:\n @echo ROOT")
-    .write("child/justfile", "foo:\n @echo CHILD")
+    .write(
+      "child/justfile",
+      unindent(
+        "
+        foo:
+         @echo CHILD",
+      ),
+    )
     .current_dir("child")
     .args(["--show", "../foo"])
     .stdout("foo:\n    @echo ROOT\n")

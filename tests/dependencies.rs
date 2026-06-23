@@ -3,8 +3,23 @@ use super::*;
 #[test]
 fn recipe_doubly_nested_module_dependencies() {
   Test::new()
-    .write("foo.just", "mod bar\nbaz: \n @echo FOO")
-    .write("bar.just", "baz:\n @echo BAZ")
+    .write(
+      "foo.just",
+      unindent(
+        "
+        mod bar
+        baz:
+         @echo FOO",
+      ),
+    )
+    .write(
+      "bar.just",
+      unindent(
+        "
+        baz:
+         @echo BAZ",
+      ),
+    )
     .justfile(
       "
         mod foo
@@ -20,8 +35,23 @@ fn recipe_doubly_nested_module_dependencies() {
 #[test]
 fn recipe_singly_nested_module_dependencies() {
   Test::new()
-    .write("foo.just", "mod bar\nbaz: \n @echo BAR")
-    .write("bar.just", "baz:\n @echo BAZ")
+    .write(
+      "foo.just",
+      unindent(
+        "
+        mod bar
+        baz:
+         @echo BAR",
+      ),
+    )
+    .write(
+      "bar.just",
+      unindent(
+        "
+        baz:
+         @echo BAZ",
+      ),
+    )
     .justfile(
       "
         mod foo
@@ -36,7 +66,14 @@ fn recipe_singly_nested_module_dependencies() {
 #[test]
 fn dependency_not_in_submodule() {
   Test::new()
-    .write("foo.just", "qux: \n @echo QUX")
+    .write(
+      "foo.just",
+      unindent(
+        "
+        qux:
+         @echo QUX",
+      ),
+    )
     .justfile(
       "
         mod foo
@@ -82,8 +119,23 @@ fn dependency_submodule_missing() {
 #[test]
 fn recipe_dependency_on_module_fails() {
   Test::new()
-    .write("foo.just", "mod bar\nbaz: \n @echo BAR")
-    .write("bar.just", "baz:\n @echo BAZ")
+    .write(
+      "foo.just",
+      unindent(
+        "
+        mod bar
+        baz:
+         @echo BAR",
+      ),
+    )
+    .write(
+      "bar.just",
+      unindent(
+        "
+        baz:
+         @echo BAZ",
+      ),
+    )
     .justfile(
       "
         mod foo
@@ -105,7 +157,14 @@ fn recipe_dependency_on_module_fails() {
 #[test]
 fn recipe_module_dependency_subsequent_mix() {
   Test::new()
-    .write("foo.just", "bar: \n @echo BAR")
+    .write(
+      "foo.just",
+      unindent(
+        "
+        bar:
+         @echo BAR",
+      ),
+    )
     .justfile(
       "
         mod foo
@@ -123,7 +182,16 @@ fn recipe_module_dependency_subsequent_mix() {
 #[test]
 fn recipe_module_dependency_only_runs_once() {
   Test::new()
-    .write("foo.just", "bar: baz \n  \nbaz: \n @echo BAZ")
+    .write(
+      "foo.just",
+      unindent(
+        "
+        bar: baz
+
+        baz:
+         @echo BAZ",
+      ),
+    )
     .justfile(
       "
         mod foo

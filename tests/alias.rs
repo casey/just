@@ -3,8 +3,23 @@ use super::*;
 #[test]
 fn alias_nested_module() {
   Test::new()
-    .write("foo.just", "mod bar\nbaz: \n @echo FOO")
-    .write("bar.just", "baz:\n @echo BAZ")
+    .write(
+      "foo.just",
+      unindent(
+        "
+        mod bar
+        baz:
+         @echo FOO",
+      ),
+    )
+    .write(
+      "bar.just",
+      unindent(
+        "
+        baz:
+         @echo BAZ",
+      ),
+    )
     .justfile(
       "
         mod foo
@@ -23,7 +38,14 @@ fn alias_nested_module() {
 #[test]
 fn unknown_nested_alias() {
   Test::new()
-    .write("foo.just", "baz: \n @echo FOO")
+    .write(
+      "foo.just",
+      unindent(
+        "
+        baz:
+         @echo FOO",
+      ),
+    )
     .justfile(
       "
         mod foo
@@ -49,12 +71,14 @@ fn alias_in_submodule() {
   Test::new()
     .write(
       "foo.just",
-      "
-alias b := bar
+      unindent(
+        "
+        alias b := bar
 
-bar:
-  @echo BAR
-",
+        bar:
+          @echo BAR
+        ",
+      ),
     )
     .justfile(
       "

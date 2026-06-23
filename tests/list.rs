@@ -104,10 +104,38 @@ fn unsorted_list_order() {
     .success();
 
   Test::new()
-    .write("a.just", "a:\nimport 'e.just'")
-    .write("b.just", "b:\nimport 'f.just'")
-    .write("c.just", "c:\nimport 'g.just'")
-    .write("d.just", "d:\nimport 'h.just'")
+    .write(
+      "a.just",
+      unindent(
+        "
+        a:
+        import 'e.just'",
+      ),
+    )
+    .write(
+      "b.just",
+      unindent(
+        "
+        b:
+        import 'f.just'",
+      ),
+    )
+    .write(
+      "c.just",
+      unindent(
+        "
+        c:
+        import 'g.just'",
+      ),
+    )
+    .write(
+      "d.just",
+      unindent(
+        "
+        d:
+        import 'h.just'",
+      ),
+    )
     .write("e.just", "e:")
     .write("f.just", "f:")
     .write("g.just", "g:")
@@ -246,7 +274,14 @@ fn list_with_groups_in_modules() {
         mod bar
       ",
     )
-    .write("bar.just", "[group('BAZ')]\nbaz:")
+    .write(
+      "bar.just",
+      unindent(
+        "
+        [group('BAZ')]
+        baz:",
+      ),
+    )
     .args(["--list", "--list-submodules"])
     .stdout(
       "
@@ -265,7 +300,14 @@ fn list_with_groups_in_modules() {
 #[test]
 fn list_displays_recipes_in_submodules() {
   Test::new()
-    .write("foo.just", "bar:\n @echo FOO")
+    .write(
+      "foo.just",
+      unindent(
+        "
+        bar:
+         @echo FOO",
+      ),
+    )
     .justfile(
       "
         mod foo
@@ -313,18 +355,20 @@ fn module_recipe_list_alignment_ignores_private_recipes() {
   Test::new()
     .write(
       "foo.just",
-      "
-# foos
-foo:
- @echo FOO
+      unindent(
+        "
+        # foos
+        foo:
+         @echo FOO
 
-[private]
-barbarbar:
- @echo BAR
+        [private]
+        barbarbar:
+         @echo BAR
 
-@_bazbazbaz:
- @echo BAZ
-      ",
+        @_bazbazbaz:
+         @echo BAZ
+        ",
+      ),
     )
     .justfile("mod foo")
     .args(["--list", "--list-submodules"])
@@ -342,7 +386,14 @@ barbarbar:
 fn nested_modules_are_properly_indented() {
   Test::new()
     .write("foo.just", "mod bar")
-    .write("bar.just", "baz:\n @echo FOO")
+    .write(
+      "bar.just",
+      unindent(
+        "
+        baz:
+         @echo FOO",
+      ),
+    )
     .justfile(
       "
         mod foo
@@ -494,7 +545,11 @@ fn unclosed_backticks() {
 fn list_submodules_requires_list() {
   Test::new()
     .arg("--list-submodules")
-    .stderr_regex("error: the following required arguments were not provided:\n  --list .*")
+    .stderr_regex(unindent(
+      "
+      error: the following required arguments were not provided:
+        --list .*",
+    ))
     .status(2);
 }
 

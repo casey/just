@@ -241,9 +241,23 @@ fn justfile_name_not_found() {
 fn justfile_name_skips_default_justfile() {
   Test::new()
     .test_round_trip(false)
-    .write("foo", "default:\n\techo ok")
+    .write(
+      "foo",
+      unindent(
+        "
+        default:
+        \techo ok",
+      ),
+    )
     .create_dir("subdir")
-    .write("subdir/justfile", "default:\n\techo bad")
+    .write(
+      "subdir/justfile",
+      unindent(
+        "
+        default:
+        \techo bad",
+      ),
+    )
     .current_dir("subdir")
     .args(["--justfile-name", "foo"])
     .stderr("echo ok\n")
@@ -255,7 +269,15 @@ fn justfile_name_skips_default_justfile() {
 fn justfile_symlink_parent() {
   Test::new()
     .test_round_trip(false)
-    .write("src", "foo:\n\techo bar\n")
+    .write(
+      "src",
+      unindent(
+        "
+        foo:
+        \techo bar
+        ",
+      ),
+    )
     .create_dir("sub")
     .symlink("src", "sub/justfile")
     .current_dir("sub")

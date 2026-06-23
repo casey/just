@@ -874,7 +874,17 @@ fn clean_path_removes_subtree() {
           echo bar
       ",
     )
-    .write("foo.just", "[cache]\n[script]\nbaz:\n  echo baz\n")
+    .write(
+      "foo.just",
+      unindent(
+        "
+        [cache]
+        [script]
+        baz:
+          echo baz
+        ",
+      ),
+    )
     .env("JUST_UNSTABLE", "1")
     .arg("bar")
     .stdout("bar\n")
@@ -915,7 +925,17 @@ fn clean_path_removes_exact_recipe() {
           echo bar
       ",
     )
-    .write("foo.just", "[cache]\n[script]\nbaz:\n  echo baz\n")
+    .write(
+      "foo.just",
+      unindent(
+        "
+        [cache]
+        [script]
+        baz:
+          echo baz
+        ",
+      ),
+    )
     .env("JUST_UNSTABLE", "1")
     .arg("bar")
     .stdout("bar\n")
