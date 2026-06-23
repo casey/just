@@ -357,12 +357,11 @@ impl Subcommand {
     for entry in fs::read_dir(&path).map_err(context)? {
       let entry = entry.map_err(context)?;
 
-      if !entry_re.is_match(&entry.file_name().to_string_lossy()) {
-        return Err(Error::UnexpectedCacheEntry { path: entry.path() });
+      if entry_re.is_match(&entry.file_name().to_string_lossy()) {
+        let path = entry.path();
+        fs::remove_file(&path).map_err(|source| Error::FilesystemIo { source, path })?;
       }
     }
-
-    fs::remove_dir_all(&path).map_err(context)?;
 
     Ok(())
   }
