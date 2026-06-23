@@ -121,12 +121,12 @@ impl<'src> Attribute<'src> {
 
   pub(crate) fn new(
     name: Name<'src>,
-    discriminant: AttributeKind,
+    kind: AttributeKind,
     arguments: Vec<(Token<'src>, Expression<'src>)>,
     mut keyword_arguments: BTreeMap<&'src str, (Name<'src>, Option<Expression<'src>>)>,
   ) -> CompileResult<'src, Self> {
     let found = arguments.len();
-    let range = discriminant.argument_range();
+    let range = kind.argument_range();
     if !range.contains(&found) {
       return Err(
         name.error(CompileErrorKind::AttributeArgumentCountMismatch {
@@ -138,7 +138,7 @@ impl<'src> Attribute<'src> {
       );
     }
 
-    if discriminant.accepts_expressions() {
+    if kind.accepts_expressions() {
       if let Some((_name, (key, _literal))) = keyword_arguments.pop_first() {
         return Err(key.error(CompileErrorKind::UnknownAttributeKey {
           attribute: name.lexeme(),
@@ -146,7 +146,7 @@ impl<'src> Attribute<'src> {
         }));
       }
 
-      return match discriminant {
+      return match kind {
         AttributeKind::Confirm => Ok(Self::Confirm(
           arguments.into_iter().next().map(|(_, expr)| expr),
         )),
@@ -175,7 +175,7 @@ impl<'src> Attribute<'src> {
       })
       .collect::<CompileResult<Vec<StringLiteral>>>()?;
 
-    let attribute = match discriminant {
+    let attribute = match kind {
       AttributeKind::Arg => {
         let arg = arguments.into_iter().next().unwrap();
 

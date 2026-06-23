@@ -1630,7 +1630,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_attributes(&mut self) -> CompileResult<'src, Option<(Token<'src>, AttributeSet<'src>)>> {
     let mut arg_attributes = BTreeMap::new();
     let mut attributes = Vec::new();
-    let mut discriminants = BTreeMap::new();
+    let mut kinds = BTreeMap::new();
 
     let mut token = None;
 
@@ -1640,13 +1640,13 @@ impl<'run, 'src> Parser<'run, 'src> {
       loop {
         let name = self.parse_name()?;
 
-        let discriminant = name.lexeme().parse::<AttributeKind>().map_err(|_| {
+        let kind = name.lexeme().parse::<AttributeKind>().map_err(|_| {
           name.error(CompileErrorKind::UnknownAttribute {
             attribute: name.lexeme(),
           })
         })?;
 
-        if discriminant == AttributeKind::Cache {
+        if kind == AttributeKind::Cache {
           self
             .unstable_features
             .insert(UnstableFeature::CachedRecipes);
@@ -1662,7 +1662,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         } else if self.accepted(ParenL)? {
           if !self.next_is(ParenR) {
             loop {
-              if discriminant.accepts_keyword_arguments()
+              if kind.accepts_keyword_arguments()
                 && self.next_is(Identifier)
                 && !self.next_is_shell_expanded_string()
               {
@@ -1702,12 +1702,12 @@ impl<'run, 'src> Parser<'run, 'src> {
           self.expect(ParenR)?;
         }
 
-        let attribute = Attribute::new(name, discriminant, arguments, keyword_arguments)?;
+        let attribute = Attribute::new(name, kind, arguments, keyword_arguments)?;
 
         let first = if attribute.repeatable() {
           None
         } else {
-          discriminants.get(&attribute.kind())
+          kinds.get(&attribute.kind())
         };
 
         if let Some(&first) = first {
@@ -1728,7 +1728,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           arg_attributes.insert(arg.cooked.clone(), name.line);
         }
 
-        discriminants.insert(attribute.kind(), name.line);
+        kinds.insert(attribute.kind(), name.line);
 
         attributes.push((attribute, name));
 
