@@ -5,22 +5,18 @@ fn recipe_doubly_nested_module_dependencies() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          mod bar
-          baz:
-           @echo FOO
-        ",
-      ),
+      "
+        mod bar
+        baz:
+         @echo FOO
+      ",
     )
     .write(
       "bar.just",
-      unindent(
-        "
-          baz:
-           @echo BAZ
-        ",
-      ),
+      "
+        baz:
+         @echo BAZ
+      ",
     )
     .justfile(
       "
@@ -39,22 +35,18 @@ fn recipe_singly_nested_module_dependencies() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          mod bar
-          baz:
-           @echo BAR
-        ",
-      ),
+      "
+        mod bar
+        baz:
+         @echo BAR
+      ",
     )
     .write(
       "bar.just",
-      unindent(
-        "
-          baz:
-           @echo BAZ
-        ",
-      ),
+      "
+        baz:
+         @echo BAZ
+      ",
     )
     .justfile(
       "
@@ -72,12 +64,10 @@ fn dependency_not_in_submodule() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          qux:
-           @echo QUX
-        ",
-      ),
+      "
+        qux:
+         @echo QUX
+      ",
     )
     .justfile(
       "
@@ -126,22 +116,18 @@ fn recipe_dependency_on_module_fails() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          mod bar
-          baz:
-           @echo BAR
-        ",
-      ),
+      "
+        mod bar
+        baz:
+         @echo BAR
+      ",
     )
     .write(
       "bar.just",
-      unindent(
-        "
-          baz:
-           @echo BAZ
-        ",
-      ),
+      "
+        baz:
+         @echo BAZ
+      ",
     )
     .justfile(
       "
@@ -166,12 +152,10 @@ fn recipe_module_dependency_subsequent_mix() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          bar:
-           @echo BAR
-        ",
-      ),
+      "
+        bar:
+         @echo BAR
+      ",
     )
     .justfile(
       "
@@ -192,14 +176,12 @@ fn recipe_module_dependency_only_runs_once() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          bar: baz
+      "
+        bar: baz
 
-          baz:
-           @echo BAZ
-        ",
-      ),
+        baz:
+         @echo BAZ
+      ",
     )
     .justfile(
       "

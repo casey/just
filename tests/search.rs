@@ -243,22 +243,18 @@ fn justfile_name_skips_default_justfile() {
     .test_round_trip(false)
     .write(
       "foo",
-      unindent(
-        "
-          default:
-          \techo ok
-        ",
-      ),
+      "
+        default:
+        \techo ok
+      ",
     )
     .create_dir("subdir")
     .write(
       "subdir/justfile",
-      unindent(
-        "
-          default:
-          \techo bad
-        ",
-      ),
+      "
+        default:
+        \techo bad
+      ",
     )
     .current_dir("subdir")
     .args(["--justfile-name", "foo"])
@@ -273,12 +269,10 @@ fn justfile_symlink_parent() {
     .test_round_trip(false)
     .write(
       "src",
-      unindent(
-        "
-          foo:
-          \techo bar
-        ",
-      ),
+      "
+        foo:
+        \techo bar
+      ",
     )
     .create_dir("sub")
     .symlink("src", "sub/justfile")

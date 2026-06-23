@@ -15,12 +15,10 @@ fn shell_on_custom_path() {
     )
     .write(
       "myshell.exe",
-      unindent(
-        "
-          #!/bin/sh
-          /bin/sh \"$@\"
-        ",
-      ),
+      "
+        #!/bin/sh
+        /bin/sh \"$@\"
+      ",
     )
     .make_executable("myshell.exe")
     .path("")
@@ -41,12 +39,10 @@ fn command_on_custom_path() {
     .justfile("")
     .write(
       "foo.exe",
-      unindent(
-        "
-          #!/bin/sh
-          echo bar
-        ",
-      ),
+      "
+        #!/bin/sh
+        echo bar
+      ",
     )
     .make_executable("foo.exe")
     .path("")

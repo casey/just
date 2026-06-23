@@ -106,39 +106,31 @@ fn unsorted_list_order() {
   Test::new()
     .write(
       "a.just",
-      unindent(
-        "
-          a:
-          import 'e.just'
-        ",
-      ),
+      "
+        a:
+        import 'e.just'
+      ",
     )
     .write(
       "b.just",
-      unindent(
-        "
-          b:
-          import 'f.just'
-        ",
-      ),
+      "
+        b:
+        import 'f.just'
+      ",
     )
     .write(
       "c.just",
-      unindent(
-        "
-          c:
-          import 'g.just'
-        ",
-      ),
+      "
+        c:
+        import 'g.just'
+      ",
     )
     .write(
       "d.just",
-      unindent(
-        "
-          d:
-          import 'h.just'
-        ",
-      ),
+      "
+        d:
+        import 'h.just'
+      ",
     )
     .write("e.just", "e:")
     .write("f.just", "f:")
@@ -280,12 +272,10 @@ fn list_with_groups_in_modules() {
     )
     .write(
       "bar.just",
-      unindent(
-        "
-          [group('BAZ')]
-          baz:
-        ",
-      ),
+      "
+        [group('BAZ')]
+        baz:
+      ",
     )
     .args(["--list", "--list-submodules"])
     .stdout(
@@ -307,12 +297,10 @@ fn list_displays_recipes_in_submodules() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          bar:
-           @echo FOO
-        ",
-      ),
+      "
+        bar:
+         @echo FOO
+      ",
     )
     .justfile(
       "
@@ -361,20 +349,18 @@ fn module_recipe_list_alignment_ignores_private_recipes() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          # foos
-          foo:
-           @echo FOO
+      "
+        # foos
+        foo:
+         @echo FOO
 
-          [private]
-          barbarbar:
-           @echo BAR
+        [private]
+        barbarbar:
+         @echo BAR
 
-          @_bazbazbaz:
-           @echo BAZ
-        ",
-      ),
+        @_bazbazbaz:
+         @echo BAZ
+      ",
     )
     .justfile("mod foo")
     .args(["--list", "--list-submodules"])
@@ -394,12 +380,10 @@ fn nested_modules_are_properly_indented() {
     .write("foo.just", "mod bar")
     .write(
       "bar.just",
-      unindent(
-        "
-          baz:
-           @echo FOO
-        ",
-      ),
+      "
+        baz:
+         @echo FOO
+      ",
     )
     .justfile(
       "

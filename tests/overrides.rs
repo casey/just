@@ -151,12 +151,10 @@ fn unknown_variable_in_submodule_override() {
     .justfile("mod foo")
     .write(
       "foo.just",
-      unindent(
-        "
-          bar:
-           @echo bar
-        ",
-      ),
+      "
+        bar:
+         @echo bar
+      ",
     )
     .arg("foo::x=b")
     .arg("foo::bar")
@@ -170,13 +168,11 @@ fn override_variable_in_submodule() {
     .justfile("mod foo")
     .write(
       "foo.just",
-      unindent(
-        "
-          x := 'a'
-          bar:
-           @echo {{x}}
-        ",
-      ),
+      "
+        x := 'a'
+        bar:
+         @echo {{x}}
+      ",
     )
     .arg("foo::x=b")
     .arg("foo::bar")
@@ -191,13 +187,11 @@ fn override_variable_in_nested_submodule() {
     .write("foo/mod.just", "mod bar")
     .write(
       "foo/bar.just",
-      unindent(
-        "
-          x := 'a'
-          baz:
-           @echo {{x}}
-        ",
-      ),
+      "
+        x := 'a'
+        baz:
+         @echo {{x}}
+      ",
     )
     .arg("foo::bar::x=b")
     .arg("foo::bar::baz")
@@ -236,13 +230,11 @@ fn submodule_override_does_not_affect_parent() {
     )
     .write(
       "foo.just",
-      unindent(
-        "
-          x := 'a'
-          baz:
-           @echo {{x}}
-        ",
-      ),
+      "
+        x := 'a'
+        baz:
+         @echo {{x}}
+      ",
     )
     .arg("foo::x=b")
     .arg("bar")
@@ -265,13 +257,11 @@ fn submodule_override_not_evaluated() {
     .justfile("mod foo")
     .write(
       "foo.just",
-      unindent(
-        "
-          x := `exit 1`
-          bar:
-           @echo {{x}}
-        ",
-      ),
+      "
+        x := `exit 1`
+        bar:
+         @echo {{x}}
+      ",
     )
     .arg("foo::x=b")
     .arg("foo::bar")

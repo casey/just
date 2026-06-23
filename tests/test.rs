@@ -163,10 +163,10 @@ impl Test {
     self
   }
 
-  pub(crate) fn write(self, path: impl AsRef<Path>, content: impl AsRef<[u8]>) -> Self {
+  pub(crate) fn write(self, path: impl AsRef<Path>, content: impl AsRef<str>) -> Self {
     let path = self.tempdir.path().join(path);
     fs::create_dir_all(path.parent().unwrap()).unwrap();
-    fs::write(path, content).unwrap();
+    fs::write(path, unindent(content.as_ref())).unwrap();
     self
   }
 

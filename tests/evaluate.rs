@@ -217,12 +217,10 @@ fn evaluate_submodule() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          a := 'x'
-          b := 'y'
-        ",
-      ),
+      "
+        a := 'x'
+        b := 'y'
+      ",
     )
     .justfile(
       "
@@ -239,12 +237,10 @@ fn evaluate_variable_in_submodule() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          a := 'x'
-          b := 'y'
-        ",
-      ),
+      "
+        a := 'x'
+        b := 'y'
+      ",
     )
     .justfile(
       "

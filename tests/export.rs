@@ -240,12 +240,10 @@ fn variables_exported_with_setting_are_visible_in_child() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          bar:
-           @echo $x
-        ",
-      ),
+      "
+        bar:
+         @echo $x
+      ",
     )
     .justfile(
       "

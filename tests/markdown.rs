@@ -5,20 +5,18 @@ fn code_blocks_are_concatenated() {
   Test::new()
     .write(
       "foo.md",
-      unindent(
-        "
-          # foo
+      "
+        # foo
 
-          ```just
-          bar := 'baz'
-          ```
-          prose
-          ```just
-          @bob:
-           echo {{ bar }}
-          ```
-        ",
-      ),
+        ```just
+        bar := 'baz'
+        ```
+        prose
+        ```just
+        @bob:
+         echo {{ bar }}
+        ```
+      ",
     )
     .args(["--justfile", "foo.md"])
     .stdout("baz\n")
@@ -31,24 +29,22 @@ fn non_just_code_blocks_are_ignored() {
   Test::new()
     .write(
       "foo.md",
-      unindent(
-        "
-          ```sh
-          garbage[
-          ```
+      "
+        ```sh
+        garbage[
+        ```
 
-          ````
-          ```just
-          garbage[
-          ```
-          ````
+        ````
+        ```just
+        garbage[
+        ```
+        ````
 
-          ```just
-          @foo:
-           echo bar
-          ```
-        ",
-      ),
+        ```just
+        @foo:
+         echo bar
+        ```
+      ",
     )
     .args(["--justfile", "foo.md"])
     .stdout("bar\n")
@@ -61,14 +57,12 @@ fn extension_is_case_insensitive() {
   Test::new()
     .write(
       "foo.MD",
-      unindent(
-        "
-          ```just
-          @foo:
-           echo bar
-          ```
-        ",
-      ),
+      "
+        ```just
+        @foo:
+         echo bar
+        ```
+      ",
     )
     .args(["--justfile", "foo.MD"])
     .stdout("bar\n")
@@ -81,14 +75,12 @@ fn working_directory_is_markdown_file_directory() {
   Test::new()
     .write(
       "sub/foo.md",
-      unindent(
-        "
-          ```just
-          @foo:
-           cat bar
-          ```
-        ",
-      ),
+      "
+        ```just
+        @foo:
+         cat bar
+        ```
+      ",
     )
     .write("sub/bar", "baz")
     .args(["--justfile", "sub/foo.md"])
@@ -102,14 +94,12 @@ fn with_working_directory() {
   Test::new()
     .write(
       "foo.md",
-      unindent(
-        "
-          ```just
-          @foo:
-           cat baz
-          ```
-        ",
-      ),
+      "
+        ```just
+        @foo:
+         cat baz
+        ```
+      ",
     )
     .write("bar/baz", "qux")
     .args(["--justfile", "foo.md", "--working-directory", "bar"])
@@ -123,15 +113,13 @@ fn line_numbers_are_preserved() {
   Test::new()
     .write(
       "foo.md",
-      unindent(
-        "
-          # foo
+      "
+        # foo
 
-          ```just
-          garbage[
-          ```
-        ",
-      ),
+        ```just
+        garbage[
+        ```
+      ",
     )
     .args(["--justfile", "foo.md"])
     .stderr(
@@ -162,14 +150,12 @@ fn format_prints_to_stdout() {
   Test::new()
     .write(
       "foo.md",
-      unindent(
-        "
-          ```just
-          foo:
-           echo bar
-          ```
-        ",
-      ),
+      "
+        ```just
+        foo:
+         echo bar
+        ```
+      ",
     )
     .args(["--fmt", "--justfile", "foo.md"])
     .stdout("\nfoo:\n    echo bar\n")
@@ -194,14 +180,12 @@ fn dump() {
   Test::new()
     .write(
       "foo.md",
-      unindent(
-        "
-          ```just
-          foo:
-           echo bar
-          ```
-        ",
-      ),
+      "
+        ```just
+        foo:
+         echo bar
+        ```
+      ",
     )
     .args(["--dump", "--justfile", "foo.md"])
     .stdout("\nfoo:\n    echo bar\n")

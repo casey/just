@@ -73,30 +73,24 @@ fn submodule_recipes() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          mod bar
-          foo:
-        ",
-      ),
+      "
+        mod bar
+        foo:
+      ",
     )
     .write(
       "bar.just",
-      unindent(
-        "
-          mod baz
-          bar:
-        ",
-      ),
+      "
+        mod baz
+        bar:
+      ",
     )
     .write(
       "baz.just",
-      unindent(
-        "
-          mod biz
-          baz:
-        ",
-      ),
+      "
+        mod biz
+        baz:
+      ",
     )
     .write("biz.just", "biz:")
     .justfile(

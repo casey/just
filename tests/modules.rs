@@ -10,12 +10,10 @@ fn modules_are_stable() {
     )
     .write(
       "foo.just",
-      unindent(
-        "
-          @bar:
-           echo ok
-        ",
-      ),
+      "
+        @bar:
+         echo ok
+      ",
     )
     .args(["foo", "bar"])
     .stdout("ok\n")
@@ -27,12 +25,10 @@ fn default_recipe_in_submodule_must_have_no_arguments() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          foo bar:
-           @echo FOO
-        ",
-      ),
+      "
+        foo bar:
+         @echo FOO
+      ",
     )
     .justfile(
       "
@@ -49,12 +45,10 @@ fn module_recipes_can_be_run_as_subcommands() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          foo:
-           @echo FOO
-        ",
-      ),
+      "
+        foo:
+         @echo FOO
+      ",
     )
     .justfile(
       "
@@ -72,12 +66,10 @@ fn module_recipes_can_be_run_with_path_syntax() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          foo:
-           @echo FOO
-        ",
-      ),
+      "
+        foo:
+         @echo FOO
+      ",
     )
     .justfile(
       "
@@ -95,12 +87,10 @@ fn nested_module_recipes_can_be_run_with_path_syntax() {
     .write("foo.just", "mod bar")
     .write(
       "bar.just",
-      unindent(
-        "
-          baz:
-           @echo BAZ
-        ",
-      ),
+      "
+        baz:
+         @echo BAZ
+      ",
     )
     .justfile(
       "
@@ -148,13 +138,11 @@ fn assignments_are_evaluated_in_modules() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          bar := 'CHILD'
-          foo:
-           @echo {{bar}}
-        ",
-      ),
+      "
+        bar := 'CHILD'
+        foo:
+         @echo {{bar}}
+      ",
     )
     .justfile(
       "
@@ -173,12 +161,10 @@ fn module_subcommand_runs_default_recipe() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          foo:
-           @echo FOO
-        ",
-      ),
+      "
+        foo:
+         @echo FOO
+      ",
     )
     .justfile(
       "
@@ -195,16 +181,14 @@ fn module_subcommand_lists_recipes_with_default_list() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          set default-list := true
+      "
+        set default-list := true
 
-          foo:
-            @echo FOO
+        foo:
+          @echo FOO
 
-          bar:
-        ",
-      ),
+        bar:
+      ",
     )
     .justfile(
       "
@@ -227,12 +211,10 @@ fn root_default_list_does_not_affect_submodule_default_recipe() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          foo:
-           @echo FOO
-        ",
-      ),
+      "
+        foo:
+         @echo FOO
+      ",
     )
     .justfile(
       "
@@ -257,16 +239,14 @@ fn nested_module_subcommand_lists_recipes_with_default_list() {
       )
       .write(
         "bar.just",
-        unindent(
-          "
-            set default-list := true
+        "
+          set default-list := true
 
-            baz:
-              @echo BAZ
+          baz:
+            @echo BAZ
 
-            qux:
-          ",
-        ),
+          qux:
+        ",
       )
       .justfile(
         "
@@ -294,16 +274,14 @@ fn module_default_list_does_not_override_explicit_recipe() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          set default-list := true
+      "
+        set default-list := true
 
-          bar:
-            @echo BAR
+        bar:
+          @echo BAR
 
-          baz:
-        ",
-      ),
+        baz:
+      ",
     )
     .justfile(
       "
@@ -320,12 +298,10 @@ fn modules_can_contain_other_modules() {
   Test::new()
     .write(
       "bar.just",
-      unindent(
-        "
-          baz:
-           @echo BAZ
-        ",
-      ),
+      "
+        baz:
+         @echo BAZ
+      ",
     )
     .write("foo.just", "mod bar")
     .justfile(
@@ -364,14 +340,12 @@ fn modules_use_module_settings() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          set allow-duplicate-recipes
-          foo:
-          foo:
-            @echo FOO
-        ",
-      ),
+      "
+        set allow-duplicate-recipes
+        foo:
+        foo:
+          @echo FOO
+      ",
     )
     .justfile(
       "
@@ -386,13 +360,11 @@ fn modules_use_module_settings() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          foo:
-          foo:
-            @echo FOO
-        ",
-      ),
+      "
+        foo:
+        foo:
+          @echo FOO
+      ",
     )
     .justfile(
       "
@@ -420,12 +392,10 @@ fn submodules_do_not_inherit_no_cd_setting() {
   Test::new()
     .write(
       "foo/mod.just",
-      unindent(
-        "
-          bar:
-            @cat data.txt
-        ",
-      ),
+      "
+        bar:
+          @cat data.txt
+      ",
     )
     .write("foo/data.txt", "MODULE\n")
     .justfile(
@@ -514,12 +484,10 @@ fn modules_are_dumped_correctly() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          foo:
-           @echo FOO
-        ",
-      ),
+      "
+        foo:
+         @echo FOO
+      ",
     )
     .justfile(
       "
@@ -536,12 +504,10 @@ fn optional_modules_are_dumped_correctly() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          foo:
-           @echo FOO
-        ",
-      ),
+      "
+        foo:
+         @echo FOO
+      ",
     )
     .justfile(
       "
@@ -558,12 +524,10 @@ fn modules_can_be_in_subdirectory() {
   Test::new()
     .write(
       "foo/mod.just",
-      unindent(
-        "
-          foo:
-           @echo FOO
-        ",
-      ),
+      "
+        foo:
+         @echo FOO
+      ",
     )
     .justfile(
       "
@@ -581,12 +545,10 @@ fn modules_in_subdirectory_can_be_named_justfile() {
   Test::new()
     .write(
       "foo/justfile",
-      unindent(
-        "
-          foo:
-           @echo FOO
-        ",
-      ),
+      "
+        foo:
+         @echo FOO
+      ",
     )
     .justfile(
       "
@@ -604,12 +566,10 @@ fn modules_in_subdirectory_can_be_named_justfile_with_any_case() {
   Test::new()
     .write(
       "foo/JUSTFILE",
-      unindent(
-        "
-          foo:
-           @echo FOO
-        ",
-      ),
+      "
+        foo:
+         @echo FOO
+      ",
     )
     .justfile(
       "
@@ -627,12 +587,10 @@ fn modules_in_subdirectory_can_have_leading_dot() {
   Test::new()
     .write(
       "foo/.justfile",
-      unindent(
-        "
-          foo:
-           @echo FOO
-        ",
-      ),
+      "
+        foo:
+         @echo FOO
+      ",
     )
     .justfile(
       "
@@ -650,21 +608,17 @@ fn modules_require_unambiguous_file() {
   Test::new()
     .write(
       "foo/justfile",
-      unindent(
-        "
-          foo:
-           @echo FOO
-        ",
-      ),
+      "
+        foo:
+         @echo FOO
+      ",
     )
     .write(
       "foo.just",
-      unindent(
-        "
-          foo:
-           @echo FOO
-        ",
-      ),
+      "
+        foo:
+         @echo FOO
+      ",
     )
     .justfile(
       "
@@ -731,12 +685,10 @@ fn missing_optional_modules_do_not_conflict() {
     )
     .write(
       "baz.just",
-      unindent(
-        "
-          baz:
-           @echo BAZ
-        ",
-      ),
+      "
+        baz:
+         @echo BAZ
+      ",
     )
     .arg("foo")
     .arg("baz")
@@ -838,12 +790,10 @@ fn disabled_recipe_runs_once_module_is_present() {
     )
     .write(
       "foo.just",
-      unindent(
-        "
-          setup:
-           @echo SETUP
-        ",
-      ),
+      "
+        setup:
+         @echo SETUP
+      ",
     )
     .arg("build")
     .stdout("SETUP\nBUILD\n")
@@ -899,14 +849,12 @@ fn nested_absent_optional_module_disables_dependent() {
     )
     .write(
       "a/mod.just",
-      unindent(
-        "
-          mod? b
+      "
+        mod? b
 
-          ay:
-           @echo AY
-        ",
-      ),
+        ay:
+         @echo AY
+      ",
     )
     .arg("x")
     .stderr("error: recipe `x` depends on absent module `a::b`\n")
@@ -972,12 +920,10 @@ fn disabled_alias_runs_once_module_is_present() {
     )
     .write(
       "foo.just",
-      unindent(
-        "
-          setup:
-           @echo SETUP
-        ",
-      ),
+      "
+        setup:
+         @echo SETUP
+      ",
     )
     .arg("b")
     .stdout("SETUP\nBUILD\n")
@@ -1076,12 +1022,10 @@ fn root_dotenv_is_available_to_submodules() {
     )
     .write(
       "foo.just",
-      unindent(
-        "
-          foo:
-           @echo $DOTENV_KEY
-        ",
-      ),
+      "
+        foo:
+         @echo $DOTENV_KEY
+      ",
     )
     .write(".env", "DOTENV_KEY=dotenv-value")
     .args(["foo", "foo"])
@@ -1101,13 +1045,11 @@ fn submodule_inherits_root_dotenv_even_with_dotenv_load_false() {
     )
     .write(
       "foo.just",
-      unindent(
-        "
-          set dotenv-load := false
-          foo:
-           @echo $DOTENV_KEY
-        ",
-      ),
+      "
+        set dotenv-load := false
+        foo:
+         @echo $DOTENV_KEY
+      ",
     )
     .write(".env", "DOTENV_KEY=dotenv-value")
     .args(["foo", "foo"])
@@ -1127,13 +1069,11 @@ fn submodule_loads_own_dotenv() {
     )
     .write(
       "foo/mod.just",
-      unindent(
-        "
-          set dotenv-load
-          foo:
-           @echo $ROOT_KEY $SUB_KEY
-        ",
-      ),
+      "
+        set dotenv-load
+        foo:
+         @echo $ROOT_KEY $SUB_KEY
+      ",
     )
     .write(".env", "ROOT_KEY=root")
     .write("foo/.env", "SUB_KEY=sub")
@@ -1154,13 +1094,11 @@ fn submodule_dotenv_overrides_root() {
     )
     .write(
       "foo/mod.just",
-      unindent(
-        "
-          set dotenv-load
-          foo:
-           @echo $KEY
-        ",
-      ),
+      "
+        set dotenv-load
+        foo:
+         @echo $KEY
+      ",
     )
     .write(".env", "KEY=root")
     .write("foo/.env", "KEY=sub")
@@ -1184,13 +1122,11 @@ fn root_does_not_see_submodule_dotenv() {
     )
     .write(
       "foo/mod.just",
-      unindent(
-        "
-          set dotenv-load
-          foo:
-           @echo $SUB_KEY
-        ",
-      ),
+      "
+        set dotenv-load
+        foo:
+         @echo $SUB_KEY
+      ",
     )
     .write(".env", "ROOT_KEY=root")
     .write("foo/.env", "SUB_KEY=sub")
@@ -1211,32 +1147,26 @@ fn nested_submodule_dotenv_merge() {
     )
     .write(
       "foo/mod.just",
-      unindent(
-        "
-          set dotenv-load
-          mod bar
-        ",
-      ),
+      "
+        set dotenv-load
+        mod bar
+      ",
     )
     .write(
       "foo/bar/mod.just",
-      unindent(
-        "
-          set dotenv-load
-          baz:
-           @echo $A $B $C
-        ",
-      ),
+      "
+        set dotenv-load
+        baz:
+         @echo $A $B $C
+      ",
     )
     .write(
       ".env",
-      unindent(
-        "
-          A=1
-          B=2
-          C=3
-        ",
-      ),
+      "
+        A=1
+        B=2
+        C=3
+      ",
     )
     .write("foo/.env", "B=20")
     .write("foo/bar/.env", "C=300")
@@ -1257,13 +1187,11 @@ fn submodule_dotenv_load_false_skips_own_but_inherits_parent() {
     )
     .write(
       "foo/mod.just",
-      unindent(
-        "
-          set dotenv-load := false
-          foo:
-           @echo $ROOT_KEY ${SUB_KEY:-unset}
-        ",
-      ),
+      "
+        set dotenv-load := false
+        foo:
+         @echo $ROOT_KEY ${SUB_KEY:-unset}
+      ",
     )
     .write(".env", "ROOT_KEY=root")
     .write("foo/.env", "SUB_KEY=sub")
@@ -1277,12 +1205,10 @@ fn modules_may_specify_path() {
   Test::new()
     .write(
       "commands/foo.just",
-      unindent(
-        "
-          foo:
-           @echo FOO
-        ",
-      ),
+      "
+        foo:
+         @echo FOO
+      ",
     )
     .justfile(
       "
@@ -1300,12 +1226,10 @@ fn modules_may_specify_path_to_directory() {
   Test::new()
     .write(
       "commands/bar/mod.just",
-      unindent(
-        "
-          foo:
-           @echo FOO
-        ",
-      ),
+      "
+        foo:
+         @echo FOO
+      ",
     )
     .justfile(
       "
@@ -1323,12 +1247,10 @@ fn modules_with_paths_are_dumped_correctly() {
   Test::new()
     .write(
       "commands/foo.just",
-      unindent(
-        "
-          foo:
-           @echo FOO
-        ",
-      ),
+      "
+        foo:
+         @echo FOO
+      ",
     )
     .justfile(
       "
@@ -1345,12 +1267,10 @@ fn optional_modules_with_paths_are_dumped_correctly() {
   Test::new()
     .write(
       "commands/foo.just",
-      unindent(
-        "
-          foo:
-           @echo FOO
-        ",
-      ),
+      "
+        foo:
+         @echo FOO
+      ",
     )
     .justfile(
       "
@@ -1383,12 +1303,10 @@ fn submodule_shell_recipes_run_in_submodule_directory() {
     .write("foo/bar", "BAR")
     .write(
       "foo/mod.just",
-      unindent(
-        "
-          foo:
-           @cat bar
-        ",
-      ),
+      "
+        foo:
+         @cat bar
+      ",
     )
     .justfile(
       "
@@ -1407,13 +1325,11 @@ fn submodule_shebang_recipes_run_in_submodule_directory() {
     .write("foo/bar", "BAR")
     .write(
       "foo/mod.just",
-      unindent(
-        "
-          foo:
-           #!/bin/sh
-           cat bar
-        ",
-      ),
+      "
+        foo:
+         #!/bin/sh
+         cat bar
+      ",
     )
     .justfile(
       "
@@ -1432,12 +1348,10 @@ fn cross_module_dependency_runs_in_submodule_directory() {
     .write("foo/bar", "BAR")
     .write(
       "foo/mod.just",
-      unindent(
-        "
-          foo:
-           @cat bar
-        ",
-      ),
+      "
+        foo:
+         @cat bar
+      ",
     )
     .justfile(
       "
@@ -1457,13 +1371,11 @@ fn cross_module_dependency_with_no_cd_runs_in_invocation_directory() {
     .write("root_file", "ROOT")
     .write(
       "foo/mod.just",
-      unindent(
-        "
-          [no-cd]
-          foo:
-            @cat root_file
-        ",
-      ),
+      "
+        [no-cd]
+        foo:
+          @cat root_file
+      ",
     )
     .justfile(
       "
@@ -1483,12 +1395,10 @@ fn nested_cross_module_dependency_runs_in_correct_directory() {
     .write("outer/inner/file", "NESTED")
     .write(
       "outer/inner/mod.just",
-      unindent(
-        "
-          task:
-           @cat file
-        ",
-      ),
+      "
+        task:
+         @cat file
+      ",
     )
     .write("outer/mod.just", "mod inner")
     .justfile(
@@ -1511,12 +1421,10 @@ fn modulepaths_beginning_with_tilde_are_expanded_to_homdir() {
   Test::new()
     .write(
       "foobar/mod.just",
-      unindent(
-        "
-          foo:
-           @echo FOOBAR
-        ",
-      ),
+      "
+        foo:
+         @echo FOOBAR
+      ",
     )
     .justfile(
       "
@@ -1535,12 +1443,10 @@ fn recipes_with_same_name_are_both_run() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          bar:
-           @echo MODULE
-        ",
-      ),
+      "
+        bar:
+         @echo MODULE
+      ",
     )
     .justfile(
       "
@@ -1570,12 +1476,10 @@ fn submodule_recipe_not_found_spaced_error_message() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          bar:
-           @echo MODULE
-        ",
-      ),
+      "
+        bar:
+         @echo MODULE
+      ",
     )
     .justfile(
       "
@@ -1592,12 +1496,10 @@ fn submodule_recipe_not_found_colon_separated_error_message() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          bar:
-           @echo MODULE
-        ",
-      ),
+      "
+        bar:
+         @echo MODULE
+      ",
     )
     .justfile(
       "
@@ -1659,12 +1561,10 @@ fn comments_can_follow_modules() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          foo:
-           @echo FOO
-        ",
-      ),
+      "
+        foo:
+         @echo FOO
+      ",
     )
     .justfile(
       "
@@ -1961,12 +1861,10 @@ fn exported_variables_are_available_in_submodules() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          bar:
-           @echo $x
-        ",
-      ),
+      "
+        bar:
+         @echo $x
+      ",
     )
     .justfile(
       "
@@ -1986,13 +1884,11 @@ fn exported_variables_can_be_unexported_in_submodules() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          unexport x
-          bar:
-           @echo ${x:-default}
-        ",
-      ),
+      "
+        unexport x
+        bar:
+         @echo ${x:-default}
+      ",
     )
     .justfile(
       "
@@ -2012,13 +1908,11 @@ fn exported_variables_can_be_overridden_in_submodules() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          export x := 'b'
-          bar:
-           @echo $x
-        ",
-      ),
+      "
+        export x := 'b'
+        bar:
+         @echo $x
+      ",
     )
     .justfile(
       "
@@ -2038,12 +1932,10 @@ fn verbose_message_includes_module_path() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          bar:
-           @echo BAR
-        ",
-      ),
+      "
+        bar:
+         @echo BAR
+      ",
     )
     .justfile(
       "
@@ -2061,12 +1953,10 @@ fn trailing_separator_runs_default_recipe() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          @bar:
-           echo FOO
-        ",
-      ),
+      "
+        @bar:
+         echo FOO
+      ",
     )
     .justfile(
       "
@@ -2084,12 +1974,10 @@ fn nested_trailing_separator_runs_default_recipe() {
     .write("foo.just", "mod bar")
     .write(
       "bar.just",
-      unindent(
-        "
-          @baz:
-           echo BAZ
-        ",
-      ),
+      "
+        @baz:
+         echo BAZ
+      ",
     )
     .justfile(
       "
@@ -2107,12 +1995,10 @@ fn trailing_separator_no_default_recipe() {
     .write("foo.just", "import 'bar.just'")
     .write(
       "bar.just",
-      unindent(
-        "
-          bar:
-           @echo BAR
-        ",
-      ),
+      "
+        bar:
+         @echo BAR
+      ",
     )
     .justfile(
       "
@@ -2129,12 +2015,10 @@ fn trailing_separator_not_last_argument() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          bar:
-           @echo BAR
-        ",
-      ),
+      "
+        bar:
+         @echo BAR
+      ",
     )
     .justfile(
       "

@@ -377,12 +377,10 @@ fn list_group_with_submodules() {
     )
     .write(
       "bar.just",
-      unindent(
-        "
-          c:
-          d:
-        ",
-      ),
+      "
+        c:
+        d:
+      ",
     )
     .args(["--list", "--group", "foo", "--list-submodules"])
     .stdout(

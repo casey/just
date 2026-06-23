@@ -13,12 +13,10 @@ fn macos() {
     .test_round_trip(false)
     .write(
       "Library/Application Support/just/justfile",
-      unindent(
-        "
-          @default:
-            echo foo
-        ",
-      ),
+      "
+        @default:
+          echo foo
+      ",
     )
     .env("HOME", path.to_str().unwrap())
     .args(["--global-justfile"])
@@ -39,12 +37,10 @@ fn not_macos() {
     .test_round_trip(false)
     .write(
       "just/justfile",
-      unindent(
-        "
-          @default:
-            echo foo
-        ",
-      ),
+      "
+        @default:
+          echo foo
+      ",
     )
     .env("XDG_CONFIG_HOME", path.to_str().unwrap())
     .args(["--global-justfile"])
@@ -65,12 +61,10 @@ fn unix() {
     .test_round_trip(false)
     .write(
       "justfile",
-      unindent(
-        "
-          @default:
-            echo foo
-        ",
-      ),
+      "
+        @default:
+          echo foo
+      ",
     )
     .env("HOME", path.to_str().unwrap())
     .args(["--global-justfile"])
@@ -82,12 +76,10 @@ fn unix() {
     .test_round_trip(false)
     .write(
       ".config/just/justfile",
-      unindent(
-        "
-          @default:
-            echo bar
-        ",
-      ),
+      "
+        @default:
+          echo bar
+      ",
     )
     .env("HOME", path.to_str().unwrap())
     .args(["--global-justfile"])
@@ -108,12 +100,10 @@ fn case_insensitive() {
     .test_round_trip(false)
     .write(
       "just/JUSTFILE",
-      unindent(
-        "
-          @default:
-            echo foo
-        ",
-      ),
+      "
+        @default:
+          echo foo
+      ",
     )
     .env("XDG_CONFIG_HOME", path.to_str().unwrap())
     .args(["--global-justfile"])

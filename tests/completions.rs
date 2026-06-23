@@ -399,12 +399,10 @@ fn aliases_in_modules() {
     )
     .write(
       "bar.just",
-      unindent(
-        "
-          foo:
-          alias b := foo
-        ",
-      ),
+      "
+        foo:
+        alias b := foo
+      ",
     )
     .shell(false)
     .env("JUST_COMPLETE", "fish")

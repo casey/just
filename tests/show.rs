@@ -136,12 +136,10 @@ fn show_recipe_at_path() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          bar:
-           @echo MODULE
-        ",
-      ),
+      "
+        bar:
+         @echo MODULE
+      ",
     )
     .justfile(
       "
@@ -166,12 +164,10 @@ fn show_space_separated_path() {
   Test::new()
     .write(
       "foo.just",
-      unindent(
-        "
-          bar:
-           @echo MODULE
-        ",
-      ),
+      "
+        bar:
+         @echo MODULE
+      ",
     )
     .justfile(
       "
@@ -189,12 +185,10 @@ fn show_recipe_in_search_directory() {
     .justfile("foo:\n @echo ROOT")
     .write(
       "child/justfile",
-      unindent(
-        "
-          foo:
-           @echo CHILD
-        ",
-      ),
+      "
+        foo:
+         @echo CHILD
+      ",
     )
     .current_dir("child")
     .args(["--show", "../foo"])
