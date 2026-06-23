@@ -31,8 +31,7 @@ impl<'src> AttributeSet<'src> {
     valid: &[AttributeKind],
   ) -> Result<(), CompileError<'src>> {
     for attribute in self.0.keys() {
-      let kind = attribute.kind();
-      if !valid.contains(&kind) {
+      if !valid.contains(&attribute.kind()) {
         return Err(item_token.error(CompileErrorKind::InvalidAttribute {
           item_kind,
           item_name: item_token.lexeme(),
