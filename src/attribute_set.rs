@@ -9,14 +9,11 @@ impl<'src> AttributeSet<'src> {
   }
 
   pub(crate) fn contains(&self, target: AttributeKind) -> bool {
-    self.0.keys().any(|attr| attr.discriminant() == target)
+    self.0.keys().any(|attr| attr.kind() == target)
   }
 
   pub(crate) fn get(&self, discriminant: AttributeKind) -> Option<&Attribute<'src>> {
-    self
-      .0
-      .keys()
-      .find(|attr| discriminant == attr.discriminant())
+    self.0.keys().find(|attr| discriminant == attr.kind())
   }
 
   pub(crate) fn name(&self, attribute: &Attribute<'src>) -> Name<'src> {
@@ -34,7 +31,7 @@ impl<'src> AttributeSet<'src> {
     valid: &[AttributeKind],
   ) -> Result<(), CompileError<'src>> {
     for attribute in self.0.keys() {
-      let discriminant = attribute.discriminant();
+      let discriminant = attribute.kind();
       if !valid.contains(&discriminant) {
         return Err(item_token.error(CompileErrorKind::InvalidAttribute {
           item_kind,

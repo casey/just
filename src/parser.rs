@@ -1707,7 +1707,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         let first = if attribute.repeatable() {
           None
         } else {
-          discriminants.get(&attribute.discriminant())
+          discriminants.get(&attribute.kind())
         };
 
         if let Some(&first) = first {
@@ -1728,7 +1728,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           arg_attributes.insert(arg.cooked.clone(), name.line);
         }
 
-        discriminants.insert(attribute.discriminant(), name.line);
+        discriminants.insert(attribute.kind(), name.line);
 
         attributes.push((attribute, name));
 

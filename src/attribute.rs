@@ -357,7 +357,7 @@ impl<'src> Attribute<'src> {
     Ok(string_literal)
   }
 
-  pub(crate) fn discriminant(&self) -> AttributeKind {
+  pub(crate) fn kind(&self) -> AttributeKind {
     self.into()
   }
 
