@@ -944,6 +944,39 @@ fn clean_path_removes_exact_recipe() {
 }
 
 #[test]
+fn clean_path_removes_empty_entries() {
+  let output = Test::new()
+    .justfile(
+      "
+        [cache(outputs = 'foo')]
+        [script]
+        bar:
+          echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("bar\n")
+    .stderr_regex(r"error: recipe `bar` failed to create cache output `foo`\n")
+    .failure();
+
+  let entries = fs::read_dir(output.tempdir.path().join(".justcache"))
+    .unwrap()
+    .map(|entry| entry.unwrap().path())
+    .collect::<Vec<PathBuf>>();
+
+  assert_eq!(entries.len(), 1);
+  assert_eq!(fs::read_to_string(&entries[0]).unwrap(), "");
+
+  let output = Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .args(["--clean", "bar"])
+    .stderr("removed 1 cache entry\n")
+    .success();
+
+  assert!(!output.tempdir.path().join(".justcache").exists());
+}
+
+#[test]
 fn hit_prints_verbose_message() {
   let output = Test::new()
     .justfile(
