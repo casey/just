@@ -5,7 +5,7 @@ pub(crate) struct Analyzer<'run, 'src> {
   assignments: Vec<&'run Binding<'src, Expression<'src>>>,
   functions: Vec<&'run FunctionDefinition<'src>>,
   modules: Table<'src, Justfile<'src>>,
-  recipe_aliases: Table<'src, Alias<'src, Namepath<'src>>>,
+  aliases: Table<'src, Alias<'src, Namepath<'src>>>,
   recipes: Vec<&'run Recipe<'src, UnresolvedDependency<'src>>>,
   sets: Table<'src, Set<'src>>,
   unexports: HashSet<String>,
@@ -62,7 +62,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
         match item {
           Item::Alias(alias) => {
             Self::define(&mut definitions, alias.name, "alias", false)?;
-            self.recipe_aliases.insert(alias.clone());
+            self.aliases.insert(alias.clone());
           }
           Item::Assignment(assignment) => {
             self.assignments.push(assignment);
@@ -305,7 +305,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut recipe_aliases = Table::new();
     let mut module_aliases = Table::new();
     let mut disabled_aliases = Table::new();
-    while let Some(alias) = self.recipe_aliases.pop() {
+    while let Some(alias) = self.aliases.pop() {
       if let Some(resolution) =
         Resolution::resolve_module(&alias.target, &absent_modules, &self.modules)
       {
