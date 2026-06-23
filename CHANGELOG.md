@@ -1,6 +1,52 @@
 Changelog
 =========
 
+[1.54.0](https://github.com/casey/just/releases/tag/1.54.0) - 2026-06-22
+------------------------------------------------------------------------
+
+### Fixed
+- Forbid duplicate attribute keys ([#3454](https://github.com/casey/just/pull/3454) by [casey](https://github.com/casey))
+- Clear signal handler when infallible line catches signal ([#3444](https://github.com/casey/just/pull/3444) by [casey](https://github.com/casey))
+
+### Changed
+- Allow passing `--dotenv-command` multiple times ([#3445](https://github.com/casey/just/pull/3445) by [casey](https://github.com/casey))
+- Allow `[arg]` `value` to be expression ([#3429](https://github.com/casey/just/pull/3429) by [casey](https://github.com/casey))
+
+### Added
+- Add `[continue]` attribute ([#3442](https://github.com/casey/just/pull/3442) by [casey](https://github.com/casey))
+- Add `--dotenv-command` and `set dotenv-command` ([#3441](https://github.com/casey/just/pull/3441) by [casey](https://github.com/casey))
+
+### Cached Recipes
+- Add cache key to verbose output ([#3465](https://github.com/casey/just/pull/3465) by [casey](https://github.com/casey))
+- Add `--no-cache` flag ([#3463](https://github.com/casey/just/pull/3463) by [casey](https://github.com/casey))
+- Remove empty cache entries with `just --clean` ([#3462](https://github.com/casey/just/pull/3462) by [casey](https://github.com/casey))
+- Add `just --clean` instructions to readme ([#3461](https://github.com/casey/just/pull/3461) by [casey](https://github.com/casey))
+- Allow filtering `--clean` by recipe and module path ([#3460](https://github.com/casey/just/pull/3460) by [casey](https://github.com/casey))
+- Add `--clean` subcommand for clearing recipe cache ([#3459](https://github.com/casey/just/pull/3459) by [casey](https://github.com/casey))
+- Include recipe name in cache entries ([#3457](https://github.com/casey/just/pull/3457) by [casey](https://github.com/casey))
+- Add extra user-supplied cache key ([#3456](https://github.com/casey/just/pull/3456) by [casey](https://github.com/casey))
+- Fix working directory cache key ([#3455](https://github.com/casey/just/pull/3455) by [casey](https://github.com/casey))
+- Add output files to cached recipes ([#3453](https://github.com/casey/just/pull/3453) by [casey](https://github.com/casey))
+- Add file inputs to cached recipes ([#3452](https://github.com/casey/just/pull/3452) by [casey](https://github.com/casey))
+- Use body lines in cache key ([#3451](https://github.com/casey/just/pull/3451) by [casey](https://github.com/casey))
+- Use recipe body in cache key instead of lines ([#3447](https://github.com/casey/just/pull/3447) by [casey](https://github.com/casey))
+- Add additional cache keys ([#3446](https://github.com/casey/just/pull/3446) by [casey](https://github.com/casey))
+- Add cached recipes ([#3437](https://github.com/casey/just/pull/3437) by [casey](https://github.com/casey))
+
+### Misc
+- Rename `AttributeDiscriminant` to `AttributeKind` ([#3464](https://github.com/casey/just/pull/3464) by [casey](https://github.com/casey))
+- Improve invalid shell recipe attribute error message ([#3458](https://github.com/casey/just/pull/3458) by [casey](https://github.com/casey))
+- Add `Environment` struct ([#3450](https://github.com/casey/just/pull/3450) by [casey](https://github.com/casey))
+- Remove `Test::no_justfile()` ([#3449](https://github.com/casey/just/pull/3449) by [casey](https://github.com/casey))
+- Use plural consistently in `UnstableFeature` enum ([#3448](https://github.com/casey/just/pull/3448) by [casey](https://github.com/casey))
+- Lowercase `ctrl` consistently ([#3443](https://github.com/casey/just/pull/3443) by [casey](https://github.com/casey))
+- Add activating environments section to readme ([#3440](https://github.com/casey/just/pull/3440) by [casey](https://github.com/casey))
+- Bump minimum-supported Rust version to 1.89.0 ([#3438](https://github.com/casey/just/pull/3438) by [casey](https://github.com/casey))
+- Make non-unicode error messages consistent ([#3436](https://github.com/casey/just/pull/3436) by [casey](https://github.com/casey))
+- Lowercase function error messages ([#3435](https://github.com/casey/just/pull/3435) by [casey](https://github.com/casey))
+- Reword readme ([#3433](https://github.com/casey/just/pull/3433) by [casey](https://github.com/casey))
+- Remove emacs `Local Variables:` block from justfile ([#3432](https://github.com/casey/just/pull/3432) by [casey](https://github.com/casey))
+
 [1.53.0](https://github.com/casey/just/releases/tag/1.53.0) - 2026-06-16
 ------------------------------------------------------------------------
 
