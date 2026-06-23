@@ -816,6 +816,11 @@ fn clean_quiet_suppresses_count() {
     .stdout("bar\n")
     .success();
 
+  let output = Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .args(["--quiet", "--clean"])
+    .success();
+
   Test::with_tempdir(output.tempdir)
     .env("JUST_UNSTABLE", "1")
     .args(["--quiet", "--clean"])
