@@ -680,7 +680,11 @@ impl Subcommand {
       BTreeMap::new()
     } else {
       let mut aliases = BTreeMap::<&str, Vec<&str>>::new();
-      for alias in module.aliases.values().filter(|alias| alias.is_public()) {
+      for alias in module
+        .recipe_aliases
+        .values()
+        .filter(|alias| alias.is_public())
+      {
         aliases
           .entry(alias.target.name.lexeme())
           .or_default()
@@ -985,7 +989,7 @@ impl Subcommand {
 
     let name = path.components.last().unwrap();
 
-    if let Some(alias) = module.get_alias(name) {
+    if let Some(alias) = module.get_recipe_alias(name) {
       Ok((Some(alias), &alias.target))
     } else if let Some(recipe) = module.get_recipe(name) {
       Ok((None, recipe))

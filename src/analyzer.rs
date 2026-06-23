@@ -302,56 +302,56 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       deduplicated_recipes,
     )?;
 
-    let mut aliases = Table::new();
-    let mut disabled_aliases = Table::new();
+    let mut recipe_aliases = Table::new();
     let mut module_aliases = Table::new();
+    let mut disabled_aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
-      match Resolution::resolve_module(&alias.target, &self.modules, &absent_modules) {
-        Some(Resolution::Resolved(target)) => {
-          module_aliases.insert(ModuleAlias {
-            attributes: alias.attributes,
-            name: alias.name,
-            target,
-          });
-          continue;
+      if let Some(resolution) =
+        Resolution::resolve_module(&alias.target, &self.modules, &absent_modules)
+      {
+        match resolution {
+          Resolution::Resolved(target) => {
+            module_aliases.insert(ModuleAlias {
+              attributes: alias.attributes,
+              name: alias.name,
+              target,
+            });
+          }
+          Resolution::Disabled(modules) => {
+            disabled_aliases.insert(Disabled {
+              modules,
+              name: alias.name,
+            });
+          }
         }
-        Some(Resolution::Disabled(modules)) => {
-          disabled_aliases.insert(Disabled {
-            modules,
-            name: alias.name,
-          });
-          continue;
-        }
-        None => {}
-      }
-
-      match Resolution::resolve_recipe(
+      } else if let Some(resolution) = Resolution::resolve_recipe(
         &alias.target,
         &self.modules,
         &absent_modules,
         &recipes,
         &disabled_recipes,
       ) {
-        Some(Resolution::Resolved(target)) => {
-          aliases.insert(alias.resolve(target));
+        match resolution {
+          Resolution::Resolved(target) => {
+            recipe_aliases.insert(alias.resolve(target));
+          }
+          Resolution::Disabled(modules) => {
+            disabled_aliases.insert(Disabled {
+              modules,
+              name: alias.name,
+            });
+          }
         }
-        Some(Resolution::Disabled(modules)) => {
-          disabled_aliases.insert(Disabled {
-            modules,
-            name: alias.name,
-          });
-        }
-        None => {
-          return Err(
-            alias
-              .name
-              .error(UnknownAliasTarget {
-                alias: alias.name.lexeme(),
-                target: alias.target,
-              })
-              .into(),
-          );
-        }
+      } else {
+        return Err(
+          alias
+            .name
+            .error(UnknownAliasTarget {
+              alias: alias.name.lexeme(),
+              target: alias.target,
+            })
+            .into(),
+        );
       }
     }
 
@@ -392,7 +392,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     Ok(Justfile {
       absent_modules,
-      aliases,
+      recipe_aliases,
       assignments,
       default,
       disabled_aliases,
