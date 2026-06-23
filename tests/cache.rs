@@ -727,6 +727,78 @@ fn current_directory_invalidates_cache() {
 }
 
 #[test]
+fn clean_removes_cache_directory() {
+  let output = Test::new()
+    .justfile(
+      "
+        [cache]
+        [script]
+        foo:
+          echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("bar\n")
+    .success();
+
+  let cache = output.tempdir.path().join(".justcache");
+  assert!(cache.exists());
+
+  let output = Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .arg("--clean")
+    .success();
+
+  assert!(!output.tempdir.path().join(".justcache").exists());
+}
+
+#[test]
+fn clean_removes_entries_but_leaves_unexpected_entries() {
+  let output = Test::new()
+    .justfile(
+      "
+        [cache]
+        [script]
+        foo:
+          echo bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stdout("bar\n")
+    .success();
+
+  let output = Test::with_tempdir(output.tempdir)
+    .env("JUST_UNSTABLE", "1")
+    .write(".justcache/foo", "bar")
+    .arg("--clean")
+    .success();
+
+  let cache = output.tempdir.path().join(".justcache");
+
+  let entries = fs::read_dir(&cache)
+    .unwrap()
+    .map(|entry| entry.unwrap().path())
+    .collect::<Vec<PathBuf>>();
+
+  assert_eq!(entries, &[cache.join("foo")]);
+}
+
+#[test]
+fn clean_succeeds_without_cache_directory() {
+  let output = Test::new()
+    .justfile(
+      "
+        foo:
+          echo bar
+      ",
+    )
+    .arg("--clean")
+    .success();
+
+  assert!(!output.tempdir.path().join(".justcache").exists());
+}
+
+#[test]
 fn hit_prints_verbose_message() {
   let output = Test::new()
     .justfile(
