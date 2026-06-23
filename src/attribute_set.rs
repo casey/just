@@ -8,12 +8,12 @@ impl<'src> AttributeSet<'src> {
     self.0.len()
   }
 
-  pub(crate) fn contains(&self, target: AttributeKind) -> bool {
-    self.0.keys().any(|attr| attr.kind() == target)
+  pub(crate) fn contains(&self, kind: AttributeKind) -> bool {
+    self.0.keys().any(|attribute| attribute.kind() == kind)
   }
 
   pub(crate) fn get(&self, kind: AttributeKind) -> Option<&Attribute<'src>> {
-    self.0.keys().find(|attr| kind == attr.kind())
+    self.0.keys().find(|attribute| attribute.kind == kind)
   }
 
   pub(crate) fn name(&self, attribute: &Attribute<'src>) -> Name<'src> {
