@@ -60,7 +60,7 @@ impl Cache {
 
   pub(crate) fn new(search: &Search) -> Self {
     Self {
-      path: search.justfile_parent().join(DIR),
+      path: Self::dir(search),
       initialized: Mutex::new(false),
     }
   }
@@ -113,5 +113,9 @@ impl Cache {
     }
 
     Ok(inputs)
+  }
+
+  pub(crate) fn dir(search: &Search) -> PathBuf {
+    search.justfile_parent().join(DIR)
   }
 }
