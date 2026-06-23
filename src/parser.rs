@@ -571,15 +571,15 @@ impl<'run, 'src> Parser<'run, 'src> {
             "module",
             *name,
             &[
-              AttributeDiscriminant::Doc,
-              AttributeDiscriminant::Group,
-              AttributeDiscriminant::Private,
+              AttributeKind::Doc,
+              AttributeKind::Group,
+              AttributeKind::Private,
             ],
           )?;
 
           let doc = self.take_doc_comment(&attributes);
 
-          let private = attributes.contains(AttributeDiscriminant::Private);
+          let private = attributes.contains(AttributeKind::Private);
 
           let mut groups = Vec::new();
           for attribute in attributes {
@@ -633,7 +633,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.presume_any(&[Equals, ColonEquals])?;
     let target = self.parse_namepath()?;
 
-    attributes.ensure_valid_attributes("alias", *name, &[AttributeDiscriminant::Private])?;
+    attributes.ensure_valid_attributes("alias", *name, &[AttributeKind::Private])?;
 
     Ok(Alias {
       attributes,
@@ -683,9 +683,9 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.presume(ColonEquals)?;
     let value = self.parse_expression()?;
 
-    let private = attributes.contains(AttributeDiscriminant::Private);
+    let private = attributes.contains(AttributeKind::Private);
 
-    attributes.ensure_valid_attributes("assignment", *name, &[AttributeDiscriminant::Private])?;
+    attributes.ensure_valid_attributes("assignment", *name, &[AttributeKind::Private])?;
 
     Ok(Assignment {
       eager,
@@ -1366,10 +1366,10 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let shebang = body.first().is_some_and(Line::is_shebang);
 
-    let script = attributes.contains(AttributeDiscriminant::Script);
+    let script = attributes.contains(AttributeKind::Script);
 
-    if attributes.contains(AttributeDiscriminant::WorkingDirectory)
-      && attributes.contains(AttributeDiscriminant::NoCd)
+    if attributes.contains(AttributeKind::WorkingDirectory)
+      && attributes.contains(AttributeKind::NoCd)
     {
       return Err(
         name.error(CompileErrorKind::NoCdAndWorkingDirectoryAttribute {
@@ -1378,8 +1378,8 @@ impl<'run, 'src> Parser<'run, 'src> {
       );
     }
 
-    if attributes.contains(AttributeDiscriminant::ExitMessage)
-      && attributes.contains(AttributeDiscriminant::NoExitMessage)
+    if attributes.contains(AttributeKind::ExitMessage)
+      && attributes.contains(AttributeKind::NoExitMessage)
     {
       return Err(
         name.error(CompileErrorKind::ExitMessageAndNoExitMessageAttribute {
@@ -1388,16 +1388,13 @@ impl<'run, 'src> Parser<'run, 'src> {
       );
     }
 
-    if attributes.contains(AttributeDiscriminant::Script)
-      && attributes.contains(AttributeDiscriminant::Shell)
-    {
+    if attributes.contains(AttributeKind::Script) && attributes.contains(AttributeKind::Shell) {
       return Err(name.error(CompileErrorKind::ScriptAndShellAttribute {
         recipe: name.lexeme(),
       }));
     }
 
-    let private =
-      name.lexeme().starts_with('_') || attributes.contains(AttributeDiscriminant::Private);
+    let private = name.lexeme().starts_with('_') || attributes.contains(AttributeKind::Private);
 
     let doc = self.take_doc_comment(&attributes);
 
@@ -1633,7 +1630,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_attributes(&mut self) -> CompileResult<'src, Option<(Token<'src>, AttributeSet<'src>)>> {
     let mut arg_attributes = BTreeMap::new();
     let mut attributes = Vec::new();
-    let mut discriminants = BTreeMap::new();
+    let mut kinds = BTreeMap::new();
 
     let mut token = None;
 
@@ -1643,16 +1640,13 @@ impl<'run, 'src> Parser<'run, 'src> {
       loop {
         let name = self.parse_name()?;
 
-        let discriminant = name
-          .lexeme()
-          .parse::<AttributeDiscriminant>()
-          .map_err(|_| {
-            name.error(CompileErrorKind::UnknownAttribute {
-              attribute: name.lexeme(),
-            })
-          })?;
+        let kind = name.lexeme().parse::<AttributeKind>().map_err(|_| {
+          name.error(CompileErrorKind::UnknownAttribute {
+            attribute: name.lexeme(),
+          })
+        })?;
 
-        if discriminant == AttributeDiscriminant::Cache {
+        if kind == AttributeKind::Cache {
           self
             .unstable_features
             .insert(UnstableFeature::CachedRecipes);
@@ -1668,7 +1662,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         } else if self.accepted(ParenL)? {
           if !self.next_is(ParenR) {
             loop {
-              if discriminant.accepts_keyword_arguments()
+              if kind.accepts_keyword_arguments()
                 && self.next_is(Identifier)
                 && !self.next_is_shell_expanded_string()
               {
@@ -1708,12 +1702,12 @@ impl<'run, 'src> Parser<'run, 'src> {
           self.expect(ParenR)?;
         }
 
-        let attribute = Attribute::new(name, discriminant, arguments, keyword_arguments)?;
+        let attribute = Attribute::new(name, kind, arguments, keyword_arguments)?;
 
         let first = if attribute.repeatable() {
           None
         } else {
-          discriminants.get(&attribute.discriminant())
+          kinds.get(&attribute.kind())
         };
 
         if let Some(&first) = first {
@@ -1734,7 +1728,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           arg_attributes.insert(arg.cooked.clone(), name.line);
         }
 
-        discriminants.insert(attribute.discriminant(), name.line);
+        kinds.insert(attribute.kind(), name.line);
 
         attributes.push((attribute, name));
 

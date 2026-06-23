@@ -276,10 +276,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           continued = line.is_continuation();
         }
 
-        for attribute in [
-          AttributeDiscriminant::Cache,
-          AttributeDiscriminant::Extension,
-        ] {
+        for attribute in [AttributeKind::Cache, AttributeKind::Extension] {
           if let Some(attribute) = recipe.attributes.get(attribute) {
             return Err(
               recipe
@@ -343,7 +340,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     let mut default = None;
     for recipe in recipes.values() {
-      if recipe.attributes.contains(AttributeDiscriminant::Default) {
+      if recipe.attributes.contains(AttributeKind::Default) {
         if default.is_some() {
           return Err(
             recipe

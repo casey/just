@@ -8,15 +8,12 @@ impl<'src> AttributeSet<'src> {
     self.0.len()
   }
 
-  pub(crate) fn contains(&self, target: AttributeDiscriminant) -> bool {
-    self.0.keys().any(|attr| attr.discriminant() == target)
+  pub(crate) fn contains(&self, kind: AttributeKind) -> bool {
+    self.0.keys().any(|attribute| attribute.kind() == kind)
   }
 
-  pub(crate) fn get(&self, discriminant: AttributeDiscriminant) -> Option<&Attribute<'src>> {
-    self
-      .0
-      .keys()
-      .find(|attr| discriminant == attr.discriminant())
+  pub(crate) fn get(&self, kind: AttributeKind) -> Option<&Attribute<'src>> {
+    self.0.keys().find(|attribute| attribute.kind() == kind)
   }
 
   pub(crate) fn name(&self, attribute: &Attribute<'src>) -> Name<'src> {
@@ -31,11 +28,10 @@ impl<'src> AttributeSet<'src> {
     &self,
     item_kind: &'static str,
     item_token: Token<'src>,
-    valid: &[AttributeDiscriminant],
+    valid: &[AttributeKind],
   ) -> Result<(), CompileError<'src>> {
     for attribute in self.0.keys() {
-      let discriminant = attribute.discriminant();
-      if !valid.contains(&discriminant) {
+      if !valid.contains(&attribute.kind()) {
         return Err(item_token.error(CompileErrorKind::InvalidAttribute {
           item_kind,
           item_name: item_token.lexeme(),
