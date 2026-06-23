@@ -556,85 +556,81 @@ impl<'src> Recipe<'src> {
         .insert(name.clone(), Some(value.clone()));
     }
 
-    let (cache_lock, outputs) =
-      if !config.no_cache && self.attributes.contains(AttributeKind::Cache) {
-        let Some(Attribute::Cache {
-          extra,
-          inputs,
-          outputs,
-        }) = self.attributes.get(AttributeKind::Cache)
-        else {
-          unreachable!()
-        };
-
-        let working_directory = match &working_directory {
-          Some(working_directory) => working_directory.to_owned(),
-          None => env::current_dir().map_err(|source| Error::CurrentDirectory { source })?,
-        };
-
-        let extra = extra
-          .as_ref()
-          .map(|extra| evaluator.evaluate_value(extra))
-          .transpose()?;
-
-        let inputs = inputs
-          .as_ref()
-          .map(|inputs| {
-            let inputs = evaluator.evaluate_value(inputs)?;
-            Cache::inputs(inputs, &working_directory)
-          })
-          .transpose()?;
-
-        let outputs = outputs
-          .as_ref()
-          .map(|outputs| -> RunResult<BTreeMap<String, PathBuf>> {
-            let outputs = evaluator.evaluate_value(outputs)?;
-            Ok(
-              outputs
-                .into_elements()
-                .into_iter()
-                .map(|output| (output.clone(), working_directory.join(output)))
-                .collect(),
-            )
-          })
-          .transpose()?
-          .unwrap_or_default();
-
-        let key = CacheKey {
-          body: &evaluated_lines,
-          environment: &environment,
-          executor: &executor,
-          extra,
-          inputs,
-          positional: self
-            .takes_positional_arguments(&context.module.settings)
-            .then_some(positional),
-          recipe: self.recipe_path(),
-          working_directory: Some(&working_directory),
-        };
-
-        let lock = match cache.status(key, &outputs)? {
-          CacheStatus::Hit => {
-            if config.verbosity.loquacious() {
-              eprintln!(
-                "{}",
-                context
-                  .config
-                  .color
-                  .stderr()
-                  .banner()
-                  .paint("===> cache hit, skipping invocation"),
-              );
-            }
-            return Ok(());
-          }
-          CacheStatus::Miss(lock) => lock,
-        };
-
-        (Some(lock), outputs)
-      } else {
-        (None, BTreeMap::new())
+    let (cache_lock, outputs) = if !config.no_cache
+      && let Some(Attribute::Cache {
+        extra,
+        inputs,
+        outputs,
+      }) = self.attributes.get(AttributeKind::Cache)
+    {
+      let working_directory = match &working_directory {
+        Some(working_directory) => working_directory.to_owned(),
+        None => env::current_dir().map_err(|source| Error::CurrentDirectory { source })?,
       };
+
+      let extra = extra
+        .as_ref()
+        .map(|extra| evaluator.evaluate_value(extra))
+        .transpose()?;
+
+      let inputs = inputs
+        .as_ref()
+        .map(|inputs| {
+          let inputs = evaluator.evaluate_value(inputs)?;
+          Cache::inputs(inputs, &working_directory)
+        })
+        .transpose()?;
+
+      let outputs = outputs
+        .as_ref()
+        .map(|outputs| -> RunResult<BTreeMap<String, PathBuf>> {
+          let outputs = evaluator.evaluate_value(outputs)?;
+          Ok(
+            outputs
+              .into_elements()
+              .into_iter()
+              .map(|output| (output.clone(), working_directory.join(output)))
+              .collect(),
+          )
+        })
+        .transpose()?
+        .unwrap_or_default();
+
+      let key = CacheKey {
+        body: &evaluated_lines,
+        environment: &environment,
+        executor: &executor,
+        extra,
+        inputs,
+        positional: self
+          .takes_positional_arguments(&context.module.settings)
+          .then_some(positional),
+        recipe: self.recipe_path(),
+        working_directory: Some(&working_directory),
+      };
+
+      let lock = match cache.status(key, &outputs)? {
+        CacheStatus::Hit => {
+          if config.verbosity.loquacious() {
+            eprintln!(
+              "{}",
+              context
+                .config
+                .color
+                .stderr()
+                .banner()
+                .paint("===> cache hit, skipping invocation"),
+            );
+          }
+          return Ok(());
+        }
+        CacheStatus::Miss(lock) => lock,
+      };
+
+      (Some(lock), outputs)
+    } else {
+      (None, BTreeMap::new())
+    };
 
     let tempdir = context.tempdir(self)?;
 
