@@ -198,3 +198,66 @@ error: module `foo` defined on line 1 is redefined as an alias on line 3
     )
     .failure();
 }
+
+#[test]
+fn alias_to_absent_optional_module_is_disabled() {
+  Test::new()
+    .justfile(
+      "
+        mod? foo
+
+        alias f := foo
+      ",
+    )
+    .arg("f")
+    .stderr("error: alias `f` depends on absent module `foo`\n")
+    .failure();
+}
+
+#[test]
+fn alias_to_nested_absent_optional_module_is_disabled() {
+  Test::new()
+    .justfile(
+      "
+        mod foo
+
+        alias f := foo::bar
+      ",
+    )
+    .write("foo/mod.just", "mod? bar")
+    .arg("f")
+    .stderr("error: alias `f` depends on absent module `foo::bar`\n")
+    .failure();
+}
+
+#[test]
+fn disabled_module_alias_is_hidden_from_list() {
+  Test::new()
+    .justfile(
+      "
+        mod? foo
+
+        alias f := foo
+      ",
+    )
+    .arg("--list")
+    .stdout("Available recipes:\n")
+    .success();
+}
+
+#[test]
+fn module_alias_runs_once_module_is_present() {
+  Test::new()
+    .write("foo.just", "bar:\n @echo BAR")
+    .justfile(
+      "
+        mod? foo
+
+        alias f := foo
+      ",
+    )
+    .arg("f")
+    .arg("bar")
+    .stdout("BAR\n")
+    .success();
+}

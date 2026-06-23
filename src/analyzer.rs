@@ -1,5 +1,10 @@
 use {super::*, CompileErrorKind::*};
 
+enum ModuleTarget {
+  Absent(BTreeSet<Modulepath>),
+  Present(Modulepath),
+}
+
 #[derive(Default)]
 pub(crate) struct Analyzer<'run, 'src> {
   aliases: Table<'src, Alias<'src, Namepath<'src>>>,
@@ -306,13 +311,23 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut disabled_aliases = Table::new();
     let mut module_aliases = Table::new();
     while let Some(alias) = self.aliases.pop() {
-      if let Some(module) = Self::resolve_module(&alias.target, &self.modules) {
-        module_aliases.insert(ModuleAlias {
-          attributes: alias.attributes,
-          name: alias.name,
-          target: module.module_path.clone(),
-        });
-        continue;
+      match Self::resolve_module(&alias.target, &self.modules, &absent_modules) {
+        Some(ModuleTarget::Present(target)) => {
+          module_aliases.insert(ModuleAlias {
+            attributes: alias.attributes,
+            name: alias.name,
+            target,
+          });
+          continue;
+        }
+        Some(ModuleTarget::Absent(modules)) => {
+          disabled_aliases.insert(Disabled {
+            modules,
+            name: alias.name,
+          });
+          continue;
+        }
+        None => {}
       }
 
       match Resolution::resolve(
@@ -409,16 +424,32 @@ impl<'run, 'src> Analyzer<'run, 'src> {
   fn resolve_module<'a>(
     target: &Namepath<'src>,
     mut modules: &'a Table<'src, Justfile<'src>>,
-  ) -> Option<&'a Justfile<'src>> {
-    let mut module = None;
+    mut absent: &'a BTreeSet<String>,
+  ) -> Option<ModuleTarget> {
+    let (last, prefix) = target.split_last();
 
-    for name in target.iter() {
-      let next = modules.get(name.lexeme())?;
-      modules = &next.modules;
-      module = Some(next);
+    let mut walked = Vec::new();
+
+    for component in prefix {
+      let module = modules.get(component.lexeme())?;
+      modules = &module.modules;
+      absent = &module.absent_modules;
+      walked.push(component.lexeme().to_string());
     }
 
-    module
+    let lexeme = last.lexeme();
+
+    if let Some(module) = modules.get(lexeme) {
+      Some(ModuleTarget::Present(module.module_path.clone()))
+    } else if absent.contains(lexeme) {
+      walked.push(lexeme.to_string());
+      Some(ModuleTarget::Absent(BTreeSet::from([Modulepath {
+        components: walked,
+        spaced: false,
+      }])))
+    } else {
+      None
+    }
   }
 
   fn define(
