@@ -738,7 +738,7 @@ fn style(context: Context, spec: &Value, text: Option<&str>) -> StringResult {
         style.bold();
       }
       _ => return Err(format!("invalid style token `{token}`")),
-    };
+    }
   }
 
   Ok(match text {
