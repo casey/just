@@ -130,6 +130,7 @@ mod logical_operators;
 mod man;
 mod mapped_dependencies;
 mod markdown;
+mod minimum_version;
 mod misc;
 mod modules;
 mod multibyte_char;
