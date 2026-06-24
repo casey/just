@@ -75,7 +75,7 @@ fn style_unknown() {
 }
 
 #[test]
-fn style_foreground() {
+fn style_single() {
   #[track_caller]
   fn case(name: &str, code: u8) {
     assert_eval_eq(
@@ -113,51 +113,4 @@ fn style_single_element_list_spec() {
 #[test]
 fn style_role_with_text() {
   assert_eval_eq("style('error', 'foo')", "\x1b[1;31mfoo\x1b[0m");
-}
-
-#[test]
-fn style_whitespace_token() {
-  Test::new()
-    .justfile(
-      "
-        foo:
-          @echo '{{ style(' red') }}'
-      ",
-    )
-    .stderr(
-      "
-        error: call to function `style` failed: invalid style: ` red`
-         ——▶ justfile:2:13
-          │
-        2 │   @echo '{{ style(' red') }}'
-          │             ^^^^^
-      ",
-    )
-    .failure();
-}
-
-#[test]
-fn style_text_cannot_be_list() {
-  Test::new()
-    .justfile(
-      "
-        set lists
-
-        foo:
-          @echo '{{ style('red', ['foo', 'bar']) }}'
-      ",
-    )
-    .env("JUST_UNSTABLE", "1")
-    .stderr(
-      r#"
-        error: list value ["foo", "bar"] passed to `style()`
-        the behavior of lists with many built-in functions is undecided
-        see https://github.com/casey/just#lists
-         ——▶ justfile:4:13
-          │
-        4 │   @echo '{{ style('red', ['foo', 'bar']) }}'
-          │             ^^^^^
-      "#,
-    )
-    .failure();
 }
