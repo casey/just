@@ -734,25 +734,25 @@ fn style(context: Context, styles: &Value, text: Option<&str>) -> StringResult {
       // properties
       "blink" => style.blink(),
       "bold" => style.bold(),
-      "dimmed" => style.dimmed(),
+      "dim" => style.dimmed(),
       "hidden" => style.hidden(),
       "italic" => style.italic(),
       "reverse" => style.reverse(),
       "strikethrough" => style.strikethrough(),
       "underline" => style.underline(),
       // roles
-      "warning" => {
-        style.fg(Yellow);
+      "command" => {
+        if let Some(color) = context.execution_context.config.command_color {
+          style.fg(color);
+        }
         style.bold();
       }
       "error" => {
         style.fg(Red);
         style.bold();
       }
-      "command" => {
-        if let Some(color) = context.execution_context.config.command_color {
-          style.fg(color);
-        }
+      "warning" => {
+        style.fg(Yellow);
         style.bold();
       }
       _ => return Err(format!("invalid style token `{token}`")),
