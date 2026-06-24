@@ -92,6 +92,8 @@ fn style_single() {
   case("red", 31);
   case("white", 37);
   case("yellow", 33);
+
+  todo!()
 }
 
 #[test]
