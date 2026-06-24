@@ -1604,7 +1604,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           );
         };
 
-        if Version::parse(env!("CARGO_PKG_VERSION")).unwrap() < minimum {
+        if Version::parse(VERSION).unwrap() < minimum {
           return Err(
             string_literal
               .token

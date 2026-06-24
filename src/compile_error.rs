@@ -284,8 +284,7 @@ impl Display for CompileError<'_> {
       }
       MinimumVersion { minimum } => write!(
         f,
-        "justfile requires just {minimum} or later, but using {}",
-        env!("CARGO_PKG_VERSION"),
+        "justfile requires just {minimum} or later, but using {VERSION}",
       ),
       MinimumVersionNotStringLiteral => write!(
         f,
