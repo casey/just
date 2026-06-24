@@ -262,7 +262,7 @@ impl Display for CompileError<'_> {
       InvalidMinimumVersion { source, version } => {
         write!(
           f,
-          "setting `minimum-version` has invalid version `{version}`: {source}"
+          "`minimum-version` setting has invalid version `{version}`: {source}"
         )
       }
       InvalidSignal { signal } => write!(
@@ -287,7 +287,10 @@ impl Display for CompileError<'_> {
         "justfile requires just {minimum} or later, but using {current}",
       ),
       MinimumVersionExpression => {
-        write!(f, "`minimum-version` value must be a plain string literal")
+        write!(
+          f,
+          "`minimum-version` setting must be a plain string literal"
+        )
       }
       MismatchedClosingDelimiter {
         open,
