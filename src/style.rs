@@ -16,20 +16,20 @@ impl Style {
     self.0 = self.0.bold();
   }
 
+  pub(crate) fn color(&mut self, color: Color, background: bool) {
+    if background {
+      self.0 = self.0.on(color);
+    } else {
+      self.0 = self.0.fg(color);
+    }
+  }
+
   pub(crate) fn dim(&mut self) {
     self.0 = self.0.dimmed();
   }
 
   pub(crate) fn fg(&mut self, color: Color) {
     self.0 = self.0.fg(color);
-  }
-
-  pub(crate) fn fixed_bg(&mut self, color: u8) {
-    self.0 = self.0.on(Color::Fixed(color));
-  }
-
-  pub(crate) fn fixed_fg(&mut self, color: u8) {
-    self.0 = self.0.fg(Color::Fixed(color));
   }
 
   pub(crate) fn hidden(&mut self) {
@@ -54,14 +54,6 @@ impl Style {
 
   pub(crate) fn reverse(&mut self) {
     self.0 = self.0.reverse();
-  }
-
-  pub(crate) fn rgb_bg(&mut self, r: u8, g: u8, b: u8) {
-    self.0 = self.0.on(Color::Rgb(r, g, b));
-  }
-
-  pub(crate) fn rgb_fg(&mut self, r: u8, g: u8, b: u8) {
-    self.0 = self.0.fg(Color::Rgb(r, g, b));
   }
 
   pub(crate) fn strikethrough(&mut self) {

@@ -735,32 +735,16 @@ fn style(context: Context, styles: &Value, text: Option<&str>) -> StringResult {
       let Ok(color) = captures[2].parse::<u8>() else {
         return Err(error());
       };
-
-      if background(captures) {
-        style.fixed_bg(color)
-      } else {
-        style.fixed_fg(color)
-      }
+      style.color(Fixed(color), background(captures));
     } else if let Some(captures) = RGB_LONG.captures(token) {
       let [_, r, g, b] = u32::from_str_radix(&captures[2], 16).unwrap().to_be_bytes();
-
-      if background(captures) {
-        style.rgb_bg(r, g, b)
-      } else {
-        style.rgb_fg(r, g, b)
-      }
+      style.color(Rgb(r, g, b), background(captures));
     } else if let Some(captures) = RGB_SHORT.captures(token) {
-      let [r, g, b] = <[char; 3]>::try_from(captures[2].chars().collect::<Vec<char>>()).unwrap();
-
-      let [_, r, g, b] = u32::from_str_radix(&format!("{r}{r}{g}{g}{b}{b}"), 16)
-        .unwrap()
-        .to_be_bytes();
-
-      if background(captures) {
-        style.rgb_bg(r, g, b)
-      } else {
-        style.rgb_fg(r, g, b)
-      }
+      let n = u16::from_str_radix(&captures[2], 16).unwrap();
+      let r = ((n >> 8) & 0xf) as u8 * 0x11;
+      let g = ((n >> 4) & 0xf) as u8 * 0x11;
+      let b = (n & 0xf) as u8 * 0x11;
+      style.color(Rgb(r, g, b), background(captures));
     } else {
       match token.as_str() {
         // foreground
