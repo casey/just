@@ -755,7 +755,7 @@ fn style(context: Context, styles: &Value, text: Option<&str>) -> StringResult {
         style.fg(Yellow);
         style.bold();
       }
-      _ => return Err(format!("invalid style token `{token}`")),
+      _ => return Err(format!("invalid style: `{token}`")),
     }
   }
 
