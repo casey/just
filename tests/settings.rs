@@ -619,7 +619,7 @@ fn minimum_version_invalid() {
 }
 
 #[test]
-fn minimum_version_must_be_string_literal() {
+fn minimum_version_may_not_be_expression() {
   Test::new()
     .justfile("set minimum-version := ('1.' + '0')")
     .stderr(
@@ -635,7 +635,7 @@ fn minimum_version_must_be_string_literal() {
 }
 
 #[test]
-fn minimum_version_rejects_expand() {
+fn minimum_version_may_not_be_shell_expanded_string() {
   Test::new()
     .justfile("set minimum-version := x'1.0.0'")
     .stderr(
@@ -651,7 +651,7 @@ fn minimum_version_rejects_expand() {
 }
 
 #[test]
-fn minimum_version_rejects_indented() {
+fn minimum_version_may_not_be_indented_string() {
   Test::new()
     .justfile("set minimum-version := '''1.0.0'''")
     .stderr(
