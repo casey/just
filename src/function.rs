@@ -713,15 +713,33 @@ fn style(context: Context, spec: &Value, text: Option<&str>) -> StringResult {
 
   for token in spec.elements() {
     match token.as_str() {
-      // colors
-      "black" => style.fg(Black),
-      "blue" => style.fg(Blue),
-      "cyan" => style.fg(Cyan),
-      "green" => style.fg(Green),
-      "magenta" => style.fg(Magenta),
-      "red" => style.fg(Red),
-      "white" => style.fg(White),
-      "yellow" => style.fg(Yellow),
+      // foreground
+      "fg:black" | "black" => style.fg(Black),
+      "fg:blue" | "blue" => style.fg(Blue),
+      "fg:cyan" | "cyan" => style.fg(Cyan),
+      "fg:green" | "green" => style.fg(Green),
+      "fg:magenta" | "magenta" => style.fg(Magenta),
+      "fg:red" | "red" => style.fg(Red),
+      "fg:white" | "white" => style.fg(White),
+      "fg:yellow" | "yellow" => style.fg(Yellow),
+      // background
+      "bg:black" => style.bg(Black),
+      "bg:blue" => style.bg(Blue),
+      "bg:cyan" => style.bg(Cyan),
+      "bg:green" => style.bg(Green),
+      "bg:magenta" => style.bg(Magenta),
+      "bg:red" => style.bg(Red),
+      "bg:white" => style.bg(White),
+      "bg:yellow" => style.bg(Yellow),
+      // properties
+      "blink" => style.blink(),
+      "bold" => style.bold(),
+      "dimmed" => style.dimmed(),
+      "hidden" => style.hidden(),
+      "italic" => style.italic(),
+      "reverse" => style.reverse(),
+      "strikethrough" => style.strikethrough(),
+      "underline" => style.underline(),
       // roles
       "warning" => {
         style.fg(Yellow);
