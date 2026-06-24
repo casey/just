@@ -1483,8 +1483,8 @@ set minimum-version := <sup>master</sup>
 ```
 
 If `just` encounters a minimum version greater than its own version, it will
-print an error message with the required version, which is hopefully less
-confusing than whatever error message it would have produced otherwise.
+print an error message with the required version, which is hopefully better
+than the confused error message it would have otherwise produced.
 
 The `minimum-version` setting should be placed at the top of the `justfile`,
 before any usage of the new feature use that it guards.
