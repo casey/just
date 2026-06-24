@@ -123,6 +123,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         Setting::Lists(value) => {
           settings.lists = value;
         }
+        Setting::MinimumVersion(_) => {}
         Setting::NoCd(value) => {
           settings.no_cd = value;
         }

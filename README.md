@@ -1065,6 +1065,7 @@ foo:
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
 | `lazy`<sup>1.47.0</sup> | boolean | `false` | Don't evaluate unused variables. |
 | `lists`<sup>1.53.0</sup> | boolean | `false` | Values may be lists of strings instead of strings. Currently unstable. |
+| `minimum-version`<sup>master</sup> | string | - | Error if the running `just` is older than this version. Must be a plain string literal of dot-separated integers, e.g. `'1.50.0'`. |
 | `no-cd`<sup>1.51.0</sup> | boolean | `false` | Don't change directory when executing recipes by recipe attribute. |
 | `no-exit-message`<sup>1.39.0</sup> | boolean | `false` | Don't print exit messages if recipes fail. |
 | `positional-arguments` | boolean | `false` | Pass positional arguments. |

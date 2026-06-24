@@ -127,6 +127,7 @@ pub(crate) use {
     use_color::UseColor,
     value::Value,
     verbosity::Verbosity,
+    version::Version,
     warning::Warning,
     which::which,
   },
@@ -336,5 +337,6 @@ mod usage;
 mod use_color;
 mod value;
 mod verbosity;
+mod version;
 mod warning;
 mod which;

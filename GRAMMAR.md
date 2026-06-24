@@ -86,6 +86,7 @@ setting       : 'allow-duplicate-recipes' boolean?
               | 'ignore-comments' boolean?
               | 'lazy' boolean?
               | 'lists' boolean?
+              | 'minimum-version' ':=' string
               | 'no-cd' boolean?
               | 'no-exit-message' boolean?
               | 'positional-arguments' boolean?

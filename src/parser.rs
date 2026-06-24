@@ -1583,6 +1583,39 @@ impl<'run, 'src> Parser<'run, 'src> {
       Keyword::DotenvCommand => Some(Setting::DotenvCommand(self.parse_expression()?)),
       Keyword::DotenvFilename => Some(Setting::DotenvFilename(self.parse_expression()?)),
       Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_expression()?)),
+      Keyword::MinimumVersion => {
+        let expression = self.parse_expression()?;
+
+        let Expression::StringLiteral { string_literal } = &expression else {
+          return Err(name.error(CompileErrorKind::MinimumVersionNotStringLiteral));
+        };
+
+        if string_literal.expand || string_literal.kind.indented || string_literal.part.is_some() {
+          return Err(name.error(CompileErrorKind::MinimumVersionNotStringLiteral));
+        }
+
+        let Some(minimum) = Version::parse(&string_literal.cooked) else {
+          return Err(
+            string_literal
+              .token
+              .error(CompileErrorKind::InvalidMinimumVersion {
+                version: string_literal.cooked.clone(),
+              }),
+          );
+        };
+
+        if Version::parse(env!("CARGO_PKG_VERSION")).unwrap() < minimum {
+          return Err(
+            string_literal
+              .token
+              .error(CompileErrorKind::MinimumVersion {
+                minimum: string_literal.cooked.clone(),
+              }),
+          );
+        }
+
+        Some(Setting::MinimumVersion(expression))
+      }
       Keyword::ScriptInterpreter => Some(Setting::ScriptInterpreter(self.parse_interpreter()?)),
       Keyword::Shell => Some(Setting::Shell(self.parse_interpreter()?)),
       Keyword::Tempdir => Some(Setting::Tempdir(self.parse_expression()?)),

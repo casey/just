@@ -259,6 +259,12 @@ impl Display for CompileError<'_> {
         "shell recipe `{recipe}` has script recipe attribute `{}`",
         attribute.name(),
       ),
+      InvalidMinimumVersion { version } => {
+        write!(
+          f,
+          "setting `minimum-version` has invalid version `{version}`"
+        )
+      }
       InvalidSignal { signal } => write!(
         f,
         "invalid signal `{signal}`: expected `SIGHUP`, `SIGINT`, or `SIGQUIT`"
@@ -276,6 +282,15 @@ impl Display for CompileError<'_> {
       MappedDependencyWithoutStarredArgument => {
         write!(f, "mapped dependencies must have starred argument")
       }
+      MinimumVersion { minimum } => write!(
+        f,
+        "justfile requires just {minimum} or later, but using {}",
+        env!("CARGO_PKG_VERSION"),
+      ),
+      MinimumVersionNotStringLiteral => write!(
+        f,
+        "setting `minimum-version` value must be a non-indented string literal without prefix"
+      ),
       MismatchedClosingDelimiter {
         open,
         open_line,

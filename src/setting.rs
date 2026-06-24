@@ -18,6 +18,7 @@ pub(crate) enum Setting<'src> {
   IgnoreComments(bool),
   Lazy(bool),
   Lists(bool),
+  MinimumVersion(Expression<'src>),
   NoCd(bool),
   NoExitMessage(bool),
   PositionalArguments(bool),
@@ -56,6 +57,7 @@ impl<'src> Setting<'src> {
       Self::DotenvCommand(_value)
       | Self::DotenvFilename(_value)
       | Self::DotenvPath(_value)
+      | Self::MinimumVersion(_value)
       | Self::Tempdir(_value)
       | Self::WorkingDirectory(_value) => false,
       Self::ScriptInterpreter(_value) | Self::Shell(_value) | Self::WindowsShell(_value) => false,
@@ -129,6 +131,7 @@ impl Display for Setting<'_> {
       Self::DotenvCommand(value)
       | Self::DotenvFilename(value)
       | Self::DotenvPath(value)
+      | Self::MinimumVersion(value)
       | Self::Tempdir(value)
       | Self::WorkingDirectory(value) => {
         write!(f, "{value}")
