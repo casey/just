@@ -69,7 +69,6 @@ pub(crate) use {
     list_operator::ListOperator,
     load_dotenv::load_dotenv,
     loader::Loader,
-    module_alias::ModuleAlias,
     modulepath::Modulepath,
     name::Name,
     namepath::Namepath,
@@ -186,6 +185,9 @@ type SearchResult<T> = Result<T, SearchError>;
 type StringResult = Result<String, String>;
 type ValueResult = Result<Value, String>;
 
+type ModuleAlias<'src> = Alias<'src, Modulepath>;
+type RecipeAlias<'src> = Alias<'src, Arc<Recipe<'src>>>;
+
 const JUST_DIRECTORY: &str = "just";
 const RECURSION_LIMIT: usize = if cfg!(windows) { 48 } else { 256 };
 const TEMPDIR_PREFIX: &str = "just-";
@@ -273,7 +275,6 @@ mod list_feature;
 mod list_operator;
 mod load_dotenv;
 mod loader;
-mod module_alias;
 mod modulepath;
 mod name;
 mod namepath;
