@@ -1,35 +1,25 @@
 use super::*;
 
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) struct Version(Vec<u64>);
+const N: &str = "(0|[1-9][0-9]{0,8})";
 
-impl Version {
-  pub(crate) fn parse(text: &str) -> Option<Version> {
-    text
-      .split('.')
-      .map(|component| component.parse::<u64>().ok())
-      .collect::<Option<Vec<u64>>>()
-      .map(Version)
-  }
-}
+static REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(&format!(r"^{N}\.{N}\.{N}$")).unwrap());
 
-impl Ord for Version {
-  fn cmp(&self, other: &Self) -> Ordering {
-    for i in 0..self.0.len().max(other.0.len()) {
-      let a = self.0.get(i).copied().unwrap_or(0);
-      let b = other.0.get(i).copied().unwrap_or(0);
-      match a.cmp(&b) {
-        Ordering::Equal => {}
-        ordering => return ordering,
-      }
-    }
-    Ordering::Equal
-  }
-}
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub(crate) struct Version(u64, u64, u64);
 
-impl PartialOrd for Version {
-  fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-    Some(self.cmp(other))
+impl FromStr for Version {
+  type Err = Box<dyn std::error::Error>;
+
+  fn from_str(text: &str) -> Result<Self, Self::Err> {
+    let captures = REGEX
+      .captures(text)
+      .ok_or_else(|| format!("expected `MAJOR.MINOR.PATCH` version, but found `{text}`"))?;
+
+    Ok(Version(
+      captures[1].parse().unwrap(),
+      captures[2].parse().unwrap(),
+      captures[3].parse().unwrap(),
+    ))
   }
 }
 
@@ -40,20 +30,22 @@ mod tests {
   #[test]
   fn parse() {
     #[track_caller]
-    fn case(text: &str, expected: Option<&[u64]>) {
-      assert_eq!(
-        Version::parse(text),
-        expected.map(|components| Version(components.to_vec()))
-      );
+    fn case(text: &str, expected: Option<Version>) {
+      assert_eq!(text.parse::<Version>().ok(), expected);
     }
 
-    case("1", Some(&[1]));
-    case("1.2", Some(&[1, 2]));
-    case("1.2.3", Some(&[1, 2, 3]));
+    case("1.2.3", Some(Version(1, 2, 3)));
+    case("0.0.0", Some(Version(0, 0, 0)));
     case("", None);
     case("foo", None);
-    case("1.", None);
-    case("1.x", None);
+    case("1", None);
+    case("1.2", None);
+    case("1.2.3.4", None);
+    case("1.2.x", None);
+    case("+1.2.3", None);
+    case("01.2.3", None);
+    case("999999999.0.0", Some(Version(999_999_999, 0, 0)));
+    case("1234567890.0.0", None);
   }
 
   #[test]
@@ -61,16 +53,16 @@ mod tests {
     #[track_caller]
     fn case(a: &str, b: &str, expected: Ordering) {
       assert_eq!(
-        Version::parse(a).unwrap().cmp(&Version::parse(b).unwrap()),
+        a.parse::<Version>()
+          .unwrap()
+          .cmp(&b.parse::<Version>().unwrap()),
         expected
       );
     }
 
     case("1.2.3", "1.2.3", Ordering::Equal);
-    case("1.2", "1.2.0", Ordering::Equal);
-    case("1.2.0", "1.2", Ordering::Equal);
     case("1.2.3", "1.2.4", Ordering::Less);
     case("1.3.0", "1.2.9", Ordering::Greater);
-    case("2", "1.99.99", Ordering::Greater);
+    case("2.0.0", "1.99.99", Ordering::Greater);
   }
 }

@@ -1594,7 +1594,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           return Err(name.error(CompileErrorKind::MinimumVersionNotStringLiteral));
         }
 
-        let Some(minimum) = Version::parse(&string_literal.cooked) else {
+        let Ok(minimum) = string_literal.cooked.parse::<Version>() else {
           return Err(
             string_literal
               .token
@@ -1604,7 +1604,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           );
         };
 
-        if Version::parse(VERSION).unwrap() < minimum {
+        if VERSION.parse::<Version>().unwrap() < minimum {
           return Err(
             string_literal
               .token
