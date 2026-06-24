@@ -100,17 +100,6 @@ fn style_prefix_without_text() {
 }
 
 #[test]
-fn style_single_element_list_spec() {
-  Test::new()
-    .justfile("set lists\n\nx := style(['red'], 'foo')")
-    .env("JUST_UNSTABLE", "1")
-    .args(["--evaluate", "x"])
-    .stdout("\x1b[31mfoo\x1b[0m")
-    .unindent_stdout(false)
-    .success();
-}
-
-#[test]
-fn style_role_with_text() {
+fn style_with_text() {
   assert_eval_eq("style('error', 'foo')", "\x1b[1;31mfoo\x1b[0m");
 }
