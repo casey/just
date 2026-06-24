@@ -709,53 +709,92 @@ fn split(_context: Context, s: &str, separator: Option<&str>) -> ValueResult {
 fn style(context: Context, styles: &Value, text: Option<&str>) -> StringResult {
   use nu_ansi_term::Color::*;
 
+  static FIXED: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new("(fg:|bg:)?(0|[1-9][0-9]{0,2})").unwrap());
+
+  static RGB_LONG: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new("(fg:|bg:)?#[[:xdigit:]]{6}").unwrap());
+
+  static RGB_SHORT: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new("(fg:|bg:)?#[[:xdigit:]]{3}").unwrap());
+
   let mut style = Style::new();
 
   for token in styles {
-    match token.as_str() {
-      // foreground
-      "fg:black" | "black" => style.fg(Black),
-      "fg:blue" | "blue" => style.fg(Blue),
-      "fg:cyan" | "cyan" => style.fg(Cyan),
-      "fg:green" | "green" => style.fg(Green),
-      "fg:magenta" | "magenta" => style.fg(Magenta),
-      "fg:red" | "red" => style.fg(Red),
-      "fg:white" | "white" => style.fg(White),
-      "fg:yellow" | "yellow" => style.fg(Yellow),
-      // background
-      "bg:black" => style.bg(Black),
-      "bg:blue" => style.bg(Blue),
-      "bg:cyan" => style.bg(Cyan),
-      "bg:green" => style.bg(Green),
-      "bg:magenta" => style.bg(Magenta),
-      "bg:red" => style.bg(Red),
-      "bg:white" => style.bg(White),
-      "bg:yellow" => style.bg(Yellow),
-      // properties
-      "blink" => style.blink(),
-      "bold" => style.bold(),
-      "dim" => style.dimmed(),
-      "hidden" => style.hidden(),
-      "italic" => style.italic(),
-      "reverse" => style.reverse(),
-      "strikethrough" => style.strikethrough(),
-      "underline" => style.underline(),
-      // roles
-      "command" => {
-        if let Some(color) = context.execution_context.config.command_color {
-          style.fg(color);
+    if let Some(captures) = FIXED.captures(token) {
+      let color = captures[2].parse::<u8>().unwrap();
+
+      match captures.get(0).map(|capture| capture.as_str()) {
+        Some("bg:") => style.fixed_bg(color),
+        Some("fg:") | None => style.fixed_fg(color),
+        _ => unreachable!(),
+      }
+    } else if let Some(captures) = RGB_LONG.captures(token) {
+      let [_, r, g, b] = u32::from_str_radix(&captures[2], 16).unwrap().to_be_bytes();
+
+      match captures.get(0).map(|capture| capture.as_str()) {
+        Some("bg:") => style.rgb_bg(r, g, b),
+        Some("fg:") | None => style.rgb_fg(r, g, b),
+        _ => unreachable!(),
+      }
+    } else if let Some(captures) = RGB_SHORT.captures(token) {
+      let [r, g, b] = <[char; 3]>::try_from(captures[2].chars().collect::<Vec<char>>()).unwrap();
+
+      let [_, r, g, b] = u32::from_str_radix(&format!("{r}{r}{g}{g}{b}{b}"), 16)
+        .unwrap()
+        .to_be_bytes();
+
+      match captures.get(0).map(|capture| capture.as_str()) {
+        Some("bg:") => style.rgb_bg(r, g, b),
+        Some("fg:") | None => style.rgb_fg(r, g, b),
+        _ => unreachable!(),
+      }
+    } else {
+      match token.as_str() {
+        // foreground
+        "fg:black" | "black" => style.fg(Black),
+        "fg:blue" | "blue" => style.fg(Blue),
+        "fg:cyan" | "cyan" => style.fg(Cyan),
+        "fg:green" | "green" => style.fg(Green),
+        "fg:magenta" | "magenta" => style.fg(Magenta),
+        "fg:red" | "red" => style.fg(Red),
+        "fg:white" | "white" => style.fg(White),
+        "fg:yellow" | "yellow" => style.fg(Yellow),
+        // background
+        "bg:black" => style.bg(Black),
+        "bg:blue" => style.bg(Blue),
+        "bg:cyan" => style.bg(Cyan),
+        "bg:green" => style.bg(Green),
+        "bg:magenta" => style.bg(Magenta),
+        "bg:red" => style.bg(Red),
+        "bg:white" => style.bg(White),
+        "bg:yellow" => style.bg(Yellow),
+        // properties
+        "blink" => style.blink(),
+        "bold" => style.bold(),
+        "dim" => style.dim(),
+        "hidden" => style.hidden(),
+        "italic" => style.italic(),
+        "reverse" => style.reverse(),
+        "strikethrough" => style.strikethrough(),
+        "underline" => style.underline(),
+        // roles
+        "command" => {
+          if let Some(color) = context.execution_context.config.command_color {
+            style.fg(color);
+          }
+          style.bold();
         }
-        style.bold();
+        "error" => {
+          style.fg(Red);
+          style.bold();
+        }
+        "warning" => {
+          style.fg(Yellow);
+          style.bold();
+        }
+        _ => return Err(format!("invalid style: `{token}`")),
       }
-      "error" => {
-        style.fg(Red);
-        style.bold();
-      }
-      "warning" => {
-        style.fg(Yellow);
-        style.bold();
-      }
-      _ => return Err(format!("invalid style: `{token}`")),
     }
   }
 
