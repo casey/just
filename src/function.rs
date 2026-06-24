@@ -17,6 +17,7 @@ pub(crate) enum Function {
   UnaryToValue(fn(Context, &str) -> ValueResult),
   Binary(fn(Context, &str, &str) -> StringResult),
   BinaryOptToValue(fn(Context, &str, Option<&str>) -> ValueResult),
+  BinaryOptValueStr(fn(Context, &Value, Option<&str>) -> StringResult),
   BinaryOptValueStrToValue(fn(Context, &Value, Option<&str>) -> ValueResult),
   BinaryPlus(fn(Context, &str, &str, &[String]) -> StringResult),
   BinaryStrValue(fn(Context, &str, &Value) -> ValueResult),
@@ -33,7 +34,10 @@ impl Function {
     match self {
       Nullary(_) | ValueNullary(_) => 0..=0,
       Unary(_) | ValueUnary(_) | UnaryMap(_) | UnaryToValue(_) => 1..=1,
-      ValueBinaryOpt(_) | BinaryOptToValue(_) | BinaryOptValueStrToValue(_) => 1..=2,
+      ValueBinaryOpt(_)
+      | BinaryOptToValue(_)
+      | BinaryOptValueStrToValue(_)
+      | BinaryOptValueStr(_) => 1..=2,
       UnaryPlus(_) => 1..=usize::MAX,
       Binary(_) | BinaryStrValue(_) | ValueBinary(_) | BinaryToValue(_) => 2..=2,
       BinaryPlus(_) => 2..=usize::MAX,
@@ -126,7 +130,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "source_directory" => Nullary(source_directory),
     "source_file" => Nullary(source_file),
     "split" => BinaryOptToValue(split),
-    "style" => Unary(style),
+    "style" => BinaryOptValueStr(style),
     "titlecase" => Unary(titlecase),
     "trim" => Unary(trim),
     "trim_end" => Unary(trim_end),
@@ -702,18 +706,51 @@ fn split(_context: Context, s: &str, separator: Option<&str>) -> ValueResult {
   })
 }
 
-fn style(context: Context, s: &str) -> StringResult {
-  match s {
-    "command" => Ok(
-      Color::always()
-        .command(context.execution_context.config.command_color)
-        .prefix()
-        .to_string(),
-    ),
-    "error" => Ok(Color::always().error().prefix().to_string()),
-    "warning" => Ok(Color::always().warning().prefix().to_string()),
-    _ => Err(format!("unknown style: `{s}`")),
+fn style(context: Context, spec: &Value, text: Option<&str>) -> StringResult {
+  if let [element] = spec.elements() {
+    let role = match element.as_str() {
+      "command" => Some(Color::always().command(context.execution_context.config.command_color)),
+      "error" => Some(Color::always().error()),
+      "warning" => Some(Color::always().warning()),
+      _ => None,
+    };
+
+    if let Some(color) = role {
+      return Ok(match text {
+        Some(text) => color.paint(text).to_string(),
+        None => color.prefix().to_string(),
+      });
+    }
   }
+
+  let mut style = nu_ansi_term::Style::new();
+
+  for token in spec.elements() {
+    if token.trim() != token {
+      return Err(format!(
+        "invalid style token `{token}`: leading or trailing whitespace"
+      ));
+    }
+
+    let color = match token.as_str() {
+      "black" => nu_ansi_term::Color::Black,
+      "blue" => nu_ansi_term::Color::Blue,
+      "cyan" => nu_ansi_term::Color::Cyan,
+      "green" => nu_ansi_term::Color::Green,
+      "magenta" => nu_ansi_term::Color::Magenta,
+      "red" => nu_ansi_term::Color::Red,
+      "white" => nu_ansi_term::Color::White,
+      "yellow" => nu_ansi_term::Color::Yellow,
+      _ => return Err(format!("invalid style token `{token}`")),
+    };
+
+    style = style.fg(color);
+  }
+
+  Ok(match text {
+    Some(text) => style.paint(text).to_string(),
+    None => style.prefix().to_string(),
+  })
 }
 
 fn titlecase(_context: Context, s: &str) -> StringResult {

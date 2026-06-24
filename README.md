@@ -2442,20 +2442,38 @@ for details.
 
 #### Style
 
-- `style(name)`<sup>1.37.0</sup> - Return a named terminal display attribute
-  escape sequence used by `just`. Unlike terminal display attribute escape
-  sequence constants, which contain standard colors and styles, `style(name)`
-  returns an escape sequence used by `just` itself, and can be used to make
-  recipe output match `just`'s own output.
+- `style(spec)`<sup>1.37.0</sup> and `style(spec, text)`<sup>master</sup> -
+  Return a terminal display attribute escape sequence. `spec` is a style token
+  or a list of style tokens. With a second argument, `text` is returned wrapped
+  in the style followed by a reset, so a trailing `NORMAL` is not needed.
 
-  Recognized values for `name` are `'command'`, for echoed recipe lines,
-  `error`, and `warning`.
+  A spec consisting of a single role name returns an escape sequence used by
+  `just` itself, and can be used to make recipe output match `just`'s own
+  output. Unlike terminal display attribute escape sequence constants, which
+  contain standard colors and styles, these return the styles `just` uses.
+  Recognized role names are `'command'`, for echoed recipe lines, `error`, and
+  `warning`.
+
+  Otherwise, each token is a foreground color, one of `black`, `red`, `green`,
+  `yellow`, `blue`, `magenta`, `cyan`, or `white`. Pass a list to combine
+  tokens. Tokens are not split on whitespace, and leading or trailing
+  whitespace in a token is an error.
+
+  Like terminal display attribute constants, escape sequences are emitted
+  unconditionally.
 
   For example, to style an error message:
 
   ```just
   scary:
-    @echo '{{ style("error") }}OH NO{{ NORMAL }}'
+    @echo '{{ style("error", "OH NO") }}'
+  ```
+
+  Or to print a message in red:
+
+  ```just
+  warn:
+    @echo '{{ style("red", "be careful") }}'
   ```
 
 ##### User Directories
