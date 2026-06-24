@@ -718,24 +718,32 @@ fn style(context: Context, styles: &Value, text: Option<&str>) -> StringResult {
   static RGB_SHORT: LazyLock<Regex> =
     LazyLock::new(|| Regex::new("(fg:|bg:)?#[[:xdigit:]]{3}").unwrap());
 
+  fn background(captures: regex::Captures) -> bool {
+    match captures.get(1).map(|capture| capture.as_str()) {
+      Some("bg:") => true,
+      Some("fg:") | None => false,
+      _ => unreachable!(),
+    }
+  }
+
   let mut style = Style::new();
 
   for token in styles {
     if let Some(captures) = FIXED.captures(token) {
       let color = captures[2].parse::<u8>().unwrap();
 
-      match captures.get(0).map(|capture| capture.as_str()) {
-        Some("bg:") => style.fixed_bg(color),
-        Some("fg:") | None => style.fixed_fg(color),
-        _ => unreachable!(),
+      if background(captures) {
+        style.fixed_bg(color)
+      } else {
+        style.fixed_fg(color)
       }
     } else if let Some(captures) = RGB_LONG.captures(token) {
       let [_, r, g, b] = u32::from_str_radix(&captures[2], 16).unwrap().to_be_bytes();
 
-      match captures.get(0).map(|capture| capture.as_str()) {
-        Some("bg:") => style.rgb_bg(r, g, b),
-        Some("fg:") | None => style.rgb_fg(r, g, b),
-        _ => unreachable!(),
+      if background(captures) {
+        style.rgb_bg(r, g, b)
+      } else {
+        style.rgb_fg(r, g, b)
       }
     } else if let Some(captures) = RGB_SHORT.captures(token) {
       let [r, g, b] = <[char; 3]>::try_from(captures[2].chars().collect::<Vec<char>>()).unwrap();
@@ -744,10 +752,10 @@ fn style(context: Context, styles: &Value, text: Option<&str>) -> StringResult {
         .unwrap()
         .to_be_bytes();
 
-      match captures.get(0).map(|capture| capture.as_str()) {
-        Some("bg:") => style.rgb_bg(r, g, b),
-        Some("fg:") | None => style.rgb_fg(r, g, b),
-        _ => unreachable!(),
+      if background(captures) {
+        style.rgb_bg(r, g, b)
+      } else {
+        style.rgb_fg(r, g, b)
       }
     } else {
       match token.as_str() {
