@@ -706,12 +706,12 @@ fn split(_context: Context, s: &str, separator: Option<&str>) -> ValueResult {
   })
 }
 
-fn style(context: Context, spec: &Value, text: Option<&str>) -> StringResult {
+fn style(context: Context, styles: &Value, text: Option<&str>) -> StringResult {
   use nu_ansi_term::Color::*;
 
   let mut style = Style::new();
 
-  for token in spec.elements() {
+  for token in styles {
     match token.as_str() {
       // foreground
       "fg:black" | "black" => style.fg(Black),
@@ -760,8 +760,8 @@ fn style(context: Context, spec: &Value, text: Option<&str>) -> StringResult {
   }
 
   Ok(match text {
-    Some(text) => style.paint(text).to_string(),
-    None => style.prefix().to_string(),
+    Some(text) => style.paint(text),
+    None => style.prefix(),
   })
 }
 

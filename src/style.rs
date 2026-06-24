@@ -1,4 +1,4 @@
-use nu_ansi_term::{AnsiGenericString, Color, Prefix};
+use nu_ansi_term::Color;
 
 #[derive(Default)]
 pub(crate) struct Style(nu_ansi_term::Style);
@@ -36,12 +36,12 @@ impl Style {
     Self::default()
   }
 
-  pub(crate) fn paint<'a>(&self, text: &'a str) -> AnsiGenericString<'a, str> {
-    self.0.paint(text)
+  pub(crate) fn paint(&self, text: &str) -> String {
+    self.0.paint(text).to_string()
   }
 
-  pub(crate) fn prefix(&self) -> Prefix {
-    self.0.prefix()
+  pub(crate) fn prefix(&self) -> String {
+    self.0.prefix().to_string()
   }
 
   pub(crate) fn reverse(&mut self) {

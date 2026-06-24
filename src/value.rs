@@ -136,6 +136,15 @@ impl FromIterator<String> for Value {
   }
 }
 
+impl<'a> IntoIterator for &'a Value {
+  type Item = &'a String;
+  type IntoIter = slice::Iter<'a, String>;
+
+  fn into_iter(self) -> Self::IntoIter {
+    self.elements.iter()
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
