@@ -18,8 +18,8 @@ impl Style {
 
   pub(crate) fn color(&mut self, color: Color, layer: Layer) {
     match layer {
-      Layer::Foreground => self.0 = self.0.on(color),
-      Layer::Background => self.0 = self.0.fg(color),
+      Layer::Background => self.0 = self.0.on(color),
+      Layer::Foreground => self.0 = self.0.fg(color),
     }
   }
 
