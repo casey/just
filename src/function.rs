@@ -718,10 +718,10 @@ fn style(context: Context, styles: &Value, text: Option<&str>) -> StringResult {
   static RGB_SHORT: LazyLock<Regex> =
     LazyLock::new(|| Regex::new("^(fg:|bg:)?#([[:xdigit:]]{3})$").unwrap());
 
-  fn background(captures: regex::Captures) -> bool {
+  fn layer(captures: regex::Captures) -> Layer {
     match captures.get(1).map(|capture| capture.as_str()) {
-      Some("bg:") => true,
-      Some("fg:") | None => false,
+      Some("bg:") => Layer::Background,
+      Some("fg:") | None => Layer::Foreground,
       _ => unreachable!(),
     }
   }
@@ -735,16 +735,16 @@ fn style(context: Context, styles: &Value, text: Option<&str>) -> StringResult {
       let Ok(color) = captures[2].parse::<u8>() else {
         return Err(error());
       };
-      style.color(Fixed(color), background(captures));
+      style.color(Fixed(color), layer(captures));
     } else if let Some(captures) = RGB_LONG.captures(token) {
       let [_, r, g, b] = u32::from_str_radix(&captures[2], 16).unwrap().to_be_bytes();
-      style.color(Rgb(r, g, b), background(captures));
+      style.color(Rgb(r, g, b), layer(captures));
     } else if let Some(captures) = RGB_SHORT.captures(token) {
       let n = u16::from_str_radix(&captures[2], 16).unwrap();
       let r = ((n >> 8) & 0xf) as u8 * 0x11;
       let g = ((n >> 4) & 0xf) as u8 * 0x11;
       let b = (n & 0xf) as u8 * 0x11;
-      style.color(Rgb(r, g, b), background(captures));
+      style.color(Rgb(r, g, b), layer(captures));
     } else {
       match token.as_str() {
         // foreground
