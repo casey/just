@@ -24,7 +24,7 @@ impl<'src> Alias<'src> {
   }
 }
 
-impl<'src> RecipeAlias<'src> {
+impl RecipeAlias<'_> {
   pub(crate) fn is_public(&self) -> bool {
     !self.name.lexeme().starts_with('_') && !self.attributes.contains(AttributeKind::Private)
   }
@@ -36,13 +36,13 @@ impl<'src, T> Keyed<'src> for Alias<'src, T> {
   }
 }
 
-impl<'src> Display for Alias<'src> {
+impl Display for Alias<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(f, "alias {} := {}", self.name.lexeme(), self.target)
   }
 }
 
-impl<'src> Display for RecipeAlias<'src> {
+impl Display for RecipeAlias<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(
       f,
