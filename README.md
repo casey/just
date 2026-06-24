@@ -2453,7 +2453,7 @@ for details.
   - `warning`: warnings
 
   Additional styles supported by <sup>master</sup>master and later include
-  colors:
+  named colors:
 
   - `black`
   - `blue`
@@ -2464,10 +2464,13 @@ for details.
   - `white`
   - `yellow`
 
-  Which color foreground text, and come in explicit foreground variants
-  prefixed with `fg:`, as well as background variants prefixed with `bg:`.
+  The 256 indexed colors, written as an integer between `0` and `255`, e.g.,
+  `1` or `67`.
 
-  As well as other display properties:
+  The 24-bit colors, written as a `#RRGGBB` or `#RGB` hex codes, e.g.,
+  `#065535` or `#AAA`.
+
+  And display properties:
 
   - `blink`
   - `bold`
@@ -2477,6 +2480,10 @@ for details.
   - `reverse`
   - `strikethrough`
   - `underline`
+
+  All color styles color the foreground by default, and come in explicit
+  foreground variants prefixed with `fg:` as well as background variants
+  prefixed with `bg:`, e.g., `bg:blue`, `fg:133`, and `#FFF`.
 
   `styles` may be a list of styles, in which case all listed styles are
   combined to produce the final escape sequence.
