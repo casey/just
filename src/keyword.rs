@@ -27,6 +27,7 @@ pub(crate) enum Keyword {
   Import,
   Lazy,
   Lists,
+  MinimumVersion,
   Mod,
   NoCd,
   NoExitMessage,

@@ -119,6 +119,10 @@ pub(crate) enum CompileErrorKind<'src> {
   InvalidEscapeSequence {
     character: char,
   },
+  InvalidMinimumVersion {
+    source: &'static str,
+    version: String,
+  },
   InvalidShellRecipeAttribute {
     attribute: Box<Attribute<'src>>,
     recipe: &'src str,
@@ -130,6 +134,11 @@ pub(crate) enum CompileErrorKind<'src> {
   MappedDependencyMultipleStarredArguments,
   MappedDependencyWithoutListsSetting,
   MappedDependencyWithoutStarredArgument,
+  MinimumVersion {
+    current: Version,
+    minimum: Version,
+  },
+  MinimumVersionExpression,
   MismatchedClosingDelimiter {
     close: Delimiter,
     open: Delimiter,

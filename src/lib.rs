@@ -127,6 +127,7 @@ pub(crate) use {
     use_color::UseColor,
     value::Value,
     verbosity::Verbosity,
+    version::Version,
     warning::Warning,
     which::which,
   },
@@ -191,6 +192,7 @@ type RecipeAlias<'src> = Alias<'src, Arc<Recipe<'src>>>;
 const JUST_DIRECTORY: &str = "just";
 const RECURSION_LIMIT: usize = if cfg!(windows) { 48 } else { 256 };
 const TEMPDIR_PREFIX: &str = "just-";
+const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[cfg(test)]
 #[macro_use]
@@ -336,5 +338,6 @@ mod usage;
 mod use_color;
 mod value;
 mod verbosity;
+mod version;
 mod warning;
 mod which;

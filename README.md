@@ -1061,10 +1061,12 @@ foo:
 | `dotenv-path` | string | - | Load a `.env` file from a custom path and error if not present. Overrides `dotenv-filename`. |
 | `dotenv-required` | boolean | `false` | Error if a `.env` file isn't found. |
 | `export` | boolean | `false` | Export all variables as environment variables. |
-| `fallback` | boolean | `false` | Search `justfile` in parent directory if the first recipe on the command line is not found. |
+| `fallback` | boolean | `false` | Search for `justfile` in parent directory if the first recipe on the command line is not found. |
+| `guards`<sup>1.47.0</sup> | boolean | `false` | Enable the `?` guard sigil on recipe lines. See [sigils](#sigils). |
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
 | `lazy`<sup>1.47.0</sup> | boolean | `false` | Don't evaluate unused variables. |
 | `lists`<sup>1.53.0</sup> | boolean | `false` | Values may be lists of strings instead of strings. Currently unstable. |
+| `minimum-version`<sup>master</sup> | string | - | Error if `just` is older than `minimum-version`. Accepts a string of the form `MAJOR.MINOR.PATCH`, e.g., `"1.55.0"`. |
 | `no-cd`<sup>1.51.0</sup> | boolean | `false` | Don't change directory when executing recipes by recipe attribute. |
 | `no-exit-message`<sup>1.39.0</sup> | boolean | `false` | Don't print exit messages if recipes fail. |
 | `positional-arguments` | boolean | `false` | Pass positional arguments. |
@@ -1469,6 +1471,27 @@ set lists
 [arg('bar', long)]
 foo bar=[]:
 ```
+
+#### Requiring a Minimum Just Version
+
+If you use features of `just` which require a particular version, you may use
+the `minimum-version`<sup>master</sup> setting to make it an error to use older
+versions of `just`:
+
+```justfile
+set minimum-version := <sup>master</sup>
+```
+
+If `just` encounters a minimum version greater than its own version, it will
+print an error message with the required version, which is hopefully better
+than the confused error message it would have otherwise produced.
+
+The `minimum-version` setting should be placed at the top of the `justfile`,
+before any usage of the new feature that it guards.
+
+Any features which change the lexer in forward-incompatible ways will still
+produce an unhelpful error message, as the minimum version check is implemented
+in the parser, which runs after the lexer.
 
 #### Positional Arguments
 

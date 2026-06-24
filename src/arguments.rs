@@ -24,7 +24,7 @@ use {
     .usage(AnsiColor::Yellow.on_default() | Effects::BOLD)
     .valid(AnsiColor::Green.on_default()),
   trailing_var_arg = true,
-  version = env!("CARGO_PKG_VERSION"),
+  version = VERSION,
 )]
 pub struct Arguments {
   #[arg(
