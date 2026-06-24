@@ -1,0 +1,163 @@
+use super::*;
+
+#[test]
+fn style_command_default() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          @echo '{{ style('command') }}foo{{NORMAL}}'
+      ",
+    )
+    .stdout("\x1b[1mfoo\x1b[0m\n")
+    .success();
+}
+
+#[test]
+fn style_command_non_default() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          @echo '{{ style('command') }}foo{{NORMAL}}'
+      ",
+    )
+    .args(["--command-color", "red"])
+    .stdout("\x1b[1;31mfoo\x1b[0m\n")
+    .success();
+}
+
+#[test]
+fn style_error() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          @echo '{{ style('error') }}foo{{NORMAL}}'
+      ",
+    )
+    .stdout("\x1b[1;31mfoo\x1b[0m\n")
+    .success();
+}
+
+#[test]
+fn style_warning() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          @echo '{{ style('warning') }}foo{{NORMAL}}'
+      ",
+    )
+    .stdout("\x1b[1;33mfoo\x1b[0m\n")
+    .success();
+}
+
+#[test]
+fn style_unknown() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          @echo '{{ style('hippo') }}foo{{NORMAL}}'
+      ",
+    )
+    .stderr(
+      "
+        error: call to function `style` failed: invalid style token `hippo`
+         ——▶ justfile:2:13
+          │
+        2 │   @echo '{{ style('hippo') }}foo{{NORMAL}}'
+          │             ^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn style_foreground() {
+  #[track_caller]
+  fn case(name: &str, code: u8) {
+    assert_eval_eq(
+      &format!("style('{name}', 'foo')"),
+      &format!("\x1b[{code}mfoo\x1b[0m"),
+    );
+  }
+
+  case("black", 30);
+  case("blue", 34);
+  case("cyan", 36);
+  case("green", 32);
+  case("magenta", 35);
+  case("red", 31);
+  case("white", 37);
+  case("yellow", 33);
+}
+
+#[test]
+fn style_prefix_without_text() {
+  assert_eval_eq("style('red')", "\x1b[31m");
+}
+
+#[test]
+fn style_single_element_list_spec() {
+  Test::new()
+    .justfile("set lists\n\nx := style(['red'], 'foo')")
+    .env("JUST_UNSTABLE", "1")
+    .args(["--evaluate", "x"])
+    .stdout("\x1b[31mfoo\x1b[0m")
+    .unindent_stdout(false)
+    .success();
+}
+
+#[test]
+fn style_role_with_text() {
+  assert_eval_eq("style('error', 'foo')", "\x1b[1;31mfoo\x1b[0m");
+}
+
+#[test]
+fn style_whitespace_token() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          @echo '{{ style(' red') }}'
+      ",
+    )
+    .stderr(
+      "
+        error: call to function `style` failed: invalid style token ` red`: leading or trailing whitespace
+         ——▶ justfile:2:13
+          │
+        2 │   @echo '{{ style(' red') }}'
+          │             ^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn style_text_cannot_be_list() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        foo:
+          @echo '{{ style('red', ['foo', 'bar']) }}'
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      r#"
+        error: list value ["foo", "bar"] passed to `style()`
+        the behavior of lists with many built-in functions is undecided
+        see https://github.com/casey/just#lists
+         ——▶ justfile:4:13
+          │
+        4 │   @echo '{{ style('red', ['foo', 'bar']) }}'
+          │             ^^^^^
+      "#,
+    )
+    .failure();
+}
