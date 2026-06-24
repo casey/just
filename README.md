@@ -2442,38 +2442,60 @@ for details.
 
 #### Style
 
-- `style(spec)`<sup>1.37.0</sup> and `style(spec, text)`<sup>master</sup> -
-  Return a terminal display attribute escape sequence. `spec` is a style token
-  or a list of style tokens. With a second argument, `text` is returned wrapped
-  in the style followed by a reset, so a trailing `NORMAL` is not needed.
+- `style(styles)`<sup>1.37.0</sup> - Return a terminal escape sequence
+  combining the named styles in `styles`.
 
-  A spec consisting of a single role name returns an escape sequence used by
-  `just` itself, and can be used to make recipe output match `just`'s own
-  output. Unlike terminal display attribute escape sequence constants, which
-  contain standard colors and styles, these return the styles `just` uses.
-  Recognized role names are `'command'`, for echoed recipe lines, `error`, and
-  `warning`.
+  The styles supported by version 1.37.0 and later can be used to duplicate
+  `just`'s own styles:
 
-  Otherwise, each token is a foreground color, one of `black`, `red`, `green`,
-  `yellow`, `blue`, `magenta`, `cyan`, or `white`. Pass a list to combine
-  tokens. Tokens are not split on whitespace, and leading or trailing
-  whitespace in a token is an error.
+  - `command`: echoed recipe lines
+  - `error`: errors
+  - `warning`: warnings
 
-  Like terminal display attribute constants, escape sequences are emitted
-  unconditionally.
+  Additional styles supported by <sup>master</sup>master and later include
+  colors:
 
-  For example, to style an error message:
+  - `black`
+  - `blue`
+  - `cyan`
+  - `green`
+  - `magenta`
+  - `red`
+  - `white`
+  - `yellow`
+
+  Which color foreground text, and come in explicit foreground variants
+  prefixed with `fg:`, as well as background colors prefixed with `bg:`.
+
+  As well as other display properties:
+
+  - `blink`
+  - `bold`
+  - `dim`
+  - `hidden`
+  - `italic`
+  - `reverse`
+  - `strikethrough`
+  - `underline`
+
+  `styles` may be a list of styles, in which case all listed styles are
+  combined to produce the final escape sequence.
+
+  Note that the escape sequence returned by `style(styles)` are prefixes. You
+  can use the `NORMAL` constant to reset the style after use:
 
   ```just
-  scary:
-    @echo '{{ style("error", "OH NO") }}'
+  error message:
+    echo '{{style("error") + message + NORMAL}}'
   ```
 
-  Or to print a message in red:
+- `style(styles, text)`<sup>master</sup> Style `text` with `styles` as in the
+  one-argument form. The style is reset automatically, so use of `NORMAL` to
+  reset the terminal is not needed:
 
   ```just
-  warn:
-    @echo '{{ style("red", "be careful") }}'
+  error message:
+    echo '{{style("error", message)}}'
   ```
 
 ##### User Directories
