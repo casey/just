@@ -288,7 +288,7 @@ impl Display for CompileError<'_> {
       ),
       MinimumVersionNotStringLiteral => write!(
         f,
-        "setting `minimum-version` value must be a non-indented string literal without prefix"
+        "setting `minimum-version` value must be a plain string literal"
       ),
       MismatchedClosingDelimiter {
         open,

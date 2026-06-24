@@ -624,7 +624,7 @@ fn minimum_version_must_be_string_literal() {
     .justfile("set minimum-version := ('1.' + '0')")
     .stderr(
       "
-        error: setting `minimum-version` value must be a non-indented string literal without prefix
+        error: setting `minimum-version` value must be a plain string literal
          ——▶ justfile:1:5
           │
         1 │ set minimum-version := ('1.' + '0')
@@ -640,7 +640,7 @@ fn minimum_version_rejects_expand() {
     .justfile("set minimum-version := x'1.0.0'")
     .stderr(
       "
-        error: setting `minimum-version` value must be a non-indented string literal without prefix
+        error: setting `minimum-version` value must be a plain string literal
          ——▶ justfile:1:5
           │
         1 │ set minimum-version := x'1.0.0'
@@ -656,7 +656,7 @@ fn minimum_version_rejects_indented() {
     .justfile("set minimum-version := '''1.0.0'''")
     .stderr(
       "
-        error: setting `minimum-version` value must be a non-indented string literal without prefix
+        error: setting `minimum-version` value must be a plain string literal
          ——▶ justfile:1:5
           │
         1 │ set minimum-version := '''1.0.0'''
