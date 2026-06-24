@@ -761,7 +761,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         argument.clone()
       };
 
-      for element in value.elements() {
+      for element in &value {
         parameter.check_pattern_match(recipe, element)?;
       }
 

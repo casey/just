@@ -327,7 +327,7 @@ fn encode_uri_component(_context: Context, s: &str) -> StringResult {
 }
 
 fn env(context: Context, keys: &Value, default: Option<&Value>) -> ValueResult {
-  for key in keys.elements() {
+  for key in keys {
     if let Some(value) = context.execution_context.dotenv.get(key) {
       return Ok(value.into());
     }

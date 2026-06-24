@@ -241,7 +241,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
         continue;
       }
 
-      for element in group.elements() {
+      for element in group {
         parameter.check_pattern_match(recipe, element)?;
       }
     }
