@@ -1594,15 +1594,14 @@ impl<'run, 'src> Parser<'run, 'src> {
           return Err(name.error(CompileErrorKind::MinimumVersionExpression));
         }
 
-        let Ok(minimum) = string_literal.cooked.parse::<Version>() else {
-          return Err(
-            string_literal
-              .token
-              .error(CompileErrorKind::InvalidMinimumVersion {
-                version: string_literal.cooked.clone(),
-              }),
-          );
-        };
+        let minimum = string_literal.cooked.parse::<Version>().map_err(|source| {
+          string_literal
+            .token
+            .error(CompileErrorKind::InvalidMinimumVersion {
+              source,
+              version: string_literal.cooked.clone(),
+            })
+        })?;
 
         if Version::current() < minimum {
           return Err(

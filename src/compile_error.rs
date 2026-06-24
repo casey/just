@@ -259,10 +259,10 @@ impl Display for CompileError<'_> {
         "shell recipe `{recipe}` has script recipe attribute `{}`",
         attribute.name(),
       ),
-      InvalidMinimumVersion { version } => {
+      InvalidMinimumVersion { source, version } => {
         write!(
           f,
-          "setting `minimum-version` has invalid version `{version}`"
+          "setting `minimum-version` has invalid version `{version}`: {source}"
         )
       }
       InvalidSignal { signal } => write!(

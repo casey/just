@@ -120,6 +120,7 @@ pub(crate) enum CompileErrorKind<'src> {
     character: char,
   },
   InvalidMinimumVersion {
+    source: &'static str,
     version: String,
   },
   InvalidShellRecipeAttribute {
