@@ -156,6 +156,40 @@ fn style_last_wins() {
 }
 
 #[test]
+fn style_fixed() {
+  #[track_caller]
+  fn case(name: &str, code: &str) {
+    assert_eval_eq(
+      &format!("style('{name}', 'foo')"),
+      &format!("\x1b[{code}mfoo\x1b[0m"),
+    );
+  }
+
+  case("0", "38;5;0");
+  case("255", "38;5;255");
+  case("fg:5", "38;5;5");
+  case("bg:200", "48;5;200");
+}
+
+#[test]
+fn style_rgb() {
+  #[track_caller]
+  fn case(name: &str, code: &str) {
+    assert_eval_eq(
+      &format!("style('{name}', 'foo')"),
+      &format!("\x1b[{code}mfoo\x1b[0m"),
+    );
+  }
+
+  case("#ff8800", "38;2;255;136;0");
+  case("fg:#ff8800", "38;2;255;136;0");
+  case("bg:#04b575", "48;2;4;181;117");
+  case("#abc", "38;2;170;187;204");
+  case("fg:#abc", "38;2;170;187;204");
+  case("bg:#f0a", "48;2;255;0;170");
+}
+
+#[test]
 fn style_prefix_without_text() {
   assert_eval_eq("style('red')", "\x1b[31m");
 }

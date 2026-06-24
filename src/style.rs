@@ -1,4 +1,4 @@
-use nu_ansi_term::Color;
+use {super::Layer, nu_ansi_term::Color};
 
 #[derive(Default)]
 pub(crate) struct Style(nu_ansi_term::Style);
@@ -16,7 +16,14 @@ impl Style {
     self.0 = self.0.bold();
   }
 
-  pub(crate) fn dimmed(&mut self) {
+  pub(crate) fn color(&mut self, color: Color, layer: Layer) {
+    match layer {
+      Layer::Background => self.0 = self.0.on(color),
+      Layer::Foreground => self.0 = self.0.fg(color),
+    }
+  }
+
+  pub(crate) fn dim(&mut self) {
     self.0 = self.0.dimmed();
   }
 

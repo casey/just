@@ -62,6 +62,7 @@ pub(crate) use {
     justfile::Justfile,
     keyed::Keyed,
     keyword::Keyword,
+    layer::Layer,
     lexer::Lexer,
     line::Line,
     list::List,
@@ -271,6 +272,7 @@ mod item;
 mod justfile;
 mod keyed;
 mod keyword;
+mod layer;
 mod lexer;
 mod line;
 mod list;
