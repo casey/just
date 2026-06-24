@@ -20,12 +20,11 @@ fn current_dir() {
 
 #[test]
 fn exists() {
-  let output = Test::new()
+  Test::new()
     .arg("--init")
     .stderr_regex("Wrote justfile to `.*`\n")
-    .success();
-
-  Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .arg("--init")
     .stderr_regex("error: justfile `.*` already exists\n")
     .failure();
@@ -190,11 +189,11 @@ fn justfile_name_from_search_directory() {
 
 #[test]
 fn fmt_compatibility() {
-  let output = Test::new()
+  Test::new()
     .arg("--init")
     .stderr_regex("Wrote justfile to `.*`\n")
-    .success();
-  Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .arg("--unstable")
     .arg("--check")
     .arg("--fmt")
