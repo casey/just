@@ -93,7 +93,66 @@ fn style_single() {
   case("white", 37);
   case("yellow", 33);
 
-  todo!()
+  case("fg:black", 30);
+  case("fg:blue", 34);
+  case("fg:cyan", 36);
+  case("fg:green", 32);
+  case("fg:magenta", 35);
+  case("fg:red", 31);
+  case("fg:white", 37);
+  case("fg:yellow", 33);
+
+  case("bg:black", 40);
+  case("bg:blue", 44);
+  case("bg:cyan", 46);
+  case("bg:green", 42);
+  case("bg:magenta", 45);
+  case("bg:red", 41);
+  case("bg:white", 47);
+  case("bg:yellow", 43);
+
+  case("bold", 1);
+  case("dim", 2);
+  case("italic", 3);
+  case("underline", 4);
+  case("blink", 5);
+  case("reverse", 7);
+  case("hidden", 8);
+  case("strikethrough", 9);
+}
+
+#[test]
+fn style_list() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        x := style(['bold', 'bg:blue', 'red'], 'foo')
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["--evaluate", "x"])
+    .stdout("\x1b[1;44;31mfoo\x1b[0m")
+    .unindent_stdout(false)
+    .success();
+}
+
+#[test]
+fn style_last_wins() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        x := style(['red', 'green'], 'foo')
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["--evaluate", "x"])
+    .stdout("\x1b[32mfoo\x1b[0m")
+    .unindent_stdout(false)
+    .success();
 }
 
 #[test]

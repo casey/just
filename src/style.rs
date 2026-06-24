@@ -25,7 +25,7 @@ impl Style {
   }
 
   pub(crate) fn hidden(&mut self) {
-    self.0 = self.0.underline();
+    self.0 = self.0.hidden();
   }
 
   pub(crate) fn italic(&mut self) {
