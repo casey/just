@@ -64,7 +64,7 @@ fn style_unknown() {
     )
     .stderr(
       "
-        error: call to function `style` failed: invalid style token `hippo`
+        error: call to function `style` failed: invalid style: `hippo`
          ——▶ justfile:2:13
           │
         2 │   @echo '{{ style('hippo') }}foo{{NORMAL}}'
@@ -126,7 +126,7 @@ fn style_whitespace_token() {
     )
     .stderr(
       "
-        error: call to function `style` failed: invalid style token ` red`: leading or trailing whitespace
+        error: call to function `style` failed: invalid style: ` red`
          ——▶ justfile:2:13
           │
         2 │   @echo '{{ style(' red') }}'
