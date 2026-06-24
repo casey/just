@@ -1472,6 +1472,27 @@ set lists
 foo bar=[]:
 ```
 
+#### Requiring a Minimum Just Version
+
+If you use features of `just` which require a particular version, you may use
+the `minimum-version`<sup>master</sup> setting to make it an error to use an
+older version:
+
+```justfile
+set minimum-version := <sup>master</sup>
+```
+
+If `just` encounters a minimum version greater than its own version, it will
+print an error message with the required version, which is hopefully less
+confusing than whatever error message it would have produced otherwise.
+
+The `minimum-version` setting should be placed at the top of the `justfile`,
+before any usage of the new feature use that it guards.
+
+Any features which change the lexer in forward-incompatible ways will still
+produce an unhelpful error message, as the minimum version check is implemented
+in the parser, which runs after the lexer.
+
 #### Positional Arguments
 
 If `positional-arguments` is `true`, recipe arguments will be passed as
