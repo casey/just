@@ -13,7 +13,7 @@ pub(crate) struct Alias<'src, T = Namepath<'src>> {
 }
 
 impl<'src> Alias<'src> {
-  pub(crate) fn resolve(self, target: Arc<Recipe<'src>>) -> Alias<'src, Arc<Recipe<'src>>> {
+  pub(crate) fn resolve(self, target: Arc<Recipe<'src>>) -> RecipeAlias<'src> {
     assert!(self.target.last().lexeme() == target.name());
 
     Alias {
@@ -24,7 +24,7 @@ impl<'src> Alias<'src> {
   }
 }
 
-impl<'src> Alias<'src, Arc<Recipe<'src>>> {
+impl<'src> RecipeAlias<'src> {
   pub(crate) fn is_public(&self) -> bool {
     !self.name.lexeme().starts_with('_') && !self.attributes.contains(AttributeKind::Private)
   }
@@ -42,7 +42,7 @@ impl<'src> Display for Alias<'src> {
   }
 }
 
-impl<'src> Display for Alias<'src, Arc<Recipe<'src>>> {
+impl<'src> Display for RecipeAlias<'src> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     write!(
       f,

@@ -185,6 +185,9 @@ type SearchResult<T> = Result<T, SearchError>;
 type StringResult = Result<String, String>;
 type ValueResult = Result<Value, String>;
 
+type ModuleAlias<'src> = Alias<'src, Modulepath>;
+type RecipeAlias<'src> = Alias<'src, Arc<Recipe<'src>>>;
+
 const JUST_DIRECTORY: &str = "just";
 const RECURSION_LIMIT: usize = if cfg!(windows) { 48 } else { 256 };
 const TEMPDIR_PREFIX: &str = "just-";
