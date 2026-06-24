@@ -3,18 +3,6 @@ use {
   pretty_assertions::{StrComparison, assert_eq},
 };
 
-pub(crate) struct Output {
-  pub(crate) pid: u32,
-  pub(crate) stdout: String,
-  pub(crate) tempdir: TempDir,
-}
-
-impl Output {
-  pub(crate) fn test(self) -> Test {
-    Test::with_tempdir(self.tempdir)
-  }
-}
-
 #[must_use]
 pub(crate) struct Test {
   pub(crate) args: Vec<String>,
@@ -363,23 +351,4 @@ impl Test {
 
     assert_eq!(reparsed, dumped, "reparse mismatch");
   }
-}
-
-pub(crate) fn assert_eval_eq(expression: &str, result: &str) {
-  Test::new()
-    .justfile(format!("x := {expression}"))
-    .args(["--evaluate", "x"])
-    .stdout(result)
-    .unindent_stdout(false)
-    .success();
-}
-
-pub(crate) fn assert_list_eq(expression: &str, result: &str) {
-  Test::new()
-    .justfile(format!("set lists\n\nx := show({expression})"))
-    .env("JUST_UNSTABLE", "1")
-    .args(["--evaluate", "x"])
-    .stdout(result)
-    .unindent_stdout(false)
-    .success();
 }

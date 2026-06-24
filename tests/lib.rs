@@ -1,9 +1,7 @@
 use {
   crate::{
-    assert_stdout::assert_stdout,
-    assert_success::assert_success,
-    tempdir::tempdir,
-    test::{Output, Test, assert_eval_eq, assert_list_eq},
+    assert_stdout::assert_stdout, assert_success::assert_success, output::Output, tempdir::tempdir,
+    test::Test,
   },
   just::{Response, unindent},
   pretty_assertions::Comparison,
@@ -30,6 +28,25 @@ use {
 const FALSE: &str = "[]";
 const JUST: &str = env!("CARGO_BIN_EXE_just");
 const TRUE: &str = "\"true\"";
+
+pub(crate) fn assert_eval_eq(expression: &str, result: &str) {
+  Test::new()
+    .justfile(format!("x := {expression}"))
+    .args(["--evaluate", "x"])
+    .stdout(result)
+    .unindent_stdout(false)
+    .success();
+}
+
+pub(crate) fn assert_list_eq(expression: &str, result: &str) {
+  Test::new()
+    .justfile(format!("set lists\n\nx := show({expression})"))
+    .env("JUST_UNSTABLE", "1")
+    .args(["--evaluate", "x"])
+    .stdout(result)
+    .unindent_stdout(false)
+    .success();
+}
 
 fn default<T: Default>() -> T {
   Default::default()
@@ -114,6 +131,7 @@ mod no_exit_message;
 mod non_unicode;
 mod options;
 mod os_attributes;
+mod output;
 mod overrides;
 mod parallel;
 mod parameters;
