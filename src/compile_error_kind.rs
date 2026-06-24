@@ -136,7 +136,7 @@ pub(crate) enum CompileErrorKind<'src> {
   MinimumVersion {
     minimum: String,
   },
-  MinimumVersionNotStringLiteral,
+  MinimumVersionExpression,
   MismatchedClosingDelimiter {
     close: Delimiter,
     open: Delimiter,

@@ -1587,11 +1587,11 @@ impl<'run, 'src> Parser<'run, 'src> {
         let expression = self.parse_expression()?;
 
         let Expression::StringLiteral { string_literal } = &expression else {
-          return Err(name.error(CompileErrorKind::MinimumVersionNotStringLiteral));
+          return Err(name.error(CompileErrorKind::MinimumVersionExpression));
         };
 
         if string_literal.expand || string_literal.kind.indented || string_literal.part.is_some() {
-          return Err(name.error(CompileErrorKind::MinimumVersionNotStringLiteral));
+          return Err(name.error(CompileErrorKind::MinimumVersionExpression));
         }
 
         let Ok(minimum) = string_literal.cooked.parse::<Version>() else {

@@ -286,7 +286,7 @@ impl Display for CompileError<'_> {
         f,
         "justfile requires just {minimum} or later, but using {VERSION}",
       ),
-      MinimumVersionNotStringLiteral => write!(
+      MinimumVersionExpression => write!(
         f,
         "setting `minimum-version` value must be a plain string literal"
       ),
