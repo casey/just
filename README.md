@@ -2465,7 +2465,7 @@ for details.
   - `yellow`
 
   Which color foreground text, and come in explicit foreground variants
-  prefixed with `fg:`, as well as background colors prefixed with `bg:`.
+  prefixed with `fg:`, as well as background variants prefixed with `bg:`.
 
   As well as other display properties:
 
