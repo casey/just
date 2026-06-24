@@ -45,18 +45,18 @@ mod tests {
       assert_eq!(text.parse::<Version>().ok(), expected);
     }
 
-    case("1.2.3", Some(Version(1, 2, 3)));
-    case("0.0.0", Some(Version(0, 0, 0)));
     case("", None);
-    case("foo", None);
+    case("+1.2.3", None);
+    case("0.0.0", Some(Version(0, 0, 0)));
+    case("01.2.3", None);
     case("1", None);
     case("1.2", None);
+    case("1.2.3", Some(Version(1, 2, 3)));
     case("1.2.3.4", None);
     case("1.2.x", None);
-    case("+1.2.3", None);
-    case("01.2.3", None);
-    case("999999999.0.0", Some(Version(999_999_999, 0, 0)));
     case("1234567890.0.0", None);
+    case("999999999.0.0", Some(Version(999_999_999, 0, 0)));
+    case("foo", None);
   }
 
   #[test]
