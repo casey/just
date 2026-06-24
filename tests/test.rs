@@ -9,6 +9,12 @@ pub(crate) struct Output {
   pub(crate) tempdir: TempDir,
 }
 
+impl Output {
+  pub(crate) fn test(self) -> Test {
+    Test::with_tempdir(self.tempdir)
+  }
+}
+
 #[must_use]
 pub(crate) struct Test {
   pub(crate) args: Vec<String>,

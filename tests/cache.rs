@@ -68,7 +68,7 @@ fn entry_is_created_with_recipe_name() {
 
 #[test]
 fn hit_skips_execution() {
-  let output = Test::new()
+  Test::new()
     .justfile(
       "
         [cache]
@@ -79,16 +79,15 @@ fn hit_skips_execution() {
     )
     .env("JUST_UNSTABLE", "1")
     .stdout("bar\n")
-    .success();
-
-  Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .success();
 }
 
 #[test]
 fn body_change_invalidates_cache() {
-  let output = Test::new()
+  Test::new()
     .justfile(
       "
         [cache]
@@ -99,9 +98,8 @@ fn body_change_invalidates_cache() {
     )
     .env("JUST_UNSTABLE", "1")
     .stdout("bar\n")
-    .success();
-
-  Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .justfile(
       "
         [cache]
@@ -117,7 +115,7 @@ fn body_change_invalidates_cache() {
 
 #[test]
 fn different_recipes_do_not_share_entries() {
-  let output = Test::new()
+  Test::new()
     .justfile(
       "
         [cache]
@@ -129,9 +127,8 @@ fn different_recipes_do_not_share_entries() {
     .env("JUST_UNSTABLE", "1")
     .arg("foo")
     .stdout("bar\n")
-    .success();
-
-  Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .justfile(
       "
         [cache]
@@ -148,7 +145,7 @@ fn different_recipes_do_not_share_entries() {
 
 #[test]
 fn positional_arguments_invalidate_cache() {
-  let output = Test::new()
+  Test::new()
     .justfile(
       "
         [cache]
@@ -161,9 +158,8 @@ fn positional_arguments_invalidate_cache() {
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "bar"])
     .stdout("bar\n")
-    .success();
-
-  Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "baz"])
     .stdout("baz\n")
@@ -172,7 +168,7 @@ fn positional_arguments_invalidate_cache() {
 
 #[test]
 fn environment_invalidates_cache() {
-  let output = Test::new()
+  Test::new()
     .justfile(
       "
         export value := 'default'
@@ -186,9 +182,8 @@ fn environment_invalidates_cache() {
     .env("JUST_UNSTABLE", "1")
     .args(["value=bar", "foo"])
     .stdout("bar\n")
-    .success();
-
-  Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .args(["value=baz", "foo"])
     .stdout("baz\n")
@@ -197,7 +192,7 @@ fn environment_invalidates_cache() {
 
 #[test]
 fn unexported_variable_does_not_invalidate_cache() {
-  let output = Test::new()
+  Test::new()
     .justfile(
       "
         value := 'default'
@@ -211,9 +206,8 @@ fn unexported_variable_does_not_invalidate_cache() {
     .env("JUST_UNSTABLE", "1")
     .args(["value=bar", "foo"])
     .stdout("bar\n")
-    .success();
-
-  Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .args(["value=baz", "foo"])
     .success();
@@ -221,7 +215,7 @@ fn unexported_variable_does_not_invalidate_cache() {
 
 #[test]
 fn interpreter_invalidates_cache() {
-  let output = Test::new()
+  Test::new()
     .justfile(
       "
         set script-interpreter := ['sh', '-eu']
@@ -234,9 +228,8 @@ fn interpreter_invalidates_cache() {
     )
     .env("JUST_UNSTABLE", "1")
     .stdout("bar\n")
-    .success();
-
-  Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .justfile(
       "
         set script-interpreter := ['sh', '-u']
@@ -254,7 +247,7 @@ fn interpreter_invalidates_cache() {
 
 #[test]
 fn working_directory_invalidates_cache() {
-  let output = Test::new()
+  Test::new()
     .justfile(
       "
         [cache]
@@ -267,9 +260,8 @@ fn working_directory_invalidates_cache() {
     .env("JUST_UNSTABLE", "1")
     .create_dir("a")
     .stdout("bar\n")
-    .success();
-
-  Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .justfile(
       "
         [cache]
@@ -287,7 +279,7 @@ fn working_directory_invalidates_cache() {
 
 #[test]
 fn extra_invalidates_cache() {
-  let output = Test::new()
+  Test::new()
     .justfile(
       "
         value := 'default'
@@ -301,14 +293,12 @@ fn extra_invalidates_cache() {
     .env("JUST_UNSTABLE", "1")
     .args(["value=a", "foo"])
     .stdout("bar\n")
-    .success();
-
-  let output = Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .args(["value=a", "foo"])
-    .success();
-
-  Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .args(["value=b", "foo"])
     .stdout("bar\n")
@@ -317,7 +307,7 @@ fn extra_invalidates_cache() {
 
 #[test]
 fn input_invalidates_cache() {
-  let output = Test::new()
+  Test::new()
     .justfile(
       "
         [cache(inputs = 'foo')]
@@ -329,13 +319,11 @@ fn input_invalidates_cache() {
     .env("JUST_UNSTABLE", "1")
     .write("foo", "a")
     .stdout("bar\n")
-    .success();
-
-  let output = Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
-    .success();
-
-  Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .write("foo", "b")
     .stdout("bar\n")
@@ -344,7 +332,7 @@ fn input_invalidates_cache() {
 
 #[test]
 fn multiple_inputs_invalidate_cache() {
-  let output = Test::new()
+  Test::new()
     .justfile(
       "
         set lists
@@ -359,9 +347,8 @@ fn multiple_inputs_invalidate_cache() {
     .write("foo", "a")
     .write("baz", "a")
     .stdout("bar\n")
-    .success();
-
-  Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .write("baz", "b")
     .stdout("bar\n")
@@ -370,7 +357,7 @@ fn multiple_inputs_invalidate_cache() {
 
 #[test]
 fn input_expression_evaluated_with_arguments() {
-  let output = Test::new()
+  Test::new()
     .justfile(
       "
         [cache(inputs = file)]
@@ -383,14 +370,12 @@ fn input_expression_evaluated_with_arguments() {
     .write("foo", "a")
     .args(["bar", "foo"])
     .stdout("bar\n")
-    .success();
-
-  let output = Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .args(["bar", "foo"])
-    .success();
-
-  Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .write("foo", "b")
     .args(["bar", "foo"])
@@ -400,7 +385,7 @@ fn input_expression_evaluated_with_arguments() {
 
 #[test]
 fn symlink_to_file_is_followed() {
-  let output = Test::new()
+  Test::new()
     .justfile(
       "
         [cache(inputs = 'link')]
@@ -413,9 +398,8 @@ fn symlink_to_file_is_followed() {
     .write("foo", "a")
     .symlink("foo", "link")
     .stdout("bar\n")
-    .success();
-
-  Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .success();
 }
@@ -502,15 +486,15 @@ fn missing_output_invalidates_cache() {
     )
     .env("JUST_UNSTABLE", "1")
     .stdout("bar\n")
-    .success();
-
-  let output = Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .success();
 
   fs::remove_file(output.tempdir.path().join("foo")).unwrap();
 
-  Test::with_tempdir(output.tempdir)
+  output
+    .test()
     .env("JUST_UNSTABLE", "1")
     .stdout("bar\n")
     .success();
@@ -531,16 +515,16 @@ fn output_expression_evaluated_with_arguments() {
     .env("JUST_UNSTABLE", "1")
     .args(["bar", "foo"])
     .stdout("bar\n")
-    .success();
-
-  let output = Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .args(["bar", "foo"])
     .success();
 
   fs::remove_file(output.tempdir.path().join("foo")).unwrap();
 
-  Test::with_tempdir(output.tempdir)
+  output
+    .test()
     .env("JUST_UNSTABLE", "1")
     .args(["bar", "foo"])
     .stdout("bar\n")
@@ -563,15 +547,15 @@ fn multiple_outputs() {
     )
     .env("JUST_UNSTABLE", "1")
     .stdout("bar\n")
-    .success();
-
-  let output = Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .success();
 
   fs::remove_file(output.tempdir.path().join("baz")).unwrap();
 
-  Test::with_tempdir(output.tempdir)
+  output
+    .test()
     .env("JUST_UNSTABLE", "1")
     .stdout("bar\n")
     .success();
@@ -579,7 +563,7 @@ fn multiple_outputs() {
 
 #[test]
 fn output_directory_is_allowed() {
-  let output = Test::new()
+  Test::new()
     .justfile(
       "
         [cache(outputs = 'foo')]
@@ -591,9 +575,8 @@ fn output_directory_is_allowed() {
     )
     .env("JUST_UNSTABLE", "1")
     .stdout("bar\n")
-    .success();
-
-  Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .success();
 }
@@ -614,15 +597,15 @@ fn outputs_resolve_against_working_directory() {
     .env("JUST_UNSTABLE", "1")
     .create_dir("sub")
     .stdout("bar\n")
-    .success();
-
-  let output = Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .success();
 
   fs::remove_file(output.tempdir.path().join("sub/foo")).unwrap();
 
-  Test::with_tempdir(output.tempdir)
+  output
+    .test()
     .env("JUST_UNSTABLE", "1")
     .stdout("bar\n")
     .success();
@@ -644,15 +627,15 @@ fn dangling_symlink_output_invalidates_cache() {
     )
     .env("JUST_UNSTABLE", "1")
     .stdout("bar\n")
-    .success();
-
-  let output = Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .success();
 
   fs::remove_file(output.tempdir.path().join("foo")).unwrap();
 
-  Test::with_tempdir(output.tempdir)
+  output
+    .test()
     .env("JUST_UNSTABLE", "1")
     .stdout("bar\n")
     .success();
@@ -702,7 +685,7 @@ fn dry_run_skips_output_checking() {
 
 #[test]
 fn current_directory_invalidates_cache() {
-  let output = Test::new()
+  Test::new()
     .justfile(
       "
         [cache]
@@ -717,9 +700,8 @@ fn current_directory_invalidates_cache() {
     .create_dir("b")
     .current_dir("a")
     .stdout("bar\n")
-    .success();
-
-  Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .current_dir("b")
     .stdout("bar\n")
@@ -744,7 +726,8 @@ fn clean_removes_cache_directory() {
   let cache = output.tempdir.path().join(".justcache");
   assert!(cache.exists());
 
-  let output = Test::with_tempdir(output.tempdir)
+  let output = output
+    .test()
     .env("JUST_UNSTABLE", "1")
     .arg("--clean")
     .stderr("removed 1 cache entry\n")
@@ -766,9 +749,8 @@ fn clean_removes_entries_but_leaves_unexpected_entries() {
     )
     .env("JUST_UNSTABLE", "1")
     .stdout("bar\n")
-    .success();
-
-  let output = Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .write(".justcache/foo", "bar")
     .arg("--clean")
@@ -803,7 +785,7 @@ fn clean_succeeds_without_cache_directory() {
 
 #[test]
 fn clean_quiet_suppresses_count() {
-  let output = Test::new()
+  Test::new()
     .justfile(
       "
         [cache]
@@ -814,14 +796,12 @@ fn clean_quiet_suppresses_count() {
     )
     .env("JUST_UNSTABLE", "1")
     .stdout("bar\n")
-    .success();
-
-  let output = Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .args(["--quiet", "--clean"])
-    .success();
-
-  Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .args(["--quiet", "--clean"])
     .success();
@@ -829,7 +809,7 @@ fn clean_quiet_suppresses_count() {
 
 #[test]
 fn clean_reports_plural_count() {
-  let output = Test::new()
+  Test::new()
     .justfile(
       "
         [cache]
@@ -846,15 +826,13 @@ fn clean_reports_plural_count() {
     .env("JUST_UNSTABLE", "1")
     .arg("foo")
     .stdout("foo\n")
-    .success();
-
-  let output = Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .arg("bar")
     .stdout("bar\n")
-    .success();
-
-  Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .arg("--clean")
     .stderr("removed 2 cache entries\n")
@@ -886,15 +864,13 @@ fn clean_path_removes_subtree() {
     .env("JUST_UNSTABLE", "1")
     .arg("bar")
     .stdout("bar\n")
-    .success();
-
-  let output = Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "baz"])
     .stdout("baz\n")
-    .success();
-
-  let output = Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .args(["--clean", "foo"])
     .stderr("removed 1 cache entry\n")
@@ -935,15 +911,13 @@ fn clean_path_removes_exact_recipe() {
     .env("JUST_UNSTABLE", "1")
     .arg("bar")
     .stdout("bar\n")
-    .success();
-
-  let output = Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "baz"])
     .stdout("baz\n")
-    .success();
-
-  let output = Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .args(["--clean", "foo::baz"])
     .stderr("removed 1 cache entry\n")
@@ -983,7 +957,8 @@ fn clean_path_removes_empty_entries() {
   assert_eq!(entries.len(), 1);
   assert_eq!(fs::read_to_string(&entries[0]).unwrap(), "");
 
-  let output = Test::with_tempdir(output.tempdir)
+  let output = output
+    .test()
     .env("JUST_UNSTABLE", "1")
     .args(["--clean", "bar"])
     .stderr("removed 1 cache entry\n")
@@ -994,7 +969,7 @@ fn clean_path_removes_empty_entries() {
 
 #[test]
 fn hit_prints_verbose_message() {
-  let output = Test::new()
+  Test::new()
     .justfile(
       "
         [cache]
@@ -1005,9 +980,8 @@ fn hit_prints_verbose_message() {
     )
     .env("JUST_UNSTABLE", "1")
     .stdout("bar\n")
-    .success();
-
-  Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .arg("--verbose")
     .stderr(
@@ -1032,9 +1006,8 @@ fn no_cache_reruns_on_hit() {
     )
     .env("JUST_UNSTABLE", "1")
     .stdout("bar\n")
-    .success();
-
-  let output = Test::with_tempdir(output.tempdir)
+    .success()
+    .test()
     .env("JUST_UNSTABLE", "1")
     .args(["--no-cache", "--verbose"])
     .stdout("bar\n")
