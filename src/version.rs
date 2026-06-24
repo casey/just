@@ -13,6 +13,12 @@ impl Version {
   }
 }
 
+impl Display for Version {
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    write!(f, "{}.{}.{}", self.0, self.1, self.2)
+  }
+}
+
 impl FromStr for Version {
   type Err = &'static str;
 

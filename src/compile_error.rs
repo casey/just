@@ -282,9 +282,9 @@ impl Display for CompileError<'_> {
       MappedDependencyWithoutStarredArgument => {
         write!(f, "mapped dependencies must have starred argument")
       }
-      MinimumVersion { minimum } => write!(
+      MinimumVersion { current, minimum } => write!(
         f,
-        "justfile requires just {minimum} or later, but using {VERSION}",
+        "justfile requires just {minimum} or later, but using {current}",
       ),
       MinimumVersionExpression => write!(
         f,

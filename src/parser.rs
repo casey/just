@@ -1603,13 +1603,12 @@ impl<'run, 'src> Parser<'run, 'src> {
             })
         })?;
 
-        if Version::current() < minimum {
+        let current = Version::current();
+        if current < minimum {
           return Err(
             string_literal
               .token
-              .error(CompileErrorKind::MinimumVersion {
-                minimum: string_literal.cooked.clone(),
-              }),
+              .error(CompileErrorKind::MinimumVersion { current, minimum }),
           );
         }
 

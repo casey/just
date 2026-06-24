@@ -135,7 +135,8 @@ pub(crate) enum CompileErrorKind<'src> {
   MappedDependencyWithoutListsSetting,
   MappedDependencyWithoutStarredArgument,
   MinimumVersion {
-    minimum: String,
+    current: Version,
+    minimum: Version,
   },
   MinimumVersionExpression,
   MismatchedClosingDelimiter {
