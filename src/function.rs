@@ -741,9 +741,9 @@ fn style(context: Context, styles: &Value, text: Option<&str>) -> StringResult {
       style.color(Rgb(r, g, b), layer(captures));
     } else if let Some(captures) = RGB_SHORT.captures(token) {
       let n = u16::from_str_radix(&captures[2], 16).unwrap();
-      let r = ((n >> 8) & 0xf) as u8 * 0x11;
-      let g = ((n >> 4) & 0xf) as u8 * 0x11;
-      let b = (n & 0xf) as u8 * 0x11;
+      let r = u8::try_from((n >> 8) & 0xf).unwrap() * 0x11;
+      let g = u8::try_from((n >> 4) & 0xf).unwrap() * 0x11;
+      let b = u8::try_from(n & 0xf).unwrap() * 0x11;
       style.color(Rgb(r, g, b), layer(captures));
     } else {
       match token.as_str() {
