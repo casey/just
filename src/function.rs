@@ -17,6 +17,7 @@ pub(crate) enum Function {
   UnaryToValue(fn(Context, &str) -> ValueResult),
   Binary(fn(Context, &str, &str) -> StringResult),
   BinaryOptToValue(fn(Context, &str, Option<&str>) -> ValueResult),
+  BinaryOptValueStr(fn(Context, &Value, Option<&str>) -> StringResult),
   BinaryOptValueStrToValue(fn(Context, &Value, Option<&str>) -> ValueResult),
   BinaryPlus(fn(Context, &str, &str, &[String]) -> StringResult),
   BinaryStrValue(fn(Context, &str, &Value) -> ValueResult),
@@ -33,7 +34,10 @@ impl Function {
     match self {
       Nullary(_) | ValueNullary(_) => 0..=0,
       Unary(_) | ValueUnary(_) | UnaryMap(_) | UnaryToValue(_) => 1..=1,
-      ValueBinaryOpt(_) | BinaryOptToValue(_) | BinaryOptValueStrToValue(_) => 1..=2,
+      ValueBinaryOpt(_)
+      | BinaryOptToValue(_)
+      | BinaryOptValueStrToValue(_)
+      | BinaryOptValueStr(_) => 1..=2,
       UnaryPlus(_) => 1..=usize::MAX,
       Binary(_) | BinaryStrValue(_) | ValueBinary(_) | BinaryToValue(_) => 2..=2,
       BinaryPlus(_) => 2..=usize::MAX,
@@ -126,7 +130,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "source_directory" => Nullary(source_directory),
     "source_file" => Nullary(source_file),
     "split" => BinaryOptToValue(split),
-    "style" => Unary(style),
+    "style" => BinaryOptValueStr(style),
     "titlecase" => Unary(titlecase),
     "trim" => Unary(trim),
     "trim_end" => Unary(trim_end),
@@ -323,7 +327,7 @@ fn encode_uri_component(_context: Context, s: &str) -> StringResult {
 }
 
 fn env(context: Context, keys: &Value, default: Option<&Value>) -> ValueResult {
-  for key in keys.elements() {
+  for key in keys {
     if let Some(value) = context.execution_context.dotenv.get(key) {
       return Ok(value.into());
     }
@@ -702,18 +706,63 @@ fn split(_context: Context, s: &str, separator: Option<&str>) -> ValueResult {
   })
 }
 
-fn style(context: Context, s: &str) -> StringResult {
-  match s {
-    "command" => Ok(
-      Color::always()
-        .command(context.execution_context.config.command_color)
-        .prefix()
-        .to_string(),
-    ),
-    "error" => Ok(Color::always().error().prefix().to_string()),
-    "warning" => Ok(Color::always().warning().prefix().to_string()),
-    _ => Err(format!("unknown style: `{s}`")),
+fn style(context: Context, styles: &Value, text: Option<&str>) -> StringResult {
+  use nu_ansi_term::Color::*;
+
+  let mut style = Style::new();
+
+  for token in styles {
+    match token.as_str() {
+      // foreground
+      "fg:black" | "black" => style.fg(Black),
+      "fg:blue" | "blue" => style.fg(Blue),
+      "fg:cyan" | "cyan" => style.fg(Cyan),
+      "fg:green" | "green" => style.fg(Green),
+      "fg:magenta" | "magenta" => style.fg(Magenta),
+      "fg:red" | "red" => style.fg(Red),
+      "fg:white" | "white" => style.fg(White),
+      "fg:yellow" | "yellow" => style.fg(Yellow),
+      // background
+      "bg:black" => style.bg(Black),
+      "bg:blue" => style.bg(Blue),
+      "bg:cyan" => style.bg(Cyan),
+      "bg:green" => style.bg(Green),
+      "bg:magenta" => style.bg(Magenta),
+      "bg:red" => style.bg(Red),
+      "bg:white" => style.bg(White),
+      "bg:yellow" => style.bg(Yellow),
+      // properties
+      "blink" => style.blink(),
+      "bold" => style.bold(),
+      "dim" => style.dimmed(),
+      "hidden" => style.hidden(),
+      "italic" => style.italic(),
+      "reverse" => style.reverse(),
+      "strikethrough" => style.strikethrough(),
+      "underline" => style.underline(),
+      // roles
+      "command" => {
+        if let Some(color) = context.execution_context.config.command_color {
+          style.fg(color);
+        }
+        style.bold();
+      }
+      "error" => {
+        style.fg(Red);
+        style.bold();
+      }
+      "warning" => {
+        style.fg(Yellow);
+        style.bold();
+      }
+      _ => return Err(format!("invalid style: `{token}`")),
+    }
   }
+
+  Ok(match text {
+    Some(text) => style.paint(text),
+    None => style.prefix(),
+  })
 }
 
 fn titlecase(_context: Context, s: &str) -> StringResult {

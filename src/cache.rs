@@ -97,8 +97,8 @@ impl Cache {
   ) -> RunResult<'static, BTreeMap<String, blake3::Hash>> {
     let mut inputs = BTreeMap::new();
 
-    for input in value.elements() {
-      let path = working_directory.join(input);
+    for input in value {
+      let path = working_directory.join(&input);
 
       let metadata = match fs::metadata(&path) {
         Ok(metadata) => metadata,
@@ -121,7 +121,7 @@ impl Cache {
           path: path.clone(),
         })?;
 
-      inputs.insert(input.into(), hasher.finalize());
+      inputs.insert(input, hasher.finalize());
     }
 
     Ok(inputs)

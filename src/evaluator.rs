@@ -414,6 +414,15 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         };
         f(context!(), &a, b.as_deref())
       }
+      Function::BinaryOptValueStr(f) => {
+        let a = self.evaluate_value(&arguments[0])?;
+        let b = if arguments.len() > 1 {
+          Some(self.evaluate_string(&arguments[1], StringContext::Function(name))?)
+        } else {
+          None
+        };
+        f(context!(), &a, b.as_deref()).map(Value::from)
+      }
       Function::BinaryOptValueStrToValue(f) => {
         let a = self.evaluate_value(&arguments[0])?;
         let b = if arguments.len() > 1 {
@@ -752,7 +761,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         argument.clone()
       };
 
-      for element in value.elements() {
+      for element in &value {
         parameter.check_pattern_match(recipe, element)?;
       }
 

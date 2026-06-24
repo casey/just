@@ -29,6 +29,7 @@ impl Color {
     self.restyle(Style::new().fg(Purple))
   }
 
+  #[cfg(test)]
   pub(crate) fn always() -> Self {
     Self {
       use_color: UseColor::Always,

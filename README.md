@@ -2442,20 +2442,60 @@ for details.
 
 #### Style
 
-- `style(name)`<sup>1.37.0</sup> - Return a named terminal display attribute
-  escape sequence used by `just`. Unlike terminal display attribute escape
-  sequence constants, which contain standard colors and styles, `style(name)`
-  returns an escape sequence used by `just` itself, and can be used to make
-  recipe output match `just`'s own output.
+- `style(styles)`<sup>1.37.0</sup> - Return a terminal escape sequence
+  combining the named styles in `styles`.
 
-  Recognized values for `name` are `'command'`, for echoed recipe lines,
-  `error`, and `warning`.
+  The styles supported by version 1.37.0 and later can be used to duplicate
+  `just`'s own styles:
 
-  For example, to style an error message:
+  - `command`: echoed recipe lines
+  - `error`: errors
+  - `warning`: warnings
+
+  Additional styles supported by <sup>master</sup>master and later include
+  colors:
+
+  - `black`
+  - `blue`
+  - `cyan`
+  - `green`
+  - `magenta`
+  - `red`
+  - `white`
+  - `yellow`
+
+  Which color foreground text, and come in explicit foreground variants
+  prefixed with `fg:`, as well as background variants prefixed with `bg:`.
+
+  As well as other display properties:
+
+  - `blink`
+  - `bold`
+  - `dim`
+  - `hidden`
+  - `italic`
+  - `reverse`
+  - `strikethrough`
+  - `underline`
+
+  `styles` may be a list of styles, in which case all listed styles are
+  combined to produce the final escape sequence.
+
+  Note that the escape sequence returned by `style(styles)` are prefixes. You
+  can use the `NORMAL` constant to reset the style after use:
 
   ```just
-  scary:
-    @echo '{{ style("error") }}OH NO{{ NORMAL }}'
+  error message:
+    echo '{{style("error") + message + NORMAL}}'
+  ```
+
+- `style(styles, text)`<sup>master</sup> Style `text` with `styles` as in the
+  one-argument form. The style is reset automatically, so use of `NORMAL` to
+  reset the terminal is not needed:
+
+  ```just
+  error message:
+    echo '{{style("error", message)}}'
   ```
 
 ##### User Directories

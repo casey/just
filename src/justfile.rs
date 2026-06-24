@@ -574,7 +574,7 @@ impl<'src> Justfile<'src> {
       }
 
       if let Some(star) = dependency.star() {
-        for element in grouped[star].elements().to_vec() {
+        for element in &grouped[star] {
           let mut arguments = grouped.clone();
           arguments[star] = element.into();
           evaluated.push((&dependency.recipe, arguments));

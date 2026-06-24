@@ -173,6 +173,7 @@ mod show;
 mod signals;
 mod slash_operator;
 mod string;
+mod style;
 mod subsequents;
 mod summary;
 mod tempdir;

@@ -52,7 +52,7 @@ pub(crate) fn load_dotenv(
   let mut dotenv = BTreeMap::new();
   let mut found = false;
 
-  for path in paths.elements() {
+  for path in paths {
     let path = working_directory.join(path);
     if let Some(map) = load_from_file(&path, settings)? {
       dotenv.extend(map);
@@ -71,7 +71,7 @@ pub(crate) fn load_dotenv(
   };
 
   for directory in working_directory.ancestors() {
-    for filename in filenames.elements() {
+    for filename in &filenames {
       if let Some(map) = load_from_file(&directory.join(filename), settings)? {
         dotenv.extend(map);
         found = true;
