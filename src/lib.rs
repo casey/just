@@ -113,6 +113,7 @@ pub(crate) use {
     string_kind::StringKind,
     string_literal::StringLiteral,
     string_state::StringState,
+    style::Style,
     subcommand::Subcommand,
     suggestion::Suggestion,
     switch::Switch,
@@ -323,6 +324,7 @@ mod string_delimiter;
 mod string_kind;
 mod string_literal;
 mod string_state;
+mod style;
 mod subcommand;
 mod suggestion;
 mod switch;

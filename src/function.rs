@@ -707,44 +707,38 @@ fn split(_context: Context, s: &str, separator: Option<&str>) -> ValueResult {
 }
 
 fn style(context: Context, spec: &Value, text: Option<&str>) -> StringResult {
-  if let [element] = spec.elements() {
-    let role = match element.as_str() {
-      "command" => Some(Color::always().command(context.execution_context.config.command_color)),
-      "error" => Some(Color::always().error()),
-      "warning" => Some(Color::always().warning()),
-      _ => None,
-    };
+  use nu_ansi_term::Color::*;
 
-    if let Some(color) = role {
-      return Ok(match text {
-        Some(text) => color.paint(text).to_string(),
-        None => color.prefix().to_string(),
-      });
-    }
-  }
-
-  let mut style = nu_ansi_term::Style::new();
+  let mut style = Style::new();
 
   for token in spec.elements() {
-    if token.trim() != token {
-      return Err(format!(
-        "invalid style token `{token}`: leading or trailing whitespace"
-      ));
-    }
-
-    let color = match token.as_str() {
-      "black" => nu_ansi_term::Color::Black,
-      "blue" => nu_ansi_term::Color::Blue,
-      "cyan" => nu_ansi_term::Color::Cyan,
-      "green" => nu_ansi_term::Color::Green,
-      "magenta" => nu_ansi_term::Color::Magenta,
-      "red" => nu_ansi_term::Color::Red,
-      "white" => nu_ansi_term::Color::White,
-      "yellow" => nu_ansi_term::Color::Yellow,
+    match token.as_str() {
+      // colors
+      "black" => style.fg(Black),
+      "blue" => style.fg(Blue),
+      "cyan" => style.fg(Cyan),
+      "green" => style.fg(Green),
+      "magenta" => style.fg(Magenta),
+      "red" => style.fg(Red),
+      "white" => style.fg(White),
+      "yellow" => style.fg(Yellow),
+      // roles
+      "warning" => {
+        style.fg(Yellow);
+        style.bold();
+      }
+      "error" => {
+        style.fg(Red);
+        style.bold();
+      }
+      "command" => {
+        if let Some(color) = context.execution_context.config.command_color {
+          style.fg(color);
+        }
+        style.bold();
+      }
       _ => return Err(format!("invalid style token `{token}`")),
     };
-
-    style = style.fg(color);
   }
 
   Ok(match text {
