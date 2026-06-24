@@ -2,7 +2,7 @@ use {super::*, CompileErrorKind::*};
 
 #[derive(Default)]
 pub(crate) struct Analyzer<'run, 'src> {
-  aliases: Table<'src, Alias<'src, Namepath<'src>>>,
+  aliases: Table<'src, Alias<'src>>,
   assignments: Vec<&'run Binding<'src, Expression<'src>>>,
   functions: Vec<&'run FunctionDefinition<'src>>,
   modules: Table<'src, Justfile<'src>>,
@@ -311,7 +311,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       {
         match resolution {
           Resolution::Resolved(target) => {
-            module_aliases.insert(ModuleAlias {
+            module_aliases.insert(Alias {
               attributes: alias.attributes,
               name: alias.name,
               target,

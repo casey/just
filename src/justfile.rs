@@ -27,7 +27,7 @@ pub(crate) struct Justfile<'src> {
   #[serde(skip)]
   pub(crate) loaded: Vec<PathBuf>,
   #[serde(skip)]
-  pub(crate) module_aliases: Table<'src, ModuleAlias<'src>>,
+  pub(crate) module_aliases: Table<'src, Alias<'src, Modulepath>>,
   pub(crate) module_path: Modulepath,
   pub(crate) modules: Table<'src, Self>,
   #[serde(skip)]
@@ -35,7 +35,7 @@ pub(crate) struct Justfile<'src> {
   #[serde(skip)]
   pub(crate) private: bool,
   #[serde(rename = "aliases")]
-  pub(crate) recipe_aliases: Table<'src, Alias<'src>>,
+  pub(crate) recipe_aliases: Table<'src, Alias<'src, Arc<Recipe<'src>>>>,
   pub(crate) recipes: Table<'src, Arc<Recipe<'src>>>,
   pub(crate) settings: Settings,
   pub(crate) source: PathBuf,
@@ -419,7 +419,7 @@ impl<'src> Justfile<'src> {
     Ok(())
   }
 
-  pub(crate) fn recipe_alias(&self, name: &str) -> Option<&Alias<'src>> {
+  pub(crate) fn recipe_alias(&self, name: &str) -> Option<&Alias<'src, Arc<Recipe<'src>>>> {
     self.recipe_aliases.get(name)
   }
 
@@ -663,7 +663,10 @@ impl<'src> Justfile<'src> {
     recipes
   }
 
-  pub(crate) fn public_aliases_recursive(&self, config: &Config) -> Vec<(&Alias, &Modulepath)> {
+  pub(crate) fn public_aliases_recursive(
+    &self,
+    config: &Config,
+  ) -> Vec<(&Alias<'_, Arc<Recipe<'_>>>, &Modulepath)> {
     let mut aliases = Vec::new();
 
     let mut stack = vec![self];
