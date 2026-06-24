@@ -710,13 +710,13 @@ fn style(context: Context, styles: &Value, text: Option<&str>) -> StringResult {
   use nu_ansi_term::Color::*;
 
   static FIXED: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new("(fg:|bg:)?(0|[1-9][0-9]{0,2})").unwrap());
+    LazyLock::new(|| Regex::new("^(fg:|bg:)?(0|[1-9][0-9]{0,2})$").unwrap());
 
   static RGB_LONG: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new("(fg:|bg:)?#[[:xdigit:]]{6}").unwrap());
+    LazyLock::new(|| Regex::new("^(fg:|bg:)?(#[[:xdigit:]]{6})$").unwrap());
 
   static RGB_SHORT: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new("(fg:|bg:)?#[[:xdigit:]]{3}").unwrap());
+    LazyLock::new(|| Regex::new("^(fg:|bg:)?(#[[:xdigit:]]{3})$").unwrap());
 
   fn background(captures: regex::Captures) -> bool {
     match captures.get(1).map(|capture| capture.as_str()) {
@@ -729,8 +729,12 @@ fn style(context: Context, styles: &Value, text: Option<&str>) -> StringResult {
   let mut style = Style::new();
 
   for token in styles {
+    let error = || format!("invalid style: `{token}`");
+
     if let Some(captures) = FIXED.captures(token) {
-      let color = captures[2].parse::<u8>().unwrap();
+      let Ok(color) = captures[2].parse::<u8>() else {
+        return Err(error());
+      };
 
       if background(captures) {
         style.fixed_bg(color)
@@ -801,7 +805,7 @@ fn style(context: Context, styles: &Value, text: Option<&str>) -> StringResult {
           style.fg(Yellow);
           style.bold();
         }
-        _ => return Err(format!("invalid style: `{token}`")),
+        _ => return Err(error()),
       }
     }
   }
