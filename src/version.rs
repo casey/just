@@ -19,7 +19,7 @@ impl FromStr for Version {
   fn from_str(text: &str) -> Result<Self, Self::Err> {
     let captures = REGEX
       .captures(text)
-      .ok_or_else(|| format!("expected `MAJOR.MINOR.PATCH` version, but found `{text}`"))?;
+      .ok_or_else(|| format!("expected `MAJOR.MINOR.PATCH`, but found `{text}`"))?;
 
     Ok(Version(
       captures[1].parse().unwrap(),
