@@ -45,7 +45,7 @@ fn minimum_version_invalid() {
     .justfile("set minimum-version := 'foo'")
     .stderr(
       "
-        error: setting `minimum-version` has invalid version `foo`: expected `MAJOR.MINOR.PATCH`
+        error: `minimum-version` setting has invalid version `foo`: expected `MAJOR.MINOR.PATCH`
          ——▶ justfile:1:24
           │
         1 │ set minimum-version := 'foo'
