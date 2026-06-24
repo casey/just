@@ -713,10 +713,10 @@ fn style(context: Context, styles: &Value, text: Option<&str>) -> StringResult {
     LazyLock::new(|| Regex::new("^(fg:|bg:)?(0|[1-9][0-9]{0,2})$").unwrap());
 
   static RGB_LONG: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new("^(fg:|bg:)?(#[[:xdigit:]]{6})$").unwrap());
+    LazyLock::new(|| Regex::new("^(fg:|bg:)?#([[:xdigit:]]{6})$").unwrap());
 
   static RGB_SHORT: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new("^(fg:|bg:)?(#[[:xdigit:]]{3})$").unwrap());
+    LazyLock::new(|| Regex::new("^(fg:|bg:)?#([[:xdigit:]]{3})$").unwrap());
 
   fn background(captures: regex::Captures) -> bool {
     match captures.get(1).map(|capture| capture.as_str()) {
