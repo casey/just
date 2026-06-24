@@ -286,10 +286,9 @@ impl Display for CompileError<'_> {
         f,
         "justfile requires just {minimum} or later, but using {current}",
       ),
-      MinimumVersionExpression => write!(
-        f,
-        "setting `minimum-version` value must be a plain string literal"
-      ),
+      MinimumVersionExpression => {
+        write!(f, "`minimum-version` value must be a plain string literal")
+      }
       MismatchedClosingDelimiter {
         open,
         open_line,
