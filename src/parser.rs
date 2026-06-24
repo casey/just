@@ -1604,7 +1604,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           );
         };
 
-        if VERSION.parse::<Version>().unwrap() < minimum {
+        if Version::current() < minimum {
           return Err(
             string_literal
               .token

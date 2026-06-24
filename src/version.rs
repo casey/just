@@ -7,6 +7,12 @@ static REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(&format!(r"^{N}\.{N}
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub(crate) struct Version(u64, u64, u64);
 
+impl Version {
+  pub(crate) fn current() -> Self {
+    VERSION.parse().unwrap()
+  }
+}
+
 impl FromStr for Version {
   type Err = Box<dyn std::error::Error>;
 
@@ -26,6 +32,11 @@ impl FromStr for Version {
 #[cfg(test)]
 mod tests {
   use super::*;
+
+  #[test]
+  fn current_version_is_valid() {
+    Version::current();
+  }
 
   #[test]
   fn parse() {
