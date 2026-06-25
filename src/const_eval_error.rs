@@ -58,7 +58,10 @@ impl<'src> ConstEvalError<'src> {
         token: *token,
       },
       Error::RegexCompile { source, token } => Self::RegexCompile { source, token },
-      error => unreachable!("non-const error in const evaluation: {error:?}"),
+      error => unreachable!(
+        "non-const error in const evaluation: {}",
+        error.color_display(Color::never()),
+      ),
     }
   }
 }
