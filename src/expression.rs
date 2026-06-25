@@ -30,8 +30,8 @@ pub(crate) enum Expression<'src> {
   Comparison {
     lhs: Box<Self>,
     operator: ConditionalOperator,
-    token: Token<'src>,
     rhs: Box<Self>,
+    token: Token<'src>,
   },
   /// `lhs + rhs`
   Concatenation {

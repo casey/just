@@ -633,8 +633,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     let Expression::Comparison {
       lhs,
       operator,
-      token,
       rhs,
+      token,
     } = condition
     else {
       return Ok(self.evaluate_value(condition)?.is_truthy());
