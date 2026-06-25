@@ -633,7 +633,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     let Expression::Comparison {
       lhs,
       operator,
-      operator_token,
+      token: operator_token,
       rhs,
     } = condition
     else {

@@ -30,7 +30,7 @@ pub(crate) enum Expression<'src> {
   Comparison {
     lhs: Box<Self>,
     operator: ConditionalOperator,
-    operator_token: Token<'src>,
+    token: Token<'src>,
     rhs: Box<Self>,
   },
   /// `lhs + rhs`

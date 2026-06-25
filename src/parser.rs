@@ -770,7 +770,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok(Expression::Comparison {
       lhs: lhs.into(),
       operator,
-      operator_token: token,
+      token,
       rhs: rhs.into(),
     })
   }
