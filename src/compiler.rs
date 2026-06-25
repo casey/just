@@ -106,6 +106,23 @@ impl Compiler {
       root,
     )?;
 
+    let unknown_overrides = config
+      .overrides
+      .iter()
+      .filter(|((path, name), _value)| {
+        !justfile
+          .submodule(path)
+          .is_some_and(|module| module.assignments.contains_key(name))
+      })
+      .map(|((path, name), _value)| path.join(name).to_string())
+      .collect::<Vec<String>>();
+
+    if !unknown_overrides.is_empty() {
+      return Err(Error::UnknownOverrides {
+        overrides: unknown_overrides,
+      });
+    }
+
     Ok(Compilation {
       asts,
       justfile,
@@ -221,7 +238,7 @@ impl Compiler {
   }
 
   #[cfg(test)]
-  pub(crate) fn test_compile(src: &str) -> RunResult<Justfile> {
+  pub(crate) fn test_compile(src: &str) -> CompileResult<Justfile> {
     let tokens = Lexer::test_lex(src)?;
     let ast = Parser::parse_tokens(&mut Numerator::new(), &tokens)?;
     let root = PathBuf::from("justfile");

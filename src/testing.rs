@@ -81,14 +81,7 @@ pub(crate) fn analysis_error(
     &root,
   ) {
     Ok(_) => panic!("Analysis unexpectedly succeeded"),
-    Err(have) => {
-      let Error::Compile { compile_error } = have else {
-        panic!(
-          "unexpected non-compile analysis error: {}",
-          have.color_display(Color::never()),
-        );
-      };
-
+    Err(compile_error) => {
       let want = CompileError {
         token: Token {
           kind: compile_error.token.kind,
