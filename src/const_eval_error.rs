@@ -41,7 +41,7 @@ impl<'src> ConstEvalError<'src> {
     self.context().error(CompileErrorKind::ConstEval(self))
   }
 
-  pub(crate) fn assert_const(error: Error<'src>) -> Self {
+  pub(crate) fn unwrap_const(error: Error<'src>) -> Self {
     match error {
       Error::Assert { message, name } => Self::Assert { message, name },
       Error::Const { const_error } => Self::Const(const_error),
