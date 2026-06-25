@@ -128,9 +128,6 @@ pub(crate) enum Error<'src> {
     editor: OsString,
     status: ExitStatus,
   },
-  EmptyInterpreter {
-    setting: Name<'src>,
-  },
   EmptyListArgument {
     parameter: &'src str,
     recipe: &'src str,
@@ -235,6 +232,7 @@ pub(crate) enum Error<'src> {
   },
   RegexCompile {
     source: regex::Error,
+    token: Token<'src>,
   },
   RuntimeDirIo {
     io_error: io::Error,
@@ -354,11 +352,10 @@ impl<'src> Error<'src> {
         Some(module.token)
       }
       Self::Assert { name, .. } => Some(**name),
-      Self::Backtick { token, .. } => Some(*token),
+      Self::Backtick { token, .. } | Self::RegexCompile { token, .. } => Some(*token),
       Self::Compile { compile_error } => Some(compile_error.context()),
       Self::Const { const_error } => Some(const_error.context()),
       Self::FunctionCall { function, .. } => Some(function.token),
-      Self::EmptyInterpreter { setting } => Some(**setting),
       Self::ListInStringContext { context, .. } => Some(context.token()),
       Self::ListOperation { token, .. } => Some(**token),
       Self::MissingImportFile { path } => Some(*path),
@@ -686,12 +683,6 @@ impl ColorDisplay for Error<'_> {
         let editor = editor.to_string_lossy();
         write!(f, "editor `{editor}` failed: {status}")?;
       }
-      EmptyInterpreter { setting } => {
-        write!(
-          f,
-          "`{setting}` setting requires at least one element but evaluated to empty list"
-        )?;
-      }
       EmptyListArgument { parameter, recipe } => {
         write!(
           f,
@@ -880,7 +871,7 @@ impl ColorDisplay for Error<'_> {
         f,
         "maximum recursion depth of {RECURSION_LIMIT} exceeded while calling function {last}"
       )?,
-      RegexCompile { source } => write!(f, "{source}")?,
+      RegexCompile { source, .. } => write!(f, "{source}")?,
       RuntimeDirIo { io_error, path } => {
         write!(
           f,

@@ -58,6 +58,10 @@ fn bad_regex_fails_at_runtime() {
             (
             ^
         error: unclosed group
+         ——▶ justfile:3:17
+          │
+        3 │   echo {{ if '' =~ '(' { 'a' } else { 'b' } }}
+          │                 ^^
       ",
     )
     .stdout("before\n")

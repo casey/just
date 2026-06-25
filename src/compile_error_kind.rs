@@ -30,6 +30,7 @@ pub(crate) enum CompileErrorKind<'src> {
     variable: &'src str,
     circle: Vec<&'src str>,
   },
+  ConstEval(ConstEvalError<'src>),
   DependencyArgumentCountMismatch {
     dependency: Namepath<'src>,
     found: usize,

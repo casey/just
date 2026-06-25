@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub(crate) enum StringContext<'src> {
   EnvKey(Name<'src>),
   Function(Name<'src>),

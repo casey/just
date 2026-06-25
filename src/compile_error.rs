@@ -95,6 +95,7 @@ impl Display for CompileError<'_> {
           )
         }
       }
+      ConstEval(error) => write!(f, "{error}"),
       DependencyArgumentCountMismatch {
         dependency,
         found,

@@ -481,6 +481,10 @@ fn bad_regex() {
             (
             ^
         error: unclosed group
+         ——▶ justfile:1:32
+          │
+        1 │ set working-directory := if '' =~ '(' {
+          │                                ^^
       ",
     )
     .failure();

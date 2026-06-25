@@ -138,7 +138,9 @@ impl<'src> Node<'src> for Expression<'src> {
         }
         tree
       }
-      Self::Comparison { lhs, operator, rhs } => Tree::atom(operator.to_string())
+      Self::Comparison {
+        lhs, operator, rhs, ..
+      } => Tree::atom(operator.to_string())
         .push(lhs.tree())
         .push(rhs.tree()),
       Self::Concatenation { lhs, rhs, .. } => Tree::atom("+").push(lhs.tree()).push(rhs.tree()),
