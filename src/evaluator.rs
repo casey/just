@@ -633,7 +633,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     let Expression::Comparison {
       lhs,
       operator,
-      token: operator_token,
+      token,
       rhs,
     } = condition
     else {
@@ -653,7 +653,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           .collect::<Result<Vec<Regex>, regex::Error>>()
           .map_err(|source| Error::RegexCompile {
             source,
-            token: *operator_token,
+            token: *token,
           })?;
 
         let matched = lhs
