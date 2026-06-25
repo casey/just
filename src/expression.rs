@@ -31,6 +31,7 @@ pub(crate) enum Expression<'src> {
     lhs: Box<Self>,
     operator: ConditionalOperator,
     rhs: Box<Self>,
+    token: Token<'src>,
   },
   /// `lhs + rhs`
   Concatenation {
@@ -108,7 +109,9 @@ impl Display for Expression<'_> {
         }
         write!(f, ")")
       }
-      Self::Comparison { lhs, operator, rhs } => write!(f, "{lhs} {operator} {rhs}"),
+      Self::Comparison {
+        lhs, operator, rhs, ..
+      } => write!(f, "{lhs} {operator} {rhs}"),
       Self::Concatenation { lhs, rhs, .. } => write!(f, "{lhs} + {rhs}"),
       Self::ListConcatenation { lhs, rhs, .. } => write!(f, "{lhs} ++ {rhs}"),
       Self::Conditional {
@@ -197,7 +200,9 @@ impl Serialize for Expression<'_> {
         }
         seq.end()
       }
-      Self::Comparison { lhs, operator, rhs } => {
+      Self::Comparison {
+        lhs, operator, rhs, ..
+      } => {
         let mut seq = serializer.serialize_seq(None)?;
         seq.serialize_element(&operator.to_string())?;
         seq.serialize_element(lhs)?;

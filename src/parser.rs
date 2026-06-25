@@ -771,6 +771,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       lhs: lhs.into(),
       operator,
       rhs: rhs.into(),
+      token,
     })
   }
 

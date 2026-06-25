@@ -34,6 +34,7 @@ pub(crate) use {
     config::Config,
     config_error::ConfigError,
     const_error::ConstError,
+    const_eval_error::ConstEvalError,
     constants::constants,
     count::Count,
     delimiter::Delimiter,
@@ -243,6 +244,7 @@ mod conditional_operator;
 mod config;
 mod config_error;
 mod const_error;
+mod const_eval_error;
 mod constants;
 mod count;
 mod delimiter;
