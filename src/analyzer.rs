@@ -24,7 +24,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     paths: &HashMap<PathBuf, PathBuf>,
     private: bool,
     root: &Path,
-  ) -> RunResult<'src, Justfile<'src>> {
+  ) -> CompileResult<'src, Justfile<'src>> {
     Self::default().justfile(
       asts, config, doc, groups, loaded, name, overrides, paths, private, root,
     )
@@ -42,7 +42,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     paths: &HashMap<PathBuf, PathBuf>,
     private: bool,
     root: &Path,
-  ) -> RunResult<'src, Justfile<'src>> {
+  ) -> CompileResult<'src, Justfile<'src>> {
     let mut absent_modules = BTreeSet::new();
     let mut definitions = HashMap::new();
     let mut imports = HashSet::new();
@@ -118,13 +118,9 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           }
           Item::Unexport { name } => {
             if !self.unexports.insert(name.lexeme().to_string()) {
-              return Err(
-                name
-                  .error(DuplicateUnexport {
-                    variable: name.lexeme(),
-                  })
-                  .into(),
-              );
+              return Err(name.error(DuplicateUnexport {
+                variable: name.lexeme(),
+              }));
             }
           }
         }
@@ -146,7 +142,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       let variable = assignment.name.lexeme();
 
       if !allow_duplicate_variables && assignments.contains_key(variable) {
-        return Err(assignment.name.error(DuplicateVariable { variable }).into());
+        return Err(assignment.name.error(DuplicateVariable { variable }));
       }
 
       if assignments
@@ -157,7 +153,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       }
 
       if self.unexports.contains(variable) {
-        return Err(assignment.name.error(ExportUnexported { variable }).into());
+        return Err(assignment.name.error(ExportUnexported { variable }));
       }
     }
 
@@ -165,17 +161,12 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     for function in self.functions {
       let name = function.name.lexeme();
       if let Some(first) = functions.get(name) {
-        return Err(
-          function
-            .name
-            .error(Redefinition {
-              first_type: "function",
-              second_type: "function",
-              name,
-              first: first.name.line,
-            })
-            .into(),
-        );
+        return Err(function.name.error(Redefinition {
+          first_type: "function",
+          second_type: "function",
+          name,
+          first: first.name.line,
+        }));
       }
       functions.insert(function.clone());
     }
@@ -192,7 +183,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             Reference::Variable(variable) => {
               let name = variable.lexeme();
               if !assignments.contains_key(name) && !constants().contains_key(name) {
-                return Err(variable.error(UndefinedVariable { variable: name }).into());
+                return Err(variable.error(UndefinedVariable { variable: name }));
               }
             }
           }
@@ -200,28 +191,12 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       }
     }
 
-    let mut unknown_overrides = Vec::new();
-
     for ((path, name), value) in &config.overrides {
-      if *path == ast.module_path {
-        if let Some(assignment) = assignments.get(name) {
-          overrides.insert(assignment.number, value.clone());
-        } else {
-          unknown_overrides.push(path.join(name).to_string());
-        }
-      } else if path.starts_with(&ast.module_path)
-        && !self
-          .modules
-          .contains_key(&path.components[ast.module_path.components.len()])
+      if *path == ast.module_path
+        && let Some(assignment) = assignments.get(name)
       {
-        unknown_overrides.push(format!("{path}::{name}"));
+        overrides.insert(assignment.number, value.clone());
       }
-    }
-
-    if !unknown_overrides.is_empty() {
-      return Err(Error::UnknownOverrides {
-        overrides: unknown_overrides,
-      });
     }
 
     let settings =
@@ -233,7 +208,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           continue;
         }
 
-        return Err(token.error(CompileErrorKind::ListFeature(feature)).into());
+        return Err(token.error(CompileErrorKind::ListFeature(feature)));
       }
     }
 
@@ -262,14 +237,14 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             let Fragment::Text { token } = line.fragments.first().unwrap() else {
               unreachable!();
             };
-            return Err(token.error(GuardAndInfallibleSigil).into());
+            return Err(token.error(GuardAndInfallibleSigil));
           }
 
           if !continued && let Some(Fragment::Text { token }) = line.fragments.first() {
             let text = token.lexeme();
 
             if text.starts_with(' ') || text.starts_with('\t') {
-              return Err(token.error(ExtraLeadingWhitespace).into());
+              return Err(token.error(ExtraLeadingWhitespace));
             }
           }
 
@@ -278,15 +253,10 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
         for attribute in [AttributeKind::Cache, AttributeKind::Extension] {
           if let Some(attribute) = recipe.attributes.get(attribute) {
-            return Err(
-              recipe
-                .name
-                .error(InvalidShellRecipeAttribute {
-                  attribute: Box::new(attribute.clone()),
-                  recipe: recipe.name.lexeme(),
-                })
-                .into(),
-            );
+            return Err(recipe.name.error(InvalidShellRecipeAttribute {
+              attribute: Box::new(attribute.clone()),
+              recipe: recipe.name.lexeme(),
+            }));
           }
         }
       }
@@ -343,15 +313,10 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           }
         }
       } else {
-        return Err(
-          alias
-            .name
-            .error(UnknownAliasTarget {
-              alias: alias.name.lexeme(),
-              target: alias.target,
-            })
-            .into(),
-        );
+        return Err(alias.name.error(UnknownAliasTarget {
+          alias: alias.name.lexeme(),
+          target: alias.target,
+        }));
       }
     }
 
@@ -362,14 +327,9 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     for recipe in recipes.values() {
       if recipe.attributes.contains(AttributeKind::Default) {
         if default.is_some() {
-          return Err(
-            recipe
-              .name
-              .error(CompileErrorKind::DuplicateDefault {
-                recipe: recipe.name.lexeme(),
-              })
-              .into(),
-          );
+          return Err(recipe.name.error(CompileErrorKind::DuplicateDefault {
+            recipe: recipe.name.lexeme(),
+          }));
         }
 
         default = Some(Arc::clone(recipe));
