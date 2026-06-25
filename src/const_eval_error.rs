@@ -38,8 +38,7 @@ impl<'src> ConstEvalError<'src> {
   }
 
   pub(crate) fn into_compile_error(self) -> CompileError<'src> {
-    let token = self.context();
-    token.error(CompileErrorKind::ConstEval(self))
+    self.context().error(CompileErrorKind::ConstEval(self))
   }
 
   pub(crate) fn from_error(error: Error<'src>) -> Self {
