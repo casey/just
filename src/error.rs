@@ -416,6 +416,32 @@ impl<'src> Error<'src> {
       _ => None,
     }
   }
+
+  pub(crate) fn unwrap_const(self) -> ConstEvalError<'src> {
+    match self {
+      Self::Assert { message, name } => ConstEvalError::Assert { message, name },
+      Self::Const { const_error } => ConstEvalError::Const(const_error),
+      Self::ListInStringContext { context, value } => {
+        ConstEvalError::ListInStringContext { context, value }
+      }
+      Self::ListOperation {
+        lhs,
+        operator,
+        rhs,
+        token,
+      } => ConstEvalError::ListOperation {
+        lhs,
+        operator,
+        rhs,
+        token: *token,
+      },
+      Self::RegexCompile { source, token } => ConstEvalError::RegexCompile { source, token },
+      error => unreachable!(
+        "non-const error in const evaluation: {}",
+        error.color_display(Color::never()),
+      ),
+    }
+  }
 }
 
 impl<'src> From<CompileError<'src>> for Error<'src> {

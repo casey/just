@@ -61,7 +61,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       if variable_references.contains(assignment.name.lexeme()) {
         match evaluator
           .evaluate_assignment(assignment)
-          .map_err(ConstEvalError::unwrap_const)
+          .map_err(Error::unwrap_const)
         {
           Err(ConstEvalError::Const(_)) => evaluator.non_const_assignments.insert(assignment.name),
           Err(error) => return Err(error.into_compile_error()),
@@ -463,7 +463,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     assert!(self.context.is_none());
     self
       .evaluate_value(expression)
-      .map_err(|error| ConstEvalError::unwrap_const(error).into_compile_error())
+      .map_err(|error| error.unwrap_const().into_compile_error())
   }
 
   fn evaluate_string_const(
@@ -474,7 +474,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     assert!(self.context.is_none());
     self
       .evaluate_string(expression, context)
-      .map_err(|error| ConstEvalError::unwrap_const(error).into_compile_error())
+      .map_err(|error| error.unwrap_const().into_compile_error())
   }
 
   pub(crate) fn evaluate_value(&mut self, expression: &Expression<'src>) -> RunResult<'src, Value> {

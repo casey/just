@@ -40,30 +40,6 @@ impl<'src> ConstEvalError<'src> {
   pub(crate) fn into_compile_error(self) -> CompileError<'src> {
     self.context().error(CompileErrorKind::ConstEval(self))
   }
-
-  pub(crate) fn unwrap_const(error: Error<'src>) -> Self {
-    match error {
-      Error::Assert { message, name } => Self::Assert { message, name },
-      Error::Const { const_error } => Self::Const(const_error),
-      Error::ListInStringContext { context, value } => Self::ListInStringContext { context, value },
-      Error::ListOperation {
-        lhs,
-        operator,
-        rhs,
-        token,
-      } => Self::ListOperation {
-        lhs,
-        operator,
-        rhs,
-        token: *token,
-      },
-      Error::RegexCompile { source, token } => Self::RegexCompile { source, token },
-      error => unreachable!(
-        "non-const error in const evaluation: {}",
-        error.color_display(Color::never()),
-      ),
-    }
-  }
 }
 
 impl Display for ConstEvalError<'_> {
