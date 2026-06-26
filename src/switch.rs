@@ -6,6 +6,69 @@ pub(crate) enum Switch {
   Short(char),
 }
 
+impl Switch {
+  pub(crate) fn apply<'src>(
+    self,
+    recipe: &Recipe<'src>,
+    long: &BTreeMap<&str, usize>,
+    short: &BTreeMap<char, usize>,
+    arguments: &mut [Value],
+    rest: &[&str],
+    i: &mut usize,
+    inline_value: Option<&str>,
+  ) -> RunResult<'src> {
+    let index = match &self {
+      Self::Long(name) => long.get(name.as_str()),
+      Self::Short(name) => short.get(name),
+    };
+
+    let Some(&index) = index else {
+      return Err(Error::UnknownOption {
+        recipe: recipe.name(),
+        option: self,
+      });
+    };
+
+    let parameter = &recipe.parameters[index];
+
+    let value = if parameter.flag || parameter.value.is_some() {
+      if inline_value.is_some() {
+        return Err(Error::FlagWithValue {
+          recipe: recipe.name(),
+          option: self,
+        });
+      }
+      *i += 1;
+      "true"
+    } else if let Some(value) = inline_value {
+      *i += 1;
+      value
+    } else {
+      let Some(&value) = rest.get(*i + 1) else {
+        return Err(Error::OptionMissingValue {
+          recipe: recipe.name(),
+          option: self,
+        });
+      };
+      *i += 2;
+      value
+    };
+
+    let group = &mut arguments[index];
+
+    if !group.is_empty() && !parameter.kind.is_variadic() {
+      return Err(Error::DuplicateOption {
+        recipe: recipe.name(),
+        option: self,
+      });
+    }
+
+    group.push(value);
+
+    Ok(())
+  }
+}
+
 impl Display for Switch {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     match &self {
