@@ -84,7 +84,10 @@ impl<'src> UnresolvedRecipe<'src> {
           pattern_property,
           ..
         } => {
-          for (_, expression) in help_property.iter().chain(pattern_property) {
+          if let Some((_key, expression)) = help_property {
+            resolve_expression(expression, &[])?;
+          }
+          if let Some((_key, expression)) = pattern_property {
             resolve_expression(expression, &[])?;
           }
         }
