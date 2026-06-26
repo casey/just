@@ -118,7 +118,7 @@ pub(crate) enum Error<'src> {
   },
   DuplicateOption {
     recipe: &'src str,
-    option: Switch,
+    switch: Switch,
   },
   EditorInvoke {
     editor: OsString,
@@ -152,7 +152,7 @@ pub(crate) enum Error<'src> {
   },
   FlagWithValue {
     recipe: &'src str,
-    option: Switch,
+    switch: Switch,
   },
   FormatCheckFoundDiff,
   FunctionCall {
@@ -199,7 +199,7 @@ pub(crate) enum Error<'src> {
   },
   MissingOption {
     recipe: &'src str,
-    option: Switch,
+    switch: Switch,
   },
   ModuleAbsent {
     module: Modulepath,
@@ -215,7 +215,7 @@ pub(crate) enum Error<'src> {
   },
   OptionMissingValue {
     recipe: &'src str,
-    option: Switch,
+    switch: Switch,
   },
   PositionalArgumentCountMismatch {
     recipe: Box<Recipe<'src>>,
@@ -301,7 +301,7 @@ pub(crate) enum Error<'src> {
   },
   UnknownOption {
     recipe: &'src str,
-    option: Switch,
+    switch: Switch,
   },
   UnknownOverrides {
     overrides: Vec<String>,
@@ -695,7 +695,10 @@ impl ColorDisplay for Error<'_> {
       DumpJson { source } => {
         write!(f, "failed to dump JSON to stdout: {source}")?;
       }
-      DuplicateOption { recipe, option } => {
+      DuplicateOption {
+        recipe,
+        switch: option,
+      } => {
         write!(
           f,
           "recipe `{recipe}` option `{option}` cannot be passed more than once",
@@ -736,7 +739,10 @@ impl ColorDisplay for Error<'_> {
       FilesystemIo { source, path } => {
         write!(f, "I/O error at `{}`: {source}", path.display())?;
       }
-      FlagWithValue { recipe, option } => {
+      FlagWithValue {
+        recipe,
+        switch: option,
+      } => {
         write!(f, "recipe `{recipe}` flag `{option}` does not take value")?;
       }
       FormatCheckFoundDiff => {
@@ -834,7 +840,10 @@ impl ColorDisplay for Error<'_> {
       MissingModuleFile { module } => {
         write!(f, "could not find source file for module `{module}`")?;
       }
-      MissingOption { recipe, option } => {
+      MissingOption {
+        recipe,
+        switch: option,
+      } => {
         write!(f, "recipe `{recipe}` requires option `{option}`")?;
       }
       ModuleAbsent { module } => {
@@ -852,7 +861,10 @@ impl ColorDisplay for Error<'_> {
       NotConfirmed { recipe } => {
         write!(f, "recipe `{recipe}` was not confirmed")?;
       }
-      OptionMissingValue { recipe, option } => {
+      OptionMissingValue {
+        recipe,
+        switch: option,
+      } => {
         write!(f, "recipe `{recipe}` option `{option}` missing value")?;
       }
       PositionalArgumentCountMismatch {
@@ -999,7 +1011,10 @@ impl ColorDisplay for Error<'_> {
           write!(f, "recipe `{recipe}` failed for an unknown reason")?;
         }
       }
-      UnknownOption { recipe, option } => {
+      UnknownOption {
+        recipe,
+        switch: option,
+      } => {
         write!(f, "recipe `{recipe}` does not have option `{option}`")?;
       }
       UnknownOverrides { overrides } => {

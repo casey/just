@@ -160,14 +160,14 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
       if let Some(name) = &parameter.long {
         return Err(Error::MissingOption {
           recipe: recipe.name(),
-          option: Switch::Long(name.into()),
+          switch: Switch::Long(name.into()),
         });
       }
 
       if let Some(name) = &parameter.short {
         return Err(Error::MissingOption {
           recipe: recipe.name(),
-          option: Switch::Short(*name),
+          switch: Switch::Short(*name),
         });
       }
 

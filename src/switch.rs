@@ -25,7 +25,7 @@ impl Switch {
     let Some(&index) = index else {
       return Err(Error::UnknownOption {
         recipe: recipe.name(),
-        option: self,
+        switch: self,
       });
     };
 
@@ -35,7 +35,7 @@ impl Switch {
       if inline_value.is_some() {
         return Err(Error::FlagWithValue {
           recipe: recipe.name(),
-          option: self,
+          switch: self,
         });
       }
       *i += 1;
@@ -47,7 +47,7 @@ impl Switch {
       let Some(&value) = rest.get(*i + 1) else {
         return Err(Error::OptionMissingValue {
           recipe: recipe.name(),
-          option: self,
+          switch: self,
         });
       };
       *i += 2;
@@ -59,7 +59,7 @@ impl Switch {
     if !group.is_empty() && !parameter.kind.is_variadic() {
       return Err(Error::DuplicateOption {
         recipe: recipe.name(),
-        option: self,
+        switch: self,
       });
     }
 
