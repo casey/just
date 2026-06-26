@@ -2658,9 +2658,9 @@ change their behavior.
 | Name | Type | Description |
 |------|------|-------------|
 | `[arg(ARG, help="HELP")]`<sup>1.46.0</sup> | recipe | Print help string `HELP` for `ARG` in usage messages. May be a const expression<sup>master</sup>. |
-| `[arg(ARG, long="LONG")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as `--LONG` option. |
+| `[arg(ARG, long="LONG")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as `--LONG` option. If `ARG` is variadic, the option is repeatable<sup>master</sup>. |
 | `[arg(ARG, pattern="PATTERN")]`<sup>1.45.0</sup> | recipe | Require values of argument `ARG` to match regular expression `PATTERN`. May be a const expression<sup>master</sup>. |
-| `[arg(ARG, short="S")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as short `-S` option. |
+| `[arg(ARG, short="S")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as short `-S` option. If `ARG` is variadic, the option is repeatable<sup>master</sup>. |
 | `[arg(ARG, value=VALUE)]`<sup>1.46.0</sup> | recipe | Makes option `ARG` a flag which does not take a value. |
 | `[cache]`<sup>1.54.0</sup> | recipe | Skip recipe invocations when a matching entry exists in the cache. See [cached recipes](#cached-recipes) for details. Currently unstable. |
 | `[confirm(PROMPT)]`<sup>1.23.0</sup> | recipe | Require confirmation prior to executing recipe with a custom prompt. |
@@ -3437,7 +3437,22 @@ foo bar:
 
 If a parameter has both a long and short option, it may be passed using either.
 
-Variadic `*` and `+` parameters cannot be options.
+Variadic `*` and `+` parameters may be options, in which case the option is
+repeatable, with each occurrence contributing one value:
+
+```just
+[arg('file', long)]
+backup +file:
+  scp {{file}} me@server.com:
+```
+
+```console
+$ just backup --file FAQ.md --file GRAMMAR.md
+scp FAQ.md GRAMMAR.md me@server.com:
+```
+
+As with positional variadic parameters, `+` options must be passed at least
+once, whereas `*` options may be omitted.
 
 The `[arg(ARG, value=VALUE, …)]`<sup>1.46.0</sup> attribute can be used with
 `long` or `short` to make a parameter a flag which does not take a value.

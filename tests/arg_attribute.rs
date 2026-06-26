@@ -404,6 +404,37 @@ fn pattern_mismatch_variadic() {
 }
 
 #[test]
+fn pattern_match_repeatable_option() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='bar', pattern='BAR')]
+        foo +bar:
+      ",
+    )
+    .args(["foo", "--bar", "BAR", "--bar", "BAR"])
+    .success();
+}
+
+#[test]
+fn pattern_mismatch_repeatable_option() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='bar', pattern='BAR')]
+        foo +bar:
+      ",
+    )
+    .args(["foo", "--bar", "BAR", "--bar", "BAZ"])
+    .stderr(
+      "
+        error: argument `BAZ` passed to recipe `foo` parameter `bar` does not match pattern `BAR`
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn pattern_requires_value() {
   Test::new()
     .justfile(

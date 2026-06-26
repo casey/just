@@ -1445,10 +1445,6 @@ impl<'run, 'src> Parser<'run, 'src> {
       value = arg.value;
     }
 
-    if kind.is_variadic() && (long.is_some() || short.is_some()) {
-      return Err(name.error(CompileErrorKind::VariadicParameterWithOption));
-    }
-
     if flag && default.is_some() {
       return Err(name.error(CompileErrorKind::FlagWithDefault {
         parameter: name.lexeme().into(),

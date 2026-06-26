@@ -434,7 +434,6 @@ impl Display for CompileError<'_> {
       UnterminatedBacktick => write!(f, "unterminated backtick"),
       UnterminatedInterpolation => write!(f, "unterminated interpolation"),
       UnterminatedString => write!(f, "unterminated string"),
-      VariadicParameterWithOption => write!(f, "variadic parameters may not be options"),
     }
   }
 }
