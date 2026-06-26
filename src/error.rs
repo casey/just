@@ -204,9 +204,6 @@ pub(crate) enum Error<'src> {
   ModuleAbsent {
     module: Modulepath,
   },
-  MultipleShortOptions {
-    options: String,
-  },
   NoChoosableRecipes,
   NoDefaultRecipe,
   NoRecipes,
@@ -256,6 +253,10 @@ pub(crate) enum Error<'src> {
     io_error: io::Error,
     recipe: &'src str,
     shell: String,
+  },
+  ShortOptionWithValueNotLast {
+    recipe: &'src str,
+    switch: Switch,
   },
   Signal {
     line_number: Option<usize>,
@@ -830,6 +831,12 @@ impl ColorDisplay for Error<'_> {
           path.display()
         )?;
       }
+      ShortOptionWithValueNotLast { recipe, switch } => {
+        write!(
+          f,
+          "recipe `{recipe}` option `{switch}` takes a value and so must be last when combined with other options"
+        )?;
+      }
       MissingImportFile { .. } => write!(f, "could not find source file for import")?,
       MissingModuleFile { module } => {
         write!(f, "could not find source file for module `{module}`")?;
@@ -839,12 +846,6 @@ impl ColorDisplay for Error<'_> {
       }
       ModuleAbsent { module } => {
         write!(f, "optional module `{module}` is absent")?;
-      }
-      MultipleShortOptions { options } => {
-        write!(
-          f,
-          "passing multiple short options (`-{options}`) in one argument is not supported"
-        )?;
       }
       NoChoosableRecipes => write!(f, "justfile contains no choosable recipes")?,
       NoDefaultRecipe => write!(f, "justfile contains no default recipe")?,
