@@ -131,52 +131,16 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
           Switch::Short(name.chars().next().unwrap())
         };
 
-        let index = match &switch {
-          Switch::Long(name) => long.get(name.as_str()),
-          Switch::Short(name) => short.get(name),
-        };
-
-        let Some(&index) = index else {
-          return Err(Error::UnknownOption {
-            recipe: recipe.name(),
-            option: switch,
-          });
-        };
-
-        let parameter = &recipe.parameters[index];
-        let value = if parameter.flag || parameter.value.is_some() {
-          if value.is_some() {
-            return Err(Error::FlagWithValue {
-              recipe: recipe.name(),
-              option: switch,
-            });
-          }
-          i += 1;
-          "true"
-        } else if let Some(value) = value {
-          i += 1;
-          value
-        } else {
-          let Some(&value) = rest.get(i + 1) else {
-            return Err(Error::OptionMissingValue {
-              recipe: recipe.name(),
-              option: switch,
-            });
-          };
-          i += 2;
-          value
-        };
-
-        let group = &mut arguments[index];
-
-        if !group.is_empty() && !parameter.kind.is_variadic() {
-          return Err(Error::DuplicateOption {
-            recipe: recipe.name(),
-            option: switch,
-          });
-        }
-
-        group.push((*value).into());
+        Self::add_option(
+          recipe,
+          &long,
+          &short,
+          &mut arguments,
+          rest,
+          &mut i,
+          switch,
+          value,
+        )?;
       } else {
         let Some(&index) = positional.get(positional_index) else {
           break;
@@ -253,6 +217,67 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
     self.next += i;
 
     Ok(Invocation { arguments, recipe })
+  }
+
+  fn add_option(
+    recipe: &Recipe<'src>,
+    long: &BTreeMap<&str, usize>,
+    short: &BTreeMap<char, usize>,
+    arguments: &mut [Value],
+    rest: &[&str],
+    i: &mut usize,
+    switch: Switch,
+    inline_value: Option<&str>,
+  ) -> RunResult<'src> {
+    let index = match &switch {
+      Switch::Long(name) => long.get(name.as_str()),
+      Switch::Short(name) => short.get(name),
+    };
+
+    let Some(&index) = index else {
+      return Err(Error::UnknownOption {
+        recipe: recipe.name(),
+        option: switch,
+      });
+    };
+
+    let parameter = &recipe.parameters[index];
+
+    let value = if parameter.flag || parameter.value.is_some() {
+      if inline_value.is_some() {
+        return Err(Error::FlagWithValue {
+          recipe: recipe.name(),
+          option: switch,
+        });
+      }
+      *i += 1;
+      "true"
+    } else if let Some(value) = inline_value {
+      *i += 1;
+      value
+    } else {
+      let Some(&value) = rest.get(*i + 1) else {
+        return Err(Error::OptionMissingValue {
+          recipe: recipe.name(),
+          option: switch,
+        });
+      };
+      *i += 2;
+      value
+    };
+
+    let group = &mut arguments[index];
+
+    if !group.is_empty() && !parameter.kind.is_variadic() {
+      return Err(Error::DuplicateOption {
+        recipe: recipe.name(),
+        option: switch,
+      });
+    }
+
+    group.push(value);
+
+    Ok(())
   }
 
   fn resolve_recipe(
