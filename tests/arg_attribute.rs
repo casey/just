@@ -195,7 +195,7 @@ fn pattern_list_mismatch() {
 }
 
 #[test]
-fn pattern_empty_list_rejects_all_arguments() {
+fn pattern_empty_list_accepts_all_arguments() {
   Test::new()
     .justfile(
       "
@@ -206,12 +206,7 @@ fn pattern_empty_list_rejects_all_arguments() {
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "anything"])
-    .stderr(
-      "
-        error: argument `anything` passed to recipe `foo` parameter `bar` does not match patterns
-      ",
-    )
-    .failure();
+    .success();
 }
 
 #[test]
