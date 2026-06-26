@@ -111,19 +111,16 @@ impl<'src> UnresolvedRecipe<'src> {
         } = &mut attribute
         {
           let value = evaluator.evaluate_value_const(expression)?;
-          let value = if value.is_empty() {
-            None
-          } else {
-            Some(value.join())
-          };
-          if let Some(parameter) = self
-            .parameters
-            .iter_mut()
-            .find(|parameter| parameter.name.lexeme() == arg.cooked)
-          {
-            parameter.help.clone_from(&value);
+          if !value.is_empty() {
+            let value = value.join();
+            self
+              .parameters
+              .iter_mut()
+              .find(|parameter| parameter.name.lexeme() == arg.cooked)
+              .unwrap()
+              .help = Some(value.clone());
+            *help = Some(value);
           }
-          *help = value;
         }
 
         if let Attribute::Arg {
@@ -136,13 +133,12 @@ impl<'src> UnresolvedRecipe<'src> {
           let value =
             evaluator.evaluate_string_const(expression, StringContext::ArgPattern(*key))?;
           let compiled = Pattern::new(&value, *key)?;
-          if let Some(parameter) = self
+          self
             .parameters
             .iter_mut()
             .find(|parameter| parameter.name.lexeme() == arg.cooked)
-          {
-            parameter.pattern = Some(compiled.clone());
-          }
+            .unwrap()
+            .pattern = Some(compiled.clone());
           *pattern = Some(compiled);
         }
         Ok((attribute, name))
