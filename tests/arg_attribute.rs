@@ -436,6 +436,32 @@ fn value_requires_value() {
 }
 
 #[test]
+fn help_cannot_reference_parameter() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', help=bar)]
+        foo bar:
+      ",
+    )
+    .stderr("")
+    .failure();
+}
+
+#[test]
+fn help_cannot_reference_undefined_variable() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', help=undefined)]
+        foo bar:
+      ",
+    )
+    .stderr("")
+    .failure();
+}
+
+#[test]
 fn help_cannot_reference_non_const_variable() {
   Test::new()
     .justfile(

@@ -3293,13 +3293,15 @@ foo $bar:
 ```
 
 Parameters may be constrained to match regular expression patterns using the
-`[arg("name", pattern="pattern")]` attribute<sup>1.45.0</sup>:
+`[arg("name", pattern=PATTERN)]` attribute<sup>1.45.0</sup>:
 
 ```just
 [arg('n', pattern='\d+')]
 double n:
   echo $(({{n}} * 2))
 ```
+
+The value of `pattern` may be a const expression<sup>master</sup>.
 
 A leading `^` and trailing `$` are added to the pattern, so it must match the
 entire argument value.
@@ -3336,8 +3338,7 @@ Help strings may be added to arguments using the `[arg(ARG, help=HELP)]` attribu
 foo bar:
 ```
 
-`HELP` may be any expression. If it evaluates to a list, the elements are joined
-with spaces, and an empty list produces no help string.
+The value `help` may be a const expression<sup>master</sup>.
 
 ```console
 $ just --usage foo
