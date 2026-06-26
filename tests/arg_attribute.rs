@@ -444,7 +444,15 @@ fn help_cannot_reference_parameter() {
         foo bar:
       ",
     )
-    .stderr("")
+    .stderr(
+      "
+        error: variable `bar` not defined
+         ——▶ justfile:1:18
+          │
+        1 │ [arg('bar', help=bar)]
+          │                  ^^^
+      ",
+    )
     .failure();
 }
 
@@ -457,7 +465,15 @@ fn help_cannot_reference_undefined_variable() {
         foo bar:
       ",
     )
-    .stderr("")
+    .stderr(
+      "
+        error: variable `undefined` not defined
+         ——▶ justfile:1:18
+          │
+        1 │ [arg('bar', help=undefined)]
+          │                  ^^^^^^^^^
+      ",
+    )
     .failure();
 }
 
