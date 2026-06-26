@@ -3401,7 +3401,7 @@ bar=hello
 ```
 
 The value of `long` may be omitted, in which case the option defaults to the
-name of the parameter. With the following justfile, `bar` maybe passed with
+name of the parameter. With the following justfile, `bar` may be passed with
 `--bar`:
 
 ```just
