@@ -11,21 +11,21 @@ impl Pattern {
   }
 
   pub(crate) fn new<'src>(value: &Value, key: Name<'src>) -> Result<Self, CompileError<'src>> {
-    let regexes = value
-      .elements()
-      .iter()
-      .map(|element| {
-        element
-          .parse::<Regex>()
-          .map_err(|source| key.error(CompileErrorKind::ArgumentPatternRegex { source }))?;
+    Ok(Self {
+      regexes: value
+        .elements()
+        .iter()
+        .map(|element| {
+          element
+            .parse::<Regex>()
+            .map_err(|source| key.error(CompileErrorKind::ArgumentPatternRegex { source }))?;
 
-        format!("^(?:{element})$")
-          .parse()
-          .map_err(|source| key.error(CompileErrorKind::ArgumentPatternRegex { source }))
-      })
-      .collect::<Result<Vec<Regex>, CompileError>>()?;
-
-    Ok(Self { regexes })
+          format!("^(?:{element})$")
+            .parse()
+            .map_err(|source| key.error(CompileErrorKind::ArgumentPatternRegex { source }))
+        })
+        .collect::<Result<Vec<Regex>, CompileError>>()?,
+    })
   }
 
   pub(crate) fn originals(&self) -> impl Iterator<Item = &str> + Clone {
