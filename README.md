@@ -1362,9 +1362,11 @@ value on the command line. For example, with `[arg('foo', long, flag)]`, `foo`
 will be `"true"` when `--foo` is passed, and `[]` otherwise. Flag parameters
 may not have a default.
 
-The `[arg(pattern)]` may be a list, in which case an argument is accepted if it
-matches pattern in the list. If the value is the empty list, any argument is
-accepted.
+The value of `[arg(pattern)]` may be a list, in which case the argument is
+accepted if it matches any pattern in the list. If the value is the empty list,
+any argument is accepted. For example, with
+`[arg('foo', pattern=['--help', '--version'])]`, `foo` may be `--help` or
+`--version`.
 
 In `[env(variable, value)]` if `value` is `[]`, `variable` is not set.
 Otherwise it is set to `value` joined with spaces.
