@@ -1667,6 +1667,25 @@ fn arg_attribute_pattern() {
 }
 
 #[test]
+fn arg_attribute_pattern_expression() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', pattern='b' + 'ar')]
+        @foo bar:
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        [arg('bar', pattern='b' + 'ar')]
+        @foo bar:
+      ",
+    )
+    .success();
+}
+
+#[test]
 fn arg_attribute_long_and_pattern() {
   Test::new()
     .justfile(

@@ -154,6 +154,29 @@ fn pattern_cannot_reference_undefined_variable() {
 }
 
 #[test]
+fn pattern_cannot_be_list() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        [arg('bar', pattern=['a', 'b'])]
+        foo bar:
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      r#"
+        error: list value ["a", "b"] used as `arg` attribute pattern
+         ——▶ justfile:2:2
+          │
+        2 │ [arg('bar', pattern=['a', 'b'])]
+          │  ^^^
+      "#,
+    )
+    .failure();
+}
+
+#[test]
 fn pattern_cannot_reference_non_const_variable() {
   Test::new()
     .justfile(
