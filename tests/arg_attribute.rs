@@ -133,6 +133,27 @@ fn pattern_cannot_reference_parameter() {
 }
 
 #[test]
+fn pattern_cannot_reference_undefined_variable() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', pattern=undefined)]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: variable `undefined` not defined
+         ——▶ justfile:1:21
+          │
+        1 │ [arg('bar', pattern=undefined)]
+          │                     ^^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn pattern_cannot_reference_non_const_variable() {
   Test::new()
     .justfile(
