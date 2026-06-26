@@ -201,21 +201,18 @@ fn defaulted_duplicate_long_option() {
   Test::new()
     .justfile(
       "
-        [arg(
-          'aaa',
-          long='bar'
-        )]
-        [arg(      'bar', long)]
+        [arg('aaa', long='bar')]
+        [arg('bar', long)]
         foo aaa bar:
       ",
     )
     .stderr(
       "
         error: recipe `foo` defines option `--bar` multiple times
-         ——▶ justfile:5:19
+         ——▶ justfile:1:18
           │
-        5 │ [arg(      'bar', long)]
-          │                   ^^^^
+        1 │ [arg('aaa', long='bar')]
+          │                  ^^^^^
       ",
     )
     .failure();
@@ -249,17 +246,17 @@ fn defaulted_duplicate_short_option() {
     .justfile(
       "
         [arg('bar', short='b')]
-        [arg(      'baz', short)]
+        [arg('baz', short)]
         foo bar baz:
       ",
     )
     .stderr(
       "
         error: recipe `foo` defines option `-b` multiple times
-         ——▶ justfile:2:19
+         ——▶ justfile:2:13
           │
-        2 │ [arg(      'baz', short)]
-          │                   ^^^^^
+        2 │ [arg('baz', short)]
+          │             ^^^^^
       ",
     )
     .failure();
