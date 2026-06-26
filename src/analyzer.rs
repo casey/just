@@ -218,17 +218,17 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       })
       .collect::<BTreeSet<&str>>();
 
-    let const_scope = Scope::root();
+    let scope = Scope::root();
 
-    let mut const_evaluator = Evaluator::evaluate_const_assignments(
+    let mut evaluator = Evaluator::evaluate_const_assignments(
       &assignments,
       overrides,
-      &const_scope,
+      &scope,
       variable_references,
       lists,
     )?;
 
-    let settings = const_evaluator.evaluate_sets(self.sets)?;
+    let settings = evaluator.evaluate_sets(self.sets)?;
 
     if !settings.lists {
       for (feature, token) in list_features {
@@ -293,12 +293,12 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let (recipes, disabled_recipes) = RecipeResolver::resolve_recipes(
       &absent_modules,
       &assignments,
+      &mut evaluator,
       &functions,
       &ast.module_path,
       &self.modules,
       &settings,
       deduplicated_recipes,
-      &mut const_evaluator,
     )?;
 
     let mut recipe_aliases = Table::new();
