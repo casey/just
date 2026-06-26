@@ -10,6 +10,7 @@ impl<'src> UnresolvedRecipe<'src> {
     modulepath: &Modulepath,
     resolved: Vec<Arc<Recipe<'src>>>,
     settings: &Settings,
+    const_evaluator: &mut Evaluator<'src, '_>,
   ) -> CompileResult<'src, Recipe<'src>> {
     assert_eq!(
       self.dependencies.len(),
@@ -64,23 +65,48 @@ impl<'src> UnresolvedRecipe<'src> {
     }
 
     for attribute in &self.attributes {
+      let mut resolve_expression = |expression| {
+        Self::resolve_expression(
+          assignments,
+          expression,
+          functions,
+          &self.parameters,
+          &mut variable_references,
+        )
+      };
       match attribute {
+        Attribute::Arg {
+          pattern_property: Some((_key, expression)),
+          ..
+        } => resolve_expression(expression)?,
         Attribute::Confirm(Some(expression)) | Attribute::WorkingDirectory(expression) => {
-          Self::resolve_expression(
-            assignments,
-            expression,
-            functions,
-            &self.parameters,
-            &mut variable_references,
-          )?;
+          resolve_expression(expression)?;
         }
         Attribute::Env(key, value) => {
-          Self::resolve_expression(assignments, key, functions, &[], &mut variable_references)?;
-          Self::resolve_expression(assignments, value, functions, &[], &mut variable_references)?;
+          resolve_expression(key)?;
+          resolve_expression(value)?;
         }
         _ => {}
       }
     }
+
+    let attributes = self
+      .attributes
+      .into_items()
+      .map(|(mut attribute, name)| {
+        if let Attribute::Arg {
+          pattern,
+          pattern_property: Some((key, expression)),
+          ..
+        } = &mut attribute
+        {
+          let value =
+            const_evaluator.evaluate_string_const(expression, StringContext::ArgPattern(name))?;
+          *pattern = Some(Pattern::new(&value, *key)?);
+        }
+        Ok((attribute, name))
+      })
+      .collect::<CompileResult<AttributeSet>>()?;
 
     for line in &self.body {
       if line.is_comment() && settings.ignore_comments {
@@ -132,7 +158,7 @@ impl<'src> UnresolvedRecipe<'src> {
     recipe_path.components.push(self.name.lexeme().into());
 
     Ok(Recipe {
-      attributes: self.attributes,
+      attributes,
       body: self.body,
       dependencies,
       doc: self.doc,

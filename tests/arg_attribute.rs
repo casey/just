@@ -32,7 +32,7 @@ fn pattern_mismatch() {
 }
 
 #[test]
-fn patterns_are_regulare_expressions() {
+fn patterns_are_regular_expressions() {
   Test::new()
     .justfile(
       r"

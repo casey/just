@@ -3,6 +3,7 @@ use {super::*, CompileErrorKind::*};
 pub(crate) struct RecipeResolver<'src: 'run, 'run> {
   absent_modules: &'run BTreeSet<String>,
   assignments: &'run Table<'src, Assignment<'src>>,
+  const_evaluator: &'run mut Evaluator<'src, 'run>,
   disabled_recipes: Table<'src, Disabled<'src>>,
   functions: &'run Table<'src, FunctionDefinition<'src>>,
   modulepath: &'run Modulepath,
@@ -21,10 +22,12 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     modules: &'run Table<'src, Justfile<'src>>,
     settings: &'run Settings,
     unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
+    const_evaluator: &'run mut Evaluator<'src, 'run>,
   ) -> CompileResult<'src, (Table<'src, Arc<Recipe<'src>>>, Table<'src, Disabled<'src>>)> {
     let mut resolver = Self {
       absent_modules,
       assignments,
+      const_evaluator,
       disabled_recipes: Table::new(),
       functions,
       modulepath,
@@ -82,6 +85,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
         self.modulepath,
         dependencies,
         self.settings,
+        self.const_evaluator,
       )?);
       self.resolved_recipes.insert(Arc::clone(&resolved));
       Ok(Resolution::Resolved(resolved))

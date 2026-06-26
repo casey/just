@@ -199,8 +199,36 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       }
     }
 
-    let settings =
-      Evaluator::evaluate_settings(&assignments, overrides, &Scope::root(), self.sets)?;
+    let lists = self
+      .sets
+      .values()
+      .any(|set| matches!(set.value, Setting::Lists(true)));
+
+    let variable_references = self
+      .sets
+      .values()
+      .flat_map(|set| set.value.expressions())
+      .flat_map(|expression| expression.references())
+      .filter_map(|reference| {
+        if let Reference::Variable(variable) = reference {
+          Some(variable.lexeme())
+        } else {
+          None
+        }
+      })
+      .collect::<BTreeSet<&str>>();
+
+    let const_scope = Scope::root();
+
+    let mut const_evaluator = Evaluator::evaluate_const_assignments(
+      &assignments,
+      overrides,
+      &const_scope,
+      variable_references,
+      lists,
+    )?;
+
+    let settings = const_evaluator.evaluate_sets(self.sets)?;
 
     if !settings.lists {
       for (feature, token) in list_features {
@@ -270,6 +298,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       &self.modules,
       &settings,
       deduplicated_recipes,
+      &mut const_evaluator,
     )?;
 
     let mut recipe_aliases = Table::new();

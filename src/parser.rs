@@ -1253,6 +1253,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         long_key,
         name: arg,
         pattern,
+        pattern_property: _,
         short,
         value,
       } = attribute
@@ -1267,14 +1268,12 @@ impl<'run, 'src> Parser<'run, 'src> {
       if let Some(option) = long
         && !longs.insert(&option.cooked)
       {
-        return Err(
-          long_key
-            .unwrap_or(option.token)
-            .error(CompileErrorKind::DuplicateOption {
-              option: Switch::Long(option.cooked.clone()),
-              recipe: name.lexeme(),
-            }),
-        );
+        return Err(long_key.map_or(option.token, |name| *name).error(
+          CompileErrorKind::DuplicateOption {
+            option: Switch::Long(option.cooked.clone()),
+            recipe: name.lexeme(),
+          },
+        ));
       }
 
       if let Some(option) = short
