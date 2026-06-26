@@ -4,7 +4,7 @@ pub(crate) type UnresolvedRecipe<'src> = Recipe<'src, UnresolvedDependency<'src>
 
 impl<'src> UnresolvedRecipe<'src> {
   pub(crate) fn resolve(
-    self,
+    mut self,
     assignments: &Table<'src, Assignment<'src>>,
     evaluator: &mut Evaluator<'src, '_>,
     functions: &Table<'src, FunctionDefinition<'src>>,
@@ -93,8 +93,6 @@ impl<'src> UnresolvedRecipe<'src> {
       }
     }
 
-    let mut parameters = self.parameters;
-
     let attributes = self
       .attributes
       .into_items()
@@ -109,7 +107,8 @@ impl<'src> UnresolvedRecipe<'src> {
           let value =
             evaluator.evaluate_string_const(expression, StringContext::ArgPattern(name))?;
           let compiled = Pattern::new(&value, *key)?;
-          if let Some(parameter) = parameters
+          if let Some(parameter) = self
+            .parameters
             .iter_mut()
             .find(|parameter| parameter.name.lexeme() == arg.cooked)
           {
@@ -132,7 +131,7 @@ impl<'src> UnresolvedRecipe<'src> {
             assignments,
             expression,
             functions,
-            &parameters,
+            &self.parameters,
             &mut variable_references,
           )?;
         }
@@ -179,7 +178,7 @@ impl<'src> UnresolvedRecipe<'src> {
       import_offsets: self.import_offsets,
       module_path: Some(modulepath.clone()),
       name: self.name,
-      parameters,
+      parameters: self.parameters,
       priors: self.priors,
       private: self.private,
       quiet: self.quiet,
