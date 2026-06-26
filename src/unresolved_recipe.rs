@@ -65,36 +65,37 @@ impl<'src> UnresolvedRecipe<'src> {
     }
 
     for attribute in &self.attributes {
-      let mut resolve_expression = |expression| {
-        Self::resolve_expression(
-          assignments,
-          expression,
-          functions,
-          &self.parameters,
-          &mut variable_references,
-        )
-      };
       match attribute {
         Attribute::Arg {
-          pattern_property: Some((_key, expression)),
+          pattern_property: Some((_, expression)),
           ..
-        } => resolve_expression(expression)?,
-        Attribute::Confirm(Some(expression)) | Attribute::WorkingDirectory(expression) => {
-          resolve_expression(expression)?;
+        }
+        | Attribute::Confirm(Some(expression))
+        | Attribute::WorkingDirectory(expression) => {
+          Self::resolve_expression(
+            assignments,
+            expression,
+            functions,
+            &self.parameters,
+            &mut variable_references,
+          )?;
         }
         Attribute::Env(key, value) => {
-          resolve_expression(key)?;
-          resolve_expression(value)?;
+          Self::resolve_expression(assignments, key, functions, &[], &mut variable_references)?;
+          Self::resolve_expression(assignments, value, functions, &[], &mut variable_references)?;
         }
         _ => {}
       }
     }
+
+    let mut parameters = self.parameters;
 
     let attributes = self
       .attributes
       .into_items()
       .map(|(mut attribute, name)| {
         if let Attribute::Arg {
+          name: arg,
           pattern,
           pattern_property: Some((key, expression)),
           ..
@@ -102,7 +103,14 @@ impl<'src> UnresolvedRecipe<'src> {
         {
           let value =
             const_evaluator.evaluate_string_const(expression, StringContext::ArgPattern(name))?;
-          *pattern = Some(Pattern::new(&value, *key)?);
+          let compiled = Pattern::new(&value, *key)?;
+          if let Some(parameter) = parameters
+            .iter_mut()
+            .find(|parameter| parameter.name.lexeme() == arg.cooked)
+          {
+            parameter.pattern = Some(compiled.clone());
+          }
+          *pattern = Some(compiled);
         }
         Ok((attribute, name))
       })
@@ -119,7 +127,7 @@ impl<'src> UnresolvedRecipe<'src> {
             assignments,
             expression,
             functions,
-            &self.parameters,
+            &parameters,
             &mut variable_references,
           )?;
         }
@@ -166,7 +174,7 @@ impl<'src> UnresolvedRecipe<'src> {
       import_offsets: self.import_offsets,
       module_path: Some(modulepath.clone()),
       name: self.name,
-      parameters: self.parameters,
+      parameters,
       priors: self.priors,
       private: self.private,
       quiet: self.quiet,
