@@ -28,7 +28,7 @@ impl Pattern {
     Ok(Self { regexes })
   }
 
-  pub(crate) fn originals(&self) -> impl Iterator<Item = &str> {
+  pub(crate) fn originals(&self) -> impl Iterator<Item = &str> + Clone {
     self.regexes.iter().map(|regex| {
       regex
         .as_str()
@@ -37,26 +37,6 @@ impl Pattern {
         .strip_suffix(")$")
         .unwrap()
     })
-  }
-
-  pub(crate) fn render(&self, separator: &str) -> String {
-    let noun = if self.regexes.len() == 1 {
-      "pattern"
-    } else {
-      "patterns"
-    };
-
-    let originals = self
-      .originals()
-      .map(|original| format!("'{original}'"))
-      .collect::<Vec<String>>()
-      .join(", ");
-
-    if originals.is_empty() {
-      noun.into()
-    } else {
-      format!("{noun}{separator}{originals}")
-    }
   }
 }
 

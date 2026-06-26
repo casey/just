@@ -25,7 +25,7 @@ fn pattern_mismatch() {
     .args(["foo", "bar"])
     .stderr(
       "
-        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
+        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern `BAR`
       ",
     )
     .failure();
@@ -43,7 +43,7 @@ fn patterns_are_regular_expressions() {
     .args(["foo", r"\d+"])
     .stderr(
       r"
-        error: argument `\d+` passed to recipe `foo` parameter `bar` does not match pattern '\d+'
+        error: argument `\d+` passed to recipe `foo` parameter `bar` does not match pattern `\d+`
       ",
     )
     .failure();
@@ -61,7 +61,7 @@ fn pattern_must_match_entire_string() {
     .args(["foo", "xbarx"])
     .stderr(
       "
-        error: argument `xbarx` passed to recipe `foo` parameter `bar` does not match pattern 'bar'
+        error: argument `xbarx` passed to recipe `foo` parameter `bar` does not match pattern `bar`
       ",
     )
     .failure();
@@ -105,7 +105,7 @@ fn pattern_may_be_expression() {
     .args(["foo", "bar"])
     .stderr(
       "
-        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
+        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern `BAR`
       ",
     )
     .failure();
@@ -188,7 +188,7 @@ fn pattern_list_mismatch() {
     .args(["foo", "C"])
     .stderr(
       "
-        error: argument `C` passed to recipe `foo` parameter `bar` does not match patterns 'A', 'B'
+        error: argument `C` passed to recipe `foo` parameter `bar` does not match pattern `A` or `B`
       ",
     )
     .failure();
@@ -310,7 +310,7 @@ fn pattern_mismatches_are_caught_before_running_dependencies() {
     .args(["foo", "bar"])
     .stderr(
       "
-        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
+        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern `BAR`
       ",
     )
     .failure();
@@ -331,7 +331,7 @@ fn pattern_mismatches_are_caught_before_running_invocation() {
     .args(["baz", "foo", "bar"])
     .stderr(
       "
-        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
+        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern `BAR`
       ",
     )
     .failure();
@@ -350,7 +350,7 @@ fn pattern_mismatches_are_caught_in_evaluated_arguments() {
     )
     .stderr(
       "
-        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
+        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern `BAR`
       ",
     )
     .failure();
@@ -368,7 +368,7 @@ fn alternates_do_not_bind_to_anchors() {
     .args(["foo", "aa"])
     .stderr(
       "
-        error: argument `aa` passed to recipe `foo` parameter `bar` does not match pattern 'a|b'
+        error: argument `aa` passed to recipe `foo` parameter `bar` does not match pattern `a|b`
       ",
     )
     .failure();
@@ -399,7 +399,7 @@ fn pattern_mismatch_variadic() {
     .args(["foo", "BAR", "BAR"])
     .stderr(
       "
-        error: argument `BAR` passed to recipe `foo` parameter `bar` does not match pattern 'BAR BAR'
+        error: argument `BAR` passed to recipe `foo` parameter `bar` does not match pattern `BAR BAR`
       ",
     )
     .failure();
