@@ -155,23 +155,21 @@ fn pattern_cannot_reference_undefined_variable() {
 
 #[test]
 fn pattern_list_match() {
-  #[track_caller]
-  fn case(argument: &str) {
-    Test::new()
-      .justfile(
-        "
+  Test::new()
+    .justfile(
+      "
           set lists
           [arg('bar', pattern=['A', 'B'])]
           foo bar:
         ",
-      )
-      .env("JUST_UNSTABLE", "1")
-      .args(["foo", argument])
-      .success();
-  }
-
-  case("A");
-  case("B");
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "A"])
+    .success()
+    .test()
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "B"])
+    .success();
 }
 
 #[test]
