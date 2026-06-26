@@ -25,6 +25,8 @@ pub(crate) enum Attribute<'src> {
     #[serde(skip)]
     pattern_property: Option<(Name<'src>, Expression<'src>)>,
     short: Option<StringLiteral<'src>>,
+    #[serde(skip)]
+    short_key: Option<Name<'src>>,
     value: Option<Expression<'src>>,
   },
   Cache {
@@ -197,23 +199,29 @@ impl<'src> Attribute<'src> {
           .transpose()?
           .unwrap_or_default();
 
-        let short = Self::remove_required(&mut keyword_arguments, "short")?
+        let (short, short_key) = keyword_arguments
+          .remove("short")
           .map(|(key, expression)| {
-            let literal = Self::require_string_literal(name, key, expression)?;
+            if let Some(expression) = expression {
+              let literal = Self::require_string_literal(name, key, expression)?;
 
-            Self::check_option_name(&arg, &literal)?;
+              Self::check_option_name(&arg, &literal)?;
 
-            if literal.cooked.chars().count() != 1 {
-              return Err(literal.token.error(
-                CompileErrorKind::ShortOptionWithMultipleCharacters {
-                  parameter: arg.cooked.clone(),
-                },
-              ));
+              if literal.cooked.chars().count() != 1 {
+                return Err(literal.token.error(
+                  CompileErrorKind::ShortOptionWithMultipleCharacters {
+                    parameter: arg.cooked.clone(),
+                  },
+                ));
+              }
+
+              Ok((Some(literal), None))
+            } else {
+              Ok((Some(arg.clone()), Some(key)))
             }
-
-            Ok(literal)
           })
-          .transpose()?;
+          .transpose()?
+          .unwrap_or_default();
 
         let pattern_property = Self::remove_required(&mut keyword_arguments, "pattern")?;
 
@@ -262,6 +270,7 @@ impl<'src> Attribute<'src> {
           pattern: None,
           pattern_property,
           short,
+          short_key,
           value,
         }
       }
@@ -388,6 +397,7 @@ impl Display for Attribute<'_> {
         pattern: _,
         pattern_property,
         short,
+        short_key,
         value,
       } => {
         write!(f, "({name}")?;
@@ -398,7 +408,9 @@ impl Display for Attribute<'_> {
           write!(f, ", long={long}")?;
         }
 
-        if let Some(short) = short {
+        if short_key.is_some() {
+          write!(f, ", short")?;
+        } else if let Some(short) = short {
           write!(f, ", short={short}")?;
         }
 

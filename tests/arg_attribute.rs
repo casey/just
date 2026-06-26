@@ -425,27 +425,6 @@ fn pattern_requires_value() {
 }
 
 #[test]
-fn short_requires_value() {
-  Test::new()
-    .justfile(
-      "
-        [arg('bar', short)]
-        foo bar:
-      ",
-    )
-    .stderr(
-      "
-        error: attribute key `short` requires value
-         ——▶ justfile:1:13
-          │
-        1 │ [arg('bar', short)]
-          │             ^^^^^
-      ",
-    )
-    .failure();
-}
-
-#[test]
 fn value_requires_value() {
   Test::new()
     .justfile(

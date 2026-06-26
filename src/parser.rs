@@ -1256,6 +1256,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         pattern: _,
         pattern_property: _,
         short,
+        short_key,
         value,
       } = attribute
       else {
@@ -1278,12 +1279,15 @@ impl<'run, 'src> Parser<'run, 'src> {
       }
 
       if let Some(option) = short
-        && !shorts.insert(&option.cooked)
+        && let Some(short) = option.cooked.chars().next()
+        && !shorts.insert(short)
       {
-        return Err(option.token.error(CompileErrorKind::DuplicateOption {
-          option: Switch::Short(option.cooked.chars().next().unwrap()),
-          recipe: name.lexeme(),
-        }));
+        return Err(short_key.map_or(option.token, |name| *name).error(
+          CompileErrorKind::DuplicateOption {
+            option: Switch::Short(short),
+            recipe: name.lexeme(),
+          },
+        ));
       }
 
       arg_attributes.insert(
@@ -1292,9 +1296,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           flag: flag.is_some(),
           name: arg.token,
           long: long.as_ref().map(|long| long.cooked.clone()),
-          short: short
-            .as_ref()
-            .map(|short| short.cooked.chars().next().unwrap()),
+          short: short.as_ref().and_then(|short| short.cooked.chars().next()),
           value: value.clone(),
         },
       );

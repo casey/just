@@ -3400,8 +3400,9 @@ $ just foo --bar=hello
 bar=hello
 ```
 
-The value of `long` can be omitted, in which case the option defaults to the
-name of the parameter:
+The value of `long` may be omitted, in which case the option defaults to the
+name of the parameter. With the following justfile, `bar` may be passed with
+`--bar`:
 
 ```just
 [arg("bar", long)]
@@ -3423,6 +3424,15 @@ The parameter `bar` is given with the `-b` option:
 ```console
 $ just foo -b hello
 bar=hello
+```
+
+The value of `short` may be omitted, in which case the option defaults to the
+first character of the name of the parameter. With the following justfile,
+`bar` may be passed with `-b`:
+
+```just
+[arg("bar", short)]
+foo bar:
 ```
 
 If a parameter has both a long and short option, it may be passed using either.

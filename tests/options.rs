@@ -111,6 +111,21 @@ fn parameters_may_be_passed_with_short_options() {
     .success();
 }
 
+#[test]
+fn short_option_defaults_to_first_character_of_parameter_name() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', short)]
+        @foo bar:
+          echo bar={{bar}}
+      ",
+    )
+    .args(["foo", "-b", "baz"])
+    .stdout("bar=baz\n")
+    .success();
+}
+
 const LONG_SHORT: &str = "
   [arg('bar', long='bar', short='b')]
   @foo bar:
@@ -186,21 +201,18 @@ fn defaulted_duplicate_long_option() {
   Test::new()
     .justfile(
       "
-        [arg(
-          'aaa',
-          long='bar'
-        )]
-        [arg(      'bar', long)]
+        [arg('aaa', long='bar')]
+        [arg('bar', long)]
         foo aaa bar:
       ",
     )
     .stderr(
       "
         error: recipe `foo` defines option `--bar` multiple times
-         ——▶ justfile:5:19
+         ——▶ justfile:1:18
           │
-        5 │ [arg(      'bar', long)]
-          │                   ^^^^
+        1 │ [arg('aaa', long='bar')]
+          │                  ^^^^^
       ",
     )
     .failure();
@@ -223,6 +235,49 @@ fn duplicate_short_option_attributes_are_forbidden() {
           │
         2 │ [arg('baz', short='b')]
           │                   ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn defaulted_duplicate_short_option() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', short='b')]
+        [arg('baz', short)]
+        foo bar baz:
+      ",
+    )
+    .stderr(
+      "
+        error: recipe `foo` defines option `-b` multiple times
+         ——▶ justfile:2:13
+          │
+        2 │ [arg('baz', short)]
+          │             ^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn defaulted_short_option_with_empty_argument_name() {
+  Test::new()
+    .justfile(
+      "
+        [arg('', short)]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: argument attribute for undefined argument ``
+         ——▶ justfile:1:6
+          │
+        1 │ [arg('', short)]
+          │      ^^
       ",
     )
     .failure();
