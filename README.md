@@ -1362,6 +1362,10 @@ value on the command line. For example, with `[arg('foo', long, flag)]`, `foo`
 will be `"true"` when `--foo` is passed, and `[]` otherwise. Flag parameters
 may not have a default.
 
+The value of `[arg(help)]` may be a list, in which case the help string is the
+elements of the list joined with spaces. If the list is empty, the argument has
+no help string.
+
 The value of `[arg(pattern)]` may be a list, in which case the argument is
 accepted if it matches any pattern in the list. If the value is the empty list,
 any argument is accepted. For example, with
