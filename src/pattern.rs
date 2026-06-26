@@ -23,7 +23,13 @@ impl Pattern {
   }
 
   pub(crate) fn original(&self) -> &str {
-    &self.regex.as_str()[4..self.regex.as_str().len() - 2]
+    self
+      .regex
+      .as_str()
+      .strip_prefix("^(?:")
+      .unwrap()
+      .strip_suffix(")$")
+      .unwrap()
   }
 }
 

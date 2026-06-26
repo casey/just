@@ -93,6 +93,46 @@ fn pattern_invalid_regex_error() {
 }
 
 #[test]
+fn pattern_may_be_expression() {
+  Test::new()
+    .justfile(
+      "
+        prefix := 'B'
+        [arg('bar', pattern=prefix + 'AR')]
+        foo bar:
+      ",
+    )
+    .args(["foo", "bar"])
+    .stderr(
+      "
+        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn pattern_cannot_reference_parameter() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', pattern=bar)]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: variable `bar` not defined
+         ——▶ justfile:1:21
+          │
+        1 │ [arg('bar', pattern=bar)]
+          │                     ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn dump() {
   Test::new()
     .justfile(
