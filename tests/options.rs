@@ -833,6 +833,25 @@ fn value_omitted_uses_default() {
 }
 
 #[test]
+fn value_uses_forwarded_dependency_argument() {
+  Test::new()
+    .justfile(
+      "
+        BAZ := 'baz'
+
+        [arg('bar', long='bar', value=BAZ)]
+        @foo bar='qux':
+          echo bar={{bar}}
+
+        caller: (foo 'forwarded')
+      ",
+    )
+    .args(["caller"])
+    .stdout("bar=forwarded\n")
+    .success();
+}
+
+#[test]
 fn options_arg_passed_as_positional_arguments() {
   Test::new()
     .justfile(
