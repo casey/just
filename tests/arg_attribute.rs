@@ -167,10 +167,10 @@ fn pattern_cannot_be_list() {
     .stderr(
       r#"
         error: list value ["a", "b"] used as `arg` attribute pattern
-         ——▶ justfile:2:2
+         ——▶ justfile:2:13
           │
         2 │ [arg('bar', pattern=['a', 'b'])]
-          │  ^^^
+          │             ^^^^^^^
       "#,
     )
     .failure();
