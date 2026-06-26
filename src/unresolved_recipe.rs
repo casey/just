@@ -65,31 +65,29 @@ impl<'src> UnresolvedRecipe<'src> {
     }
 
     for attribute in &self.attributes {
+      let mut resolve_expression = |expression, parameters| {
+        Self::resolve_expression(
+          assignments,
+          expression,
+          functions,
+          parameters,
+          &mut variable_references,
+        )
+      };
+
       match attribute {
         Attribute::Confirm(Some(expression)) | Attribute::WorkingDirectory(expression) => {
-          Self::resolve_expression(
-            assignments,
-            expression,
-            functions,
-            &self.parameters,
-            &mut variable_references,
-          )?;
+          resolve_expression(expression, &self.parameters)?;
         }
         Attribute::Arg {
           pattern_property: Some((_, expression)),
           ..
         } => {
-          Self::resolve_expression(
-            assignments,
-            expression,
-            functions,
-            &[],
-            &mut variable_references,
-          )?;
+          resolve_expression(expression, &[])?;
         }
         Attribute::Env(key, value) => {
-          Self::resolve_expression(assignments, key, functions, &[], &mut variable_references)?;
-          Self::resolve_expression(assignments, value, functions, &[], &mut variable_references)?;
+          resolve_expression(key, &[])?;
+          resolve_expression(value, &[])?;
         }
         _ => {}
       }
