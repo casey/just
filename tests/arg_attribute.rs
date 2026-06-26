@@ -25,7 +25,7 @@ fn pattern_mismatch() {
     .args(["foo", "bar"])
     .stderr(
       "
-        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
+        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern `BAR`
       ",
     )
     .failure();
@@ -43,7 +43,7 @@ fn patterns_are_regular_expressions() {
     .args(["foo", r"\d+"])
     .stderr(
       r"
-        error: argument `\d+` passed to recipe `foo` parameter `bar` does not match pattern '\d+'
+        error: argument `\d+` passed to recipe `foo` parameter `bar` does not match pattern `\d+`
       ",
     )
     .failure();
@@ -61,7 +61,7 @@ fn pattern_must_match_entire_string() {
     .args(["foo", "xbarx"])
     .stderr(
       "
-        error: argument `xbarx` passed to recipe `foo` parameter `bar` does not match pattern 'bar'
+        error: argument `xbarx` passed to recipe `foo` parameter `bar` does not match pattern `bar`
       ",
     )
     .failure();
@@ -105,7 +105,7 @@ fn pattern_may_be_expression() {
     .args(["foo", "bar"])
     .stderr(
       "
-        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
+        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern `BAR`
       ",
     )
     .failure();
@@ -154,26 +154,57 @@ fn pattern_cannot_reference_undefined_variable() {
 }
 
 #[test]
-fn pattern_cannot_be_list() {
+fn pattern_list_match() {
+  Test::new()
+    .justfile(
+      "
+          set lists
+          [arg('bar', pattern=['A', 'B'])]
+          foo bar:
+        ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "A"])
+    .success()
+    .test()
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "B"])
+    .success();
+}
+
+#[test]
+fn pattern_list_mismatch() {
   Test::new()
     .justfile(
       "
         set lists
-        [arg('bar', pattern=['a', 'b'])]
+        [arg('bar', pattern=['A', 'B'])]
         foo bar:
       ",
     )
     .env("JUST_UNSTABLE", "1")
+    .args(["foo", "C"])
     .stderr(
-      r#"
-        error: list value ["a", "b"] used as `arg` attribute pattern
-         ——▶ justfile:2:13
-          │
-        2 │ [arg('bar', pattern=['a', 'b'])]
-          │             ^^^^^^^
-      "#,
+      "
+        error: argument `C` passed to recipe `foo` parameter `bar` does not match pattern `A` or `B`
+      ",
     )
     .failure();
+}
+
+#[test]
+fn pattern_empty_list_accepts_all_arguments() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        [arg('bar', pattern=[])]
+        foo bar:
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "anything"])
+    .success();
 }
 
 #[test]
@@ -277,7 +308,7 @@ fn pattern_mismatches_are_caught_before_running_dependencies() {
     .args(["foo", "bar"])
     .stderr(
       "
-        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
+        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern `BAR`
       ",
     )
     .failure();
@@ -298,7 +329,7 @@ fn pattern_mismatches_are_caught_before_running_invocation() {
     .args(["baz", "foo", "bar"])
     .stderr(
       "
-        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
+        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern `BAR`
       ",
     )
     .failure();
@@ -317,7 +348,7 @@ fn pattern_mismatches_are_caught_in_evaluated_arguments() {
     )
     .stderr(
       "
-        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
+        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern `BAR`
       ",
     )
     .failure();
@@ -335,7 +366,7 @@ fn alternates_do_not_bind_to_anchors() {
     .args(["foo", "aa"])
     .stderr(
       "
-        error: argument `aa` passed to recipe `foo` parameter `bar` does not match pattern 'a|b'
+        error: argument `aa` passed to recipe `foo` parameter `bar` does not match pattern `a|b`
       ",
     )
     .failure();
@@ -366,7 +397,7 @@ fn pattern_mismatch_variadic() {
     .args(["foo", "BAR", "BAR"])
     .stderr(
       "
-        error: argument `BAR` passed to recipe `foo` parameter `bar` does not match pattern 'BAR BAR'
+        error: argument `BAR` passed to recipe `foo` parameter `bar` does not match pattern `BAR BAR`
       ",
     )
     .failure();

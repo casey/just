@@ -1357,10 +1357,16 @@ commands earlier in the list.
 
 ##### Attributes
 
-The `[arg]` `flag` attribute makes the parameter a flag which does not take a
+The `[arg(flag)]` attribute makes the parameter a flag which does not take a
 value on the command line. For example, with `[arg('foo', long, flag)]`, `foo`
-will be `"true"` when `--foo` is passed, and `[]` otherwise. Flag parameters may
-not have a default.
+will be `"true"` when `--foo` is passed, and `[]` otherwise. Flag parameters
+may not have a default.
+
+The value of `[arg(pattern)]` may be a list, in which case the argument is
+accepted if it matches any pattern in the list. If the value is the empty list,
+any argument is accepted. For example, with
+`[arg('foo', pattern=['--help', '--version'])]`, `foo` may be `--help` or
+`--version`.
 
 In `[env(variable, value)]` if `value` is `[]`, `variable` is not set.
 Otherwise it is set to `value` joined with spaces.

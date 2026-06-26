@@ -755,7 +755,7 @@ fn value_expression_is_pattern_checked() {
     )
     .args(["foo", "--bar"])
     .stderr(
-      "error: argument `baz` passed to recipe `foo` parameter `bar` does not match pattern '[0-9]+'\n",
+      "error: argument `baz` passed to recipe `foo` parameter `bar` does not match pattern `[0-9]+`\n",
     )
     .failure();
 }

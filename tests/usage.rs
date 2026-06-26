@@ -25,16 +25,18 @@ fn usage() {
     .write(
       "bar.just",
       "
+set lists
 [arg('a', short='a')]
 [arg('b', pattern='123|789', help='hello')]
 [arg('d', short='d', long='delightful')]
 [arg('e', short='e', pattern='abc|xyz')]
-[arg('f', long='f', pattern='lucky')]
+[arg('f', long='f', pattern=['lucky', 'dog'])]
 [arg('g', short='g', value='foo')]
 foo a b c='abc' d e f='xyz' g='bar' *h:
 ",
     )
     .args(["--usage", "bar", "foo"])
+    .env("JUST_UNSTABLE", "1")
     .stdout(
       "
         Usage: just bar foo [OPTIONS] b [c] [h...]
@@ -48,7 +50,7 @@ foo a b c='abc' d e f='xyz' g='bar' *h:
           -a a
           -d, --delightful d
           -e e [pattern: 'abc|xyz']
-              --f f [default: 'xyz'] [pattern: 'lucky']
+              --f f [default: 'xyz'] [pattern: 'lucky' | 'dog']
           -g
       ",
     )
