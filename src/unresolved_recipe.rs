@@ -130,8 +130,7 @@ impl<'src> UnresolvedRecipe<'src> {
           ..
         } = &mut attribute
         {
-          let value =
-            evaluator.evaluate_string_const(expression, StringContext::ArgPattern(*key))?;
+          let value = evaluator.evaluate_value_const(expression)?;
           let compiled = Pattern::new(&value, *key)?;
           self
             .parameters

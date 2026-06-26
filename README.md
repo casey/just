@@ -2649,7 +2649,7 @@ change their behavior.
 |------|------|-------------|
 | `[arg(ARG, help="HELP")]`<sup>1.46.0</sup> | recipe | Print help string `HELP` for `ARG` in usage messages. May be a const expression<sup>master</sup>. |
 | `[arg(ARG, long="LONG")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as `--LONG` option. |
-| `[arg(ARG, pattern="PATTERN")]`<sup>1.45.0</sup> | recipe | Require values of argument `ARG` to match regular expression `PATTERN`. May be a const expression<sup>master</sup>. |
+| `[arg(ARG, pattern="PATTERN")]`<sup>1.45.0</sup> | recipe | Require values of argument `ARG` to match regular expression `PATTERN`. May be a const expression<sup>master</sup>, or a list of patterns, any of which may match<sup>master</sup>. |
 | `[arg(ARG, short="S")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as short `-S` option. |
 | `[arg(ARG, value=VALUE)]`<sup>1.46.0</sup> | recipe | Makes option `ARG` a flag which does not take a value. |
 | `[cache]`<sup>1.54.0</sup> | recipe | Skip recipe invocations when a matching entry exists in the cache. See [cached recipes](#cached-recipes) for details. Currently unstable. |
@@ -3302,6 +3302,18 @@ double n:
 ```
 
 The value of `pattern` may be a const expression<sup>master</sup>.
+
+`pattern` may also be a list of patterns<sup>master</sup>, in which case the
+argument is accepted if it matches any one of them:
+
+```just
+set unstable
+set lists
+
+[arg('flag', pattern=['--help', '--version'])]
+info flag:
+  just {{flag}}
+```
 
 A leading `^` and trailing `$` are added to the pattern, so it must match the
 entire argument value.

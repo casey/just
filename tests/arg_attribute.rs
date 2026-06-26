@@ -154,24 +154,62 @@ fn pattern_cannot_reference_undefined_variable() {
 }
 
 #[test]
-fn pattern_cannot_be_list() {
+fn pattern_list_match() {
+  #[track_caller]
+  fn case(argument: &str) {
+    Test::new()
+      .justfile(
+        "
+          set lists
+          [arg('bar', pattern=['A', 'B'])]
+          foo bar:
+        ",
+      )
+      .env("JUST_UNSTABLE", "1")
+      .args(["foo", argument])
+      .success();
+  }
+
+  case("A");
+  case("B");
+}
+
+#[test]
+fn pattern_list_mismatch() {
   Test::new()
     .justfile(
       "
         set lists
-        [arg('bar', pattern=['a', 'b'])]
+        [arg('bar', pattern=['A', 'B'])]
         foo bar:
       ",
     )
     .env("JUST_UNSTABLE", "1")
+    .args(["foo", "C"])
     .stderr(
-      r#"
-        error: list value ["a", "b"] used as `arg` attribute pattern
-         ——▶ justfile:2:13
-          │
-        2 │ [arg('bar', pattern=['a', 'b'])]
-          │             ^^^^^^^
-      "#,
+      "
+        error: argument `C` passed to recipe `foo` parameter `bar` does not match patterns 'A', 'B'
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn pattern_empty_list_rejects_all_arguments() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        [arg('bar', pattern=[])]
+        foo bar:
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "anything"])
+    .stderr(
+      "
+        error: argument `anything` passed to recipe `foo` parameter `bar` does not match patterns
+      ",
     )
     .failure();
 }

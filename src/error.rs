@@ -498,8 +498,8 @@ impl ColorDisplay for Error<'_> {
       } => {
         write!(
           f,
-          "argument `{argument}` passed to recipe `{recipe}` parameter `{parameter}` does not match pattern '{}'",
-          pattern.original(),
+          "argument `{argument}` passed to recipe `{recipe}` parameter `{parameter}` does not match {}",
+          pattern.render(" "),
         )?;
       }
       Assert { message, .. } => {
