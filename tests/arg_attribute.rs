@@ -456,3 +456,71 @@ fn value_requires_value() {
     )
     .failure();
 }
+
+#[test]
+fn help_may_be_expression() {
+  Test::new()
+    .justfile(
+      "
+        prefix := 'hello '
+        [arg('bar', help=prefix + 'world')]
+        foo bar:
+      ",
+    )
+    .args(["--usage", "foo"])
+    .stdout(
+      "
+        Usage: just foo bar
+
+        Arguments:
+          bar hello world
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn help_list_is_joined() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        [arg('bar', help=['hello', 'world'])]
+        foo bar:
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["--usage", "foo"])
+    .stdout(
+      "
+        Usage: just foo bar
+
+        Arguments:
+          bar hello world
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn help_empty_list_is_no_help() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        [arg('bar', help=[])]
+        foo bar:
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["--usage", "foo"])
+    .stdout(
+      "
+        Usage: just foo bar
+
+        Arguments:
+          bar
+      ",
+    )
+    .success();
+}
