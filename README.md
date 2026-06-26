@@ -2647,9 +2647,9 @@ change their behavior.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `[arg(ARG, help="HELP")]`<sup>1.46.0</sup> | recipe | Print help string `HELP` for `ARG` in usage messages. |
+| `[arg(ARG, help="HELP")]`<sup>1.46.0</sup> | recipe | Print help string `HELP` for `ARG` in usage messages. May be a const expression<sup>master</sup>. |
 | `[arg(ARG, long="LONG")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as `--LONG` option. |
-| `[arg(ARG, pattern="PATTERN")]`<sup>1.45.0</sup> | recipe | Require values of argument `ARG` to match regular expression `PATTERN`. |
+| `[arg(ARG, pattern="PATTERN")]`<sup>1.45.0</sup> | recipe | Require values of argument `ARG` to match regular expression `PATTERN`. May be a const expression<sup>master</sup>. |
 | `[arg(ARG, short="S")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as short `-S` option. |
 | `[arg(ARG, value=VALUE)]`<sup>1.46.0</sup> | recipe | Makes option `ARG` a flag which does not take a value. |
 | `[cache]`<sup>1.54.0</sup> | recipe | Skip recipe invocations when a matching entry exists in the cache. See [cached recipes](#cached-recipes) for details. Currently unstable. |
@@ -3293,13 +3293,15 @@ foo $bar:
 ```
 
 Parameters may be constrained to match regular expression patterns using the
-`[arg("name", pattern="pattern")]` attribute<sup>1.45.0</sup>:
+`[arg("name", pattern=PATTERN)]` attribute<sup>1.45.0</sup>:
 
 ```just
 [arg('n', pattern='\d+')]
 double n:
   echo $(({{n}} * 2))
 ```
+
+The value of `pattern` may be a const expression<sup>master</sup>.
 
 A leading `^` and trailing `$` are added to the pattern, so it must match the
 entire argument value.
@@ -3335,6 +3337,8 @@ Help strings may be added to arguments using the `[arg(ARG, help=HELP)]` attribu
 [arg("bar", help="hello")]
 foo bar:
 ```
+
+The value `help` may be a const expression<sup>master</sup>.
 
 ```console
 $ just --usage foo

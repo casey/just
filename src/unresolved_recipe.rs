@@ -80,10 +80,16 @@ impl<'src> UnresolvedRecipe<'src> {
           resolve_expression(expression, &self.parameters)?;
         }
         Attribute::Arg {
-          pattern_property: Some((_, expression)),
+          help_property,
+          pattern_property,
           ..
         } => {
-          resolve_expression(expression, &[])?;
+          if let Some((_key, expression)) = help_property {
+            resolve_expression(expression, &[])?;
+          }
+          if let Some((_key, expression)) = pattern_property {
+            resolve_expression(expression, &[])?;
+          }
         }
         Attribute::Env(key, value) => {
           resolve_expression(key, &[])?;
@@ -98,6 +104,26 @@ impl<'src> UnresolvedRecipe<'src> {
       .into_items()
       .map(|(mut attribute, name)| {
         if let Attribute::Arg {
+          help,
+          help_property: Some((_key, expression)),
+          name: arg,
+          ..
+        } = &mut attribute
+        {
+          let value = evaluator.evaluate_value_const(expression)?;
+          if !value.is_empty() {
+            let value = value.join();
+            self
+              .parameters
+              .iter_mut()
+              .find(|parameter| parameter.name.lexeme() == arg.cooked)
+              .unwrap()
+              .help = Some(value.clone());
+            *help = Some(value);
+          }
+        }
+
+        if let Attribute::Arg {
           name: arg,
           pattern,
           pattern_property: Some((key, expression)),
@@ -107,13 +133,12 @@ impl<'src> UnresolvedRecipe<'src> {
           let value =
             evaluator.evaluate_string_const(expression, StringContext::ArgPattern(*key))?;
           let compiled = Pattern::new(&value, *key)?;
-          if let Some(parameter) = self
+          self
             .parameters
             .iter_mut()
             .find(|parameter| parameter.name.lexeme() == arg.cooked)
-          {
-            parameter.pattern = Some(compiled.clone());
-          }
+            .unwrap()
+            .pattern = Some(compiled.clone());
           *pattern = Some(compiled);
         }
         Ok((attribute, name))

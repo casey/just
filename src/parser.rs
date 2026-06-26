@@ -1248,11 +1248,12 @@ impl<'run, 'src> Parser<'run, 'src> {
     for attribute in &attributes {
       let Attribute::Arg {
         flag,
-        help,
+        help: _,
+        help_property: _,
         long,
         long_key,
         name: arg,
-        pattern,
+        pattern: _,
         pattern_property: _,
         short,
         value,
@@ -1289,9 +1290,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         arg.cooked.clone(),
         ArgAttribute {
           flag: flag.is_some(),
-          help: help.as_ref().map(|literal| literal.cooked.clone()),
           name: arg.token,
-          pattern: pattern.clone(),
           long: long.as_ref().map(|long| long.cooked.clone()),
           short: short
             .as_ref()
@@ -1431,17 +1430,15 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
 
     let mut flag = false;
-    let mut help = None;
+    let help = None;
     let mut long = None;
-    let mut pattern = None;
+    let pattern = None;
     let mut short = None;
     let mut value = None;
 
     if let Some(arg) = arg_attributes.remove(name.lexeme()) {
       flag = arg.flag;
-      help = arg.help;
       long = arg.long;
-      pattern = arg.pattern;
       short = arg.short;
       value = arg.value;
     }

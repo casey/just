@@ -434,3 +434,135 @@ fn value_requires_value() {
     )
     .failure();
 }
+
+#[test]
+fn help_cannot_reference_parameter() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', help=bar)]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: variable `bar` not defined
+         ——▶ justfile:1:18
+          │
+        1 │ [arg('bar', help=bar)]
+          │                  ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn help_cannot_reference_undefined_variable() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', help=undefined)]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: variable `undefined` not defined
+         ——▶ justfile:1:18
+          │
+        1 │ [arg('bar', help=undefined)]
+          │                  ^^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn help_cannot_reference_non_const_variable() {
+  Test::new()
+    .justfile(
+      "
+        bar := `echo BAR`
+        [arg('bar', help=bar)]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: cannot access non-const variable `bar` in const context
+         ——▶ justfile:2:18
+          │
+        2 │ [arg('bar', help=bar)]
+          │                  ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn help_may_be_expression() {
+  Test::new()
+    .justfile(
+      "
+        prefix := 'hello '
+        [arg('bar', help=prefix + 'world')]
+        foo bar:
+      ",
+    )
+    .args(["--usage", "foo"])
+    .stdout(
+      "
+        Usage: just foo bar
+
+        Arguments:
+          bar hello world
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn help_list_is_joined() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        [arg('bar', help=['hello', 'world'])]
+        foo bar:
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["--usage", "foo"])
+    .stdout(
+      "
+        Usage: just foo bar
+
+        Arguments:
+          bar hello world
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn help_empty_list_is_no_help() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        [arg('bar', help=[])]
+        foo bar:
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["--usage", "foo"])
+    .stdout(
+      "
+        Usage: just foo bar
+
+        Arguments:
+          bar
+      ",
+    )
+    .success();
+}

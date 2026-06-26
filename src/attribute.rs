@@ -14,7 +14,9 @@ pub(crate) enum Attribute<'src> {
   Arg {
     #[serde(skip)]
     flag: Option<Token<'src>>,
-    help: Option<StringLiteral<'src>>,
+    help: Option<String>,
+    #[serde(skip)]
+    help_property: Option<(Name<'src>, Expression<'src>)>,
     long: Option<StringLiteral<'src>>,
     #[serde(skip)]
     long_key: Option<Name<'src>>,
@@ -248,13 +250,12 @@ impl<'src> Attribute<'src> {
           })
           .transpose()?;
 
-        let help = Self::remove_required(&mut keyword_arguments, "help")?
-          .map(|(key, expression)| Self::require_string_literal(name, key, expression))
-          .transpose()?;
+        let help_property = Self::remove_required(&mut keyword_arguments, "help")?;
 
         Self::Arg {
           flag,
-          help,
+          help: None,
+          help_property,
           long,
           long_key,
           name: arg,
@@ -379,7 +380,8 @@ impl Display for Attribute<'_> {
     match self {
       Self::Arg {
         flag,
-        help,
+        help: _,
+        help_property,
         long,
         long_key,
         name,
@@ -412,7 +414,7 @@ impl Display for Attribute<'_> {
           write!(f, ", flag")?;
         }
 
-        if let Some(help) = help {
+        if let Some((_key, help)) = help_property {
           write!(f, ", help={help}")?;
         }
 
