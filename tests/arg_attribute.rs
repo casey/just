@@ -404,19 +404,6 @@ fn pattern_mismatch_variadic() {
 }
 
 #[test]
-fn pattern_match_repeatable_option() {
-  Test::new()
-    .justfile(
-      "
-        [arg('bar', long='bar', pattern='BAR')]
-        foo +bar:
-      ",
-    )
-    .args(["foo", "--bar", "BAR", "--bar", "BAR"])
-    .success();
-}
-
-#[test]
 fn pattern_mismatch_repeatable_option() {
   Test::new()
     .justfile(

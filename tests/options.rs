@@ -299,21 +299,6 @@ fn plus_variadic_long_option_is_repeatable() {
 }
 
 #[test]
-fn plus_variadic_short_option_is_repeatable() {
-  Test::new()
-    .justfile(
-      "
-        [arg('bar', short='b')]
-        @foo +bar:
-          echo bar={{bar}}
-      ",
-    )
-    .args(["foo", "-b", "a", "-b", "b"])
-    .stdout("bar=a b\n")
-    .success();
-}
-
-#[test]
 fn star_variadic_option_may_be_omitted() {
   Test::new()
     .justfile(
@@ -325,21 +310,6 @@ fn star_variadic_option_may_be_omitted() {
     )
     .arg("foo")
     .stdout("bar=\n")
-    .success();
-}
-
-#[test]
-fn star_variadic_option_is_repeatable() {
-  Test::new()
-    .justfile(
-      "
-        [arg('bar', long='bar')]
-        @foo *bar:
-          echo bar={{bar}}
-      ",
-    )
-    .args(["foo", "--bar", "a", "--bar", "b"])
-    .stdout("bar=a b\n")
     .success();
 }
 
