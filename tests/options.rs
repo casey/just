@@ -367,12 +367,12 @@ fn variadic_option_collects_a_list() {
 
         [arg('bar', long='bar')]
         @foo +bar:
-          echo bar={{ bar / 'x' }}
+          echo bar='{{ show(bar) }}'
       ",
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "--bar", "a", "--bar", "b"])
-    .stdout("bar=a/x b/x\n")
+    .stdout("bar=[\"a\", \"b\"]\n")
     .success();
 }
 
