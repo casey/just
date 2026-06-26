@@ -169,7 +169,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
 
         let group = &mut arguments[index];
 
-        if !group.is_empty() {
+        if !group.is_empty() && !parameter.kind.is_variadic() {
           return Err(Error::DuplicateOption {
             recipe: recipe.name(),
             option: switch,
@@ -228,7 +228,11 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
           .iter()
           .filter(|p| p.is_required() && !p.is_option())
           .count(),
-        max: if recipe.parameters.iter().any(|p| p.kind.is_variadic()) {
+        max: if recipe
+          .parameters
+          .iter()
+          .any(|p| p.kind.is_variadic() && !p.is_option())
+        {
           usize::MAX - 1
         } else {
           recipe.parameters.iter().filter(|p| !p.is_option()).count()
@@ -647,6 +651,26 @@ foo bar:
     assert_eq!(invocations.len(), 1);
     assert_eq!(invocations[0].recipe.recipe_path().to_string(), "foo");
     assert_eq!(invocations[0].arguments, vec![Value::from("baz")]);
+  }
+
+  #[test]
+  fn repeatable_long_option() {
+    let justfile = testing::compile(
+      "
+[arg('bar', long='bar')]
+foo +bar:
+      ",
+    );
+
+    let invocations =
+      InvocationParser::parse_invocations(&justfile, &["foo", "--bar", "a", "--bar", "b"]).unwrap();
+
+    assert_eq!(invocations.len(), 1);
+    assert_eq!(invocations[0].recipe.recipe_path().to_string(), "foo");
+    assert_eq!(
+      invocations[0].arguments,
+      vec![["a", "b"].into_iter().map(String::from).collect::<Value>()]
+    );
   }
 
   #[test]

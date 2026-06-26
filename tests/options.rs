@@ -284,45 +284,66 @@ fn defaulted_short_option_with_empty_argument_name() {
 }
 
 #[test]
-fn variadics_with_long_options_are_forbidden() {
+fn plus_variadic_long_option_is_repeatable() {
   Test::new()
     .justfile(
       "
         [arg('bar', long='bar')]
-        foo +bar:
+        @foo +bar:
+          echo bar={{bar}}
       ",
     )
-    .stderr(
+    .args(["foo", "--bar", "a", "--bar", "b"])
+    .stdout("bar=a b\n")
+    .success();
+}
+
+#[test]
+fn star_variadic_option_may_be_omitted() {
+  Test::new()
+    .justfile(
       "
-        error: variadic parameters may not be options
-         ——▶ justfile:2:6
-          │
-        2 │ foo +bar:
-          │      ^^^
+        [arg('bar', long='bar')]
+        @foo *bar:
+          echo bar={{bar}}
       ",
     )
+    .arg("foo")
+    .stdout("bar=\n")
+    .success();
+}
+
+#[test]
+fn plus_variadic_option_requires_one_argument() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='bar')]
+        @foo +bar:
+          echo bar={{bar}}
+      ",
+    )
+    .arg("foo")
+    .stderr("error: recipe `foo` requires option `--bar`\n")
     .failure();
 }
 
 #[test]
-fn variadics_with_short_options_are_forbidden() {
+fn variadic_option_collects_a_list() {
   Test::new()
     .justfile(
       "
-        [arg('bar', short='b')]
-        foo +bar:
+        set lists
+
+        [arg('bar', long='bar')]
+        @foo +bar:
+          echo bar='{{ show(bar) }}'
       ",
     )
-    .stderr(
-      "
-        error: variadic parameters may not be options
-         ——▶ justfile:2:6
-          │
-        2 │ foo +bar:
-          │      ^^^
-      ",
-    )
-    .failure();
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "--bar", "a", "--bar", "b"])
+    .stdout("bar=[\"a\", \"b\"]\n")
+    .success();
 }
 
 #[test]
