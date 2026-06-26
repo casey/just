@@ -66,17 +66,24 @@ impl<'src> UnresolvedRecipe<'src> {
 
     for attribute in &self.attributes {
       match attribute {
-        Attribute::Arg {
-          pattern_property: Some((_, expression)),
-          ..
-        }
-        | Attribute::Confirm(Some(expression))
-        | Attribute::WorkingDirectory(expression) => {
+        Attribute::Confirm(Some(expression)) | Attribute::WorkingDirectory(expression) => {
           Self::resolve_expression(
             assignments,
             expression,
             functions,
             &self.parameters,
+            &mut variable_references,
+          )?;
+        }
+        Attribute::Arg {
+          pattern_property: Some((_, expression)),
+          ..
+        } => {
+          Self::resolve_expression(
+            assignments,
+            expression,
+            functions,
+            &[],
             &mut variable_references,
           )?;
         }

@@ -79,10 +79,10 @@ fn pattern_invalid_regex_error() {
     .stderr(
       "
         error: failed to parse argument pattern
-         ——▶ justfile:1:21
+         ——▶ justfile:1:13
           │
         1 │ [arg('bar', pattern='{')]
-          │                     ^^^
+          │             ^^^^^^^
         caused by: regex parse error:
             {
             ^
