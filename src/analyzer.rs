@@ -199,8 +199,55 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       }
     }
 
-    let settings =
-      Evaluator::evaluate_settings(&assignments, overrides, &Scope::root(), self.sets)?;
+    let scope = Scope::root();
+
+    let mut evaluator = {
+      let lists = self
+        .sets
+        .values()
+        .any(|set| matches!(set.value, Setting::Lists(true)));
+
+      let variable_references = self
+        .sets
+        .values()
+        .flat_map(|set| set.value.expressions())
+        .chain(
+          self
+            .recipes
+            .iter()
+            .flat_map(|recipe| &recipe.attributes)
+            .filter_map(|attribute| {
+              if let Attribute::Arg {
+                pattern_property: Some((_, expression)),
+                ..
+              } = attribute
+              {
+                Some(expression)
+              } else {
+                None
+              }
+            }),
+        )
+        .flat_map(|expression| expression.references())
+        .filter_map(|reference| {
+          if let Reference::Variable(variable) = reference {
+            Some(variable.lexeme())
+          } else {
+            None
+          }
+        })
+        .collect::<BTreeSet<&str>>();
+
+      Evaluator::evaluate_const_assignments(
+        &assignments,
+        overrides,
+        &scope,
+        variable_references,
+        lists,
+      )?
+    };
+
+    let settings = evaluator.evaluate_sets(self.sets)?;
 
     if !settings.lists {
       for (feature, token) in list_features {
@@ -265,6 +312,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let (recipes, disabled_recipes) = RecipeResolver::resolve_recipes(
       &absent_modules,
       &assignments,
+      &mut evaluator,
       &functions,
       &ast.module_path,
       &self.modules,

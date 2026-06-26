@@ -21,19 +21,15 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     self.context.as_ref().ok_or(const_error)
   }
 
-  pub(crate) fn evaluate_settings(
+  pub(crate) fn evaluate_const_assignments(
     assignments: &'run Table<'src, Assignment<'src>>,
     overrides: &'run HashMap<Number, String>,
     scope: &'run Scope<'src, 'run>,
-    sets: Table<'src, Set<'src>>,
-  ) -> CompileResult<'src, Settings> {
-    let lists = sets
-      .values()
-      .any(|set| matches!(set.value, Setting::Lists(true)));
-
+    variable_references: BTreeSet<&str>,
+    lists: bool,
+  ) -> CompileResult<'src, Self> {
     let mut evaluator = Self {
       assignments: Some(assignments),
-      recursion_depth: 0,
       context: None,
       env: BTreeMap::new(),
       is_dependency: false,
@@ -41,21 +37,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       non_const_assignments: Table::new(),
       overrides,
       recipe: None,
+      recursion_depth: 0,
       scope: scope.child(),
     };
-
-    let variable_references = sets
-      .values()
-      .flat_map(|set| set.value.expressions())
-      .flat_map(|expression| expression.references())
-      .filter_map(|reference| {
-        if let Reference::Variable(variable) = reference {
-          Some(variable.lexeme())
-        } else {
-          None
-        }
-      })
-      .collect::<BTreeSet<&str>>();
 
     for assignment in assignments.values() {
       if variable_references.contains(assignment.name.lexeme()) {
@@ -70,10 +54,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       }
     }
 
-    evaluator.evaluate_sets(sets)
+    Ok(evaluator)
   }
 
-  fn evaluate_sets(&mut self, sets: Table<'src, Set<'src>>) -> CompileResult<'src, Settings> {
+  pub(crate) fn evaluate_sets(
+    &mut self,
+    sets: Table<'src, Set<'src>>,
+  ) -> CompileResult<'src, Settings> {
     let mut settings = Settings::default();
 
     for (_name, set) in sets {
@@ -466,7 +453,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       .map_err(|error| error.unwrap_const().into_compile_error())
   }
 
-  fn evaluate_string_const(
+  pub(crate) fn evaluate_string_const(
     &mut self,
     expression: &Expression<'src>,
     context: StringContext<'src>,

@@ -4,6 +4,7 @@ pub(crate) struct RecipeResolver<'src: 'run, 'run> {
   absent_modules: &'run BTreeSet<String>,
   assignments: &'run Table<'src, Assignment<'src>>,
   disabled_recipes: Table<'src, Disabled<'src>>,
+  evaluator: &'run mut Evaluator<'src, 'run>,
   functions: &'run Table<'src, FunctionDefinition<'src>>,
   modulepath: &'run Modulepath,
   modules: &'run Table<'src, Justfile<'src>>,
@@ -16,6 +17,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
   pub(crate) fn resolve_recipes(
     absent_modules: &'run BTreeSet<String>,
     assignments: &'run Table<'src, Assignment<'src>>,
+    evaluator: &'run mut Evaluator<'src, 'run>,
     functions: &'run Table<'src, FunctionDefinition<'src>>,
     modulepath: &'run Modulepath,
     modules: &'run Table<'src, Justfile<'src>>,
@@ -26,6 +28,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       absent_modules,
       assignments,
       disabled_recipes: Table::new(),
+      evaluator,
       functions,
       modulepath,
       modules,
@@ -78,6 +81,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     if disabled_by.is_empty() {
       let resolved = Arc::new(recipe.resolve(
         self.assignments,
+        self.evaluator,
         self.functions,
         self.modulepath,
         dependencies,

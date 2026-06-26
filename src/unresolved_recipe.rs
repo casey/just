@@ -4,8 +4,9 @@ pub(crate) type UnresolvedRecipe<'src> = Recipe<'src, UnresolvedDependency<'src>
 
 impl<'src> UnresolvedRecipe<'src> {
   pub(crate) fn resolve(
-    self,
+    mut self,
     assignments: &Table<'src, Assignment<'src>>,
+    evaluator: &mut Evaluator<'src, '_>,
     functions: &Table<'src, FunctionDefinition<'src>>,
     modulepath: &Modulepath,
     resolved: Vec<Arc<Recipe<'src>>>,
@@ -64,23 +65,60 @@ impl<'src> UnresolvedRecipe<'src> {
     }
 
     for attribute in &self.attributes {
+      let mut resolve_expression = |expression, parameters| {
+        Self::resolve_expression(
+          assignments,
+          expression,
+          functions,
+          parameters,
+          &mut variable_references,
+        )
+      };
+
       match attribute {
         Attribute::Confirm(Some(expression)) | Attribute::WorkingDirectory(expression) => {
-          Self::resolve_expression(
-            assignments,
-            expression,
-            functions,
-            &self.parameters,
-            &mut variable_references,
-          )?;
+          resolve_expression(expression, &self.parameters)?;
+        }
+        Attribute::Arg {
+          pattern_property: Some((_, expression)),
+          ..
+        } => {
+          resolve_expression(expression, &[])?;
         }
         Attribute::Env(key, value) => {
-          Self::resolve_expression(assignments, key, functions, &[], &mut variable_references)?;
-          Self::resolve_expression(assignments, value, functions, &[], &mut variable_references)?;
+          resolve_expression(key, &[])?;
+          resolve_expression(value, &[])?;
         }
         _ => {}
       }
     }
+
+    let attributes = self
+      .attributes
+      .into_items()
+      .map(|(mut attribute, name)| {
+        if let Attribute::Arg {
+          name: arg,
+          pattern,
+          pattern_property: Some((key, expression)),
+          ..
+        } = &mut attribute
+        {
+          let value =
+            evaluator.evaluate_string_const(expression, StringContext::ArgPattern(*key))?;
+          let compiled = Pattern::new(&value, *key)?;
+          if let Some(parameter) = self
+            .parameters
+            .iter_mut()
+            .find(|parameter| parameter.name.lexeme() == arg.cooked)
+          {
+            parameter.pattern = Some(compiled.clone());
+          }
+          *pattern = Some(compiled);
+        }
+        Ok((attribute, name))
+      })
+      .collect::<CompileResult<AttributeSet>>()?;
 
     for line in &self.body {
       if line.is_comment() && settings.ignore_comments {
@@ -132,7 +170,7 @@ impl<'src> UnresolvedRecipe<'src> {
     recipe_path.components.push(self.name.lexeme().into());
 
     Ok(Recipe {
-      attributes: self.attributes,
+      attributes,
       body: self.body,
       dependencies,
       doc: self.doc,

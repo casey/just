@@ -11,7 +11,7 @@ pub(crate) struct Parameter<'src> {
   pub(crate) name: Name<'src>,
   #[serde(skip)]
   pub(crate) number: Number,
-  pub(crate) pattern: Option<Pattern<'src>>,
+  pub(crate) pattern: Option<Pattern>,
   pub(crate) short: Option<char>,
   pub(crate) value: Option<Expression<'src>>,
 }

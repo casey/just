@@ -32,7 +32,7 @@ fn pattern_mismatch() {
 }
 
 #[test]
-fn patterns_are_regulare_expressions() {
+fn patterns_are_regular_expressions() {
   Test::new()
     .justfile(
       r"
@@ -79,14 +79,120 @@ fn pattern_invalid_regex_error() {
     .stderr(
       "
         error: failed to parse argument pattern
-         ——▶ justfile:1:21
+         ——▶ justfile:1:13
           │
         1 │ [arg('bar', pattern='{')]
-          │                     ^^^
+          │             ^^^^^^^
         caused by: regex parse error:
             {
             ^
         error: repetition operator missing expression
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn pattern_may_be_expression() {
+  Test::new()
+    .justfile(
+      "
+        prefix := 'B'
+        [arg('bar', pattern=prefix + 'AR')]
+        foo bar:
+      ",
+    )
+    .args(["foo", "bar"])
+    .stderr(
+      "
+        error: argument `bar` passed to recipe `foo` parameter `bar` does not match pattern 'BAR'
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn pattern_cannot_reference_parameter() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', pattern=bar)]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: variable `bar` not defined
+         ——▶ justfile:1:21
+          │
+        1 │ [arg('bar', pattern=bar)]
+          │                     ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn pattern_cannot_reference_undefined_variable() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', pattern=undefined)]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: variable `undefined` not defined
+         ——▶ justfile:1:21
+          │
+        1 │ [arg('bar', pattern=undefined)]
+          │                     ^^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn pattern_cannot_be_list() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        [arg('bar', pattern=['a', 'b'])]
+        foo bar:
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      r#"
+        error: list value ["a", "b"] used as `arg` attribute pattern
+         ——▶ justfile:2:13
+          │
+        2 │ [arg('bar', pattern=['a', 'b'])]
+          │             ^^^^^^^
+      "#,
+    )
+    .failure();
+}
+
+#[test]
+fn pattern_cannot_reference_non_const_variable() {
+  Test::new()
+    .justfile(
+      "
+        bar := `echo BAR`
+        [arg('bar', pattern=bar)]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: cannot access non-const variable `bar` in const context
+         ——▶ justfile:2:21
+          │
+        2 │ [arg('bar', pattern=bar)]
+          │                     ^^^
       ",
     )
     .failure();

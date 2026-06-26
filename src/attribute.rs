@@ -17,9 +17,11 @@ pub(crate) enum Attribute<'src> {
     help: Option<StringLiteral<'src>>,
     long: Option<StringLiteral<'src>>,
     #[serde(skip)]
-    long_key: Option<Token<'src>>,
+    long_key: Option<Name<'src>>,
     name: StringLiteral<'src>,
-    pattern: Option<Pattern<'src>>,
+    pattern: Option<Pattern>,
+    #[serde(skip)]
+    pattern_property: Option<(Name<'src>, Expression<'src>)>,
     short: Option<StringLiteral<'src>>,
     value: Option<Expression<'src>>,
   },
@@ -187,11 +189,11 @@ impl<'src> Attribute<'src> {
               Self::check_option_name(&arg, &literal)?;
               Ok((Some(literal), None))
             } else {
-              Ok((Some(arg.clone()), Some(*key)))
+              Ok((Some(arg.clone()), Some(key)))
             }
           })
           .transpose()?
-          .unwrap_or((None, None));
+          .unwrap_or_default();
 
         let short = Self::remove_required(&mut keyword_arguments, "short")?
           .map(|(key, expression)| {
@@ -211,11 +213,7 @@ impl<'src> Attribute<'src> {
           })
           .transpose()?;
 
-        let pattern = Self::remove_required(&mut keyword_arguments, "pattern")?
-          .map(|(key, expression)| {
-            Pattern::new(&Self::require_string_literal(name, key, expression)?)
-          })
-          .transpose()?;
+        let pattern_property = Self::remove_required(&mut keyword_arguments, "pattern")?;
 
         let value = Self::remove_required(&mut keyword_arguments, "value")?
           .map(|(key, expression)| {
@@ -260,7 +258,8 @@ impl<'src> Attribute<'src> {
           long,
           long_key,
           name: arg,
-          pattern,
+          pattern: None,
+          pattern_property,
           short,
           value,
         }
@@ -384,7 +383,8 @@ impl Display for Attribute<'_> {
         long,
         long_key,
         name,
-        pattern,
+        pattern: _,
+        pattern_property,
         short,
         value,
       } => {
@@ -400,8 +400,8 @@ impl Display for Attribute<'_> {
           write!(f, ", short={short}")?;
         }
 
-        if let Some(pattern) = pattern {
-          write!(f, ", pattern={}", pattern.token.lexeme())?;
+        if let Some((_key, pattern)) = pattern_property {
+          write!(f, ", pattern={pattern}")?;
         }
 
         if let Some(value) = value {

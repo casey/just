@@ -13,7 +13,7 @@ pub(crate) enum Error<'src> {
   ArgumentPatternMismatch {
     argument: String,
     parameter: &'src str,
-    pattern: Box<Pattern<'src>>,
+    pattern: Box<Pattern>,
     recipe: &'src str,
   },
   Assert {

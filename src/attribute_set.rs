@@ -1,4 +1,4 @@
-use {super::*, std::collections};
+use super::*;
 
 #[derive(Default, Debug, Clone)]
 pub(crate) struct AttributeSet<'src>(BTreeMap<Attribute<'src>, Name<'src>>);
@@ -20,8 +20,12 @@ impl<'src> AttributeSet<'src> {
     self.0[attribute]
   }
 
-  pub(crate) fn iter(&self) -> collections::btree_map::Keys<'_, Attribute<'src>, Name<'src>> {
+  pub(crate) fn iter(&self) -> btree_map::Keys<'_, Attribute<'src>, Name<'src>> {
     self.0.keys()
+  }
+
+  pub(crate) fn into_items(self) -> btree_map::IntoIter<Attribute<'src>, Name<'src>> {
+    self.0.into_iter()
   }
 
   pub(crate) fn ensure_valid_attributes(
@@ -67,7 +71,7 @@ impl<'src> FromIterator<(Attribute<'src>, Name<'src>)> for AttributeSet<'src> {
 impl<'src, 'a> IntoIterator for &'a AttributeSet<'src> {
   type Item = &'a Attribute<'src>;
 
-  type IntoIter = collections::btree_map::Keys<'a, Attribute<'src>, Name<'src>>;
+  type IntoIter = btree_map::Keys<'a, Attribute<'src>, Name<'src>>;
 
   fn into_iter(self) -> Self::IntoIter {
     self.0.keys()
@@ -77,7 +81,7 @@ impl<'src, 'a> IntoIterator for &'a AttributeSet<'src> {
 impl<'src> IntoIterator for AttributeSet<'src> {
   type Item = Attribute<'src>;
 
-  type IntoIter = collections::btree_map::IntoKeys<Attribute<'src>, Name<'src>>;
+  type IntoIter = btree_map::IntoKeys<Attribute<'src>, Name<'src>>;
 
   fn into_iter(self) -> Self::IntoIter {
     self.0.into_keys()
