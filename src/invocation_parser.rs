@@ -131,52 +131,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
           Switch::Short(name.chars().next().unwrap())
         };
 
-        let index = match &switch {
-          Switch::Long(name) => long.get(name.as_str()),
-          Switch::Short(name) => short.get(name),
-        };
-
-        let Some(&index) = index else {
-          return Err(Error::UnknownOption {
-            recipe: recipe.name(),
-            option: switch,
-          });
-        };
-
-        let parameter = &recipe.parameters[index];
-        let value = if parameter.flag || parameter.value.is_some() {
-          if value.is_some() {
-            return Err(Error::FlagWithValue {
-              recipe: recipe.name(),
-              option: switch,
-            });
-          }
-          i += 1;
-          "true"
-        } else if let Some(value) = value {
-          i += 1;
-          value
-        } else {
-          let Some(&value) = rest.get(i + 1) else {
-            return Err(Error::OptionMissingValue {
-              recipe: recipe.name(),
-              option: switch,
-            });
-          };
-          i += 2;
-          value
-        };
-
-        let group = &mut arguments[index];
-
-        if !group.is_empty() && !parameter.kind.is_variadic() {
-          return Err(Error::DuplicateOption {
-            recipe: recipe.name(),
-            option: switch,
-          });
-        }
-
-        group.push((*value).into());
+        switch.apply(recipe, &long, &short, &mut arguments, rest, &mut i, value)?;
       } else {
         let Some(&index) = positional.get(positional_index) else {
           break;
@@ -205,14 +160,14 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
       if let Some(name) = &parameter.long {
         return Err(Error::MissingOption {
           recipe: recipe.name(),
-          option: Switch::Long(name.into()),
+          switch: Switch::Long(name.into()),
         });
       }
 
       if let Some(name) = &parameter.short {
         return Err(Error::MissingOption {
           recipe: recipe.name(),
-          option: Switch::Short(*name),
+          switch: Switch::Short(*name),
         });
       }
 
