@@ -778,7 +778,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
             recipe: recipe.name(),
           });
         }
-      } else if let Some(value) = &parameter.value {
+      } else if let Some(value) = &parameter.value
+        && !evaluator.is_dependency
+      {
         evaluator.evaluate_value(value)?
       } else {
         argument.clone()
