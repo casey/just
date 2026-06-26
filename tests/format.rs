@@ -1724,6 +1724,25 @@ fn arg_attribute_help() {
 }
 
 #[test]
+fn arg_attribute_help_expression() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', help='f' + 'oo')]
+        @foo bar:
+      ",
+    )
+    .arg("--dump")
+    .stdout(
+      "
+        [arg('bar', help='f' + 'oo')]
+        @foo bar:
+      ",
+    )
+    .success();
+}
+
+#[test]
 fn arg_attribute_flag() {
   Test::new()
     .justfile(

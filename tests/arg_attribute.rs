@@ -199,6 +199,28 @@ fn pattern_cannot_reference_non_const_variable() {
 }
 
 #[test]
+fn help_cannot_reference_non_const_variable() {
+  Test::new()
+    .justfile(
+      "
+        bar := `echo BAR`
+        [arg('bar', help=bar)]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: cannot access non-const variable `bar` in const context
+         ——▶ justfile:2:18
+          │
+        2 │ [arg('bar', help=bar)]
+          │                  ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn dump() {
   Test::new()
     .justfile(

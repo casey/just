@@ -1249,6 +1249,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       let Attribute::Arg {
         flag,
         help,
+        help_property: _,
         long,
         long_key,
         name: arg,
@@ -1289,7 +1290,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         arg.cooked.clone(),
         ArgAttribute {
           flag: flag.is_some(),
-          help: help.as_ref().map(|literal| literal.cooked.clone()),
+          help: help.clone(),
           name: arg.token,
           pattern: pattern.clone(),
           long: long.as_ref().map(|long| long.cooked.clone()),

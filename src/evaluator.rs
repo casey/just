@@ -446,7 +446,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     Ok(value.join())
   }
 
-  fn evaluate_value_const(&mut self, expression: &Expression<'src>) -> CompileResult<'src, Value> {
+  pub(crate) fn evaluate_value_const(
+    &mut self,
+    expression: &Expression<'src>,
+  ) -> CompileResult<'src, Value> {
     assert!(self.context.is_none());
     self
       .evaluate_value(expression)

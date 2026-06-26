@@ -2647,7 +2647,7 @@ change their behavior.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `[arg(ARG, help="HELP")]`<sup>1.46.0</sup> | recipe | Print help string `HELP` for `ARG` in usage messages. |
+| `[arg(ARG, help="HELP")]`<sup>1.46.0</sup> | recipe | Print help string `HELP` for `ARG` in usage messages. `HELP` may be an expression<sup>1.54.0</sup>. |
 | `[arg(ARG, long="LONG")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as `--LONG` option. |
 | `[arg(ARG, pattern="PATTERN")]`<sup>1.45.0</sup> | recipe | Require values of argument `ARG` to match regular expression `PATTERN`. |
 | `[arg(ARG, short="S")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as short `-S` option. |
@@ -3335,6 +3335,9 @@ Help strings may be added to arguments using the `[arg(ARG, help=HELP)]` attribu
 [arg("bar", help="hello")]
 foo bar:
 ```
+
+`HELP` may be any expression. If it evaluates to a list, the elements are joined
+with spaces, and an empty list produces no help string.
 
 ```console
 $ just --usage foo

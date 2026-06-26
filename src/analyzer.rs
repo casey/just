@@ -216,16 +216,22 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             .recipes
             .iter()
             .flat_map(|recipe| &recipe.attributes)
-            .filter_map(|attribute| {
-              if let Attribute::Arg {
-                pattern_property: Some((_, expression)),
+            .flat_map(|attribute| {
+              let (help, pattern) = if let Attribute::Arg {
+                help_property,
+                pattern_property,
                 ..
               } = attribute
               {
-                Some(expression)
+                (help_property.as_ref(), pattern_property.as_ref())
               } else {
-                None
-              }
+                (None, None)
+              };
+
+              help
+                .into_iter()
+                .chain(pattern)
+                .map(|(_, expression)| expression)
             }),
         )
         .flat_map(|expression| expression.references())

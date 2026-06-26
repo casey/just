@@ -80,10 +80,13 @@ impl<'src> UnresolvedRecipe<'src> {
           resolve_expression(expression, &self.parameters)?;
         }
         Attribute::Arg {
-          pattern_property: Some((_, expression)),
+          help_property,
+          pattern_property,
           ..
         } => {
-          resolve_expression(expression, &[])?;
+          for (_, expression) in help_property.iter().chain(pattern_property) {
+            resolve_expression(expression, &[])?;
+          }
         }
         Attribute::Env(key, value) => {
           resolve_expression(key, &[])?;
@@ -97,6 +100,29 @@ impl<'src> UnresolvedRecipe<'src> {
       .attributes
       .into_items()
       .map(|(mut attribute, name)| {
+        if let Attribute::Arg {
+          help,
+          help_property: Some((_key, expression)),
+          name: arg,
+          ..
+        } = &mut attribute
+        {
+          let value = evaluator.evaluate_value_const(expression)?;
+          let value = if value.is_empty() {
+            None
+          } else {
+            Some(value.join())
+          };
+          if let Some(parameter) = self
+            .parameters
+            .iter_mut()
+            .find(|parameter| parameter.name.lexeme() == arg.cooked)
+          {
+            parameter.help.clone_from(&value);
+          }
+          *help = value;
+        }
+
         if let Attribute::Arg {
           name: arg,
           pattern,
