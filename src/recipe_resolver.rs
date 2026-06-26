@@ -81,11 +81,11 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     if disabled_by.is_empty() {
       let resolved = Arc::new(recipe.resolve(
         self.assignments,
+        self.evaluator,
         self.functions,
         self.modulepath,
         dependencies,
         self.settings,
-        self.evaluator,
       )?);
       self.resolved_recipes.insert(Arc::clone(&resolved));
       Ok(Resolution::Resolved(resolved))

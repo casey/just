@@ -6,11 +6,11 @@ impl<'src> UnresolvedRecipe<'src> {
   pub(crate) fn resolve(
     self,
     assignments: &Table<'src, Assignment<'src>>,
+    evaluator: &mut Evaluator<'src, '_>,
     functions: &Table<'src, FunctionDefinition<'src>>,
     modulepath: &Modulepath,
     resolved: Vec<Arc<Recipe<'src>>>,
     settings: &Settings,
-    const_evaluator: &mut Evaluator<'src, '_>,
   ) -> CompileResult<'src, Recipe<'src>> {
     assert_eq!(
       self.dependencies.len(),
@@ -109,7 +109,7 @@ impl<'src> UnresolvedRecipe<'src> {
         } = &mut attribute
         {
           let value =
-            const_evaluator.evaluate_string_const(expression, StringContext::ArgPattern(name))?;
+            evaluator.evaluate_string_const(expression, StringContext::ArgPattern(name))?;
           let compiled = Pattern::new(&value, *key)?;
           if let Some(parameter) = parameters
             .iter_mut()
