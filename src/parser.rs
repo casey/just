@@ -1252,6 +1252,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         help_property: _,
         long,
         long_key,
+        multiple,
         name: arg,
         pattern: _,
         pattern_property: _,
@@ -1265,6 +1266,10 @@ impl<'run, 'src> Parser<'run, 'src> {
 
       if let Some(token) = flag {
         self.list_feature(ListFeature::Flag, *token);
+      }
+
+      if let Some(token) = multiple {
+        self.list_feature(ListFeature::Multiple, *token);
       }
 
       if let Some(option) = long
@@ -1296,6 +1301,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           flag: flag.is_some(),
           name: arg.token,
           long: long.as_ref().map(|long| long.cooked.clone()),
+          multiple: multiple.is_some(),
           short: short.as_ref().and_then(|short| short.cooked.chars().next()),
           value: value.clone(),
         },
@@ -1434,6 +1440,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let mut flag = false;
     let help = None;
     let mut long = None;
+    let mut multiple = false;
     let pattern = None;
     let mut short = None;
     let mut value = None;
@@ -1441,6 +1448,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     if let Some(arg) = arg_attributes.remove(name.lexeme()) {
       flag = arg.flag;
       long = arg.long;
+      multiple = arg.multiple;
       short = arg.short;
       value = arg.value;
     }
@@ -1458,6 +1466,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       help,
       kind,
       long,
+      multiple,
       name,
       number: self.numerator.next(),
       pattern,

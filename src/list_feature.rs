@@ -10,6 +10,7 @@ pub(crate) enum ListFeature {
   ListConcatenationOperator,
   ListLiteral,
   LogicalOperator,
+  Multiple,
   NegationOperator,
   NonComparisonCondition,
   ShowFunction,
@@ -31,6 +32,7 @@ impl ListFeature {
       | Self::ListConcatenationOperator
       | Self::ListLiteral
       | Self::LogicalOperator
+      | Self::Multiple
       | Self::NegationOperator
       | Self::NonComparisonCondition => false,
     }
@@ -50,6 +52,7 @@ impl Display for ListFeature {
       }
       Self::ListLiteral => write!(f, "list literals require `set lists`"),
       Self::LogicalOperator => write!(f, "logical operators require `set lists`"),
+      Self::Multiple => write!(f, "`[arg(multiple)]` requires `set lists`"),
       Self::NegationOperator => write!(f, "negation operator requires `set lists`"),
       Self::NonComparisonCondition => write!(
         f,

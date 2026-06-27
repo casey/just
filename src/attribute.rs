@@ -20,6 +20,8 @@ pub(crate) enum Attribute<'src> {
     long: Option<StringLiteral<'src>>,
     #[serde(skip)]
     long_key: Option<Name<'src>>,
+    #[serde(skip)]
+    multiple: Option<Token<'src>>,
     name: StringLiteral<'src>,
     pattern: Option<Pattern>,
     #[serde(skip)]
@@ -258,6 +260,23 @@ impl<'src> Attribute<'src> {
           })
           .transpose()?;
 
+        let multiple = keyword_arguments
+          .remove("multiple")
+          .map(|(key, expression)| {
+            if expression.is_some() {
+              return Err(key.error(CompileErrorKind::MultipleAttributeTakesNoValue {
+                parameter: arg.cooked.clone(),
+              }));
+            }
+            if long.is_none() && short.is_none() {
+              return Err(key.error(CompileErrorKind::ArgAttributeRequiresOption {
+                keyword: "multiple",
+              }));
+            }
+            Ok(*key)
+          })
+          .transpose()?;
+
         let help_property = Self::remove_required(&mut keyword_arguments, "help")?;
 
         Self::Arg {
@@ -266,6 +285,7 @@ impl<'src> Attribute<'src> {
           help_property,
           long,
           long_key,
+          multiple,
           name: arg,
           pattern: None,
           pattern_property,
@@ -393,6 +413,7 @@ impl Display for Attribute<'_> {
         help_property,
         long,
         long_key,
+        multiple,
         name,
         pattern: _,
         pattern_property,
@@ -424,6 +445,10 @@ impl Display for Attribute<'_> {
 
         if flag.is_some() {
           write!(f, ", flag")?;
+        }
+
+        if multiple.is_some() {
+          write!(f, ", multiple")?;
         }
 
         if let Some((_key, help)) = help_property {

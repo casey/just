@@ -8,6 +8,8 @@ pub(crate) struct Parameter<'src> {
   pub(crate) help: Option<String>,
   pub(crate) kind: ParameterKind,
   pub(crate) long: Option<String>,
+  #[serde(skip)]
+  pub(crate) multiple: bool,
   pub(crate) name: Name<'src>,
   #[serde(skip)]
   pub(crate) number: Number,

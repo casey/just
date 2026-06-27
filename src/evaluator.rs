@@ -790,7 +790,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         parameter.check_pattern_match(recipe, element)?;
       }
 
-      if parameter.kind.is_variadic() {
+      if parameter.kind.is_variadic() || parameter.multiple {
         positional.extend(value.elements().iter().cloned());
       } else {
         positional.push(value.join());

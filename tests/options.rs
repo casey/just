@@ -1098,3 +1098,102 @@ fn flags_passed_with_a_value_are_an_error() {
     .stderr("error: recipe `foo` flag `--bar` does not take value\n")
     .failure();
 }
+
+#[test]
+fn multiple_option_collects_a_list() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, multiple)]
+        @foo bar:
+          echo bar='{{ show(bar) }}'
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "--bar", "a", "--bar", "b"])
+    .stdout("bar=[\"a\", \"b\"]\n")
+    .success();
+}
+
+#[test]
+fn multiple_flag_counts_occurrences() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('verbose', short, flag, multiple)]
+        @foo verbose:
+          echo verbose='{{ show(verbose) }}'
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "-vvv"])
+    .stdout("verbose=[\"true\", \"true\", \"true\"]\n")
+    .success();
+}
+
+#[test]
+fn multiple_requires_set_lists() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long, multiple)]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: `[arg(multiple)]` requires `set lists`
+         ——▶ justfile:1:19
+          │
+        1 │ [arg('bar', long, multiple)]
+          │                   ^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn multiple_requires_long_or_short() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', multiple)]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: argument attribute `multiple` only valid with `long` or `short`
+         ——▶ justfile:1:13
+          │
+        1 │ [arg('bar', multiple)]
+          │             ^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn multiple_takes_no_value() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long, multiple='baz')]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: `multiple` attribute for argument `bar` takes no value
+         ——▶ justfile:1:19
+          │
+        1 │ [arg('bar', long, multiple='baz')]
+          │                   ^^^^^^^^
+      ",
+    )
+    .failure();
+}
