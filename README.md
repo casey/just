@@ -1702,6 +1702,61 @@ bar
 Expressions
 -----------
 
+### Variables and Assignments
+
+Module-level variables may be created by assigning them a value with `:=`:
+
+```just
+foo := "hello"
+bar := "world"
+
+baz:
+  echo {{ foo + " " + bar }}
+```
+
+All variables in a module may be printed:
+
+```console
+$ just --evaluate
+bar := "world"
+foo := "hello"
+```
+
+Or the value of a single variable:
+
+```console
+$ just --evaluate foo
+hello
+```
+
+All variables in a submodule or a single variable in a submodule may be printed
+with a path to the submodule or variable<sup>1.49.0</sup>:
+
+```console
+$ just --evaluate bob::bar
+x := "world"
+y := "hello"
+$ just --evaluate bob::bar::y
+hello
+```
+
+The format of exported variables may be controlled with
+`--evaluate-format`<sup>1.49.0</sup>:
+
+```console
+$ just --evaluate --evaluate-format shell
+bar="world"
+foo="hello"
+```
+
+The default format is `--evaluate-format just`:
+
+```console
+$ just --evaluate --evaluate-format just
+bar := "world"
+foo := "hello"
+```
+
 Execution
 ---------
 
@@ -2486,61 +2541,6 @@ set shell := ['nu', '-m', 'light', '-c']
 
 *[Nushell](https://github.com/nushell/nushell) was written in Rust, and **has
 cross-platform support for Windows / macOS and Linux**.*
-
-### Variables and Assignments
-
-Module-level variables may be created by assigning them a value with `:=`:
-
-```just
-foo := "hello"
-bar := "world"
-
-baz:
-  echo {{ foo + " " + bar }}
-```
-
-All variables in a module may be printed:
-
-```console
-$ just --evaluate
-bar := "world"
-foo := "hello"
-```
-
-Or the value of a single variable:
-
-```console
-$ just --evaluate foo
-hello
-```
-
-All variables in a submodule or a single variable in a submodule may be printed
-with a path to the submodule or variable<sup>1.49.0</sup>:
-
-```console
-$ just --evaluate bob::bar
-x := "world"
-y := "hello"
-$ just --evaluate bob::bar::y
-hello
-```
-
-The format of exported variables may be controlled with
-`--evaluate-format`<sup>1.49.0</sup>:
-
-```console
-$ just --evaluate --evaluate-format shell
-bar="world"
-foo="hello"
-```
-
-The default format is `--evaluate-format just`:
-
-```console
-$ just --evaluate --evaluate-format just
-bar := "world"
-foo := "hello"
-```
 
 ### Expressions and Substitutions
 
