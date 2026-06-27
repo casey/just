@@ -1461,6 +1461,48 @@ parallel:
   echo task 4 start; sleep 3; echo task 4 done
 ```
 
+### Documentation Comments
+
+Comments immediately preceding a recipe will appear in `just --list`:
+
+```just
+# build stuff
+build:
+  ./bin/build
+
+# test stuff
+test:
+  ./bin/test
+```
+
+```console
+$ just --list
+Available recipes:
+    build # build stuff
+    test # test stuff
+```
+
+The `[doc]` attribute can be used to set or suppress a recipe's doc comment:
+
+```just
+# This comment won't appear
+[doc('Build stuff')]
+build:
+  ./bin/build
+
+# This one won't either
+[doc]
+test:
+  ./bin/test
+```
+
+```console
+$ just --list
+Available recipes:
+    build # Build stuff
+    test
+```
+
 Expressions
 -----------
 
@@ -2306,48 +2348,6 @@ set shell := ['nu', '-m', 'light', '-c']
 
 *[Nushell](https://github.com/nushell/nushell) was written in Rust, and **has
 cross-platform support for Windows / macOS and Linux**.*
-
-### Documentation Comments
-
-Comments immediately preceding a recipe will appear in `just --list`:
-
-```just
-# build stuff
-build:
-  ./bin/build
-
-# test stuff
-test:
-  ./bin/test
-```
-
-```console
-$ just --list
-Available recipes:
-    build # build stuff
-    test # test stuff
-```
-
-The `[doc]` attribute can be used to set or suppress a recipe's doc comment:
-
-```just
-# This comment won't appear
-[doc('Build stuff')]
-build:
-  ./bin/build
-
-# This one won't either
-[doc]
-test:
-  ./bin/test
-```
-
-```console
-$ just --list
-Available recipes:
-    build # Build stuff
-    test
-```
 
 ### Variables and Assignments
 
