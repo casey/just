@@ -1,12 +1,6 @@
 use super::*;
 
 #[derive(PartialEq, Debug, Clone, Serialize)]
-pub(crate) struct Bound {
-  pub(crate) max: Option<usize>,
-  pub(crate) min: usize,
-}
-
-#[derive(PartialEq, Debug, Clone, Serialize)]
 pub(crate) struct Parameter<'src> {
   #[serde(skip)]
   pub(crate) bound: Option<Bound>,

@@ -16,6 +16,7 @@ pub(crate) use {
     attribute::{Attribute, AttributeKind},
     attribute_set::AttributeSet,
     binding::Binding,
+    bound::Bound,
     cache::Cache,
     cache_entry::CacheEntry,
     cache_key::CacheKey,
@@ -78,7 +79,7 @@ pub(crate) use {
     numerator::Numerator,
     ordinal::Ordinal,
     output_error::OutputError,
-    parameter::{Bound, Parameter},
+    parameter::Parameter,
     parameter_kind::ParameterKind,
     parser::Parser,
     pattern::Pattern,
@@ -227,6 +228,7 @@ mod ast;
 mod attribute;
 mod attribute_set;
 mod binding;
+mod bound;
 mod cache;
 mod cache_entry;
 mod cache_key;

@@ -772,7 +772,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           evaluator.evaluate_value(default)?
         } else if parameter.kind == ParameterKind::Star
           || parameter.flag
-          || parameter.bound.as_ref().is_some_and(|bound| bound.min == 0)
+          || parameter.bound.is_some_and(|bound| bound.min == 0)
         {
           Value::new()
         } else {
