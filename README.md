@@ -1570,6 +1570,43 @@ Recipe groups:
 
 Use `just --groups --unsorted` to print groups in their justfile order.
 
+### Aliases
+
+Aliases allow recipes to be invoked on the command line with alternative names:
+
+```just
+alias b := build
+
+build:
+  echo 'Building!'
+```
+
+```console
+$ just b
+echo 'Building!'
+Building!
+```
+
+The target of an alias may be a recipe in a submodule:
+
+```justfile
+mod foo
+
+alias baz := foo::bar
+```
+
+Or a module<sup>master</sup>:
+
+```justfile
+mod frontend
+
+alias f := frontend
+```
+
+```console
+$ just f build
+```
+
 Expressions
 -----------
 
@@ -1810,43 +1847,6 @@ The argument to the `working-directory` setting or `working-directory`
 attribute may be an expression<sup>1.51.0</sup> whose value is absolute or
 relative. If it is relative it is interpreted relative to the default working
 directory.
-
-### Aliases
-
-Aliases allow recipes to be invoked on the command line with alternative names:
-
-```just
-alias b := build
-
-build:
-  echo 'Building!'
-```
-
-```console
-$ just b
-echo 'Building!'
-Building!
-```
-
-The target of an alias may be a recipe in a submodule:
-
-```justfile
-mod foo
-
-alias baz := foo::bar
-```
-
-Or a module<sup>master</sup>:
-
-```justfile
-mod frontend
-
-alias f := frontend
-```
-
-```console
-$ just f build
-```
 
 ### Settings
 
