@@ -66,6 +66,9 @@ impl Display for CompileError<'_> {
           "attribute `{attribute}` arguments must be string literals"
         )
       }
+      AttributeKeyTakesNoValue { key } => {
+        write!(f, "attribute key `{key}` takes no value")
+      }
       AttributePositionalFollowsKeyword => {
         write!(
           f,
@@ -310,9 +313,6 @@ impl Display for CompileError<'_> {
            consist of tabs or spaces, but not both",
         ShowWhitespace(whitespace)
       ),
-      AttributeKeyTakesNoValue { key } => {
-        write!(f, "attribute key `{key}` takes no value")
-      }
       NoCdAndWorkingDirectoryAttribute { recipe } => write!(
         f,
         "recipe `{recipe}` has both `[no-cd]` and `[working-directory]` attributes"

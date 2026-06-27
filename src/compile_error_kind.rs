@@ -20,10 +20,10 @@ pub(crate) enum CompileErrorKind<'src> {
   AttributeKeyMissingValue {
     key: Name<'src>,
   },
-  AttributePositionalFollowsKeyword,
   AttributeKeyTakesNoValue {
     key: &'src str,
   },
+  AttributePositionalFollowsKeyword,
   BacktickShebang,
   CircularRecipeDependency {
     recipe: &'src str,
