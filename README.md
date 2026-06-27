@@ -1678,6 +1678,27 @@ run:
   main.exe
 ```
 
+### Allow Duplicate Recipes
+
+If `allow-duplicate-recipes` is set to `true`, defining multiple recipes with
+the same name is not an error and the last definition is used. Defaults to
+`false`.
+
+```just
+set allow-duplicate-recipes
+
+@foo:
+  echo foo
+
+@foo:
+  echo bar
+```
+
+```console
+$ just foo
+bar
+```
+
 Expressions
 -----------
 
@@ -1985,27 +2006,6 @@ expressions<sup>1.46.0</sup>.
 However, because settings affect the behavior of backticks and many functions,
 those expressions may not contain backticks or function calls, directly or
 transitively via reference.
-
-#### Allow Duplicate Recipes
-
-If `allow-duplicate-recipes` is set to `true`, defining multiple recipes with
-the same name is not an error and the last definition is used. Defaults to
-`false`.
-
-```just
-set allow-duplicate-recipes
-
-@foo:
-  echo foo
-
-@foo:
-  echo bar
-```
-
-```console
-$ just foo
-bar
-```
 
 #### Allow Duplicate Variables
 
