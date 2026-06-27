@@ -1148,7 +1148,9 @@ fn repeatable_option_above_maximum() {
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "--bar", "a", "--bar", "b", "--bar", "c"])
-    .stderr("error: recipe `foo` option `--bar` may be passed at most 2 times but was passed 3\n")
+    .stderr(
+      "error: recipe `foo` option `--bar` may be passed at most twice but was passed thrice\n",
+    )
     .failure();
 }
 
@@ -1165,7 +1167,9 @@ fn repeatable_option_below_minimum() {
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "--bar", "a"])
-    .stderr("error: recipe `foo` option `--bar` must be passed at least 2 times but was passed 1\n")
+    .stderr(
+      "error: recipe `foo` option `--bar` must be passed at least twice but was passed once\n",
+    )
     .failure();
 }
 
@@ -1359,7 +1363,7 @@ fn min_and_max_must_be_integers() {
     .env("JUST_UNSTABLE", "1")
     .stderr(
       "
-        error: argument attribute `max` value `xyz` is not a non-negative integer
+        error: argument attribute `max` value `xyz` is not a valid integer
          ——▶ justfile:3:19
           │
         3 │ [arg('bar', long, max='xyz')]
@@ -1383,7 +1387,7 @@ fn min_and_max_reject_leading_zeros() {
     .env("JUST_UNSTABLE", "1")
     .stderr(
       "
-        error: argument attribute `max` value `01` is not a non-negative integer
+        error: argument attribute `max` value `01` is not a valid integer
          ——▶ justfile:3:19
           │
         3 │ [arg('bar', long, max='01')]

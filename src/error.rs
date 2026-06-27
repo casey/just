@@ -873,7 +873,7 @@ impl ColorDisplay for Error<'_> {
       } => {
         write!(
           f,
-          "recipe `{recipe}` option `{switch}` may be passed at most {} times but was passed {}",
+          "recipe `{recipe}` option `{switch}` may be passed at most {} but was passed {}",
           Times(*max),
           Times(*found),
         )?;
@@ -886,7 +886,7 @@ impl ColorDisplay for Error<'_> {
       } => {
         write!(
           f,
-          "recipe `{recipe}` option `{switch}` must be passed at least {} times but was passed {}",
+          "recipe `{recipe}` option `{switch}` must be passed at least {} but was passed {}",
           Times(*min),
           Times(*found),
         )?;
