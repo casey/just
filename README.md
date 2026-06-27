@@ -58,7 +58,11 @@ Yay, all your tests passed!
 - Errors are specific and informative, and syntax errors are reported along
   with their source context.
 
-- Recipes can accept [command line arguments](#recipe-parameters).
+- Recipes can accept [command line arguments](#recipe-parameters), including
+  [flags and options](#recipe-flags-and-options.
+
+- `just` has a rich [expression language](#expressions) and many
+  built-in-functions.
 
 - Wherever possible, errors are resolved statically. Unknown recipes and
   circular dependencies are reported before anything runs.
@@ -76,6 +80,9 @@ Yay, all your tests passed!
 
 - `just` can be invoked from any subdirectory, not just the directory that
   contains the `justfile`.
+
+- `justfiles` can be organized into multiple files using [modules](#modules)
+  and [imports](#imports).
 
 - And [much more](https://just.systems/man/en/)!
 
