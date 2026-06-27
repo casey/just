@@ -782,10 +782,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         && !evaluator.is_dependency
       {
         let value = evaluator.evaluate_value(value)?;
-        argument
-          .elements()
-          .iter()
-          .flat_map(|_| value.elements())
+        iter::repeat_n(value.elements(), argument.elements().len())
+          .flatten()
           .cloned()
           .collect()
       } else {
