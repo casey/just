@@ -231,7 +231,7 @@ impl<'src> Attribute<'src> {
           .map(|(key, expression)| {
             if long.is_none() && short.is_none() {
               return Err(
-                key.error(CompileErrorKind::ArgAttributeRequiresOption { keyword: "value" }),
+                key.error(CompileErrorKind::ArgAttributeRequiresOption { key: key.lexeme() }),
               );
             }
             Ok(expression)
@@ -248,7 +248,7 @@ impl<'src> Attribute<'src> {
             }
             if long.is_none() && short.is_none() {
               return Err(
-                key.error(CompileErrorKind::ArgAttributeRequiresOption { keyword: "flag" }),
+                key.error(CompileErrorKind::ArgAttributeRequiresOption { key: key.lexeme() }),
               );
             }
             if value.is_some() {
@@ -269,9 +269,9 @@ impl<'src> Attribute<'src> {
               }));
             }
             if long.is_none() && short.is_none() {
-              return Err(key.error(CompileErrorKind::ArgAttributeRequiresOption {
-                keyword: "multiple",
-              }));
+              return Err(
+                key.error(CompileErrorKind::ArgAttributeRequiresOption { key: key.lexeme() }),
+              );
             }
             Ok(*key)
           })

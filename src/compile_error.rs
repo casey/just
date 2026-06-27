@@ -31,10 +31,10 @@ impl Display for CompileError<'_> {
     use CompileErrorKind::*;
 
     match &*self.kind {
-      ArgAttributeRequiresOption { keyword } => {
+      ArgAttributeRequiresOption { key } => {
         write!(
           f,
-          "argument attribute `{keyword}` only valid with `long` or `short`"
+          "argument attribute `{key}` only valid with `long` or `short`"
         )
       }
       ArgumentPatternRegex { .. } => {

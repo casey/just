@@ -3,7 +3,7 @@ use super::*;
 #[derive(Debug, PartialEq)]
 pub(crate) enum CompileErrorKind<'src> {
   ArgAttributeRequiresOption {
-    keyword: &'static str,
+    key: &'src str,
   },
   ArgumentPatternRegex {
     source: regex::Error,
