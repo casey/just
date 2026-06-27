@@ -194,7 +194,7 @@ impl<'src> UnresolvedRecipe<'src> {
             0
           };
 
-          let max = if let Some((_key, Some(expression))) = max {
+          let max = if let Some((key, Some(expression))) = max {
             let value = evaluator.evaluate_value_const(expression)?.join();
             Some(parse_count(&value).ok_or_else(|| {
               key.error(CompileErrorKind::ArgAttributeExpectedInteger {

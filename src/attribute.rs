@@ -287,6 +287,17 @@ impl<'src> Attribute<'src> {
           })
           .transpose()?;
 
+        if min.is_some() != max.is_some() {
+          let key = min
+            .as_ref()
+            .map(|(key, _)| *key)
+            .or_else(|| max.as_ref().map(|(key, _)| *key))
+            .unwrap();
+          return Err(key.error(CompileErrorKind::ArgAttributeMinMaxBothRequired {
+            parameter: arg.cooked.clone(),
+          }));
+        }
+
         Self::Arg {
           flag,
           help: None,

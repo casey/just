@@ -46,6 +46,12 @@ impl Display for CompileError<'_> {
       ArgAttributeMinGreaterThanMax { parameter } => {
         write!(f, "argument `{parameter}` has `min` greater than `max`")
       }
+      ArgAttributeMinMaxBothRequired { parameter } => {
+        write!(
+          f,
+          "argument `{parameter}` `min` and `max` must be used together"
+        )
+      }
       ArgAttributeRequiresOption { key } => {
         write!(
           f,

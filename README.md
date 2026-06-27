@@ -3462,15 +3462,15 @@ once, whereas `*` options may be omitted.
 
 The `[arg(ARG, min=MIN, max=MAX)]`<sup>master</sup> attributes make a
 non-variadic option repeatable, collecting one value per occurrence into a list.
-`MIN` is the minimum number of times the option must be passed, defaulting to
-zero, and `MAX` is the maximum, defaulting to no maximum. `max` may be passed
-without a value to allow any number of occurrences:
+`MIN` is the minimum number of times the option must be passed and `MAX` is the
+maximum. If either is given, both must be given. `max` may be passed without a
+value to allow any number of occurrences:
 
 ```just
 set unstable
 set lists
 
-[arg('file', long, max)]
+[arg('file', long, min='0', max)]
 backup file:
   scp {{file}} me@server.com:
 ```

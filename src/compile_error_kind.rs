@@ -12,6 +12,9 @@ pub(crate) enum CompileErrorKind<'src> {
   ArgAttributeMinGreaterThanMax {
     parameter: String,
   },
+  ArgAttributeMinMaxBothRequired {
+    parameter: String,
+  },
   ArgAttributeRequiresOption {
     key: &'src str,
   },

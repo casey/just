@@ -1106,7 +1106,7 @@ fn option_may_be_repeated_with_max() {
       "
         set lists
 
-        [arg('bar', long, max)]
+        [arg('bar', long, min='0', max)]
         @foo bar:
           echo {{ show(bar) }}
       ",
@@ -1124,7 +1124,7 @@ fn repeatable_option_may_be_omitted() {
       "
         set lists
 
-        [arg('bar', long, max)]
+        [arg('bar', long, min='0', max)]
         @foo bar:
           echo {{ show(bar) }}
       ",
@@ -1142,7 +1142,7 @@ fn repeatable_option_above_maximum() {
       "
         set lists
 
-        [arg('bar', long, max='2')]
+        [arg('bar', long, min='0', max='2')]
         foo bar:
       ",
     )
@@ -1180,7 +1180,7 @@ fn repeatable_option_with_min_one_reuses_missing_option() {
       "
         set lists
 
-        [arg('bar', long, min='1')]
+        [arg('bar', long, min='1', max)]
         foo bar:
       ",
     )
@@ -1197,7 +1197,7 @@ fn repeatable_flag_may_be_counted() {
       "
         set lists
 
-        [arg('verbose', short='v', flag, max)]
+        [arg('verbose', short='v', flag, min='0', max)]
         @foo verbose:
           echo {{ show(verbose) }}
       ",
@@ -1213,7 +1213,7 @@ fn min_and_max_require_set_lists() {
   Test::new()
     .justfile(
       "
-        [arg('bar', long, max)]
+        [arg('bar', long, min='0', max)]
         foo bar:
       ",
     )
@@ -1222,7 +1222,7 @@ fn min_and_max_require_set_lists() {
         error: `min` and `max` arguments require `set lists`
          ——▶ justfile:1:19
           │
-        1 │ [arg('bar', long, max)]
+        1 │ [arg('bar', long, min='0', max)]
           │                   ^^^
       ",
     )
@@ -1260,7 +1260,7 @@ fn min_and_max_forbidden_on_variadic() {
       "
         set lists
 
-        [arg('bar', long, max)]
+        [arg('bar', long, min='0', max)]
         foo +bar:
       ",
     )
@@ -1270,7 +1270,7 @@ fn min_and_max_forbidden_on_variadic() {
         error: variadic parameter `bar` may not have `min` or `max` argument attributes
          ——▶ justfile:3:19
           │
-        3 │ [arg('bar', long, max)]
+        3 │ [arg('bar', long, min='0', max)]
           │                   ^^^
       ",
     )
@@ -1332,7 +1332,7 @@ fn default_with_nonzero_min_is_an_error() {
       "
         set lists
 
-        [arg('bar', long, min='1')]
+        [arg('bar', long, min='1', max='1')]
         foo bar='x':
       ",
     )
@@ -1342,7 +1342,7 @@ fn default_with_nonzero_min_is_an_error() {
         error: argument `bar` may not have both a default and a nonzero `min`
          ——▶ justfile:3:19
           │
-        3 │ [arg('bar', long, min='1')]
+        3 │ [arg('bar', long, min='1', max='1')]
           │                   ^^^
       ",
     )
@@ -1356,7 +1356,7 @@ fn min_and_max_must_be_integers() {
       "
         set lists
 
-        [arg('bar', long, max='xyz')]
+        [arg('bar', long, min='0', max='xyz')]
         foo bar:
       ",
     )
@@ -1364,10 +1364,10 @@ fn min_and_max_must_be_integers() {
     .stderr(
       "
         error: argument attribute `max` value `xyz` is not a valid integer
-         ——▶ justfile:3:19
+         ——▶ justfile:3:28
           │
-        3 │ [arg('bar', long, max='xyz')]
-          │                   ^^^
+        3 │ [arg('bar', long, min='0', max='xyz')]
+          │                            ^^^
       ",
     )
     .failure();
@@ -1380,7 +1380,7 @@ fn min_and_max_reject_leading_zeros() {
       "
         set lists
 
-        [arg('bar', long, max='01')]
+        [arg('bar', long, min='0', max='01')]
         foo bar:
       ",
     )
@@ -1388,10 +1388,10 @@ fn min_and_max_reject_leading_zeros() {
     .stderr(
       "
         error: argument attribute `max` value `01` is not a valid integer
-         ——▶ justfile:3:19
+         ——▶ justfile:3:28
           │
-        3 │ [arg('bar', long, max='01')]
-          │                   ^^^
+        3 │ [arg('bar', long, min='0', max='01')]
+          │                            ^^^
       ",
     )
     .failure();
@@ -1405,7 +1405,7 @@ fn option_with_max_one_is_not_multivalued() {
         set lists
         set positional-arguments
 
-        [arg('bar', long, max='1')]
+        [arg('bar', long, min='0', max='1')]
         @foo bar:
           echo count=$#
       ",
@@ -1414,4 +1414,46 @@ fn option_with_max_one_is_not_multivalued() {
     .arg("foo")
     .stdout("count=1\n")
     .success();
+}
+
+#[test]
+fn min_without_max_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long, min='2')]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: argument `bar` `min` and `max` must be used together
+         ——▶ justfile:1:19
+          │
+        1 │ [arg('bar', long, min='2')]
+          │                   ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn max_without_min_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long, max='2')]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: argument `bar` `min` and `max` must be used together
+         ——▶ justfile:1:19
+          │
+        1 │ [arg('bar', long, max='2')]
+          │                   ^^^
+      ",
+    )
+    .failure();
 }
