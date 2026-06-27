@@ -5313,9 +5313,6 @@ by some shells.
   echo '{{BOLD + STRIKETHROUGH + CYAN + BG_BLUE}}Hi!{{NORMAL}}'
 ```
 
-Features
---------
-
 Changelog
 ---------
 
