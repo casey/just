@@ -21,6 +21,9 @@ pub(crate) enum CompileErrorKind<'src> {
     key: Name<'src>,
   },
   AttributePositionalFollowsKeyword,
+  AttributeKeyTakesNoValue {
+    key: &'src str,
+  },
   BacktickShebang,
   CircularRecipeDependency {
     recipe: &'src str,
@@ -147,9 +150,6 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   MixedLeadingWhitespace {
     whitespace: &'src str,
-  },
-  MultipleAttributeTakesNoValue {
-    parameter: String,
   },
   NoCdAndWorkingDirectoryAttribute {
     recipe: &'src str,

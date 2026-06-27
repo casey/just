@@ -264,9 +264,9 @@ impl<'src> Attribute<'src> {
           .remove("multiple")
           .map(|(key, expression)| {
             if expression.is_some() {
-              return Err(key.error(CompileErrorKind::MultipleAttributeTakesNoValue {
-                parameter: arg.cooked.clone(),
-              }));
+              return Err(
+                key.error(CompileErrorKind::AttributeKeyTakesNoValue { key: key.lexeme() }),
+              );
             }
             if long.is_none() && short.is_none() {
               return Err(

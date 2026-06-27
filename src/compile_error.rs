@@ -310,11 +310,8 @@ impl Display for CompileError<'_> {
            consist of tabs or spaces, but not both",
         ShowWhitespace(whitespace)
       ),
-      MultipleAttributeTakesNoValue { parameter } => {
-        write!(
-          f,
-          "`multiple` attribute for argument `{parameter}` takes no value"
-        )
+      AttributeKeyTakesNoValue { key } => {
+        write!(f, "attribute key `{key}` takes no value")
       }
       NoCdAndWorkingDirectoryAttribute { recipe } => write!(
         f,
