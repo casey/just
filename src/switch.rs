@@ -60,7 +60,7 @@ impl Switch {
 
     let group = &mut arguments[index];
 
-    if !group.is_empty() && !parameter.kind.is_variadic() {
+    if !group.is_empty() && !parameter.kind.is_variadic() && !parameter.multiple {
       return Err(Error::DuplicateOption {
         recipe: recipe.name(),
         switch: self,

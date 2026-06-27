@@ -3,7 +3,7 @@ use super::*;
 #[derive(Debug, PartialEq)]
 pub(crate) enum CompileErrorKind<'src> {
   ArgAttributeRequiresOption {
-    keyword: &'static str,
+    key: &'src str,
   },
   ArgumentPatternRegex {
     source: regex::Error,
@@ -19,6 +19,9 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   AttributeKeyMissingValue {
     key: Name<'src>,
+  },
+  AttributeKeyTakesNoValue {
+    key: &'src str,
   },
   AttributePositionalFollowsKeyword,
   BacktickShebang,

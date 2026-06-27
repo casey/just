@@ -20,6 +20,8 @@ pub(crate) enum Attribute<'src> {
     long: Option<StringLiteral<'src>>,
     #[serde(skip)]
     long_key: Option<Name<'src>>,
+    #[serde(skip)]
+    multiple: Option<Token<'src>>,
     name: StringLiteral<'src>,
     pattern: Option<Pattern>,
     #[serde(skip)]
@@ -229,7 +231,7 @@ impl<'src> Attribute<'src> {
           .map(|(key, expression)| {
             if long.is_none() && short.is_none() {
               return Err(
-                key.error(CompileErrorKind::ArgAttributeRequiresOption { keyword: "value" }),
+                key.error(CompileErrorKind::ArgAttributeRequiresOption { key: key.lexeme() }),
               );
             }
             Ok(expression)
@@ -246,13 +248,30 @@ impl<'src> Attribute<'src> {
             }
             if long.is_none() && short.is_none() {
               return Err(
-                key.error(CompileErrorKind::ArgAttributeRequiresOption { keyword: "flag" }),
+                key.error(CompileErrorKind::ArgAttributeRequiresOption { key: key.lexeme() }),
               );
             }
             if value.is_some() {
               return Err(key.error(CompileErrorKind::FlagAndValueArgAttribute {
                 parameter: arg.cooked.clone(),
               }));
+            }
+            Ok(*key)
+          })
+          .transpose()?;
+
+        let multiple = keyword_arguments
+          .remove("multiple")
+          .map(|(key, expression)| {
+            if expression.is_some() {
+              return Err(
+                key.error(CompileErrorKind::AttributeKeyTakesNoValue { key: key.lexeme() }),
+              );
+            }
+            if long.is_none() && short.is_none() {
+              return Err(
+                key.error(CompileErrorKind::ArgAttributeRequiresOption { key: key.lexeme() }),
+              );
             }
             Ok(*key)
           })
@@ -266,6 +285,7 @@ impl<'src> Attribute<'src> {
           help_property,
           long,
           long_key,
+          multiple,
           name: arg,
           pattern: None,
           pattern_property,
@@ -393,6 +413,7 @@ impl Display for Attribute<'_> {
         help_property,
         long,
         long_key,
+        multiple,
         name,
         pattern: _,
         pattern_property,
@@ -424,6 +445,10 @@ impl Display for Attribute<'_> {
 
         if flag.is_some() {
           write!(f, ", flag")?;
+        }
+
+        if multiple.is_some() {
+          write!(f, ", multiple")?;
         }
 
         if let Some((_key, help)) = help_property {

@@ -781,7 +781,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       } else if let Some(value) = &parameter.value
         && !evaluator.is_dependency
       {
-        evaluator.evaluate_value(value)?
+        iter::repeat_n(
+          evaluator.evaluate_value(value)?.elements(),
+          argument.elements().len(),
+        )
+        .flatten()
+        .cloned()
+        .collect()
       } else {
         argument.clone()
       };
@@ -790,7 +796,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         parameter.check_pattern_match(recipe, element)?;
       }
 
-      if parameter.kind.is_variadic() {
+      if parameter.kind.is_variadic() || parameter.multiple {
         positional.extend(value.elements().iter().cloned());
       } else {
         positional.push(value.join());
