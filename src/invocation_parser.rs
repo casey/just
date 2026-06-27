@@ -120,18 +120,28 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
           None
         };
 
-        let switch = if argument.starts_with("--") {
-          Switch::Long(name.into())
+        let switches = if argument.starts_with("--") {
+          vec![Switch::Long(name.into())]
         } else {
-          if name.chars().count() != 1 {
-            return Err(Error::MultipleShortOptions {
-              options: name.into(),
-            });
-          }
-          Switch::Short(name.chars().next().unwrap())
+          name.chars().map(Switch::Short).collect::<Vec<Switch>>()
         };
 
-        switch.apply(recipe, &long, &short, &mut arguments, rest, &mut i, value)?;
+        let count = switches.len();
+        for (index, switch) in switches.into_iter().enumerate() {
+          let last = index + 1 == count;
+          switch.apply(
+            recipe,
+            &long,
+            &short,
+            &mut arguments,
+            rest,
+            &mut i,
+            if last { value } else { None },
+            last,
+          )?;
+        }
+
+        i += 1;
       } else {
         let Some(&index) = positional.get(positional_index) else {
           break;

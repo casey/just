@@ -160,17 +160,68 @@ fn parameters_with_both_long_and_short_may_not_use_both() {
 }
 
 #[test]
-fn multiple_short_options_in_one_argument_is_an_error() {
+fn multiple_short_options_may_be_combined() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', short='a', value='1')]
+        [arg('baz', short='b', value='2')]
+        [arg('qux', short='c', value='3')]
+        @foo bar baz qux:
+          echo {{bar}} {{baz}} {{qux}}
+      ",
+    )
+    .args(["foo", "-abc"])
+    .stdout("1 2 3\n")
+    .success();
+}
+
+#[test]
+fn combined_short_options_may_end_with_a_value_option() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', short='a', value='1')]
+        [arg('baz', short='b', value='2')]
+        [arg('qux', short='c')]
+        @foo bar baz qux:
+          echo {{bar}} {{baz}} {{qux}}
+      ",
+    )
+    .args(["foo", "-abc", "D"])
+    .stdout("1 2 D\n")
+    .success();
+}
+
+#[test]
+fn combined_short_value_option_must_be_last() {
   Test::new()
     .justfile(
       "
         [arg('bar', short='a')]
-        [arg('baz', short='b')]
+        [arg('baz', short='b', value='2')]
         @foo bar baz:
       ",
     )
     .args(["foo", "-ab"])
-    .stderr("error: passing multiple short options (`-ab`) in one argument is not supported\n")
+    .stderr(
+      "error: recipe `foo` option `-a` takes a value and so must be last when combined with other options\n",
+    )
+    .failure();
+}
+
+#[test]
+fn combined_short_options_may_not_repeat() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', short='a', value='1')]
+        [arg('baz', short='b', value='2')]
+        @foo bar baz:
+      ",
+    )
+    .args(["foo", "-aab"])
+    .stderr("error: recipe `foo` option `-a` cannot be passed more than once\n")
     .failure();
 }
 

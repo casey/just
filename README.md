@@ -3437,6 +3437,10 @@ foo bar:
 
 If a parameter has both a long and short option, it may be passed using either.
 
+Multiple short options may be combined<sup>master</sup>, for example `-abc` is
+equivalent to `-a -b -c`. A short option which takes a value may appear last,
+for example `-abcd VALUE`.
+
 Variadic `*` and `+` parameters may be options, in which case the option is
 repeatable, with each occurrence contributing one value:
 
