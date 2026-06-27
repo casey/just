@@ -2433,6 +2433,16 @@ error: Call to function `error` failed: 123
 16 |   error("123")
 ```
 
+### Built-in Functions
+
+`just` provides many built-in functions for use in expressions, including
+recipe body `{{…}}` substitutions, assignments, and default parameter values.
+
+All functions ending in `_directory` can be abbreviated to `_dir`. So
+`home_directory()` can also be written as `home_dir()`. In addition,
+`invocation_directory_native()` can be abbreviated to
+`invocation_dir_native()`.
+
 ### User-defined functions
 
 New functions may be defined<sup>1.49.0</sup>:
@@ -4761,16 +4771,6 @@ transitively via reference.
 
 Features
 --------
-
-### Built-in Functions
-
-`just` provides many built-in functions for use in expressions, including
-recipe body `{{…}}` substitutions, assignments, and default parameter values.
-
-All functions ending in `_directory` can be abbreviated to `_dir`. So
-`home_directory()` can also be written as `home_dir()`. In addition,
-`invocation_directory_native()` can be abbreviated to
-`invocation_dir_native()`.
 
 #### System Information
 
