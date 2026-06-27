@@ -1363,11 +1363,9 @@ will be `"true"` when `--foo` is passed, and `[]` otherwise. Flag parameters
 may not have a default.
 
 The `[arg(multiple)]` attribute allows an option or flag to be passed more than
-once, in which case its value is the list of values passed. It requires `long`
-or `short`. For example, with `[arg('foo', long, multiple)]`, `foo` will be
-`["a", "b"]` when `--foo a --foo b` is passed. Combined with `flag`, it counts
-occurrences: with `[arg('foo', short, flag, multiple)]`, `foo` will be
-`["true", "true"]` when `-ff` is passed.
+once, assigning the list of passed values to the parameter. When combined with
+`flag` or `value=VALUE`, `"true"` or `VALUE`, respectively, are repeated for
+each occurance of the flag.
 
 The value of `[arg(help)]` may be a list, in which case the help string is the
 elements of the list joined with spaces. If the list is empty, the argument has
