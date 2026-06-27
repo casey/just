@@ -2679,6 +2679,25 @@ the final argument. For example, on Windows, if a recipe starts with `#! py`,
 the final command the OS runs will be something like
 `py C:\Temp\PATH_TO_SAVED_RECIPE_BODY`.
 
+### Script Recipes
+
+Recipes with a `[script(COMMAND)]`<sup>1.32.0</sup> attribute are run as
+scripts interpreted by `COMMAND`. This avoids some of the issues with shebang
+recipes, such as the use of `cygpath` on Windows, the need to use
+`/usr/bin/env`, inconsistencies in shebang line splitting across Unix OSs, and
+requiring a temporary directory from which files can be executed.
+
+Recipes with an empty `[script]` attribute are executed with the value of `set
+script-interpreter := […]`<sup>1.33.0</sup>, defaulting to `sh -eu`, and *not*
+the value of `set shell`.
+
+The body of the recipe is evaluated, written to disk in the temporary
+directory, and run by passing its path as an argument to `COMMAND`.
+
+With `set default-script := true`<sup>1.52.0</sup>, recipes default to script
+recipes instead of shell recipes, unless overridden with the `[shell]`
+attribute<sup>1.52.0</sup>.
+
 Environment Variables
 ---------------------
 
@@ -4009,25 +4028,6 @@ HOME is: '/home/myuser'
 Environment variables can be propagated to `just` variables using the `env()` function.
 See
 [environment-variables](#environment-variables).
-
-### Script Recipes
-
-Recipes with a `[script(COMMAND)]`<sup>1.32.0</sup> attribute are run as
-scripts interpreted by `COMMAND`. This avoids some of the issues with shebang
-recipes, such as the use of `cygpath` on Windows, the need to use
-`/usr/bin/env`, inconsistencies in shebang line splitting across Unix OSs, and
-requiring a temporary directory from which files can be executed.
-
-Recipes with an empty `[script]` attribute are executed with the value of `set
-script-interpreter := […]`<sup>1.33.0</sup>, defaulting to `sh -eu`, and *not*
-the value of `set shell`.
-
-The body of the recipe is evaluated, written to disk in the temporary
-directory, and run by passing its path as an argument to `COMMAND`.
-
-With `set default-script := true`<sup>1.52.0</sup>, recipes default to script
-recipes instead of shell recipes, unless overridden with the `[shell]`
-attribute<sup>1.52.0</sup>.
 
 ### Script and Shebang Recipe Temporary Files
 
