@@ -123,7 +123,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
         let switches = if argument.starts_with("--") {
           vec![Switch::Long(name.into())]
         } else {
-          name.chars().map(Switch::Short).collect::<Vec<_>>()
+          name.chars().map(Switch::Short).collect::<Vec<Switch>>()
         };
 
         let count = switches.len();
