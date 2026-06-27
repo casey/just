@@ -3353,8 +3353,6 @@ run: venv
 Working Directory
 -----------------
 
-### Working Directory
-
 By default, recipes run with the working directory set to the directory that
 contains the `justfile`.
 
@@ -4477,8 +4475,6 @@ representation of a `justfile`.
 Cached Recipes
 --------------
 
-### Cached Recipes
-
 `just` will skip invocations of recipes with the `[cache]`
 attribute<sup>1.54.0</sup> if it finds an entry matching the invocation in the
 cache. The `[cache]` attribute may only be used with script recipes and is
@@ -4769,7 +4765,7 @@ However, because settings affect the behavior of backticks and many functions,
 those expressions may not contain backticks or function calls, directly or
 transitively via reference.
 
-### Built-in Functions
+### Functions
 
 #### System Information
 
