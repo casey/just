@@ -1252,6 +1252,8 @@ impl<'run, 'src> Parser<'run, 'src> {
         help_property: _,
         long,
         long_key,
+        max,
+        min,
         name: arg,
         pattern: _,
         pattern_property: _,
@@ -1265,6 +1267,14 @@ impl<'run, 'src> Parser<'run, 'src> {
 
       if let Some(token) = flag {
         self.list_feature(ListFeature::Flag, *token);
+      }
+
+      if let Some((key, _)) = min {
+        self.list_feature(ListFeature::Repeated, key.token);
+      }
+
+      if let Some((key, _)) = max {
+        self.list_feature(ListFeature::Repeated, key.token);
       }
 
       if let Some(option) = long
@@ -1452,6 +1462,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
 
     Ok(Parameter {
+      bound: None,
       default,
       export,
       flag,

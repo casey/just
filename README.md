@@ -2659,6 +2659,8 @@ change their behavior.
 |------|------|-------------|
 | `[arg(ARG, help="HELP")]`<sup>1.46.0</sup> | recipe | Print help string `HELP` for `ARG` in usage messages. May be a const expression<sup>master</sup>. |
 | `[arg(ARG, long="LONG")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as `--LONG` option. If the parameter is variadic, the option is repeatable<sup>master</sup>. |
+| `[arg(ARG, max=MAX)]`<sup>master</sup> | recipe | Make option `ARG` repeatable, collecting at most `MAX` values into a list. Pass `max` without a value for no maximum. Requires `set lists`. |
+| `[arg(ARG, min=MIN)]`<sup>master</sup> | recipe | Make option `ARG` repeatable, requiring at least `MIN` values, collected into a list. Requires `set lists`. |
 | `[arg(ARG, pattern="PATTERN")]`<sup>1.45.0</sup> | recipe | Require values of argument `ARG` to match regular expression `PATTERN`. May be a const expression<sup>master</sup>. |
 | `[arg(ARG, short="S")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as short `-S` option. If the parameter is variadic, the option is repeatable<sup>master</sup>. |
 | `[arg(ARG, value=VALUE)]`<sup>1.46.0</sup> | recipe | Makes option `ARG` a flag which does not take a value. |
@@ -3457,6 +3459,31 @@ scp FAQ.md GRAMMAR.md me@server.com:
 
 As with positional variadic parameters, `+` options must be passed at least
 once, whereas `*` options may be omitted.
+
+The `[arg(ARG, min=MIN, max=MAX)]`<sup>master</sup> attributes make a
+non-variadic option repeatable, collecting one value per occurrence into a list.
+`MIN` is the minimum number of times the option must be passed, defaulting to
+zero, and `MAX` is the maximum, defaulting to no maximum. `max` may be passed
+without a value to allow any number of occurrences:
+
+```just
+set unstable
+set lists
+
+[arg('file', long, max)]
+backup file:
+  scp {{file}} me@server.com:
+```
+
+```console
+$ just backup --file FAQ.md --file GRAMMAR.md
+scp FAQ.md GRAMMAR.md me@server.com:
+```
+
+Since repeated options produce a list, they require the `lists`
+setting<sup>master</sup>. `min` and `max` may not be used with variadic
+parameters, which already set their own bounds, and a default value may not be
+combined with a nonzero `min`.
 
 The `[arg(ARG, value=VALUE, …)]`<sup>1.46.0</sup> attribute can be used with
 `long` or `short` to make a parameter a flag which does not take a value.

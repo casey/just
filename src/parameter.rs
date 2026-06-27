@@ -1,7 +1,15 @@
 use super::*;
 
 #[derive(PartialEq, Debug, Clone, Serialize)]
+pub(crate) struct Bound {
+  pub(crate) max: Option<usize>,
+  pub(crate) min: usize,
+}
+
+#[derive(PartialEq, Debug, Clone, Serialize)]
 pub(crate) struct Parameter<'src> {
+  #[serde(skip)]
+  pub(crate) bound: Option<Bound>,
   pub(crate) default: Option<Expression<'src>>,
   pub(crate) export: bool,
   pub(crate) flag: bool,
@@ -21,8 +29,16 @@ impl<'src> Parameter<'src> {
     self.long.is_some() || self.short.is_some()
   }
 
+  pub(crate) fn is_multivalued(&self) -> bool {
+    self.kind.is_variadic() || self.bound.is_some()
+  }
+
   pub(crate) fn is_required(&self) -> bool {
-    self.default.is_none() && self.kind != ParameterKind::Star && !self.flag
+    if let Some(bound) = &self.bound {
+      bound.min > 0
+    } else {
+      self.default.is_none() && self.kind != ParameterKind::Star && !self.flag
+    }
   }
 
   pub(crate) fn check_pattern_match(

@@ -770,7 +770,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       let value = if argument.elements().is_empty() {
         if let Some(default) = &parameter.default {
           evaluator.evaluate_value(default)?
-        } else if parameter.kind == ParameterKind::Star || parameter.flag {
+        } else if parameter.kind == ParameterKind::Star
+          || parameter.flag
+          || parameter.bound.is_some()
+        {
           Value::new()
         } else {
           return Err(Error::EmptyListArgument {
@@ -790,7 +793,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         parameter.check_pattern_match(recipe, element)?;
       }
 
-      if parameter.kind.is_variadic() {
+      if parameter.is_multivalued() {
         positional.extend(value.elements().iter().cloned());
       } else {
         positional.push(value.join());

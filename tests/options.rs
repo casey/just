@@ -1098,3 +1098,297 @@ fn flags_passed_with_a_value_are_an_error() {
     .stderr("error: recipe `foo` flag `--bar` does not take value\n")
     .failure();
 }
+
+#[test]
+fn option_may_be_repeated_with_max() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, max)]
+        @foo bar:
+          echo {{ show(bar) }}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "--bar", "a", "--bar", "b"])
+    .stdout("[a, b]\n")
+    .success();
+}
+
+#[test]
+fn repeatable_option_may_be_omitted() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, max)]
+        @foo bar:
+          echo {{ show(bar) }}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("foo")
+    .stdout("[]\n")
+    .success();
+}
+
+#[test]
+fn repeatable_option_above_maximum() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, max='2')]
+        foo bar:
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "--bar", "a", "--bar", "b", "--bar", "c"])
+    .stderr("error: recipe `foo` option `--bar` may be passed at most 2 times but was passed 3\n")
+    .failure();
+}
+
+#[test]
+fn repeatable_option_below_minimum() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, min='2', max='4')]
+        foo bar:
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "--bar", "a"])
+    .stderr("error: recipe `foo` option `--bar` must be passed at least 2 times but was passed 1\n")
+    .failure();
+}
+
+#[test]
+fn repeatable_option_with_min_one_reuses_missing_option() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, min='1')]
+        foo bar:
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("foo")
+    .stderr("error: recipe `foo` requires option `--bar`\n")
+    .failure();
+}
+
+#[test]
+fn repeatable_flag_may_be_counted() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('verbose', short='v', flag, max)]
+        @foo verbose:
+          echo {{ show(verbose) }}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "-vvvv"])
+    .stdout("[true, true, true, true]\n")
+    .success();
+}
+
+#[test]
+fn min_and_max_require_set_lists() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long, max)]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: `min` and `max` arguments require `set lists`
+         ——▶ justfile:1:19
+          │
+        1 │ [arg('bar', long, max)]
+          │                   ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn min_and_max_require_long_or_short() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', max)]
+        foo bar:
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      "
+        error: argument attribute `max` only valid with `long` or `short`
+         ——▶ justfile:3:13
+          │
+        3 │ [arg('bar', max)]
+          │             ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn min_and_max_forbidden_on_variadic() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, max)]
+        foo +bar:
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      "
+        error: variadic parameter `bar` may not have `min` or `max` argument attributes
+         ——▶ justfile:3:19
+          │
+        3 │ [arg('bar', long, max)]
+          │                   ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn min_greater_than_max_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, min='3', max='2')]
+        foo bar:
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      "
+        error: argument `bar` has `min` greater than `max`
+         ——▶ justfile:3:19
+          │
+        3 │ [arg('bar', long, min='3', max='2')]
+          │                   ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn bare_min_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, min)]
+        foo bar:
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      "
+        error: attribute key `min` requires value
+         ——▶ justfile:3:19
+          │
+        3 │ [arg('bar', long, min)]
+          │                   ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn default_with_nonzero_min_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, min='1')]
+        foo bar='x':
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      "
+        error: argument `bar` may not have both a default and a nonzero `min`
+         ——▶ justfile:3:19
+          │
+        3 │ [arg('bar', long, min='1')]
+          │                   ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn min_and_max_must_be_integers() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, max='xyz')]
+        foo bar:
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      "
+        error: argument attribute `max` value `xyz` is not a non-negative integer
+         ——▶ justfile:3:19
+          │
+        3 │ [arg('bar', long, max='xyz')]
+          │                   ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn min_and_max_reject_leading_zeros() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, max='01')]
+        foo bar:
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .stderr(
+      "
+        error: argument attribute `max` value `01` is not a non-negative integer
+         ——▶ justfile:3:19
+          │
+        3 │ [arg('bar', long, max='01')]
+          │                   ^^^
+      ",
+    )
+    .failure();
+}

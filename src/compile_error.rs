@@ -31,10 +31,31 @@ impl Display for CompileError<'_> {
     use CompileErrorKind::*;
 
     match &*self.kind {
+      ArgAttributeExpectedInteger { keyword, value } => {
+        write!(
+          f,
+          "argument attribute `{keyword}` value `{value}` is not a non-negative integer"
+        )
+      }
       ArgAttributeRequiresOption { keyword } => {
         write!(
           f,
           "argument attribute `{keyword}` only valid with `long` or `short`"
+        )
+      }
+      DefaultWithMin { parameter } => {
+        write!(
+          f,
+          "argument `{parameter}` may not have both a default and a nonzero `min`"
+        )
+      }
+      MinGreaterThanMax { parameter } => {
+        write!(f, "argument `{parameter}` has `min` greater than `max`")
+      }
+      VariadicMinMax { parameter } => {
+        write!(
+          f,
+          "variadic parameter `{parameter}` may not have `min` or `max` argument attributes"
         )
       }
       ArgumentPatternRegex { .. } => {

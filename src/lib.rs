@@ -78,7 +78,7 @@ pub(crate) use {
     numerator::Numerator,
     ordinal::Ordinal,
     output_error::OutputError,
-    parameter::Parameter,
+    parameter::{Bound, Parameter},
     parameter_kind::ParameterKind,
     parser::Parser,
     pattern::Pattern,

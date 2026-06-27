@@ -159,6 +159,32 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
     let mut missing_positional = 0;
 
     for (parameter, group) in recipe.parameters.iter().zip(&arguments) {
+      if let Some(bound) = &parameter.bound {
+        if group.elements().len() < bound.min {
+          let switch = if let Some(name) = &parameter.long {
+            Switch::Long(name.into())
+          } else {
+            Switch::Short(parameter.short.unwrap())
+          };
+
+          return Err(if bound.min == 1 {
+            Error::MissingOption {
+              recipe: recipe.name(),
+              switch,
+            }
+          } else {
+            Error::OptionBelowMinimum {
+              recipe: recipe.name(),
+              switch,
+              min: bound.min,
+              found: group.elements().len(),
+            }
+          });
+        }
+
+        continue;
+      }
+
       if !group.is_empty() {
         continue;
       }

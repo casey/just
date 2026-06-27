@@ -58,12 +58,31 @@ impl Switch {
       value
     };
 
+    let max = if let Some(bound) = &parameter.bound {
+      bound.max
+    } else if parameter.kind.is_variadic() {
+      None
+    } else {
+      Some(1)
+    };
+
     let group = &mut arguments[index];
 
-    if !group.is_empty() && !parameter.kind.is_variadic() {
-      return Err(Error::DuplicateOption {
-        recipe: recipe.name(),
-        switch: self,
+    if let Some(max) = max
+      && group.elements().len() >= max
+    {
+      return Err(if max == 1 {
+        Error::DuplicateOption {
+          recipe: recipe.name(),
+          switch: self,
+        }
+      } else {
+        Error::OptionAboveMaximum {
+          recipe: recipe.name(),
+          switch: self,
+          max,
+          found: group.elements().len() + 1,
+        }
       });
     }
 

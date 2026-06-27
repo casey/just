@@ -12,6 +12,7 @@ pub(crate) enum ListFeature {
   LogicalOperator,
   NegationOperator,
   NonComparisonCondition,
+  Repeated,
   ShowFunction,
   SplitFunction,
   WhichFunction,
@@ -32,7 +33,8 @@ impl ListFeature {
       | Self::ListLiteral
       | Self::LogicalOperator
       | Self::NegationOperator
-      | Self::NonComparisonCondition => false,
+      | Self::NonComparisonCondition
+      | Self::Repeated => false,
     }
   }
 }
@@ -55,6 +57,7 @@ impl Display for ListFeature {
         f,
         "`if` and `assert` conditions other than comparisons require `set lists`"
       ),
+      Self::Repeated => write!(f, "`min` and `max` arguments require `set lists`"),
       Self::ShowFunction => write!(f, "the `show()` function requires `set lists`"),
       Self::SplitFunction => write!(f, "the `split()` function requires `set lists`"),
       Self::WhichFunction => write!(f, "the `which()` function requires `set lists`"),

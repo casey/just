@@ -2,6 +2,10 @@ use super::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) enum CompileErrorKind<'src> {
+  ArgAttributeExpectedInteger {
+    keyword: &'static str,
+    value: String,
+  },
   ArgAttributeRequiresOption {
     keyword: &'static str,
   },
@@ -31,6 +35,9 @@ pub(crate) enum CompileErrorKind<'src> {
     circle: Vec<&'src str>,
   },
   ConstEval(ConstEvalError<'src>),
+  DefaultWithMin {
+    parameter: String,
+  },
   DependencyArgumentCountMismatch {
     dependency: Namepath<'src>,
     found: usize,
@@ -135,6 +142,9 @@ pub(crate) enum CompileErrorKind<'src> {
   MappedDependencyMultipleStarredArguments,
   MappedDependencyWithoutListsSetting,
   MappedDependencyWithoutStarredArgument,
+  MinGreaterThanMax {
+    parameter: String,
+  },
   MinimumVersion {
     current: Version,
     minimum: Version,
@@ -241,4 +251,7 @@ pub(crate) enum CompileErrorKind<'src> {
   UnterminatedBacktick,
   UnterminatedInterpolation,
   UnterminatedString,
+  VariadicMinMax {
+    parameter: String,
+  },
 }

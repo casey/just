@@ -2,6 +2,16 @@ use super::*;
 
 pub(crate) type UnresolvedRecipe<'src> = Recipe<'src, UnresolvedDependency<'src>>;
 
+fn parse_count(value: &str) -> Option<usize> {
+  static REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new("^(0|[1-9][0-9]*)$").unwrap());
+
+  if REGEX.is_match(value) {
+    value.parse().ok()
+  } else {
+    None
+  }
+}
+
 impl<'src> UnresolvedRecipe<'src> {
   pub(crate) fn resolve(
     mut self,
@@ -142,6 +152,82 @@ impl<'src> UnresolvedRecipe<'src> {
             *pattern = Some(compiled);
           }
         }
+
+        if let Attribute::Arg {
+          max,
+          min,
+          name: arg,
+          ..
+        } = &attribute
+          && (min.is_some() || max.is_some())
+        {
+          let parameter = self
+            .parameters
+            .iter()
+            .find(|parameter| parameter.name.lexeme() == arg.cooked)
+            .unwrap();
+
+          let variadic = parameter.kind.is_variadic();
+          let has_default = parameter.default.is_some();
+
+          let key = min
+            .as_ref()
+            .map(|(key, _)| *key)
+            .or_else(|| max.as_ref().map(|(key, _)| *key))
+            .unwrap();
+
+          if variadic {
+            return Err(key.error(CompileErrorKind::VariadicMinMax {
+              parameter: arg.cooked.clone(),
+            }));
+          }
+
+          let min = if let Some((key, expression)) = min {
+            let value = evaluator.evaluate_value_const(expression)?.join();
+            parse_count(&value).ok_or_else(|| {
+              key.error(CompileErrorKind::ArgAttributeExpectedInteger {
+                keyword: "min",
+                value: value.clone(),
+              })
+            })?
+          } else {
+            0
+          };
+
+          let max = if let Some((_key, Some(expression))) = max {
+            let value = evaluator.evaluate_value_const(expression)?.join();
+            Some(parse_count(&value).ok_or_else(|| {
+              key.error(CompileErrorKind::ArgAttributeExpectedInteger {
+                keyword: "max",
+                value: value.clone(),
+              })
+            })?)
+          } else {
+            None
+          };
+
+          if let Some(max) = max
+            && min > max
+          {
+            return Err(key.error(CompileErrorKind::MinGreaterThanMax {
+              parameter: arg.cooked.clone(),
+            }));
+          }
+
+          if has_default && min > 0 {
+            return Err(key.error(CompileErrorKind::DefaultWithMin {
+              parameter: arg.cooked.clone(),
+            }));
+          }
+
+          self
+            .parameters
+            .iter_mut()
+            .find(|parameter| parameter.name.lexeme() == arg.cooked)
+            .unwrap()
+            .bound = Some(Bound { max, min });
+        }
+
         Ok((attribute, name))
       })
       .collect::<CompileResult<AttributeSet>>()?;

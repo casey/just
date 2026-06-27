@@ -157,7 +157,7 @@ impl ColorDisplay for UsageParameter<'_> {
         color.argument().paint(self.parameter.name.lexeme()),
       )?;
 
-      if self.parameter.kind.is_variadic() {
+      if self.parameter.is_multivalued() {
         write!(f, "{}", color.argument().paint("..."))?;
       }
 

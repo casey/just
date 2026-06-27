@@ -20,6 +20,10 @@ pub(crate) enum Attribute<'src> {
     long: Option<StringLiteral<'src>>,
     #[serde(skip)]
     long_key: Option<Name<'src>>,
+    #[serde(skip)]
+    max: Option<(Name<'src>, Option<Expression<'src>>)>,
+    #[serde(skip)]
+    min: Option<(Name<'src>, Expression<'src>)>,
     name: StringLiteral<'src>,
     pattern: Option<Pattern>,
     #[serde(skip)]
@@ -260,12 +264,37 @@ impl<'src> Attribute<'src> {
 
         let help_property = Self::remove_required(&mut keyword_arguments, "help")?;
 
+        let min = Self::remove_required(&mut keyword_arguments, "min")?
+          .map(|(key, expression)| {
+            if long.is_none() && short.is_none() {
+              return Err(
+                key.error(CompileErrorKind::ArgAttributeRequiresOption { keyword: "min" }),
+              );
+            }
+            Ok((key, expression))
+          })
+          .transpose()?;
+
+        let max = keyword_arguments
+          .remove("max")
+          .map(|(key, expression)| {
+            if long.is_none() && short.is_none() {
+              return Err(
+                key.error(CompileErrorKind::ArgAttributeRequiresOption { keyword: "max" }),
+              );
+            }
+            Ok((key, expression))
+          })
+          .transpose()?;
+
         Self::Arg {
           flag,
           help: None,
           help_property,
           long,
           long_key,
+          max,
+          min,
           name: arg,
           pattern: None,
           pattern_property,
@@ -393,6 +422,8 @@ impl Display for Attribute<'_> {
         help_property,
         long,
         long_key,
+        max,
+        min,
         name,
         pattern: _,
         pattern_property,
@@ -428,6 +459,18 @@ impl Display for Attribute<'_> {
 
         if let Some((_key, help)) = help_property {
           write!(f, ", help={help}")?;
+        }
+
+        if let Some((_key, min)) = min {
+          write!(f, ", min={min}")?;
+        }
+
+        if let Some((_key, max)) = max {
+          if let Some(max) = max {
+            write!(f, ", max={max}")?;
+          } else {
+            write!(f, ", max")?;
+          }
         }
 
         write!(f, ")")?;

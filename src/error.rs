@@ -214,6 +214,18 @@ pub(crate) enum Error<'src> {
   NotConfirmed {
     recipe: &'src str,
   },
+  OptionAboveMaximum {
+    recipe: &'src str,
+    switch: Switch,
+    max: usize,
+    found: usize,
+  },
+  OptionBelowMinimum {
+    recipe: &'src str,
+    switch: Switch,
+    min: usize,
+    found: usize,
+  },
   OptionMissingValue {
     recipe: &'src str,
     switch: Switch,
@@ -852,6 +864,28 @@ impl ColorDisplay for Error<'_> {
       NoRecipes => write!(f, "justfile contains no recipes")?,
       NotConfirmed { recipe } => {
         write!(f, "recipe `{recipe}` was not confirmed")?;
+      }
+      OptionAboveMaximum {
+        recipe,
+        switch,
+        max,
+        found,
+      } => {
+        write!(
+          f,
+          "recipe `{recipe}` option `{switch}` may be passed at most {max} times but was passed {found}"
+        )?;
+      }
+      OptionBelowMinimum {
+        recipe,
+        switch,
+        min,
+        found,
+      } => {
+        write!(
+          f,
+          "recipe `{recipe}` option `{switch}` must be passed at least {min} times but was passed {found}"
+        )?;
       }
       OptionMissingValue { recipe, switch } => {
         write!(f, "recipe `{recipe}` option `{switch}` missing value")?;
