@@ -207,6 +207,10 @@ pub(crate) enum Error<'src> {
   NoChoosableRecipes,
   NoDefaultRecipe,
   NoRecipes,
+  NonFinalOptionWithValue {
+    recipe: &'src str,
+    switch: Switch,
+  },
   NotConfirmed {
     recipe: &'src str,
   },
@@ -253,10 +257,6 @@ pub(crate) enum Error<'src> {
     io_error: io::Error,
     recipe: &'src str,
     shell: String,
-  },
-  NonFinalOptionWithValue {
-    recipe: &'src str,
-    switch: Switch,
   },
   Signal {
     line_number: Option<usize>,
