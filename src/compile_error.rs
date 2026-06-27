@@ -34,7 +34,7 @@ impl Display for CompileError<'_> {
       ArgAttributeExpectedInteger { key, value } => {
         write!(
           f,
-          "argument attribute `{key}` value `{value}` is not a non-negative integer"
+          "argument attribute `{key}` value `{value}` is not a valid integer"
         )
       }
       ArgAttributeRequiresOption { key } => {
