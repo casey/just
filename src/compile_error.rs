@@ -31,11 +31,20 @@ impl Display for CompileError<'_> {
     use CompileErrorKind::*;
 
     match &*self.kind {
+      ArgAttributeDefaultWithMin { parameter } => {
+        write!(
+          f,
+          "argument `{parameter}` may not have both a default and a nonzero `min`"
+        )
+      }
       ArgAttributeExpectedInteger { key, value } => {
         write!(
           f,
           "argument attribute `{key}` value `{value}` is not a valid integer"
         )
+      }
+      ArgAttributeMinGreaterThanMax { parameter } => {
+        write!(f, "argument `{parameter}` has `min` greater than `max`")
       }
       ArgAttributeRequiresOption { key } => {
         write!(
@@ -43,16 +52,7 @@ impl Display for CompileError<'_> {
           "argument attribute `{key}` only valid with `long` or `short`"
         )
       }
-      DefaultWithMin { parameter } => {
-        write!(
-          f,
-          "argument `{parameter}` may not have both a default and a nonzero `min`"
-        )
-      }
-      MinGreaterThanMax { parameter } => {
-        write!(f, "argument `{parameter}` has `min` greater than `max`")
-      }
-      VariadicMinMax { parameter } => {
+      ArgAttributeVariadicMinMax { parameter } => {
         write!(
           f,
           "variadic parameter `{parameter}` may not have `min` or `max` argument attributes"

@@ -177,7 +177,7 @@ impl<'src> UnresolvedRecipe<'src> {
             .unwrap();
 
           if variadic {
-            return Err(key.error(CompileErrorKind::VariadicMinMax {
+            return Err(key.error(CompileErrorKind::ArgAttributeVariadicMinMax {
               parameter: arg.cooked.clone(),
             }));
           }
@@ -209,13 +209,13 @@ impl<'src> UnresolvedRecipe<'src> {
           if let Some(max) = max
             && min > max
           {
-            return Err(key.error(CompileErrorKind::MinGreaterThanMax {
+            return Err(key.error(CompileErrorKind::ArgAttributeMinGreaterThanMax {
               parameter: arg.cooked.clone(),
             }));
           }
 
           if has_default && min > 0 {
-            return Err(key.error(CompileErrorKind::DefaultWithMin {
+            return Err(key.error(CompileErrorKind::ArgAttributeDefaultWithMin {
               parameter: arg.cooked.clone(),
             }));
           }
