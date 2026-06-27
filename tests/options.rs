@@ -1240,7 +1240,7 @@ fn multiple_takes_no_value() {
     )
     .stderr(
       "
-        error: `multiple` attribute for argument `bar` takes no value
+        error: attribute key `multiple` takes no value
          ——▶ justfile:1:19
           │
         1 │ [arg('bar', long, multiple='baz')]
