@@ -1396,3 +1396,22 @@ fn min_and_max_reject_leading_zeros() {
     )
     .failure();
 }
+
+#[test]
+fn option_with_max_one_is_not_multivalued() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        set positional-arguments
+
+        [arg('bar', long, max='1')]
+        @foo bar:
+          echo count=$#
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .arg("foo")
+    .stdout("count=1\n")
+    .success();
+}

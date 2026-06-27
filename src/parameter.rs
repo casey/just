@@ -24,7 +24,10 @@ impl<'src> Parameter<'src> {
   }
 
   pub(crate) fn is_multivalued(&self) -> bool {
-    self.kind.is_variadic() || self.bound.is_some()
+    self.kind.is_variadic()
+      || self
+        .bound
+        .is_some_and(|bound| bound.max.is_none_or(|max| max > 1))
   }
 
   pub(crate) fn is_required(&self) -> bool {
