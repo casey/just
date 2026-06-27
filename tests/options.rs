@@ -1113,7 +1113,11 @@ fn multiple_option_collects_a_list() {
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "--bar", "a", "--bar", "b"])
-    .stdout("bar=[\"a\", \"b\"]\n")
+    .stdout(
+      r#"
+        bar=["a", "b"]
+      "#,
+    )
     .success();
 }
 
@@ -1131,7 +1135,11 @@ fn multiple_flag_counts_occurrences() {
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "-vvv"])
-    .stdout("verbose=[\"true\", \"true\", \"true\"]\n")
+    .stdout(
+      r#"
+        verbose=["true", "true", "true"]
+      "#,
+    )
     .success();
 }
 
@@ -1149,7 +1157,11 @@ fn multiple_value_option_repeats_value() {
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "--bar", "--bar"])
-    .stdout("bar=[\"baz\", \"baz\"]\n")
+    .stdout(
+      r#"
+        bar=["baz", "baz"]
+      "#,
+    )
     .success();
 }
 
@@ -1167,7 +1179,11 @@ fn multiple_value_option_concatenates_list_values() {
     )
     .env("JUST_UNSTABLE", "1")
     .args(["foo", "--bar", "--bar"])
-    .stdout("bar=[\"a\", \"b\", \"a\", \"b\"]\n")
+    .stdout(
+      r#"
+        bar=["a", "b", "a", "b"]
+      "#,
+    )
     .success();
 }
 
