@@ -3869,6 +3869,11 @@ default:
   echo foo
 ```
 
+### Hiding `justfile`s
+
+`just` looks for `justfile`s named `justfile` and `.justfile`, which can be
+used to keep a `justfile` hidden.
+
 Command Line
 ------------
 
@@ -5119,11 +5124,6 @@ use this as your default recipe:
 default:
   @just --choose
 ```
-
-### Hiding `justfile`s
-
-`just` looks for `justfile`s named `justfile` and `.justfile`, which can be
-used to keep a `justfile` hidden.
 
 ### Formatting and dumping `justfile`s
 
