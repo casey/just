@@ -127,10 +127,8 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
         };
 
         let count = switches.len();
-
         for (index, switch) in switches.into_iter().enumerate() {
           let last = index + 1 == count;
-          let inline_value = if last { value } else { None };
           switch.apply(
             recipe,
             &long,
@@ -138,7 +136,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
             &mut arguments,
             rest,
             &mut i,
-            inline_value,
+            if last { value } else { None },
             last,
           )?;
         }

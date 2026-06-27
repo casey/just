@@ -15,7 +15,7 @@ impl Switch {
     arguments: &mut [Value],
     rest: &[&str],
     i: &mut usize,
-    inline_value: Option<&str>,
+    value: Option<&str>,
     last: bool,
   ) -> RunResult<'src> {
     let index = match &self {
@@ -33,7 +33,7 @@ impl Switch {
     let parameter = &recipe.parameters[index];
 
     let value = if parameter.flag || parameter.value.is_some() {
-      if inline_value.is_some() {
+      if value.is_some() {
         return Err(Error::FlagWithValue {
           recipe: recipe.name(),
           switch: self,
@@ -45,7 +45,7 @@ impl Switch {
         recipe: recipe.name(),
         switch: self,
       });
-    } else if let Some(value) = inline_value {
+    } else if let Some(value) = value {
       value
     } else {
       let Some(&value) = rest.get(*i + 1) else {
