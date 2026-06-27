@@ -2390,6 +2390,28 @@ The [`shell(…)` function](#external-commands) provides a more general mechanis
 to invoke external commands, including the ability to execute the contents of a
 variable as a command, and to pass arguments to a command.
 
+### Stopping execution with error
+
+Execution can be halted with the `error` function. For example:
+
+```just
+foo := if "hello" == "goodbye" {
+  "xyz"
+} else if "a" == "b" {
+  "abc"
+} else {
+  error("123")
+}
+```
+
+Which produces the following error when run:
+
+```
+error: Call to function `error` failed: 123
+   |
+16 |   error("123")
+```
+
 Execution
 ---------
 
@@ -3681,28 +3703,6 @@ foo:
 ```
 
 Metadata can be read using `just --dump --dump-format json`.
-
-### Stopping execution with error
-
-Execution can be halted with the `error` function. For example:
-
-```just
-foo := if "hello" == "goodbye" {
-  "xyz"
-} else if "a" == "b" {
-  "abc"
-} else {
-  error("123")
-}
-```
-
-Which produces the following error when run:
-
-```
-error: Call to function `error` failed: 123
-   |
-16 |   error("123")
-```
 
 ### Setting Variables from the Command Line
 
