@@ -186,7 +186,7 @@ impl<'src> UnresolvedRecipe<'src> {
             let value = evaluator.evaluate_value_const(expression)?.join();
             parse_count(&value).ok_or_else(|| {
               key.error(CompileErrorKind::ArgAttributeExpectedInteger {
-                keyword: "min",
+                key: "min",
                 value: value.clone(),
               })
             })?
@@ -198,7 +198,7 @@ impl<'src> UnresolvedRecipe<'src> {
             let value = evaluator.evaluate_value_const(expression)?.join();
             Some(parse_count(&value).ok_or_else(|| {
               key.error(CompileErrorKind::ArgAttributeExpectedInteger {
-                keyword: "max",
+                key: "max",
                 value: value.clone(),
               })
             })?)

@@ -31,16 +31,16 @@ impl Display for CompileError<'_> {
     use CompileErrorKind::*;
 
     match &*self.kind {
-      ArgAttributeExpectedInteger { keyword, value } => {
+      ArgAttributeExpectedInteger { key, value } => {
         write!(
           f,
-          "argument attribute `{keyword}` value `{value}` is not a non-negative integer"
+          "argument attribute `{key}` value `{value}` is not a non-negative integer"
         )
       }
-      ArgAttributeRequiresOption { keyword } => {
+      ArgAttributeRequiresOption { key } => {
         write!(
           f,
-          "argument attribute `{keyword}` only valid with `long` or `short`"
+          "argument attribute `{key}` only valid with `long` or `short`"
         )
       }
       DefaultWithMin { parameter } => {

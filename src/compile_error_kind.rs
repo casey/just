@@ -3,11 +3,11 @@ use super::*;
 #[derive(Debug, PartialEq)]
 pub(crate) enum CompileErrorKind<'src> {
   ArgAttributeExpectedInteger {
-    keyword: &'static str,
+    key: &'static str,
     value: String,
   },
   ArgAttributeRequiresOption {
-    keyword: &'static str,
+    key: &'static str,
   },
   ArgumentPatternRegex {
     source: regex::Error,

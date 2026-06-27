@@ -232,9 +232,7 @@ impl<'src> Attribute<'src> {
         let value = Self::remove_required(&mut keyword_arguments, "value")?
           .map(|(key, expression)| {
             if long.is_none() && short.is_none() {
-              return Err(
-                key.error(CompileErrorKind::ArgAttributeRequiresOption { keyword: "value" }),
-              );
+              return Err(key.error(CompileErrorKind::ArgAttributeRequiresOption { key: "value" }));
             }
             Ok(expression)
           })
@@ -249,9 +247,7 @@ impl<'src> Attribute<'src> {
               }));
             }
             if long.is_none() && short.is_none() {
-              return Err(
-                key.error(CompileErrorKind::ArgAttributeRequiresOption { keyword: "flag" }),
-              );
+              return Err(key.error(CompileErrorKind::ArgAttributeRequiresOption { key: "flag" }));
             }
             if value.is_some() {
               return Err(key.error(CompileErrorKind::FlagAndValueArgAttribute {
@@ -267,9 +263,7 @@ impl<'src> Attribute<'src> {
         let min = Self::remove_required(&mut keyword_arguments, "min")?
           .map(|(key, expression)| {
             if long.is_none() && short.is_none() {
-              return Err(
-                key.error(CompileErrorKind::ArgAttributeRequiresOption { keyword: "min" }),
-              );
+              return Err(key.error(CompileErrorKind::ArgAttributeRequiresOption { key: "min" }));
             }
             Ok((key, expression))
           })
@@ -279,9 +273,7 @@ impl<'src> Attribute<'src> {
           .remove("max")
           .map(|(key, expression)| {
             if long.is_none() && short.is_none() {
-              return Err(
-                key.error(CompileErrorKind::ArgAttributeRequiresOption { keyword: "max" }),
-              );
+              return Err(key.error(CompileErrorKind::ArgAttributeRequiresOption { key: "max" }));
             }
             Ok((key, expression))
           })
