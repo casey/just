@@ -873,7 +873,9 @@ impl ColorDisplay for Error<'_> {
       } => {
         write!(
           f,
-          "recipe `{recipe}` option `{switch}` may be passed at most {max} times but was passed {found}"
+          "recipe `{recipe}` option `{switch}` may be passed at most {} times but was passed {}",
+          Times(*max),
+          Times(*found),
         )?;
       }
       OptionBelowMinimum {
@@ -884,7 +886,9 @@ impl ColorDisplay for Error<'_> {
       } => {
         write!(
           f,
-          "recipe `{recipe}` option `{switch}` must be passed at least {min} times but was passed {found}"
+          "recipe `{recipe}` option `{switch}` must be passed at least {} times but was passed {}",
+          Times(*min),
+          Times(*found),
         )?;
       }
       OptionMissingValue { recipe, switch } => {

@@ -121,6 +121,7 @@ pub(crate) use {
     switch::Switch,
     table::Table,
     tangle::tangle,
+    times::Times,
     token::Token,
     token_kind::TokenKind,
     unresolved_dependency::UnresolvedDependency,
@@ -334,6 +335,7 @@ mod suggestion;
 mod switch;
 mod table;
 mod tangle;
+mod times;
 mod token;
 mod token_kind;
 mod unindent;
