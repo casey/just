@@ -3,12 +3,13 @@ Organization
 
 ## Proposed Grouping
 
-*Italic* = pulled up from `Miscellanea`.
+*Italic* = pulled up from `Miscellanea`. † = from Settings.
 
 ### Recipes
 - The Default Recipe
 - Recipe Parameters (incl. Recipe Flags and Options)
 - Avoiding Argument Splitting (Quoting / Positional Arguments / Exported Arguments)
+- Positional Arguments †
 - Dependencies (incl. Running Recipes at the End / in the Middle)
 - *Parallelism*
 - Documentation Comments
@@ -16,11 +17,15 @@ Organization
 - Aliases
 - Private Recipes
 - Enabling and Disabling Recipes
+- Allow Duplicate Recipes †
 
 ### Expressions
 - Variables and Assignments
+- Allow Duplicate Variables †
+- Lazy †
 - Expressions and Substitutions (Concatenation / Logical Operators / Joining Paths / Escaping `{{`)
 - Strings (Shell-expanded strings / Format strings)
+- Lists †
 - Conditional Expressions
 - Command Evaluation Using Backticks
 - Stopping execution with error
@@ -38,9 +43,12 @@ Organization
 - Multi-Line Constructs (if / for / while / Outside Recipe Bodies)
 - Setting Variables in a Recipe
 - Configuring the Shell
+- Shell †
 
 ### Environment Variables
 - Getting and Setting Environment Variables (Exporting / Unexporting / Getting / Setting from Env)
+- Dotenv Settings †
+- Export †
 - Sharing Environment Variables Between Recipes (Using Python Virtual Environments)
 
 ### Working Directory
@@ -75,9 +83,12 @@ Organization
 ### Cached Recipes
 - Cached Recipes (Clearing the Cache / Input Files / Output Files / Friendly Admonitions)
 
+### Backwards Compatibility (existing top-level section)
+- Requiring a Minimum Just Version †
+
 ### Reference
 - Attributes (the table of attributes)
-- Settings (Table of Settings + all per-setting subsections)
+- Settings (the table of settings)
 - Build-in functions (the lists of functions)
 - Constants
 
