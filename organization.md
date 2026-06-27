@@ -15,6 +15,7 @@ Organization
 - Groups
 - Aliases
 - Private Recipes
+- Enabling and Disabling Recipes
 
 ### Expressions
 - Variables and Assignments
@@ -45,6 +46,7 @@ Organization
 ### Working Directory
 - Working Directory
 - Changing the Working Directory in a Recipe
+- Disabling Changing Directory
 
 ### Organization
 - Imports
@@ -63,6 +65,7 @@ Organization
 - Setting Variables from the Command Line
 - Command-line Options (incl. Setting Command-line Options with Environment Variables)
 - Selecting Recipes to Run With an Interactive Chooser
+- Requiring Confirmation for Recipes (incl. Custom Confirmation Prompt)
 - Timestamps
 - Signal Handling (Fatal Signals / Continuing Execution / SIGINFO / Windows)
 - *Shell Completion Scripts*
@@ -73,7 +76,7 @@ Organization
 - Cached Recipes (Clearing the Cache / Input Files / Output Files / Friendly Admonitions)
 
 ### Reference
-- Attributes (Enabling and Disabling Recipes / Disabling Changing Directory / Requiring Confirmation / Custom Confirmation Prompt / Metadata)
+- Attributes (the table of attributes)
 - Settings (Table of Settings + all per-setting subsections)
 - Build-in functions (the lists of functions)
 - Constants
@@ -81,5 +84,5 @@ Organization
 ### Miscellanea (not exhuastive, just everything that didn't get moved)
 Shell Alias · Grammar · just.sh · Node.js `package.json` Script Compatibility ·
 Paths on Windows · Printing Complex Strings · Skill for Agents · Alternatives and
-Prior Art, Python Recipes with `uv`, Activating Environments
+Prior Art, Python Recipes with `uv`, Activating Environments, Metadata
 *Re-running recipes when files change*
