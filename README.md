@@ -4692,9 +4692,6 @@ Attributes with a single argument may be written with a colon:
 foo:
 ```
 
-Features
---------
-
 ### Settings
 
 Settings control interpretation and execution. Each setting may be specified at
@@ -4761,6 +4758,9 @@ expressions<sup>1.46.0</sup>.
 However, because settings affect the behavior of backticks and many functions,
 those expressions may not contain backticks or function calls, directly or
 transitively via reference.
+
+Features
+--------
 
 ### Built-in Functions
 
