@@ -3980,15 +3980,6 @@ $ just --list --list-heading ''
     build
 ```
 
-Cached Recipes
---------------
-
-Reference
----------
-
-Features
---------
-
 ### Invoking Multiple Recipes
 
 Multiple recipes may be invoked on the command line at once:
@@ -4030,6 +4021,15 @@ recipe:
 $ just --one build serve
 error: Expected 1 command-line recipe invocation but found 2.
 ```
+
+Cached Recipes
+--------------
+
+Reference
+---------
+
+Features
+--------
 
 ### Settings
 
