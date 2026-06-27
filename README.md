@@ -5248,9 +5248,6 @@ xdg_config_dir := if env('XDG_CONFIG_HOME', '') =~ '^/' {
 }
 ```
 
-Features
---------
-
 ### Constants
 
 A number of constants are predefined:
@@ -5315,6 +5312,9 @@ by some shells.
 @foo:
   echo '{{BOLD + STRIKETHROUGH + CYAN + BG_BLUE}}Hi!{{NORMAL}}'
 ```
+
+Features
+--------
 
 Changelog
 ---------
