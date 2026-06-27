@@ -3278,6 +3278,27 @@ submodules.
 Environment files are loaded in submodules<sup>1.49.0</sup> and may override
 variables defined in parent module environment files.
 
+### Export
+
+The `export` setting causes all `just` variables to be exported as environment
+variables. Defaults to `false`.
+
+```just
+set export
+
+a := "hello"
+
+@foo b:
+  echo $a
+  echo $b
+```
+
+```console
+$ just foo goodbye
+hello
+goodbye
+```
+
 Working Directory
 -----------------
 
@@ -3576,27 +3597,6 @@ expressions<sup>1.46.0</sup>.
 However, because settings affect the behavior of backticks and many functions,
 those expressions may not contain backticks or function calls, directly or
 transitively via reference.
-
-#### Export
-
-The `export` setting causes all `just` variables to be exported as environment
-variables. Defaults to `false`.
-
-```just
-set export
-
-a := "hello"
-
-@foo b:
-  echo $a
-  echo $b
-```
-
-```console
-$ just foo goodbye
-hello
-goodbye
-```
 
 #### Requiring a Minimum Just Version
 
