@@ -254,7 +254,7 @@ pub(crate) enum Error<'src> {
     recipe: &'src str,
     shell: String,
   },
-  ShortOptionWithValueNotLast {
+  NonFinalOptionWithValue {
     recipe: &'src str,
     switch: Switch,
   },
@@ -831,7 +831,7 @@ impl ColorDisplay for Error<'_> {
           path.display()
         )?;
       }
-      ShortOptionWithValueNotLast { recipe, switch } => {
+      NonFinalOptionWithValue { recipe, switch } => {
         write!(
           f,
           "recipe `{recipe}` option `{switch}` takes a value and so must be last when combined with other options"

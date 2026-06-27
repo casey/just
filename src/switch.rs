@@ -41,7 +41,7 @@ impl Switch {
       }
       "true"
     } else if !last {
-      return Err(Error::ShortOptionWithValueNotLast {
+      return Err(Error::NonFinalOptionWithValue {
         recipe: recipe.name(),
         switch: self,
       });
