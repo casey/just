@@ -744,33 +744,6 @@ A variety of `justfile`s can be found in the
 Recipes
 -------
 
-Expressions
------------
-
-Execution
----------
-
-Environment Variables
----------------------
-
-Working Directory
------------------
-
-Organization
-------------
-
-Command Line
-------------
-
-Cached Recipes
---------------
-
-Reference
----------
-
-Features
---------
-
 ### The Default Recipe
 
 When `just` is invoked without a recipe, it runs the recipe with the
@@ -806,6 +779,33 @@ If no recipe makes sense as the default recipe, you can use
 ```just
 set default-list := true
 ```
+
+Expressions
+-----------
+
+Execution
+---------
+
+Environment Variables
+---------------------
+
+Working Directory
+-----------------
+
+Organization
+------------
+
+Command Line
+------------
+
+Cached Recipes
+--------------
+
+Reference
+---------
+
+Features
+--------
 
 ### Listing Available Recipes
 
