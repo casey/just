@@ -3877,15 +3877,6 @@ used to keep a `justfile` hidden.
 Command Line
 ------------
 
-Cached Recipes
---------------
-
-Reference
----------
-
-Features
---------
-
 ### Listing Available Recipes
 
 Recipes can be listed in alphabetical order with `just --list`:
@@ -3988,6 +3979,15 @@ $ just --list --list-heading ''
     test
     build
 ```
+
+Cached Recipes
+--------------
+
+Reference
+---------
+
+Features
+--------
 
 ### Invoking Multiple Recipes
 
