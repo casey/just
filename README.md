@@ -4396,6 +4396,53 @@ language and one of the first practical applications of Unix. If you have
 [`groff`](https://www.gnu.org/software/groff/) installed you can view the man
 page with `just --man | groff -mandoc -Tascii | less`.
 
+### Formatting and dumping `justfile`s
+
+Each `justfile` has a canonical formatting with respect to whitespace and
+newlines.
+
+You can overwrite the current justfile with a canonically-formatted version
+using the `--fmt` flag:
+
+```console
+$ cat justfile
+# A lot of blank lines
+
+
+
+
+
+some-recipe:
+  echo "foo"
+$ just --fmt
+$ cat justfile
+# A lot of blank lines
+
+some-recipe:
+    echo "foo"
+```
+
+When the `justfile` is read from standard input with `--justfile -` or
+extracted from a markdown file, `--fmt` prints the formatted `justfile` to
+stdout.
+
+Note that formatting is not covered by any backwards compatibility guarantee
+and is subject to change from time to time.
+
+Invoking `just --fmt --check` runs `--fmt` in check mode. Instead of
+overwriting the `justfile`, `just` will exit with an exit code of 0 if it is
+formatted correctly, and will exit with 1 and print a diff if it is not.
+
+You can use the `--dump` command to output a formatted version of the
+`justfile` to stdout:
+
+```console
+$ just --dump > formatted-justfile
+```
+
+The `--dump` command can be used with `--dump-format json` to print a JSON
+representation of a `justfile`.
+
 Cached Recipes
 --------------
 
@@ -5335,53 +5382,6 @@ myriad other things which may change the execution of a computer program.
 Attempting to skip execution based on the type of crude heuristics that `just`
 employs has a long and sordid history. However, it is an undeniably convenient
 and powerful tool, and it is provided in the hopes that you find it useful.
-
-### Formatting and dumping `justfile`s
-
-Each `justfile` has a canonical formatting with respect to whitespace and
-newlines.
-
-You can overwrite the current justfile with a canonically-formatted version
-using the `--fmt` flag:
-
-```console
-$ cat justfile
-# A lot of blank lines
-
-
-
-
-
-some-recipe:
-  echo "foo"
-$ just --fmt
-$ cat justfile
-# A lot of blank lines
-
-some-recipe:
-    echo "foo"
-```
-
-When the `justfile` is read from standard input with `--justfile -` or
-extracted from a markdown file, `--fmt` prints the formatted `justfile` to
-stdout.
-
-Note that formatting is not covered by any backwards compatibility guarantee
-and is subject to change from time to time.
-
-Invoking `just --fmt --check` runs `--fmt` in check mode. Instead of
-overwriting the `justfile`, `just` will exit with an exit code of 0 if it is
-formatted correctly, and will exit with 1 and print a diff if it is not.
-
-You can use the `--dump` command to output a formatted version of the
-`justfile` to stdout:
-
-```console
-$ just --dump > formatted-justfile
-```
-
-The `--dump` command can be used with `--dump-format json` to print a JSON
-representation of a `justfile`.
 
 Changelog
 ---------
