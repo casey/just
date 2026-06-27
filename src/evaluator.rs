@@ -781,11 +781,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       } else if let Some(value) = &parameter.value
         && !evaluator.is_dependency
       {
-        let value = evaluator.evaluate_value(value)?;
-        iter::repeat_n(value.elements(), argument.elements().len())
-          .flatten()
-          .cloned()
-          .collect()
+        iter::repeat_n(
+          evaluator.evaluate_value(value)?.elements(),
+          argument.elements().len(),
+        )
+        .flatten()
+        .cloned()
+        .collect()
       } else {
         argument.clone()
       };
