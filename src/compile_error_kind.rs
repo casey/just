@@ -7,7 +7,7 @@ pub(crate) enum CompileErrorKind<'src> {
     value: String,
   },
   ArgAttributeRequiresOption {
-    key: &'static str,
+    key: &'src str,
   },
   ArgumentPatternRegex {
     source: regex::Error,
