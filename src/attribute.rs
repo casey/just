@@ -466,10 +466,10 @@ impl Display for Attribute<'_> {
         }
 
         if let Some((_key, max)) = max {
+          write!(f, ", max")?;
+
           if let Some(max) = max {
-            write!(f, ", max={max}")?;
-          } else {
-            write!(f, ", max")?;
+            write!(f, "={max}")?;
           }
         }
 
