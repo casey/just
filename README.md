@@ -4769,8 +4769,7 @@ However, because settings affect the behavior of backticks and many functions,
 those expressions may not contain backticks or function calls, directly or
 transitively via reference.
 
-Features
---------
+### Built-in Functions
 
 #### System Information
 
@@ -5248,6 +5247,9 @@ xdg_config_dir := if env('XDG_CONFIG_HOME', '') =~ '^/' {
   home_directory() / '.config'
 }
 ```
+
+Features
+--------
 
 ### Constants
 
