@@ -781,7 +781,13 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       } else if let Some(value) = &parameter.value
         && !evaluator.is_dependency
       {
-        evaluator.evaluate_value(value)?
+        let value = evaluator.evaluate_value(value)?;
+        argument
+          .elements()
+          .iter()
+          .flat_map(|_| value.elements())
+          .cloned()
+          .collect()
       } else {
         argument.clone()
       };

@@ -1136,6 +1136,42 @@ fn multiple_flag_counts_occurrences() {
 }
 
 #[test]
+fn multiple_value_option_repeats_value() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, value='baz', multiple)]
+        @foo bar:
+          echo bar='{{ show(bar) }}'
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "--bar", "--bar"])
+    .stdout("bar=[\"baz\", \"baz\"]\n")
+    .success();
+}
+
+#[test]
+fn multiple_value_option_concatenates_list_values() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, value=['a', 'b'], multiple)]
+        @foo bar:
+          echo bar='{{ show(bar) }}'
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo", "--bar", "--bar"])
+    .stdout("bar=[\"a\", \"b\", \"a\", \"b\"]\n")
+    .success();
+}
+
+#[test]
 fn multiple_requires_set_lists() {
   Test::new()
     .justfile(
