@@ -380,7 +380,7 @@ fn plus_variadic_option_requires_one_argument() {
 }
 
 #[test]
-fn variadic_option_collects_a_list() {
+fn variadic_option_is_list() {
   Test::new()
     .justfile(
       "
@@ -1100,7 +1100,7 @@ fn flags_passed_with_a_value_are_an_error() {
 }
 
 #[test]
-fn multiple_option_collects_a_list() {
+fn multiple_option_is_list() {
   Test::new()
     .justfile(
       "
