@@ -23,10 +23,11 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     overrides: &mut HashMap<Number, String>,
     paths: &HashMap<PathBuf, PathBuf>,
     private: bool,
+    ast: &'run Ast<'src>,
     root: &Path,
   ) -> CompileResult<'src, Justfile<'src>> {
     Self::default().justfile(
-      asts, config, doc, groups, loaded, name, overrides, paths, private, root,
+      asts, config, doc, groups, loaded, name, overrides, paths, private, ast, root,
     )
   }
 
@@ -41,6 +42,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     overrides: &mut HashMap<Number, String>,
     paths: &HashMap<PathBuf, PathBuf>,
     private: bool,
+    ast: &'run Ast<'src>,
     root: &Path,
   ) -> CompileResult<'src, Justfile<'src>> {
     let mut absent_modules = BTreeSet::new();
@@ -50,7 +52,6 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut unstable_features = BTreeSet::new();
 
     let mut stack = Vec::new();
-    let ast = asts.get(root).unwrap();
     stack.push(ast);
 
     while let Some(ast) = stack.pop() {
@@ -99,6 +100,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
                 overrides,
                 paths,
                 *private,
+                asts.get(absolute).unwrap(),
                 absolute,
               )?);
             } else if *optional {

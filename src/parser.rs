@@ -445,7 +445,30 @@ impl<'run, 'src> Parser<'run, 'src> {
   fn parse_ast(mut self) -> CompileResult<'src, Ast<'src>> {
     self.accept(ByteOrderMark)?;
 
-    while !self.accepted(Eof)? {
+    self.parse_items(Eof)?;
+    self.expect(Eof)?;
+
+    if self.next_token != self.tokens.len() {
+      return Err(self.internal_error(format!(
+        "parse completed with {} unparsed tokens",
+        self.tokens.len() - self.next_token,
+      ))?);
+    }
+
+    Ok(Ast {
+      items: self.items,
+      list_features: self.list_features,
+      module_path: self.module_namepath.map(Into::into).unwrap_or_default(),
+      unstable_features: self.unstable_features,
+      warnings: Vec::new(),
+      working_directory: self.working_directory.into(),
+    })
+  }
+
+  /// Parse items into `self.items` until the next significant token is
+  /// `terminator`, which is left unconsumed.
+  fn parse_items(&mut self, terminator: TokenKind) -> CompileResult<'src> {
+    while !self.next_is(terminator) {
       let mut attributes = self.parse_attributes()?;
 
       let item = self.parse_item(&mut attributes)?;
@@ -475,28 +498,14 @@ impl<'run, 'src> Parser<'run, 'src> {
           self.items.push(Item::Comment(comment.lexeme().trim_end()));
         }
 
-        if !self.next_is(Eof) {
+        if !self.next_is(terminator) {
           self.expect(Eol)?;
           self.items.push(Item::Newline);
         }
       }
     }
 
-    if self.next_token != self.tokens.len() {
-      return Err(self.internal_error(format!(
-        "parse completed with {} unparsed tokens",
-        self.tokens.len() - self.next_token,
-      ))?);
-    }
-
-    Ok(Ast {
-      items: self.items,
-      list_features: self.list_features,
-      module_path: self.module_namepath.map(Into::into).unwrap_or_default(),
-      unstable_features: self.unstable_features,
-      warnings: Vec::new(),
-      working_directory: self.working_directory.into(),
-    })
+    Ok(())
   }
 
   fn parse_item(

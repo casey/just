@@ -103,6 +103,7 @@ impl Compiler {
       &mut overrides,
       &paths,
       false,
+      asts.get(root).unwrap(),
       root,
     )?;
 
@@ -256,6 +257,7 @@ impl Compiler {
       &mut HashMap::new(),
       &paths,
       false,
+      asts.get(&root).unwrap(),
       &root,
     )
   }

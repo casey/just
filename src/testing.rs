@@ -78,6 +78,7 @@ pub(crate) fn analysis_error(
     &mut HashMap::new(),
     &paths,
     false,
+    asts.get(&root).unwrap(),
     &root,
   ) {
     Ok(_) => panic!("Analysis unexpectedly succeeded"),
