@@ -106,6 +106,7 @@ string_list   : '[' string (',' string)* ','? ']'
 import        : 'import' '?'? string? eol
 
 module        : 'mod' '?'? NAME string? eol
+              | 'mod' NAME '::' eol INDENT item* DEDENT
 
 expression    : disjunct || expression
               | disjunct

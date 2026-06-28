@@ -14,6 +14,7 @@ pub(crate) enum Item<'src> {
   },
   Module {
     absolute: Option<PathBuf>,
+    body: Option<Ast<'src>>,
     doc: Option<String>,
     groups: Vec<StringLiteral<'src>>,
     name: Name<'src>,
@@ -57,6 +58,7 @@ impl ColorDisplay for Item<'_> {
         write!(f, " {relative}")
       }
       Self::Module {
+        body,
         doc,
         groups,
         name,
@@ -82,6 +84,23 @@ impl ColorDisplay for Item<'_> {
 
         if let Some(path) = relative {
           write!(f, " {path}")?;
+        }
+
+        if let Some(body) = body {
+          write!(f, "::")?;
+
+          let rendered = body.color_display(color).to_string();
+          let rendered = rendered.strip_suffix('\n').unwrap_or(&rendered);
+
+          if !rendered.is_empty() {
+            for line in rendered.split('\n') {
+              if line.is_empty() {
+                writeln!(f)?;
+              } else {
+                write!(f, "\n  {line}")?;
+              }
+            }
+          }
         }
 
         Ok(())

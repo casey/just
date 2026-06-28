@@ -24,7 +24,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     paths: &HashMap<PathBuf, PathBuf>,
     private: bool,
     ast: &'run Ast<'src>,
-    root: &Path,
+    root: &'run Path,
   ) -> CompileResult<'src, Justfile<'src>> {
     Self::default().justfile(
       asts, config, doc, groups, loaded, name, overrides, paths, private, ast, root,
@@ -43,7 +43,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     paths: &HashMap<PathBuf, PathBuf>,
     private: bool,
     ast: &'run Ast<'src>,
-    root: &Path,
+    root: &'run Path,
   ) -> CompileResult<'src, Justfile<'src>> {
     let mut absent_modules = BTreeSet::new();
     let mut definitions = HashMap::new();
@@ -52,9 +52,9 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut unstable_features = BTreeSet::new();
 
     let mut stack = Vec::new();
-    stack.push(ast);
+    stack.push((root, ast));
 
-    while let Some(ast) = stack.pop() {
+    while let Some((source, ast)) = stack.pop() {
       unstable_features.extend(&ast.unstable_features);
 
       list_features.extend(&ast.list_features);
@@ -76,11 +76,12 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             if let Some(absolute) = absolute
               && imports.insert(absolute)
             {
-              stack.push(asts.get(absolute).unwrap());
+              stack.push((absolute.as_path(), asts.get(absolute).unwrap()));
             }
           }
           Item::Module {
             absolute,
+            body,
             doc,
             groups,
             name,
@@ -88,7 +89,22 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             private,
             ..
           } => {
-            if let Some(absolute) = absolute {
+            if let Some(body) = body {
+              Self::define(&mut definitions, *name, "module", false)?;
+              self.modules.insert(Self::analyze(
+                asts,
+                config,
+                doc.clone(),
+                groups.as_slice(),
+                loaded,
+                Some(*name),
+                overrides,
+                paths,
+                *private,
+                body,
+                source,
+              )?);
+            } else if let Some(absolute) = absolute {
               Self::define(&mut definitions, *name, "module", false)?;
               self.modules.insert(Self::analyze(
                 asts,
@@ -544,6 +560,21 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 #[cfg(test)]
 mod tests {
   use super::*;
+
+  analysis_error! {
+    name: inline_module_shadows_recipe,
+    input: "mod foo::\n  bar:\nfoo:",
+    offset: 17,
+    line: 2,
+    column: 0,
+    width: 3,
+    kind: Redefinition {
+      first_type: "module",
+      second_type: "recipe",
+      name: "foo",
+      first: 0,
+    },
+  }
 
   analysis_error! {
     name: duplicate_alias,

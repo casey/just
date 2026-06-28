@@ -160,6 +160,7 @@ pub(crate) enum CompileErrorKind<'src> {
   OptionNameEmpty {
     parameter: String,
   },
+  OptionalInlineModule,
   ParameterFollowsVariadicParameter {
     parameter: &'src str,
   },

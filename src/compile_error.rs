@@ -326,6 +326,7 @@ impl Display for CompileError<'_> {
       OptionNameEmpty { parameter } => {
         write!(f, "option name for parameter `{parameter}` is empty")
       }
+      OptionalInlineModule => write!(f, "inline modules may not be optional"),
       ParameterFollowsVariadicParameter { parameter } => {
         write!(f, "parameter `{parameter}` follows variadic parameter")
       }

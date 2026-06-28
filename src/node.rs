@@ -39,6 +39,7 @@ impl<'src> Node<'src> for Item<'src> {
         tree.push(format!("{relative}"))
       }
       Self::Module {
+        body,
         name,
         optional,
         relative,
@@ -54,6 +55,16 @@ impl<'src> Node<'src> for Item<'src> {
 
         if let Some(relative) = relative {
           tree = tree.push(format!("{relative}"));
+        }
+
+        if let Some(body) = body {
+          tree = tree.push("::").extend(
+            body
+              .items
+              .iter()
+              .filter(|item| !matches!(item, Item::Newline))
+              .map(Node::tree),
+          );
         }
 
         tree

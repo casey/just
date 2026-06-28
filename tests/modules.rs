@@ -2029,3 +2029,209 @@ fn trailing_separator_not_last_argument() {
     .stderr("error: justfile does not contain recipe `foo::`\n")
     .failure();
 }
+
+#[test]
+fn inline_modules_are_unstable() {
+  Test::new()
+    .justfile(
+      "
+        mod foo::
+          bar:
+            @echo BAR
+      ",
+    )
+    .args(["foo::bar"])
+    .stderr_regex("error: inline modules are currently unstable.*")
+    .failure();
+}
+
+#[test]
+fn inline_module_recipe() {
+  Test::new()
+    .justfile(
+      "
+        mod foo::
+          bar:
+            @echo BAR
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo::bar"])
+    .stdout("BAR\n")
+    .success();
+}
+
+#[test]
+fn inline_module_enabled_with_setting() {
+  Test::new()
+    .justfile(
+      "
+        set unstable
+
+        mod foo::
+          bar:
+            @echo BAR
+      ",
+    )
+    .args(["foo::bar"])
+    .stdout("BAR\n")
+    .success();
+}
+
+#[test]
+fn nested_inline_modules() {
+  Test::new()
+    .justfile(
+      "
+        mod foo::
+          mod bar::
+            baz:
+              @echo BAZ
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo::bar::baz"])
+    .stdout("BAZ\n")
+    .success();
+}
+
+#[test]
+fn inline_module_assignments_and_settings() {
+  Test::new()
+    .justfile(
+      "
+        mod foo::
+          set positional-arguments
+
+          x := 'BAR'
+
+          bar:
+            @echo {{ x }}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo::bar"])
+    .stdout("BAR\n")
+    .success();
+}
+
+#[test]
+fn default_recipe_in_inline_module() {
+  Test::new()
+    .justfile(
+      "
+        mod foo::
+          bar:
+            @echo BAR
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo"])
+    .stdout("BAR\n")
+    .success();
+}
+
+#[test]
+fn empty_inline_module() {
+  Test::new()
+    .justfile(
+      "
+        mod foo::
+
+        bar:
+          @echo BAR
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["bar"])
+    .stdout("BAR\n")
+    .success();
+}
+
+#[test]
+fn file_module_in_inline_module() {
+  Test::new()
+    .write(
+      "bar.just",
+      "
+        baz:
+         @echo BAZ
+      ",
+    )
+    .justfile(
+      "
+        mod foo::
+          mod bar
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["foo::bar::baz"])
+    .stdout("BAZ\n")
+    .success();
+}
+
+#[test]
+fn inline_module_after_bodiless_recipe() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+
+        mod bar::
+          baz:
+            @echo BAZ
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["bar::baz"])
+    .stdout("BAZ\n")
+    .success();
+}
+
+#[test]
+fn inline_module_attributes() {
+  Test::new()
+    .justfile(
+      "
+        # foo is a module
+        [group: 'mods']
+        mod foo::
+          bar:
+            @echo BAR
+
+        [private]
+        mod secret::
+          hush:
+            @echo HUSH
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["--list"])
+    .stdout(
+      "
+        Available recipes:
+            [mods]
+            foo ... # foo is a module
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn inline_module_assignment_can_be_overridden() {
+  Test::new()
+    .justfile(
+      "
+        mod foo::
+          x := 'BAR'
+
+          [no-cd]
+          bar:
+            @echo {{ x }}
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["--set", "foo::x", "BAZ", "foo::bar"])
+    .stdout("BAZ\n")
+    .success();
+}

@@ -3696,6 +3696,40 @@ Available recipes:
     foo ... # foo is a great module!
 ```
 
+Modules may be defined inline, in the same `justfile`, by putting `::` after the
+module name and indenting the module's body<sup>master</sup>. Inline modules are
+currently unstable, so `just` must be invoked with `--unstable`, the
+`JUST_UNSTABLE` environment variable must be set, or `set unstable` must appear
+in the `justfile`:
+
+```justfile
+set unstable
+
+mod foo::
+  bar:
+    @echo BAR
+```
+
+```console
+$ just foo::bar
+BAR
+```
+
+An inline module may contain anything a module source file can, including
+recipes, variables, settings, and submodules, which may themselves be inline:
+
+```justfile
+set unstable
+
+mod foo::
+  mod bar::
+    baz:
+      @echo BAZ
+```
+
+Since an inline module has no source file of its own, its recipes run with the
+working directory set to the directory containing the `justfile`.
+
 Modules are still missing a lot of features, for example, the ability to refer
 to variables in other modules. See the [module improvement tracking
 issue](https://github.com/casey/just/issues/2252) for more information.

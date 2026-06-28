@@ -193,6 +193,68 @@ fn alias_fix_indent() {
 }
 
 #[test]
+fn inline_module() {
+  Test::new()
+    .arg("--dump")
+    .env("JUST_UNSTABLE", "1")
+    .justfile(
+      "
+        mod foo::
+          x := \"bar\"
+
+          baz:
+            echo {{x}}
+
+          mod inner::
+            deep:
+              echo deep
+      ",
+    )
+    .stdout(
+      "
+        mod foo::
+          x := \"bar\"
+
+          baz:
+              echo {{ x }}
+
+          mod inner::
+            deep:
+                echo deep
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn inline_module_blank_line_between_recipes_is_preserved() {
+  Test::new()
+    .arg("--dump")
+    .env("JUST_UNSTABLE", "1")
+    .justfile(
+      "
+        mod foo::
+          a:
+            echo a
+
+          b:
+            echo b
+      ",
+    )
+    .stdout(
+      "
+        mod foo::
+          a:
+              echo a
+
+          b:
+              echo b
+      ",
+    )
+    .success();
+}
+
+#[test]
 fn assignment_singlequote() {
   assert_dump(
     "

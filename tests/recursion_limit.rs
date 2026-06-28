@@ -13,6 +13,21 @@ fn bugfix() {
 }
 
 #[test]
+fn inline_module_recursion_limit() {
+  let mut justfile = String::new();
+  for i in 0..300 {
+    justfile.push_str(&"  ".repeat(i));
+    justfile.push_str("mod foo::\n");
+  }
+  Test::new()
+    .justfile(justfile)
+    .args(["--unstable", "--dump"])
+    .stderr_regex("error: parsing recursion depth exceeded(.|\\n)*")
+    .test_round_trip(false)
+    .failure();
+}
+
+#[test]
 fn user_defined_function_recursion_limit() {
   Test::new()
     .justfile(

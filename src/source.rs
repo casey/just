@@ -43,6 +43,22 @@ impl<'src> Source<'src> {
     }
   }
 
+  pub(crate) fn inline_module(&self, name: Name<'src>) -> Self {
+    Self {
+      file_depth: self.file_depth,
+      file_path: self.file_path.clone(),
+      import_offsets: self.import_offsets.clone(),
+      namepath: Some(
+        self
+          .namepath
+          .as_ref()
+          .map_or_else(|| name.into(), |namepath| namepath.join(name)),
+      ),
+      path: self.path.clone(),
+      working_directory: self.working_directory.clone(),
+    }
+  }
+
   pub(crate) fn module(&self, name: Name<'src>, path: PathBuf) -> Self {
     Self {
       file_depth: self.file_depth + 1,

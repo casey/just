@@ -26,67 +26,7 @@ impl Compiler {
 
       paths.insert(current.path.clone(), relative.into());
 
-      for item in &mut ast.items {
-        match item {
-          Item::Module {
-            absolute,
-            name,
-            optional,
-            relative,
-            ..
-          } => {
-            let parent = current.path.parent().unwrap();
-
-            let relative = relative
-              .as_ref()
-              .map(|relative| Self::expand_tilde(&relative.cooked))
-              .transpose()?;
-
-            let import = Self::find_module_file(parent, *name, relative.as_deref())?;
-
-            if let Some(import) = import {
-              if current.file_path.contains(&import) {
-                return Err(Error::CircularImport {
-                  current: current.path,
-                  import,
-                });
-              }
-              *absolute = Some(import.clone());
-              stack.push(current.module(*name, import));
-            } else if !*optional {
-              return Err(Error::MissingModuleFile { module: *name });
-            }
-          }
-          Item::Import {
-            relative,
-            absolute,
-            optional,
-          } => {
-            let import = current
-              .path
-              .parent()
-              .unwrap()
-              .join(Self::expand_tilde(&relative.cooked)?)
-              .lexiclean();
-
-            if filesystem::is_file(&import)? {
-              if current.file_path.contains(&import) {
-                return Err(Error::CircularImport {
-                  current: current.path,
-                  import,
-                });
-              }
-              *absolute = Some(import.clone());
-              stack.push(current.import(import, relative.token.offset));
-            } else if !*optional {
-              return Err(Error::MissingImportFile {
-                path: relative.token,
-              });
-            }
-          }
-          _ => {}
-        }
-      }
+      Self::resolve_items(&mut ast.items, &current, &mut stack)?;
 
       asts.insert(current.path, ast.clone());
     }
@@ -130,6 +70,81 @@ impl Compiler {
       overrides,
       root: root.into(),
     })
+  }
+
+  fn resolve_items<'src>(
+    items: &mut [Item<'src>],
+    current: &Source<'src>,
+    stack: &mut Vec<Source<'src>>,
+  ) -> RunResult<'src, ()> {
+    for item in items {
+      match item {
+        Item::Module {
+          absolute,
+          body,
+          name,
+          optional,
+          relative,
+          ..
+        } => {
+          if let Some(body) = body {
+            Self::resolve_items(&mut body.items, &current.inline_module(*name), stack)?;
+          } else {
+            let parent = current.path.parent().unwrap();
+
+            let relative = relative
+              .as_ref()
+              .map(|relative| Self::expand_tilde(&relative.cooked))
+              .transpose()?;
+
+            let import = Self::find_module_file(parent, *name, relative.as_deref())?;
+
+            if let Some(import) = import {
+              if current.file_path.contains(&import) {
+                return Err(Error::CircularImport {
+                  current: current.path.clone(),
+                  import,
+                });
+              }
+              *absolute = Some(import.clone());
+              stack.push(current.module(*name, import));
+            } else if !*optional {
+              return Err(Error::MissingModuleFile { module: *name });
+            }
+          }
+        }
+        Item::Import {
+          relative,
+          absolute,
+          optional,
+        } => {
+          let import = current
+            .path
+            .parent()
+            .unwrap()
+            .join(Self::expand_tilde(&relative.cooked)?)
+            .lexiclean();
+
+          if filesystem::is_file(&import)? {
+            if current.file_path.contains(&import) {
+              return Err(Error::CircularImport {
+                current: current.path.clone(),
+                import,
+              });
+            }
+            *absolute = Some(import.clone());
+            stack.push(current.import(import, relative.token.offset));
+          } else if !*optional {
+            return Err(Error::MissingImportFile {
+              path: relative.token,
+            });
+          }
+        }
+        _ => {}
+      }
+    }
+
+    Ok(())
   }
 
   fn find_module_file<'src>(

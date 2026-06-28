@@ -29,7 +29,7 @@ pub(crate) struct Parser<'run, 'src> {
   import_offsets: Vec<usize>,
   items: Vec<Item<'src>>,
   list_features: Vec<(ListFeature, Token<'src>)>,
-  module_namepath: Option<&'run Namepath<'src>>,
+  module_path: Modulepath,
   next_token: usize,
   numerator: &'run mut Numerator,
   recursion_depth: usize,
@@ -54,7 +54,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       import_offsets: import_offsets.to_vec(),
       items: Vec::new(),
       list_features: Vec::new(),
-      module_namepath,
+      module_path: module_namepath.map(Into::into).unwrap_or_default(),
       next_token: 0,
       numerator,
       recursion_depth: 0,
@@ -458,7 +458,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok(Ast {
       items: self.items,
       list_features: self.list_features,
-      module_path: self.module_namepath.map(Into::into).unwrap_or_default(),
+      module_path: self.module_path.clone(),
       unstable_features: self.unstable_features,
       warnings: Vec::new(),
       working_directory: self.working_directory.into(),
@@ -476,6 +476,10 @@ impl<'run, 'src> Parser<'run, 'src> {
 
       let unterminated = match self.items.last().unwrap() {
         Item::Newline => false,
+        Item::Module { body: Some(_), .. } => {
+          self.items.push(Item::Newline);
+          false
+        }
         Item::Recipe(recipe) => {
           if recipe.body.is_empty() {
             true
@@ -506,6 +510,51 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
 
     Ok(())
+  }
+
+  /// Parse the indented body of an inline module, e.g. the contents following
+  /// `mod foo::`
+  fn parse_module_body(&mut self, module_path: Modulepath) -> CompileResult<'src, Ast<'src>> {
+    if self.recursion_depth == RECURSION_LIMIT {
+      return Err(CompileError::new(
+        self.next()?,
+        CompileErrorKind::ParsingRecursionDepthExceeded,
+      ));
+    }
+
+    self.recursion_depth += 1;
+
+    if !self.next_is(Eof) {
+      self.expect_eol()?;
+    }
+
+    while self.accepted(Eol)? {}
+
+    let module_path = mem::replace(&mut self.module_path, module_path);
+    let items = mem::take(&mut self.items);
+    let list_features = mem::take(&mut self.list_features);
+    let unstable_features = mem::take(&mut self.unstable_features);
+
+    if self.accepted(Indent)? {
+      self.parse_items(Dedent)?;
+      self.expect(Dedent)?;
+    }
+
+    let module_path = mem::replace(&mut self.module_path, module_path);
+    let items = mem::replace(&mut self.items, items);
+    let list_features = mem::replace(&mut self.list_features, list_features);
+    let unstable_features = mem::replace(&mut self.unstable_features, unstable_features);
+
+    self.recursion_depth -= 1;
+
+    Ok(Ast {
+      items,
+      list_features,
+      module_path,
+      unstable_features,
+      warnings: Vec::new(),
+      working_directory: self.working_directory.into(),
+    })
   }
 
   fn parse_item(
@@ -560,6 +609,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           if self.line_is(&[Identifier, Identifier])
             || self.next_are(&[Identifier, Identifier, Identifier, StringToken])
             || self.next_are(&[Identifier, Identifier, StringToken])
+            || self.next_are(&[Identifier, Identifier, ColonColon])
             || self.next_are(&[Identifier, QuestionMark]) =>
         {
           self.presume_keyword(Keyword::Mod)?;
@@ -567,12 +617,6 @@ impl<'run, 'src> Parser<'run, 'src> {
           let optional = self.accepted(QuestionMark)?;
 
           let name = self.parse_name()?;
-
-          let relative = if self.next_is(StringToken) || self.next_are(&[Identifier, StringToken]) {
-            Some(self.parse_string_literal()?)
-          } else {
-            None
-          };
 
           let attributes = take_attributes();
 
@@ -597,14 +641,45 @@ impl<'run, 'src> Parser<'run, 'src> {
             }
           }
 
-          Item::Module {
-            absolute: None,
-            doc,
-            groups,
-            name,
-            optional,
-            private,
-            relative,
+          if let Some(colon_colon) = self.accept(ColonColon)? {
+            if optional {
+              return Err(colon_colon.error(CompileErrorKind::OptionalInlineModule));
+            }
+
+            self
+              .unstable_features
+              .insert(UnstableFeature::InlineModules);
+
+            let body = self.parse_module_body(self.module_path.join(name.lexeme()))?;
+
+            Item::Module {
+              absolute: None,
+              body: Some(body),
+              doc,
+              groups,
+              name,
+              optional: false,
+              private,
+              relative: None,
+            }
+          } else {
+            let relative = if self.next_is(StringToken) || self.next_are(&[Identifier, StringToken])
+            {
+              Some(self.parse_string_literal()?)
+            } else {
+              None
+            };
+
+            Item::Module {
+              absolute: None,
+              body: None,
+              doc,
+              groups,
+              name,
+              optional,
+              private,
+              relative,
+            }
           }
         }
         Some(Keyword::Set)
@@ -3087,6 +3162,34 @@ mod tests {
     name: optional_module_with_path,
     text: "mod? foo \"some/file/path.txt\"     \n",
     tree: (justfile (mod ? foo "some/file/path.txt")),
+  }
+
+  test! {
+    name: inline_module,
+    text: "mod foo::\n  bar:\n    echo baz\n",
+    tree: (justfile (mod foo :: (recipe bar (body ("echo baz"))))),
+  }
+
+  test! {
+    name: inline_module_empty,
+    text: "mod foo::\n",
+    tree: (justfile (mod foo ::)),
+  }
+
+  test! {
+    name: inline_module_nested,
+    text: "mod foo::\n  mod bar::\n    baz:\n",
+    tree: (justfile (mod foo :: (mod bar :: (recipe baz)))),
+  }
+
+  error! {
+    name: optional_inline_module,
+    input: "mod? foo::\n  bar:\n",
+    offset: 8,
+    line: 0,
+    column: 8,
+    width: 2,
+    kind: OptionalInlineModule,
   }
 
   test! {

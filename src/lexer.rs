@@ -1,7 +1,5 @@
 use {super::*, CompileErrorKind::*, TokenKind::*};
 
-static DEDENT_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[ \t\n]*\n[^ \t\n]").unwrap());
-
 /// Just language lexer
 ///
 /// The lexer proceeds character-by-character, as opposed to using regular
@@ -185,6 +183,27 @@ impl<'src> Lexer<'src> {
   /// Are we currently indented
   fn indented(&self) -> bool {
     !self.indentation().is_empty()
+  }
+
+  /// The indentation of the next non-blank line, or `None` if the remaining
+  /// text contains only blank lines
+  fn next_nonblank_indentation(&self) -> Option<&'src str> {
+    let mut rest = self.rest();
+
+    loop {
+      let line_length = rest.find('\n').map_or(rest.len(), |index| index + 1);
+      let line = &rest[..line_length];
+      let content = line.trim_start_matches([' ', '\t']);
+
+      if content.is_empty() || content.starts_with('\n') || content.starts_with('\r') {
+        if line_length == rest.len() {
+          return None;
+        }
+        rest = &rest[line_length..];
+      } else {
+        return Some(&line[..line.len() - content.len()]);
+      }
+    }
   }
 
   /// Create a new token with `kind` whose lexeme is between `self.token_start`
@@ -390,8 +409,10 @@ impl<'src> Lexer<'src> {
 
     match indentation {
       Blank => {
-        if DEDENT_RE.is_match(self.rest()) {
-          while self.indented() {
+        if let Some(indentation) = self.next_nonblank_indentation()
+          && self.indentation.contains(&indentation)
+        {
+          while self.indentation() != indentation {
             self.lex_dedent();
           }
         }
@@ -407,6 +428,10 @@ impl<'src> Lexer<'src> {
         Ok(())
       }
       Continue => {
+        if !self.recipe_body {
+          self.recipe_body_pending = false;
+        }
+
         if !self.indentation().is_empty() {
           for _ in self.indentation().chars() {
             self.advance()?;
