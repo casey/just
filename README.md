@@ -519,11 +519,11 @@ value other than `false`, `0`, or the empty string.
 ### Requiring a Minimum Just Version
 
 If you use features of `just` which require a particular version, you may use
-the `minimum-version`<sup>master</sup> setting to make it an error to use older
+the `minimum-version`<sup>1.55.0</sup> setting to make it an error to use older
 versions of `just`:
 
 ```justfile
-set minimum-version := <sup>master</sup>
+set minimum-version := '1.55.0'
 ```
 
 If `just` encounters a minimum version greater than its own version, it will
@@ -973,7 +973,7 @@ double n:
   echo $(({{n}} * 2))
 ```
 
-The value of `pattern` may be a const expression<sup>master</sup>.
+The value of `pattern` may be a const expression<sup>1.55.0</sup>.
 
 A leading `^` and trailing `$` are added to the pattern, so it must match the
 entire argument value.
@@ -1010,7 +1010,7 @@ Help strings may be added to arguments using the `[arg(ARG, help=HELP)]` attribu
 foo bar:
 ```
 
-The value `help` may be a const expression<sup>master</sup>.
+The value `help` may be a const expression<sup>1.55.0</sup>.
 
 ```console
 $ just --usage foo
@@ -1099,7 +1099,7 @@ foo bar:
 
 If a parameter has both a long and short option, it may be passed using either.
 
-Multiple short options may be combined<sup>master</sup>, for example `-abc` is
+Multiple short options may be combined<sup>1.55.0</sup>, for example `-abc` is
 equivalent to `-a -b -c`. A short option which takes a value may appear last,
 for example `-abcd VALUE`.
 
@@ -1623,7 +1623,7 @@ mod foo
 alias baz := foo::bar
 ```
 
-Or a module<sup>master</sup>:
+Or a module<sup>1.55.0</sup>:
 
 ```justfile
 mod frontend
@@ -4665,10 +4665,10 @@ change their behavior.
 
 | Name | Type | Description |
 |------|------|-------------|
-| `[arg(ARG, help="HELP")]`<sup>1.46.0</sup> | recipe | Print help string `HELP` for `ARG` in usage messages. May be a const expression<sup>master</sup>. |
-| `[arg(ARG, long="LONG")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as `--LONG` option. If the parameter is variadic, the option is repeatable<sup>master</sup>. |
-| `[arg(ARG, pattern="PATTERN")]`<sup>1.45.0</sup> | recipe | Require values of argument `ARG` to match regular expression `PATTERN`. May be a const expression<sup>master</sup>. |
-| `[arg(ARG, short="S")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as short `-S` option. If the parameter is variadic, the option is repeatable<sup>master</sup>. |
+| `[arg(ARG, help="HELP")]`<sup>1.46.0</sup> | recipe | Print help string `HELP` for `ARG` in usage messages. May be a const expression<sup>1.55.0</sup>. |
+| `[arg(ARG, long="LONG")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as `--LONG` option. If the parameter is variadic, the option is repeatable<sup1.55.0master</sup>. |
+| `[arg(ARG, pattern="PATTERN")]`<sup>1.45.0</sup> | recipe | Require values of argument `ARG` to match regular expression `PATTERN`. May be a const expression<sup>1.55.0</sup>. |
+| `[arg(ARG, short="S")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as short `-S` option. If the parameter is variadic, the option is repeatable<sup>1.55.0</sup>. |
 | `[arg(ARG, value=VALUE)]`<sup>1.46.0</sup> | recipe | Makes option `ARG` a flag which does not take a value. |
 | `[cache]`<sup>1.54.0</sup> | recipe | Skip recipe invocations when a matching entry exists in the cache. See [cached recipes](#cached-recipes) for details. Currently unstable. |
 | `[confirm(PROMPT)]`<sup>1.23.0</sup> | recipe | Require confirmation prior to executing recipe with a custom prompt. |
@@ -4760,7 +4760,7 @@ foo:
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
 | `lazy`<sup>1.47.0</sup> | boolean | `false` | Don't evaluate unused variables. |
 | `lists`<sup>1.53.0</sup> | boolean | `false` | Values may be lists of strings instead of strings. Currently unstable. |
-| `minimum-version`<sup>master</sup> | string | - | Error if `just` is older than `minimum-version`. Accepts a string of the form `MAJOR.MINOR.PATCH`, e.g., `"1.55.0"`. |
+| `minimum-version`<sup>1.55.0</sup> | string | - | Error if `just` is older than `minimum-version`. Accepts a string of the form `MAJOR.MINOR.PATCH`, e.g., `"1.55.0"`. |
 | `no-cd`<sup>1.51.0</sup> | boolean | `false` | Don't change directory when executing recipes by recipe attribute. |
 | `no-exit-message`<sup>1.39.0</sup> | boolean | `false` | Don't print exit messages if recipes fail. |
 | `positional-arguments` | boolean | `false` | Pass positional arguments. |
@@ -5007,7 +5007,7 @@ within a submodule.
 
 - `just_executable()` - Absolute path to the `just` executable.
 - `just_pid()` - Process ID of the `just` executable.
-- `just_version()`<sup>master</sup> - Version of the `just` executable.
+- `just_version()`<sup>1.55.0</sup> - Version of the `just` executable.
 
 For example:
 
@@ -5168,7 +5168,7 @@ for details.
   - `error`: errors
   - `warning`: warnings
 
-  Additional styles supported by <sup>master</sup> and later include
+  Additional styles supported by <sup>1.55.0</sup> and later include
   named colors:
 
   - `black`
@@ -5197,7 +5197,7 @@ for details.
   - `strikethrough`
   - `underline`
 
-  Two stream names<sup>master</sup> gate the style on whether `just` would
+  Two stream names<sup>1.55.0</sup> gate the style on whether `just` would
   color the output stream, determined by `--color`, `JUST_COLOR`, and whether
   the stream is connected to a terminal:
 
@@ -5219,7 +5219,7 @@ for details.
     echo '{{style("error") + message + NORMAL}}'
   ```
 
-- `style(styles, text)`<sup>master</sup> Style `text` with `styles` as in the
+- `style(styles, text)`<sup>1.55.0</sup> Style `text` with `styles` as in the
   one-argument form. The style is reset automatically, so use of `NORMAL` to
   reset the terminal is not needed:
 

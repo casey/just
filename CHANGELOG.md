@@ -1,6 +1,53 @@
 Changelog
 =========
 
+[1.55.0](https://github.com/casey/just/releases/tag/1.55.0) - 2026-06-29
+------------------------------------------------------------------------
+
+### Fixed
+- Fix forwarded dependency flag value ([#3489](https://github.com/casey/just/pull/3489) by [casey](https://github.com/casey))
+
+### Changed
+- Allow `[arg(pattern)]` to be a list ([#3484](https://github.com/casey/just/pull/3484) by [casey](https://github.com/casey))
+- Allow `[arg(help)]` to be expression ([#3483](https://github.com/casey/just/pull/3483) by [casey](https://github.com/casey))
+- Allow `[arg(pattern)]` to be expression ([#3482](https://github.com/casey/just/pull/3482) by [casey](https://github.com/casey))
+
+### Added
+- Add stream gates to `style()` ([#3503](https://github.com/casey/just/pull/3503) by [casey](https://github.com/casey))
+- Accept `-F` for `--dotenv-filename` ([#3498](https://github.com/casey/just/pull/3498) by [casey](https://github.com/casey))
+- Add `just_version()` function ([#3497](https://github.com/casey/just/pull/3497) by [casey](https://github.com/casey))
+- Add `[arg(multiple)]` ([#3493](https://github.com/casey/just/pull/3493) by [casey](https://github.com/casey))
+- Allow combining short options ([#3490](https://github.com/casey/just/pull/3490) by [casey](https://github.com/casey))
+- Allow variadic parameters to be options ([#3488](https://github.com/casey/just/pull/3488) by [casey](https://github.com/casey))
+- Default `[arg(short)]` to first character of parameter name ([#3486](https://github.com/casey/just/pull/3486) by [casey](https://github.com/casey))
+- Add support for RGB and fixed colors to `style()` ([#3479](https://github.com/casey/just/pull/3479) by [casey](https://github.com/casey))
+- Improve `style()` function ([#3478](https://github.com/casey/just/pull/3478) by [casey](https://github.com/casey))
+- Add `set minimum-version` ([#3477](https://github.com/casey/just/pull/3477) by [casey](https://github.com/casey))
+- Add module aliases ([#3472](https://github.com/casey/just/pull/3472) by [casey](https://github.com/casey))
+
+### Misc
+- Add example to cached recipes readme ([#3506](https://github.com/casey/just/pull/3506) by [casey](https://github.com/casey))
+- Fix readme heading levels ([#3505](https://github.com/casey/just/pull/3505) by [casey](https://github.com/casey))
+- Move Friendly Admonitions higher in Cached Recipes section ([#3504](https://github.com/casey/just/pull/3504) by [casey](https://github.com/casey))
+- Rename test helper functions ([#3502](https://github.com/casey/just/pull/3502) by [casey](https://github.com/casey))
+- Simplify tests ([#3501](https://github.com/casey/just/pull/3501) by [casey](https://github.com/casey))
+- Use `assert_eval_eq` in tests ([#3499](https://github.com/casey/just/pull/3499) by [casey](https://github.com/casey))
+- Expand readme intro list ([#3496](https://github.com/casey/just/pull/3496) by [casey](https://github.com/casey))
+- Organize readme into sections ([#3495](https://github.com/casey/just/pull/3495) by [casey](https://github.com/casey))
+- Rename option tests ([#3494](https://github.com/casey/just/pull/3494) by [casey](https://github.com/casey))
+- Move option application to `switch.apply()` ([#3491](https://github.com/casey/just/pull/3491) by [casey](https://github.com/casey))
+- Document that `[arg(help)]` may be a list ([#3485](https://github.com/casey/just/pull/3485) by [casey](https://github.com/casey))
+- Move override processing out of `Analyzer` ([#3481](https://github.com/casey/just/pull/3481) by [casey](https://github.com/casey))
+- Add `ConstEvalError` ([#3480](https://github.com/casey/just/pull/3480) by [casey](https://github.com/casey))
+- Remove `ModuleAlias` ([#3475](https://github.com/casey/just/pull/3475) by [casey](https://github.com/casey))
+- Chain tests ([#3476](https://github.com/casey/just/pull/3476) by [casey](https://github.com/casey))
+- Remove temptree dependency ([#3473](https://github.com/casey/just/pull/3473) by [casey](https://github.com/casey))
+- Simplify show tests ([#3471](https://github.com/casey/just/pull/3471) by [casey](https://github.com/casey))
+- Remove unnecessary tab escapes ([#3470](https://github.com/casey/just/pull/3470) by [casey](https://github.com/casey))
+- Indent `Test::write()` strings ([#3469](https://github.com/casey/just/pull/3469) by [casey](https://github.com/casey))
+- Document cache key printing ([#3468](https://github.com/casey/just/pull/3468) by [casey](https://github.com/casey))
+- Remove generic argument from `Count` ([#3467](https://github.com/casey/just/pull/3467) by [casey](https://github.com/casey))
+
 [1.54.0](https://github.com/casey/just/releases/tag/1.54.0) - 2026-06-22
 ------------------------------------------------------------------------
 
