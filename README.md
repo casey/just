@@ -4490,10 +4490,43 @@ attribute<sup>1.54.0</sup> if it finds an entry matching the invocation in the
 cache. The `[cache]` attribute may only be used with script recipes and is
 currently unstable.
 
+For example, this recipe will be skipped if `image.jpg` exists and the contents
+of `image.png` and the output of `convert -version` haven't changed since the
+last run:
+
+```just
+set unstable
+
+[script]
+[cache(inputs = "image.png", outputs = "image.jpg", extra = `convert -version`)]
+convert:
+  convert image.png image.jpg
+```
+
 Unlike many other features of `just`, which are, hopefully, well thought-out
 and user-friendly, cached recipes are inherently fragile. It is important to
 understand their limitations before relying on them. Please read this section
 thoroughly, including the friendly admonitions below.
+
+### Friendly Admonitions
+
+`just` will happily skip cached recipes, but it is your responsibility to make
+sure that this is safe, and that the contents of the cache key capture enough
+information about recipe invocations for caching to make sense in the first
+place.
+
+In particular, there are many details about the context in which a recipe runs
+that are not captured by cache keys.
+
+These include the time, input files, output files, system binaries, operating
+system version, databases, systems over the network, the DNS, and any of the
+myriad other things which may change the execution of a computer program.
+
+Attempting to skip execution based on the type of crude heuristics that `just`
+employs has a long and sordid history. However, it is an undeniably convenient
+and powerful tool, and it is provided in the hopes that you find it useful.
+
+### Implementation
 
 The cache is a directory named `.justcache` alongside the `justfile` and should
 not be committed to version control systems. It contains cache entries named
@@ -4510,6 +4543,8 @@ The keys of the cache key object are:
 - `positional`: positional arguments
 - `recipe`: `::`-separated module path to invoked recipe
 - `working_directory`: current working directory
+
+All keys other than `extra` and `inputs` are populated automatically.
 
 Cache key objects for invoked recipes can be printed to standard error with
 `just -vv`.
@@ -4534,24 +4569,6 @@ block until the first relinquishes the lock, see that the entry is non-empty,
 and skip the invocation.
 
 The cache can be bypassed entirely with the `--no-cache` flag.
-
-### Friendly Admonitions
-
-`just` will happily skip cached recipes, but it is your responsibility to make
-sure that this is safe, and that the contents of the cache key capture enough
-information about recipe invocations for caching to make sense in the first
-place.
-
-In particular, there are many details about the context in which a recipe runs
-that are not captured by cache keys.
-
-These include the time, input files, output files, system binaries, operating
-system version, databases, systems over the network, the DNS, and any of the
-myriad other things which may change the execution of a computer program.
-
-Attempting to skip execution based on the type of crude heuristics that `just`
-employs has a long and sordid history. However, it is an undeniably convenient
-and powerful tool, and it is provided in the hopes that you find it useful.
 
 ### Clearing the Cache
 
