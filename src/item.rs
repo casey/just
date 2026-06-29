@@ -87,10 +87,8 @@ impl ColorDisplay for Item<'_> {
         } else if let Some(body) = body {
           write!(f, "::")?;
 
-          let rendered = body.color_display(color).to_string();
-          let rendered = rendered.strip_suffix('\n').unwrap_or(&rendered);
-
-          for line in rendered.split('\n') {
+          let body = body.color_display(color).to_string();
+          for line in body.trim().split('\n') {
             if line.is_empty() {
               writeln!(f)?;
             } else {
