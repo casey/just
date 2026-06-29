@@ -775,34 +775,15 @@ fn show_requires_lists_setting() {
 
 #[test]
 fn show_list() {
-  Test::new()
-    .justfile(
-      r#"
-        set lists
-
-        x := show(["foo", "bar baz", "qux"])
-      "#,
-    )
-    .env("JUST_UNSTABLE", "1")
-    .args(["--evaluate", "x"])
-    .stdout(r#"["foo", "bar baz", "qux"]"#)
-    .success();
+  assert_list_eq(
+    r#"["foo", "bar baz", "qux"]"#,
+    r#"["foo", "bar baz", "qux"]"#,
+  );
 }
 
 #[test]
 fn show_empty_list() {
-  Test::new()
-    .justfile(
-      r"
-        set lists
-
-        x := show([])
-      ",
-    )
-    .env("JUST_UNSTABLE", "1")
-    .args(["--evaluate", "x"])
-    .stdout("[]")
-    .success();
+  assert_list_eq("[]", "[]");
 }
 
 #[test]
@@ -856,11 +837,7 @@ fn test_path_exists_filepath_exist() {
 
 #[test]
 fn test_path_exists_filepath_doesnt_exist() {
-  Test::new()
-    .justfile("x := path_exists('testfile')")
-    .args(["--evaluate", "x"])
-    .stdout("false")
-    .success();
+  assert_eval_eq("path_exists('testfile')", "false");
 }
 
 #[test]
@@ -1011,11 +988,10 @@ fn choose_bad_length() {
 
 #[test]
 fn sha256() {
-  Test::new()
-    .justfile("x := sha256('5943ee37-0000-1000-8000-010203040506')")
-    .args(["--evaluate", "x"])
-    .stdout("2330d7f5eb94a820b54fed59a8eced236f80b633a504289c030b6a65aef58871")
-    .success();
+  assert_eval_eq(
+    "sha256('5943ee37-0000-1000-8000-010203040506')",
+    "2330d7f5eb94a820b54fed59a8eced236f80b633a504289c030b6a65aef58871",
+  );
 }
 
 #[test]
@@ -1091,11 +1067,10 @@ fn shell_error() {
 
 #[test]
 fn blake3() {
-  Test::new()
-    .justfile("x := blake3('5943ee37-0000-1000-8000-010203040506')")
-    .args(["--evaluate", "x"])
-    .stdout("026c9f740a793ff536ddf05f8915ea4179421f47f0fa9545476076e9ba8f3f2b")
-    .success();
+  assert_eval_eq(
+    "blake3('5943ee37-0000-1000-8000-010203040506')",
+    "026c9f740a793ff536ddf05f8915ea4179421f47f0fa9545476076e9ba8f3f2b",
+  );
 }
 
 #[test]
@@ -1122,11 +1097,10 @@ fn canonicalize() {
 
 #[test]
 fn encode_uri_component() {
-  Test::new()
-    .justfile("x := encode_uri_component(\"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\\\"#$%&'()*+,-./:;<=>?@[\\\\]^_`{|}~ \\t\\r\\n🌐\")")
-    .args(["--evaluate", "x"])
-    .stdout("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!%22%23%24%25%26'()*%2B%2C-.%2F%3A%3B%3C%3D%3E%3F%40%5B%5C%5D%5E_%60%7B%7C%7D~%20%09%0D%0A%F0%9F%8C%90")
-    .success();
+  assert_eval_eq(
+    "encode_uri_component(\"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\\\"#$%&'()*+,-./:;<=>?@[\\\\]^_`{|}~ \\t\\r\\n🌐\")",
+    "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!%22%23%24%25%26'()*%2B%2C-.%2F%3A%3B%3C%3D%3E%3F%40%5B%5C%5D%5E_%60%7B%7C%7D~%20%09%0D%0A%F0%9F%8C%90",
+  );
 }
 
 #[test]

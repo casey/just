@@ -2,62 +2,51 @@ use super::*;
 
 #[test]
 fn cache_directory() {
-  Test::new()
-    .justfile("x := cache_directory()")
-    .args(["--evaluate", "x"])
-    .stdout(dirs::cache_dir().unwrap_or_default().to_str().unwrap())
-    .success();
+  assert_eval_eq(
+    "cache_directory()",
+    dirs::cache_dir().unwrap_or_default().to_str().unwrap(),
+  );
 }
 
 #[test]
 fn config_directory() {
-  Test::new()
-    .justfile("x := config_directory()")
-    .args(["--evaluate", "x"])
-    .stdout(dirs::config_dir().unwrap_or_default().to_str().unwrap())
-    .success();
+  assert_eval_eq(
+    "config_directory()",
+    dirs::config_dir().unwrap_or_default().to_str().unwrap(),
+  );
 }
 
 #[test]
 fn config_local_directory() {
-  Test::new()
-    .justfile("x := config_local_directory()")
-    .args(["--evaluate", "x"])
-    .stdout(
-      dirs::config_local_dir()
-        .unwrap_or_default()
-        .to_str()
-        .unwrap(),
-    )
-    .success();
+  assert_eval_eq(
+    "config_local_directory()",
+    dirs::config_local_dir()
+      .unwrap_or_default()
+      .to_str()
+      .unwrap(),
+  );
 }
 
 #[test]
 fn data_directory() {
-  Test::new()
-    .justfile("x := data_directory()")
-    .args(["--evaluate", "x"])
-    .stdout(dirs::data_dir().unwrap_or_default().to_str().unwrap())
-    .success();
+  assert_eval_eq(
+    "data_directory()",
+    dirs::data_dir().unwrap_or_default().to_str().unwrap(),
+  );
 }
 
 #[test]
 fn data_local_directory() {
-  Test::new()
-    .justfile("x := data_local_directory()")
-    .args(["--evaluate", "x"])
-    .stdout(dirs::data_local_dir().unwrap_or_default().to_str().unwrap())
-    .success();
+  assert_eval_eq(
+    "data_local_directory()",
+    dirs::data_local_dir().unwrap_or_default().to_str().unwrap(),
+  );
 }
 
 #[test]
 fn executable_directory() {
   if let Some(executable_dir) = dirs::executable_dir() {
-    Test::new()
-      .justfile("x := executable_directory()")
-      .args(["--evaluate", "x"])
-      .stdout(executable_dir.to_str().unwrap())
-      .success();
+    assert_eval_eq("executable_directory()", executable_dir.to_str().unwrap());
   } else {
     Test::new()
       .justfile("x := executable_directory()")
@@ -77,11 +66,10 @@ fn executable_directory() {
 
 #[test]
 fn home_directory() {
-  Test::new()
-    .justfile("x := home_directory()")
-    .args(["--evaluate", "x"])
-    .stdout(dirs::home_dir().unwrap_or_default().to_str().unwrap())
-    .success();
+  assert_eval_eq(
+    "home_directory()",
+    dirs::home_dir().unwrap_or_default().to_str().unwrap(),
+  );
 }
 
 #[test]
@@ -90,11 +78,10 @@ fn runtime_directory() {
     return;
   }
 
-  Test::new()
-    .justfile("x := runtime_directory()")
-    .args(["--evaluate", "x"])
-    .stdout(dirs::runtime_dir().unwrap_or_default().to_str().unwrap())
-    .success();
+  assert_eval_eq(
+    "runtime_directory()",
+    dirs::runtime_dir().unwrap_or_default().to_str().unwrap(),
+  );
 }
 
 #[test]

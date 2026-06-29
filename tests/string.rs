@@ -513,29 +513,20 @@ fn shebang_backtick() {
 
 #[test]
 fn valid_unicode_escape() {
-  Test::new()
-    .justfile(r#"x := "\u{1f916}\u{1F916}""#)
-    .args(["--evaluate", "x"])
-    .stdout("🤖🤖")
-    .success();
+  assert_eval_eq(r#""\u{1f916}\u{1F916}""#, "🤖🤖");
 }
 
 #[test]
 fn unicode_escapes_with_all_hex_digits() {
-  Test::new()
-    .justfile(r#"x := "\u{012345}\u{6789a}\u{bcdef}\u{ABCDE}\u{F}""#)
-    .args(["--evaluate", "x"])
-    .stdout("\u{012345}\u{6789a}\u{bcdef}\u{ABCDE}\u{F}")
-    .success();
+  assert_eval_eq(
+    r#""\u{012345}\u{6789a}\u{bcdef}\u{ABCDE}\u{F}""#,
+    "\u{012345}\u{6789a}\u{bcdef}\u{ABCDE}\u{F}",
+  );
 }
 
 #[test]
 fn maximum_valid_unicode_escape() {
-  Test::new()
-    .justfile(r#"x := "\u{10FFFF}""#)
-    .args(["--evaluate", "x"])
-    .stdout("\u{10FFFF}")
-    .success();
+  assert_eval_eq(r#""\u{10FFFF}""#, "\u{10FFFF}");
 }
 
 #[test]
