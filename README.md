@@ -2126,7 +2126,7 @@ lengths is an error.
 
 The `++` operator performs list concatenation.
 
-##### Booleans
+#### Booleans
 
 The canonical boolean true value is the string `"true"`, and the canonical
 boolean false value is the empty list `[]`. All values other than the empty
@@ -2147,7 +2147,7 @@ just in `if` and `assert()`, and evaluate to `"true"` or `[]`.
 Values may be negated with `!`. `!expression` evaluates to `"true"` if
 `expression` is `[]`, otherwise it evaluates to `[]`.
 
-##### Settings
+#### Settings
 
 The `script-interpreter`, `shell`, and `windows-shell` settings flatten their
 elements like list literals.
@@ -2169,7 +2169,7 @@ Each element of the value of `set dotenv-command` is run as a command, with
 variables from commands later in the list taking precedence over variables from
 commands earlier in the list.
 
-##### Attributes
+#### Attributes
 
 The `[arg(flag)]` attribute makes the parameter a flag which does not take a
 value on the command line. For example, with `[arg('foo', long, flag)]`, `foo`
@@ -2194,7 +2194,7 @@ any argument is accepted. For example, with
 In `[env(variable, value)]` if `value` is `[]`, `variable` is not set.
 Otherwise it is set to `value` joined with spaces.
 
-##### Functions
+#### Functions
 
 - `absolute_path()` - Applies to each list element individually.
 - `append()` - Applies to each list element individually and does not split
@@ -2224,7 +2224,7 @@ Otherwise it is set to `value` joined with spaces.
   with leading and trailing whitespace trimmed.
 - `which()` - Returns the empty list when no executable is found.
 
-##### Examples
+#### Examples
 
 Each list element is `quote()`'ed separately:
 
@@ -3075,7 +3075,7 @@ foo:
 `just` passes the command to be executed as an argument. Many shells will need
 an additional flag, often `-c`, to make them evaluate the first argument.
 
-##### Windows Shell
+#### Windows Shell
 
 `just` uses `sh` on Windows by default. To use a different shell on Windows,
 use `windows-shell`:
@@ -3091,7 +3091,7 @@ See
 [powershell.just](https://github.com/casey/just/blob/master/examples/powershell.just)
 for a justfile that uses PowerShell on all platforms.
 
-##### Windows PowerShell
+#### Windows PowerShell
 
 *`set windows-powershell` uses the legacy `powershell.exe` binary, and is no
 longer recommended. See the `windows-shell` setting above for a more flexible
@@ -3107,31 +3107,31 @@ hello:
   Write-Host "Hello, world!"
 ```
 
-##### Python 3
+#### Python 3
 
 ```just
 set shell := ["python3", "-c"]
 ```
 
-##### Bash
+#### Bash
 
 ```just
 set shell := ["bash", "-uc"]
 ```
 
-##### Z Shell
+#### Z Shell
 
 ```just
 set shell := ["zsh", "-uc"]
 ```
 
-##### Fish
+#### Fish
 
 ```just
 set shell := ["fish", "-c"]
 ```
 
-##### Nushell
+#### Nushell
 
 ```just
 set shell := ["nu", "-c"]
@@ -4535,7 +4535,7 @@ and skip the invocation.
 
 The cache can be bypassed entirely with the `--no-cache` flag.
 
-#### Friendly Admonitions
+### Friendly Admonitions
 
 `just` will happily skip cached recipes, but it is your responsibility to make
 sure that this is safe, and that the contents of the cache key capture enough
@@ -4553,7 +4553,7 @@ Attempting to skip execution based on the type of crude heuristics that `just`
 employs has a long and sordid history. However, it is an undeniably convenient
 and powerful tool, and it is provided in the hopes that you find it useful.
 
-#### Clearing the Cache
+### Clearing the Cache
 
 The recipe cache is stored in a directory named `.justcache` alongside the
 `justfile`. Deleting it will clear the cache.
@@ -4581,7 +4581,7 @@ just --clean bar bob
 just --clean bar::bob
 ```
 
-#### Input Files
+### Input Files
 
 Input files can be provided with `[cache(inputs = FILES)]`, where `FILES` is an
 expression that is evaluated with recipe arguments in scope and whose evaluated
@@ -4608,7 +4608,7 @@ build:
   cc lib.c main.c -o main
 ```
 
-#### Output Files
+### Output Files
 
 Output files can be provided with `[cache(outputs = FILES)]`, where `FILES` is
 an expression that is evaluated with recipe arguments in scope and whose
