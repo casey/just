@@ -87,7 +87,7 @@ fn assert_true_in_setting_with_lists() {
       ",
     )
     .write("true", "KEY=VAR\n")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("VAR\n")
     .success();
 }

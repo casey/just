@@ -13,7 +13,7 @@ fn mapped_dependency_runs_once_per_element() {
           @echo "bar: {{ arg }}"
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "baz", "bob bib"])
     .stdout(
       "
@@ -38,7 +38,7 @@ fn subsequents_may_be_mapped() {
           @echo "bar: {{ arg }}"
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "baz", "bob"])
     .stdout(
       "
@@ -63,7 +63,7 @@ fn mapped_dependencies_may_take_unstarred_arguments() {
           @echo 'all: {{ show(all) }} arg: {{ show(arg )}}'
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "baz", "bob"])
     .stdout(
       r#"
@@ -87,7 +87,7 @@ fn starred_argument_outside_mapped_dependency_error() {
           @echo "bar: {{ arg }}"
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stderr(
       "
@@ -114,7 +114,7 @@ fn mapped_dependency_without_starred_argument_error() {
           @echo "bar: {{ arg }}"
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stderr(
       "
@@ -141,7 +141,7 @@ fn multiple_starred_argument_error() {
           @echo "bar"
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stderr(
       "
@@ -168,7 +168,7 @@ fn starred_arguments_require_value() {
           @echo "bar: {{ arg }}"
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stderr(
       "
@@ -195,7 +195,7 @@ fn starred_argument_may_be_value() {
           @echo "bar: {{ arg }}"
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "baz"])
     .stdout(
       "
@@ -216,7 +216,7 @@ fn mapped_dependencies_require_lists() {
           @echo "bar: {{ arg }}"
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stderr(
       "
@@ -243,7 +243,7 @@ fn mapped_dependencies_round_trip_through_dump() {
           @echo "bar: {{ arg }}"
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("--dump")
     .stdout(
       r#"

@@ -17,10 +17,9 @@ fn finds_executable() {
       ",
     )
     .args(["--evaluate", "p"])
-    .write("hello.exe", HELLO_SCRIPT)
-    .make_executable("hello.exe")
+    .write_executable("hello.exe", HELLO_SCRIPT)
     .env("PATH", path.to_str().unwrap())
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout(path.join("hello.exe").display().to_string())
     .success();
 }
@@ -38,10 +37,9 @@ fn returns_empty_list_for_missing_executable() {
       ",
     )
     .args(["--evaluate", "p"])
-    .write("hello.exe", HELLO_SCRIPT)
-    .make_executable("hello.exe")
+    .write_executable("hello.exe", HELLO_SCRIPT)
     .env("PATH", path.to_str().unwrap())
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("[]")
     .success();
 }
@@ -59,11 +57,10 @@ fn skips_non_executable_files() {
       ",
     )
     .args(["--evaluate", "p"])
-    .write("hello.exe", HELLO_SCRIPT)
-    .make_executable("hello.exe")
+    .write_executable("hello.exe", HELLO_SCRIPT)
     .write("hi", "just some regular file")
     .env("PATH", path.to_str().unwrap())
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 }
 
@@ -85,12 +82,10 @@ fn supports_multiple_paths() {
       ",
     )
     .args(["--evaluate", "p"])
-    .write("subdir1/hello1.exe", HELLO_SCRIPT)
-    .make_executable("subdir1/hello1.exe")
-    .write("subdir2/hello2.exe", HELLO_SCRIPT)
-    .make_executable("subdir2/hello2.exe")
+    .write_executable("subdir1/hello1.exe", HELLO_SCRIPT)
+    .write_executable("subdir2/hello2.exe", HELLO_SCRIPT)
     .env("PATH", path_var.to_str().unwrap())
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout(format!(
       "{}+{}",
       path.join("subdir1").join("hello1.exe").display(),
@@ -135,12 +130,10 @@ fn supports_shadowed_executables() {
         ",
       )
       .args(["--evaluate", "p"])
-      .write("dir1/shadowed.exe", HELLO_SCRIPT)
-      .make_executable("dir1/shadowed.exe")
-      .write("dir2/shadowed.exe", HELLO_SCRIPT)
-      .make_executable("dir2/shadowed.exe")
+      .write_executable("dir1/shadowed.exe", HELLO_SCRIPT)
+      .write_executable("dir2/shadowed.exe", HELLO_SCRIPT)
       .env("PATH", path_var.to_str().unwrap())
-      .env("JUST_UNSTABLE", "1")
+      .unstable()
       .stdout(stdout)
       .success();
   }
@@ -172,11 +165,10 @@ fn ignores_nonexecutable_candidates() {
       ",
     )
     .args(["--evaluate", "p"])
-    .write("subdir/foo.exe", HELLO_SCRIPT)
-    .make_executable("subdir/foo.exe")
+    .write_executable("subdir/foo.exe", HELLO_SCRIPT)
     .write(dummy_exe, HELLO_SCRIPT)
     .env("PATH", path_var.to_str().unwrap())
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout(path.join("subdir").join("foo.exe").display().to_string())
     .success();
 }
@@ -195,12 +187,10 @@ fn handles_absolute_path() {
       ",
       abspath.display()
     ))
-    .write("subdir/foo.exe", HELLO_SCRIPT)
-    .make_executable("subdir/foo.exe")
-    .write("pathdir/foo.exe", HELLO_SCRIPT)
-    .make_executable("pathdir/foo.exe")
+    .write_executable("subdir/foo.exe", HELLO_SCRIPT)
+    .write_executable("pathdir/foo.exe", HELLO_SCRIPT)
     .env("PATH", path.join("pathdir").to_str().unwrap())
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["--evaluate", "p"])
     .stdout(abspath.display().to_string())
     .success();
@@ -226,12 +216,10 @@ fn handles_dotslash() {
       ",
     )
     .args(["--evaluate", "p"])
-    .write("foo.exe", HELLO_SCRIPT)
-    .make_executable("foo.exe")
-    .write("pathdir/foo.exe", HELLO_SCRIPT)
-    .make_executable("pathdir/foo.exe")
+    .write_executable("foo.exe", HELLO_SCRIPT)
+    .write_executable("pathdir/foo.exe", HELLO_SCRIPT)
     .env("PATH", path.join("pathdir").to_str().unwrap())
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout(path.join("foo.exe").display().to_string())
     .success();
 }
@@ -256,12 +244,10 @@ fn handles_dir_slash() {
       ",
     )
     .args(["--evaluate", "p"])
-    .write("subdir/foo.exe", HELLO_SCRIPT)
-    .make_executable("subdir/foo.exe")
-    .write("pathdir/foo.exe", HELLO_SCRIPT)
-    .make_executable("pathdir/foo.exe")
+    .write_executable("subdir/foo.exe", HELLO_SCRIPT)
+    .write_executable("pathdir/foo.exe", HELLO_SCRIPT)
     .env("PATH", path.join("pathdir").to_str().unwrap())
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout(path.join("subdir").join("foo.exe").display().to_string())
     .success();
 }
@@ -274,10 +260,9 @@ fn requires_lists_setting() {
   Test::with_tempdir(tmp)
     .justfile("p := which('hello.exe')")
     .args(["--evaluate", "p"])
-    .write("hello.exe", HELLO_SCRIPT)
-    .make_executable("hello.exe")
+    .write_executable("hello.exe", HELLO_SCRIPT)
     .env("PATH", path.to_str().unwrap())
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stderr(
       "
         error: the `which()` function requires `set lists`
@@ -324,11 +309,10 @@ fn finds_executable_via_pathext() {
       ",
     )
     .args(["--evaluate", "p"])
-    .write("foo.exe", HELLO_SCRIPT)
-    .make_executable("foo.exe")
+    .write_executable("foo.exe", HELLO_SCRIPT)
     .env("PATH", path.to_str().unwrap())
     .env("PATHEXT", ".exe")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout(path.join("foo.exe").display().to_string())
     .success();
 }
@@ -350,11 +334,10 @@ fn pathext_not_applied_when_candidate_has_extension() {
       ",
     )
     .args(["--evaluate", "p"])
-    .write("foo.bat.exe", HELLO_SCRIPT)
-    .make_executable("foo.bat.exe")
+    .write_executable("foo.bat.exe", HELLO_SCRIPT)
     .env("PATH", path.to_str().unwrap())
     .env("PATHEXT", ".EXE")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 }
 
@@ -378,7 +361,7 @@ fn pathext_custom_extension() {
     .write("foo.bar", HELLO_SCRIPT)
     .env("PATH", path.to_str().unwrap())
     .env("PATHEXT", ".BAR")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout(path.join("foo.BAR").display().to_string())
     .success();
 }
@@ -400,11 +383,10 @@ fn pathext_entry_missing_dot_is_error() {
       ",
     )
     .args(["--evaluate", "p"])
-    .write("foo.exe", HELLO_SCRIPT)
-    .make_executable("foo.exe")
+    .write_executable("foo.exe", HELLO_SCRIPT)
     .env("PATH", path.to_str().unwrap())
     .env("PATHEXT", "EXE")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stderr_regex(".*`PATHEXT` entry `EXE` does not start with `.`.*")
     .failure();
 }
@@ -426,11 +408,10 @@ fn pathext_ignored_on_non_windows() {
       ",
     )
     .args(["--evaluate", "p"])
-    .write("foo.exe", HELLO_SCRIPT)
-    .make_executable("foo.exe")
+    .write_executable("foo.exe", HELLO_SCRIPT)
     .env("PATH", path.to_str().unwrap())
     .env("PATHEXT", ".EXE")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 }
 
@@ -442,8 +423,7 @@ fn require_success() {
   Test::with_tempdir(tmp)
     .justfile("p := require('hello.exe')")
     .args(["--evaluate", "p"])
-    .write("hello.exe", HELLO_SCRIPT)
-    .make_executable("hello.exe")
+    .write_executable("hello.exe", HELLO_SCRIPT)
     .env("PATH", path.to_str().unwrap())
     .stdout(path.join("hello.exe").display().to_string())
     .success();

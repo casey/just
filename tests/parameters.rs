@@ -89,7 +89,7 @@ fn empty_star_parameter_is_falsy() {
           @echo {{ args || 'fallback' }}
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo"])
     .stdout("fallback\n")
     .success();

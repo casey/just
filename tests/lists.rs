@@ -41,7 +41,7 @@ fn quote_quotes_single_element_values_whole() {
 fn absolute_path_resolves_each_element_of_a_list() {
   let test = Test::new()
     .justfile("set lists\n\nx := show(absolute_path(['bar', 'baz bob']))")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["--evaluate", "x"]);
 
   let mut tempdir = test.tempdir.path().to_owned();
@@ -101,7 +101,7 @@ fn recipe_interpolations_space_join_lists() {
           @echo {{ args }}
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "bar", "baz"])
     .stdout("bar baz\n")
     .success();
@@ -150,7 +150,7 @@ fn join_list_separator_must_not_be_a_list() {
           @echo {{ join_list(['bar', 'baz'], [',', ';']) }}
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stderr(
       r#"
         error: list value [",", ";"] passed to `join_list()`
@@ -218,7 +218,7 @@ fn split_argument_must_not_be_a_list() {
           @echo {{ split(['bar', 'baz'], ',') }}
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stderr(
       r#"
         error: list value ["bar", "baz"] passed to `split()`
@@ -262,7 +262,7 @@ fn dependency_arguments_forward_lists() {
           @echo '{{ show(rest) }}'
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "bar", "baz bob"])
     .stdout(
       r#"
@@ -286,7 +286,7 @@ fn dependency_arguments_forward_lists_to_positional_arguments() {
           @echo "$1-$2"
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "bar", "baz"])
     .stdout("bar-baz\n")
     .success();
@@ -306,7 +306,7 @@ fn singular_parameters_contribute_one_positional_argument() {
           @echo "$1-$2"
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "bar", "baz"])
     .stdout("bar baz-bob\n")
     .success();
@@ -325,7 +325,7 @@ fn lists_bind_to_singular_parameters() {
           @echo '{{ show(first) }}'
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "bar", "baz"])
     .stdout(
       r#"
@@ -348,7 +348,7 @@ fn dependency_arguments_bind_to_one_parameter_each() {
           @echo '{{ show(first) }} {{ show(rest) }}'
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "bar", "bob"])
     .stdout(
       r#"
@@ -370,7 +370,7 @@ fn variadic_parameters_accept_at_most_one_dependency_argument() {
         bar: (foo 'baz' 'bob')
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("bar")
     .stderr(
       "
@@ -397,7 +397,7 @@ fn empty_list_for_plus_variadic_is_an_error() {
           @echo {{ rest }}
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stderr("error: recipe `bar` parameter `rest` requires at least one element but received empty list\n")
     .failure();
@@ -416,7 +416,7 @@ fn empty_list_for_required_parameter_is_an_error() {
           @echo {{ first }}
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stderr("error: recipe `bar` parameter `first` requires at least one element but received empty list\n")
     .failure();
@@ -435,7 +435,7 @@ fn empty_list_for_defaulted_parameter_uses_default() {
           @echo {{ first }}
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stdout("baz\n")
     .success();
@@ -454,7 +454,7 @@ fn omitted_star_variadic_dependency_argument_is_empty_list() {
           @echo '{{ show(rest) }}'
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stdout("[]\n")
     .success();
@@ -476,7 +476,7 @@ fn lists_forwarded_to_module_without_lists_setting_are_joined() {
         bar *args: (foo::baz args)
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["bar", "baz", "bob"])
     .stdout("first=baz bob rest=\n")
     .success();
@@ -496,7 +496,7 @@ fn joined_arguments_forwarded_to_module_with_lists_setting_are_single_elements()
         bar *args: (foo::baz args)
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["bar", "baz", "bob"])
     .stdout(
       r#"
@@ -519,7 +519,7 @@ fn evaluate_prints_lists() {
         d := []
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("--evaluate")
     .stdout(
       r#"
@@ -595,7 +595,7 @@ fn unary_join_broadcasts_over_list() {
 fn concatenation_with_empty_list_is_an_error() {
   Test::new()
     .justfile("set lists\n\nx := 'foo' + []")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["--evaluate", "x"])
     .stderr(
       r"
@@ -613,7 +613,7 @@ fn concatenation_with_empty_list_is_an_error() {
 fn concatenation_of_different_length_lists_is_an_error() {
   Test::new()
     .justfile("set lists\n\nx := ['a', 'b'] + ['c', 'd', 'e']")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["--evaluate", "x"])
     .stderr(
       r#"
@@ -631,7 +631,7 @@ fn concatenation_of_different_length_lists_is_an_error() {
 fn unary_join_with_empty_list_is_an_error() {
   Test::new()
     .justfile("set lists\n\nx := / []")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["--evaluate", "x"])
     .stderr(
       r"
@@ -656,7 +656,7 @@ fn assert_message_space_joins_lists() {
           {{ assert('a' != 'a', ['foo', 'bar']) }}
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stderr(
       "
         error: assert failed: foo bar
@@ -681,7 +681,7 @@ fn confirm_prompt_space_joins_lists() {
           echo FOO
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stderr("foo bar ")
     .stdout("FOO\n")
     .stdin("y")
@@ -700,7 +700,7 @@ fn env_attribute_value_space_joins_lists() {
           @echo $FOO
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("bar baz\n")
     .success();
 }
@@ -717,7 +717,7 @@ fn env_attribute_empty_list_leaves_variable_unset() {
           @echo "${FOO-unset}"
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("unset\n")
     .success();
 }
@@ -734,7 +734,7 @@ fn env_attribute_empty_string_sets_variable() {
           @echo "[${FOO-unset}]"
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("[]\n")
     .success();
 }
@@ -752,7 +752,7 @@ fn empty_list_export_leaves_variable_unset() {
           @echo "${FOO-unset}"
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("unset\n")
     .success();
 }
@@ -770,7 +770,7 @@ fn non_empty_list_export_sets_variable() {
           @echo "$FOO"
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("bar baz\n")
     .success();
 }
@@ -786,7 +786,7 @@ fn empty_list_exported_parameter_leaves_variable_unset() {
           @echo "${bar-unset}"
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("unset\n")
     .success();
 }
@@ -805,7 +805,7 @@ fn empty_list_set_export_leaves_variable_unset() {
           @echo "${FOO-unset}"
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("unset\n")
     .success();
 }
@@ -822,7 +822,7 @@ fn list_in_env_attribute_name_points_at_attribute_name() {
           @echo hi
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stderr(
       r#"
         error: list value ["FOO", "BAR"] used as `env` attribute name
@@ -839,7 +839,7 @@ fn list_in_env_attribute_name_points_at_attribute_name() {
 fn env_returns_first_present_variable() {
   Test::new()
     .justfile("set lists\n\nx := env(['ZADDY', 'BAR'])")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .env("BAR", "bar")
     .args(["--evaluate", "x"])
     .stdout("bar")
@@ -851,7 +851,7 @@ fn env_returns_first_present_variable() {
 fn env_stops_at_first_present_variable_including_empty() {
   Test::new()
     .justfile("set lists\n\nx := show(env(['ZADDY', 'BAR']))")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .env("ZADDY", "")
     .env("BAR", "bar")
     .args(["--evaluate", "x"])
@@ -887,7 +887,7 @@ fn env_with_empty_key_list_and_no_default_is_an_error() {
           echo {{env([])}}
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stderr(
       "
         error: call to function `env` failed: empty environment variable list with no default
@@ -912,7 +912,7 @@ fn env_missing_keys_error_names_all_keys() {
           echo {{env(['ZADDY', 'XYZ'])}}
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stderr(
       "
         error: call to function `env` failed: environment variables `ZADDY` and `XYZ` not present
@@ -937,7 +937,7 @@ fn env_single_missing_key_keeps_singular_message() {
           echo {{env('ZADDY')}}
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stderr(
       "
         error: call to function `env` failed: environment variable `ZADDY` not present
@@ -954,7 +954,7 @@ fn env_single_missing_key_keeps_singular_message() {
 fn env_var_accepts_list_of_keys() {
   Test::new()
     .justfile("set lists\n\nx := env_var(['ZADDY', 'BAR'])")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .env("BAR", "bar")
     .args(["--evaluate", "x"])
     .stdout("bar")
@@ -979,7 +979,7 @@ fn list_in_working_directory_attribute_points_at_attribute_name() {
           @echo hi
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stderr(
       r#"
         error: list value ["foo", "bar"] used as a `[working-directory]` attribute
@@ -1004,7 +1004,7 @@ fn interpreter_settings_flatten_lists() {
           hello
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("foo bar hello\n")
     .stderr("hello\n")
     .shell(false)
@@ -1023,7 +1023,7 @@ fn empty_interpreter_setting_is_an_error() {
           @echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stderr(
       "
         error: `shell` setting requires at least one element but evaluated to empty list
@@ -1047,7 +1047,7 @@ fn list_in_function_argument_points_at_function_name() {
           @echo {{ uppercase(['bar', 'baz']) }}
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stderr(
       r#"
         error: list value ["bar", "baz"] passed to `uppercase()`
@@ -1074,7 +1074,7 @@ fn list_in_setting_value_points_at_setting_name() {
           @echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stderr(
       r#"
         error: list value ["foo", "bar"] assigned to `tempdir` setting

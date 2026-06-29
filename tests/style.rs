@@ -131,7 +131,7 @@ fn style_list() {
         x := style(['bold', 'bg:blue', 'red'], 'foo')
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["--evaluate", "x"])
     .stdout("\x1b[1;44;31mfoo\x1b[0m")
     .unindent_stdout(false)
@@ -148,7 +148,7 @@ fn style_last_wins() {
         x := style(['red', 'green'], 'foo')
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["--evaluate", "x"])
     .stdout("\x1b[32mfoo\x1b[0m")
     .unindent_stdout(false)

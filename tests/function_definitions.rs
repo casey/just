@@ -26,7 +26,7 @@ fn redefinition() {
           │ ^^^
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .failure();
 }
 
@@ -48,7 +48,7 @@ fn wrong_argument_count() {
           │      ^^^
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .failure();
 }
 
@@ -70,7 +70,7 @@ fn undefined_variable_in_body() {
           │          ^^^
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .failure();
 }
 
@@ -87,7 +87,7 @@ fn undefined_in_assignment() {
           │      ^^^
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .failure();
 }
 
@@ -104,7 +104,7 @@ fn undefined_in_setting() {
           │                ^^^
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .failure();
 }
 
@@ -121,7 +121,7 @@ fn undefined_in_recipe_parameter_default() {
           │       ^^^
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .failure();
 }
 
@@ -143,7 +143,7 @@ fn undefined_in_dependency_argument() {
           │           ^^^
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .failure();
 }
 
@@ -165,7 +165,7 @@ fn undefined_in_confirm_attribute() {
           │          ^^^
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .failure();
 }
 
@@ -187,7 +187,7 @@ fn undefined_in_interpolation() {
           │          ^^^
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .failure();
 }
 
@@ -202,7 +202,7 @@ fn uses_parameter() {
     )
     .args(["--evaluate", "a"])
     .stdout("bar")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 }
 
@@ -218,7 +218,7 @@ fn uses_outer_variable() {
     )
     .args(["--evaluate", "a"])
     .stdout("bar")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 }
 
@@ -234,7 +234,7 @@ fn parameter_shadows_variable() {
     )
     .args(["--evaluate", "a"])
     .stdout("baz")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 }
 
@@ -256,7 +256,7 @@ fn format_no_args() {
         a := foo()
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 }
 
@@ -278,7 +278,7 @@ fn format_one_arg() {
         a := foo('bar')
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 }
 
@@ -300,7 +300,7 @@ fn format_two_args() {
         a := foo('bar', 'baz')
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 }
 
@@ -315,7 +315,7 @@ fn trailing_comma() {
     )
     .args(["--evaluate", "a"])
     .stdout("bar")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 }
 
@@ -334,7 +334,7 @@ fn has_access_to_env_file() {
     .write(".env", "VAR=VAL")
     .args(["--evaluate", "a"])
     .stdout("VAL")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 }
 
@@ -352,7 +352,7 @@ fn may_reference_overrides() {
     )
     .args(["x=baz", "a"])
     .stdout("baz\n")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 }
 
@@ -372,7 +372,7 @@ fn inherits_is_dependency() {
     )
     .arg("bar")
     .stdout("baz true\nbar false\n")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 }
 
@@ -388,7 +388,7 @@ fn inherits_recipe_name() {
       ",
     )
     .stdout("bar\n")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 }
 
@@ -406,7 +406,7 @@ fn may_reference_non_const_assignment() {
     )
     .args(["--evaluate", "a"])
     .stdout("baz")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 }
 
@@ -418,7 +418,7 @@ fn shadow_builtin() {
       .justfile(format!("{name}(x) := x\na := {name}('bar')"))
       .args(["--evaluate", "a"])
       .stdout("bar")
-      .env("JUST_UNSTABLE", "1")
+      .unstable()
       .success();
   }
 

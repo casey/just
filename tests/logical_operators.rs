@@ -4,7 +4,7 @@ use super::*;
 fn evaluate(expression: &str, expected: &str) {
   Test::new()
     .justfile(format!("set lists\nx := {expression}"))
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["--evaluate", "x"])
     .stdout(expected)
     .success();
@@ -21,7 +21,7 @@ fn and_requires_lists_setting() {
           @echo hi
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stderr(
       "
@@ -46,7 +46,7 @@ fn or_requires_lists_setting() {
           @echo hi
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stderr(
       "

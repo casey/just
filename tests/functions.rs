@@ -1564,11 +1564,7 @@ fn shell_with_powershell() {
 
 #[test]
 fn module_path() {
-  Test::new()
-    .justfile("foo := module_path()")
-    .args(["--evaluate", "foo"])
-    .stdout("")
-    .success();
+  assert_eval_eq("module_path()", "");
 }
 
 #[test]

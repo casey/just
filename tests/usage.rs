@@ -36,7 +36,7 @@ foo a b c='abc' d e f='xyz' g='bar' *h:
 ",
     )
     .args(["--usage", "bar", "foo"])
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout(
       "
         Usage: just bar foo [OPTIONS] b [c] [h...]

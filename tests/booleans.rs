@@ -24,7 +24,7 @@ fn bool_invalid_value() {
         x := bool('foo')
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["--evaluate", "x"])
     .stderr(
       "
@@ -65,7 +65,7 @@ fn bool_multiple_elements() {
         x := bool(['foo', 'bar'])
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["--evaluate", "x"])
     .stderr(
       "
@@ -100,7 +100,7 @@ fn path_exists_false_falls_through_or() {
           @echo {{ path_exists("nonexistent") || "fallback" }}
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stdout("fallback\n")
     .success();
@@ -131,7 +131,7 @@ fn is_dependency_false_falls_through_or() {
           @echo {{ is_dependency() || "root" }}
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stdout("root\n")
     .success();
@@ -148,7 +148,7 @@ fn semver_matches_true_is_truthy() {
           @echo {{ semver_matches("1.0.0", ">=1.0.0") || "no" }}
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stdout("true\n")
     .success();
@@ -165,7 +165,7 @@ fn semver_matches_false_falls_through_or() {
           @echo {{ semver_matches("1.0.0", "<1.0.0") || "no" }}
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stdout("no\n")
     .success();
@@ -182,7 +182,7 @@ fn which_missing_falls_through_or() {
           @echo {{ which("definitely-not-an-executable") || "fallback" }}
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stdout("fallback\n")
     .success();

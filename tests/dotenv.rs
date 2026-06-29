@@ -498,7 +498,7 @@ fn path_list_last_wins() {
           echo $KEY
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .write("foo.env", "KEY=foo")
     .write("bar.env", "KEY=bar")
     .stdout("bar\n")
@@ -517,7 +517,7 @@ fn filename_list_loads_all_in_directory() {
           echo $FOO $BAR $SHARED
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .write(
       ".env.foo",
       "
@@ -551,7 +551,7 @@ fn filename_list_stops_at_first_directory() {
     )
     .write("sub/.env.foo", "FOO=foo")
     .write(".env.bar", "BAR=bar")
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .current_dir("sub")
     .args(["foo"])
     .stdout("foo unset\n")
@@ -570,7 +570,7 @@ fn path_list_falls_through_to_filename_search() {
           echo $KEY
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .write(".env", "KEY=foo")
     .stdout("foo\n")
     .success();
@@ -589,7 +589,7 @@ fn list_override() {
           echo $KEY
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .env("KEY", "environment")
     .write("foo.env", "KEY=foo")
     .write("bar.env", "KEY=bar")
@@ -609,7 +609,7 @@ fn list_does_not_override_environment() {
           echo $KEY
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .env("KEY", "environment")
     .write("foo.env", "KEY=foo")
     .write("bar.env", "KEY=bar")
@@ -630,7 +630,7 @@ fn required_satisfied_by_one_file() {
           echo $KEY
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .write("present.env", "KEY=foo")
     .stdout("foo\n")
     .success();
@@ -648,7 +648,7 @@ fn empty_filename_list_is_unset() {
           echo ${KEY:-unset}
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .write(".env", "KEY=foo")
     .stdout("unset\n")
     .success();
@@ -687,7 +687,7 @@ fn path_argument_list() {
           echo $KEY
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .write("foo.env", "KEY=foo")
     .write("bar.env", "KEY=bar")
     .args(["--dotenv-path", "foo.env", "--dotenv-path", "bar.env"])
@@ -706,7 +706,7 @@ fn filename_argument_list() {
           echo $FOO $BAR
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .write(".env.foo", "FOO=foo")
     .write(".env.bar", "BAR=bar")
     .args([
@@ -795,7 +795,7 @@ fn command_list_runs_each_and_merges() {
           echo $FOO $BAZ
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("bar qux\n")
     .success();
 }
@@ -812,7 +812,7 @@ fn command_list_last_wins() {
           echo $KEY
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("bar\n")
     .success();
 }
