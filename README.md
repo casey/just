@@ -5180,15 +5180,12 @@ for details.
   - `strikethrough`
   - `underline`
 
-  Two further styles, supported by <sup>master</sup> and later, gate the style
-  on whether `just` would color an output stream:
+  Two stream names<sup>master</sup> gate the style on whether `just` would
+  color the output stream, determined by `--color`, `JUST_COLOR`, and whether
+  the stream is connected to a terminal:
 
-  - `stdout`: apply the style only when standard output would be colored
-  - `stderr`: apply the style only when standard error would be colored
-
-  Whether a stream is colored is determined by `--color`, `JUST_COLOR`, and
-  whether the stream is connected to a terminal. When both `stdout` and `stderr`
-  are given, the style is applied only if both streams would be colored.
+  - `stdout`
+  - `stderr`
 
   All color styles color the foreground by default, and come in explicit
   foreground variants prefixed with `fg:` and background variants prefixed with
