@@ -178,7 +178,6 @@ fn dot_justfile_conflicts_with_justfile() {
 #[test]
 fn not_found() {
   Test::new()
-    .test_round_trip(false)
     .stderr_regex("error: no justfile found\n")
     .failure();
 }
@@ -218,7 +217,6 @@ fn justfile_name_not_found() {
 #[test]
 fn justfile_name_skips_default_justfile() {
   Test::new()
-    .test_round_trip(false)
     .write(
       "foo",
       "
@@ -244,7 +242,6 @@ fn justfile_name_skips_default_justfile() {
 #[test]
 fn justfile_symlink_parent() {
   Test::new()
-    .test_round_trip(false)
     .write(
       "src",
       "

@@ -1586,7 +1586,6 @@ fn doc_comment_on_module() {
         mod foo
       ",
     )
-    .test_round_trip(false)
     .arg("--list")
     .stdout("Available recipes:\n    foo ... # Comment\n")
     .success();
@@ -1603,7 +1602,6 @@ fn doc_attribute_on_module() {
         mod foo
       ",
     )
-    .test_round_trip(false)
     .arg("--list")
     .stdout("Available recipes:\n    foo ... # Comment\n")
     .success();
@@ -1635,7 +1633,6 @@ fn group_attribute_on_module() {
         c:
       ",
     )
-    .test_round_trip(false)
     .arg("--list")
     .stdout(
       "
@@ -1681,7 +1678,6 @@ fn group_attribute_on_module_unsorted() {
         c:
       ",
     )
-    .test_round_trip(false)
     .arg("--list")
     .arg("--unsorted")
     .stdout(
@@ -1728,7 +1724,6 @@ fn group_attribute_on_module_list_submodule() {
         c:
       ",
     )
-    .test_round_trip(false)
     .arg("--list")
     .arg("--list-submodules")
     .stdout(
@@ -1778,7 +1773,6 @@ fn group_attribute_on_module_list_submodule_unsorted() {
         c:
       ",
     )
-    .test_round_trip(false)
     .arg("--list")
     .arg("--list-submodules")
     .arg("--unsorted")
@@ -1813,7 +1807,6 @@ fn bad_module_attribute_fails() {
         mod foo
       ",
     )
-    .test_round_trip(false)
     .arg("--list")
     .stderr("error: module `foo` has invalid attribute `no-cd`\n ——▶ justfile:2:5\n  │\n2 │ mod foo\n  │     ^^^\n")
     .failure();
@@ -1830,7 +1823,6 @@ fn empty_doc_attribute_on_module() {
         mod foo
       ",
     )
-    .test_round_trip(false)
     .arg("--list")
     .stdout("Available recipes:\n    foo ...\n")
     .success();
@@ -1850,7 +1842,6 @@ fn overrides_work_when_submodule_is_present() {
           @echo {{ x }}
       ",
     )
-    .test_round_trip(false)
     .arg("x=b")
     .stdout("b\n")
     .success();
@@ -1873,7 +1864,6 @@ fn exported_variables_are_available_in_submodules() {
         export x := 'a'
       ",
     )
-    .test_round_trip(false)
     .arg("foo::bar")
     .stdout("a\n")
     .success();
@@ -1897,7 +1887,6 @@ fn exported_variables_can_be_unexported_in_submodules() {
         export x := 'a'
       ",
     )
-    .test_round_trip(false)
     .arg("foo::bar")
     .stdout("default\n")
     .success();
@@ -1921,7 +1910,6 @@ fn exported_variables_can_be_overridden_in_submodules() {
         export x := 'a'
       ",
     )
-    .test_round_trip(false)
     .arg("foo::bar")
     .stdout("b\n")
     .success();

@@ -51,7 +51,6 @@ fn private_attribute_for_module() {
         baz:
       ",
     )
-    .test_round_trip(false)
     .arg("--list")
     .stdout(
       "
