@@ -16,7 +16,7 @@ fn empty_list_literal_is_falsy() {
           @echo {{ [] || "fallback" }}
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stdout("fallback\n")
     .success();
@@ -48,7 +48,7 @@ fn list_literals_requires_lists_setting() {
           @echo hi
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stderr(
       "
@@ -75,7 +75,7 @@ fn list_literals_round_trip_through_dump() {
           @echo "{{ quote(x) }}"
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("--dump")
     .stdout(
       r#"

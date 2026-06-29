@@ -391,7 +391,7 @@ fn variadic_option_is_list() {
           echo bar='{{ show(bar) }}'
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "--bar", "a", "--bar", "b"])
     .stdout("bar=[\"a\", \"b\"]\n")
     .success();
@@ -952,7 +952,7 @@ fn flag_passed_is_true() {
           echo bar={{bar}}
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "--bar"])
     .stdout("bar=true\n")
     .success();
@@ -970,7 +970,7 @@ fn flag_omitted_is_empty() {
           echo bar={{show(bar)}}
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo"])
     .stdout("bar=[]\n")
     .success();
@@ -1093,7 +1093,7 @@ fn flags_passed_with_a_value_are_an_error() {
           echo bar={{bar}}
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "--bar=baz"])
     .stderr("error: recipe `foo` flag `--bar` does not take value\n")
     .failure();
@@ -1111,7 +1111,7 @@ fn multiple_option_is_list() {
           echo bar='{{ show(bar) }}'
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "--bar", "a", "--bar", "b"])
     .stdout(
       r#"
@@ -1133,7 +1133,7 @@ fn multiple_flag_counts_occurrences() {
           echo verbose='{{ show(verbose) }}'
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "-vvv"])
     .stdout(
       r#"
@@ -1155,7 +1155,7 @@ fn multiple_value_option_repeats_value() {
           echo bar='{{ show(bar) }}'
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "--bar", "--bar"])
     .stdout(
       r#"
@@ -1177,7 +1177,7 @@ fn multiple_value_option_concatenates_list_values() {
           echo bar='{{ show(bar) }}'
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "--bar", "--bar"])
     .stdout(
       r#"

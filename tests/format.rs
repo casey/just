@@ -158,232 +158,172 @@ fn write_error() {
 
 #[test]
 fn alias_good() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         alias f := foo
 
         foo:
             echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         alias f := foo
 
         foo:
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn alias_fix_indent() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         alias f:=    foo
 
         foo:
             echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         alias f := foo
 
         foo:
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn assignment_singlequote() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo := 'foo'
       ",
-    )
-    .stdout(
-      "
+    "
         foo := 'foo'
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn assignment_doublequote() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      r#"
+  assert_dump(
+    r#"
         foo := "foo"
       "#,
-    )
-    .stdout(
-      r#"
+    r#"
         foo := "foo"
       "#,
-    )
-    .success();
+  );
 }
 
 #[test]
 fn assignment_indented_singlequote() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo := '''
           foo
         '''
       ",
-    )
-    .stdout(
-      "
+    "
         foo := '''
           foo
         '''
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn assignment_indented_doublequote() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      r#"
+  assert_dump(
+    r#"
         foo := """
           foo
         """
       "#,
-    )
-    .stdout(
-      r#"
+    r#"
         foo := """
           foo
         """
       "#,
-    )
-    .success();
+  );
 }
 
 #[test]
 fn assignment_backtick() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo := `foo`
       ",
-    )
-    .stdout(
-      "
+    "
         foo := `foo`
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn assignment_indented_backtick() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo := ```
           foo
         ```
       ",
-    )
-    .stdout(
-      "
+    "
         foo := ```
           foo
         ```
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn assignment_name() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         bar := 'bar'
         foo := bar
       ",
-    )
-    .stdout(
-      "
+    "
         bar := 'bar'
         foo := bar
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn assignment_parenthesized_expression() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo := ('foo')
       ",
-    )
-    .stdout(
-      "
+    "
         foo := ('foo')
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn assignment_export() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         export foo := 'foo'
       ",
-    )
-    .stdout(
-      "
+    "
         export foo := 'foo'
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn assignment_concat_values() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo := 'foo' + 'bar'
       ",
-    )
-    .stdout(
-      "
+    "
         foo := 'foo' + 'bar'
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
@@ -397,7 +337,7 @@ fn assignment_list_concat_values() {
         foo := ['bar'] ++ ['baz']
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout(
       "
         set lists
@@ -410,19 +350,14 @@ fn assignment_list_concat_values() {
 
 #[test]
 fn assignment_if_oneline() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo := if 'foo' == 'foo' { 'foo' } else { 'bar' }
       ",
-    )
-    .stdout(
-      "
+    "
         foo := if 'foo' == 'foo' { 'foo' } else { 'bar' }
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
@@ -436,7 +371,7 @@ fn assignment_if_without_else() {
         foo := if 'foo' == 'foo' { 'foo' }
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout(
       "
         set lists
@@ -449,648 +384,486 @@ fn assignment_if_without_else() {
 
 #[test]
 fn assignment_if_multiline() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo := if 'foo' != 'foo' {
           'foo'
         } else {
           'bar'
         }
       ",
-    )
-    .stdout(
-      "
+    "
         foo := if 'foo' != 'foo' { 'foo' } else { 'bar' }
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn assignment_nullary_function() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo := arch()
       ",
-    )
-    .stdout(
-      "
+    "
         foo := arch()
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn assignment_unary_function() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo := env_var('foo')
       ",
-    )
-    .stdout(
-      "
+    "
         foo := env_var('foo')
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn assignment_binary_function() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo := env_var_or_default('foo', 'bar')
       ",
-    )
-    .stdout(
-      "
+    "
         foo := env_var_or_default('foo', 'bar')
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn assignment_path_functions() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo  := without_extension('foo/bar.baz')
         foo2 := file_stem('foo/bar.baz')
         foo3 := parent_directory('foo/bar.baz')
         foo4 := file_name('foo/bar.baz')
         foo5 := extension('foo/bar.baz')
       ",
-    )
-    .stdout(
-      "
+    "
         foo := without_extension('foo/bar.baz')
         foo2 := file_stem('foo/bar.baz')
         foo3 := parent_directory('foo/bar.baz')
         foo4 := file_name('foo/bar.baz')
         foo5 := extension('foo/bar.baz')
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_ordinary() {
-  Test::new()
-    .justfile(
-      "
+  assert_dump(
+    "
         foo:
             echo bar
       ",
-    )
-    .arg("--dump")
-    .stdout(
-      "
+    "
         foo:
             echo bar
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_with_docstring() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         # bar
         foo:
             echo bar
       ",
-    )
-    .stdout(
-      "
+    "
         # bar
         foo:
             echo bar
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_with_comments_in_body() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo:
             # bar
             echo bar
       ",
-    )
-    .stdout(
-      "
+    "
         foo:
             # bar
             echo bar
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_body_is_comment() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo:
             # bar
       ",
-    )
-    .stdout(
-      "
+    "
         foo:
             # bar
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_several_commands() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo:
             echo bar
             echo baz
       ",
-    )
-    .stdout(
-      "
+    "
         foo:
             echo bar
             echo baz
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_quiet() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         @foo:
             echo bar
       ",
-    )
-    .stdout(
-      "
+    "
         @foo:
             echo bar
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_quiet_command() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo:
             @echo bar
       ",
-    )
-    .stdout(
-      "
+    "
         foo:
             @echo bar
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_quiet_comment() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo:
             @# bar
       ",
-    )
-    .stdout(
-      "
+    "
         foo:
             @# bar
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_ignore_errors() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo:
             -echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         foo:
             -echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_parameter() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo BAR:
             echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         foo BAR:
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_parameter_default() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo BAR='bar':
             echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         foo BAR='bar':
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_parameter_envar() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo $BAR:
             echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         foo $BAR:
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_parameter_default_envar() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo $BAR='foo':
             echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         foo $BAR='foo':
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_parameter_concat() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo BAR=('bar' + 'baz'):
             echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         foo BAR=('bar' + 'baz'):
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_parameters() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo BAR BAZ:
             echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         foo BAR BAZ:
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_parameters_envar() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo $BAR $BAZ:
             echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         foo $BAR $BAZ:
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_variadic_plus() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo +BAR:
             echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         foo +BAR:
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_variadic_star() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo *BAR:
             echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         foo *BAR:
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_positional_variadic() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo BAR *BAZ:
             echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         foo BAR *BAZ:
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_variadic_default() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo +BAR='bar':
             echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         foo +BAR='bar':
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_parameter_in_body() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo BAR:
             echo {{ BAR }}
       ",
-    )
-    .stdout(
-      "
+    "
         foo BAR:
             echo {{ BAR }}
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_parameter_conditional() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo BAR:
             echo {{ if 'foo' == 'foo' { 'foo' } else { 'bar' } }}
       ",
-    )
-    .stdout(
-      "
+    "
         foo BAR:
             echo {{ if 'foo' == 'foo' { 'foo' } else { 'bar' } }}
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_escaped_braces() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo BAR:
             echo '{{{{BAR}}}}'
       ",
-    )
-    .stdout(
-      "
+    "
         foo BAR:
             echo '{{{{BAR}}}}'
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_assignment_in_body() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         bar := 'bar'
 
         foo:
             echo $bar
       ",
-    )
-    .stdout(
-      "
+    "
         bar := 'bar'
 
         foo:
             echo $bar
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_dependency() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         bar:
             echo bar
 
         foo: bar
             echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         bar:
             echo bar
 
         foo: bar
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_dependency_param() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         bar BAR:
             echo bar
 
         foo: (bar 'bar')
             echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         bar BAR:
             echo bar
 
         foo: (bar 'bar')
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_dependency_params() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         bar BAR BAZ:
             echo bar
 
         foo: (bar 'bar' 'baz')
             echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         bar BAR BAZ:
             echo bar
 
         foo: (bar 'bar' 'baz')
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_dependencies() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         bar:
             echo bar
 
@@ -1100,9 +873,7 @@ fn recipe_dependencies() {
         foo: baz bar
             echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         bar:
             echo bar
 
@@ -1112,16 +883,13 @@ fn recipe_dependencies() {
         foo: baz bar
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn recipe_dependencies_params() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         bar BAR:
             echo bar
 
@@ -1131,9 +899,7 @@ fn recipe_dependencies_params() {
         foo: (baz 'baz') (bar 'bar')
             echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         bar BAR:
             echo bar
 
@@ -1143,377 +909,282 @@ fn recipe_dependencies_params() {
         foo: (baz 'baz') (bar 'bar')
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn set_true_explicit() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         set export := true
       ",
-    )
-    .stdout(
-      "
+    "
         set export
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn set_true_implicit() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         set export
       ",
-    )
-    .stdout(
-      "
+    "
         set export
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn set_false() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         set export := false
       ",
-    )
-    .stdout(
-      "
+    "
         set export := false
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn set_shell() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      r#"
+  assert_dump(
+    r#"
         set shell := ['sh', "-c"]
       "#,
-    )
-    .stdout(
-      r#"
+    r#"
         set shell := ['sh', "-c"]
       "#,
-    )
-    .success();
+  );
 }
 
 #[test]
 fn comment() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         # foo
       ",
-    )
-    .stdout(
-      "
+    "
         # foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn comment_multiline() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         # foo
         # bar
       ",
-    )
-    .stdout(
-      "
+    "
         # foo
         # bar
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn comment_leading() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         # foo
 
         foo := 'bar'
       ",
-    )
-    .stdout(
-      "
+    "
         # foo
 
         foo := 'bar'
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn comment_trailing() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo := 'bar'
 
         # foo
       ",
-    )
-    .stdout(
-      "
+    "
         foo := 'bar'
 
         # foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn comment_before_recipe() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         # foo
 
         foo:
             echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         # foo
 
         foo:
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn comment_before_docstring_recipe() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         # bar
 
         # foo
         foo:
             echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         # bar
 
         # foo
         foo:
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn newlines_between_items_is_preserved() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo:
 
         bar:
       ",
-    )
-    .stdout(
-      "
+    "
         foo:
 
         bar:
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn multiple_newlines_between_items_are_collapsed() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo:
 
 
         bar:
       ",
-    )
-    .stdout(
-      "
+    "
         foo:
 
         bar:
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn newline_after_recipe_with_body_is_preserved() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo:
             echo FOO
 
         bar:
       ",
-    )
-    .stdout(
-      "
+    "
         foo:
             echo FOO
 
         bar:
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn adjacency_is_respected() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo:
         bar:
       ",
-    )
-    .stdout(
-      "
+    "
         foo:
         bar:
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn no_trailing_newline() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
     foo:
         echo foo",
-    )
-    .stdout(
-      "
+    "
         foo:
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn subsequent() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         bar:
 
         foo: && bar
             echo foo
       ",
-    )
-    .stdout(
-      "
+    "
         bar:
 
         foo: && bar
             echo foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn exported_parameter() {
-  Test::new()
-    .justfile("foo +$f:")
-    .args(["--dump"])
-    .stdout("foo +$f:\n")
-    .success();
+  assert_dump("foo +$f:", "foo +$f:\n");
 }
 
 #[test]
 fn multi_argument_attribute() {
-  Test::new()
-    .justfile(
-      "
+  assert_dump(
+    "
         [script('a', 'b', 'c')]
         foo:
       ",
-    )
-    .arg("--dump")
-    .stdout(
-      "
+    "
         [script('a', 'b', 'c')]
         foo:
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn doc_attribute_suppresses_comment() {
-  Test::new()
-    .justfile(
-      "
+  assert_dump(
+    "
         # COMMENT
         [doc('ATTRIBUTE')]
         foo:
       ",
-    )
-    .arg("--dump")
-    .stdout(
-      "
+    "
         # COMMENT
         [doc('ATTRIBUTE')]
         foo:
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
@@ -1533,38 +1204,28 @@ fn unchanged_justfiles_are_not_written_to_disk() {
 
 #[test]
 fn if_else() {
-  Test::new()
-    .justfile(
-      "
+  assert_dump(
+    "
         x := if '' == '' { '' } else if '' == '' { '' } else { '' }
       ",
-    )
-    .arg("--dump")
-    .stdout(
-      "
+    "
         x := if '' == '' { '' } else if '' == '' { '' } else { '' }
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn private_variable() {
-  Test::new()
-    .justfile(
-      "
+  assert_dump(
+    "
         [private]
         foo := 'bar'
       ",
-    )
-    .arg("--dump")
-    .stdout(
-      "
+    "
         [private]
         foo := 'bar'
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
@@ -1611,154 +1272,114 @@ fn module_docs_are_preserved() {
 
 #[test]
 fn arg_attribute_long() {
-  Test::new()
-    .justfile(
-      "
+  assert_dump(
+    "
         [arg('bar', long='bar')]
         @foo bar:
       ",
-    )
-    .arg("--dump")
-    .stdout(
-      "
+    "
         [arg('bar', long='bar')]
         @foo bar:
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn arg_attribute_long_bare() {
-  Test::new()
-    .justfile(
-      "
+  assert_dump(
+    "
         [arg('bar', long)]
         @foo bar:
       ",
-    )
-    .arg("--dump")
-    .stdout(
-      "
+    "
         [arg('bar', long)]
         @foo bar:
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn arg_attribute_short_bare() {
-  Test::new()
-    .justfile(
-      "
+  assert_dump(
+    "
         [arg('bar', short)]
         @foo bar:
       ",
-    )
-    .arg("--dump")
-    .stdout(
-      "
+    "
         [arg('bar', short)]
         @foo bar:
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn arg_attribute_pattern() {
-  Test::new()
-    .justfile(
-      "
+  assert_dump(
+    "
         [arg('bar', pattern='bar')]
         @foo bar:
       ",
-    )
-    .arg("--dump")
-    .stdout(
-      "
+    "
         [arg('bar', pattern='bar')]
         @foo bar:
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn arg_attribute_pattern_expression() {
-  Test::new()
-    .justfile(
-      "
+  assert_dump(
+    "
         [arg('bar', pattern='b' + 'ar')]
         @foo bar:
       ",
-    )
-    .arg("--dump")
-    .stdout(
-      "
+    "
         [arg('bar', pattern='b' + 'ar')]
         @foo bar:
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn arg_attribute_long_and_pattern() {
-  Test::new()
-    .justfile(
-      "
+  assert_dump(
+    "
         [arg('bar', long='foo', pattern='baz')]
         @foo bar:
       ",
-    )
-    .arg("--dump")
-    .stdout(
-      "
+    "
         [arg('bar', long='foo', pattern='baz')]
         @foo bar:
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn arg_attribute_help() {
-  Test::new()
-    .justfile(
-      "
+  assert_dump(
+    "
         [arg('bar', help='foo')]
         @foo bar:
       ",
-    )
-    .arg("--dump")
-    .stdout(
-      "
+    "
         [arg('bar', help='foo')]
         @foo bar:
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn arg_attribute_help_expression() {
-  Test::new()
-    .justfile(
-      "
+  assert_dump(
+    "
         [arg('bar', help='f' + 'oo')]
         @foo bar:
       ",
-    )
-    .arg("--dump")
-    .stdout(
-      "
+    "
         [arg('bar', help='f' + 'oo')]
         @foo bar:
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
@@ -1772,7 +1393,7 @@ fn arg_attribute_flag() {
         @foo bar:
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("--dump")
     .stdout(
       "
@@ -1787,25 +1408,20 @@ fn arg_attribute_flag() {
 
 #[test]
 fn arg_attribute_value() {
-  Test::new()
-    .justfile(
-      "
+  assert_dump(
+    "
         BAZ := 'baz'
 
         [arg('bar', long='bar', value=BAZ + env('FOO', 'foo'))]
         @foo bar:
       ",
-    )
-    .arg("--dump")
-    .stdout(
-      "
+    "
         BAZ := 'baz'
 
         [arg('bar', long='bar', value=BAZ + env('FOO', 'foo'))]
         @foo bar:
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
@@ -1921,226 +1537,166 @@ fn indentation_env() {
 
 #[test]
 fn multi_line_comments_before_recipes_are_not_broken_up() {
-  Test::new()
-    .justfile(
-      "
+  assert_dump(
+    "
         # foo
         # bar
         baz:
       ",
-    )
-    .arg("--dump")
-    .stdout(
-      "
+    "
         # foo
         # bar
         baz:
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn trailing_comment_assignment() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo := 'bar' # baz
       ",
-    )
-    .stdout(
-      "
+    "
         foo := 'bar' # baz
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn trailing_comment_alias() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         alias f := foo # baz
         foo:
       ",
-    )
-    .stdout(
-      "
+    "
         alias f := foo # baz
         foo:
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn trailing_comment_bodyless_recipe() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo: # bar
       ",
-    )
-    .stdout(
-      "
+    "
         foo: # bar
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn trailing_comment_set() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         set quiet # foo
       ",
-    )
-    .stdout(
-      "
+    "
         set quiet # foo
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn trailing_comment_unexport() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         unexport FOO # bar
       ",
-    )
-    .stdout(
-      "
+    "
         unexport FOO # bar
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn trailing_comment_does_not_become_doc_comment() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo := 'bar' # baz
         qux:
       ",
-    )
-    .stdout(
-      "
+    "
         foo := 'bar' # baz
         qux:
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn trailing_comment_recipe_with_body_is_stripped() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo: # bar
           echo baz
       ",
-    )
-    .stdout(
-      "
+    "
         foo:
             echo baz
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn trailing_comment_export() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         export foo := 'bar' # baz
       ",
-    )
-    .stdout(
-      "
+    "
         export foo := 'bar' # baz
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn trailing_comment_recipe_with_dependencies_and_body_is_stripped() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo: bar # baz
           echo qux
 
         bar:
       ",
-    )
-    .stdout(
-      "
+    "
         foo: bar
             echo qux
 
         bar:
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn multiple_trailing_comments() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo := 'bar' # comment1
         baz := 'qux' # comment2
       ",
-    )
-    .stdout(
-      "
+    "
         foo := 'bar' # comment1
         baz := 'qux' # comment2
       ",
-    )
-    .success();
+  );
 }
 
 #[test]
 fn trailing_comments_separated_by_blank_line() {
-  Test::new()
-    .arg("--dump")
-    .justfile(
-      "
+  assert_dump(
+    "
         foo := 'bar' # comment1
 
         baz := 'qux' # comment2
       ",
-    )
-    .stdout(
-      "
+    "
         foo := 'bar' # comment1
 
         baz := 'qux' # comment2
       ",
-    )
-    .success();
+  );
 }

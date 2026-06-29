@@ -611,7 +611,7 @@ fn cache_extra_dump() {
           echo baz
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("--dump")
     .stdout(
       "
@@ -639,7 +639,7 @@ fn cache_inputs_dump() {
           echo baz
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("--dump")
     .stdout(
       "
@@ -667,7 +667,7 @@ fn cache_outputs_dump() {
           echo baz
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("--dump")
     .stdout(
       "
@@ -693,7 +693,7 @@ fn unknown_keyword() {
           echo baz
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stderr(
       "
         error: unknown key `input` for `cache` attribute

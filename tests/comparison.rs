@@ -141,7 +141,7 @@ fn value_comparison_requires_lists_setting() {
           @echo hi
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stderr(
       r#"
@@ -166,7 +166,7 @@ fn non_comparison_condition_requires_lists_setting() {
           @echo hi
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stderr(
       r#"
@@ -193,7 +193,7 @@ fn non_comparison_condition_calling_defined_function_requires_lists_setting() {
           @echo hi
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("bar")
     .stderr(
       r#"
@@ -232,7 +232,7 @@ fn empty_list_is_falsy_condition() {
           @echo {{ if [] { "t" } else { "f" } }}
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stdout("f\n")
     .success();
@@ -249,7 +249,7 @@ fn non_empty_value_is_truthy_condition() {
           @echo {{ if "x" { "t" } else { "f" } }}
       "#,
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stdout("t\n")
     .success();

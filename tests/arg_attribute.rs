@@ -163,11 +163,11 @@ fn pattern_list_match() {
           foo bar:
         ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "A"])
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "B"])
     .success();
 }
@@ -182,7 +182,7 @@ fn pattern_list_mismatch() {
         foo bar:
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "C"])
     .stderr(
       "
@@ -202,7 +202,7 @@ fn pattern_empty_list_accepts_all_arguments() {
         foo bar:
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "anything"])
     .success();
 }
@@ -559,7 +559,7 @@ fn help_list_is_joined() {
         foo bar:
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["--usage", "foo"])
     .stdout(
       "
@@ -582,7 +582,7 @@ fn help_empty_list_is_no_help() {
         foo bar:
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["--usage", "foo"])
     .stdout(
       "

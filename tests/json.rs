@@ -753,7 +753,7 @@ fn dotenv_filename_list() {
         foo:
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["--dump", "--dump-format", "json"])
     .stdout_regex(".*");
 
@@ -833,7 +833,7 @@ fn list_concatenation() {
         foo := ['bar'] ++ ['baz']
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["--dump", "--dump-format", "json"])
     .stdout_regex(".*");
 

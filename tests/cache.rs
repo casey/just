@@ -25,7 +25,7 @@ fn cache_attribute_requires_script_recipe() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stderr(
       "
         error: shell recipe `foo` has script recipe attribute `cache`
@@ -49,7 +49,7 @@ fn entry_is_created_with_recipe_name() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("bar\n")
     .success();
 
@@ -77,11 +77,11 @@ fn hit_skips_execution() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 }
 
@@ -96,7 +96,7 @@ fn body_change_invalidates_cache() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("bar\n")
     .success()
     .test()
@@ -108,7 +108,7 @@ fn body_change_invalidates_cache() {
           echo baz
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("baz\n")
     .success();
 }
@@ -124,7 +124,7 @@ fn different_recipes_do_not_share_entries() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stdout("bar\n")
     .success()
@@ -137,7 +137,7 @@ fn different_recipes_do_not_share_entries() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("bob")
     .stdout("bar\n")
     .success();
@@ -155,12 +155,12 @@ fn positional_arguments_invalidate_cache() {
           echo $1
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "bar"])
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "baz"])
     .stdout("baz\n")
     .success();
@@ -179,12 +179,12 @@ fn environment_invalidates_cache() {
           echo $value
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["value=bar", "foo"])
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["value=baz", "foo"])
     .stdout("baz\n")
     .success();
@@ -203,12 +203,12 @@ fn unexported_variable_does_not_invalidate_cache() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["value=bar", "foo"])
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["value=baz", "foo"])
     .success();
 }
@@ -226,7 +226,7 @@ fn interpreter_invalidates_cache() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("bar\n")
     .success()
     .test()
@@ -240,7 +240,7 @@ fn interpreter_invalidates_cache() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("bar\n")
     .success();
 }
@@ -257,7 +257,7 @@ fn working_directory_invalidates_cache() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .create_dir("a")
     .stdout("bar\n")
     .success()
@@ -271,7 +271,7 @@ fn working_directory_invalidates_cache() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .create_dir("b")
     .stdout("bar\n")
     .success();
@@ -290,16 +290,16 @@ fn extra_invalidates_cache() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["value=a", "foo"])
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["value=a", "foo"])
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["value=b", "foo"])
     .stdout("bar\n")
     .success();
@@ -316,15 +316,15 @@ fn input_invalidates_cache() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .write("foo", "a")
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .write("foo", "b")
     .stdout("bar\n")
     .success();
@@ -343,13 +343,13 @@ fn multiple_inputs_invalidate_cache() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .write("foo", "a")
     .write("baz", "a")
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .write("baz", "b")
     .stdout("bar\n")
     .success();
@@ -366,17 +366,17 @@ fn input_expression_evaluated_with_arguments() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .write("foo", "a")
     .args(["bar", "foo"])
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["bar", "foo"])
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .write("foo", "b")
     .args(["bar", "foo"])
     .stdout("bar\n")
@@ -394,13 +394,13 @@ fn symlink_to_file_is_followed() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .write("foo", "a")
     .symlink("foo", "link")
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 }
 
@@ -415,7 +415,7 @@ fn missing_input_is_an_error() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stderr_regex(r"error: cache input does not exist: `.*foo`\n")
     .failure();
 }
@@ -431,7 +431,7 @@ fn directory_input_is_an_error() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .create_dir("foo")
     .stderr_regex(r"error: cache input is directory: `.*foo`\n")
     .failure();
@@ -448,7 +448,7 @@ fn symlink_to_directory_is_an_error() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .create_dir("foo")
     .symlink("foo", "link")
     .stderr_regex(r"error: cache input is directory: `.*link`\n")
@@ -466,7 +466,7 @@ fn dry_run_skips_input_checking() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("--dry-run")
     .stderr("echo bar\n")
     .success();
@@ -484,20 +484,16 @@ fn missing_output_invalidates_cache() {
           touch foo
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 
   fs::remove_file(output.tempdir.path().join("foo")).unwrap();
 
-  output
-    .test()
-    .env("JUST_UNSTABLE", "1")
-    .stdout("bar\n")
-    .success();
+  output.test().unstable().stdout("bar\n").success();
 }
 
 #[test]
@@ -512,12 +508,12 @@ fn output_expression_evaluated_with_arguments() {
           touch {{file}}
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["bar", "foo"])
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["bar", "foo"])
     .success();
 
@@ -525,7 +521,7 @@ fn output_expression_evaluated_with_arguments() {
 
   output
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["bar", "foo"])
     .stdout("bar\n")
     .success();
@@ -545,20 +541,16 @@ fn multiple_outputs() {
           touch foo baz
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 
   fs::remove_file(output.tempdir.path().join("baz")).unwrap();
 
-  output
-    .test()
-    .env("JUST_UNSTABLE", "1")
-    .stdout("bar\n")
-    .success();
+  output.test().unstable().stdout("bar\n").success();
 }
 
 #[test]
@@ -573,11 +565,11 @@ fn output_directory_is_allowed() {
           mkdir -p foo
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 }
 
@@ -594,21 +586,17 @@ fn outputs_resolve_against_working_directory() {
           touch foo
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .create_dir("sub")
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 
   fs::remove_file(output.tempdir.path().join("sub/foo")).unwrap();
 
-  output
-    .test()
-    .env("JUST_UNSTABLE", "1")
-    .stdout("bar\n")
-    .success();
+  output.test().unstable().stdout("bar\n").success();
 }
 
 #[cfg(unix)]
@@ -625,20 +613,16 @@ fn dangling_symlink_output_invalidates_cache() {
           ln -sf foo link
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .success();
 
   fs::remove_file(output.tempdir.path().join("foo")).unwrap();
 
-  output
-    .test()
-    .env("JUST_UNSTABLE", "1")
-    .stdout("bar\n")
-    .success();
+  output.test().unstable().stdout("bar\n").success();
 }
 
 #[test]
@@ -652,7 +636,7 @@ fn missing_output_after_run_is_an_error() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("bar\n")
     .stderr_regex(r"error: recipe `bar` failed to create cache output `foo`\n")
     .failure();
@@ -677,7 +661,7 @@ fn dry_run_skips_output_checking() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("--dry-run")
     .stderr("echo bar\n")
     .success();
@@ -695,14 +679,14 @@ fn current_directory_invalidates_cache() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .create_dir("a")
     .create_dir("b")
     .current_dir("a")
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .current_dir("b")
     .stdout("bar\n")
     .success();
@@ -719,7 +703,7 @@ fn clean_removes_cache_directory() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("bar\n")
     .success();
 
@@ -728,7 +712,7 @@ fn clean_removes_cache_directory() {
 
   let output = output
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("--clean")
     .stderr("removed 1 cache entry\n")
     .success();
@@ -747,11 +731,11 @@ fn clean_removes_entries_but_leaves_unexpected_entries() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .write(".justcache/foo", "bar")
     .arg("--clean")
     .stderr("removed 1 cache entry\n")
@@ -794,15 +778,15 @@ fn clean_quiet_suppresses_count() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["--quiet", "--clean"])
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["--quiet", "--clean"])
     .success();
 }
@@ -823,17 +807,17 @@ fn clean_reports_plural_count() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("foo")
     .stdout("foo\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("bar")
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("--clean")
     .stderr("removed 2 cache entries\n")
     .success();
@@ -861,17 +845,17 @@ fn clean_path_removes_subtree() {
           echo baz
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("bar")
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "baz"])
     .stdout("baz\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["--clean", "foo"])
     .stderr("removed 1 cache entry\n")
     .success();
@@ -908,17 +892,17 @@ fn clean_path_removes_exact_recipe() {
           echo baz
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("bar")
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["foo", "baz"])
     .stdout("baz\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["--clean", "foo::baz"])
     .stderr("removed 1 cache entry\n")
     .success();
@@ -944,7 +928,7 @@ fn clean_path_removes_empty_entries() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("bar\n")
     .stderr_regex(r"error: recipe `bar` failed to create cache output `foo`\n")
     .failure();
@@ -959,7 +943,7 @@ fn clean_path_removes_empty_entries() {
 
   let output = output
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["--clean", "bar"])
     .stderr("removed 1 cache entry\n")
     .success();
@@ -978,11 +962,11 @@ fn hit_prints_verbose_message() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("--verbose")
     .stderr(
       "
@@ -1004,11 +988,11 @@ fn no_cache_reruns_on_hit() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .stdout("bar\n")
     .success()
     .test()
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .args(["--no-cache", "--verbose"])
     .stdout("bar\n")
     .stderr("===> running recipe `foo`...\n")
@@ -1033,7 +1017,7 @@ fn no_cache_does_not_write_cache_entries() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("--no-cache")
     .stdout("bar\n")
     .success();
@@ -1052,7 +1036,7 @@ fn prints_cache_key() {
           echo bar
       ",
     )
-    .env("JUST_UNSTABLE", "1")
+    .unstable()
     .arg("-vv")
     .stdout("bar\n")
     .stderr_regex(unindent(

@@ -177,54 +177,22 @@ fn unmatched_close_is_ignored() {
 
 #[test]
 fn delimiter_may_be_escaped_in_double_quoted_strings() {
-  Test::new()
-    .justfile(
-      r#"
-        foo := f"{{{{"
-      "#,
-    )
-    .args(["--evaluate", "foo"])
-    .stdout("{{")
-    .success();
+  assert_eval_eq(r#"f"{{{{""#, "{{");
 }
 
 #[test]
 fn delimiter_may_be_escaped_in_single_quoted_strings() {
-  Test::new()
-    .justfile(
-      "
-        foo := f'{{{{'
-      ",
-    )
-    .args(["--evaluate", "foo"])
-    .stdout("{{")
-    .success();
+  assert_eval_eq("f'{{{{'", "{{");
 }
 
 #[test]
 fn escaped_delimiter_is_ignored_in_normal_strings() {
-  Test::new()
-    .justfile(
-      "
-        foo := '{{{{'
-      ",
-    )
-    .args(["--evaluate", "foo"])
-    .stdout("{{{{")
-    .success();
+  assert_eval_eq("'{{{{'", "{{{{");
 }
 
 #[test]
 fn escaped_delimiter_in_single_quoted_format_string() {
-  Test::new()
-    .justfile(
-      r"
-        foo := f'\{{{{'
-      ",
-    )
-    .args(["--evaluate", "foo"])
-    .stdout("\\{{")
-    .success();
+  assert_eval_eq(r"f'\{{{{'", "\\{{");
 }
 
 #[test]
@@ -250,63 +218,22 @@ fn escaped_delimiter_in_double_quoted_format_string() {
 
 #[test]
 fn double_quotes_process_escapes() {
-  Test::new()
-    .justfile(
-      r#"
-        foo := f"\u{61}{{"b"}}\u{63}{{"d"}}\u{65}"
-      "#,
-    )
-    .args(["--evaluate", "foo"])
-    .stdout("abcde")
-    .success();
+  assert_eval_eq(r#"f"\u{61}{{"b"}}\u{63}{{"d"}}\u{65}""#, "abcde");
 }
 
 #[test]
 fn single_quotes_do_not_process_escapes() {
-  Test::new()
-    .justfile(
-      "
-        foo := f'\\n{{'a'}}\\n{{'b'}}\\n'
-      ",
-    )
-    .args(["--evaluate", "foo"])
-    .stdout(r"\na\nb\n")
-    .success();
+  assert_eval_eq(r"f'\n{{'a'}}\n{{'b'}}\n'", r"\na\nb\n");
 }
 
 #[test]
 fn indented_format_strings() {
-  Test::new()
-    .justfile(
-      "
-        foo := f'''
-          a
-          {{'b'}}
-          c
-        '''
-      ",
-    )
-    .args(["--evaluate", "foo"])
-    .stdout("a\nb\nc\n")
-    .success();
+  assert_eval_eq("f'''\n  a\n  {{'b'}}\n  c\n'''", "a\nb\nc\n");
 }
 
 #[test]
 fn un_indented_format_strings() {
-  Test::new()
-    .justfile(
-      "
-        foo := f'
-          a
-          {{'b'}}
-          c
-        '
-      ",
-    )
-    .args(["--evaluate", "foo"])
-    .stdout("\n  a\n  b\n  c\n")
-    .unindent_stdout(false)
-    .success();
+  assert_eval_eq("f'\n  a\n  {{'b'}}\n  c\n'", "\n  a\n  b\n  c\n");
 }
 
 #[test]

@@ -79,6 +79,10 @@ impl Test {
     self
   }
 
+  pub(crate) fn unstable(self) -> Self {
+    self.env("JUST_UNSTABLE", "1")
+  }
+
   pub(crate) fn justfile(mut self, justfile: impl Into<String>) -> Self {
     self.justfile = Some(justfile.into());
     self
@@ -156,6 +160,10 @@ impl Test {
     fs::create_dir_all(path.parent().unwrap()).unwrap();
     fs::write(path, unindent(content)).unwrap();
     self
+  }
+
+  pub(crate) fn write_executable(self, path: impl AsRef<Path> + Copy, content: &str) -> Self {
+    self.write(path, content).make_executable(path)
   }
 
   pub(crate) fn make_executable(self, path: impl AsRef<Path>) -> Self {
