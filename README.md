@@ -3253,6 +3253,9 @@ override `dotenv-path` at runtime.
 If `dotenv-filename` is set, `just` will look for a file at the given path,
 relative to the working directory and each of its ancestors.
 
+The command-line option `--dotenv-filename`, short form `-F`, can be used to
+set or override `dotenv-filename` at runtime.
+
 If `dotenv-filename` is not set, but `dotenv-load` or `dotenv-required` are
 set, `just` will look for a file named `.env`, relative to the working directory
 and each of its ancestors.
@@ -4983,36 +4986,26 @@ called from within an import or submodule.
 directory, respectively, of the current `mod` source file when called from
 within a submodule.
 
-#### Just Executable
+#### Just Process and Executable
 
 - `just_executable()` - Absolute path to the `just` executable.
+- `just_pid()` - Process ID of the `just` executable.
+- `just_version()`<sup>master</sup> - Version of the `just` executable.
 
 For example:
 
 ```just
-executable:
+just-info:
   @echo The executable is at: {{just_executable()}}
+  @echo The process ID is: {{ just_pid() }}
+  @echo The version is: {{ just_version() }}
 ```
 
 ```console
 $ just
 The executable is at: /bin/just
-```
-
-#### Just Process ID
-
-- `just_pid()` - Process ID of the `just` executable.
-
-For example:
-
-```just
-pid:
-  @echo The process ID is: {{ just_pid() }}
-```
-
-```console
-$ just
 The process ID is: 420
+The version is: 1.54.0
 ```
 
 #### String Manipulation

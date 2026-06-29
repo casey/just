@@ -1017,6 +1017,11 @@ fn just_pid() {
 }
 
 #[test]
+fn just_version() {
+  assert_eval_eq("just_version()", env!("CARGO_PKG_VERSION"));
+}
+
+#[test]
 fn shell_no_argument() {
   Test::new()
     .justfile("var := shell()")
