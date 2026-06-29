@@ -41,15 +41,15 @@ fn h1_and_h2_headings_are_setext() {
   let markdown = fs::read_to_string("README.md").unwrap();
 
   for (event, range) in Parser::new(&markdown).into_offset_iter() {
-    if let Event::Start(Tag::Heading { level, .. }) = event {
-      if matches!(level, HeadingLevel::H1 | HeadingLevel::H2) {
-        let source = &markdown[range];
-        assert!(
-          !source.starts_with('#'),
-          "{level:?} heading is not setext: {}",
-          source.lines().next().unwrap(),
-        );
-      }
+    if let Event::Start(Tag::Heading { level, .. }) = event
+      && matches!(level, HeadingLevel::H1 | HeadingLevel::H2)
+    {
+      let source = &markdown[range];
+      assert!(
+        !source.starts_with('#'),
+        "{level:?} heading is not setext: {}",
+        source.lines().next().unwrap(),
+      );
     }
   }
 }
