@@ -4983,51 +4983,25 @@ called from within an import or submodule.
 directory, respectively, of the current `mod` source file when called from
 within a submodule.
 
-#### Just Executable
+#### Just Process and Executable
 
 - `just_executable()` - Absolute path to the `just` executable.
-
-For example:
-
-```just
-executable:
-  @echo The executable is at: {{just_executable()}}
-```
-
-```console
-$ just
-The executable is at: /bin/just
-```
-
-#### Just Process ID
-
 - `just_pid()` - Process ID of the `just` executable.
-
-For example:
-
-```just
-pid:
-  @echo The process ID is: {{ just_pid() }}
-```
-
-```console
-$ just
-The process ID is: 420
-```
-
-#### Just Version
-
 - `just_version()`<sup>master</sup> - Version of the `just` executable.
 
 For example:
 
 ```just
-version:
+just-info:
+  @echo The executable is at: {{just_executable()}}
+  @echo The process ID is: {{ just_pid() }}
   @echo The version is: {{ just_version() }}
 ```
 
 ```console
 $ just
+The executable is at: /bin/just
+The process ID is: 420
 The version is: 1.54.0
 ```
 
