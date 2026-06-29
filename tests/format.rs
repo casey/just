@@ -43,7 +43,6 @@ fn from_stdin() {
     .args(["--fmt", "--justfile", "-"])
     .stdin("x:=``\n")
     .stdout("x := ``\n")
-    .test_round_trip(false)
     .success();
 }
 
@@ -53,7 +52,6 @@ fn already_formatted_from_stdin() {
     .args(["--fmt", "--justfile", "-"])
     .stdin("x := ``\n")
     .stdout("x := ``\n")
-    .test_round_trip(false)
     .success();
 }
 
@@ -73,7 +71,6 @@ fn check_from_stdin() {
         error: formatted justfile differs from original
       ",
     )
-    .test_round_trip(false)
     .failure();
 }
 
@@ -1429,7 +1426,6 @@ fn missing_import_file() {
   Test::new()
     .args(["--fmt", "--check"])
     .justfile("import 'foo'\n")
-    .test_round_trip(false)
     .success();
 }
 
@@ -1438,7 +1434,6 @@ fn missing_module_file() {
   Test::new()
     .args(["--fmt", "--check"])
     .justfile("mod foo\n")
-    .test_round_trip(false)
     .success();
 }
 
@@ -1452,7 +1447,6 @@ fn undefined_variable() {
             echo {{ ABC }}
       ",
     )
-    .test_round_trip(false)
     .success();
 }
 
@@ -1461,7 +1455,6 @@ fn indentation_two_spaces() {
   Test::new()
     .args(["--fmt", "--check", "--indentation", "  "])
     .justfile("foo:\n  echo bar\n")
-    .test_round_trip(false)
     .success();
 }
 
@@ -1470,7 +1463,6 @@ fn indentation_tab() {
   Test::new()
     .args(["--fmt", "--check", "--indentation", "\t"])
     .justfile("foo:\n\techo bar\n")
-    .test_round_trip(false)
     .success();
 }
 
@@ -1479,7 +1471,6 @@ fn indentation_check_with_custom() {
   Test::new()
     .args(["--fmt", "--check", "--indentation", "  "])
     .justfile("foo:\n    echo bar\n")
-    .test_round_trip(false)
     .stdout(" foo:\n-    echo bar\n+  echo bar\n")
     .stderr(
       "
@@ -1499,7 +1490,6 @@ fn dump_indentation_two_spaces() {
             echo bar
       ",
     )
-    .test_round_trip(false)
     .stdout("foo:\n  echo bar\n")
     .success();
 }
@@ -1514,7 +1504,6 @@ fn dump_indentation_tab() {
             echo bar
       ",
     )
-    .test_round_trip(false)
     .stdout("foo:\n\techo bar\n")
     .success();
 }
@@ -1530,7 +1519,6 @@ fn indentation_env() {
             echo bar
       ",
     )
-    .test_round_trip(false)
     .stdout("foo:\n  echo bar\n")
     .success();
 }

@@ -10,7 +10,6 @@ fn macos() {
   let path = tempdir.path().to_owned();
 
   Test::with_tempdir(tempdir)
-    .test_round_trip(false)
     .write(
       "Library/Application Support/just/justfile",
       "
@@ -34,7 +33,6 @@ fn not_macos() {
   let path = tempdir.path().to_owned();
 
   Test::with_tempdir(tempdir)
-    .test_round_trip(false)
     .write(
       "just/justfile",
       "
@@ -58,7 +56,6 @@ fn unix() {
   let path = tempdir.path().to_owned();
 
   let tempdir = Test::with_tempdir(tempdir)
-    .test_round_trip(false)
     .write(
       "justfile",
       "
@@ -73,7 +70,6 @@ fn unix() {
     .tempdir;
 
   Test::with_tempdir(tempdir)
-    .test_round_trip(false)
     .write(
       ".config/just/justfile",
       "
@@ -97,7 +93,6 @@ fn case_insensitive() {
   let path = tempdir.path().to_owned();
 
   Test::with_tempdir(tempdir)
-    .test_round_trip(false)
     .write(
       "just/JUSTFILE",
       "

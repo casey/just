@@ -18,7 +18,6 @@ pub(crate) struct Test {
   pub(crate) stdout: String,
   pub(crate) stdout_regex: Option<Regex>,
   pub(crate) tempdir: TempDir,
-  pub(crate) test_round_trip: bool,
   pub(crate) unindent_stdout: bool,
 }
 
@@ -42,7 +41,6 @@ impl Test {
       stdout: String::new(),
       stdout_regex: None,
       tempdir,
-      test_round_trip: true,
       unindent_stdout: true,
     }
   }
@@ -142,11 +140,6 @@ impl Test {
 
   pub(crate) fn stdout_regex(mut self, stdout_regex: impl AsRef<str>) -> Self {
     self.stdout_regex = Some(Regex::new(&format!("(?s)^{}$", stdout_regex.as_ref())).unwrap());
-    self
-  }
-
-  pub(crate) fn test_round_trip(mut self, test_round_trip: bool) -> Self {
-    self.test_round_trip = test_round_trip;
     self
   }
 

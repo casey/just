@@ -7,7 +7,6 @@ fn no_working_directory() {
     .args(["--justfile", "-"])
     .stdin("@foo:\n cat bar\n")
     .stdout("baz")
-    .test_round_trip(false)
     .success();
 }
 
@@ -25,7 +24,6 @@ fn parse_error() {
           │        ^
       ",
     )
-    .test_round_trip(false)
     .failure();
 }
 
@@ -34,7 +32,6 @@ fn init_error() {
   Test::new()
     .args(["--justfile", "-", "--init"])
     .stderr("error: cannot use justfile from standard input with `--init`\n")
-    .test_round_trip(false)
     .failure();
 }
 
@@ -45,6 +42,5 @@ fn with_working_directory() {
     .args(["--justfile", "-", "--working-directory", "bar"])
     .stdin("@foo:\n  cat baz\n")
     .stdout("qux")
-    .test_round_trip(false)
     .success();
 }

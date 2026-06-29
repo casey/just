@@ -503,7 +503,6 @@ fn backtick_override() {
           cat file.txt
       ",
     )
-    .test_round_trip(false)
     .arg("bar=foo")
     .write("foo/file.txt", "baz")
     .arg("foo")

@@ -20,7 +20,6 @@ fn code_blocks_are_concatenated() {
     )
     .args(["--justfile", "foo.md"])
     .stdout("baz\n")
-    .test_round_trip(false)
     .success();
 }
 
@@ -48,7 +47,6 @@ fn non_just_code_blocks_are_ignored() {
     )
     .args(["--justfile", "foo.md"])
     .stdout("bar\n")
-    .test_round_trip(false)
     .success();
 }
 
@@ -66,7 +64,6 @@ fn extension_is_case_insensitive() {
     )
     .args(["--justfile", "foo.MD"])
     .stdout("bar\n")
-    .test_round_trip(false)
     .success();
 }
 
@@ -85,7 +82,6 @@ fn working_directory_is_markdown_file_directory() {
     .write("sub/bar", "baz")
     .args(["--justfile", "sub/foo.md"])
     .stdout("baz")
-    .test_round_trip(false)
     .success();
 }
 
@@ -104,7 +100,6 @@ fn with_working_directory() {
     .write("bar/baz", "qux")
     .args(["--justfile", "foo.md", "--working-directory", "bar"])
     .stdout("qux")
-    .test_round_trip(false)
     .success();
 }
 
@@ -131,7 +126,6 @@ fn line_numbers_are_preserved() {
           │        ^
       ",
     )
-    .test_round_trip(false)
     .failure();
 }
 
@@ -141,7 +135,6 @@ fn no_code_blocks() {
     .write("foo.md", "# foo\n")
     .args(["--justfile", "foo.md"])
     .stderr("error: justfile contains no recipes\n")
-    .test_round_trip(false)
     .failure();
 }
 
@@ -171,7 +164,6 @@ fn format_prints_to_stdout() {
         ",
       ),
     )
-    .test_round_trip(false)
     .success();
 }
 
@@ -190,7 +182,6 @@ fn dump() {
     .args(["--dump", "--justfile", "foo.md"])
     .stdout("\nfoo:\n    echo bar\n")
     .unindent_stdout(false)
-    .test_round_trip(false)
     .success();
 }
 
@@ -200,6 +191,5 @@ fn init_error() {
     .write("foo.md", "# foo\n")
     .args(["--init", "--justfile", "foo.md"])
     .stderr_regex("error: justfile `.*foo.md` already exists\n")
-    .test_round_trip(false)
     .failure();
 }

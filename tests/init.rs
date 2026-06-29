@@ -168,7 +168,6 @@ fn justfile_and_working_directory() {
 #[test]
 fn justfile_name_from_invocation_directory() {
   Test::new()
-    .test_round_trip(false)
     .create_dir(".git")
     .args(["--init", "--justfile-name", "foo"])
     .stderr_regex("Wrote justfile to `.*`\n")
@@ -179,7 +178,6 @@ fn justfile_name_from_invocation_directory() {
 #[test]
 fn justfile_name_from_search_directory() {
   Test::new()
-    .test_round_trip(false)
     .create_dir("sub/.git")
     .args(["--init", "--justfile-name", "foo", "sub/"])
     .stderr_regex("Wrote justfile to `.*`\n")
