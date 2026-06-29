@@ -190,6 +190,30 @@ fn style_rgb() {
 }
 
 #[test]
+fn style_stream() {
+  #[track_caller]
+  fn case(expression: &str, color: &str, expected: &str) {
+    Test::new()
+      .justfile(format!("set lists\n\nx := {expression}"))
+      .env("JUST_UNSTABLE", "1")
+      .args(["--color", color, "--evaluate", "x"])
+      .stdout(expected)
+      .unindent_stdout(false)
+      .success();
+  }
+
+  case(
+    "style(['red', 'stdout'], 'foo')",
+    "always",
+    "\x1b[31mfoo\x1b[0m",
+  );
+  case("style(['red', 'stdout'], 'foo')", "auto", "foo");
+  case("style(['red', 'stderr'], 'foo')", "never", "foo");
+  case("style(['red', 'stderr'])", "never", "");
+  case("style(['red', 'stdout', 'stderr'], 'foo')", "never", "foo");
+}
+
+#[test]
 fn style_prefix_without_text() {
   assert_eval("style('red')", "\x1b[31m");
 }

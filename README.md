@@ -5151,7 +5151,7 @@ for details.
   - `error`: errors
   - `warning`: warnings
 
-  Additional styles supported by <sup>master</sup>master and later include
+  Additional styles supported by <sup>master</sup> and later include
   named colors:
 
   - `black`
@@ -5179,6 +5179,16 @@ for details.
   - `reverse`
   - `strikethrough`
   - `underline`
+
+  Two further styles, supported by <sup>master</sup> and later, gate the style
+  on whether `just` would color an output stream:
+
+  - `stdout`: apply the style only when standard output would be colored
+  - `stderr`: apply the style only when standard error would be colored
+
+  Whether a stream is colored is determined by `--color`, `JUST_COLOR`, and
+  whether the stream is connected to a terminal. When both `stdout` and `stderr`
+  are given, the style is applied only if both streams would be colored.
 
   All color styles color the foreground by default, and come in explicit
   foreground variants prefixed with `fg:` and background variants prefixed with
