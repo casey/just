@@ -513,12 +513,12 @@ fn shebang_backtick() {
 
 #[test]
 fn valid_unicode_escape() {
-  assert_eval_eq(r#""\u{1f916}\u{1F916}""#, "🤖🤖");
+  assert_eval(r#""\u{1f916}\u{1F916}""#, "🤖🤖");
 }
 
 #[test]
 fn unicode_escapes_with_all_hex_digits() {
-  assert_eval_eq(
+  assert_eval(
     r#""\u{012345}\u{6789a}\u{bcdef}\u{ABCDE}\u{F}""#,
     "\u{012345}\u{6789a}\u{bcdef}\u{ABCDE}\u{F}",
   );
@@ -526,7 +526,7 @@ fn unicode_escapes_with_all_hex_digits() {
 
 #[test]
 fn maximum_valid_unicode_escape() {
-  assert_eval_eq(r#""\u{10FFFF}""#, "\u{10FFFF}");
+  assert_eval(r#""\u{10FFFF}""#, "\u{10FFFF}");
 }
 
 #[test]

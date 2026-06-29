@@ -2,23 +2,23 @@ use super::*;
 
 #[test]
 fn once() {
-  assert_eval_eq("'a' / 'b'", "a/b");
+  assert_eval("'a' / 'b'", "a/b");
 }
 
 #[test]
 fn twice() {
-  assert_eval_eq("'a' / 'b' / 'c'", "a/b/c");
+  assert_eval("'a' / 'b' / 'c'", "a/b/c");
 }
 
 #[test]
 fn no_lhs_once() {
-  assert_eval_eq("/ 'a'", "/a");
+  assert_eval("/ 'a'", "/a");
 }
 
 #[test]
 fn no_lhs_twice() {
-  assert_eval_eq("/ 'a' / 'b'", "/a/b");
-  assert_eval_eq("// 'a'", "//a");
+  assert_eval("/ 'a' / 'b'", "/a/b");
+  assert_eval("// 'a'", "//a");
 }
 
 #[test]
