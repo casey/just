@@ -84,9 +84,7 @@ impl ColorDisplay for Item<'_> {
 
         if let Some(path) = relative {
           write!(f, " {path}")?;
-        }
-
-        if let Some(body) = body {
+        } else if let Some(body) = body {
           write!(f, "::")?;
 
           let rendered = body.color_display(color).to_string();
