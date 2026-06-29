@@ -85,18 +85,8 @@ impl ColorDisplay for Item<'_> {
         if let Some(path) = relative {
           write!(f, " {path}")?;
         } else if let Some(body) = body {
-          write!(f, "::")?;
-
-          let body = body.color_display(color).to_string();
-          let body = body.strip_suffix('\n').unwrap_or(&body);
-
-          for line in body.split('\n') {
-            if line.is_empty() {
-              writeln!(f)?;
-            } else {
-              write!(f, "\n  {line}")?;
-            }
-          }
+          writeln!(f, "::")?;
+          write!(f, "{}", body.color_display(color).indented("  "))?;
         }
 
         Ok(())
