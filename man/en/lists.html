@@ -1,0 +1,405 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Lists - Just Programmer&#x27;s Manual</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Just Programmer&#x27;s Manual</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/casey/just" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h3 id="lists"><a class="header" href="#lists">Lists</a></h3>
+<p>The <code>lists</code> setting<sup>1.53.0</sup> allows values that are lists of strings.
+It is currently unstable and will change in backwards incompatible ways. This
+section documents changes in behavior when <code>set lists</code> is enabled.</p>
+<p>It has not yet been decided how lists should behave with many of the built-in
+functions. Functions that have been updated to accept lists are mentioned in
+this section. Using lists with any other function is an error. The
+<code>join_list()</code> function can be used to convert lists into space-separated
+strings for use with un-upgraded functions. Feedback on how built-in functions
+should behave with lists, and on lists in general, is most welcome! Feel free
+to open an issue or leave a comment in the
+<a href="https://github.com/casey/just/issues/3377"><code>set lists</code> tracking issue</a>.</p>
+<p>Variadic recipe parameters are lists of strings instead of single
+space-separated strings.</p>
+<p>List literals are written <code>[a, b, c]</code>. List literals flatten their arguments,
+since lists may only contain strings and not other lists. For example,
+<code>[["a", "b"], [], "c"]</code> evaluates to <code>["a", "b", "c"]</code>.</p>
+<p>Lists in recipe and <code>f</code>-string interpolations are joined with spaces into a
+single string.</p>
+<p>Each argument to a dependency binds to exactly one parameter, and supplying
+extra arguments to a variadic dependency is an error.</p>
+<p>Dependencies may be invoked once per element of a list with
+<code>*(recipe *argument)</code>.</p>
+<p>A parameter evaluates to the default when the argument is the empty list.</p>
+<p>Passing an empty list to a non-<code>*</code> parameter without a default is an error.</p>
+<p>The <code>else</code> of an <code>if</code> may be omitted, in which case the <code>if</code> evaluates to <code>[]</code>
+when its condition is false.</p>
+<p>Message values in <code>assert(condition, message)</code> and <code>[confirm(message)]</code> are
+space-joined for display.</p>
+<p>The <code>+</code> and <code>/</code> operators combine strings and lists. A string and a non-empty
+list are combined by concatenating the string with each element of the list.
+Two lists of the same length are combined into a list containing the pairwise
+concatenated elements of both operands. Combining two lists of different
+lengths is an error.</p>
+<p>The <code>++</code> operator performs list concatenation.</p>
+<h4 id="booleans"><a class="header" href="#booleans">Booleans</a></h4>
+<p>The canonical boolean true value is the string <code>"true"</code>, and the canonical
+boolean false value is the empty list <code>[]</code>. All values other than the empty
+list are truthy, including <code>''</code>.</p>
+<p>The condition of an <code>if</code> or <code>assert()</code> may be any expression, which is
+evaluated for truthiness.</p>
+<p>The comparison operators <code>==</code>, <code>!=</code>, <code>=~</code>, and <code>!~</code> may be used anywhere, not
+just in <code>if</code> and <code>assert()</code>, and evaluate to <code>"true"</code> or <code>[]</code>.</p>
+<p><code>value =~ regexes</code> is true if any element in <code>value</code> matches any regex in
+<code>regexes</code>. It is false if either <code>value</code> or <code>regexes</code> is empty.</p>
+<p><code>value !~ regexes</code> is true if no element in <code>value</code> matches any regex in
+<code>regexes</code>. It is true if either <code>value</code> or <code>regexes</code> is empty.</p>
+<p>Values may be negated with <code>!</code>. <code>!expression</code> evaluates to <code>"true"</code> if
+<code>expression</code> is <code>[]</code>, otherwise it evaluates to <code>[]</code>.</p>
+<h4 id="settings"><a class="header" href="#settings">Settings</a></h4>
+<p>The <code>script-interpreter</code>, <code>shell</code>, and <code>windows-shell</code> settings flatten their
+elements like list literals.</p>
+<p>When <code>positional-arguments</code> is set, list arguments are space-joined unless they
+are variadic, in which case they are passed as one positional argument per
+element.</p>
+<p>The <code>--dotenv-filename</code> and <code>--dotenv-path</code> options may be passed multiple
+times, and the <code>dotenv-filename</code> and <code>dotenv-path</code> settings accept lists, in
+which case multiple environment files may be loaded. The values of
+<code>dotenv-path</code> are tried first. If none are found the current directory is
+searched for the names in <code>dotenv-filename</code>, followed by its ancestors,
+stopping in the first directory that contains any of them and loading all
+matching files in that directory. If multiple environment files are loaded,
+variables in files later in list take precedence over earlier ones.</p>
+<p>Each element of the value of <code>set dotenv-command</code> is run as a command, with
+variables from commands later in the list taking precedence over variables from
+commands earlier in the list.</p>
+<h4 id="attributes"><a class="header" href="#attributes">Attributes</a></h4>
+<p>The <code>[arg(flag)]</code> attribute makes the parameter a flag which does not take a
+value on the command line. For example, with <code>[arg('foo', long, flag)]</code>, <code>foo</code>
+will be <code>"true"</code> when <code>--foo</code> is passed, and <code>[]</code> otherwise. Flag parameters
+may not have a default.</p>
+<p>The <code>[arg(multiple)]</code> attribute allows an option or flag to be passed more than
+once, assigning the list of passed values to the parameter. When combined with
+<code>flag</code> or <code>value=VALUE</code>, <code>"true"</code> or <code>VALUE</code>, respectively, are repeated for
+each occurance of the flag.</p>
+<p>The value of <code>[arg(help)]</code> may be a list, in which case the help string is the
+elements of the list joined with spaces. If the list is empty, the argument has
+no help string.</p>
+<p>The value of <code>[arg(pattern)]</code> may be a list, in which case the argument is
+accepted if it matches any pattern in the list. If the value is the empty list,
+any argument is accepted. For example, with
+<code>[arg('foo', pattern=['--help', '--version'])]</code>, <code>foo</code> may be <code>--help</code> or
+<code>--version</code>.</p>
+<p>In <code>[env(variable, value)]</code> if <code>value</code> is <code>[]</code>, <code>variable</code> is not set.
+Otherwise it is set to <code>value</code> joined with spaces.</p>
+<h4 id="functions"><a class="header" href="#functions">Functions</a></h4>
+<ul>
+<li><code>absolute_path()</code> - Applies to each list element individually.</li>
+<li><code>append()</code> - Applies to each list element individually and does not split
+elements on whitespace.</li>
+<li><code>assert(condition, message)</code> - Evaluates to <code>condition</code>.</li>
+<li><code>bool(value)</code> Converts <code>value</code> to the canonical boolean values. Returns <code>[]</code>
+when <code>value</code> is <code>""</code> <code>"0"</code> <code>"false"</code>, or <code>[]</code>, and <code>"true"</code> when <code>value</code> is
+<code>"1"</code> or <code>"true"</code>. All other values are an error. Can be used to parse
+booleans passed as arguments or environment variables.</li>
+<li><code>env(keys, default)</code> Checks for the environment variables named in <code>keys</code> in
+order and returns the value of the first that is set. Returns <code>default</code> if
+none are set or an error if <code>default</code> is omitted.</li>
+<li><code>is_dependency()</code> - Returns the canonical booleans.</li>
+<li><code>join_list(value, separator)</code> - Joins <code>value</code> into a single string. Elements
+are joined with <code>separator</code>, or with a single space if <code>separator</code> is
+omitted.</li>
+<li><code>path_exists()</code> - Returns the canonical booleans.</li>
+<li><code>prepend()</code> - Applies to each list element individually and does not split
+elements on whitespace.</li>
+<li><code>quote()</code> - Applies to each list element individually.</li>
+<li><code>semver_matches()</code> - Returns the canonical booleans.</li>
+<li><code>show(value)</code> - Converts <code>value</code> into a string containing its literal
+representation. Brackets are used for empty and multi-element lists, e.g.,
+<code>"[]"</code> and <code>"["foo", "bar"]"</code>, but not single-element lists, e.g., <code>"foo"</code>.</li>
+<li><code>split(string, separator)</code> - Splits <code>string</code> into a list on each occurrence
+of <code>separator</code>. If <code>separator</code> is omitted, <code>string</code> is split on whitespace,
+with leading and trailing whitespace trimmed.</li>
+<li><code>which()</code> - Returns the empty list when no executable is found.</li>
+</ul>
+<h4 id="examples"><a class="header" href="#examples">Examples</a></h4>
+<p>Each list element is <code>quote()</code>’ed separately:</p>
+<pre><code class="language-just">set unstable
+set lists
+
+@foo *args:
+  printf '%s\n' {{ quote(args) }}
+</code></pre>
+<pre><code class="language-console">$ just foo bar 'baz bob'
+bar
+baz bob
+</code></pre>
+<p>The return value of <code>quote(args)</code> is <code>'bar' 'baz bob'</code>, instead of
+<code>'bar baz bob'</code>, as would be the case without <code>set lists</code>.</p>
+<p>Variadic positional arguments:</p>
+<pre><code class="language-just">set unstable
+set lists
+set positional-arguments
+
+foo *args: (bar args 'bob') (baz args)
+
+@bar first second:
+  echo first=$1
+  echo second=$2
+
+@baz *args:
+  echo '$1='$1
+  echo '$2='$2
+</code></pre>
+<pre><code class="language-console">$ just foo one two
+first=one two
+second=bob
+$1=one
+$2=two
+</code></pre>
+<p>A mapped dependency is invoked once per element of its starred argument, with
+<code>[parallel]</code> to run them in parallel:</p>
+<pre><code class="language-just">set unstable
+set lists
+
+[parallel]
+build target *platform: *(compile target *platform)
+
+@compile target platform:
+  echo compiling {{ target }} for {{ platform }}…
+</code></pre>
+<pre><code class="language-console">$ just build x86 foo bar
+compiling foo for x86…
+compiling bar for x86…
+</code></pre>
+<p>The canonical false value <code>[]</code> is recommended as a default for options:</p>
+<pre><code class="language-just">set unstable
+set lists
+
+[arg('bar', long)]
+foo bar=[]:
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="strings.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="conditional-expressions.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="strings.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="conditional-expressions.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

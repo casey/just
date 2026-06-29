@@ -182,10 +182,10 @@
 <p>Recipes, <code>mod</code> statements, and aliases may be annotated with attributes that
 change their behavior.</p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>[arg(ARG, help="HELP")]</code><sup>1.46.0</sup></td><td>recipe</td><td>Print help string <code>HELP</code> for <code>ARG</code> in usage messages.</td></tr>
-<tr><td><code>[arg(ARG, long="LONG")]</code><sup>1.46.0</sup></td><td>recipe</td><td>Require values of argument <code>ARG</code> to be passed as <code>--LONG</code> option.</td></tr>
-<tr><td><code>[arg(ARG, pattern="PATTERN")]</code><sup>1.45.0</sup></td><td>recipe</td><td>Require values of argument <code>ARG</code> to match regular expression <code>PATTERN</code>.</td></tr>
-<tr><td><code>[arg(ARG, short="S")]</code><sup>1.46.0</sup></td><td>recipe</td><td>Require values of argument <code>ARG</code> to be passed as short <code>-S</code> option.</td></tr>
+<tr><td><code>[arg(ARG, help="HELP")]</code><sup>1.46.0</sup></td><td>recipe</td><td>Print help string <code>HELP</code> for <code>ARG</code> in usage messages. May be a const expression<sup>1.55.0</sup>.</td></tr>
+<tr><td><code>[arg(ARG, long="LONG")]</code><sup>1.46.0</sup></td><td>recipe</td><td>Require values of argument <code>ARG</code> to be passed as <code>--LONG</code> option. If the parameter is variadic, the option is repeatable&lt;sup1.55.0master</sup>.</td></tr>
+<tr><td><code>[arg(ARG, pattern="PATTERN")]</code><sup>1.45.0</sup></td><td>recipe</td><td>Require values of argument <code>ARG</code> to match regular expression <code>PATTERN</code>. May be a const expression<sup>1.55.0</sup>.</td></tr>
+<tr><td><code>[arg(ARG, short="S")]</code><sup>1.46.0</sup></td><td>recipe</td><td>Require values of argument <code>ARG</code> to be passed as short <code>-S</code> option. If the parameter is variadic, the option is repeatable<sup>1.55.0</sup>.</td></tr>
 <tr><td><code>[arg(ARG, value=VALUE)]</code><sup>1.46.0</sup></td><td>recipe</td><td>Makes option <code>ARG</code> a flag which does not take a value.</td></tr>
 <tr><td><code>[cache]</code><sup>1.54.0</sup></td><td>recipe</td><td>Skip recipe invocations when a matching entry exists in the cache. See <a href="cached-recipes.html">cached recipes</a> for details. Currently unstable.</td></tr>
 <tr><td><code>[confirm(PROMPT)]</code><sup>1.23.0</sup></td><td>recipe</td><td>Require confirmation prior to executing recipe with a custom prompt.</td></tr>
@@ -209,7 +209,7 @@ change their behavior.</p>
 <tr><td><code>[no-quiet]</code><sup>1.23.0</sup></td><td>recipe</td><td>Override globally quiet recipes and always echo out the recipe.</td></tr>
 <tr><td><code>[openbsd]</code><sup>1.38.0</sup></td><td>recipe</td><td>Enable recipe on OpenBSD.</td></tr>
 <tr><td><code>[parallel]</code><sup>1.42.0</sup></td><td>recipe</td><td>Run this recipe’s dependencies in parallel.</td></tr>
-<tr><td><code>[positional-arguments]</code><sup>1.29.0</sup></td><td>recipe</td><td>Turn on <a href="avoiding-argument-splitting.html#positional-arguments">positional arguments</a> for this recipe.</td></tr>
+<tr><td><code>[positional-arguments]</code><sup>1.29.0</sup></td><td>recipe</td><td>Turn on <a href="positional-arguments.html">positional arguments</a> for this recipe.</td></tr>
 <tr><td><code>[private]</code><sup>1.10.0</sup></td><td>alias, recipe</td><td>Make recipe, alias, or variable private. See <a href="private-recipes.html">Private Recipes</a>.</td></tr>
 <tr><td><code>[script(COMMAND)]</code><sup>1.32.0</sup></td><td>recipe</td><td>Execute recipe as a script interpreted by <code>COMMAND</code>. See <a href="script-recipes.html">script recipes</a> for more details.</td></tr>
 <tr><td><code>[script]</code><sup>1.33.0</sup></td><td>recipe</td><td>Execute recipe as script. See <a href="script-recipes.html">script recipes</a> for more details.</td></tr>
@@ -234,82 +234,16 @@ foo:
 <pre><code class="language-just">[group: 'bar']
 foo:
 </code></pre>
-<h4 id="enabling-and-disabling-recipes"><a class="header" href="#enabling-and-disabling-recipes">Enabling and Disabling Recipes</a></h4>
-<p>The <code>[linux]</code>, <code>[macos]</code>, <code>[unix]</code>, and <code>[windows]</code> attributes<sup>1.8.0</sup>
-are configuration attributes. By default, recipes are always enabled. A recipe
-with one or more configuration attributes will only be enabled when one or more
-of those configurations is active.</p>
-<p>This can be used to write <code>justfile</code>s that behave differently depending on
-which operating system they run on. The <code>run</code> recipe in this <code>justfile</code> will
-compile and run <code>main.c</code>, using a different C compiler and using the correct
-output binary name for that compiler depending on the operating system:</p>
-<pre><code class="language-just">[unix]
-run:
-  cc main.c
-  ./a.out
-
-[windows]
-run:
-  cl main.c
-  main.exe
-</code></pre>
-<h4 id="disabling-changing-directory"><a class="header" href="#disabling-changing-directory">Disabling Changing Directory</a></h4>
-<p><code>just</code> normally executes recipes with the current directory set to the
-directory that contains the <code>justfile</code>. This can be disabled using the
-<code>[no-cd]</code> attribute<sup>1.9.0</sup>. This can be used to create recipes which
-use paths relative to the invocation directory, or which operate on the current
-directory.</p>
-<p>For example, this <code>commit</code> recipe:</p>
-<pre><code class="language-just">[no-cd]
-commit file:
-  git add {{file}}
-  git commit
-</code></pre>
-<p>Can be used with paths that are relative to the current directory, because
-<code>[no-cd]</code> prevents <code>just</code> from changing the current directory when executing
-<code>commit</code>.</p>
-<h4 id="requiring-confirmation-for-recipes"><a class="header" href="#requiring-confirmation-for-recipes">Requiring Confirmation for Recipes</a></h4>
-<p><code>just</code> normally executes all recipes unless there is an error. The <code>[confirm]</code>
-attribute<sup>1.17.0</sup> allows recipes to require confirmation in the terminal
-prior to running. This can be overridden by passing <code>--yes</code> to <code>just</code>, which
-will automatically confirm any recipes marked by this attribute.</p>
-<p>Recipes dependent on a recipe that requires confirmation will not be run if the
-relied upon recipe is not confirmed, as well as recipes passed after any recipe
-that requires confirmation.</p>
-<pre><code class="language-just">[confirm]
-delete-all:
-  rm -rf *
-</code></pre>
-<h4 id="custom-confirmation-prompt"><a class="header" href="#custom-confirmation-prompt">Custom Confirmation Prompt</a></h4>
-<p>The default confirmation prompt can be overridden with
-<code>[confirm(PROMPT)]</code><sup>1.23.0</sup>:</p>
-<pre><code class="language-just">[confirm("Are you sure you want to delete everything?")]
-delete-everything:
-  rm -rf *
-</code></pre>
-<p>The confirmation prompt may also be an expression<sup>1.49.0</sup> which may
-reference assignments or recipe arguments:</p>
-<pre><code class="language-just">[confirm("Deploy to " + env + "?")]
-deploy env:
-  echo 'Deploying to {{env}}...'
-</code></pre>
-<h4 id="metadata"><a class="header" href="#metadata">Metadata</a></h4>
-<p>Metadata in the form of lists of strings may be attached to recipes with the
-<code>[metadata(METADATA)]</code> attribute<sup>1.42.0</sup>:</p>
-<pre><code class="language-just">[metadata("hello", "goodbye")]
-foo:
-</code></pre>
-<p>Metadata can be read using <code>just --dump --dump-format json</code>.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="constants.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="reference.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="groups.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="settings.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -319,11 +253,11 @@ foo:
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="constants.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="reference.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="groups.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="settings.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

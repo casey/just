@@ -223,21 +223,26 @@ No need for <code>.PHONY</code> recipes!</p>
 <li>
 <p>Linux, macOS, Windows, and other reasonable unixes are supported with no
 additional dependencies. (Although if your system doesn’t have an <code>sh</code>,
-you’ll need to <a href="settings.html#shell">choose a different shell</a>.)</p>
+you’ll need to <a href="shell.html">choose a different shell</a>.)</p>
 </li>
 <li>
 <p>Errors are specific and informative, and syntax errors are reported along
 with their source context.</p>
 </li>
 <li>
-<p>Recipes can accept <a href="recipe-parameters.html">command line arguments</a>.</p>
+<p>Recipes can accept <a href="recipe-parameters.html">command line arguments</a>, including
+[flags and options](#recipe-flags-and-options.</p>
+</li>
+<li>
+<p><code>just</code> has a rich <a href="expressions.html">expression language</a> and many
+built-in-functions.</p>
 </li>
 <li>
 <p>Wherever possible, errors are resolved statically. Unknown recipes and
 circular dependencies are reported before anything runs.</p>
 </li>
 <li>
-<p><code>just</code> <a href="settings.html#dotenv-settings">loads <code>.env</code> files</a>, making it easy to populate
+<p><code>just</code> <a href="dotenv-settings.html">loads <code>.env</code> files</a>, making it easy to populate
 environment variables.</p>
 </li>
 <li>
@@ -254,6 +259,10 @@ environment variables.</p>
 <li>
 <p><code>just</code> can be invoked from any subdirectory, not just the directory that
 contains the <code>justfile</code>.</p>
+</li>
+<li>
+<p><code>justfiles</code> can be organized into multiple files using <a href="modules.html">modules</a>
+and <a href="imports.html">imports</a>.</p>
 </li>
 <li>
 <p>And <a href="https://just.systems/man/en/">much more</a>!</p>

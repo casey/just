@@ -282,11 +282,12 @@ will get parsed by <code>sh</code> as <code>lynx</code>, <code>https://www.googl
   echo $bar
 </code></pre>
 <p>Parameters may be constrained to match regular expression patterns using the
-<code>[arg("name", pattern="pattern")]</code> attribute<sup>1.45.0</sup>:</p>
+<code>[arg("name", pattern=PATTERN)]</code> attribute<sup>1.45.0</sup>:</p>
 <pre><code class="language-just">[arg('n', pattern='\d+')]
 double n:
   echo $(({{n}} * 2))
 </code></pre>
+<p>The value of <code>pattern</code> may be a const expression<sup>1.55.0</sup>.</p>
 <p>A leading <code>^</code> and trailing <code>$</code> are added to the pattern, so it must match the
 entire argument value.</p>
 <p>You may constrain the pattern to a number of alternatives using the <code>|</code>
@@ -311,6 +312,7 @@ Arguments:
 <pre><code class="language-just">[arg("bar", help="hello")]
 foo bar:
 </code></pre>
+<p>The value <code>help</code> may be a const expression<sup>1.55.0</sup>.</p>
 <pre><code class="language-console">$ just --usage foo
 Usage: just foo bar
 
@@ -341,8 +343,9 @@ bar=hello
 <pre><code class="language-console">$ just foo --bar=hello
 bar=hello
 </code></pre>
-<p>The value of <code>long</code> can be omitted, in which case the option defaults to the
-name of the parameter:</p>
+<p>The value of <code>long</code> may be omitted, in which case the option defaults to the
+name of the parameter. With the following justfile, <code>bar</code> may be passed with
+<code>--bar</code>:</p>
 <pre><code class="language-just">[arg("bar", long)]
 foo bar:
 </code></pre>
@@ -356,8 +359,27 @@ foo bar:
 <pre><code class="language-console">$ just foo -b hello
 bar=hello
 </code></pre>
+<p>The value of <code>short</code> may be omitted, in which case the option defaults to the
+first character of the name of the parameter. With the following justfile,
+<code>bar</code> may be passed with <code>-b</code>:</p>
+<pre><code class="language-just">[arg("bar", short)]
+foo bar:
+</code></pre>
 <p>If a parameter has both a long and short option, it may be passed using either.</p>
-<p>Variadic <code>*</code> and <code>+</code> parameters cannot be options.</p>
+<p>Multiple short options may be combined<sup>1.55.0</sup>, for example <code>-abc</code> is
+equivalent to <code>-a -b -c</code>. A short option which takes a value may appear last,
+for example <code>-abcd VALUE</code>.</p>
+<p>Variadic <code>*</code> and <code>+</code> parameters may be options, in which case the option is
+repeatable, with each occurrence contributing one value:</p>
+<pre><code class="language-just">[arg('file', long)]
+backup +file:
+  scp {{file}} me@server.com:
+</code></pre>
+<pre><code class="language-console">$ just backup --file FAQ.md --file GRAMMAR.md
+scp FAQ.md GRAMMAR.md me@server.com:
+</code></pre>
+<p>As with positional variadic parameters, <code>+</code> options must be passed at least
+once, whereas <code>*</code> options may be omitted.</p>
 <p>The <code>[arg(ARG, value=VALUE, …)]</code><sup>1.46.0</sup> attribute can be used with
 <code>long</code> or <code>short</code> to make a parameter a flag which does not take a value.
 <code>VALUE</code> may be an expression<sup>1.54.0</sup>.</p>
@@ -385,11 +407,11 @@ bar=goodbye
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="getting-and-setting-environment-variables.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="the-default-recipe.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="dependencies.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="avoiding-argument-splitting.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -399,11 +421,11 @@ bar=goodbye
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="getting-and-setting-environment-variables.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="the-default-recipe.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="dependencies.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="avoiding-argument-splitting.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

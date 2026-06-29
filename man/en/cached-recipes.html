@@ -178,132 +178,35 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h3 id="cached-recipes"><a class="header" href="#cached-recipes">Cached Recipes</a></h3>
+                        <h2 id="cached-recipes"><a class="header" href="#cached-recipes">Cached Recipes</a></h2>
 <p><code>just</code> will skip invocations of recipes with the <code>[cache]</code>
 attribute<sup>1.54.0</sup> if it finds an entry matching the invocation in the
 cache. The <code>[cache]</code> attribute may only be used with script recipes and is
 currently unstable.</p>
+<p>For example, this recipe will be skipped if <code>image.jpg</code> exists and the contents
+of <code>image.png</code> and the output of <code>convert -version</code> haven’t changed since the
+last run:</p>
+<pre><code class="language-just">set unstable
+
+[script]
+[cache(inputs = "image.png", outputs = "image.jpg", extra = `convert -version`)]
+convert:
+  convert image.png image.jpg
+</code></pre>
 <p>Unlike many other features of <code>just</code>, which are, hopefully, well thought-out
 and user-friendly, cached recipes are inherently fragile. It is important to
 understand their limitations before relying on them. Please read this section
 thoroughly, including the friendly admonitions below.</p>
-<p>The cache is a directory named <code>.justcache</code> alongside the <code>justfile</code> and should
-not be committed to version control systems. It contains cache entries named
-<code>HASH.json</code>, where <code>HASH</code> is the BLAKE3 hash of a serialized cache key JSON
-object.</p>
-<p>The keys of the cache key object are:</p>
-<ul>
-<li><code>body</code>: evaluated recipe body</li>
-<li><code>environment</code>: map of environment variable names to values</li>
-<li><code>executor</code>: script interpreter or shebang</li>
-<li><code>extra</code>: user-supplied value</li>
-<li><code>inputs</code>: map of file paths to content hashs</li>
-<li><code>positional</code>: positional arguments</li>
-<li><code>recipe</code>: <code>::</code>-separated module path to invoked recipe</li>
-<li><code>working_directory</code>: current working directory</li>
-</ul>
-<p>The value of <code>extra</code> may be supplied with <code>[cache(extra = EXPRESSION)]</code>, where
-<code>EXPRESSION</code> is an arbitrary expression evaluated with recipe arguments in
-scope. Changes to the value of <code>extra</code> will cause a cache miss.</p>
-<p>Before <code>just</code> runs a cached recipe, it creates a cache key, hashes it, and
-looks for the corresponding cache entry.</p>
-<p>If the cache entry is non-empty, it skips the invocation.</p>
-<p>If the cache entry does not exist or is empty, it runs the invocation and
-writes <code>{}</code> to the cache entry.</p>
-<p>File locks are taken on cache entries, so concurrent execution of cached
-recipes by multiple <code>just</code> processes is safe. If two processes run a recipe
-invocation with the same cache key, the first will take the lock, run the
-recipe, write to the cache entry, and relinquish the lock. The second will
-block until the first relinquishes the lock, see that the entry is non-empty,
-and skip the invocation.</p>
-<p>The cache can be bypassed entirely with the <code>--no-cache</code> flag.</p>
-<h4 id="clearing-the-cache"><a class="header" href="#clearing-the-cache">Clearing the Cache</a></h4>
-<p>The recipe cache is stored in a directory named <code>.justcache</code> alongside the
-<code>justfile</code>. Deleting it will clear the cache.</p>
-<p>The cache can also be cleared with <code>just --clean</code>, which can selectively clear
-cache entries:</p>
-<pre><code class="language-sh"># clear all cache entries
-just --clean
-
-# clear cache entries for recipe `foo`
-just --clean foo
-
-# clear cache entries for recipe `baz` in submodule `bar`
-just --clean bar baz
-
-# clear cache entries for recipes in submodule module `bar`
-just --clean bar
-
-# clear cache entries for recipes in submodule module `bar::bob`
-just --clean bar bob
-
-# '::'-separated paths may also be used
-just --clean bar::bob
-</code></pre>
-<h4 id="input-files"><a class="header" href="#input-files">Input Files</a></h4>
-<p>Input files can be provided with <code>[cache(inputs = FILES)]</code>, where <code>FILES</code> is an
-expression that is evaluated with recipe arguments in scope and whose evaluated
-elements are paths. Paths may be absolute or relative to the recipe’s working
-directory.</p>
-<p>Each input file is hashed with BLAKE3 and added to the <code>inputs</code> cache key,
-which contains a map of paths to hashes.</p>
-<p>Any changes to the contents of an input file changes the cache key, which
-causes the next invocation to miss the cache and re-run.</p>
-<p>Missing inputs and paths to directories are errors.</p>
-<p>In this example, the <code>build</code> recipe will re-run if <code>lib.c</code> or <code>main.c</code> change:</p>
-<pre><code class="language-just">set unstable
-set lists
-
-[script]
-[cache(inputs = ["lib.c", "main.c"])]
-build:
-  cc lib.c main.c -o main
-</code></pre>
-<h4 id="output-files"><a class="header" href="#output-files">Output Files</a></h4>
-<p>Output files can be provided with <code>[cache(outputs = FILES)]</code>, where <code>FILES</code> is
-an expression that is evaluated with recipe arguments in scope and whose
-evaluated elements are paths. Paths may be absolute or relative to the recipe’s
-working directory.</p>
-<p>Outputs are not part of the cache key.</p>
-<p>All output files must exist for an invocation to be skipped, and after an
-invocation runs successfully, it is an error if any output file does not exist.</p>
-<p>In this example, <code>build</code> re-runs whenever <code>main</code> is missing, and errors if it
-runs without producing <code>main</code>:</p>
-<pre><code class="language-just">set unstable
-set lists
-
-[script]
-[cache(inputs = ["lib.c", "main.c"], outputs = "main")]
-build:
-  cc lib.c main.c -o main
-
-clean:
-  rm -f main
-</code></pre>
-<p>This forces <code>build</code> to re-run if <code>main</code> is deleted by <code>clean</code>.</p>
-<h4 id="friendly-admonitions"><a class="header" href="#friendly-admonitions">Friendly Admonitions</a></h4>
-<p><code>just</code> will happily skip cached recipes, but it is your responsibility to make
-sure that this is safe, and that the contents of the cache key capture enough
-information about recipe invocations for caching to make sense in the first
-place.</p>
-<p>In particular, there are many details about the context in which a recipe runs
-that are not captured by cache keys.</p>
-<p>These include the time, input files, output files, system binaries, operating
-system version, databases, systems over the network, the DNS, and any of the
-myriad other things which may change the execution of a computer program.</p>
-<p>Attempting to skip execution based on the type of crude heuristics that <code>just</code>
-employs has a long and sordid history. However, it is an undeniably convenient
-and powerful tool, and it is provided in the hopes that you find it useful.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="command-line-options.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="formatting-and-dumping-justfiles.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="private-recipes.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="friendly-admonitions.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -313,11 +216,11 @@ and powerful tool, and it is provided in the hopes that you find it useful.</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="command-line-options.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="formatting-and-dumping-justfiles.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="private-recipes.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="friendly-admonitions.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
