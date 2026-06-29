@@ -98,6 +98,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "join_list" => BinaryOptValueStrToValue(join_list),
     "just_executable" => Nullary(just_executable),
     "just_pid" => Nullary(just_pid),
+    "just_version" => Nullary(just_version),
     "justfile" => Nullary(justfile),
     "justfile_directory" => Nullary(justfile_directory),
     "kebabcase" => Unary(kebabcase),
@@ -466,6 +467,10 @@ fn just_executable(_context: Context) -> StringResult {
 
 fn just_pid(_context: Context) -> StringResult {
   Ok(std::process::id().to_string())
+}
+
+fn just_version(_context: Context) -> StringResult {
+  Ok(VERSION.into())
 }
 
 fn justfile(context: Context) -> StringResult {

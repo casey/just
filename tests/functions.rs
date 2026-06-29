@@ -1041,6 +1041,15 @@ fn just_pid() {
 }
 
 #[test]
+fn just_version() {
+  Test::new()
+    .args(["--evaluate", "x"])
+    .justfile("x := just_version()")
+    .stdout(env!("CARGO_PKG_VERSION"))
+    .success();
+}
+
+#[test]
 fn shell_no_argument() {
   Test::new()
     .justfile("var := shell()")

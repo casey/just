@@ -5015,6 +5015,22 @@ $ just
 The process ID is: 420
 ```
 
+#### Just Version
+
+- `just_version()`<sup>master</sup> - Version of the `just` executable.
+
+For example:
+
+```just
+version:
+  @echo The version is: {{ just_version() }}
+```
+
+```console
+$ just
+The version is: 1.54.0
+```
+
 #### String Manipulation
 
 - `append(suffix, s)`<sup>1.27.0</sup> - Append `suffix` to
