@@ -1042,11 +1042,7 @@ fn just_pid() {
 
 #[test]
 fn just_version() {
-  Test::new()
-    .args(["--evaluate", "x"])
-    .justfile("x := just_version()")
-    .stdout(env!("CARGO_PKG_VERSION"))
-    .success();
+  assert_eval_eq("just_version()", env!("CARGO_PKG_VERSION"));
 }
 
 #[test]
