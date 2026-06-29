@@ -3253,8 +3253,8 @@ override `dotenv-path` at runtime.
 If `dotenv-filename` is set, `just` will look for a file at the given path,
 relative to the working directory and each of its ancestors.
 
-The command-line option `--dotenv-filename`, short form `-F`, can be used to set
-or override `dotenv-filename` at runtime.
+The command-line option `--dotenv-filename`, short form `-F`, can be used to
+set or override `dotenv-filename` at runtime.
 
 If `dotenv-filename` is not set, but `dotenv-load` or `dotenv-required` are
 set, `just` will look for a file named `.env`, relative to the working directory
