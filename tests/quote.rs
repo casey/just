@@ -2,28 +2,12 @@ use super::*;
 
 #[test]
 fn single_quotes_are_prepended_and_appended() {
-  Test::new()
-    .justfile(
-      "
-        x := quote('abc')
-      ",
-    )
-    .args(["--evaluate", "x"])
-    .stdout("'abc'")
-    .success();
+  assert_eval_eq("quote('abc')", "'abc'");
 }
 
 #[test]
 fn quotes_are_escaped() {
-  Test::new()
-    .justfile(
-      r#"
-        x := quote("'")
-      "#,
-    )
-    .args(["--evaluate", "x"])
-    .stdout(r"''\'''")
-    .success();
+  assert_eval_eq(r#"quote("'")"#, r"''\'''");
 }
 
 #[test]

@@ -2,43 +2,23 @@ use super::*;
 
 #[test]
 fn once() {
-  Test::new()
-    .justfile("x := 'a' / 'b'")
-    .args(["--evaluate", "x"])
-    .stdout("a/b")
-    .success();
+  assert_eval_eq("'a' / 'b'", "a/b");
 }
 
 #[test]
 fn twice() {
-  Test::new()
-    .justfile("x := 'a' / 'b' / 'c'")
-    .args(["--evaluate", "x"])
-    .stdout("a/b/c")
-    .success();
+  assert_eval_eq("'a' / 'b' / 'c'", "a/b/c");
 }
 
 #[test]
 fn no_lhs_once() {
-  Test::new()
-    .justfile("x := / 'a'")
-    .args(["--evaluate", "x"])
-    .stdout("/a")
-    .success();
+  assert_eval_eq("/ 'a'", "/a");
 }
 
 #[test]
 fn no_lhs_twice() {
-  Test::new()
-    .justfile("x := / 'a' / 'b'")
-    .args(["--evaluate", "x"])
-    .stdout("/a/b")
-    .success();
-  Test::new()
-    .justfile("x := // 'a'")
-    .args(["--evaluate", "x"])
-    .stdout("//a")
-    .success();
+  assert_eval_eq("/ 'a' / 'b'", "/a/b");
+  assert_eval_eq("// 'a'", "//a");
 }
 
 #[test]

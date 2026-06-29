@@ -40,12 +40,7 @@ fn assert_evaluates_to_condition_with_lists() {
 
 #[test]
 fn assert_message_may_be_omitted() {
-  Test::new()
-    .justfile("x := assert('a' == 'a')")
-    .args(["--evaluate", "x"])
-    .stdout("")
-    .unindent_stdout(false)
-    .success();
+  assert_eval_eq("assert('a' == 'a')", "");
 }
 
 #[test]
@@ -76,12 +71,7 @@ fn assert_without_message_evaluates_to_condition_with_lists() {
 
 #[test]
 fn assert_empty_string_without_lists() {
-  Test::new()
-    .justfile("x := assert('a' == 'a', 'fail')")
-    .args(["--evaluate", "x"])
-    .stdout("")
-    .unindent_stdout(false)
-    .success();
+  assert_eval_eq("assert('a' == 'a', 'fail')", "");
 }
 
 #[test]
