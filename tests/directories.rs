@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn cache_directory() {
-  assert_eval_eq(
+  assert_eval(
     "cache_directory()",
     dirs::cache_dir().unwrap_or_default().to_str().unwrap(),
   );
@@ -10,7 +10,7 @@ fn cache_directory() {
 
 #[test]
 fn config_directory() {
-  assert_eval_eq(
+  assert_eval(
     "config_directory()",
     dirs::config_dir().unwrap_or_default().to_str().unwrap(),
   );
@@ -18,7 +18,7 @@ fn config_directory() {
 
 #[test]
 fn config_local_directory() {
-  assert_eval_eq(
+  assert_eval(
     "config_local_directory()",
     dirs::config_local_dir()
       .unwrap_or_default()
@@ -29,7 +29,7 @@ fn config_local_directory() {
 
 #[test]
 fn data_directory() {
-  assert_eval_eq(
+  assert_eval(
     "data_directory()",
     dirs::data_dir().unwrap_or_default().to_str().unwrap(),
   );
@@ -37,7 +37,7 @@ fn data_directory() {
 
 #[test]
 fn data_local_directory() {
-  assert_eval_eq(
+  assert_eval(
     "data_local_directory()",
     dirs::data_local_dir().unwrap_or_default().to_str().unwrap(),
   );
@@ -46,7 +46,7 @@ fn data_local_directory() {
 #[test]
 fn executable_directory() {
   if let Some(executable_dir) = dirs::executable_dir() {
-    assert_eval_eq("executable_directory()", executable_dir.to_str().unwrap());
+    assert_eval("executable_directory()", executable_dir.to_str().unwrap());
   } else {
     Test::new()
       .justfile("x := executable_directory()")
@@ -66,7 +66,7 @@ fn executable_directory() {
 
 #[test]
 fn home_directory() {
-  assert_eval_eq(
+  assert_eval(
     "home_directory()",
     dirs::home_dir().unwrap_or_default().to_str().unwrap(),
   );
@@ -78,7 +78,7 @@ fn runtime_directory() {
     return;
   }
 
-  assert_eval_eq(
+  assert_eval(
     "runtime_directory()",
     dirs::runtime_dir().unwrap_or_default().to_str().unwrap(),
   );

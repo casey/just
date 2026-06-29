@@ -2,13 +2,13 @@ use super::*;
 
 #[test]
 fn constants_are_defined() {
-  assert_eval_eq("HEX", "0123456789abcdef");
+  assert_eval("HEX", "0123456789abcdef");
 }
 
 #[test]
 fn constants_can_have_different_values_on_windows() {
-  assert_eval_eq("PATH_SEP", if cfg!(windows) { "\\" } else { "/" });
-  assert_eval_eq("PATH_VAR_SEP", if cfg!(windows) { ";" } else { ":" });
+  assert_eval("PATH_SEP", if cfg!(windows) { "\\" } else { "/" });
+  assert_eval("PATH_VAR_SEP", if cfg!(windows) { ";" } else { ":" });
 }
 
 #[test]

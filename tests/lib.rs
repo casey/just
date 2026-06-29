@@ -27,7 +27,16 @@ const JUST: &str = env!("CARGO_BIN_EXE_just");
 const TRUE: &str = "\"true\"";
 
 #[track_caller]
-fn assert_eval_eq(expression: &str, result: &str) {
+fn assert_dump(justfile: &str, dump: &str) {
+  Test::new()
+    .arg("--dump")
+    .justfile(justfile)
+    .stdout(dump)
+    .success();
+}
+
+#[track_caller]
+fn assert_eval(expression: &str, result: &str) {
   Test::new()
     .justfile(format!("x := {expression}"))
     .args(["--evaluate", "x"])
@@ -37,22 +46,13 @@ fn assert_eval_eq(expression: &str, result: &str) {
 }
 
 #[track_caller]
-fn assert_list_eq(expression: &str, result: &str) {
+fn assert_list(expression: &str, result: &str) {
   Test::new()
     .justfile(format!("set lists\n\nx := show({expression})"))
     .unstable()
     .args(["--evaluate", "x"])
     .stdout(result)
     .unindent_stdout(false)
-    .success();
-}
-
-#[track_caller]
-fn assert_dump(justfile: &str, dump: &str) {
-  Test::new()
-    .arg("--dump")
-    .justfile(justfile)
-    .stdout(dump)
     .success();
 }
 

@@ -35,12 +35,12 @@ fn assert_fail() {
 
 #[test]
 fn assert_evaluates_to_condition_with_lists() {
-  assert_list_eq("assert(['foo', 'bar'], 'fail')", r#"["foo", "bar"]"#);
+  assert_list("assert(['foo', 'bar'], 'fail')", r#"["foo", "bar"]"#);
 }
 
 #[test]
 fn assert_message_may_be_omitted() {
-  assert_eval_eq("assert('a' == 'a')", "");
+  assert_eval("assert('a' == 'a')", "");
 }
 
 #[test]
@@ -66,12 +66,12 @@ fn assert_without_message_reports_condition() {
 
 #[test]
 fn assert_without_message_evaluates_to_condition_with_lists() {
-  assert_list_eq("assert(['foo', 'bar'])", r#"["foo", "bar"]"#);
+  assert_list("assert(['foo', 'bar'])", r#"["foo", "bar"]"#);
 }
 
 #[test]
 fn assert_empty_string_without_lists() {
-  assert_eval_eq("assert('a' == 'a', 'fail')", "");
+  assert_eval("assert('a' == 'a', 'fail')", "");
 }
 
 #[test]

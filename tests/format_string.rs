@@ -177,22 +177,22 @@ fn unmatched_close_is_ignored() {
 
 #[test]
 fn delimiter_may_be_escaped_in_double_quoted_strings() {
-  assert_eval_eq(r#"f"{{{{""#, "{{");
+  assert_eval(r#"f"{{{{""#, "{{");
 }
 
 #[test]
 fn delimiter_may_be_escaped_in_single_quoted_strings() {
-  assert_eval_eq("f'{{{{'", "{{");
+  assert_eval("f'{{{{'", "{{");
 }
 
 #[test]
 fn escaped_delimiter_is_ignored_in_normal_strings() {
-  assert_eval_eq("'{{{{'", "{{{{");
+  assert_eval("'{{{{'", "{{{{");
 }
 
 #[test]
 fn escaped_delimiter_in_single_quoted_format_string() {
-  assert_eval_eq(r"f'\{{{{'", "\\{{");
+  assert_eval(r"f'\{{{{'", "\\{{");
 }
 
 #[test]
@@ -218,22 +218,22 @@ fn escaped_delimiter_in_double_quoted_format_string() {
 
 #[test]
 fn double_quotes_process_escapes() {
-  assert_eval_eq(r#"f"\u{61}{{"b"}}\u{63}{{"d"}}\u{65}""#, "abcde");
+  assert_eval(r#"f"\u{61}{{"b"}}\u{63}{{"d"}}\u{65}""#, "abcde");
 }
 
 #[test]
 fn single_quotes_do_not_process_escapes() {
-  assert_eval_eq(r"f'\n{{'a'}}\n{{'b'}}\n'", r"\na\nb\n");
+  assert_eval(r"f'\n{{'a'}}\n{{'b'}}\n'", r"\na\nb\n");
 }
 
 #[test]
 fn indented_format_strings() {
-  assert_eval_eq("f'''\n  a\n  {{'b'}}\n  c\n'''", "a\nb\nc\n");
+  assert_eval("f'''\n  a\n  {{'b'}}\n  c\n'''", "a\nb\nc\n");
 }
 
 #[test]
 fn un_indented_format_strings() {
-  assert_eval_eq("f'\n  a\n  {{'b'}}\n  c\n'", "\n  a\n  b\n  c\n");
+  assert_eval("f'\n  a\n  {{'b'}}\n  c\n'", "\n  a\n  b\n  c\n");
 }
 
 #[test]

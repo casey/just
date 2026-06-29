@@ -2,12 +2,12 @@ use super::*;
 
 #[test]
 fn single_quotes_are_prepended_and_appended() {
-  assert_eval_eq("quote('abc')", "'abc'");
+  assert_eval("quote('abc')", "'abc'");
 }
 
 #[test]
 fn quotes_are_escaped() {
-  assert_eval_eq(r#"quote("'")"#, r"''\'''");
+  assert_eval(r#"quote("'")"#, r"''\'''");
 }
 
 #[test]

@@ -2,16 +2,16 @@ use super::*;
 
 #[test]
 fn bool_true_values() {
-  assert_list_eq(r#"bool("1")"#, TRUE);
-  assert_list_eq(r#"bool("true")"#, TRUE);
+  assert_list(r#"bool("1")"#, TRUE);
+  assert_list(r#"bool("true")"#, TRUE);
 }
 
 #[test]
 fn bool_false_values() {
-  assert_list_eq("bool([])", FALSE);
-  assert_list_eq(r#"bool("")"#, FALSE);
-  assert_list_eq(r#"bool("0")"#, FALSE);
-  assert_list_eq(r#"bool("false")"#, FALSE);
+  assert_list("bool([])", FALSE);
+  assert_list(r#"bool("")"#, FALSE);
+  assert_list(r#"bool("0")"#, FALSE);
+  assert_list(r#"bool("false")"#, FALSE);
 }
 
 #[test]
@@ -81,12 +81,12 @@ fn bool_multiple_elements() {
 
 #[test]
 fn path_exists_true_is_true_string() {
-  assert_list_eq("path_exists(justfile())", TRUE);
+  assert_list("path_exists(justfile())", TRUE);
 }
 
 #[test]
 fn path_exists_false_is_empty_list() {
-  assert_list_eq(r#"path_exists("nonexistent")"#, FALSE);
+  assert_list(r#"path_exists("nonexistent")"#, FALSE);
 }
 
 #[test]

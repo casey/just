@@ -2,132 +2,132 @@ use super::*;
 
 #[test]
 fn equality_true() {
-  assert_list_eq(r#""foo" == "foo""#, TRUE);
+  assert_list(r#""foo" == "foo""#, TRUE);
 }
 
 #[test]
 fn equality_false() {
-  assert_list_eq(r#""foo" == "bar""#, FALSE);
+  assert_list(r#""foo" == "bar""#, FALSE);
 }
 
 #[test]
 fn inequality_true() {
-  assert_list_eq(r#""foo" != "bar""#, TRUE);
+  assert_list(r#""foo" != "bar""#, TRUE);
 }
 
 #[test]
 fn inequality_false() {
-  assert_list_eq(r#""foo" != "foo""#, FALSE);
+  assert_list(r#""foo" != "foo""#, FALSE);
 }
 
 #[test]
 fn list_equality_is_structural() {
-  assert_list_eq(r#"["foo", "bar"] == ["foo", "bar"]"#, TRUE);
+  assert_list(r#"["foo", "bar"] == ["foo", "bar"]"#, TRUE);
 }
 
 #[test]
 fn equality_distinguishes_element_boundaries() {
-  assert_list_eq(r#"["foo", "bar"] == ["foo bar"]"#, FALSE);
+  assert_list(r#"["foo", "bar"] == ["foo bar"]"#, FALSE);
 }
 
 #[test]
 fn inequality_distinguishes_element_boundaries() {
-  assert_list_eq(r#"["foo", "bar"] != ["foo bar"]"#, TRUE);
+  assert_list(r#"["foo", "bar"] != ["foo bar"]"#, TRUE);
 }
 
 #[test]
 fn empty_list_does_not_equal_empty_string() {
-  assert_list_eq(r#"[] == """#, FALSE);
+  assert_list(r#"[] == """#, FALSE);
 }
 
 #[test]
 fn regex_match() {
-  assert_list_eq(r#""foo" =~ "f.""#, TRUE);
+  assert_list(r#""foo" =~ "f.""#, TRUE);
 }
 
 #[test]
 fn regex_mismatch() {
-  assert_list_eq(r#""foo" !~ "b.""#, TRUE);
+  assert_list(r#""foo" !~ "b.""#, TRUE);
 }
 
 #[test]
 fn regex_match_is_true_if_any_element_matches() {
-  assert_list_eq(r#"["foo", "bar"] =~ "b.""#, TRUE);
+  assert_list(r#"["foo", "bar"] =~ "b.""#, TRUE);
 }
 
 #[test]
 fn regex_match_is_false_if_no_element_matches() {
-  assert_list_eq(r#"["foo", "bar"] =~ "z""#, FALSE);
+  assert_list(r#"["foo", "bar"] =~ "z""#, FALSE);
 }
 
 #[test]
 fn regex_match_of_empty_list_is_false() {
-  assert_list_eq(r#"[] =~ ".""#, FALSE);
+  assert_list(r#"[] =~ ".""#, FALSE);
 }
 
 #[test]
 fn regex_mismatch_is_true_if_no_element_matches() {
-  assert_list_eq(r#"["foo", "bar"] !~ "z""#, TRUE);
+  assert_list(r#"["foo", "bar"] !~ "z""#, TRUE);
 }
 
 #[test]
 fn regex_mismatch_is_false_if_any_element_matches() {
-  assert_list_eq(r#"["foo", "bar"] !~ "b.""#, FALSE);
+  assert_list(r#"["foo", "bar"] !~ "b.""#, FALSE);
 }
 
 #[test]
 fn regex_mismatch_of_empty_list_is_true() {
-  assert_list_eq(r#"[] !~ ".""#, TRUE);
+  assert_list(r#"[] !~ ".""#, TRUE);
 }
 
 #[test]
 fn regex_match_with_list_is_true_if_any_pattern_matches() {
-  assert_list_eq(r#""foo" =~ ["x", "f."]"#, TRUE);
+  assert_list(r#""foo" =~ ["x", "f."]"#, TRUE);
 }
 
 #[test]
 fn regex_match_with_list_is_false_if_no_pattern_matches() {
-  assert_list_eq(r#""foo" =~ ["x", "y"]"#, FALSE);
+  assert_list(r#""foo" =~ ["x", "y"]"#, FALSE);
 }
 
 #[test]
 fn regex_match_with_empty_pattern_list_is_false() {
-  assert_list_eq(r#""foo" =~ []"#, FALSE);
+  assert_list(r#""foo" =~ []"#, FALSE);
 }
 
 #[test]
 fn regex_mismatch_with_list_is_true_if_no_pattern_matches() {
-  assert_list_eq(r#""foo" !~ ["x", "y"]"#, TRUE);
+  assert_list(r#""foo" !~ ["x", "y"]"#, TRUE);
 }
 
 #[test]
 fn regex_mismatch_with_list_is_false_if_any_pattern_matches() {
-  assert_list_eq(r#""foo" !~ ["x", "f."]"#, FALSE);
+  assert_list(r#""foo" !~ ["x", "f."]"#, FALSE);
 }
 
 #[test]
 fn regex_mismatch_with_empty_pattern_list_is_true() {
-  assert_list_eq(r#""foo" !~ []"#, TRUE);
+  assert_list(r#""foo" !~ []"#, TRUE);
 }
 
 #[test]
 fn regex_match_both_operands_lists() {
-  assert_list_eq(r#"["foo", "bar"] =~ ["z", "b."]"#, TRUE);
+  assert_list(r#"["foo", "bar"] =~ ["z", "b."]"#, TRUE);
 }
 
 #[test]
 fn combined_with_and() {
-  assert_list_eq(r#""foo" == "foo" && "bar" == "bar""#, TRUE);
+  assert_list(r#""foo" == "foo" && "bar" == "bar""#, TRUE);
 }
 
 #[test]
 fn and_short_circuits_on_false_comparison() {
-  assert_list_eq(r#""foo" == "bar" && "baz" == "baz""#, FALSE);
+  assert_list(r#""foo" == "bar" && "baz" == "baz""#, FALSE);
 }
 
 #[test]
 fn or_falls_through_false_comparison() {
-  assert_list_eq(r#""foo" == "bar" || "baz" == "baz""#, TRUE);
+  assert_list(r#""foo" == "bar" || "baz" == "baz""#, TRUE);
 }
 
 #[test]
