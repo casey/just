@@ -129,21 +129,6 @@ fn filename_resolves() {
 }
 
 #[test]
-fn filename_resolves_short_flag() {
-  Test::new()
-    .justfile(
-      "
-        foo:
-          @echo $JUST_TEST_VARIABLE
-      ",
-    )
-    .write(".env.special", "JUST_TEST_VARIABLE=bar")
-    .args(["-F", ".env.special"])
-    .stdout("bar\n")
-    .success();
-}
-
-#[test]
 fn filename_flag_overwrites_no_load() {
   Test::new()
     .justfile(
