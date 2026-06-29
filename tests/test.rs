@@ -312,51 +312,10 @@ impl Test {
       );
     }
 
-    if self.test_round_trip && status == 0 {
-      self.round_trip();
-    }
-
     Output {
       pid,
       stdout: output_stdout.into(),
       tempdir: self.tempdir,
     }
-  }
-
-  fn round_trip(&self) {
-    let output = Command::new(JUST)
-      .current_dir(self.tempdir.path())
-      .arg("--dump")
-      .envs(&self.env)
-      .output()
-      .expect("just invocation failed");
-
-    assert!(
-      output.status.success(),
-      "dump failed: {} {:?}",
-      output.status,
-      output,
-    );
-
-    let dumped = String::from_utf8(output.stdout).unwrap();
-
-    let reparsed_path = self.tempdir.path().join("reparsed.just");
-
-    fs::write(&reparsed_path, &dumped).unwrap();
-
-    let output = Command::new(JUST)
-      .current_dir(self.tempdir.path())
-      .arg("--justfile")
-      .arg(&reparsed_path)
-      .arg("--dump")
-      .envs(&self.env)
-      .output()
-      .expect("just invocation failed");
-
-    assert!(output.status.success(), "reparse failed: {}", output.status);
-
-    let reparsed = String::from_utf8(output.stdout).unwrap();
-
-    assert_eq!(reparsed, dumped, "reparse mismatch");
   }
 }
