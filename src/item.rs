@@ -88,7 +88,9 @@ impl ColorDisplay for Item<'_> {
           write!(f, "::")?;
 
           let body = body.color_display(color).to_string();
-          for line in body.trim().split('\n') {
+          let body = body.strip_suffix('\n').unwrap_or(&body);
+
+          for line in body.split('\n') {
             if line.is_empty() {
               writeln!(f)?;
             } else {
