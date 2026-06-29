@@ -92,13 +92,11 @@ impl ColorDisplay for Item<'_> {
           let rendered = body.color_display(color).to_string();
           let rendered = rendered.strip_suffix('\n').unwrap_or(&rendered);
 
-          if !rendered.is_empty() {
-            for line in rendered.split('\n') {
-              if line.is_empty() {
-                writeln!(f)?;
-              } else {
-                write!(f, "\n  {line}")?;
-              }
+          for line in rendered.split('\n') {
+            if line.is_empty() {
+              writeln!(f)?;
+            } else {
+              write!(f, "\n  {line}")?;
             }
           }
         }
