@@ -732,7 +732,6 @@ fn style(context: Context, styles: &Value, text: Option<&str>) -> StringResult {
   }
 
   let config = context.execution_context.config;
-
   let mut style = Style::new();
   let mut active = true;
 
