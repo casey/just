@@ -731,7 +731,10 @@ fn style(context: Context, styles: &Value, text: Option<&str>) -> StringResult {
     }
   }
 
+  let config = context.execution_context.config;
+
   let mut style = Style::new();
+  let mut active = true;
 
   for token in styles {
     let error = || format!("invalid style: `{token}`");
@@ -779,9 +782,12 @@ fn style(context: Context, styles: &Value, text: Option<&str>) -> StringResult {
         "reverse" => style.reverse(),
         "strikethrough" => style.strikethrough(),
         "underline" => style.underline(),
+        // streams
+        "stdout" => active = config.color.stdout().active(),
+        "stderr" => active = config.color.stderr().active(),
         // roles
         "command" => {
-          if let Some(color) = context.execution_context.config.command_color {
+          if let Some(color) = config.command_color {
             style.fg(color);
           }
           style.bold();
@@ -799,9 +805,16 @@ fn style(context: Context, styles: &Value, text: Option<&str>) -> StringResult {
     }
   }
 
-  Ok(match text {
-    Some(text) => style.paint(text),
-    None => style.prefix(),
+  Ok(if active {
+    match text {
+      Some(text) => style.paint(text),
+      None => style.prefix(),
+    }
+  } else {
+    match text {
+      Some(text) => text.into(),
+      None => String::new(),
+    }
   })
 }
 

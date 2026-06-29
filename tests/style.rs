@@ -190,6 +190,37 @@ fn style_rgb() {
 }
 
 #[test]
+fn style_stream() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        x := style(['red', 'stdout'], 'foo')
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["--color", "always", "--evaluate", "x"])
+    .stdout("\x1b[31mfoo\x1b[0m")
+    .unindent_stdout(false)
+    .success();
+
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        x := style(['red', 'stdout'], 'foo')
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["--color", "never", "--evaluate", "x"])
+    .stdout("foo")
+    .unindent_stdout(false)
+    .success();
+}
+
+#[test]
 fn style_prefix_without_text() {
   assert_eval("style('red')", "\x1b[31m");
 }
