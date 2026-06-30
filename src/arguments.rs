@@ -360,11 +360,11 @@ pub(crate) struct Subcommand {
   pub(crate) choose: bool,
   #[arg(
     conflicts_with = "arguments",
-    help = "Clear recipe cache, optionally restricted to recipes whose path begins with <PATH>",
+    help = "Clear recipe cache, optionally restricted to recipes whose path begins with <RECIPE_PATH>",
     help_heading = Self::HEADING,
     long,
     num_args = 0..,
-    value_name = "PATH",
+    value_name = "RECIPE_PATH",
   )]
   pub(crate) clean: Option<Vec<String>>,
   #[arg(
