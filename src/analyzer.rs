@@ -80,10 +80,10 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           }
           Item::Module {
             absolute,
+            attributes,
             doc,
             name,
             optional,
-            attributes,
             ..
           } => {
             if let Some(absolute) = absolute {
