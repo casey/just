@@ -618,41 +618,22 @@ fn replace_regex(_context: Context, s: &str, regex: &str, replacement: &str) -> 
   )
 }
 
-fn hex(bytes: &[u8]) -> String {
-  use std::fmt::Write;
-  bytes.iter().fold(String::new(), |mut string, byte| {
-    write!(string, "{byte:02x}").unwrap();
-    string
-  })
-}
-
 fn sha256(_context: Context, s: &str) -> StringResult {
   use sha2::{Digest, Sha256};
   let mut hasher = Sha256::new();
   hasher.update(s);
-  Ok(hex(&hasher.finalize()))
+  Ok(hex::encode(hasher.finalize()))
 }
 
 fn sha256_file(context: Context, path: &str) -> StringResult {
-  use {
-    sha2::{Digest, Sha256},
-    std::io::Read,
-  };
+  use {digest_io::HashReader, sha2::Sha256};
   let path = context.execution_context.working_directory().join(path);
-  let mut file =
+  let file =
     fs::File::open(&path).map_err(|err| format!("failed to open `{}`: {err}", path.display()))?;
-  let mut hasher = Sha256::new();
-  let mut buffer = [0; 8192];
-  loop {
-    let read = file
-      .read(&mut buffer)
-      .map_err(|err| format!("failed to read `{}`: {err}", path.display()))?;
-    if read == 0 {
-      break;
-    }
-    hasher.update(&buffer[..read]);
-  }
-  Ok(hex(&hasher.finalize()))
+  let mut reader = HashReader::<Sha256, _>::new(file);
+  std::io::copy(&mut reader, &mut std::io::sink())
+    .map_err(|err| format!("failed to read `{}`: {err}", path.display()))?;
+  Ok(hex::encode(reader.finalize()))
 }
 
 fn shell(context: Context, command: &str, args: &[String]) -> StringResult {
