@@ -552,8 +552,8 @@ mod tests {
     column: 6,
     width: 3,
     kind: Redefinition {
-      first_type: "alias",
-      second_type: "alias",
+      first_type: ItemKind::Alias,
+      second_type: ItemKind::Alias,
       name: "foo",
       first: 0,
     },
@@ -590,8 +590,8 @@ mod tests {
     column: 0,
     width: 3,
     kind: Redefinition {
-      first_type: "alias",
-      second_type: "recipe",
+      first_type: ItemKind::Alias,
+      second_type: ItemKind::Recipe,
       name: "foo",
       first: 2,
     },
@@ -605,8 +605,8 @@ mod tests {
     column: 6,
     width: 3,
     kind: Redefinition {
-      first_type: "recipe",
-      second_type: "alias",
+      first_type: ItemKind::Recipe,
+      second_type: ItemKind::Alias,
       name: "foo",
       first: 0,
     },
@@ -649,7 +649,12 @@ mod tests {
     line:   2,
     column: 0,
     width:  1,
-    kind:   Redefinition { first_type: "recipe", second_type: "recipe", name: "a", first: 0 },
+    kind:   Redefinition {
+      first: 0,
+      first_type: ItemKind::Recipe,
+      name: "a",
+      second_type: ItemKind::Recipe,
+    },
   }
 
   analysis_error! {
