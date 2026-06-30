@@ -94,7 +94,8 @@ impl<'src> AttributeSet<'src> {
         AttributeKind::Group,
         AttributeKind::Private,
       ],
-      ItemKind::Recipe | ItemKind::Comment | ItemKind::Newline => unreachable!(),
+      ItemKind::Recipe => return Ok(()),
+      ItemKind::Comment | ItemKind::Newline => unreachable!(),
     };
 
     for attribute in self.0.keys() {

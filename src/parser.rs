@@ -1232,6 +1232,8 @@ impl<'run, 'src> Parser<'run, 'src> {
   ) -> CompileResult<'src, UnresolvedRecipe<'src>> {
     let name = self.parse_name()?;
 
+    attributes.ensure_valid_attributes(ItemKind::Recipe, *name)?;
+
     let mut positional = Vec::new();
 
     let mut longs = HashSet::new();
