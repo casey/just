@@ -85,8 +85,18 @@ impl<'src> AttributeSet<'src> {
     &self,
     item_kind: ItemKind,
     item_token: Token<'src>,
-    valid: &[AttributeKind],
   ) -> Result<(), CompileError<'src>> {
+    let valid: &[AttributeKind] = match item_kind {
+      ItemKind::Alias | ItemKind::Assignment => &[AttributeKind::Private],
+      ItemKind::Function | ItemKind::Import | ItemKind::Set | ItemKind::Unexport => &[],
+      ItemKind::Module => &[
+        AttributeKind::Doc,
+        AttributeKind::Group,
+        AttributeKind::Private,
+      ],
+      ItemKind::Recipe | ItemKind::Comment | ItemKind::Newline => unreachable!(),
+    };
+
     for attribute in self.0.keys() {
       let kind = attribute.kind();
       if !kind.is_enabler() && !valid.contains(&kind) {

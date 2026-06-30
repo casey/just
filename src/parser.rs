@@ -532,7 +532,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           self.presume_keyword(Keyword::Unexport)?;
           let name = self.parse_name()?;
           let attributes = take_attributes();
-          attributes.ensure_valid_attributes(ItemKind::Unexport, *name, &[])?;
+          attributes.ensure_valid_attributes(ItemKind::Unexport, *name)?;
           Item::Unexport { attributes, name }
         }
         Some(Keyword::Import)
@@ -544,7 +544,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           let optional = self.accepted(QuestionMark)?;
           let relative = self.parse_string_literal()?;
           let attributes = take_attributes();
-          attributes.ensure_valid_attributes(ItemKind::Import, relative.token, &[])?;
+          attributes.ensure_valid_attributes(ItemKind::Import, relative.token)?;
           Item::Import {
             absolute: None,
             attributes,
@@ -572,15 +572,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
           let attributes = take_attributes();
 
-          attributes.ensure_valid_attributes(
-            ItemKind::Module,
-            *name,
-            &[
-              AttributeKind::Doc,
-              AttributeKind::Group,
-              AttributeKind::Private,
-            ],
-          )?;
+          attributes.ensure_valid_attributes(ItemKind::Module, *name)?;
 
           let doc = self.take_doc_comment(&attributes);
 
@@ -625,7 +617,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.presume_any(&[Equals, ColonEquals])?;
     let target = self.parse_namepath()?;
 
-    attributes.ensure_valid_attributes(ItemKind::Alias, *name, &[AttributeKind::Private])?;
+    attributes.ensure_valid_attributes(ItemKind::Alias, *name)?;
 
     Ok(Alias {
       attributes,
@@ -644,7 +636,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let name = self.parse_name()?;
 
-    attributes.ensure_valid_attributes(ItemKind::Function, *name, &[])?;
+    attributes.ensure_valid_attributes(ItemKind::Function, *name)?;
 
     self.presume(ParenL)?;
 
@@ -681,7 +673,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.presume(ColonEquals)?;
     let value = self.parse_expression()?;
 
-    attributes.ensure_valid_attributes(ItemKind::Assignment, *name, &[AttributeKind::Private])?;
+    attributes.ensure_valid_attributes(ItemKind::Assignment, *name)?;
 
     let private = attributes.private();
 
@@ -1549,7 +1541,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       }));
     };
 
-    attributes.ensure_valid_attributes(ItemKind::Set, *name, &[])?;
+    attributes.ensure_valid_attributes(ItemKind::Set, *name)?;
 
     let set_bool = match keyword {
       Keyword::AllowDuplicateRecipes => {
