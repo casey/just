@@ -166,9 +166,9 @@ pub(crate) enum CompileErrorKind<'src> {
   ParsingRecursionDepthExceeded,
   Redefinition {
     first: usize,
-    first_type: &'static str,
+    first_type: ItemKind,
     name: &'src str,
-    second_type: &'static str,
+    second_type: ItemKind,
   },
   RequiredParameterFollowsDefaultParameter {
     parameter: &'src str,

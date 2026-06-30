@@ -142,6 +142,15 @@ impl ColorDisplay for Item<'_> {
 }
 
 impl ItemKind {
+  pub(crate) fn article(self) -> &'static str {
+    match self {
+      Self::Alias | Self::Assignment | Self::Import | Self::Unexport => "an",
+      Self::Comment | Self::Function | Self::Module | Self::Newline | Self::Recipe | Self::Set => {
+        "a"
+      }
+    }
+  }
+
   fn name(self) -> &'static str {
     self.into()
   }

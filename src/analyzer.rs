@@ -65,7 +65,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
         match item {
           Item::Alias(alias) => {
-            Self::define(&mut definitions, alias.name, "alias", false)?;
+            Self::define(&mut definitions, alias.name, ItemKind::Alias, false)?;
             self.aliases.insert(alias.clone());
           }
           Item::Assignment(assignment) => {
@@ -91,7 +91,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             ..
           } => {
             if let Some(absolute) = absolute {
-              Self::define(&mut definitions, *name, "module", false)?;
+              Self::define(&mut definitions, *name, ItemKind::Module, false)?;
               self.modules.insert(Self::analyze(
                 asts,
                 config,
@@ -163,8 +163,8 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       let name = function.name.lexeme();
       if let Some(first) = functions.get(name) {
         return Err(function.name.error(Redefinition {
-          first_type: "function",
-          second_type: "function",
+          first_type: ItemKind::Function,
+          second_type: ItemKind::Function,
           name,
           first: first.name.line,
         }));
@@ -271,7 +271,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       Self::define(
         &mut definitions,
         recipe.name,
-        "recipe",
+        ItemKind::Recipe,
         settings.allow_duplicate_recipes,
       )?;
 
@@ -432,9 +432,9 @@ impl<'run, 'src> Analyzer<'run, 'src> {
   }
 
   fn define(
-    definitions: &mut HashMap<&'src str, (&'static str, Name<'src>)>,
+    definitions: &mut HashMap<&'src str, (ItemKind, Name<'src>)>,
     name: Name<'src>,
-    second_type: &'static str,
+    second_type: ItemKind,
     duplicates_allowed: bool,
   ) -> CompileResult<'src> {
     if let Some((first_type, original)) = definitions.get(name.lexeme())
