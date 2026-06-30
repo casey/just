@@ -1096,6 +1096,40 @@ fn module() {
 }
 
 #[test]
+fn module_doc_attribute_empty_string() {
+  case_with_submodule(
+    "
+      [doc('')]
+      mod foo
+    ",
+    Some(("foo.just", "bar:")),
+    Module {
+      modules: [(
+        "foo",
+        Module {
+          doc: Some(""),
+          first: Some("bar"),
+          module_path: "foo",
+          source: "foo.just".into(),
+          recipes: [(
+            "bar",
+            Recipe {
+              name: "bar",
+              namepath: "foo::bar",
+              ..default()
+            },
+          )]
+          .into(),
+          ..default()
+        },
+      )]
+      .into(),
+      ..default()
+    },
+  );
+}
+
+#[test]
 fn module_group() {
   case_with_submodule(
     "

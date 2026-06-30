@@ -1531,7 +1531,7 @@ Available recipes:
     test
 ```
 
-The value of `doc` may be a const expression<sup>master</sup>.
+The value of `[doc]` may be a const expression<sup>master</sup>.
 
 ### Groups
 
