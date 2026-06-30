@@ -1685,14 +1685,13 @@ dependencies of other recipes.
 ### Enabling and Disabling Items
 
 The `[android]`, `[dragonfly]`, `[freebsd]`, `[linux]`, `[macos]`, `[netbsd]`,
-`[openbsd]`, `[unix]`, and `[windows]` attributes<sup>1.8.0</sup> are
-configuration attributes. By default, items are always enabled. An item with one
-or more configuration attributes will only be enabled when one or more of those
-configurations is active.
+`[openbsd]`, `[unix]`, and `[windows]` attributes are conditional attributes.
+By default, items are always enabled. An item with one or more conditional
+attributes will only be enabled when one or more of those conditional
+attributes is active.
 
-These attributes originally applied only to recipes, but may now be used on any
-item, including aliases, assignments, modules, imports, settings, and
-unexports<sup>master</sup>.
+The conditional attributes originally only applied to recipes, but may now be
+applied to all top-level items<sup>master</sup>.
 
 This can be used to write `justfile`s that behave differently depending on
 which operating system they run on. The `run` recipe in this `justfile` will
@@ -1711,7 +1710,7 @@ run:
   main.exe
 ```
 
-A different setting value can likewise be selected per operating system:
+Likewise, settings can be configured per OS:
 
 ```just
 [unix]
