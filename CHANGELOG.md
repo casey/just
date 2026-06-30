@@ -1,6 +1,17 @@
 Changelog
 =========
 
+[1.55.1](https://github.com/casey/just/releases/tag/1.55.1) - 2026-06-29
+------------------------------------------------------------------------
+
+### Fixed
+- Fix panic when empty path is passed to `--show` and `--usage` ([#3511](https://github.com/casey/just/pull/3511) by [casey](https://github.com/casey))
+
+### Misc
+- Upgrade sha2 to 0.11.0 ([#3512](https://github.com/casey/just/pull/3512) by [casey](https://github.com/casey))
+- Remove `Test::test_round_trip()` ([#3509](https://github.com/casey/just/pull/3509) by [casey](https://github.com/casey))
+- Remove round-trip testing ([#3508](https://github.com/casey/just/pull/3508) by [casey](https://github.com/casey))
+
 [1.55.0](https://github.com/casey/just/releases/tag/1.55.0) - 2026-06-29
 ------------------------------------------------------------------------
 
