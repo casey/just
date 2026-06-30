@@ -73,7 +73,7 @@ impl AttributeKind {
     matches!(self, Self::Arg | Self::Cache)
   }
 
-  pub(crate) fn enabler(self) -> bool {
+  pub(crate) fn is_os_attribute(self) -> bool {
     matches!(
       self,
       Self::Android
