@@ -79,6 +79,9 @@ impl<'src> UnresolvedRecipe<'src> {
         Attribute::Confirm(Some(expression)) | Attribute::WorkingDirectory(expression) => {
           resolve_expression(expression, &self.parameters)?;
         }
+        Attribute::Doc(Some(expression)) => {
+          resolve_expression(expression, &[])?;
+        }
         Attribute::Arg {
           help_property,
           pattern_property,
@@ -103,6 +106,15 @@ impl<'src> UnresolvedRecipe<'src> {
       .attributes
       .into_items()
       .map(|(mut attribute, name)| {
+        if let Attribute::Doc(Some(expression)) = &attribute {
+          let value = evaluator.evaluate_value_const(expression)?;
+          self.doc = if value.is_empty() {
+            None
+          } else {
+            Some(value.join())
+          };
+        }
+
         if let Attribute::Arg {
           help,
           help_property: Some((_key, expression)),

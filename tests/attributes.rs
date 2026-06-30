@@ -269,6 +269,111 @@ fn doc_multiline() {
 }
 
 #[test]
+fn doc_attribute_may_be_expression() {
+  Test::new()
+    .justfile(
+      "
+        prefix := 'hello '
+        [doc(prefix + 'world')]
+        foo:
+      ",
+    )
+    .args(["--list"])
+    .stdout(
+      "
+        Available recipes:
+            foo # hello world
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn doc_attribute_list_is_joined() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        [doc(['hello', 'world'])]
+        foo:
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["--list"])
+    .stdout(
+      "
+        Available recipes:
+            foo # hello world
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn doc_attribute_empty_list_is_no_doc() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        [doc([])]
+        foo:
+      ",
+    )
+    .env("JUST_UNSTABLE", "1")
+    .args(["--list"])
+    .stdout(
+      "
+        Available recipes:
+            foo
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn doc_attribute_cannot_reference_undefined_variable() {
+  Test::new()
+    .justfile(
+      "
+        [doc(undefined)]
+        foo:
+      ",
+    )
+    .stderr(
+      "
+        error: variable `undefined` not defined
+         ——▶ justfile:1:6
+          │
+        1 │ [doc(undefined)]
+          │      ^^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn doc_attribute_cannot_reference_non_const_variable() {
+  Test::new()
+    .justfile(
+      "
+        bar := `echo BAR`
+        [doc(bar)]
+        foo:
+      ",
+    )
+    .stderr(
+      "
+        error: cannot access non-const variable `bar` in const context
+         ——▶ justfile:2:6
+          │
+        2 │ [doc(bar)]
+          │      ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn extension() {
   Test::new()
     .justfile(

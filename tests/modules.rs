@@ -1608,6 +1608,22 @@ fn doc_attribute_on_module() {
 }
 
 #[test]
+fn doc_attribute_on_module_may_be_expression() {
+  Test::new()
+    .write("foo.just", "")
+    .justfile(
+      "
+        prefix := 'hello '
+        [doc(prefix + 'world')]
+        mod foo
+      ",
+    )
+    .arg("--list")
+    .stdout("Available recipes:\n    foo ... # hello world\n")
+    .success();
+}
+
+#[test]
 fn group_attribute_on_module() {
   Test::new()
     .write("foo.just", "")

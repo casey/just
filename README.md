@@ -1531,6 +1531,8 @@ Available recipes:
     test
 ```
 
+The value of `[doc]` may be a const expression<sup>master</sup>.
+
 ### Groups
 
 Recipes and modules may be annotated with one or more group names:
@@ -4689,7 +4691,7 @@ change their behavior.
 | `[confirm]`<sup>1.17.0</sup> | recipe | Require confirmation prior to executing recipe. |
 | `[continue(SIGNALS)]`<sup>1.54.0</sup> | recipe | Continue execution normally if a command is interrupted by any of `SIGNALS` and exits successfully. Defaults to `SIGINT`. |
 | `[default]`<sup>1.43.0</sup> | recipe | Use recipe as module's default recipe. |
-| `[doc(DOC)]`<sup>1.27.0</sup> | module, recipe | Set recipe or module's [documentation comment](#documentation-comments) to `DOC`. |
+| `[doc(DOC)]`<sup>1.27.0</sup> | module, recipe | Set recipe or module's [documentation comment](#documentation-comments) to `DOC`. May be a const expression<sup>master</sup>. |
 | `[dragonfly]`<sup>1.47.0</sup> | any<sup>master</sup> | Enable item on DragonFly BSD. |
 | `[env(NAME, VALUE)]` <sup>1.47.0</sup> | recipe | Set environment variable `NAME` to `VALUE` for recipe. `NAME` and `VALUE` may be expressions<sup>1.51.0</sup>. |
 | `[extension(EXT)]`<sup>1.32.0</sup> | recipe | Set shebang recipe script's file extension to `EXT`. `EXT` should include a period if one is desired. |
