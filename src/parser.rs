@@ -1394,7 +1394,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       }));
     }
 
-    let private = name.lexeme().starts_with('_') || attributes.private().
+    let private = name.lexeme().starts_with('_') || attributes.private();
 
     let doc = self.take_doc_comment(&attributes);
 
