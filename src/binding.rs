@@ -3,6 +3,8 @@ use super::*;
 /// A binding of `name` to `value`
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub(crate) struct Binding<'src, V = Value> {
+  #[serde(skip)]
+  pub(crate) attributes: AttributeSet<'src>,
   pub(crate) eager: bool,
   pub(crate) export: bool,
   #[serde(skip)]

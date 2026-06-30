@@ -2,6 +2,7 @@ use super::*;
 
 #[derive(Debug, Clone)]
 pub(crate) struct Set<'src> {
+  pub(crate) attributes: AttributeSet<'src>,
   pub(crate) name: Name<'src>,
   pub(crate) value: Setting<'src>,
 }

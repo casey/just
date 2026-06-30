@@ -80,11 +80,10 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           }
           Item::Module {
             absolute,
+            attributes,
             doc,
-            groups,
             name,
             optional,
-            private,
             ..
           } => {
             if let Some(absolute) = absolute {
@@ -93,12 +92,12 @@ impl<'run, 'src> Analyzer<'run, 'src> {
                 asts,
                 config,
                 doc.clone(),
-                groups.as_slice(),
+                &attributes.groups(),
                 loaded,
                 Some(*name),
                 overrides,
                 paths,
-                *private,
+                attributes.private(),
                 absolute,
               )?);
             } else if *optional {
@@ -116,7 +115,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             self.analyze_set(set)?;
             self.sets.insert(set.clone());
           }
-          Item::Unexport { name } => {
+          Item::Unexport { name, .. } => {
             if !self.unexports.insert(name.lexeme().to_string()) {
               return Err(name.error(DuplicateUnexport {
                 variable: name.lexeme(),

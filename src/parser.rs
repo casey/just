@@ -531,7 +531,10 @@ impl<'run, 'src> Parser<'run, 'src> {
         Some(Keyword::Unexport) if self.line_is(&[Identifier, Identifier]) => {
           self.presume_keyword(Keyword::Unexport)?;
           let name = self.parse_name()?;
-          Item::Unexport { name }
+          Item::Unexport {
+            attributes: AttributeSet::new(),
+            name,
+          }
         }
         Some(Keyword::Import)
           if self.next_are(&[Identifier, Identifier, StringToken])
@@ -543,6 +546,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           let relative = self.parse_string_literal()?;
           Item::Import {
             absolute: None,
+            attributes: AttributeSet::new(),
             optional,
             relative,
           }
@@ -579,22 +583,12 @@ impl<'run, 'src> Parser<'run, 'src> {
 
           let doc = self.take_doc_comment(&attributes);
 
-          let private = attributes.contains(AttributeKind::Private);
-
-          let mut groups = Vec::new();
-          for attribute in attributes {
-            if let Attribute::Group(group) = attribute {
-              groups.push(group);
-            }
-          }
-
           Item::Module {
             absolute: None,
+            attributes,
             doc,
-            groups,
             name,
             optional,
-            private,
             relative,
           }
         }
@@ -663,6 +657,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let body = self.parse_expression()?;
 
     Ok(FunctionDefinition {
+      attributes: AttributeSet::new(),
       body,
       name,
       parameters,
@@ -680,11 +675,12 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.presume(ColonEquals)?;
     let value = self.parse_expression()?;
 
-    let private = attributes.contains(AttributeKind::Private);
-
     attributes.ensure_valid_attributes("assignment", *name, &[AttributeKind::Private])?;
 
+    let private = attributes.private();
+
     Ok(Assignment {
+      attributes,
       eager,
       export,
       file_depth: self.file_depth,
@@ -1398,7 +1394,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       }));
     }
 
-    let private = name.lexeme().starts_with('_') || attributes.contains(AttributeKind::Private);
+    let private = name.lexeme().starts_with('_') || attributes.private();
 
     let doc = self.take_doc_comment(&attributes);
 
@@ -1578,7 +1574,11 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
 
     if let Some(value) = set_bool {
-      return Ok(Set { name, value });
+      return Ok(Set {
+        attributes: AttributeSet::new(),
+        name,
+        value,
+      });
     }
 
     self.expect(ColonEquals)?;
@@ -1627,7 +1627,11 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
 
     if let Some(value) = set_value {
-      return Ok(Set { name, value });
+      return Ok(Set {
+        attributes: AttributeSet::new(),
+        name,
+        value,
+      });
     }
 
     Err(name.error(CompileErrorKind::UnknownSetting {

@@ -175,7 +175,7 @@ impl<'src> Recipe<'src> {
   }
 
   pub(crate) fn is_public(&self) -> bool {
-    !self.private && !self.attributes.contains(AttributeKind::Private)
+    !self.private && !self.attributes.private()
   }
 
   pub(crate) fn takes_positional_arguments(&self, settings: &Settings) -> bool {
@@ -723,24 +723,13 @@ impl<'src> Recipe<'src> {
   pub(crate) fn groups(&self) -> BTreeSet<String> {
     self
       .attributes
-      .iter()
-      .filter_map(|attribute| {
-        if let Attribute::Group(group) = attribute {
-          Some(group.cooked.clone())
-        } else {
-          None
-        }
-      })
+      .groups()
+      .into_iter()
+      .map(|group| group.cooked)
       .collect()
   }
 
   pub(crate) fn doc(&self) -> Option<&str> {
-    for attribute in &self.attributes {
-      if let Attribute::Doc(doc) = attribute {
-        return doc.as_ref().map(|s| s.cooked.as_ref());
-      }
-    }
-
     self.doc.as_deref()
   }
 
@@ -755,19 +744,6 @@ impl<'src> Recipe<'src> {
 
 impl<D: Display> ColorDisplay for Recipe<'_, D> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
-    if !self
-      .attributes
-      .iter()
-      .any(|attribute| matches!(attribute, Attribute::Doc(_)))
-      && let Some(doc) = &self.doc
-    {
-      writeln!(f, "# {doc}")?;
-    }
-
-    for attribute in &self.attributes {
-      writeln!(f, "[{attribute}]")?;
-    }
-
     if self.quiet {
       write!(f, "@{}", self.name)?;
     } else {

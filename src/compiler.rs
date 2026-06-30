@@ -61,6 +61,7 @@ impl Compiler {
             relative,
             absolute,
             optional,
+            ..
           } => {
             let import = current
               .path
