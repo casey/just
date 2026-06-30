@@ -108,7 +108,11 @@ impl<'src> UnresolvedRecipe<'src> {
       .map(|(mut attribute, name)| {
         if let Attribute::Doc(Some(expression)) = &attribute {
           let value = evaluator.evaluate_value_const(expression)?;
-          self.doc = (!value.is_empty()).then(|| value.join());
+          self.doc = if value.is_empty() {
+            None
+          } else {
+            Some(value.join())
+          };
         }
 
         if let Attribute::Arg {
