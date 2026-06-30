@@ -1185,6 +1185,20 @@ fn doc_attribute_suppresses_comment() {
 }
 
 #[test]
+fn doc_attribute_expression() {
+  assert_dump(
+    "
+        [doc('f' + 'oo')]
+        foo:
+      ",
+    "
+        [doc('f' + 'oo')]
+        foo:
+      ",
+  );
+}
+
+#[test]
 fn unchanged_justfiles_are_not_written_to_disk() {
   let tmp = tempdir();
 

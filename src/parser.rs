@@ -418,10 +418,8 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   fn take_doc_comment(&mut self, attributes: &AttributeSet<'src>) -> Option<String> {
-    for attribute in attributes {
-      if let Attribute::Doc(doc) = attribute {
-        return doc.as_ref().map(|doc| doc.cooked.clone());
-      }
+    if attributes.contains(AttributeKind::Doc) {
+      return None;
     }
 
     let mut items = self.items.iter().rev();
