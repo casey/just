@@ -26,8 +26,7 @@ pub(crate) enum Item<'src> {
   },
   Newline,
   Recipe(UnresolvedRecipe<'src>),
-  #[strum_discriminants(strum(serialize = "setting"))]
-  Set(Set<'src>),
+  Setting(Set<'src>),
   Unexport {
     attributes: AttributeSet<'src>,
     name: Name<'src>,
@@ -45,7 +44,7 @@ impl<'src> Item<'src> {
       | Self::Module { attributes, .. }
       | Self::Unexport { attributes, .. } => Some(attributes),
       Self::Recipe(recipe) => Some(&recipe.attributes),
-      Self::Set(set) => Some(&set.attributes),
+      Self::Setting(set) => Some(&set.attributes),
     }
   }
 
@@ -135,7 +134,7 @@ impl ColorDisplay for Item<'_> {
       }
       Self::Newline => Ok(()),
       Self::Recipe(recipe) => write!(f, "{}", recipe.color_display(color)),
-      Self::Set(set) => write!(f, "{set}"),
+      Self::Setting(set) => write!(f, "{set}"),
       Self::Unexport { name, .. } => write!(f, "unexport {name}"),
     }
   }
@@ -145,9 +144,12 @@ impl ItemKind {
   pub(crate) fn article(self) -> &'static str {
     match self {
       Self::Alias | Self::Assignment | Self::Import | Self::Unexport => "an",
-      Self::Comment | Self::Function | Self::Module | Self::Newline | Self::Recipe | Self::Set => {
-        "a"
-      }
+      Self::Comment
+      | Self::Function
+      | Self::Module
+      | Self::Newline
+      | Self::Recipe
+      | Self::Setting => "a",
     }
   }
 

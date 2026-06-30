@@ -589,7 +589,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           if self.next_are(&[Identifier, Identifier, ColonEquals])
             || self.line_is(&[Identifier, Identifier]) =>
         {
-          Item::Set(self.parse_set(take_attributes())?)
+          Item::Setting(self.parse_set(take_attributes())?)
         }
         _ => {
           if self.next_are(&[Identifier, ParenL]) {
@@ -1543,7 +1543,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       }));
     };
 
-    attributes.ensure_valid_attributes(ItemKind::Set, *name)?;
+    attributes.ensure_valid_attributes(ItemKind::Setting, *name)?;
 
     let set_bool = match keyword {
       Keyword::AllowDuplicateRecipes => {

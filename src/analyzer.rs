@@ -113,7 +113,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             Self::analyze_recipe(recipe)?;
             self.recipes.push(recipe);
           }
-          Item::Set(set) => {
+          Item::Setting(set) => {
             self.analyze_set(set)?;
             self.sets.insert(set.clone());
           }

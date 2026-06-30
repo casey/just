@@ -89,7 +89,7 @@ impl<'src> AttributeSet<'src> {
     let valid = match item_kind {
       ItemKind::Alias | ItemKind::Assignment => [AttributeKind::Private].as_slice(),
       ItemKind::Comment | ItemKind::Newline => unreachable!(),
-      ItemKind::Function | ItemKind::Import | ItemKind::Set | ItemKind::Unexport => &[],
+      ItemKind::Function | ItemKind::Import | ItemKind::Setting | ItemKind::Unexport => &[],
       ItemKind::Module => &[
         AttributeKind::Doc,
         AttributeKind::Group,
