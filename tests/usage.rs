@@ -5,7 +5,7 @@ fn search_directory_without_recipe() {
   Test::new()
     .justfile("foo:")
     .args(["--usage", "."])
-    .stderr("error: justfile does not contain recipe ``\n")
+    .stderr("error: `--usage` requires a recipe\n")
     .failure();
 }
 

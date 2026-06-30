@@ -228,6 +228,9 @@ pub(crate) enum Error<'src> {
     recipe: Modulepath,
     modules: BTreeSet<Modulepath>,
   },
+  RecipeRequired {
+    subcommand: &'static str,
+  },
   RecursionLimit {
     last: Name<'src>,
   },
@@ -893,6 +896,9 @@ impl ColorDisplay for Error<'_> {
           Count::unnumbered("module", modules.len()),
           List::and_ticked(modules)
         )?;
+      }
+      RecipeRequired { subcommand } => {
+        write!(f, "`--{}` requires a recipe", subcommand.to_lowercase())?;
       }
       RecursionLimit { last } => write!(
         f,

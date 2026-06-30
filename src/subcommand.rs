@@ -117,9 +117,9 @@ impl Subcommand {
       Groups => Self::groups(config, justfile),
       List { path } => Self::list(config, justfile, path)?,
       Run { arguments } => Self::run(config, loader, search, compilation, arguments)?,
-      Show { path } => Self::show(config, justfile, path)?,
+      Show { path } => Self::show(config, justfile, path, self.name())?,
       Summary => Self::summary(config, justfile),
-      Usage { path } => Self::usage(config, justfile, path)?,
+      Usage { path } => Self::usage(config, justfile, path, self.name())?,
       Variables => Self::variables(justfile),
       Changelog | Completions { .. } | Edit | Format | Init | Man | Request { .. } => {
         unreachable!()
@@ -897,8 +897,13 @@ impl Subcommand {
     Ok(())
   }
 
-  fn show<'src>(config: &Config, module: &Justfile<'src>, path: &Modulepath) -> RunResult<'src> {
-    let (alias, recipe) = Self::resolve_path(module, path)?;
+  fn show<'src>(
+    config: &Config,
+    module: &Justfile<'src>,
+    path: &Modulepath,
+    subcommand: &'static str,
+  ) -> RunResult<'src> {
+    let (alias, recipe) = Self::resolve_path(module, path, subcommand)?;
 
     if let Some(alias) = alias {
       println!("{alias}");
@@ -949,8 +954,13 @@ impl Subcommand {
     }
   }
 
-  fn usage<'src>(config: &Config, module: &Justfile<'src>, path: &Modulepath) -> RunResult<'src> {
-    let (alias, recipe) = Self::resolve_path(module, path)?;
+  fn usage<'src>(
+    config: &Config,
+    module: &Justfile<'src>,
+    path: &Modulepath,
+    subcommand: &'static str,
+  ) -> RunResult<'src> {
+    let (alias, recipe) = Self::resolve_path(module, path, subcommand)?;
 
     if let Some(alias) = alias {
       println!("{alias}");
@@ -972,12 +982,10 @@ impl Subcommand {
   fn resolve_path<'src, 'run>(
     mut module: &'run Justfile<'src>,
     path: &Modulepath,
+    subcommand: &'static str,
   ) -> RunResult<'src, (Option<&'run RecipeAlias<'src>>, &'run Recipe<'src>)> {
     let Some((name, ancestors)) = path.components.split_last() else {
-      return Err(Error::UnknownRecipe {
-        recipe: path.to_string(),
-        suggestion: None,
-      });
+      return Err(Error::RecipeRequired { subcommand });
     };
 
     for name in ancestors {
