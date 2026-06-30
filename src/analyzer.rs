@@ -97,7 +97,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
                 Some(*name),
                 overrides,
                 paths,
-                attributes.contains(AttributeKind::Private),
+                attributes.private(),
                 absolute,
               )?);
             } else if *optional {

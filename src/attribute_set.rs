@@ -34,6 +34,10 @@ impl<'src> AttributeSet<'src> {
     self.0[attribute]
   }
 
+  pub(crate) fn private(&self) -> bool {
+    self.contains(AttributeKind::Private)
+  }
+
   pub(crate) fn iter(&self) -> btree_map::Keys<'_, Attribute<'src>, Name<'src>> {
     self.0.keys()
   }

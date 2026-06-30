@@ -675,9 +675,9 @@ impl<'run, 'src> Parser<'run, 'src> {
     self.presume(ColonEquals)?;
     let value = self.parse_expression()?;
 
-    let private = attributes.contains(AttributeKind::Private);
-
     attributes.ensure_valid_attributes("assignment", *name, &[AttributeKind::Private])?;
+
+    let private = attributes.private();
 
     Ok(Assignment {
       attributes,
@@ -1394,7 +1394,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       }));
     }
 
-    let private = name.lexeme().starts_with('_') || attributes.contains(AttributeKind::Private);
+    let private = name.lexeme().starts_with('_') || attributes.private().
 
     let doc = self.take_doc_comment(&attributes);
 

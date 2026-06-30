@@ -175,7 +175,7 @@ impl<'src> Recipe<'src> {
   }
 
   pub(crate) fn is_public(&self) -> bool {
-    !self.private && !self.attributes.contains(AttributeKind::Private)
+    !self.private && !self.attributes.private()
   }
 
   pub(crate) fn takes_positional_arguments(&self, settings: &Settings) -> bool {
