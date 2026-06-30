@@ -619,14 +619,13 @@ fn replace_regex(_context: Context, s: &str, regex: &str, replacement: &str) -> 
 }
 
 fn sha256(_context: Context, s: &str) -> StringResult {
-  use sha2::{Digest, Sha256};
+  use sha2::Digest;
   let mut hasher = Sha256::new();
   hasher.update(s);
   Ok(hex::encode(hasher.finalize()))
 }
 
 fn sha256_file(context: Context, path: &str) -> StringResult {
-  use {digest_io::HashReader, sha2::Sha256};
   let path = context.execution_context.working_directory().join(path);
   let file =
     File::open(&path).map_err(|err| format!("failed to open `{}`: {err}", path.display()))?;

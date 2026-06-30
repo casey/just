@@ -137,6 +137,7 @@ pub(crate) use {
   camino::Utf8Path,
   clap::{CommandFactory, FromArgMatches, Parser as _, ValueEnum},
   clap_complete::{ArgValueCompleter, CompletionCandidate, PathCompleter, engine::ValueCompleter},
+  digest_io::HashReader,
   lexiclean::Lexiclean,
   libc::EXIT_FAILURE,
   rand::seq::IndexedRandom,
@@ -145,6 +146,7 @@ pub(crate) use {
     Deserialize, Deserializer, Serialize, Serializer,
     ser::{SerializeMap, SerializeSeq, SerializeStruct},
   },
+  sha2::Sha256,
   snafu::{ResultExt, Snafu},
   std::{
     borrow::{Borrow, Cow},
