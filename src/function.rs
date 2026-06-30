@@ -629,7 +629,7 @@ fn sha256_file(context: Context, path: &str) -> StringResult {
   use {digest_io::HashReader, sha2::Sha256};
   let path = context.execution_context.working_directory().join(path);
   let file =
-    fs::File::open(&path).map_err(|err| format!("failed to open `{}`: {err}", path.display()))?;
+    File::open(&path).map_err(|err| format!("failed to open `{}`: {err}", path.display()))?;
   let mut reader = HashReader::<Sha256, _>::new(file);
   std::io::copy(&mut reader, &mut std::io::sink())
     .map_err(|err| format!("failed to read `{}`: {err}", path.display()))?;
