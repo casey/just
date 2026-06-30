@@ -117,9 +117,9 @@ impl Subcommand {
       Groups => Self::groups(config, justfile),
       List { path } => Self::list(config, justfile, path)?,
       Run { arguments } => Self::run(config, loader, search, compilation, arguments)?,
-      Show { path } => Self::show(config, justfile, path, self.name())?,
+      Show { path } => Self::show(config, justfile, path)?,
       Summary => Self::summary(config, justfile),
-      Usage { path } => Self::usage(config, justfile, path, self.name())?,
+      Usage { path } => Self::usage(config, justfile, path)?,
       Variables => Self::variables(justfile),
       Changelog | Completions { .. } | Edit | Format | Init | Man | Request { .. } => {
         unreachable!()
@@ -897,13 +897,8 @@ impl Subcommand {
     Ok(())
   }
 
-  fn show<'src>(
-    config: &Config,
-    module: &Justfile<'src>,
-    path: &Modulepath,
-    subcommand: &'static str,
-  ) -> RunResult<'src> {
-    let (alias, recipe) = Self::resolve_path(module, path, subcommand)?;
+  fn show<'src>(config: &Config, module: &Justfile<'src>, path: &Modulepath) -> RunResult<'src> {
+    let (alias, recipe) = Self::resolve_path(module, path, "show")?;
 
     if let Some(alias) = alias {
       println!("{alias}");
@@ -954,13 +949,8 @@ impl Subcommand {
     }
   }
 
-  fn usage<'src>(
-    config: &Config,
-    module: &Justfile<'src>,
-    path: &Modulepath,
-    subcommand: &'static str,
-  ) -> RunResult<'src> {
-    let (alias, recipe) = Self::resolve_path(module, path, subcommand)?;
+  fn usage<'src>(config: &Config, module: &Justfile<'src>, path: &Modulepath) -> RunResult<'src> {
+    let (alias, recipe) = Self::resolve_path(module, path, "usage")?;
 
     if let Some(alias) = alias {
       println!("{alias}");
