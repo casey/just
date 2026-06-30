@@ -20,7 +20,6 @@ pub(crate) enum Item<'src> {
     groups: Vec<StringLiteral<'src>>,
     name: Name<'src>,
     optional: bool,
-    private: bool,
     relative: Option<StringLiteral<'src>>,
   },
   Newline,

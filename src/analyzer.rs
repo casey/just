@@ -84,7 +84,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             groups,
             name,
             optional,
-            private,
+            attributes,
             ..
           } => {
             if let Some(absolute) = absolute {
@@ -98,7 +98,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
                 Some(*name),
                 overrides,
                 paths,
-                *private,
+                attributes.contains(AttributeKind::Private),
                 absolute,
               )?);
             } else if *optional {

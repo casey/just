@@ -583,8 +583,6 @@ impl<'run, 'src> Parser<'run, 'src> {
 
           let doc = self.take_doc_comment(&attributes);
 
-          let private = attributes.contains(AttributeKind::Private);
-
           let mut groups = Vec::new();
           for attribute in &attributes {
             if let Attribute::Group(group) = attribute {
@@ -599,7 +597,6 @@ impl<'run, 'src> Parser<'run, 'src> {
             groups,
             name,
             optional,
-            private,
             relative,
           }
         }
