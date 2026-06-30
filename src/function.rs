@@ -619,23 +619,19 @@ fn replace_regex(_context: Context, s: &str, regex: &str, replacement: &str) -> 
 }
 
 fn sha256(_context: Context, s: &str) -> StringResult {
-  use sha2::{Digest, Sha256};
   let mut hasher = Sha256::new();
   hasher.update(s);
-  let hash = hasher.finalize();
-  Ok(format!("{hash:x}"))
+  Ok(hex::encode(hasher.finalize()))
 }
 
 fn sha256_file(context: Context, path: &str) -> StringResult {
-  use sha2::{Digest, Sha256};
   let path = context.execution_context.working_directory().join(path);
-  let mut hasher = Sha256::new();
   let mut file =
-    fs::File::open(&path).map_err(|err| format!("failed to open `{}`: {err}", path.display()))?;
-  std::io::copy(&mut file, &mut hasher)
+    File::open(&path).map_err(|err| format!("failed to open `{}`: {err}", path.display()))?;
+  let mut writer = HashWriter::<Sha256, Sink>::new(io::sink());
+  io::copy(&mut file, &mut writer)
     .map_err(|err| format!("failed to read `{}`: {err}", path.display()))?;
-  let hash = hasher.finalize();
-  Ok(format!("{hash:x}"))
+  Ok(hex::encode(writer.finalize()))
 }
 
 fn shell(context: Context, command: &str, args: &[String]) -> StringResult {

@@ -6,7 +6,6 @@ use {
     sys::signal::{SaFlags, SigAction, SigHandler, SigSet},
   },
   std::{
-    fs::File,
     io::Read,
     os::fd::{BorrowedFd, IntoRawFd, OwnedFd},
     sync::atomic::{self, AtomicI32},
