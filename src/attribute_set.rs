@@ -89,7 +89,7 @@ impl<'src> AttributeSet<'src> {
   ) -> Result<(), CompileError<'src>> {
     for attribute in self.0.keys() {
       let kind = attribute.kind();
-      if !kind.is_os_attribute() && !valid.contains(&kind) {
+      if !kind.is_enabler() && !valid.contains(&kind) {
         return Err(item_token.error(CompileErrorKind::InvalidAttribute {
           item_kind,
           item_name: item_token.lexeme(),
