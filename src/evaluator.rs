@@ -240,6 +240,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       };
 
       self.scope.bind(Binding {
+        attributes: AttributeSet::default(),
         eager: assignment.eager,
         export: assignment.export
           || self
@@ -286,6 +287,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     for ((name, number), argument) in function.parameters.iter().copied().zip(arguments) {
       let value = self.evaluate_value(argument)?;
       scope.bind(Binding {
+        attributes: AttributeSet::default(),
         eager: false,
         export: false,
         file_depth: 0,
@@ -809,6 +811,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       };
 
       evaluator.scope.bind(Binding {
+        attributes: AttributeSet::default(),
         eager: false,
         export: parameter.export,
         file_depth: 0,

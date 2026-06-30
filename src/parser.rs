@@ -531,7 +531,10 @@ impl<'run, 'src> Parser<'run, 'src> {
         Some(Keyword::Unexport) if self.line_is(&[Identifier, Identifier]) => {
           self.presume_keyword(Keyword::Unexport)?;
           let name = self.parse_name()?;
-          Item::Unexport { name }
+          Item::Unexport {
+            attributes: AttributeSet::default(),
+            name,
+          }
         }
         Some(Keyword::Import)
           if self.next_are(&[Identifier, Identifier, StringToken])
@@ -543,6 +546,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           let relative = self.parse_string_literal()?;
           Item::Import {
             absolute: None,
+            attributes: AttributeSet::default(),
             optional,
             relative,
           }
@@ -582,14 +586,15 @@ impl<'run, 'src> Parser<'run, 'src> {
           let private = attributes.contains(AttributeKind::Private);
 
           let mut groups = Vec::new();
-          for attribute in attributes {
+          for attribute in &attributes {
             if let Attribute::Group(group) = attribute {
-              groups.push(group);
+              groups.push(group.clone());
             }
           }
 
           Item::Module {
             absolute: None,
+            attributes,
             doc,
             groups,
             name,
@@ -663,6 +668,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let body = self.parse_expression()?;
 
     Ok(FunctionDefinition {
+      attributes: AttributeSet::default(),
       body,
       name,
       parameters,
@@ -685,6 +691,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     attributes.ensure_valid_attributes("assignment", *name, &[AttributeKind::Private])?;
 
     Ok(Assignment {
+      attributes,
       eager,
       export,
       file_depth: self.file_depth,
@@ -1578,7 +1585,11 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
 
     if let Some(value) = set_bool {
-      return Ok(Set { name, value });
+      return Ok(Set {
+        attributes: AttributeSet::default(),
+        name,
+        value,
+      });
     }
 
     self.expect(ColonEquals)?;
@@ -1627,7 +1638,11 @@ impl<'run, 'src> Parser<'run, 'src> {
     };
 
     if let Some(value) = set_value {
-      return Ok(Set { name, value });
+      return Ok(Set {
+        attributes: AttributeSet::default(),
+        name,
+        value,
+      });
     }
 
     Err(name.error(CompileErrorKind::UnknownSetting {

@@ -755,19 +755,6 @@ impl<'src> Recipe<'src> {
 
 impl<D: Display> ColorDisplay for Recipe<'_, D> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
-    if !self
-      .attributes
-      .iter()
-      .any(|attribute| matches!(attribute, Attribute::Doc(_)))
-      && let Some(doc) = &self.doc
-    {
-      writeln!(f, "# {doc}")?;
-    }
-
-    for attribute in &self.attributes {
-      writeln!(f, "[{attribute}]")?;
-    }
-
     if self.quiet {
       write!(f, "@{}", self.name)?;
     } else {
