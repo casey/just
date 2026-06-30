@@ -16,6 +16,20 @@ impl<'src> AttributeSet<'src> {
     self.0.keys().find(|attribute| attribute.kind() == kind)
   }
 
+  pub(crate) fn groups(&self) -> Vec<StringLiteral<'src>> {
+    self
+      .0
+      .keys()
+      .filter_map(|attribute| {
+        if let Attribute::Group(group) = attribute {
+          Some(group.clone())
+        } else {
+          None
+        }
+      })
+      .collect()
+  }
+
   pub(crate) fn name(&self, attribute: &Attribute<'src>) -> Name<'src> {
     self.0[attribute]
   }

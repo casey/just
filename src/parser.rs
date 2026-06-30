@@ -583,18 +583,10 @@ impl<'run, 'src> Parser<'run, 'src> {
 
           let doc = self.take_doc_comment(&attributes);
 
-          let mut groups = Vec::new();
-          for attribute in &attributes {
-            if let Attribute::Group(group) = attribute {
-              groups.push(group.clone());
-            }
-          }
-
           Item::Module {
             absolute: None,
             attributes,
             doc,
-            groups,
             name,
             optional,
             relative,

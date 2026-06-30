@@ -81,7 +81,6 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           Item::Module {
             absolute,
             doc,
-            groups,
             name,
             optional,
             attributes,
@@ -93,7 +92,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
                 asts,
                 config,
                 doc.clone(),
-                groups.as_slice(),
+                &attributes.groups(),
                 loaded,
                 Some(*name),
                 overrides,

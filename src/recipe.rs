@@ -723,14 +723,9 @@ impl<'src> Recipe<'src> {
   pub(crate) fn groups(&self) -> BTreeSet<String> {
     self
       .attributes
-      .iter()
-      .filter_map(|attribute| {
-        if let Attribute::Group(group) = attribute {
-          Some(group.cooked.clone())
-        } else {
-          None
-        }
-      })
+      .groups()
+      .into_iter()
+      .map(|group| group.cooked)
       .collect()
   }
 
