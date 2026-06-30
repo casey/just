@@ -898,7 +898,7 @@ impl Subcommand {
   }
 
   fn show<'src>(config: &Config, module: &Justfile<'src>, path: &Modulepath) -> RunResult<'src> {
-    let (alias, recipe) = Self::resolve_path(module, path)?;
+    let (alias, recipe) = Self::resolve_path(module, path, "show")?;
 
     if let Some(alias) = alias {
       println!("{alias}");
@@ -950,7 +950,7 @@ impl Subcommand {
   }
 
   fn usage<'src>(config: &Config, module: &Justfile<'src>, path: &Modulepath) -> RunResult<'src> {
-    let (alias, recipe) = Self::resolve_path(module, path)?;
+    let (alias, recipe) = Self::resolve_path(module, path, "usage")?;
 
     if let Some(alias) = alias {
       println!("{alias}");
@@ -972,8 +972,13 @@ impl Subcommand {
   fn resolve_path<'src, 'run>(
     mut module: &'run Justfile<'src>,
     path: &Modulepath,
+    subcommand: &'static str,
   ) -> RunResult<'src, (Option<&'run RecipeAlias<'src>>, &'run Recipe<'src>)> {
-    for name in &path.components[0..path.components.len() - 1] {
+    let Some((name, ancestors)) = path.components.split_last() else {
+      return Err(Error::RecipeRequired { subcommand });
+    };
+
+    for name in ancestors {
       if let Some(submodule) = module.modules.get(name) {
         module = submodule;
       } else if module.absent_modules.contains(name) {
@@ -986,8 +991,6 @@ impl Subcommand {
         });
       }
     }
-
-    let name = path.components.last().unwrap();
 
     if let Some(alias) = module.recipe_alias(name) {
       Ok((Some(alias), &alias.target))

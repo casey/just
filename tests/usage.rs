@@ -1,6 +1,15 @@
 use super::*;
 
 #[test]
+fn search_directory_without_recipe() {
+  Test::new()
+    .justfile("foo:")
+    .args(["--usage", "."])
+    .stderr("error: `--usage` requires recipe\n")
+    .failure();
+}
+
+#[test]
 fn usage_recipe_in_search_directory() {
   Test::new()
     .justfile("foo bar:")
