@@ -12,7 +12,7 @@ impl<'src> AttributeSet<'src> {
     self.0.keys().any(|attribute| attribute.kind() == kind)
   }
 
-  pub(crate) fn enabled(&self) -> bool {
+  pub(crate) fn is_enabled(&self) -> bool {
     let android = self.contains(AttributeKind::Android);
     let dragonfly = self.contains(AttributeKind::Dragonfly);
     let freebsd = self.contains(AttributeKind::Freebsd);

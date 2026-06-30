@@ -46,7 +46,7 @@ impl<'src> Item<'src> {
   }
 
   pub(crate) fn enabled(&self) -> bool {
-    self.attributes().is_none_or(AttributeSet::enabled)
+    self.attributes().is_none_or(AttributeSet::is_enabled)
   }
 
   fn doc_comment(&self) -> Option<&str> {
