@@ -34,6 +34,10 @@ impl<'src> AttributeSet<'src> {
     self.0[attribute]
   }
 
+  pub(crate) fn new() -> Self {
+    Self::default()
+  }
+
   pub(crate) fn private(&self) -> bool {
     self.contains(AttributeKind::Private)
   }

@@ -22,7 +22,7 @@ impl<'src, 'run> Scope<'src, 'run> {
 
     for (i, (key, value)) in constants().iter().enumerate() {
       root.bind(Binding {
-        attributes: AttributeSet::default(),
+        attributes: AttributeSet::new(),
         eager: false,
         export: false,
         file_depth: 0,

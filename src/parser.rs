@@ -532,7 +532,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           self.presume_keyword(Keyword::Unexport)?;
           let name = self.parse_name()?;
           Item::Unexport {
-            attributes: AttributeSet::default(),
+            attributes: AttributeSet::new(),
             name,
           }
         }
@@ -546,7 +546,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           let relative = self.parse_string_literal()?;
           Item::Import {
             absolute: None,
-            attributes: AttributeSet::default(),
+            attributes: AttributeSet::new(),
             optional,
             relative,
           }
@@ -657,7 +657,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let body = self.parse_expression()?;
 
     Ok(FunctionDefinition {
-      attributes: AttributeSet::default(),
+      attributes: AttributeSet::new(),
       body,
       name,
       parameters,
@@ -1575,7 +1575,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     if let Some(value) = set_bool {
       return Ok(Set {
-        attributes: AttributeSet::default(),
+        attributes: AttributeSet::new(),
         name,
         value,
       });
@@ -1628,7 +1628,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     if let Some(value) = set_value {
       return Ok(Set {
-        attributes: AttributeSet::default(),
+        attributes: AttributeSet::new(),
         name,
         value,
       });
