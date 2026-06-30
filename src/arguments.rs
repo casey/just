@@ -462,12 +462,12 @@ pub(crate) struct Subcommand {
   #[arg(
     add = ArgValueCompleter::new(Completer::complete_recipe),
     conflicts_with = "arguments",
-    help = "Show recipe at <PATH>",
+    help = "Show recipe at <RECIPE_PATH>",
     help_heading = Self::HEADING,
     long,
     num_args = 1..,
     short = 's',
-    value_name = "PATH",
+    value_name = "RECIPE_PATH",
   )]
   pub(crate) show: Option<Vec<String>>,
   #[arg(
@@ -479,11 +479,11 @@ pub(crate) struct Subcommand {
   #[arg(
     add = ArgValueCompleter::new(Completer::complete_recipe),
     conflicts_with = "arguments",
-    help = "Print recipe usage information",
+    help = "Print usage information for recipe at <RECIPE_PATH>",
     help_heading = Self::HEADING,
     long,
     num_args = 1..,
-    value_name = "PATH",
+    value_name = "RECIPE_PATH",
   )]
   pub(crate) usage: Option<Vec<String>>,
   #[arg(
