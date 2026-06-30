@@ -27,7 +27,7 @@ impl Compiler {
       paths.insert(current.path.clone(), relative.into());
 
       for item in &mut ast.items {
-        if !item.enabled() {
+        if !item.is_enabled() {
           continue;
         }
 

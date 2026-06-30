@@ -45,7 +45,7 @@ impl<'src> Item<'src> {
     }
   }
 
-  pub(crate) fn enabled(&self) -> bool {
+  pub(crate) fn is_enabled(&self) -> bool {
     self.attributes().is_none_or(AttributeSet::is_enabled)
   }
 

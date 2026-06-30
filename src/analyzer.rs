@@ -59,7 +59,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       list_features.extend(&ast.list_features);
 
       for item in &ast.items {
-        if !item.enabled() {
+        if !item.is_enabled() {
           continue;
         }
 
