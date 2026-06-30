@@ -272,7 +272,11 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     for (name, expression) in module_docs {
       let value = evaluator.evaluate_value_const(expression)?;
-      self.modules.get_mut(name).unwrap().doc = (!value.is_empty()).then(|| value.join());
+      self.modules.get_mut(name).unwrap().doc = if value.is_empty {
+        None
+      } else {
+        Some(value.join());
+      };
     }
 
     let mut deduplicated_recipes = Table::<'src, UnresolvedRecipe<'src>>::default();
