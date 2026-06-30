@@ -86,8 +86,9 @@ impl<'src> AttributeSet<'src> {
     item_kind: ItemKind,
     item_token: Token<'src>,
   ) -> Result<(), CompileError<'src>> {
-    let valid: &[AttributeKind] = match item_kind {
-      ItemKind::Alias | ItemKind::Assignment => &[AttributeKind::Private],
+    let valid = match item_kind {
+      ItemKind::Alias | ItemKind::Assignment => [AttributeKind::Private].as_slice(),
+      ItemKind::Comment | ItemKind::Newline => unreachable!(),
       ItemKind::Function | ItemKind::Import | ItemKind::Set | ItemKind::Unexport => &[],
       ItemKind::Module => &[
         AttributeKind::Doc,
@@ -95,7 +96,6 @@ impl<'src> AttributeSet<'src> {
         AttributeKind::Private,
       ],
       ItemKind::Recipe => return Ok(()),
-      ItemKind::Comment | ItemKind::Newline => unreachable!(),
     };
 
     for attribute in self.0.keys() {
