@@ -116,7 +116,7 @@ pub(crate) enum CompileErrorKind<'src> {
     message: String,
   },
   InvalidAttribute {
-    item_kind: &'static str,
+    item_kind: ItemKind,
     item_name: &'src str,
     attribute: Box<Attribute<'src>>,
   },

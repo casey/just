@@ -83,7 +83,7 @@ impl<'src> AttributeSet<'src> {
 
   pub(crate) fn ensure_valid_attributes(
     &self,
-    item_kind: &'static str,
+    item_kind: ItemKind,
     item_token: Token<'src>,
     valid: &[AttributeKind],
   ) -> Result<(), CompileError<'src>> {

@@ -1,7 +1,10 @@
 use super::*;
 
 /// A single top-level item
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, EnumDiscriminants)]
+#[strum_discriminants(name(ItemKind))]
+#[strum_discriminants(derive(IntoStaticStr))]
+#[strum_discriminants(strum(serialize_all = "kebab-case"))]
 pub(crate) enum Item<'src> {
   Alias(Alias<'src, Namepath<'src>>),
   Assignment(Assignment<'src>),
@@ -23,6 +26,7 @@ pub(crate) enum Item<'src> {
   },
   Newline,
   Recipe(UnresolvedRecipe<'src>),
+  #[strum_discriminants(strum(serialize = "setting"))]
   Set(Set<'src>),
   Unexport {
     attributes: AttributeSet<'src>,
@@ -134,5 +138,17 @@ impl ColorDisplay for Item<'_> {
       Self::Set(set) => write!(f, "{set}"),
       Self::Unexport { name, .. } => write!(f, "unexport {name}"),
     }
+  }
+}
+
+impl ItemKind {
+  fn name(self) -> &'static str {
+    self.into()
+  }
+}
+
+impl Display for ItemKind {
+  fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    write!(f, "{}", self.name())
   }
 }
