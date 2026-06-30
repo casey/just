@@ -619,7 +619,6 @@ fn replace_regex(_context: Context, s: &str, regex: &str, replacement: &str) -> 
 }
 
 fn sha256(_context: Context, s: &str) -> StringResult {
-  use sha2::Digest;
   let mut hasher = Sha256::new();
   hasher.update(s);
   Ok(hex::encode(hasher.finalize()))

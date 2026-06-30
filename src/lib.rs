@@ -146,7 +146,7 @@ pub(crate) use {
     Deserialize, Deserializer, Serialize, Serializer,
     ser::{SerializeMap, SerializeSeq, SerializeStruct},
   },
-  sha2::Sha256,
+  sha2::{Digest, Sha256},
   snafu::{ResultExt, Snafu},
   std::{
     borrow::{Borrow, Cow},
