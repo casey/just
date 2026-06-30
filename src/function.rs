@@ -626,12 +626,12 @@ fn sha256(_context: Context, s: &str) -> StringResult {
 
 fn sha256_file(context: Context, path: &str) -> StringResult {
   let path = context.execution_context.working_directory().join(path);
-  let file =
+  let mut file =
     File::open(&path).map_err(|err| format!("failed to open `{}`: {err}", path.display()))?;
-  let mut reader = HashReader::<Sha256, File>::new(file);
-  std::io::copy(&mut reader, &mut std::io::sink())
+  let mut writer = HashWriter::<Sha256, Sink>::new(io::sink());
+  io::copy(&mut file, &mut writer)
     .map_err(|err| format!("failed to read `{}`: {err}", path.display()))?;
-  Ok(hex::encode(reader.finalize()))
+  Ok(hex::encode(writer.finalize()))
 }
 
 fn shell(context: Context, command: &str, args: &[String]) -> StringResult {
