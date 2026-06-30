@@ -116,7 +116,7 @@ pub(crate) enum CompileErrorKind<'src> {
     message: String,
   },
   InvalidAttribute {
-    item_kind: &'static str,
+    item_kind: ItemKind,
     item_name: &'src str,
     attribute: Box<Attribute<'src>>,
   },
@@ -166,9 +166,9 @@ pub(crate) enum CompileErrorKind<'src> {
   ParsingRecursionDepthExceeded,
   Redefinition {
     first: usize,
-    first_type: &'static str,
+    first_type: ItemKind,
     name: &'src str,
-    second_type: &'static str,
+    second_type: ItemKind,
   },
   RequiredParameterFollowsDefaultParameter {
     parameter: &'src str,

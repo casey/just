@@ -348,7 +348,7 @@ impl Display for CompileError<'_> {
             f,
             "{first_type} `{name}` defined on line {} is redefined as {} {second_type} on line {}",
             first.ordinal(),
-            if *second_type == "alias" { "an" } else { "a" },
+            second_type.article(),
             self.token.line.ordinal(),
           )
         }

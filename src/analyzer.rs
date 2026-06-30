@@ -59,9 +59,13 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       list_features.extend(&ast.list_features);
 
       for item in &ast.items {
+        if !item.is_enabled() {
+          continue;
+        }
+
         match item {
           Item::Alias(alias) => {
-            Self::define(&mut definitions, alias.name, "alias", false)?;
+            Self::define(&mut definitions, alias.name, ItemKind::Alias, false)?;
             self.aliases.insert(alias.clone());
           }
           Item::Assignment(assignment) => {
@@ -87,7 +91,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             ..
           } => {
             if let Some(absolute) = absolute {
-              Self::define(&mut definitions, *name, "module", false)?;
+              Self::define(&mut definitions, *name, ItemKind::Module, false)?;
               self.modules.insert(Self::analyze(
                 asts,
                 config,
@@ -106,12 +110,10 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           }
           Item::Newline => {}
           Item::Recipe(recipe) => {
-            if recipe.enabled() {
-              Self::analyze_recipe(recipe)?;
-              self.recipes.push(recipe);
-            }
+            Self::analyze_recipe(recipe)?;
+            self.recipes.push(recipe);
           }
-          Item::Set(set) => {
+          Item::Setting(set) => {
             self.analyze_set(set)?;
             self.sets.insert(set.clone());
           }
@@ -161,8 +163,8 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       let name = function.name.lexeme();
       if let Some(first) = functions.get(name) {
         return Err(function.name.error(Redefinition {
-          first_type: "function",
-          second_type: "function",
+          first_type: ItemKind::Function,
+          second_type: ItemKind::Function,
           name,
           first: first.name.line,
         }));
@@ -269,7 +271,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       Self::define(
         &mut definitions,
         recipe.name,
-        "recipe",
+        ItemKind::Recipe,
         settings.allow_duplicate_recipes,
       )?;
 
@@ -430,9 +432,9 @@ impl<'run, 'src> Analyzer<'run, 'src> {
   }
 
   fn define(
-    definitions: &mut HashMap<&'src str, (&'static str, Name<'src>)>,
+    definitions: &mut HashMap<&'src str, (ItemKind, Name<'src>)>,
     name: Name<'src>,
-    second_type: &'static str,
+    second_type: ItemKind,
     duplicates_allowed: bool,
   ) -> CompileResult<'src> {
     if let Some((first_type, original)) = definitions.get(name.lexeme())
@@ -550,8 +552,8 @@ mod tests {
     column: 6,
     width: 3,
     kind: Redefinition {
-      first_type: "alias",
-      second_type: "alias",
+      first_type: ItemKind::Alias,
+      second_type: ItemKind::Alias,
       name: "foo",
       first: 0,
     },
@@ -588,8 +590,8 @@ mod tests {
     column: 0,
     width: 3,
     kind: Redefinition {
-      first_type: "alias",
-      second_type: "recipe",
+      first_type: ItemKind::Alias,
+      second_type: ItemKind::Recipe,
       name: "foo",
       first: 2,
     },
@@ -603,8 +605,8 @@ mod tests {
     column: 6,
     width: 3,
     kind: Redefinition {
-      first_type: "recipe",
-      second_type: "alias",
+      first_type: ItemKind::Recipe,
+      second_type: ItemKind::Alias,
       name: "foo",
       first: 0,
     },
@@ -647,7 +649,12 @@ mod tests {
     line:   2,
     column: 0,
     width:  1,
-    kind:   Redefinition { first_type: "recipe", second_type: "recipe", name: "a", first: 0 },
+    kind:   Redefinition {
+      first: 0,
+      first_type: ItemKind::Recipe,
+      name: "a",
+      second_type: ItemKind::Recipe,
+    },
   }
 
   analysis_error! {

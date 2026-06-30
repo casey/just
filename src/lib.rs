@@ -59,7 +59,7 @@ pub(crate) use {
     interpreter::Interpreter,
     invocation::Invocation,
     invocation_parser::InvocationParser,
-    item::Item,
+    item::{Item, ItemKind},
     justfile::Justfile,
     keyed::Keyed,
     keyword::Keyword,
