@@ -3,10 +3,10 @@ use super::*;
 #[test]
 fn invalid_alias_attribute() {
   Test::new()
-    .justfile("[private]\n[linux]\nalias t := test\n\ntest:\n")
+    .justfile("[private]\n[no-cd]\nalias t := test\n\ntest:\n")
     .stderr(
       "
-        error: alias `t` has invalid attribute `linux`
+        error: alias `t` has invalid attribute `no-cd`
          ——▶ justfile:3:7
           │
         3 │ alias t := test

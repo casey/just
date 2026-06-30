@@ -1682,12 +1682,17 @@ Available recipes:
 This is useful for helper recipes which are only meant to be used as
 dependencies of other recipes.
 
-### Enabling and Disabling Recipes
+### Enabling and Disabling Items
 
-The `[linux]`, `[macos]`, `[unix]`, and `[windows]` attributes<sup>1.8.0</sup>
-are configuration attributes. By default, recipes are always enabled. A recipe
-with one or more configuration attributes will only be enabled when one or more
-of those configurations is active.
+The `[android]`, `[dragonfly]`, `[freebsd]`, `[linux]`, `[macos]`, `[netbsd]`,
+`[openbsd]`, `[unix]`, and `[windows]` attributes<sup>1.8.0</sup> are
+configuration attributes. By default, items are always enabled. An item with one
+or more configuration attributes will only be enabled when one or more of those
+configurations is active.
+
+These attributes originally applied only to recipes, but may now be used on any
+item, including aliases, assignments, modules, imports, settings, and
+unexports<sup>master</sup>.
 
 This can be used to write `justfile`s that behave differently depending on
 which operating system they run on. The `run` recipe in this `justfile` will
@@ -1704,6 +1709,16 @@ run:
 run:
   cl main.c
   main.exe
+```
+
+A different setting value can likewise be selected per operating system:
+
+```just
+[unix]
+set shell := ['sh', '-cu']
+
+[windows]
+set shell := ['cmd', '/c']
 ```
 
 ### Allow Duplicate Recipes
@@ -4666,7 +4681,7 @@ change their behavior.
 | Name | Type | Description |
 |------|------|-------------|
 | `[arg(ARG, help="HELP")]`<sup>1.46.0</sup> | recipe | Print help string `HELP` for `ARG` in usage messages. May be a const expression<sup>1.55.0</sup>. |
-| `[arg(ARG, long="LONG")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as `--LONG` option. If the parameter is variadic, the option is repeatable<sup1.55.0master</sup>. |
+| `[arg(ARG, long="LONG")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as `--LONG` option. If the parameter is variadic, the option is repeatable<sup>1.55.0master</sup>. |
 | `[arg(ARG, pattern="PATTERN")]`<sup>1.45.0</sup> | recipe | Require values of argument `ARG` to match regular expression `PATTERN`. May be a const expression<sup>1.55.0</sup>. |
 | `[arg(ARG, short="S")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as short `-S` option. If the parameter is variadic, the option is repeatable<sup>1.55.0</sup>. |
 | `[arg(ARG, value=VALUE)]`<sup>1.46.0</sup> | recipe | Makes option `ARG` a flag which does not take a value. |
@@ -4676,29 +4691,29 @@ change their behavior.
 | `[continue(SIGNALS)]`<sup>1.54.0</sup> | recipe | Continue execution normally if a command is interrupted by any of `SIGNALS` and exits successfully. Defaults to `SIGINT`. |
 | `[default]`<sup>1.43.0</sup> | recipe | Use recipe as module's default recipe. |
 | `[doc(DOC)]`<sup>1.27.0</sup> | module, recipe | Set recipe or module's [documentation comment](#documentation-comments) to `DOC`. |
-| `[dragonfly]`<sup>1.47.0</sup> | recipe | Enable recipe on DragonFly BSD. |
+| `[dragonfly]`<sup>1.47.0</sup> | any<sup>master</sup> | Enable item on DragonFly BSD. |
 | `[env(NAME, VALUE)]` <sup>1.47.0</sup> | recipe | Set environment variable `NAME` to `VALUE` for recipe. `NAME` and `VALUE` may be expressions<sup>1.51.0</sup>. |
 | `[extension(EXT)]`<sup>1.32.0</sup> | recipe | Set shebang recipe script's file extension to `EXT`. `EXT` should include a period if one is desired. |
 | `[exit-message]`<sup>1.39.0</sup> | recipe | Print error message if recipe fails regardless of `set no-exit-message`. |
-| `[freebsd]`<sup>1.47.0</sup> | recipe | Enable recipe on FreeBSD. |
+| `[freebsd]`<sup>1.47.0</sup> | any<sup>master</sup> | Enable item on FreeBSD. |
 | `[group(NAME)]`<sup>1.27.0</sup> | module, recipe | Put recipe or module in [group](#groups) `NAME`. |
-| `[android]`<sup>1.50.0</sup> | recipe | Enable recipe on Android. |
-| `[linux]`<sup>1.8.0</sup> | recipe | Enable recipe on Linux. |
-| `[macos]`<sup>1.8.0</sup> | recipe | Enable recipe on macOS. |
+| `[android]`<sup>1.50.0</sup> | any<sup>master</sup> | Enable item on Android. |
+| `[linux]`<sup>1.8.0</sup> | any<sup>master</sup> | Enable item on Linux. |
+| `[macos]`<sup>1.8.0</sup> | any<sup>master</sup> | Enable item on macOS. |
 | `[metadata(METADATA)]`<sup>1.42.0</sup> | recipe | Attach `METADATA` to recipe. |
-| `[netbsd]`<sup>1.47.0</sup> | recipe | Enable recipe on NetBSD. |
+| `[netbsd]`<sup>1.47.0</sup> | any<sup>master</sup> | Enable item on NetBSD. |
 | `[no-cd]`<sup>1.9.0</sup> | recipe | Don't change directory before executing recipe. |
 | `[no-exit-message]`<sup>1.7.0</sup> | recipe | Don't print an error message if recipe fails. |
 | `[no-quiet]`<sup>1.23.0</sup> | recipe | Override globally quiet recipes and always echo out the recipe. |
-| `[openbsd]`<sup>1.38.0</sup> | recipe | Enable recipe on OpenBSD. |
+| `[openbsd]`<sup>1.38.0</sup> | any<sup>master</sup> | Enable item on OpenBSD. |
 | `[parallel]`<sup>1.42.0</sup> | recipe | Run this recipe's dependencies in parallel. |
 | `[positional-arguments]`<sup>1.29.0</sup> | recipe | Turn on [positional arguments](#positional-arguments) for this recipe. |
 | `[private]`<sup>1.10.0</sup> | alias, recipe | Make recipe, alias, or variable private. See [Private Recipes](#private-recipes). |
 | `[script(COMMAND)]`<sup>1.32.0</sup> | recipe | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
 | `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
 | `[shell]`<sup>1.52.0</sup> | recipe | Execute recipe as a shell recipe, overriding `set default-script`. |
-| `[unix]`<sup>1.8.0</sup> | recipe | Enable recipe on unixes. (Includes macOS). |
-| `[windows]`<sup>1.8.0</sup> | recipe | Enable recipe on Windows. |
+| `[unix]`<sup>1.8.0</sup> | any<sup>master</sup> | Enable item on unixes. (Includes macOS). |
+| `[windows]`<sup>1.8.0</sup> | any<sup>master</sup> | Enable item on Windows. |
 | `[working-directory(PATH)]`<sup>1.38.0</sup> | recipe | Set recipe working directory. `PATH` may be an expression<sup>1.51.0</sup> whose value is relative or absolute. If relative, it is interpreted relative to the default working directory. |
 
 A recipe can have multiple attributes, either on multiple lines:

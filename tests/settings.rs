@@ -1,6 +1,27 @@
 use super::*;
 
 #[test]
+fn invalid_attribute() {
+  Test::new()
+    .justfile(
+      "
+        [doc('bar')]
+        set quiet
+      ",
+    )
+    .stderr(
+      "
+        error: setting `quiet` has invalid attribute `doc`
+         ——▶ justfile:2:5
+          │
+        2 │ set quiet
+          │     ^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn all_settings_allow_expressions() {
   Test::new()
     .justfile(

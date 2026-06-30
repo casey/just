@@ -73,6 +73,21 @@ impl AttributeKind {
     matches!(self, Self::Arg | Self::Cache)
   }
 
+  pub(crate) fn enabler(self) -> bool {
+    matches!(
+      self,
+      Self::Android
+        | Self::Dragonfly
+        | Self::Freebsd
+        | Self::Linux
+        | Self::Macos
+        | Self::Netbsd
+        | Self::Openbsd
+        | Self::Unix
+        | Self::Windows
+    )
+  }
+
   fn argument_range(self) -> RangeInclusive<usize> {
     match self {
       Self::Android

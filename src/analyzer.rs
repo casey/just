@@ -59,6 +59,10 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       list_features.extend(&ast.list_features);
 
       for item in &ast.items {
+        if !item.enabled() {
+          continue;
+        }
+
         match item {
           Item::Alias(alias) => {
             Self::define(&mut definitions, alias.name, "alias", false)?;
@@ -106,10 +110,8 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           }
           Item::Newline => {}
           Item::Recipe(recipe) => {
-            if recipe.enabled() {
-              Self::analyze_recipe(recipe)?;
-              self.recipes.push(recipe);
-            }
+            Self::analyze_recipe(recipe)?;
+            self.recipes.push(recipe);
           }
           Item::Set(set) => {
             self.analyze_set(set)?;

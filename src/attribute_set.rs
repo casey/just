@@ -12,6 +12,37 @@ impl<'src> AttributeSet<'src> {
     self.0.keys().any(|attribute| attribute.kind() == kind)
   }
 
+  pub(crate) fn enabled(&self) -> bool {
+    let android = self.contains(AttributeKind::Android);
+    let dragonfly = self.contains(AttributeKind::Dragonfly);
+    let freebsd = self.contains(AttributeKind::Freebsd);
+    let linux = self.contains(AttributeKind::Linux);
+    let macos = self.contains(AttributeKind::Macos);
+    let netbsd = self.contains(AttributeKind::Netbsd);
+    let openbsd = self.contains(AttributeKind::Openbsd);
+    let unix = self.contains(AttributeKind::Unix);
+    let windows = self.contains(AttributeKind::Windows);
+
+    (!windows
+      && !linux
+      && !macos
+      && !openbsd
+      && !freebsd
+      && !dragonfly
+      && !netbsd
+      && !unix
+      && !android)
+      || (cfg!(target_os = "android") && android)
+      || (cfg!(target_os = "dragonfly") && dragonfly)
+      || (cfg!(target_os = "freebsd") && freebsd)
+      || (cfg!(target_os = "linux") && linux)
+      || (cfg!(target_os = "macos") && macos)
+      || (cfg!(target_os = "netbsd") && netbsd)
+      || (cfg!(target_os = "openbsd") && openbsd)
+      || (cfg!(unix) && unix)
+      || (cfg!(windows) && windows)
+  }
+
   pub(crate) fn get(&self, kind: AttributeKind) -> Option<&Attribute<'src>> {
     self.0.keys().find(|attribute| attribute.kind() == kind)
   }
@@ -57,7 +88,8 @@ impl<'src> AttributeSet<'src> {
     valid: &[AttributeKind],
   ) -> Result<(), CompileError<'src>> {
     for attribute in self.0.keys() {
-      if !valid.contains(&attribute.kind()) {
+      let kind = attribute.kind();
+      if !kind.enabler() && !valid.contains(&kind) {
         return Err(item_token.error(CompileErrorKind::InvalidAttribute {
           item_kind,
           item_name: item_token.lexeme(),

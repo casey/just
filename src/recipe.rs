@@ -26,37 +26,6 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
 }
 
 impl<'src, D> Recipe<'src, D> {
-  pub(crate) fn enabled(&self) -> bool {
-    let android = self.attributes.contains(AttributeKind::Android);
-    let dragonfly = self.attributes.contains(AttributeKind::Dragonfly);
-    let freebsd = self.attributes.contains(AttributeKind::Freebsd);
-    let linux = self.attributes.contains(AttributeKind::Linux);
-    let macos = self.attributes.contains(AttributeKind::Macos);
-    let netbsd = self.attributes.contains(AttributeKind::Netbsd);
-    let openbsd = self.attributes.contains(AttributeKind::Openbsd);
-    let unix = self.attributes.contains(AttributeKind::Unix);
-    let windows = self.attributes.contains(AttributeKind::Windows);
-
-    (!windows
-      && !linux
-      && !macos
-      && !openbsd
-      && !freebsd
-      && !dragonfly
-      && !netbsd
-      && !unix
-      && !android)
-      || (cfg!(target_os = "android") && android)
-      || (cfg!(target_os = "dragonfly") && dragonfly)
-      || (cfg!(target_os = "freebsd") && freebsd)
-      || (cfg!(target_os = "linux") && linux)
-      || (cfg!(target_os = "macos") && macos)
-      || (cfg!(target_os = "netbsd") && netbsd)
-      || (cfg!(target_os = "openbsd") && openbsd)
-      || (cfg!(unix) && unix)
-      || (cfg!(windows) && windows)
-  }
-
   pub(crate) fn is_script(&self, settings: &Settings) -> bool {
     if self.attributes.contains(AttributeKind::Shell) {
       false

@@ -531,10 +531,9 @@ impl<'run, 'src> Parser<'run, 'src> {
         Some(Keyword::Unexport) if self.line_is(&[Identifier, Identifier]) => {
           self.presume_keyword(Keyword::Unexport)?;
           let name = self.parse_name()?;
-          Item::Unexport {
-            attributes: AttributeSet::new(),
-            name,
-          }
+          let attributes = take_attributes();
+          attributes.ensure_valid_attributes("unexport", *name, &[])?;
+          Item::Unexport { attributes, name }
         }
         Some(Keyword::Import)
           if self.next_are(&[Identifier, Identifier, StringToken])
@@ -544,9 +543,11 @@ impl<'run, 'src> Parser<'run, 'src> {
           self.presume_keyword(Keyword::Import)?;
           let optional = self.accepted(QuestionMark)?;
           let relative = self.parse_string_literal()?;
+          let attributes = take_attributes();
+          attributes.ensure_valid_attributes("import", relative.token, &[])?;
           Item::Import {
             absolute: None,
-            attributes: AttributeSet::new(),
+            attributes,
             optional,
             relative,
           }
@@ -596,11 +597,11 @@ impl<'run, 'src> Parser<'run, 'src> {
           if self.next_are(&[Identifier, Identifier, ColonEquals])
             || self.line_is(&[Identifier, Identifier]) =>
         {
-          Item::Set(self.parse_set()?)
+          Item::Set(self.parse_set(take_attributes())?)
         }
         _ => {
           if self.next_are(&[Identifier, ParenL]) {
-            Item::Function(self.parse_function_definition()?)
+            Item::Function(self.parse_function_definition(take_attributes())?)
           } else if self.next_are(&[Identifier, ColonEquals]) {
             Item::Assignment(self.parse_assignment(take_attributes(), false, false)?)
           } else {
@@ -633,12 +634,17 @@ impl<'run, 'src> Parser<'run, 'src> {
     })
   }
 
-  fn parse_function_definition(&mut self) -> CompileResult<'src, FunctionDefinition<'src>> {
+  fn parse_function_definition(
+    &mut self,
+    attributes: AttributeSet<'src>,
+  ) -> CompileResult<'src, FunctionDefinition<'src>> {
     self
       .unstable_features
       .insert(UnstableFeature::UserDefinedFunctions);
 
     let name = self.parse_name()?;
+
+    attributes.ensure_valid_attributes("function", *name, &[])?;
 
     self.presume(ParenL)?;
 
@@ -657,7 +663,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let body = self.parse_expression()?;
 
     Ok(FunctionDefinition {
-      attributes: AttributeSet::new(),
+      attributes,
       body,
       name,
       parameters,
@@ -1533,7 +1539,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   }
 
   /// Parse a setting
-  fn parse_set(&mut self) -> CompileResult<'src, Set<'src>> {
+  fn parse_set(&mut self, attributes: AttributeSet<'src>) -> CompileResult<'src, Set<'src>> {
     self.presume_keyword(Keyword::Set)?;
     let name = Name::from_identifier(self.presume(Identifier)?);
     let lexeme = name.lexeme();
@@ -1542,6 +1548,8 @@ impl<'run, 'src> Parser<'run, 'src> {
         setting: name.lexeme(),
       }));
     };
+
+    attributes.ensure_valid_attributes("setting", *name, &[])?;
 
     let set_bool = match keyword {
       Keyword::AllowDuplicateRecipes => {
@@ -1575,7 +1583,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     if let Some(value) = set_bool {
       return Ok(Set {
-        attributes: AttributeSet::new(),
+        attributes,
         name,
         value,
       });
@@ -1628,7 +1636,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     if let Some(value) = set_value {
       return Ok(Set {
-        attributes: AttributeSet::new(),
+        attributes,
         name,
         value,
       });
