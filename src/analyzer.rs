@@ -229,8 +229,12 @@ impl<'run, 'src> Analyzer<'run, 'src> {
                   pattern_property,
                   ..
                 } => {
-                  expressions.extend(help_property.as_ref().map(|(_, expression)| expression));
-                  expressions.extend(pattern_property.as_ref().map(|(_, expression)| expression));
+                  if let Some((_, expression)) = help_property {
+                    expressions.push(expression);
+                  }
+                  if let Some((_, expression)) = pattern_property {
+                    expressions.push(expression);
+                  }
                 }
                 Attribute::Doc(Some(expression)) => expressions.push(expression),
                 _ => {}
@@ -272,10 +276,10 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     for (name, expression) in module_docs {
       let value = evaluator.evaluate_value_const(expression)?;
-      self.modules.get_mut(name).unwrap().doc = if value.is_empty {
+      self.modules.get_mut(name).unwrap().doc = if value.is_empty() {
         None
       } else {
-        Some(value.join());
+        Some(value.join())
       };
     }
 
