@@ -1690,7 +1690,7 @@ By default, items are always enabled. An item with one or more conditional
 attributes will only be enabled when one or more of those conditional
 attributes is active.
 
-The conditional attributes originally only applied to recipes, but may now be
+The conditional attributes originally applied only to recipes, but may now be
 applied to all top-level items<sup>master</sup>.
 
 This can be used to write `justfile`s that behave differently depending on
@@ -1710,7 +1710,7 @@ run:
   main.exe
 ```
 
-Likewise, settings can be configured per OS:
+Similarly, a setting can be made conditional on the current operating system:
 
 ```just
 [unix]
