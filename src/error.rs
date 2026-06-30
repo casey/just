@@ -898,7 +898,7 @@ impl ColorDisplay for Error<'_> {
         )?;
       }
       RecipeRequired { subcommand } => {
-        write!(f, "`--{}` requires a recipe", subcommand.to_lowercase())?;
+        write!(f, "`--{}` requires recipe", subcommand)?;
       }
       RecursionLimit { last } => write!(
         f,
