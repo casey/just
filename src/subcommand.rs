@@ -973,7 +973,14 @@ impl Subcommand {
     mut module: &'run Justfile<'src>,
     path: &Modulepath,
   ) -> RunResult<'src, (Option<&'run RecipeAlias<'src>>, &'run Recipe<'src>)> {
-    for name in &path.components[0..path.components.len() - 1] {
+    let Some((name, ancestors)) = path.components.split_last() else {
+      return Err(Error::UnknownRecipe {
+        recipe: path.to_string(),
+        suggestion: None,
+      });
+    };
+
+    for name in ancestors {
       if let Some(submodule) = module.modules.get(name) {
         module = submodule;
       } else if module.absent_modules.contains(name) {
@@ -986,8 +993,6 @@ impl Subcommand {
         });
       }
     }
-
-    let name = path.components.last().unwrap();
 
     if let Some(alias) = module.recipe_alias(name) {
       Ok((Some(alias), &alias.target))
