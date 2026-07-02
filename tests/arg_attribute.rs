@@ -620,7 +620,7 @@ fn variadic_arguments_exceeding_max_are_an_error() {
       ",
     )
     .args(["foo", "a", "b", "c"])
-    .stderr("error: recipe `foo` parameter `bar` got 3 elements but takes at most 2\n")
+    .stderr("error: recipe `foo` parameter `bar` got 3 values but takes at most 2\n")
     .failure();
 }
 
@@ -634,7 +634,7 @@ fn max_zero_rejects_all_elements() {
       ",
     )
     .args(["foo", "a"])
-    .stderr("error: recipe `foo` parameter `bar` got 1 element but takes at most 0\n")
+    .stderr("error: recipe `foo` parameter `bar` got 1 values but takes at most 0\n")
     .failure();
 }
 

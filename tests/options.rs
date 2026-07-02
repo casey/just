@@ -1263,6 +1263,6 @@ fn multiple_option_exceeding_max_is_an_error() {
     )
     .unstable()
     .args(["foo", "--bar", "a", "--bar", "b", "--bar", "c"])
-    .stderr("error: recipe `foo` parameter `bar` got 3 elements but takes at most 2\n")
+    .stderr("error: recipe `foo` parameter `bar` got 3 values but takes at most 2\n")
     .failure();
 }

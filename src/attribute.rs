@@ -20,7 +20,6 @@ pub(crate) enum Attribute<'src> {
     long: Option<StringLiteral<'src>>,
     #[serde(skip)]
     long_key: Option<Name<'src>>,
-    #[serde(skip)]
     max: Option<u64>,
     #[serde(skip)]
     max_key: Option<Name<'src>>,
