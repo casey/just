@@ -1249,3 +1249,20 @@ fn multiple_takes_no_value() {
     )
     .failure();
 }
+
+#[test]
+fn multiple_option_exceeding_max_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, multiple, max='2')]
+        foo bar:
+      ",
+    )
+    .unstable()
+    .args(["foo", "--bar", "a", "--bar", "b", "--bar", "c"])
+    .stderr("error: recipe `foo` parameter `bar` got 3 elements but takes at most 2\n")
+    .failure();
+}

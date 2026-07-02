@@ -932,6 +932,18 @@ test +FLAGS='-q':
   cargo test {{FLAGS}}
 ```
 
+The number of arguments a variadic parameter accepts may be limited with the
+`[arg(ARG, max=MAX)]` attribute<sup>master</sup>:
+
+```just
+[arg('FILES', max='2')]
+backup +FILES:
+  scp {{FILES}} me@server.com:
+```
+
+Passing more than `MAX` arguments is an error. `MAX` must be a string literal
+containing a decimal integer.
+
 `{{…}}` substitutions may need to be quoted if they contain spaces. For
 example, if you have the following recipe:
 
@@ -2195,7 +2207,8 @@ may not have a default.
 The `[arg(multiple)]` attribute allows an option or flag to be passed more than
 once, assigning the list of passed values to the parameter. When combined with
 `flag` or `value=VALUE`, `"true"` or `VALUE`, respectively, are repeated for
-each occurance of the flag.
+each occurance of the flag. The `[arg(max=MAX)]` attribute<sup>master</sup>
+limits the number of times the option or flag may be passed.
 
 The value of `[arg(help)]` may be a list, in which case the help string is the
 elements of the list joined with spaces. If the list is empty, the argument has
@@ -4683,6 +4696,7 @@ change their behavior.
 |------|------|-------------|
 | `[arg(ARG, help="HELP")]`<sup>1.46.0</sup> | recipe | Print help string `HELP` for `ARG` in usage messages. May be a const expression<sup>1.55.0</sup>. |
 | `[arg(ARG, long="LONG")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as `--LONG` option. If the parameter is variadic, the option is repeatable<sup>1.55.0master</sup>. |
+| `[arg(ARG, max="MAX")]`<sup>master</sup> | recipe | Allow at most `MAX` values to be passed to argument `ARG`. Requires `multiple` or a variadic parameter. |
 | `[arg(ARG, pattern="PATTERN")]`<sup>1.45.0</sup> | recipe | Require values of argument `ARG` to match regular expression `PATTERN`. May be a const expression<sup>1.55.0</sup>. |
 | `[arg(ARG, short="S")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as short `-S` option. If the parameter is variadic, the option is repeatable<sup>1.55.0</sup>. |
 | `[arg(ARG, value=VALUE)]`<sup>1.46.0</sup> | recipe | Makes option `ARG` a flag which does not take a value. |

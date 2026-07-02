@@ -159,6 +159,7 @@ pub(crate) use {
     io::{self, Sink, Write},
     iter::{self, FromIterator},
     mem,
+    num::ParseIntError,
     ops::Deref,
     ops::{Index, RangeInclusive},
     path::{self, Component, Path, PathBuf},

@@ -20,6 +20,9 @@ impl<'src> CompileError<'src> {
 
   pub(crate) fn source(&self) -> Option<&dyn std::error::Error> {
     match &*self.kind {
+      CompileErrorKind::ArgumentMaxValue { source, .. } => source
+        .as_ref()
+        .map(|source| source as &dyn std::error::Error),
       CompileErrorKind::ArgumentPatternRegex { source } => Some(source),
       _ => None,
     }
@@ -31,11 +34,20 @@ impl Display for CompileError<'_> {
     use CompileErrorKind::*;
 
     match &*self.kind {
+      ArgAttributeMaxRequiresMultipleOrVariadic => {
+        write!(
+          f,
+          "argument attribute `max` only valid with `multiple` or a variadic parameter"
+        )
+      }
       ArgAttributeRequiresOption { key } => {
         write!(
           f,
           "argument attribute `{key}` only valid with `long` or `short`"
         )
+      }
+      ArgumentMaxValue { value, .. } => {
+        write!(f, "invalid `max` value `{value}`")
       }
       ArgumentPatternRegex { .. } => {
         write!(f, "failed to parse argument pattern")

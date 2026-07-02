@@ -295,6 +295,12 @@ pub(crate) enum Error<'src> {
     recipe: &'src str,
     io_error: io::Error,
   },
+  TooManyElements {
+    recipe: &'src str,
+    parameter: &'src str,
+    found: usize,
+    max: u64,
+  },
   Unknown {
     line_number: Option<usize>,
     print_message: bool,
@@ -990,6 +996,18 @@ impl ColorDisplay for Error<'_> {
           f,
           "recipe `{recipe}` could not be run because of an IO error while trying to create a temporary \
           directory or write a file to that directory: {io_error}",
+        )?;
+      }
+      TooManyElements {
+        recipe,
+        parameter,
+        found,
+        max,
+      } => {
+        write!(
+          f,
+          "recipe `{recipe}` parameter `{parameter}` got {} but takes at most {max}",
+          Count::numbered("element", found),
         )?;
       }
       Unknown {

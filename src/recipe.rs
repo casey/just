@@ -86,8 +86,14 @@ impl<'src> Recipe<'src> {
   }
 
   pub(crate) fn max_arguments(&self, settings: &Settings) -> usize {
-    if !settings.lists && self.parameters.iter().any(|p| p.kind.is_variadic()) {
-      usize::MAX - 1
+    if !settings.lists
+      && let Some(variadic) = self.parameters.iter().find(|p| p.kind.is_variadic())
+    {
+      variadic
+        .max
+        .and_then(|max| usize::try_from(max).ok())
+        .and_then(|max| (self.parameters.len() - 1).checked_add(max))
+        .unwrap_or(usize::MAX - 1)
     } else {
       self.parameters.len()
     }

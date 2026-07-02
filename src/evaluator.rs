@@ -769,6 +769,17 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     }
 
     for (parameter, argument) in parameters.iter().zip(arguments) {
+      if let Some(max) = parameter.max
+        && argument.elements().len() as u64 > max
+      {
+        return Err(Error::TooManyElements {
+          recipe: recipe.name(),
+          parameter: parameter.name.lexeme(),
+          found: argument.elements().len(),
+          max,
+        });
+      }
+
       let value = if argument.elements().is_empty() {
         if let Some(default) = &parameter.default {
           evaluator.evaluate_value(default)?

@@ -1246,6 +1246,8 @@ impl<'run, 'src> Parser<'run, 'src> {
         help_property: _,
         long,
         long_key,
+        max,
+        max_key,
         multiple,
         name: arg,
         pattern: _,
@@ -1295,6 +1297,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           flag: flag.is_some(),
           name: arg.token,
           long: long.as_ref().map(|long| long.cooked.clone()),
+          max: max_key.zip(*max),
           multiple: multiple.is_some(),
           short: short.as_ref().and_then(|short| short.cooked.chars().next()),
           value: value.clone(),
@@ -1434,6 +1437,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let mut flag = false;
     let help = None;
     let mut long = None;
+    let mut max = None;
     let mut multiple = false;
     let pattern = None;
     let mut short = None;
@@ -1442,6 +1446,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     if let Some(arg) = arg_attributes.remove(name.lexeme()) {
       flag = arg.flag;
       long = arg.long;
+      max = arg.max;
       multiple = arg.multiple;
       short = arg.short;
       value = arg.value;
@@ -1453,6 +1458,13 @@ impl<'run, 'src> Parser<'run, 'src> {
       }));
     }
 
+    if let Some((key, _)) = max
+      && !multiple
+      && !kind.is_variadic()
+    {
+      return Err(key.error(CompileErrorKind::ArgAttributeMaxRequiresMultipleOrVariadic));
+    }
+
     Ok(Parameter {
       default,
       export,
@@ -1460,6 +1472,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       help,
       kind,
       long,
+      max: max.map(|(_, max)| max),
       multiple,
       name,
       number: self.numerator.next(),
