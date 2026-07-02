@@ -770,7 +770,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     for (parameter, argument) in parameters.iter().zip(arguments) {
       if let Some(max) = parameter.max
-        && argument.elements().len() as u64 > max
+        && u64::try_from(argument.elements().len()).unwrap() > max
       {
         return Err(Error::TooManyElements {
           recipe: recipe.name(),

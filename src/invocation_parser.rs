@@ -207,7 +207,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
 
     for (group, parameter) in arguments.iter().zip(&recipe.parameters) {
       if let Some(max) = parameter.max
-        && group.elements().len() as u64 > max
+        && u64::try_from(group.elements().len()) > max
       {
         return Err(Error::TooManyElements {
           recipe: recipe.name(),
