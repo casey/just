@@ -28,6 +28,27 @@ impl<'src> Parameter<'src> {
     self.default.is_none() && self.kind != ParameterKind::Star && !self.flag
   }
 
+  pub(crate) fn check_value_count(
+    &self,
+    recipe: &Recipe<'src>,
+    value: &Value,
+  ) -> Result<(), Error<'src>> {
+    let Some(max) = self.max else {
+      return Ok(());
+    };
+
+    if u64::try_from(value.elements().len()).unwrap() <= max {
+      return Ok(());
+    }
+
+    Err(Error::ArgumentTooManyValues {
+      recipe: recipe.name(),
+      parameter: self.name.lexeme(),
+      found: value.elements().len(),
+      max,
+    })
+  }
+
   pub(crate) fn check_pattern_match(
     &self,
     recipe: &Recipe<'src>,

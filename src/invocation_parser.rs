@@ -206,16 +206,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
     }
 
     for (group, parameter) in arguments.iter().zip(&recipe.parameters) {
-      if let Some(max) = parameter.max
-        && u64::try_from(group.elements().len()) > max
-      {
-        return Err(Error::TooManyElements {
-          recipe: recipe.name(),
-          parameter: parameter.name.lexeme(),
-          found: group.elements().len(),
-          max,
-        });
-      }
+      parameter.check_value_count(recipe, group)?;
 
       if parameter.value.is_some() {
         continue;
