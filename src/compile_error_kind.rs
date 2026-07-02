@@ -8,7 +8,10 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   ArgumentMaxValue {
     value: String,
-    source: Option<ParseIntError>,
+  },
+  ArgumentMaxParse {
+    value: String,
+    source: ParseIntError,
   },
   ArgumentPatternRegex {
     source: regex::Error,

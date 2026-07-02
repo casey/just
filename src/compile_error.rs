@@ -20,9 +20,6 @@ impl<'src> CompileError<'src> {
 
   pub(crate) fn source(&self) -> Option<&dyn std::error::Error> {
     match &*self.kind {
-      CompileErrorKind::ArgumentMaxValue { source, .. } => source
-        .as_ref()
-        .map(|source| source as &dyn std::error::Error),
       CompileErrorKind::ArgumentPatternRegex { source } => Some(source),
       _ => None,
     }
@@ -46,8 +43,11 @@ impl Display for CompileError<'_> {
           "argument attribute `{key}` only valid with `long` or `short`"
         )
       }
-      ArgumentMaxValue { value, .. } => {
+      ArgumentMaxValue { value } => {
         write!(f, "invalid `max` value `{value}`")
+      }
+      ArgumentMaxParse { value, source } => {
+        write!(f, "invalid `max` value `{value}`: {source}")
       }
       ArgumentPatternRegex { .. } => {
         write!(f, "failed to parse argument pattern")

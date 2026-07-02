@@ -311,14 +311,13 @@ impl<'src> Attribute<'src> {
             if !NUMBER.is_match(&literal.cooked) {
               return Err(literal.token.error(CompileErrorKind::ArgumentMaxValue {
                 value: literal.cooked.clone(),
-                source: None,
               }));
             }
 
             let max = literal.cooked.parse::<u64>().map_err(|source| {
-              literal.token.error(CompileErrorKind::ArgumentMaxValue {
+              literal.token.error(CompileErrorKind::ArgumentMaxParse {
                 value: literal.cooked.clone(),
-                source: Some(source),
+                source,
               })
             })?;
 
