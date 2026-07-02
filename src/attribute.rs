@@ -303,12 +303,12 @@ impl<'src> Attribute<'src> {
 
         let (max, max_key) = Self::remove_required(&mut keyword_arguments, "max")?
           .map(|(key, expression)| {
-            static MAX: LazyLock<Regex> =
+            static NUMBER: LazyLock<Regex> =
               LazyLock::new(|| Regex::new("^(0|[1-9][0-9]*)$").unwrap());
 
             let literal = Self::require_string_literal(name, key, expression)?;
 
-            if !MAX.is_match(&literal.cooked) {
+            if !NUMBER.is_match(&literal.cooked) {
               return Err(literal.token.error(CompileErrorKind::ArgumentMaxValue {
                 value: literal.cooked.clone(),
                 source: None,
