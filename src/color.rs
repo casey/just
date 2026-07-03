@@ -175,7 +175,7 @@ impl Color {
     }
   }
 
-  pub(crate) fn use_color(self, use_color: UseColor) -> Self {
+  pub(crate) fn with_use_color(self, use_color: UseColor) -> Self {
     Self { use_color, ..self }
   }
 

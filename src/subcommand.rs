@@ -442,7 +442,7 @@ impl Subcommand {
           compilation.root_ast().color_display(
             config
               .color
-              .use_color(UseColor::Never)
+              .with_use_color(UseColor::Never)
               .with_indentation(indentation)
           )
         );
@@ -491,7 +491,7 @@ impl Subcommand {
       .color_display(
         config
           .color
-          .use_color(UseColor::Never)
+          .with_use_color(UseColor::Never)
           .with_indentation(indentation),
       )
       .to_string();
