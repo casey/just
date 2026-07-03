@@ -432,18 +432,18 @@ impl Subcommand {
         println!();
       }
       DumpFormat::Just => {
-        let indentation = config
-          .indentation
-          .or(compilation.justfile.settings.indentation)
-          .unwrap_or_default();
-
         print!(
           "{}",
           compilation.root_ast().color_display(
             config
               .color
               .with_use_color(UseColor::Never)
-              .with_indentation(indentation)
+              .with_indentation(
+                config
+                  .indentation
+                  .or(compilation.justfile.settings.indentation)
+                  .unwrap_or_default()
+              )
           )
         );
       }
@@ -485,14 +485,12 @@ impl Subcommand {
       src,
     )?;
 
-    let indentation = config.indentation.or(ast.indentation()).unwrap_or_default();
-
     let formatted = ast
       .color_display(
         config
           .color
           .with_use_color(UseColor::Never)
-          .with_indentation(indentation),
+          .with_indentation(config.indentation.or(ast.indentation()).unwrap_or_default()),
       )
       .to_string();
 
