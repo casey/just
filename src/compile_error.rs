@@ -43,11 +43,11 @@ impl Display for CompileError<'_> {
           "argument attribute `{key}` only valid with `long` or `short`"
         )
       }
-      ArgumentMaxValue { value } => {
-        write!(f, "invalid `max` value `{value}`")
-      }
       ArgumentMaxParse { value, source } => {
         write!(f, "invalid `max` value `{value}`: {source}")
+      }
+      ArgumentMaxValue { value } => {
+        write!(f, "invalid `max` value `{value}`")
       }
       ArgumentPatternRegex { .. } => {
         write!(f, "failed to parse argument pattern")

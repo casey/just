@@ -937,6 +937,7 @@ The number of arguments a variadic parameter accepts may be limited with the
 enabled:
 
 ```just
+set unstable
 set lists
 
 [arg('FILES', max='2')]

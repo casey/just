@@ -604,12 +604,16 @@ fn variadic_arguments_up_to_max_are_accepted() {
 
         [arg('bar', max='2')]
         @foo +bar:
-          echo {{ bar }}
+          echo bar='{{ show(bar) }}'
       ",
     )
     .unstable()
     .args(["foo", "a", "b"])
-    .stdout("a b\n")
+    .stdout(
+      r#"
+        bar=["a", "b"]
+      "#,
+    )
     .success();
 }
 
@@ -622,12 +626,16 @@ fn multiple_arguments_up_to_max_are_accepted() {
 
         [arg('bar', long, multiple, max='2')]
         @foo +bar:
-          echo {{ bar }}
+          echo bar='{{ show(bar) }}'
       ",
     )
     .unstable()
     .args(["foo", "--bar=a", "--bar=b"])
-    .stdout("a b\n")
+    .stdout(
+      r#"
+        bar=["a", "b"]
+      "#,
+    )
     .success();
 }
 
