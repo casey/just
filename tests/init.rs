@@ -22,7 +22,7 @@ fn current_dir() {
 fn exists() {
   Test::new()
     .arg("--init")
-    .stderr_regex("Wrote justfile to `.*`\n")
+    .stderr_regex("wrote justfile to `.*`\n")
     .success()
     .test()
     .arg("--init")
@@ -55,7 +55,7 @@ fn invocation_directory() {
   let justfile_path = test.justfile_path();
 
   let _tmp = test
-    .stderr_regex("Wrote justfile to `.*`\n")
+    .stderr_regex("wrote justfile to `.*`\n")
     .arg("--init")
     .success();
 
@@ -170,7 +170,7 @@ fn justfile_name_from_invocation_directory() {
   Test::new()
     .create_dir(".git")
     .args(["--init", "--justfile-name", "foo"])
-    .stderr_regex("Wrote justfile to `.*`\n")
+    .stderr_regex("wrote justfile to `.*`\n")
     .expect_file("foo", INIT_JUSTFILE)
     .success();
 }
@@ -180,7 +180,7 @@ fn justfile_name_from_search_directory() {
   Test::new()
     .create_dir("sub/.git")
     .args(["--init", "--justfile-name", "foo", "sub/"])
-    .stderr_regex("Wrote justfile to `.*`\n")
+    .stderr_regex("wrote justfile to `.*`\n")
     .expect_file("sub/foo", INIT_JUSTFILE)
     .success();
 }
@@ -189,7 +189,7 @@ fn justfile_name_from_search_directory() {
 fn fmt_compatibility() {
   Test::new()
     .arg("--init")
-    .stderr_regex("Wrote justfile to `.*`\n")
+    .stderr_regex("wrote justfile to `.*`\n")
     .success()
     .test()
     .arg("--unstable")

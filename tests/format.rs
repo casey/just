@@ -1578,7 +1578,7 @@ fn indentation_env() {
 }
 
 #[test]
-fn indentation_setting() {
+fn indentation_setting_dump() {
   Test::new()
     .arg("--dump")
     .justfile(
@@ -1598,6 +1598,31 @@ fn indentation_setting() {
       ",
     )
     .success();
+}
+
+#[test]
+fn indentation_setting_format() {
+  let output = Test::new()
+    .arg("--fmt")
+    .justfile(
+      "
+        set indentation := ' '
+
+        foo:
+            echo bar
+      ",
+    )
+    .stderr_regex("wrote justfile to `.*/justfile`")
+    .success();
+
+  assert_eq!(
+    fs::read_to_string(output.tempdir.path().join("justfile")).unwrap(),
+    "set indentation := ' '
+
+foo:
+ echo bar
+",
+  );
 }
 
 #[test]

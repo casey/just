@@ -76,9 +76,9 @@ fn justfile_init_search_stops_at_ceiling_dir() {
     .current_dir("foo/bar")
     .args(["--init", "--ceiling", ceiling.to_str().unwrap()])
     .stderr_regex(if cfg!(windows) {
-      r"Wrote justfile to `.*\\foo\\bar\\justfile`\n"
+      r"wrote justfile to `.*\\foo\\bar\\justfile`\n"
     } else {
-      "Wrote justfile to `.*/foo/bar/justfile`\n"
+      "wrote justfile to `.*/foo/bar/justfile`\n"
     })
     .success();
 

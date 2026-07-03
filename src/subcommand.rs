@@ -531,7 +531,7 @@ impl Subcommand {
         })?;
 
         if config.verbosity.loud() {
-          eprintln!("Wrote justfile to `{}`", search.justfile.display());
+          eprintln!("wrote justfile to `{}`", search.justfile.display());
         }
       }
 
@@ -556,7 +556,7 @@ impl Subcommand {
     }
 
     if config.verbosity.loud() {
-      eprintln!("Wrote justfile to `{}`", search.justfile.display());
+      eprintln!("wrote justfile to `{}`", search.justfile.display());
     }
 
     Ok(())
