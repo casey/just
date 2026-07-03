@@ -1248,6 +1248,8 @@ impl<'run, 'src> Parser<'run, 'src> {
         long_key,
         max,
         max_key,
+        min,
+        min_key,
         multiple,
         name: arg,
         pattern: _,
@@ -1270,6 +1272,10 @@ impl<'run, 'src> Parser<'run, 'src> {
 
       if let Some(token) = max_key {
         self.list_feature(ListFeature::ArgMax, **token);
+      }
+
+      if let Some(token) = min_key {
+        self.list_feature(ListFeature::ArgMin, **token);
       }
 
       if let Some(option) = long
@@ -1302,6 +1308,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           name: arg.token,
           long: long.as_ref().map(|long| long.cooked.clone()),
           max: max_key.map(|key| (key, max.unwrap())),
+          min: min_key.map(|key| (key, min.unwrap())),
           multiple: multiple.is_some(),
           short: short.as_ref().and_then(|short| short.cooked.chars().next()),
           value: value.clone(),
@@ -1442,6 +1449,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     let help = None;
     let mut long = None;
     let mut max = None;
+    let mut min = None;
     let mut multiple = false;
     let pattern = None;
     let mut short = None;
@@ -1451,6 +1459,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       flag = arg.flag;
       long = arg.long;
       max = arg.max;
+      min = arg.min;
       multiple = arg.multiple;
       short = arg.short;
       value = arg.value;
@@ -1462,11 +1471,11 @@ impl<'run, 'src> Parser<'run, 'src> {
       }));
     }
 
-    if let Some((key, _max)) = max
+    if let Some((key, _)) = max.or(min)
       && !multiple
       && !kind.is_variadic()
     {
-      return Err(key.error(CompileErrorKind::ArgAttributeMaxRequiresMultipleOrVariadic));
+      return Err(key.error(CompileErrorKind::ArgAttributeRequiresMultipleOrVariadic { key }));
     }
 
     Ok(Parameter {
@@ -1477,6 +1486,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       kind,
       long,
       max: max.map(|(_key, max)| max),
+      min: min.map(|(_key, min)| min),
       multiple,
       name,
       number: self.numerator.next(),
@@ -1765,7 +1775,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
         if let Some(&first) = first {
           return Err(name.error(CompileErrorKind::DuplicateAttribute {
-            attribute: name.lexeme(),
+            attribute: name,
             first,
           }));
         }

@@ -16,6 +16,12 @@ pub(crate) enum Error<'src> {
     pattern: Box<Pattern>,
     recipe: &'src str,
   },
+  ArgumentTooFewValues {
+    recipe: &'src str,
+    parameter: &'src str,
+    found: usize,
+    min: u64,
+  },
   ArgumentTooManyValues {
     recipe: &'src str,
     parameter: &'src str,
@@ -510,6 +516,18 @@ impl ColorDisplay for Error<'_> {
           f,
           "argument `{argument}` passed to recipe `{recipe}` parameter `{parameter}` does not match pattern {}",
           List::or_ticked(pattern.originals()),
+        )?;
+      }
+      ArgumentTooFewValues {
+        recipe,
+        parameter,
+        found,
+        min,
+      } => {
+        write!(
+          f,
+          "recipe `{recipe}` parameter `{parameter}` got {} but takes at least {min}",
+          Count::numbered("value", found),
         )?;
       }
       ArgumentTooManyValues {

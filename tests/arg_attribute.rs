@@ -833,3 +833,340 @@ fn dump_max() {
     )
     .success();
 }
+
+#[test]
+fn variadic_arguments_meeting_min_are_accepted() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', min='2')]
+        @foo +bar:
+          echo bar='{{ show(bar) }}'
+      ",
+    )
+    .unstable()
+    .args(["foo", "a", "b"])
+    .stdout(
+      r#"
+        bar=["a", "b"]
+      "#,
+    )
+    .success();
+}
+
+#[test]
+fn multiple_arguments_meeting_min_are_accepted() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, multiple, min='2')]
+        @foo +bar:
+          echo bar='{{ show(bar) }}'
+      ",
+    )
+    .unstable()
+    .args(["foo", "--bar=a", "--bar=b"])
+    .stdout(
+      r#"
+        bar=["a", "b"]
+      "#,
+    )
+    .success();
+}
+
+#[test]
+fn variadic_arguments_below_min_are_an_error() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', min='2')]
+        foo +bar:
+      ",
+    )
+    .unstable()
+    .args(["foo", "a"])
+    .stderr("error: recipe `foo` parameter `bar` got 1 value but takes at least 2\n")
+    .failure();
+}
+
+#[test]
+fn star_variadic_without_arguments_below_min_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', min='2')]
+        foo *bar:
+      ",
+    )
+    .unstable()
+    .arg("foo")
+    .stderr("error: recipe `foo` parameter `bar` got 0 values but takes at least 2\n")
+    .failure();
+}
+
+#[test]
+fn default_satisfying_min_is_accepted() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', min='2')]
+        @foo *bar=['a', 'b']:
+          echo bar='{{ show(bar) }}'
+      ",
+    )
+    .unstable()
+    .arg("foo")
+    .stdout(
+      r#"
+        bar=["a", "b"]
+      "#,
+    )
+    .success();
+}
+
+#[test]
+fn default_violating_min_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', min='2')]
+        foo *bar=['a']:
+      ",
+    )
+    .unstable()
+    .arg("foo")
+    .stderr("error: recipe `foo` parameter `bar` got 1 value but takes at least 2\n")
+    .failure();
+}
+
+#[test]
+fn default_violating_max_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', max='2')]
+        foo *bar=['a', 'b', 'c']:
+      ",
+    )
+    .unstable()
+    .arg("foo")
+    .stderr("error: recipe `foo` parameter `bar` got 3 values but takes at most 2\n")
+    .failure();
+}
+
+#[test]
+fn min_requires_set_lists() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', min='2')]
+        foo +bar:
+      ",
+    )
+    .stderr(
+      "
+        error: `[arg(min)]` requires `set lists`
+         ——▶ justfile:1:13
+          │
+        1 │ [arg('bar', min='2')]
+          │             ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn min_requires_multiple_or_variadic() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', min='2')]
+        foo bar:
+      ",
+    )
+    .unstable()
+    .stderr(
+      "
+        error: argument attribute `min` only valid with `multiple` or a variadic parameter
+         ——▶ justfile:3:13
+          │
+        3 │ [arg('bar', min='2')]
+          │             ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn min_requires_value() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', min)]
+        foo +bar:
+      ",
+    )
+    .unstable()
+    .stderr(
+      "
+        error: attribute key `min` requires value
+         ——▶ justfile:3:13
+          │
+        3 │ [arg('bar', min)]
+          │             ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn min_value_must_be_string_literal() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', min=('2'))]
+        foo +bar:
+      ",
+    )
+    .unstable()
+    .stderr(
+      "
+        error: attribute `arg` arguments must be string literals
+         ——▶ justfile:3:13
+          │
+        3 │ [arg('bar', min=('2'))]
+          │             ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn invalid_min_value_error() {
+  #[track_caller]
+  fn case(value: &str) {
+    Test::new()
+      .justfile(format!("[arg('bar', min='{value}')]\nfoo +bar:"))
+      .stderr(format!(
+        "
+          error: invalid `min` value `{value}`
+           ——▶ justfile:1:17
+            │
+          1 │ [arg('bar', min='{value}')]
+            │                 {caret}
+        ",
+        caret = "^".repeat(value.len() + 2),
+      ))
+      .failure();
+  }
+
+  case("x");
+  case("+1");
+  case("01");
+  case("1 ");
+}
+
+#[test]
+fn min_overflow_error() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', min='18446744073709551616')]
+        foo +bar:
+      ",
+    )
+    .stderr(
+      "
+        error: invalid `min` value `18446744073709551616`: number too large to fit in target type
+         ——▶ justfile:1:17
+          │
+        1 │ [arg('bar', min='18446744073709551616')]
+          │                 ^^^^^^^^^^^^^^^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn min_exceeding_max_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', min='3', max='2')]
+        foo +bar:
+      ",
+    )
+    .stderr(
+      "
+        error: argument attribute `min` `3` exceeds `max` `2`
+         ——▶ justfile:1:13
+          │
+        1 │ [arg('bar', min='3', max='2')]
+          │             ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn dependency_list_argument_below_min_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', min='2')]
+        foo +bar:
+
+        baz: (foo ['a'])
+      ",
+    )
+    .unstable()
+    .args(["baz"])
+    .stderr("error: recipe `foo` parameter `bar` got 1 value but takes at least 2\n")
+    .failure();
+}
+
+#[test]
+fn dump_min() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', min='1', max='2')]
+        foo +bar:
+      ",
+    )
+    .unstable()
+    .arg("--dump")
+    .stdout(
+      "
+        set lists
+
+        [arg('bar', min='1', max='2')]
+        foo +bar:
+      ",
+    )
+    .success();
+}

@@ -206,10 +206,12 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
     }
 
     for (group, parameter) in arguments.iter().zip(&recipe.parameters) {
-      parameter.check_value_count(recipe, group)?;
-
       if parameter.value.is_some() {
         continue;
+      }
+
+      if !group.is_empty() {
+        parameter.check_value_count(recipe, group)?;
       }
 
       for element in group {
