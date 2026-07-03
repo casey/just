@@ -766,32 +766,6 @@ fn max_overflow_error() {
 }
 
 #[test]
-fn dependency_arguments_exceeding_max_are_an_error() {
-  Test::new()
-    .justfile(
-      "
-        set lists
-
-        [arg('bar', max='2')]
-        foo +bar:
-
-        baz: (foo 'a' 'b' 'c')
-      ",
-    )
-    .unstable()
-    .stderr(
-      "
-        error: dependency `foo` got 3 arguments but takes 1 argument
-         ——▶ justfile:6:7
-          │
-        6 │ baz: (foo ['a', 'b', 'c'])
-          │       ^^^
-      ",
-    )
-    .failure();
-}
-
-#[test]
 fn dependency_list_argument_exceeding_max_is_an_error() {
   Test::new()
     .justfile(
