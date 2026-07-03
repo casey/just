@@ -1268,6 +1268,10 @@ impl<'run, 'src> Parser<'run, 'src> {
         self.list_feature(ListFeature::Multiple, *token);
       }
 
+      if let Some(token) = max_key {
+        self.list_feature(ListFeature::ArgMax, **token);
+      }
+
       if let Some(option) = long
         && !longs.insert(&option.cooked)
       {

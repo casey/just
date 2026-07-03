@@ -2,6 +2,7 @@ use super::*;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub(crate) enum ListFeature {
+  ArgMax,
   BoolFunction,
   ComparisonOperator,
   Flag,
@@ -26,7 +27,8 @@ impl ListFeature {
       | Self::ShowFunction
       | Self::SplitFunction
       | Self::WhichFunction => true,
-      Self::ComparisonOperator
+      Self::ArgMax
+      | Self::ComparisonOperator
       | Self::Flag
       | Self::IfWithoutElse
       | Self::ListConcatenationOperator
@@ -42,6 +44,7 @@ impl ListFeature {
 impl Display for ListFeature {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
     match self {
+      Self::ArgMax => write!(f, "`[arg(max)]` requires `set lists`"),
       Self::BoolFunction => write!(f, "the `bool()` function requires `set lists`"),
       Self::ComparisonOperator => write!(f, "comparison operators require `set lists`"),
       Self::Flag => write!(f, "`flag` arguments require `set lists`"),

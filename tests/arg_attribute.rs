@@ -600,11 +600,14 @@ fn variadic_arguments_up_to_max_are_accepted() {
   Test::new()
     .justfile(
       "
+        set lists
+
         [arg('bar', max='2')]
         @foo +bar:
           echo {{ bar }}
       ",
     )
+    .unstable()
     .args(["foo", "a", "b"])
     .stdout("a b\n")
     .success();
@@ -615,10 +618,13 @@ fn variadic_arguments_exceeding_max_are_an_error() {
   Test::new()
     .justfile(
       "
+        set lists
+
         [arg('bar', max='2')]
         foo +bar:
       ",
     )
+    .unstable()
     .args(["foo", "a", "b", "c"])
     .stderr("error: recipe `foo` parameter `bar` got 3 values but takes at most 2\n")
     .failure();
@@ -629,10 +635,13 @@ fn max_zero_rejects_all_elements() {
   Test::new()
     .justfile(
       "
+        set lists
+
         [arg('bar', max='0')]
         foo *bar:
       ",
     )
+    .unstable()
     .args(["foo", "a"])
     .stderr("error: recipe `foo` parameter `bar` got 1 value but takes at most 0\n")
     .failure();
@@ -643,16 +652,19 @@ fn max_requires_multiple_or_variadic() {
   Test::new()
     .justfile(
       "
+        set lists
+
         [arg('bar', max='2')]
         foo bar:
       ",
     )
+    .unstable()
     .stderr(
       "
         error: argument attribute `max` only valid with `multiple` or a variadic parameter
-         ——▶ justfile:1:13
+         ——▶ justfile:3:13
           │
-        1 │ [arg('bar', max='2')]
+        3 │ [arg('bar', max='2')]
           │             ^^^
       ",
     )
@@ -664,16 +676,19 @@ fn max_requires_value() {
   Test::new()
     .justfile(
       "
+        set lists
+
         [arg('bar', max)]
         foo +bar:
       ",
     )
+    .unstable()
     .stderr(
       "
         error: attribute key `max` requires value
-         ——▶ justfile:1:13
+         ——▶ justfile:3:13
           │
-        1 │ [arg('bar', max)]
+        3 │ [arg('bar', max)]
           │             ^^^
       ",
     )
@@ -685,16 +700,19 @@ fn max_value_must_be_string_literal() {
   Test::new()
     .justfile(
       "
+        set lists
+
         [arg('bar', max=('2'))]
         foo +bar:
       ",
     )
+    .unstable()
     .stderr(
       "
         error: attribute `arg` arguments must be string literals
-         ——▶ justfile:1:13
+         ——▶ justfile:3:13
           │
-        1 │ [arg('bar', max=('2'))]
+        3 │ [arg('bar', max=('2'))]
           │             ^^^
       ",
     )
@@ -752,18 +770,21 @@ fn dependency_arguments_exceeding_max_are_an_error() {
   Test::new()
     .justfile(
       "
+        set lists
+
         [arg('bar', max='2')]
         foo +bar:
 
         baz: (foo 'a' 'b' 'c')
       ",
     )
+    .unstable()
     .stderr(
       "
-        error: dependency `foo` got 3 arguments but takes at most 2 arguments
-         ——▶ justfile:4:7
+        error: dependency `foo` got 3 arguments but takes 1 argument
+         ——▶ justfile:6:7
           │
-        4 │ baz: (foo 'a' 'b' 'c')
+        6 │ baz: (foo ['a', 'b', 'c'])
           │       ^^^
       ",
     )
@@ -794,13 +815,18 @@ fn dump_max() {
   Test::new()
     .justfile(
       "
+        set lists
+
         [arg('bar', max='2')]
         foo +bar:
       ",
     )
+    .unstable()
     .arg("--dump")
     .stdout(
       "
+        set lists
+
         [arg('bar', max='2')]
         foo +bar:
       ",
