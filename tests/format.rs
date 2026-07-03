@@ -1578,6 +1578,109 @@ fn indentation_env() {
 }
 
 #[test]
+fn indentation_setting() {
+  #[track_caller]
+  fn case(literal: &str, indentation: &str) {
+    Test::new()
+      .arg("--dump")
+      .justfile(format!(
+        "set indentation := \"{literal}\"\n\nfoo:\n    echo bar\n"
+      ))
+      .stdout(format!(
+        "set indentation := \"{literal}\"\n\nfoo:\n{indentation}echo bar\n"
+      ))
+      .success();
+  }
+
+  case("  ", "  ");
+  case("\\t", "\t");
+}
+
+#[test]
+fn indentation_setting_fmt_check() {
+  Test::new()
+    .args(["--fmt", "--check"])
+    .justfile("set indentation := \"  \"\n\nfoo:\n  echo bar\n")
+    .success();
+}
+
+#[test]
+fn indentation_flag_overrides_setting() {
+  Test::new()
+    .args(["--dump", "--indentation", "    "])
+    .justfile("set indentation := \"  \"\n\nfoo:\n  echo bar\n")
+    .stdout("set indentation := \"  \"\n\nfoo:\n    echo bar\n")
+    .success();
+}
+
+#[test]
+fn indentation_setting_in_import_applies_to_dump() {
+  Test::new()
+    .arg("--dump")
+    .write("import.just", "set indentation := \"  \"\n")
+    .justfile("import 'import.just'\n\nfoo:\n    echo bar\n")
+    .stdout("import 'import.just'\n\nfoo:\n  echo bar\n")
+    .success();
+}
+
+#[test]
+fn indentation_setting_must_be_string_literal() {
+  Test::new()
+    .justfile("set indentation := ('  ' + '  ')")
+    .stderr(
+      "
+        error: `indentation` setting must be a plain string literal
+         ——▶ justfile:1:5
+          │
+        1 │ set indentation := ('  ' + '  ')
+          │     ^^^^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn indentation_setting_invalid_values() {
+  #[track_caller]
+  fn case(justfile: &str, stderr: &str) {
+    Test::new().justfile(justfile).stderr(stderr).failure();
+  }
+
+  case(
+    "set indentation := ''",
+    "
+      error: indentation must not be empty
+       ——▶ justfile:1:20
+        │
+      1 │ set indentation := ''
+        │                    ^^
+    ",
+  );
+
+  case(
+    "set indentation := 'x'",
+    "
+      error: indentation must be spaces or tabs
+       ——▶ justfile:1:20
+        │
+      1 │ set indentation := 'x'
+        │                    ^^^
+    ",
+  );
+
+  case(
+    "set indentation := \" \\t\"",
+    "
+      error: indentation may not be mixed
+       ——▶ justfile:1:20
+        │
+      1 │ set indentation := \" \\t\"
+        │                    ^^^^^
+    ",
+  );
+}
+
+#[test]
 fn multi_line_comments_before_recipes_are_not_broken_up() {
   assert_dump(
     "

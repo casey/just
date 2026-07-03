@@ -1614,6 +1614,28 @@ impl<'run, 'src> Parser<'run, 'src> {
       Keyword::DotenvCommand => Some(Setting::DotenvCommand(self.parse_expression()?)),
       Keyword::DotenvFilename => Some(Setting::DotenvFilename(self.parse_expression()?)),
       Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_expression()?)),
+      Keyword::Indentation => {
+        let expression = self.parse_expression()?;
+
+        let Expression::StringLiteral { string_literal } = &expression else {
+          return Err(name.error(CompileErrorKind::IndentationExpression));
+        };
+
+        if string_literal.expand || string_literal.kind.indented || string_literal.part.is_some() {
+          return Err(name.error(CompileErrorKind::IndentationExpression));
+        }
+
+        string_literal
+          .cooked
+          .parse::<Indentation>()
+          .map_err(|message| {
+            string_literal
+              .token
+              .error(CompileErrorKind::InvalidIndentation { message })
+          })?;
+
+        Some(Setting::Indentation(expression))
+      }
       Keyword::MinimumVersion => {
         let expression = self.parse_expression()?;
 

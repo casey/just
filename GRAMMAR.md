@@ -84,6 +84,7 @@ setting       : 'allow-duplicate-recipes' boolean?
               | 'fallback' boolean?
               | 'guards' boolean?
               | 'ignore-comments' boolean?
+              | 'indentation' ':=' string
               | 'lazy' boolean?
               | 'lists' boolean?
               | 'minimum-version' ':=' string

@@ -4502,6 +4502,18 @@ stdout.
 Note that formatting is not covered by any backwards compatibility guarantee
 and is subject to change from time to time.
 
+Recipe bodies are indented with four spaces by default. This can be changed
+with the `indentation` setting:
+
+```just
+set indentation := "  "
+```
+
+The value must be a string literal consisting entirely of spaces or entirely
+of tabs. The `--indentation` command-line option and the `JUST_INDENTATION`
+environment variable take precedence over the setting. Since `--fmt` does not
+load imports, it only respects `set indentation` in the file being formatted.
+
 Invoking `just --fmt --check` runs `--fmt` in check mode. Instead of
 overwriting the `justfile`, `just` will exit with an exit code of 0 if it is
 formatted correctly, and will exit with 1 and print a diff if it is not.
@@ -4794,6 +4806,7 @@ foo:
 | `fallback` | boolean | `false` | Search for `justfile` in parent directory if the first recipe on the command line is not found. |
 | `guards`<sup>1.47.0</sup> | boolean | `false` | Enable the `?` guard sigil on recipe lines. See [sigils](#sigils). |
 | `ignore-comments` | boolean | `false` | Ignore recipe lines beginning with `#`. |
+| `indentation`<sup>master</sup> | string | - | Indent recipe bodies with the given string, which must consist entirely of spaces or entirely of tabs, when formatting with `--fmt` and `--dump`. |
 | `lazy`<sup>1.47.0</sup> | boolean | `false` | Don't evaluate unused variables. |
 | `lists`<sup>1.53.0</sup> | boolean | `false` | Values may be lists of strings instead of strings. Currently unstable. |
 | `minimum-version`<sup>1.55.0</sup> | string | - | Error if `just` is older than `minimum-version`. Accepts a string of the form `MAJOR.MINOR.PATCH`, e.g., `"1.55.0"`. |

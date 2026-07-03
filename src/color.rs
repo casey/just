@@ -178,4 +178,11 @@ impl Color {
   pub(crate) fn use_color(self, use_color: UseColor) -> Self {
     Self { use_color, ..self }
   }
+
+  pub(crate) fn with_indentation(self, indentation: Indentation) -> Self {
+    Self {
+      indentation,
+      ..self
+    }
+  }
 }

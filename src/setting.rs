@@ -16,6 +16,7 @@ pub(crate) enum Setting<'src> {
   Fallback(bool),
   Guards(bool),
   IgnoreComments(bool),
+  Indentation(Expression<'src>),
   Lazy(bool),
   Lists(bool),
   MinimumVersion(Expression<'src>),
@@ -57,6 +58,7 @@ impl<'src> Setting<'src> {
       Self::DotenvCommand(_value)
       | Self::DotenvFilename(_value)
       | Self::DotenvPath(_value)
+      | Self::Indentation(_value)
       | Self::MinimumVersion(_value)
       | Self::Tempdir(_value)
       | Self::WorkingDirectory(_value) => false,
@@ -69,6 +71,7 @@ impl<'src> Setting<'src> {
       Self::DotenvCommand(value)
       | Self::DotenvFilename(value)
       | Self::DotenvPath(value)
+      | Self::Indentation(value)
       | Self::Tempdir(value)
       | Self::WorkingDirectory(value) => Some(value),
       Self::ScriptInterpreter(value) | Self::Shell(value) | Self::WindowsShell(value) => {
@@ -131,6 +134,7 @@ impl Display for Setting<'_> {
       Self::DotenvCommand(value)
       | Self::DotenvFilename(value)
       | Self::DotenvPath(value)
+      | Self::Indentation(value)
       | Self::MinimumVersion(value)
       | Self::Tempdir(value)
       | Self::WorkingDirectory(value) => {

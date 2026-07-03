@@ -128,6 +128,7 @@ pub(crate) enum CompileErrorKind<'src> {
     expected: &'src str,
     found: &'src str,
   },
+  IndentationExpression,
   Internal {
     message: String,
   },
@@ -138,6 +139,9 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   InvalidEscapeSequence {
     character: char,
+  },
+  InvalidIndentation {
+    message: &'static str,
   },
   InvalidMinimumVersion {
     source: &'static str,

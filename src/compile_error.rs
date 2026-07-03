@@ -248,6 +248,9 @@ impl Display for CompileError<'_> {
         ShowWhitespace(expected),
         ShowWhitespace(found)
       ),
+      IndentationExpression => {
+        write!(f, "`indentation` setting must be a plain string literal")
+      }
       Internal { message } => write!(
         f,
         "internal error, this may indicate a bug in just: {message}\n\
@@ -278,6 +281,9 @@ impl Display for CompileError<'_> {
         "shell recipe `{recipe}` has script recipe attribute `{}`",
         attribute.name(),
       ),
+      InvalidIndentation { message } => {
+        write!(f, "{message}")
+      }
       InvalidMinimumVersion { source, version } => {
         write!(
           f,

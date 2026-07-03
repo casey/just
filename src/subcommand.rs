@@ -431,12 +431,22 @@ impl Subcommand {
           .map_err(|source| Error::DumpJson { source })?;
         println!();
       }
-      DumpFormat::Just => print!(
-        "{}",
-        compilation
-          .root_ast()
-          .color_display(config.color.use_color(UseColor::Never))
-      ),
+      DumpFormat::Just => {
+        let indentation = config
+          .indentation
+          .or(compilation.justfile.settings.indentation)
+          .unwrap_or_default();
+
+        print!(
+          "{}",
+          compilation.root_ast().color_display(
+            config
+              .color
+              .use_color(UseColor::Never)
+              .with_indentation(indentation)
+          )
+        );
+      }
     }
     Ok(())
   }
@@ -475,8 +485,15 @@ impl Subcommand {
       src,
     )?;
 
+    let indentation = config.indentation.or(ast.indentation()).unwrap_or_default();
+
     let formatted = ast
-      .color_display(config.color.use_color(UseColor::Never))
+      .color_display(
+        config
+          .color
+          .use_color(UseColor::Never)
+          .with_indentation(indentation),
+      )
       .to_string();
 
     if config.check {

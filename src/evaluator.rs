@@ -107,6 +107,14 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         Setting::IgnoreComments(value) => {
           settings.ignore_comments = value;
         }
+        Setting::Indentation(value) => {
+          settings.indentation = Some(
+            self
+              .evaluate_string_const(&value, StringContext::Setting(set.name))?
+              .parse()
+              .unwrap(),
+          );
+        }
         Setting::Lazy(value) => {
           settings.lazy = value;
         }
