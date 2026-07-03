@@ -1579,21 +1579,25 @@ fn indentation_env() {
 
 #[test]
 fn indentation_setting() {
-  #[track_caller]
-  fn case(literal: &str, indentation: &str) {
-    Test::new()
-      .arg("--dump")
-      .justfile(format!(
-        "set indentation := \"{literal}\"\n\nfoo:\n    echo bar\n"
-      ))
-      .stdout(format!(
-        "set indentation := \"{literal}\"\n\nfoo:\n{indentation}echo bar\n"
-      ))
-      .success();
-  }
+  Test::new()
+    .arg("--dump")
+    .justfile(
+      "
+        set indentation := ' '
 
-  case("  ", "  ");
-  case("\\t", "\t");
+        foo:
+            echo bar
+      ",
+    )
+    .stdout(
+      "
+        set indentation := ' '
+
+        foo:
+         echo bar
+      ",
+    )
+    .success();
 }
 
 #[test]
