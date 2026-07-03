@@ -211,172 +211,7 @@ impl<'src> Attribute<'src> {
       .collect::<CompileResult<Vec<StringLiteral>>>()?;
 
     let attribute = match kind {
-      AttributeKind::Arg => {
-        static NUMBER: LazyLock<Regex> = LazyLock::new(|| Regex::new("^(0|[1-9][0-9]*)$").unwrap());
-
-        let arg = arguments.into_iter().next().unwrap();
-
-        let (long, long_key) = keyword_arguments
-          .remove("long")
-          .map(|(key, expression)| {
-            if let Some(expression) = expression {
-              let literal = Self::require_string_literal(name, key, expression)?;
-              Self::check_option_name(&arg, &literal)?;
-              Ok((Some(literal), None))
-            } else {
-              Ok((Some(arg.clone()), Some(key)))
-            }
-          })
-          .transpose()?
-          .unwrap_or_default();
-
-        let (short, short_key) = keyword_arguments
-          .remove("short")
-          .map(|(key, expression)| {
-            if let Some(expression) = expression {
-              let literal = Self::require_string_literal(name, key, expression)?;
-
-              Self::check_option_name(&arg, &literal)?;
-
-              if literal.cooked.chars().count() != 1 {
-                return Err(literal.token.error(
-                  CompileErrorKind::ShortOptionWithMultipleCharacters {
-                    parameter: arg.cooked.clone(),
-                  },
-                ));
-              }
-
-              Ok((Some(literal), None))
-            } else {
-              Ok((Some(arg.clone()), Some(key)))
-            }
-          })
-          .transpose()?
-          .unwrap_or_default();
-
-        let pattern_property = Self::remove_required(&mut keyword_arguments, "pattern")?;
-
-        let value = Self::remove_required(&mut keyword_arguments, "value")?
-          .map(|(key, expression)| {
-            if long.is_none() && short.is_none() {
-              return Err(key.error(CompileErrorKind::ArgAttributeRequiresOption { key }));
-            }
-            Ok(expression)
-          })
-          .transpose()?;
-
-        let flag = keyword_arguments
-          .remove("flag")
-          .map(|(key, expression)| {
-            if expression.is_some() {
-              return Err(key.error(CompileErrorKind::FlagAttributeTakesNoValue {
-                parameter: arg.cooked.clone(),
-              }));
-            }
-            if long.is_none() && short.is_none() {
-              return Err(key.error(CompileErrorKind::ArgAttributeRequiresOption { key }));
-            }
-            if value.is_some() {
-              return Err(key.error(CompileErrorKind::FlagAndValueArgAttribute {
-                parameter: arg.cooked.clone(),
-              }));
-            }
-            Ok(*key)
-          })
-          .transpose()?;
-
-        let multiple = keyword_arguments
-          .remove("multiple")
-          .map(|(key, expression)| {
-            if expression.is_some() {
-              return Err(key.error(CompileErrorKind::AttributeKeyTakesNoValue { key }));
-            }
-            if long.is_none() && short.is_none() {
-              return Err(key.error(CompileErrorKind::ArgAttributeRequiresOption { key }));
-            }
-            Ok(*key)
-          })
-          .transpose()?;
-
-        let (max, max_key) = Self::remove_required(&mut keyword_arguments, "max")?
-          .map(|(key, expression)| {
-            let literal = Self::require_string_literal(name, key, expression)?;
-
-            if !NUMBER.is_match(&literal.cooked) {
-              return Err(literal.token.error(CompileErrorKind::ArgumentCountValue {
-                key,
-                value: literal.cooked.clone(),
-              }));
-            }
-
-            let max = literal.cooked.parse::<u64>().map_err(|source| {
-              literal.token.error(CompileErrorKind::ArgumentCountParse {
-                key,
-                value: literal.cooked.clone(),
-                source,
-              })
-            })?;
-
-            Ok((Some(max), Some(key)))
-          })
-          .transpose()?
-          .unwrap_or_default();
-
-        let (min, min_key) = Self::remove_required(&mut keyword_arguments, "min")?
-          .map(|(key, expression)| {
-            let literal = Self::require_string_literal(name, key, expression)?;
-
-            if !NUMBER.is_match(&literal.cooked) {
-              return Err(literal.token.error(CompileErrorKind::ArgumentCountValue {
-                key,
-                value: literal.cooked.clone(),
-              }));
-            }
-
-            let min = literal.cooked.parse::<u64>().map_err(|source| {
-              literal.token.error(CompileErrorKind::ArgumentCountParse {
-                key,
-                value: literal.cooked.clone(),
-                source,
-              })
-            })?;
-
-            Ok((Some(min), Some(key)))
-          })
-          .transpose()?
-          .unwrap_or_default();
-
-        if let (Some(min), Some(max)) = (min, max)
-          && min > max
-        {
-          return Err(
-            min_key
-              .unwrap()
-              .error(CompileErrorKind::ArgAttributeMinExceedsMax { min, max }),
-          );
-        }
-
-        let help_property = Self::remove_required(&mut keyword_arguments, "help")?;
-
-        Self::Arg {
-          flag,
-          help: None,
-          help_property,
-          long,
-          long_key,
-          max,
-          max_key,
-          min,
-          min_key,
-          multiple,
-          name: arg,
-          pattern: None,
-          pattern_property,
-          short,
-          short_key,
-          value,
-        }
-      }
+      AttributeKind::Arg => Self::new_arg(name, arguments, &mut keyword_arguments)?,
       AttributeKind::Android => Self::Android,
       AttributeKind::Cache => Self::Cache {
         extra: Self::remove_required(&mut keyword_arguments, "extra")?
@@ -441,6 +276,178 @@ impl<'src> Attribute<'src> {
     }
 
     Ok(attribute)
+  }
+
+  fn new_arg(
+    name: Name<'src>,
+    arguments: Vec<StringLiteral<'src>>,
+    keyword_arguments: &mut BTreeMap<&'src str, (Name<'src>, Option<Expression<'src>>)>,
+  ) -> CompileResult<'src, Self> {
+    static NUMBER: LazyLock<Regex> = LazyLock::new(|| Regex::new("^(0|[1-9][0-9]*)$").unwrap());
+
+    let arg = arguments.into_iter().next().unwrap();
+
+    let (long, long_key) = keyword_arguments
+      .remove("long")
+      .map(|(key, expression)| {
+        if let Some(expression) = expression {
+          let literal = Self::require_string_literal(name, key, expression)?;
+          Self::check_option_name(&arg, &literal)?;
+          Ok((Some(literal), None))
+        } else {
+          Ok((Some(arg.clone()), Some(key)))
+        }
+      })
+      .transpose()?
+      .unwrap_or_default();
+
+    let (short, short_key) =
+      keyword_arguments
+        .remove("short")
+        .map(|(key, expression)| {
+          if let Some(expression) = expression {
+            let literal = Self::require_string_literal(name, key, expression)?;
+
+            Self::check_option_name(&arg, &literal)?;
+
+            if literal.cooked.chars().count() != 1 {
+              return Err(literal.token.error(
+                CompileErrorKind::ShortOptionWithMultipleCharacters {
+                  parameter: arg.cooked.clone(),
+                },
+              ));
+            }
+
+            Ok((Some(literal), None))
+          } else {
+            Ok((Some(arg.clone()), Some(key)))
+          }
+        })
+        .transpose()?
+        .unwrap_or_default();
+
+    let pattern_property = Self::remove_required(keyword_arguments, "pattern")?;
+
+    let value = Self::remove_required(keyword_arguments, "value")?
+      .map(|(key, expression)| {
+        if long.is_none() && short.is_none() {
+          return Err(key.error(CompileErrorKind::ArgAttributeRequiresOption { key }));
+        }
+        Ok(expression)
+      })
+      .transpose()?;
+
+    let flag = keyword_arguments
+      .remove("flag")
+      .map(|(key, expression)| {
+        if expression.is_some() {
+          return Err(key.error(CompileErrorKind::FlagAttributeTakesNoValue {
+            parameter: arg.cooked.clone(),
+          }));
+        }
+        if long.is_none() && short.is_none() {
+          return Err(key.error(CompileErrorKind::ArgAttributeRequiresOption { key }));
+        }
+        if value.is_some() {
+          return Err(key.error(CompileErrorKind::FlagAndValueArgAttribute {
+            parameter: arg.cooked.clone(),
+          }));
+        }
+        Ok(*key)
+      })
+      .transpose()?;
+
+    let multiple = keyword_arguments
+      .remove("multiple")
+      .map(|(key, expression)| {
+        if expression.is_some() {
+          return Err(key.error(CompileErrorKind::AttributeKeyTakesNoValue { key }));
+        }
+        if long.is_none() && short.is_none() {
+          return Err(key.error(CompileErrorKind::ArgAttributeRequiresOption { key }));
+        }
+        Ok(*key)
+      })
+      .transpose()?;
+
+    let (max, max_key) = Self::remove_required(keyword_arguments, "max")?
+      .map(|(key, expression)| {
+        let literal = Self::require_string_literal(name, key, expression)?;
+
+        if !NUMBER.is_match(&literal.cooked) {
+          return Err(literal.token.error(CompileErrorKind::ArgumentCountValue {
+            key,
+            value: literal.cooked.clone(),
+          }));
+        }
+
+        let max = literal.cooked.parse::<u64>().map_err(|source| {
+          literal.token.error(CompileErrorKind::ArgumentCountParse {
+            key,
+            value: literal.cooked.clone(),
+            source,
+          })
+        })?;
+
+        Ok((Some(max), Some(key)))
+      })
+      .transpose()?
+      .unwrap_or_default();
+
+    let (min, min_key) = Self::remove_required(keyword_arguments, "min")?
+      .map(|(key, expression)| {
+        let literal = Self::require_string_literal(name, key, expression)?;
+
+        if !NUMBER.is_match(&literal.cooked) {
+          return Err(literal.token.error(CompileErrorKind::ArgumentCountValue {
+            key,
+            value: literal.cooked.clone(),
+          }));
+        }
+
+        let min = literal.cooked.parse::<u64>().map_err(|source| {
+          literal.token.error(CompileErrorKind::ArgumentCountParse {
+            key,
+            value: literal.cooked.clone(),
+            source,
+          })
+        })?;
+
+        Ok((Some(min), Some(key)))
+      })
+      .transpose()?
+      .unwrap_or_default();
+
+    if let (Some(min), Some(max)) = (min, max)
+      && min > max
+    {
+      return Err(
+        min_key
+          .unwrap()
+          .error(CompileErrorKind::ArgAttributeMinExceedsMax { min, max }),
+      );
+    }
+
+    let help_property = Self::remove_required(keyword_arguments, "help")?;
+
+    Ok(Self::Arg {
+      flag,
+      help: None,
+      help_property,
+      long,
+      long_key,
+      max,
+      max_key,
+      min,
+      min_key,
+      multiple,
+      name: arg,
+      pattern: None,
+      pattern_property,
+      short,
+      short_key,
+      value,
+    })
   }
 
   fn remove_required(
