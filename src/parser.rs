@@ -1618,11 +1618,11 @@ impl<'run, 'src> Parser<'run, 'src> {
         let expression = self.parse_expression()?;
 
         let Expression::StringLiteral { string_literal } = expression else {
-          return Err(name.error(CompileErrorKind::IndentationExpression));
+          return Err(name.error(CompileErrorKind::SettingExpression { setting: keyword }));
         };
 
         if string_literal.expand || string_literal.kind.indented || string_literal.part.is_some() {
-          return Err(name.error(CompileErrorKind::IndentationExpression));
+          return Err(name.error(CompileErrorKind::SettingExpression { setting: keyword }));
         }
 
         let indentation = string_literal
@@ -1640,11 +1640,11 @@ impl<'run, 'src> Parser<'run, 'src> {
         let expression = self.parse_expression()?;
 
         let Expression::StringLiteral { string_literal } = expression else {
-          return Err(name.error(CompileErrorKind::MinimumVersionExpression));
+          return Err(name.error(CompileErrorKind::SettingExpression { setting: keyword }));
         };
 
         if string_literal.expand || string_literal.kind.indented || string_literal.part.is_some() {
-          return Err(name.error(CompileErrorKind::MinimumVersionExpression));
+          return Err(name.error(CompileErrorKind::SettingExpression { setting: keyword }));
         }
 
         let minimum = string_literal.cooked.parse::<Version>().map_err(|source| {

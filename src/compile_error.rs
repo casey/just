@@ -248,9 +248,6 @@ impl Display for CompileError<'_> {
         ShowWhitespace(expected),
         ShowWhitespace(found)
       ),
-      IndentationExpression => {
-        write!(f, "`indentation` setting must be a plain string literal")
-      }
       Internal { message } => write!(
         f,
         "internal error, this may indicate a bug in just: {message}\n\
@@ -311,12 +308,6 @@ impl Display for CompileError<'_> {
         f,
         "justfile requires just {minimum} or later, but using {current}",
       ),
-      MinimumVersionExpression => {
-        write!(
-          f,
-          "`minimum-version` setting must be a plain string literal"
-        )
-      }
       MismatchedClosingDelimiter {
         open,
         open_line,
@@ -378,6 +369,9 @@ impl Display for CompileError<'_> {
         f,
         "recipe `{recipe}` has both `[script]` and `[shell]` attributes"
       ),
+      SettingExpression { setting } => {
+        write!(f, "`{setting}` setting must be a plain string literal")
+      }
       ShellExpansion { err } => write!(f, "shell expansion failed: {err}"),
       ShortOptionWithMultipleCharacters { parameter } => {
         write!(

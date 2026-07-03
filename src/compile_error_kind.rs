@@ -128,7 +128,6 @@ pub(crate) enum CompileErrorKind<'src> {
     expected: &'src str,
     found: &'src str,
   },
-  IndentationExpression,
   Internal {
     message: String,
   },
@@ -162,7 +161,6 @@ pub(crate) enum CompileErrorKind<'src> {
     current: Version,
     minimum: Version,
   },
-  MinimumVersionExpression,
   MismatchedClosingDelimiter {
     close: Delimiter,
     open: Delimiter,
@@ -195,6 +193,9 @@ pub(crate) enum CompileErrorKind<'src> {
   },
   ScriptAndShellAttribute {
     recipe: &'src str,
+  },
+  SettingExpression {
+    setting: Keyword,
   },
   ShellExpansion {
     err: shellexpand::LookupError<env::VarError>,
