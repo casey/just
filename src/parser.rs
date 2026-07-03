@@ -1297,7 +1297,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           flag: flag.is_some(),
           name: arg.token,
           long: long.as_ref().map(|long| long.cooked.clone()),
-          max: max_key.zip(*max),
+          max: max_key.map(|key| (key, max.unwrap())),
           multiple: multiple.is_some(),
           short: short.as_ref().and_then(|short| short.cooked.chars().next()),
           value: value.clone(),
