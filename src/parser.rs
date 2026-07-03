@@ -1472,7 +1472,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       help,
       kind,
       long,
-      max: max.map(|(_, max)| max),
+      max: max.map(|(_key, max)| max),
       multiple,
       name,
       number: self.numerator.next(),
