@@ -6,12 +6,12 @@ pub(crate) enum CompileErrorKind<'src> {
   ArgAttributeRequiresOption {
     key: &'src str,
   },
-  ArgumentMaxValue {
-    value: String,
-  },
   ArgumentMaxParse {
     value: String,
     source: ParseIntError,
+  },
+  ArgumentMaxValue {
+    value: String,
   },
   ArgumentPatternRegex {
     source: regex::Error,
