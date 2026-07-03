@@ -1614,15 +1614,37 @@ impl<'run, 'src> Parser<'run, 'src> {
       Keyword::DotenvCommand => Some(Setting::DotenvCommand(self.parse_expression()?)),
       Keyword::DotenvFilename => Some(Setting::DotenvFilename(self.parse_expression()?)),
       Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_expression()?)),
-      Keyword::MinimumVersion => {
+      Keyword::Indentation => {
         let expression = self.parse_expression()?;
 
-        let Expression::StringLiteral { string_literal } = &expression else {
-          return Err(name.error(CompileErrorKind::MinimumVersionExpression));
+        let Expression::StringLiteral { string_literal } = expression else {
+          return Err(name.error(CompileErrorKind::SettingExpression { setting: keyword }));
         };
 
         if string_literal.expand || string_literal.kind.indented || string_literal.part.is_some() {
-          return Err(name.error(CompileErrorKind::MinimumVersionExpression));
+          return Err(name.error(CompileErrorKind::SettingExpression { setting: keyword }));
+        }
+
+        let indentation = string_literal
+          .cooked
+          .parse::<Indentation>()
+          .map_err(|message| {
+            string_literal
+              .token
+              .error(CompileErrorKind::InvalidIndentation { message })
+          })?;
+
+        Some(Setting::Indentation(string_literal, indentation))
+      }
+      Keyword::MinimumVersion => {
+        let expression = self.parse_expression()?;
+
+        let Expression::StringLiteral { string_literal } = expression else {
+          return Err(name.error(CompileErrorKind::SettingExpression { setting: keyword }));
+        };
+
+        if string_literal.expand || string_literal.kind.indented || string_literal.part.is_some() {
+          return Err(name.error(CompileErrorKind::SettingExpression { setting: keyword }));
         }
 
         let minimum = string_literal.cooked.parse::<Version>().map_err(|source| {
@@ -1643,7 +1665,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           );
         }
 
-        Some(Setting::MinimumVersion(expression))
+        Some(Setting::MinimumVersion(string_literal))
       }
       Keyword::ScriptInterpreter => Some(Setting::ScriptInterpreter(self.parse_interpreter()?)),
       Keyword::Shell => Some(Setting::Shell(self.parse_interpreter()?)),

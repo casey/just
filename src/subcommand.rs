@@ -431,12 +431,22 @@ impl Subcommand {
           .map_err(|source| Error::DumpJson { source })?;
         println!();
       }
-      DumpFormat::Just => print!(
-        "{}",
-        compilation
-          .root_ast()
-          .color_display(config.color.use_color(UseColor::Never))
-      ),
+      DumpFormat::Just => {
+        print!(
+          "{}",
+          compilation.root_ast().color_display(
+            config
+              .color
+              .with_use_color(UseColor::Never)
+              .with_indentation(
+                config
+                  .indentation
+                  .or(compilation.justfile.settings.indentation)
+                  .unwrap_or_default()
+              )
+          )
+        );
+      }
     }
     Ok(())
   }
@@ -476,7 +486,12 @@ impl Subcommand {
     )?;
 
     let formatted = ast
-      .color_display(config.color.use_color(UseColor::Never))
+      .color_display(
+        config
+          .color
+          .with_use_color(UseColor::Never)
+          .with_indentation(config.indentation.or(ast.indentation()).unwrap_or_default()),
+      )
       .to_string();
 
     if config.check {
@@ -516,7 +531,7 @@ impl Subcommand {
         })?;
 
         if config.verbosity.loud() {
-          eprintln!("Wrote justfile to `{}`", search.justfile.display());
+          eprintln!("wrote justfile to `{}`", search.justfile.display());
         }
       }
 
@@ -541,7 +556,7 @@ impl Subcommand {
     }
 
     if config.verbosity.loud() {
-      eprintln!("Wrote justfile to `{}`", search.justfile.display());
+      eprintln!("wrote justfile to `{}`", search.justfile.display());
     }
 
     Ok(())

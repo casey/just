@@ -1578,6 +1578,159 @@ fn indentation_env() {
 }
 
 #[test]
+fn indentation_setting_dump() {
+  Test::new()
+    .arg("--dump")
+    .justfile(
+      "
+        set indentation := ' '
+
+        foo:
+            echo bar
+      ",
+    )
+    .stdout(
+      "
+        set indentation := ' '
+
+        foo:
+         echo bar
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn indentation_setting_format() {
+  let output = Test::new()
+    .arg("--fmt")
+    .justfile(
+      "
+        set indentation := ' '
+
+        foo:
+            echo bar
+      ",
+    )
+    .stderr_regex("wrote justfile to `.*justfile`\n")
+    .success();
+
+  assert_eq!(
+    fs::read_to_string(output.tempdir.path().join("justfile")).unwrap(),
+    "set indentation := ' '
+
+foo:
+ echo bar
+",
+  );
+}
+
+#[test]
+fn indentation_flag_overrides_setting_dump() {
+  Test::new()
+    .args(["--dump", "--indentation", "      "])
+    .justfile(
+      "
+        set indentation := ' '
+
+        foo:
+          echo bar
+      ",
+    )
+    .stdout(
+      "
+        set indentation := ' '
+
+        foo:
+              echo bar
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn indentation_flag_overrides_setting_format() {
+  let output = Test::new()
+    .args(["--fmt", "--indentation", "      "])
+    .justfile(
+      "
+        set indentation := ' '
+
+        foo:
+          echo bar
+      ",
+    )
+    .stderr_regex("wrote justfile to `.*justfile`\n")
+    .success();
+
+  assert_eq!(
+    fs::read_to_string(output.tempdir.path().join("justfile")).unwrap(),
+    "set indentation := ' '
+
+foo:
+      echo bar
+",
+  );
+}
+
+#[test]
+fn indentation_setting_must_be_string_literal() {
+  Test::new()
+    .justfile("set indentation := ('  ' + '  ')")
+    .stderr(
+      "
+        error: `indentation` setting must be a plain string literal
+         ——▶ justfile:1:5
+          │
+        1 │ set indentation := ('  ' + '  ')
+          │     ^^^^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn indentation_setting_invalid_values() {
+  #[track_caller]
+  fn case(justfile: &str, stderr: &str) {
+    Test::new().justfile(justfile).stderr(stderr).failure();
+  }
+
+  case(
+    "set indentation := ''",
+    "
+      error: indentation must not be empty
+       ——▶ justfile:1:20
+        │
+      1 │ set indentation := ''
+        │                    ^^
+    ",
+  );
+
+  case(
+    "set indentation := 'x'",
+    "
+      error: indentation must be spaces or tabs
+       ——▶ justfile:1:20
+        │
+      1 │ set indentation := 'x'
+        │                    ^^^
+    ",
+  );
+
+  case(
+    "set indentation := \" \\t\"",
+    "
+      error: indentation may not be mixed
+       ——▶ justfile:1:20
+        │
+      1 │ set indentation := \" \\t\"
+        │                    ^^^^^
+    ",
+  );
+}
+
+#[test]
 fn multi_line_comments_before_recipes_are_not_broken_up() {
   assert_dump(
     "

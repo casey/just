@@ -25,6 +25,7 @@ pub(crate) enum Keyword {
   If,
   IgnoreComments,
   Import,
+  Indentation,
   Lazy,
   Lists,
   MinimumVersion,

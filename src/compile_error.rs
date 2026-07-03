@@ -278,6 +278,9 @@ impl Display for CompileError<'_> {
         "shell recipe `{recipe}` has script recipe attribute `{}`",
         attribute.name(),
       ),
+      InvalidIndentation { message } => {
+        write!(f, "{message}")
+      }
       InvalidMinimumVersion { source, version } => {
         write!(
           f,
@@ -305,12 +308,6 @@ impl Display for CompileError<'_> {
         f,
         "justfile requires just {minimum} or later, but using {current}",
       ),
-      MinimumVersionExpression => {
-        write!(
-          f,
-          "`minimum-version` setting must be a plain string literal"
-        )
-      }
       MismatchedClosingDelimiter {
         open,
         open_line,
@@ -372,6 +369,9 @@ impl Display for CompileError<'_> {
         f,
         "recipe `{recipe}` has both `[script]` and `[shell]` attributes"
       ),
+      SettingExpression { setting } => {
+        write!(f, "`{setting}` setting must be a plain string literal")
+      }
       ShellExpansion { err } => write!(f, "shell expansion failed: {err}"),
       ShortOptionWithMultipleCharacters { parameter } => {
         write!(

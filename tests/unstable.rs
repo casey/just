@@ -7,7 +7,7 @@ fn set_unstable_true_with_env_var() {
       .justfile("# hello")
       .args(["--fmt"])
       .env("JUST_UNSTABLE", val)
-      .stderr_regex("Wrote justfile to `.*`\n")
+      .stderr_regex("wrote justfile to `.*`\n")
       .success();
   }
 }
@@ -38,7 +38,7 @@ fn set_unstable_with_setting() {
   Test::new()
     .justfile("set unstable")
     .arg("--fmt")
-    .stderr_regex("Wrote justfile to .*")
+    .stderr_regex("wrote justfile to .*")
     .success();
 }
 

@@ -107,6 +107,7 @@ struct Settings<'a> {
   fallback: bool,
   guards: bool,
   ignore_comments: bool,
+  indentation: Option<&'a str>,
   lazy: bool,
   lists: bool,
   no_cd: bool,
@@ -702,6 +703,7 @@ fn settings() {
       set export
       set fallback
       set ignore-comments
+      set indentation := \"  \"
       set positional-arguments
       set quiet
       set shell := ['a', 'b', 'c']
@@ -731,6 +733,7 @@ fn settings() {
         export: true,
         fallback: true,
         ignore_comments: true,
+        indentation: Some("  "),
         positional_arguments: true,
         quiet: true,
         shell: Some(Interpreter {

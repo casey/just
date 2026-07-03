@@ -18,6 +18,7 @@ pub(crate) struct Config {
   pub(crate) explain: bool,
   pub(crate) groups: Vec<String>,
   pub(crate) highlight: bool,
+  pub(crate) indentation: Option<Indentation>,
   pub(crate) invocation_directory: PathBuf,
   pub(crate) justfile_names: Option<Vec<String>>,
   pub(crate) list_heading: String,
@@ -63,6 +64,7 @@ impl Config {
       explain: false,
       groups: Vec::new(),
       highlight: true,
+      indentation: None,
       invocation_directory: env::current_dir().context(config_error::CurrentDir)?,
       justfile_names: None,
       list_heading: Arguments::DEFAULT_LIST_HEADING.into(),
@@ -315,7 +317,7 @@ impl Config {
     }
 
     let unstable = arguments.unstable || subcommand == Subcommand::Summary;
-    let color = Color::new(arguments.indentation, arguments.color);
+    let color = Color::new(arguments.indentation.unwrap_or_default(), arguments.color);
 
     let invocation_directory = env::current_dir().context(config_error::CurrentDir)?;
 
@@ -338,6 +340,7 @@ impl Config {
       explain: arguments.explain,
       groups: arguments.group,
       highlight: !arguments.no_highlight,
+      indentation: arguments.indentation,
       invocation_directory,
       justfile_names: arguments.justfile_names,
       list_heading: arguments.list_heading,
