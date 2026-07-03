@@ -614,6 +614,24 @@ fn variadic_arguments_up_to_max_are_accepted() {
 }
 
 #[test]
+fn multiple_arguments_up_to_max_are_accepted() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, multiple, max='2')]
+        @foo +bar:
+          echo {{ bar }}
+      ",
+    )
+    .unstable()
+    .args(["foo", "--bar=a", "--bar=b"])
+    .stdout("a b\n")
+    .success();
+}
+
+#[test]
 fn variadic_arguments_exceeding_max_are_an_error() {
   Test::new()
     .justfile(
