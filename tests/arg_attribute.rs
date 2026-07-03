@@ -737,12 +737,11 @@ fn max_overflow_error() {
     )
     .stderr(
       "
-        error: invalid `max` value `18446744073709551616`
+        error: invalid `max` value `18446744073709551616`: number too large to fit in target type
          ——▶ justfile:1:17
           │
         1 │ [arg('bar', max='18446744073709551616')]
           │                 ^^^^^^^^^^^^^^^^^^^^^^
-        caused by: number too large to fit in target type
       ",
     )
     .failure();
