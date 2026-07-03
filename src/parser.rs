@@ -1475,9 +1475,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       && !multiple
       && !kind.is_variadic()
     {
-      return Err(
-        key.error(CompileErrorKind::ArgAttributeRequiresMultipleOrVariadic { key: key.lexeme() }),
-      );
+      return Err(key.error(CompileErrorKind::ArgAttributeRequiresMultipleOrVariadic { key }));
     }
 
     Ok(Parameter {
@@ -1777,7 +1775,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
         if let Some(&first) = first {
           return Err(name.error(CompileErrorKind::DuplicateAttribute {
-            attribute: name.lexeme(),
+            attribute: name,
             first,
           }));
         }

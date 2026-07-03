@@ -202,9 +202,9 @@ impl<'src> Attribute<'src> {
       .into_iter()
       .map(|(token, argument)| {
         let Expression::StringLiteral { string_literal } = argument else {
-          return Err(token.error(CompileErrorKind::AttributeArgumentExpression {
-            attribute: name.lexeme(),
-          }));
+          return Err(
+            token.error(CompileErrorKind::AttributeArgumentExpression { attribute: name }),
+          );
         };
         Ok(string_literal)
       })
@@ -259,9 +259,7 @@ impl<'src> Attribute<'src> {
         let value = Self::remove_required(&mut keyword_arguments, "value")?
           .map(|(key, expression)| {
             if long.is_none() && short.is_none() {
-              return Err(
-                key.error(CompileErrorKind::ArgAttributeRequiresOption { key: key.lexeme() }),
-              );
+              return Err(key.error(CompileErrorKind::ArgAttributeRequiresOption { key }));
             }
             Ok(expression)
           })
@@ -276,9 +274,7 @@ impl<'src> Attribute<'src> {
               }));
             }
             if long.is_none() && short.is_none() {
-              return Err(
-                key.error(CompileErrorKind::ArgAttributeRequiresOption { key: key.lexeme() }),
-              );
+              return Err(key.error(CompileErrorKind::ArgAttributeRequiresOption { key }));
             }
             if value.is_some() {
               return Err(key.error(CompileErrorKind::FlagAndValueArgAttribute {
@@ -293,14 +289,10 @@ impl<'src> Attribute<'src> {
           .remove("multiple")
           .map(|(key, expression)| {
             if expression.is_some() {
-              return Err(
-                key.error(CompileErrorKind::AttributeKeyTakesNoValue { key: key.lexeme() }),
-              );
+              return Err(key.error(CompileErrorKind::AttributeKeyTakesNoValue { key }));
             }
             if long.is_none() && short.is_none() {
-              return Err(
-                key.error(CompileErrorKind::ArgAttributeRequiresOption { key: key.lexeme() }),
-              );
+              return Err(key.error(CompileErrorKind::ArgAttributeRequiresOption { key }));
             }
             Ok(*key)
           })
@@ -312,14 +304,14 @@ impl<'src> Attribute<'src> {
 
             if !NUMBER.is_match(&literal.cooked) {
               return Err(literal.token.error(CompileErrorKind::ArgumentCountValue {
-                key: key.lexeme(),
+                key,
                 value: literal.cooked.clone(),
               }));
             }
 
             let max = literal.cooked.parse::<u64>().map_err(|source| {
               literal.token.error(CompileErrorKind::ArgumentCountParse {
-                key: key.lexeme(),
+                key,
                 value: literal.cooked.clone(),
                 source,
               })
@@ -336,14 +328,14 @@ impl<'src> Attribute<'src> {
 
             if !NUMBER.is_match(&literal.cooked) {
               return Err(literal.token.error(CompileErrorKind::ArgumentCountValue {
-                key: key.lexeme(),
+                key,
                 value: literal.cooked.clone(),
               }));
             }
 
             let min = literal.cooked.parse::<u64>().map_err(|source| {
               literal.token.error(CompileErrorKind::ArgumentCountParse {
-                key: key.lexeme(),
+                key,
                 value: literal.cooked.clone(),
                 source,
               })
@@ -471,9 +463,7 @@ impl<'src> Attribute<'src> {
     expression: Expression<'src>,
   ) -> CompileResult<'src, StringLiteral<'src>> {
     let Expression::StringLiteral { string_literal } = expression else {
-      return Err(key.error(CompileErrorKind::AttributeArgumentExpression {
-        attribute: attribute.lexeme(),
-      }));
+      return Err(key.error(CompileErrorKind::AttributeArgumentExpression { attribute }));
     };
 
     Ok(string_literal)

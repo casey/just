@@ -7,18 +7,18 @@ pub(crate) enum CompileErrorKind<'src> {
     max: u64,
   },
   ArgAttributeRequiresMultipleOrVariadic {
-    key: &'src str,
+    key: Name<'src>,
   },
   ArgAttributeRequiresOption {
-    key: &'src str,
+    key: Name<'src>,
   },
   ArgumentCountParse {
-    key: &'src str,
+    key: Name<'src>,
     value: String,
     source: ParseIntError,
   },
   ArgumentCountValue {
-    key: &'src str,
+    key: Name<'src>,
     value: String,
   },
   ArgumentPatternRegex {
@@ -31,13 +31,13 @@ pub(crate) enum CompileErrorKind<'src> {
     max: usize,
   },
   AttributeArgumentExpression {
-    attribute: &'src str,
+    attribute: Name<'src>,
   },
   AttributeKeyMissingValue {
     key: Name<'src>,
   },
   AttributeKeyTakesNoValue {
-    key: &'src str,
+    key: Name<'src>,
   },
   AttributePositionalFollowsKeyword,
   BacktickShebang,
@@ -61,7 +61,7 @@ pub(crate) enum CompileErrorKind<'src> {
     first: usize,
   },
   DuplicateAttribute {
-    attribute: &'src str,
+    attribute: Name<'src>,
     first: usize,
   },
   DuplicateAttributeKey {
