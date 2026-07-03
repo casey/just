@@ -3,6 +3,11 @@ use super::*;
 #[derive(Debug, PartialEq)]
 pub(crate) enum CompileErrorKind<'src> {
   ArgAttributeMaxRequiresMultipleOrVariadic,
+  ArgAttributeMinExceedsMax {
+    min: u64,
+    max: u64,
+  },
+  ArgAttributeMinRequiresMultipleOrVariadic,
   ArgAttributeRequiresOption {
     key: &'src str,
   },
@@ -11,6 +16,13 @@ pub(crate) enum CompileErrorKind<'src> {
     source: ParseIntError,
   },
   ArgumentMaxValue {
+    value: String,
+  },
+  ArgumentMinParse {
+    value: String,
+    source: ParseIntError,
+  },
+  ArgumentMinValue {
     value: String,
   },
   ArgumentPatternRegex {

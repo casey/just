@@ -37,6 +37,15 @@ impl Display for CompileError<'_> {
           "argument attribute `max` only valid with `multiple` or a variadic parameter"
         )
       }
+      ArgAttributeMinExceedsMax { min, max } => {
+        write!(f, "argument attribute `min` `{min}` exceeds `max` `{max}`")
+      }
+      ArgAttributeMinRequiresMultipleOrVariadic => {
+        write!(
+          f,
+          "argument attribute `min` only valid with `multiple` or a variadic parameter"
+        )
+      }
       ArgAttributeRequiresOption { key } => {
         write!(
           f,
@@ -48,6 +57,12 @@ impl Display for CompileError<'_> {
       }
       ArgumentMaxValue { value } => {
         write!(f, "invalid `max` value `{value}`")
+      }
+      ArgumentMinParse { value, source } => {
+        write!(f, "invalid `min` value `{value}`: {source}")
+      }
+      ArgumentMinValue { value } => {
+        write!(f, "invalid `min` value `{value}`")
       }
       ArgumentPatternRegex { .. } => {
         write!(f, "failed to parse argument pattern")

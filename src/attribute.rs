@@ -23,6 +23,9 @@ pub(crate) enum Attribute<'src> {
     max: Option<u64>,
     #[serde(skip)]
     max_key: Option<Name<'src>>,
+    min: Option<u64>,
+    #[serde(skip)]
+    min_key: Option<Name<'src>>,
     #[serde(skip)]
     multiple: Option<Token<'src>>,
     name: StringLiteral<'src>,
@@ -209,6 +212,8 @@ impl<'src> Attribute<'src> {
 
     let attribute = match kind {
       AttributeKind::Arg => {
+        static NUMBER: LazyLock<Regex> = LazyLock::new(|| Regex::new("^(0|[1-9][0-9]*)$").unwrap());
+
         let arg = arguments.into_iter().next().unwrap();
 
         let (long, long_key) = keyword_arguments
@@ -303,9 +308,6 @@ impl<'src> Attribute<'src> {
 
         let (max, max_key) = Self::remove_required(&mut keyword_arguments, "max")?
           .map(|(key, expression)| {
-            static NUMBER: LazyLock<Regex> =
-              LazyLock::new(|| Regex::new("^(0|[1-9][0-9]*)$").unwrap());
-
             let literal = Self::require_string_literal(name, key, expression)?;
 
             if !NUMBER.is_match(&literal.cooked) {
@@ -326,6 +328,38 @@ impl<'src> Attribute<'src> {
           .transpose()?
           .unwrap_or_default();
 
+        let (min, min_key) = Self::remove_required(&mut keyword_arguments, "min")?
+          .map(|(key, expression)| {
+            let literal = Self::require_string_literal(name, key, expression)?;
+
+            if !NUMBER.is_match(&literal.cooked) {
+              return Err(literal.token.error(CompileErrorKind::ArgumentMinValue {
+                value: literal.cooked.clone(),
+              }));
+            }
+
+            let min = literal.cooked.parse::<u64>().map_err(|source| {
+              literal.token.error(CompileErrorKind::ArgumentMinParse {
+                value: literal.cooked.clone(),
+                source,
+              })
+            })?;
+
+            Ok((Some(min), Some(key)))
+          })
+          .transpose()?
+          .unwrap_or_default();
+
+        if let (Some(min), Some(max)) = (min, max)
+          && min > max
+        {
+          return Err(
+            min_key
+              .unwrap()
+              .error(CompileErrorKind::ArgAttributeMinExceedsMax { min, max }),
+          );
+        }
+
         let help_property = Self::remove_required(&mut keyword_arguments, "help")?;
 
         Self::Arg {
@@ -336,6 +370,8 @@ impl<'src> Attribute<'src> {
           long_key,
           max,
           max_key,
+          min,
+          min_key,
           multiple,
           name: arg,
           pattern: None,
@@ -468,6 +504,8 @@ impl Display for Attribute<'_> {
         long_key,
         max,
         max_key: _,
+        min,
+        min_key: _,
         multiple,
         name,
         pattern: _,
@@ -504,6 +542,10 @@ impl Display for Attribute<'_> {
 
         if multiple.is_some() {
           write!(f, ", multiple")?;
+        }
+
+        if let Some(min) = min {
+          write!(f, ", min='{min}'")?;
         }
 
         if let Some(max) = max {

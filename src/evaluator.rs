@@ -769,8 +769,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     }
 
     for (parameter, argument) in parameters.iter().zip(arguments) {
-      parameter.check_value_count(recipe, argument)?;
-
       let value = if argument.elements().is_empty() {
         if let Some(default) = &parameter.default {
           evaluator.evaluate_value(default)?
@@ -795,6 +793,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       } else {
         argument.clone()
       };
+
+      parameter.check_value_count(recipe, &value)?;
 
       for element in &value {
         parameter.check_pattern_match(recipe, element)?;
