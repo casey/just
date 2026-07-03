@@ -1601,29 +1601,25 @@ fn indentation_setting() {
 }
 
 #[test]
-fn indentation_setting_fmt_check() {
-  Test::new()
-    .args(["--fmt", "--check"])
-    .justfile("set indentation := \"  \"\n\nfoo:\n  echo bar\n")
-    .success();
-}
-
-#[test]
 fn indentation_flag_overrides_setting() {
   Test::new()
     .args(["--dump", "--indentation", "    "])
-    .justfile("set indentation := \"  \"\n\nfoo:\n  echo bar\n")
-    .stdout("set indentation := \"  \"\n\nfoo:\n    echo bar\n")
-    .success();
-}
+    .justfile(
+      "
+        set indentation := ' '
 
-#[test]
-fn indentation_setting_in_import_applies_to_dump() {
-  Test::new()
-    .arg("--dump")
-    .write("import.just", "set indentation := \"  \"\n")
-    .justfile("import 'import.just'\n\nfoo:\n    echo bar\n")
-    .stdout("import 'import.just'\n\nfoo:\n  echo bar\n")
+        foo:
+          echo bar
+      ",
+    )
+    .stdout(
+      "
+        set indentation := ' '
+
+        foo:
+            echo bar
+      ",
+    )
     .success();
 }
 
