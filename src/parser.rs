@@ -1458,7 +1458,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       }));
     }
 
-    if let Some((key, _)) = max
+    if let Some((key, _max)) = max
       && !multiple
       && !kind.is_variadic()
     {
