@@ -2211,7 +2211,7 @@ once, assigning the list of passed values to the parameter. When combined with
 each occurance of the flag.
 
 The `[arg(max=MAX)]` attribute<sup>master</sup> can be used to limit the number
-of times the option or flag may be passed.
+of times an option or flag may be passed.
 
 The value of `[arg(help)]` may be a list, in which case the help string is the
 elements of the list joined with spaces. If the list is empty, the argument has
