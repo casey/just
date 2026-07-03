@@ -311,13 +311,15 @@ impl<'src> Attribute<'src> {
             let literal = Self::require_string_literal(name, key, expression)?;
 
             if !NUMBER.is_match(&literal.cooked) {
-              return Err(literal.token.error(CompileErrorKind::ArgumentMaxValue {
+              return Err(literal.token.error(CompileErrorKind::ArgumentCountValue {
+                key: key.lexeme(),
                 value: literal.cooked.clone(),
               }));
             }
 
             let max = literal.cooked.parse::<u64>().map_err(|source| {
-              literal.token.error(CompileErrorKind::ArgumentMaxParse {
+              literal.token.error(CompileErrorKind::ArgumentCountParse {
+                key: key.lexeme(),
                 value: literal.cooked.clone(),
                 source,
               })
@@ -333,13 +335,15 @@ impl<'src> Attribute<'src> {
             let literal = Self::require_string_literal(name, key, expression)?;
 
             if !NUMBER.is_match(&literal.cooked) {
-              return Err(literal.token.error(CompileErrorKind::ArgumentMinValue {
+              return Err(literal.token.error(CompileErrorKind::ArgumentCountValue {
+                key: key.lexeme(),
                 value: literal.cooked.clone(),
               }));
             }
 
             let min = literal.cooked.parse::<u64>().map_err(|source| {
-              literal.token.error(CompileErrorKind::ArgumentMinParse {
+              literal.token.error(CompileErrorKind::ArgumentCountParse {
+                key: key.lexeme(),
                 value: literal.cooked.clone(),
                 source,
               })

@@ -2,27 +2,23 @@ use super::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) enum CompileErrorKind<'src> {
-  ArgAttributeMaxRequiresMultipleOrVariadic,
   ArgAttributeMinExceedsMax {
     min: u64,
     max: u64,
   },
-  ArgAttributeMinRequiresMultipleOrVariadic,
+  ArgAttributeRequiresMultipleOrVariadic {
+    key: &'src str,
+  },
   ArgAttributeRequiresOption {
     key: &'src str,
   },
-  ArgumentMaxParse {
+  ArgumentCountParse {
+    key: &'src str,
     value: String,
     source: ParseIntError,
   },
-  ArgumentMaxValue {
-    value: String,
-  },
-  ArgumentMinParse {
-    value: String,
-    source: ParseIntError,
-  },
-  ArgumentMinValue {
+  ArgumentCountValue {
+    key: &'src str,
     value: String,
   },
   ArgumentPatternRegex {

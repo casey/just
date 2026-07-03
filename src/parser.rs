@@ -1471,18 +1471,13 @@ impl<'run, 'src> Parser<'run, 'src> {
       }));
     }
 
-    if let Some((key, _max)) = max
+    if let Some((key, _)) = max.or(min)
       && !multiple
       && !kind.is_variadic()
     {
-      return Err(key.error(CompileErrorKind::ArgAttributeMaxRequiresMultipleOrVariadic));
-    }
-
-    if let Some((key, _min)) = min
-      && !multiple
-      && !kind.is_variadic()
-    {
-      return Err(key.error(CompileErrorKind::ArgAttributeMinRequiresMultipleOrVariadic));
+      return Err(
+        key.error(CompileErrorKind::ArgAttributeRequiresMultipleOrVariadic { key: key.lexeme() }),
+      );
     }
 
     Ok(Parameter {
