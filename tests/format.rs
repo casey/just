@@ -1612,7 +1612,7 @@ fn indentation_setting_format() {
             echo bar
       ",
     )
-    .stderr_regex("wrote justfile to `.*/justfile`")
+    .stderr_regex("wrote justfile to `.*/justfile`\n")
     .success();
 
   assert_eq!(
