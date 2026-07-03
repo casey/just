@@ -933,16 +933,16 @@ test +FLAGS='-q':
 ```
 
 The number of arguments a variadic parameter accepts may be limited with the
-`[arg(ARG, max=MAX)]` attribute<sup>master</sup>:
+`[arg(ARG, max=MAX)]` attribute<sup>master</sup>, which requires lists to be
+enabled:
 
 ```just
+set lists
+
 [arg('FILES', max='2')]
 backup +FILES:
   scp {{FILES}} me@server.com:
 ```
-
-Passing more than `MAX` arguments is an error. `MAX` must be a string literal
-containing a decimal integer.
 
 `{{…}}` substitutions may need to be quoted if they contain spaces. For
 example, if you have the following recipe:
@@ -2207,8 +2207,10 @@ may not have a default.
 The `[arg(multiple)]` attribute allows an option or flag to be passed more than
 once, assigning the list of passed values to the parameter. When combined with
 `flag` or `value=VALUE`, `"true"` or `VALUE`, respectively, are repeated for
-each occurance of the flag. The `[arg(max=MAX)]` attribute<sup>master</sup>
-limits the number of times the option or flag may be passed.
+each occurance of the flag.
+
+The `[arg(max=MAX)]` attribute<sup>master</sup> can be used to limit the number
+of times the option or flag may be passed.
 
 The value of `[arg(help)]` may be a list, in which case the help string is the
 elements of the list joined with spaces. If the list is empty, the argument has
