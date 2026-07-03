@@ -17,9 +17,9 @@ impl Ast<'_> {
   pub(crate) fn indentation(&self) -> Option<Indentation> {
     self.items.iter().find_map(|item| {
       if let Item::Setting(set) = item
-        && let Setting::Indentation(Expression::StringLiteral { string_literal }) = &set.value
+        && let Setting::Indentation(_, indentation) = set.value
       {
-        string_literal.cooked.parse().ok()
+        Some(indentation)
       } else {
         None
       }
