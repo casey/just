@@ -933,8 +933,8 @@ test +FLAGS='-q':
 ```
 
 The number of arguments a variadic parameter accepts may be limited with the
-`[arg(ARG, min=MIN)]`<sup>master</sup> and `[arg(ARG, max=MAX)]`<sup>master</sup>
-attributes, which require lists to be enabled:
+`[arg(ARG, min=MIN)]` and `[arg(ARG, max=MAX)]` attributes<sup>master</sup>,
+which require lists to be enabled:
 
 ```just
 set unstable
@@ -945,8 +945,7 @@ backup +FILES:
   scp {{FILES}} me@server.com:
 ```
 
-`min` and `max` also apply to default values, so a default must satisfy them to
-be usable.
+`min` and `max` also apply to default values.
 
 `{{…}}` substitutions may need to be quoted if they contain spaces. For
 example, if you have the following recipe:
@@ -2213,9 +2212,8 @@ once, assigning the list of passed values to the parameter. When combined with
 `flag` or `value=VALUE`, `"true"` or `VALUE`, respectively, are repeated for
 each occurance of the flag.
 
-The `[arg(min=MIN)]`<sup>master</sup> and `[arg(max=MAX)]`<sup>master</sup>
-attributes can be used to limit the number of times an option or flag may be
-passed.
+The `[arg(min=MIN)]` and `[arg(max=MAX)]` attributes<sup>master</sup> can be
+used to limit the number of times an option or flag may be passed.
 
 The value of `[arg(help)]` may be a list, in which case the help string is the
 elements of the list joined with spaces. If the list is empty, the argument has
