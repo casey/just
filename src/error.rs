@@ -16,6 +16,12 @@ pub(crate) enum Error<'src> {
     pattern: Box<Pattern>,
     recipe: &'src str,
   },
+  ArgumentTooManyValues {
+    recipe: &'src str,
+    parameter: &'src str,
+    found: usize,
+    max: u64,
+  },
   Assert {
     message: String,
     name: Name<'src>,
@@ -504,6 +510,18 @@ impl ColorDisplay for Error<'_> {
           f,
           "argument `{argument}` passed to recipe `{recipe}` parameter `{parameter}` does not match pattern {}",
           List::or_ticked(pattern.originals()),
+        )?;
+      }
+      ArgumentTooManyValues {
+        recipe,
+        parameter,
+        found,
+        max,
+      } => {
+        write!(
+          f,
+          "recipe `{recipe}` parameter `{parameter}` got {} but takes at most {max}",
+          Count::numbered("value", found),
         )?;
       }
       Assert { message, .. } => {

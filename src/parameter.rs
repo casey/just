@@ -8,6 +8,7 @@ pub(crate) struct Parameter<'src> {
   pub(crate) help: Option<String>,
   pub(crate) kind: ParameterKind,
   pub(crate) long: Option<String>,
+  pub(crate) max: Option<u64>,
   #[serde(skip)]
   pub(crate) multiple: bool,
   pub(crate) name: Name<'src>,
@@ -25,6 +26,27 @@ impl<'src> Parameter<'src> {
 
   pub(crate) fn is_required(&self) -> bool {
     self.default.is_none() && self.kind != ParameterKind::Star && !self.flag
+  }
+
+  pub(crate) fn check_value_count(
+    &self,
+    recipe: &Recipe<'src>,
+    value: &Value,
+  ) -> Result<(), Error<'src>> {
+    let Some(max) = self.max else {
+      return Ok(());
+    };
+
+    if u64::try_from(value.elements().len()).unwrap() <= max {
+      return Ok(());
+    }
+
+    Err(Error::ArgumentTooManyValues {
+      recipe: recipe.name(),
+      parameter: self.name.lexeme(),
+      found: value.elements().len(),
+      max,
+    })
   }
 
   pub(crate) fn check_pattern_match(

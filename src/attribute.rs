@@ -20,6 +20,9 @@ pub(crate) enum Attribute<'src> {
     long: Option<StringLiteral<'src>>,
     #[serde(skip)]
     long_key: Option<Name<'src>>,
+    max: Option<u64>,
+    #[serde(skip)]
+    max_key: Option<Name<'src>>,
     #[serde(skip)]
     multiple: Option<Token<'src>>,
     name: StringLiteral<'src>,
@@ -298,6 +301,31 @@ impl<'src> Attribute<'src> {
           })
           .transpose()?;
 
+        let (max, max_key) = Self::remove_required(&mut keyword_arguments, "max")?
+          .map(|(key, expression)| {
+            static NUMBER: LazyLock<Regex> =
+              LazyLock::new(|| Regex::new("^(0|[1-9][0-9]*)$").unwrap());
+
+            let literal = Self::require_string_literal(name, key, expression)?;
+
+            if !NUMBER.is_match(&literal.cooked) {
+              return Err(literal.token.error(CompileErrorKind::ArgumentMaxValue {
+                value: literal.cooked.clone(),
+              }));
+            }
+
+            let max = literal.cooked.parse::<u64>().map_err(|source| {
+              literal.token.error(CompileErrorKind::ArgumentMaxParse {
+                value: literal.cooked.clone(),
+                source,
+              })
+            })?;
+
+            Ok((Some(max), Some(key)))
+          })
+          .transpose()?
+          .unwrap_or_default();
+
         let help_property = Self::remove_required(&mut keyword_arguments, "help")?;
 
         Self::Arg {
@@ -306,6 +334,8 @@ impl<'src> Attribute<'src> {
           help_property,
           long,
           long_key,
+          max,
+          max_key,
           multiple,
           name: arg,
           pattern: None,
@@ -436,6 +466,8 @@ impl Display for Attribute<'_> {
         help_property,
         long,
         long_key,
+        max,
+        max_key: _,
         multiple,
         name,
         pattern: _,
@@ -472,6 +504,10 @@ impl Display for Attribute<'_> {
 
         if multiple.is_some() {
           write!(f, ", multiple")?;
+        }
+
+        if let Some(max) = max {
+          write!(f, ", max='{max}'")?;
         }
 
         if let Some((_key, help)) = help_property {

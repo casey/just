@@ -2,8 +2,16 @@ use super::*;
 
 #[derive(Debug, PartialEq)]
 pub(crate) enum CompileErrorKind<'src> {
+  ArgAttributeMaxRequiresMultipleOrVariadic,
   ArgAttributeRequiresOption {
     key: &'src str,
+  },
+  ArgumentMaxParse {
+    value: String,
+    source: ParseIntError,
+  },
+  ArgumentMaxValue {
+    value: String,
   },
   ArgumentPatternRegex {
     source: regex::Error,

@@ -594,3 +594,242 @@ fn help_empty_list_is_no_help() {
     )
     .success();
 }
+
+#[test]
+fn variadic_arguments_up_to_max_are_accepted() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', max='2')]
+        @foo +bar:
+          echo bar='{{ show(bar) }}'
+      ",
+    )
+    .unstable()
+    .args(["foo", "a", "b"])
+    .stdout(
+      r#"
+        bar=["a", "b"]
+      "#,
+    )
+    .success();
+}
+
+#[test]
+fn multiple_arguments_up_to_max_are_accepted() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, multiple, max='2')]
+        @foo +bar:
+          echo bar='{{ show(bar) }}'
+      ",
+    )
+    .unstable()
+    .args(["foo", "--bar=a", "--bar=b"])
+    .stdout(
+      r#"
+        bar=["a", "b"]
+      "#,
+    )
+    .success();
+}
+
+#[test]
+fn variadic_arguments_exceeding_max_are_an_error() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', max='2')]
+        foo +bar:
+      ",
+    )
+    .unstable()
+    .args(["foo", "a", "b", "c"])
+    .stderr("error: recipe `foo` parameter `bar` got 3 values but takes at most 2\n")
+    .failure();
+}
+
+#[test]
+fn max_zero_rejects_all_elements() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', max='0')]
+        foo *bar:
+      ",
+    )
+    .unstable()
+    .args(["foo", "a"])
+    .stderr("error: recipe `foo` parameter `bar` got 1 value but takes at most 0\n")
+    .failure();
+}
+
+#[test]
+fn max_requires_multiple_or_variadic() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', max='2')]
+        foo bar:
+      ",
+    )
+    .unstable()
+    .stderr(
+      "
+        error: argument attribute `max` only valid with `multiple` or a variadic parameter
+         ——▶ justfile:3:13
+          │
+        3 │ [arg('bar', max='2')]
+          │             ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn max_requires_value() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', max)]
+        foo +bar:
+      ",
+    )
+    .unstable()
+    .stderr(
+      "
+        error: attribute key `max` requires value
+         ——▶ justfile:3:13
+          │
+        3 │ [arg('bar', max)]
+          │             ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn max_value_must_be_string_literal() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', max=('2'))]
+        foo +bar:
+      ",
+    )
+    .unstable()
+    .stderr(
+      "
+        error: attribute `arg` arguments must be string literals
+         ——▶ justfile:3:13
+          │
+        3 │ [arg('bar', max=('2'))]
+          │             ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn invalid_max_value_error() {
+  #[track_caller]
+  fn case(value: &str) {
+    Test::new()
+      .justfile(format!("[arg('bar', max='{value}')]\nfoo +bar:"))
+      .stderr(format!(
+        "
+          error: invalid `max` value `{value}`
+           ——▶ justfile:1:17
+            │
+          1 │ [arg('bar', max='{value}')]
+            │                 {caret}
+        ",
+        caret = "^".repeat(value.len() + 2),
+      ))
+      .failure();
+  }
+
+  case("x");
+  case("+1");
+  case("01");
+  case("1 ");
+}
+
+#[test]
+fn max_overflow_error() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', max='18446744073709551616')]
+        foo +bar:
+      ",
+    )
+    .stderr(
+      "
+        error: invalid `max` value `18446744073709551616`: number too large to fit in target type
+         ——▶ justfile:1:17
+          │
+        1 │ [arg('bar', max='18446744073709551616')]
+          │                 ^^^^^^^^^^^^^^^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn dependency_list_argument_exceeding_max_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', max='2')]
+        foo +bar:
+
+        baz: (foo ['a', 'b', 'c'])
+      ",
+    )
+    .unstable()
+    .args(["baz"])
+    .stderr("error: recipe `foo` parameter `bar` got 3 values but takes at most 2\n")
+    .failure();
+}
+
+#[test]
+fn dump_max() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', max='2')]
+        foo +bar:
+      ",
+    )
+    .unstable()
+    .arg("--dump")
+    .stdout(
+      "
+        set lists
+
+        [arg('bar', max='2')]
+        foo +bar:
+      ",
+    )
+    .success();
+}
