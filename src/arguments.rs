@@ -193,7 +193,7 @@ pub struct Arguments {
   pub(crate) indentation: Option<Indentation>,
   #[arg(
     env = "JUST_JOBS",
-    help = "Spawn at most <N> dependencies in parallel",
+    help = "Run at most <N> recipes in parallel",
     long,
     value_name = "N"
   )]
