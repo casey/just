@@ -32,6 +32,6 @@ impl Semaphore {
 
     *count -= 1;
 
-    Guard(&self)
+    Guard(self)
   }
 }
