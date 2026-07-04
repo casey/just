@@ -193,7 +193,7 @@ pub struct Arguments {
   pub(crate) indentation: Option<Indentation>,
   #[arg(
     env = "JUST_JOBS",
-    help = "Run at most <N> recipes in parallel",
+    help = "Run at most <N> recipes simulataneously with the [parallel] attribute",
     long,
     value_name = "N"
   )]
