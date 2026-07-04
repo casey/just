@@ -227,7 +227,7 @@ impl<'src> Justfile<'src> {
 
         let ran = Ran::new();
         let cache = Cache::new(search);
-        let semaphore = Semaphore::new(config.jobs.unwrap_or(NonZeroU64::MAX));
+        let jobs = Semaphore::new(config.jobs.unwrap_or(NonZeroU64::MAX));
         for invocation in invocations {
           Self::run_recipe(
             &invocation.arguments,
@@ -239,7 +239,7 @@ impl<'src> Justfile<'src> {
             &scopes,
             search,
             &cache,
-            &semaphore,
+            &jobs,
           )?;
         }
 
