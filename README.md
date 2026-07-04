@@ -1494,7 +1494,7 @@ baz:
 ```
 
 The number of simultaneously running recipes may be limited with the `--jobs`
-option.
+option<sup>master</sup>.
 
 GNU `parallel` may be used to run recipe lines concurrently:
 
