@@ -227,6 +227,7 @@ impl<'src> Justfile<'src> {
 
         let ran = Ran::new();
         let cache = Cache::new(search);
+        let jobs = Semaphore::new(config.jobs.unwrap_or(NonZeroU64::MAX));
         for invocation in invocations {
           Self::run_recipe(
             &invocation.arguments,
@@ -238,6 +239,7 @@ impl<'src> Justfile<'src> {
             &scopes,
             search,
             &cache,
+            &jobs,
           )?;
         }
 
@@ -460,6 +462,7 @@ impl<'src> Justfile<'src> {
     scopes: &Scopes<'src, '_>,
     search: &Search,
     cache: &Cache,
+    jobs: &Semaphore,
   ) -> RunResult<'src> {
     let mutex = ran.mutex(recipe, arguments);
 
@@ -511,9 +514,18 @@ impl<'src> Justfile<'src> {
       scopes,
       search,
       cache,
+      jobs,
     )?;
 
-    recipe.run(&context, &env, is_dependency, &positional, &scope, cache)?;
+    recipe.run(
+      &context,
+      &env,
+      is_dependency,
+      &positional,
+      &scope,
+      cache,
+      jobs,
+    )?;
 
     Self::run_dependencies(
       config,
@@ -526,6 +538,7 @@ impl<'src> Justfile<'src> {
       scopes,
       search,
       cache,
+      jobs,
     )?;
 
     *guard = true;
@@ -544,6 +557,7 @@ impl<'src> Justfile<'src> {
     scopes: &Scopes<'src, 'run>,
     search: &Search,
     cache: &Cache,
+    jobs: &Semaphore,
   ) -> RunResult<'src> {
     if context.config.no_dependencies {
       return Ok(());
@@ -590,7 +604,7 @@ impl<'src> Justfile<'src> {
         for (recipe, arguments) in evaluated {
           handles.push(thread_scope.spawn(move || {
             Self::run_recipe(
-              &arguments, config, true, overrides, ran, recipe, scopes, search, cache,
+              &arguments, config, true, overrides, ran, recipe, scopes, search, cache, jobs,
             )
           }));
         }
@@ -604,7 +618,7 @@ impl<'src> Justfile<'src> {
     } else {
       for (recipe, arguments) in evaluated {
         Self::run_recipe(
-          &arguments, config, true, overrides, ran, recipe, scopes, search, cache,
+          &arguments, config, true, overrides, ran, recipe, scopes, search, cache, jobs,
         )?;
       }
     }

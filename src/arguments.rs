@@ -192,6 +192,13 @@ pub struct Arguments {
   )]
   pub(crate) indentation: Option<Indentation>,
   #[arg(
+    env = "JUST_JOBS",
+    help = "Run at most <N> recipes simultaneously with the [parallel] attribute",
+    long,
+    value_name = "N"
+  )]
+  pub(crate) jobs: Option<NonZeroU64>,
+  #[arg(
     add = ArgValueCompleter::new(PathCompleter::file()),
     env = "JUST_JUSTFILE",
     help = "Use <JUSTFILE> as justfile or `-` to read from standard input",
