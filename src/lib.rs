@@ -99,6 +99,7 @@ pub(crate) use {
     search::Search,
     search_config::SearchConfig,
     search_error::SearchError,
+    semaphore::Semaphore,
     set::Set,
     setting::Setting,
     settings::Settings,
@@ -159,14 +160,14 @@ pub(crate) use {
     io::{self, Sink, Write},
     iter::{self, FromIterator},
     mem,
-    num::ParseIntError,
+    num::{NonZeroU64, ParseIntError},
     ops::Deref,
     ops::{Index, RangeInclusive},
     path::{self, Component, Path, PathBuf},
     process::{self, Command, ExitStatus, Stdio},
     slice,
     str::{self, Chars, FromStr},
-    sync::{Arc, LazyLock, Mutex, MutexGuard},
+    sync::{Arc, Condvar, LazyLock, Mutex, MutexGuard},
     thread,
     time::Instant,
     vec,
@@ -313,6 +314,7 @@ mod scope;
 mod search;
 mod search_config;
 mod search_error;
+mod semaphore;
 mod set;
 mod setting;
 mod settings;

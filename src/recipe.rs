@@ -208,7 +208,10 @@ impl<'src> Recipe<'src> {
     positional: &[String],
     scope: &Scope<'src, 'run>,
     cache: &Cache,
+    jobs: &Semaphore,
   ) -> RunResult<'src> {
+    let _guard = jobs.acquire();
+
     let color = context.config.color.stderr().banner();
     let prefix = color.prefix();
     let suffix = color.suffix();
