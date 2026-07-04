@@ -1493,6 +1493,9 @@ baz:
   sleep 1
 ```
 
+The number of simultaneously running recipes may be limited with the `--jobs`
+option.
+
 GNU `parallel` may be used to run recipe lines concurrently:
 
 ```just
