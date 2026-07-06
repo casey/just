@@ -89,6 +89,7 @@ mod assignment;
 mod attributes;
 mod backticks;
 mod booleans;
+mod bugs;
 mod byte_order_mark;
 mod cache;
 mod ceiling;

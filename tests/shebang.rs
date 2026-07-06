@@ -169,3 +169,17 @@ fn run_shebang() {
     .stderr("error: recipe `a` failed with exit code 200\n")
     .status(200);
 }
+
+#[test]
+fn invalid_shebang_error() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          #!{{ '' }}
+          echo bar
+      ",
+    )
+    .stderr_regex("error: recipe `foo` has invalid shebang `#!`\n")
+    .failure();
+}
