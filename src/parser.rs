@@ -423,20 +423,31 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
 
     let mut items = self.items.iter().rev();
-    if matches!(items.next(), Some(Item::Newline))
-      && matches!(items.next(), Some(Item::Comment(_)))
-      && matches!(items.next(), Some(Item::Newline) | None)
-    {
-      self.items.pop().unwrap();
 
-      if let Item::Comment(contents) = self.items.pop().unwrap() {
-        Some(contents[1..].trim_start().into())
-      } else {
-        unreachable!();
-      }
-    } else {
-      None
+    if !matches!(items.next()?, Item::Newline) {
+      return None;
     }
+
+    let Item::Comment(contents) = items.next()? else {
+      return None;
+    };
+
+    let first = match items.next() {
+      None => true,
+      Some(Item::Newline) => false,
+      Some(_) => return None,
+    };
+
+    if first && contents.starts_with("#!") {
+      return None;
+    }
+
+    let doc = contents[1..].trim_start().into();
+
+    self.items.pop().unwrap();
+    self.items.pop().unwrap();
+
+    Some(doc)
   }
 
   /// Parse a justfile, consumes self
