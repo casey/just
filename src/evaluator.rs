@@ -606,15 +606,15 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.deref().into()),
       Expression::Variable { name, .. } => {
         let variable = name.lexeme();
-        if let Some(value) = self.scope.value(variable) {
-          Ok(value.clone())
-        } else if self.non_const_assignments.contains_key(name.lexeme()) {
+        if self.non_const_assignments.contains_key(name.lexeme()) {
           Err(ConstError::Variable(*name).into())
         } else if let Some(assignment) = self
           .assignments
           .and_then(|assignments| assignments.get(variable))
         {
           Ok(self.evaluate_assignment(assignment)?.clone())
+        } else if let Some(value) = self.scope.value(variable) {
+          Ok(value.clone())
         } else {
           Err(Error::internal(format!(
             "attempted to evaluate undefined variable `{variable}`"
