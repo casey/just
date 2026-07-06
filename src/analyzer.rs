@@ -291,20 +291,22 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       if !recipe.is_script(&settings) {
         let mut continued = false;
         for line in &recipe.body {
-          let sigils = line.sigils(&settings);
+          if !continued {
+            let sigils = line.sigils(&settings);
 
-          if sigils.contains(&Sigil::Guard) && sigils.contains(&Sigil::Infallible) {
-            let Fragment::Text { token } = line.fragments.first().unwrap() else {
-              unreachable!();
-            };
-            return Err(token.error(GuardAndInfallibleSigil));
-          }
+            if sigils.contains(&Sigil::Guard) && sigils.contains(&Sigil::Infallible) {
+              let Fragment::Text { token } = line.fragments.first().unwrap() else {
+                unreachable!();
+              };
+              return Err(token.error(GuardAndInfallibleSigil));
+            }
 
-          if !continued && let Some(Fragment::Text { token }) = line.fragments.first() {
-            let text = token.lexeme();
+            if let Some(Fragment::Text { token }) = line.fragments.first() {
+              let text = token.lexeme();
 
-            if text.starts_with(' ') || text.starts_with('\t') {
-              return Err(token.error(ExtraLeadingWhitespace));
+              if text.starts_with(' ') || text.starts_with('\t') {
+                return Err(token.error(ExtraLeadingWhitespace));
+              }
             }
           }
 

@@ -81,3 +81,20 @@ fn guard_lines_are_ignored_without_setting() {
     .stdout("bar\n")
     .success();
 }
+
+#[test]
+fn sigils_are_ignored_on_continuation_lines() {
+  Test::new()
+    .justfile(
+      "
+        set guards
+
+        foo:
+          echo a \\
+          -?bar
+      ",
+    )
+    .stdout("a -?bar\n")
+    .stderr("echo a -?bar\n")
+    .success();
+}
