@@ -291,6 +291,8 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       if !recipe.is_script(&settings) {
         let mut continued = false;
         for line in &recipe.body {
+          let comment = !continued && settings.ignore_comments && line.is_comment();
+
           if !continued {
             let sigils = line.sigils(&settings);
 
@@ -310,7 +312,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             }
           }
 
-          continued = line.is_continuation();
+          continued = !comment && line.is_continuation();
         }
 
         for attribute in [AttributeKind::Cache, AttributeKind::Extension] {

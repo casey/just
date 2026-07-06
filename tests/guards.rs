@@ -98,3 +98,28 @@ fn sigils_are_ignored_on_continuation_lines() {
     .stderr("echo a -?bar\n")
     .success();
 }
+
+#[test]
+fn sigils_are_recognized_after_ignored_comments() {
+  Test::new()
+    .justfile(
+      "
+        set guards
+        set ignore-comments
+
+        foo:
+          # comment \\
+          -?bar
+      ",
+    )
+    .stderr(
+      "
+        error: the guard `?` and infallible `-` sigils may not be used together
+         ——▶ justfile:6:3
+          │
+        6 │   -?bar
+          │   ^^^^^
+      ",
+    )
+    .failure();
+}
