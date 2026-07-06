@@ -157,22 +157,6 @@ fn listed_recipes_in_imports_are_in_load_order() {
 }
 
 #[test]
-fn include_error() {
-  Test::new()
-    .justfile("!include foo")
-    .stderr(
-      "
-        error: the `!include` directive has been stabilized as `import`
-         ——▶ justfile:1:1
-          │
-        1 │ !include foo
-          │ ^
-      ",
-    )
-    .failure();
-}
-
-#[test]
 fn recipes_in_import_are_overridden_by_recipes_in_parent() {
   Test::new()
     .write(

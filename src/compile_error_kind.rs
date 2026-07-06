@@ -119,7 +119,6 @@ pub(crate) enum CompileErrorKind<'src> {
     function: &'src str,
   },
   GuardAndInfallibleSigil,
-  Include,
   IncompatibleSettings {
     first: Keyword,
     first_line: usize,

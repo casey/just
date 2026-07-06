@@ -229,10 +229,6 @@ impl Display for CompileError<'_> {
         f,
         "the guard `?` and infallible `-` sigils may not be used together"
       ),
-      Include => write!(
-        f,
-        "the `!include` directive has been stabilized as `import`"
-      ),
       IncompatibleSettings {
         first,
         first_line,
