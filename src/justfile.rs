@@ -486,6 +486,7 @@ impl<'src> Justfile<'src> {
       dotenv,
       module,
       overrides,
+      scope,
       search,
     };
 
