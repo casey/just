@@ -133,6 +133,45 @@ a:"#,
 }
 
 #[test]
+fn cooked_string_crlf_line_continuation() {
+  Test::new()
+    .justfile("x := \"a\\\r\nb\"")
+    .args(["--evaluate", "x"])
+    .stdout("ab")
+    .success();
+}
+
+#[test]
+fn escaped_carriage_return_without_line_feed_is_an_error() {
+  Test::new()
+    .justfile("x := \"a\\\rb\"")
+    .stderr(
+      "error: `\\\\r` is not a valid escape sequence
+ ——▶ justfile:1:6
+  │
+1 │ x := \"a\\\rb\"
+  │      ^^^^^
+",
+    )
+    .failure();
+}
+
+#[test]
+fn escaped_carriage_return_at_end_of_string_is_an_error() {
+  Test::new()
+    .justfile("x := \"a\\\r\"")
+    .stderr(
+      "error: `\\\\r` is not a valid escape sequence
+ ——▶ justfile:1:6
+  │
+1 │ x := \"a\\\r\"
+  │      ^^^^
+",
+    )
+    .failure();
+}
+
+#[test]
 fn error_line_after_multiline_raw_string() {
   Test::new()
     .arg("a")

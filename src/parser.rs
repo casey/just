@@ -1111,6 +1111,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     #[derive(PartialEq, Eq)]
     enum State {
       Backslash,
+      BackslashCarriageReturn,
       Initial,
       Unicode,
       UnicodeValue { hex: String },
@@ -1133,19 +1134,26 @@ impl<'run, 'src> Parser<'run, 'src> {
           state = State::Unicode;
         }
         State::Backslash => {
+          state = State::Initial;
           match c {
             'n' => cooked.push('\n'),
             'r' => cooked.push('\r'),
             't' => cooked.push('\t'),
             '\\' => cooked.push('\\'),
             '\n' => {}
+            '\r' => state = State::BackslashCarriageReturn,
             '"' => cooked.push('"'),
             character => {
               return Err(token.error(CompileErrorKind::InvalidEscapeSequence { character }));
             }
           }
-          state = State::Initial;
         }
+        State::BackslashCarriageReturn => match c {
+          '\n' => state = State::Initial,
+          _ => {
+            return Err(token.error(CompileErrorKind::InvalidEscapeSequence { character: '\r' }));
+          }
+        },
         State::Unicode => match c {
           '{' => {
             state = State::UnicodeValue { hex: String::new() };
@@ -1181,11 +1189,13 @@ impl<'run, 'src> Parser<'run, 'src> {
       }
     }
 
-    if state != State::Initial {
-      return Err(token.error(CompileErrorKind::UnicodeEscapeUnterminated));
+    match state {
+      State::Initial => Ok(cooked),
+      State::BackslashCarriageReturn => {
+        Err(token.error(CompileErrorKind::InvalidEscapeSequence { character: '\r' }))
+      }
+      _ => Err(token.error(CompileErrorKind::UnicodeEscapeUnterminated)),
     }
-
-    Ok(cooked)
   }
 
   /// Parse a name from an identifier token
