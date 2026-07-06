@@ -1624,7 +1624,7 @@ fn doc_attribute_on_module_may_be_expression() {
 }
 
 #[test]
-fn doc_attribute_on_module_with_undefined_variable_is_an_error() {
+fn variables_in_doc_attributes_are_resolved() {
   Test::new()
     .write("foo.just", "")
     .justfile(
