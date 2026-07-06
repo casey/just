@@ -8,7 +8,7 @@ impl Compiler {
     loader: &'src Loader,
     root: &Path,
   ) -> RunResult<'src, Compilation<'src>> {
-    let mut asts = HashMap::<PathBuf, Ast>::new();
+    let mut asts = HashMap::<(Modulepath, PathBuf), Ast>::new();
     let mut loaded = Vec::new();
     let mut numerator = Numerator::new();
     let mut paths = HashMap::<PathBuf, PathBuf>::new();
@@ -16,15 +16,29 @@ impl Compiler {
     stack.push(Source::root(root));
 
     while let Some(current) = stack.pop() {
-      if paths.contains_key(&current.path) {
+      let key = (
+        current
+          .namepath
+          .as_ref()
+          .map(Modulepath::from)
+          .unwrap_or_default(),
+        current.path.clone(),
+      );
+
+      if asts.contains_key(&key) {
         continue;
       }
 
       let (relative, src) = loader.load(config, root, &current.path)?;
-      loaded.push(relative.into());
-      let mut ast = Parser::parse_source(&mut numerator, relative, &current, src)?;
 
-      paths.insert(current.path.clone(), relative.into());
+      if paths
+        .insert(current.path.clone(), relative.into())
+        .is_none()
+      {
+        loaded.push(relative.into());
+      }
+
+      let mut ast = Parser::parse_source(&mut numerator, relative, &current, src)?;
 
       for item in &mut ast.items {
         if !item.is_enabled() {
@@ -93,7 +107,7 @@ impl Compiler {
         }
       }
 
-      asts.insert(current.path, ast.clone());
+      asts.insert(key, ast.clone());
     }
 
     let mut overrides = HashMap::new();
@@ -104,6 +118,7 @@ impl Compiler {
       None,
       &[],
       &loaded,
+      &Modulepath::default(),
       None,
       &mut overrides,
       &paths,
@@ -247,8 +262,8 @@ impl Compiler {
     let tokens = Lexer::test_lex(src)?;
     let ast = Parser::parse_tokens(&mut Numerator::new(), &tokens)?;
     let root = PathBuf::from("justfile");
-    let mut asts: HashMap<PathBuf, Ast> = HashMap::new();
-    asts.insert(root.clone(), ast);
+    let mut asts: HashMap<(Modulepath, PathBuf), Ast> = HashMap::new();
+    asts.insert((Modulepath::default(), root.clone()), ast);
     let mut paths: HashMap<PathBuf, PathBuf> = HashMap::new();
     paths.insert(root.clone(), root.clone());
     Analyzer::analyze(
@@ -257,6 +272,7 @@ impl Compiler {
       None,
       &[],
       &[],
+      &Modulepath::default(),
       None,
       &mut HashMap::new(),
       &paths,
