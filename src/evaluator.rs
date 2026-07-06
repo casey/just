@@ -202,6 +202,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       dotenv,
       module,
       overrides,
+      scope: parent,
       search,
     };
 
@@ -235,7 +236,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   fn evaluate_assignment(&mut self, assignment: &Assignment<'src>) -> RunResult<'src, &Value> {
     let name = assignment.name.lexeme();
 
-    if !self.scope.bound(name) {
+    let evaluated = self
+      .scope
+      .binding(name)
+      .is_some_and(|binding| binding.number == assignment.number);
+
+    if !evaluated {
       let value = if let Some(value) = self.overrides.get(&assignment.number) {
         value.into()
       } else {
@@ -286,9 +292,19 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     let context = *self.context.as_ref().unwrap();
 
-    let mut scope = Scope::root();
-    for ((name, number), argument) in function.parameters.iter().copied().zip(arguments) {
-      let value = self.evaluate_value(argument)?;
+    let values = arguments
+      .iter()
+      .map(|argument| self.evaluate_value(argument))
+      .collect::<RunResult<Vec<Value>>>()?;
+
+    let parent = if self.assignments.is_some() {
+      &self.scope
+    } else {
+      context.scope
+    };
+
+    let mut scope = parent.child();
+    for ((name, number), value) in function.parameters.iter().copied().zip(values) {
       scope.bind(Binding {
         attributes: AttributeSet::new(),
         eager: false,
@@ -298,7 +314,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         number,
         prelude: false,
         private: false,
-        value: value.clone(),
+        value,
       });
     }
 
@@ -608,6 +624,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         let variable = name.lexeme();
         if self.non_const_assignments.contains_key(name.lexeme()) {
           Err(ConstError::Variable(*name).into())
+        } else if let Some(binding) = self.scope.binding(variable)
+          && !binding.prelude
+        {
+          Ok(binding.value.clone())
         } else if let Some(assignment) = self
           .assignments
           .and_then(|assignments| assignments.get(variable))

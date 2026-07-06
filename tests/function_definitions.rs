@@ -426,3 +426,22 @@ fn shadow_builtin() {
   case("show");
   case("which");
 }
+
+#[test]
+fn assignments_are_not_reevaluated() {
+  Test::new()
+    .justfile(
+      "
+        set unstable
+
+        x := `echo bar >> foo; wc -l < foo | tr -d ' '`
+
+        f() := x
+
+        bar:
+          @echo {{ x }} {{ f() }} {{ x }}
+      ",
+    )
+    .stdout("1 1 1\n")
+    .success();
+}
