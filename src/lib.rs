@@ -37,6 +37,8 @@ pub(crate) use {
     const_eval_error::ConstEvalError,
     constants::constants,
     count::Count,
+    datetime_format::datetime_format,
+    datetime_format_error::DatetimeFormatError,
     delimiter::Delimiter,
     dependency::Dependency,
     dependency_argument::DependencyArgument,
@@ -136,6 +138,7 @@ pub(crate) use {
     which::which,
   },
   camino::Utf8Path,
+  chrono::{DateTime, Local, TimeZone, Utc, format::StrftimeItems},
   clap::{CommandFactory, FromArgMatches, Parser as _, ValueEnum},
   clap_complete::{ArgValueCompleter, CompletionCandidate, PathCompleter, engine::ValueCompleter},
   digest_io::HashWriter,
@@ -251,6 +254,8 @@ mod const_error;
 mod const_eval_error;
 mod constants;
 mod count;
+mod datetime_format;
+mod datetime_format_error;
 mod delimiter;
 mod dependency;
 mod dependency_argument;

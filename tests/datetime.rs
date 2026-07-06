@@ -31,6 +31,30 @@ fn invalid_format_string_error() {
   Test::new()
     .justfile("x := datetime('%!')")
     .args(["--evaluate", "x"])
-    .stderr_regex("error: call to function `datetime` failed: invalid format string `%!`: .*\n")
+    .stderr(
+      "
+        error: call to function `datetime` failed: failed to parse time format string `%!`: bad or unsupported format string
+         ——▶ justfile:1:6
+          │
+        1 │ x := datetime('%!')
+          │      ^^^^^^^^
+      ")
+    .failure();
+}
+
+#[test]
+fn parse_only_specifier_error() {
+  Test::new()
+    .justfile("x := datetime('%#z')")
+    .arg("--evaluate")
+    .stderr(
+      "
+        error: call to function `datetime` failed: failed to format time with format string `%#z`
+         ——▶ justfile:1:6
+          │
+        1 │ x := datetime('%#z')
+          │      ^^^^^^^^
+      ",
+    )
     .failure();
 }
