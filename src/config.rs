@@ -155,8 +155,7 @@ impl Config {
     self
       .timestamp
       .then(|| {
-        datetime_format(chrono::Local::now(), &self.timestamp_format)
-          .map_err(|err| Error::DatetimeFormat(err))
+        datetime_format(chrono::Local::now(), &self.timestamp_format).map_err(Error::DatetimeFormat)
       })
       .transpose()
   }
