@@ -189,7 +189,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     config: &'run Config,
     dotenv: &'run BTreeMap<String, String>,
     module: &'run Justfile<'src>,
-    overrides: &'run HashMap<Number, String>,
     parent: &'run Scope<'src, 'run>,
     search: &'run Search,
     variable_references: Option<&HashSet<Number>>,
@@ -201,7 +200,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       config,
       dotenv,
       module,
-      overrides,
       search,
     };
 
@@ -213,7 +211,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       is_dependency: false,
       lists: module.settings.lists,
       non_const_assignments: Table::new(),
-      overrides,
+      overrides: &module.overrides,
       recipe: None,
       scope: parent.child(),
     };
@@ -845,7 +843,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       is_dependency,
       lists: context.module.settings.lists,
       non_const_assignments: Table::new(),
-      overrides: context.overrides,
+      overrides: &context.module.overrides,
       recipe,
       recursion_depth: 0,
       scope: scope.child(),

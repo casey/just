@@ -29,7 +29,6 @@ pub(crate) struct Parser<'run, 'src> {
   import_offsets: Vec<usize>,
   items: Vec<Item<'src>>,
   list_features: Vec<(ListFeature, Token<'src>)>,
-  module_namepath: Option<&'run Namepath<'src>>,
   next_token: usize,
   numerator: &'run mut Numerator,
   recursion_depth: usize,
@@ -43,7 +42,6 @@ impl<'run, 'src> Parser<'run, 'src> {
   pub(crate) fn parse(
     file_depth: u32,
     import_offsets: &[usize],
-    module_namepath: Option<&'run Namepath<'src>>,
     numerator: &'run mut Numerator,
     tokens: &'run [Token<'src>],
     working_directory: &'run Path,
@@ -54,7 +52,6 @@ impl<'run, 'src> Parser<'run, 'src> {
       import_offsets: import_offsets.to_vec(),
       items: Vec::new(),
       list_features: Vec::new(),
-      module_namepath,
       next_token: 0,
       numerator,
       recursion_depth: 0,
@@ -68,7 +65,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   pub(crate) fn parse_source(
     numerator: &mut Numerator,
     path: &'src Path,
-    source: &Source<'src>,
+    source: &Source,
     src: &'src str,
   ) -> CompileResult<'src, Ast<'src>> {
     let tokens = Lexer::lex(path, src)?;
@@ -76,7 +73,6 @@ impl<'run, 'src> Parser<'run, 'src> {
     Parser::parse(
       source.file_depth,
       &source.import_offsets,
-      source.namepath.as_ref(),
       numerator,
       &tokens,
       &source.working_directory,
@@ -88,7 +84,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     numerator: &'run mut Numerator,
     tokens: &'run [Token<'src>],
   ) -> CompileResult<'src, Ast<'src>> {
-    Self::parse(0, &[], None, numerator, tokens, "".as_ref())
+    Self::parse(0, &[], numerator, tokens, "".as_ref())
   }
 
   fn error(&self, kind: CompileErrorKind<'src>) -> CompileResult<'src, CompileError<'src>> {
@@ -490,7 +486,6 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok(Ast {
       items: self.items,
       list_features: self.list_features,
-      module_path: self.module_namepath.map(Into::into).unwrap_or_default(),
       unstable_features: self.unstable_features,
       warnings: Vec::new(),
       working_directory: self.working_directory.into(),

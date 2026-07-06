@@ -2056,3 +2056,88 @@ fn trailing_separator_not_last_argument() {
     .stderr("error: justfile does not contain recipe `foo::`\n")
     .failure();
 }
+
+#[test]
+fn overrides_apply_to_modules_sharing_a_source_file() {
+  #[track_caller]
+  fn case(set: &str, expected: &str) {
+    Test::new()
+      .write(
+        "shared.just",
+        "
+          x := 'def'
+
+          show:
+            @echo x={{ x }}
+        ",
+      )
+      .justfile(
+        "
+          mod a 'shared.just'
+
+          mod b 'shared.just'
+        ",
+      )
+      .args(["--set", set, "over", "a::show"])
+      .stdout(expected)
+      .success();
+  }
+
+  case("a::x", "x=over\n");
+  case("b::x", "x=def\n");
+}
+
+#[test]
+fn modules_sharing_a_source_file_are_distinct() {
+  Test::new()
+    .write(
+      "shared.just",
+      "
+        x := 'def'
+
+        show:
+          @echo x={{ x }}
+      ",
+    )
+    .justfile(
+      "
+        mod a 'shared.just'
+
+        mod b 'shared.just'
+      ",
+    )
+    .args(["--set", "a::x", "over", "a::show", "b::show"])
+    .stdout("x=over\nx=def\n")
+    .success();
+}
+
+#[test]
+fn nested_modules_in_shared_source_files_are_distinct() {
+  Test::new()
+    .write("shared.just", "mod inner\n")
+    .write(
+      "inner.just",
+      "
+        x := 'def'
+
+        show:
+          @echo x={{ x }}
+      ",
+    )
+    .justfile(
+      "
+        mod a 'shared.just'
+
+        mod b 'shared.just'
+      ",
+    )
+    .args([
+      "--set",
+      "a::inner::x",
+      "over",
+      "a::inner::show",
+      "b::inner::show",
+    ])
+    .stdout("x=over\nx=def\n")
+    .success();
+}

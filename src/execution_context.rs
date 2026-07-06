@@ -5,7 +5,6 @@ pub(crate) struct ExecutionContext<'src: 'run, 'run> {
   pub(crate) config: &'run Config,
   pub(crate) dotenv: &'run BTreeMap<String, String>,
   pub(crate) module: &'run Justfile<'src>,
-  pub(crate) overrides: &'run HashMap<Number, String>,
   pub(crate) search: &'run Search,
 }
 

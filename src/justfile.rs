@@ -33,6 +33,8 @@ pub(crate) struct Justfile<'src> {
   #[serde(skip)]
   pub(crate) name: Option<Name<'src>>,
   #[serde(skip)]
+  pub(crate) overrides: HashMap<Number, String>,
+  #[serde(skip)]
   pub(crate) private: bool,
   #[serde(rename = "aliases")]
   pub(crate) recipe_aliases: Table<'src, RecipeAlias<'src>>,
@@ -108,7 +110,6 @@ impl<'src> Justfile<'src> {
     &'run self,
     config: &'run Config,
     dotenv_arena: &'run Arena<BTreeMap<String, String>>,
-    overrides: &'run HashMap<Number, String>,
     parent_dotenv: Option<&'run BTreeMap<String, String>>,
     lazy: bool,
     root: &'run Scope<'src, 'run>,
@@ -146,7 +147,6 @@ impl<'src> Justfile<'src> {
       config,
       dotenv,
       self,
-      overrides,
       root,
       search,
       lazy.then_some(variable_references),
@@ -159,7 +159,6 @@ impl<'src> Justfile<'src> {
       module.evaluate_scopes(
         config,
         dotenv_arena,
-        overrides,
         Some(dotenv),
         lazy,
         scope,
@@ -178,7 +177,6 @@ impl<'src> Justfile<'src> {
     config: &Config,
     search: &Search,
     arguments: &[String],
-    overrides: &HashMap<Number, String>,
   ) -> RunResult<'src> {
     let root = Scope::root();
     let dotenv_arena = Arena::new();
@@ -220,7 +218,6 @@ impl<'src> Justfile<'src> {
         self.evaluate_scopes(
           config,
           &dotenv_arena,
-          overrides,
           None,
           false,
           &root,
@@ -238,7 +235,6 @@ impl<'src> Justfile<'src> {
             &invocation.arguments,
             config,
             false,
-            overrides,
             &ran,
             invocation.recipe,
             &scopes,
@@ -268,7 +264,6 @@ impl<'src> Justfile<'src> {
         self.evaluate_scopes(
           config,
           &dotenv_arena,
-          overrides,
           None,
           true,
           &root,
@@ -313,7 +308,6 @@ impl<'src> Justfile<'src> {
         self.evaluate_scopes(
           config,
           &dotenv_arena,
-          overrides,
           None,
           true,
           &root,
@@ -461,7 +455,6 @@ impl<'src> Justfile<'src> {
     arguments: &[Value],
     config: &Config,
     is_dependency: bool,
-    overrides: &HashMap<Number, String>,
     ran: &Ran,
     recipe: &Recipe<'src>,
     scopes: &Scopes<'src, '_>,
@@ -485,7 +478,6 @@ impl<'src> Justfile<'src> {
       config,
       dotenv,
       module,
-      overrides,
       search,
     };
 
@@ -514,7 +506,6 @@ impl<'src> Justfile<'src> {
       recipe.priors(),
       recipe,
       &mut evaluator,
-      overrides,
       ran,
       scopes,
       search,
@@ -538,7 +529,6 @@ impl<'src> Justfile<'src> {
       recipe.subsequents(),
       recipe,
       &mut evaluator,
-      overrides,
       &Ran::new(),
       scopes,
       search,
@@ -557,7 +547,6 @@ impl<'src> Justfile<'src> {
     dependencies: &[Dependency<'src>],
     dependent: &Recipe<'src>,
     evaluator: &mut Evaluator<'src, 'run>,
-    overrides: &HashMap<Number, String>,
     ran: &Ran,
     scopes: &Scopes<'src, 'run>,
     search: &Search,
@@ -609,7 +598,7 @@ impl<'src> Justfile<'src> {
         for (recipe, arguments) in evaluated {
           handles.push(thread_scope.spawn(move || {
             Self::run_recipe(
-              &arguments, config, true, overrides, ran, recipe, scopes, search, cache, jobs,
+              &arguments, config, true, ran, recipe, scopes, search, cache, jobs,
             )
           }));
         }
@@ -623,7 +612,7 @@ impl<'src> Justfile<'src> {
     } else {
       for (recipe, arguments) in evaluated {
         Self::run_recipe(
-          &arguments, config, true, overrides, ran, recipe, scopes, search, cache, jobs,
+          &arguments, config, true, ran, recipe, scopes, search, cache, jobs,
         )?;
       }
     }

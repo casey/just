@@ -14,31 +14,40 @@ pub(crate) struct Analyzer<'run, 'src> {
 
 impl<'run, 'src> Analyzer<'run, 'src> {
   pub(crate) fn analyze(
-    asts: &'run HashMap<PathBuf, Ast<'src>>,
+    asts: &'run HashMap<(Modulepath, PathBuf), Ast<'src>>,
     config: &Config,
     doc: Option<String>,
     groups: &[StringLiteral<'src>],
     loaded: &[PathBuf],
+    module_path: Modulepath,
     name: Option<Name<'src>>,
-    overrides: &mut HashMap<Number, String>,
     paths: &HashMap<PathBuf, PathBuf>,
     private: bool,
     root: &Path,
   ) -> CompileResult<'src, Justfile<'src>> {
     Self::default().justfile(
-      asts, config, doc, groups, loaded, name, overrides, paths, private, root,
+      asts,
+      config,
+      doc,
+      groups,
+      loaded,
+      module_path,
+      name,
+      paths,
+      private,
+      root,
     )
   }
 
   fn justfile(
     mut self,
-    asts: &'run HashMap<PathBuf, Ast<'src>>,
+    asts: &'run HashMap<(Modulepath, PathBuf), Ast<'src>>,
     config: &Config,
     doc: Option<String>,
     groups: &[StringLiteral<'src>],
     loaded: &[PathBuf],
+    module_path: Modulepath,
     name: Option<Name<'src>>,
-    overrides: &mut HashMap<Number, String>,
     paths: &HashMap<PathBuf, PathBuf>,
     private: bool,
     root: &Path,
@@ -51,7 +60,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut unstable_features = BTreeSet::new();
 
     let mut stack = Vec::new();
-    let ast = asts.get(root).unwrap();
+    let ast = asts.get(&(module_path.clone(), root.into())).unwrap();
     stack.push(ast);
 
     while let Some(ast) = stack.pop() {
@@ -80,7 +89,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             if let Some(absolute) = absolute
               && imports.insert(absolute)
             {
-              stack.push(asts.get(absolute).unwrap());
+              stack.push(asts.get(&(module_path.clone(), absolute.clone())).unwrap());
             }
           }
           Item::Module {
@@ -99,8 +108,8 @@ impl<'run, 'src> Analyzer<'run, 'src> {
                 doc.clone(),
                 &attributes.groups(),
                 loaded,
+                module_path.join(name.lexeme()),
                 Some(*name),
-                overrides,
                 paths,
                 attributes.private(),
                 absolute,
@@ -184,8 +193,10 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       }
     }
 
+    let mut overrides = HashMap::new();
+
     for ((path, name), value) in &config.overrides {
-      if *path == ast.module_path
+      if *path == module_path
         && let Some(assignment) = assignments.get(name)
       {
         overrides.insert(assignment.number, value.clone());
@@ -243,7 +254,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
       Evaluator::evaluate_const_assignments(
         &assignments,
-        overrides,
+        &overrides,
         &scope,
         variable_references,
         lists,
@@ -331,7 +342,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       &assignments,
       &mut evaluator,
       &functions,
-      &ast.module_path,
+      &module_path,
       &self.modules,
       &settings,
       deduplicated_recipes,
@@ -426,9 +437,10 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       groups: groups.into(),
       loaded: loaded.into(),
       module_aliases,
-      module_path: ast.module_path.clone(),
+      module_path,
       modules: self.modules,
       name,
+      overrides,
       private,
       recipe_aliases,
       recipes,

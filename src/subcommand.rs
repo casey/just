@@ -101,16 +101,10 @@ impl Subcommand {
 
     match self {
       Choose { chooser } => {
-        Self::choose(
-          chooser.as_deref(),
-          config,
-          justfile,
-          &compilation.overrides,
-          &search,
-        )?;
+        Self::choose(chooser.as_deref(), config, justfile, &search)?;
       }
       Command { .. } | Evaluate { .. } => {
-        justfile.run(config, &search, &[], &compilation.overrides)?;
+        justfile.run(config, &search, &[])?;
       }
       Clean { path } => Self::clean(config, &search, path.as_ref())?,
       Dump { format } => Self::dump(config, compilation, *format)?,
@@ -190,7 +184,7 @@ impl Subcommand {
         return Self::list(config, justfile, &path);
       }
 
-      let result = justfile.run(config, &search, arguments, &compilation.overrides);
+      let result = justfile.run(config, &search, arguments);
 
       if fallback
         && let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result
@@ -255,7 +249,6 @@ impl Subcommand {
     chooser: Option<&Path>,
     config: &Config,
     justfile: &Justfile<'src>,
-    overrides: &HashMap<Number, String>,
     search: &Search,
   ) -> RunResult<'src> {
     let groups = config.groups.iter().cloned().collect::<BTreeSet<String>>();
@@ -340,7 +333,7 @@ impl Subcommand {
         .map(str::to_owned)
         .collect::<Vec<String>>();
 
-      justfile.run(config, search, &arguments, overrides)?;
+      justfile.run(config, search, &arguments)?;
     }
 
     Ok(())

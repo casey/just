@@ -1,6 +1,6 @@
 use super::*;
 
-#[derive(Debug, Default, Eq, Ord, PartialEq, PartialOrd, Clone)]
+#[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub(crate) struct Modulepath {
   pub(crate) components: Vec<String>,
   pub(crate) spaced: bool,
