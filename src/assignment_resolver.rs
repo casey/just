@@ -177,6 +177,11 @@ mod tests {
     kind:   CircularVariableDependency { variable: "a", circle: vec!["a", "a"] },
   }
 
+  #[test]
+  fn function_parameters_shadow_variables() {
+    testing::compile("a := f('x')\nf(a) := a");
+  }
+
   analysis_error! {
     name:   unknown_expression_variable,
     input:  "x := yy",
