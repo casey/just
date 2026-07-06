@@ -560,16 +560,14 @@ fn os_family(_context: Context) -> StringResult {
 }
 
 fn parent_directory(_context: Context, path: &str) -> StringResult {
-  let parent = Utf8Path::new(path)
-    .parent()
-    .map(Utf8Path::to_string)
-    .ok_or_else(|| format!("could not extract parent directory from `{path}`"))?;
-
-  if parent.is_empty() {
-    Ok(".".into())
-  } else {
-    Ok(parent)
-  }
+  Ok(
+    Path::new(path)
+      .join("..")
+      .lexiclean()
+      .to_str()
+      .unwrap()
+      .into(),
+  )
 }
 
 fn path_exists(context: Context, path: &str) -> ValueResult {

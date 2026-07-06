@@ -1631,3 +1631,9 @@ fn num_jobs_requires_lists() {
     )
     .failure();
 }
+
+#[test]
+fn parent_directory_of_dot_paths() {
+  assert_eval("parent_directory('.')", "..");
+  assert_eval("parent_directory('..')", "../..");
+}
