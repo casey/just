@@ -180,19 +180,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     for set in self.sets.values() {
       for expression in set.value.expressions() {
-        for reference in expression.references() {
-          match reference {
-            Reference::Call { name, arguments } => {
-              Analyzer::resolve_call(&functions, name, arguments)?;
-            }
-            Reference::Variable(variable) => {
-              let name = variable.lexeme();
-              if !assignments.contains_key(name) && !constants().contains_key(name) {
-                return Err(variable.error(UndefinedVariable { variable: name }));
-              }
-            }
-          }
-        }
+        Analyzer::resolve_references(&assignments, &functions, expression)?;
       }
     }
 
@@ -275,6 +263,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     }
 
     for (name, expression) in module_docs {
+      Analyzer::resolve_references(&assignments, &functions, expression)?;
       let value = evaluator.evaluate_value_const(expression)?;
       self.modules.get_mut(name).unwrap().doc = if value.is_empty() {
         None
@@ -523,6 +512,28 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             first_line: conflict.name.line,
             second,
           }));
+        }
+      }
+    }
+
+    Ok(())
+  }
+
+  fn resolve_references(
+    assignments: &Table<'src, Assignment<'src>>,
+    functions: &'run Table<'src, FunctionDefinition<'src>>,
+    expression: &Expression<'src>,
+  ) -> CompileResult<'src> {
+    for reference in expression.references() {
+      match reference {
+        Reference::Call { name, arguments } => {
+          Self::resolve_call(functions, name, arguments)?;
+        }
+        Reference::Variable(variable) => {
+          let name = variable.lexeme();
+          if !assignments.contains_key(name) && !constants().contains_key(name) {
+            return Err(variable.error(UndefinedVariable { variable: name }));
+          }
         }
       }
     }
