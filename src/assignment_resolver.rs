@@ -59,10 +59,39 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
   ) -> CompileResult<'src> {
     match reference {
       Reference::Call { name, arguments } => {
-        Analyzer::resolve_call(self.functions, name, arguments)
+        Analyzer::resolve_call(self.functions, name, arguments)?;
+        self.resolve_function_variables(name.lexeme())
       }
       Reference::Variable(name) => self.resolve_variable(parameters, name),
     }
+  }
+
+  fn resolve_function_variables(&mut self, root: &'src str) -> CompileResult<'src> {
+    let functions = self.functions;
+
+    let mut visited = BTreeSet::new();
+    let mut queue = vec![root];
+
+    while let Some(name) = queue.pop() {
+      if !visited.insert(name) {
+        continue;
+      }
+
+      let Some(function) = functions.get(name) else {
+        continue;
+      };
+
+      for reference in function.body.references() {
+        match reference {
+          Reference::Call { name, .. } => queue.push(name.lexeme()),
+          Reference::Variable(variable) => {
+            self.resolve_variable(Some(&function.parameters), variable)?;
+          }
+        }
+      }
+    }
+
+    Ok(())
   }
 
   fn resolve_variable(
@@ -126,6 +155,31 @@ mod tests {
     column: 0,
     width:  1,
     kind:   CircularVariableDependency { variable: "a", circle: vec!["a", "a"] },
+  }
+
+  analysis_error! {
+    name:   circular_function_variable_dependency,
+    input:  "a := f()\nf() := a",
+    offset: 0,
+    line:   0,
+    column: 0,
+    width:  1,
+    kind:   CircularVariableDependency { variable: "a", circle: vec!["a", "a"] },
+  }
+
+  analysis_error! {
+    name:   circular_transitive_function_variable_dependency,
+    input:  "a := f()\nf() := g()\ng() := a",
+    offset: 0,
+    line:   0,
+    column: 0,
+    width:  1,
+    kind:   CircularVariableDependency { variable: "a", circle: vec!["a", "a"] },
+  }
+
+  #[test]
+  fn function_parameters_shadow_variables() {
+    testing::compile("a := f('x')\nf(a) := a");
   }
 
   analysis_error! {
