@@ -14,11 +14,12 @@ pub(crate) struct Analyzer<'run, 'src> {
 
 impl<'run, 'src> Analyzer<'run, 'src> {
   pub(crate) fn analyze(
-    asts: &'run HashMap<PathBuf, Ast<'src>>,
+    asts: &'run HashMap<(Modulepath, PathBuf), Ast<'src>>,
     config: &Config,
     doc: Option<String>,
     groups: &[StringLiteral<'src>],
     loaded: &[PathBuf],
+    module_path: &Modulepath,
     name: Option<Name<'src>>,
     overrides: &mut HashMap<Number, String>,
     paths: &HashMap<PathBuf, PathBuf>,
@@ -26,17 +27,28 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     root: &Path,
   ) -> CompileResult<'src, Justfile<'src>> {
     Self::default().justfile(
-      asts, config, doc, groups, loaded, name, overrides, paths, private, root,
+      asts,
+      config,
+      doc,
+      groups,
+      loaded,
+      module_path,
+      name,
+      overrides,
+      paths,
+      private,
+      root,
     )
   }
 
   fn justfile(
     mut self,
-    asts: &'run HashMap<PathBuf, Ast<'src>>,
+    asts: &'run HashMap<(Modulepath, PathBuf), Ast<'src>>,
     config: &Config,
     doc: Option<String>,
     groups: &[StringLiteral<'src>],
     loaded: &[PathBuf],
+    module_path: &Modulepath,
     name: Option<Name<'src>>,
     overrides: &mut HashMap<Number, String>,
     paths: &HashMap<PathBuf, PathBuf>,
@@ -51,7 +63,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut unstable_features = BTreeSet::new();
 
     let mut stack = Vec::new();
-    let ast = asts.get(root).unwrap();
+    let ast = asts.get(&(module_path.clone(), root.to_owned())).unwrap();
     stack.push(ast);
 
     while let Some(ast) = stack.pop() {
@@ -80,7 +92,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             if let Some(absolute) = absolute
               && imports.insert(absolute)
             {
-              stack.push(asts.get(absolute).unwrap());
+              stack.push(asts.get(&(module_path.clone(), absolute.clone())).unwrap());
             }
           }
           Item::Module {
@@ -99,6 +111,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
                 doc.clone(),
                 &attributes.groups(),
                 loaded,
+                &module_path.join(name.lexeme()),
                 Some(*name),
                 overrides,
                 paths,
