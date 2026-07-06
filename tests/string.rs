@@ -135,7 +135,7 @@ a:"#,
 #[test]
 fn cooked_string_crlf_line_continuation() {
   Test::new()
-    .justfile("x := \"a\\\r\nb\"\r\n")
+    .justfile("x := \"a\\\r\nb\"")
     .args(["--evaluate", "x"])
     .stdout("ab")
     .success();
