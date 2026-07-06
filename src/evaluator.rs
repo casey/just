@@ -292,10 +292,10 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     let context = *self.context.as_ref().unwrap();
 
-    let mut values = Vec::new();
-    for argument in arguments {
-      values.push(self.evaluate_value(argument)?);
-    }
+    let values = arguments
+      .iter()
+      .map(|argument| self.evaluate_value(argument))
+      .collect::<RunResult<Vec<Value>>>()?;
 
     let parent = if self.assignments.is_some() {
       &self.scope
