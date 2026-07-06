@@ -34,3 +34,21 @@ fn requires_lists_setting() {
     )
     .failure();
 }
+
+#[test]
+fn negate_include() {
+  Test::new()
+    .justfile(
+      "
+        set unstable
+        set lists
+
+        include := []
+
+        x := !include
+      ",
+    )
+    .args(["--evaluate", "x"])
+    .stdout("true")
+    .success();
+}
