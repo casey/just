@@ -1,9 +1,6 @@
 use super::*;
 
-pub(crate) fn datetime_format<T>(
-  datetime: chrono::DateTime<T>,
-  format: &str,
-) -> RunResult<'static, String>
+pub(crate) fn datetime_format<T>(datetime: DateTime<T>, format: &str) -> RunResult<'static, String>
 where
   T: TimeZone,
   T::Offset: Display,
