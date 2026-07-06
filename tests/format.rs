@@ -1902,31 +1902,25 @@ fn first_line_shebang_is_not_a_doc_comment() {
     "
       #!baz
       foo:
-          echo bar
     ",
     "
       #!baz
       foo:
-          echo bar
     ",
   );
 
   assert_dump(
     "
       foo:
-          echo bar
 
       #!baz
       bar:
-          echo foo
     ",
     "
       foo:
-          echo bar
 
       # !baz
       bar:
-          echo foo
     ",
   );
 }
