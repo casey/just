@@ -1895,3 +1895,38 @@ fn trailing_comments_separated_by_blank_line() {
       ",
   );
 }
+
+#[test]
+fn first_line_shebang_is_not_a_doc_comment() {
+  assert_dump(
+    "
+      #!/usr/bin/env just --justfile
+      foo:
+          echo bar
+    ",
+    "
+      #!/usr/bin/env just --justfile
+      foo:
+          echo bar
+    ",
+  );
+
+  assert_dump(
+    "
+      foo:
+          echo bar
+
+      #!baz
+      bar:
+          echo foo
+    ",
+    "
+      foo:
+          echo bar
+
+      # !baz
+      bar:
+          echo foo
+    ",
+  );
+}
