@@ -1900,12 +1900,12 @@ fn trailing_comments_separated_by_blank_line() {
 fn first_line_shebang_is_not_a_doc_comment() {
   assert_dump(
     "
-      #!/usr/bin/env just --justfile
+      #!baz
       foo:
           echo bar
     ",
     "
-      #!/usr/bin/env just --justfile
+      #!baz
       foo:
           echo bar
     ",
