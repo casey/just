@@ -340,7 +340,7 @@ impl<'src> Recipe<'src> {
         }
         .stderr();
 
-        if let Some(timestamp) = config.timestamp() {
+        if let Some(timestamp) = config.timestamp()? {
           eprint!("[{}] ", color.paint(&timestamp));
         }
 
@@ -442,7 +442,7 @@ impl<'src> Recipe<'src> {
   ) -> RunResult<'src> {
     let config = &context.config;
 
-    if let Some(timestamp) = config.timestamp() {
+    if let Some(timestamp) = config.timestamp()? {
       let color = if config.highlight {
         config.color.command(config.command_color)
       } else {

@@ -151,12 +151,11 @@ impl Config {
     }
   }
 
-  pub(crate) fn timestamp(&self) -> Option<String> {
-    self.timestamp.then(|| {
-      chrono::Local::now()
-        .format(&self.timestamp_format)
-        .to_string()
-    })
+  pub(crate) fn timestamp(&self) -> RunResult<'static, Option<String>> {
+    self
+      .timestamp
+      .then(|| datetime_format(chrono::Local::now(), &self.timestamp_format))
+      .transpose()
   }
 
   fn parse_override(path: &str) -> ConfigResult<(Modulepath, String)> {

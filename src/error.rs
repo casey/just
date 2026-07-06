@@ -111,6 +111,13 @@ pub(crate) enum Error<'src> {
     recipe: &'src str,
     output_error: OutputError,
   },
+  DatetimeFormat {
+    format: String,
+  },
+  DatetimeFormatParse {
+    format: String,
+    source: chrono::ParseError,
+  },
   DefaultRecipeRequiresArguments {
     recipe: &'src str,
     min_arguments: usize,
@@ -700,6 +707,12 @@ impl ColorDisplay for Error<'_> {
           "cygpath successfully translated recipe `{recipe}` shebang interpreter path, but output was not utf8: {utf8_error}",
         )?,
       },
+      DatetimeFormat { format } => {
+        write!(f, "failed to format time with format string `{format}`")?
+      }
+      DatetimeFormatParse { source, format } => {
+        write!(f, "failed to parse time format string `{format}`: {source}")?
+      }
       DefaultRecipeRequiresArguments {
         recipe,
         min_arguments,

@@ -61,3 +61,17 @@ fn format_string() {
     .stdout("one\n")
     .success();
 }
+
+#[test]
+fn invalid_format_string_error() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          @echo bar
+      ",
+    )
+    .args(["--timestamp", "--timestamp-format", "%Q", "foo"])
+    .stderr("error: failed to parse time format string `%Q`: bad or unsupported format string\n")
+    .failure();
+}

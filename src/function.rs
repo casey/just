@@ -293,25 +293,13 @@ fn dir(name: &'static str, f: fn() -> Option<PathBuf>) -> StringResult {
 }
 
 fn datetime(_context: Context, format: &str) -> StringResult {
-  Ok(
-    chrono::Local::now()
-      .format_with_items(datetime_parse(format)?.iter())
-      .to_string(),
-  )
-}
-
-fn datetime_parse(format: &str) -> Result<Vec<chrono::format::Item>, String> {
-  chrono::format::StrftimeItems::new(format)
-    .parse()
-    .map_err(|err| format!("invalid format string `{format}`: {err}"))
+  datetime_format(chrono::Local::now(), format)
+    .map_err(|err| err.color_display(Color::never()).to_string())
 }
 
 fn datetime_utc(_context: Context, format: &str) -> StringResult {
-  Ok(
-    chrono::Utc::now()
-      .format_with_items(datetime_parse(format)?.iter())
-      .to_string(),
-  )
+  datetime_format(chrono::Utc::now(), format)
+    .map_err(|err| err.color_display(Color::never()).to_string())
 }
 
 fn encode_uri_component(_context: Context, s: &str) -> StringResult {
