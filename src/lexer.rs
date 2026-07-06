@@ -756,7 +756,7 @@ impl<'src> Lexer<'src> {
     } else if let Some(character) = self.next {
       return Err(self.error(InvalidEscapeSequence { character }));
     } else {
-      return Err(self.error(EscapeEof));
+      return Err(self.error(EscapeEndOfFile));
     }
 
     Ok(())

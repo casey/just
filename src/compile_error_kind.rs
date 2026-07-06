@@ -89,7 +89,7 @@ pub(crate) enum CompileErrorKind<'src> {
   DuplicateVariable {
     variable: &'src str,
   },
-  EscapeEof,
+  EscapeEndOfFile,
   ExitMessageAndNoExitMessageAttribute {
     recipe: &'src str,
   },

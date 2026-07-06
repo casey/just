@@ -51,7 +51,7 @@ fn backslash_eof() {
     .justfile("foo:\n\\")
     .stderr(
       "
-        error: unexpected end of file after backslash
+        error: expected escape sequence but found end-of-file
          ——▶ justfile:2:1
           │
         2 │ \\
