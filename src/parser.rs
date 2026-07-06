@@ -640,7 +640,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let mut parameters = Vec::new();
     while !self.next_is(ParenR) {
-      parameters.push((self.parse_name()?, self.numerator.next()));
+      parameters.push((self.parse_name()?, self.numerator.next_binding()));
       if !self.accepted(Comma)? {
         break;
       }
@@ -681,7 +681,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       export,
       file_depth: self.file_depth,
       name,
-      number: self.numerator.next(),
+      number: self.numerator.next_binding(),
       prelude: false,
       private: private || name.lexeme().starts_with('_'),
       value,
@@ -1422,6 +1422,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       import_offsets: self.import_offsets.clone(),
       module_path: None,
       name,
+      number: self.numerator.next_recipe(),
       parameters: positional.into_iter().chain(variadic).collect(),
       priors,
       private,
@@ -1492,7 +1493,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       min: min.map(|(_key, min)| min),
       multiple,
       name,
-      number: self.numerator.next(),
+      number: self.numerator.next_binding(),
       pattern,
       short,
       value,
