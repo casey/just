@@ -133,3 +133,77 @@ fn comments_still_must_be_parsable_when_ignored() {
     )
     .failure();
 }
+
+#[test]
+fn ignore_comments_evaluates_comments_in_scripts() {
+  Test::new()
+    .justfile(
+      "
+        set ignore-comments
+
+        foo:
+          #!/bin/sh
+          # {{ undefined }}
+          echo ok
+      ",
+    )
+    .stderr(
+      "
+        error: variable `undefined` not defined
+         ——▶ justfile:5:8
+          │
+        5 │   # {{ undefined }}
+          │        ^^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn ignore_comments_evaluates_comments_in_default_script_recipes() {
+  Test::new()
+    .justfile(
+      "
+        set default-script
+        set ignore-comments
+
+        foo:
+          # {{ undefined }}
+          echo ok
+      ",
+    )
+    .stderr(
+      "
+        error: variable `undefined` not defined
+         ——▶ justfile:5:8
+          │
+        5 │   # {{ undefined }}
+          │        ^^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn ignore_comments_evaluates_comments_on_continuation_lines() {
+  Test::new()
+    .justfile(
+      "
+        set ignore-comments
+
+        foo:
+          @echo a \\
+          # {{ undefined }}
+      ",
+    )
+    .stderr(
+      "
+        error: variable `undefined` not defined
+         ——▶ justfile:5:8
+          │
+        5 │   # {{ undefined }}
+          │        ^^^^^^^^^
+      ",
+    )
+    .failure();
+}

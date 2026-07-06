@@ -102,6 +102,8 @@ impl<'src> UnresolvedRecipe<'src> {
       }
     }
 
+    let script = self.is_script(settings);
+
     let attributes = self
       .attributes
       .into_items()
@@ -158,8 +160,10 @@ impl<'src> UnresolvedRecipe<'src> {
       })
       .collect::<CompileResult<AttributeSet>>()?;
 
+    let mut continued = false;
+
     for line in &self.body {
-      if line.is_comment() && settings.ignore_comments {
+      if !script && !continued && line.is_comment() && settings.ignore_comments {
         continue;
       }
 
@@ -174,6 +178,8 @@ impl<'src> UnresolvedRecipe<'src> {
           )?;
         }
       }
+
+      continued = line.is_continuation();
     }
 
     for (unresolved, resolved) in self.dependencies.iter().zip(&resolved) {
