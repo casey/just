@@ -494,14 +494,11 @@ impl<'src> Recipe<'src> {
           .unwrap_or_else(|| Interpreter::default_script_interpreter().clone()),
       )
     } else if self.body.first().is_some_and(Line::is_shebang) {
-      let line = evaluated_lines
-        .first()
-        .ok_or_else(|| Error::internal("evaluated_lines was empty"))?;
-
-      let shebang =
-        Shebang::new(line).ok_or_else(|| Error::internal(format!("bad shebang line: {line}")))?;
-
-      Executor::Shebang(shebang)
+      let shebang = &evaluated_lines[0];
+      Executor::Shebang(Shebang::new(shebang).ok_or_else(|| Error::InvalidShebang {
+        recipe: self.name,
+        shebang: shebang.into(),
+      })?)
     } else {
       Executor::Command(
         context

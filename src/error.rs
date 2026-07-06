@@ -190,6 +190,10 @@ pub(crate) enum Error<'src> {
   Interrupted {
     signal: Signal,
   },
+  InvalidShebang {
+    recipe: Name<'src>,
+    shebang: String,
+  },
   ListInStringContext {
     context: StringContext<'src>,
     value: Value,
@@ -816,6 +820,9 @@ impl ColorDisplay for Error<'_> {
       }
       Interrupted { signal } => {
         write!(f, "interrupted by {signal}")?;
+      }
+      InvalidShebang { recipe, shebang } => {
+        write!(f, "recipe `{recipe}` has invalid shebang `{shebang}`")?;
       }
       ListInStringContext { context, value, .. } => {
         write!(f, "list value {} {context}", value.color_display(color))?;
