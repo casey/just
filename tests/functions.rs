@@ -1577,3 +1577,57 @@ fn module_path_in_submodule() {
     .stdout("foo::bar")
     .success();
 }
+
+#[test]
+fn num_jobs_returns_jobs() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        foo:
+          @echo {{ num_jobs() }}
+      ",
+    )
+    .unstable()
+    .args(["--jobs", "9999"])
+    .stdout("9999\n")
+    .success();
+}
+
+#[test]
+fn num_jobs_falls_back_to_empty_list() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        foo:
+          @echo '{{ show(num_jobs()) }}'
+      ",
+    )
+    .unstable()
+    .stdout("[]\n")
+    .success();
+}
+
+#[test]
+fn num_jobs_requires_lists() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          @echo {{ num_jobs() }}
+      ",
+    )
+    .stderr(
+      "
+        error: the `num_jobs()` function requires `set lists`
+         ——▶ justfile:2:12
+          │
+        2 │   @echo {{ num_jobs() }}
+          │            ^^^^^^^^
+      ",
+    )
+    .failure();
+}

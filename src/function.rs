@@ -108,7 +108,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "module_file" => Nullary(module_file),
     "module_path" => Nullary(module_path),
     "num_cpus" => Nullary(num_cpus),
-    "num_jobs" => Nullary(num_jobs),
+    "num_jobs" => ValueNullary(num_jobs),
     "os" => Nullary(os),
     "os_family" => Nullary(os_family),
     "parent_directory" => Unary(parent_directory),
@@ -554,14 +554,14 @@ fn num_cpus(_context: Context) -> StringResult {
   Ok(num.to_string())
 }
 
-fn num_jobs(context: Context) -> StringResult {
+fn num_jobs(context: Context) -> ValueResult {
   Ok(
     context
       .execution_context
       .config
       .jobs
-      .map_or_else(|| u64::try_from(num_cpus::get()).unwrap(), NonZeroU64::into)
-      .to_string(),
+      .map(|jobs| Value::from(jobs.to_string()))
+      .unwrap_or_default(),
   )
 }
 

@@ -956,6 +956,9 @@ impl<'run, 'src> Parser<'run, 'src> {
             "join_list" => {
               self.list_feature(ListFeature::JoinListFunction, *name);
             }
+            "num_jobs" => {
+              self.list_feature(ListFeature::NumJobsFunction, *name);
+            }
             "show" => {
               self.list_feature(ListFeature::ShowFunction, *name);
             }

@@ -15,6 +15,7 @@ pub(crate) enum ListFeature {
   Multiple,
   NegationOperator,
   NonComparisonCondition,
+  NumJobsFunction,
   ShowFunction,
   SplitFunction,
   WhichFunction,
@@ -25,6 +26,7 @@ impl ListFeature {
     match self {
       Self::BoolFunction
       | Self::JoinListFunction
+      | Self::NumJobsFunction
       | Self::ShowFunction
       | Self::SplitFunction
       | Self::WhichFunction => true,
@@ -64,6 +66,7 @@ impl Display for ListFeature {
         f,
         "`if` and `assert` conditions other than comparisons require `set lists`"
       ),
+      Self::NumJobsFunction => write!(f, "the `num_jobs()` function requires `set lists`"),
       Self::ShowFunction => write!(f, "the `show()` function requires `set lists`"),
       Self::SplitFunction => write!(f, "the `split()` function requires `set lists`"),
       Self::WhichFunction => write!(f, "the `which()` function requires `set lists`"),
