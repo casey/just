@@ -1624,6 +1624,29 @@ fn doc_attribute_on_module_may_be_expression() {
 }
 
 #[test]
+fn doc_attribute_on_module_with_undefined_variable_is_an_error() {
+  Test::new()
+    .write("foo.just", "")
+    .justfile(
+      "
+        [doc(bar)]
+        mod foo
+      ",
+    )
+    .arg("--list")
+    .stderr(
+      "
+        error: variable `bar` not defined
+         ——▶ justfile:1:6
+          │
+        1 │ [doc(bar)]
+          │      ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn group_attribute_on_module() {
   Test::new()
     .write("foo.just", "")
