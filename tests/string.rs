@@ -157,6 +157,21 @@ fn escaped_carriage_return_without_line_feed_is_an_error() {
 }
 
 #[test]
+fn unterminated_escaped_carriage_return_is_an_error() {
+  Test::new()
+    .justfile("x := \"a\\\r")
+    .stderr(
+      "error: `\\\\r` is not a valid escape sequence
+ ——▶ justfile:1:6
+  │
+1 │ x := \"a\\\r
+  │      ^^^^^
+",
+    )
+    .failure();
+}
+
+#[test]
 fn error_line_after_multiline_raw_string() {
   Test::new()
     .arg("a")
