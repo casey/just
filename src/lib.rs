@@ -38,6 +38,7 @@ pub(crate) use {
     constants::constants,
     count::Count,
     datetime_format::datetime_format,
+    datetime_format_error::DatetimeFormatError,
     delimiter::Delimiter,
     dependency::Dependency,
     dependency_argument::DependencyArgument,
@@ -254,6 +255,7 @@ mod const_eval_error;
 mod constants;
 mod count;
 mod datetime_format;
+mod datetime_format_error;
 mod delimiter;
 mod dependency;
 mod dependency_argument;
