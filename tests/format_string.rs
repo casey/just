@@ -327,3 +327,19 @@ fn mismatched_closing_delimiter_in_format_string() {
     )
     .failure();
 }
+
+#[test]
+fn format_backticks_are_forbidden() {
+  Test::new()
+    .justfile("foo := f`echo {{ arch() }}`")
+    .stderr(
+      "
+        error: expected '&&', '!=', '!~', '||', comment, end of file, end of line, '==', '=~', '(', '+', '++', or '/', but found backtick
+         ——▶ justfile:1:9
+          │
+        1 │ foo := f`echo {{ arch() }}`
+          │         ^^^^^^^^^^^^^^^^^^^
+      ",
+    )
+    .failure();
+}

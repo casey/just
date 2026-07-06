@@ -832,11 +832,6 @@ impl<'src> Lexer<'src> {
   /// Cooked string: "[^"]*" # also processes escape sequences
   /// Raw string:    '[^']*'
   fn lex_string(&mut self, format_string_kind: Option<StringKind>) -> CompileResult<'src> {
-    let format = format_string_kind.is_some()
-      || self.tokens.last().is_some_and(|token| {
-        token.kind == TokenKind::Identifier && token.lexeme() == Keyword::F.lexeme()
-      });
-
     let kind = if let Some(kind) = format_string_kind {
       self.presume_str(Self::INTERPOLATION_END)?;
       kind
@@ -848,6 +843,12 @@ impl<'src> Lexer<'src> {
       self.presume_str(kind.delimiter())?;
       kind
     };
+
+    let format = format_string_kind.is_some()
+      || kind.delimiter != StringDelimiter::Backtick
+        && self.tokens.last().is_some_and(|token| {
+          token.kind == TokenKind::Identifier && token.lexeme() == Keyword::F.lexeme()
+        });
 
     let mut escape = false;
 
