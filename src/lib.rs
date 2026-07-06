@@ -137,7 +137,7 @@ pub(crate) use {
     which::which,
   },
   camino::Utf8Path,
-  chrono::{DateTime, TimeZone, format::StrftimeItems},
+  chrono::{DateTime, Local, TimeZone, Utc, format::StrftimeItems},
   clap::{CommandFactory, FromArgMatches, Parser as _, ValueEnum},
   clap_complete::{ArgValueCompleter, CompletionCandidate, PathCompleter, engine::ValueCompleter},
   digest_io::HashWriter,
