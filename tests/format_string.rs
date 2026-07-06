@@ -290,3 +290,19 @@ fn format_string_followed_by_recipe() {
     )
     .success();
 }
+
+#[test]
+fn unterminated_format_string_error() {
+  Test::new()
+    .justfile("x := f'{{}}")
+    .stderr(
+      "
+        error: unterminated string
+         ——▶ justfile:1:10
+          │
+        1 │ x := f'{{}}
+          │          ^^
+      ",
+    )
+    .failure();
+}
