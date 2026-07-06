@@ -5,10 +5,10 @@ pub(crate) fn datetime_format<Tz>(
   format: &str,
 ) -> RunResult<'static, String>
 where
-  Tz: chrono::TimeZone,
+  Tz: TimeZone,
   Tz::Offset: Display,
 {
-  let items = chrono::format::StrftimeItems::new(format)
+  let items = StrftimeItems::new(format)
     .parse()
     .map_err(|source| Error::DatetimeFormatParse {
       format: format.into(),
