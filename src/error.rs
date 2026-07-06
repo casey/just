@@ -822,7 +822,7 @@ impl ColorDisplay for Error<'_> {
         write!(f, "interrupted by {signal}")?;
       }
       InvalidShebang { recipe, shebang } => {
-        write!(f, "recipe `{recipe}` has invalid shebang `{shebang}`")?
+        write!(f, "recipe `{recipe}` has invalid shebang `{shebang}`")?;
       }
       ListInStringContext { context, value, .. } => {
         write!(f, "list value {} {context}", value.color_display(color))?;
