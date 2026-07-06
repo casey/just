@@ -200,15 +200,20 @@ impl<'src> Justfile<'src> {
         let mut variable_references = HashSet::new();
 
         let mut stack = Vec::new();
+        let mut visited = HashSet::new();
 
         for invocation in &invocations {
-          stack.push(invocation.recipe);
+          if visited.insert(invocation.recipe.number) {
+            stack.push(invocation.recipe);
+          }
         }
 
         while let Some(recipe) = stack.pop() {
           variable_references.extend(&recipe.variable_references);
           for dependency in &recipe.dependencies {
-            stack.push(&dependency.recipe);
+            if visited.insert(dependency.recipe.number) {
+              stack.push(&dependency.recipe);
+            }
           }
         }
 

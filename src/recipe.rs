@@ -14,6 +14,8 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   #[serde(skip)]
   pub(crate) module_path: Option<Modulepath>,
   pub(crate) name: Name<'src>,
+  #[serde(skip)]
+  pub(crate) number: Number,
   pub(crate) parameters: Vec<Parameter<'src>>,
   pub(crate) priors: usize,
   pub(crate) private: bool,

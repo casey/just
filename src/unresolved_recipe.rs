@@ -222,6 +222,7 @@ impl<'src> UnresolvedRecipe<'src> {
       import_offsets: self.import_offsets,
       module_path: Some(modulepath.clone()),
       name: self.name,
+      number: self.number,
       parameters: self.parameters,
       priors: self.priors,
       private: self.private,

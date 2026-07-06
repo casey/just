@@ -1,15 +1,27 @@
 use super::*;
 
-pub(crate) struct Numerator(u32);
+pub(crate) struct Numerator {
+  bindings: u32,
+  recipes: u32,
+}
 
 impl Numerator {
   pub(crate) fn new() -> Self {
-    Self(constants().len().try_into().unwrap())
+    Self {
+      bindings: constants().len().try_into().unwrap(),
+      recipes: 0,
+    }
   }
 
-  pub(crate) fn next(&mut self) -> Number {
-    let id = self.0;
-    self.0 += 1;
+  pub(crate) fn next_binding(&mut self) -> Number {
+    let id = self.bindings;
+    self.bindings += 1;
+    Number(id)
+  }
+
+  pub(crate) fn next_recipe(&mut self) -> Number {
+    let id = self.recipes;
+    self.recipes += 1;
     Number(id)
   }
 
