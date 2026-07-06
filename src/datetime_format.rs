@@ -1,12 +1,12 @@
 use super::*;
 
-pub(crate) fn datetime_format<Tz>(
-  datetime: chrono::DateTime<Tz>,
+pub(crate) fn datetime_format<T>(
+  datetime: chrono::DateTime<T>,
   format: &str,
 ) -> RunResult<'static, String>
 where
-  Tz: TimeZone,
-  Tz::Offset: Display,
+  T: TimeZone,
+  T::Offset: Display,
 {
   let items = StrftimeItems::new(format)
     .parse()
