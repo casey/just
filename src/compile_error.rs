@@ -174,6 +174,9 @@ impl Display for CompileError<'_> {
       DuplicateUnexport { variable } => {
         write!(f, "variable `{variable}` is unexported multiple times")
       }
+      EscapeEndOfFile => {
+        write!(f, "expected escape sequence but found end-of-file")
+      }
       ExitMessageAndNoExitMessageAttribute { recipe } => write!(
         f,
         "recipe `{recipe}` has both `[exit-message]` and `[no-exit-message]` attributes"

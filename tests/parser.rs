@@ -44,3 +44,19 @@ fn attribute_without_item() {
     )
     .failure();
 }
+
+#[test]
+fn backslash_eof() {
+  Test::new()
+    .justfile("foo:\n\\")
+    .stderr(
+      "
+        error: expected escape sequence but found end-of-file
+         ——▶ justfile:2:1
+          │
+        2 │ \\
+          │ ^
+      ",
+    )
+    .failure();
+}
