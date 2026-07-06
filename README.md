@@ -1494,7 +1494,8 @@ baz:
 ```
 
 The number of simultaneously running recipes may be limited with the `--jobs`
-option<sup>master</sup>.
+option<sup>master</sup>. The `num_jobs()` function returns the number of jobs,
+falling back to the number of CPUs if `--jobs` was not passed.
 
 GNU `parallel` may be used to run recipe lines concurrently:
 
@@ -4834,6 +4835,8 @@ transitively via reference.
   `"powerpc64"`, `"s390x"`, `"sparc"`, `"wasm32"`, `"x86"`, `"x86_64"`, and
   `"xcore"`.
 - `num_cpus()`<sup>1.15.0</sup> — Number of logical CPUs.
+- `num_jobs()`<sup>master</sup> — The value of `--jobs` if passed, falling back
+  to the number of logical CPUs.
 - `os()` — Operating system. Possible values are: `"android"`, `"bitrig"`,
   `"dragonfly"`, `"emscripten"`, `"freebsd"`, `"haiku"`, `"ios"`, `"linux"`,
   `"macos"`, `"netbsd"`, `"openbsd"`, `"solaris"`, and `"windows"`.
