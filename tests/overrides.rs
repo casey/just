@@ -275,7 +275,7 @@ fn overrides_of_modules_sharing_a_source_file() {
     .write(
       "shared.just",
       "
-        x := 'def'
+        x := 'foo'
         show:
          @echo x={{x}}
       ",
@@ -287,15 +287,20 @@ fn overrides_of_modules_sharing_a_source_file() {
         mod b 'shared.just'
       ",
     )
-    .args(["--set", "a::x", "over", "a::show", "b::show"])
-    .stdout("x=over\nx=def\n")
+    .args(["--set", "a::x", "bar", "a::show", "b::show"])
+    .stdout(
+      "
+        x=bar
+        x=foo
+      ",
+    )
     .success();
 
   Test::new()
     .write(
       "shared.just",
       "
-        x := 'def'
+        x := 'foo'
         show:
          @echo x={{x}}
       ",
@@ -307,15 +312,20 @@ fn overrides_of_modules_sharing_a_source_file() {
         mod b 'shared.just'
       ",
     )
-    .args(["--set", "b::x", "over", "a::show", "b::show"])
-    .stdout("x=def\nx=over\n")
+    .args(["--set", "b::x", "bar", "a::show", "b::show"])
+    .stdout(
+      "
+        x=foo
+        x=bar
+      ",
+    )
     .success();
 }
 
 #[test]
 fn overrides_of_import_shared_across_modules() {
   Test::new()
-    .write("common.just", "x := 'def'")
+    .write("common.just", "x := 'foo'")
     .write(
       "a.just",
       "
@@ -339,7 +349,12 @@ fn overrides_of_import_shared_across_modules() {
         mod b 'b.just'
       ",
     )
-    .args(["--set", "a::x", "over", "a::show", "b::show"])
-    .stdout("x=over\nx=def\n")
+    .args(["--set", "a::x", "bar", "a::show", "b::show"])
+    .stdout(
+      "
+        x=bar
+        x=foo
+      ",
+    )
     .success();
 }
