@@ -306,3 +306,24 @@ fn unterminated_format_string_error() {
     )
     .failure();
 }
+
+#[test]
+fn mismatched_closing_delimiter_in_format_string() {
+  Test::new()
+    .justfile(
+      "
+        foo := f'{{ )
+        bar:
+      ",
+    )
+    .stderr(
+      "
+        error: mismatched closing delimiter `)`, did you mean to close the `{{` on line 1?
+         ——▶ justfile:1:13
+          │
+        1 │ foo := f'{{ )
+          │             ^
+      ",
+    )
+    .failure();
+}
