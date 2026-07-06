@@ -560,8 +560,7 @@ fn num_jobs(context: Context) -> StringResult {
       .execution_context
       .config
       .jobs
-      .map(|jobs| jobs.into())
-      .unwrap_or_else(|| u64::try_from(num_cpus::get()).unwrap())
+      .map_or_else(|| u64::try_from(num_cpus::get()).unwrap(), NonZeroU64::into)
       .to_string(),
   )
 }
