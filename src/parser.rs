@@ -424,11 +424,11 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let mut items = self.items.iter().rev();
 
-    if !matches!(items.next(), Some(Item::Newline)) {
+    if !matches!(items.next()?, Item::Newline) {
       return None;
     }
 
-    let Some(Item::Comment(contents)) = items.next() else {
+    let Item::Comment(contents) = items.next()? else {
       return None;
     };
 
