@@ -1494,7 +1494,8 @@ baz:
 ```
 
 The number of simultaneously running recipes may be limited with the `--jobs`
-option<sup>master</sup>.
+option<sup>master</sup>. The `num_jobs()` function returns the number of jobs,
+falling back to the empty list if `--jobs` was not passed.
 
 GNU `parallel` may be used to run recipe lines concurrently:
 
@@ -4963,6 +4964,9 @@ $ just
 - `is_dependency()` - Returns the string `true` if the current recipe is being
   run as a dependency of another recipe, rather than being run directly,
   otherwise returns the string `false`.
+
+- `num_jobs()`<sup>master</sup> — The value of `--jobs` or the empty list,
+  `[]`, if it was not passed.
 
 - `recipe_name()`<sup>1.53.0</sup> - Returns the name of the current recipe.
 
