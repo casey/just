@@ -291,24 +291,28 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       if !recipe.is_script(&settings) {
         let mut continued = false;
         for line in &recipe.body {
-          let sigils = line.sigils(&settings);
+          let comment = !continued && settings.ignore_comments && line.is_comment();
 
-          if sigils.contains(&Sigil::Guard) && sigils.contains(&Sigil::Infallible) {
-            let Fragment::Text { token } = line.fragments.first().unwrap() else {
-              unreachable!();
-            };
-            return Err(token.error(GuardAndInfallibleSigil));
-          }
+          if !continued {
+            let sigils = line.sigils(&settings);
 
-          if !continued && let Some(Fragment::Text { token }) = line.fragments.first() {
-            let text = token.lexeme();
+            if sigils.contains(&Sigil::Guard) && sigils.contains(&Sigil::Infallible) {
+              let Fragment::Text { token } = line.fragments.first().unwrap() else {
+                unreachable!();
+              };
+              return Err(token.error(GuardAndInfallibleSigil));
+            }
 
-            if text.starts_with(' ') || text.starts_with('\t') {
-              return Err(token.error(ExtraLeadingWhitespace));
+            if let Some(Fragment::Text { token }) = line.fragments.first() {
+              let text = token.lexeme();
+
+              if text.starts_with(' ') || text.starts_with('\t') {
+                return Err(token.error(ExtraLeadingWhitespace));
+              }
             }
           }
 
-          continued = line.is_continuation();
+          continued = !comment && line.is_continuation();
         }
 
         for attribute in [AttributeKind::Cache, AttributeKind::Extension] {
