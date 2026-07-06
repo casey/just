@@ -96,5 +96,5 @@ fn dependency_traversal_is_not_exponential() {
   child.kill().unwrap();
   child.wait().unwrap();
 
-  panic!("dependency graph traversal of {n} recipes did not complete within 10 seconds");
+  panic!("dependency graph traversal of {n} recipes did not complete within 60 seconds");
 }
