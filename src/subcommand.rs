@@ -695,21 +695,26 @@ impl Subcommand {
       println!();
     }
 
-    let aliases = if config.no_aliases {
-      BTreeMap::new()
+    let (aliases, cross_module_aliases) = if config.no_aliases {
+      (BTreeMap::new(), Vec::new())
     } else {
       let mut aliases = BTreeMap::<&str, Vec<&str>>::new();
+      let mut cross_module_aliases = Vec::new();
       for alias in module
         .recipe_aliases
         .values()
         .filter(|alias| alias.is_public())
       {
-        aliases
-          .entry(alias.target.name.lexeme())
-          .or_default()
-          .push(alias.name.lexeme());
+        if alias.target.module_path() == &module.module_path {
+          aliases
+            .entry(alias.target.name.lexeme())
+            .or_default()
+            .push(alias.name.lexeme());
+        } else {
+          cross_module_aliases.push(alias);
+        }
       }
-      aliases
+      (aliases, cross_module_aliases)
     };
 
     let signature_widths = {
@@ -732,6 +737,21 @@ impl Subcommand {
           );
         }
       }
+      for alias in &cross_module_aliases {
+        signature_widths.insert(
+          alias.name.lexeme(),
+          UnicodeWidthStr::width(
+            RecipeSignature {
+              name: alias.name.lexeme(),
+              recipe: &alias.target,
+            }
+            .color_display(Color::never())
+            .to_string()
+            .as_str(),
+          ),
+        );
+      }
+
       if !config.list_submodules {
         for submodule in module.public_modules(config) {
           let name = submodule.name();
@@ -804,6 +824,18 @@ impl Subcommand {
               .extend(entries.clone());
           }
         }
+      }
+
+      for alias in &cross_module_aliases {
+        entry_groups.entry(None).or_default().push(ListEntry {
+          aliases: &[],
+          doc: Some(Cow::Owned(format!(
+            "alias for `{}`",
+            alias.target.recipe_path()
+          ))),
+          name: alias.name.lexeme(),
+          recipe: &alias.target,
+        });
       }
 
       entry_groups
