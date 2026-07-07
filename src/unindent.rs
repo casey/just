@@ -18,7 +18,13 @@ pub fn unindent(text: &str) -> String {
     let last = i == lines.len() - 1;
 
     let replacement = match (blank, first, last) {
-      (true, false, false) => "\n",
+      (true, false, false) => {
+        if line.ends_with("\r\n") {
+          "\r\n"
+        } else {
+          "\n"
+        }
+      }
       (true, _, _) => "",
       (false, _, _) => &line[common_indentation.len()..],
     };
@@ -67,6 +73,7 @@ mod tests {
     assert_eq!(unindent(""), "");
     assert_eq!(unindent("  foo\n  bar"), "foo\nbar");
     assert_eq!(unindent("  foo\n  bar\n\n"), "foo\nbar\n");
+    assert_eq!(unindent("  foo\r\n\r\n  bar\r\n"), "foo\r\n\r\nbar\r\n");
 
     assert_eq!(
       unindent(
