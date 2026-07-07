@@ -686,3 +686,18 @@ fn unicode_escape_unterminated() {
     )
     .failure();
 }
+
+#[test]
+fn indented_string_crlf_blank_lines_keep_crlf() {
+  let test = Test::new();
+  fs::write(
+    test.justfile_path(),
+    "x := '''\r\nfoo\r\n\r\nbar\r\n'''\r\n",
+  )
+  .unwrap();
+  test
+    .args(["--evaluate", "x"])
+    .unindent_stdout(false)
+    .stdout("foo\r\n\r\nbar\r\n")
+    .success();
+}
