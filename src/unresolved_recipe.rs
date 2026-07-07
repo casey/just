@@ -5,12 +5,11 @@ pub(crate) type UnresolvedRecipe<'src> = Recipe<'src, UnresolvedDependency<'src>
 impl<'src> UnresolvedRecipe<'src> {
   pub(crate) fn resolve(
     mut self,
-    assignments: &Table<'src, Assignment<'src>>,
     evaluator: &mut Evaluator<'src, '_>,
-    functions: &Table<'src, FunctionDefinition<'src>>,
     modulepath: &Modulepath,
     resolved: Vec<Arc<Recipe<'src>>>,
     settings: &Settings,
+    variable_resolver: &mut VariableResolver<'src, '_>,
   ) -> CompileResult<'src, Recipe<'src>> {
     assert_eq!(
       self.dependencies.len(),
@@ -24,20 +23,16 @@ impl<'src> UnresolvedRecipe<'src> {
 
     for (i, parameter) in self.parameters.iter().enumerate() {
       if let Some(expression) = &parameter.default {
-        Self::resolve_expression(
-          assignments,
+        variable_resolver.resolve_expression(
           expression,
-          functions,
-          &self.parameters[..i],
+          ParameterContext::Recipe(&self.parameters[..i]),
           &mut variable_references,
         )?;
       }
       if let Some(expression) = &parameter.value {
-        Self::resolve_expression(
-          assignments,
+        variable_resolver.resolve_expression(
           expression,
-          functions,
-          &self.parameters[..i],
+          ParameterContext::Recipe(&self.parameters[..i]),
           &mut variable_references,
         )?;
       }
@@ -54,11 +49,9 @@ impl<'src> UnresolvedRecipe<'src> {
       }
 
       for argument in &dependency.arguments {
-        Self::resolve_expression(
-          assignments,
+        variable_resolver.resolve_expression(
           &argument.expression,
-          functions,
-          &self.parameters,
+          ParameterContext::Recipe(&self.parameters),
           &mut variable_references,
         )?;
       }
@@ -66,13 +59,7 @@ impl<'src> UnresolvedRecipe<'src> {
 
     for attribute in &self.attributes {
       let mut resolve_expression = |expression, parameters| {
-        Self::resolve_expression(
-          assignments,
-          expression,
-          functions,
-          parameters,
-          &mut variable_references,
-        )
+        variable_resolver.resolve_expression(expression, parameters, &mut variable_references)
       };
 
       match attribute {
@@ -82,10 +69,10 @@ impl<'src> UnresolvedRecipe<'src> {
           ..
         } => {
           if let Some((_key, expression)) = help_property {
-            resolve_expression(expression, &[])?;
+            resolve_expression(expression, ParameterContext::None)?;
           }
           if let Some((_key, expression)) = pattern_property {
-            resolve_expression(expression, &[])?;
+            resolve_expression(expression, ParameterContext::None)?;
           }
         }
         Attribute::Cache {
@@ -94,24 +81,24 @@ impl<'src> UnresolvedRecipe<'src> {
           outputs,
         } => {
           if let Some(extra) = extra {
-            resolve_expression(extra, &self.parameters)?;
+            resolve_expression(extra, ParameterContext::Recipe(&self.parameters))?;
           }
           if let Some(inputs) = inputs {
-            resolve_expression(inputs, &self.parameters)?;
+            resolve_expression(inputs, ParameterContext::Recipe(&self.parameters))?;
           }
           if let Some(outputs) = outputs {
-            resolve_expression(outputs, &self.parameters)?;
+            resolve_expression(outputs, ParameterContext::Recipe(&self.parameters))?;
           }
         }
         Attribute::Confirm(Some(expression)) | Attribute::WorkingDirectory(expression) => {
-          resolve_expression(expression, &self.parameters)?;
+          resolve_expression(expression, ParameterContext::Recipe(&self.parameters))?;
         }
         Attribute::Doc(Some(expression)) => {
-          resolve_expression(expression, &[])?;
+          resolve_expression(expression, ParameterContext::None)?;
         }
         Attribute::Env(key, value) => {
-          resolve_expression(key, &[])?;
-          resolve_expression(value, &[])?;
+          resolve_expression(key, ParameterContext::None)?;
+          resolve_expression(value, ParameterContext::None)?;
         }
         Attribute::Android
         | Attribute::Confirm(None)
@@ -208,11 +195,9 @@ impl<'src> UnresolvedRecipe<'src> {
 
       for fragment in &line.fragments {
         if let Fragment::Interpolation { expression, .. } = fragment {
-          Self::resolve_expression(
-            assignments,
+          variable_resolver.resolve_expression(
             expression,
-            functions,
-            &self.parameters,
+            ParameterContext::Recipe(&self.parameters),
             &mut variable_references,
           )?;
         }
@@ -271,45 +256,5 @@ impl<'src> UnresolvedRecipe<'src> {
       shebang: self.shebang,
       variable_references,
     })
-  }
-
-  fn resolve_expression(
-    assignments: &Table<'src, Assignment<'src>>,
-    expression: &Expression<'src>,
-    functions: &Table<'src, FunctionDefinition<'src>>,
-    parameters: &[Parameter],
-    variable_references: &mut HashSet<Number>,
-  ) -> CompileResult<'src> {
-    for reference in expression.references() {
-      match reference {
-        Reference::Variable(variable) => {
-          Self::resolve_variable(assignments, parameters, variable, variable_references)?;
-        }
-        Reference::Call { name, arguments } => {
-          Analyzer::resolve_call(functions, name, arguments)?;
-        }
-      }
-    }
-    Ok(())
-  }
-
-  fn resolve_variable(
-    assignments: &Table<'src, Assignment<'src>>,
-    parameters: &[Parameter],
-    variable: Name<'src>,
-    variable_references: &mut HashSet<Number>,
-  ) -> CompileResult<'src> {
-    let name = variable.lexeme();
-
-    if parameters.iter().any(|p| p.name.lexeme() == name) {
-      Ok(())
-    } else if let Some(assignment) = assignments.get(name) {
-      variable_references.insert(assignment.number);
-      Ok(())
-    } else if constants().contains_key(name) {
-      Ok(())
-    } else {
-      Err(variable.error(CompileErrorKind::UndefinedVariable { variable: name }))
-    }
   }
 }

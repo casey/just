@@ -189,11 +189,17 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       functions.insert(function.clone());
     }
 
-    AssignmentResolver::resolve_assignments(&assignments, &functions)?;
+    let mut variable_resolver = VariableResolver::new(&assignments, &functions)?;
+
+    let mut variable_references = HashSet::new();
 
     for set in self.sets.values() {
       for expression in set.value.expressions() {
-        Analyzer::resolve_references(&assignments, &functions, expression)?;
+        variable_resolver.resolve_expression(
+          expression,
+          ParameterContext::None,
+          &mut variable_references,
+        )?;
       }
     }
 
@@ -213,52 +219,36 @@ impl<'run, 'src> Analyzer<'run, 'src> {
         .values()
         .any(|set| matches!(set.value, Setting::Lists(true)));
 
-      let variable_references = self
-        .sets
-        .values()
-        .flat_map(|set| set.value.expressions())
-        .chain(
-          self
-            .recipes
-            .iter()
-            .flat_map(|recipe| &recipe.attributes)
-            .flat_map(|attribute| {
-              let mut expressions = Vec::new();
-              match attribute {
-                Attribute::Arg {
-                  help_property,
-                  pattern_property,
-                  ..
-                } => {
-                  if let Some((_, expression)) = help_property {
-                    expressions.push(expression);
-                  }
-                  if let Some((_, expression)) = pattern_property {
-                    expressions.push(expression);
-                  }
-                }
-                Attribute::Doc(Some(expression)) => expressions.push(expression),
-                _ => {}
-              }
-              expressions
-            }),
-        )
-        .chain(module_docs.iter().map(|(_, expression)| *expression))
-        .flat_map(|expression| expression.references())
-        .filter_map(|reference| {
-          if let Reference::Variable(variable) = reference {
-            Some(variable.lexeme())
-          } else {
-            None
+      for attribute in self.recipes.iter().flat_map(|recipe| &recipe.attributes) {
+        match attribute {
+          Attribute::Arg {
+            help_property,
+            pattern_property,
+            ..
+          } => {
+            if let Some((_, expression)) = help_property {
+              variable_resolver.collect_references(expression, &mut variable_references);
+            }
+            if let Some((_, expression)) = pattern_property {
+              variable_resolver.collect_references(expression, &mut variable_references);
+            }
           }
-        })
-        .collect::<BTreeSet<&str>>();
+          Attribute::Doc(Some(expression)) => {
+            variable_resolver.collect_references(expression, &mut variable_references);
+          }
+          _ => {}
+        }
+      }
+
+      for (_name, expression) in &module_docs {
+        variable_resolver.collect_references(expression, &mut variable_references);
+      }
 
       Evaluator::evaluate_const_assignments(
         &assignments,
         overrides,
         &scope,
-        variable_references,
+        &variable_references,
         lists,
       )?
     };
@@ -276,7 +266,11 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     }
 
     for (name, expression) in module_docs {
-      Analyzer::resolve_references(&assignments, &functions, expression)?;
+      variable_resolver.resolve_expression(
+        expression,
+        ParameterContext::None,
+        &mut variable_references,
+      )?;
       let value = evaluator.evaluate_value_const(expression)?;
       self.modules.get_mut(name).unwrap().doc = if value.is_empty() {
         None
@@ -341,13 +335,12 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     let (recipes, disabled_recipes) = RecipeResolver::resolve_recipes(
       &absent_modules,
-      &assignments,
       &mut evaluator,
-      &functions,
       &ast.module_path,
       &self.modules,
       &settings,
       deduplicated_recipes,
+      &mut variable_resolver,
     )?;
 
     let mut recipe_aliases = Table::new();
@@ -531,54 +524,6 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           }));
         }
       }
-    }
-
-    Ok(())
-  }
-
-  fn resolve_references(
-    assignments: &Table<'src, Assignment<'src>>,
-    functions: &'run Table<'src, FunctionDefinition<'src>>,
-    expression: &Expression<'src>,
-  ) -> CompileResult<'src> {
-    for reference in expression.references() {
-      match reference {
-        Reference::Call { name, arguments } => {
-          Self::resolve_call(functions, name, arguments)?;
-        }
-        Reference::Variable(variable) => {
-          let name = variable.lexeme();
-          if !assignments.contains_key(name) && !constants().contains_key(name) {
-            return Err(variable.error(UndefinedVariable { variable: name }));
-          }
-        }
-      }
-    }
-
-    Ok(())
-  }
-
-  pub(crate) fn resolve_call(
-    functions: &'run Table<'src, FunctionDefinition<'src>>,
-    name: Name<'src>,
-    arguments: usize,
-  ) -> CompileResult<'src> {
-    let function = name.lexeme();
-
-    let expected = if let Some(function) = functions.get(function) {
-      function.parameters.len()..=function.parameters.len()
-    } else if let Some(function) = function::get(function) {
-      function.expected_arguments()
-    } else {
-      return Err(name.error(CompileErrorKind::UndefinedFunction { function }));
-    };
-
-    if !expected.contains(&arguments) {
-      return Err(name.error(CompileErrorKind::FunctionArgumentCountMismatch {
-        arguments,
-        expected,
-        function,
-      }));
     }
 
     Ok(())

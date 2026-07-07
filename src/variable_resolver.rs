@@ -1,17 +1,17 @@
 use {super::*, CompileErrorKind::*};
 
-pub(crate) struct AssignmentResolver<'src: 'run, 'run> {
+pub(crate) struct VariableResolver<'src: 'run, 'run> {
   assignments: &'run Table<'src, Assignment<'src>>,
   evaluated: BTreeSet<&'src str>,
   functions: &'run Table<'src, FunctionDefinition<'src>>,
   stack: Vec<&'src str>,
 }
 
-impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
-  pub(crate) fn resolve_assignments(
+impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
+  pub(crate) fn new(
     assignments: &'run Table<'src, Assignment<'src>>,
     functions: &'run Table<'src, FunctionDefinition<'src>>,
-  ) -> CompileResult<'src> {
+  ) -> CompileResult<'src, Self> {
     let mut resolver = Self {
       assignments,
       evaluated: BTreeSet::new(),
@@ -25,8 +25,62 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
 
     for function in functions.values() {
       for reference in function.body.references() {
-        resolver.resolve_reference(Some(&function.parameters), reference)?;
+        resolver.resolve_reference(ParameterContext::Function(&function.parameters), reference)?;
       }
+    }
+
+    Ok(resolver)
+  }
+
+  pub(crate) fn resolve_expression(
+    &mut self,
+    expression: &Expression<'src>,
+    parameters: ParameterContext<'_, 'src>,
+    references: &mut HashSet<Number>,
+  ) -> CompileResult<'src> {
+    for reference in expression.references() {
+      match reference {
+        Reference::Call { name, arguments } => self.resolve_call(name, arguments)?,
+        Reference::Variable(variable) => {
+          self.resolve_variable(parameters, variable, Some(&mut *references))?;
+        }
+      }
+    }
+
+    Ok(())
+  }
+
+  pub(crate) fn collect_references(
+    &self,
+    expression: &Expression<'src>,
+    references: &mut HashSet<Number>,
+  ) {
+    for reference in expression.references() {
+      if let Reference::Variable(variable) = reference
+        && let Some(assignment) = self.assignments.get(variable.lexeme())
+      {
+        references.insert(assignment.number);
+      }
+    }
+  }
+
+  pub(crate) fn resolve_call(&self, name: Name<'src>, arguments: usize) -> CompileResult<'src> {
+    let function = name.lexeme();
+
+    let expected = if let Some(function) = self.functions.get(function) {
+      function.parameters.len()..=function.parameters.len()
+    } else if let Some(function) = function::get(function) {
+      function.expected_arguments()
+    } else {
+      return Err(name.error(UndefinedFunction { function }));
+    };
+
+    if !expected.contains(&arguments) {
+      return Err(name.error(FunctionArgumentCountMismatch {
+        arguments,
+        expected,
+        function,
+      }));
     }
 
     Ok(())
@@ -42,7 +96,7 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
     self.stack.push(name);
 
     for reference in assignment.value.references() {
-      self.resolve_reference(None, reference)?;
+      self.resolve_reference(ParameterContext::None, reference)?;
     }
 
     self.evaluated.insert(name);
@@ -54,15 +108,15 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
 
   fn resolve_reference(
     &mut self,
-    parameters: Option<&[(Name<'src>, Number)]>,
+    parameters: ParameterContext<'_, 'src>,
     reference: Reference<'src>,
   ) -> CompileResult<'src> {
     match reference {
       Reference::Call { name, arguments } => {
-        Analyzer::resolve_call(self.functions, name, arguments)?;
+        self.resolve_call(name, arguments)?;
         self.resolve_function_variables(name.lexeme())
       }
-      Reference::Variable(name) => self.resolve_variable(parameters, name),
+      Reference::Variable(name) => self.resolve_variable(parameters, name, None),
     }
   }
 
@@ -85,7 +139,11 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
         match reference {
           Reference::Call { name, .. } => queue.push(name.lexeme()),
           Reference::Variable(variable) => {
-            self.resolve_variable(Some(&function.parameters), variable)?;
+            self.resolve_variable(
+              ParameterContext::Function(&function.parameters),
+              variable,
+              None,
+            )?;
           }
         }
       }
@@ -96,20 +154,20 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
 
   fn resolve_variable(
     &mut self,
-    parameters: Option<&[(Name<'src>, Number)]>,
+    parameters: ParameterContext<'_, 'src>,
     variable: Name<'src>,
+    references: Option<&mut HashSet<Number>>,
   ) -> CompileResult<'src> {
     let name = variable.lexeme();
 
-    if let Some(parameters) = parameters
-      && parameters
-        .iter()
-        .any(|(parameter, _number)| parameter.lexeme() == name)
-    {
+    if parameters.shadows(name) {
       return Ok(());
     }
 
-    if self.evaluated.contains(name) || constants().contains_key(name) {
+    if self.evaluated.contains(name) {
+      if let Some(references) = references {
+        references.insert(self.assignments[name].number);
+      }
       return Ok(());
     }
 
@@ -123,13 +181,17 @@ impl<'src: 'run, 'run> AssignmentResolver<'src, 'run> {
             circle: self.stack.clone(),
           }),
       );
-    } else if let Some(assignment) = self.assignments.get(name) {
-      self.resolve_assignment(assignment)?;
-    } else {
-      return Err(variable.error(UndefinedVariable { variable: name }));
     }
 
-    Ok(())
+    if let Some(assignment) = self.assignments.get(name) {
+      return self.resolve_assignment(assignment);
+    }
+
+    if constants().contains_key(name) {
+      return Ok(());
+    }
+
+    Err(variable.error(UndefinedVariable { variable: name }))
   }
 }
 
@@ -175,6 +237,26 @@ mod tests {
     column: 0,
     width:  1,
     kind:   CircularVariableDependency { variable: "a", circle: vec!["a", "a"] },
+  }
+
+  analysis_error! {
+    name:   constant_shadowing_self_variable_dependency,
+    input:  "HEX := HEX",
+    offset: 0,
+    line:   0,
+    column: 0,
+    width:  3,
+    kind:   CircularVariableDependency { variable: "HEX", circle: vec!["HEX", "HEX"] },
+  }
+
+  analysis_error! {
+    name:   constant_shadowing_circular_variable_dependency,
+    input:  "x := HEX\nHEX := x",
+    offset: 9,
+    line:   1,
+    column: 0,
+    width:  3,
+    kind:   CircularVariableDependency { variable: "HEX", circle: vec!["HEX", "x", "HEX"] },
   }
 
   #[test]

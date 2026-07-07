@@ -2,39 +2,36 @@ use {super::*, CompileErrorKind::*};
 
 pub(crate) struct RecipeResolver<'src: 'run, 'run> {
   absent_modules: &'run BTreeSet<String>,
-  assignments: &'run Table<'src, Assignment<'src>>,
   disabled_recipes: Table<'src, Disabled<'src>>,
   evaluator: &'run mut Evaluator<'src, 'run>,
-  functions: &'run Table<'src, FunctionDefinition<'src>>,
   modulepath: &'run Modulepath,
   modules: &'run Table<'src, Justfile<'src>>,
   resolved_recipes: Table<'src, Arc<Recipe<'src>>>,
   settings: &'run Settings,
   unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
+  variable_resolver: &'run mut VariableResolver<'src, 'run>,
 }
 
 impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
   pub(crate) fn resolve_recipes(
     absent_modules: &'run BTreeSet<String>,
-    assignments: &'run Table<'src, Assignment<'src>>,
     evaluator: &'run mut Evaluator<'src, 'run>,
-    functions: &'run Table<'src, FunctionDefinition<'src>>,
     modulepath: &'run Modulepath,
     modules: &'run Table<'src, Justfile<'src>>,
     settings: &'run Settings,
     unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
+    variable_resolver: &'run mut VariableResolver<'src, 'run>,
   ) -> CompileResult<'src, (Table<'src, Arc<Recipe<'src>>>, Table<'src, Disabled<'src>>)> {
     let mut resolver = Self {
       absent_modules,
-      assignments,
       disabled_recipes: Table::new(),
       evaluator,
-      functions,
       modulepath,
       modules,
       resolved_recipes: Table::new(),
       settings,
       unresolved_recipes,
+      variable_resolver,
     };
 
     while let Some(unresolved) = resolver.unresolved_recipes.pop() {
@@ -80,12 +77,11 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
 
     if disabled_by.is_empty() {
       let resolved = Arc::new(recipe.resolve(
-        self.assignments,
         self.evaluator,
-        self.functions,
         self.modulepath,
         dependencies,
         self.settings,
+        self.variable_resolver,
       )?);
       self.resolved_recipes.insert(Arc::clone(&resolved));
       Ok(Resolution::Resolved(resolved))
