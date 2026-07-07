@@ -866,14 +866,14 @@ impl Subcommand {
 
       if let Some(entries) = entry_groups.get(&group) {
         for entry in entries {
-          let inline_doc = signature_widths[entry.name] <= MAX_WIDTH
+          let inline_comment = signature_widths[entry.name] <= MAX_WIDTH
             && entry
               .comment
               .as_ref()
               .is_none_or(|doc| doc.lines().count() <= 1);
 
           if let Some(comment) = &entry.comment
-            && !inline_doc
+            && !inline_comment
           {
             for line in comment.lines() {
               println!(
@@ -896,7 +896,7 @@ impl Subcommand {
           print_doc_and_aliases(
             config,
             entry.name,
-            entry.comment.as_deref().filter(|_| inline_doc),
+            entry.comment.as_deref().filter(|_| inline_comment),
             entry.aliases,
             max_signature_width,
             &signature_widths,
