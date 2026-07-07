@@ -609,11 +609,7 @@ impl Subcommand {
       if let Some(submodule) = module.modules.get(name) {
         module = submodule;
       } else if let Some(alias) = module.module_aliases.get(name) {
-        module = root
-          .submodule(&alias.target)
-          .ok_or_else(|| Error::UnknownSubmodule {
-            path: path.to_string(),
-          })?;
+        module = root.submodule(&alias.target).unwrap();
       } else if module.absent_modules.contains(name) {
         return Err(Error::ModuleAbsent {
           module: module.module_path.join(name),
@@ -1017,11 +1013,7 @@ impl Subcommand {
       if let Some(submodule) = module.modules.get(name) {
         module = submodule;
       } else if let Some(alias) = module.module_aliases.get(name) {
-        module = root
-          .submodule(&alias.target)
-          .ok_or_else(|| Error::UnknownSubmodule {
-            path: path.to_string(),
-          })?;
+        module = root.submodule(&alias.target).unwrap();
       } else if module.absent_modules.contains(name) {
         return Err(Error::ModuleAbsent {
           module: module.module_path.join(name),

@@ -453,7 +453,9 @@ impl<'src> Justfile<'src> {
       module = if let Some(submodule) = module.modules.get(component) {
         submodule
       } else {
-        self.submodule(&module.module_aliases.get(component)?.target)?
+        self
+          .submodule(&module.module_aliases.get(component)?.target)
+          .unwrap()
       };
     }
 
