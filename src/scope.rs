@@ -59,6 +59,10 @@ impl<'src, 'run> Scope<'src, 'run> {
     }
   }
 
+  pub(crate) fn local_binding(&self, name: &str) -> Option<&Binding<'src>> {
+    self.bindings.get(name)
+  }
+
   pub(crate) fn value(&self, name: &str) -> Option<&Value> {
     Some(&self.binding(name)?.value)
   }

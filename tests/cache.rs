@@ -1070,3 +1070,75 @@ fn prints_cache_key() {
     ))
     .success();
 }
+
+#[test]
+fn cache_extra_variables_are_resolved() {
+  Test::new()
+    .justfile(
+      "
+        [cache(extra = undefined)]
+        [script('sh')]
+        foo:
+          echo bar
+      ",
+    )
+    .unstable()
+    .stderr(
+      "
+        error: variable `undefined` not defined
+         ——▶ justfile:1:16
+          │
+        1 │ [cache(extra = undefined)]
+          │                ^^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn cache_inputs_variables_are_resolved() {
+  Test::new()
+    .justfile(
+      "
+        [cache(inputs = undefined)]
+        [script('sh')]
+        foo:
+          echo bar
+      ",
+    )
+    .unstable()
+    .stderr(
+      "
+        error: variable `undefined` not defined
+         ——▶ justfile:1:17
+          │
+        1 │ [cache(inputs = undefined)]
+          │                 ^^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn cache_outputs_variables_are_resolved() {
+  Test::new()
+    .justfile(
+      "
+        [cache(outputs = undefined)]
+        [script('sh')]
+        foo:
+          echo bar
+      ",
+    )
+    .unstable()
+    .stderr(
+      "
+        error: variable `undefined` not defined
+         ——▶ justfile:1:18
+          │
+        1 │ [cache(outputs = undefined)]
+          │                  ^^^^^^^^^
+      ",
+    )
+    .failure();
+}

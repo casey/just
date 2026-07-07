@@ -345,6 +345,29 @@ fn format_backticks_are_forbidden() {
 }
 
 #[test]
+fn stray_identifier_in_interpolation_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        a := 'A'
+        x := f'{{ a x }}plain'
+      ",
+    )
+    .args(["--evaluate", "x"])
+    .stderr(
+      "
+        error: expected '&&', '!=', '!~', '||', '==', '=~', format string continue, format string end, '(', '+', '++', or \
+       '/', but found identifier
+         ——▶ justfile:2:13
+          │
+        2 │ x := f'{{ a x }}plain'
+          │             ^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn indented_format_strings_are_unindented_once() {
   assert_eval("f'''\n\n  foo\n'''", "\nfoo\n");
   assert_eval("'''\n\n  foo\n'''", "\nfoo\n");
