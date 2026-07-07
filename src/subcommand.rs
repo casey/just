@@ -777,7 +777,7 @@ impl Subcommand {
 
         let mut entries = vec![ListEntry {
           aliases: recipe_aliases,
-          doc: recipe.doc().map(Cow::Borrowed),
+          doc: recipe.doc().map(Into::into),
           name: recipe.name(),
           recipe,
         }];
@@ -786,7 +786,7 @@ impl Subcommand {
           for name in recipe_aliases {
             entries.push(ListEntry {
               aliases: recipe_aliases,
-              doc: Some(Cow::Owned(format!("alias for `{}`", recipe.name))),
+              doc: Some(format!("alias for `{}`", recipe.name)),
               name,
               recipe,
             });
