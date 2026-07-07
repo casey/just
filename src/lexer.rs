@@ -1,6 +1,7 @@
 use {super::*, CompileErrorKind::*, TokenKind::*};
 
-static DEDENT_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[ \t\n]*\n[^ \t\n]").unwrap());
+static DEDENT_RE: LazyLock<Regex> =
+  LazyLock::new(|| Regex::new(r"^[ \t\r\n]*\n[^ \t\r\n]").unwrap());
 
 /// Just language lexer
 ///

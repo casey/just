@@ -1938,3 +1938,18 @@ fn empty_doc_comment_has_no_trailing_space() {
     ",
   );
 }
+
+#[test]
+fn crlf_blank_lines_between_recipes_are_preserved() {
+  let test = Test::new();
+  fs::write(
+    test.justfile_path(),
+    "a:\r\n echo a\r\n\r\nb:\r\n echo b\r\n",
+  )
+  .unwrap();
+  test
+    .arg("--fmt")
+    .stderr_regex(".*")
+    .expect_file("justfile", "a:\n    echo a\n\nb:\n    echo b\n")
+    .success();
+}
