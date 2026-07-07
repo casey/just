@@ -234,19 +234,17 @@ fn show_prints_doc_comment_and_attributes() {
   Test::new()
     .justfile(
       "
-        # a doc comment
+        # baz
         [no-cd]
         foo:
-            echo bar
       ",
     )
     .args(["--show", "foo"])
     .stdout(
       "
-        # a doc comment
+        # baz
         [no-cd]
         foo:
-            echo bar
       ",
     )
     .success();
@@ -257,17 +255,15 @@ fn show_prints_doc_attribute_without_doc_comment() {
   Test::new()
     .justfile(
       "
-        [doc('attr doc')]
+        [doc('bar')]
         foo:
-            echo bar
       ",
     )
     .args(["--show", "foo"])
     .stdout(
       "
-        [doc('attr doc')]
+        [doc('bar')]
         foo:
-            echo bar
       ",
     )
     .success();
