@@ -94,6 +94,15 @@ impl<'src> UnresolvedRecipe<'src> {
             resolve_expression(expression, &[])?;
           }
         }
+        Attribute::Cache {
+          extra,
+          inputs,
+          outputs,
+        } => {
+          for expression in [extra, inputs, outputs].into_iter().flatten() {
+            resolve_expression(expression, &self.parameters)?;
+          }
+        }
         Attribute::Env(key, value) => {
           resolve_expression(key, &[])?;
           resolve_expression(value, &[])?;

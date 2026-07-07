@@ -1070,3 +1070,47 @@ fn prints_cache_key() {
     ))
     .success();
 }
+
+#[test]
+fn cache_expression_with_undefined_variable_is_a_compile_error() {
+  Test::new()
+    .justfile(
+      "
+        [cache(extra = undefined)]
+        [script('sh')]
+        foo:
+          echo bar
+      ",
+    )
+    .unstable()
+    .stderr(
+      "
+        error: variable `undefined` not defined
+         ——▶ justfile:1:16
+          │
+        1 │ [cache(extra = undefined)]
+          │                ^^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn cache_expressions_are_evaluated_with_lazy_setting() {
+  Test::new()
+    .justfile(
+      "
+        set lazy
+
+        bar := 'baz'
+
+        [cache(extra = bar)]
+        [script('sh')]
+        foo:
+          echo ran
+      ",
+    )
+    .unstable()
+    .stdout("ran\n")
+    .success();
+}
