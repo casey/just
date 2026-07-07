@@ -10,7 +10,6 @@ pub(crate) struct Parameter<'src> {
   pub(crate) long: Option<String>,
   pub(crate) max: Option<u64>,
   pub(crate) min: Option<u64>,
-  #[serde(skip)]
   pub(crate) multiple: bool,
   pub(crate) name: Name<'src>,
   #[serde(skip)]
