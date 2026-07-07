@@ -61,6 +61,7 @@ struct Parameter<'a> {
   long: Option<&'a str>,
   max: Option<u64>,
   min: Option<u64>,
+  multiple: bool,
   name: &'a str,
   pattern: Option<Vec<&'a str>>,
   short: Option<char>,
@@ -1470,6 +1471,52 @@ fn arg_flag() {
             flag: true,
             kind: "singular",
             long: Some("bar"),
+            name: "bar",
+            ..default()
+          }]
+          .into(),
+          ..default()
+        },
+      )]
+      .into(),
+      settings: Settings {
+        lists: true,
+        unstable: true,
+        ..default()
+      },
+      ..default()
+    },
+  );
+}
+
+#[test]
+fn arg_multiple() {
+  case(
+    "set unstable\nset lists\n[arg('bar', long, multiple)]\nfoo bar:",
+    Module {
+      first: Some("foo"),
+      recipes: [(
+        "foo",
+        Recipe {
+          name: "foo",
+          namepath: "foo",
+          attributes: [json!({
+            "arg": {
+              "help": null,
+              "long": "bar",
+              "max": null,
+              "min": null,
+              "name": "bar",
+              "pattern": null,
+              "short": null,
+              "value": null,
+            }
+          })]
+          .into(),
+          parameters: [Parameter {
+            kind: "singular",
+            long: Some("bar"),
+            multiple: true,
             name: "bar",
             ..default()
           }]
