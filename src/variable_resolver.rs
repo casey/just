@@ -2,40 +2,82 @@ use {super::*, CompileErrorKind::*};
 
 pub(crate) struct VariableResolver<'src: 'run, 'run> {
   assignments: &'run Table<'src, Assignment<'src>>,
+  bindings: HashMap<&'src str, Number>,
   evaluated: BTreeSet<&'src str>,
   functions: &'run Table<'src, FunctionDefinition<'src>>,
   stack: Vec<&'src str>,
 }
 
 impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
-  pub(crate) fn new(
-    assignments: &'run Table<'src, Assignment<'src>>,
-    functions: &'run Table<'src, FunctionDefinition<'src>>,
-  ) -> CompileResult<'src, Self> {
-    let mut resolver = Self {
-      assignments,
-      evaluated: BTreeSet::new(),
-      functions,
-      stack: Vec::new(),
-    };
+  pub(crate) fn resolve_assignments(
+    assignments: &mut Table<'src, Assignment<'src>>,
+    functions: &mut Table<'src, FunctionDefinition<'src>>,
+  ) -> CompileResult<'src, HashMap<&'src str, Number>> {
+    {
+      let mut resolver = VariableResolver {
+        assignments,
+        bindings: HashMap::new(),
+        evaluated: BTreeSet::new(),
+        functions,
+        stack: Vec::new(),
+      };
 
-    for assignment in assignments.values() {
-      resolver.resolve_assignment(assignment)?;
-    }
+      for assignment in assignments.values() {
+        resolver.resolve_assignment(assignment)?;
+      }
 
-    for function in functions.values() {
-      let context = ExpressionContext::from(function.parameters.as_slice());
-      for reference in function.body.references() {
-        resolver.resolve_reference(&context, reference)?;
+      for function in functions.values() {
+        let context = ExpressionContext::from(function.parameters.as_slice());
+        for reference in function.body.references() {
+          resolver.resolve_reference(&context, reference)?;
+        }
       }
     }
 
-    Ok(resolver)
+    let bindings = constants()
+      .keys()
+      .enumerate()
+      .map(|(i, key)| (*key, Numerator::constant(i)))
+      .chain(
+        assignments
+          .values()
+          .map(|assignment| (assignment.name.lexeme(), assignment.number)),
+      )
+      .collect::<HashMap<&'src str, Number>>();
+
+    for assignment in assignments.values_mut() {
+      assignment
+        .value
+        .resolve_variables(&|name| bindings.get(name).copied());
+    }
+
+    for function in functions.values_mut() {
+      let context = ExpressionContext::from(function.parameters.as_slice());
+      function
+        .body
+        .resolve_variables(&|name| context.lookup(name).or_else(|| bindings.get(name).copied()));
+    }
+
+    Ok(bindings)
+  }
+
+  pub(crate) fn new(
+    assignments: &'run Table<'src, Assignment<'src>>,
+    bindings: HashMap<&'src str, Number>,
+    functions: &'run Table<'src, FunctionDefinition<'src>>,
+  ) -> Self {
+    Self {
+      assignments,
+      bindings,
+      evaluated: BTreeSet::new(),
+      functions,
+      stack: Vec::new(),
+    }
   }
 
   pub(crate) fn resolve_expression(
-    &mut self,
-    expression: &Expression<'src>,
+    &self,
+    expression: &mut Expression<'src>,
     context: &ExpressionContext<'src>,
     references: &mut HashSet<Number>,
   ) -> CompileResult<'src> {
@@ -43,10 +85,23 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
       match reference {
         Reference::Call { name, arguments } => self.resolve_call(name, arguments)?,
         Reference::Variable(variable) => {
-          self.resolve_variable(context, variable, Some(&mut *references))?;
+          let name = variable.lexeme();
+          if context.lookup(name).is_none() {
+            if let Some(assignment) = self.assignments.get(name) {
+              references.insert(assignment.number);
+            } else if !constants().contains_key(name) {
+              return Err(variable.error(UndefinedVariable { variable: name }));
+            }
+          }
         }
       }
     }
+
+    expression.resolve_variables(&|name| {
+      context
+        .lookup(name)
+        .or_else(|| self.bindings.get(name).copied())
+    });
 
     Ok(())
   }
@@ -119,7 +174,7 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
         self.resolve_call(name, arguments)?;
         self.resolve_function_variables(name.lexeme())
       }
-      Reference::Variable(name) => self.resolve_variable(context, name, None),
+      Reference::Variable(name) => self.resolve_variable(context, name),
     }
   }
 
@@ -144,7 +199,7 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
         match reference {
           Reference::Call { name, .. } => queue.push(name.lexeme()),
           Reference::Variable(variable) => {
-            self.resolve_variable(&context, variable, None)?;
+            self.resolve_variable(&context, variable)?;
           }
         }
       }
@@ -157,18 +212,14 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
     &mut self,
     context: &ExpressionContext<'src>,
     variable: Name<'src>,
-    references: Option<&mut HashSet<Number>>,
   ) -> CompileResult<'src> {
     let name = variable.lexeme();
 
-    if context.shadows(name) {
+    if context.lookup(name).is_some() {
       return Ok(());
     }
 
     if self.evaluated.contains(name) {
-      if let Some(references) = references {
-        references.insert(self.assignments[name].number);
-      }
       return Ok(());
     }
 

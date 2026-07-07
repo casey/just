@@ -65,24 +65,17 @@ impl<'src> Setting<'src> {
     }
   }
 
-  pub(crate) fn expressions(&self) -> impl Iterator<Item = &Expression<'src>> {
-    let first = match self {
+  pub(crate) fn expressions_mut(&mut self) -> impl Iterator<Item = &mut Expression<'src>> {
+    let (first, rest) = match self {
       Self::DotenvCommand(value)
       | Self::DotenvFilename(value)
       | Self::DotenvPath(value)
       | Self::Tempdir(value)
-      | Self::WorkingDirectory(value) => Some(value),
+      | Self::WorkingDirectory(value) => (Some(value), &mut [][..]),
       Self::ScriptInterpreter(value) | Self::Shell(value) | Self::WindowsShell(value) => {
-        Some(&value.command)
+        (Some(&mut value.command), value.arguments.as_mut_slice())
       }
-      _ => None,
-    };
-
-    let rest = match self {
-      Self::ScriptInterpreter(value) | Self::Shell(value) | Self::WindowsShell(value) => {
-        value.arguments.as_slice()
-      }
-      _ => &[],
+      _ => (None, &mut [][..]),
     };
 
     first.into_iter().chain(rest)

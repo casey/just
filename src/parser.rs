@@ -983,7 +983,7 @@ impl<'run, 'src> Parser<'run, 'src> {
           }
           Ok(Expression::Call { name, arguments })
         } else {
-          Ok(Expression::Variable { name })
+          Ok(Expression::Variable { name, number: None })
         }
       }
     } else if self.next_is(ParenL) {

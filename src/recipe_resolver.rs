@@ -9,7 +9,7 @@ pub(crate) struct RecipeResolver<'src: 'run, 'run> {
   resolved_recipes: Table<'src, Arc<Recipe<'src>>>,
   settings: &'run Settings,
   unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
-  variable_resolver: &'run mut VariableResolver<'src, 'run>,
+  variable_resolver: &'run VariableResolver<'src, 'run>,
 }
 
 impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
@@ -20,7 +20,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
     modules: &'run Table<'src, Justfile<'src>>,
     settings: &'run Settings,
     unresolved_recipes: Table<'src, UnresolvedRecipe<'src>>,
-    variable_resolver: &'run mut VariableResolver<'src, 'run>,
+    variable_resolver: &'run VariableResolver<'src, 'run>,
   ) -> CompileResult<'src, (Table<'src, Arc<Recipe<'src>>>, Table<'src, Disabled<'src>>)> {
     let mut resolver = Self {
       absent_modules,

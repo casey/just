@@ -59,7 +59,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut definitions = HashMap::new();
     let mut imports = HashSet::new();
     let mut list_features = Vec::new();
-    let mut module_docs: Vec<(&str, &Expression)> = Vec::new();
+    let mut module_docs: Vec<(&str, Expression)> = Vec::new();
     let mut unstable_features = BTreeSet::new();
 
     let mut stack = Vec::new();
@@ -119,7 +119,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
                 absolute,
               )?);
               if let Some(Attribute::Doc(Some(expression))) = attributes.get(AttributeKind::Doc) {
-                module_docs.push((name.lexeme(), expression));
+                module_docs.push((name.lexeme(), expression.clone()));
               }
             } else if *optional {
               absent_modules.insert(name.lexeme().to_string());
@@ -189,12 +189,14 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       functions.insert(function.clone());
     }
 
-    let mut variable_resolver = VariableResolver::new(&assignments, &functions)?;
+    let bindings = VariableResolver::resolve_assignments(&mut assignments, &mut functions)?;
+
+    let variable_resolver = VariableResolver::new(&assignments, bindings, &functions);
 
     let mut variable_references = HashSet::new();
 
-    for set in self.sets.values() {
-      for expression in set.value.expressions() {
+    for set in self.sets.values_mut() {
+      for expression in set.value.expressions_mut() {
         variable_resolver.resolve_expression(
           expression,
           &ExpressionContext::new(),
@@ -265,13 +267,13 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       }
     }
 
-    for (name, expression) in module_docs {
+    for (name, mut expression) in module_docs {
       variable_resolver.resolve_expression(
-        expression,
+        &mut expression,
         &ExpressionContext::new(),
         &mut variable_references,
       )?;
-      let value = evaluator.evaluate_value_const(expression)?;
+      let value = evaluator.evaluate_value_const(&expression)?;
       self.modules.get_mut(name).unwrap().doc = if value.is_empty() {
         None
       } else {
@@ -340,7 +342,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       &self.modules,
       &settings,
       deduplicated_recipes,
-      &mut variable_resolver,
+      &variable_resolver,
     )?;
 
     let mut recipe_aliases = Table::new();

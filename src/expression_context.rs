@@ -10,8 +10,8 @@ impl ExpressionContext<'_> {
     Self::default()
   }
 
-  pub(crate) fn shadows(&self, name: &str) -> bool {
-    self.bindings.contains_key(name)
+  pub(crate) fn lookup(&self, name: &str) -> Option<Number> {
+    self.bindings.get(name).copied()
   }
 }
 

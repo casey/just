@@ -76,12 +76,72 @@ pub(crate) enum Expression<'src> {
   /// `"string_literal"` or `'string_literal'`
   StringLiteral { string_literal: StringLiteral<'src> },
   /// `variable`
-  Variable { name: Name<'src> },
+  Variable {
+    name: Name<'src>,
+    number: Option<Number>,
+  },
 }
 
 impl<'src> Expression<'src> {
   pub(crate) fn references<'a>(&'a self) -> References<'a, 'src> {
     References::new(self)
+  }
+
+  pub(crate) fn resolve_variables(&mut self, lookup: &impl Fn(&str) -> Option<Number>) {
+    match self {
+      Self::And { lhs, rhs }
+      | Self::Comparison { lhs, rhs, .. }
+      | Self::Concatenation { lhs, rhs, .. }
+      | Self::ListConcatenation { lhs, rhs, .. }
+      | Self::Or { lhs, rhs } => {
+        lhs.resolve_variables(lookup);
+        rhs.resolve_variables(lookup);
+      }
+      Self::Assert {
+        condition, message, ..
+      } => {
+        condition.resolve_variables(lookup);
+        if let Some(message) = message {
+          message.resolve_variables(lookup);
+        }
+      }
+      Self::Backtick { .. } | Self::StringLiteral { .. } => {}
+      Self::Call { arguments, .. } => {
+        for argument in arguments {
+          argument.resolve_variables(lookup);
+        }
+      }
+      Self::Conditional {
+        condition,
+        then,
+        otherwise,
+      } => {
+        condition.resolve_variables(lookup);
+        then.resolve_variables(lookup);
+        if let Some(otherwise) = otherwise {
+          otherwise.resolve_variables(lookup);
+        }
+      }
+      Self::FormatString { expressions, .. } => {
+        for (expression, _string) in expressions {
+          expression.resolve_variables(lookup);
+        }
+      }
+      Self::Group { contents } => contents.resolve_variables(lookup),
+      Self::Join { lhs, rhs, .. } => {
+        if let Some(lhs) = lhs {
+          lhs.resolve_variables(lookup);
+        }
+        rhs.resolve_variables(lookup);
+      }
+      Self::List { elements, .. } => {
+        for element in elements {
+          element.resolve_variables(lookup);
+        }
+      }
+      Self::Not { operand } => operand.resolve_variables(lookup),
+      Self::Variable { name, number } => *number = lookup(name.lexeme()),
+    }
   }
 }
 
@@ -158,7 +218,7 @@ impl Display for Expression<'_> {
       Self::Not { operand } => write!(f, "!{operand}"),
       Self::Or { lhs, rhs } => write!(f, "{lhs} || {rhs}"),
       Self::StringLiteral { string_literal } => write!(f, "{string_literal}"),
-      Self::Variable { name } => write!(f, "{name}"),
+      Self::Variable { name, .. } => write!(f, "{name}"),
     }
   }
 }
@@ -275,7 +335,7 @@ impl Serialize for Expression<'_> {
         seq.end()
       }
       Self::StringLiteral { string_literal } => string_literal.serialize(serializer),
-      Self::Variable { name } => {
+      Self::Variable { name, .. } => {
         let mut seq = serializer.serialize_seq(None)?;
         seq.serialize_element("variable")?;
         seq.serialize_element(name)?;
