@@ -96,7 +96,7 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
 
     self.stack.push(name);
 
-    let context = ExpressionContext::default();
+    let context = ExpressionContext::new();
 
     for reference in assignment.value.references() {
       self.resolve_reference(&context, reference)?;

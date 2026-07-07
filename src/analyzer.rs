@@ -197,7 +197,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       for expression in set.value.expressions() {
         variable_resolver.resolve_expression(
           expression,
-          &ExpressionContext::default(),
+          &ExpressionContext::new(),
           &mut variable_references,
         )?;
       }
@@ -268,7 +268,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     for (name, expression) in module_docs {
       variable_resolver.resolve_expression(
         expression,
-        &ExpressionContext::default(),
+        &ExpressionContext::new(),
         &mut variable_references,
       )?;
       let value = evaluator.evaluate_value_const(expression)?;
