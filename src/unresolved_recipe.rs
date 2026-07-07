@@ -76,12 +76,6 @@ impl<'src> UnresolvedRecipe<'src> {
       };
 
       match attribute {
-        Attribute::Confirm(Some(expression)) | Attribute::WorkingDirectory(expression) => {
-          resolve_expression(expression, &self.parameters)?;
-        }
-        Attribute::Doc(Some(expression)) => {
-          resolve_expression(expression, &[])?;
-        }
         Attribute::Arg {
           help_property,
           pattern_property,
@@ -94,11 +88,56 @@ impl<'src> UnresolvedRecipe<'src> {
             resolve_expression(expression, &[])?;
           }
         }
+        Attribute::Cache {
+          extra,
+          inputs,
+          outputs,
+        } => {
+          if let Some(extra) = extra {
+            resolve_expression(extra, &self.parameters)?;
+          }
+          if let Some(inputs) = inputs {
+            resolve_expression(inputs, &self.parameters)?;
+          }
+          if let Some(outputs) = outputs {
+            resolve_expression(outputs, &self.parameters)?;
+          }
+        }
+        Attribute::Confirm(Some(expression)) | Attribute::WorkingDirectory(expression) => {
+          resolve_expression(expression, &self.parameters)?;
+        }
+        Attribute::Doc(Some(expression)) => {
+          resolve_expression(expression, &[])?;
+        }
         Attribute::Env(key, value) => {
           resolve_expression(key, &[])?;
           resolve_expression(value, &[])?;
         }
-        _ => {}
+        Attribute::Android
+        | Attribute::Confirm(None)
+        | Attribute::Continue(_)
+        | Attribute::Default
+        | Attribute::Doc(None)
+        | Attribute::Dragonfly
+        | Attribute::ExitMessage
+        | Attribute::Extension(_)
+        | Attribute::Freebsd
+        | Attribute::Group(_)
+        | Attribute::Linux
+        | Attribute::Macos
+        | Attribute::Metadata(_)
+        | Attribute::Netbsd
+        | Attribute::NoCd
+        | Attribute::NoExitMessage
+        | Attribute::NoQuiet
+        | Attribute::Openbsd
+        | Attribute::Parallel
+        | Attribute::PositionalArguments
+        | Attribute::Private
+        | Attribute::Script(_)
+        | Attribute::Shell
+        | Attribute::Unix
+        | Attribute::Windows => {}
       }
     }
 
