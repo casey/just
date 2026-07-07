@@ -65,3 +65,26 @@ foo a b c='abc' d e f='xyz' g='bar' *h:
     )
     .success();
 }
+
+#[test]
+fn flags_have_no_value_placeholder() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, flag, help = 'a flag')]
+        foo bar:
+      ",
+    )
+    .args(["--usage", "foo"])
+    .unstable()
+    .stdout(
+      "
+        Usage: just foo [OPTIONS]
+        Options:
+              --bar a flag
+      ",
+    )
+    .success();
+}

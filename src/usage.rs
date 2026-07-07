@@ -139,7 +139,7 @@ impl ColorDisplay for UsageParameter<'_> {
         write!(f, "{}", color.option().paint(&format!("--{long}")))?;
       }
 
-      if self.parameter.value.is_none() {
+      if self.parameter.value.is_none() && !self.parameter.flag {
         write!(
           f,
           " {}",
