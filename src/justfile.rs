@@ -328,7 +328,10 @@ impl<'src> Justfile<'src> {
         if let Some(variable) = variable {
           print!("{}", scope.value(variable).unwrap().join());
         } else {
-          let width = scope.names().fold(0, |max, name| name.len().max(max));
+          let width = scope
+            .bindings()
+            .filter(|binding| !binding.private)
+            .fold(0, |max, binding| binding.name.lexeme().len().max(max));
 
           for binding in scope.bindings() {
             if !binding.private {

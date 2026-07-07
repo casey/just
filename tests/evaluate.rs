@@ -376,3 +376,23 @@ fn format_shell_dashes_in_variables_are_replaced_with_underscores() {
     )
     .success();
 }
+
+#[test]
+fn evaluate_width_ignores_private_variables() {
+  Test::new()
+    .arg("--evaluate")
+    .justfile(
+      "
+        foo := _some_long_private_name
+        _some_long_private_name := 'one'
+        bar := 'two'
+      ",
+    )
+    .stdout(
+      r#"
+        bar := "two"
+        foo := "one"
+      "#,
+    )
+    .success();
+}
