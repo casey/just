@@ -13,15 +13,15 @@ impl Clean for &Path {
     for component in self.components() {
       match component {
         CurDir => {}
+        Normal(_) | Prefix(_) | RootDir => components.push(component),
         ParentDir => match components.last() {
+          Some(CurDir) => unreachable!(),
           Some(Normal(_)) => {
             components.pop();
           }
           Some(ParentDir) | None => components.push(component),
-          Some(RootDir | Prefix(_)) => {}
-          Some(CurDir) => unreachable!(),
+          Some(Prefix(_) | RootDir) => {}
         },
-        Normal(_) | Prefix(_) | RootDir => components.push(component),
       }
     }
 
