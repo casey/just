@@ -634,6 +634,22 @@ fn sha256_file(context: Context, path: &str) -> StringResult {
 }
 
 fn shell(context: Context, command: &str, args: &[String]) -> StringResult {
+  if context.execution_context.config.dry_run {
+    let mut output = String::from("shell(");
+    for (i, arg) in iter::once(command)
+      .chain(args.iter().map(String::as_str))
+      .enumerate()
+    {
+      if i > 0 {
+        output.push_str(", ");
+      }
+      output.push_str(&Element(arg).color_display(Color::never()).to_string());
+    }
+    output.push(')');
+
+    return Ok(output);
+  }
+
   Evaluator::run_command(
     context.execution_context,
     &BTreeMap::new(),

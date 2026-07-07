@@ -689,6 +689,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     command: &str,
     args: Option<&[String]>,
   ) -> Result<String, OutputError> {
+    assert!(!context.config.dry_run);
+
     let mut cmd = context.module.settings.shell_command(context.config);
 
     cmd.arg(command);
