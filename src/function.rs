@@ -575,11 +575,12 @@ fn parent_directory(_context: Context, path: &str) -> StringResult {
 fn path_exists(context: Context, path: &str) -> ValueResult {
   Ok(boolean(
     &context,
-    context
-      .execution_context
-      .working_directory()
-      .join(path)
-      .exists(),
+    !path.is_empty()
+      && context
+        .execution_context
+        .working_directory()
+        .join(path)
+        .exists(),
   ))
 }
 
