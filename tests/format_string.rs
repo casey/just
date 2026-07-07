@@ -343,3 +343,26 @@ fn format_backticks_are_forbidden() {
     )
     .failure();
 }
+
+#[test]
+fn stray_identifier_in_interpolation_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        a := 'A'
+        x := f'{{ a x }}plain'
+      ",
+    )
+    .args(["--evaluate", "x"])
+    .stderr(
+      "
+        error: expected '&&', '!=', '!~', '||', '==', '=~', format string, '(', '+', '++', or \
+       '/', but found identifier
+         ——▶ justfile:2:13
+          │
+        2 │ x := f'{{ a x }}plain'
+          │             ^
+      ",
+    )
+    .failure();
+}
