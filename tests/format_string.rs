@@ -356,7 +356,7 @@ fn stray_identifier_in_interpolation_is_an_error() {
     .args(["--evaluate", "x"])
     .stderr(
       "
-        error: expected '&&', '!=', '!~', '||', '==', '=~', format string, '(', '+', '++', or \
+        error: expected '&&', '!=', '!~', '||', '==', '=~', format string continue, format string end, '(', '+', '++', or \
        '/', but found identifier
          ——▶ justfile:2:13
           │
