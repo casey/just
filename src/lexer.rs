@@ -349,11 +349,12 @@ impl<'src> Lexer<'src> {
       return Ok(());
     }
 
-    let body_whitespace = &whitespace[..whitespace
+    let indentation = whitespace
       .char_indices()
       .nth(self.indentation().chars().count())
-      .map(|(i, _c)| i)
-      .unwrap_or(whitespace.len())];
+      .map_or(whitespace.len(), |(i, _c)| i);
+
+    let body_whitespace = &whitespace[..indentation];
 
     let spaces = whitespace.chars().any(|c| c == ' ');
     let tabs = whitespace.chars().any(|c| c == '\t');
