@@ -288,7 +288,7 @@ impl Search {
   }
 
   fn clean(invocation_directory: &Path, path: &Path) -> PathBuf {
-    invocation_directory.join(path).lexiclean()
+    invocation_directory.join(path).clean()
   }
 
   /// Search upwards from `directory` for the root directory of a software

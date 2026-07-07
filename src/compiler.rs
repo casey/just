@@ -86,7 +86,7 @@ impl Compiler {
               .parent()
               .unwrap()
               .join(Self::expand_tilde(&relative.cooked)?)
-              .lexiclean();
+              .clean();
 
             if filesystem::is_file(&import)? {
               if current.file_path.contains(&import) {
@@ -182,7 +182,7 @@ impl Compiler {
     let mut grouped = BTreeMap::<PathBuf, Vec<(PathBuf, bool)>>::new();
 
     for (candidate, case_sensitive) in candidates {
-      let candidate = parent.join(candidate).lexiclean();
+      let candidate = parent.join(candidate).clean();
       grouped
         .entry(candidate.parent().unwrap().into())
         .or_default()
@@ -300,8 +300,8 @@ mod tests {
       Compiler::compile(&Config::new().unwrap(), &loader, &justfile_a_path).unwrap_err();
 
     assert_matches!(loader_output, Error::CircularImport { current, import }
-      if current == tmp.path().join("subdir").join("b").lexiclean() &&
-      import == tmp.path().join("justfile").lexiclean()
+      if current == tmp.path().join("subdir").join("b").clean() &&
+      import == tmp.path().join("justfile").clean()
     );
   }
 
