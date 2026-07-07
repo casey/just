@@ -626,6 +626,12 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           Err(ConstError::Variable(*name).into())
         } else if let Some(binding) = self.scope.binding(variable)
           && !binding.prelude
+          && self
+            .assignments
+            .and_then(|assignments| assignments.get(variable))
+            .is_none_or(|assignment| {
+              assignment.number == binding.number || self.scope.local_binding(variable).is_some()
+            })
         {
           Ok(binding.value.clone())
         } else if let Some(assignment) = self
