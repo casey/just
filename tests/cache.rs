@@ -1072,7 +1072,7 @@ fn prints_cache_key() {
 }
 
 #[test]
-fn cache_expression_with_undefined_variable_is_a_compile_error() {
+fn cache_extra_variables_are_resolved() {
   Test::new()
     .justfile(
       "
@@ -1096,21 +1096,49 @@ fn cache_expression_with_undefined_variable_is_a_compile_error() {
 }
 
 #[test]
-fn cache_expressions_are_evaluated_with_lazy_setting() {
+fn cache_inputs_variables_are_resolved() {
   Test::new()
     .justfile(
       "
-        set lazy
-
-        bar := 'baz'
-
-        [cache(extra = bar)]
+        [cache(inputs = undefined)]
         [script('sh')]
         foo:
-          echo ran
+          echo bar
       ",
     )
     .unstable()
-    .stdout("ran\n")
-    .success();
+    .stderr(
+      "
+        error: variable `undefined` not defined
+         ——▶ justfile:1:17
+          │
+        1 │ [cache(inputs = undefined)]
+          │                 ^^^^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn cache_outputs_variables_are_resolved() {
+  Test::new()
+    .justfile(
+      "
+        [cache(outputs = undefined)]
+        [script('sh')]
+        foo:
+          echo bar
+      ",
+    )
+    .unstable()
+    .stderr(
+      "
+        error: variable `undefined` not defined
+         ——▶ justfile:1:18
+          │
+        1 │ [cache(outputs = undefined)]
+          │                  ^^^^^^^^^
+      ",
+    )
+    .failure();
 }
