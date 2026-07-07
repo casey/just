@@ -1032,7 +1032,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     &mut self,
     state: StringState,
   ) -> CompileResult<'src, StringLiteral<'src>> {
-    let expand = if self.next_is(Identifier) {
+    let expand = if matches!(state, StringState::Normal) && self.next_is(Identifier) {
       self.expect_keyword(Keyword::X)?;
       true
     } else {
