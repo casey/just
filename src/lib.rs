@@ -70,6 +70,7 @@ pub(crate) use {
     lexer::Lexer,
     line::Line,
     list::List,
+    list_entry::ListEntry,
     list_feature::ListFeature,
     list_operator::ListOperator,
     load_dotenv::load_dotenv,
@@ -153,7 +154,7 @@ pub(crate) use {
   sha2::{Digest, Sha256},
   snafu::{ResultExt, Snafu},
   std::{
-    borrow::{Borrow, Cow},
+    borrow::Borrow,
     cmp::Ordering,
     collections::{BTreeMap, BTreeSet, HashMap, HashSet, btree_map},
     env::{self, VarError},
@@ -182,7 +183,10 @@ pub(crate) use {
 };
 
 #[cfg(test)]
-pub(crate) use crate::{node::Node, tree::Tree};
+pub(crate) use {
+  crate::{node::Node, tree::Tree},
+  std::borrow::Cow,
+};
 
 pub use crate::run::run;
 
@@ -288,6 +292,7 @@ mod layer;
 mod lexer;
 mod line;
 mod list;
+mod list_entry;
 mod list_feature;
 mod list_operator;
 mod load_dotenv;

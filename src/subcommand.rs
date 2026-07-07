@@ -766,19 +766,47 @@ impl Subcommand {
       print!("{}", config.list_heading);
     }
 
-    let recipe_groups = {
-      let mut recipe_groups = BTreeMap::<Option<String>, Vec<&Recipe>>::new();
+    let entry_groups = {
+      let mut entry_groups = BTreeMap::<Option<String>, Vec<ListEntry>>::new();
+
       for recipe in module.public_recipes(config) {
-        let recipe_groups_list = recipe.groups();
-        if recipe_groups_list.is_empty() {
-          recipe_groups.entry(None).or_default().push(recipe);
+        let recipe_aliases = aliases
+          .get(recipe.name())
+          .map(Vec::as_slice)
+          .unwrap_or_default();
+
+        let mut entries = vec![ListEntry {
+          aliases: recipe_aliases,
+          comment: recipe.doc().map(Into::into),
+          name: recipe.name(),
+          recipe,
+        }];
+
+        if config.alias_style == AliasStyle::Separate {
+          for name in recipe_aliases {
+            entries.push(ListEntry {
+              aliases: recipe_aliases,
+              comment: Some(format!("alias for `{}`", recipe.name)),
+              name,
+              recipe,
+            });
+          }
+        }
+
+        let groups = recipe.groups();
+        if groups.is_empty() {
+          entry_groups.entry(None).or_default().extend(entries);
         } else {
-          for group in recipe_groups_list {
-            recipe_groups.entry(Some(group)).or_default().push(recipe);
+          for group in groups {
+            entry_groups
+              .entry(Some(group))
+              .or_default()
+              .extend(entries.clone());
           }
         }
       }
-      recipe_groups
+
+      entry_groups
     };
 
     let submodule_groups = {
@@ -814,7 +842,7 @@ impl Subcommand {
     };
 
     if groups.is_empty()
-      && (recipe_groups.contains_key(&None) || submodule_groups.contains_key(&None))
+      && (entry_groups.contains_key(&None) || submodule_groups.contains_key(&None))
     {
       ordered_groups.insert(0, None);
     }
@@ -836,56 +864,43 @@ impl Subcommand {
         );
       }
 
-      if let Some(recipes) = recipe_groups.get(&group) {
-        for recipe in recipes {
-          let recipe_alias_entries = if config.alias_style == AliasStyle::Separate {
-            aliases.get(recipe.name())
-          } else {
-            None
-          };
+      if let Some(entries) = entry_groups.get(&group) {
+        for entry in entries {
+          let inline_comment = signature_widths[entry.name] <= MAX_WIDTH
+            && entry
+              .comment
+              .as_ref()
+              .is_none_or(|doc| doc.lines().count() <= 1);
 
-          for (i, name) in iter::once(&recipe.name())
-            .chain(recipe_alias_entries.unwrap_or(&Vec::new()))
-            .enumerate()
+          if let Some(comment) = &entry.comment
+            && !inline_comment
           {
-            let doc = if i == 0 {
-              recipe.doc().map(Cow::Borrowed)
-            } else {
-              Some(Cow::Owned(format!("alias for `{}`", recipe.name)))
-            };
-
-            let inline_doc = signature_widths[name] <= MAX_WIDTH
-              && doc.as_ref().is_none_or(|doc| doc.lines().count() <= 1);
-
-            if let Some(doc) = &doc
-              && !inline_doc
-            {
-              for line in doc.lines() {
-                println!(
-                  "{list_prefix}{} {}",
-                  config.color.stdout().doc().paint("#"),
-                  config.color.stdout().doc().paint(line),
-                );
-              }
+            for line in comment.lines() {
+              println!(
+                "{list_prefix}{} {}",
+                config.color.stdout().doc().paint("#"),
+                config.color.stdout().doc().paint(line),
+              );
             }
-
-            print!(
-              "{list_prefix}{}",
-              RecipeSignature { name, recipe }.color_display(config.color.stdout())
-            );
-
-            print_doc_and_aliases(
-              config,
-              name,
-              doc.filter(|_| inline_doc).as_deref(),
-              aliases
-                .get(recipe.name())
-                .map(Vec::as_slice)
-                .unwrap_or_default(),
-              max_signature_width,
-              &signature_widths,
-            );
           }
+
+          print!(
+            "{list_prefix}{}",
+            RecipeSignature {
+              name: entry.name,
+              recipe: entry.recipe
+            }
+            .color_display(config.color.stdout())
+          );
+
+          print_doc_and_aliases(
+            config,
+            entry.name,
+            entry.comment.as_deref().filter(|_| inline_comment),
+            entry.aliases,
+            max_signature_width,
+            &signature_widths,
+          );
         }
       }
 
