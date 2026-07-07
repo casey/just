@@ -817,15 +817,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         argument.clone()
       };
 
-      parameter.check_value_count(
-        recipe,
-        if !argument.elements().is_empty() && parameter.value.is_some() && !evaluator.is_dependency
-        {
-          argument
-        } else {
-          &value
-        },
-      )?;
+      if !argument.elements().is_empty() && parameter.value.is_some() && !evaluator.is_dependency {
+        parameter.check_value_count(recipe, argument)?;
+      } else {
+        parameter.check_value_count(recipe, &value)?;
+      }
 
       for element in &value {
         parameter.check_pattern_match(recipe, element)?;
