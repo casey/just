@@ -73,7 +73,9 @@ impl<'src> Recipe<'src> {
         rest = &rest[1..];
         vec![argument.clone()]
       } else {
-        debug_assert!(parameter.default.is_some() || parameter.kind == ParameterKind::Star);
+        debug_assert!(
+          parameter.default.is_some() || parameter.kind == ParameterKind::Star || parameter.flag
+        );
         Vec::new()
       };
 

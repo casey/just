@@ -1283,3 +1283,23 @@ fn multiple_option_below_min_is_an_error() {
     .stderr("error: recipe `foo` parameter `bar` got 1 value but takes at least 2\n")
     .failure();
 }
+
+#[test]
+fn recipe_with_flag_parameter_may_be_used_as_dependency() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, flag)]
+        @foo bar:
+          echo bar={{show(bar)}}
+
+        baz: foo
+      ",
+    )
+    .unstable()
+    .args(["baz"])
+    .stdout("bar=[]\n")
+    .success();
+}
