@@ -351,10 +351,9 @@ impl<'src> Lexer<'src> {
 
     let body_whitespace = &whitespace[..whitespace
       .char_indices()
-      .take(self.indentation().chars().count())
+      .nth(self.indentation().chars().count())
       .map(|(i, _c)| i)
-      .next()
-      .unwrap_or(0)];
+      .unwrap_or(whitespace.len())];
 
     let spaces = whitespace.chars().any(|c| c == ' ');
     let tabs = whitespace.chars().any(|c| c == '\t');
@@ -2300,8 +2299,8 @@ mod tests {
     offset: 12,
     line:   3,
     column: 0,
-    width:  3,
-    kind:   InconsistentLeadingWhitespace{expected: "\t\t", found: "\t  "},
+    width:  2,
+    kind:   MixedLeadingWhitespace{whitespace: "\t "},
   }
 
   error! {
