@@ -1,22 +1,34 @@
 use super::*;
 
-#[derive(Clone, Copy)]
-pub(crate) enum ExpressionContext<'a, 'src> {
-  Function(&'a [(Name<'src>, Number)]),
-  None,
-  Recipe(&'a [Parameter<'src>]),
+#[derive(Default)]
+pub(crate) struct ExpressionContext<'src> {
+  bindings: HashMap<&'src str, Number>,
 }
 
-impl ExpressionContext<'_, '_> {
-  pub(crate) fn shadows(self, name: &str) -> bool {
-    match self {
-      Self::Function(parameters) => parameters
+impl ExpressionContext<'_> {
+  pub(crate) fn shadows(&self, name: &str) -> bool {
+    self.bindings.contains_key(name)
+  }
+}
+
+impl<'src> From<&[(Name<'src>, Number)]> for ExpressionContext<'src> {
+  fn from(parameters: &[(Name<'src>, Number)]) -> Self {
+    Self {
+      bindings: parameters
         .iter()
-        .any(|(parameter, _number)| parameter.lexeme() == name),
-      Self::None => false,
-      Self::Recipe(parameters) => parameters
+        .map(|(name, number)| (name.lexeme(), *number))
+        .collect(),
+    }
+  }
+}
+
+impl<'src> From<&[Parameter<'src>]> for ExpressionContext<'src> {
+  fn from(parameters: &[Parameter<'src>]) -> Self {
+    Self {
+      bindings: parameters
         .iter()
-        .any(|parameter| parameter.name.lexeme() == name),
+        .map(|parameter| (parameter.name.lexeme(), parameter.number))
+        .collect(),
     }
   }
 }

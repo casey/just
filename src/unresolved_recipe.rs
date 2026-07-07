@@ -22,21 +22,17 @@ impl<'src> UnresolvedRecipe<'src> {
     let mut variable_references = HashSet::new();
 
     for (i, parameter) in self.parameters.iter().enumerate() {
+      let context = ExpressionContext::from(&self.parameters[..i]);
       if let Some(expression) = &parameter.default {
-        variable_resolver.resolve_expression(
-          expression,
-          ExpressionContext::Recipe(&self.parameters[..i]),
-          &mut variable_references,
-        )?;
+        variable_resolver.resolve_expression(expression, &context, &mut variable_references)?;
       }
       if let Some(expression) = &parameter.value {
-        variable_resolver.resolve_expression(
-          expression,
-          ExpressionContext::Recipe(&self.parameters[..i]),
-          &mut variable_references,
-        )?;
+        variable_resolver.resolve_expression(expression, &context, &mut variable_references)?;
       }
     }
+
+    let parameters = ExpressionContext::from(self.parameters.as_slice());
+    let empty = ExpressionContext::default();
 
     for dependency in &self.dependencies {
       if dependency.starred() && !settings.lists {
@@ -51,15 +47,15 @@ impl<'src> UnresolvedRecipe<'src> {
       for argument in &dependency.arguments {
         variable_resolver.resolve_expression(
           &argument.expression,
-          ExpressionContext::Recipe(&self.parameters),
+          &parameters,
           &mut variable_references,
         )?;
       }
     }
 
     for attribute in &self.attributes {
-      let mut resolve_expression = |expression, parameters| {
-        variable_resolver.resolve_expression(expression, parameters, &mut variable_references)
+      let mut resolve_expression = |expression, context| {
+        variable_resolver.resolve_expression(expression, context, &mut variable_references)
       };
 
       match attribute {
@@ -69,10 +65,10 @@ impl<'src> UnresolvedRecipe<'src> {
           ..
         } => {
           if let Some((_key, expression)) = help_property {
-            resolve_expression(expression, ExpressionContext::None)?;
+            resolve_expression(expression, &empty)?;
           }
           if let Some((_key, expression)) = pattern_property {
-            resolve_expression(expression, ExpressionContext::None)?;
+            resolve_expression(expression, &empty)?;
           }
         }
         Attribute::Cache {
@@ -81,24 +77,24 @@ impl<'src> UnresolvedRecipe<'src> {
           outputs,
         } => {
           if let Some(extra) = extra {
-            resolve_expression(extra, ExpressionContext::Recipe(&self.parameters))?;
+            resolve_expression(extra, &parameters)?;
           }
           if let Some(inputs) = inputs {
-            resolve_expression(inputs, ExpressionContext::Recipe(&self.parameters))?;
+            resolve_expression(inputs, &parameters)?;
           }
           if let Some(outputs) = outputs {
-            resolve_expression(outputs, ExpressionContext::Recipe(&self.parameters))?;
+            resolve_expression(outputs, &parameters)?;
           }
         }
         Attribute::Confirm(Some(expression)) | Attribute::WorkingDirectory(expression) => {
-          resolve_expression(expression, ExpressionContext::Recipe(&self.parameters))?;
+          resolve_expression(expression, &parameters)?;
         }
         Attribute::Doc(Some(expression)) => {
-          resolve_expression(expression, ExpressionContext::None)?;
+          resolve_expression(expression, &empty)?;
         }
         Attribute::Env(key, value) => {
-          resolve_expression(key, ExpressionContext::None)?;
-          resolve_expression(value, ExpressionContext::None)?;
+          resolve_expression(key, &empty)?;
+          resolve_expression(value, &empty)?;
         }
         Attribute::Android
         | Attribute::Confirm(None)
@@ -197,7 +193,7 @@ impl<'src> UnresolvedRecipe<'src> {
         if let Fragment::Interpolation { expression, .. } = fragment {
           variable_resolver.resolve_expression(
             expression,
-            ExpressionContext::Recipe(&self.parameters),
+            &parameters,
             &mut variable_references,
           )?;
         }

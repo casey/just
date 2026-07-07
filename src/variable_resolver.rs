@@ -24,8 +24,9 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
     }
 
     for function in functions.values() {
+      let context = ExpressionContext::from(function.parameters.as_slice());
       for reference in function.body.references() {
-        resolver.resolve_reference(ExpressionContext::Function(&function.parameters), reference)?;
+        resolver.resolve_reference(&context, reference)?;
       }
     }
 
@@ -35,14 +36,14 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
   pub(crate) fn resolve_expression(
     &mut self,
     expression: &Expression<'src>,
-    parameters: ExpressionContext<'_, 'src>,
+    context: &ExpressionContext<'src>,
     references: &mut HashSet<Number>,
   ) -> CompileResult<'src> {
     for reference in expression.references() {
       match reference {
         Reference::Call { name, arguments } => self.resolve_call(name, arguments)?,
         Reference::Variable(variable) => {
-          self.resolve_variable(parameters, variable, Some(&mut *references))?;
+          self.resolve_variable(context, variable, Some(&mut *references))?;
         }
       }
     }
@@ -95,8 +96,10 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
 
     self.stack.push(name);
 
+    let context = ExpressionContext::default();
+
     for reference in assignment.value.references() {
-      self.resolve_reference(ExpressionContext::None, reference)?;
+      self.resolve_reference(&context, reference)?;
     }
 
     self.evaluated.insert(name);
@@ -108,7 +111,7 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
 
   fn resolve_reference(
     &mut self,
-    parameters: ExpressionContext<'_, 'src>,
+    context: &ExpressionContext<'src>,
     reference: Reference<'src>,
   ) -> CompileResult<'src> {
     match reference {
@@ -116,7 +119,7 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
         self.resolve_call(name, arguments)?;
         self.resolve_function_variables(name.lexeme())
       }
-      Reference::Variable(name) => self.resolve_variable(parameters, name, None),
+      Reference::Variable(name) => self.resolve_variable(context, name, None),
     }
   }
 
@@ -135,15 +138,13 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
         continue;
       };
 
+      let context = ExpressionContext::from(function.parameters.as_slice());
+
       for reference in function.body.references() {
         match reference {
           Reference::Call { name, .. } => queue.push(name.lexeme()),
           Reference::Variable(variable) => {
-            self.resolve_variable(
-              ExpressionContext::Function(&function.parameters),
-              variable,
-              None,
-            )?;
+            self.resolve_variable(&context, variable, None)?;
           }
         }
       }
@@ -154,13 +155,13 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
 
   fn resolve_variable(
     &mut self,
-    parameters: ExpressionContext<'_, 'src>,
+    context: &ExpressionContext<'src>,
     variable: Name<'src>,
     references: Option<&mut HashSet<Number>>,
   ) -> CompileResult<'src> {
     let name = variable.lexeme();
 
-    if parameters.shadows(name) {
+    if context.shadows(name) {
       return Ok(());
     }
 
