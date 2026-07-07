@@ -87,28 +87,32 @@ impl<'src> Expression<'src> {
     References::new(self)
   }
 
-  pub(crate) fn resolve_variables(&mut self, lookup: &impl Fn(&str) -> Option<Number>) {
+  pub(crate) fn resolve_variables(
+    &mut self,
+    context: Option<&ExpressionContext<'src>>,
+    bindings: &HashMap<&'src str, Number>,
+  ) {
     match self {
       Self::And { lhs, rhs }
       | Self::Comparison { lhs, rhs, .. }
       | Self::Concatenation { lhs, rhs, .. }
       | Self::ListConcatenation { lhs, rhs, .. }
       | Self::Or { lhs, rhs } => {
-        lhs.resolve_variables(lookup);
-        rhs.resolve_variables(lookup);
+        lhs.resolve_variables(context, bindings);
+        rhs.resolve_variables(context, bindings);
       }
       Self::Assert {
         condition, message, ..
       } => {
-        condition.resolve_variables(lookup);
+        condition.resolve_variables(context, bindings);
         if let Some(message) = message {
-          message.resolve_variables(lookup);
+          message.resolve_variables(context, bindings);
         }
       }
       Self::Backtick { .. } | Self::StringLiteral { .. } => {}
       Self::Call { arguments, .. } => {
         for argument in arguments {
-          argument.resolve_variables(lookup);
+          argument.resolve_variables(context, bindings);
         }
       }
       Self::Conditional {
@@ -116,31 +120,36 @@ impl<'src> Expression<'src> {
         then,
         otherwise,
       } => {
-        condition.resolve_variables(lookup);
-        then.resolve_variables(lookup);
+        condition.resolve_variables(context, bindings);
+        then.resolve_variables(context, bindings);
         if let Some(otherwise) = otherwise {
-          otherwise.resolve_variables(lookup);
+          otherwise.resolve_variables(context, bindings);
         }
       }
       Self::FormatString { expressions, .. } => {
         for (expression, _string) in expressions {
-          expression.resolve_variables(lookup);
+          expression.resolve_variables(context, bindings);
         }
       }
-      Self::Group { contents } => contents.resolve_variables(lookup),
+      Self::Group { contents } => contents.resolve_variables(context, bindings),
       Self::Join { lhs, rhs, .. } => {
         if let Some(lhs) = lhs {
-          lhs.resolve_variables(lookup);
+          lhs.resolve_variables(context, bindings);
         }
-        rhs.resolve_variables(lookup);
+        rhs.resolve_variables(context, bindings);
       }
       Self::List { elements, .. } => {
         for element in elements {
-          element.resolve_variables(lookup);
+          element.resolve_variables(context, bindings);
         }
       }
-      Self::Not { operand } => operand.resolve_variables(lookup),
-      Self::Variable { name, number } => *number = lookup(name.lexeme()),
+      Self::Not { operand } => operand.resolve_variables(context, bindings),
+      Self::Variable { name, number } => {
+        let name = name.lexeme();
+        *number = context
+          .and_then(|context| context.lookup(name))
+          .or_else(|| bindings.get(name).copied());
+      }
     }
   }
 }

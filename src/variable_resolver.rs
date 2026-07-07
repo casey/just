@@ -46,16 +46,12 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
       .collect::<HashMap<&'src str, Number>>();
 
     for assignment in assignments.values_mut() {
-      assignment
-        .value
-        .resolve_variables(&|name| bindings.get(name).copied());
+      assignment.value.resolve_variables(None, &bindings);
     }
 
     for function in functions.values_mut() {
       let context = ExpressionContext::from(function.parameters.as_slice());
-      function
-        .body
-        .resolve_variables(&|name| context.lookup(name).or_else(|| bindings.get(name).copied()));
+      function.body.resolve_variables(Some(&context), &bindings);
     }
 
     Ok(bindings)
@@ -97,11 +93,7 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
       }
     }
 
-    expression.resolve_variables(&|name| {
-      context
-        .lookup(name)
-        .or_else(|| self.bindings.get(name).copied())
-    });
+    expression.resolve_variables(Some(context), &self.bindings);
 
     Ok(())
   }
