@@ -829,10 +829,7 @@ impl Subcommand {
       for alias in &cross_module_aliases {
         entry_groups.entry(None).or_default().push(ListEntry {
           aliases: &[],
-          doc: Some(Cow::Owned(format!(
-            "alias for `{}`",
-            alias.target.recipe_path()
-          ))),
+          comment: Some(format!("alias for `{}`", alias.target.recipe_path())),
           name: alias.name.lexeme(),
           recipe: &alias.target,
         });
