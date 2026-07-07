@@ -228,3 +228,47 @@ fn show_cross_module_dependencies() {
     )
     .success();
 }
+
+#[test]
+fn show_prints_doc_comment_and_attributes() {
+  Test::new()
+    .justfile(
+      "
+        # a doc comment
+        [no-cd]
+        foo:
+            echo bar
+      ",
+    )
+    .args(["--show", "foo"])
+    .stdout(
+      "
+        # a doc comment
+        [no-cd]
+        foo:
+            echo bar
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn show_prints_doc_attribute_without_doc_comment() {
+  Test::new()
+    .justfile(
+      "
+        [doc('attr doc')]
+        foo:
+            echo bar
+      ",
+    )
+    .args(["--show", "foo"])
+    .stdout(
+      "
+        [doc('attr doc')]
+        foo:
+            echo bar
+      ",
+    )
+    .success();
+}

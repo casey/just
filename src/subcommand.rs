@@ -919,6 +919,16 @@ impl Subcommand {
       println!("{alias}");
     }
 
+    if !recipe.attributes.contains(AttributeKind::Doc)
+      && let Some(doc) = &recipe.doc
+    {
+      println!("# {doc}");
+    }
+
+    for attribute in &recipe.attributes {
+      println!("[{attribute}]");
+    }
+
     println!("{}", recipe.color_display(config.color.stdout()));
 
     Ok(())
