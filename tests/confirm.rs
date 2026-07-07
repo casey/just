@@ -214,3 +214,39 @@ fn confirm_expression_dump() {
     )
     .success();
 }
+
+#[test]
+fn confirm_expression_is_dependency_is_false_for_direct_invocation() {
+  Test::new()
+    .justfile(
+      "
+        [confirm(if is_dependency() == 'true' { 'dep?' } else { 'direct?' })]
+        foo:
+            @echo ran
+      ",
+    )
+    .arg("foo")
+    .stdin("y\n")
+    .stderr("direct? ")
+    .stdout("ran\n")
+    .success();
+}
+
+#[test]
+fn confirm_expression_is_dependency_is_true_for_dependency_invocation() {
+  Test::new()
+    .justfile(
+      "
+        [confirm(if is_dependency() == 'true' { 'dep?' } else { 'direct?' })]
+        foo:
+            @echo ran
+
+        bar: foo
+      ",
+    )
+    .arg("bar")
+    .stdin("y\n")
+    .stderr("dep? ")
+    .stdout("ran\n")
+    .success();
+}
