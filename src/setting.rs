@@ -71,14 +71,15 @@ impl<'src> Setting<'src> {
       | Self::DotenvFilename(value)
       | Self::DotenvPath(value)
       | Self::Tempdir(value)
-      | Self::WorkingDirectory(value) => (Some(value), &mut [][..]),
-      Self::ScriptInterpreter(value) | Self::Shell(value) | Self::WindowsShell(value) => {
-        (Some(&mut value.command), value.arguments.as_mut_slice())
-      }
-      _ => (None, &mut [][..]),
+      | Self::WorkingDirectory(value) => (Some(value), None),
+      Self::ScriptInterpreter(value) | Self::Shell(value) | Self::WindowsShell(value) => (
+        Some(&mut value.command),
+        Some(value.arguments.as_mut_slice()),
+      ),
+      _ => (None, None),
     };
 
-    first.into_iter().chain(rest)
+    first.into_iter().chain(rest.into_iter().flatten())
   }
 
   pub(crate) fn conflicts(&self) -> &'static [Keyword] {
