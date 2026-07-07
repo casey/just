@@ -388,6 +388,11 @@ fn evaluate_width_ignores_private_variables() {
         bar := 'two'
       ",
     )
-    .stdout("bar := \"two\"\nfoo := \"one\"\n")
+    .stdout(
+      r#"
+        bar := "two"
+        foo := "one"
+      "#,
+    )
     .success();
 }
