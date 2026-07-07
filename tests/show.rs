@@ -200,3 +200,31 @@ fn show_recipe_in_search_directory() {
     .stdout("foo:\n    @echo ROOT\n")
     .success();
 }
+
+#[test]
+fn show_cross_module_dependencies() {
+  Test::new()
+    .justfile(
+      "
+        mod sub
+
+        foo: sub::deep
+            @echo foo
+      ",
+    )
+    .write(
+      "sub.just",
+      "
+        deep:
+            @echo deep
+      ",
+    )
+    .args(["--show", "foo"])
+    .stdout(
+      "
+        foo: sub::deep
+            @echo foo
+      ",
+    )
+    .success();
+}
