@@ -2683,3 +2683,63 @@ leading whitespace may consist of tabs or spaces, but not both
     )
     .failure();
 }
+
+#[test]
+fn alias_listing_cross_module() {
+  Test::new()
+    .arg("--list")
+    .justfile(
+      "
+        mod foo
+
+        alias f := foo::bar
+      ",
+    )
+    .write(
+      "foo.just",
+      "
+        bar:
+          @echo bar
+      ",
+    )
+    .stdout(
+      "
+        Available recipes:
+            f       # alias for `foo::bar`
+            foo ...
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn alias_listing_cross_module_does_not_annotate_same_named_recipe() {
+  Test::new()
+    .arg("--list")
+    .justfile(
+      "
+        mod foo
+
+        alias f := foo::bar
+
+        bar:
+          @echo root
+      ",
+    )
+    .write(
+      "foo.just",
+      "
+        bar:
+          @echo bar
+      ",
+    )
+    .stdout(
+      "
+        Available recipes:
+            bar
+            f       # alias for `foo::bar`
+            foo ...
+      ",
+    )
+    .success();
+}

@@ -695,21 +695,26 @@ impl Subcommand {
       println!();
     }
 
-    let aliases = if config.no_aliases {
-      BTreeMap::new()
+    let (aliases, cross_module_aliases) = if config.no_aliases {
+      (BTreeMap::new(), Vec::new())
     } else {
       let mut aliases = BTreeMap::<&str, Vec<&str>>::new();
+      let mut cross_module_aliases = Vec::new();
       for alias in module
         .recipe_aliases
         .values()
         .filter(|alias| alias.is_public())
       {
-        aliases
-          .entry(alias.target.name.lexeme())
-          .or_default()
-          .push(alias.name.lexeme());
+        if alias.target.module_path() == &module.module_path {
+          aliases
+            .entry(alias.target.name.lexeme())
+            .or_default()
+            .push(alias.name.lexeme());
+        } else {
+          cross_module_aliases.push(alias);
+        }
       }
-      aliases
+      (aliases, cross_module_aliases)
     };
 
     let signature_widths = {
@@ -732,6 +737,21 @@ impl Subcommand {
           );
         }
       }
+      for alias in &cross_module_aliases {
+        signature_widths.insert(
+          alias.name.lexeme(),
+          UnicodeWidthStr::width(
+            RecipeSignature {
+              name: alias.name.lexeme(),
+              recipe: &alias.target,
+            }
+            .color_display(Color::never())
+            .to_string()
+            .as_str(),
+          ),
+        );
+      }
+
       if !config.list_submodules {
         for submodule in module.public_modules(config) {
           let name = submodule.name();
@@ -814,7 +834,9 @@ impl Subcommand {
     };
 
     if groups.is_empty()
-      && (recipe_groups.contains_key(&None) || submodule_groups.contains_key(&None))
+      && (recipe_groups.contains_key(&None)
+        || submodule_groups.contains_key(&None)
+        || !cross_module_aliases.is_empty())
     {
       ordered_groups.insert(0, None);
     }
@@ -886,6 +908,42 @@ impl Subcommand {
               &signature_widths,
             );
           }
+        }
+      }
+
+      if group.is_none() {
+        for alias in &cross_module_aliases {
+          let name = alias.name.lexeme();
+
+          let doc = format!("alias for `{}`", alias.target.recipe_path());
+
+          let inline_doc = signature_widths[name] <= MAX_WIDTH;
+
+          if !inline_doc {
+            println!(
+              "{list_prefix}{} {}",
+              config.color.stdout().doc().paint("#"),
+              config.color.stdout().doc().paint(&doc),
+            );
+          }
+
+          print!(
+            "{list_prefix}{}",
+            RecipeSignature {
+              name,
+              recipe: &alias.target,
+            }
+            .color_display(config.color.stdout())
+          );
+
+          print_doc_and_aliases(
+            config,
+            name,
+            Some(doc.as_str()).filter(|_| inline_doc),
+            &[],
+            max_signature_width,
+            &signature_widths,
+          );
         }
       }
 
