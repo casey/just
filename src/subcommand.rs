@@ -602,10 +602,14 @@ impl Subcommand {
     Ok(())
   }
 
-  fn list(config: &Config, mut module: &Justfile, path: &Modulepath) -> RunResult<'static> {
+  fn list(config: &Config, root: &Justfile, path: &Modulepath) -> RunResult<'static> {
+    let mut module = root;
+
     for name in &path.components {
       if let Some(submodule) = module.modules.get(name) {
         module = submodule;
+      } else if let Some(alias) = module.module_aliases.get(name) {
+        module = root.submodule(&alias.target).unwrap();
       } else if module.absent_modules.contains(name) {
         return Err(Error::ModuleAbsent {
           module: module.module_path.join(name),
@@ -995,10 +999,12 @@ impl Subcommand {
   }
 
   fn resolve_path<'src, 'run>(
-    mut module: &'run Justfile<'src>,
+    root: &'run Justfile<'src>,
     path: &Modulepath,
     subcommand: &'static str,
   ) -> RunResult<'src, (Option<&'run RecipeAlias<'src>>, &'run Recipe<'src>)> {
+    let mut module = root;
+
     let Some((name, ancestors)) = path.components.split_last() else {
       return Err(Error::RecipeRequired { subcommand });
     };
@@ -1006,6 +1012,8 @@ impl Subcommand {
     for name in ancestors {
       if let Some(submodule) = module.modules.get(name) {
         module = submodule;
+      } else if let Some(alias) = module.module_aliases.get(name) {
+        module = root.submodule(&alias.target).unwrap();
       } else if module.absent_modules.contains(name) {
         return Err(Error::ModuleAbsent {
           module: module.module_path.join(name),

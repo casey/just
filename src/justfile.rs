@@ -450,7 +450,13 @@ impl<'src> Justfile<'src> {
     let mut module = self;
 
     for component in &path.components {
-      module = module.modules.get(component)?;
+      module = if let Some(submodule) = module.modules.get(component) {
+        submodule
+      } else {
+        self
+          .submodule(&module.module_aliases.get(component)?.target)
+          .unwrap()
+      };
     }
 
     Some(module)

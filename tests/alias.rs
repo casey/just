@@ -116,3 +116,56 @@ fn alias_to_absent_optional_module_is_disabled() {
     .stderr("error: alias `f` depends on absent module `foo`\n")
     .failure();
 }
+
+#[test]
+fn module_alias_resolves_in_show() {
+  Test::new()
+    .write("foo.just", "bar:\n @echo BAR")
+    .justfile(
+      "
+        mod foo
+
+        alias f := foo
+      ",
+    )
+    .args(["--show", "f::bar"])
+    .stdout("bar:\n    @echo BAR\n")
+    .success();
+}
+
+#[test]
+fn module_alias_resolves_in_list() {
+  Test::new()
+    .write("foo.just", "bar:\n @echo BAR")
+    .justfile(
+      "
+        mod foo
+
+        alias f := foo
+      ",
+    )
+    .args(["--list", "f"])
+    .stdout(
+      "
+        Available recipes:
+            bar
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn module_alias_resolves_in_usage() {
+  Test::new()
+    .write("foo.just", "bar:\n @echo BAR")
+    .justfile(
+      "
+        mod foo
+
+        alias f := foo
+      ",
+    )
+    .args(["--usage", "f::bar"])
+    .stdout("Usage: just f::bar\n")
+    .success();
+}
