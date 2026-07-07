@@ -1924,3 +1924,17 @@ fn first_line_shebang_is_not_a_doc_comment() {
     ",
   );
 }
+
+#[test]
+fn empty_doc_comment_has_no_trailing_space() {
+  assert_dump(
+    "
+      #
+      foo:
+    ",
+    "
+      #
+      foo:
+    ",
+  );
+}
