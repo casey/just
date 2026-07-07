@@ -266,7 +266,7 @@ impl Subcommand {
         recipe.min_arguments() == 0
           && (groups.is_empty() || groups.intersection(&recipe.groups()).next().is_some())
       }));
-      stack.extend(module.modules.values());
+      stack.extend(module.public_modules(config));
     }
 
     if recipes.is_empty() {
