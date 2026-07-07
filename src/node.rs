@@ -188,7 +188,7 @@ impl<'src> Node<'src> for Expression<'src> {
       Self::StringLiteral {
         string_literal: StringLiteral { cooked, .. },
       } => Tree::string(cooked),
-      Self::Variable { name } => Tree::atom(name.lexeme()),
+      Self::Variable { name, .. } => Tree::atom(name.lexeme()),
     }
   }
 }

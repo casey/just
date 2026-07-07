@@ -41,6 +41,10 @@ impl<'key, V: Keyed<'key>> Table<'key, V> {
     self.map.values()
   }
 
+  pub(crate) fn values_mut(&mut self) -> btree_map::ValuesMut<&'key str, V> {
+    self.map.values_mut()
+  }
+
   pub(crate) fn contains_key(&self, key: &str) -> bool {
     self.map.contains_key(key)
   }

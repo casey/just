@@ -325,38 +325,42 @@ impl<'src> Justfile<'src> {
 
         let scope = scopes.get(&module.module_path).unwrap().1;
 
-        if let Some(variable) = variable {
-          print!("{}", scope.value(variable).unwrap().join());
+        if let Some(assignment) = variable {
+          print!("{}", scope.value(assignment.number).unwrap().join());
         } else {
-          let width = scope
+          let mut bindings = scope
             .bindings()
             .filter(|binding| !binding.private)
+            .collect::<Vec<&Binding>>();
+
+          bindings.sort_by_key(|binding| binding.name.lexeme());
+
+          let width = bindings
+            .iter()
             .fold(0, |max, binding| binding.name.lexeme().len().max(max));
 
-          for binding in scope.bindings() {
-            if !binding.private {
-              match format {
-                EvaluateFormat::Just => {
-                  println!(
-                    "{0:1$} := {2}",
-                    binding.name,
-                    width,
-                    binding.value.color_display(config.color.stdout()),
-                  );
+          for binding in bindings {
+            match format {
+              EvaluateFormat::Just => {
+                println!(
+                  "{0:1$} := {2}",
+                  binding.name,
+                  width,
+                  binding.value.color_display(config.color.stdout()),
+                );
+              }
+              EvaluateFormat::Shell => {
+                if binding.export || module.settings.export {
+                  print!("export ");
                 }
-                EvaluateFormat::Shell => {
-                  if binding.export || module.settings.export {
-                    print!("export ");
+                print!("{}=\"", binding.name.lexeme().replace('-', "_"));
+                for c in binding.value.join().chars() {
+                  if matches!(c, '!' | '"' | '$' | '\\' | '`') {
+                    print!("\\");
                   }
-                  print!("{}=\"", binding.name.lexeme().replace('-', "_"));
-                  for c in binding.value.join().chars() {
-                    if matches!(c, '!' | '"' | '$' | '\\' | '`') {
-                      print!("\\");
-                    }
-                    print!("{c}");
-                  }
-                  println!("\"");
+                  print!("{c}");
                 }
+                println!("\"");
               }
             }
           }
@@ -371,7 +375,14 @@ impl<'src> Justfile<'src> {
   pub(crate) fn evaluation_target<'a>(
     &'a self,
     path: &'a Modulepath,
-  ) -> RunResult<'src, (&'a Justfile<'a>, Option<&'a str>, HashSet<Number>)> {
+  ) -> RunResult<
+    'src,
+    (
+      &'a Justfile<'a>,
+      Option<&'a Assignment<'a>>,
+      HashSet<Number>,
+    ),
+  > {
     let mut current = self;
 
     let mut variable = None;
@@ -379,8 +390,8 @@ impl<'src> Justfile<'src> {
     for (i, component) in path.components.iter().enumerate() {
       let last = i + 1 == path.components.len();
 
-      if last && current.assignments.contains_key(component) {
-        variable = Some(component.as_ref());
+      if last && let Some(assignment) = current.assignments.get(component) {
+        variable = Some(assignment);
         break;
       }
 
@@ -403,8 +414,8 @@ impl<'src> Justfile<'src> {
       }
     }
 
-    let variable_references = if let Some(variable) = variable {
-      HashSet::from([current.assignments.get(variable).unwrap().number])
+    let variable_references = if let Some(assignment) = variable {
+      HashSet::from([assignment.number])
     } else {
       current
         .assignments

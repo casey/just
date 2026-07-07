@@ -2,7 +2,7 @@ use super::*;
 
 #[derive(Debug)]
 pub(crate) struct Scope<'src: 'run, 'run> {
-  bindings: Table<'src, Binding<'src>>,
+  bindings: BTreeMap<Number, Binding<'src>>,
   parent: Option<&'run Self>,
 }
 
@@ -10,14 +10,14 @@ impl<'src, 'run> Scope<'src, 'run> {
   pub(crate) fn child(&'run self) -> Self {
     Self {
       parent: Some(self),
-      bindings: Table::new(),
+      bindings: BTreeMap::new(),
     }
   }
 
   pub(crate) fn root() -> Self {
     let mut root = Self {
       parent: None,
-      bindings: Table::new(),
+      bindings: BTreeMap::new(),
     };
 
     for (i, (key, value)) in constants().iter().enumerate() {
@@ -48,23 +48,19 @@ impl<'src, 'run> Scope<'src, 'run> {
   }
 
   pub(crate) fn bind(&mut self, binding: Binding<'src>) {
-    self.bindings.insert(binding);
+    self.bindings.insert(binding.number, binding);
   }
 
-  pub(crate) fn binding(&self, name: &str) -> Option<&Binding<'src>> {
-    if let Some(binding) = self.bindings.get(name) {
+  pub(crate) fn binding(&self, number: Number) -> Option<&Binding<'src>> {
+    if let Some(binding) = self.bindings.get(&number) {
       Some(binding)
     } else {
-      self.parent?.binding(name)
+      self.parent?.binding(number)
     }
   }
 
-  pub(crate) fn local_binding(&self, name: &str) -> Option<&Binding<'src>> {
-    self.bindings.get(name)
-  }
-
-  pub(crate) fn value(&self, name: &str) -> Option<&Value> {
-    Some(&self.binding(name)?.value)
+  pub(crate) fn value(&self, number: Number) -> Option<&Value> {
+    Some(&self.binding(number)?.value)
   }
 
   pub(crate) fn bindings(&self) -> impl Iterator<Item = &Binding<'src>> {

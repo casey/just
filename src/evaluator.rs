@@ -6,7 +6,7 @@ pub(crate) struct Evaluator<'src: 'run, 'run> {
   env: BTreeMap<String, String>,
   is_dependency: bool,
   lists: bool,
-  non_const_assignments: Table<'src, Name<'src>>,
+  non_const_assignments: HashSet<Number>,
   overrides: &'run HashMap<Number, String>,
   recipe: Option<Name<'src>>,
   recursion_depth: usize,
@@ -34,7 +34,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       env: BTreeMap::new(),
       is_dependency: false,
       lists,
-      non_const_assignments: Table::new(),
+      non_const_assignments: HashSet::new(),
       overrides,
       recipe: None,
       recursion_depth: 0,
@@ -47,7 +47,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           .evaluate_assignment(assignment)
           .map_err(Error::unwrap_const)
         {
-          Err(ConstEvalError::Const(_)) => evaluator.non_const_assignments.insert(assignment.name),
+          Err(ConstEvalError::Const(_)) => {
+            evaluator.non_const_assignments.insert(assignment.number);
+          }
           Err(error) => return Err(error.into_compile_error()),
           Ok(_) => {}
         }
@@ -213,7 +215,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       env: BTreeMap::new(),
       is_dependency: false,
       lists: module.settings.lists,
-      non_const_assignments: Table::new(),
+      non_const_assignments: HashSet::new(),
       overrides,
       recipe: None,
       scope: parent.child(),
@@ -234,14 +236,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   fn evaluate_assignment(&mut self, assignment: &Assignment<'src>) -> RunResult<'src, &Value> {
-    let name = assignment.name.lexeme();
-
-    let evaluated = self
-      .scope
-      .binding(name)
-      .is_some_and(|binding| binding.number == assignment.number);
-
-    if !evaluated {
+    if self.scope.binding(assignment.number).is_none() {
       let value = if let Some(value) = self.overrides.get(&assignment.number) {
         value.into()
       } else {
@@ -264,7 +259,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       });
     }
 
-    Ok(self.scope.value(name).unwrap())
+    Ok(self.scope.value(assignment.number).unwrap())
   }
 
   fn function_context(&self, name: Name<'src>) -> RunResult<'src, function::Context> {
@@ -324,7 +319,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       env: BTreeMap::new(),
       is_dependency: self.is_dependency,
       lists: self.lists,
-      non_const_assignments: Table::new(),
+      non_const_assignments: HashSet::new(),
       overrides: self.overrides,
       recipe: self.recipe,
       recursion_depth,
@@ -620,30 +615,25 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         }
       }
       Expression::StringLiteral { string_literal } => Ok(string_literal.cooked.deref().into()),
-      Expression::Variable { name, .. } => {
-        let variable = name.lexeme();
-        if self.non_const_assignments.contains_key(name.lexeme()) {
+      Expression::Variable { name, number } => {
+        let Some(number) = number else {
+          return Err(Error::internal(format!(
+            "attempted to evaluate unresolved variable `{name}`"
+          )));
+        };
+
+        if self.non_const_assignments.contains(number) {
           Err(ConstError::Variable(*name).into())
-        } else if let Some(binding) = self.scope.binding(variable)
-          && !binding.prelude
-          && self
-            .assignments
-            .and_then(|assignments| assignments.get(variable))
-            .is_none_or(|assignment| {
-              assignment.number == binding.number || self.scope.local_binding(variable).is_some()
-            })
-        {
+        } else if let Some(binding) = self.scope.binding(*number) {
           Ok(binding.value.clone())
         } else if let Some(assignment) = self
           .assignments
-          .and_then(|assignments| assignments.get(variable))
+          .and_then(|assignments| assignments.assignment(*number))
         {
           Ok(self.evaluate_assignment(assignment)?.clone())
-        } else if let Some(value) = self.scope.value(variable) {
-          Ok(value.clone())
         } else {
           Err(Error::internal(format!(
-            "attempted to evaluate undefined variable `{variable}`"
+            "attempted to evaluate undefined variable `{name}`"
           )))
         }
       }
@@ -870,7 +860,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       env,
       is_dependency,
       lists: context.module.settings.lists,
-      non_const_assignments: Table::new(),
+      non_const_assignments: HashSet::new(),
       overrides: context.overrides,
       recipe,
       recursion_depth: 0,

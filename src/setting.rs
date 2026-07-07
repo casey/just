@@ -65,27 +65,21 @@ impl<'src> Setting<'src> {
     }
   }
 
-  pub(crate) fn expressions(&self) -> impl Iterator<Item = &Expression<'src>> {
-    let first = match self {
+  pub(crate) fn expressions_mut(&mut self) -> impl Iterator<Item = &mut Expression<'src>> {
+    let (first, rest) = match self {
       Self::DotenvCommand(value)
       | Self::DotenvFilename(value)
       | Self::DotenvPath(value)
       | Self::Tempdir(value)
-      | Self::WorkingDirectory(value) => Some(value),
-      Self::ScriptInterpreter(value) | Self::Shell(value) | Self::WindowsShell(value) => {
-        Some(&value.command)
-      }
-      _ => None,
+      | Self::WorkingDirectory(value) => (Some(value), None),
+      Self::ScriptInterpreter(value) | Self::Shell(value) | Self::WindowsShell(value) => (
+        Some(&mut value.command),
+        Some(value.arguments.as_mut_slice()),
+      ),
+      _ => (None, None),
     };
 
-    let rest = match self {
-      Self::ScriptInterpreter(value) | Self::Shell(value) | Self::WindowsShell(value) => {
-        value.arguments.as_slice()
-      }
-      _ => &[],
-    };
-
-    first.into_iter().chain(rest)
+    first.into_iter().chain(rest.into_iter().flatten())
   }
 
   pub(crate) fn conflicts(&self) -> &'static [Keyword] {
