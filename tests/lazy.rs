@@ -336,3 +336,19 @@ fn eager_assignments_are_evaluated() {
     )
     .failure();
 }
+
+#[test]
+fn eager_assignment_dump() {
+  assert_dump(
+    "
+      set lazy
+
+      eager foo := 'bar'
+    ",
+    "
+      set lazy
+
+      eager foo := 'bar'
+    ",
+  );
+}

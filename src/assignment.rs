@@ -5,6 +5,10 @@ pub(crate) type Assignment<'src> = Binding<'src, Expression<'src>>;
 
 impl Display for Assignment<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    if self.eager {
+      write!(f, "eager ")?;
+    }
+
     if self.export {
       write!(f, "export ")?;
     }
