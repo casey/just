@@ -61,10 +61,6 @@ impl<'src> UnresolvedRecipe<'src> {
       .attributes
       .into_items()
       .map(|(mut attribute, name)| {
-        let mut resolve_expression = |expression, context| {
-          variable_resolver.resolve_expression(expression, context, &mut variable_references)
-        };
-
         match &mut attribute {
           Attribute::Arg {
             help_property,
@@ -72,10 +68,10 @@ impl<'src> UnresolvedRecipe<'src> {
             ..
           } => {
             if let Some((_key, expression)) = help_property {
-              resolve_expression(expression, &empty)?;
+              variable_resolver.resolve_expression(expression, &empty, &mut variable_references)?;
             }
             if let Some((_key, expression)) = pattern_property {
-              resolve_expression(expression, &empty)?;
+              variable_resolver.resolve_expression(expression, &empty, &mut variable_references)?;
             }
           }
           Attribute::Cache {
@@ -84,24 +80,36 @@ impl<'src> UnresolvedRecipe<'src> {
             outputs,
           } => {
             if let Some(extra) = extra {
-              resolve_expression(extra, &parameters)?;
+              variable_resolver.resolve_expression(extra, &parameters, &mut variable_references)?;
             }
             if let Some(inputs) = inputs {
-              resolve_expression(inputs, &parameters)?;
+              variable_resolver.resolve_expression(
+                inputs,
+                &parameters,
+                &mut variable_references,
+              )?;
             }
             if let Some(outputs) = outputs {
-              resolve_expression(outputs, &parameters)?;
+              variable_resolver.resolve_expression(
+                outputs,
+                &parameters,
+                &mut variable_references,
+              )?;
             }
           }
           Attribute::Confirm(Some(expression)) | Attribute::WorkingDirectory(expression) => {
-            resolve_expression(expression, &parameters)?;
+            variable_resolver.resolve_expression(
+              expression,
+              &parameters,
+              &mut variable_references,
+            )?;
           }
           Attribute::Doc(Some(expression)) => {
-            resolve_expression(expression, &empty)?;
+            variable_resolver.resolve_expression(expression, &empty, &mut variable_references)?;
           }
           Attribute::Env(key, value) => {
-            resolve_expression(key, &empty)?;
-            resolve_expression(value, &empty)?;
+            variable_resolver.resolve_expression(key, &empty, &mut variable_references)?;
+            variable_resolver.resolve_expression(value, &empty, &mut variable_references)?;
           }
           Attribute::Android
           | Attribute::Confirm(None)
