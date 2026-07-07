@@ -230,13 +230,7 @@ impl<'src> Recipe<'src> {
       eprintln!("{prefix}#### {doc}{suffix}");
     }
 
-    let evaluator = Evaluator::new(
-      context,
-      BTreeMap::new(),
-      is_dependency,
-      Some(self.name),
-      scope,
-    );
+    let evaluator = Evaluator::new(context, env.clone(), is_dependency, Some(self.name), scope);
 
     let start = Instant::now();
     let result = if self.is_script(&context.module.settings) {
