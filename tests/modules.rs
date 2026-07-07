@@ -2056,3 +2056,56 @@ fn trailing_separator_not_last_argument() {
     .stderr("error: justfile does not contain recipe `foo::`\n")
     .failure();
 }
+
+#[test]
+fn submodule_assignments_are_not_shadowed_by_parent_variables() {
+  Test::new()
+    .justfile(
+      "
+        x := 'parent'
+
+        mod sub
+      ",
+    )
+    .write(
+      "sub.just",
+      "
+        a := x
+        x := 'sub'
+
+        foo:
+            @echo {{ a }} {{ x }}
+      ",
+    )
+    .arg("sub::foo")
+    .stdout("sub sub\n")
+    .success();
+}
+
+#[test]
+fn submodule_function_bodies_are_not_shadowed_by_parent_variables() {
+  Test::new()
+    .justfile(
+      "
+        x := 'parent'
+
+        mod sub
+      ",
+    )
+    .write(
+      "sub.just",
+      "
+        set unstable
+
+        a := f()
+        f() := x
+        x := 'sub'
+
+        foo:
+            @echo {{ a }} {{ f() }}
+      ",
+    )
+    .arg("sub::foo")
+    .stdout("sub sub\n")
+    .success();
+}
