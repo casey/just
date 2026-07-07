@@ -817,7 +817,15 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         argument.clone()
       };
 
-      parameter.check_value_count(recipe, &value)?;
+      let counted =
+        if !argument.elements().is_empty() && parameter.value.is_some() && !evaluator.is_dependency
+        {
+          argument
+        } else {
+          &value
+        };
+
+      parameter.check_value_count(recipe, counted)?;
 
       for element in &value {
         parameter.check_pattern_match(recipe, element)?;

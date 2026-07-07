@@ -1303,3 +1303,38 @@ fn recipe_with_flag_parameter_may_be_used_as_dependency() {
     .stdout("bar=[]\n")
     .success();
 }
+
+#[test]
+fn multiple_value_option_min_max_count_occurrences() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, multiple, value=['a', 'b'], max='2')]
+        @foo bar=[]:
+          echo {{ bar }}
+      ",
+    )
+    .unstable()
+    .args(["foo", "--bar", "--bar"])
+    .stdout("a b a b\n")
+    .success();
+}
+
+#[test]
+fn multiple_value_option_above_max_occurrences_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', long, multiple, value=['a', 'b'], max='2')]
+        foo bar=[]:
+      ",
+    )
+    .unstable()
+    .args(["foo", "--bar", "--bar", "--bar"])
+    .stderr("error: recipe `foo` parameter `bar` got 3 values but takes at most 2\n")
+    .failure();
+}
