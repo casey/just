@@ -343,3 +343,10 @@ fn format_backticks_are_forbidden() {
     )
     .failure();
 }
+
+#[test]
+fn indented_format_strings_are_unindented_once() {
+  assert_eval("f'''\n\n  foo\n'''", "\nfoo\n");
+  assert_eval("'''\n\n  foo\n'''", "\nfoo\n");
+  assert_eval("f'''\n\n  foo {{ 'bar' }}\n'''", "\nfoo bar\n");
+}

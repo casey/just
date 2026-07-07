@@ -1066,7 +1066,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
     let raw = &token.lexeme()[open..token.lexeme().len() - close];
 
-    let unindented = if kind.indented() && matches!(token.kind, StringToken) {
+    let unindented = if kind.indented() && matches!(state, StringState::Normal) {
       unindent(raw)
     } else {
       raw.to_owned()
