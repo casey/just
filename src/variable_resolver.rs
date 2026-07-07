@@ -25,7 +25,7 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
 
     for function in functions.values() {
       for reference in function.body.references() {
-        resolver.resolve_reference(ParameterContext::Function(&function.parameters), reference)?;
+        resolver.resolve_reference(ExpressionContext::Function(&function.parameters), reference)?;
       }
     }
 
@@ -35,7 +35,7 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
   pub(crate) fn resolve_expression(
     &mut self,
     expression: &Expression<'src>,
-    parameters: ParameterContext<'_, 'src>,
+    parameters: ExpressionContext<'_, 'src>,
     references: &mut HashSet<Number>,
   ) -> CompileResult<'src> {
     for reference in expression.references() {
@@ -96,7 +96,7 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
     self.stack.push(name);
 
     for reference in assignment.value.references() {
-      self.resolve_reference(ParameterContext::None, reference)?;
+      self.resolve_reference(ExpressionContext::None, reference)?;
     }
 
     self.evaluated.insert(name);
@@ -108,7 +108,7 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
 
   fn resolve_reference(
     &mut self,
-    parameters: ParameterContext<'_, 'src>,
+    parameters: ExpressionContext<'_, 'src>,
     reference: Reference<'src>,
   ) -> CompileResult<'src> {
     match reference {
@@ -140,7 +140,7 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
           Reference::Call { name, .. } => queue.push(name.lexeme()),
           Reference::Variable(variable) => {
             self.resolve_variable(
-              ParameterContext::Function(&function.parameters),
+              ExpressionContext::Function(&function.parameters),
               variable,
               None,
             )?;
@@ -154,7 +154,7 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
 
   fn resolve_variable(
     &mut self,
-    parameters: ParameterContext<'_, 'src>,
+    parameters: ExpressionContext<'_, 'src>,
     variable: Name<'src>,
     references: Option<&mut HashSet<Number>>,
   ) -> CompileResult<'src> {

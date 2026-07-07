@@ -25,14 +25,14 @@ impl<'src> UnresolvedRecipe<'src> {
       if let Some(expression) = &parameter.default {
         variable_resolver.resolve_expression(
           expression,
-          ParameterContext::Recipe(&self.parameters[..i]),
+          ExpressionContext::Recipe(&self.parameters[..i]),
           &mut variable_references,
         )?;
       }
       if let Some(expression) = &parameter.value {
         variable_resolver.resolve_expression(
           expression,
-          ParameterContext::Recipe(&self.parameters[..i]),
+          ExpressionContext::Recipe(&self.parameters[..i]),
           &mut variable_references,
         )?;
       }
@@ -51,7 +51,7 @@ impl<'src> UnresolvedRecipe<'src> {
       for argument in &dependency.arguments {
         variable_resolver.resolve_expression(
           &argument.expression,
-          ParameterContext::Recipe(&self.parameters),
+          ExpressionContext::Recipe(&self.parameters),
           &mut variable_references,
         )?;
       }
@@ -69,10 +69,10 @@ impl<'src> UnresolvedRecipe<'src> {
           ..
         } => {
           if let Some((_key, expression)) = help_property {
-            resolve_expression(expression, ParameterContext::None)?;
+            resolve_expression(expression, ExpressionContext::None)?;
           }
           if let Some((_key, expression)) = pattern_property {
-            resolve_expression(expression, ParameterContext::None)?;
+            resolve_expression(expression, ExpressionContext::None)?;
           }
         }
         Attribute::Cache {
@@ -81,24 +81,24 @@ impl<'src> UnresolvedRecipe<'src> {
           outputs,
         } => {
           if let Some(extra) = extra {
-            resolve_expression(extra, ParameterContext::Recipe(&self.parameters))?;
+            resolve_expression(extra, ExpressionContext::Recipe(&self.parameters))?;
           }
           if let Some(inputs) = inputs {
-            resolve_expression(inputs, ParameterContext::Recipe(&self.parameters))?;
+            resolve_expression(inputs, ExpressionContext::Recipe(&self.parameters))?;
           }
           if let Some(outputs) = outputs {
-            resolve_expression(outputs, ParameterContext::Recipe(&self.parameters))?;
+            resolve_expression(outputs, ExpressionContext::Recipe(&self.parameters))?;
           }
         }
         Attribute::Confirm(Some(expression)) | Attribute::WorkingDirectory(expression) => {
-          resolve_expression(expression, ParameterContext::Recipe(&self.parameters))?;
+          resolve_expression(expression, ExpressionContext::Recipe(&self.parameters))?;
         }
         Attribute::Doc(Some(expression)) => {
-          resolve_expression(expression, ParameterContext::None)?;
+          resolve_expression(expression, ExpressionContext::None)?;
         }
         Attribute::Env(key, value) => {
-          resolve_expression(key, ParameterContext::None)?;
-          resolve_expression(value, ParameterContext::None)?;
+          resolve_expression(key, ExpressionContext::None)?;
+          resolve_expression(value, ExpressionContext::None)?;
         }
         Attribute::Android
         | Attribute::Confirm(None)
@@ -197,7 +197,7 @@ impl<'src> UnresolvedRecipe<'src> {
         if let Fragment::Interpolation { expression, .. } = fragment {
           variable_resolver.resolve_expression(
             expression,
-            ParameterContext::Recipe(&self.parameters),
+            ExpressionContext::Recipe(&self.parameters),
             &mut variable_references,
           )?;
         }

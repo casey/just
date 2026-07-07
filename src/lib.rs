@@ -53,6 +53,7 @@ pub(crate) use {
     execution_context::ExecutionContext,
     executor::Executor,
     expression::Expression,
+    expression_context::ExpressionContext,
     format_string_part::FormatStringPart,
     fragment::Fragment,
     function::Function,
@@ -82,7 +83,6 @@ pub(crate) use {
     ordinal::Ordinal,
     output_error::OutputError,
     parameter::Parameter,
-    parameter_context::ParameterContext,
     parameter_kind::ParameterKind,
     parser::Parser,
     pattern::Pattern,
@@ -275,6 +275,7 @@ mod evaluator;
 mod execution_context;
 mod executor;
 mod expression;
+mod expression_context;
 mod filesystem;
 mod format_string_part;
 mod fragment;
@@ -305,7 +306,6 @@ mod numerator;
 mod ordinal;
 mod output_error;
 mod parameter;
-mod parameter_context;
 mod parameter_kind;
 mod parser;
 mod pattern;

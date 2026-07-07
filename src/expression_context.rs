@@ -1,13 +1,13 @@
 use super::*;
 
 #[derive(Clone, Copy)]
-pub(crate) enum ParameterContext<'a, 'src> {
+pub(crate) enum ExpressionContext<'a, 'src> {
   Function(&'a [(Name<'src>, Number)]),
   None,
   Recipe(&'a [Parameter<'src>]),
 }
 
-impl ParameterContext<'_, '_> {
+impl ExpressionContext<'_, '_> {
   pub(crate) fn shadows(self, name: &str) -> bool {
     match self {
       Self::Function(parameters) => parameters
