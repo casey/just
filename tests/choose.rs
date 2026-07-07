@@ -333,3 +333,27 @@ fn default() {
 
   assert_stdout(&output, "foo\n");
 }
+
+#[test]
+fn skip_recipes_in_private_modules() {
+  Test::new()
+    .args(["--choose", "--chooser", "sort"])
+    .justfile(
+      "
+        [private]
+        mod foo
+
+        bar:
+          @echo bar
+      ",
+    )
+    .write(
+      "foo.just",
+      "
+        baz:
+          @echo baz
+      ",
+    )
+    .stdout("bar\n")
+    .success();
+}
