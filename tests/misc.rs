@@ -861,14 +861,14 @@ fn extra_leading_whitespace() {
 #[test]
 fn inconsistent_leading_whitespace() {
   Test::new()
-    .justfile("bar:\n\t\techo hello\n\t echo goodbye")
+    .justfile("bar:\n\t\techo hello\n\techo goodbye")
     .stderr(
       "error: recipe line has inconsistent leading whitespace, \
-            started with `␉␉` but found line with `␉␠`
+            started with `␉␉` but found line with `␉`
  ——▶ justfile:3:1
   │
-3 │      echo goodbye
-  │ ^^^^^
+3 │     echo goodbye
+  │ ^^^^
 ",
     )
     .failure();
@@ -2666,4 +2666,20 @@ fn windows_interpreter_path_no_base() {
       ",
     )
     .success();
+}
+
+#[test]
+fn mixed_whitespace_in_recipe_body() {
+  Test::new()
+    .justfile("bar:\n  echo a\n \techo b")
+    .stderr(
+      "error: found a mix of tabs and spaces in leading whitespace: `␠␉`
+leading whitespace may consist of tabs or spaces, but not both
+ ——▶ justfile:3:1
+  │
+3 │      echo b
+  │ ^^^^^
+",
+    )
+    .failure();
 }
