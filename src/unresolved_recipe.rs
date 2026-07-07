@@ -93,8 +93,14 @@ impl<'src> UnresolvedRecipe<'src> {
           inputs,
           outputs,
         } => {
-          for expression in [extra, inputs, outputs].into_iter().flatten() {
-            resolve_expression(expression, &self.parameters)?;
+          if let Some(extra) = extra {
+            resolve_expression(extra, &self.parameters)?;
+          }
+          if let Some(inputs) = inputs {
+            resolve_expression(inputs, &self.parameters)?;
+          }
+          if let Some(outputs) = outputs {
+            resolve_expression(outputs, &self.parameters)?;
           }
         }
         Attribute::Confirm(Some(expression)) | Attribute::WorkingDirectory(expression) => {
