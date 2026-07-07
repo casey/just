@@ -22,12 +22,12 @@ impl<'src> UnresolvedRecipe<'src> {
     let mut variable_references = HashSet::new();
 
     for (i, parameter) in self.parameters.iter().enumerate() {
-      let context = ExpressionContext::from(&self.parameters[..i]);
+      let parameters = ExpressionContext::from(&self.parameters[..i]);
       if let Some(expression) = &parameter.default {
-        variable_resolver.resolve_expression(expression, &context, &mut variable_references)?;
+        variable_resolver.resolve_expression(expression, &parameters, &mut variable_references)?;
       }
       if let Some(expression) = &parameter.value {
-        variable_resolver.resolve_expression(expression, &context, &mut variable_references)?;
+        variable_resolver.resolve_expression(expression, &parameters, &mut variable_references)?;
       }
     }
 
