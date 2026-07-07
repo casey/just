@@ -70,6 +70,7 @@ pub(crate) use {
     lexer::Lexer,
     line::Line,
     list::List,
+    list_entry::ListEntry,
     list_feature::ListFeature,
     list_operator::ListOperator,
     load_dotenv::load_dotenv,
@@ -288,6 +289,7 @@ mod layer;
 mod lexer;
 mod line;
 mod list;
+mod list_entry;
 mod list_feature;
 mod list_operator;
 mod load_dotenv;

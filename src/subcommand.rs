@@ -634,14 +634,6 @@ impl Subcommand {
   ) -> RunResult<'static> {
     const MAX_WIDTH: usize = 50;
 
-    #[derive(Clone)]
-    struct ListEntry<'a> {
-      aliases: &'a [&'a str],
-      doc: Option<Cow<'a, str>>,
-      name: &'a str,
-      recipe: &'a Recipe<'a>,
-    }
-
     fn print_doc_and_aliases(
       config: &Config,
       name: &str,
