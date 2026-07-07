@@ -11,7 +11,6 @@ pub(crate) use {
     analyzer::Analyzer,
     arg_attribute::ArgAttribute,
     assignment::Assignment,
-    assignment_resolver::AssignmentResolver,
     ast::Ast,
     attribute::{Attribute, AttributeKind},
     attribute_set::AttributeSet,
@@ -54,6 +53,7 @@ pub(crate) use {
     execution_context::ExecutionContext,
     executor::Executor,
     expression::Expression,
+    expression_context::ExpressionContext,
     format_string_part::FormatStringPart,
     fragment::Fragment,
     function::Function,
@@ -134,6 +134,7 @@ pub(crate) use {
     usage::Usage,
     use_color::UseColor,
     value::Value,
+    variable_resolver::VariableResolver,
     verbosity::Verbosity,
     version::Version,
     warning::Warning,
@@ -232,7 +233,6 @@ mod analyzer;
 mod arg_attribute;
 mod arguments;
 mod assignment;
-mod assignment_resolver;
 mod ast;
 mod attribute;
 mod attribute_set;
@@ -275,6 +275,7 @@ mod evaluator;
 mod execution_context;
 mod executor;
 mod expression;
+mod expression_context;
 mod filesystem;
 mod format_string_part;
 mod fragment;
@@ -359,6 +360,7 @@ mod unstable_feature;
 mod usage;
 mod use_color;
 mod value;
+mod variable_resolver;
 mod verbosity;
 mod version;
 mod warning;

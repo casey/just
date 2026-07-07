@@ -25,7 +25,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     assignments: &'run Table<'src, Assignment<'src>>,
     overrides: &'run HashMap<Number, String>,
     scope: &'run Scope<'src, 'run>,
-    variable_references: BTreeSet<&str>,
+    variable_references: &HashSet<Number>,
     lists: bool,
   ) -> CompileResult<'src, Self> {
     let mut evaluator = Self {
@@ -42,7 +42,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     };
 
     for assignment in assignments.values() {
-      if variable_references.contains(assignment.name.lexeme()) {
+      if variable_references.contains(&assignment.number) {
         match evaluator
           .evaluate_assignment(assignment)
           .map_err(Error::unwrap_const)

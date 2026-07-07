@@ -5,12 +5,11 @@ pub(crate) type UnresolvedRecipe<'src> = Recipe<'src, UnresolvedDependency<'src>
 impl<'src> UnresolvedRecipe<'src> {
   pub(crate) fn resolve(
     mut self,
-    assignments: &Table<'src, Assignment<'src>>,
     evaluator: &mut Evaluator<'src, '_>,
-    functions: &Table<'src, FunctionDefinition<'src>>,
     modulepath: &Modulepath,
     resolved: Vec<Arc<Recipe<'src>>>,
     settings: &Settings,
+    variable_resolver: &mut VariableResolver<'src, '_>,
   ) -> CompileResult<'src, Recipe<'src>> {
     assert_eq!(
       self.dependencies.len(),
@@ -23,25 +22,17 @@ impl<'src> UnresolvedRecipe<'src> {
     let mut variable_references = HashSet::new();
 
     for (i, parameter) in self.parameters.iter().enumerate() {
+      let parameters = ExpressionContext::from(&self.parameters[..i]);
       if let Some(expression) = &parameter.default {
-        Self::resolve_expression(
-          assignments,
-          expression,
-          functions,
-          &self.parameters[..i],
-          &mut variable_references,
-        )?;
+        variable_resolver.resolve_expression(expression, &parameters, &mut variable_references)?;
       }
       if let Some(expression) = &parameter.value {
-        Self::resolve_expression(
-          assignments,
-          expression,
-          functions,
-          &self.parameters[..i],
-          &mut variable_references,
-        )?;
+        variable_resolver.resolve_expression(expression, &parameters, &mut variable_references)?;
       }
     }
+
+    let parameters = ExpressionContext::from(self.parameters.as_slice());
+    let empty = ExpressionContext::new();
 
     for dependency in &self.dependencies {
       if dependency.starred() && !settings.lists {
@@ -54,25 +45,17 @@ impl<'src> UnresolvedRecipe<'src> {
       }
 
       for argument in &dependency.arguments {
-        Self::resolve_expression(
-          assignments,
+        variable_resolver.resolve_expression(
           &argument.expression,
-          functions,
-          &self.parameters,
+          &parameters,
           &mut variable_references,
         )?;
       }
     }
 
     for attribute in &self.attributes {
-      let mut resolve_expression = |expression, parameters| {
-        Self::resolve_expression(
-          assignments,
-          expression,
-          functions,
-          parameters,
-          &mut variable_references,
-        )
+      let mut resolve_expression = |expression, context| {
+        variable_resolver.resolve_expression(expression, context, &mut variable_references)
       };
 
       match attribute {
@@ -82,10 +65,10 @@ impl<'src> UnresolvedRecipe<'src> {
           ..
         } => {
           if let Some((_key, expression)) = help_property {
-            resolve_expression(expression, &[])?;
+            resolve_expression(expression, &empty)?;
           }
           if let Some((_key, expression)) = pattern_property {
-            resolve_expression(expression, &[])?;
+            resolve_expression(expression, &empty)?;
           }
         }
         Attribute::Cache {
@@ -94,24 +77,24 @@ impl<'src> UnresolvedRecipe<'src> {
           outputs,
         } => {
           if let Some(extra) = extra {
-            resolve_expression(extra, &self.parameters)?;
+            resolve_expression(extra, &parameters)?;
           }
           if let Some(inputs) = inputs {
-            resolve_expression(inputs, &self.parameters)?;
+            resolve_expression(inputs, &parameters)?;
           }
           if let Some(outputs) = outputs {
-            resolve_expression(outputs, &self.parameters)?;
+            resolve_expression(outputs, &parameters)?;
           }
         }
         Attribute::Confirm(Some(expression)) | Attribute::WorkingDirectory(expression) => {
-          resolve_expression(expression, &self.parameters)?;
+          resolve_expression(expression, &parameters)?;
         }
         Attribute::Doc(Some(expression)) => {
-          resolve_expression(expression, &[])?;
+          resolve_expression(expression, &empty)?;
         }
         Attribute::Env(key, value) => {
-          resolve_expression(key, &[])?;
-          resolve_expression(value, &[])?;
+          resolve_expression(key, &empty)?;
+          resolve_expression(value, &empty)?;
         }
         Attribute::Android
         | Attribute::Confirm(None)
@@ -208,11 +191,9 @@ impl<'src> UnresolvedRecipe<'src> {
 
       for fragment in &line.fragments {
         if let Fragment::Interpolation { expression, .. } = fragment {
-          Self::resolve_expression(
-            assignments,
+          variable_resolver.resolve_expression(
             expression,
-            functions,
-            &self.parameters,
+            &parameters,
             &mut variable_references,
           )?;
         }
@@ -271,45 +252,5 @@ impl<'src> UnresolvedRecipe<'src> {
       shebang: self.shebang,
       variable_references,
     })
-  }
-
-  fn resolve_expression(
-    assignments: &Table<'src, Assignment<'src>>,
-    expression: &Expression<'src>,
-    functions: &Table<'src, FunctionDefinition<'src>>,
-    parameters: &[Parameter],
-    variable_references: &mut HashSet<Number>,
-  ) -> CompileResult<'src> {
-    for reference in expression.references() {
-      match reference {
-        Reference::Variable(variable) => {
-          Self::resolve_variable(assignments, parameters, variable, variable_references)?;
-        }
-        Reference::Call { name, arguments } => {
-          Analyzer::resolve_call(functions, name, arguments)?;
-        }
-      }
-    }
-    Ok(())
-  }
-
-  fn resolve_variable(
-    assignments: &Table<'src, Assignment<'src>>,
-    parameters: &[Parameter],
-    variable: Name<'src>,
-    variable_references: &mut HashSet<Number>,
-  ) -> CompileResult<'src> {
-    let name = variable.lexeme();
-
-    if parameters.iter().any(|p| p.name.lexeme() == name) {
-      Ok(())
-    } else if let Some(assignment) = assignments.get(name) {
-      variable_references.insert(assignment.number);
-      Ok(())
-    } else if constants().contains_key(name) {
-      Ok(())
-    } else {
-      Err(variable.error(CompileErrorKind::UndefinedVariable { variable: name }))
-    }
   }
 }
