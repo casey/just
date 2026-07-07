@@ -176,7 +176,7 @@ impl Subcommand {
     mut compilation: Compilation<'src>,
     arguments: &[String],
   ) -> RunResult<'src> {
-    let starting_parent = search.justfile.parent().as_ref().unwrap().lexiclean();
+    let starting_parent = search.justfile.parent().as_ref().unwrap().clean();
 
     loop {
       let justfile = &compilation.justfile;

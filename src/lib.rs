@@ -21,6 +21,7 @@ pub(crate) use {
     cache_key::CacheKey,
     cache_lock::CacheLock,
     cache_status::CacheStatus,
+    clean::Clean,
     color::Color,
     color_display::ColorDisplay,
     command_color::CommandColor,
@@ -142,7 +143,6 @@ pub(crate) use {
   clap::{CommandFactory, FromArgMatches, Parser as _, ValueEnum},
   clap_complete::{ArgValueCompleter, CompletionCandidate, PathCompleter, engine::ValueCompleter},
   digest_io::HashWriter,
-  lexiclean::Lexiclean,
   libc::EXIT_FAILURE,
   rand::seq::IndexedRandom,
   regex::Regex,
@@ -238,6 +238,7 @@ mod cache_entry;
 mod cache_key;
 mod cache_lock;
 mod cache_status;
+mod clean;
 mod color;
 mod color_display;
 mod command_color;

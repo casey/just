@@ -179,7 +179,7 @@ fn absolute_path(context: Context, path: &str) -> StringResult {
     .execution_context
     .working_directory()
     .join(path)
-    .lexiclean();
+    .clean();
   match abs_path_unchecked.to_str() {
     Some(absolute_path) => Ok(absolute_path.to_owned()),
     None => Err(format!(
@@ -273,7 +273,7 @@ fn choose(_context: Context, n: &str, alphabet: &str) -> StringResult {
 }
 
 fn clean(_context: Context, path: &str) -> StringResult {
-  Ok(Path::new(path).lexiclean().to_str().unwrap().to_owned())
+  Ok(Path::new(path).clean().to_str().unwrap().to_owned())
 }
 
 fn dir(name: &'static str, f: fn() -> Option<PathBuf>) -> StringResult {

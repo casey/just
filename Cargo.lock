@@ -635,7 +635,6 @@ dependencies = [
  "heck",
  "hex",
  "is_executable",
- "lexiclean",
  "libc",
  "nix",
  "nu-ansi-term",
@@ -660,12 +659,6 @@ dependencies = [
  "uuid",
  "which",
 ]
-
-[[package]]
-name = "lexiclean"
-version = "0.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "441225017b106b9f902e97947a6d31e44ebcf274b91bdbfb51e5c477fcd468e5"
 
 [[package]]
 name = "libc"

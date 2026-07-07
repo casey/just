@@ -25,7 +25,7 @@ pub(crate) fn which(context: &function::Context, name: &str) -> Result<Option<St
       path = context.execution_context.working_directory().join(path);
     }
 
-    path = path.lexiclean();
+    path = path.clean();
 
     let mut candidates = vec![path.clone()];
 
