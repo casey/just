@@ -603,9 +603,17 @@ impl Subcommand {
   }
 
   fn list(config: &Config, mut module: &Justfile, path: &Modulepath) -> RunResult<'static> {
+    let root = module;
+
     for name in &path.components {
       if let Some(submodule) = module.modules.get(name) {
         module = submodule;
+      } else if let Some(alias) = module.module_aliases.get(name) {
+        module = root
+          .submodule(&alias.target)
+          .ok_or_else(|| Error::UnknownSubmodule {
+            path: path.to_string(),
+          })?;
       } else if module.absent_modules.contains(name) {
         return Err(Error::ModuleAbsent {
           module: module.module_path.join(name),
@@ -999,6 +1007,8 @@ impl Subcommand {
     path: &Modulepath,
     subcommand: &'static str,
   ) -> RunResult<'src, (Option<&'run RecipeAlias<'src>>, &'run Recipe<'src>)> {
+    let root = module;
+
     let Some((name, ancestors)) = path.components.split_last() else {
       return Err(Error::RecipeRequired { subcommand });
     };
@@ -1006,6 +1016,12 @@ impl Subcommand {
     for name in ancestors {
       if let Some(submodule) = module.modules.get(name) {
         module = submodule;
+      } else if let Some(alias) = module.module_aliases.get(name) {
+        module = root
+          .submodule(&alias.target)
+          .ok_or_else(|| Error::UnknownSubmodule {
+            path: path.to_string(),
+          })?;
       } else if module.absent_modules.contains(name) {
         return Err(Error::ModuleAbsent {
           module: module.module_path.join(name),
