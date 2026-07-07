@@ -921,3 +921,17 @@ fn positional_arguments_cannot_follow_keyword_arguments() {
     )
     .failure();
 }
+
+#[test]
+fn env_attribute_visible_to_backticks_in_body() {
+  Test::new()
+    .justfile(
+      "
+        [env('MY_VAR', 'my_value')]
+        foo:
+          @echo {{ `echo $MY_VAR` }}
+      ",
+    )
+    .stdout("my_value\n")
+    .success();
+}
