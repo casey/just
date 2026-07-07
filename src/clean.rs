@@ -18,7 +18,7 @@ impl Clean for &Path {
             components.pop();
           }
           Some(ParentDir) | None => components.push(component),
-          Some(RootDir) | Some(Prefix(_)) => {}
+          Some(RootDir | Prefix(_)) => {}
           Some(CurDir) => unreachable!(),
         },
         Normal(_) | Prefix(_) | RootDir => components.push(component),
