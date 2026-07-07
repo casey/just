@@ -777,7 +777,7 @@ impl Subcommand {
 
         let mut entries = vec![ListEntry {
           aliases: recipe_aliases,
-          doc: recipe.doc().map(Into::into),
+          comment: recipe.doc().map(Into::into),
           name: recipe.name(),
           recipe,
         }];
@@ -786,7 +786,7 @@ impl Subcommand {
           for name in recipe_aliases {
             entries.push(ListEntry {
               aliases: recipe_aliases,
-              doc: Some(format!("alias for `{}`", recipe.name)),
+              comment: Some(format!("alias for `{}`", recipe.name)),
               name,
               recipe,
             });
@@ -868,14 +868,14 @@ impl Subcommand {
         for entry in entries {
           let inline_doc = signature_widths[entry.name] <= MAX_WIDTH
             && entry
-              .doc
+              .comment
               .as_ref()
               .is_none_or(|doc| doc.lines().count() <= 1);
 
-          if let Some(doc) = &entry.doc
+          if let Some(comment) = &entry.comment
             && !inline_doc
           {
-            for line in doc.lines() {
+            for line in comment.lines() {
               println!(
                 "{list_prefix}{} {}",
                 config.color.stdout().doc().paint("#"),
@@ -896,7 +896,7 @@ impl Subcommand {
           print_doc_and_aliases(
             config,
             entry.name,
-            entry.doc.as_deref().filter(|_| inline_doc),
+            entry.comment.as_deref().filter(|_| inline_doc),
             entry.aliases,
             max_signature_width,
             &signature_widths,
