@@ -6,6 +6,10 @@ pub(crate) struct ExpressionContext<'src> {
 }
 
 impl ExpressionContext<'_> {
+  pub(crate) fn new() -> Self {
+    Self::default()
+  }
+
   pub(crate) fn shadows(&self, name: &str) -> bool {
     self.bindings.contains_key(name)
   }

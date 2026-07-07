@@ -32,7 +32,7 @@ impl<'src> UnresolvedRecipe<'src> {
     }
 
     let parameters = ExpressionContext::from(self.parameters.as_slice());
-    let empty = ExpressionContext::default();
+    let empty = ExpressionContext::new();
 
     for dependency in &self.dependencies {
       if dependency.starred() && !settings.lists {
