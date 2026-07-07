@@ -918,6 +918,11 @@ fn path_exists_subdir() {
 }
 
 #[test]
+fn path_exists_empty_path() {
+  assert_eval("path_exists('')", "false");
+}
+
+#[test]
 fn uuid() {
   Test::new()
     .justfile("x := uuid()")
