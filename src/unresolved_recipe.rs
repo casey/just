@@ -244,7 +244,7 @@ impl<'src> UnresolvedRecipe<'src> {
       .zip(resolved)
       .map(|(unresolved, resolved)| Dependency {
         arguments: resolved.group_arguments(&unresolved.arguments, settings),
-        namepath: unresolved.recipe,
+        path: unresolved.recipe,
         recipe: resolved,
       })
       .collect();
