@@ -602,8 +602,8 @@ impl Subcommand {
     Ok(())
   }
 
-  fn list(config: &Config, mut module: &Justfile, path: &Modulepath) -> RunResult<'static> {
-    let root = module;
+  fn list(config: &Config, root: &Justfile, path: &Modulepath) -> RunResult<'static> {
+    let mut module = root;
 
     for name in &path.components {
       if let Some(submodule) = module.modules.get(name) {
@@ -999,11 +999,11 @@ impl Subcommand {
   }
 
   fn resolve_path<'src, 'run>(
-    mut module: &'run Justfile<'src>,
+    root: &'run Justfile<'src>,
     path: &Modulepath,
     subcommand: &'static str,
   ) -> RunResult<'src, (Option<&'run RecipeAlias<'src>>, &'run Recipe<'src>)> {
-    let root = module;
+    let mut module = root;
 
     let Some((name, ancestors)) = path.components.split_last() else {
       return Err(Error::RecipeRequired { subcommand });
