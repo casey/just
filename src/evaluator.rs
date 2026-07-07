@@ -236,9 +236,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   fn evaluate_assignment(&mut self, assignment: &Assignment<'src>) -> RunResult<'src, &Value> {
-    let evaluated = self.scope.binding(assignment.number).is_some();
-
-    if !evaluated {
+    if self.scope.binding(assignment.number).is_none() {
       let value = if let Some(value) = self.overrides.get(&assignment.number) {
         value.into()
       } else {
