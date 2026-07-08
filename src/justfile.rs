@@ -22,6 +22,8 @@ pub(crate) struct Justfile<'src> {
   pub(crate) disabled_recipes: Table<'src, Disabled<'src>>,
   pub(crate) doc: Option<String>,
   #[serde(skip)]
+  pub(crate) evaluation_order: Vec<Name<'src>>,
+  #[serde(skip)]
   pub(crate) functions: Table<'src, FunctionDefinition<'src>>,
   pub(crate) groups: Vec<StringLiteral<'src>>,
   #[serde(skip)]

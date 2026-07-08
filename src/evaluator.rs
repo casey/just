@@ -221,7 +221,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       scope: parent.child(),
     };
 
-    for assignment in module.assignments.values() {
+    for assignment in &module.evaluation_order {
+      let assignment = module.assignments.get(assignment.lexeme()).unwrap();
       if assignment.eager
         || assignment.export
         || module.settings.export

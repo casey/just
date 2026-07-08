@@ -189,7 +189,8 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       functions.insert(function.clone());
     }
 
-    let bindings = VariableResolver::resolve_assignments(&mut assignments, &mut functions)?;
+    let (bindings, evaluation_order) =
+      VariableResolver::resolve_assignments(&mut assignments, &mut functions)?;
 
     let variable_resolver = VariableResolver::new(&assignments, bindings, &functions);
 
@@ -430,6 +431,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       disabled_aliases,
       disabled_recipes,
       doc: doc.filter(|doc| !doc.is_empty()),
+      evaluation_order,
       functions,
       groups: groups.into(),
       loaded: loaded.into(),
