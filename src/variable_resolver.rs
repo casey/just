@@ -27,7 +27,7 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
       }
 
       for function in functions.values() {
-        let context = ExpressionContext::from(function.parameters.as_slice());
+        let context = function.parameters.as_slice().into();
         for reference in function.body.references() {
           resolver.resolve_reference(&context, reference)?;
         }
@@ -50,8 +50,9 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
     }
 
     for function in functions.values_mut() {
-      let context = ExpressionContext::from(function.parameters.as_slice());
-      function.body.resolve_variables(Some(&context), &bindings);
+      function
+        .body
+        .resolve_variables(Some(&function.parameters.as_slice().into()), &bindings);
     }
 
     Ok(bindings)
@@ -185,7 +186,7 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
         continue;
       };
 
-      let context = ExpressionContext::from(function.parameters.as_slice());
+      let context = function.parameters.as_slice().into();
 
       for reference in function.body.references() {
         match reference {

@@ -23,7 +23,7 @@ impl<'src> UnresolvedRecipe<'src> {
 
     for i in 0..self.parameters.len() {
       let (resolved, rest) = self.parameters.split_at_mut(i);
-      let parameters = ExpressionContext::from(&*resolved);
+      let parameters = (*resolved).into();
       let parameter = &mut rest[0];
       if let Some(expression) = &mut parameter.default {
         variable_resolver.resolve_expression(expression, &parameters, &mut variable_references)?;
@@ -33,7 +33,7 @@ impl<'src> UnresolvedRecipe<'src> {
       }
     }
 
-    let parameters = ExpressionContext::from(self.parameters.as_slice());
+    let parameters = self.parameters.as_slice().into();
     let empty = ExpressionContext::new();
 
     for dependency in &mut self.dependencies {
