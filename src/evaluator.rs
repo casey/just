@@ -23,6 +23,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
   pub(crate) fn evaluate_const_assignments(
     assignments: &'run Table<'src, Assignment<'src>>,
+    evaluation_order: &[Name<'src>],
     overrides: &'run HashMap<Number, String>,
     scope: &'run Scope<'src, 'run>,
     variable_references: &HashSet<Number>,
@@ -41,7 +42,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       scope: scope.child(),
     };
 
-    for assignment in assignments.values() {
+    for name in evaluation_order {
+      let assignment = assignments.get(name.lexeme()).unwrap();
       if variable_references.contains(&assignment.number) {
         match evaluator
           .evaluate_assignment(assignment)
@@ -631,6 +633,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           .assignments
           .and_then(|assignments| assignments.assignment(*number))
         {
+          if self.context.is_none() {
+            return Err(Error::internal(format!(
+              "attempted to lazily evaluate variable `{name}` in const context"
+            )));
+          }
           Ok(self.evaluate_assignment(assignment)?.clone())
         } else {
           Err(Error::internal(format!(

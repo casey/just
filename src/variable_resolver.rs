@@ -88,16 +88,17 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
         Reference::Call { name, arguments } => self.resolve_call(name, arguments)?,
         Reference::Variable(variable) => {
           let name = variable.lexeme();
-          if context.lookup(name).is_none() {
-            if let Some(assignment) = self.assignments.get(name) {
-              references.insert(assignment.number);
-            } else if !constants().contains_key(name) {
-              return Err(variable.error(UndefinedVariable { variable: name }));
-            }
+          if context.lookup(name).is_none()
+            && !self.assignments.contains_key(name)
+            && !constants().contains_key(name)
+          {
+            return Err(variable.error(UndefinedVariable { variable: name }));
           }
         }
       }
     }
+
+    self.collect_references(expression, context, references);
 
     expression.resolve_variables(Some(context), &self.bindings);
 
@@ -107,13 +108,69 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
   pub(crate) fn collect_references(
     &self,
     expression: &Expression<'src>,
+    context: &ExpressionContext<'src>,
     references: &mut HashSet<Number>,
   ) {
+    let mut assignments = Vec::new();
+    let mut functions = Vec::new();
+
+    self.collect(
+      expression,
+      context,
+      references,
+      &mut assignments,
+      &mut functions,
+    );
+
+    let empty = ExpressionContext::new();
+    let mut visited = BTreeSet::new();
+
+    loop {
+      if let Some(assignment) = assignments.pop() {
+        self.collect(
+          &assignment.value,
+          &empty,
+          references,
+          &mut assignments,
+          &mut functions,
+        );
+      } else if let Some(name) = functions.pop() {
+        if visited.insert(name)
+          && let Some(function) = self.functions.get(name)
+        {
+          self.collect(
+            &function.body,
+            &function.parameters.as_slice().into(),
+            references,
+            &mut assignments,
+            &mut functions,
+          );
+        }
+      } else {
+        break;
+      }
+    }
+  }
+
+  fn collect(
+    &self,
+    expression: &Expression<'src>,
+    context: &ExpressionContext<'src>,
+    references: &mut HashSet<Number>,
+    assignments: &mut Vec<&'run Assignment<'src>>,
+    functions: &mut Vec<&'src str>,
+  ) {
     for reference in expression.references() {
-      if let Reference::Variable(variable) = reference
-        && let Some(assignment) = self.assignments.get(variable.lexeme())
-      {
-        references.insert(assignment.number);
+      match reference {
+        Reference::Call { name, .. } => functions.push(name.lexeme()),
+        Reference::Variable(variable) => {
+          if context.lookup(variable.lexeme()).is_none()
+            && let Some(assignment) = self.assignments.get(variable.lexeme())
+            && references.insert(assignment.number)
+          {
+            assignments.push(assignment);
+          }
+        }
       }
     }
   }

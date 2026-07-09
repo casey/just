@@ -245,6 +245,46 @@ fn assignment_used_in_transitive_dependency_evaluated() {
 }
 
 #[test]
+fn assignment_used_in_function_body_evaluated_once() {
+  #[track_caller]
+  fn case(justfile: &str) {
+    Test::new()
+      .justfile(justfile)
+      .arg("foo")
+      .stdout("11\n")
+      .expect_file("cnt", "x\n")
+      .success();
+  }
+
+  case(
+    "
+      set lazy
+      set unstable
+
+      c := `echo x >> cnt; wc -l < cnt | tr -d ' '`
+      f(y) := y + c
+
+      foo:
+        @echo {{ f('') }}{{ f('') }}
+    ",
+  );
+
+  case(
+    "
+      set lazy
+      set unstable
+
+      c := `echo x >> cnt; wc -l < cnt | tr -d ' '`
+      f(y) := y + g()
+      g() := c
+
+      foo:
+        @echo {{ f('') }}{{ f('') }}
+    ",
+  );
+}
+
+#[test]
 fn exported_assignment_is_evaluated() {
   Test::new()
     .justfile(

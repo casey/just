@@ -230,25 +230,42 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             ..
           } => {
             if let Some((_, expression)) = help_property {
-              variable_resolver.collect_references(expression, &mut variable_references);
+              variable_resolver.collect_references(
+                expression,
+                &ExpressionContext::new(),
+                &mut variable_references,
+              );
             }
             if let Some((_, expression)) = pattern_property {
-              variable_resolver.collect_references(expression, &mut variable_references);
+              variable_resolver.collect_references(
+                expression,
+                &ExpressionContext::new(),
+                &mut variable_references,
+              );
             }
           }
           Attribute::Doc(Some(expression)) => {
-            variable_resolver.collect_references(expression, &mut variable_references);
+            variable_resolver.collect_references(
+              expression,
+              &ExpressionContext::new(),
+              &mut variable_references,
+            );
           }
           _ => {}
         }
       }
 
       for (_name, expression) in &module_docs {
-        variable_resolver.collect_references(expression, &mut variable_references);
+        variable_resolver.collect_references(
+          expression,
+          &ExpressionContext::new(),
+          &mut variable_references,
+        );
       }
 
       Evaluator::evaluate_const_assignments(
         &assignments,
+        &evaluation_order,
         overrides,
         &scope,
         &variable_references,
