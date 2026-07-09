@@ -320,6 +320,58 @@ fn assignment_with_set_export_is_evaluated() {
 }
 
 #[test]
+fn unconditionally_evaluated_assignment_dependencies_evaluated() {
+  #[track_caller]
+  fn case(justfile: &str, stdout: &str) {
+    Test::new()
+      .justfile(justfile)
+      .arg("foo")
+      .stdout(stdout)
+      .success();
+  }
+
+  case(
+    "
+      set lazy
+
+      x := 'bar'
+      export e := x
+
+      foo:
+        @echo $e
+    ",
+    "bar\n",
+  );
+
+  case(
+    "
+      set lazy
+
+      x := 'bar'
+      eager e := x
+
+      foo:
+        @echo baz
+    ",
+    "baz\n",
+  );
+
+  case(
+    "
+      set lazy
+      set export
+
+      x := 'bar'
+      e := x
+
+      foo:
+        @echo $e
+    ",
+    "bar\n",
+  );
+}
+
+#[test]
 fn submodule_lazy_is_respected() {
   Test::new()
     .justfile(

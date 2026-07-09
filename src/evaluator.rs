@@ -225,11 +225,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     for assignment in &module.evaluation_order {
       let assignment = module.assignments.get(assignment.lexeme()).unwrap();
-      if assignment.eager
-        || assignment.export
-        || module.settings.export
-        || variable_references
-          .is_none_or(|variable_references| variable_references.contains(&assignment.number))
+      if variable_references
+        .is_none_or(|variable_references| variable_references.contains(&assignment.number))
       {
         evaluator.evaluate_assignment(assignment)?;
       }
@@ -629,19 +626,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           Err(ConstError::Variable(*name).into())
         } else if let Some(binding) = self.scope.binding(*number) {
           Ok(binding.value.clone())
-        } else if let Some(assignment) = self
-          .assignments
-          .and_then(|assignments| assignments.assignment(*number))
-        {
-          if self.context.is_none() {
-            return Err(Error::internal(format!(
-              "attempted to lazily evaluate variable `{name}` in const context"
-            )));
-          }
-          Ok(self.evaluate_assignment(assignment)?.clone())
         } else {
           Err(Error::internal(format!(
-            "attempted to evaluate undefined variable `{name}`"
+            "attempted to evaluate unevaluated variable `{name}`"
           )))
         }
       }

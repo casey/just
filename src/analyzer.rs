@@ -411,6 +411,17 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       }
     }
 
+    let mut assignment_references = HashMap::new();
+    for assignment in assignments.values() {
+      let mut references = HashSet::from([assignment.number]);
+      variable_resolver.collect_references(
+        &assignment.value,
+        &ExpressionContext::new(),
+        &mut references,
+      );
+      assignment_references.insert(assignment.number, references);
+    }
+
     let source = root.to_owned();
     let root = paths.get(root).unwrap();
 
@@ -443,6 +454,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     Ok(Justfile {
       absent_modules,
+      assignment_references,
       assignments,
       default,
       disabled_aliases,
