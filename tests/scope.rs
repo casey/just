@@ -100,3 +100,25 @@ fn imported_recipes_run_in_correct_scope() {
     .stdout("A\nB\n")
     .success();
 }
+
+#[test]
+fn assignment_are_not_reevaluated_through_user_defined_functions() {
+  Test::new()
+    .justfile(
+      "
+        set unstable
+
+        c := `echo x >> cnt; wc -l < cnt | tr -d ' '`
+        f(y) := y + c
+        a := f('')
+        b := c
+
+        foo:
+          @echo {{ a }} {{ b }} {{ c }}
+      ",
+    )
+    .arg("foo")
+    .stdout("1 1 1\n")
+    .expect_file("cnt", "x\n")
+    .success();
+}

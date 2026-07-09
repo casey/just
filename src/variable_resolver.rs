@@ -4,6 +4,7 @@ pub(crate) struct VariableResolver<'src: 'run, 'run> {
   assignments: &'run Table<'src, Assignment<'src>>,
   bindings: HashMap<&'src str, Number>,
   evaluated: BTreeSet<&'src str>,
+  evaluation_order: Vec<Name<'src>>,
   functions: &'run Table<'src, FunctionDefinition<'src>>,
   stack: Vec<&'src str>,
 }
@@ -12,12 +13,13 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
   pub(crate) fn resolve_assignments(
     assignments: &mut Table<'src, Assignment<'src>>,
     functions: &mut Table<'src, FunctionDefinition<'src>>,
-  ) -> CompileResult<'src, HashMap<&'src str, Number>> {
-    {
+  ) -> CompileResult<'src, (HashMap<&'src str, Number>, Vec<Name<'src>>)> {
+    let evaluation_order = {
       let mut resolver = VariableResolver {
         assignments,
         bindings: HashMap::new(),
         evaluated: BTreeSet::new(),
+        evaluation_order: Vec::new(),
         functions,
         stack: Vec::new(),
       };
@@ -32,7 +34,9 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
           resolver.resolve_reference(&context, reference)?;
         }
       }
-    }
+
+      resolver.evaluation_order
+    };
 
     let bindings = constants()
       .keys()
@@ -55,7 +59,7 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
         .resolve_variables(Some(&function.parameters.as_slice().into()), &bindings);
     }
 
-    Ok(bindings)
+    Ok((bindings, evaluation_order))
   }
 
   pub(crate) fn new(
@@ -67,6 +71,7 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
       assignments,
       bindings,
       evaluated: BTreeSet::new(),
+      evaluation_order: Vec::new(),
       functions,
       stack: Vec::new(),
     }
@@ -151,6 +156,8 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
     }
 
     self.evaluated.insert(name);
+
+    self.evaluation_order.push(assignment.name);
 
     self.stack.pop();
 
