@@ -372,6 +372,25 @@ fn unconditionally_evaluated_assignment_dependencies_evaluated() {
 }
 
 #[test]
+fn overridden_assignment_dependencies_not_evaluated() {
+  Test::new()
+    .justfile(
+      "
+        set lazy
+
+        x := `exit 1`
+        y := x
+
+        foo:
+          @echo {{ y }}
+      ",
+    )
+    .args(["y=bar", "foo"])
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
 fn submodule_lazy_is_respected() {
   Test::new()
     .justfile(

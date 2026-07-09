@@ -189,10 +189,18 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       functions.insert(function.clone());
     }
 
-    let (bindings, evaluation_order) =
-      VariableResolver::resolve_assignments(&mut assignments, &mut functions)?;
+    for ((path, name), value) in &config.overrides {
+      if *path == ast.module_path
+        && let Some(assignment) = assignments.get(name)
+      {
+        overrides.insert(assignment.number, value.clone());
+      }
+    }
 
-    let variable_resolver = VariableResolver::new(&assignments, bindings, &functions);
+    let (bindings, evaluation_order) =
+      VariableResolver::resolve_assignments(&mut assignments, &mut functions, overrides)?;
+
+    let variable_resolver = VariableResolver::new(&assignments, bindings, &functions, overrides);
 
     let mut variable_references = HashSet::new();
 
@@ -203,14 +211,6 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           &ExpressionContext::new(),
           &mut variable_references,
         )?;
-      }
-    }
-
-    for ((path, name), value) in &config.overrides {
-      if *path == ast.module_path
-        && let Some(assignment) = assignments.get(name)
-      {
-        overrides.insert(assignment.number, value.clone());
       }
     }
 
@@ -414,11 +414,13 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let mut assignment_references = HashMap::new();
     for assignment in assignments.values() {
       let mut references = HashSet::from([assignment.number]);
-      variable_resolver.collect_references(
-        &assignment.value,
-        &ExpressionContext::new(),
-        &mut references,
-      );
+      if !overrides.contains_key(&assignment.number) {
+        variable_resolver.collect_references(
+          &assignment.value,
+          &ExpressionContext::new(),
+          &mut references,
+        );
+      }
       assignment_references.insert(assignment.number, references);
     }
 
