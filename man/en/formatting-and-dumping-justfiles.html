@@ -204,6 +204,11 @@ extracted from a markdown file, <code>--fmt</code> prints the formatted <code>ju
 stdout.</p>
 <p>Note that formatting is not covered by any backwards compatibility guarantee
 and is subject to change from time to time.</p>
+<p>Recipe bodies are indented with four spaces by default. This can be changed
+with the <code>--indentation</code> command-line option, the <code>JUST_INDENTATION</code>
+environment variable, or the <code>indentation</code> setting:</p>
+<pre><code class="language-just">set indentation := "  "
+</code></pre>
 <p>Invoking <code>just --fmt --check</code> runs <code>--fmt</code> in check mode. Instead of
 overwriting the <code>justfile</code>, <code>just</code> will exit with an exit code of 0 if it is
 formatted correctly, and will exit with 1 and print a diff if it is not.</p>

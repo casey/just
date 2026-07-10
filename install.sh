@@ -52,7 +52,8 @@ download() {
   output="$2"
 
   args=()
-  if [ -n "${GITHUB_TOKEN+x}" ]; then
+
+  if [ -n "${GITHUB_TOKEN:-}" ]; then
     args+=(--header "Authorization: Bearer $GITHUB_TOKEN")
   fi
 

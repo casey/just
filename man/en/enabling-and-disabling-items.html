@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Enabling and Disabling Recipes - Just Programmer&#x27;s Manual</title>
+        <title>Enabling and Disabling Items - Just Programmer&#x27;s Manual</title>
 
 
         <!-- Custom HTML head -->
@@ -178,11 +178,14 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h3 id="enabling-and-disabling-recipes"><a class="header" href="#enabling-and-disabling-recipes">Enabling and Disabling Recipes</a></h3>
-<p>The <code>[linux]</code>, <code>[macos]</code>, <code>[unix]</code>, and <code>[windows]</code> attributes<sup>1.8.0</sup>
-are configuration attributes. By default, recipes are always enabled. A recipe
-with one or more configuration attributes will only be enabled when one or more
-of those configurations is active.</p>
+                        <h3 id="enabling-and-disabling-items"><a class="header" href="#enabling-and-disabling-items">Enabling and Disabling Items</a></h3>
+<p>The <code>[android]</code>, <code>[dragonfly]</code>, <code>[freebsd]</code>, <code>[linux]</code>, <code>[macos]</code>, <code>[netbsd]</code>,
+<code>[openbsd]</code>, <code>[unix]</code>, and <code>[windows]</code> attributes are conditional attributes.
+By default, items are always enabled. An item with one or more conditional
+attributes will only be enabled when one or more of those conditional
+attributes is active.</p>
+<p>The conditional attributes originally applied only to recipes, but may now be
+applied to all top-level items<sup>1.56.0</sup>.</p>
 <p>This can be used to write <code>justfile</code>s that behave differently depending on
 which operating system they run on. The <code>run</code> recipe in this <code>justfile</code> will
 compile and run <code>main.c</code>, using a different C compiler and using the correct
@@ -196,6 +199,13 @@ run:
 run:
   cl main.c
   main.exe
+</code></pre>
+<p>Similarly, a setting can be made conditional on the current operating system:</p>
+<pre><code class="language-just">[unix]
+set shell := ['sh', '-cu']
+
+[windows]
+set shell := ['cmd', '/c']
 </code></pre>
 
                     </main>

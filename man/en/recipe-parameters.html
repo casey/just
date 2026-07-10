@@ -262,6 +262,17 @@ arguments passed on the command line:</p>
 <pre><code class="language-just">test +FLAGS='-q':
   cargo test {{FLAGS}}
 </code></pre>
+<p>The number of arguments a variadic parameter accepts may be limited with the
+<code>[arg(ARG, min=MIN)]</code> and <code>[arg(ARG, max=MAX)]</code> attributes<sup>1.56.0</sup>,
+which require lists to be enabled:</p>
+<pre><code class="language-just">set unstable
+set lists
+
+[arg('FILES', min='2', max='4')]
+backup +FILES:
+  scp {{FILES}} me@server.com:
+</code></pre>
+<p><code>min</code> and <code>max</code> also apply to default values.</p>
 <p><code>{{…}}</code> substitutions may need to be quoted if they contain spaces. For
 example, if you have the following recipe:</p>
 <pre><code class="language-just">search QUERY:

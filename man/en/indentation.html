@@ -186,7 +186,8 @@ in the same <code>justfile</code> may use different indentation.</p>
 after that may be further indented.</p>
 <p>Here’s a justfile with a recipe indented with spaces, represented as <code>·</code>, and
 tabs, represented as <code>→</code>.</p>
-<pre><code class="language-justfile">set windows-shell := ["pwsh", "-NoLogo", "-NoProfileLoadTime", "-Command"]
+<pre><code class="language-justfile">[windows]
+set shell := ["pwsh", "-NoLogo", "-NoProfileLoadTime", "-Command"]
 
 set ignore-comments
 

@@ -194,6 +194,9 @@ bar:
 baz:
   sleep 1
 </code></pre>
+<p>The number of simultaneously running recipes may be limited with the <code>--jobs</code>
+option<sup>1.56.0</sup>. The <code>num_jobs()</code> function returns the number of jobs,
+falling back to the empty list if <code>--jobs</code> was not passed.</p>
 <p>GNU <code>parallel</code> may be used to run recipe lines concurrently:</p>
 <pre><code class="language-just">parallel:
   #!/usr/bin/env -S parallel --shebang --ungroup --jobs {{ num_cpus() }}

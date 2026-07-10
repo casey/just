@@ -195,8 +195,9 @@ foo:
 an additional flag, often <code>-c</code>, to make them evaluate the first argument.</p>
 <h4 id="windows-shell"><a class="header" href="#windows-shell">Windows Shell</a></h4>
 <p><code>just</code> uses <code>sh</code> on Windows by default. To use a different shell on Windows,
-use <code>windows-shell</code>:</p>
-<pre><code class="language-just">set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
+use the <code>[windows]</code> attribute on the <code>shell</code> setting:</p>
+<pre><code class="language-just">[windows]
+set shell := ["powershell.exe", "-NoLogo", "-Command"]
 
 hello:
   Write-Host "Hello, world!"
@@ -204,17 +205,6 @@ hello:
 <p>See
 <a href="https://github.com/casey/just/blob/master/examples/powershell.just">powershell.just</a>
 for a justfile that uses PowerShell on all platforms.</p>
-<h4 id="windows-powershell"><a class="header" href="#windows-powershell">Windows PowerShell</a></h4>
-<p><em><code>set windows-powershell</code> uses the legacy <code>powershell.exe</code> binary, and is no
-longer recommended. See the <code>windows-shell</code> setting above for a more flexible
-way to control which shell is used on Windows.</em></p>
-<p><code>just</code> uses <code>sh</code> on Windows by default. To use <code>powershell.exe</code> instead, set
-<code>windows-powershell</code> to true.</p>
-<pre><code class="language-just">set windows-powershell := true
-
-hello:
-  Write-Host "Hello, world!"
-</code></pre>
 <h4 id="python-3"><a class="header" href="#python-3">Python 3</a></h4>
 <pre><code class="language-just">set shell := ["python3", "-c"]
 </code></pre>

@@ -203,7 +203,8 @@ foo:
 <tr><td><code>export</code></td><td>boolean</td><td><code>false</code></td><td>Export all variables as environment variables.</td></tr>
 <tr><td><code>fallback</code></td><td>boolean</td><td><code>false</code></td><td>Search for <code>justfile</code> in parent directory if the first recipe on the command line is not found.</td></tr>
 <tr><td><code>guards</code><sup>1.47.0</sup></td><td>boolean</td><td><code>false</code></td><td>Enable the <code>?</code> guard sigil on recipe lines. See <a href="sigils.html">sigils</a>.</td></tr>
-<tr><td><code>ignore-comments</code></td><td>boolean</td><td><code>false</code></td><td>Ignore recipe lines beginning with <code>#</code>.</td></tr>
+<tr><td><code>ignore-comments</code></td><td>boolean</td><td><code>false</code></td><td>Ignore shell recipe lines beginning with <code>#</code>. Does not apply to script recipes.</td></tr>
+<tr><td><code>indentation</code><sup>1.56.0</sup></td><td>string</td><td>-</td><td>Set recipe body indentation used when formatting with <code>--fmt</code> or <code>--dump</code>.</td></tr>
 <tr><td><code>lazy</code><sup>1.47.0</sup></td><td>boolean</td><td><code>false</code></td><td>Don’t evaluate unused variables.</td></tr>
 <tr><td><code>lists</code><sup>1.53.0</sup></td><td>boolean</td><td><code>false</code></td><td>Values may be lists of strings instead of strings. Currently unstable.</td></tr>
 <tr><td><code>minimum-version</code><sup>1.55.0</sup></td><td>string</td><td>-</td><td>Error if <code>just</code> is older than <code>minimum-version</code>. Accepts a string of the form <code>MAJOR.MINOR.PATCH</code>, e.g., <code>"1.55.0"</code>.</td></tr>
@@ -215,8 +216,8 @@ foo:
 <tr><td><code>shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>-</td><td>Set command used to invoke recipes and evaluate backticks.</td></tr>
 <tr><td><code>tempdir</code></td><td>string</td><td>-</td><td>Create temporary directories in <code>tempdir</code> instead of the system default temporary directory.</td></tr>
 <tr><td><code>unstable</code><sup>1.31.0</sup></td><td>boolean</td><td><code>false</code></td><td>Enable unstable features.</td></tr>
-<tr><td><code>windows-powershell</code></td><td>boolean</td><td><code>false</code></td><td>Use PowerShell on Windows as default shell. (Deprecated. Use <code>windows-shell</code> instead.)</td></tr>
-<tr><td><code>windows-shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>-</td><td>Set the command used to invoke recipes and evaluate backticks.</td></tr>
+<tr><td><code>windows-powershell</code></td><td>boolean</td><td><code>false</code></td><td>Use PowerShell on Windows as default shell. (Deprecated. Use the <code>[windows]</code> attribute on <code>set shell</code>.)</td></tr>
+<tr><td><code>windows-shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>-</td><td>Set the command used to invoke recipes and evaluate backticks. (Deprecated. Use the <code>[windows]</code> attribute on <code>set shell</code>.)</td></tr>
 <tr><td><code>working-directory</code><sup>1.33.0</sup></td><td>string</td><td>-</td><td>Set the working directory for recipes and backticks, relative to the default working directory.</td></tr>
 </tbody></table>
 </div>

@@ -371,6 +371,11 @@ most Windows users.)</p>
       <td><code>snap install --edge --classic just</code></td>
     </tr>
     <tr>
+      <td><a href=https://spack.io/>Spack</a></td>
+      <td><a href=https://packages.spack.io/package.html?name=just>just</a></td>
+      <td><code>spack install just</code></td>
+    </tr>
+    <tr>
       <td><a href=https://docs.astral.sh/uv/>uv</a></td>
       <td><a href=https://pypi.org/project/rust-just/>rust-just</a></td>
       <td><code>uv tool install rust-just</code></td>
@@ -900,6 +905,17 @@ arguments passed on the command line:</p>
 <pre><code class="language-just">test +FLAGS='-q':
   cargo test {{FLAGS}}
 </code></pre>
+<p>The number of arguments a variadic parameter accepts may be limited with the
+<code>[arg(ARG, min=MIN)]</code> and <code>[arg(ARG, max=MAX)]</code> attributes<sup>1.56.0</sup>,
+which require lists to be enabled:</p>
+<pre><code class="language-just">set unstable
+set lists
+
+[arg('FILES', min='2', max='4')]
+backup +FILES:
+  scp {{FILES}} me@server.com:
+</code></pre>
+<p><code>min</code> and <code>max</code> also apply to default values.</p>
 <p><code>{{…}}</code> substitutions may need to be quoted if they contain spaces. For
 example, if you have the following recipe:</p>
 <pre><code class="language-just">search QUERY:
@@ -1271,6 +1287,9 @@ bar:
 baz:
   sleep 1
 </code></pre>
+<p>The number of simultaneously running recipes may be limited with the <code>--jobs</code>
+option<sup>1.56.0</sup>. The <code>num_jobs()</code> function returns the number of jobs,
+falling back to the empty list if <code>--jobs</code> was not passed.</p>
 <p>GNU <code>parallel</code> may be used to run recipe lines concurrently:</p>
 <pre><code class="language-just">parallel:
   #!/usr/bin/env -S parallel --shebang --ungroup --jobs {{ num_cpus() }}
@@ -1310,6 +1329,7 @@ Available recipes:
     build # Build stuff
     test
 </code></pre>
+<p>The value of <code>[doc]</code> may be a const expression<sup>1.56.0</sup>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="groups"><a class="header" href="#groups">Groups</a></h3>
 <p>Recipes and modules may be annotated with one or more group names:</p>
 <pre><code class="language-just">[group('lint')]
@@ -1418,11 +1438,14 @@ Available recipes:
 </code></pre>
 <p>This is useful for helper recipes which are only meant to be used as
 dependencies of other recipes.</p>
-<div style="break-before: page; page-break-before: always;"></div><h3 id="enabling-and-disabling-recipes"><a class="header" href="#enabling-and-disabling-recipes">Enabling and Disabling Recipes</a></h3>
-<p>The <code>[linux]</code>, <code>[macos]</code>, <code>[unix]</code>, and <code>[windows]</code> attributes<sup>1.8.0</sup>
-are configuration attributes. By default, recipes are always enabled. A recipe
-with one or more configuration attributes will only be enabled when one or more
-of those configurations is active.</p>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="enabling-and-disabling-items"><a class="header" href="#enabling-and-disabling-items">Enabling and Disabling Items</a></h3>
+<p>The <code>[android]</code>, <code>[dragonfly]</code>, <code>[freebsd]</code>, <code>[linux]</code>, <code>[macos]</code>, <code>[netbsd]</code>,
+<code>[openbsd]</code>, <code>[unix]</code>, and <code>[windows]</code> attributes are conditional attributes.
+By default, items are always enabled. An item with one or more conditional
+attributes will only be enabled when one or more of those conditional
+attributes is active.</p>
+<p>The conditional attributes originally applied only to recipes, but may now be
+applied to all top-level items<sup>1.56.0</sup>.</p>
 <p>This can be used to write <code>justfile</code>s that behave differently depending on
 which operating system they run on. The <code>run</code> recipe in this <code>justfile</code> will
 compile and run <code>main.c</code>, using a different C compiler and using the correct
@@ -1436,6 +1459,13 @@ run:
 run:
   cl main.c
   main.exe
+</code></pre>
+<p>Similarly, a setting can be made conditional on the current operating system:</p>
+<pre><code class="language-just">[unix]
+set shell := ['sh', '-cu']
+
+[windows]
+set shell := ['cmd', '/c']
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="allow-duplicate-recipes"><a class="header" href="#allow-duplicate-recipes">Allow Duplicate Recipes</a></h3>
 <p>If <code>allow-duplicate-recipes</code> is set to <code>true</code>, defining multiple recipes with
@@ -1766,6 +1796,8 @@ may not have a default.</p>
 once, assigning the list of passed values to the parameter. When combined with
 <code>flag</code> or <code>value=VALUE</code>, <code>"true"</code> or <code>VALUE</code>, respectively, are repeated for
 each occurance of the flag.</p>
+<p>The <code>[arg(min=MIN)]</code> and <code>[arg(max=MAX)]</code> attributes<sup>1.56.0</sup> can be
+used to limit the number of values an option or flag may receive.</p>
 <p>The value of <code>[arg(help)]</code> may be a list, in which case the help string is the
 elements of the list joined with spaces. If the list is empty, the argument has
 no help string.</p>
@@ -2248,7 +2280,8 @@ in the same <code>justfile</code> may use different indentation.</p>
 after that may be further indented.</p>
 <p>Here’s a justfile with a recipe indented with spaces, represented as <code>·</code>, and
 tabs, represented as <code>→</code>.</p>
-<pre><code class="language-justfile">set windows-shell := ["pwsh", "-NoLogo", "-NoProfileLoadTime", "-Command"]
+<pre><code class="language-justfile">[windows]
+set shell := ["pwsh", "-NoLogo", "-NoProfileLoadTime", "-Command"]
 
 set ignore-comments
 
@@ -2422,13 +2455,12 @@ from highest to lowest, is:</p>
 <ol>
 <li>The <code>--shell</code> and <code>--shell-arg</code> command line options. Passing either of
 these will cause <code>just</code> to ignore any settings in the current justfile.</li>
-<li><code>set windows-shell := [...]</code></li>
+<li><code>set windows-shell := [...]</code> (deprecated)</li>
 <li><code>set windows-powershell</code> (deprecated)</li>
 <li><code>set shell := [...]</code></li>
 </ol>
-<p>Since <code>set windows-shell</code> has higher precedence than <code>set shell</code>, you can use
-<code>set windows-shell</code> to pick a shell on Windows, and <code>set shell</code> to pick a shell
-for all other platforms.</p>
+<p>Use the <code>[windows]</code> and <code>[unix]</code> attributes with <code>set shell</code> to use different a
+shells on Windows.</p>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="shell"><a class="header" href="#shell">Shell</a></h3>
 <p>The <code>shell</code> setting controls the command used to invoke recipe lines and
 backticks. Shebang recipes are unaffected. The default shell is <code>sh -cu</code>.</p>
@@ -2446,8 +2478,9 @@ foo:
 an additional flag, often <code>-c</code>, to make them evaluate the first argument.</p>
 <h4 id="windows-shell"><a class="header" href="#windows-shell">Windows Shell</a></h4>
 <p><code>just</code> uses <code>sh</code> on Windows by default. To use a different shell on Windows,
-use <code>windows-shell</code>:</p>
-<pre><code class="language-just">set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
+use the <code>[windows]</code> attribute on the <code>shell</code> setting:</p>
+<pre><code class="language-just">[windows]
+set shell := ["powershell.exe", "-NoLogo", "-Command"]
 
 hello:
   Write-Host "Hello, world!"
@@ -2455,17 +2488,6 @@ hello:
 <p>See
 <a href="https://github.com/casey/just/blob/master/examples/powershell.just">powershell.just</a>
 for a justfile that uses PowerShell on all platforms.</p>
-<h4 id="windows-powershell"><a class="header" href="#windows-powershell">Windows PowerShell</a></h4>
-<p><em><code>set windows-powershell</code> uses the legacy <code>powershell.exe</code> binary, and is no
-longer recommended. See the <code>windows-shell</code> setting above for a more flexible
-way to control which shell is used on Windows.</em></p>
-<p><code>just</code> uses <code>sh</code> on Windows by default. To use <code>powershell.exe</code> instead, set
-<code>windows-powershell</code> to true.</p>
-<pre><code class="language-just">set windows-powershell := true
-
-hello:
-  Write-Host "Hello, world!"
-</code></pre>
 <h4 id="python-3"><a class="header" href="#python-3">Python 3</a></h4>
 <pre><code class="language-just">set shell := ["python3", "-c"]
 </code></pre>
@@ -3383,6 +3405,11 @@ extracted from a markdown file, <code>--fmt</code> prints the formatted <code>ju
 stdout.</p>
 <p>Note that formatting is not covered by any backwards compatibility guarantee
 and is subject to change from time to time.</p>
+<p>Recipe bodies are indented with four spaces by default. This can be changed
+with the <code>--indentation</code> command-line option, the <code>JUST_INDENTATION</code>
+environment variable, or the <code>indentation</code> setting:</p>
+<pre><code class="language-just">set indentation := "  "
+</code></pre>
 <p>Invoking <code>just --fmt --check</code> runs <code>--fmt</code> in check mode. Instead of
 overwriting the <code>justfile</code>, <code>just</code> will exit with an exit code of 0 if it is
 formatted correctly, and will exit with 1 and print a diff if it is not.</p>
@@ -3528,7 +3555,9 @@ clean:
 change their behavior.</p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>[arg(ARG, help="HELP")]</code><sup>1.46.0</sup></td><td>recipe</td><td>Print help string <code>HELP</code> for <code>ARG</code> in usage messages. May be a const expression<sup>1.55.0</sup>.</td></tr>
-<tr><td><code>[arg(ARG, long="LONG")]</code><sup>1.46.0</sup></td><td>recipe</td><td>Require values of argument <code>ARG</code> to be passed as <code>--LONG</code> option. If the parameter is variadic, the option is repeatable&lt;sup1.55.0master</sup>.</td></tr>
+<tr><td><code>[arg(ARG, long="LONG")]</code><sup>1.46.0</sup></td><td>recipe</td><td>Require values of argument <code>ARG</code> to be passed as <code>--LONG</code> option. If the parameter is variadic, the option is repeatable<sup>1.55.0master</sup>.</td></tr>
+<tr><td><code>[arg(ARG, max="MAX")]</code><sup>1.56.0</sup></td><td>recipe</td><td>Allow at most <code>MAX</code> values to be passed to argument <code>ARG</code>. Requires <code>multiple</code> or a variadic parameter.</td></tr>
+<tr><td><code>[arg(ARG, min="MIN")]</code><sup>1.56.0</sup></td><td>recipe</td><td>Require at least <code>MIN</code> values to be passed to argument <code>ARG</code>. Requires <code>multiple</code> or a variadic parameter.</td></tr>
 <tr><td><code>[arg(ARG, pattern="PATTERN")]</code><sup>1.45.0</sup></td><td>recipe</td><td>Require values of argument <code>ARG</code> to match regular expression <code>PATTERN</code>. May be a const expression<sup>1.55.0</sup>.</td></tr>
 <tr><td><code>[arg(ARG, short="S")]</code><sup>1.46.0</sup></td><td>recipe</td><td>Require values of argument <code>ARG</code> to be passed as short <code>-S</code> option. If the parameter is variadic, the option is repeatable<sup>1.55.0</sup>.</td></tr>
 <tr><td><code>[arg(ARG, value=VALUE)]</code><sup>1.46.0</sup></td><td>recipe</td><td>Makes option <code>ARG</code> a flag which does not take a value.</td></tr>
@@ -3537,30 +3566,30 @@ change their behavior.</p>
 <tr><td><code>[confirm]</code><sup>1.17.0</sup></td><td>recipe</td><td>Require confirmation prior to executing recipe.</td></tr>
 <tr><td><code>[continue(SIGNALS)]</code><sup>1.54.0</sup></td><td>recipe</td><td>Continue execution normally if a command is interrupted by any of <code>SIGNALS</code> and exits successfully. Defaults to <code>SIGINT</code>.</td></tr>
 <tr><td><code>[default]</code><sup>1.43.0</sup></td><td>recipe</td><td>Use recipe as module’s default recipe.</td></tr>
-<tr><td><code>[doc(DOC)]</code><sup>1.27.0</sup></td><td>module, recipe</td><td>Set recipe or module’s <a href="documentation-comments.html">documentation comment</a> to <code>DOC</code>.</td></tr>
-<tr><td><code>[dragonfly]</code><sup>1.47.0</sup></td><td>recipe</td><td>Enable recipe on DragonFly BSD.</td></tr>
+<tr><td><code>[doc(DOC)]</code><sup>1.27.0</sup></td><td>module, recipe</td><td>Set recipe or module’s <a href="documentation-comments.html">documentation comment</a> to <code>DOC</code>. May be a const expression<sup>1.56.0</sup>.</td></tr>
+<tr><td><code>[dragonfly]</code><sup>1.47.0</sup></td><td>any<sup>1.56.0</sup></td><td>Enable item on DragonFly BSD.</td></tr>
 <tr><td><code>[env(NAME, VALUE)]</code> <sup>1.47.0</sup></td><td>recipe</td><td>Set environment variable <code>NAME</code> to <code>VALUE</code> for recipe. <code>NAME</code> and <code>VALUE</code> may be expressions<sup>1.51.0</sup>.</td></tr>
 <tr><td><code>[extension(EXT)]</code><sup>1.32.0</sup></td><td>recipe</td><td>Set shebang recipe script’s file extension to <code>EXT</code>. <code>EXT</code> should include a period if one is desired.</td></tr>
 <tr><td><code>[exit-message]</code><sup>1.39.0</sup></td><td>recipe</td><td>Print error message if recipe fails regardless of <code>set no-exit-message</code>.</td></tr>
-<tr><td><code>[freebsd]</code><sup>1.47.0</sup></td><td>recipe</td><td>Enable recipe on FreeBSD.</td></tr>
+<tr><td><code>[freebsd]</code><sup>1.47.0</sup></td><td>any<sup>1.56.0</sup></td><td>Enable item on FreeBSD.</td></tr>
 <tr><td><code>[group(NAME)]</code><sup>1.27.0</sup></td><td>module, recipe</td><td>Put recipe or module in <a href="groups.html">group</a> <code>NAME</code>.</td></tr>
-<tr><td><code>[android]</code><sup>1.50.0</sup></td><td>recipe</td><td>Enable recipe on Android.</td></tr>
-<tr><td><code>[linux]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on Linux.</td></tr>
-<tr><td><code>[macos]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on macOS.</td></tr>
+<tr><td><code>[android]</code><sup>1.50.0</sup></td><td>any<sup>1.56.0</sup></td><td>Enable item on Android.</td></tr>
+<tr><td><code>[linux]</code><sup>1.8.0</sup></td><td>any<sup>1.56.0</sup></td><td>Enable item on Linux.</td></tr>
+<tr><td><code>[macos]</code><sup>1.8.0</sup></td><td>any<sup>1.56.0</sup></td><td>Enable item on macOS.</td></tr>
 <tr><td><code>[metadata(METADATA)]</code><sup>1.42.0</sup></td><td>recipe</td><td>Attach <code>METADATA</code> to recipe.</td></tr>
-<tr><td><code>[netbsd]</code><sup>1.47.0</sup></td><td>recipe</td><td>Enable recipe on NetBSD.</td></tr>
+<tr><td><code>[netbsd]</code><sup>1.47.0</sup></td><td>any<sup>1.56.0</sup></td><td>Enable item on NetBSD.</td></tr>
 <tr><td><code>[no-cd]</code><sup>1.9.0</sup></td><td>recipe</td><td>Don’t change directory before executing recipe.</td></tr>
 <tr><td><code>[no-exit-message]</code><sup>1.7.0</sup></td><td>recipe</td><td>Don’t print an error message if recipe fails.</td></tr>
 <tr><td><code>[no-quiet]</code><sup>1.23.0</sup></td><td>recipe</td><td>Override globally quiet recipes and always echo out the recipe.</td></tr>
-<tr><td><code>[openbsd]</code><sup>1.38.0</sup></td><td>recipe</td><td>Enable recipe on OpenBSD.</td></tr>
+<tr><td><code>[openbsd]</code><sup>1.38.0</sup></td><td>any<sup>1.56.0</sup></td><td>Enable item on OpenBSD.</td></tr>
 <tr><td><code>[parallel]</code><sup>1.42.0</sup></td><td>recipe</td><td>Run this recipe’s dependencies in parallel.</td></tr>
 <tr><td><code>[positional-arguments]</code><sup>1.29.0</sup></td><td>recipe</td><td>Turn on <a href="positional-arguments.html">positional arguments</a> for this recipe.</td></tr>
 <tr><td><code>[private]</code><sup>1.10.0</sup></td><td>alias, recipe</td><td>Make recipe, alias, or variable private. See <a href="private-recipes.html">Private Recipes</a>.</td></tr>
 <tr><td><code>[script(COMMAND)]</code><sup>1.32.0</sup></td><td>recipe</td><td>Execute recipe as a script interpreted by <code>COMMAND</code>. See <a href="script-recipes.html">script recipes</a> for more details.</td></tr>
 <tr><td><code>[script]</code><sup>1.33.0</sup></td><td>recipe</td><td>Execute recipe as script. See <a href="script-recipes.html">script recipes</a> for more details.</td></tr>
 <tr><td><code>[shell]</code><sup>1.52.0</sup></td><td>recipe</td><td>Execute recipe as a shell recipe, overriding <code>set default-script</code>.</td></tr>
-<tr><td><code>[unix]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on unixes. (Includes macOS).</td></tr>
-<tr><td><code>[windows]</code><sup>1.8.0</sup></td><td>recipe</td><td>Enable recipe on Windows.</td></tr>
+<tr><td><code>[unix]</code><sup>1.8.0</sup></td><td>any<sup>1.56.0</sup></td><td>Enable item on unixes. (Includes macOS).</td></tr>
+<tr><td><code>[windows]</code><sup>1.8.0</sup></td><td>any<sup>1.56.0</sup></td><td>Enable item on Windows.</td></tr>
 <tr><td><code>[working-directory(PATH)]</code><sup>1.38.0</sup></td><td>recipe</td><td>Set recipe working directory. <code>PATH</code> may be an expression<sup>1.51.0</sup> whose value is relative or absolute. If relative, it is interpreted relative to the default working directory.</td></tr>
 </tbody></table>
 </div>
@@ -3604,7 +3633,8 @@ foo:
 <tr><td><code>export</code></td><td>boolean</td><td><code>false</code></td><td>Export all variables as environment variables.</td></tr>
 <tr><td><code>fallback</code></td><td>boolean</td><td><code>false</code></td><td>Search for <code>justfile</code> in parent directory if the first recipe on the command line is not found.</td></tr>
 <tr><td><code>guards</code><sup>1.47.0</sup></td><td>boolean</td><td><code>false</code></td><td>Enable the <code>?</code> guard sigil on recipe lines. See <a href="sigils.html">sigils</a>.</td></tr>
-<tr><td><code>ignore-comments</code></td><td>boolean</td><td><code>false</code></td><td>Ignore recipe lines beginning with <code>#</code>.</td></tr>
+<tr><td><code>ignore-comments</code></td><td>boolean</td><td><code>false</code></td><td>Ignore shell recipe lines beginning with <code>#</code>. Does not apply to script recipes.</td></tr>
+<tr><td><code>indentation</code><sup>1.56.0</sup></td><td>string</td><td>-</td><td>Set recipe body indentation used when formatting with <code>--fmt</code> or <code>--dump</code>.</td></tr>
 <tr><td><code>lazy</code><sup>1.47.0</sup></td><td>boolean</td><td><code>false</code></td><td>Don’t evaluate unused variables.</td></tr>
 <tr><td><code>lists</code><sup>1.53.0</sup></td><td>boolean</td><td><code>false</code></td><td>Values may be lists of strings instead of strings. Currently unstable.</td></tr>
 <tr><td><code>minimum-version</code><sup>1.55.0</sup></td><td>string</td><td>-</td><td>Error if <code>just</code> is older than <code>minimum-version</code>. Accepts a string of the form <code>MAJOR.MINOR.PATCH</code>, e.g., <code>"1.55.0"</code>.</td></tr>
@@ -3616,8 +3646,8 @@ foo:
 <tr><td><code>shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>-</td><td>Set command used to invoke recipes and evaluate backticks.</td></tr>
 <tr><td><code>tempdir</code></td><td>string</td><td>-</td><td>Create temporary directories in <code>tempdir</code> instead of the system default temporary directory.</td></tr>
 <tr><td><code>unstable</code><sup>1.31.0</sup></td><td>boolean</td><td><code>false</code></td><td>Enable unstable features.</td></tr>
-<tr><td><code>windows-powershell</code></td><td>boolean</td><td><code>false</code></td><td>Use PowerShell on Windows as default shell. (Deprecated. Use <code>windows-shell</code> instead.)</td></tr>
-<tr><td><code>windows-shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>-</td><td>Set the command used to invoke recipes and evaluate backticks.</td></tr>
+<tr><td><code>windows-powershell</code></td><td>boolean</td><td><code>false</code></td><td>Use PowerShell on Windows as default shell. (Deprecated. Use the <code>[windows]</code> attribute on <code>set shell</code>.)</td></tr>
+<tr><td><code>windows-shell</code></td><td><code>[COMMAND, ARGS…]</code></td><td>-</td><td>Set the command used to invoke recipes and evaluate backticks. (Deprecated. Use the <code>[windows]</code> attribute on <code>set shell</code>.)</td></tr>
 <tr><td><code>working-directory</code><sup>1.33.0</sup></td><td>string</td><td>-</td><td>Set the working directory for recipes and backticks, relative to the default working directory.</td></tr>
 </tbody></table>
 </div>
@@ -3749,6 +3779,10 @@ bosh: ''
 <p><code>is_dependency()</code> - Returns the string <code>true</code> if the current recipe is being
 run as a dependency of another recipe, rather than being run directly,
 otherwise returns the string <code>false</code>.</p>
+</li>
+<li>
+<p><code>num_jobs()</code><sup>1.56.0</sup> — The value of <code>--jobs</code> or the empty list,
+<code>[]</code>, if it was not passed.</p>
 </li>
 <li>
 <p><code>recipe_name()</code><sup>1.53.0</sup> - Returns the name of the current recipe.</p>
