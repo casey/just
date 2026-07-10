@@ -1,6 +1,76 @@
 Changelog
 =========
 
+[1.56.0](https://github.com/casey/just/releases/tag/1.56.0) - 2026-07-09
+------------------------------------------------------------------------
+
+### Fixed
+- Omit authorization header in install script if GITHUB_TOKEN is empty ([#3595](https://github.com/casey/just/pull/3595) by [casey](https://github.com/casey))
+- Evaluate assignments in dependency order ([#3591](https://github.com/casey/just/pull/3591) by [casey](https://github.com/casey))
+- Do not run `shell()` commands during dry run ([#3588](https://github.com/casey/just/pull/3588) by [casey](https://github.com/casey))
+- List aliases for recipes in other modules ([#3581](https://github.com/casey/just/pull/3581) by [casey](https://github.com/casey))
+- Don't unindent format strings twice ([#3579](https://github.com/casey/just/pull/3579) by [casey](https://github.com/casey))
+- Include doc comments and attributes in `--show` ([#3578](https://github.com/casey/just/pull/3578) by [casey](https://github.com/casey))
+- Don't resolve submodule variables to parent module variables ([#3577](https://github.com/casey/just/pull/3577) by [casey](https://github.com/casey))
+- Show dependency paths ([#3576](https://github.com/casey/just/pull/3576) by [casey](https://github.com/casey))
+- Reject shell-expanded string identifier in format string interpolation ([#3575](https://github.com/casey/just/pull/3575) by [casey](https://github.com/casey))
+- Resolve variables in `[cache]` expressions ([#3573](https://github.com/casey/just/pull/3573) by [casey](https://github.com/casey))
+- Preserve blank CRLF lines between recipes ([#3568](https://github.com/casey/just/pull/3568) by [casey](https://github.com/casey))
+- Report mixed leading whitespace in recipe bodies ([#3567](https://github.com/casey/just/pull/3567) by [casey](https://github.com/casey))
+- Preserve `eager` keyword in `--dump` and `--fmt` ([#3565](https://github.com/casey/just/pull/3565) by [casey](https://github.com/casey))
+- Export `[env]` variables to recipe bodies ([#3566](https://github.com/casey/just/pull/3566) by [casey](https://github.com/casey))
+- Don't add trailing space to empty doc comments ([#3564](https://github.com/casey/just/pull/3564) by [casey](https://github.com/casey))
+- Preserve CRLF when unindenting blank lines ([#3563](https://github.com/casey/just/pull/3563) by [casey](https://github.com/casey))
+- Include parameter `multiple` in dump ([#3562](https://github.com/casey/just/pull/3562) by [casey](https://github.com/casey))
+- Skip private variables when calculating `--evaluate` padding ([#3561](https://github.com/casey/just/pull/3561) by [casey](https://github.com/casey))
+- Don't show flag placeholders in `--usage` ([#3559](https://github.com/casey/just/pull/3559) by [casey](https://github.com/casey))
+- Fix `is_dependency()` in `[confirm]` expressions ([#3558](https://github.com/casey/just/pull/3558) by [casey](https://github.com/casey))
+- Skip private modules when choosing ([#3557](https://github.com/casey/just/pull/3557) by [casey](https://github.com/casey))
+- Don't re-evaluate assignments in user-defined functions ([#3555](https://github.com/casey/just/pull/3555) by [casey](https://github.com/casey))
+- Forbid format-string backticks ([#3554](https://github.com/casey/just/pull/3554) by [casey](https://github.com/casey))
+- Don't use shebangs as doc comments ([#3553](https://github.com/casey/just/pull/3553) by [casey](https://github.com/casey))
+- Don't deduplicate ASTs ([#3552](https://github.com/casey/just/pull/3552) by [casey](https://github.com/casey))
+- Allow escaping CRLF in strings ([#3550](https://github.com/casey/just/pull/3550) by [casey](https://github.com/casey))
+- Ignore sigils on continuation lines ([#3549](https://github.com/casey/just/pull/3549) by [casey](https://github.com/casey))
+- Catch circular references though function calls ([#3548](https://github.com/casey/just/pull/3548) by [casey](https://github.com/casey))
+- Resolve references in module `[doc]` attributes ([#3547](https://github.com/casey/just/pull/3547) by [casey](https://github.com/casey))
+- Avoid exponential blowup when traversing dependencies ([#3546](https://github.com/casey/just/pull/3546) by [casey](https://github.com/casey))
+- Handle invalid shebang lines ([#3545](https://github.com/casey/just/pull/3545) by [casey](https://github.com/casey))
+- Fix variable shadowing ([#3543](https://github.com/casey/just/pull/3543) by [casey](https://github.com/casey))
+- Handle timestamp formatting errors ([#3542](https://github.com/casey/just/pull/3542) by [casey](https://github.com/casey))
+- Display correct mismatched delimiter in format string ([#3540](https://github.com/casey/just/pull/3540) by [casey](https://github.com/casey))
+- Handle unterminated format string ([#3539](https://github.com/casey/just/pull/3539) by [casey](https://github.com/casey))
+- Error on end-of-file after backslash ([#3538](https://github.com/casey/just/pull/3538) by [casey](https://github.com/casey))
+
+### Changed
+- Make `path_exists('')` return false ([#3570](https://github.com/casey/just/pull/3570) by [casey](https://github.com/casey))
+- Make `set ignore-comments` only apply to shell recipes ([#3544](https://github.com/casey/just/pull/3544) by [casey](https://github.com/casey))
+- Remove `!include` error ([#3541](https://github.com/casey/just/pull/3541) by [casey](https://github.com/casey))
+- Allow `[doc]` to be const expression ([#3516](https://github.com/casey/just/pull/3516) by [casey](https://github.com/casey))
+- Allow conditional attributes on all items ([#3515](https://github.com/casey/just/pull/3515) by [casey](https://github.com/casey))
+
+### Added
+- Resolve module aliases in `--show`, `--list`, and `--usage` ([#3580](https://github.com/casey/just/pull/3580) by [casey](https://github.com/casey))
+- Add `num_jobs()` function ([#3537](https://github.com/casey/just/pull/3537) by [casey](https://github.com/casey))
+- Add `--jobs` option to limit parallelism ([#3531](https://github.com/casey/just/pull/3531) by [casey](https://github.com/casey))
+- Add `indentation` setting ([#3530](https://github.com/casey/just/pull/3530) by [casey](https://github.com/casey))
+- Add `[arg(min)]` ([#3524](https://github.com/casey/just/pull/3524) by [casey](https://github.com/casey))
+- Add `[arg(max)]` ([#3522](https://github.com/casey/just/pull/3522) by [casey](https://github.com/casey))
+
+### Misc
+- Construct `ExpressionContext` with `.into()` ([#3590](https://github.com/casey/just/pull/3590) by [casey](https://github.com/casey))
+- Add Spack package to readme ([#3589](https://github.com/casey/just/pull/3589) by [casey](https://github.com/casey))
+- Look up variables by number ([#3585](https://github.com/casey/just/pull/3585) by [casey](https://github.com/casey))
+- Consolidate variable resolution ([#3584](https://github.com/casey/just/pull/3584) by [casey](https://github.com/casey))
+- Add `ListEntry` ([#3583](https://github.com/casey/just/pull/3583) by [casey](https://github.com/casey))
+- Give format string token kinds unique display implementations ([#3574](https://github.com/casey/just/pull/3574) by [casey](https://github.com/casey))
+- Update `[arg(min, max)]` description in readme ([#3572](https://github.com/casey/just/pull/3572) by [casey](https://github.com/casey))
+- Move lexiclean into source tree ([#3569](https://github.com/casey/just/pull/3569) by [casey](https://github.com/casey))
+- Remove debug assert in `Recipe::group_arguments()` ([#3560](https://github.com/casey/just/pull/3560) by [casey](https://github.com/casey))
+- Deprecate `set windows-shell` ([#3536](https://github.com/casey/just/pull/3536) by [casey](https://github.com/casey))
+- Move `[arg]` attribute construction into helper method ([#3525](https://github.com/casey/just/pull/3525) by [casey](https://github.com/casey))
+- Consolidate attribute display ([#3514](https://github.com/casey/just/pull/3514) by [casey](https://github.com/casey))
+
 [1.55.1](https://github.com/casey/just/releases/tag/1.55.1) - 2026-06-29
 ------------------------------------------------------------------------
 

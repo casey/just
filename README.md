@@ -938,7 +938,7 @@ test +FLAGS='-q':
 ```
 
 The number of arguments a variadic parameter accepts may be limited with the
-`[arg(ARG, min=MIN)]` and `[arg(ARG, max=MAX)]` attributes<sup>master</sup>,
+`[arg(ARG, min=MIN)]` and `[arg(ARG, max=MAX)]` attributes<sup>1.56.0</sup>,
 which require lists to be enabled:
 
 ```just
@@ -1499,7 +1499,7 @@ baz:
 ```
 
 The number of simultaneously running recipes may be limited with the `--jobs`
-option<sup>master</sup>. The `num_jobs()` function returns the number of jobs,
+option<sup>1.56.0</sup>. The `num_jobs()` function returns the number of jobs,
 falling back to the empty list if `--jobs` was not passed.
 
 GNU `parallel` may be used to run recipe lines concurrently:
@@ -1555,7 +1555,7 @@ Available recipes:
     test
 ```
 
-The value of `[doc]` may be a const expression<sup>master</sup>.
+The value of `[doc]` may be a const expression<sup>1.56.0</sup>.
 
 ### Groups
 
@@ -1717,7 +1717,7 @@ attributes will only be enabled when one or more of those conditional
 attributes is active.
 
 The conditional attributes originally applied only to recipes, but may now be
-applied to all top-level items<sup>master</sup>.
+applied to all top-level items<sup>1.56.0</sup>.
 
 This can be used to write `justfile`s that behave differently depending on
 which operating system they run on. The `run` recipe in this `justfile` will
@@ -2221,7 +2221,7 @@ once, assigning the list of passed values to the parameter. When combined with
 `flag` or `value=VALUE`, `"true"` or `VALUE`, respectively, are repeated for
 each occurance of the flag.
 
-The `[arg(min=MIN)]` and `[arg(max=MAX)]` attributes<sup>master</sup> can be
+The `[arg(min=MIN)]` and `[arg(max=MAX)]` attributes<sup>1.56.0</sup> can be
 used to limit the number of values an option or flag may receive.
 
 The value of `[arg(help)]` may be a list, in which case the help string is the
@@ -4703,8 +4703,8 @@ change their behavior.
 |------|------|-------------|
 | `[arg(ARG, help="HELP")]`<sup>1.46.0</sup> | recipe | Print help string `HELP` for `ARG` in usage messages. May be a const expression<sup>1.55.0</sup>. |
 | `[arg(ARG, long="LONG")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as `--LONG` option. If the parameter is variadic, the option is repeatable<sup>1.55.0master</sup>. |
-| `[arg(ARG, max="MAX")]`<sup>master</sup> | recipe | Allow at most `MAX` values to be passed to argument `ARG`. Requires `multiple` or a variadic parameter. |
-| `[arg(ARG, min="MIN")]`<sup>master</sup> | recipe | Require at least `MIN` values to be passed to argument `ARG`. Requires `multiple` or a variadic parameter. |
+| `[arg(ARG, max="MAX")]`<sup>1.56.0</sup> | recipe | Allow at most `MAX` values to be passed to argument `ARG`. Requires `multiple` or a variadic parameter. |
+| `[arg(ARG, min="MIN")]`<sup>1.56.0</sup> | recipe | Require at least `MIN` values to be passed to argument `ARG`. Requires `multiple` or a variadic parameter. |
 | `[arg(ARG, pattern="PATTERN")]`<sup>1.45.0</sup> | recipe | Require values of argument `ARG` to match regular expression `PATTERN`. May be a const expression<sup>1.55.0</sup>. |
 | `[arg(ARG, short="S")]`<sup>1.46.0</sup> | recipe | Require values of argument `ARG` to be passed as short `-S` option. If the parameter is variadic, the option is repeatable<sup>1.55.0</sup>. |
 | `[arg(ARG, value=VALUE)]`<sup>1.46.0</sup> | recipe | Makes option `ARG` a flag which does not take a value. |
@@ -4713,30 +4713,30 @@ change their behavior.
 | `[confirm]`<sup>1.17.0</sup> | recipe | Require confirmation prior to executing recipe. |
 | `[continue(SIGNALS)]`<sup>1.54.0</sup> | recipe | Continue execution normally if a command is interrupted by any of `SIGNALS` and exits successfully. Defaults to `SIGINT`. |
 | `[default]`<sup>1.43.0</sup> | recipe | Use recipe as module's default recipe. |
-| `[doc(DOC)]`<sup>1.27.0</sup> | module, recipe | Set recipe or module's [documentation comment](#documentation-comments) to `DOC`. May be a const expression<sup>master</sup>. |
-| `[dragonfly]`<sup>1.47.0</sup> | any<sup>master</sup> | Enable item on DragonFly BSD. |
+| `[doc(DOC)]`<sup>1.27.0</sup> | module, recipe | Set recipe or module's [documentation comment](#documentation-comments) to `DOC`. May be a const expression<sup>1.56.0</sup>. |
+| `[dragonfly]`<sup>1.47.0</sup> | any<sup>1.56.0</sup> | Enable item on DragonFly BSD. |
 | `[env(NAME, VALUE)]` <sup>1.47.0</sup> | recipe | Set environment variable `NAME` to `VALUE` for recipe. `NAME` and `VALUE` may be expressions<sup>1.51.0</sup>. |
 | `[extension(EXT)]`<sup>1.32.0</sup> | recipe | Set shebang recipe script's file extension to `EXT`. `EXT` should include a period if one is desired. |
 | `[exit-message]`<sup>1.39.0</sup> | recipe | Print error message if recipe fails regardless of `set no-exit-message`. |
-| `[freebsd]`<sup>1.47.0</sup> | any<sup>master</sup> | Enable item on FreeBSD. |
+| `[freebsd]`<sup>1.47.0</sup> | any<sup>1.56.0</sup> | Enable item on FreeBSD. |
 | `[group(NAME)]`<sup>1.27.0</sup> | module, recipe | Put recipe or module in [group](#groups) `NAME`. |
-| `[android]`<sup>1.50.0</sup> | any<sup>master</sup> | Enable item on Android. |
-| `[linux]`<sup>1.8.0</sup> | any<sup>master</sup> | Enable item on Linux. |
-| `[macos]`<sup>1.8.0</sup> | any<sup>master</sup> | Enable item on macOS. |
+| `[android]`<sup>1.50.0</sup> | any<sup>1.56.0</sup> | Enable item on Android. |
+| `[linux]`<sup>1.8.0</sup> | any<sup>1.56.0</sup> | Enable item on Linux. |
+| `[macos]`<sup>1.8.0</sup> | any<sup>1.56.0</sup> | Enable item on macOS. |
 | `[metadata(METADATA)]`<sup>1.42.0</sup> | recipe | Attach `METADATA` to recipe. |
-| `[netbsd]`<sup>1.47.0</sup> | any<sup>master</sup> | Enable item on NetBSD. |
+| `[netbsd]`<sup>1.47.0</sup> | any<sup>1.56.0</sup> | Enable item on NetBSD. |
 | `[no-cd]`<sup>1.9.0</sup> | recipe | Don't change directory before executing recipe. |
 | `[no-exit-message]`<sup>1.7.0</sup> | recipe | Don't print an error message if recipe fails. |
 | `[no-quiet]`<sup>1.23.0</sup> | recipe | Override globally quiet recipes and always echo out the recipe. |
-| `[openbsd]`<sup>1.38.0</sup> | any<sup>master</sup> | Enable item on OpenBSD. |
+| `[openbsd]`<sup>1.38.0</sup> | any<sup>1.56.0</sup> | Enable item on OpenBSD. |
 | `[parallel]`<sup>1.42.0</sup> | recipe | Run this recipe's dependencies in parallel. |
 | `[positional-arguments]`<sup>1.29.0</sup> | recipe | Turn on [positional arguments](#positional-arguments) for this recipe. |
 | `[private]`<sup>1.10.0</sup> | alias, recipe | Make recipe, alias, or variable private. See [Private Recipes](#private-recipes). |
 | `[script(COMMAND)]`<sup>1.32.0</sup> | recipe | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
 | `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
 | `[shell]`<sup>1.52.0</sup> | recipe | Execute recipe as a shell recipe, overriding `set default-script`. |
-| `[unix]`<sup>1.8.0</sup> | any<sup>master</sup> | Enable item on unixes. (Includes macOS). |
-| `[windows]`<sup>1.8.0</sup> | any<sup>master</sup> | Enable item on Windows. |
+| `[unix]`<sup>1.8.0</sup> | any<sup>1.56.0</sup> | Enable item on unixes. (Includes macOS). |
+| `[windows]`<sup>1.8.0</sup> | any<sup>1.56.0</sup> | Enable item on Windows. |
 | `[working-directory(PATH)]`<sup>1.38.0</sup> | recipe | Set recipe working directory. `PATH` may be an expression<sup>1.51.0</sup> whose value is relative or absolute. If relative, it is interpreted relative to the default working directory. |
 
 A recipe can have multiple attributes, either on multiple lines:
@@ -4796,7 +4796,7 @@ foo:
 | `fallback` | boolean | `false` | Search for `justfile` in parent directory if the first recipe on the command line is not found. |
 | `guards`<sup>1.47.0</sup> | boolean | `false` | Enable the `?` guard sigil on recipe lines. See [sigils](#sigils). |
 | `ignore-comments` | boolean | `false` | Ignore shell recipe lines beginning with `#`. Does not apply to script recipes.  |
-| `indentation`<sup>master</sup> | string | - | Set recipe body indentation used when formatting with `--fmt` or `--dump`. |
+| `indentation`<sup>1.56.0</sup> | string | - | Set recipe body indentation used when formatting with `--fmt` or `--dump`. |
 | `lazy`<sup>1.47.0</sup> | boolean | `false` | Don't evaluate unused variables. |
 | `lists`<sup>1.53.0</sup> | boolean | `false` | Values may be lists of strings instead of strings. Currently unstable. |
 | `minimum-version`<sup>1.55.0</sup> | string | - | Error if `just` is older than `minimum-version`. Accepts a string of the form `MAJOR.MINOR.PATCH`, e.g., `"1.55.0"`. |
@@ -4970,7 +4970,7 @@ $ just
   run as a dependency of another recipe, rather than being run directly,
   otherwise returns the string `false`.
 
-- `num_jobs()`<sup>master</sup> — The value of `--jobs` or the empty list,
+- `num_jobs()`<sup>1.56.0</sup> — The value of `--jobs` or the empty list,
   `[]`, if it was not passed.
 
 - `recipe_name()`<sup>1.53.0</sup> - Returns the name of the current recipe.
