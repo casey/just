@@ -87,7 +87,7 @@ impl Search {
         justfile
           .parent()
           .ok_or_else(|| SearchError::JustfileHadNoParent {
-            path: justfile.to_path_buf(),
+            path: justfile.clone(),
           })?;
 
         Self::with_justfile(
