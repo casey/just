@@ -11,7 +11,7 @@ impl Environment {
     dotenv: &BTreeMap<String, String>,
     scope: &Scope,
     settings: &Settings,
-    unexports: &HashSet<String>,
+    unexports: &BTreeSet<String>,
   ) -> Environment {
     let mut environment = Self {
       variables: BTreeMap::new(),
@@ -30,7 +30,7 @@ impl Environment {
     environment
   }
 
-  fn scope(&mut self, scope: &Scope, settings: &Settings, unexports: &HashSet<String>) {
+  fn scope(&mut self, scope: &Scope, settings: &Settings, unexports: &BTreeSet<String>) {
     if let Some(parent) = scope.parent() {
       self.scope(parent, settings, unexports);
     }
