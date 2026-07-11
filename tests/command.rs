@@ -203,3 +203,16 @@ fn dont_evaluate_unnecessary_variables() {
     .stdout("FOO\n")
     .success();
 }
+
+#[test]
+fn command_exit_code_not_propagated() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+      ",
+    )
+    .args(["--command", "sh", "-c", "exit 42"])
+    .stderr("error: command `sh` `-c` `exit 42` failed: exit status: 42\n")
+    .status(42);
+}

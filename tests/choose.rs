@@ -373,3 +373,13 @@ fn visit_modules_in_alphabetical_order() {
     .stdout("bar\n")
     .success();
 }
+
+#[cfg(unix)]
+#[test]
+fn chooser_signal_exit_code_is_not_propagated() {
+  Test::new()
+    .justfile("foo:\n")
+    .args(["--choose", "--chooser", "kill -TERM $$"])
+    .stderr("error: chooser `kill -TERM $$` failed: signal: 15 (SIGTERM)\n")
+    .status(143);
+}
