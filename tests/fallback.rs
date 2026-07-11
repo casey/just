@@ -363,7 +363,7 @@ fn works_with_modules() {
 }
 
 #[test]
-fn fallback_masks_ambiguous_parent_justfile_error() {
+fn report_non_not_found_errors() {
   Test::new()
     .justfile(
       "
@@ -376,7 +376,7 @@ fn fallback_masks_ambiguous_parent_justfile_error() {
     .current_dir("sub")
     .arg("bar")
     .stderr_regex(
-      "error: multiple candidate justfiles found in `.*`: `\\.justfile` and `justfile`\n",
+      r"error: multiple candidate justfiles found in `.*`: `\.justfile` and `justfile`\n",
     )
     .status(1);
 }
