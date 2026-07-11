@@ -200,6 +200,12 @@ impl Display for CompileError<'_> {
       ExtraneousAttributes { count } => {
         write!(f, "extraneous {}", Count::unnumbered("attribute", count))
       }
+      FlagAndPatternArgAttribute { parameter } => {
+        write!(
+          f,
+          "argument `{parameter}` may not have both `flag` and `pattern` attributes"
+        )
+      }
       FlagAndValueArgAttribute { parameter } => {
         write!(
           f,
