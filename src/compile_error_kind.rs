@@ -75,6 +75,10 @@ pub(crate) enum CompileErrorKind<'src> {
     function: &'src str,
     parameter: &'src str,
   },
+  DuplicateGroupAttribute {
+    first: usize,
+    group: StringLiteral<'src>,
+  },
   DuplicateOption {
     recipe: &'src str,
     option: Switch,

@@ -136,13 +136,13 @@ impl Display for CompileError<'_> {
       }
       DuplicateArgAttribute { arg, first } => write!(
         f,
-        "recipe attribute for argument `{arg}` first used on line {} is duplicated on line {}",
+        "attribute for argument `{arg}` first used on line {} is duplicated on line {}",
         first.ordinal(),
         self.token.line.ordinal(),
       ),
       DuplicateAttribute { attribute, first } => write!(
         f,
-        "recipe attribute `{attribute}` first used on line {} is duplicated on line {}",
+        "attribute `{attribute}` first used on line {} is duplicated on line {}",
         first.ordinal(),
         self.token.line.ordinal(),
       ),
@@ -162,6 +162,12 @@ impl Display for CompileError<'_> {
           "function `{function}` has duplicate parameter `{parameter}`"
         )
       }
+      DuplicateGroupAttribute { group, first } => write!(
+        f,
+        "`[group({group})]` attribute first used on line {} is duplicated on line {}",
+        first.ordinal(),
+        self.token.line.ordinal(),
+      ),
       DuplicateOption { recipe, option } => {
         write!(
           f,
