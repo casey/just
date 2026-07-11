@@ -473,6 +473,21 @@ fn env_attribute_multiple() {
 }
 
 #[test]
+fn env_attribute_is_visible_to_shell_function() {
+  Test::new()
+    .justfile(
+      "
+        [env('FOO', 'bar')]
+        foo:
+          @echo {{ `echo backtick-$FOO` }} {{ shell('echo shell-$FOO') }}
+      ",
+    )
+    .arg("foo")
+    .stdout("backtick-bar shell-bar\n")
+    .success();
+}
+
+#[test]
 fn env_attribute_with_expression() {
   Test::new()
     .justfile(

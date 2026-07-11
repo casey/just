@@ -47,6 +47,7 @@ impl Function {
 }
 
 pub(crate) struct Context<'src: 'run, 'run> {
+  pub(crate) env: &'run BTreeMap<String, String>,
   pub(crate) execution_context: &'run ExecutionContext<'src, 'run>,
   pub(crate) is_dependency: bool,
   pub(crate) name: Name<'src>,
@@ -650,7 +651,7 @@ fn shell(context: Context, command: &str, args: &[String]) -> StringResult {
 
   Evaluator::run_command(
     context.execution_context,
-    &BTreeMap::new(),
+    context.env,
     context.scope,
     command,
     Some(args),

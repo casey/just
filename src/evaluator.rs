@@ -265,6 +265,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
   fn function_context(&self, name: Name<'src>) -> RunResult<'src, function::Context> {
     Ok(function::Context {
+      env: &self.env,
       execution_context: self.context(ConstError::FunctionCall(name))?,
       is_dependency: self.is_dependency,
       name,
