@@ -929,10 +929,10 @@ fn command_composes_with_dotenv_override_setting() {
 
 #[test]
 fn command_is_not_executed_in_dry_run() {
-  let output = Test::new()
+  Test::new()
     .justfile(
       "
-        set dotenv-command := 'touch touched'
+        set dotenv-command := 'exit 1'
 
         foo:
           echo bar
@@ -941,8 +941,6 @@ fn command_is_not_executed_in_dry_run() {
     .arg("--dry-run")
     .stderr("echo bar\n")
     .success();
-
-  assert!(!output.tempdir.path().join("touched").exists());
 }
 
 #[test]
