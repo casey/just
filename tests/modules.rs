@@ -639,6 +639,26 @@ fn modules_require_unambiguous_file() {
 }
 
 #[test]
+fn modules_outside_justfile_directory_require_unambiguous_file() {
+  let test = Test::new()
+    .create_dir("root")
+    .write("external/justfile", "")
+    .write("external/.justfile", "");
+
+  let external = test.tempdir.path().join("external");
+
+  test
+    .write(
+      "root/justfile",
+      &format!("mod foo '{}'\n", external.display()),
+    )
+    .current_dir("root")
+    .arg("--summary")
+    .stderr_regex("error: found multiple source files for module `foo`:.*")
+    .failure();
+}
+
+#[test]
 fn missing_module_file_error() {
   Test::new()
     .justfile(
