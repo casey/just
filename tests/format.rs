@@ -1627,7 +1627,7 @@ foo:
 
 #[cfg(not(windows))]
 #[test]
-fn fmt_uses_platform_disabled_indentation_setting() {
+fn ignore_disabled_indentation_setting() {
   Test::new()
     .justfile(
       "
