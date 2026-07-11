@@ -36,7 +36,7 @@ impl Serialize for Dependency<'_> {
 
     let mut s = serializer.serialize_struct("Dependency", 3)?;
     s.serialize_field("arguments", &arguments)?;
-    s.serialize_field("recipe", self.recipe.key())?;
+    s.serialize_field("recipe", &self.path)?;
     s.serialize_field("star", &star)?;
     s.end()
   }
