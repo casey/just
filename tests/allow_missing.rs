@@ -53,3 +53,11 @@ fn allow_missing_does_not_apply_to_other_subcommands() {
     .stderr("error: justfile does not contain recipe `foo`\n")
     .failure();
 }
+
+#[test]
+fn allow_missing_ignores_absent_optional_module() {
+  Test::new()
+    .justfile("mod? foo")
+    .args(["--allow-missing", "foo::bar"])
+    .success();
+}

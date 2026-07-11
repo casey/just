@@ -219,7 +219,11 @@ impl Subcommand {
       if config.allow_missing
         && matches!(
           result,
-          Err(Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })
+          Err(
+            Error::ModuleAbsent { .. }
+              | Error::UnknownRecipe { .. }
+              | Error::UnknownSubmodule { .. }
+          )
         )
       {
         return Ok(());
