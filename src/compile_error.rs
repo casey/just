@@ -334,6 +334,12 @@ impl Display for CompileError<'_> {
         f,
         "recipe `{recipe}` has both `[no-cd]` and `[working-directory]` attributes"
       ),
+      OptionNameStartsWithDash { parameter } => {
+        write!(
+          f,
+          "option name for parameter `{parameter}` starts with dash"
+        )
+      }
       OptionNameContainsEqualSign { parameter } => {
         write!(
           f,

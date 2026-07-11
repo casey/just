@@ -175,6 +175,9 @@ pub(crate) enum CompileErrorKind<'src> {
   NoCdAndWorkingDirectoryAttribute {
     recipe: &'src str,
   },
+  OptionNameStartsWithDash {
+    parameter: String,
+  },
   OptionNameContainsEqualSign {
     parameter: String,
   },

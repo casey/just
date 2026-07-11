@@ -1354,3 +1354,45 @@ fn recipe_with_flag_parameter_may_be_used_as_dependency() {
     .stdout("bar=[]\n")
     .success();
 }
+
+#[test]
+fn short_option_may_not_contain_dash() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', short='-')]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: option name for parameter `bar` starts with dash
+         ——▶ justfile:1:19
+          │
+        1 │ [arg('bar', short='-')]
+          │                   ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn long_option_may_not_contain_dash() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='-')]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: option name for parameter `bar` starts with dash
+         ——▶ justfile:1:18
+          │
+        1 │ [arg('bar', long='-')]
+          │                  ^^^
+      ",
+    )
+    .failure();
+}
