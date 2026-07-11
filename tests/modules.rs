@@ -2135,3 +2135,19 @@ fn sugest_similarly_named_submodules() {
     )
     .status(1);
 }
+
+#[test]
+fn argument_count_mismatch_usage_hint_includes_module_path() {
+  Test::new()
+    .write("foo.just", "bar baz:\n  @echo {{ baz }}\n")
+    .justfile("mod foo")
+    .arg("foo::bar")
+    .stderr(
+      "
+        error: recipe `bar` got 0 positional arguments but takes 1
+        usage:
+            just foo::bar baz
+      ",
+    )
+    .failure();
+}
