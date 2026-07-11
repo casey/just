@@ -30,7 +30,7 @@ impl<'line> Shebang<'line> {
   }
 
   pub(crate) fn interpreter_filename(&self) -> &str {
-    Executor::filename(&self.interpreter)
+    Executor::filename(self.interpreter)
   }
 
   pub(crate) fn include_shebang_line(&self) -> bool {
