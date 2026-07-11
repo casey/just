@@ -359,7 +359,7 @@ fn skip_recipes_in_private_modules() {
 }
 
 #[test]
-fn visit_modules_in_order() {
+fn visit_modules_in_alphabetical_order() {
   Test::new()
     .justfile(
       "
