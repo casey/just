@@ -952,20 +952,20 @@ fn env_attribute_visible_to_backticks_in_body() {
 }
 
 #[test]
-fn env_attribute_visible_to_backticks_in_function_bodies() {
+fn env_attribute_is_visible_to_backticks_in_function_bodies() {
   Test::new()
     .justfile(
       "
         set unstable
 
-        f() := `echo fn-${FOO:-unset}`
+        f() := `echo $FOO`
 
         [env('FOO', 'bar')]
         foo:
-          @echo {{ `echo tick-${FOO:-unset}` }} {{ f() }}
+          @echo {{ `echo $FOO` }} {{ f() }}
       ",
     )
     .arg("foo")
-    .stdout("tick-bar fn-bar\n")
+    .stdout("bar bar\n")
     .success();
 }
