@@ -536,7 +536,9 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
     if let Some(second) = Keyword::from_lexeme(set.name.lexeme()) {
       for &first in set.value.conflicts() {
-        if let Some(conflict) = self.sets.get(first.lexeme()) {
+        if let Some(conflict) = self.sets.get(first.lexeme())
+          && conflict.value.conflicts().contains(&second)
+        {
           return Err(set.name.error(IncompatibleSettings {
             first,
             first_line: conflict.name.line,

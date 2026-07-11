@@ -506,3 +506,20 @@ fn attribute_undefined_variable() {
     )
     .failure();
 }
+
+#[test]
+fn false_no_cd_does_not_conflict_with_working_directory() {
+  Test::new()
+    .justfile(
+      "
+        set no-cd := false
+        set working-directory := 'foo'
+
+        bar:
+          @echo baz
+      ",
+    )
+    .create_dir("foo")
+    .stdout("baz\n")
+    .success();
+}
