@@ -506,14 +506,13 @@ fn script_interpreter_path_loses_shell_kind() {
       "pwsh.exe",
       "
         #!/bin/sh
-        basename \"$1\"
+        basename $1
       ",
     )
     .justfile(
       "
         [script('./pwsh.exe')]
         foo:
-          true
       ",
     )
     .arg("foo")
@@ -528,9 +527,18 @@ fn absolute_powershell_interpreter_does_not_get_ps1_extension() {
   let interpreter = tempdir.path().join("pwsh.exe");
 
   Test::with_tempdir(tempdir)
-    .write_executable("pwsh.exe", "#!/bin/sh\nbasename \"$1\"\n")
+    .write_executable(
+      "pwsh.exe",
+      "
+        #!/bin/sh
+        basename $1
+      ",
+    )
     .justfile(format!(
-      "[script('{}')]\nfoo:\n  ignored\n",
+      "
+        [script('{}')]
+        foo:
+      ",
       interpreter.display(),
     ))
     .stdout("foo.ps1\n")
