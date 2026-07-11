@@ -240,7 +240,12 @@ impl Compiler {
       Err(Error::AmbiguousModuleFile {
         found: found
           .into_iter()
-          .map(|found| found.strip_prefix(parent).unwrap().into())
+          .map(|found| {
+            found
+              .strip_prefix(parent)
+              .map(PathBuf::from)
+              .unwrap_or(found)
+          })
           .collect(),
         module,
       })
