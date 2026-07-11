@@ -493,10 +493,8 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
       parameters.insert(parameter.name.lexeme());
 
-      if parameter.default.is_some() {
-        if !parameter.is_option() {
-          passed_default = true;
-        }
+      if parameter.default.is_some() && !parameter.is_option() {
+        passed_default = true;
       } else if passed_default && parameter.is_required() && !parameter.is_option() {
         return Err(
           parameter
