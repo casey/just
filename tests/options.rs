@@ -647,6 +647,36 @@ fn unknown_options_are_an_error() {
 }
 
 #[test]
+fn dash_equals_argument_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='bar')]
+        @foo bar='baz' *rest:
+          echo bar={{bar}} rest={{rest}}
+      ",
+    )
+    .args(["foo", "-=qux"])
+    .stderr("error: argument `-=qux` is not a valid option\n")
+    .failure();
+}
+
+#[test]
+fn dash_dash_equals_argument_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='bar')]
+        @foo bar='baz' *rest:
+          echo bar={{bar}} rest={{rest}}
+      ",
+    )
+    .args(["foo", "--=qux"])
+    .stderr("error: argument `--=qux` is not a valid option\n")
+    .failure();
+}
+
+#[test]
 fn missing_required_options_are_an_error() {
   Test::new()
     .justfile(
