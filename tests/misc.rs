@@ -1644,6 +1644,28 @@ fn variable_circular_dependency_with_additional_variable() {
 }
 
 #[test]
+fn exclude_non_cycle_prefix_from_circular_variable_dependency_error() {
+  Test::new()
+    .justfile(
+      "
+        a := b
+        b := c
+        c := b
+      ",
+    )
+    .stderr(
+      "
+        error: variable `b` depends on its own value: `b -> c -> b`
+         ——▶ justfile:2:1
+          │
+        2 │ b := c
+          │ ^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn plus_variadic_recipe() {
   Test::new()
     .arg("a")
