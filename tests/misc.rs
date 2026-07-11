@@ -1951,7 +1951,7 @@ fn no_highlight() {
 }
 
 #[test]
-fn no_highlight_is_ignored_for_script_echoing() {
+fn no_highlight_is_respected_for_script_echoing() {
   Test::new()
     .justfile(
       "
