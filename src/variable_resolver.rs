@@ -104,7 +104,7 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
       }
     }
 
-    self.collect_references(expression, context, references);
+    self.collect_references(expression, context, references, &mut HashSet::new());
 
     expression.resolve_variables(Some(context), &self.bindings);
 
@@ -116,16 +116,7 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
     expression: &Expression<'src>,
     context: &ExpressionContext<'src>,
     references: &mut HashSet<Number>,
-  ) {
-    self.collect(expression, context, references, &mut BTreeSet::new());
-  }
-
-  fn collect(
-    &self,
-    expression: &Expression<'src>,
-    context: &ExpressionContext<'src>,
-    references: &mut HashSet<Number>,
-    visited: &mut BTreeSet<&'src str>,
+    visited: &mut HashSet<&'src str>,
   ) {
     for reference in expression.references() {
       match reference {
@@ -133,7 +124,7 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
           if visited.insert(name.lexeme())
             && let Some(function) = self.functions.get(name.lexeme())
           {
-            self.collect(
+            self.collect_references(
               &function.body,
               &function.parameters.as_slice().into(),
               references,
@@ -147,7 +138,7 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
             && references.insert(assignment.number)
             && !self.overrides.contains_key(&assignment.number)
           {
-            self.collect(
+            self.collect_references(
               &assignment.value,
               &ExpressionContext::new(),
               references,

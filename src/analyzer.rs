@@ -233,6 +233,15 @@ impl<'run, 'src> Analyzer<'run, 'src> {
         .values()
         .any(|set| matches!(set.value, Setting::Lists(true)));
 
+      let mut collect_references = |expression| {
+        variable_resolver.collect_references(
+          expression,
+          &ExpressionContext::new(),
+          &mut variable_references,
+          &mut HashSet::new(),
+        )
+      };
+
       for attribute in self.recipes.iter().flat_map(|recipe| &recipe.attributes) {
         match attribute {
           Attribute::Arg {
@@ -241,37 +250,21 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             ..
           } => {
             if let Some((_, expression)) = help_property {
-              variable_resolver.collect_references(
-                expression,
-                &ExpressionContext::new(),
-                &mut variable_references,
-              );
+              collect_references(expression);
             }
             if let Some((_, expression)) = pattern_property {
-              variable_resolver.collect_references(
-                expression,
-                &ExpressionContext::new(),
-                &mut variable_references,
-              );
+              collect_references(expression);
             }
           }
           Attribute::Doc(Some(expression)) => {
-            variable_resolver.collect_references(
-              expression,
-              &ExpressionContext::new(),
-              &mut variable_references,
-            );
+            collect_references(expression);
           }
           _ => {}
         }
       }
 
       for (_name, expression) in &module_docs {
-        variable_resolver.collect_references(
-          expression,
-          &ExpressionContext::new(),
-          &mut variable_references,
-        );
+        collect_references(expression);
       }
 
       Evaluator::evaluate_const_assignments(
