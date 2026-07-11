@@ -1111,7 +1111,7 @@ fn canonicalize_error_omits_path() {
     .justfile("x := canonicalize('foo')")
     .args(["--evaluate", "x"])
     .stderr_regex(
-      r"error: call to function `canonicalize` failed: I/O error canonicalizing `foo`: .*",
+      "error: call to function `canonicalize` failed: I/O error canonicalizing `foo`: .*",
     )
     .failure();
 }
