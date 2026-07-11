@@ -55,11 +55,11 @@ impl Executor<'_> {
       Self::Shebang(shebang) => shebang.interpreter,
     };
 
-    command
-      .split(['/', '\\'])
-      .next_back()
-      .unwrap_or(command)
-      .into()
+    Self::filename(command).into()
+  }
+
+  pub(crate) fn filename(path: &str) -> &str {
+    path.split(['/', '\\']).next_back().unwrap_or(path)
   }
 
   pub(crate) fn needs_bom(&self) -> bool {
