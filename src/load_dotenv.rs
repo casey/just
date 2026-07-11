@@ -2,10 +2,12 @@ use super::*;
 
 pub(crate) fn load_dotenv(
   config: &Config,
-  settings: &Settings,
+  justfile: &Justfile,
   working_directory: &Path,
 ) -> RunResult<'static, BTreeMap<String, String>> {
-  let commands = if config.dotenv_command.is_empty() {
+  let settings = &justfile.settings;
+
+  let commands = if config.dotenv_command.is_empty() || justfile.is_submodule() {
     settings.dotenv_command.elements()
   } else {
     &config.dotenv_command
@@ -13,14 +15,18 @@ pub(crate) fn load_dotenv(
 
   if !commands.is_empty() {
     let mut dotenv = BTreeMap::new();
-    for command in commands {
-      dotenv.extend(load_from_command(
-        command,
-        config,
-        settings,
-        working_directory,
-      )?);
+
+    if !config.dry_run {
+      for command in commands {
+        dotenv.extend(load_from_command(
+          command,
+          config,
+          settings,
+          working_directory,
+        )?);
+      }
     }
+
     return Ok(dotenv);
   }
 

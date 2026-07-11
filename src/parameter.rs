@@ -25,7 +25,9 @@ impl<'src> Parameter<'src> {
   }
 
   pub(crate) fn is_required(&self) -> bool {
-    self.default.is_none() && self.kind != ParameterKind::Star && !self.flag
+    self.default.is_none()
+      && !self.flag
+      && (self.kind != ParameterKind::Star || self.min.is_some_and(|min| min > 0))
   }
 
   pub(crate) fn check_value_count(

@@ -230,6 +230,31 @@ fn show_cross_module_dependencies() {
 }
 
 #[test]
+fn show_prints_full_recipe_path_for_cross_module_alias() {
+  Test::new()
+    .write("foo.just", "bar:\n  @echo SUB\n")
+    .justfile(
+      "
+        mod foo
+
+        alias f := foo::bar
+
+        bar:
+          @echo ROOT
+      ",
+    )
+    .args(["--show", "f"])
+    .stdout(
+      "
+        alias f := foo::bar
+        bar:
+            @echo SUB
+      ",
+    )
+    .success();
+}
+
+#[test]
 fn show_prints_doc_comment_and_attributes() {
   Test::new()
     .justfile(

@@ -159,7 +159,7 @@ impl Compiler {
     let mut candidates = Vec::new();
 
     if let Some(path) = path {
-      let full = parent.join(path);
+      let full = parent.join(path).clean();
 
       if filesystem::is_file(&full)? {
         return Ok(Some(full));
@@ -240,7 +240,12 @@ impl Compiler {
       Err(Error::AmbiguousModuleFile {
         found: found
           .into_iter()
-          .map(|found| found.strip_prefix(parent).unwrap().into())
+          .map(|found| {
+            found
+              .strip_prefix(parent)
+              .map(PathBuf::from)
+              .unwrap_or(found)
+          })
           .collect(),
         module,
       })

@@ -128,3 +128,24 @@ fn shebang_line_numbers_are_correct_with_multi_line_interpolations() {
     })
     .success();
 }
+
+#[test]
+fn linewise_error_line_numbers_are_correct_with_multi_line_interpolations() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          echo {{ (
+            'a' ) }}
+          @exit 7
+      ",
+    )
+    .stdout("a\n")
+    .stderr(
+      "
+        echo a
+        error: recipe `foo` failed on line 4 with exit code 7
+      ",
+    )
+    .status(7);
+}

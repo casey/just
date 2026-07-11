@@ -193,3 +193,20 @@ fn init_error() {
     .stderr_regex("error: justfile `.*foo.md` already exists\n")
     .failure();
 }
+
+#[test]
+fn justfile_found_by_name_is_tangled() {
+  Test::new()
+    .write(
+      "foo.md",
+      "
+        ```just
+        @foo:
+         echo bar
+        ```
+      ",
+    )
+    .args(["--justfile-name", "foo.md", "foo"])
+    .stdout("bar\n")
+    .success();
+}
