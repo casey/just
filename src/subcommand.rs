@@ -294,7 +294,7 @@ impl Subcommand {
     let result = justfile
       .settings
       .shell_command(config)
-      .arg(&chooser)
+      .shell_arg(&chooser)
       .current_dir(&search.working_directory)
       .stdin(Stdio::piped())
       .stdout(Stdio::piped())

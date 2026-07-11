@@ -7,6 +7,8 @@ pub(crate) trait CommandExt {
 
   fn resolve(program: impl AsRef<OsStr>) -> Command;
 
+  fn shell_arg(&mut self, arg: impl AsRef<OsStr>) -> &mut Command;
+
   fn status_guard(self) -> (io::Result<ExitStatus>, Option<Signal>);
 }
 
@@ -86,6 +88,16 @@ impl CommandExt for Command {
     }
 
     Self::new(program)
+  }
+
+  fn shell_arg(&mut self, arg: impl AsRef<OsStr>) -> &mut Command {
+    #[cfg(windows)]
+    if ShellKind::from(&*self) == ShellKind::Cmd {
+      use std::os::windows::process::CommandExt;
+      return self.raw_arg(arg);
+    }
+
+    self.arg(arg)
   }
 
   fn status_guard(self) -> (io::Result<ExitStatus>, Option<Signal>) {

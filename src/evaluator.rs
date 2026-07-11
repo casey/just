@@ -685,7 +685,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     let mut cmd = context.module.settings.shell_command(context.config);
 
-    cmd.arg(command);
+    cmd.shell_arg(command);
 
     if let Some(args) = args {
       if ShellKind::from(&cmd).takes_shell_name() {
