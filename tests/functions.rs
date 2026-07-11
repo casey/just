@@ -958,6 +958,23 @@ fn choose_bad_alphabet_empty() {
 }
 
 #[test]
+fn choose_accepts_empty_alphabet_when_count_is_zero() {
+  Test::new()
+    .justfile("x := choose('0', '')")
+    .args(["--evaluate"])
+    .stderr(
+      "
+        error: call to function `choose` failed: empty alphabet
+         ——▶ justfile:1:6
+          │
+        1 │ x := choose('0', '')
+          │      ^^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn choose_bad_alphabet_repeated() {
   Test::new()
     .justfile("x := choose('10', 'aa')")
