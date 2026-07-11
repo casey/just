@@ -85,7 +85,10 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
   ) -> CompileResult<'src> {
     for reference in expression.references() {
       match reference {
-        Reference::Call { name, arguments } => self.resolve_call(name, arguments)?,
+        Reference::Call { name, arguments } => {
+          self.resolve_call(name, arguments)?;
+          self.collect_function_references(name.lexeme(), references);
+        }
         Reference::Variable(variable) => {
           let name = variable.lexeme();
           if context.lookup(name).is_none() {
@@ -114,6 +117,36 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
         && let Some(assignment) = self.assignments.get(variable.lexeme())
       {
         references.insert(assignment.number);
+      }
+    }
+  }
+
+  fn collect_function_references(&self, root: &'src str, references: &mut HashSet<Number>) {
+    let mut visited = BTreeSet::new();
+    let mut queue = vec![root];
+
+    while let Some(name) = queue.pop() {
+      if !visited.insert(name) {
+        continue;
+      }
+
+      let Some(function) = self.functions.get(name) else {
+        continue;
+      };
+
+      let context = ExpressionContext::from(function.parameters.as_slice());
+
+      for reference in function.body.references() {
+        match reference {
+          Reference::Call { name, .. } => queue.push(name.lexeme()),
+          Reference::Variable(variable) => {
+            if context.lookup(variable.lexeme()).is_none()
+              && let Some(assignment) = self.assignments.get(variable.lexeme())
+            {
+              references.insert(assignment.number);
+            }
+          }
+        }
       }
     }
   }
