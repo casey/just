@@ -195,7 +195,11 @@ impl Subcommand {
       if fallback
         && let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result
       {
-        search = search.search_parent_directory(config).map_err(|_| err)?;
+        search = match search.search_parent_directory(config) {
+          Ok(search) => search,
+          Err(SearchError::NotFound) => return Err(err),
+          Err(search_error) => return Err(search_error.into()),
+        };
 
         if config.verbosity.loquacious() {
           eprintln!(

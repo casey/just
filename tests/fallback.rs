@@ -361,3 +361,22 @@ fn works_with_modules() {
     .stdout("BAZ\n")
     .success();
 }
+
+#[test]
+fn fallback_masks_ambiguous_parent_justfile_error() {
+  Test::new()
+    .justfile(
+      "
+        bar:
+          @echo bar
+      ",
+    )
+    .write(".justfile", "bar:\n")
+    .write("sub/justfile", "set fallback\n\nfoo:\n")
+    .current_dir("sub")
+    .arg("bar")
+    .stderr_regex(
+      "error: multiple candidate justfiles found in `.*`: `\\.justfile` and `justfile`\n",
+    )
+    .status(1);
+}
