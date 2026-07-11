@@ -200,10 +200,18 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       functions.insert(function.clone());
     }
 
+    for ((path, name), value) in &config.overrides {
+      if *path == ast.module_path
+        && let Some(assignment) = assignments.get(name)
+      {
+        overrides.insert(assignment.number, value.clone());
+      }
+    }
+
     let (bindings, evaluation_order) =
       VariableResolver::resolve_assignments(&mut assignments, &mut functions)?;
 
-    let variable_resolver = VariableResolver::new(&assignments, bindings, &functions);
+    let variable_resolver = VariableResolver::new(&assignments, bindings, &functions, overrides);
 
     let mut variable_references = HashSet::new();
 
@@ -214,14 +222,6 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           &ExpressionContext::new(),
           &mut variable_references,
         )?;
-      }
-    }
-
-    for ((path, name), value) in &config.overrides {
-      if *path == ast.module_path
-        && let Some(assignment) = assignments.get(name)
-      {
-        overrides.insert(assignment.number, value.clone());
       }
     }
 
@@ -241,21 +241,37 @@ impl<'run, 'src> Analyzer<'run, 'src> {
             ..
           } => {
             if let Some((_, expression)) = help_property {
-              variable_resolver.collect_references(expression, &mut variable_references);
+              variable_resolver.collect_references(
+                expression,
+                &ExpressionContext::new(),
+                &mut variable_references,
+              );
             }
             if let Some((_, expression)) = pattern_property {
-              variable_resolver.collect_references(expression, &mut variable_references);
+              variable_resolver.collect_references(
+                expression,
+                &ExpressionContext::new(),
+                &mut variable_references,
+              );
             }
           }
           Attribute::Doc(Some(expression)) => {
-            variable_resolver.collect_references(expression, &mut variable_references);
+            variable_resolver.collect_references(
+              expression,
+              &ExpressionContext::new(),
+              &mut variable_references,
+            );
           }
           _ => {}
         }
       }
 
       for (_name, expression) in &module_docs {
-        variable_resolver.collect_references(expression, &mut variable_references);
+        variable_resolver.collect_references(
+          expression,
+          &ExpressionContext::new(),
+          &mut variable_references,
+        );
       }
 
       Evaluator::evaluate_const_assignments(
