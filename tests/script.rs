@@ -500,7 +500,7 @@ fn script_and_shell_attribute_forbidden() {
 
 #[cfg(unix)]
 #[test]
-fn script_interpreter_path_loses_shell_kind() {
+fn use_final_path_component_of_script_interpreter_to_determine_shell_kind() {
   Test::new()
     .write_executable(
       "pwsh.exe",
@@ -516,31 +516,6 @@ fn script_interpreter_path_loses_shell_kind() {
       ",
     )
     .arg("foo")
-    .stdout("foo.ps1\n")
-    .success();
-}
-
-#[cfg(unix)]
-#[test]
-fn absolute_powershell_interpreter_does_not_get_ps1_extension() {
-  let tempdir = tempdir();
-  let interpreter = tempdir.path().join("pwsh.exe");
-
-  Test::with_tempdir(tempdir)
-    .write_executable(
-      "pwsh.exe",
-      "
-        #!/bin/sh
-        basename $1
-      ",
-    )
-    .justfile(format!(
-      "
-        [script('{}')]
-        foo:
-      ",
-      interpreter.display(),
-    ))
     .stdout("foo.ps1\n")
     .success();
 }
