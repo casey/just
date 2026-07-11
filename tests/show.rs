@@ -284,3 +284,21 @@ fn show_recipe_disabled_by_absent_module() {
     .stderr("error: recipe `bar` depends on absent module `foo`\n")
     .failure();
 }
+
+#[test]
+fn show_alias_disabled_by_absent_module() {
+  Test::new()
+    .justfile(
+      "
+        mod? foo
+
+        alias b := bar
+
+        bar: foo::baz
+          @echo bar
+      ",
+    )
+    .args(["--show", "b"])
+    .stderr("error: alias `b` depends on absent module `foo`\n")
+    .failure();
+}
