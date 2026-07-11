@@ -1625,6 +1625,31 @@ foo:
   );
 }
 
+#[cfg(not(windows))]
+#[test]
+fn fmt_uses_platform_disabled_indentation_setting() {
+  Test::new()
+    .justfile(
+      "
+        [windows]
+        set indentation := \"\\t\"
+
+        [unix]
+        set indentation := \"  \"
+
+        foo:
+            echo a
+      ",
+    )
+    .args(["--fmt", "--unstable"])
+    .stderr_regex("wrote justfile to `.*justfile`\n")
+    .expect_file(
+      "justfile",
+      "[windows]\nset indentation := \"\\t\"\n\n[unix]\nset indentation := \"  \"\n\nfoo:\n  echo a\n",
+    )
+    .success();
+}
+
 #[test]
 fn indentation_flag_overrides_setting_dump() {
   Test::new()
