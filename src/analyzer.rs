@@ -446,7 +446,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       default,
       disabled_aliases,
       disabled_recipes,
-      doc: doc.filter(|doc| !doc.is_empty()),
+      doc,
       evaluation_order,
       functions,
       groups: groups.into(),

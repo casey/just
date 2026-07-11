@@ -674,7 +674,7 @@ impl Subcommand {
         print_aliases();
       }
 
-      if let Some(doc) = doc.filter(|doc| !doc.is_empty()) {
+      if let Some(doc) = doc {
         print!(" ");
         let mut end = 0;
         for backtick in BACKTICK_RE.find_iter(doc) {
@@ -974,11 +974,7 @@ impl Subcommand {
     if !recipe.attributes.contains(AttributeKind::Doc)
       && let Some(doc) = &recipe.doc
     {
-      if doc.is_empty() {
-        println!("#");
-      } else {
-        println!("# {doc}");
-      }
+      println!("# {doc}");
     }
 
     for attribute in &recipe.attributes {
