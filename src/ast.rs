@@ -29,6 +29,10 @@ impl Ast<'_> {
 
 impl ColorDisplay for Ast<'_> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
+    if self.items.is_empty() {
+      return Ok(());
+    }
+
     let mut newlines = 0;
     for (i, item) in self.items.iter().enumerate() {
       if matches!(item, Item::Newline) {

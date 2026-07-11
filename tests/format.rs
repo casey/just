@@ -1953,3 +1953,11 @@ fn crlf_blank_lines_between_recipes_are_preserved() {
     .expect_file("justfile", "a:\n    echo a\n\nb:\n    echo b\n")
     .success();
 }
+
+#[test]
+fn fmt_check_fails_on_empty_justfile() {
+  Test::new()
+    .justfile("")
+    .args(["--fmt", "--check", "--unstable"])
+    .success();
+}
