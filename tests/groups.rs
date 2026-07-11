@@ -394,7 +394,7 @@ fn list_group_with_submodules() {
 }
 
 #[test]
-fn reject_unexpected_arguments() {
+fn reject_extra_arguments() {
   Test::new()
     .justfile(
       "
