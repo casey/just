@@ -361,3 +361,22 @@ fn works_with_modules() {
     .stdout("BAZ\n")
     .success();
 }
+
+#[test]
+fn report_non_not_found_errors() {
+  Test::new()
+    .justfile(
+      "
+        bar:
+          @echo bar
+      ",
+    )
+    .write(".justfile", "bar:\n")
+    .write("sub/justfile", "set fallback\n\nfoo:\n")
+    .current_dir("sub")
+    .arg("bar")
+    .stderr_regex(
+      r"error: multiple candidate justfiles found in `.*`: `\.justfile` and `justfile`\n",
+    )
+    .status(1);
+}
