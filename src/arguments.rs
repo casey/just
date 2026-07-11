@@ -39,7 +39,8 @@ pub struct Arguments {
   #[arg(
     env = "JUST_ALLOW_MISSING",
     help = "Ignore missing recipe and module errors",
-    long
+    long,
+    value_parser = FalseyValueParser::new(),
   )]
   pub(crate) allow_missing: bool,
   #[arg(
@@ -89,7 +90,8 @@ pub struct Arguments {
   #[arg(
     env = "JUST_COMPLETE_ALIASES",
     help = "Auto-complete recipe aliases",
-    long
+    long,
+    value_parser = FalseyValueParser::new(),
   )]
   pub(crate) complete_aliases: bool,
   #[arg(
@@ -103,7 +105,8 @@ pub struct Arguments {
   #[arg(
     env = "JUST_DEFAULT_LIST",
     help = "List recipes when no arguments are provided",
-    long
+    long,
+    value_parser = FalseyValueParser::new(),
   )]
   pub(crate) default_list: bool,
   #[arg(
@@ -135,7 +138,8 @@ pub struct Arguments {
     env = "JUST_DRY_RUN",
     help = "Print what just would do without doing it",
     long,
-    short = 'n'
+    short = 'n',
+    value_parser = FalseyValueParser::new(),
   )]
   pub(crate) dry_run: bool,
   #[arg(
@@ -159,7 +163,8 @@ pub struct Arguments {
   #[arg(
     env = "JUST_EXPLAIN",
     help = "Print recipe doc comment before running it",
-    long
+    long,
+    value_parser = FalseyValueParser::new(),
   )]
   pub(crate) explain: bool,
   #[arg(
@@ -182,7 +187,8 @@ pub struct Arguments {
     env = "JUST_HIGHLIGHT",
     help = "Highlight echoed recipe lines in bold",
     long,
-    overrides_with = "no_highlight"
+    overrides_with = "no_highlight",
+    value_parser = FalseyValueParser::new(),
   )]
   pub(crate) highlight: bool,
   #[arg(
@@ -233,33 +239,52 @@ pub struct Arguments {
     env = "JUST_LIST_SUBMODULES",
     help = "List recipes in submodules",
     long,
-    requires = "list"
+    requires = "list",
+    value_parser = FalseyValueParser::new(),
   )]
   pub(crate) list_submodules: bool,
-  #[arg(env = "JUST_NO_ALIASES", help = "Don't show aliases in list", long)]
+  #[arg(
+    env = "JUST_NO_ALIASES",
+    help = "Don't show aliases in list",
+    long,
+    value_parser = FalseyValueParser::new(),
+  )]
   pub(crate) no_aliases: bool,
-  #[arg(env = "JUST_NO_CACHE", help = "Bypass recipe cache", long)]
+  #[arg(
+    env = "JUST_NO_CACHE",
+    help = "Bypass recipe cache",
+    long,
+    value_parser = FalseyValueParser::new(),
+  )]
   pub(crate) no_cache: bool,
   #[arg(
     alias = "no-dependencies",
     env = "JUST_NO_DEPS",
     help = "Don't run recipe dependencies",
-    long
+    long,
+    value_parser = FalseyValueParser::new(),
   )]
   pub(crate) no_deps: bool,
-  #[arg(env = "JUST_NO_DOTENV", help = "Don't load `.env` file", long)]
+  #[arg(
+    env = "JUST_NO_DOTENV",
+    help = "Don't load `.env` file",
+    long,
+    value_parser = FalseyValueParser::new(),
+  )]
   pub(crate) no_dotenv: bool,
   #[arg(
     env = "JUST_NO_HIGHLIGHT",
     help = "Don't highlight echoed recipe lines in bold",
     long,
-    overrides_with = "highlight"
+    overrides_with = "highlight",
+    value_parser = FalseyValueParser::new(),
   )]
   pub(crate) no_highlight: bool,
   #[arg(
     env = "JUST_ONE",
     help = "Forbid multiple recipes from being invoked on the command line",
-    long
+    long,
+    value_parser = FalseyValueParser::new(),
   )]
   pub(crate) one: bool,
   #[arg(
@@ -267,7 +292,8 @@ pub struct Arguments {
     env = "JUST_QUIET",
     help = "Suppress all output",
     long,
-    short = 'q'
+    short = 'q',
+    value_parser = FalseyValueParser::new(),
   )]
   pub(crate) quiet: bool,
   #[arg(
@@ -302,9 +328,19 @@ pub struct Arguments {
     long,
   )]
   pub(crate) tempdir: Option<PathBuf>,
-  #[arg(env = "JUST_TIME", help = "Print recipe execution time", long)]
+  #[arg(
+    env = "JUST_TIME",
+    help = "Print recipe execution time",
+    long,
+    value_parser = FalseyValueParser::new(),
+  )]
   pub(crate) time: bool,
-  #[arg(env = "JUST_TIMESTAMP", help = "Print recipe command timestamps", long)]
+  #[arg(
+    env = "JUST_TIMESTAMP",
+    help = "Print recipe command timestamps",
+    long,
+    value_parser = FalseyValueParser::new(),
+  )]
   pub(crate) timestamp: bool,
   #[arg(
     default_value = Self::DEFAULT_TIMESTAMP_FORMAT,
@@ -317,7 +353,8 @@ pub struct Arguments {
     env = "JUST_UNSORTED",
     help = "Return list and summary entries in source order",
     long,
-    short = 'u'
+    short = 'u',
+    value_parser = FalseyValueParser::new(),
   )]
   pub(crate) unsorted: bool,
   #[arg(
@@ -344,7 +381,12 @@ pub struct Arguments {
     short = 'd',
   )]
   pub(crate) working_directory: Option<PathBuf>,
-  #[arg(env = "JUST_YES", help = "Automatically confirm all recipes.", long)]
+  #[arg(
+    env = "JUST_YES",
+    help = "Automatically confirm all recipes.",
+    long,
+    value_parser = FalseyValueParser::new(),
+  )]
   pub(crate) yes: bool,
 }
 

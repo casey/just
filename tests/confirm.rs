@@ -250,3 +250,18 @@ fn confirm_expression_is_dependency_is_true_for_dependency_invocation() {
     .stdout("ran\n")
     .success();
 }
+
+#[test]
+fn yes_env_var_accepts_falsey_values() {
+  Test::new()
+    .justfile(
+      "
+        foo:
+          @echo bar
+      ",
+    )
+    .env("JUST_YES", "1")
+    .arg("foo")
+    .stdout("bar\n")
+    .success();
+}
