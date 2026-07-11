@@ -982,7 +982,7 @@ fn clean_path_removes_empty_entries() {
 }
 
 #[test]
-fn cache_save_does_not_truncate_stale_entry() {
+fn cache_save_truncates_stale_entry() {
   let output = Test::new()
     .justfile(
       "
