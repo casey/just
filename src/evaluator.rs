@@ -318,7 +318,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     let mut evaluator = Evaluator {
       assignments: Some(&context.module.assignments),
       context: Some(context),
-      env: BTreeMap::new(),
+      env: self.env.clone(),
       is_dependency: self.is_dependency,
       lists: self.lists,
       non_const_assignments: HashSet::new(),

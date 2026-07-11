@@ -950,3 +950,22 @@ fn env_attribute_visible_to_backticks_in_body() {
     .stdout("my_value\n")
     .success();
 }
+
+#[test]
+fn env_attribute_visible_to_backticks_in_function_bodies() {
+  Test::new()
+    .justfile(
+      "
+        set unstable
+
+        f() := `echo fn-${FOO:-unset}`
+
+        [env('FOO', 'bar')]
+        foo:
+          @echo {{ `echo tick-${FOO:-unset}` }} {{ f() }}
+      ",
+    )
+    .arg("foo")
+    .stdout("tick-bar fn-bar\n")
+    .success();
+}
