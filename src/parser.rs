@@ -442,7 +442,11 @@ impl<'run, 'src> Parser<'run, 'src> {
       return None;
     }
 
-    let doc = contents[1..].trim_start().into();
+    let doc = contents[1..].trim().to_owned();
+
+    if doc.is_empty() {
+      return None;
+    }
 
     self.items.pop().unwrap();
     self.items.pop().unwrap();

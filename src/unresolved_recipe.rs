@@ -139,12 +139,12 @@ impl<'src> UnresolvedRecipe<'src> {
         }
 
         if let Attribute::Doc(Some(expression)) = &attribute {
-          let value = evaluator.evaluate_value_const(expression)?;
-          self.doc = if value.is_empty() {
-            None
-          } else {
-            Some(value.join())
-          };
+          let value = evaluator
+            .evaluate_value_const(expression)?
+            .join()
+            .trim()
+            .to_owned();
+          self.doc = if value.is_empty() { None } else { Some(value) };
         }
 
         if let Attribute::Arg {
