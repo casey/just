@@ -428,6 +428,16 @@ fn usage_recipes() {
 }
 
 #[test]
+fn rejects_unexpected_arguments() {
+  Test::new()
+    .justfile("")
+    .args(["--completions", "bash", "extra"])
+    .stdout_regex(".*")
+    .stderr("error: `--completions` used with unexpected argument: `extra`\n")
+    .failure();
+}
+
+#[test]
 fn recipes_with_invalid_config() {
   Test::new()
     .justfile(
