@@ -122,6 +122,8 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
 
         let switches = if argument.starts_with("--") {
           vec![Switch::Long(name.into())]
+        } else if name.is_empty() {
+          vec![Switch::Short('=')]
         } else {
           name.chars().map(Switch::Short).collect::<Vec<Switch>>()
         };
