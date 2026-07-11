@@ -14,6 +14,10 @@ pub(crate) fn load_dotenv(
   };
 
   if !commands.is_empty() {
+    if config.dry_run {
+      return Ok(BTreeMap::new());
+    }
+
     let mut dotenv = BTreeMap::new();
     for command in commands {
       dotenv.extend(load_from_command(
