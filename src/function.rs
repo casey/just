@@ -247,6 +247,10 @@ fn capitalize(_context: Context, s: &str) -> StringResult {
 }
 
 fn choose(_context: Context, n: &str, alphabet: &str) -> StringResult {
+  if alphabet.is_empty() {
+    return Err("empty alphabet".to_string());
+  }
+
   let mut chars = HashSet::<char>::with_capacity(alphabet.len());
 
   for c in alphabet.chars() {
@@ -263,13 +267,7 @@ fn choose(_context: Context, n: &str, alphabet: &str) -> StringResult {
 
   let mut rng = rand::rng();
 
-  (0..n)
-    .map(|_| {
-      alphabet
-        .choose(&mut rng)
-        .ok_or_else(|| "empty alphabet".to_string())
-    })
-    .collect()
+  Ok((0..n).map(|_| alphabet.choose(&mut rng).unwrap()).collect())
 }
 
 fn clean(_context: Context, path: &str) -> StringResult {
