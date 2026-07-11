@@ -153,6 +153,15 @@ impl Display for CompileError<'_> {
         f,
         "recipe `{recipe}` has duplicate `[default]` attribute, which may only appear once per module",
       ),
+      DuplicateFunctionParameter {
+        function,
+        parameter,
+      } => {
+        write!(
+          f,
+          "function `{function}` has duplicate parameter `{parameter}`"
+        )
+      }
       DuplicateOption { recipe, option } => {
         write!(
           f,
@@ -199,6 +208,12 @@ impl Display for CompileError<'_> {
       ExtraLeadingWhitespace => write!(f, "recipe line has extra leading whitespace"),
       ExtraneousAttributes { count } => {
         write!(f, "extraneous {}", Count::unnumbered("attribute", count))
+      }
+      FlagAndPatternArgAttribute { parameter } => {
+        write!(
+          f,
+          "argument `{parameter}` may not have both `flag` and `pattern` attributes"
+        )
       }
       FlagAndValueArgAttribute { parameter } => {
         write!(
@@ -336,6 +351,12 @@ impl Display for CompileError<'_> {
       }
       OptionNameEmpty { parameter } => {
         write!(f, "option name for parameter `{parameter}` is empty")
+      }
+      OptionNameStartsWithDash { parameter } => {
+        write!(
+          f,
+          "option name for parameter `{parameter}` starts with dash"
+        )
       }
       ParameterFollowsVariadicParameter { parameter } => {
         write!(f, "parameter `{parameter}` follows variadic parameter")

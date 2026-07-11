@@ -103,11 +103,11 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
     let mut i = 0;
     let mut positional_index = 0;
     let mut positional_accepted = 0;
-    while let Some(argument) = rest.get(i) {
-      if !end_of_options && *argument == "--" {
+    while let Some(&argument) = rest.get(i) {
+      if !end_of_options && argument == "--" {
         end_of_options = true;
         i += 1;
-      } else if !end_of_options && argument.starts_with('-') && *argument != "-" {
+      } else if !end_of_options && argument.starts_with('-') && argument != "-" {
         let mut name = argument
           .strip_prefix("--")
           .or_else(|| argument.strip_prefix('-'))
@@ -119,6 +119,12 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
         } else {
           None
         };
+
+        if name.is_empty() {
+          return Err(Error::InvalidOption {
+            argument: argument.into(),
+          });
+        }
 
         let switches = if argument.starts_with("--") {
           vec![Switch::Long(name.into())]

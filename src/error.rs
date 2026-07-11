@@ -190,6 +190,9 @@ pub(crate) enum Error<'src> {
   Interrupted {
     signal: Signal,
   },
+  InvalidOption {
+    argument: String,
+  },
   InvalidShebang {
     recipe: Name<'src>,
     shebang: String,
@@ -350,14 +353,26 @@ impl<'src> Error<'src> {
         output_error: OutputError::Code(code),
         ..
       }
+      | Self::DotenvCommand {
+        output_error: OutputError::Code(code),
+        ..
+      }
       | Self::Code { code, .. } => Some(*code),
 
-      Self::ChooserStatus { status, .. } | Self::EditorStatus { status, .. } => status.code(),
+      Self::ChooserStatus { status, .. }
+      | Self::CommandStatus { status, .. }
+      | Self::EditorStatus { status, .. } => status
+        .code()
+        .or_else(|| Platform::signal_from_exit_status(*status).and_then(signal_exit_code)),
       Self::Backtick {
         output_error: OutputError::Signal(signal),
         ..
       }
-      | Self::Signal { signal, .. } => 128i32.checked_add(*signal),
+      | Self::DotenvCommand {
+        output_error: OutputError::Signal(signal),
+        ..
+      }
+      | Self::Signal { signal, .. } => signal_exit_code(*signal),
       Self::Backtick {
         output_error: OutputError::Interrupted(signal),
         ..
@@ -820,6 +835,9 @@ impl ColorDisplay for Error<'_> {
       }
       Interrupted { signal } => {
         write!(f, "interrupted by {signal}")?;
+      }
+      InvalidOption { argument } => {
+        write!(f, "argument `{argument}` is not a valid option")?;
       }
       InvalidShebang { recipe, shebang } => {
         write!(f, "recipe `{recipe}` has invalid shebang `{shebang}`")?;

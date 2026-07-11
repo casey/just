@@ -647,6 +647,36 @@ fn unknown_options_are_an_error() {
 }
 
 #[test]
+fn dash_equals_argument_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='bar')]
+        @foo bar='baz' *rest:
+          echo bar={{bar}} rest={{rest}}
+      ",
+    )
+    .args(["foo", "-=qux"])
+    .stderr("error: argument `-=qux` is not a valid option\n")
+    .failure();
+}
+
+#[test]
+fn dash_dash_equals_argument_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='bar')]
+        @foo bar='baz' *rest:
+          echo bar={{bar}} rest={{rest}}
+      ",
+    )
+    .args(["foo", "--=qux"])
+    .stderr("error: argument `--=qux` is not a valid option\n")
+    .failure();
+}
+
+#[test]
 fn missing_required_options_are_an_error() {
   Test::new()
     .justfile(
@@ -1019,6 +1049,27 @@ fn flag_conflicts_with_value() {
 }
 
 #[test]
+fn flag_conflicts_with_pattern() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long, flag, pattern='yes|no')]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: argument `bar` may not have both `flag` and `pattern` attributes
+         ——▶ justfile:1:19
+          │
+        1 │ [arg('bar', long, flag, pattern='yes|no')]
+          │                   ^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn flag_requires_long_or_short() {
   Test::new()
     .justfile(
@@ -1301,5 +1352,62 @@ fn recipe_with_flag_parameter_may_be_used_as_dependency() {
     .unstable()
     .args(["baz"])
     .stdout("bar=[]\n")
+    .success();
+}
+
+#[test]
+fn short_option_may_not_start_with_dash() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', short='-')]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: option name for parameter `bar` starts with dash
+         ——▶ justfile:1:19
+          │
+        1 │ [arg('bar', short='-')]
+          │                   ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn long_option_may_not_start_with_dash() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='-')]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: option name for parameter `bar` starts with dash
+         ——▶ justfile:1:18
+          │
+        1 │ [arg('bar', long='-')]
+          │                  ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
+fn defaulted_option_may_precede_required_positional() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long)]
+        @foo bar='baz' qux:
+          echo bar={{ bar }} qux={{ qux }}
+      ",
+    )
+    .args(["foo", "hello"])
+    .stdout("bar=baz qux=hello\n")
     .success();
 }

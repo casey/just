@@ -186,6 +186,17 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           first: first.name.line,
         }));
       }
+
+      let mut parameters = BTreeSet::new();
+      for (parameter, _) in &function.parameters {
+        if !parameters.insert(parameter.lexeme()) {
+          return Err(parameter.error(DuplicateFunctionParameter {
+            function: name,
+            parameter: parameter.lexeme(),
+          }));
+        }
+      }
+
       functions.insert(function.clone());
     }
 
@@ -397,10 +408,15 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let source = root.to_owned();
     let root = paths.get(root).unwrap();
 
-    let mut default = None;
+    let mut default = None::<Arc<Recipe>>;
     for recipe in recipes.values() {
       if recipe.attributes.contains(AttributeKind::Default) {
-        if default.is_some() {
+        if let Some(previous) = &default {
+          let recipe = if previous.line_number() > recipe.line_number() {
+            previous
+          } else {
+            recipe
+          };
           return Err(recipe.name.error(CompileErrorKind::DuplicateDefault {
             recipe: recipe.name.lexeme(),
           }));
@@ -430,7 +446,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       default,
       disabled_aliases,
       disabled_recipes,
-      doc: doc.filter(|doc| !doc.is_empty()),
+      doc,
       evaluation_order,
       functions,
       groups: groups.into(),
@@ -493,7 +509,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
       parameters.insert(parameter.name.lexeme());
 
-      if parameter.default.is_some() {
+      if parameter.default.is_some() && !parameter.is_option() {
         passed_default = true;
       } else if passed_default && parameter.is_required() && !parameter.is_option() {
         return Err(

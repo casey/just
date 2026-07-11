@@ -18,6 +18,7 @@ impl Ast<'_> {
     self.items.iter().find_map(|item| {
       if let Item::Setting(set) = item
         && let Setting::Indentation(_, indentation) = set.value
+        && item.is_enabled()
       {
         Some(indentation)
       } else {
@@ -56,7 +57,9 @@ impl ColorDisplay for Ast<'_> {
       write!(f, "{}", item.color_display(color))?;
     }
 
-    writeln!(f)?;
+    if !self.items.is_empty() {
+      writeln!(f)?;
+    }
 
     Ok(())
   }

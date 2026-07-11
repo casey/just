@@ -142,6 +142,16 @@ impl<'src> Attribute<'src> {
       );
     }
 
+    if literal.cooked.starts_with('-') {
+      return Err(
+        literal
+          .token
+          .error(CompileErrorKind::OptionNameStartsWithDash {
+            parameter: parameter.cooked.clone(),
+          }),
+      );
+    }
+
     if literal.cooked.is_empty() {
       return Err(literal.token.error(CompileErrorKind::OptionNameEmpty {
         parameter: parameter.cooked.clone(),
@@ -350,6 +360,11 @@ impl<'src> Attribute<'src> {
         }
         if value.is_some() {
           return Err(key.error(CompileErrorKind::FlagAndValueArgAttribute {
+            parameter: arg.cooked.clone(),
+          }));
+        }
+        if pattern_property.is_some() {
+          return Err(key.error(CompileErrorKind::FlagAndPatternArgAttribute {
             parameter: arg.cooked.clone(),
           }));
         }

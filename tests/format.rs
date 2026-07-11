@@ -1625,6 +1625,31 @@ foo:
   );
 }
 
+#[cfg(not(windows))]
+#[test]
+fn ignore_disabled_indentation_setting() {
+  Test::new()
+    .justfile(
+      "
+        [windows]
+        set indentation := \"\\t\"
+
+        [unix]
+        set indentation := \"  \"
+
+        foo:
+            echo a
+      ",
+    )
+    .args(["--fmt", "--unstable"])
+    .stderr_regex("wrote justfile to `.*justfile`\n")
+    .expect_file(
+      "justfile",
+      "[windows]\nset indentation := \"\\t\"\n\n[unix]\nset indentation := \"  \"\n\nfoo:\n  echo a\n",
+    )
+    .success();
+}
+
 #[test]
 fn indentation_flag_overrides_setting_dump() {
   Test::new()
@@ -1951,5 +1976,13 @@ fn crlf_blank_lines_between_recipes_are_preserved() {
     .arg("--fmt")
     .stderr_regex(".*")
     .expect_file("justfile", "a:\n    echo a\n\nb:\n    echo b\n")
+    .success();
+}
+
+#[test]
+fn allow_empty_justfile() {
+  Test::new()
+    .justfile("")
+    .args(["--fmt", "--check"])
     .success();
 }

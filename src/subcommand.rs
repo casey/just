@@ -195,7 +195,11 @@ impl Subcommand {
       if fallback
         && let Err(err @ (Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })) = result
       {
-        search = search.search_parent_directory(config).map_err(|_| err)?;
+        search = match search.search_parent_directory(config) {
+          Ok(search) => search,
+          Err(SearchError::NotFound) => return Err(err),
+          Err(search_error) => return Err(search_error.into()),
+        };
 
         if config.verbosity.loquacious() {
           eprintln!(
@@ -219,7 +223,11 @@ impl Subcommand {
       if config.allow_missing
         && matches!(
           result,
-          Err(Error::UnknownRecipe { .. } | Error::UnknownSubmodule { .. })
+          Err(
+            Error::ModuleAbsent { .. }
+              | Error::UnknownRecipe { .. }
+              | Error::UnknownSubmodule { .. }
+          )
         )
       {
         return Ok(());
@@ -266,7 +274,7 @@ impl Subcommand {
         recipe.min_arguments() == 0
           && (groups.is_empty() || groups.intersection(&recipe.groups()).next().is_some())
       }));
-      stack.extend(module.public_modules(config));
+      stack.extend(module.public_modules(config).into_iter().rev());
     }
 
     if recipes.is_empty() {

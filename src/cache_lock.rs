@@ -8,6 +8,15 @@ pub(crate) struct CacheLock {
 
 impl CacheLock {
   pub(crate) fn save(mut self) -> RunResult<'static> {
+    let context = |source| Error::FilesystemIo {
+      source,
+      path: self.path.clone(),
+    };
+
+    self.file.set_len(0).map_err(context)?;
+
+    self.file.rewind().map_err(context)?;
+
     let entry = CacheEntry {
       recipe: self.recipe,
     };
