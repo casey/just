@@ -205,7 +205,7 @@ fn dont_evaluate_unnecessary_variables() {
 }
 
 #[test]
-fn command_exit_code_not_propagated() {
+fn command_exit_code_is_propagated() {
   Test::new()
     .justfile(
       "

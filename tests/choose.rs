@@ -376,7 +376,7 @@ fn visit_modules_in_alphabetical_order() {
 
 #[cfg(unix)]
 #[test]
-fn chooser_signal_exit_code_is_not_propagated() {
+fn chooser_signal_exit_code_is_propagated() {
   Test::new()
     .justfile("foo:\n")
     .args(["--choose", "--chooser", "kill -TERM $$"])

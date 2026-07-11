@@ -928,7 +928,7 @@ fn command_composes_with_dotenv_override_setting() {
 }
 
 #[test]
-fn dotenv_command_exit_code_not_propagated() {
+fn dotenv_command_exit_code_is_propagated() {
   Test::new()
     .justfile(
       "
