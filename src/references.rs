@@ -16,7 +16,11 @@ impl<'src> Iterator for References<'_, 'src> {
   fn next(&mut self) -> Option<Self::Item> {
     loop {
       match self.stack.pop()? {
-        Expression::And { lhs, rhs } | Expression::Or { lhs, rhs } => {
+        Expression::And { lhs, rhs }
+        | Expression::Comparison { lhs, rhs, .. }
+        | Expression::Concatenation { lhs, rhs, .. }
+        | Expression::ListConcatenation { lhs, rhs, .. }
+        | Expression::Or { lhs, rhs } => {
           self.stack.push(rhs);
           self.stack.push(lhs);
         }
@@ -37,12 +41,6 @@ impl<'src> Iterator for References<'_, 'src> {
             name: *name,
             arguments: arguments.len(),
           });
-        }
-        Expression::Comparison { lhs, rhs, .. }
-        | Expression::Concatenation { lhs, rhs, .. }
-        | Expression::ListConcatenation { lhs, rhs, .. } => {
-          self.stack.push(rhs);
-          self.stack.push(lhs);
         }
         Expression::Conditional {
           condition,
