@@ -108,6 +108,21 @@ impl<'src> Justfile<'src> {
     )
   }
 
+  fn evaluated_variable_references(
+    &self,
+    variable_references: &HashSet<Number>,
+  ) -> HashSet<Number> {
+    let mut references = variable_references.clone();
+
+    for assignment in self.assignments.values() {
+      if assignment.eager || assignment.export || self.settings.export {
+        references.extend(&self.assignment_references[&assignment.number]);
+      }
+    }
+
+    references
+  }
+
   fn evaluate_scopes<'run>(
     &'run self,
     config: &'run Config,
@@ -153,7 +168,9 @@ impl<'src> Justfile<'src> {
       overrides,
       root,
       search,
-      lazy.then_some(variable_references),
+      lazy
+        .then(|| self.evaluated_variable_references(variable_references))
+        .as_ref(),
     )?;
 
     let scope = scope_arena.alloc(scope);
