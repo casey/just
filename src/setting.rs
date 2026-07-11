@@ -91,10 +91,10 @@ impl<'src> Setting<'src> {
         Keyword::DotenvRequired,
       ],
       Self::DotenvFilename(_)
-      | Self::DotenvLoad(_)
+      | Self::DotenvLoad(true)
       | Self::DotenvPath(_)
-      | Self::DotenvRequired(_) => &[Keyword::DotenvCommand],
-      Self::NoCd(_) => &[Keyword::WorkingDirectory],
+      | Self::DotenvRequired(true) => &[Keyword::DotenvCommand],
+      Self::NoCd(true) => &[Keyword::WorkingDirectory],
       Self::WorkingDirectory(_) => &[Keyword::NoCd],
       _ => &[],
     }
