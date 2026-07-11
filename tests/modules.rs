@@ -336,7 +336,7 @@ fn circular_module_imports_are_detected() {
 }
 
 #[test]
-fn circular_module_through_dotdot_path_is_detected() {
+fn circular_module_through_path_with_parent_is_detected() {
   Test::new()
     .write("sub/foo.just", "mod bar '../justfile'")
     .justfile("mod foo 'sub/foo.just'")
@@ -348,7 +348,7 @@ fn circular_module_through_dotdot_path_is_detected() {
 }
 
 #[test]
-fn dot_dot_module_cycle_is_detected() {
+fn parent_module_cycle_is_detected() {
   Test::new()
     .create_dir("sub")
     .justfile("mod foo 'sub/../justfile'\nbar:\n")
