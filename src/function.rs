@@ -714,10 +714,10 @@ fn source_file(context: Context) -> StringResult {
 }
 
 fn split(_context: Context, s: &str, separator: Option<&str>) -> ValueResult {
-  Ok(if let Some(separator) = separator {
-    s.split(separator).map(str::to_string).collect()
-  } else {
-    s.split_whitespace().map(str::to_string).collect()
+  Ok(match separator {
+    None => s.split_whitespace().map(str::to_string).collect(),
+    Some("") => s.chars().map(String::from).collect(),
+    Some(separator) => s.split(separator).map(str::to_string).collect(),
   })
 }
 
