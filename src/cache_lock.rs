@@ -12,14 +12,14 @@ impl CacheLock {
       recipe: self.recipe,
     };
 
-    self
-      .file
-      .set_len(0)
-      .and_then(|()| self.file.rewind())
-      .map_err(|source| Error::FilesystemIo {
-        source,
-        path: self.path.clone(),
-      })?;
+    let context = |source| Error::FilesystemIo {
+      source,
+      path: self.path.clone(),
+    };
+
+    self.file.set_len(0).map_err(context)?;
+
+    self.file.rewind().map_err(context)?;
 
     serde_json::to_writer(&mut self.file, &entry).map_err(|source| Error::CacheEntryWrite {
       source,
