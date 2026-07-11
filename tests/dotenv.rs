@@ -928,6 +928,22 @@ fn command_composes_with_dotenv_override_setting() {
 }
 
 #[test]
+fn command_is_not_executed_in_dry_run() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-command := 'exit 1'
+
+        foo:
+          echo bar
+      ",
+    )
+    .arg("--dry-run")
+    .stderr("echo bar\n")
+    .success();
+}
+
+#[test]
 fn dotenv_command_exit_code_is_propagated() {
   Test::new()
     .justfile(
