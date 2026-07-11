@@ -220,9 +220,6 @@ pub mod tree;
 #[cfg(test)]
 pub mod node;
 
-#[cfg(fuzzing)]
-pub mod fuzzing;
-
 // Used for testing with the `--request` subcommand.
 #[doc(hidden)]
 pub mod request;

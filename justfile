@@ -24,10 +24,6 @@ ci: test build-book forbid
   cargo fmt --all -- --check
   cargo update --locked --package just
 
-[group: 'check']
-fuzz:
-  cargo +nightly fuzz run fuzz-compiler
-
 [group: 'misc']
 run:
   cargo lrun
@@ -122,7 +118,6 @@ install:
 install-dev-deps:
   rustup install nightly
   rustup update nightly
-  cargo +nightly install cargo-fuzz
   cargo install cargo-limit
   cargo install cargo-watch
   cargo install --locked mdbook@0.4.52
