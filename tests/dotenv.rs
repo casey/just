@@ -926,3 +926,17 @@ fn command_composes_with_dotenv_override_setting() {
     .stdout("command\n")
     .success();
 }
+
+#[test]
+fn dotenv_command_exit_code_is_propagated() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-command := 'exit 42'
+
+        foo:
+      ",
+    )
+    .stderr("error: dotenv command `exit 42` failed: process exited with status code 42\n")
+    .status(42);
+}

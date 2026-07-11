@@ -209,6 +209,10 @@ const RECURSION_LIMIT: usize = if cfg!(windows) { 48 } else { 256 };
 const TEMPDIR_PREFIX: &str = "just-";
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
+fn signal_exit_code(number: i32) -> Option<i32> {
+  number.checked_add(128)
+}
+
 #[cfg(test)]
 #[macro_use]
 pub mod testing;

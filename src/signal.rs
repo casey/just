@@ -37,7 +37,7 @@ impl Signal {
   ];
 
   pub(crate) fn code(self) -> i32 {
-    128i32.checked_add(self.number()).unwrap()
+    signal_exit_code(self.number()).unwrap()
   }
 
   pub(crate) fn from_name(name: &str) -> Option<Self> {
