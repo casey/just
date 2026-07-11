@@ -497,3 +497,25 @@ fn script_and_shell_attribute_forbidden() {
     )
     .failure();
 }
+
+#[cfg(unix)]
+#[test]
+fn use_final_path_component_of_script_interpreter_to_determine_shell_kind() {
+  Test::new()
+    .write_executable(
+      "pwsh.exe",
+      "
+        #!/bin/sh
+        basename $1
+      ",
+    )
+    .justfile(
+      "
+        [script('./pwsh.exe')]
+        foo:
+      ",
+    )
+    .arg("foo")
+    .stdout("foo.ps1\n")
+    .success();
+}

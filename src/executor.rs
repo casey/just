@@ -50,11 +50,15 @@ impl Executor<'_> {
   }
 
   fn shell_kind(&self) -> ShellKind {
-    match self {
+    Self::filename(match self {
       Self::Command(interpreter) => &interpreter.command,
-      Self::Shebang(shebang) => shebang.interpreter_filename(),
-    }
+      Self::Shebang(shebang) => shebang.interpreter,
+    })
     .into()
+  }
+
+  pub(crate) fn filename(path: &str) -> &str {
+    path.split(['/', '\\']).next_back().unwrap_or(path)
   }
 
   pub(crate) fn needs_bom(&self) -> bool {
