@@ -1566,6 +1566,28 @@ fn long_circular_recipe_dependency() {
 }
 
 #[test]
+fn circular_recipe_dependency_entered_from_outside() {
+  Test::new()
+    .justfile(
+      "
+        a: b
+        b: c
+        c: b
+      ",
+    )
+    .stderr(
+      "
+        error: recipe `c` has circular dependency `b -> c -> b`
+         ——▶ justfile:3:4
+          │
+        3 │ c: b
+          │    ^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn variable_self_dependency() {
   Test::new()
     .arg("a")
