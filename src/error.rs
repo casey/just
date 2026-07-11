@@ -190,6 +190,9 @@ pub(crate) enum Error<'src> {
   Interrupted {
     signal: Signal,
   },
+  InvalidOption {
+    argument: String,
+  },
   InvalidShebang {
     recipe: Name<'src>,
     shebang: String,
@@ -820,6 +823,9 @@ impl ColorDisplay for Error<'_> {
       }
       Interrupted { signal } => {
         write!(f, "interrupted by {signal}")?;
+      }
+      InvalidOption { argument } => {
+        write!(f, "argument `{argument}` is not a valid option")?;
       }
       InvalidShebang { recipe, shebang } => {
         write!(f, "recipe `{recipe}` has invalid shebang `{shebang}`")?;

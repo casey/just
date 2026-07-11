@@ -657,7 +657,22 @@ fn dash_equals_argument_is_an_error() {
       ",
     )
     .args(["foo", "-=qux"])
-    .stderr("error: recipe `foo` does not have option `-=`\n")
+    .stderr("error: argument `-=qux` is not a valid option\n")
+    .failure();
+}
+
+#[test]
+fn dash_dash_equals_argument_is_an_error() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long='bar')]
+        @foo bar='baz' *rest:
+          echo bar={{bar}} rest={{rest}}
+      ",
+    )
+    .args(["foo", "--=qux"])
+    .stderr("error: argument `--=qux` is not a valid option\n")
     .failure();
 }
 
