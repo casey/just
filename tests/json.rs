@@ -1170,6 +1170,67 @@ fn module_group() {
 }
 
 #[test]
+fn module_dependencies() {
+  case_with_submodule(
+    "
+      mod foo
+
+      bar:
+      baz: foo::bar
+    ",
+    Some(("foo.just", "bar:")),
+    Module {
+      first: Some("bar"),
+      modules: [(
+        "foo",
+        Module {
+          first: Some("bar"),
+          module_path: "foo",
+          source: "foo.just".into(),
+          recipes: [(
+            "bar",
+            Recipe {
+              name: "bar",
+              namepath: "foo::bar",
+              ..default()
+            },
+          )]
+          .into(),
+          ..default()
+        },
+      )]
+      .into(),
+      recipes: [
+        (
+          "bar",
+          Recipe {
+            name: "bar",
+            namepath: "bar",
+            ..default()
+          },
+        ),
+        (
+          "baz",
+          Recipe {
+            name: "baz",
+            namepath: "baz",
+            dependencies: [Dependency {
+              recipe: "foo::bar",
+              ..default()
+            }]
+            .into(),
+            priors: 1,
+            ..default()
+          },
+        ),
+      ]
+      .into(),
+      ..default()
+    },
+  );
+}
+
+#[test]
 fn recipes_with_private_attribute_are_private() {
   case(
     "
