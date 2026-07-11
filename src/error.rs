@@ -361,9 +361,9 @@ impl<'src> Error<'src> {
 
       Self::ChooserStatus { status, .. }
       | Self::CommandStatus { status, .. }
-      | Self::EditorStatus { status, .. } => status.code().or_else(|| {
-        Platform::signal_from_exit_status(*status).and_then(|signal| 128i32.checked_add(signal))
-      }),
+      | Self::EditorStatus { status, .. } => status
+        .code()
+        .or_else(|| Platform::signal_from_exit_status(*status).and_then(signal_exit_code)),
       Self::Backtick {
         output_error: OutputError::Signal(signal),
         ..
@@ -372,7 +372,7 @@ impl<'src> Error<'src> {
         output_error: OutputError::Signal(signal),
         ..
       }
-      | Self::Signal { signal, .. } => 128i32.checked_add(*signal),
+      | Self::Signal { signal, .. } => signal_exit_code(*signal),
       Self::Backtick {
         output_error: OutputError::Interrupted(signal),
         ..
