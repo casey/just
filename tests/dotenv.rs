@@ -940,3 +940,22 @@ fn dotenv_command_exit_code_is_propagated() {
     .stderr("error: dotenv command `exit 42` failed: process exited with status code 42\n")
     .status(42);
 }
+
+#[test]
+fn command_runs_only_in_root_module() {
+  Test::new()
+    .write("foo/mod.just", "baz:\n  @echo baz\n")
+    .write("bar.env", "KEY=value\n")
+    .justfile(
+      "
+        mod foo
+
+        bar:
+          @echo $KEY
+      ",
+    )
+    .args(["--dotenv-command", "echo ran >&2; cat bar.env", "bar"])
+    .stdout("value\n")
+    .stderr("ran\n")
+    .success();
+}
