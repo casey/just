@@ -230,7 +230,12 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
           .name
           .error(CircularVariableDependency {
             variable: name,
-            circle: self.stack.clone(),
+            circle: self
+              .stack
+              .iter()
+              .skip_while(|variable| **variable != name)
+              .copied()
+              .collect(),
           }),
       );
     }
