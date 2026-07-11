@@ -2120,3 +2120,13 @@ fn ignore_files_named_after_module_directory() {
     .stdout("Available recipes:\n    foo ...\n")
     .success();
 }
+
+#[test]
+fn sugest_similarly_named_submodules() {
+  Test::new()
+    .write("foo.just", "bar:\n")
+    .justfile("mod foo")
+    .arg("fo::bar")
+    .stderr("error: justfile does not contain submodule `fo`\nDid you mean `foo`?\n")
+    .status(1);
+}
