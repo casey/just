@@ -31,12 +31,37 @@ fn default_attribute_may_only_appear_once_per_justfile() {
     )
     .stderr(
       "
-        error: recipe `foo` has duplicate `[default]` attribute, which may only appear once per module
-         ——▶ justfile:2:1
+        error: recipe `bar` has duplicate `[default]` attribute, which may only appear once per module
+         ——▶ justfile:5:1
           │
-        2 │ foo:
+        5 │ bar:
           │ ^^^
       "
+    )
+    .failure();
+}
+
+#[test]
+fn duplicate_default_attribute_blames_source_later_recipe() {
+  Test::new()
+    .justfile(
+      "
+        [default]
+        bar:
+
+        [default]
+        foo:
+      ",
+    )
+    .arg("--summary")
+    .stderr(
+      "
+        error: recipe `foo` has duplicate `[default]` attribute, which may only appear once per module
+         ——▶ justfile:5:1
+          │
+        5 │ foo:
+          │ ^^^
+      ",
     )
     .failure();
 }
