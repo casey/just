@@ -17,8 +17,8 @@ impl<'src> Iterator for References<'_, 'src> {
     loop {
       match self.stack.pop()? {
         Expression::And { lhs, rhs } | Expression::Or { lhs, rhs } => {
-          self.stack.push(lhs);
           self.stack.push(rhs);
+          self.stack.push(lhs);
         }
         Expression::Assert {
           condition, message, ..
@@ -49,14 +49,14 @@ impl<'src> Iterator for References<'_, 'src> {
           then,
           otherwise,
         } => {
-          self.stack.push(then);
-          self.stack.push(condition);
           if let Some(otherwise) = otherwise {
             self.stack.push(otherwise);
           }
+          self.stack.push(then);
+          self.stack.push(condition);
         }
         Expression::FormatString { expressions, .. } => {
-          for (expression, _string) in expressions {
+          for (expression, _string) in expressions.iter().rev() {
             self.stack.push(expression);
           }
         }
