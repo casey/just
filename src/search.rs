@@ -83,7 +83,13 @@ impl Search {
         working_directory,
       } => {
         let justfile = Self::clean(&config.invocation_directory, justfile);
-        Self::working_directory_from_justfile(&justfile)?;
+
+        justfile
+          .parent()
+          .ok_or_else(|| SearchError::JustfileHadNoParent {
+            path: justfile.to_path_buf(),
+          })?;
+
         Self::with_justfile(
           config,
           justfile,
