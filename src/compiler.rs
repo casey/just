@@ -159,7 +159,7 @@ impl Compiler {
     let mut candidates = Vec::new();
 
     if let Some(path) = path {
-      let full = parent.join(path);
+      let full = parent.join(path).clean();
 
       if filesystem::is_file(&full)? {
         return Ok(Some(full));

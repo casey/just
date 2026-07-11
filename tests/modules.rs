@@ -336,6 +336,30 @@ fn circular_module_imports_are_detected() {
 }
 
 #[test]
+fn circular_module_through_dotdot_path_is_detected() {
+  Test::new()
+    .write("sub/foo.just", "mod bar '../justfile'")
+    .justfile("mod foo 'sub/foo.just'")
+    .arg("--list")
+    .stderr_regex(path_for_regex(
+      "error: import `.*/justfile` in `.*/sub/foo.just` is circular\n",
+    ))
+    .failure();
+}
+
+#[test]
+fn dot_dot_module_cycle_is_detected() {
+  Test::new()
+    .create_dir("sub")
+    .justfile("mod foo 'sub/../justfile'\nbar:\n")
+    .arg("--summary")
+    .stderr_regex(path_for_regex(
+      "error: import `.*/justfile` in `.*/justfile` is circular\\n",
+    ))
+    .failure();
+}
+
+#[test]
 fn modules_use_module_settings() {
   Test::new()
     .write(
