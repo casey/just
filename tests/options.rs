@@ -1354,3 +1354,18 @@ fn recipe_with_flag_parameter_may_be_used_as_dependency() {
     .stdout("bar=[]\n")
     .success();
 }
+
+#[test]
+fn defaulted_option_may_precede_required_positional() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long)]
+        @foo bar='baz' qux:
+          echo bar={{ bar }} qux={{ qux }}
+      ",
+    )
+    .args(["foo", "hello"])
+    .stdout("bar=baz qux=hello\n")
+    .success();
+}
