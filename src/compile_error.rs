@@ -334,12 +334,6 @@ impl Display for CompileError<'_> {
         f,
         "recipe `{recipe}` has both `[no-cd]` and `[working-directory]` attributes"
       ),
-      OptionNameStartsWithDash { parameter } => {
-        write!(
-          f,
-          "option name for parameter `{parameter}` starts with dash"
-        )
-      }
       OptionNameContainsEqualSign { parameter } => {
         write!(
           f,
@@ -348,6 +342,12 @@ impl Display for CompileError<'_> {
       }
       OptionNameEmpty { parameter } => {
         write!(f, "option name for parameter `{parameter}` is empty")
+      }
+      OptionNameStartsWithDash { parameter } => {
+        write!(
+          f,
+          "option name for parameter `{parameter}` starts with dash"
+        )
       }
       ParameterFollowsVariadicParameter { parameter } => {
         write!(f, "parameter `{parameter}` follows variadic parameter")
