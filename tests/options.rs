@@ -1396,3 +1396,18 @@ fn long_option_may_not_start_with_dash() {
     )
     .failure();
 }
+
+#[test]
+fn defaulted_option_may_precede_required_positional() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long)]
+        @foo bar='baz' qux:
+          echo bar={{ bar }} qux={{ qux }}
+      ",
+    )
+    .args(["foo", "hello"])
+    .stdout("bar=baz qux=hello\n")
+    .success();
+}
