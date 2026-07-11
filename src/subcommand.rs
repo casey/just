@@ -270,7 +270,7 @@ impl Subcommand {
         recipe.min_arguments() == 0
           && (groups.is_empty() || groups.intersection(&recipe.groups()).next().is_some())
       }));
-      stack.extend(module.public_modules(config));
+      stack.extend(module.public_modules(config).into_iter().rev());
     }
 
     if recipes.is_empty() {
