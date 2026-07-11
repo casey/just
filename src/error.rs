@@ -336,6 +336,7 @@ pub(crate) enum Error<'src> {
   },
   UnknownSubmodule {
     path: String,
+    suggestion: Option<Suggestion<'src>>,
   },
   UnstableFeature {
     unstable_feature: UnstableFeature,
@@ -448,7 +449,8 @@ impl<'src> Error<'src> {
     match self {
       Self::EvalUnknownSubmodule { suggestion, .. }
       | Self::EvalUnknownSubmoduleOrVariable { suggestion, .. }
-      | Self::UnknownRecipe { suggestion, .. } => suggestion.as_ref(),
+      | Self::UnknownRecipe { suggestion, .. }
+      | Self::UnknownSubmodule { suggestion, .. } => suggestion.as_ref(),
       _ => None,
     }
   }
@@ -1086,7 +1088,7 @@ impl ColorDisplay for Error<'_> {
       UnknownRecipe { recipe, .. } => {
         write!(f, "justfile does not contain recipe `{recipe}`")?;
       }
-      UnknownSubmodule { path } => {
+      UnknownSubmodule { path, .. } => {
         write!(f, "justfile does not contain submodule `{path}`")?;
       }
       UnstableFeature { unstable_feature } => {

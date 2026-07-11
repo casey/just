@@ -278,6 +278,7 @@ impl<'src: 'run, 'run> InvocationParser<'src, 'run> {
         if modulepath && i + 1 < args.len() {
           return Err(Error::UnknownSubmodule {
             path: path.join("::"),
+            suggestion: current.suggest_submodule(arg),
           });
         }
 

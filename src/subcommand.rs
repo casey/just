@@ -610,7 +610,7 @@ impl Subcommand {
     Ok(())
   }
 
-  fn list(config: &Config, root: &Justfile, path: &Modulepath) -> RunResult<'static> {
+  fn list<'src>(config: &Config, root: &Justfile<'src>, path: &Modulepath) -> RunResult<'src> {
     let mut module = root;
 
     for name in &path.components {
@@ -625,6 +625,7 @@ impl Subcommand {
       } else {
         return Err(Error::UnknownSubmodule {
           path: path.to_string(),
+          suggestion: module.suggest_submodule(name),
         });
       }
     }
@@ -1073,6 +1074,7 @@ impl Subcommand {
       } else {
         return Err(Error::UnknownSubmodule {
           path: path.to_string(),
+          suggestion: module.suggest_submodule(name),
         });
       }
     }
