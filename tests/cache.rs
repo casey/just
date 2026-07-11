@@ -982,6 +982,35 @@ fn clean_path_removes_empty_entries() {
 }
 
 #[test]
+fn cache_save_does_not_truncate_stale_entry() {
+  let output = Test::new()
+    .justfile(
+      "
+        [cache(outputs = 'foo')]
+        [script]
+        bar:
+          touch foo
+      ",
+    )
+    .unstable()
+    .success();
+
+  let entry = fs::read_dir(output.tempdir.path().join(".justcache"))
+    .unwrap()
+    .next()
+    .unwrap()
+    .unwrap()
+    .path();
+
+  fs::remove_file(output.tempdir.path().join("foo")).unwrap();
+  fs::write(&entry, "x".repeat(100)).unwrap();
+
+  let _output = output.test().unstable().success();
+
+  assert_eq!(fs::read_to_string(entry).unwrap(), r#"{"recipe":"bar"}"#);
+}
+
+#[test]
 fn hit_prints_verbose_message() {
   Test::new()
     .justfile(
