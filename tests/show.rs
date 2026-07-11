@@ -295,6 +295,28 @@ fn show_prints_doc_attribute_without_doc_comment() {
 }
 
 #[test]
+fn show_prints_bare_dependency_on_parameterized_recipe_without_parentheses() {
+  Test::new()
+    .justfile(
+      "
+        foo bar='baz':
+            @echo {{ bar }}
+
+        baz: foo
+            @echo baz
+      ",
+    )
+    .args(["--show", "baz"])
+    .stdout(
+      "
+        baz: foo
+            @echo baz
+      ",
+    )
+    .success();
+}
+
+#[test]
 fn show_recipe_disabled_by_absent_module() {
   Test::new()
     .justfile(

@@ -44,7 +44,7 @@ impl Serialize for Dependency<'_> {
 
 impl Display for Dependency<'_> {
   fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-    if self.arguments.is_empty() {
+    if self.arguments.iter().all(Vec::is_empty) {
       write!(f, "{}", self.path)
     } else {
       if self.star().is_some() {
