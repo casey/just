@@ -116,19 +116,17 @@ impl Config {
   fn search_config(arguments: &Arguments, positional: &Positional) -> ConfigResult<SearchConfig> {
     const STANDARD_INPUT_ARGUMENT: &str = "-";
 
-    if arguments.global_justfile {
-      return Ok(SearchConfig::GlobalJustfile);
-    }
-
     let justfile = arguments.justfile.clone();
 
     let working_directory = arguments.working_directory.clone();
 
     if let Some(search_directory) = positional.search_directory.as_ref().map(PathBuf::from) {
-      if justfile.is_some() || working_directory.is_some() {
+      if arguments.global_justfile || justfile.is_some() || working_directory.is_some() {
         return Err(ConfigError::SearchDirConflict);
       }
       Ok(SearchConfig::FromSearchDirectory { search_directory })
+    } else if arguments.global_justfile {
+      Ok(SearchConfig::GlobalJustfile)
     } else {
       match (justfile, working_directory) {
         (None, None) => Ok(SearchConfig::FromInvocationDirectory),
