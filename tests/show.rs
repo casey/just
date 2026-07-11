@@ -268,3 +268,19 @@ fn show_prints_doc_attribute_without_doc_comment() {
     )
     .success();
 }
+
+#[test]
+fn show_recipe_disabled_by_absent_module() {
+  Test::new()
+    .justfile(
+      "
+        mod? foo
+
+        bar: foo::baz
+          @echo bar
+      ",
+    )
+    .args(["--show", "bar"])
+    .stderr("error: recipe `bar` depends on absent module `foo`\n")
+    .failure();
+}
