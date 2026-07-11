@@ -97,6 +97,23 @@ fn unknown_variable_in_ternary_call() {
 }
 
 #[test]
+fn conditional_reports_first_undefined_variable() {
+  Test::new()
+    .justfile("x := if foo == bar { baz } else { qux }")
+    .arg("--evaluate")
+    .stderr(
+      "
+        error: variable `foo` not defined
+         ——▶ justfile:1:9
+          │
+        1 │ x := if foo == bar { baz } else { qux }
+          │         ^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn undefined_variable_in_confirm_expression() {
   Test::new()
     .justfile(

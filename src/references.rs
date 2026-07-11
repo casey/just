@@ -16,9 +16,13 @@ impl<'src> Iterator for References<'_, 'src> {
   fn next(&mut self) -> Option<Self::Item> {
     loop {
       match self.stack.pop()? {
-        Expression::And { lhs, rhs } | Expression::Or { lhs, rhs } => {
-          self.stack.push(lhs);
+        Expression::And { lhs, rhs }
+        | Expression::Comparison { lhs, rhs, .. }
+        | Expression::Concatenation { lhs, rhs, .. }
+        | Expression::ListConcatenation { lhs, rhs, .. }
+        | Expression::Or { lhs, rhs } => {
           self.stack.push(rhs);
+          self.stack.push(lhs);
         }
         Expression::Assert {
           condition, message, ..
@@ -38,25 +42,19 @@ impl<'src> Iterator for References<'_, 'src> {
             arguments: arguments.len(),
           });
         }
-        Expression::Comparison { lhs, rhs, .. }
-        | Expression::Concatenation { lhs, rhs, .. }
-        | Expression::ListConcatenation { lhs, rhs, .. } => {
-          self.stack.push(rhs);
-          self.stack.push(lhs);
-        }
         Expression::Conditional {
           condition,
           then,
           otherwise,
         } => {
-          self.stack.push(then);
-          self.stack.push(condition);
           if let Some(otherwise) = otherwise {
             self.stack.push(otherwise);
           }
+          self.stack.push(then);
+          self.stack.push(condition);
         }
         Expression::FormatString { expressions, .. } => {
-          for (expression, _string) in expressions {
+          for (expression, _string) in expressions.iter().rev() {
             self.stack.push(expression);
           }
         }
