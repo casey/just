@@ -48,7 +48,7 @@ impl Display for RecipeAlias<'_> {
       f,
       "alias {} := {}",
       self.name.lexeme(),
-      self.target.name.lexeme()
+      self.target.recipe_path()
     )
   }
 }
