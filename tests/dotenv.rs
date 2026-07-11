@@ -942,9 +942,12 @@ fn dotenv_command_exit_code_is_propagated() {
 }
 
 #[test]
-fn command_runs_only_in_root_module() {
+fn command_only_runs_in_root_module() {
   Test::new()
-    .write("foo/mod.just", "baz:\n  @echo baz\n")
+    .write(
+      "foo.just",
+      "set dotenv-command := 'echo KEY=submodule'\nbaz:\n  @echo $KEY\n",
+    )
     .write("bar.env", "KEY=value\n")
     .justfile(
       "
@@ -954,8 +957,12 @@ fn command_runs_only_in_root_module() {
           @echo $KEY
       ",
     )
-    .args(["--dotenv-command", "echo ran >&2; cat bar.env", "bar"])
-    .stdout("value\n")
-    .stderr("ran\n")
+    .args(["--dotenv-command", "echo KEY=root", "bar", "foo::baz"])
+    .stdout(
+      "
+        root
+        submodule
+      ",
+    )
     .success();
 }
