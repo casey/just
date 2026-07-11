@@ -258,6 +258,9 @@ impl<'src> Justfile<'src> {
         let mut command = if config.shell_command {
           let mut command = self.settings.shell_command(config);
           command.arg(binary);
+          if !arguments.is_empty() && ShellKind::from(&command).takes_shell_name() {
+            command.arg(binary);
+          }
           command
         } else {
           Command::resolve(binary)

@@ -145,6 +145,15 @@ fn run_in_shell() {
 }
 
 #[test]
+fn run_in_shell_arguments_are_passed_as_positional_parameters() {
+  Test::new()
+    .justfile("")
+    .args(["--shell-command", "--command", "printf %s \"$1\"", "foo"])
+    .stdout("foo")
+    .success();
+}
+
+#[test]
 fn exit_status() {
   Test::new()
     .arg("--command")
