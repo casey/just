@@ -399,6 +399,8 @@ impl<'src> Justfile<'src> {
 
       if let Some(module) = current.modules.get(component) {
         current = module;
+      } else if let Some(alias) = current.module_aliases.get(component) {
+        current = self.submodule(&alias.target).unwrap();
       } else if current.absent_modules.contains(component) {
         return Err(Error::ModuleAbsent {
           module: current.module_path.join(component),
