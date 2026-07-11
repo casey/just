@@ -348,18 +348,6 @@ fn circular_module_through_path_with_parent_is_detected() {
 }
 
 #[test]
-fn parent_module_cycle_is_detected() {
-  Test::new()
-    .create_dir("sub")
-    .justfile("mod foo 'sub/../justfile'\nbar:\n")
-    .arg("--summary")
-    .stderr_regex(path_for_regex(
-      "error: import `.*/justfile` in `.*/justfile` is circular\\n",
-    ))
-    .failure();
-}
-
-#[test]
 fn modules_use_module_settings() {
   Test::new()
     .write(
