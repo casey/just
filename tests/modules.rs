@@ -2109,3 +2109,14 @@ fn submodule_function_bodies_are_not_shadowed_by_parent_variables() {
     .stdout("sub sub\n")
     .success();
 }
+
+#[test]
+fn plain_file_named_after_module_aborts_compilation() {
+  Test::new()
+    .write("foo.just", "bar:\n")
+    .write("foo", "baz\n")
+    .justfile("mod foo")
+    .arg("--list")
+    .stdout("Available recipes:\n    foo ...\n")
+    .success();
+}
