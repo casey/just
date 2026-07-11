@@ -107,7 +107,7 @@ fn case_insensitive() {
 }
 
 #[test]
-fn path_prefixed_recipes_conflict_with_global_justfile() {
+fn forbid_search_path_prefix() {
   let tempdir = tempdir();
 
   let path = tempdir.path().to_owned();
