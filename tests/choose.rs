@@ -357,3 +357,19 @@ fn skip_recipes_in_private_modules() {
     .stdout("bar\n")
     .success();
 }
+
+#[test]
+fn choose_visits_sibling_modules_in_order() {
+  Test::new()
+    .justfile(
+      "
+        mod bar
+        mod foo
+      ",
+    )
+    .write("bar.just", "baz:\n  @echo bar\n")
+    .write("foo.just", "baz:\n  @echo foo\n")
+    .args(["--choose", "--chooser", "head -n1"])
+    .stdout("bar\n")
+    .success();
+}
