@@ -104,6 +104,9 @@ pub(crate) enum CompileErrorKind<'src> {
   ExtraneousAttributes {
     count: usize,
   },
+  FlagAndPatternArgAttribute {
+    parameter: String,
+  },
   FlagAndValueArgAttribute {
     parameter: String,
   },

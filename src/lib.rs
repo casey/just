@@ -162,7 +162,7 @@ pub(crate) use {
     ffi::{OsStr, OsString},
     fmt::{self, Debug, Display, Formatter},
     fs::{self, File},
-    io::{self, Sink, Write},
+    io::{self, Seek, Sink, Write},
     iter::{self, FromIterator},
     mem,
     num::{NonZeroU64, ParseIntError},
