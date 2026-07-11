@@ -1955,9 +1955,9 @@ fn crlf_blank_lines_between_recipes_are_preserved() {
 }
 
 #[test]
-fn fmt_check_fails_on_empty_justfile() {
+fn allow_empty_justfile() {
   Test::new()
     .justfile("")
-    .args(["--fmt", "--check", "--unstable"])
+    .args(["--fmt", "--check"])
     .success();
 }
