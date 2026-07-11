@@ -2111,7 +2111,7 @@ fn submodule_function_bodies_are_not_shadowed_by_parent_variables() {
 }
 
 #[test]
-fn plain_file_named_after_module_aborts_compilation() {
+fn ignore_files_named_after_module_directory() {
   Test::new()
     .write("foo.just", "bar:\n")
     .write("foo", "baz\n")
