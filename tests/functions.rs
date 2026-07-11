@@ -958,7 +958,7 @@ fn choose_bad_alphabet_empty() {
 }
 
 #[test]
-fn choose_accepts_empty_alphabet_when_count_is_zero() {
+fn reject_empty_alphabet_when_count_is_zero() {
   Test::new()
     .justfile("x := choose('0', '')")
     .args(["--evaluate"])
