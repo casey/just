@@ -1644,16 +1644,23 @@ fn variable_circular_dependency_with_additional_variable() {
 }
 
 #[test]
-fn variable_circular_dependency_excludes_non_cycle_prefix() {
+fn exclude_non_cycle_prefix_from_circular_variable_dependency_error() {
   Test::new()
-    .justfile("a := b\nb := c\nc := b")
+    .justfile(
+      "
+        a := b
+        b := c
+        c := b
+      ",
+    )
     .stderr(
-      "error: variable `b` depends on its own value: `b -> c -> b`
- ——▶ justfile:2:1
-  │
-2 │ b := c
-  │ ^
-",
+      "
+        error: variable `b` depends on its own value: `b -> c -> b`
+         ——▶ justfile:2:1
+          │
+        2 │ b := c
+          │ ^
+      ",
     )
     .failure();
 }
