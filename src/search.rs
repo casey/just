@@ -44,7 +44,7 @@ impl Search {
         Self::find_in_directory(config, &config.invocation_directory)
       }
       SearchConfig::FromSearchDirectory { search_directory } => {
-        let search_directory = Self::clean(&config.invocation_directory, search_directory);
+        let search_directory = Self::clean(config, search_directory);
         let justfile = Self::justfile(config, &search_directory)?;
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
         Ok(Self {
@@ -74,7 +74,7 @@ impl Search {
         working_directory: Self::project_root(config, &config.invocation_directory)?,
       }),
       SearchConfig::WithJustfile { justfile } => {
-        let justfile = Self::clean(&config.invocation_directory, justfile);
+        let justfile = Self::clean(config, justfile);
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
         Self::with_justfile(config, justfile, working_directory)
       }
@@ -82,7 +82,7 @@ impl Search {
         justfile,
         working_directory,
       } => {
-        let justfile = Self::clean(&config.invocation_directory, justfile);
+        let justfile = Self::clean(config, justfile);
 
         justfile
           .parent()
@@ -90,11 +90,7 @@ impl Search {
             path: justfile.clone(),
           })?;
 
-        Self::with_justfile(
-          config,
-          justfile,
-          Self::clean(&config.invocation_directory, working_directory),
-        )
+        Self::with_justfile(config, justfile, Self::clean(config, working_directory))
       }
     }
   }
@@ -219,7 +215,7 @@ impl Search {
       }
       SearchConfig::FromStandardInput { .. } => Err(SearchError::InitWithJustfileFromStandardInput),
       SearchConfig::FromSearchDirectory { search_directory } => {
-        let search_directory = Self::clean(&config.invocation_directory, search_directory);
+        let search_directory = Self::clean(config, search_directory);
         let working_directory = Self::project_root(config, &search_directory)?;
         let justfile = working_directory.join(default_justfile_name());
         Ok(Self {
@@ -230,7 +226,7 @@ impl Search {
       }
       SearchConfig::GlobalJustfile => Err(SearchError::GlobalJustfileInit),
       SearchConfig::WithJustfile { justfile } => {
-        let justfile = Self::clean(&config.invocation_directory, justfile);
+        let justfile = Self::clean(config, justfile);
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
         Ok(Self {
           justfile,
@@ -242,9 +238,9 @@ impl Search {
         justfile,
         working_directory,
       } => Ok(Self {
-        justfile: Self::clean(&config.invocation_directory, justfile),
+        justfile: Self::clean(config, justfile),
         tempdir: None,
-        working_directory: Self::clean(&config.invocation_directory, working_directory),
+        working_directory: Self::clean(config, working_directory),
       }),
     }
   }
@@ -297,8 +293,8 @@ impl Search {
     Err(SearchError::NotFound)
   }
 
-  fn clean(invocation_directory: &Path, path: &Path) -> PathBuf {
-    invocation_directory.join(path).clean()
+  fn clean(config: &Config, path: &Path) -> PathBuf {
+    config.invocation_directory.join(path).clean()
   }
 
   /// Search upwards from `directory` for the root directory of a software
@@ -369,7 +365,11 @@ mod tests {
     ];
 
     for (prefix, suffix, want) in cases {
-      let have = Search::clean(Path::new(prefix), Path::new(suffix));
+      let config = Config {
+        invocation_directory: prefix.into(),
+        ..Config::new().unwrap()
+      };
+      let have = Search::clean(&config, Path::new(suffix));
       assert_eq!(have, Path::new(want));
     }
   }
