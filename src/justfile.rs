@@ -41,7 +41,7 @@ pub(crate) struct Justfile<'src> {
   pub(crate) recipes: Table<'src, Arc<Recipe<'src>>>,
   pub(crate) settings: Settings,
   pub(crate) source: PathBuf,
-  pub(crate) unexports: HashSet<String>,
+  pub(crate) unexports: BTreeSet<String>,
   #[serde(skip)]
   pub(crate) unstable_features: BTreeSet<UnstableFeature>,
   pub(crate) warnings: Vec<Warning>,

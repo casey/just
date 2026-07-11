@@ -8,7 +8,7 @@ pub(crate) struct Analyzer<'run, 'src> {
   modules: Table<'src, Justfile<'src>>,
   recipes: Vec<&'run Recipe<'src, UnresolvedDependency<'src>>>,
   sets: Table<'src, Set<'src>>,
-  unexports: HashSet<String>,
+  unexports: BTreeSet<String>,
   warnings: Vec<Warning>,
 }
 

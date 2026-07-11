@@ -1574,3 +1574,25 @@ fn arg_help() {
     },
   );
 }
+
+#[test]
+fn json_dump_unexports_order_is_nondeterministic() {
+  Test::new()
+    .justfile(
+      "
+        unexport a
+        unexport b
+        unexport c
+        unexport d
+        unexport e
+        unexport f
+        unexport g
+        unexport h
+        unexport i
+        unexport j
+      ",
+    )
+    .args(["--dump", "--dump-format", "json"])
+    .stdout_regex(r#".*"unexports":\["a","b","c","d","e","f","g","h","i","j"\].*"#)
+    .success();
+}
