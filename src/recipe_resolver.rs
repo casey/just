@@ -119,8 +119,7 @@ impl<'src: 'run, 'run> RecipeResolver<'src, 'run> {
       Ok(Some(Resolution::Disabled(disabled.modules.clone())))
     } else if stack.contains(&name) {
       // recipe depends on itself
-      let first = stack[0];
-      stack.push(first);
+      stack.push(name);
       Err(
         dependency.recipe.last().error(CircularRecipeDependency {
           recipe: recipe.name(),
