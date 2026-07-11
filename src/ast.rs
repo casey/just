@@ -18,6 +18,7 @@ impl Ast<'_> {
     self.items.iter().find_map(|item| {
       if let Item::Setting(set) = item
         && let Setting::Indentation(_, indentation) = set.value
+        && item.is_enabled()
       {
         Some(indentation)
       } else {
