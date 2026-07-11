@@ -105,3 +105,20 @@ fn case_insensitive() {
     .stdout("foo\n")
     .success();
 }
+
+#[test]
+fn forbid_search_path_prefix() {
+  let tempdir = tempdir();
+
+  let path = tempdir.path().to_owned();
+
+  Test::with_tempdir(tempdir)
+    .write(".config/just/justfile", "foo:\n  @echo global\n")
+    .env("HOME", path.to_str().unwrap())
+    .args(["--global-justfile", "sub/foo"])
+    .stderr(
+      "error: path-prefixed recipes may not be used with `--global-justfile`, \
+      `--working-directory`, or `--justfile`\n",
+    )
+    .status(1);
+}
