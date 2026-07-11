@@ -604,3 +604,41 @@ fn doc_above_wide_signature() {
     )
     .success();
 }
+
+#[test]
+fn empty_doc_comments_are_ignored() {
+  Test::new()
+    .justfile(
+      "
+        #\t
+        foo bar:
+      ",
+    )
+    .arg("--list")
+    .stdout(
+      "
+        Available recipes:
+            foo bar
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn empty_doc_attributes_are_ignored() {
+  Test::new()
+    .justfile(
+      "
+        [doc(' ')]
+        foo bar:
+      ",
+    )
+    .arg("--list")
+    .stdout(
+      "
+        Available recipes:
+            foo bar
+      ",
+    )
+    .success();
+}
