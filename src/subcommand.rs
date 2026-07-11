@@ -1081,6 +1081,16 @@ impl Subcommand {
       Ok((Some(alias), &alias.target))
     } else if let Some(recipe) = module.recipe(name) {
       Ok((None, recipe))
+    } else if let Some(disabled) = module.disabled_recipes.get(name) {
+      Err(Error::RecipeDisabled {
+        recipe: path.clone(),
+        modules: disabled.modules.clone(),
+      })
+    } else if let Some(disabled) = module.disabled_aliases.get(name) {
+      Err(Error::AliasDisabled {
+        alias: path.clone(),
+        modules: disabled.modules.clone(),
+      })
     } else {
       Err(Error::UnknownRecipe {
         recipe: name.to_owned(),
