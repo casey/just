@@ -8,10 +8,6 @@ pub(crate) struct CacheLock {
 
 impl CacheLock {
   pub(crate) fn save(mut self) -> RunResult<'static> {
-    let entry = CacheEntry {
-      recipe: self.recipe,
-    };
-
     let context = |source| Error::FilesystemIo {
       source,
       path: self.path.clone(),
@@ -20,6 +16,10 @@ impl CacheLock {
     self.file.set_len(0).map_err(context)?;
 
     self.file.rewind().map_err(context)?;
+
+    let entry = CacheEntry {
+      recipe: self.recipe,
+    };
 
     serde_json::to_writer(&mut self.file, &entry).map_err(|source| Error::CacheEntryWrite {
       source,
