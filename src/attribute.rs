@@ -142,6 +142,16 @@ impl<'src> Attribute<'src> {
       );
     }
 
+    if literal.cooked.starts_with('-') {
+      return Err(
+        literal
+          .token
+          .error(CompileErrorKind::OptionNameStartsWithDash {
+            parameter: parameter.cooked.clone(),
+          }),
+      );
+    }
+
     if literal.cooked.is_empty() {
       return Err(literal.token.error(CompileErrorKind::OptionNameEmpty {
         parameter: parameter.cooked.clone(),

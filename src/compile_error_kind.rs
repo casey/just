@@ -181,6 +181,9 @@ pub(crate) enum CompileErrorKind<'src> {
   OptionNameEmpty {
     parameter: String,
   },
+  OptionNameStartsWithDash {
+    parameter: String,
+  },
   ParameterFollowsVariadicParameter {
     parameter: &'src str,
   },

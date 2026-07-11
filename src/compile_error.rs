@@ -343,6 +343,12 @@ impl Display for CompileError<'_> {
       OptionNameEmpty { parameter } => {
         write!(f, "option name for parameter `{parameter}` is empty")
       }
+      OptionNameStartsWithDash { parameter } => {
+        write!(
+          f,
+          "option name for parameter `{parameter}` starts with dash"
+        )
+      }
       ParameterFollowsVariadicParameter { parameter } => {
         write!(f, "parameter `{parameter}` follows variadic parameter")
       }
