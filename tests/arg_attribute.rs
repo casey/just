@@ -261,7 +261,7 @@ fn duplicate_attribute_error() {
     .args(["foo", "BAR"])
     .stderr(
       "
-        error: recipe attribute for argument `bar` first used on line 1 is duplicated on line 2
+        error: attribute for argument `bar` first used on line 1 is duplicated on line 2
          ——▶ justfile:2:2
           │
         2 │ [arg('bar', pattern='BAR')]

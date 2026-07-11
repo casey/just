@@ -349,7 +349,7 @@ fn attribute_duplicate() {
       ",
     )
     .stderr(
-      "error: recipe attribute `working-directory` first used on line 1 is duplicated on line 2
+      "error: attribute `working-directory` first used on line 1 is duplicated on line 2
  ——▶ justfile:2:2
   │
 2 │ [working-directory('baz')]

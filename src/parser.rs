@@ -1743,6 +1743,7 @@ impl<'run, 'src> Parser<'run, 'src> {
   /// Item attributes, i.e., `[macos]` or `[confirm: "warning!"]`
   fn parse_attributes(&mut self) -> CompileResult<'src, Option<(Token<'src>, AttributeSet<'src>)>> {
     let mut arg_attributes = BTreeMap::new();
+    let mut group_attributes = BTreeMap::new();
     let mut attributes = Vec::new();
     let mut kinds = BTreeMap::new();
 
@@ -1840,6 +1841,17 @@ impl<'run, 'src> Parser<'run, 'src> {
           }
 
           arg_attributes.insert(arg.cooked.clone(), name.line);
+        }
+
+        if let Attribute::Group(group) = &attribute {
+          if let Some(&first) = group_attributes.get(&group.cooked) {
+            return Err(name.error(CompileErrorKind::DuplicateGroupAttribute {
+              group: group.clone(),
+              first,
+            }));
+          }
+
+          group_attributes.insert(group.cooked.clone(), name.line);
         }
 
         kinds.insert(attribute.kind(), name.line);

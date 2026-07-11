@@ -36,7 +36,7 @@ fn duplicate_attributes_are_disallowed() {
     )
     .stderr(
       "
-        error: recipe attribute `no-exit-message` first used on line 1 is duplicated on line 2
+        error: attribute `no-exit-message` first used on line 1 is duplicated on line 2
          ——▶ justfile:2:2
           │
         2 │ [no-exit-message]
@@ -118,7 +118,7 @@ fn multiple_attributes_one_line_duplicate_check() {
     )
     .stderr(
       "
-        error: recipe attribute `linux` first used on line 1 is duplicated on line 2
+        error: attribute `linux` first used on line 1 is duplicated on line 2
          ——▶ justfile:2:2
           │
         2 │ [linux]
@@ -421,7 +421,7 @@ fn duplicate_non_repeatable_attributes_are_forbidden() {
     )
     .stderr(
       "
-        error: recipe attribute `confirm` first used on line 1 is duplicated on line 2
+        error: attribute `confirm` first used on line 1 is duplicated on line 2
          ——▶ justfile:2:2
           │
         2 │ [confirm: 'no']
