@@ -2127,6 +2127,11 @@ fn sugest_similarly_named_submodules() {
     .write("foo.just", "bar:\n")
     .justfile("mod foo")
     .arg("fo::bar")
-    .stderr("error: justfile does not contain submodule `fo`\nDid you mean `foo`?\n")
+    .stderr(
+      "
+        error: justfile does not contain submodule `fo`
+        Did you mean `foo`?
+      ",
+    )
     .status(1);
 }
