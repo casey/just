@@ -261,6 +261,10 @@ fn justfile_symlink_parent() {
 fn justfile_with_no_parent_returns_correct_error() {
   Test::new()
     .args(["--justfile", "/", "--working-directory", ".", "--list"])
-    .stderr("error: justfile path had no parent: /\n")
+    .stderr(if cfg!(windows) {
+      "error: justfile path had no parent: C:\\\n"
+    } else {
+      "error: justfile path had no parent: /\n"
+    })
     .failure();
 }
