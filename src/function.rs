@@ -224,7 +224,7 @@ fn blake3_file(context: Context, path: &str) -> StringResult {
 
 fn canonicalize(context: Context, path: &str) -> StringResult {
   let canonical = std::fs::canonicalize(context.execution_context.working_directory().join(path))
-    .map_err(|err| format!("I/O error canonicalizing path: {err}"))?;
+    .map_err(|err| format!("I/O error canonicalizing `{path}`: {err}"))?;
 
   canonical.to_str().map(str::to_string).ok_or_else(|| {
     format!(
