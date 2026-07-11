@@ -31,6 +31,31 @@ fn redefinition() {
 }
 
 #[test]
+fn duplicate_parameter() {
+  Test::new()
+    .justfile(
+      "
+        f(a, a) := a
+
+        foo:
+          @echo {{ f('1', '2') }}
+      ",
+    )
+    .stderr(
+      "
+        error: function `f` has duplicate parameter `a`
+         ——▶ justfile:1:6
+          │
+        1 │ f(a, a) := a
+          │      ^
+      ",
+    )
+    .unstable()
+    .arg("foo")
+    .failure();
+}
+
+#[test]
 fn wrong_argument_count() {
   Test::new()
     .justfile(
