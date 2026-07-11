@@ -913,6 +913,25 @@ fn star_variadic_without_arguments_below_min_is_an_error() {
 }
 
 #[test]
+fn star_variadic_with_min_cannot_be_default_recipe() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        [arg('bar', min='1')]
+        foo *bar:
+          @echo {{ bar }}
+      ",
+    )
+    .unstable()
+    .stderr(
+      "error: recipe `foo` cannot be used as default recipe since it requires at least 1 argument\n",
+    )
+    .failure();
+}
+
+#[test]
 fn default_satisfying_min_is_accepted() {
   Test::new()
     .justfile(

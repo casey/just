@@ -336,6 +336,18 @@ fn circular_module_imports_are_detected() {
 }
 
 #[test]
+fn circular_module_through_path_with_parent_is_detected() {
+  Test::new()
+    .write("sub/foo.just", "mod bar '../justfile'")
+    .justfile("mod foo 'sub/foo.just'")
+    .arg("--list")
+    .stderr_regex(path_for_regex(
+      "error: import `.*/justfile` in `.*/sub/foo.just` is circular\n",
+    ))
+    .failure();
+}
+
+#[test]
 fn modules_use_module_settings() {
   Test::new()
     .write(
@@ -635,6 +647,26 @@ fn modules_require_unambiguous_file() {
       "
       .replace('/', MAIN_SEPARATOR_STR),
     )
+    .failure();
+}
+
+#[test]
+fn modules_outside_justfile_directory_require_unambiguous_file() {
+  let test = Test::new()
+    .create_dir("root")
+    .write("external/justfile", "")
+    .write("external/.justfile", "");
+
+  let external = test.tempdir.path().join("external");
+
+  test
+    .write(
+      "root/justfile",
+      &format!("mod foo '{}'\n", external.display()),
+    )
+    .current_dir("root")
+    .arg("--summary")
+    .stderr_regex("error: found multiple source files for module `foo`:.*")
     .failure();
 }
 

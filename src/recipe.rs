@@ -293,7 +293,7 @@ impl<'src> Recipe<'src> {
           break;
         }
         let line = lines.next().unwrap();
-        line_number += 1;
+        line_number = line.number + 1;
         if !comment_line {
           evaluated += &evaluator.evaluate_line(line, continued)?;
         }

@@ -186,11 +186,7 @@ impl Search {
   fn find_in_directory(config: &Config, starting_dir: &Path) -> SearchResult<Self> {
     let justfile = Self::justfile(config, starting_dir)?;
     let working_directory = Self::working_directory_from_justfile(&justfile)?;
-    Ok(Self {
-      justfile,
-      tempdir: None,
-      working_directory,
-    })
+    Self::with_justfile(config, justfile, working_directory)
   }
 
   /// Get working directory and justfile path for newly-initialized justfile

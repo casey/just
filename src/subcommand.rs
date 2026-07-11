@@ -1010,6 +1010,7 @@ impl Subcommand {
   pub(crate) fn takes_arguments(&self) -> bool {
     match self {
       Self::Changelog
+      | Self::Completions { .. }
       | Self::Dump { .. }
       | Self::Edit
       | Self::Format
@@ -1021,7 +1022,6 @@ impl Subcommand {
       Self::Choose { .. }
       | Self::Clean { .. }
       | Self::Command { .. }
-      | Self::Completions { .. }
       | Self::Evaluate { .. }
       | Self::List { .. }
       | Self::Request { .. }

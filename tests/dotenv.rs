@@ -928,6 +928,22 @@ fn command_composes_with_dotenv_override_setting() {
 }
 
 #[test]
+fn command_is_not_executed_in_dry_run() {
+  Test::new()
+    .justfile(
+      "
+        set dotenv-command := 'exit 1'
+
+        foo:
+          echo bar
+      ",
+    )
+    .arg("--dry-run")
+    .stderr("echo bar\n")
+    .success();
+}
+
+#[test]
 fn dotenv_command_exit_code_is_propagated() {
   Test::new()
     .justfile(
@@ -939,4 +955,30 @@ fn dotenv_command_exit_code_is_propagated() {
     )
     .stderr("error: dotenv command `exit 42` failed: process exited with status code 42\n")
     .status(42);
+}
+
+#[test]
+fn command_only_runs_in_root_module() {
+  Test::new()
+    .write(
+      "foo.just",
+      "set dotenv-command := 'echo KEY=submodule'\nbaz:\n  @echo $KEY\n",
+    )
+    .write("bar.env", "KEY=value\n")
+    .justfile(
+      "
+        mod foo
+
+        bar:
+          @echo $KEY
+      ",
+    )
+    .args(["--dotenv-command", "echo KEY=root", "bar", "foo::baz"])
+    .stdout(
+      "
+        root
+        submodule
+      ",
+    )
+    .success();
 }
