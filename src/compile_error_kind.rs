@@ -71,6 +71,10 @@ pub(crate) enum CompileErrorKind<'src> {
   DuplicateDefault {
     recipe: &'src str,
   },
+  DuplicateFunctionParameter {
+    function: &'src str,
+    parameter: &'src str,
+  },
   DuplicateOption {
     recipe: &'src str,
     option: Switch,

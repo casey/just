@@ -153,6 +153,15 @@ impl Display for CompileError<'_> {
         f,
         "recipe `{recipe}` has duplicate `[default]` attribute, which may only appear once per module",
       ),
+      DuplicateFunctionParameter {
+        function,
+        parameter,
+      } => {
+        write!(
+          f,
+          "function `{function}` has duplicate parameter `{parameter}`"
+        )
+      }
       DuplicateOption { recipe, option } => {
         write!(
           f,

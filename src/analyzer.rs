@@ -186,6 +186,17 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           first: first.name.line,
         }));
       }
+
+      let mut parameters = BTreeSet::new();
+      for (parameter, _) in &function.parameters {
+        if !parameters.insert(parameter.lexeme()) {
+          return Err(parameter.error(DuplicateFunctionParameter {
+            function: name,
+            parameter: parameter.lexeme(),
+          }));
+        }
+      }
+
       functions.insert(function.clone());
     }
 
