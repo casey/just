@@ -1356,7 +1356,7 @@ fn recipe_with_flag_parameter_may_be_used_as_dependency() {
 }
 
 #[test]
-fn short_option_may_not_contain_dash() {
+fn short_option_may_not_start_with_dash() {
   Test::new()
     .justfile(
       "
@@ -1377,7 +1377,7 @@ fn short_option_may_not_contain_dash() {
 }
 
 #[test]
-fn long_option_may_not_contain_dash() {
+fn long_option_may_not_start_with_dash() {
   Test::new()
     .justfile(
       "
