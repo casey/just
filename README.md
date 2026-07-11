@@ -4574,6 +4574,7 @@ The keys of the cache key object are:
 - `body`: evaluated recipe body
 - `environment`: map of environment variable names to values
 - `executor`: script interpreter or shebang
+- `extension`: `[extension]` attribute value
 - `extra`: user-supplied value
 - `inputs`: map of file paths to content hashs
 - `positional`: positional arguments
