@@ -14,19 +14,19 @@ pub(crate) fn load_dotenv(
   };
 
   if !commands.is_empty() {
-    if config.dry_run {
-      return Ok(BTreeMap::new());
+    let mut dotenv = BTreeMap::new();
+
+    if !config.dry_run {
+      for command in commands {
+        dotenv.extend(load_from_command(
+          command,
+          config,
+          settings,
+          working_directory,
+        )?);
+      }
     }
 
-    let mut dotenv = BTreeMap::new();
-    for command in commands {
-      dotenv.extend(load_from_command(
-        command,
-        config,
-        settings,
-        working_directory,
-      )?);
-    }
     return Ok(dotenv);
   }
 
