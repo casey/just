@@ -520,6 +520,14 @@ impl<'src> Recipe<'src> {
         .insert(name.clone(), Some(value.clone()));
     }
 
+    let extension = self.attributes.iter().find_map(|attribute| {
+      if let Attribute::Extension(extension) = attribute {
+        Some(extension.cooked.as_str())
+      } else {
+        None
+      }
+    });
+
     let (cache_lock, outputs) = if !config.no_cache
       && let Some(Attribute::Cache {
         extra,
@@ -564,6 +572,7 @@ impl<'src> Recipe<'src> {
         body: &evaluated_lines,
         environment: &environment,
         executor: &executor,
+        extension,
         extra,
         inputs,
         positional: self
@@ -599,14 +608,6 @@ impl<'src> Recipe<'src> {
     let tempdir = context.tempdir(self)?;
 
     let mut path = tempdir.path().to_path_buf();
-
-    let extension = self.attributes.iter().find_map(|attribute| {
-      if let Attribute::Extension(extension) = attribute {
-        Some(extension.cooked.as_str())
-      } else {
-        None
-      }
-    });
 
     path.push(executor.script_filename(self.name(), extension));
 
