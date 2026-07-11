@@ -1106,6 +1106,17 @@ fn canonicalize() {
 }
 
 #[test]
+fn canonicalize_error_omits_path() {
+  Test::new()
+    .justfile("x := canonicalize('foo')")
+    .args(["--evaluate", "x"])
+    .stderr_regex(
+      r"error: call to function `canonicalize` failed: I/O error canonicalizing `foo`: .*",
+    )
+    .failure();
+}
+
+#[test]
 fn encode_uri_component() {
   assert_eval(
     "encode_uri_component(\"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\\\"#$%&'()*+,-./:;<=>?@[\\\\]^_`{|}~ \\t\\r\\n🌐\")",
