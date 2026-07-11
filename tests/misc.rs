@@ -1951,6 +1951,28 @@ fn no_highlight() {
 }
 
 #[test]
+fn no_highlight_is_respected_for_script_echoing() {
+  Test::new()
+    .justfile(
+      "
+        [script]
+        @foo:
+          echo foo
+      ",
+    )
+    .args([
+      "--color",
+      "always",
+      "--no-highlight",
+      "--command-color",
+      "red",
+    ])
+    .stdout("foo\n")
+    .stderr("echo foo\n")
+    .success();
+}
+
+#[test]
 fn trailing_flags() {
   Test::new()
     .arg("echo")
