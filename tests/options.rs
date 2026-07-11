@@ -1019,6 +1019,27 @@ fn flag_conflicts_with_value() {
 }
 
 #[test]
+fn flag_conflicts_with_pattern() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', long, flag, pattern='yes|no')]
+        foo bar:
+      ",
+    )
+    .stderr(
+      "
+        error: argument `bar` may not have both `flag` and `pattern` attributes
+         ——▶ justfile:1:19
+          │
+        1 │ [arg('bar', long, flag, pattern='yes|no')]
+          │                   ^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn flag_requires_long_or_short() {
   Test::new()
     .justfile(

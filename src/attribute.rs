@@ -353,6 +353,11 @@ impl<'src> Attribute<'src> {
             parameter: arg.cooked.clone(),
           }));
         }
+        if pattern_property.is_some() {
+          return Err(key.error(CompileErrorKind::FlagAndPatternArgAttribute {
+            parameter: arg.cooked.clone(),
+          }));
+        }
         Ok(*key)
       })
       .transpose()?;
