@@ -392,3 +392,17 @@ fn list_group_with_submodules() {
     )
     .success();
 }
+
+#[test]
+fn groups_rejects_unexpected_arguments() {
+  Test::new()
+    .justfile(
+      "
+        [group('foo')]
+        bar:
+      ",
+    )
+    .args(["--groups", "baz"])
+    .stderr("error: `--groups` used with unexpected argument: `baz`\n")
+    .failure();
+}

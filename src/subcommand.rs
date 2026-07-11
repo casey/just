@@ -1004,6 +1004,7 @@ impl Subcommand {
       | Self::Dump { .. }
       | Self::Edit
       | Self::Format
+      | Self::Groups
       | Self::Init
       | Self::Man
       | Self::Summary
@@ -1013,7 +1014,6 @@ impl Subcommand {
       | Self::Command { .. }
       | Self::Completions { .. }
       | Self::Evaluate { .. }
-      | Self::Groups
       | Self::List { .. }
       | Self::Request { .. }
       | Self::Run { .. }
