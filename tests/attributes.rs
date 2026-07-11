@@ -473,17 +473,17 @@ fn env_attribute_multiple() {
 }
 
 #[test]
-fn env_attribute_not_visible_to_shell_function() {
+fn env_attribute_is_visible_to_shell_function() {
   Test::new()
     .justfile(
       "
         [env('FOO', 'bar')]
         foo:
-          @echo {{ `echo tick-$FOO` }} {{ shell('echo shell-$FOO') }}
+          @echo {{ `echo backtick-$FOO` }} {{ shell('echo shell-$FOO') }}
       ",
     )
     .arg("foo")
-    .stdout("tick-bar shell-bar\n")
+    .stdout("backtick-bar shell-bar\n")
     .success();
 }
 
