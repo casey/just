@@ -51,7 +51,10 @@ impl Executor<'_> {
 
   fn shell_kind(&self) -> ShellKind {
     match self {
-      Self::Command(interpreter) => &interpreter.command,
+      Self::Command(interpreter) => Path::new(&interpreter.command)
+        .file_name()
+        .and_then(OsStr::to_str)
+        .unwrap_or_default(),
       Self::Shebang(shebang) => shebang.interpreter_filename(),
     }
     .into()

@@ -497,3 +497,42 @@ fn script_and_shell_attribute_forbidden() {
     )
     .failure();
 }
+
+#[cfg(unix)]
+#[test]
+fn script_interpreter_path_loses_shell_kind() {
+  Test::new()
+    .write_executable(
+      "pwsh.exe",
+      "
+        #!/bin/sh
+        basename \"$1\"
+      ",
+    )
+    .justfile(
+      "
+        [script('./pwsh.exe')]
+        foo:
+          true
+      ",
+    )
+    .arg("foo")
+    .stdout("foo.ps1\n")
+    .success();
+}
+
+#[cfg(unix)]
+#[test]
+fn absolute_powershell_interpreter_does_not_get_ps1_extension() {
+  let tempdir = tempdir();
+  let interpreter = tempdir.path().join("pwsh.exe");
+
+  Test::with_tempdir(tempdir)
+    .write_executable("pwsh.exe", "#!/bin/sh\nbasename \"$1\"\n")
+    .justfile(format!(
+      "[script('{}')]\nfoo:\n  ignored\n",
+      interpreter.display(),
+    ))
+    .stdout("foo.ps1\n")
+    .success();
+}
