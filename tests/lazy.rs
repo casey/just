@@ -141,6 +141,27 @@ fn assignment_used_in_dependency_argument_evaluated() {
 }
 
 #[test]
+fn assignment_used_in_function_body_is_only_evaluated_once() {
+  Test::new()
+    .justfile(
+      "
+        set lazy
+        set unstable
+
+        c := `echo x >> cnt; wc -l < cnt | tr -d ' '`
+        f(y) := y + c
+
+        foo:
+          @echo {{ f('') }}{{ f('') }}
+      ",
+    )
+    .arg("foo")
+    .stdout("11\n")
+    .expect_file("cnt", "x\n")
+    .success();
+}
+
+#[test]
 fn assignment_in_body_interpolation_evaluated() {
   Test::new()
     .justfile(
