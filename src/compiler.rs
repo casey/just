@@ -195,8 +195,8 @@ impl Compiler {
       let entries = match fs::read_dir(&directory) {
         Ok(entries) => entries,
         Err(io_error) => {
-          if io_error.kind() == io::ErrorKind::NotFound
-            || io_error.kind() == io::ErrorKind::NotADirectory
+          if io_error.kind() == io::ErrorKind::NotADirectory
+            || io_error.kind() == io::ErrorKind::NotFound
           {
             continue;
           }
