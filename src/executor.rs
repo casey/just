@@ -50,12 +50,11 @@ impl Executor<'_> {
   }
 
   fn shell_kind(&self) -> ShellKind {
-    let command = match self {
+    Self::filename(match self {
       Self::Command(interpreter) => &interpreter.command,
       Self::Shebang(shebang) => shebang.interpreter,
-    };
-
-    Self::filename(command).into()
+    })
+    .into()
   }
 
   pub(crate) fn filename(path: &str) -> &str {
