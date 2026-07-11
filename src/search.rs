@@ -81,11 +81,15 @@ impl Search {
       SearchConfig::WithJustfileAndWorkingDirectory {
         justfile,
         working_directory,
-      } => Self::with_justfile(
-        config,
-        Self::clean(&config.invocation_directory, justfile),
-        Self::clean(&config.invocation_directory, working_directory),
-      ),
+      } => {
+        let justfile = Self::clean(&config.invocation_directory, justfile);
+        Self::working_directory_from_justfile(&justfile)?;
+        Self::with_justfile(
+          config,
+          justfile,
+          Self::clean(&config.invocation_directory, working_directory),
+        )
+      }
     }
   }
 

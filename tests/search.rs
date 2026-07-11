@@ -256,3 +256,11 @@ fn justfile_symlink_parent() {
     .stdout("bar\n")
     .success();
 }
+
+#[test]
+fn justfile_without_parent_and_working_directory_panics() {
+  Test::new()
+    .args(["--justfile", "/", "--working-directory", ".", "--list"])
+    .stderr("error: justfile path had no parent: /\n")
+    .failure();
+}
