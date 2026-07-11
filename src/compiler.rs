@@ -126,16 +126,18 @@ impl Compiler {
       root,
     )?;
 
-    let unknown_overrides = config
-      .overrides
-      .iter()
-      .filter(|((path, name), _value)| {
-        !justfile
-          .submodule(path)
-          .is_some_and(|module| module.assignments.contains_key(name))
-      })
-      .map(|((path, name), _value)| path.join(name).to_string())
-      .collect::<Vec<String>>();
+    let mut unknown_overrides = Vec::new();
+
+    for ((path, name), value) in &config.overrides {
+      if let Some(assignment) = justfile
+        .submodule(path)
+        .and_then(|module| module.assignments.get(name))
+      {
+        overrides.insert(assignment.number, value.clone());
+      } else {
+        unknown_overrides.push(path.join(name).to_string());
+      }
+    }
 
     if !unknown_overrides.is_empty() {
       return Err(Error::UnknownOverrides {

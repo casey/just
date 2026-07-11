@@ -200,6 +200,30 @@ fn override_variable_in_nested_submodule() {
 }
 
 #[test]
+fn override_variable_via_module_alias() {
+  Test::new()
+    .justfile(
+      "
+        mod foo
+
+        alias f := foo
+      ",
+    )
+    .write(
+      "foo.just",
+      "
+        x := 'a'
+        bar:
+         @echo {{x}}
+      ",
+    )
+    .arg("f::x=b")
+    .arg("f::bar")
+    .stdout("b\n")
+    .success();
+}
+
+#[test]
 fn override_variable_used_in_setting() {
   Test::new()
     .justfile(
