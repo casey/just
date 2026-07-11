@@ -396,3 +396,19 @@ fn evaluate_width_ignores_private_variables() {
     )
     .success();
 }
+
+#[test]
+fn evaluate_resolves_module_alias() {
+  Test::new()
+    .write("foo.just", "x := 'bar'\n")
+    .justfile(
+      "
+        mod foo
+
+        alias f := foo
+      ",
+    )
+    .args(["--evaluate", "f::x"])
+    .stdout("bar")
+    .success();
+}
