@@ -246,6 +246,36 @@ fn interpreter_invalidates_cache() {
 }
 
 #[test]
+fn extension_invalidates_cache() {
+  Test::new()
+    .justfile(
+      "
+        [cache]
+        [extension('.aaa')]
+        [script]
+        foo:
+          echo bar
+      ",
+    )
+    .unstable()
+    .stdout("bar\n")
+    .success()
+    .test()
+    .justfile(
+      "
+        [cache]
+        [extension('.bbb')]
+        [script]
+        foo:
+          echo bar
+      ",
+    )
+    .unstable()
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
 fn working_directory_invalidates_cache() {
   Test::new()
     .justfile(
@@ -1055,6 +1085,7 @@ fn prints_cache_key() {
               .*
             \]
           \},
+          "extension": null,
           "extra": null,
           "inputs": null,
           "positional": null,
