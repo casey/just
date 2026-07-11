@@ -117,45 +117,7 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
     context: &ExpressionContext<'src>,
     references: &mut HashSet<Number>,
   ) {
-    let mut assignments = Vec::new();
-    let mut functions = Vec::new();
-
-    self.collect(
-      expression,
-      context,
-      references,
-      &mut assignments,
-      &mut functions,
-    );
-
-    let empty = ExpressionContext::new();
-    let mut visited = BTreeSet::new();
-
-    loop {
-      if let Some(assignment) = assignments.pop() {
-        self.collect(
-          &assignment.value,
-          &empty,
-          references,
-          &mut assignments,
-          &mut functions,
-        );
-      } else if let Some(name) = functions.pop() {
-        if visited.insert(name)
-          && let Some(function) = self.functions.get(name)
-        {
-          self.collect(
-            &function.body,
-            &function.parameters.as_slice().into(),
-            references,
-            &mut assignments,
-            &mut functions,
-          );
-        }
-      } else {
-        break;
-      }
-    }
+    self.collect(expression, context, references, &mut BTreeSet::new());
   }
 
   fn collect(
@@ -163,19 +125,34 @@ impl<'src: 'run, 'run> VariableResolver<'src, 'run> {
     expression: &Expression<'src>,
     context: &ExpressionContext<'src>,
     references: &mut HashSet<Number>,
-    assignments: &mut Vec<&'run Assignment<'src>>,
-    functions: &mut Vec<&'src str>,
+    visited: &mut BTreeSet<&'src str>,
   ) {
     for reference in expression.references() {
       match reference {
-        Reference::Call { name, .. } => functions.push(name.lexeme()),
+        Reference::Call { name, .. } => {
+          if visited.insert(name.lexeme())
+            && let Some(function) = self.functions.get(name.lexeme())
+          {
+            self.collect(
+              &function.body,
+              &function.parameters.as_slice().into(),
+              references,
+              visited,
+            );
+          }
+        }
         Reference::Variable(variable) => {
           if context.lookup(variable.lexeme()).is_none()
             && let Some(assignment) = self.assignments.get(variable.lexeme())
             && references.insert(assignment.number)
             && !self.overrides.contains_key(&assignment.number)
           {
-            assignments.push(assignment);
+            self.collect(
+              &assignment.value,
+              &ExpressionContext::new(),
+              references,
+              visited,
+            );
           }
         }
       }
