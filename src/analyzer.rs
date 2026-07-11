@@ -397,10 +397,15 @@ impl<'run, 'src> Analyzer<'run, 'src> {
     let source = root.to_owned();
     let root = paths.get(root).unwrap();
 
-    let mut default = None;
+    let mut default = None::<Arc<Recipe>>;
     for recipe in recipes.values() {
       if recipe.attributes.contains(AttributeKind::Default) {
-        if default.is_some() {
+        if let Some(previous) = &default {
+          let recipe = if previous.line_number() > recipe.line_number() {
+            previous
+          } else {
+            recipe
+          };
           return Err(recipe.name.error(CompileErrorKind::DuplicateDefault {
             recipe: recipe.name.lexeme(),
           }));
