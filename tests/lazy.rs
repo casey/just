@@ -141,7 +141,7 @@ fn assignment_used_in_dependency_argument_evaluated() {
 }
 
 #[test]
-fn assignment_used_in_function_body_evaluated_once() {
+fn assignment_used_in_function_body_is_only_evaluated_once() {
   Test::new()
     .justfile(
       "
