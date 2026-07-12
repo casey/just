@@ -340,54 +340,54 @@ fn assignment_with_set_export_is_evaluated() {
 
 #[test]
 fn unconditionally_evaluated_assignment_dependencies_are_evaluated() {
-  #[track_caller]
-  fn case(justfile: &str, stdout: &str) {
-    Test::new()
-      .justfile(justfile)
-      .arg("foo")
-      .stdout(stdout)
-      .success();
-  }
+  Test::new()
+    .justfile(
+      "
+        set lazy
 
-  case(
-    "
-      set lazy
+        x := 'bar'
+        export e := x
 
-      x := 'bar'
-      export e := x
+        foo:
+          @echo $e
+      ",
+    )
+    .arg("foo")
+    .stdout("bar\n")
+    .success();
 
-      foo:
-        @echo $e
-    ",
-    "bar\n",
-  );
+  Test::new()
+    .justfile(
+      "
+        set lazy
 
-  case(
-    "
-      set lazy
+        x := 'bar'
+        eager e := x
 
-      x := 'bar'
-      eager e := x
+        foo:
+          @echo baz
+      ",
+    )
+    .arg("foo")
+    .stdout("baz\n")
+    .success();
 
-      foo:
-        @echo baz
-    ",
-    "baz\n",
-  );
+  Test::new()
+    .justfile(
+      "
+        set lazy
+        set export
 
-  case(
-    "
-      set lazy
-      set export
+        x := 'bar'
+        e := x
 
-      x := 'bar'
-      e := x
-
-      foo:
-        @echo $e
-    ",
-    "bar\n",
-  );
+        foo:
+          @echo $e
+      ",
+    )
+    .arg("foo")
+    .stdout("bar\n")
+    .success();
 }
 
 #[test]
