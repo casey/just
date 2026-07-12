@@ -239,7 +239,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
           &ExpressionContext::new(),
           &mut variable_references,
           &mut HashSet::new(),
-        )
+        );
       };
 
       for attribute in self.recipes.iter().flat_map(|recipe| &recipe.attributes) {
