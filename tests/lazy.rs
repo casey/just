@@ -145,19 +145,57 @@ fn assignment_used_in_function_body_is_only_evaluated_once() {
   Test::new()
     .justfile(
       "
-        set lazy
-        set unstable
+      set lazy
 
-        c := `echo x >> cnt; wc -l < cnt | tr -d ' '`
-        f(y) := y + c
+      c := `echo x >> count; wc -l < count | tr -d ' '`
+      f(y) := y + c
 
-        foo:
-          @echo {{ f('') }}{{ f('') }}
-      ",
+      foo:
+        @echo {{ f('') }}{{ f('') }}
+    ",
     )
+    .unstable()
     .arg("foo")
     .stdout("11\n")
-    .expect_file("cnt", "x\n")
+    .expect_file("count", "x\n")
+    .success();
+
+  Test::new()
+    .justfile(
+      "
+      set lazy
+
+      c := `echo x >> count; wc -l < count | tr -d ' '`
+      f(y) := y + g()
+      g() := c
+
+      foo:
+        @echo {{ f('') }}{{ f('') }}
+    ",
+    )
+    .unstable()
+    .arg("foo")
+    .stdout("11\n")
+    .expect_file("count", "x\n")
+    .success();
+
+  Test::new()
+    .justfile(
+      "
+      set lazy
+
+      c := `echo x >> count; wc -l < count | tr -d ' '`
+      f(y) := y + c
+      a := f('') + f('')
+
+      foo:
+        @echo {{ a }}
+    ",
+    )
+    .unstable()
+    .arg("foo")
+    .stdout("11\n")
+    .expect_file("count", "x\n")
     .success();
 }
 
@@ -297,6 +335,25 @@ fn assignment_with_set_export_is_evaluated() {
       ",
     )
     .stdout("FOO\n")
+    .success();
+}
+
+#[test]
+fn overridden_assignment_dependencies_are_not_evaluated() {
+  Test::new()
+    .justfile(
+      "
+        set lazy
+
+        x := `exit 1`
+        y := x
+
+        foo:
+          @echo {{ y }}
+      ",
+    )
+    .args(["y=bar", "foo"])
+    .stdout("bar\n")
     .success();
 }
 
