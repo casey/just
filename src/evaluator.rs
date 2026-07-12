@@ -336,26 +336,22 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     function: Function,
     arguments: &[Expression<'src>],
   ) -> RunResult<'src, Value> {
-    macro_rules! context {
-      () => {
-        self.function_context(name).unwrap()
-      };
-    }
+    let context = self.function_context(name).unwrap();
     match function {
-      Function::Nullary(f) => f(context!()).map(Value::from),
+      Function::Nullary(f) => f(context).map(Value::from),
       Function::Unary(f) => {
         let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
-        f(context!(), &a).map(Value::from)
+        f(context, &a).map(Value::from)
       }
       Function::UnaryToValue(f) => {
         let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
-        f(context!(), &a)
+        f(context, &a)
       }
       Function::UnaryMap(f) => {
         let a = self.evaluate_value(&arguments[0])?;
         a.elements()
           .iter()
-          .map(|element| f(context!(), element))
+          .map(|element| f(context, element))
           .collect()
       }
       Function::UnaryPlus(f) => {
@@ -364,22 +360,22 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         for arg in &arguments[1..] {
           rest.push(self.evaluate_string(arg, StringContext::Function(name))?);
         }
-        f(context!(), &a, &rest).map(Value::from)
+        f(context, &a, &rest).map(Value::from)
       }
       Function::BinaryStrValue(f) => {
         let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
         let b = self.evaluate_value(&arguments[1])?;
-        f(context!(), &a, &b)
+        f(context, &a, &b)
       }
       Function::Binary(f) => {
         let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
         let b = self.evaluate_string(&arguments[1], StringContext::Function(name))?;
-        f(context!(), &a, &b).map(Value::from)
+        f(context, &a, &b).map(Value::from)
       }
       Function::BinaryToValue(f) => {
         let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
         let b = self.evaluate_string(&arguments[1], StringContext::Function(name))?;
-        f(context!(), &a, &b)
+        f(context, &a, &b)
       }
       Function::BinaryPlus(f) => {
         let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
@@ -388,23 +384,23 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         for arg in &arguments[2..] {
           rest.push(self.evaluate_string(arg, StringContext::Function(name))?);
         }
-        f(context!(), &a, &b, &rest).map(Value::from)
+        f(context, &a, &b, &rest).map(Value::from)
       }
       Function::Ternary(f) => {
         let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
         let b = self.evaluate_string(&arguments[1], StringContext::Function(name))?;
         let c = self.evaluate_string(&arguments[2], StringContext::Function(name))?;
-        f(context!(), &a, &b, &c).map(Value::from)
+        f(context, &a, &b, &c).map(Value::from)
       }
-      Function::ValueNullary(f) => f(context!()),
+      Function::ValueNullary(f) => f(context),
       Function::ValueUnary(f) => {
         let a = self.evaluate_value(&arguments[0])?;
-        f(context!(), &a)
+        f(context, &a)
       }
       Function::ValueBinary(f) => {
         let a = self.evaluate_value(&arguments[0])?;
         let b = self.evaluate_value(&arguments[1])?;
-        f(context!(), &a, &b)
+        f(context, &a, &b)
       }
       Function::ValueBinaryOpt(f) => {
         let a = self.evaluate_value(&arguments[0])?;
@@ -413,7 +409,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         } else {
           None
         };
-        f(context!(), &a, b.as_ref())
+        f(context, &a, b.as_ref())
       }
       Function::BinaryOptToValue(f) => {
         let a = self.evaluate_string(&arguments[0], StringContext::Function(name))?;
@@ -422,7 +418,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         } else {
           None
         };
-        f(context!(), &a, b.as_deref())
+        f(context, &a, b.as_deref())
       }
       Function::BinaryOptValueStr(f) => {
         let a = self.evaluate_value(&arguments[0])?;
@@ -431,7 +427,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         } else {
           None
         };
-        f(context!(), &a, b.as_deref()).map(Value::from)
+        f(context, &a, b.as_deref()).map(Value::from)
       }
       Function::BinaryOptValueStrToValue(f) => {
         let a = self.evaluate_value(&arguments[0])?;
@@ -440,7 +436,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         } else {
           None
         };
-        f(context!(), &a, b.as_deref())
+        f(context, &a, b.as_deref())
       }
     }
     .map_err(|message| Error::FunctionCall {
