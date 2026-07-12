@@ -62,7 +62,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   pub(crate) fn evaluate_sets(
-    &mut self,
+    &self,
     sets: Table<'src, Set<'src>>,
   ) -> CompileResult<'src, Settings> {
     let mut settings = Settings::default();
@@ -166,7 +166,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   pub(crate) fn evaluate_interpreter(
-    &mut self,
+    &self,
     interpreter: &Interpreter<Expression<'src>>,
     setting: Name<'src>,
   ) -> CompileResult<'src, Interpreter<String>> {
@@ -225,11 +225,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     for assignment in &module.evaluation_order {
       let assignment = &module.assignments[assignment.lexeme()];
-      if assignment.eager
-        || assignment.export
-        || module.settings.export
-        || variable_references
-          .is_none_or(|variable_references| variable_references.contains(&assignment.number))
+      if variable_references
+        .is_none_or(|variable_references| variable_references.contains(&assignment.number))
       {
         evaluator.evaluate_assignment(assignment)?;
       }
@@ -277,7 +274,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   fn evaluate_defined_function(
-    &mut self,
+    &self,
     function: &FunctionDefinition<'src>,
     arguments: &[Expression<'src>],
   ) -> RunResult<'src, Value> {
@@ -317,7 +314,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       });
     }
 
-    let mut evaluator = Evaluator {
+    let evaluator = Evaluator {
       assignments: Some(&context.module.assignments),
       context: Some(context),
       env: BTreeMap::new(),
@@ -334,7 +331,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   fn evaluate_builtin_function(
-    &mut self,
+    &self,
     name: Name<'src>,
     function: Function,
     arguments: &[Expression<'src>],
@@ -453,7 +450,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   pub(crate) fn evaluate_string(
-    &mut self,
+    &self,
     expression: &Expression<'src>,
     context: StringContext<'src>,
   ) -> RunResult<'src, String> {
@@ -467,7 +464,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   pub(crate) fn evaluate_value_const(
-    &mut self,
+    &self,
     expression: &Expression<'src>,
   ) -> CompileResult<'src, Value> {
     assert!(self.context.is_none());
@@ -477,7 +474,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   pub(crate) fn evaluate_string_const(
-    &mut self,
+    &self,
     expression: &Expression<'src>,
     context: StringContext<'src>,
   ) -> CompileResult<'src, String> {
@@ -487,7 +484,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       .map_err(|error| error.unwrap_const().into_compile_error())
   }
 
-  pub(crate) fn evaluate_value(&mut self, expression: &Expression<'src>) -> RunResult<'src, Value> {
+  pub(crate) fn evaluate_value(&self, expression: &Expression<'src>) -> RunResult<'src, Value> {
     match expression {
       Expression::And { lhs, rhs } => {
         let lhs = self.evaluate_value(lhs)?;
@@ -630,21 +627,16 @@ impl<'src, 'run> Evaluator<'src, 'run> {
           Err(ConstError::Variable(*name).into())
         } else if let Some(binding) = self.scope.binding(*number) {
           Ok(binding.value.clone())
-        } else if let Some(assignment) = self
-          .assignments
-          .and_then(|assignments| assignments.assignment(*number))
-        {
-          Ok(self.evaluate_assignment(assignment)?.clone())
         } else {
           Err(Error::internal(format!(
-            "attempted to evaluate undefined variable `{name}`"
+            "attempted to evaluate unevaluated variable `{name}`"
           )))
         }
       }
     }
   }
 
-  fn evaluate_boolean(&mut self, condition: &Expression<'src>) -> RunResult<'src, bool> {
+  fn evaluate_boolean(&self, condition: &Expression<'src>) -> RunResult<'src, bool> {
     let Expression::Comparison {
       lhs,
       operator,
@@ -734,7 +726,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
   }
 
   pub(crate) fn evaluate_line(
-    &mut self,
+    &self,
     line: &Line<'src>,
     continued: bool,
   ) -> RunResult<'src, String> {

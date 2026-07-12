@@ -289,6 +289,27 @@ fn doc_attribute_may_be_expression() {
 }
 
 #[test]
+fn doc_attribute_may_reference_variable_transitively() {
+  Test::new()
+    .justfile(
+      "
+        a := b
+        b := 'bar'
+        [doc(a)]
+        foo:
+      ",
+    )
+    .args(["--list"])
+    .stdout(
+      "
+        Available recipes:
+            foo # bar
+      ",
+    )
+    .success();
+}
+
+#[test]
 fn doc_attribute_list_is_joined() {
   Test::new()
     .justfile(

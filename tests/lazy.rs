@@ -339,6 +339,58 @@ fn assignment_with_set_export_is_evaluated() {
 }
 
 #[test]
+fn unconditionally_evaluated_assignment_dependencies_are_evaluated() {
+  Test::new()
+    .justfile(
+      "
+        set lazy
+
+        x := 'bar'
+        export e := x
+
+        foo:
+          @echo $e
+      ",
+    )
+    .arg("foo")
+    .stdout("bar\n")
+    .success();
+
+  Test::new()
+    .justfile(
+      "
+        set lazy
+
+        x := 'bar'
+        eager e := x
+
+        foo:
+          @echo baz
+      ",
+    )
+    .arg("foo")
+    .stdout("baz\n")
+    .success();
+
+  Test::new()
+    .justfile(
+      "
+        set lazy
+        set export
+
+        x := 'bar'
+        e := x
+
+        foo:
+          @echo $e
+      ",
+    )
+    .arg("foo")
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
 fn overridden_assignment_dependencies_are_not_evaluated() {
   Test::new()
     .justfile(
