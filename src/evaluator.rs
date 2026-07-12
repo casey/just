@@ -23,6 +23,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
   pub(crate) fn evaluate_const_assignments(
     assignments: &'run Table<'src, Assignment<'src>>,
+    evaluation_order: &[Name<'src>],
     overrides: &'run HashMap<Number, String>,
     scope: &'run Scope<'src, 'run>,
     variable_references: &HashSet<Number>,
@@ -41,7 +42,8 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       scope: scope.child(),
     };
 
-    for assignment in assignments.values() {
+    for assignment in evaluation_order {
+      let assignment = &assignments[assignment.lexeme()];
       if variable_references.contains(&assignment.number) {
         match evaluator
           .evaluate_assignment(assignment)
@@ -222,7 +224,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     };
 
     for assignment in &module.evaluation_order {
-      let assignment = module.assignments.get(assignment.lexeme()).unwrap();
+      let assignment = &module.assignments[assignment.lexeme()];
       if assignment.eager
         || assignment.export
         || module.settings.export

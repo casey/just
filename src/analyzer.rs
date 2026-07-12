@@ -269,6 +269,7 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
       Evaluator::evaluate_const_assignments(
         &assignments,
+        &evaluation_order,
         overrides,
         &scope,
         &variable_references,
