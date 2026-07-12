@@ -339,7 +339,7 @@ fn assignment_with_set_export_is_evaluated() {
 }
 
 #[test]
-fn overridden_assignment_dependencies_not_evaluated() {
+fn overridden_assignment_dependencies_are_not_evaluated() {
   Test::new()
     .justfile(
       "
