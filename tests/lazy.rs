@@ -141,21 +141,11 @@ fn assignment_used_in_dependency_argument_evaluated() {
 }
 
 #[test]
-fn assignment_used_in_function_body_evaluated_once() {
-  #[track_caller]
-  fn case(justfile: &str) {
-    Test::new()
-      .justfile(justfile)
-      .arg("foo")
-      .stdout("11\n")
-      .expect_file("count", "x\n")
-      .success();
-  }
-
-  case(
-    "
+fn assignment_used_in_function_body_is_only_evaluated_once() {
+  Test::new()
+    .justfile(
+      "
       set lazy
-      set unstable
 
       c := `echo x >> count; wc -l < count | tr -d ' '`
       f(y) := y + c
@@ -163,12 +153,17 @@ fn assignment_used_in_function_body_evaluated_once() {
       foo:
         @echo {{ f('') }}{{ f('') }}
     ",
-  );
+    )
+    .unstable()
+    .arg("foo")
+    .stdout("11\n")
+    .expect_file("count", "x\n")
+    .success();
 
-  case(
-    "
+  Test::new()
+    .justfile(
+      "
       set lazy
-      set unstable
 
       c := `echo x >> count; wc -l < count | tr -d ' '`
       f(y) := y + g()
@@ -177,12 +172,17 @@ fn assignment_used_in_function_body_evaluated_once() {
       foo:
         @echo {{ f('') }}{{ f('') }}
     ",
-  );
+    )
+    .unstable()
+    .arg("foo")
+    .stdout("11\n")
+    .expect_file("count", "x\n")
+    .success();
 
-  case(
-    "
+  Test::new()
+    .justfile(
+      "
       set lazy
-      set unstable
 
       c := `echo x >> count; wc -l < count | tr -d ' '`
       f(y) := y + c
@@ -191,7 +191,12 @@ fn assignment_used_in_function_body_evaluated_once() {
       foo:
         @echo {{ a }}
     ",
-  );
+    )
+    .unstable()
+    .arg("foo")
+    .stdout("11\n")
+    .expect_file("count", "x\n")
+    .success();
 }
 
 #[test]
