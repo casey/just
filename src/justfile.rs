@@ -13,6 +13,8 @@ type Scopes<'src, 'run> = BTreeMap<
 pub(crate) struct Justfile<'src> {
   #[serde(skip)]
   pub(crate) absent_modules: BTreeSet<String>,
+  #[serde(skip)]
+  pub(crate) assignment_references: HashMap<Number, HashSet<Number>>,
   pub(crate) assignments: Table<'src, Assignment<'src>>,
   #[serde(rename = "first", serialize_with = "keyed::serialize_option")]
   pub(crate) default: Option<Arc<Recipe<'src>>>,
@@ -419,13 +421,14 @@ impl<'src> Justfile<'src> {
     }
 
     let variable_references = if let Some(assignment) = variable {
-      HashSet::from([assignment.number])
+      current.assignment_references[&assignment.number].clone()
     } else {
       current
         .assignments
         .values()
         .filter(|assignment| !assignment.private)
-        .map(|assignment| assignment.number)
+        .flat_map(|assignment| &current.assignment_references[&assignment.number])
+        .copied()
         .collect()
     };
 

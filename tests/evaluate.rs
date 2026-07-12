@@ -181,6 +181,48 @@ fn evaluate_single_private() {
 }
 
 #[test]
+fn evaluate_single_transitive_reference() {
+  Test::new()
+    .args(["--evaluate", "foo"])
+    .justfile(
+      "
+        bar := 'baz'
+        foo := bar
+      ",
+    )
+    .stdout("baz")
+    .success();
+}
+
+#[test]
+fn evaluate_private_transitive_reference() {
+  Test::new()
+    .arg("--evaluate")
+    .justfile(
+      "
+        _bar := 'baz'
+        foo := _bar
+      ",
+    )
+    .stdout("foo := \"baz\"\n")
+    .success();
+}
+
+#[test]
+fn evaluate_overridden_assignment_dependencies_not_evaluated() {
+  Test::new()
+    .args(["--evaluate", "foo=baz", "foo"])
+    .justfile(
+      "
+        bar := `exit 1`
+        foo := bar
+      ",
+    )
+    .stdout("baz")
+    .success();
+}
+
+#[test]
 fn evaluate_variable_chosen_over_submodule() {
   Test::new()
     .write("foo.just", "bar:\n")
