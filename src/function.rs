@@ -46,6 +46,7 @@ impl Function {
   }
 }
 
+#[derive(Clone, Copy)]
 pub(crate) struct Context<'src: 'run, 'run> {
   pub(crate) env: &'run BTreeMap<String, String>,
   pub(crate) execution_context: &'run ExecutionContext<'src, 'run>,
