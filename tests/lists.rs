@@ -1091,3 +1091,22 @@ fn list_in_setting_value_points_at_setting_name() {
     )
     .failure();
 }
+
+#[test]
+fn len() {
+  #[track_caller]
+  fn case(expression: &str, expected: &str) {
+    Test::new()
+      .justfile(format!("set lists\nx := len({expression})"))
+      .unstable()
+      .args(["--evaluate", "x"])
+      .stdout(expected)
+      .success();
+  }
+
+  case("[]", "0");
+  case("''", "1");
+  case("'foo'", "1");
+  case("['foo']", "1");
+  case("['foo', 'bar']", "2");
+}

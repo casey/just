@@ -15,6 +15,10 @@ impl Value {
     &self.elements
   }
 
+  pub(crate) fn len(&self) -> usize {
+    self.elements.len()
+  }
+
   pub(crate) fn push(&mut self, element: &str) {
     self.elements.push(element.into());
   }

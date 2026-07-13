@@ -2254,6 +2254,7 @@ Otherwise it is set to `value` joined with spaces.
 - `join_list(value, separator)` - Joins `value` into a single string. Elements
   are joined with `separator`, or with a single space if `separator` is
   omitted.
+- `len(value)` - Returns the number of elements in `value`.
 - `path_exists()` - Returns the canonical booleans.
 - `prepend()` - Applies to each list element individually and does not split
   elements on whitespace.

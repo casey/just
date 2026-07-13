@@ -104,6 +104,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "justfile" => Nullary(justfile),
     "justfile_directory" => Nullary(justfile_directory),
     "kebabcase" => Unary(kebabcase),
+    "len" => ValueUnary(len),
     "lowercamelcase" => Unary(lowercamelcase),
     "lowercase" => Unary(lowercase),
     "module_directory" => Nullary(module_directory),
@@ -501,6 +502,10 @@ fn justfile_directory(context: Context) -> StringResult {
 
 fn kebabcase(_context: Context, s: &str) -> StringResult {
   Ok(s.to_kebab_case())
+}
+
+fn len(_context: Context, value: &Value) -> ValueResult {
+  Ok(Value::from(value.len().to_string()))
 }
 
 fn lowercamelcase(_context: Context, s: &str) -> StringResult {
