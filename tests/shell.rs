@@ -32,8 +32,7 @@ fn flag() {
     .output()
     .unwrap();
 
-  let stdout = "-cu -cu EXPRESSION\n-cu -cu DEFAULT\n-cu RECIPE\n";
-  assert_stdout(&output, stdout);
+  assert_stdout(&output, "-cu -cu EXPRESSION\n-cu -cu DEFAULT\n-cu RECIPE\n");
 }
 
 /// Test that we can use `set shell` to use cmd.exe on windows
@@ -60,9 +59,7 @@ recipe:
 
   let output = Command::new(JUST).current_dir(tmp.path()).output().unwrap();
 
-  let stdout = "\\\"ECHO is on.\\\"\r\n";
-
-  assert_stdout(&output, stdout);
+  assert_stdout(&output, "\"ECHO is on.\"\r\n");
 }
 
 /// Test that we can use `set shell` to use cmd.exe on windows
@@ -89,9 +86,7 @@ recipe:
 
   let output = Command::new(JUST).current_dir(tmp.path()).output().unwrap();
 
-  let stdout = "0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\nHello, world!\n";
-
-  assert_stdout(&output, stdout);
+  assert_stdout(&output, "0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\nHello, world!\n");
 }
 
 #[test]

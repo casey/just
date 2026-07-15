@@ -57,7 +57,9 @@ impl Settings {
 
     let mut cmd = Command::resolve(command);
 
-    cmd.args(args);
+    for arg in args {
+      cmd.shell_arg(arg);
+    }
 
     cmd
   }

@@ -352,7 +352,7 @@ impl<'src> Recipe<'src> {
         cmd.current_dir(working_directory);
       }
 
-      cmd.arg(command);
+      cmd.shell_arg(command);
 
       if self.takes_positional_arguments(settings) {
         cmd.arg(self.name.lexeme());

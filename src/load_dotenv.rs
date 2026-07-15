@@ -105,7 +105,7 @@ fn load_from_command(
   let mut cmd = settings.shell_command(config);
 
   cmd
-    .arg(command)
+    .shell_arg(command)
     .current_dir(working_directory)
     .stdin(Stdio::inherit())
     .stderr(if config.verbosity.quiet() {
