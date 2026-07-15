@@ -60,7 +60,7 @@ recipe:
 
   let output = Command::new(JUST).current_dir(tmp.path()).output().unwrap();
 
-  let stdout = "\\\"ECHO is on.\\\"\r\n";
+  let stdout = "\"ECHO is on.\"\r\n";
 
   assert_stdout(&output, stdout);
 }

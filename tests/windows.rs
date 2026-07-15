@@ -25,7 +25,7 @@ fn cmd_shell_receives_command_verbatim() {
   case("echo ^&", "&\r\n", "");
   case("(echo foo)", "foo\r\n", "");
   case(r#"if "foo"=="foo" echo bar"#, "bar\r\n", "");
-  case("for %i in (foo bar) do echo %i", "foo\r\nbar\r\n", "");
+  case("for %i in (foo bar) do @echo %i", "foo\r\nbar\r\n", "");
   case("echo foo!", "foo!\r\n", "");
   case("echo %qwerty%", "%qwerty%\r\n", "");
   case("echo foo|findstr foo", "foo\r\n", "");
