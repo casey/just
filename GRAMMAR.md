@@ -120,13 +120,18 @@ comparison    : conjunct '==' conjunct
               | conjunct '!~' conjunct
               | conjunct
 
-conjunct      : 'if' expression '{' expression '}' ('else' '{' expression '}')?
+conjunct      : conditional
               | 'assert' '(' expression ',' expression ')'
               | '/' expression
               | value '+' expression
               | value '++' expression
               | value '/' expression
               | value
+
+conditional   : 'if' expression '{' expression '}' alternative?
+
+alternative   : 'else' conditional
+              | 'else' '{' expression '}'
 
 value         : '!' value
               | NAME '(' sequence? ')'
