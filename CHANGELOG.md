@@ -1,6 +1,76 @@
 Changelog
 =========
 
+[1.57.0](https://github.com/casey/just/releases/tag/1.57.0) - 2026-07-18
+------------------------------------------------------------------------
+
+### Changed
+- Pass arguments to `cmd.exe` without escaping ([#3636](https://github.com/casey/just/pull/3636) by [casey](https://github.com/casey))
+- `split('')` splits into characters ([#3650](https://github.com/casey/just/pull/3650) by [casey](https://github.com/casey))
+- Accept markdown justfiles found by name ([#3648](https://github.com/casey/just/pull/3648) by [casey](https://github.com/casey))
+- Make `[env]` variables visible to `shell()` invocations ([#3631](https://github.com/casey/just/pull/3631) by [casey](https://github.com/casey))
+- Forbid duplicate groups ([#3626](https://github.com/casey/just/pull/3626) by [casey](https://github.com/casey))
+- Forbid option names beginning with `-` ([#3608](https://github.com/casey/just/pull/3608) by [casey](https://github.com/casey))
+- Don't accept option arguments starting with `-=` or `--=` ([#3607](https://github.com/casey/just/pull/3607) by [casey](https://github.com/casey))
+- Reject empty alphabet in `choose()` regardless of count ([#3605](https://github.com/casey/just/pull/3605) by [casey](https://github.com/casey))
+- Forbid `[arg(flag)]` with `[arg(pattern)]` ([#3602](https://github.com/casey/just/pull/3602) by [casey](https://github.com/casey))
+- Add extension to cache key ([#3600](https://github.com/casey/just/pull/3600) by [casey](https://github.com/casey))
+
+### Fixed
+- Don't reevaluate lazy assignments in user-defined functions ([#3654](https://github.com/casey/just/pull/3654) by [casey](https://github.com/casey))
+- Don't print parenthesis around dependencies without arguments ([#3653](https://github.com/casey/just/pull/3653) by [casey](https://github.com/casey))
+- Accept override paths containing module aliases ([#3652](https://github.com/casey/just/pull/3652) by [casey](https://github.com/casey))
+- Fix line number in error message after multi-line interpolation ([#3646](https://github.com/casey/just/pull/3646) by [casey](https://github.com/casey))
+- Don't execute dotenv commands during dry run ([#3644](https://github.com/casey/just/pull/3644) by [casey](https://github.com/casey))
+- Only run `dotenv-command` in root module ([#3643](https://github.com/casey/just/pull/3643) by [casey](https://github.com/casey))
+- Detect module cycle when path uses `..` ([#3641](https://github.com/casey/just/pull/3641) by [casey](https://github.com/casey))
+- Recipes with `[arg(min)]` greater than zero cannot be default ([#3639](https://github.com/casey/just/pull/3639) by [casey](https://github.com/casey))
+- Avoid panic in ambiguous module file error ([#3638](https://github.com/casey/just/pull/3638) by [casey](https://github.com/casey))
+- Consider value when checking for setting conflicts ([#3627](https://github.com/casey/just/pull/3627) by [casey](https://github.com/casey))
+- Ignore disabled indentation settings ([#3618](https://github.com/casey/just/pull/3618) by [casey](https://github.com/casey))
+- Reject duplicate function parameters ([#3611](https://github.com/casey/just/pull/3611) by [casey](https://github.com/casey))
+- Allow defaulted option before required positional parameter ([#3609](https://github.com/casey/just/pull/3609) by [casey](https://github.com/casey))
+- Truncate cache entry before writing ([#3603](https://github.com/casey/just/pull/3603) by [casey](https://github.com/casey))
+- Ignore absent optional modules under `--allow-missing` ([#3601](https://github.com/casey/just/pull/3601) by [casey](https://github.com/casey))
+
+### Added
+- Add `len()` function ([#3663](https://github.com/casey/just/pull/3663) by [casey](https://github.com/casey))
+- Avoid panic when passed parentless justfile path ([#3624](https://github.com/casey/just/pull/3624) by [casey](https://github.com/casey))
+
+### Misc
+- Fix flags and options link in readme ([#3669](https://github.com/casey/just/pull/3669) by [casey](https://github.com/casey))
+- Add `else if` to grammar ([#3667](https://github.com/casey/just/pull/3667) by [casey](https://github.com/casey))
+- Remove function context macro ([#3659](https://github.com/casey/just/pull/3659) by [casey](https://github.com/casey))
+- Remove on-demand assignment evaluation ([#3658](https://github.com/casey/just/pull/3658) by [casey](https://github.com/casey))
+- Compute assignment references for `--evaluate` ([#3657](https://github.com/casey/just/pull/3657) by [casey](https://github.com/casey))
+- Evaluate const assignments in evaluation order ([#3656](https://github.com/casey/just/pull/3656) by [casey](https://github.com/casey))
+- Collect references transitively ([#3655](https://github.com/casey/just/pull/3655) by [casey](https://github.com/casey))
+- Serialize dependency path in JSON ([#3651](https://github.com/casey/just/pull/3651) by [casey](https://github.com/casey))
+- Print full recipe path for alias targets in `--show` and `--usage` ([#3649](https://github.com/casey/just/pull/3649) by [casey](https://github.com/casey))
+- Reject unexpected arguments to `--completions` ([#3642](https://github.com/casey/just/pull/3642) by [casey](https://github.com/casey))
+- Use recipe path in usage hint ([#3635](https://github.com/casey/just/pull/3635) by [casey](https://github.com/casey))
+- Trim non-cycle prefix from circular variable dependency errors ([#3634](https://github.com/casey/just/pull/3634) by [casey](https://github.com/casey))
+- Suggest similarly named submodules ([#3633](https://github.com/casey/just/pull/3633) by [casey](https://github.com/casey))
+- Report disabled recipes and aliases in `--show` and `--usage` ([#3632](https://github.com/casey/just/pull/3632) by [casey](https://github.com/casey))
+- Respect `--no-highlight` when echoing script recipes ([#3630](https://github.com/casey/just/pull/3630) by [casey](https://github.com/casey))
+- Report undefined variables in order ([#3629](https://github.com/casey/just/pull/3629) by [casey](https://github.com/casey))
+- Report correct final recipe in circular dependencies ([#3628](https://github.com/casey/just/pull/3628) by [casey](https://github.com/casey))
+- Ignore files with module directory name ([#3625](https://github.com/casey/just/pull/3625) by [casey](https://github.com/casey))
+- Dump unexports in alphabetical order ([#3623](https://github.com/casey/just/pull/3623) by [casey](https://github.com/casey))
+- Reject extra arguments to `--groups` ([#3622](https://github.com/casey/just/pull/3622) by [casey](https://github.com/casey))
+- Reject search-path-prefixes with `--global-justfile` ([#3621](https://github.com/casey/just/pull/3621) by [casey](https://github.com/casey))
+- Refactor AST display ([#3620](https://github.com/casey/just/pull/3620) by [casey](https://github.com/casey))
+- Format justfile with no items as empty string ([#3619](https://github.com/casey/just/pull/3619) by [casey](https://github.com/casey))
+- Return search errors other than `NotFound` during fallback ([#3617](https://github.com/casey/just/pull/3617) by [casey](https://github.com/casey))
+- Propagate more exit codes ([#3615](https://github.com/casey/just/pull/3615) by [casey](https://github.com/casey))
+- Use interpreter file name to determine script shell kind ([#3614](https://github.com/casey/just/pull/3614) by [casey](https://github.com/casey))
+- Resolve module aliases in `--evaluate` paths ([#3613](https://github.com/casey/just/pull/3613) by [casey](https://github.com/casey))
+- Trim and ignore empty doc comments ([#3612](https://github.com/casey/just/pull/3612) by [casey](https://github.com/casey))
+- Blame second recipe for duplicate `[default]` attribute ([#3610](https://github.com/casey/just/pull/3610) by [casey](https://github.com/casey))
+- Visit modules in order in `--choose` ([#3606](https://github.com/casey/just/pull/3606) by [casey](https://github.com/casey))
+- Include path in `canonicalize()` error message ([#3604](https://github.com/casey/just/pull/3604) by [casey](https://github.com/casey))
+- Remove fuzzer ([#3599](https://github.com/casey/just/pull/3599) by [casey](https://github.com/casey))
+
 [1.56.0](https://github.com/casey/just/releases/tag/1.56.0) - 2026-07-09
 ------------------------------------------------------------------------
 
