@@ -59,7 +59,7 @@ Yay, all your tests passed!
   with their source context.
 
 - Recipes can accept [command line arguments](#recipe-parameters), including
-  [flags and options](#recipe-flags-and-options.
+  [flags and options](#recipe-flags-and-options).
 
 - `just` has a rich [expression language](#expressions) and many
   built-in-functions.
