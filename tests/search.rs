@@ -240,6 +240,38 @@ fn justfile_name_skips_default_justfile() {
 }
 
 #[test]
+fn justfile_name_may_be_repeated() {
+  Test::new()
+    .write(
+      "bar",
+      "
+        default:
+        \techo ok
+      ",
+    )
+    .args(["--justfile-name", "foo", "--justfile-name", "bar"])
+    .stderr("echo ok\n")
+    .stdout("ok\n")
+    .success();
+}
+
+#[test]
+fn justfile_name_accepts_comma_separated_values() {
+  Test::new()
+    .write(
+      "bar",
+      "
+        default:
+        \techo ok
+      ",
+    )
+    .args(["--justfile-name", "foo,bar"])
+    .stderr("echo ok\n")
+    .stdout("ok\n")
+    .success();
+}
+
+#[test]
 fn justfile_symlink_parent() {
   Test::new()
     .write(
