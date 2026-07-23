@@ -1,8 +1,11 @@
-//! `just` is primarily used as a command-line binary, but does provide a
-//! limited public library interface.
+//! `just` is a handy way to save and run project-specific commands, and is
+//! primarily used as a command-line binary.
 //!
-//! Please keep in mind that there are no semantic version guarantees for the
-//! library interface. It may break or change at any time.
+//! See [GitHub](https://github.com/casey/just/) for more information.
+//!
+//! A limited public library interface is available. Please keep in mind that
+//! there are no semantic version guarantees for the library interface. It may
+//! break or change at any time.
 
 pub(crate) use {
   crate::{
