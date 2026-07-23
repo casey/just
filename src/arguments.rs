@@ -208,7 +208,8 @@ pub struct Arguments {
   pub(crate) justfile: Option<PathBuf>,
   #[arg(
     env = "JUST_JUSTFILE_NAME",
-    help = "Search for justfile named <NAME>, accepts multiple `,`-separated values and may be repeated",
+    help = "Search for justfile named <NAME>, accepts multiple `,`-separated values and may be \
+            repeated",
     long = "justfile-name",
     value_delimiter = ',',
     value_name = "NAME"
