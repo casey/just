@@ -213,7 +213,8 @@ impl<'src> Recipe<'src> {
           StringContext::TimestampAttribute(self.attributes.name(attribute)),
         )?))
       }
-      Some(_) => Ok(Some(config.timestamp_format.clone())),
+      Some(Attribute::Timestamp(None)) => Ok(Some(config.timestamp_format.clone())),
+      Some(_) => unreachable!(),
       None if config.timestamp => Ok(Some(config.timestamp_format.clone())),
       None => Ok(None),
     }
