@@ -4284,8 +4284,8 @@ the
 [`chrono` library docs](https://docs.rs/chrono/latest/chrono/format/strftime/index.html)
 for details.
 
-The `[timestamp]` attribute<sup>master</sup> enables timestamps for a specific
-recipe:
+The `[timestamp]` attribute<sup>master</sup> can be used to enable timestamps
+for a specific recipe:
 
 ```just
 [timestamp]
