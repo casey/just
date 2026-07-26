@@ -4299,6 +4299,20 @@ $ just foo
 hello
 ```
 
+Which may include a format string:
+
+```just
+[timestamp('%H:%M:%S%.3f')]
+foo:
+  echo hello
+```
+
+```
+$ just foo
+[07:28:46.487] echo hello
+hello
+```
+
 ### Signal Handling
 
 [Signals](https://en.wikipedia.org/wiki/Signal_(IPC)) are messages sent to
@@ -4758,6 +4772,7 @@ change their behavior.
 | `[script(COMMAND)]`<sup>1.32.0</sup> | recipe | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
 | `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
 | `[shell]`<sup>1.52.0</sup> | recipe | Execute recipe as a shell recipe, overriding `set default-script`. |
+| `[timestamp(FORMAT)]`<sup>master</sup> | recipe | Print command timestamps with format `FORMAT`. `FORMAT` may be an expression. |
 | `[timestamp]`<sup>master</sup> | recipe | Print command timestamps. |
 | `[unix]`<sup>1.8.0</sup> | any<sup>1.56.0</sup> | Enable item on unixes. (Includes macOS). |
 | `[windows]`<sup>1.8.0</sup> | any<sup>1.56.0</sup> | Enable item on Windows. |
