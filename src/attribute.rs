@@ -65,6 +65,7 @@ pub(crate) enum Attribute<'src> {
   Private,
   Script(Option<Interpreter<StringLiteral<'src>>>),
   Shell,
+  Timestamp,
   Unix,
   Windows,
   WorkingDirectory(Expression<'src>),
@@ -116,6 +117,7 @@ impl AttributeKind {
       | Self::PositionalArguments
       | Self::Private
       | Self::Shell
+      | Self::Timestamp
       | Self::Unix
       | Self::Windows => 0..=0,
       Self::Confirm | Self::Doc => 0..=1,
@@ -274,6 +276,7 @@ impl<'src> Attribute<'src> {
         })
       }),
       AttributeKind::Shell => Self::Shell,
+      AttributeKind::Timestamp => Self::Timestamp,
       AttributeKind::Unix => Self::Unix,
       AttributeKind::Windows => Self::Windows,
     };
@@ -593,6 +596,7 @@ impl Display for Attribute<'_> {
       | Self::Private
       | Self::Script(None)
       | Self::Shell
+      | Self::Timestamp
       | Self::Unix
       | Self::Windows => {}
       Self::Cache {
