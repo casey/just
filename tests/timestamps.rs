@@ -48,6 +48,37 @@ fn script() {
 }
 
 #[test]
+fn attribute() {
+  Test::new()
+    .justfile(
+      "
+        [timestamp]
+        recipe:
+          echo foo
+      ",
+    )
+    .stderr_regex(concat!(r"\[\d\d:\d\d:\d\d\] echo foo", "\n"))
+    .stdout("foo\n")
+    .success();
+}
+
+#[test]
+fn attribute_script() {
+  Test::new()
+    .justfile(
+      "
+        [timestamp]
+        recipe:
+          #!/bin/sh
+          echo foo
+      ",
+    )
+    .stderr_regex(concat!(r"\[\d\d:\d\d:\d\d\] recipe", "\n"))
+    .stdout("foo\n")
+    .success();
+}
+
+#[test]
 fn format_string() {
   Test::new()
     .justfile(

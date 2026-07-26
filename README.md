@@ -4284,6 +4284,21 @@ the
 [`chrono` library docs](https://docs.rs/chrono/latest/chrono/format/strftime/index.html)
 for details.
 
+The `[timestamp]` attribute<sup>master</sup> enables timestamps for a specific
+recipe, regardless of whether `--timestamp` is passed:
+
+```just
+[timestamp]
+recipe:
+  echo one
+```
+
+```
+$ just recipe
+[07:28:46] echo one
+one
+```
+
 ### Signal Handling
 
 [Signals](https://en.wikipedia.org/wiki/Signal_(IPC)) are messages sent to
@@ -4743,6 +4758,7 @@ change their behavior.
 | `[script(COMMAND)]`<sup>1.32.0</sup> | recipe | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
 | `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
 | `[shell]`<sup>1.52.0</sup> | recipe | Execute recipe as a shell recipe, overriding `set default-script`. |
+| `[timestamp]`<sup>master</sup> | recipe | Print recipe command timestamps. |
 | `[unix]`<sup>1.8.0</sup> | any<sup>1.56.0</sup> | Enable item on unixes. (Includes macOS). |
 | `[windows]`<sup>1.8.0</sup> | any<sup>1.56.0</sup> | Enable item on Windows. |
 | `[working-directory(PATH)]`<sup>1.38.0</sup> | recipe | Set recipe working directory. `PATH` may be an expression<sup>1.51.0</sup> whose value is relative or absolute. If relative, it is interpreted relative to the default working directory. |

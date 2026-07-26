@@ -201,6 +201,15 @@ impl<'src> Recipe<'src> {
     self.attributes.contains(AttributeKind::NoQuiet)
   }
 
+  fn timestamp(&self, config: &Config) -> RunResult<'static, Option<String>> {
+    (config.timestamp || self.attributes.contains(AttributeKind::Timestamp))
+      .then(|| {
+        datetime_format(chrono::Local::now(), &config.timestamp_format)
+          .map_err(Error::DatetimeFormat)
+      })
+      .transpose()
+  }
+
   pub(crate) fn run<'run>(
     &self,
     context: &ExecutionContext<'src, 'run>,
@@ -321,9 +330,11 @@ impl<'src> Recipe<'src> {
       let infallible = sigils.contains(&Sigil::Infallible);
       let quiet = sigils.contains(&Sigil::Quiet);
 
+      let timestamp = self.timestamp(config)?;
+
       if config.dry_run
         || config.verbosity.loquacious()
-        || config.timestamp
+        || timestamp.is_some()
         || !((quiet ^ self.quiet)
           || (settings.quiet && !self.no_quiet())
           || config.verbosity.quiet())
@@ -335,7 +346,7 @@ impl<'src> Recipe<'src> {
         }
         .stderr();
 
-        if let Some(timestamp) = config.timestamp()? {
+        if let Some(timestamp) = timestamp {
           eprint!("[{}] ", color.paint(&timestamp));
         }
 
@@ -437,7 +448,7 @@ impl<'src> Recipe<'src> {
   ) -> RunResult<'src> {
     let config = &context.config;
 
-    if let Some(timestamp) = config.timestamp()? {
+    if let Some(timestamp) = self.timestamp(config)? {
       let color = if config.highlight {
         config.color.command(config.command_color)
       } else {

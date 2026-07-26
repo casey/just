@@ -149,15 +149,6 @@ impl Config {
     }
   }
 
-  pub(crate) fn timestamp(&self) -> RunResult<'static, Option<String>> {
-    self
-      .timestamp
-      .then(|| {
-        datetime_format(chrono::Local::now(), &self.timestamp_format).map_err(Error::DatetimeFormat)
-      })
-      .transpose()
-  }
-
   fn parse_override(path: &str) -> ConfigResult<(Modulepath, String)> {
     let mut path = Modulepath::try_from([path].as_slice())
       .map_err(|()| ConfigError::OverridePath { path: path.into() })?;
