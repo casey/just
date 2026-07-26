@@ -4299,8 +4299,7 @@ $ just foo
 hello
 ```
 
-The attribute may be given a format string<sup>master</sup> which overrides
-`--timestamp-format`:
+Which may include a format string:
 
 ```just
 [timestamp('%H:%M:%S%.3f')]
