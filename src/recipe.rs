@@ -206,19 +206,16 @@ impl<'src> Recipe<'src> {
     config: &Config,
     evaluator: &mut Evaluator<'src, '_>,
   ) -> RunResult<'src, Option<String>> {
-    if let Some(attribute) = self.attributes.get(AttributeKind::Timestamp) {
-      if let Attribute::Timestamp(Some(expression)) = attribute {
+    match self.attributes.get(AttributeKind::Timestamp) {
+      Some(attribute @ Attribute::Timestamp(Some(expression))) => {
         Ok(Some(evaluator.evaluate_string(
           expression,
           StringContext::TimestampAttribute(self.attributes.name(attribute)),
         )?))
-      } else {
-        Ok(Some(config.timestamp_format.clone()))
       }
-    } else if config.timestamp {
-      Ok(Some(config.timestamp_format.clone()))
-    } else {
-      Ok(None)
+      Some(_) => Ok(Some(config.timestamp_format.clone())),
+      None if config.timestamp => Ok(Some(config.timestamp_format.clone())),
+      None => Ok(None),
     }
   }
 
