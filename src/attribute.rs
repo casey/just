@@ -65,7 +65,7 @@ pub(crate) enum Attribute<'src> {
   Private,
   Script(Option<Interpreter<StringLiteral<'src>>>),
   Shell,
-  Timestamp(Option<StringLiteral<'src>>),
+  Timestamp(Option<Expression<'src>>),
   Unix,
   Windows,
   WorkingDirectory(Expression<'src>),
@@ -75,7 +75,7 @@ impl AttributeKind {
   fn accepts_expressions(self) -> bool {
     matches!(
       self,
-      Self::Confirm | Self::Doc | Self::Env | Self::WorkingDirectory
+      Self::Confirm | Self::Doc | Self::Env | Self::Timestamp | Self::WorkingDirectory
     )
   }
 
@@ -202,6 +202,9 @@ impl<'src> Attribute<'src> {
           let (_, value) = arguments.next().unwrap();
           Ok(Self::Env(key, value))
         }
+        AttributeKind::Timestamp => Ok(Self::Timestamp(
+          arguments.into_iter().next().map(|(_, expr)| expr),
+        )),
         AttributeKind::WorkingDirectory => Ok(Self::WorkingDirectory(
           arguments.into_iter().next().map(|(_, expr)| expr).unwrap(),
         )),
@@ -247,6 +250,7 @@ impl<'src> Attribute<'src> {
       AttributeKind::Confirm
       | AttributeKind::Doc
       | AttributeKind::Env
+      | AttributeKind::Timestamp
       | AttributeKind::WorkingDirectory => {
         unreachable!()
       }
@@ -275,7 +279,6 @@ impl<'src> Attribute<'src> {
         })
       }),
       AttributeKind::Shell => Self::Shell,
-      AttributeKind::Timestamp => Self::Timestamp(arguments.into_iter().next()),
       AttributeKind::Unix => Self::Unix,
       AttributeKind::Windows => Self::Windows,
     };
@@ -619,10 +622,11 @@ impl Display for Attribute<'_> {
       }
       Self::Confirm(Some(argument))
       | Self::Doc(Some(argument))
+      | Self::Timestamp(Some(argument))
       | Self::WorkingDirectory(argument) => {
         write!(f, "({argument})")?;
       }
-      Self::Extension(argument) | Self::Group(argument) | Self::Timestamp(Some(argument)) => {
+      Self::Extension(argument) | Self::Group(argument) => {
         write!(f, "({argument})")?;
       }
       Self::Continue(signals) => {

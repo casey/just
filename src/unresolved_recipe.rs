@@ -97,7 +97,9 @@ impl<'src> UnresolvedRecipe<'src> {
               )?;
             }
           }
-          Attribute::Confirm(Some(expression)) | Attribute::WorkingDirectory(expression) => {
+          Attribute::Confirm(Some(expression))
+          | Attribute::Timestamp(Some(expression))
+          | Attribute::WorkingDirectory(expression) => {
             variable_resolver.resolve_expression(
               expression,
               &parameters,
@@ -134,7 +136,7 @@ impl<'src> UnresolvedRecipe<'src> {
           | Attribute::Private
           | Attribute::Script(_)
           | Attribute::Shell
-          | Attribute::Timestamp(_)
+          | Attribute::Timestamp(None)
           | Attribute::Unix
           | Attribute::Windows => {}
         }

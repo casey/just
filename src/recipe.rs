@@ -201,23 +201,25 @@ impl<'src> Recipe<'src> {
     self.attributes.contains(AttributeKind::NoQuiet)
   }
 
-  fn timestamp(&self, config: &Config) -> RunResult<'static, Option<String>> {
-    let format =
-      if let Some(Attribute::Timestamp(format)) = self.attributes.get(AttributeKind::Timestamp) {
-        Some(
-          format
-            .as_ref()
-            .map_or(config.timestamp_format.as_str(), |format| &format.cooked),
-        )
-      } else if config.timestamp {
-        Some(config.timestamp_format.as_str())
+  fn timestamp_format(
+    &self,
+    config: &Config,
+    evaluator: &mut Evaluator<'src, '_>,
+  ) -> RunResult<'src, Option<String>> {
+    if let Some(attribute) = self.attributes.get(AttributeKind::Timestamp) {
+      if let Attribute::Timestamp(Some(expression)) = attribute {
+        Ok(Some(evaluator.evaluate_string(
+          expression,
+          StringContext::TimestampAttribute(self.attributes.name(attribute)),
+        )?))
       } else {
-        None
-      };
-
-    format
-      .map(|format| datetime_format(chrono::Local::now(), format).map_err(Error::DatetimeFormat))
-      .transpose()
+        Ok(Some(config.timestamp_format.clone()))
+      }
+    } else if config.timestamp {
+      Ok(Some(config.timestamp_format.clone()))
+    } else {
+      Ok(None)
+    }
   }
 
   pub(crate) fn run<'run>(
@@ -296,6 +298,8 @@ impl<'src> Recipe<'src> {
 
     let working_directory = self.working_directory(context, &mut evaluator)?;
 
+    let timestamp_format = self.timestamp_format(config, &mut evaluator)?;
+
     loop {
       let Some(line) = lines.peek() else {
         return Ok(());
@@ -340,7 +344,10 @@ impl<'src> Recipe<'src> {
       let infallible = sigils.contains(&Sigil::Infallible);
       let quiet = sigils.contains(&Sigil::Quiet);
 
-      let timestamp = self.timestamp(config)?;
+      let timestamp = timestamp_format
+        .as_deref()
+        .map(|format| datetime_format(chrono::Local::now(), format).map_err(Error::DatetimeFormat))
+        .transpose()?;
 
       if config.dry_run
         || config.verbosity.loquacious()
@@ -458,7 +465,10 @@ impl<'src> Recipe<'src> {
   ) -> RunResult<'src> {
     let config = &context.config;
 
-    if let Some(timestamp) = self.timestamp(config)? {
+    if let Some(format) = self.timestamp_format(config, &mut evaluator)? {
+      let timestamp =
+        datetime_format(chrono::Local::now(), &format).map_err(Error::DatetimeFormat)?;
+
       let color = if config.highlight {
         config.color.command(config.command_color)
       } else {

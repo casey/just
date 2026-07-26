@@ -78,6 +78,23 @@ fn attribute_format() {
 }
 
 #[test]
+fn attribute_format_expression() {
+  Test::new()
+    .justfile(
+      "
+        format := '%H:%M:%S' + '%.3f'
+
+        [timestamp(format)]
+        recipe:
+          echo foo
+      ",
+    )
+    .stderr_regex(concat!(r"\[\d\d:\d\d:\d\d\.\d\d\d\] echo foo", "\n"))
+    .stdout("foo\n")
+    .success();
+}
+
+#[test]
 fn attribute_script() {
   Test::new()
     .justfile(
