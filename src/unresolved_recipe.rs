@@ -134,7 +134,7 @@ impl<'src> UnresolvedRecipe<'src> {
           | Attribute::Private
           | Attribute::Script(_)
           | Attribute::Shell
-          | Attribute::Timestamp
+          | Attribute::Timestamp(_)
           | Attribute::Unix
           | Attribute::Windows => {}
         }

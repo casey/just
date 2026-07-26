@@ -202,11 +202,21 @@ impl<'src> Recipe<'src> {
   }
 
   fn timestamp(&self, config: &Config) -> RunResult<'static, Option<String>> {
-    (config.timestamp || self.attributes.contains(AttributeKind::Timestamp))
-      .then(|| {
-        datetime_format(chrono::Local::now(), &config.timestamp_format)
-          .map_err(Error::DatetimeFormat)
-      })
+    let format =
+      if let Some(Attribute::Timestamp(format)) = self.attributes.get(AttributeKind::Timestamp) {
+        Some(
+          format
+            .as_ref()
+            .map_or(config.timestamp_format.as_str(), |format| &format.cooked),
+        )
+      } else if config.timestamp {
+        Some(config.timestamp_format.as_str())
+      } else {
+        None
+      };
+
+    format
+      .map(|format| datetime_format(chrono::Local::now(), format).map_err(Error::DatetimeFormat))
       .transpose()
   }
 

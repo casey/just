@@ -63,6 +63,21 @@ fn attribute() {
 }
 
 #[test]
+fn attribute_format() {
+  Test::new()
+    .justfile(
+      "
+        [timestamp('%H:%M:%S%.3f')]
+        recipe:
+          echo foo
+      ",
+    )
+    .stderr_regex(concat!(r"\[\d\d:\d\d:\d\d\.\d\d\d\] echo foo", "\n"))
+    .stdout("foo\n")
+    .success();
+}
+
+#[test]
 fn attribute_script() {
   Test::new()
     .justfile(

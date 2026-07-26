@@ -65,7 +65,7 @@ pub(crate) enum Attribute<'src> {
   Private,
   Script(Option<Interpreter<StringLiteral<'src>>>),
   Shell,
-  Timestamp,
+  Timestamp(Option<StringLiteral<'src>>),
   Unix,
   Windows,
   WorkingDirectory(Expression<'src>),
@@ -117,10 +117,9 @@ impl AttributeKind {
       | Self::PositionalArguments
       | Self::Private
       | Self::Shell
-      | Self::Timestamp
       | Self::Unix
       | Self::Windows => 0..=0,
-      Self::Confirm | Self::Doc => 0..=1,
+      Self::Confirm | Self::Doc | Self::Timestamp => 0..=1,
       Self::Continue | Self::Script => 0..=usize::MAX,
       Self::Arg | Self::Extension | Self::Group | Self::WorkingDirectory => 1..=1,
       Self::Env => 2..=2,
@@ -276,7 +275,7 @@ impl<'src> Attribute<'src> {
         })
       }),
       AttributeKind::Shell => Self::Shell,
-      AttributeKind::Timestamp => Self::Timestamp,
+      AttributeKind::Timestamp => Self::Timestamp(arguments.into_iter().next()),
       AttributeKind::Unix => Self::Unix,
       AttributeKind::Windows => Self::Windows,
     };
@@ -596,7 +595,7 @@ impl Display for Attribute<'_> {
       | Self::Private
       | Self::Script(None)
       | Self::Shell
-      | Self::Timestamp
+      | Self::Timestamp(None)
       | Self::Unix
       | Self::Windows => {}
       Self::Cache {
@@ -623,7 +622,7 @@ impl Display for Attribute<'_> {
       | Self::WorkingDirectory(argument) => {
         write!(f, "({argument})")?;
       }
-      Self::Extension(argument) | Self::Group(argument) => {
+      Self::Extension(argument) | Self::Group(argument) | Self::Timestamp(Some(argument)) => {
         write!(f, "({argument})")?;
       }
       Self::Continue(signals) => {
