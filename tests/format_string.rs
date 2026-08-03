@@ -254,9 +254,18 @@ fn dump() {
   case("f''''''");
   case(r#"f"""#);
   case(r#"f"""""""#);
-  case("f'{{'a'}}b{{'c'}}d'");
-  case("f'''{{'a'}}b{{'c'}}d'''");
-  case(r#"f"""{{'a'}}b{{'c'}}d""""#);
+  case("f'{{ 'a' }}b{{ 'c' }}d'");
+  case("f'''{{ 'a' }}b{{ 'c' }}d'''");
+  case(r#"f"""{{ 'a' }}b{{ 'c' }}d""""#);
+}
+
+#[test]
+fn interpolation_expressions_are_formatted_with_spaces() {
+  Test::new()
+    .justfile("foo := f'{{'a'}}'")
+    .arg("--dump")
+    .stdout("foo := f'{{ 'a' }}'\n")
+    .success();
 }
 
 #[test]

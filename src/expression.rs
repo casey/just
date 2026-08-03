@@ -202,7 +202,7 @@ impl Display for Expression<'_> {
         write!(f, "{start}")?;
 
         for (expression, string) in expressions {
-          write!(f, "{expression}{string}")?;
+          write!(f, " {expression} {string}")?;
         }
 
         Ok(())
