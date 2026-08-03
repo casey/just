@@ -196,6 +196,8 @@ $ just foo
 $ just bar
 /subdir
 </code></pre>
+<p>Note that this does not affect dotenv file search, or the working directory of
+backtick and <code>shell()</code> invocations.</p>
 <p>Use <code>set no-cd</code><sup>1.51.0</sup> to make all recipes in the current module
 default to the same behavior.</p>
 <p><code>set no-cd</code> and <code>set working-directory</code> can be overridden on a per-recipe basis

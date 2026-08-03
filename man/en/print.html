@@ -2669,6 +2669,8 @@ $ just foo
 $ just bar
 /subdir
 </code></pre>
+<p>Note that this does not affect dotenv file search, or the working directory of
+backtick and <code>shell()</code> invocations.</p>
 <p>Use <code>set no-cd</code><sup>1.51.0</sup> to make all recipes in the current module
 default to the same behavior.</p>
 <p><code>set no-cd</code> and <code>set working-directory</code> can be overridden on a per-recipe basis
@@ -2737,6 +2739,8 @@ commit file:
 <p>Can be used with paths that are relative to the current directory, because
 <code>[no-cd]</code> prevents <code>just</code> from changing the current directory when executing
 <code>commit</code>.</p>
+<p>Note that this does not affect dotenv file search, or the working directory of
+backtick and <code>shell()</code> invocations.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="organization"><a class="header" href="#organization">Organization</a></h2>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="imports"><a class="header" href="#imports">Imports</a></h3>
 <p>One <code>justfile</code> can include the contents of another using <code>import</code> statements.</p>
@@ -3263,6 +3267,25 @@ two
 the
 <a href="https://docs.rs/chrono/latest/chrono/format/strftime/index.html"><code>chrono</code> library docs</a>
 for details.</p>
+<p>The <code>[timestamp]</code> attribute<sup>1.58.0</sup> can be used to enable timestamps
+for a specific recipe:</p>
+<pre><code class="language-just">[timestamp]
+foo:
+  echo hello
+</code></pre>
+<pre><code>$ just foo
+[07:28:46] echo hello
+hello
+</code></pre>
+<p>Which may include a format string:</p>
+<pre><code class="language-just">[timestamp('%H:%M:%S%.3f')]
+foo:
+  echo hello
+</code></pre>
+<pre><code>$ just foo
+[07:28:46.487] echo hello
+hello
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="signal-handling"><a class="header" href="#signal-handling">Signal Handling</a></h3>
 <p><a href="https://en.wikipedia.org/wiki/Signal_(IPC)">Signals</a> are messages sent to
 running programs to trigger specific behavior. For example, <code>SIGINT</code> is sent to
@@ -3590,6 +3613,8 @@ change their behavior.</p>
 <tr><td><code>[script(COMMAND)]</code><sup>1.32.0</sup></td><td>recipe</td><td>Execute recipe as a script interpreted by <code>COMMAND</code>. See <a href="script-recipes.html">script recipes</a> for more details.</td></tr>
 <tr><td><code>[script]</code><sup>1.33.0</sup></td><td>recipe</td><td>Execute recipe as script. See <a href="script-recipes.html">script recipes</a> for more details.</td></tr>
 <tr><td><code>[shell]</code><sup>1.52.0</sup></td><td>recipe</td><td>Execute recipe as a shell recipe, overriding <code>set default-script</code>.</td></tr>
+<tr><td><code>[timestamp(FORMAT)]</code><sup>1.58.0</sup></td><td>recipe</td><td>Print command timestamps with format <code>FORMAT</code>. <code>FORMAT</code> may be an expression.</td></tr>
+<tr><td><code>[timestamp]</code><sup>1.58.0</sup></td><td>recipe</td><td>Print command timestamps.</td></tr>
 <tr><td><code>[unix]</code><sup>1.8.0</sup></td><td>any<sup>1.56.0</sup></td><td>Enable item on unixes. (Includes macOS).</td></tr>
 <tr><td><code>[windows]</code><sup>1.8.0</sup></td><td>any<sup>1.56.0</sup></td><td>Enable item on Windows.</td></tr>
 <tr><td><code>[working-directory(PATH)]</code><sup>1.38.0</sup></td><td>recipe</td><td>Set recipe working directory. <code>PATH</code> may be an expression<sup>1.51.0</sup> whose value is relative or absolute. If relative, it is interpreted relative to the default working directory.</td></tr>
