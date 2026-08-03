@@ -1,6 +1,21 @@
 Changelog
 =========
 
+[1.58.0](https://github.com/casey/just/releases/tag/1.58.0) - 2026-08-03
+------------------------------------------------------------------------
+
+### Changed
+- Surround interoplation expressions with spaces when formatting ([#3685](https://github.com/casey/just/pull/3685) by [casey](https://github.com/casey))
+- Accept multiple `,`-separated values in `--justfile-name` ([#3676](https://github.com/casey/just/pull/3676) by [casey](https://github.com/casey))
+
+### Added
+- Add format argument to `[timestamp]` attribute ([#3681](https://github.com/casey/just/pull/3681) by [casey](https://github.com/casey))
+- Add `[timestamp]` recipe attribute ([#3680](https://github.com/casey/just/pull/3680) by [casey](https://github.com/casey))
+
+### Misc
+- Note that `no-cd` only affects recipe working directory ([#3679](https://github.com/casey/just/pull/3679) by [casey](https://github.com/casey))
+- Link to GitHub from docs ([#3674](https://github.com/casey/just/pull/3674) by [casey](https://github.com/casey))
+
 [1.57.0](https://github.com/casey/just/releases/tag/1.57.0) - 2026-07-18
 ------------------------------------------------------------------------
 

@@ -4284,7 +4284,7 @@ the
 [`chrono` library docs](https://docs.rs/chrono/latest/chrono/format/strftime/index.html)
 for details.
 
-The `[timestamp]` attribute<sup>master</sup> can be used to enable timestamps
+The `[timestamp]` attribute<sup>1.58.0</sup> can be used to enable timestamps
 for a specific recipe:
 
 ```just
@@ -4772,8 +4772,8 @@ change their behavior.
 | `[script(COMMAND)]`<sup>1.32.0</sup> | recipe | Execute recipe as a script interpreted by `COMMAND`. See [script recipes](#script-recipes) for more details. |
 | `[script]`<sup>1.33.0</sup> | recipe | Execute recipe as script. See [script recipes](#script-recipes) for more details. |
 | `[shell]`<sup>1.52.0</sup> | recipe | Execute recipe as a shell recipe, overriding `set default-script`. |
-| `[timestamp(FORMAT)]`<sup>master</sup> | recipe | Print command timestamps with format `FORMAT`. `FORMAT` may be an expression. |
-| `[timestamp]`<sup>master</sup> | recipe | Print command timestamps. |
+| `[timestamp(FORMAT)]`<sup>1.58.0</sup> | recipe | Print command timestamps with format `FORMAT`. `FORMAT` may be an expression. |
+| `[timestamp]`<sup>1.58.0</sup> | recipe | Print command timestamps. |
 | `[unix]`<sup>1.8.0</sup> | any<sup>1.56.0</sup> | Enable item on unixes. (Includes macOS). |
 | `[windows]`<sup>1.8.0</sup> | any<sup>1.56.0</sup> | Enable item on Windows. |
 | `[working-directory(PATH)]`<sup>1.38.0</sup> | recipe | Set recipe working directory. `PATH` may be an expression<sup>1.51.0</sup> whose value is relative or absolute. If relative, it is interpreted relative to the default working directory. |
