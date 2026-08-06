@@ -573,9 +573,15 @@ impl Subcommand {
   fn man() -> RunResult<'static> {
     let mut buffer = Vec::<u8>::new();
 
-    Man::new(Arguments::command())
-      .render(&mut buffer)
-      .expect("writing to buffer cannot fail");
+    Man::new(Arguments::command().mut_arg("list_heading", |arg| {
+      let default = arg.get_default_values()[0]
+        .to_str()
+        .unwrap()
+        .replace('\n', "\\n");
+      arg.default_value(default)
+    }))
+    .render(&mut buffer)
+    .expect("writing to buffer cannot fail");
 
     let mut stdout = io::stdout().lock();
 
