@@ -21,7 +21,7 @@ members = [".", "crates/*"]
 blake3 = { version = "1.5.0", features = ["mmap", "rayon", "serde"] }
 camino = "1.0.4"
 chrono = "0.4.38"
-clap = { version = "4.0.0", features = ["derive", "env", "wrap_help"] }
+clap = { version = "4.0.0", features = ["derive", "env", "string", "wrap_help"] }
 clap_complete = { version = "=4.6.8", features = ["unstable-dynamic"] }
 clap_mangen = "0.3.0"
 digest-io = "0.1.0"
