@@ -180,12 +180,12 @@ fn environment_invalidates_cache() {
       ",
     )
     .unstable()
-    .args(["value=bar", "foo"])
+    .arg("value=bar")
     .stdout("bar\n")
     .success()
     .test()
     .unstable()
-    .args(["value=baz", "foo"])
+    .arg("value=baz")
     .stdout("baz\n")
     .success();
 }
@@ -204,17 +204,17 @@ fn unexported_variable_does_not_invalidate_cache() {
       ",
     )
     .unstable()
-    .args(["value=bar", "foo"])
+    .arg("value=bar")
     .stdout("bar\n")
     .success()
     .test()
     .unstable()
-    .args(["value=baz", "foo"])
+    .arg("value=baz")
     .success();
 }
 
 #[test]
-fn environment_varaibles_may_be_removed_from_cache_key() {
+fn environment_variables_may_be_removed_from_cache_key() {
   Test::new()
     .justfile(
       "
@@ -229,12 +229,35 @@ fn environment_varaibles_may_be_removed_from_cache_key() {
       ",
     )
     .unstable()
-    .args(["value=bar", "foo"])
+    .arg("value=bar")
     .stdout("bar\n")
     .success()
     .test()
     .unstable()
-    .args(["value=baz", "foo"])
+    .arg("value=baz")
+    .success();
+}
+
+#[test]
+fn environment_variables_may_be_added_to_cache_key() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        [cache(environment=['value'])]
+        [script]
+        foo:
+          echo $value
+      ",
+    )
+    .unstable()
+    .env("value", "bar")
+    .stdout("bar\n")
+    .success()
+    .test()
+    .unstable()
+    .env("value", "baz")
+    .stdout("baz\n")
     .success();
 }
 
@@ -346,16 +369,16 @@ fn extra_invalidates_cache() {
       ",
     )
     .unstable()
-    .args(["value=a", "foo"])
+    .arg("value=a")
     .stdout("bar\n")
     .success()
     .test()
     .unstable()
-    .args(["value=a", "foo"])
+    .arg("value=a")
     .success()
     .test()
     .unstable()
-    .args(["value=b", "foo"])
+    .arg("value=b")
     .stdout("bar\n")
     .success();
 }
