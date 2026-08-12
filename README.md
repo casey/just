@@ -4677,7 +4677,7 @@ just --clean bar::bob
 ### Adding and Removing Environment Variables
 
 By default, environment variables which are exported or unexported in the
-`justfile` are included in the cache key. Environment variables exported
+`justfile` are included in the cache key, and environment variables exported
 outside the `justfile` and inherited by `just` are not included.
 
 Environment variables can be added or removed from the cache key using
