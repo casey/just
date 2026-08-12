@@ -4674,7 +4674,7 @@ just --clean bar bob
 just --clean bar::bob
 ```
 
-### Environment Variables
+### Adding and Removing Environment Variables
 
 By default, environment variables which are exported or unexported in the
 `justfile` are included in the cache key. Environment variables exported
