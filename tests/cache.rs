@@ -214,6 +214,31 @@ fn unexported_variable_does_not_invalidate_cache() {
 }
 
 #[test]
+fn environment_varaibles_may_be_removed_from_cache_key() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+
+        export value := 'default'
+
+        [cache(environment=[])]
+        [script]
+        foo:
+          echo $value
+      ",
+    )
+    .unstable()
+    .args(["value=bar", "foo"])
+    .stdout("bar\n")
+    .success()
+    .test()
+    .unstable()
+    .args(["value=baz", "foo"])
+    .success();
+}
+
+#[test]
 fn interpreter_invalidates_cache() {
   Test::new()
     .justfile(
