@@ -3,7 +3,7 @@ use super::*;
 #[derive(Serialize)]
 pub(crate) struct CacheKey<'a> {
   pub(crate) body: &'a [String],
-  pub(crate) environment: &'a Environment,
+  pub(crate) environment: BTreeMap<String, Option<String>>,
   pub(crate) executor: &'a Executor<'a>,
   pub(crate) extension: Option<&'a str>,
   pub(crate) extra: Option<Value>,

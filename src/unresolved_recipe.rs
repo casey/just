@@ -75,10 +75,18 @@ impl<'src> UnresolvedRecipe<'src> {
             }
           }
           Attribute::Cache {
+            environment,
             extra,
             inputs,
             outputs,
           } => {
+            if let Some(environment) = environment {
+              variable_resolver.resolve_expression(
+                environment,
+                &parameters,
+                &mut variable_references,
+              )?;
+            }
             if let Some(extra) = extra {
               variable_resolver.resolve_expression(extra, &parameters, &mut variable_references)?;
             }
