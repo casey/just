@@ -568,6 +568,7 @@ impl<'src> Recipe<'src> {
 
     let (cache_lock, outputs) = if !config.no_cache
       && let Some(Attribute::Cache {
+        environment: environment_attribute,
         extra,
         inputs,
         outputs,
@@ -576,6 +577,35 @@ impl<'src> Recipe<'src> {
       let working_directory = match &working_directory {
         Some(working_directory) => working_directory.to_owned(),
         None => env::current_dir().map_err(|source| Error::CurrentDirectory { source })?,
+      };
+
+      let environment_attribute = environment_attribute
+        .as_ref()
+        .map(|environment| evaluator.evaluate_value(environment))
+        .transpose()?;
+
+      let environment = if let Some(names) = environment_attribute {
+        let mut variables = BTreeMap::new();
+
+        for name in names {
+          let value = if let Some(value) = environment.variables.get(&name) {
+            value.clone()
+          } else {
+            match env::var(&name) {
+              Err(env::VarError::NotPresent) => None,
+              Err(env::VarError::NotUnicode(value)) => {
+                return Err(Error::EnvVarUnicode { name, value });
+              }
+              Ok(value) => Some(value),
+            }
+          };
+
+          variables.insert(name, value);
+        }
+
+        variables
+      } else {
+        environment.variables.clone()
       };
 
       let extra = extra
@@ -608,7 +638,7 @@ impl<'src> Recipe<'src> {
 
       let key = CacheKey {
         body: &evaluated_lines,
-        environment: &environment,
+        environment,
         executor: &executor,
         extension,
         extra,

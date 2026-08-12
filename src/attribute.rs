@@ -38,6 +38,7 @@ pub(crate) enum Attribute<'src> {
     value: Option<Expression<'src>>,
   },
   Cache {
+    environment: Option<Expression<'src>>,
     extra: Option<Expression<'src>>,
     inputs: Option<Expression<'src>>,
     outputs: Option<Expression<'src>>,
@@ -228,6 +229,8 @@ impl<'src> Attribute<'src> {
       AttributeKind::Arg => Self::new_arg(name, arguments, &mut keyword_arguments)?,
       AttributeKind::Android => Self::Android,
       AttributeKind::Cache => Self::Cache {
+        environment: Self::remove_required(&mut keyword_arguments, "environment")?
+          .map(|(_key, expression)| expression),
         extra: Self::remove_required(&mut keyword_arguments, "extra")?
           .map(|(_key, expression)| expression),
         inputs: Self::remove_required(&mut keyword_arguments, "inputs")?
@@ -602,11 +605,15 @@ impl Display for Attribute<'_> {
       | Self::Unix
       | Self::Windows => {}
       Self::Cache {
+        environment,
         extra,
         inputs,
         outputs,
       } => {
         let mut arguments = Vec::new();
+        if let Some(environment) = environment {
+          arguments.push(format!("environment={environment}"));
+        }
         if let Some(extra) = extra {
           arguments.push(format!("extra={extra}"));
         }

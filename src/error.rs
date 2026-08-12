@@ -145,6 +145,10 @@ pub(crate) enum Error<'src> {
     parameter: &'src str,
     recipe: &'src str,
   },
+  EnvVarUnicode {
+    name: String,
+    value: OsString,
+  },
   EvalUnknownSubmodule {
     component: String,
     suggestion: Option<Suggestion<'src>>,
@@ -771,6 +775,13 @@ impl ColorDisplay for Error<'_> {
       EditorStatus { editor, status } => {
         let editor = editor.to_string_lossy();
         write!(f, "editor `{editor}` failed: {status}")?;
+      }
+      EnvVarUnicode { name, value } => {
+        write!(
+          f,
+          "environment variable `{name}` not unicode: `{}`",
+          value.to_string_lossy(),
+        )?;
       }
       EmptyListArgument { parameter, recipe } => {
         write!(
