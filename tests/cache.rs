@@ -262,6 +262,30 @@ fn environment_variables_may_be_added_to_cache_key() {
 }
 
 #[test]
+fn environment_may_be_expression() {
+  Test::new()
+    .justfile(
+      "
+        set lists
+        name := 'value'
+        [cache(environment=[name])]
+        [script]
+        foo:
+          echo $value
+      ",
+    )
+    .unstable()
+    .env("value", "bar")
+    .stdout("bar\n")
+    .success()
+    .test()
+    .unstable()
+    .env("value", "baz")
+    .stdout("baz\n")
+    .success();
+}
+
+#[test]
 fn interpreter_invalidates_cache() {
   Test::new()
     .justfile(
@@ -1177,6 +1201,30 @@ fn prints_cache_key() {
       "#,
     ))
     .success();
+}
+
+#[test]
+fn cache_environment_variables_are_resolved() {
+  Test::new()
+    .justfile(
+      "
+        [cache(environment = undefined)]
+        [script('sh')]
+        foo:
+          echo bar
+      ",
+    )
+    .unstable()
+    .stderr(
+      "
+        error: variable `undefined` not defined
+         ——▶ justfile:1:22
+          │
+        1 │ [cache(environment = undefined)]
+          │                      ^^^^^^^^^
+      ",
+    )
+    .failure();
 }
 
 #[test]
