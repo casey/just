@@ -4,10 +4,6 @@
 
 alias t := test
 
-log := "warn"
-
-export JUST_LOG := log
-
 [group: 'dev']
 watch +args='lcheck':
   cargo watch --clear --exec '{{ args }}'
