@@ -1127,9 +1127,7 @@ fn canonicalize_error_omits_path() {
   Test::new()
     .justfile("x := canonicalize('foo')")
     .args(["--evaluate", "x"])
-    .stderr_regex(
-      "error: I/O error canonicalizing `foo`: .*",
-    )
+    .stderr_regex("error: I/O error canonicalizing `foo`: .*")
     .failure();
 }
 

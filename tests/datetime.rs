@@ -38,7 +38,8 @@ fn invalid_format_string_error() {
           │
         1 │ x := datetime('%!')
           │      ^^^^^^^^
-      ")
+      ",
+    )
     .failure();
 }
 
