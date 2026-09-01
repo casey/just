@@ -64,7 +64,7 @@ fn style_unknown() {
     )
     .stderr(
       "
-        error: call to function `style` failed: invalid style: `hippo`
+        error: invalid style: `hippo`
          ——▶ justfile:2:13
           │
         2 │   @echo '{{ style('hippo') }}foo{{NORMAL}}'

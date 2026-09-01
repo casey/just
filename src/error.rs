@@ -816,9 +816,8 @@ impl ColorDisplay for Error<'_> {
       FormatCheckFoundDiff => {
         write!(f, "formatted justfile differs from original")?;
       }
-      FunctionCall { function, message } => {
-        let function = function.lexeme();
-        write!(f, "call to function `{function}` failed: {message}")?;
+      FunctionCall { message, .. } => {
+        write!(f, "{message}")?;
       }
       GetConfirmation { io_error } => {
         write!(f, "failed to read confirmation from stdin: {io_error}")?;

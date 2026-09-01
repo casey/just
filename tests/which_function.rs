@@ -282,7 +282,7 @@ fn require_error() {
     .args(["--evaluate", "p"])
     .stderr(
       "
-        error: call to function `require` failed: could not find executable `asdfasdf`
+        error: could not find executable `asdfasdf`
          ——▶ justfile:1:6
           │
         1 │ p := require('asdfasdf')

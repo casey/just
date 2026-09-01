@@ -186,7 +186,7 @@ fn absolute_path(context: Context, path: &str) -> StringResult {
   match abs_path_unchecked.to_str() {
     Some(absolute_path) => Ok(absolute_path.to_owned()),
     None => Err(format!(
-      "working directory is not valid unicode: {}",
+      "working directory is not valid Unicode: {}",
       context.execution_context.search.working_directory.display()
     )),
   }
@@ -231,7 +231,7 @@ fn canonicalize(context: Context, path: &str) -> StringResult {
 
   canonical.to_str().map(str::to_string).ok_or_else(|| {
     format!(
-      "canonical path is not valid unicode: {}",
+      "canonical path is not valid Unicode: {}",
       canonical.display(),
     )
   })
@@ -326,7 +326,7 @@ fn env(context: Context, keys: &Value, default: Option<&Value>) -> ValueResult {
       Err(VarError::NotPresent) => {}
       Err(VarError::NotUnicode(value)) => {
         return Err(format!(
-          "environment variable `{key}` is not unicode: `{}`",
+          "environment variable `{key}` is not Unicode: `{}`",
           value.to_string_lossy(),
         ));
       }
@@ -387,7 +387,7 @@ fn invocation_directory(context: Context) -> StringResult {
     &context.execution_context.search.working_directory,
     &context.execution_context.config.invocation_directory,
   )
-  .map_err(|e| format!("error getting shell path: {e}"))
+  .map_err(|e| format!("could not convert invocation directory to shell path: {e}"))
 }
 
 fn invocation_directory_native(context: Context) -> StringResult {
@@ -399,7 +399,7 @@ fn invocation_directory_native(context: Context) -> StringResult {
     .map(str::to_owned)
     .ok_or_else(|| {
       format!(
-        "invocation directory is not valid unicode: {}",
+        "invocation directory is not valid Unicode: {}",
         context
           .execution_context
           .config
@@ -443,11 +443,11 @@ fn join_list(_context: Context, value: &Value, separator: Option<&str>) -> Value
 
 fn just_executable(_context: Context) -> StringResult {
   let exe_path =
-    env::current_exe().map_err(|e| format!("error getting current executable: {e}"))?;
+    env::current_exe().map_err(|e| format!("could not get current `just` executable: {e}"))?;
 
   exe_path.to_str().map(str::to_owned).ok_or_else(|| {
     format!(
-      "executable path is not valid unicode: {}",
+      "executable path is not valid Unicode: {}",
       exe_path.display()
     )
   })
@@ -470,7 +470,7 @@ fn justfile(context: Context) -> StringResult {
     .map(str::to_owned)
     .ok_or_else(|| {
       format!(
-        "justfile path is not valid unicode: {}",
+        "justfile path is not valid Unicode: {}",
         context.execution_context.search.justfile.display()
       )
     })
@@ -494,7 +494,7 @@ fn justfile_directory(context: Context) -> StringResult {
     .map(str::to_owned)
     .ok_or_else(|| {
       format!(
-        "justfile directory is not valid unicode: {}",
+        "justfile directory is not valid Unicode: {}",
         justfile_directory.display()
       )
     })
@@ -520,7 +520,7 @@ fn module_directory(context: Context) -> StringResult {
   let module_directory = context.execution_context.module.source.parent().unwrap();
   module_directory.to_str().map(str::to_owned).ok_or_else(|| {
     format!(
-      "module directory is not valid unicode: {}",
+      "module directory is not valid Unicode: {}",
       module_directory.display(),
     )
   })
@@ -530,7 +530,7 @@ fn module_file(context: Context) -> StringResult {
   let module_file = &context.execution_context.module.source;
   module_file.to_str().map(str::to_owned).ok_or_else(|| {
     format!(
-      "module file path is not valid unicode: {}",
+      "module file path is not valid Unicode: {}",
       module_file.display(),
     )
   })
@@ -662,7 +662,7 @@ fn shell(context: Context, command: &str, args: &[String]) -> StringResult {
     command,
     Some(args),
   )
-  .map_err(|output_error| output_error.to_string())
+  .map_err(|output_error| format!("shell command failed: {output_error}"))
 }
 
 fn shoutykebabcase(_context: Context, s: &str) -> StringResult {
@@ -695,7 +695,7 @@ fn source_directory(context: Context) -> StringResult {
     .map(str::to_owned)
     .ok_or_else(|| {
       format!(
-        "source file path is not valid unicode: {}",
+        "source file path is not valid Unicode: {}",
         context.name.token.path.display(),
       )
     })
@@ -713,7 +713,7 @@ fn source_file(context: Context) -> StringResult {
     .map(str::to_owned)
     .ok_or_else(|| {
       format!(
-        "source file path is not valid unicode: {}",
+        "source file path is not valid Unicode: {}",
         context.name.token.path.display(),
       )
     })
