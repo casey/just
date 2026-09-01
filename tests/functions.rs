@@ -159,7 +159,7 @@ fn broken_without_extension_function() {
     )
     .stderr(
       "
-        error: call to function `without_extension` failed: could not extract parent from ``
+        error: could not extract parent from ``
          ——▶ justfile:1:8
           │
         1 │ we  := without_extension('')
@@ -185,7 +185,7 @@ fn broken_extension_function() {
     )
     .stderr(
       "
-        error: call to function `extension` failed: could not extract extension from ``
+        error: could not extract extension from ``
          ——▶ justfile:1:8
           │
         1 │ we  := extension('')
@@ -211,7 +211,7 @@ fn broken_extension_function2() {
     )
     .stderr(
       "
-        error: call to function `extension` failed: could not extract extension from `foo`
+        error: could not extract extension from `foo`
          ——▶ justfile:1:8
           │
         1 │ we  := extension('foo')
@@ -237,7 +237,7 @@ fn broken_file_stem_function() {
     )
     .stderr(
       "
-        error: call to function `file_stem` failed: could not extract file stem from ``
+        error: could not extract file stem from ``
          ——▶ justfile:1:8
           │
         1 │ we  := file_stem('')
@@ -263,7 +263,7 @@ fn broken_file_name_function() {
     )
     .stderr(
       "
-        error: call to function `file_name` failed: could not extract file name from ``
+        error: could not extract file name from ``
          ——▶ justfile:1:8
           │
         1 │ we  := file_name('')
@@ -289,7 +289,7 @@ fn broken_directory_function() {
     )
     .stderr(
       "
-        error: call to function `parent_directory` failed: could not extract parent directory from ``
+        error: could not extract parent directory from ``
          ——▶ justfile:1:8
           │
         1 │ we  := parent_directory('')
@@ -315,7 +315,7 @@ fn broken_directory_function2() {
     )
     .stderr(
       "
-        error: call to function `parent_directory` failed: could not extract parent directory from `/`
+        error: could not extract parent directory from `/`
          ——▶ justfile:1:8
           │
         1 │ we  := parent_directory('/')
@@ -377,7 +377,7 @@ fn env_var_failure() {
     )
     .stderr(
       "
-        error: call to function `env_var` failed: environment variable `ZADDY` not present
+        error: environment variable `ZADDY` not present
          ——▶ justfile:2:10
           │
         2 │   echo {{env_var('ZADDY')}}
@@ -626,7 +626,7 @@ fn invalid_replace_regex() {
     )
     .stderr(
       "
-        error: call to function `replace_regex` failed: regex parse error:
+        error: regex parse error:
             foo\\
                ^
         error: incomplete escape sequence, reached end of pattern prematurely
@@ -847,7 +847,7 @@ fn error_errors_with_message() {
     .args(["--evaluate"])
     .stderr(
       "
-        error: call to function `error` failed: Thing Not Supported
+        error: Thing Not Supported
          ——▶ justfile:1:6
           │
         1 │ x := error ('Thing Not Supported')
@@ -947,7 +947,7 @@ fn choose_bad_alphabet_empty() {
     .args(["--evaluate"])
     .stderr(
       "
-        error: call to function `choose` failed: empty alphabet
+        error: empty alphabet
          ——▶ justfile:1:6
           │
         1 │ x := choose('10', '')
@@ -964,7 +964,7 @@ fn reject_empty_alphabet_when_count_is_zero() {
     .args(["--evaluate"])
     .stderr(
       "
-        error: call to function `choose` failed: empty alphabet
+        error: empty alphabet
          ——▶ justfile:1:6
           │
         1 │ x := choose('0', '')
@@ -981,7 +981,7 @@ fn choose_bad_alphabet_repeated() {
     .args(["--evaluate"])
     .stderr(
       "
-        error: call to function `choose` failed: alphabet contains repeated character `a`
+        error: alphabet contains repeated character `a`
          ——▶ justfile:1:6
           │
         1 │ x := choose('10', 'aa')
@@ -998,7 +998,7 @@ fn choose_bad_length() {
     .args(["--evaluate"])
     .stderr(
       "
-        error: call to function `choose` failed: failed to parse `foo` as positive integer: invalid digit found in string
+        error: failed to parse `foo` as positive integer: invalid digit found in string
          ——▶ justfile:1:6
           │
         1 │ x := choose('foo', HEX)
@@ -1082,7 +1082,7 @@ fn shell_error() {
     .args(["--evaluate"])
     .stderr(
       "
-        error: call to function `shell` failed: process exited with status code 1
+        error: shell command failed: process exited with status code 1
          ——▶ justfile:1:8
           │
         1 │ var := shell('exit 1')
@@ -1128,7 +1128,7 @@ fn canonicalize_error_omits_path() {
     .justfile("x := canonicalize('foo')")
     .args(["--evaluate", "x"])
     .stderr_regex(
-      "error: call to function `canonicalize` failed: I/O error canonicalizing `foo`: .*",
+      "error: I/O error canonicalizing `foo`: .*",
     )
     .failure();
 }
@@ -1412,7 +1412,7 @@ fn recipe_name_in_assignment_is_an_error() {
     .args(["--evaluate"])
     .stderr(
       "
-        error: call to function `recipe_name` failed: `recipe_name()` can only be used within a recipe
+        error: `recipe_name()` can only be used within a recipe
          ——▶ justfile:1:6
           │
         1 │ x := recipe_name()
@@ -1569,7 +1569,7 @@ fn read_file_not_found() {
   Test::new()
     .justfile("foo := read('bar')")
     .args(["--evaluate", "foo"])
-    .stderr_regex(r"error: call to function `read` failed: I/O error reading `bar`: .*")
+    .stderr_regex(r"error: I/O error reading `bar`: .*")
     .failure();
 }
 

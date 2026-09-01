@@ -652,7 +652,7 @@ fn env_attribute_not_in_env_function() {
     )
     .stderr(
       "
-        error: call to function `env` failed: environment variable `foo` not present
+        error: environment variable `foo` not present
          ——▶ justfile:4:12
           │
         4 │   @echo {{ env('foo') }}.txt

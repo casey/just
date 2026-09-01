@@ -28,7 +28,7 @@ fn bool_invalid_value() {
     .args(["--evaluate", "x"])
     .stderr(
       "
-        error: call to function `bool` failed: `foo` is not a valid boolean string
+        error: `foo` is not a valid boolean string
          ——▶ justfile:3:6
           │
         3 │ x := bool('foo')
@@ -69,7 +69,7 @@ fn bool_multiple_elements() {
     .args(["--evaluate", "x"])
     .stderr(
       "
-        error: call to function `bool` failed: multi-element lists cannot be converted into booleans
+        error: multi-element lists cannot be converted into booleans
          ——▶ justfile:3:6
           │
         3 │ x := bool(['foo', 'bar'])

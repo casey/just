@@ -37,7 +37,7 @@ impl Display for OutputError {
         f,
         "process succeeded but `just` was interrupted by signal {signal}"
       ),
-      Self::Io(io_error) => write!(f, "error executing process: {io_error}"),
+      Self::Io(io_error) => write!(f, "could not execute process: {io_error}"),
       Self::Signal(signal) => write!(f, "process terminated by signal {signal}"),
       Self::Unknown => write!(f, "process experienced an unknown failure"),
       Self::Utf8(err) => write!(f, "could not convert process stdout to UTF-8: {err}"),

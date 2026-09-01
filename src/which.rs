@@ -35,7 +35,7 @@ pub(crate) fn which(context: &function::Context, name: &str) -> Result<Option<St
     {
       let pathext = pathext.to_str().ok_or_else(|| {
         format!(
-          "`PATHEXT` environment variable is not valid unicode: {}",
+          "`PATHEXT` environment variable is not valid Unicode: {}",
           pathext.to_string_lossy(),
         )
       })?;
@@ -55,7 +55,7 @@ pub(crate) fn which(context: &function::Context, name: &str) -> Result<Option<St
           .map(|candidate| Some(candidate.into()))
           .ok_or_else(|| {
             format!(
-              "Executable path is not valid unicode: {}",
+              "executable path is not valid Unicode: {}",
               candidate.display()
             )
           });

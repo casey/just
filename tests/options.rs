@@ -868,7 +868,7 @@ fn value_expression_evaluation_may_fail() {
     .args(["foo", "--bar"])
     .stderr(
       "
-        error: call to function `env` failed: environment variable `FOO` not present
+        error: environment variable `FOO` not present
          ——▶ justfile:1:31
           │
         1 │ [arg('bar', long='bar', value=env('FOO'))]
