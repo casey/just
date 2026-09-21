@@ -5,8 +5,8 @@ edition = "2024"
 publish = false
 
 [dependencies]
-semver = "1"
-serde = { version = "1", features = ["derive"] }
-serde_yaml = "0.9"
+semver = "1.0.0"
+serde = { version = "1.0.0", features = ["derive"] }
+serde_yaml = "0.9.0"
 snafu = "0.9.0"
-tabled = "0.18"
+tabled = "0.22.0"
