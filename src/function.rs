@@ -276,15 +276,9 @@ fn clean(_context: Context, path: &str) -> StringResult {
 fn dir(name: &'static str, f: fn() -> Option<std::path::PathBuf>) -> StringResult {
   match f() {
     Some(path) => path
-      .as_os_str()
-      .to_str()
-      .map(str::to_string)
-      .ok_or_else(|| {
-        format!(
-          "unable to convert {name} directory path to string: {}",
-          path.display(),
-        )
-      }),
+      .into_utf8()
+      .map(|path| path.into_string())
+      .map_err(|source| format!("unable to convert {name} directory path to string: `{source}`")),
     None => Err(format!("{name} directory not found")),
   }
 }

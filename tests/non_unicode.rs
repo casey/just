@@ -14,3 +14,19 @@ fn non_unicode_invocation_directory_is_an_error() {
     )
     .failure();
 }
+
+#[test]
+fn non_unicode_sibling_files_are_ignored() {
+  let tempdir = tempdir();
+  fs::write(
+    tempdir.path().join(std::ffi::OsStr::from_bytes(b"foo\xff")),
+    "",
+  )
+  .unwrap();
+
+  Test::with_tempdir(tempdir)
+    .justfile("foo:\n echo bar")
+    .stdout("bar\n")
+    .stderr("echo bar\n")
+    .success();
+}
