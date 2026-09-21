@@ -278,7 +278,7 @@ fn dir(name: &'static str, f: fn() -> Option<std::path::PathBuf>) -> StringResul
     Some(path) => path
       .into_utf8()
       .map(Utf8PathBuf::into_string)
-      .map_err(|source| format!("unable to convert {name} directory path to string: `{source}`")),
+      .map_err(|source| format!("unable to convert {name} directory path to string: {source}")),
     None => Err(format!("{name} directory not found")),
   }
 }
@@ -877,7 +877,7 @@ mod tests {
     use std::os::unix::ffi::OsStrExt;
     assert_eq!(
       dir("foo", || Some(OsStr::from_bytes(b"\xe0\x80\x80").into())).unwrap_err(),
-      "unable to convert foo directory path to string: ���",
+      "unable to convert foo directory path to string: PathBuf contains invalid UTF-8: ���",
     );
   }
 }
