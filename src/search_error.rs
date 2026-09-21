@@ -3,7 +3,7 @@ use super::*;
 #[derive(Debug, Snafu)]
 #[snafu(visibility(pub(crate)), context(suffix(false)))]
 pub(crate) enum SearchError {
-  #[snafu(display("I/O error at `{path}`: {io_error}",))]
+  #[snafu(display("I/O error at `{path}`: {io_error}"))]
   FilesystemIo {
     io_error: io::Error,
     path: Utf8PathBuf,

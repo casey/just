@@ -40,9 +40,6 @@ pub(crate) enum Error<'src> {
     path: Utf8PathBuf,
     source: serde_json::Error,
   },
-  CacheEntryUnicode {
-    source: FromPathBufError,
-  },
   CacheEntryWrite {
     path: Utf8PathBuf,
     source: serde_json::Error,
@@ -602,9 +599,6 @@ impl ColorDisplay for Error<'_> {
       },
       CacheEntryRead { path, source } => {
         write!(f, "failed to read cache entry at `{path}`: {source}")?;
-      }
-      CacheEntryUnicode { source } => {
-        write!(f, "cache entry path is not valid unicode: {source}")?;
       }
       CacheEntryWrite { path, source } => {
         write!(f, "failed to write cache entry at `{path}`: {source}")?;

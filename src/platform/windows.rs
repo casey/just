@@ -57,11 +57,7 @@ impl PlatformInterface for Platform {
     None
   }
 
-  fn convert_native_path(
-    config: &Config,
-    working_directory: &Utf8Path,
-    path: &Utf8Path,
-  ) -> StringResult {
+  fn convert_native_path(config: &Config, working_directory: &Utf8Path, path: &Utf8Path) -> String {
     // Translate path from windows style to unix style
     let mut cygpath = Command::resolve(&config.cygpath);
 
@@ -74,8 +70,8 @@ impl PlatformInterface for Platform {
       .stderr(Stdio::piped());
 
     match cygpath.output_guard_stdout() {
-      Ok(shell_path) => Ok(shell_path),
-      Err(_) => Ok(path.as_str().into()),
+      Ok(shell_path) => shell_path,
+      Err(_) => path.as_str().into(),
     }
   }
 

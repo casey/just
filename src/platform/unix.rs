@@ -40,8 +40,8 @@ impl PlatformInterface for Platform {
     _config: &Config,
     _working_directory: &Utf8Path,
     path: &Utf8Path,
-  ) -> StringResult {
-    Ok(path.as_str().into())
+  ) -> String {
+    path.as_str().into()
   }
 
   fn install_signal_handler<T: Fn(Signal) + Send + 'static>(handler: T) -> RunResult<'static> {

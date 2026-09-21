@@ -8,10 +8,7 @@ fn non_unicode_invocation_directory_is_an_error() {
 
   Test::with_tempdir(tempdir)
     .current_dir(dir)
-    .stderr_regex(
-      "^error: current directory is not valid unicode: PathBuf contains invalid UTF-8: \
-      .*/foo\u{FFFD}\n$",
-    )
+    .stderr_regex("^error: current directory is not valid unicode: `.*/foo\u{FFFD}`\n$")
     .failure();
 }
 

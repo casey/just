@@ -72,15 +72,15 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "blake3" => Unary(blake3),
     "blake3_file" => Unary(blake3_file),
     "bool" => ValueUnary(bool),
-    "cache_directory" => Nullary(|_| dir("cache", dirs::cache_dir)),
+    "cache_directory" => Nullary(|_| dir_function("cache", dirs::cache_dir)),
     "canonicalize" => Unary(canonicalize),
     "capitalize" => Unary(capitalize),
     "choose" => Binary(choose),
     "clean" => Unary(clean),
-    "config_directory" => Nullary(|_| dir("config", dirs::config_dir)),
-    "config_local_directory" => Nullary(|_| dir("local config", dirs::config_local_dir)),
-    "data_directory" => Nullary(|_| dir("data", dirs::data_dir)),
-    "data_local_directory" => Nullary(|_| dir("local data", dirs::data_local_dir)),
+    "config_directory" => Nullary(|_| dir_function("config", dirs::config_dir)),
+    "config_local_directory" => Nullary(|_| dir_function("local config", dirs::config_local_dir)),
+    "data_directory" => Nullary(|_| dir_function("data", dirs::data_dir)),
+    "data_local_directory" => Nullary(|_| dir_function("local data", dirs::data_local_dir)),
     "datetime" => Unary(datetime),
     "datetime_utc" => Unary(datetime_utc),
     "encode_uri_component" => Unary(encode_uri_component),
@@ -88,11 +88,11 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "env_var" => ValueUnary(env_var),
     "env_var_or_default" => ValueBinary(env_var_or_default),
     "error" => Unary(error),
-    "executable_directory" => Nullary(|_| dir("executable", dirs::executable_dir)),
+    "executable_directory" => Nullary(|_| dir_function("executable", dirs::executable_dir)),
     "extension" => Unary(extension),
     "file_name" => Unary(file_name),
     "file_stem" => Unary(file_stem),
-    "home_directory" => Nullary(|_| dir("home", dirs::home_dir)),
+    "home_directory" => Nullary(|_| dir_function("home", dirs::home_dir)),
     "invocation_directory" => Nullary(invocation_directory),
     "invocation_directory_native" => Nullary(invocation_directory_native),
     "is_dependency" => ValueNullary(is_dependency),
@@ -123,7 +123,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "replace" => Ternary(replace),
     "replace_regex" => Ternary(replace_regex),
     "require" => Unary(require),
-    "runtime_directory" => Nullary(|_| dir("runtime", dirs::runtime_dir)),
+    "runtime_directory" => Nullary(|_| dir_function("runtime", dirs::runtime_dir)),
     "semver_matches" => BinaryToValue(semver_matches),
     "sha256" => Unary(sha256),
     "sha256_file" => Unary(sha256_file),
@@ -227,7 +227,7 @@ fn canonicalize(context: Context, path: &str) -> StringResult {
 
   canonical.to_str().map(str::to_string).ok_or_else(|| {
     format!(
-      "canonical path is not valid Unicode: {}",
+      "canonical path is not valid Unicode: `{}`",
       canonical.display(),
     )
   })
@@ -273,12 +273,17 @@ fn clean(_context: Context, path: &str) -> StringResult {
   Ok(Utf8Path::new(path).clean().into())
 }
 
-fn dir(name: &'static str, f: fn() -> Option<std::path::PathBuf>) -> StringResult {
+fn dir_function(name: &'static str, f: fn() -> Option<std::path::PathBuf>) -> StringResult {
   match f() {
     Some(path) => path
       .into_utf8()
       .map(Utf8PathBuf::into_string)
-      .map_err(|source| format!("unable to convert {name} directory path to string: {source}")),
+      .map_err(|source| {
+        format!(
+          "{name} directory is not valid unicode: `{}`",
+          source.as_path().display(),
+        )
+      }),
     None => Err(format!("{name} directory not found")),
   }
 }
@@ -372,12 +377,11 @@ fn file_stem(_context: Context, path: &str) -> StringResult {
 }
 
 fn invocation_directory(context: Context) -> StringResult {
-  Platform::convert_native_path(
+  Ok(Platform::convert_native_path(
     context.execution_context.config,
     &context.execution_context.search.working_directory,
     &context.execution_context.config.invocation_directory,
-  )
-  .map_err(|e| format!("could not convert invocation directory to shell path: {e}"))
+  ))
 }
 
 fn invocation_directory_native(context: Context) -> StringResult {
@@ -428,7 +432,7 @@ fn just_executable(_context: Context) -> StringResult {
 
   exe_path.to_str().map(str::to_owned).ok_or_else(|| {
     format!(
-      "executable path is not valid Unicode: {}",
+      "executable path is not valid Unicode: `{}`",
       exe_path.display()
     )
   })
@@ -868,7 +872,10 @@ mod tests {
 
   #[test]
   fn dir_not_found() {
-    assert_eq!(dir("foo", || None).unwrap_err(), "foo directory not found");
+    assert_eq!(
+      dir_function("foo", || None).unwrap_err(),
+      "foo directory not found"
+    );
   }
 
   #[cfg(unix)]
@@ -876,8 +883,8 @@ mod tests {
   fn dir_not_unicode() {
     use std::os::unix::ffi::OsStrExt;
     assert_eq!(
-      dir("foo", || Some(OsStr::from_bytes(b"\xe0\x80\x80").into())).unwrap_err(),
-      "unable to convert foo directory path to string: PathBuf contains invalid UTF-8: ���",
+      dir_function("foo", || Some(OsStr::from_bytes(b"\xe0\x80\x80").into())).unwrap_err(),
+      "foo directory is not valid unicode: `���`",
     );
   }
 }

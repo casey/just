@@ -378,14 +378,13 @@ impl Subcommand {
     for entry in dir {
       let entry = entry.map_err(context)?;
 
-      if !entry_re.is_match(&entry.file_name().to_string_lossy()) {
+      let Ok(path) = entry.path().into_utf8() else {
+        continue;
+      };
+
+      if !entry_re.is_match(path.file_name().unwrap()) {
         continue;
       }
-
-      let path = entry
-        .path()
-        .into_utf8()
-        .map_err(|source| Error::CacheEntryUnicode { source })?;
 
       if let Some(prefix) = prefix {
         let json = fs::read_to_string(&path).map_err(|source| Error::FilesystemIo {
