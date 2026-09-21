@@ -11,7 +11,7 @@ use {
     str::Utf8Error,
   },
   tabled::{
-    settings::style::{BorderSpanCorrection, Style},
+    settings::{style::Style, themes::BorderCorrection},
     {Table, Tabled},
   },
 };
@@ -140,7 +140,7 @@ fn run() -> Result<()> {
     "{}",
     Table::new(&rows)
       .with(Style::modern())
-      .with(BorderSpanCorrection),
+      .with(BorderCorrection::span()),
   );
 
   if rows.iter().any(|row| row.status == "mismatch") {
