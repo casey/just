@@ -277,7 +277,7 @@ fn dir(name: &'static str, f: fn() -> Option<std::path::PathBuf>) -> StringResul
   match f() {
     Some(path) => path
       .into_utf8()
-      .map(|path| path.into_string())
+      .map(Utf8PathBuf::into_string)
       .map_err(|source| format!("unable to convert {name} directory path to string: `{source}`")),
     None => Err(format!("{name} directory not found")),
   }
