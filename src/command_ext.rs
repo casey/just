@@ -94,7 +94,7 @@ impl CommandExt for Command {
     #[cfg(windows)]
     if ShellKind::from(&*self) == ShellKind::Cmd {
       use std::os::windows::process::CommandExt;
-      return self.raw_arg(arg);
+      return self.raw_arg(arg.as_ref());
     }
 
     self.arg(arg.as_ref())

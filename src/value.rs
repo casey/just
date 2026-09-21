@@ -248,7 +248,7 @@ mod tests {
             length: 0,
             line: 0,
             offset: 0,
-            path: Path::new(""),
+            path: Utf8Path::new(""),
             src: "",
           }
         )

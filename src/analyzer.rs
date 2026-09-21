@@ -612,7 +612,7 @@ mod tests {
           length: 3,
           line: 0,
           offset: 13,
-          path: Path::new("justfile"),
+          path: Utf8Path::new("justfile"),
           src: "alias foo := bar\n",
         }
       ))

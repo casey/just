@@ -296,19 +296,20 @@ mod tests {
   #[test]
   fn recursive_includes_fail() {
     let tmp = tempfile::tempdir().unwrap();
-    fs::write(tmp.path().join("justfile"), "import './subdir/b'\na: b").unwrap();
-    fs::create_dir_all(tmp.path().join("subdir")).unwrap();
-    fs::write(tmp.path().join("subdir/b"), "import '../justfile'\nb:").unwrap();
+    let root = dir::temporary_directory(&tmp).unwrap();
+    fs::write(root.join("justfile"), "import './subdir/b'\na: b").unwrap();
+    fs::create_dir_all(root.join("subdir")).unwrap();
+    fs::write(root.join("subdir/b"), "import '../justfile'\nb:").unwrap();
 
     let loader = Loader::new();
 
-    let justfile_a_path = tmp.path().join("justfile");
+    let justfile_a_path = root.join("justfile");
     let loader_output =
       Compiler::compile(&Config::new().unwrap(), &loader, &justfile_a_path).unwrap_err();
 
     assert_matches!(loader_output, Error::CircularImport { current, import }
-      if current == tmp.path().join("subdir").join("b").clean() &&
-      import == tmp.path().join("justfile").clean()
+      if current == root.join("subdir").join("b").clean() &&
+      import == root.join("justfile").clean()
     );
   }
 
@@ -323,22 +324,23 @@ mod tests {
           length: 3,
           line: 0,
           offset: 0,
-          path: Path::new(""),
+          path: Utf8Path::new(""),
           src: "foo",
         },
       };
 
       let tempdir = tempfile::tempdir().unwrap();
+      let root = dir::temporary_directory(&tempdir).unwrap();
 
       for file in files {
-        if let Some(parent) = Path::new(file).parent() {
-          fs::create_dir_all(tempdir.path().join(parent)).unwrap();
+        if let Some(parent) = Utf8Path::new(file).parent() {
+          fs::create_dir_all(root.join(parent)).unwrap();
         }
 
-        fs::write(tempdir.path().join(file), "").unwrap();
+        fs::write(root.join(file), "").unwrap();
       }
 
-      let actual = Compiler::find_module_file(tempdir.path(), module, path.map(Path::new));
+      let actual = Compiler::find_module_file(root, module, path.map(Utf8Path::new));
 
       match expected {
         Err(expected) => match actual.unwrap_err() {
@@ -348,16 +350,14 @@ mod tests {
               expected
                 .iter()
                 .map(|expected| expected.replace('/', std::path::MAIN_SEPARATOR_STR).into())
-                .collect::<Vec<PathBuf>>()
+                .collect::<Vec<Utf8PathBuf>>()
             );
           }
           _ => panic!("unexpected error"),
         },
         Ok(Some(expected)) => assert_eq!(
           actual.unwrap().unwrap(),
-          tempdir
-            .path()
-            .join(expected.replace('/', std::path::MAIN_SEPARATOR_STR))
+          root.join(expected.replace('/', std::path::MAIN_SEPARATOR_STR))
         ),
         Ok(None) => assert_eq!(actual.unwrap(), None),
       }

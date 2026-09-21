@@ -954,7 +954,7 @@ mod tests {
     name: subcommand_list_search_directory,
     args: ["--list", ".."],
     search_config: SearchConfig::FromSearchDirectory {
-      search_directory: PathBuf::from(".."),
+      search_directory: Utf8PathBuf::from(".."),
     },
     subcommand: Subcommand::List { path: Modulepath::default() },
   }
@@ -963,7 +963,7 @@ mod tests {
     name: subcommand_show_search_directory,
     args: ["--show", "../foo"],
     search_config: SearchConfig::FromSearchDirectory {
-      search_directory: PathBuf::from("../"),
+      search_directory: Utf8PathBuf::from("../"),
     },
     subcommand: Subcommand::Show { path: Modulepath::try_from(["foo"].as_slice()).unwrap() },
   }
@@ -972,7 +972,7 @@ mod tests {
     name: subcommand_usage_search_directory,
     args: ["--usage", "foo/bar"],
     search_config: SearchConfig::FromSearchDirectory {
-      search_directory: PathBuf::from("foo/"),
+      search_directory: Utf8PathBuf::from("foo/"),
     },
     subcommand: Subcommand::Usage { path: Modulepath::try_from(["bar"].as_slice()).unwrap() },
   }
@@ -1082,8 +1082,8 @@ mod tests {
     name: search_config_from_working_directory_and_justfile,
     args: ["--working-directory", "foo", "--justfile", "bar"],
     search_config: SearchConfig::WithJustfileAndWorkingDirectory {
-      justfile: PathBuf::from("bar"),
-      working_directory: PathBuf::from("foo"),
+      justfile: Utf8PathBuf::from("bar"),
+      working_directory: Utf8PathBuf::from("foo"),
     },
   }
 
@@ -1091,7 +1091,7 @@ mod tests {
     name: search_config_justfile_long,
     args: ["--justfile", "foo"],
     search_config: SearchConfig::WithJustfile {
-      justfile: PathBuf::from("foo"),
+      justfile: Utf8PathBuf::from("foo"),
     },
   }
 
@@ -1099,7 +1099,7 @@ mod tests {
     name: search_config_justfile_short,
     args: ["-f", "foo"],
     search_config: SearchConfig::WithJustfile {
-      justfile: PathBuf::from("foo"),
+      justfile: Utf8PathBuf::from("foo"),
     },
   }
 
@@ -1119,7 +1119,7 @@ mod tests {
     name: search_config_justfile_stdin_with_working_directory,
     args: ["--justfile", "-", "--working-directory", "foo"],
     search_config: SearchConfig::FromStandardInput {
-      working_directory: Some(PathBuf::from("foo")),
+      working_directory: Some(Utf8PathBuf::from("foo")),
     },
   }
 
@@ -1127,7 +1127,7 @@ mod tests {
     name: search_directory_parent,
     args: ["../"],
     search_config: SearchConfig::FromSearchDirectory {
-      search_directory: PathBuf::from(".."),
+      search_directory: Utf8PathBuf::from(".."),
     },
   }
 
@@ -1135,7 +1135,7 @@ mod tests {
     name: search_directory_parent_with_recipe,
     args: ["../build"],
     search_config: SearchConfig::FromSearchDirectory {
-      search_directory: PathBuf::from(".."),
+      search_directory: Utf8PathBuf::from(".."),
     },
     subcommand: Subcommand::Run { arguments: vec!["build".to_owned()] },
   }
@@ -1144,7 +1144,7 @@ mod tests {
     name: search_directory_child,
     args: ["foo/"],
     search_config: SearchConfig::FromSearchDirectory {
-      search_directory: PathBuf::from("foo"),
+      search_directory: Utf8PathBuf::from("foo"),
     },
   }
 
@@ -1152,7 +1152,7 @@ mod tests {
     name: search_directory_deep,
     args: ["foo/bar/"],
     search_config: SearchConfig::FromSearchDirectory {
-      search_directory: PathBuf::from("foo/bar"),
+      search_directory: Utf8PathBuf::from("foo/bar"),
     },
   }
 
@@ -1160,7 +1160,7 @@ mod tests {
     name: search_directory_child_with_recipe,
     args: ["foo/build"],
     search_config: SearchConfig::FromSearchDirectory {
-      search_directory: PathBuf::from("foo"),
+      search_directory: Utf8PathBuf::from("foo"),
     },
     subcommand: Subcommand::Run { arguments: vec!["build".to_owned()] },
   }

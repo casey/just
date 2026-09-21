@@ -45,9 +45,9 @@ mod tests {
   #[test]
   fn multiple_candidates_formatting() {
     let error = SearchError::MultipleCandidates {
-      candidates: [Path::new("/foo/justfile"), Path::new("/foo/JUSTFILE")]
-        .iter()
-        .map(|path| path.to_path_buf())
+      candidates: ["/foo/justfile", "/foo/JUSTFILE"]
+        .into_iter()
+        .map(Utf8PathBuf::from)
         .collect(),
     };
 

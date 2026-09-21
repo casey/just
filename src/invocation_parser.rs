@@ -317,10 +317,16 @@ mod tests {
   use {super::*, tempfile::TempDir};
 
   trait TempDirExt {
+    fn utf8_path(&self) -> &Utf8Path;
+
     fn write(&self, path: &str, content: &str);
   }
 
   impl TempDirExt for TempDir {
+    fn utf8_path(&self) -> &Utf8Path {
+      Utf8Path::from_path(self.path()).unwrap()
+    }
+
     fn write(&self, path: &str, content: &str) {
       let path = self.path().join(path);
       fs::create_dir_all(path.parent().unwrap()).unwrap();
@@ -396,10 +402,10 @@ mod tests {
   fn recipe_in_submodule() {
     let loader = Loader::new();
     let tempdir = tempfile::tempdir().unwrap();
-    let path = tempdir.path().join("justfile");
+    let path = tempdir.utf8_path().join("justfile");
     fs::write(&path, "mod foo").unwrap();
-    fs::create_dir(tempdir.path().join("foo")).unwrap();
-    fs::write(tempdir.path().join("foo/mod.just"), "bar:").unwrap();
+    fs::create_dir(tempdir.utf8_path().join("foo")).unwrap();
+    fs::write(tempdir.utf8_path().join("foo/mod.just"), "bar:").unwrap();
     let compilation = Compiler::compile(&Config::new().unwrap(), &loader, &path).unwrap();
 
     let invocations =
@@ -420,7 +426,7 @@ mod tests {
     let compilation = Compiler::compile(
       &Config::new().unwrap(),
       &loader,
-      &tempdir.path().join("justfile"),
+      &tempdir.utf8_path().join("justfile"),
     )
     .unwrap();
 
@@ -436,10 +442,10 @@ mod tests {
   fn recipe_in_submodule_unknown() {
     let loader = Loader::new();
     let tempdir = tempfile::tempdir().unwrap();
-    let path = tempdir.path().join("justfile");
+    let path = tempdir.utf8_path().join("justfile");
     fs::write(&path, "mod foo").unwrap();
-    fs::create_dir(tempdir.path().join("foo")).unwrap();
-    fs::write(tempdir.path().join("foo/mod.just"), "bar:").unwrap();
+    fs::create_dir(tempdir.utf8_path().join("foo")).unwrap();
+    fs::write(tempdir.utf8_path().join("foo/mod.just"), "bar:").unwrap();
     let compilation = Compiler::compile(&Config::new().unwrap(), &loader, &path).unwrap();
 
     assert_matches!(
@@ -461,7 +467,7 @@ mod tests {
     let compilation = Compiler::compile(
       &Config::new().unwrap(),
       &loader,
-      &tempdir.path().join("justfile"),
+      &tempdir.utf8_path().join("justfile"),
     )
     .unwrap();
 
@@ -483,7 +489,7 @@ mod tests {
     let compilation = Compiler::compile(
       &Config::new().unwrap(),
       &loader,
-      &tempdir.path().join("justfile"),
+      &tempdir.utf8_path().join("justfile"),
     )
     .unwrap();
 
@@ -503,7 +509,7 @@ mod tests {
     let compilation = Compiler::compile(
       &Config::new().unwrap(),
       &loader,
-      &tempdir.path().join("justfile"),
+      &tempdir.utf8_path().join("justfile"),
     )
     .unwrap();
 
@@ -524,7 +530,7 @@ mod tests {
     let compilation = Compiler::compile(
       &Config::new().unwrap(),
       &loader,
-      &tempdir.path().join("justfile"),
+      &tempdir.utf8_path().join("justfile"),
     )
     .unwrap();
 
@@ -543,7 +549,7 @@ mod tests {
     let compilation = Compiler::compile(
       &Config::new().unwrap(),
       &loader,
-      &tempdir.path().join("justfile"),
+      &tempdir.utf8_path().join("justfile"),
     )
     .unwrap();
 
@@ -566,7 +572,7 @@ mod tests {
     let compilation = Compiler::compile(
       &Config::new().unwrap(),
       &loader,
-      &tempdir.path().join("justfile"),
+      &tempdir.utf8_path().join("justfile"),
     )
     .unwrap();
 
@@ -699,7 +705,7 @@ foo baz qux='qux' bar='bar':
     let compilation = Compiler::compile(
       &Config::new().unwrap(),
       &loader,
-      &tempdir.path().join("justfile"),
+      &tempdir.utf8_path().join("justfile"),
     )
     .unwrap();
 
@@ -721,7 +727,7 @@ foo baz qux='qux' bar='bar':
     let compilation = Compiler::compile(
       &Config::new().unwrap(),
       &loader,
-      &tempdir.path().join("justfile"),
+      &tempdir.utf8_path().join("justfile"),
     )
     .unwrap();
 

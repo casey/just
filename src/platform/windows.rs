@@ -75,10 +75,7 @@ impl PlatformInterface for Platform {
 
     match cygpath.output_guard_stdout() {
       Ok(shell_path) => Ok(shell_path),
-      Err(_) => path
-        .to_str()
-        .map(str::to_string)
-        .ok_or_else(|| String::from("Error getting current directory: unicode decode error")),
+      Err(_) => Ok(path.as_str().into()),
     }
   }
 
