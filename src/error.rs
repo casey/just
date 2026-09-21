@@ -532,7 +532,7 @@ impl ColorDisplay for Error<'_> {
       AmbiguousModuleFile { module, found } => write!(
         f,
         "found multiple source files for module `{module}`: {}",
-        List::and_ticked(found.iter().map(|path| path)),
+        List::and_ticked(found.iter()),
       )?,
       ArgumentPatternMismatch {
         argument,
@@ -601,13 +601,13 @@ impl ColorDisplay for Error<'_> {
         )?,
       },
       CacheEntryRead { path, source } => {
-        write!(f, "failed to read cache entry at `{path}`: {source}",)?
+        write!(f, "failed to read cache entry at `{path}`: {source}")?;
       }
       CacheEntryUnicode { source } => {
-        write!(f, "cache entry path is not valid unicode: {source}",)?
+        write!(f, "cache entry path is not valid unicode: {source}")?;
       }
       CacheEntryWrite { path, source } => {
-        write!(f, "failed to write cache entry at `{path}`: {source}",)?
+        write!(f, "failed to write cache entry at `{path}`: {source}")?;
       }
       CacheInputDirectory { path } => {
         write!(f, "cache input is directory: `{path}`")?;
@@ -891,7 +891,7 @@ impl ColorDisplay for Error<'_> {
         }?;
       }
       Load { io_error, path } => {
-        write!(f, "failed to read justfile at `{path}`: {io_error}",)?;
+        write!(f, "failed to read justfile at `{path}`: {io_error}")?;
       }
       NonFinalOptionWithValue { recipe, switch } => {
         write!(
@@ -968,7 +968,7 @@ impl ColorDisplay for Error<'_> {
       )?,
       RegexCompile { source, .. } => write!(f, "{source}")?,
       RuntimeDirIo { io_error, path } => {
-        write!(f, "I/O error in runtime dir `{path}`: {io_error}",)?;
+        write!(f, "I/O error in runtime dir `{path}`: {io_error}")?;
       }
       Script {
         command,

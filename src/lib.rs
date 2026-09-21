@@ -217,12 +217,10 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 fn env_var(name: &str) -> RunResult<'static, Option<String>> {
   match env::var(name) {
     Err(env::VarError::NotPresent) => Ok(None),
-    Err(env::VarError::NotUnicode(value)) => {
-      return Err(Error::EnvVarUnicode {
-        name: name.into(),
-        value,
-      });
-    }
+    Err(env::VarError::NotUnicode(value)) => Err(Error::EnvVarUnicode {
+      name: name.into(),
+      value,
+    }),
     Ok(value) => Ok(Some(value)),
   }
 }

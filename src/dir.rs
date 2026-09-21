@@ -7,12 +7,10 @@ pub(crate) fn config_directory() -> PathResult<Option<Utf8PathBuf>> {
 }
 
 pub(crate) fn current_directory() -> PathResult<Utf8PathBuf> {
-  Ok(
-    env::current_dir()
-      .context(path_error::CurrentDirectoryIo)?
-      .try_into()
-      .context(path_error::CurrentDirectoryUnicode)?,
-  )
+  env::current_dir()
+    .context(path_error::CurrentDirectoryIo)?
+    .try_into()
+    .context(path_error::CurrentDirectoryUnicode)
 }
 
 pub(crate) fn home_directory() -> PathResult<Option<Utf8PathBuf>> {
