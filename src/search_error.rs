@@ -1,33 +1,35 @@
 use super::*;
 
 #[derive(Debug, Snafu)]
-#[snafu(visibility(pub(crate)))]
+#[snafu(visibility(pub(crate)), context(suffix(false)))]
 pub(crate) enum SearchError {
-  #[snafu(display(
-    "I/O error at `{}`: {io_error}",
-    path.display(),
-  ))]
-  FilesystemIo { io_error: io::Error, path: PathBuf },
+  #[snafu(display("I/O error at `{path}`: {io_error}"))]
+  FilesystemIo {
+    io_error: io::Error,
+    path: Utf8PathBuf,
+  },
   #[snafu(display("cannot initialize global justfile"))]
   GlobalJustfileInit,
   #[snafu(display("global justfile not found"))]
   GlobalJustfileNotFound,
   #[snafu(display("cannot use justfile from standard input with `--init`"))]
   InitWithJustfileFromStandardInput,
-  #[snafu(display("justfile path had no parent: {}", path.display()))]
-  JustfileHadNoParent { path: PathBuf },
+  #[snafu(display("justfile path had no parent: {path}"))]
+  JustfileHadNoParent { path: Utf8PathBuf },
   #[snafu(display(
     "multiple candidate justfiles found in `{}`: {}",
-    candidates.first().unwrap().parent().unwrap().display(),
+    candidates.first().unwrap().parent().unwrap(),
     List::and_ticked(
       candidates
         .iter()
-        .map(|candidate| candidate.file_name().unwrap().to_string_lossy())
+        .map(|candidate| candidate.file_name().unwrap())
     ),
   ))]
-  MultipleCandidates { candidates: BTreeSet<PathBuf> },
+  MultipleCandidates { candidates: BTreeSet<Utf8PathBuf> },
   #[snafu(display("no justfile found"))]
   NotFound,
+  #[snafu(transparent)]
+  Path { source: PathError },
   #[snafu(display("error reading from standard input: {io_error}"))]
   StdinIo { io_error: io::Error },
   #[snafu(display("I/O error creating temporary directory: {io_error}"))]
@@ -41,9 +43,9 @@ mod tests {
   #[test]
   fn multiple_candidates_formatting() {
     let error = SearchError::MultipleCandidates {
-      candidates: [Path::new("/foo/justfile"), Path::new("/foo/JUSTFILE")]
-        .iter()
-        .map(|path| path.to_path_buf())
+      candidates: ["/foo/justfile", "/foo/JUSTFILE"]
+        .into_iter()
+        .map(Utf8PathBuf::from)
         .collect(),
     };
 

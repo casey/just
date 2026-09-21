@@ -6,12 +6,12 @@ impl Compiler {
   pub(crate) fn compile<'src>(
     config: &Config,
     loader: &'src Loader,
-    root: &Path,
+    root: &Utf8Path,
   ) -> RunResult<'src, Compilation<'src>> {
-    let mut asts = HashMap::<(Modulepath, PathBuf), Ast>::new();
+    let mut asts = HashMap::<(Modulepath, Utf8PathBuf), Ast>::new();
     let mut loaded = Vec::new();
     let mut numerator = Numerator::new();
-    let mut paths = HashMap::<PathBuf, PathBuf>::new();
+    let mut paths = HashMap::<Utf8PathBuf, Utf8PathBuf>::new();
     let mut stack = Vec::new();
     stack.push(Source::root(root));
 
@@ -29,7 +29,7 @@ impl Compiler {
         continue;
       }
 
-      let (relative, src) = loader.load(config, root, &current.path)?;
+      let (relative, src) = loader.load(root, &current.path)?;
 
       if paths
         .insert(current.path.clone(), relative.into())
@@ -154,10 +154,10 @@ impl Compiler {
   }
 
   fn find_module_file<'src>(
-    parent: &Path,
+    parent: &Utf8Path,
     module: Name<'src>,
-    path: Option<&Path>,
-  ) -> RunResult<'src, Option<PathBuf>> {
+    path: Option<&Utf8Path>,
+  ) -> RunResult<'src, Option<Utf8PathBuf>> {
     let mut candidates = Vec::new();
 
     if let Some(path) = path {
@@ -181,7 +181,7 @@ impl Compiler {
       }
     }
 
-    let mut grouped = BTreeMap::<PathBuf, Vec<(PathBuf, bool)>>::new();
+    let mut grouped = BTreeMap::<Utf8PathBuf, Vec<(Utf8PathBuf, bool)>>::new();
 
     for (candidate, case_sensitive) in candidates {
       let candidate = parent.join(candidate).clean();
@@ -221,7 +221,7 @@ impl Compiler {
 
         if let Some(name) = entry.file_name().to_str() {
           for (candidate, case_sensitive) in &candidates {
-            let candidate_name = candidate.file_name().unwrap().to_str().unwrap();
+            let candidate_name = candidate.file_name().unwrap();
 
             let eq = if *case_sensitive {
               name == candidate_name
@@ -245,7 +245,7 @@ impl Compiler {
           .map(|found| {
             found
               .strip_prefix(parent)
-              .map(PathBuf::from)
+              .map(Utf8PathBuf::from)
               .unwrap_or(found)
           })
           .collect(),
@@ -256,13 +256,11 @@ impl Compiler {
     }
   }
 
-  fn expand_tilde(path: &str) -> RunResult<'static, PathBuf> {
+  fn expand_tilde(path: &str) -> RunResult<'static, Utf8PathBuf> {
     Ok(if let Some(path) = path.strip_prefix("~/") {
-      dirs::home_dir()
-        .ok_or(Error::Homedir)?
-        .join(path.trim_start_matches('/'))
+      dir::home_directory_required()?.join(path.trim_start_matches('/'))
     } else {
-      PathBuf::from(path)
+      Utf8PathBuf::from(path)
     })
   }
 
@@ -270,10 +268,10 @@ impl Compiler {
   pub(crate) fn test_compile(src: &str) -> CompileResult<Justfile> {
     let tokens = Lexer::test_lex(src)?;
     let ast = Parser::parse_tokens(&mut Numerator::new(), &tokens)?;
-    let root = PathBuf::from("justfile");
-    let mut asts: HashMap<(Modulepath, PathBuf), Ast> = HashMap::new();
+    let root = Utf8PathBuf::from("justfile");
+    let mut asts: HashMap<(Modulepath, Utf8PathBuf), Ast> = HashMap::new();
     asts.insert((Modulepath::default(), root.clone()), ast);
-    let mut paths: HashMap<PathBuf, PathBuf> = HashMap::new();
+    let mut paths: HashMap<Utf8PathBuf, Utf8PathBuf> = HashMap::new();
     paths.insert(root.clone(), root.clone());
     Analyzer::analyze(
       &asts,
@@ -298,19 +296,20 @@ mod tests {
   #[test]
   fn recursive_includes_fail() {
     let tmp = tempfile::tempdir().unwrap();
-    fs::write(tmp.path().join("justfile"), "import './subdir/b'\na: b").unwrap();
-    fs::create_dir_all(tmp.path().join("subdir")).unwrap();
-    fs::write(tmp.path().join("subdir/b"), "import '../justfile'\nb:").unwrap();
+    let root = dir::temporary_directory(&tmp).unwrap();
+    fs::write(root.join("justfile"), "import './subdir/b'\na: b").unwrap();
+    fs::create_dir_all(root.join("subdir")).unwrap();
+    fs::write(root.join("subdir/b"), "import '../justfile'\nb:").unwrap();
 
     let loader = Loader::new();
 
-    let justfile_a_path = tmp.path().join("justfile");
+    let justfile_a_path = root.join("justfile");
     let loader_output =
       Compiler::compile(&Config::new().unwrap(), &loader, &justfile_a_path).unwrap_err();
 
     assert_matches!(loader_output, Error::CircularImport { current, import }
-      if current == tmp.path().join("subdir").join("b").clean() &&
-      import == tmp.path().join("justfile").clean()
+      if current == root.join("subdir").join("b").clean() &&
+      import == root.join("justfile").clean()
     );
   }
 
@@ -325,22 +324,23 @@ mod tests {
           length: 3,
           line: 0,
           offset: 0,
-          path: Path::new(""),
+          path: Utf8Path::new(""),
           src: "foo",
         },
       };
 
       let tempdir = tempfile::tempdir().unwrap();
+      let root = dir::temporary_directory(&tempdir).unwrap();
 
       for file in files {
-        if let Some(parent) = Path::new(file).parent() {
-          fs::create_dir_all(tempdir.path().join(parent)).unwrap();
+        if let Some(parent) = Utf8Path::new(file).parent() {
+          fs::create_dir_all(root.join(parent)).unwrap();
         }
 
-        fs::write(tempdir.path().join(file), "").unwrap();
+        fs::write(root.join(file), "").unwrap();
       }
 
-      let actual = Compiler::find_module_file(tempdir.path(), module, path.map(Path::new));
+      let actual = Compiler::find_module_file(root, module, path.map(Utf8Path::new));
 
       match expected {
         Err(expected) => match actual.unwrap_err() {
@@ -350,16 +350,14 @@ mod tests {
               expected
                 .iter()
                 .map(|expected| expected.replace('/', std::path::MAIN_SEPARATOR_STR).into())
-                .collect::<Vec<PathBuf>>()
+                .collect::<Vec<Utf8PathBuf>>()
             );
           }
           _ => panic!("unexpected error"),
         },
         Ok(Some(expected)) => assert_eq!(
           actual.unwrap().unwrap(),
-          tempdir
-            .path()
-            .join(expected.replace('/', std::path::MAIN_SEPARATOR_STR))
+          root.join(expected.replace('/', std::path::MAIN_SEPARATOR_STR))
         ),
         Ok(None) => assert_eq!(actual.unwrap(), None),
       }

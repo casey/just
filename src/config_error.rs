@@ -3,8 +3,6 @@ use super::*;
 #[derive(Debug, Snafu)]
 #[snafu(visibility(pub(crate)), context(suffix(false)))]
 pub(crate) enum ConfigError {
-  #[snafu(display("failed to get current directory: {}", source))]
-  CurrentDir { source: io::Error },
   #[snafu(display(
     "internal config error, this may indicate a bug in just: {message} \
      consider filing an issue: https://github.com/casey/just/issues/new",
@@ -14,6 +12,8 @@ pub(crate) enum ConfigError {
   ModulePath { path: Vec<String> },
   #[snafu(display("invalid override path `{path}`"))]
   OverridePath { path: String },
+  #[snafu(transparent)]
+  Path { source: PathError },
   #[snafu(display("failed to parse request: {source}"))]
   RequestParse { source: serde_json::Error },
   #[snafu(display(

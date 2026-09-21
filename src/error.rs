@@ -8,7 +8,7 @@ pub(crate) enum Error<'src> {
   },
   AmbiguousModuleFile {
     module: Name<'src>,
-    found: Vec<PathBuf>,
+    found: Vec<Utf8PathBuf>,
   },
   ArgumentPatternMismatch {
     argument: String,
@@ -37,18 +37,18 @@ pub(crate) enum Error<'src> {
     output_error: OutputError,
   },
   CacheEntryRead {
-    path: PathBuf,
+    path: Utf8PathBuf,
     source: serde_json::Error,
   },
   CacheEntryWrite {
-    path: PathBuf,
+    path: Utf8PathBuf,
     source: serde_json::Error,
   },
   CacheInputDirectory {
-    path: PathBuf,
+    path: Utf8PathBuf,
   },
   CacheInputMissing {
-    path: PathBuf,
+    path: Utf8PathBuf,
   },
   CacheKeySerialize {
     source: serde_json::Error,
@@ -60,24 +60,24 @@ pub(crate) enum Error<'src> {
   ChooserInvoke {
     shell_binary: String,
     shell_arguments: String,
-    chooser: OsString,
+    chooser: String,
     io_error: io::Error,
   },
   ChooserRead {
-    chooser: OsString,
+    chooser: String,
     io_error: io::Error,
   },
   ChooserStatus {
-    chooser: OsString,
+    chooser: String,
     status: ExitStatus,
   },
   ChooserWrite {
-    chooser: OsString,
+    chooser: String,
     io_error: io::Error,
   },
   CircularImport {
-    current: PathBuf,
-    import: PathBuf,
+    current: Utf8PathBuf,
+    import: Utf8PathBuf,
   },
   Code {
     recipe: &'src str,
@@ -86,13 +86,13 @@ pub(crate) enum Error<'src> {
     print_message: bool,
   },
   CommandInvoke {
-    binary: OsString,
-    arguments: Vec<OsString>,
+    binary: String,
+    arguments: Vec<String>,
     io_error: io::Error,
   },
   CommandStatus {
-    binary: OsString,
-    arguments: Vec<OsString>,
+    binary: String,
+    arguments: Vec<String>,
     status: ExitStatus,
   },
   Compile {
@@ -103,9 +103,6 @@ pub(crate) enum Error<'src> {
   },
   Const {
     const_error: ConstError<'src>,
-  },
-  CurrentDirectory {
-    source: io::Error,
   },
   Cygpath {
     recipe: &'src str,
@@ -118,7 +115,7 @@ pub(crate) enum Error<'src> {
   },
   Dotenv {
     dotenv_error: dotenvy::Error,
-    path: PathBuf,
+    path: Utf8PathBuf,
   },
   DotenvArgumentsRequireLists,
   DotenvCommand {
@@ -134,11 +131,11 @@ pub(crate) enum Error<'src> {
     switch: Switch,
   },
   EditorInvoke {
-    editor: OsString,
+    editor: String,
     io_error: io::Error,
   },
   EditorStatus {
-    editor: OsString,
+    editor: String,
     status: ExitStatus,
   },
   EmptyListArgument {
@@ -165,7 +162,7 @@ pub(crate) enum Error<'src> {
   },
   FilesystemIo {
     source: io::Error,
-    path: PathBuf,
+    path: Utf8PathBuf,
   },
   FlagWithValue {
     recipe: &'src str,
@@ -184,9 +181,8 @@ pub(crate) enum Error<'src> {
     line_number: usize,
     code: i32,
   },
-  Homedir,
   InitExists {
-    justfile: PathBuf,
+    justfile: Utf8PathBuf,
   },
   Internal {
     message: String,
@@ -212,7 +208,7 @@ pub(crate) enum Error<'src> {
     token: Box<Token<'src>>,
   },
   Load {
-    path: PathBuf,
+    path: Utf8PathBuf,
     io_error: io::Error,
   },
   MissingImportFile {
@@ -242,6 +238,9 @@ pub(crate) enum Error<'src> {
     recipe: &'src str,
     switch: Switch,
   },
+  Path {
+    source: PathError,
+  },
   PositionalArgumentCountMismatch {
     recipe: Box<Recipe<'src>>,
     found: usize,
@@ -264,7 +263,7 @@ pub(crate) enum Error<'src> {
   },
   RuntimeDirIo {
     io_error: io::Error,
-    path: PathBuf,
+    path: Utf8PathBuf,
   },
   Script {
     command: String,
@@ -346,7 +345,7 @@ pub(crate) enum Error<'src> {
     unstable_feature: UnstableFeature,
   },
   WriteJustfile {
-    justfile: PathBuf,
+    justfile: Utf8PathBuf,
     io_error: io::Error,
   },
 }
@@ -530,7 +529,7 @@ impl ColorDisplay for Error<'_> {
       AmbiguousModuleFile { module, found } => write!(
         f,
         "found multiple source files for module `{module}`: {}",
-        List::and_ticked(found.iter().map(|path| path.display())),
+        List::and_ticked(found.iter()),
       )?,
       ArgumentPatternMismatch {
         argument,
@@ -598,21 +597,17 @@ impl ColorDisplay for Error<'_> {
           "backtick succeeded but stdout was not utf8: {utf8_error}",
         )?,
       },
-      CacheEntryRead { path, source } => write!(
-        f,
-        "failed to read cache entry at `{}`: {source}",
-        path.display(),
-      )?,
-      CacheEntryWrite { path, source } => write!(
-        f,
-        "failed to write cache entry at `{}`: {source}",
-        path.display(),
-      )?,
+      CacheEntryRead { path, source } => {
+        write!(f, "failed to read cache entry at `{path}`: {source}")?;
+      }
+      CacheEntryWrite { path, source } => {
+        write!(f, "failed to write cache entry at `{path}`: {source}")?;
+      }
       CacheInputDirectory { path } => {
-        write!(f, "cache input is directory: `{}`", path.display())?;
+        write!(f, "cache input is directory: `{path}`")?;
       }
       CacheInputMissing { path } => {
-        write!(f, "cache input does not exist: `{}`", path.display())?;
+        write!(f, "cache input does not exist: `{path}`")?;
       }
       CacheKeySerialize { source } => write!(f, "failed to serialize cache key: {source}")?,
       CacheOutputMissing { recipe, output } => {
@@ -627,30 +622,24 @@ impl ColorDisplay for Error<'_> {
         chooser,
         io_error,
       } => {
-        let chooser = chooser.to_string_lossy();
         write!(
           f,
           "chooser `{shell_binary} {shell_arguments} {chooser}` invocation failed: {io_error}",
         )?;
       }
       ChooserRead { chooser, io_error } => {
-        let chooser = chooser.to_string_lossy();
         write!(
           f,
           "failed to read output from chooser `{chooser}`: {io_error}",
         )?;
       }
       ChooserStatus { chooser, status } => {
-        let chooser = chooser.to_string_lossy();
         write!(f, "chooser `{chooser}` failed: {status}")?;
       }
       ChooserWrite { chooser, io_error } => {
-        let chooser = chooser.to_string_lossy();
         write!(f, "failed to write to chooser `{chooser}`: {io_error}")?;
       }
       CircularImport { current, import } => {
-        let import = import.display();
-        let current = current.display();
         write!(f, "import `{import}` in `{current}` is circular")?;
       }
       Code {
@@ -687,7 +676,6 @@ impl ColorDisplay for Error<'_> {
       Compile { compile_error } => Display::fmt(compile_error, f)?,
       Config { config_error } => Display::fmt(config_error, f)?,
       Const { const_error } => write!(f, "{const_error}")?,
-      CurrentDirectory { source } => write!(f, "failed to get current directory: {source}")?,
       Cygpath {
         recipe,
         output_error,
@@ -740,8 +728,7 @@ impl ColorDisplay for Error<'_> {
       Dotenv { dotenv_error, path } => {
         write!(
           f,
-          "failed to load environment file from `{}`: {dotenv_error}",
-          path.display(),
+          "failed to load environment file from `{path}`: {dotenv_error}",
         )?;
       }
       DotenvArgumentsRequireLists => {
@@ -769,11 +756,9 @@ impl ColorDisplay for Error<'_> {
         )?;
       }
       EditorInvoke { editor, io_error } => {
-        let editor = editor.to_string_lossy();
         write!(f, "editor `{editor}` invocation failed: {io_error}")?;
       }
       EditorStatus { editor, status } => {
-        let editor = editor.to_string_lossy();
         write!(f, "editor `{editor}` failed: {status}")?;
       }
       EnvVarUnicode { name, value } => {
@@ -808,7 +793,7 @@ impl ColorDisplay for Error<'_> {
         write!(f, "expected submodule at `{path}` but found recipe")?;
       }
       FilesystemIo { source, path } => {
-        write!(f, "I/O error at `{}`: {source}", path.display())?;
+        write!(f, "I/O error at `{path}`: {source}")?;
       }
       FlagWithValue { recipe, switch } => {
         write!(f, "recipe `{recipe}` flag `{switch}` does not take value")?;
@@ -832,11 +817,8 @@ impl ColorDisplay for Error<'_> {
           "guard line in recipe `{recipe}` on line {line_number} returned reserved exit code {code}",
         )?;
       }
-      Homedir => {
-        write!(f, "failed to get homedir")?;
-      }
       InitExists { justfile } => {
-        write!(f, "justfile `{}` already exists", justfile.display())?;
+        write!(f, "justfile `{justfile}` already exists")?;
       }
       Internal { message } => {
         write!(
@@ -903,11 +885,7 @@ impl ColorDisplay for Error<'_> {
         }?;
       }
       Load { io_error, path } => {
-        write!(
-          f,
-          "failed to read justfile at `{}`: {io_error}",
-          path.display()
-        )?;
+        write!(f, "failed to read justfile at `{path}`: {io_error}")?;
       }
       NonFinalOptionWithValue { recipe, switch } => {
         write!(
@@ -933,6 +911,9 @@ impl ColorDisplay for Error<'_> {
       }
       OptionMissingValue { recipe, switch } => {
         write!(f, "recipe `{recipe}` option `{switch}` missing value")?;
+      }
+      Path { source } => {
+        write!(f, "{source}")?;
       }
       PositionalArgumentCountMismatch {
         recipe,
@@ -981,11 +962,7 @@ impl ColorDisplay for Error<'_> {
       )?,
       RegexCompile { source, .. } => write!(f, "{source}")?,
       RuntimeDirIo { io_error, path } => {
-        write!(
-          f,
-          "I/O error in runtime dir `{}`: {io_error}",
-          path.display(),
-        )?;
+        write!(f, "I/O error in runtime dir `{path}`: {io_error}")?;
       }
       Script {
         command,
@@ -1108,7 +1085,6 @@ impl ColorDisplay for Error<'_> {
         )?;
       }
       WriteJustfile { justfile, io_error } => {
-        let justfile = justfile.display();
         write!(f, "failed to write justfile to `{justfile}`: {io_error}")?;
       }
     }
@@ -1147,10 +1123,16 @@ impl ColorDisplay for Error<'_> {
   }
 }
 
-fn format_cmd(binary: &OsString, arguments: &Vec<OsString>) -> String {
+fn format_cmd(binary: &String, arguments: &Vec<String>) -> String {
   iter::once(binary)
     .chain(arguments)
-    .map(|value| Enclosure::tick(value.to_string_lossy()).to_string())
+    .map(|value| Enclosure::tick(value).to_string())
     .collect::<Vec<String>>()
     .join(" ")
+}
+
+impl From<PathError> for Error<'_> {
+  fn from(source: PathError) -> Self {
+    Self::Path { source }
+  }
 }

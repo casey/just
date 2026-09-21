@@ -1,14 +1,17 @@
 use super::*;
 
 pub(crate) fn which(context: &function::Context, name: &str) -> Result<Option<String>, String> {
-  let name = Path::new(name);
+  let name = Utf8Path::new(name);
 
   let paths = match name.components().count() {
     0 => return Err("empty command".into()),
     1 => {
+      let path = env::var("PATH")
+        .map_err(|source| format!("failed to retrieve `PATH` environment variable: {source}"))?;
+
       // cmd is a regular command
-      env::split_paths(&env::var_os("PATH").ok_or("`PATH` environment variable not set")?)
-        .map(|path| path.join(name))
+      env::split_paths(&path)
+        .map(|path| path.into_utf8().unwrap().join(name))
         .collect()
     }
     _ => {
@@ -50,15 +53,7 @@ pub(crate) fn which(context: &function::Context, name: &str) -> Result<Option<St
 
     for candidate in candidates {
       if is_executable::is_executable(&candidate) {
-        return candidate
-          .to_str()
-          .map(|candidate| Some(candidate.into()))
-          .ok_or_else(|| {
-            format!(
-              "executable path is not valid Unicode: {}",
-              candidate.display()
-            )
-          });
+        return Ok(Some(candidate.into()));
       }
     }
   }

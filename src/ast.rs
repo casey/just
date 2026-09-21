@@ -10,7 +10,7 @@ pub(crate) struct Ast<'src> {
   pub(crate) module_path: Modulepath,
   pub(crate) unstable_features: BTreeSet<UnstableFeature>,
   pub(crate) warnings: Vec<Warning>,
-  pub(crate) working_directory: PathBuf,
+  pub(crate) working_directory: Utf8PathBuf,
 }
 
 impl Ast<'_> {

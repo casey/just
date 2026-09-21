@@ -3,9 +3,9 @@ use super::*;
 impl PlatformInterface for Platform {
   fn make_shebang_command(
     _config: &Config,
-    path: &Path,
+    path: &Utf8Path,
     _shebang: Shebang,
-    working_directory: Option<&Path>,
+    working_directory: Option<&Utf8Path>,
   ) -> Result<Command, OutputError> {
     // shebang scripts can be executed directly on unix
     let mut command = Command::resolve(path);
@@ -17,7 +17,7 @@ impl PlatformInterface for Platform {
     Ok(command)
   }
 
-  fn set_execute_permission(path: &Path) -> io::Result<()> {
+  fn set_execute_permission(path: &Utf8Path) -> io::Result<()> {
     use std::os::unix::fs::PermissionsExt;
 
     // get current permissions
@@ -36,11 +36,12 @@ impl PlatformInterface for Platform {
     exit_status.signal()
   }
 
-  fn convert_native_path(_config: &Config, _working_directory: &Path, path: &Path) -> StringResult {
-    path
-      .to_str()
-      .map(str::to_string)
-      .ok_or_else(|| String::from("Error getting current directory: unicode decode error"))
+  fn convert_native_path(
+    _config: &Config,
+    _working_directory: &Utf8Path,
+    path: &Utf8Path,
+  ) -> String {
+    path.as_str().into()
   }
 
   fn install_signal_handler<T: Fn(Signal) + Send + 'static>(handler: T) -> RunResult<'static> {

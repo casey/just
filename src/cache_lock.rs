@@ -2,7 +2,7 @@ use super::*;
 
 pub(crate) struct CacheLock {
   pub(crate) file: File,
-  pub(crate) path: PathBuf,
+  pub(crate) path: Utf8PathBuf,
   pub(crate) recipe: Modulepath,
 }
 

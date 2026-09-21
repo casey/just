@@ -178,7 +178,7 @@ impl<'src> Recipe<'src> {
     &'a self,
     context: &'a ExecutionContext,
     evaluator: &mut Evaluator<'src, 'run>,
-  ) -> RunResult<'src, Option<PathBuf>> {
+  ) -> RunResult<'src, Option<Utf8PathBuf>> {
     if !self.change_directory(&context.module.settings) {
       return Ok(None);
     }
@@ -576,7 +576,7 @@ impl<'src> Recipe<'src> {
     {
       let working_directory = match &working_directory {
         Some(working_directory) => working_directory.to_owned(),
-        None => env::current_dir().map_err(|source| Error::CurrentDirectory { source })?,
+        None => dir::current_directory()?,
       };
 
       let environment_attribute = environment_attribute
@@ -623,7 +623,7 @@ impl<'src> Recipe<'src> {
 
       let outputs = outputs
         .as_ref()
-        .map(|outputs| -> RunResult<BTreeMap<String, PathBuf>> {
+        .map(|outputs| -> RunResult<BTreeMap<String, Utf8PathBuf>> {
           let outputs = evaluator.evaluate_value(outputs)?;
           Ok(
             outputs
@@ -675,7 +675,7 @@ impl<'src> Recipe<'src> {
 
     let tempdir = context.tempdir(self)?;
 
-    let mut path = tempdir.path().to_path_buf();
+    let mut path = dir::temporary_directory(&tempdir)?.to_owned();
 
     path.push(executor.script_filename(self.name(), extension));
 

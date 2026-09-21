@@ -48,7 +48,7 @@ pub(crate) struct Settings {
   pub(crate) unstable: bool,
   pub(crate) windows_powershell: bool,
   pub(crate) windows_shell: Option<Interpreter<String>>,
-  pub(crate) working_directory: Option<PathBuf>,
+  pub(crate) working_directory: Option<Utf8PathBuf>,
 }
 
 impl Settings {

@@ -3,7 +3,7 @@ use super::*;
 pub(crate) fn load_dotenv(
   config: &Config,
   justfile: &Justfile,
-  working_directory: &Path,
+  working_directory: &Utf8Path,
 ) -> RunResult<'static, BTreeMap<String, String>> {
   let settings = &justfile.settings;
 
@@ -100,7 +100,7 @@ fn load_from_command(
   command: &str,
   config: &Config,
   settings: &Settings,
-  working_directory: &Path,
+  working_directory: &Utf8Path,
 ) -> RunResult<'static, BTreeMap<String, String>> {
   let mut cmd = settings.shell_command(config);
 
@@ -139,7 +139,7 @@ fn load_from_command(
 }
 
 fn load_from_file(
-  path: &Path,
+  path: &Utf8Path,
   settings: &Settings,
 ) -> RunResult<'static, Option<BTreeMap<String, String>>> {
   if path.is_dir() {

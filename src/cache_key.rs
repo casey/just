@@ -10,5 +10,5 @@ pub(crate) struct CacheKey<'a> {
   pub(crate) inputs: Option<BTreeMap<String, blake3::Hash>>,
   pub(crate) positional: Option<&'a [String]>,
   pub(crate) recipe: &'a Modulepath,
-  pub(crate) working_directory: Option<&'a Path>,
+  pub(crate) working_directory: Option<&'a Utf8Path>,
 }

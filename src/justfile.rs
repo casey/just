@@ -29,7 +29,7 @@ pub(crate) struct Justfile<'src> {
   pub(crate) functions: Table<'src, FunctionDefinition<'src>>,
   pub(crate) groups: Vec<StringLiteral<'src>>,
   #[serde(skip)]
-  pub(crate) loaded: Vec<PathBuf>,
+  pub(crate) loaded: Vec<Utf8PathBuf>,
   #[serde(skip)]
   pub(crate) module_aliases: Table<'src, ModuleAlias<'src>>,
   pub(crate) module_path: Modulepath,
@@ -42,13 +42,13 @@ pub(crate) struct Justfile<'src> {
   pub(crate) recipe_aliases: Table<'src, RecipeAlias<'src>>,
   pub(crate) recipes: Table<'src, Arc<Recipe<'src>>>,
   pub(crate) settings: Settings,
-  pub(crate) source: PathBuf,
+  pub(crate) source: Utf8PathBuf,
   pub(crate) unexports: BTreeSet<String>,
   #[serde(skip)]
   pub(crate) unstable_features: BTreeSet<UnstableFeature>,
   pub(crate) warnings: Vec<Warning>,
   #[serde(skip)]
-  pub(crate) working_directory: PathBuf,
+  pub(crate) working_directory: Utf8PathBuf,
 }
 
 impl<'src> Justfile<'src> {

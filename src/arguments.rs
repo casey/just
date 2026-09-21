@@ -54,7 +54,7 @@ pub struct Arguments {
     help = "Do not ascend above <CEILING> directory when searching for a justfile.",
     long,
   )]
-  pub(crate) ceiling: Option<PathBuf>,
+  pub(crate) ceiling: Option<Utf8PathBuf>,
   #[arg(
     help = "Run `--fmt` in 'check' mode. Exits with 0 if justfile is formatted correctly. \
             Exits with 1 and prints a diff if formatting is required.",
@@ -68,7 +68,7 @@ pub struct Arguments {
     help = "Override binary invoked by `--choose`",
     long
   )]
-  pub(crate) chooser: Option<PathBuf>,
+  pub(crate) chooser: Option<Utf8PathBuf>,
   #[arg(help = "Clear shell arguments", long, overrides_with = "shell_arg")]
   pub(crate) clear_shell_args: bool,
   #[arg(
@@ -99,7 +99,7 @@ pub struct Arguments {
     help = "Use binary at <CYGPATH> to convert between unix and Windows paths",
     long,
   )]
-  pub(crate) cygpath: PathBuf,
+  pub(crate) cygpath: Utf8PathBuf,
   #[arg(
     env = "JUST_DEFAULT_LIST",
     help = "List recipes when no arguments are provided",
@@ -205,7 +205,7 @@ pub struct Arguments {
     long,
     short = 'f',
   )]
-  pub(crate) justfile: Option<PathBuf>,
+  pub(crate) justfile: Option<Utf8PathBuf>,
   #[arg(
     env = "JUST_JUSTFILE_NAME",
     help = "Search for justfile named <NAME>, accepts multiple `,`-separated values and may be \
@@ -303,7 +303,7 @@ pub struct Arguments {
     help = "Save temporary files to <TEMPDIR>.",
     long,
   )]
-  pub(crate) tempdir: Option<PathBuf>,
+  pub(crate) tempdir: Option<Utf8PathBuf>,
   #[arg(env = "JUST_TIME", help = "Print recipe execution time", long)]
   pub(crate) time: bool,
   #[arg(env = "JUST_TIMESTAMP", help = "Print recipe command timestamps", long)]
@@ -345,7 +345,7 @@ pub struct Arguments {
     requires = "justfile",
     short = 'd',
   )]
-  pub(crate) working_directory: Option<PathBuf>,
+  pub(crate) working_directory: Option<Utf8PathBuf>,
   #[arg(env = "JUST_YES", help = "Automatically confirm all recipes.", long)]
   pub(crate) yes: bool,
 }
@@ -383,9 +383,8 @@ pub(crate) struct Subcommand {
     long,
     num_args = 1..,
     short = 'c',
-    value_parser = clap::value_parser!(OsString),
   )]
-  pub(crate) command: Option<Vec<OsString>>,
+  pub(crate) command: Option<Vec<String>>,
   #[arg(
     help = "Print shell completion script for <SHELL>",
     help_heading = Self::HEADING,

@@ -1,6 +1,6 @@
 use super::*;
 
-pub(crate) fn exists(path: &Path) -> RunResult<'static, bool> {
+pub(crate) fn exists(path: &Utf8Path) -> RunResult<'static, bool> {
   match path.metadata() {
     Ok(_) => Ok(true),
     Err(source) => {
@@ -16,7 +16,7 @@ pub(crate) fn exists(path: &Path) -> RunResult<'static, bool> {
   }
 }
 
-pub(crate) fn is_file(path: &Path) -> RunResult<'static, bool> {
+pub(crate) fn is_file(path: &Utf8Path) -> RunResult<'static, bool> {
   match path.metadata() {
     Ok(metadata) => Ok(metadata.is_file()),
     Err(source) => {

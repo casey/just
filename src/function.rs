@@ -72,15 +72,15 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "blake3" => Unary(blake3),
     "blake3_file" => Unary(blake3_file),
     "bool" => ValueUnary(bool),
-    "cache_directory" => Nullary(|_| dir("cache", dirs::cache_dir)),
+    "cache_directory" => Nullary(|_| dir_function("cache", dirs::cache_dir)),
     "canonicalize" => Unary(canonicalize),
     "capitalize" => Unary(capitalize),
     "choose" => Binary(choose),
     "clean" => Unary(clean),
-    "config_directory" => Nullary(|_| dir("config", dirs::config_dir)),
-    "config_local_directory" => Nullary(|_| dir("local config", dirs::config_local_dir)),
-    "data_directory" => Nullary(|_| dir("data", dirs::data_dir)),
-    "data_local_directory" => Nullary(|_| dir("local data", dirs::data_local_dir)),
+    "config_directory" => Nullary(|_| dir_function("config", dirs::config_dir)),
+    "config_local_directory" => Nullary(|_| dir_function("local config", dirs::config_local_dir)),
+    "data_directory" => Nullary(|_| dir_function("data", dirs::data_dir)),
+    "data_local_directory" => Nullary(|_| dir_function("local data", dirs::data_local_dir)),
     "datetime" => Unary(datetime),
     "datetime_utc" => Unary(datetime_utc),
     "encode_uri_component" => Unary(encode_uri_component),
@@ -88,11 +88,11 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "env_var" => ValueUnary(env_var),
     "env_var_or_default" => ValueBinary(env_var_or_default),
     "error" => Unary(error),
-    "executable_directory" => Nullary(|_| dir("executable", dirs::executable_dir)),
+    "executable_directory" => Nullary(|_| dir_function("executable", dirs::executable_dir)),
     "extension" => Unary(extension),
     "file_name" => Unary(file_name),
     "file_stem" => Unary(file_stem),
-    "home_directory" => Nullary(|_| dir("home", dirs::home_dir)),
+    "home_directory" => Nullary(|_| dir_function("home", dirs::home_dir)),
     "invocation_directory" => Nullary(invocation_directory),
     "invocation_directory_native" => Nullary(invocation_directory_native),
     "is_dependency" => ValueNullary(is_dependency),
@@ -123,7 +123,7 @@ pub(crate) fn get(name: &str) -> Option<Function> {
     "replace" => Ternary(replace),
     "replace_regex" => Ternary(replace_regex),
     "require" => Unary(require),
-    "runtime_directory" => Nullary(|_| dir("runtime", dirs::runtime_dir)),
+    "runtime_directory" => Nullary(|_| dir_function("runtime", dirs::runtime_dir)),
     "semver_matches" => BinaryToValue(semver_matches),
     "sha256" => Unary(sha256),
     "sha256_file" => Unary(sha256_file),
@@ -178,18 +178,14 @@ fn bool(context: Context, value: &Value) -> ValueResult {
 }
 
 fn absolute_path(context: Context, path: &str) -> StringResult {
-  let abs_path_unchecked = context
-    .execution_context
-    .working_directory()
-    .join(path)
-    .clean();
-  match abs_path_unchecked.to_str() {
-    Some(absolute_path) => Ok(absolute_path.to_owned()),
-    None => Err(format!(
-      "working directory is not valid Unicode: {}",
-      context.execution_context.search.working_directory.display()
-    )),
-  }
+  Ok(
+    context
+      .execution_context
+      .working_directory()
+      .join(path)
+      .clean()
+      .into(),
+  )
 }
 
 fn append(context: Context, suffix: &str, s: &Value) -> ValueResult {
@@ -221,7 +217,7 @@ fn blake3_file(context: Context, path: &str) -> StringResult {
   let mut hasher = blake3::Hasher::new();
   hasher
     .update_mmap_rayon(&path)
-    .map_err(|err| format!("failed to hash `{}`: {err}", path.display()))?;
+    .map_err(|err| format!("failed to hash `{path}`: {err}"))?;
   Ok(hasher.finalize().to_string())
 }
 
@@ -231,7 +227,7 @@ fn canonicalize(context: Context, path: &str) -> StringResult {
 
   canonical.to_str().map(str::to_string).ok_or_else(|| {
     format!(
-      "canonical path is not valid Unicode: {}",
+      "canonical path is not valid Unicode: `{}`",
       canonical.display(),
     )
   })
@@ -274,19 +270,18 @@ fn choose(_context: Context, n: &str, alphabet: &str) -> StringResult {
 }
 
 fn clean(_context: Context, path: &str) -> StringResult {
-  Ok(Path::new(path).clean().to_str().unwrap().to_owned())
+  Ok(Utf8Path::new(path).clean().into())
 }
 
-fn dir(name: &'static str, f: fn() -> Option<PathBuf>) -> StringResult {
+fn dir_function(name: &'static str, f: fn() -> Option<std::path::PathBuf>) -> StringResult {
   match f() {
     Some(path) => path
-      .as_os_str()
-      .to_str()
-      .map(str::to_string)
-      .ok_or_else(|| {
+      .into_utf8()
+      .map(Utf8PathBuf::into_string)
+      .map_err(|source| {
         format!(
-          "unable to convert {name} directory path to string: {}",
-          path.display(),
+          "{name} directory is not valid unicode: `{}`",
+          source.as_path().display(),
         )
       }),
     None => Err(format!("{name} directory not found")),
@@ -382,31 +377,21 @@ fn file_stem(_context: Context, path: &str) -> StringResult {
 }
 
 fn invocation_directory(context: Context) -> StringResult {
-  Platform::convert_native_path(
+  Ok(Platform::convert_native_path(
     context.execution_context.config,
     &context.execution_context.search.working_directory,
     &context.execution_context.config.invocation_directory,
-  )
-  .map_err(|e| format!("could not convert invocation directory to shell path: {e}"))
+  ))
 }
 
 fn invocation_directory_native(context: Context) -> StringResult {
-  context
-    .execution_context
-    .config
-    .invocation_directory
-    .to_str()
-    .map(str::to_owned)
-    .ok_or_else(|| {
-      format!(
-        "invocation directory is not valid Unicode: {}",
-        context
-          .execution_context
-          .config
-          .invocation_directory
-          .display()
-      )
-    })
+  Ok(
+    context
+      .execution_context
+      .config
+      .invocation_directory
+      .to_string(),
+  )
 }
 
 fn is_dependency(context: Context) -> ValueResult {
@@ -447,7 +432,7 @@ fn just_executable(_context: Context) -> StringResult {
 
   exe_path.to_str().map(str::to_owned).ok_or_else(|| {
     format!(
-      "executable path is not valid Unicode: {}",
+      "executable path is not valid Unicode: `{}`",
       exe_path.display()
     )
   })
@@ -462,42 +447,24 @@ fn just_version(_context: Context) -> StringResult {
 }
 
 fn justfile(context: Context) -> StringResult {
-  context
-    .execution_context
-    .search
-    .justfile
-    .to_str()
-    .map(str::to_owned)
-    .ok_or_else(|| {
-      format!(
-        "justfile path is not valid Unicode: {}",
-        context.execution_context.search.justfile.display()
-      )
-    })
+  Ok(context.execution_context.search.justfile.to_string())
 }
 
 fn justfile_directory(context: Context) -> StringResult {
-  let justfile_directory = context
-    .execution_context
-    .search
-    .justfile
-    .parent()
-    .ok_or_else(|| {
-      format!(
-        "could not resolve justfile directory, justfile `{}` had no parent",
-        context.execution_context.search.justfile.display()
-      )
-    })?;
-
-  justfile_directory
-    .to_str()
-    .map(str::to_owned)
-    .ok_or_else(|| {
-      format!(
-        "justfile directory is not valid Unicode: {}",
-        justfile_directory.display()
-      )
-    })
+  Ok(
+    context
+      .execution_context
+      .search
+      .justfile
+      .parent()
+      .ok_or_else(|| {
+        format!(
+          "could not resolve justfile directory, justfile `{}` had no parent",
+          context.execution_context.search.justfile,
+        )
+      })?
+      .to_string(),
+  )
 }
 
 fn kebabcase(_context: Context, s: &str) -> StringResult {
@@ -517,23 +484,20 @@ fn lowercase(_context: Context, s: &str) -> StringResult {
 }
 
 fn module_directory(context: Context) -> StringResult {
-  let module_directory = context.execution_context.module.source.parent().unwrap();
-  module_directory.to_str().map(str::to_owned).ok_or_else(|| {
-    format!(
-      "module directory is not valid Unicode: {}",
-      module_directory.display(),
-    )
-  })
+  Ok(
+    context
+      .execution_context
+      .module
+      .source
+      .parent()
+      .unwrap()
+      .as_str()
+      .into(),
+  )
 }
 
 fn module_file(context: Context) -> StringResult {
-  let module_file = &context.execution_context.module.source;
-  module_file.to_str().map(str::to_owned).ok_or_else(|| {
-    format!(
-      "module file path is not valid Unicode: {}",
-      module_file.display(),
-    )
-  })
+  Ok(context.execution_context.module.source.to_string())
 }
 
 fn module_path(context: Context) -> StringResult {
@@ -630,11 +594,9 @@ fn sha256(_context: Context, s: &str) -> StringResult {
 
 fn sha256_file(context: Context, path: &str) -> StringResult {
   let path = context.execution_context.working_directory().join(path);
-  let mut file =
-    File::open(&path).map_err(|err| format!("failed to open `{}`: {err}", path.display()))?;
+  let mut file = File::open(&path).map_err(|err| format!("failed to open `{path}`: {err}"))?;
   let mut writer = HashWriter::<Sha256, Sink>::new(io::sink());
-  io::copy(&mut file, &mut writer)
-    .map_err(|err| format!("failed to read `{}`: {err}", path.display()))?;
+  io::copy(&mut file, &mut writer).map_err(|err| format!("failed to read `{path}`: {err}"))?;
   Ok(hex::encode(writer.finalize()))
 }
 
@@ -682,41 +644,32 @@ fn snakecase(_context: Context, s: &str) -> StringResult {
 }
 
 fn source_directory(context: Context) -> StringResult {
-  context
-    .execution_context
-    .search
-    .justfile
-    .parent()
-    .unwrap()
-    .join(context.name.token.path)
-    .parent()
-    .unwrap()
-    .to_str()
-    .map(str::to_owned)
-    .ok_or_else(|| {
-      format!(
-        "source file path is not valid Unicode: {}",
-        context.name.token.path.display(),
-      )
-    })
+  Ok(
+    context
+      .execution_context
+      .search
+      .justfile
+      .parent()
+      .unwrap()
+      .join(context.name.token.path)
+      .parent()
+      .unwrap()
+      .as_str()
+      .into(),
+  )
 }
 
 fn source_file(context: Context) -> StringResult {
-  context
-    .execution_context
-    .search
-    .justfile
-    .parent()
-    .unwrap()
-    .join(context.name.token.path)
-    .to_str()
-    .map(str::to_owned)
-    .ok_or_else(|| {
-      format!(
-        "source file path is not valid Unicode: {}",
-        context.name.token.path.display(),
-      )
-    })
+  Ok(
+    context
+      .execution_context
+      .search
+      .justfile
+      .parent()
+      .unwrap()
+      .join(context.name.token.path)
+      .into_string(),
+  )
 }
 
 fn split(_context: Context, s: &str, separator: Option<&str>) -> ValueResult {
@@ -919,7 +872,10 @@ mod tests {
 
   #[test]
   fn dir_not_found() {
-    assert_eq!(dir("foo", || None).unwrap_err(), "foo directory not found");
+    assert_eq!(
+      dir_function("foo", || None).unwrap_err(),
+      "foo directory not found"
+    );
   }
 
   #[cfg(unix)]
@@ -927,11 +883,8 @@ mod tests {
   fn dir_not_unicode() {
     use std::os::unix::ffi::OsStrExt;
     assert_eq!(
-      dir("foo", || Some(
-        std::ffi::OsStr::from_bytes(b"\xe0\x80\x80").into()
-      ))
-      .unwrap_err(),
-      "unable to convert foo directory path to string: ���",
+      dir_function("foo", || Some(OsStr::from_bytes(b"\xe0\x80\x80").into())).unwrap_err(),
+      "foo directory is not valid unicode: `���`",
     );
   }
 }

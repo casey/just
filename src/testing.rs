@@ -61,11 +61,11 @@ pub(crate) fn analysis_error(
   let ast = Parser::parse_tokens(&mut Numerator::new(), &tokens)
     .expect("Parsing failed in analysis test...");
 
-  let root = PathBuf::from("justfile");
-  let mut asts: HashMap<(Modulepath, PathBuf), Ast> = HashMap::new();
+  let root = Utf8PathBuf::from("justfile");
+  let mut asts: HashMap<(Modulepath, Utf8PathBuf), Ast> = HashMap::new();
   asts.insert((Modulepath::default(), root.clone()), ast);
 
-  let mut paths: HashMap<PathBuf, PathBuf> = HashMap::new();
+  let mut paths: HashMap<Utf8PathBuf, Utf8PathBuf> = HashMap::new();
   paths.insert("justfile".into(), "justfile".into());
 
   match Analyzer::analyze(

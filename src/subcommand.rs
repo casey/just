@@ -16,14 +16,14 @@ const CHOOSER_CANCELLED_EXIT_STATUS: i32 = 130;
 pub(crate) enum Subcommand {
   Changelog,
   Choose {
-    chooser: Option<PathBuf>,
+    chooser: Option<Utf8PathBuf>,
   },
   Clean {
     path: Option<Modulepath>,
   },
   Command {
-    arguments: Vec<OsString>,
-    binary: OsString,
+    arguments: Vec<String>,
+    binary: String,
   },
   Completions {
     shell: Shell,
@@ -208,10 +208,9 @@ impl Subcommand {
               .strip_prefix(search.justfile_parent())
               .unwrap()
               .components()
-              .map(|_| path::Component::ParentDir)
-              .collect::<PathBuf>()
+              .map(|_| Utf8Component::ParentDir)
+              .collect::<Utf8PathBuf>()
               .join(search.justfile.file_name().unwrap())
-              .display()
           );
         }
 
@@ -260,7 +259,7 @@ impl Subcommand {
   }
 
   fn choose<'src>(
-    chooser: Option<&Path>,
+    chooser: Option<&Utf8Path>,
     config: &Config,
     justfile: &Justfile<'src>,
     overrides: &HashMap<Number, String>,
@@ -282,12 +281,12 @@ impl Subcommand {
     }
 
     let chooser = if let Some(chooser) = chooser {
-      OsString::from(chooser)
+      chooser.as_str().into()
     } else {
-      let mut chooser = OsString::new();
-      chooser.push("fzf --multi --preview 'just --unstable --color always --justfile \"");
-      chooser.push(&search.justfile);
-      chooser.push("\" --show {}'");
+      let mut chooser = String::new();
+      chooser.push_str("fzf --multi --preview 'just --unstable --color always --justfile \"");
+      chooser.push_str(search.justfile.as_str());
+      chooser.push_str("\" --show {}'");
       chooser
     };
 
@@ -379,11 +378,13 @@ impl Subcommand {
     for entry in dir {
       let entry = entry.map_err(context)?;
 
-      if !entry_re.is_match(&entry.file_name().to_string_lossy()) {
+      let Ok(path) = entry.path().into_utf8() else {
+        continue;
+      };
+
+      if !entry_re.is_match(path.file_name().unwrap()) {
         continue;
       }
-
-      let path = entry.path();
 
       if let Some(prefix) = prefix {
         let json = fs::read_to_string(&path).map_err(|source| Error::FilesystemIo {
@@ -460,9 +461,13 @@ impl Subcommand {
   }
 
   fn edit(search: &Search) -> RunResult<'static> {
-    let editor = env::var_os("VISUAL")
-      .or_else(|| env::var_os("EDITOR"))
-      .unwrap_or_else(|| "vim".into());
+    let editor = if let Some(visual) = env_var("VISUAL")? {
+      visual
+    } else if let Some(editor) = env_var("EDITOR")? {
+      editor
+    } else {
+      "vim".into()
+    };
 
     let error = Command::resolve(&editor)
       .current_dir(&search.working_directory)
@@ -484,7 +489,7 @@ impl Subcommand {
   fn format<'src>(config: &Config, loader: &'src Loader, search: &Search) -> RunResult<'src> {
     let root = search.justfile_parent();
 
-    let (path, src) = loader.load(config, root, &search.justfile)?;
+    let (path, src) = loader.load(root, &search.justfile)?;
 
     let ast = Parser::parse_source(
       &mut Numerator::new(),
@@ -539,7 +544,7 @@ impl Subcommand {
         })?;
 
         if config.verbosity.loud() {
-          eprintln!("wrote justfile to `{}`", search.justfile.display());
+          eprintln!("wrote justfile to `{}`", search.justfile);
         }
       }
 
@@ -564,7 +569,7 @@ impl Subcommand {
     }
 
     if config.verbosity.loud() {
-      eprintln!("wrote justfile to `{}`", search.justfile.display());
+      eprintln!("wrote justfile to `{}`", search.justfile);
     }
 
     Ok(())

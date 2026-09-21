@@ -22,7 +22,7 @@ impl<'src: 'run, 'run> ExecutionContext<'src, 'run> {
       match &self.module.settings.tempdir {
         Some(tempdir) => builder.tempdir_in(self.search.working_directory.join(tempdir)),
         None => {
-          if let Some(runtime_dir) = dirs::runtime_dir() {
+          if let Some(runtime_dir) = dir::runtime_directory()? {
             let path = runtime_dir.join(JUST_DIRECTORY);
             fs::create_dir_all(&path).map_err(|io_error| Error::RuntimeDirIo {
               io_error,
@@ -41,7 +41,7 @@ impl<'src: 'run, 'run> ExecutionContext<'src, 'run> {
     })
   }
 
-  pub(crate) fn working_directory(&self) -> PathBuf {
+  pub(crate) fn working_directory(&self) -> Utf8PathBuf {
     let base = if self.module.is_submodule() {
       &self.module.working_directory
     } else {

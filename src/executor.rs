@@ -11,9 +11,9 @@ impl Executor<'_> {
   pub(crate) fn command<'src>(
     &self,
     config: &Config,
-    path: &Path,
+    path: &Utf8Path,
     recipe: &'src str,
-    working_directory: Option<&Path>,
+    working_directory: Option<&Utf8Path>,
   ) -> RunResult<'src, Command> {
     match self {
       Self::Command(interpreter) => {
