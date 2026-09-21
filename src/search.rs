@@ -159,8 +159,10 @@ impl Search {
             path: directory.clone(),
           })?;
 
-          let candidate =
-            Utf8PathBuf::try_from(entry.path()).context(search_error::CandidateUnicode)?;
+          let candidate = entry
+            .path()
+            .into_utf8()
+            .context(search_error::CandidateUnicode)?;
 
           if candidate
             .file_name()
@@ -264,7 +266,10 @@ impl Search {
           path: directory.to_owned(),
         })?;
 
-        let entry = Utf8PathBuf::try_from(entry.path()).context(search_error::CandidateUnicode)?;
+        let entry = entry
+          .path()
+          .into_utf8()
+          .context(search_error::CandidateUnicode)?;
 
         let name = entry.file_name().unwrap();
 

@@ -11,7 +11,7 @@ pub(crate) fn which(context: &function::Context, name: &str) -> Result<Option<St
 
       // cmd is a regular command
       env::split_paths(&path)
-        .map(|path| Utf8PathBuf::try_from(path).unwrap().join(name))
+        .map(|path| path.into_utf8().unwrap().join(name))
         .collect()
     }
     _ => {

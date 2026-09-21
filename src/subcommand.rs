@@ -382,7 +382,9 @@ impl Subcommand {
         continue;
       }
 
-      let path = Utf8PathBuf::try_from(entry.path())
+      let path = entry
+        .path()
+        .into_utf8()
         .map_err(|source| Error::CacheEntryUnicode { source })?;
 
       if let Some(prefix) = prefix {

@@ -88,6 +88,7 @@ pub(crate) use {
     parameter::Parameter,
     parameter_kind::ParameterKind,
     parser::Parser,
+    path_buf_ext::PathBufExt,
     path_error::PathError,
     pattern::Pattern,
     platform::Platform,
@@ -327,6 +328,7 @@ mod output_error;
 mod parameter;
 mod parameter_kind;
 mod parser;
+mod path_buf_ext;
 mod path_error;
 mod pattern;
 mod platform;
