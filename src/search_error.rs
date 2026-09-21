@@ -3,8 +3,6 @@ use super::*;
 #[derive(Debug, Snafu)]
 #[snafu(visibility(pub(crate)), context(suffix(false)))]
 pub(crate) enum SearchError {
-  #[snafu(display("justfile candidate path is not valid unicode: {source}",))]
-  CandidateUnicode { source: FromPathBufError },
   #[snafu(display("I/O error at `{path}`: {io_error}",))]
   FilesystemIo {
     io_error: io::Error,

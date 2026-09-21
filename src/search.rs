@@ -159,17 +159,12 @@ impl Search {
             path: directory.clone(),
           })?;
 
-          let candidate = entry
-            .path()
-            .into_utf8()
-            .context(search_error::CandidateUnicode)?;
+          let Ok(path) = entry.path().into_utf8() else {
+            continue;
+          };
 
-          if candidate
-            .file_name()
-            .unwrap()
-            .eq_ignore_ascii_case(filename)
-          {
-            return Ok(candidate);
+          if path.file_name().unwrap().eq_ignore_ascii_case(filename) {
+            return Ok(path);
           }
         }
       }
@@ -266,12 +261,9 @@ impl Search {
           path: directory.to_owned(),
         })?;
 
-        let entry = entry
-          .path()
-          .into_utf8()
-          .context(search_error::CandidateUnicode)?;
-
-        let name = entry.file_name().unwrap();
+        let Ok(path) = entry.path().into_utf8() else {
+          continue;
+        };
 
         let mut justfile_names: Box<dyn Iterator<Item = &str>> =
           if let Some(justfile_names) = &config.justfile_names {
@@ -280,8 +272,9 @@ impl Search {
             Box::new(JUSTFILE_NAMES.into_iter())
           };
 
+        let name = path.file_name().unwrap();
         if justfile_names.any(|justfile_name| name.eq_ignore_ascii_case(justfile_name)) {
-          candidates.insert(entry);
+          candidates.insert(path);
         }
       }
 
