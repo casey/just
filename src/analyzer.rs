@@ -14,17 +14,17 @@ pub(crate) struct Analyzer<'run, 'src> {
 
 impl<'run, 'src> Analyzer<'run, 'src> {
   pub(crate) fn analyze(
-    asts: &'run HashMap<(Modulepath, PathBuf), Ast<'src>>,
+    asts: &'run HashMap<(Modulepath, Utf8PathBuf), Ast<'src>>,
     config: &Config,
     doc: Option<String>,
     groups: &[StringLiteral<'src>],
-    loaded: &[PathBuf],
+    loaded: &[Utf8PathBuf],
     module_path: &Modulepath,
     name: Option<Name<'src>>,
     overrides: &mut HashMap<Number, String>,
-    paths: &HashMap<PathBuf, PathBuf>,
+    paths: &HashMap<Utf8PathBuf, Utf8PathBuf>,
     private: bool,
-    root: &Path,
+    root: &Utf8Path,
   ) -> CompileResult<'src, Justfile<'src>> {
     Self::default().justfile(
       asts,
@@ -43,17 +43,17 @@ impl<'run, 'src> Analyzer<'run, 'src> {
 
   fn justfile(
     mut self,
-    asts: &'run HashMap<(Modulepath, PathBuf), Ast<'src>>,
+    asts: &'run HashMap<(Modulepath, Utf8PathBuf), Ast<'src>>,
     config: &Config,
     doc: Option<String>,
     groups: &[StringLiteral<'src>],
-    loaded: &[PathBuf],
+    loaded: &[Utf8PathBuf],
     module_path: &Modulepath,
     name: Option<Name<'src>>,
     overrides: &mut HashMap<Number, String>,
-    paths: &HashMap<PathBuf, PathBuf>,
+    paths: &HashMap<Utf8PathBuf, Utf8PathBuf>,
     private: bool,
-    root: &Path,
+    root: &Utf8Path,
   ) -> CompileResult<'src, Justfile<'src>> {
     let mut absent_modules = BTreeSet::new();
     let mut definitions = HashMap::new();

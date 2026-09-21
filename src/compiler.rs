@@ -6,12 +6,12 @@ impl Compiler {
   pub(crate) fn compile<'src>(
     config: &Config,
     loader: &'src Loader,
-    root: &Path,
+    root: &Utf8Path,
   ) -> RunResult<'src, Compilation<'src>> {
-    let mut asts = HashMap::<(Modulepath, PathBuf), Ast>::new();
+    let mut asts = HashMap::<(Modulepath, Utf8PathBuf), Ast>::new();
     let mut loaded = Vec::new();
     let mut numerator = Numerator::new();
-    let mut paths = HashMap::<PathBuf, PathBuf>::new();
+    let mut paths = HashMap::<Utf8PathBuf, Utf8PathBuf>::new();
     let mut stack = Vec::new();
     stack.push(Source::root(root));
 
@@ -29,7 +29,7 @@ impl Compiler {
         continue;
       }
 
-      let (relative, src) = loader.load(config, root, &current.path)?;
+      let (relative, src) = loader.load(root, &current.path)?;
 
       if paths
         .insert(current.path.clone(), relative.into())
@@ -154,10 +154,10 @@ impl Compiler {
   }
 
   fn find_module_file<'src>(
-    parent: &Path,
+    parent: &Utf8Path,
     module: Name<'src>,
-    path: Option<&Path>,
-  ) -> RunResult<'src, Option<PathBuf>> {
+    path: Option<&Utf8Path>,
+  ) -> RunResult<'src, Option<Utf8PathBuf>> {
     let mut candidates = Vec::new();
 
     if let Some(path) = path {
@@ -181,7 +181,7 @@ impl Compiler {
       }
     }
 
-    let mut grouped = BTreeMap::<PathBuf, Vec<(PathBuf, bool)>>::new();
+    let mut grouped = BTreeMap::<Utf8PathBuf, Vec<(Utf8PathBuf, bool)>>::new();
 
     for (candidate, case_sensitive) in candidates {
       let candidate = parent.join(candidate).clean();
@@ -221,7 +221,7 @@ impl Compiler {
 
         if let Some(name) = entry.file_name().to_str() {
           for (candidate, case_sensitive) in &candidates {
-            let candidate_name = candidate.file_name().unwrap().to_str().unwrap();
+            let candidate_name = candidate.file_name().unwrap();
 
             let eq = if *case_sensitive {
               name == candidate_name
@@ -245,7 +245,7 @@ impl Compiler {
           .map(|found| {
             found
               .strip_prefix(parent)
-              .map(PathBuf::from)
+              .map(Utf8PathBuf::from)
               .unwrap_or(found)
           })
           .collect(),
@@ -256,13 +256,11 @@ impl Compiler {
     }
   }
 
-  fn expand_tilde(path: &str) -> RunResult<'static, PathBuf> {
+  fn expand_tilde(path: &str) -> RunResult<'static, Utf8PathBuf> {
     Ok(if let Some(path) = path.strip_prefix("~/") {
-      dirs::home_dir()
-        .ok_or(Error::Homedir)?
-        .join(path.trim_start_matches('/'))
+      dir::home_directory_required()?.join(path.trim_start_matches('/'))
     } else {
-      PathBuf::from(path)
+      Utf8PathBuf::from(path)
     })
   }
 
@@ -270,10 +268,10 @@ impl Compiler {
   pub(crate) fn test_compile(src: &str) -> CompileResult<Justfile> {
     let tokens = Lexer::test_lex(src)?;
     let ast = Parser::parse_tokens(&mut Numerator::new(), &tokens)?;
-    let root = PathBuf::from("justfile");
-    let mut asts: HashMap<(Modulepath, PathBuf), Ast> = HashMap::new();
+    let root = Utf8PathBuf::from("justfile");
+    let mut asts: HashMap<(Modulepath, Utf8PathBuf), Ast> = HashMap::new();
     asts.insert((Modulepath::default(), root.clone()), ast);
-    let mut paths: HashMap<PathBuf, PathBuf> = HashMap::new();
+    let mut paths: HashMap<Utf8PathBuf, Utf8PathBuf> = HashMap::new();
     paths.insert(root.clone(), root.clone());
     Analyzer::analyze(
       &asts,

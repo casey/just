@@ -3,9 +3,9 @@ use super::*;
 impl PlatformInterface for Platform {
   fn make_shebang_command(
     config: &Config,
-    path: &Path,
+    path: &Utf8Path,
     shebang: Shebang,
-    working_directory: Option<&Path>,
+    working_directory: Option<&Utf8Path>,
   ) -> Result<Command, OutputError> {
     use std::borrow::Cow;
 
@@ -45,7 +45,7 @@ impl PlatformInterface for Platform {
     Ok(cmd)
   }
 
-  fn set_execute_permission(_path: &Path) -> io::Result<()> {
+  fn set_execute_permission(_path: &Utf8Path) -> io::Result<()> {
     // it is not necessary to set an execute permission on a script on windows, so
     // this is a nop
     Ok(())
@@ -57,7 +57,11 @@ impl PlatformInterface for Platform {
     None
   }
 
-  fn convert_native_path(config: &Config, working_directory: &Path, path: &Path) -> StringResult {
+  fn convert_native_path(
+    config: &Config,
+    working_directory: &Utf8Path,
+    path: &Utf8Path,
+  ) -> StringResult {
     // Translate path from windows style to unix style
     let mut cygpath = Command::resolve(&config.cygpath);
 

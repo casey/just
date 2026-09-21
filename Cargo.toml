@@ -19,7 +19,7 @@ members = [".", "crates/*"]
 
 [dependencies]
 blake3 = { version = "1.5.0", features = ["mmap", "rayon", "serde"] }
-camino = "1.0.4"
+camino = { version = "1.0.4", features = ["serde1"] }
 chrono = "0.4.38"
 clap = { version = "4.0.0", features = ["derive", "env", "string", "wrap_help"] }
 clap_complete = { version = "=4.6.8", features = ["unstable-dynamic"] }

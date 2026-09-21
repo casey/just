@@ -3,15 +3,15 @@ use super::*;
 #[derive(Debug)]
 pub(crate) struct Source<'src> {
   pub(crate) file_depth: u32,
-  pub(crate) file_path: Vec<PathBuf>,
+  pub(crate) file_path: Vec<Utf8PathBuf>,
   pub(crate) import_offsets: Vec<usize>,
   pub(crate) namepath: Option<Namepath<'src>>,
-  pub(crate) path: PathBuf,
-  pub(crate) working_directory: PathBuf,
+  pub(crate) path: Utf8PathBuf,
+  pub(crate) working_directory: Utf8PathBuf,
 }
 
 impl<'src> Source<'src> {
-  pub(crate) fn root(path: &Path) -> Self {
+  pub(crate) fn root(path: &Utf8Path) -> Self {
     Self {
       file_depth: 0,
       file_path: vec![path.into()],
@@ -22,7 +22,7 @@ impl<'src> Source<'src> {
     }
   }
 
-  pub(crate) fn import(&self, path: PathBuf, import_offset: usize) -> Self {
+  pub(crate) fn import(&self, path: Utf8PathBuf, import_offset: usize) -> Self {
     Self {
       file_depth: self.file_depth + 1,
       file_path: self
@@ -43,7 +43,7 @@ impl<'src> Source<'src> {
     }
   }
 
-  pub(crate) fn module(&self, name: Name<'src>, path: PathBuf) -> Self {
+  pub(crate) fn module(&self, name: Name<'src>, path: Utf8PathBuf) -> Self {
     Self {
       file_depth: self.file_depth + 1,
       file_path: self

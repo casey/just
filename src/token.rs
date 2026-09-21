@@ -7,7 +7,7 @@ pub(crate) struct Token<'src> {
   pub(crate) length: usize,
   pub(crate) line: usize,
   pub(crate) offset: usize,
-  pub(crate) path: &'src Path,
+  pub(crate) path: &'src Utf8Path,
   pub(crate) src: &'src str,
 }
 
@@ -57,7 +57,7 @@ impl ColorDisplay for Token<'_> {
       "{:width$}{} {}:{}:{}",
       "",
       color.context().paint("——▶"),
-      self.path.display(),
+      self.path,
       line_number,
       self.column.ordinal(),
       width = line_number_width

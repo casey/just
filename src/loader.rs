@@ -1,7 +1,7 @@
 use super::*;
 
 pub(crate) struct Loader {
-  paths: Arena<PathBuf>,
+  paths: Arena<Utf8PathBuf>,
   srcs: Arena<String>,
 }
 
@@ -15,12 +15,9 @@ impl Loader {
 
   pub(crate) fn load<'src>(
     &'src self,
-    config: &Config,
-    root: &Path,
-    path: &Path,
-  ) -> RunResult<'src, (&'src Path, &'src str)> {
-    Config::warn_non_unicode_path(config.color, "justfile", path);
-
+    root: &Utf8Path,
+    path: &Utf8Path,
+  ) -> RunResult<'src, (&'src Utf8Path, &'src str)> {
     let src = fs::read_to_string(path).map_err(|io_error| Error::Load {
       path: path.into(),
       io_error,

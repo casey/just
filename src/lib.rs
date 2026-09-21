@@ -88,6 +88,7 @@ pub(crate) use {
     parameter::Parameter,
     parameter_kind::ParameterKind,
     parser::Parser,
+    path_error::PathError,
     pattern::Pattern,
     platform::Platform,
     platform_interface::PlatformInterface,
@@ -143,7 +144,7 @@ pub(crate) use {
     warning::Warning,
     which::which,
   },
-  camino::Utf8Path,
+  camino::{FromPathBufError, Utf8Component, Utf8Path, Utf8PathBuf},
   chrono::{DateTime, Local, TimeZone, Utc, format::StrftimeItems},
   clap::{CommandFactory, FromArgMatches, Parser as _, ValueEnum},
   clap_complete::{ArgValueCompleter, CompletionCandidate, PathCompleter, engine::ValueCompleter},
@@ -156,7 +157,7 @@ pub(crate) use {
     ser::{SerializeMap, SerializeSeq, SerializeStruct},
   },
   sha2::{Digest, Sha256},
-  snafu::{ResultExt, Snafu},
+  snafu::{OptionExt, ResultExt, Snafu},
   std::{
     borrow::Borrow,
     cmp::Ordering,
@@ -171,7 +172,6 @@ pub(crate) use {
     num::{NonZeroU64, ParseIntError},
     ops::Deref,
     ops::{Index, RangeInclusive},
-    path::{self, Component, Path, PathBuf},
     process::{self, Command, ExitStatus, Stdio},
     slice,
     str::{self, Chars, FromStr},
@@ -199,6 +199,7 @@ pub use {arguments::Arguments, request::Response, subcommand::INIT_JUSTFILE, uni
 
 type CompileResult<'a, T = ()> = Result<T, CompileError<'a>>;
 type ConfigResult<T> = Result<T, ConfigError>;
+type PathResult<T> = Result<T, PathError>;
 type RunResult<'a, T = ()> = Result<T, Error<'a>>;
 type SearchResult<T> = Result<T, SearchError>;
 type StringResult = Result<String, String>;
@@ -211,6 +212,19 @@ const JUST_DIRECTORY: &str = "just";
 const RECURSION_LIMIT: usize = if cfg!(windows) { 48 } else { 256 };
 const TEMPDIR_PREFIX: &str = "just-";
 const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+fn env_var(name: &str) -> RunResult<'static, Option<String>> {
+  match env::var(name) {
+    Err(env::VarError::NotPresent) => Ok(None),
+    Err(env::VarError::NotUnicode(value)) => {
+      return Err(Error::EnvVarUnicode {
+        name: name.into(),
+        value,
+      });
+    }
+    Ok(value) => Ok(Some(value)),
+  }
+}
 
 fn signal_exit_code(number: i32) -> Option<i32> {
   number.checked_add(128)
@@ -268,6 +282,7 @@ mod datetime_format_error;
 mod delimiter;
 mod dependency;
 mod dependency_argument;
+mod dir;
 mod disabled;
 mod dump_format;
 mod element;
@@ -312,6 +327,7 @@ mod output_error;
 mod parameter;
 mod parameter_kind;
 mod parser;
+mod path_error;
 mod pattern;
 mod platform;
 mod platform_interface;

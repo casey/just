@@ -33,7 +33,7 @@ impl<'src, 'run> Scope<'src, 'run> {
             length: key.len(),
             line: 0,
             offset: 0,
-            path: Path::new("PRELUDE"),
+            path: Utf8Path::new("PRELUDE"),
             src: key,
           },
         },

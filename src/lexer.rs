@@ -25,7 +25,7 @@ pub(crate) struct Lexer<'src> {
   /// Current open delimiters
   open_delimiters: Vec<(Delimiter, usize)>,
   /// Path to source file
-  path: &'src Path,
+  path: &'src Utf8Path,
   /// Inside recipe body
   recipe_body: bool,
   /// Next indent will start a recipe body
@@ -46,7 +46,7 @@ impl<'src> Lexer<'src> {
   pub(crate) const INTERPOLATION_START: &'static str = "{{";
 
   /// Lex `src`
-  pub(crate) fn lex(path: &'src Path, src: &'src str) -> CompileResult<'src, Vec<Token<'src>>> {
+  pub(crate) fn lex(path: &'src Utf8Path, src: &'src str) -> CompileResult<'src, Vec<Token<'src>>> {
     Self::new(path, src).tokenize()
   }
 
@@ -56,7 +56,7 @@ impl<'src> Lexer<'src> {
   }
 
   /// Create a new Lexer to lex `src`
-  fn new(path: &'src Path, src: &'src str) -> Self {
+  fn new(path: &'src Utf8Path, src: &'src str) -> Self {
     let mut chars = src.chars();
     let next = chars.next();
 

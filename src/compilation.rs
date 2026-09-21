@@ -2,10 +2,10 @@ use super::*;
 
 #[derive(Debug)]
 pub(crate) struct Compilation<'src> {
-  pub(crate) asts: HashMap<(Modulepath, PathBuf), Ast<'src>>,
+  pub(crate) asts: HashMap<(Modulepath, Utf8PathBuf), Ast<'src>>,
   pub(crate) justfile: Justfile<'src>,
   pub(crate) overrides: HashMap<Number, String>,
-  pub(crate) root: PathBuf,
+  pub(crate) root: Utf8PathBuf,
 }
 
 impl<'src> Compilation<'src> {

@@ -35,7 +35,7 @@ pub(crate) struct Parser<'run, 'src> {
   recursion_depth: usize,
   tokens: &'run [Token<'src>],
   unstable_features: BTreeSet<UnstableFeature>,
-  working_directory: &'run Path,
+  working_directory: &'run Utf8Path,
 }
 
 impl<'run, 'src> Parser<'run, 'src> {
@@ -46,7 +46,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     module_namepath: Option<&'run Namepath<'src>>,
     numerator: &'run mut Numerator,
     tokens: &'run [Token<'src>],
-    working_directory: &'run Path,
+    working_directory: &'run Utf8Path,
   ) -> CompileResult<'src, Ast<'src>> {
     Self {
       expected_tokens: BTreeSet::new(),
@@ -67,7 +67,7 @@ impl<'run, 'src> Parser<'run, 'src> {
 
   pub(crate) fn parse_source(
     numerator: &mut Numerator,
-    path: &'src Path,
+    path: &'src Utf8Path,
     source: &Source<'src>,
     src: &'src str,
   ) -> CompileResult<'src, Ast<'src>> {

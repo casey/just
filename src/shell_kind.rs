@@ -36,7 +36,7 @@ impl From<&str> for ShellKind {
 
 impl From<&Command> for ShellKind {
   fn from(command: &Command) -> Self {
-    let Some(command) = Path::new(command.get_program())
+    let Some(command) = std::path::Path::new(command.get_program())
       .file_name()
       .and_then(OsStr::to_str)
     else {

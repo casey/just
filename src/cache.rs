@@ -4,7 +4,7 @@ const DIR: &str = ".justcache";
 
 pub(crate) struct Cache {
   initialized: Mutex<bool>,
-  path: PathBuf,
+  path: Utf8PathBuf,
 }
 
 impl Cache {
@@ -12,7 +12,7 @@ impl Cache {
     &self,
     config: &Config,
     key: CacheKey,
-    outputs: &BTreeMap<String, PathBuf>,
+    outputs: &BTreeMap<String, Utf8PathBuf>,
   ) -> RunResult<'static, CacheStatus> {
     let mut hasher = blake3::Hasher::new();
 
@@ -77,7 +77,7 @@ impl Cache {
     }
   }
 
-  fn entry(&self, key: blake3::Hash) -> RunResult<'static, PathBuf> {
+  fn entry(&self, key: blake3::Hash) -> RunResult<'static, Utf8PathBuf> {
     let mut initialized = self.initialized.lock().unwrap();
 
     if !*initialized {
@@ -93,7 +93,7 @@ impl Cache {
 
   pub(crate) fn inputs(
     value: Value,
-    working_directory: &Path,
+    working_directory: &Utf8Path,
   ) -> RunResult<'static, BTreeMap<String, blake3::Hash>> {
     let mut inputs = BTreeMap::new();
 
@@ -127,7 +127,7 @@ impl Cache {
     Ok(inputs)
   }
 
-  pub(crate) fn dir(search: &Search) -> PathBuf {
+  pub(crate) fn dir(search: &Search) -> Utf8PathBuf {
     search.justfile_parent().join(DIR)
   }
 }

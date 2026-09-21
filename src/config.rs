@@ -4,12 +4,12 @@ use super::*;
 pub(crate) struct Config {
   pub(crate) alias_style: AliasStyle,
   pub(crate) allow_missing: bool,
-  pub(crate) ceiling: Option<PathBuf>,
+  pub(crate) ceiling: Option<Utf8PathBuf>,
   pub(crate) check: bool,
   pub(crate) color: Color,
   pub(crate) command_color: Option<nu_ansi_term::Color>,
   pub(crate) complete_aliases: bool,
-  pub(crate) cygpath: PathBuf,
+  pub(crate) cygpath: Utf8PathBuf,
   pub(crate) default_list: bool,
   pub(crate) dotenv_command: Vec<String>,
   pub(crate) dotenv_filename: Vec<String>,
@@ -19,7 +19,7 @@ pub(crate) struct Config {
   pub(crate) groups: Vec<String>,
   pub(crate) highlight: bool,
   pub(crate) indentation: Option<Indentation>,
-  pub(crate) invocation_directory: PathBuf,
+  pub(crate) invocation_directory: Utf8PathBuf,
   pub(crate) jobs: Option<NonZeroU64>,
   pub(crate) justfile_names: Option<Vec<String>>,
   pub(crate) list_heading: String,
@@ -36,7 +36,7 @@ pub(crate) struct Config {
   pub(crate) shell_args: Option<Vec<String>>,
   pub(crate) shell_command: bool,
   pub(crate) subcommand: Subcommand,
-  pub(crate) tempdir: Option<PathBuf>,
+  pub(crate) tempdir: Option<Utf8PathBuf>,
   pub(crate) time: bool,
   pub(crate) timestamp: bool,
   pub(crate) timestamp_format: String,
@@ -66,7 +66,7 @@ impl Config {
       groups: Vec::new(),
       highlight: true,
       indentation: None,
-      invocation_directory: env::current_dir().context(config_error::CurrentDir)?,
+      invocation_directory: dir::current_directory()?,
       jobs: None,
       justfile_names: None,
       list_heading: Arguments::DEFAULT_LIST_HEADING.into(),
@@ -120,7 +120,7 @@ impl Config {
 
     let working_directory = arguments.working_directory.clone();
 
-    if let Some(search_directory) = positional.search_directory.as_ref().map(PathBuf::from) {
+    if let Some(search_directory) = positional.search_directory.as_ref().map(Utf8PathBuf::from) {
       if arguments.global_justfile || justfile.is_some() || working_directory.is_some() {
         return Err(ConfigError::SearchDirConflict);
       }
@@ -131,7 +131,7 @@ impl Config {
       match (justfile, working_directory) {
         (None, None) => Ok(SearchConfig::FromInvocationDirectory),
         (Some(justfile), working_directory) => {
-          if justfile == Path::new(STANDARD_INPUT_ARGUMENT) {
+          if justfile == Utf8Path::new(STANDARD_INPUT_ARGUMENT) {
             Ok(SearchConfig::FromStandardInput { working_directory })
           } else if let Some(working_directory) = working_directory {
             Ok(SearchConfig::WithJustfileAndWorkingDirectory {
@@ -309,18 +309,13 @@ impl Config {
     }
 
     let unstable = arguments.unstable || subcommand == Subcommand::Summary;
-    let color = Color::new(arguments.indentation.unwrap_or_default(), arguments.color);
-
-    let invocation_directory = env::current_dir().context(config_error::CurrentDir)?;
-
-    Self::warn_non_unicode_path(color, "invocation directory", &invocation_directory);
 
     Ok(Self {
       alias_style: arguments.alias_style,
       allow_missing: arguments.allow_missing,
       ceiling: arguments.ceiling,
       check: arguments.check,
-      color,
+      color: Color::new(arguments.indentation.unwrap_or_default(), arguments.color),
       command_color: arguments.command_color.map(CommandColor::into),
       complete_aliases: arguments.complete_aliases,
       cygpath: arguments.cygpath,
@@ -333,7 +328,7 @@ impl Config {
       groups: arguments.group,
       highlight: !arguments.no_highlight,
       indentation: arguments.indentation,
-      invocation_directory,
+      invocation_directory: dir::current_directory()?,
       jobs: arguments.jobs,
       justfile_names: arguments.justfile_names,
       list_heading: arguments.list_heading,
@@ -380,19 +375,6 @@ impl Config {
       Ok(())
     } else {
       Err(Error::UnstableFeature { unstable_feature })
-    }
-  }
-
-  pub(crate) fn warn_non_unicode_path(color: Color, name: &str, path: &Path) {
-    if path.to_str().is_none() {
-      eprintln!(
-        "{}The {name} path `{}` is not Unicode. Just is considering phasing-out support for \
-        non-Unicode paths. If you see this warning, please leave a comment on \
-        https://github.com/casey/just/issues/3229. Thank you!{}",
-        color.warning().prefix(),
-        path.display(),
-        color.warning().suffix(),
-      );
     }
   }
 }

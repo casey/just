@@ -11,13 +11,13 @@ pub(crate) enum Item<'src> {
   Comment(&'src str),
   Function(FunctionDefinition<'src>),
   Import {
-    absolute: Option<PathBuf>,
+    absolute: Option<Utf8PathBuf>,
     attributes: AttributeSet<'src>,
     optional: bool,
     relative: StringLiteral<'src>,
   },
   Module {
-    absolute: Option<PathBuf>,
+    absolute: Option<Utf8PathBuf>,
     attributes: AttributeSet<'src>,
     doc: Option<String>,
     name: Name<'src>,

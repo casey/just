@@ -5,9 +5,9 @@ pub(crate) trait CommandExt {
 
   fn output_guard_stdout(self) -> Result<String, OutputError>;
 
-  fn resolve(program: impl AsRef<OsStr>) -> Command;
+  fn resolve(program: impl AsRef<str>) -> Command;
 
-  fn shell_arg(&mut self, arg: impl AsRef<OsStr>) -> &mut Command;
+  fn shell_arg(&mut self, arg: impl AsRef<str>) -> &mut Command;
 
   fn status_guard(self) -> (io::Result<ExitStatus>, Option<Signal>);
 }
@@ -39,8 +39,8 @@ impl CommandExt for Command {
     )
   }
 
-  fn resolve(program: impl AsRef<OsStr>) -> Self {
-    let program = Path::new(program.as_ref());
+  fn resolve(program: impl AsRef<str>) -> Self {
+    let program = Utf8Path::new(program.as_ref());
 
     if !cfg!(windows) {
       return Self::new(program);
@@ -49,7 +49,7 @@ impl CommandExt for Command {
     let mut candidates = vec![program.into()];
 
     let mut components = program.components();
-    if matches!(components.next(), Some(Component::Normal(_)))
+    if matches!(components.next(), Some(Utf8Component::Normal(_)))
       && components.next().is_none()
       && let Some(path) = env::var_os("PATH")
     {
@@ -90,14 +90,14 @@ impl CommandExt for Command {
     Self::new(program)
   }
 
-  fn shell_arg(&mut self, arg: impl AsRef<OsStr>) -> &mut Command {
+  fn shell_arg(&mut self, arg: impl AsRef<str>) -> &mut Command {
     #[cfg(windows)]
     if ShellKind::from(&*self) == ShellKind::Cmd {
       use std::os::windows::process::CommandExt;
       return self.raw_arg(arg);
     }
 
-    self.arg(arg)
+    self.arg(arg.as_ref())
   }
 
   fn status_guard(self) -> (io::Result<ExitStatus>, Option<Signal>) {

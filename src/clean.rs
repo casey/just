@@ -1,12 +1,12 @@
 use super::*;
 
 pub(crate) trait Clean {
-  fn clean(self) -> PathBuf;
+  fn clean(self) -> Utf8PathBuf;
 }
 
-impl Clean for &Path {
-  fn clean(self) -> PathBuf {
-    use Component::*;
+impl Clean for &Utf8Path {
+  fn clean(self) -> Utf8PathBuf {
+    use Utf8Component::*;
 
     let mut components = Vec::new();
 
@@ -39,7 +39,7 @@ mod tests {
 
   #[track_caller]
   fn case(path: &str, expected: &str) {
-    assert_eq!(Path::new(path).clean(), Path::new(expected));
+    assert_eq!(Utf8Path::new(path).clean(), Utf8Path::new(expected));
   }
 
   #[test]
