@@ -455,14 +455,7 @@ fn justfile_directory(context: Context) -> StringResult {
     context
       .execution_context
       .search
-      .justfile
-      .parent()
-      .ok_or_else(|| {
-        format!(
-          "could not resolve justfile directory, justfile `{}` had no parent",
-          context.execution_context.search.justfile,
-        )
-      })?
+      .justfile_parent()
       .to_string(),
   )
 }
