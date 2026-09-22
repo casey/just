@@ -220,8 +220,7 @@ impl Config {
       Ok(Subcommand::Man)
     } else if let Some(request) = arguments.subcommand.request.as_deref() {
       Ok(Subcommand::Request {
-        request: serde_json::from_str(request)
-          .map_err(|source| ConfigError::RequestParse { source })?,
+        request: serde_json::from_str(request).context(config_error::RequestParse)?,
       })
     } else if arguments.subcommand.show.is_some() {
       Ok(Subcommand::Show {

@@ -54,8 +54,7 @@ impl Search {
         })
       }
       SearchConfig::FromStandardInput { working_directory } => {
-        let source =
-          io::read_to_string(io::stdin()).map_err(|io_error| SearchError::StdinIo { io_error })?;
+        let source = io::read_to_string(io::stdin()).context(search_error::StdinIo)?;
 
         let (justfile, tempdir) = Self::tempdir_justfile(config, &source)?;
 
@@ -86,9 +85,7 @@ impl Search {
 
         justfile
           .parent()
-          .ok_or_else(|| SearchError::JustfileHadNoParent {
-            path: justfile.clone(),
-          })?;
+          .context(search_error::JustfileHadNoParent { path: &justfile })?;
 
         Self::with_justfile(config, justfile, Self::clean(config, working_directory))
       }
@@ -105,10 +102,7 @@ impl Search {
       .is_some_and(|extension| extension.eq_ignore_ascii_case("md"))
     {
       let markdown =
-        fs::read_to_string(&justfile).map_err(|io_error| SearchError::FilesystemIo {
-          io_error,
-          path: justfile.clone(),
-        })?;
+        fs::read_to_string(&justfile).context(search_error::FilesystemIo { path: &justfile })?;
 
       let source = tangle(&markdown);
 
@@ -138,14 +132,11 @@ impl Search {
     } else {
       builder.tempdir()
     }
-    .map_err(|io_error| SearchError::TempdirIo { io_error })?;
+    .context(search_error::TempdirIo)?;
 
     let justfile = dir::temporary_directory(&tempdir)?.join("justfile");
 
-    fs::write(&justfile, source).map_err(|io_error| SearchError::FilesystemIo {
-      io_error,
-      path: justfile.clone(),
-    })?;
+    fs::write(&justfile, source).context(search_error::FilesystemIo { path: &justfile })?;
 
     Ok((justfile, tempdir))
   }
@@ -154,10 +145,7 @@ impl Search {
     for (directory, filename) in Self::global_justfile_paths()? {
       if let Ok(read_dir) = fs::read_dir(&directory) {
         for entry in read_dir {
-          let entry = entry.map_err(|io_error| SearchError::FilesystemIo {
-            io_error,
-            path: directory.clone(),
-          })?;
+          let entry = entry.context(search_error::FilesystemIo { path: &directory })?;
 
           let Ok(path) = entry.path().into_utf8() else {
             continue;
@@ -179,8 +167,8 @@ impl Search {
       .justfile
       .parent()
       .and_then(|path| path.parent())
-      .ok_or_else(|| SearchError::JustfileHadNoParent {
-        path: self.justfile.clone(),
+      .context(search_error::JustfileHadNoParent {
+        path: &self.justfile,
       })?;
     Self::find_in_directory(config, parent)
   }
@@ -250,16 +238,11 @@ impl Search {
     for directory in directory.ancestors() {
       let mut candidates = BTreeSet::new();
 
-      let entries = fs::read_dir(directory).map_err(|io_error| SearchError::FilesystemIo {
-        io_error,
-        path: directory.to_owned(),
-      })?;
+      let entries =
+        fs::read_dir(directory).context(search_error::FilesystemIo { path: directory })?;
 
       for entry in entries {
-        let entry = entry.map_err(|io_error| SearchError::FilesystemIo {
-          io_error,
-          path: directory.to_owned(),
-        })?;
+        let entry = entry.context(search_error::FilesystemIo { path: directory })?;
 
         let Ok(path) = entry.path().into_utf8() else {
           continue;
@@ -303,16 +286,11 @@ impl Search {
   /// system directories given in `PROJECT_ROOT_CHILDREN`
   fn project_root(config: &Config, directory: &Utf8Path) -> SearchResult<Utf8PathBuf> {
     for directory in directory.ancestors() {
-      let entries = fs::read_dir(directory).map_err(|io_error| SearchError::FilesystemIo {
-        io_error,
-        path: directory.to_owned(),
-      })?;
+      let entries =
+        fs::read_dir(directory).context(search_error::FilesystemIo { path: directory })?;
 
       for entry in entries {
-        let entry = entry.map_err(|io_error| SearchError::FilesystemIo {
-          io_error,
-          path: directory.to_owned(),
-        })?;
+        let entry = entry.context(search_error::FilesystemIo { path: directory })?;
         for project_root_child in PROJECT_ROOT_CHILDREN.iter().copied() {
           if entry.file_name() == project_root_child {
             return Ok(directory.to_owned());
@@ -334,9 +312,7 @@ impl Search {
     Ok(
       justfile
         .parent()
-        .ok_or_else(|| SearchError::JustfileHadNoParent {
-          path: justfile.to_path_buf(),
-        })?
+        .context(search_error::JustfileHadNoParent { path: justfile })?
         .to_owned(),
     )
   }

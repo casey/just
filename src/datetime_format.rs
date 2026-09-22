@@ -10,19 +10,15 @@ where
 {
   let items = StrftimeItems::new(format)
     .parse()
-    .map_err(|source| DatetimeFormatError::Parse {
-      format: format.into(),
-      source,
-    })?;
+    .context(datetime_format_error::Parse { format })?;
 
   let mut result = String::new();
 
   datetime
     .format_with_items(items.iter())
     .write_to(&mut result)
-    .map_err(|fmt::Error| DatetimeFormatError::Format {
-      format: format.into(),
-    })?;
+    .ok()
+    .context(datetime_format_error::Format { format })?;
 
   Ok(result)
 }

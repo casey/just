@@ -205,7 +205,7 @@ impl Compiler {
 
           return Err(
             SearchError::FilesystemIo {
-              io_error,
+              source: io_error,
               path: directory,
             }
             .into(),
@@ -214,10 +214,7 @@ impl Compiler {
       };
 
       for entry in entries {
-        let entry = entry.map_err(|io_error| SearchError::FilesystemIo {
-          io_error,
-          path: directory.clone(),
-        })?;
+        let entry = entry.context(search_error::FilesystemIo { path: &directory })?;
 
         if let Some(name) = entry.file_name().to_str() {
           for (candidate, case_sensitive) in &candidates {

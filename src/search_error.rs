@@ -3,9 +3,9 @@ use super::*;
 #[derive(Debug, Snafu)]
 #[snafu(visibility(pub(crate)), context(suffix(false)))]
 pub(crate) enum SearchError {
-  #[snafu(display("I/O error at `{path}`: {io_error}"))]
+  #[snafu(display("I/O error at `{path}`: {source}"))]
   FilesystemIo {
-    io_error: io::Error,
+    source: io::Error,
     path: Utf8PathBuf,
   },
   #[snafu(display("cannot initialize global justfile"))]
@@ -30,10 +30,10 @@ pub(crate) enum SearchError {
   NotFound,
   #[snafu(transparent)]
   Path { source: PathError },
-  #[snafu(display("error reading from standard input: {io_error}"))]
-  StdinIo { io_error: io::Error },
-  #[snafu(display("I/O error creating temporary directory: {io_error}"))]
-  TempdirIo { io_error: io::Error },
+  #[snafu(display("error reading from standard input: {source}"))]
+  StdinIo { source: io::Error },
+  #[snafu(display("I/O error creating temporary directory: {source}"))]
+  TempdirIo { source: io::Error },
 }
 
 #[cfg(test)]
