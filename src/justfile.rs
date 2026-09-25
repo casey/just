@@ -752,6 +752,44 @@ impl<'src> Justfile<'src> {
     aliases
   }
 
+  pub(crate) fn public_modules_recursive(&self, config: &Config) -> Vec<&Justfile> {
+    let mut modules = Vec::new();
+
+    let mut stack = self.public_modules(config);
+    stack.reverse();
+    while let Some(current) = stack.pop() {
+      modules.push(current);
+
+      for module in current.public_modules(config).into_iter().rev() {
+        stack.push(module);
+      }
+    }
+
+    modules
+  }
+
+  pub(crate) fn public_module_aliases_recursive(
+    &self,
+    config: &Config,
+  ) -> Vec<(&ModuleAlias<'_>, &Modulepath)> {
+    let mut aliases = Vec::new();
+
+    let mut stack = vec![self];
+    while let Some(current) = stack.pop() {
+      for alias in current.module_aliases.values() {
+        if alias.is_public() {
+          aliases.push((alias, &current.module_path));
+        }
+      }
+
+      for module in current.public_modules(config).into_iter().rev() {
+        stack.push(module);
+      }
+    }
+
+    aliases
+  }
+
   pub(crate) fn groups(&self) -> Vec<&str> {
     self
       .groups

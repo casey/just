@@ -453,3 +453,68 @@ fn recipes_with_invalid_config() {
     .stdout_regex("bar\nfoo\n.\njustfile\n--.*")
     .success();
 }
+
+#[test]
+fn list_modules() {
+  Test::new()
+    .justfile(
+      "
+        # doc
+        mod foo
+      ",
+    )
+    .write("foo.just", "mod bar")
+    .write("bar.just", "baz:")
+    .shell(false)
+    .env("JUST_COMPLETE", "fish")
+    .args(complete_args(&["--list", ""]))
+    .stdout_regex("foo\tdoc\nfoo::bar\nfoo::bar::baz\n.\nbar.just\nfoo.just\njustfile\n--.*")
+    .success();
+}
+
+#[test]
+fn list_module_aliases_not_completed_by_default() {
+  Test::new()
+    .justfile(
+      "
+        mod foo
+        alias f := foo
+      ",
+    )
+    .write("foo.just", "")
+    .shell(false)
+    .env("JUST_COMPLETE", "fish")
+    .args(complete_args(&["--list", ""]))
+    .stdout_regex("foo\n.\nfoo.just\njustfile\n--.*")
+    .success();
+}
+
+#[test]
+fn list_module_aliases_completed_with_flag() {
+  Test::new()
+    .justfile(
+      "
+        # doc
+        mod foo
+        alias f := foo
+      ",
+    )
+    .write("foo.just", "")
+    .shell(false)
+    .env("JUST_COMPLETE", "fish")
+    .args(complete_args(&["--complete-aliases", "--list", ""]))
+    .stdout_regex("foo\tdoc\nf\tdoc\n.\nfoo.just\njustfile\n--.*")
+    .success();
+}
+
+#[test]
+fn clean_recipes_and_modules() {
+  Test::new()
+    .justfile("mod foo")
+    .write("foo.just", "bar:")
+    .shell(false)
+    .env("JUST_COMPLETE", "fish")
+    .args(complete_args(&["--clean", ""]))
+    .stdout_regex("foo\nfoo::bar\nfoo::bar\n.\nfoo.just\njustfile\n--.*")
+    .success();
+}
