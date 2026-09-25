@@ -67,6 +67,76 @@ foo a b c='abc' d e f='xyz' g='bar' *h:
 }
 
 #[test]
+fn no_sections() {
+  Test::new()
+    .justfile("foo:")
+    .args(["--usage", "foo"])
+    .stdout("Usage: just foo\n")
+    .success();
+}
+
+#[test]
+fn arguments_only() {
+  Test::new()
+    .justfile("foo bar:")
+    .args(["--usage", "foo"])
+    .stdout(
+      "
+        Usage: just foo bar
+
+        Arguments:
+          bar
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn options_only() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', short='b')]
+        foo bar:
+      ",
+    )
+    .args(["--usage", "foo"])
+    .stdout(
+      "
+        Usage: just foo [OPTIONS]
+
+        Options:
+          -b bar
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn arguments_and_options() {
+  Test::new()
+    .justfile(
+      "
+        [arg('bar', short='b')]
+        foo bar baz:
+      ",
+    )
+    .args(["--usage", "foo"])
+    .stdout(
+      "
+        Usage: just foo [OPTIONS] baz
+
+        Arguments:
+          baz
+
+        Options:
+          -b bar
+      ",
+    )
+    .success();
+}
+
+#[test]
 fn flags_have_no_value_placeholder() {
   Test::new()
     .justfile(
@@ -82,6 +152,7 @@ fn flags_have_no_value_placeholder() {
     .stdout(
       "
         Usage: just foo [OPTIONS]
+
         Options:
               --bar a flag
       ",
