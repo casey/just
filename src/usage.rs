@@ -80,10 +80,7 @@ impl<D> ColorDisplay for Usage<'_, D> {
     }
 
     if options {
-      if arguments {
-        writeln!(f)?;
-      }
-
+      writeln!(f)?;
       writeln!(f)?;
       writeln!(f, "{}", color.heading().paint("Options:"))?;
       for (i, parameter) in self
