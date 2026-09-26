@@ -174,6 +174,31 @@ fn search_dir_parent() -> Result<(), Box<dyn Error>> {
 }
 
 #[test]
+fn working_directory_without_justfile() {
+  Test::new()
+    .justfile(
+      r#"
+        foo:
+          @echo "$(basename "$PWD")"
+      "#,
+    )
+    .create_dir("bar")
+    .args(["--working-directory", "bar", "foo"])
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
+fn working_directory_without_justfile_searches_from_working_directory() {
+  Test::new()
+    .justfile("foo:\n  @echo baz\n")
+    .write("bar/justfile", "foo:\n  @echo bar\n")
+    .args(["--working-directory", "bar", "foo"])
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
 fn setting() {
   Test::new()
     .justfile(

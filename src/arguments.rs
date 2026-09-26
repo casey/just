@@ -340,9 +340,8 @@ pub struct Arguments {
   #[arg(
     add = ArgValueCompleter::new(PathCompleter::dir()),
     env = "JUST_WORKING_DIRECTORY",
-    help = "Use <WORKING-DIRECTORY> as working directory. --justfile must also be set",
+    help = "Use <WORKING-DIRECTORY> as working directory",
     long,
-    requires = "justfile",
     short = 'd',
   )]
   pub(crate) working_directory: Option<Utf8PathBuf>,
