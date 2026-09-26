@@ -367,6 +367,7 @@ pub(crate) struct Subcommand {
   )]
   pub(crate) choose: bool,
   #[arg(
+    add = ArgValueCompleter::new(Completer::complete_recipe_or_module),
     conflicts_with = "arguments",
     help = "Clear recipe cache, optionally restricted to recipes whose path begins with <RECIPE_PATH>",
     help_heading = Self::HEADING,
@@ -443,6 +444,7 @@ pub(crate) struct Subcommand {
   )]
   pub(crate) json: bool,
   #[arg(
+    add = ArgValueCompleter::new(Completer::complete_module),
     conflicts_with = "arguments",
     help = "List available recipes in <MODULE> or root if omitted",
     help_heading = Self::HEADING,

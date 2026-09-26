@@ -24,7 +24,7 @@ impl<'src> Alias<'src> {
   }
 }
 
-impl RecipeAlias<'_> {
+impl<T> Alias<'_, T> {
   pub(crate) fn is_public(&self) -> bool {
     !self.name.lexeme().starts_with('_') && !self.attributes.private()
   }

@@ -7,6 +7,37 @@ pub(crate) struct Completer<'run, 'src> {
 }
 
 impl<'run, 'src> Completer<'run, 'src> {
+  fn candidate_modules(&self) -> Vec<CompletionCandidate> {
+    let mut candidates = Vec::new();
+
+    for module in self.justfile.public_modules_recursive(&self.config) {
+      let path = module.module_path.to_string();
+
+      if path.starts_with(self.current) {
+        candidates.push(CompletionCandidate::new(path).help(module.doc.as_ref().map(Into::into)));
+      }
+    }
+
+    if self.config.complete_aliases {
+      for (alias, modulepath) in self.justfile.public_module_aliases_recursive(&self.config) {
+        let name = modulepath.join(alias.name.lexeme()).to_string();
+        if name.starts_with(self.current) {
+          candidates.push(
+            CompletionCandidate::new(name).help(
+              self
+                .justfile
+                .submodule(&alias.target)
+                .and_then(|module| module.doc.as_ref())
+                .map(Into::into),
+            ),
+          );
+        }
+      }
+    }
+
+    candidates
+  }
+
   fn candidate_recipes(&self) -> Vec<CompletionCandidate> {
     let mut candidates = Vec::new();
 
@@ -67,6 +98,16 @@ impl<'run, 'src> Completer<'run, 'src> {
       .collect()
   }
 
+  pub(crate) fn complete_module(current: &OsStr) -> Vec<CompletionCandidate> {
+    let loader = Loader::new();
+
+    let Some(completer) = Completer::new(current, &loader) else {
+      return Vec::new();
+    };
+
+    completer.candidate_modules()
+  }
+
   pub(crate) fn complete_recipe(current: &OsStr) -> Vec<CompletionCandidate> {
     let loader = Loader::new();
 
@@ -75,6 +116,20 @@ impl<'run, 'src> Completer<'run, 'src> {
     };
 
     completer.candidate_recipes()
+  }
+
+  pub(crate) fn complete_recipe_or_module(current: &OsStr) -> Vec<CompletionCandidate> {
+    let loader = Loader::new();
+
+    let Some(completer) = Completer::new(current, &loader) else {
+      return Vec::new();
+    };
+
+    let mut candidates = completer.candidate_modules();
+
+    candidates.extend(completer.candidate_recipes());
+
+    candidates
   }
 
   pub(crate) fn complete_variable(current: &OsStr) -> Vec<CompletionCandidate> {
@@ -97,6 +152,15 @@ impl<'run, 'src> Completer<'run, 'src> {
     let mut args = env::args_os().collect::<Vec<OsString>>();
 
     args.drain(1..3);
+
+    let index = env::var("_CLAP_COMPLETE_INDEX")
+      .ok()
+      .and_then(|index| index.parse::<usize>().ok())
+      .unwrap_or(args.len() - 1);
+
+    if (1..args.len()).contains(&index) {
+      args.remove(index);
+    }
 
     let matches = Arguments::command()
       .ignore_errors(true)
