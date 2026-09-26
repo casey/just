@@ -1,20 +1,48 @@
 use super::*;
 
-pub(crate) struct Usage<'a, D> {
-  pub(crate) long: bool,
-  pub(crate) path: &'a Modulepath,
-  pub(crate) recipe: &'a Recipe<'a, D>,
+#[derive(PartialEq)]
+pub(crate) enum Mode {
+  Module,
+  Recipe,
+  Short,
 }
 
-impl<D> ColorDisplay for Usage<'_, D> {
+pub(crate) struct Usage<'a> {
+  pub(crate) mode: Mode,
+  pub(crate) path: &'a Modulepath,
+  pub(crate) recipe: &'a Recipe<'a>,
+}
+
+impl ColorDisplay for Usage<'_> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
+    let indentation = match self.mode {
+      Mode::Module => "    ",
+      Mode::Recipe | Mode::Short => "",
+    };
+
+    match self.mode {
+      Mode::Module => {
+        if let Some(doc) = self.recipe.doc() {
+          for line in doc.lines() {
+            writeln!(
+              f,
+              "{indentation}{}",
+              color.doc().paint(&format!("# {line}"))
+            )?;
+          }
+        }
+      }
+      Mode::Recipe => {
+        write!(f, "{} ", color.heading().paint("Usage:"))?;
+      }
+      Mode::Short => {
+        write!(f, "{}\n    ", color.heading().paint("usage:"))?;
+      }
+    }
+
     write!(
       f,
-      "{}{}{} {}",
-      color
-        .heading()
-        .paint(if self.long { "Usage:" } else { "usage:" }),
-      if self.long { " " } else { "\n    " },
+      "{indentation}{} {}",
       color.argument().paint("just"),
       color.argument().paint(&self.path.to_string()),
     )?;
@@ -45,14 +73,17 @@ impl<D> ColorDisplay for Usage<'_, D> {
       )?;
     }
 
-    if !self.long {
+    if self.mode == Mode::Short {
       return Ok(());
     }
 
     if arguments {
       writeln!(f)?;
-      writeln!(f)?;
-      writeln!(f, "{}", color.heading().paint("Arguments:"))?;
+
+      if self.mode == Mode::Recipe {
+        writeln!(f)?;
+        writeln!(f, "{}", color.heading().paint("Arguments:"))?;
+      }
 
       for (i, parameter) in self
         .recipe
@@ -65,11 +96,9 @@ impl<D> ColorDisplay for Usage<'_, D> {
           writeln!(f)?;
         }
 
-        write!(f, "  ")?;
-
         write!(
           f,
-          "{}",
+          "{indentation}  {}",
           UsageParameter {
             parameter,
             long: true,
@@ -81,8 +110,12 @@ impl<D> ColorDisplay for Usage<'_, D> {
 
     if options {
       writeln!(f)?;
-      writeln!(f)?;
-      writeln!(f, "{}", color.heading().paint("Options:"))?;
+
+      if self.mode == Mode::Recipe {
+        writeln!(f)?;
+        writeln!(f, "{}", color.heading().paint("Options:"))?;
+      }
+
       for (i, parameter) in self
         .recipe
         .parameters
@@ -94,11 +127,9 @@ impl<D> ColorDisplay for Usage<'_, D> {
           writeln!(f)?;
         }
 
-        write!(f, "  ")?;
-
         write!(
           f,
-          "{}",
+          "{indentation}  {}",
           UsageParameter {
             parameter,
             long: true,
