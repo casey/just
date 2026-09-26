@@ -67,6 +67,11 @@ impl Search {
             .clone(),
         })
       }
+      SearchConfig::FromWorkingDirectory { working_directory } => {
+        let working_directory = Self::clean(config, working_directory);
+        let justfile = Self::justfile(config, &working_directory)?;
+        Self::with_justfile(config, justfile, working_directory)
+      }
       SearchConfig::GlobalJustfile => Ok(Self {
         justfile: Self::find_global_justfile()?,
         tempdir: None,
@@ -204,6 +209,15 @@ impl Search {
       SearchConfig::FromSearchDirectory { search_directory } => {
         let search_directory = Self::clean(config, search_directory);
         let working_directory = Self::project_root(config, &search_directory)?;
+        let justfile = working_directory.join(default_justfile_name());
+        Ok(Self {
+          justfile,
+          tempdir: None,
+          working_directory,
+        })
+      }
+      SearchConfig::FromWorkingDirectory { working_directory } => {
+        let working_directory = Self::clean(config, working_directory);
         let justfile = working_directory.join(default_justfile_name());
         Ok(Self {
           justfile,

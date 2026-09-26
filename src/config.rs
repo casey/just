@@ -142,9 +142,9 @@ impl Config {
             Ok(SearchConfig::WithJustfile { justfile })
           }
         }
-        (None, Some(_)) => Err(ConfigError::internal(
-          "--working-directory set without --justfile",
-        )),
+        (None, Some(working_directory)) => {
+          Ok(SearchConfig::FromWorkingDirectory { working_directory })
+        }
       }
     }
   }
@@ -1082,6 +1082,14 @@ mod tests {
     args: ["--working-directory", "foo", "--justfile", "bar"],
     search_config: SearchConfig::WithJustfileAndWorkingDirectory {
       justfile: Utf8PathBuf::from("bar"),
+      working_directory: Utf8PathBuf::from("foo"),
+    },
+  }
+
+  test! {
+    name: search_config_from_working_directory,
+    args: ["--working-directory", "foo"],
+    search_config: SearchConfig::FromWorkingDirectory {
       working_directory: Utf8PathBuf::from("foo"),
     },
   }

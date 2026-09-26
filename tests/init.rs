@@ -186,6 +186,17 @@ fn justfile_name_from_search_directory() {
 }
 
 #[test]
+fn working_directory_without_justfile() {
+  Test::new()
+    .create_dir(".git")
+    .create_dir("foo")
+    .args(["--init", "--working-directory", "foo"])
+    .stderr_regex(r"wrote justfile to `.*[\\/]foo[\\/]justfile`\n")
+    .expect_file("foo/justfile", INIT_JUSTFILE)
+    .success();
+}
+
+#[test]
 fn fmt_compatibility() {
   Test::new()
     .arg("--init")
