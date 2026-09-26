@@ -7,6 +7,12 @@ pub(crate) struct Completer<'run, 'src> {
 }
 
 impl<'run, 'src> Completer<'run, 'src> {
+  fn candidate(&self, name: String, doc: Option<&String>) -> Option<CompletionCandidate> {
+    name
+      .starts_with(self.current)
+      .then(|| CompletionCandidate::new(name).help(doc.map(Into::into)))
+  }
+
   fn candidate_modules(&self) -> Vec<CompletionCandidate> {
     let mut candidates = Vec::new();
 
@@ -56,6 +62,62 @@ impl<'run, 'src> Completer<'run, 'src> {
           candidates
             .push(CompletionCandidate::new(name).help(alias.target.doc.as_ref().map(Into::into)));
         }
+      }
+    }
+
+    candidates
+  }
+
+  fn candidate_recipes_and_modules(&self) -> Vec<CompletionCandidate> {
+    let mut candidates = Vec::new();
+
+    for module in
+      iter::once(&self.justfile).chain(self.justfile.public_modules_recursive(&self.config))
+    {
+      if module.name.is_some()
+        && let Some(candidate) = self.candidate(module.module_path.to_string(), module.doc.as_ref())
+      {
+        candidates.push(candidate);
+      }
+
+      candidates.extend(
+        module
+          .public_recipes(&self.config)
+          .into_iter()
+          .filter_map(|recipe| {
+            self.candidate(recipe.recipe_path().to_string(), recipe.doc.as_ref())
+          }),
+      );
+
+      if self.config.complete_aliases {
+        candidates.extend(
+          module
+            .recipe_aliases
+            .values()
+            .filter(|alias| alias.is_public())
+            .filter_map(|alias| {
+              self.candidate(
+                module.module_path.join(alias.name.lexeme()).to_string(),
+                alias.target.doc.as_ref(),
+              )
+            }),
+        );
+
+        candidates.extend(
+          module
+            .module_aliases
+            .values()
+            .filter(|alias| alias.is_public())
+            .filter_map(|alias| {
+              self.candidate(
+                module.module_path.join(alias.name.lexeme()).to_string(),
+                self
+                  .justfile
+                  .submodule(&alias.target)
+                  .and_then(|module| module.doc.as_ref()),
+              )
+            }),
+        );
       }
     }
 
@@ -125,11 +187,7 @@ impl<'run, 'src> Completer<'run, 'src> {
       return Vec::new();
     };
 
-    let mut candidates = completer.candidate_modules();
-
-    candidates.extend(completer.candidate_recipes());
-
-    candidates
+    completer.candidate_recipes_and_modules()
   }
 
   pub(crate) fn complete_variable(current: &OsStr) -> Vec<CompletionCandidate> {
