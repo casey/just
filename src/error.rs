@@ -1101,7 +1101,7 @@ impl ColorDisplay for Error<'_> {
         f,
         "{}",
         Usage {
-          long: false,
+          mode: usage::Mode::Short,
           path: recipe.recipe_path(),
           recipe,
         }

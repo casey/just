@@ -1025,10 +1025,28 @@ fn show_recipe_in_absent_optional_module_is_error() {
 }
 
 #[test]
+fn show_absent_optional_module_is_error() {
+  Test::new()
+    .justfile("mod? foo")
+    .args(["--show", "foo"])
+    .stderr("error: optional module `foo` is absent\n")
+    .failure();
+}
+
+#[test]
 fn list_absent_optional_module_is_error() {
   Test::new()
     .justfile("mod? foo")
     .args(["--list", "foo"])
+    .stderr("error: optional module `foo` is absent\n")
+    .failure();
+}
+
+#[test]
+fn usage_absent_optional_module_is_error() {
+  Test::new()
+    .justfile("mod? foo")
+    .args(["--usage", "foo"])
     .stderr("error: optional module `foo` is absent\n")
     .failure();
 }

@@ -423,7 +423,7 @@ fn usage_recipes() {
     .shell(false)
     .env("JUST_COMPLETE", "fish")
     .args(complete_args(&["--usage", ""]))
-    .stdout("bar\nfoo\n")
+    .stdout_regex("bar\nfoo\nbar\nfoo\n.\njustfile\n--.*")
     .success();
 }
 

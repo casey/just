@@ -486,13 +486,14 @@ pub(crate) struct Subcommand {
   )]
   pub(crate) summary: bool,
   #[arg(
-    add = ArgValueCompleter::new(Completer::complete_recipe),
+    add = ArgValueCompleter::new(Completer::complete_recipe_or_module),
     conflicts_with = "arguments",
-    help = "Print usage information for recipe at <RECIPE_PATH>",
+    help = "Print usage information for recipe at <PATH> or all recipes in module at <PATH>, \
+            defaulting to all recipes in the root justfile",
     help_heading = Self::HEADING,
     long,
-    num_args = 1..,
-    value_name = "RECIPE_PATH",
+    num_args = 0..,
+    value_name = "PATH",
   )]
   pub(crate) usage: Option<Vec<String>>,
   #[arg(

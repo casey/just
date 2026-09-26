@@ -622,27 +622,8 @@ impl Subcommand {
   }
 
   fn list<'src>(config: &Config, root: &Justfile<'src>, path: &Modulepath) -> RunResult<'src> {
-    let mut module = root;
-
-    for name in &path.components {
-      if let Some(submodule) = module.modules.get(name) {
-        module = submodule;
-      } else if let Some(alias) = module.module_aliases.get(name) {
-        module = root.submodule(&alias.target).unwrap();
-      } else if module.absent_modules.contains(name) {
-        return Err(Error::ModuleAbsent {
-          module: module.module_path.join(name),
-        });
-      } else {
-        return Err(Error::UnknownSubmodule {
-          path: path.to_string(),
-          suggestion: module.suggest_submodule(name),
-        });
-      }
-    }
-
+    let module = Self::resolve_module(root, path, &path.components)?;
     Self::list_module(config, 0, &config.groups, module)?;
-
     Ok(())
   }
 
@@ -1042,38 +1023,66 @@ impl Subcommand {
     }
   }
 
-  fn usage<'src>(config: &Config, module: &Justfile<'src>, path: &Modulepath) -> RunResult<'src> {
-    let (alias, recipe) = Self::resolve_path(module, path, "usage")?;
+  fn usage<'src>(config: &Config, root: &Justfile<'src>, path: &Modulepath) -> RunResult<'src> {
+    if let Some(module) = root.submodule(path) {
+      let recipes = module.public_recipes(config);
 
-    if let Some(alias) = alias {
-      println!("{alias}");
-    }
+      if recipes.is_empty() {
+        if config.verbosity.loud() {
+          eprintln!("module contains no recipes");
+        }
+      } else {
+        println!("{}", config.color.stdout().heading().paint("Usage:"));
+        for (i, recipe) in recipes.into_iter().enumerate() {
+          if i > 0 {
+            println!();
+          }
 
-    println!(
-      "{}",
-      Usage {
-        long: true,
-        path,
-        recipe,
+          let path = Modulepath {
+            spaced: true,
+            ..path.join(recipe.name())
+          };
+
+          println!(
+            "{}",
+            Usage {
+              mode: usage::Mode::Module,
+              path: &path,
+              recipe,
+            }
+            .color_display(config.color.stdout()),
+          );
+        }
       }
-      .color_display(config.color.stdout()),
-    );
+    } else {
+      let (alias, recipe) = Self::resolve_path(root, path, "usage")?;
+
+      if let Some(alias) = alias {
+        println!("{alias}");
+      }
+
+      println!(
+        "{}",
+        Usage {
+          mode: usage::Mode::Recipe,
+          path,
+          recipe
+        }
+        .color_display(config.color.stdout()),
+      );
+    }
 
     Ok(())
   }
 
-  fn resolve_path<'src, 'run>(
+  fn resolve_module<'src, 'run>(
     root: &'run Justfile<'src>,
     path: &Modulepath,
-    subcommand: &'static str,
-  ) -> RunResult<'src, (Option<&'run RecipeAlias<'src>>, &'run Recipe<'src>)> {
+    components: &[String],
+  ) -> RunResult<'src, &'run Justfile<'src>> {
     let mut module = root;
 
-    let Some((name, ancestors)) = path.components.split_last() else {
-      return Err(Error::RecipeRequired { subcommand });
-    };
-
-    for name in ancestors {
+    for name in components {
       if let Some(submodule) = module.modules.get(name) {
         module = submodule;
       } else if let Some(alias) = module.module_aliases.get(name) {
@@ -1090,6 +1099,20 @@ impl Subcommand {
       }
     }
 
+    Ok(module)
+  }
+
+  fn resolve_path<'src, 'run>(
+    root: &'run Justfile<'src>,
+    path: &Modulepath,
+    subcommand: &'static str,
+  ) -> RunResult<'src, (Option<&'run RecipeAlias<'src>>, &'run Recipe<'src>)> {
+    let Some((name, ancestors)) = path.components.split_last() else {
+      return Err(Error::RecipeRequired { subcommand });
+    };
+
+    let module = Self::resolve_module(root, path, ancestors)?;
+
     if let Some(alias) = module.recipe_alias(name) {
       Ok((Some(alias), &alias.target))
     } else if let Some(recipe) = module.recipe(name) {
@@ -1103,6 +1126,10 @@ impl Subcommand {
       Err(Error::AliasDisabled {
         alias: path.clone(),
         modules: disabled.modules.clone(),
+      })
+    } else if module.absent_modules.contains(name) {
+      Err(Error::ModuleAbsent {
+        module: module.module_path.join(name),
       })
     } else {
       Err(Error::UnknownRecipe {
