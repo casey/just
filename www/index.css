@@ -6,6 +6,10 @@
  --margin-horizontal: calc((100vw - var(--size) * 5) / 2);
 }
 
+:lang(zh) {
+  font-family: sans-serif;
+}
+
 * {
   margin: 0;
   padding: 0;
