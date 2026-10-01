@@ -1900,10 +1900,10 @@ mod tests {
       .expect("parsing failed")
       .tree();
     if have != want {
-      println!("parsed text: {unindented}");
-      println!("expected:    {want}");
-      println!("but got:     {have}");
-      println!("tokens:      {tokens:?}");
+      eprintln!("parsed text: {unindented}");
+      eprintln!("expected:    {want}");
+      eprintln!("but got:     {have}");
+      eprintln!("tokens:      {tokens:?}");
       panic!();
     }
   }

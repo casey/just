@@ -229,6 +229,9 @@ fn signal_exit_code(number: i32) -> Option<i32> {
   number.checked_add(128)
 }
 
+#[macro_use]
+mod print;
+
 #[cfg(test)]
 #[macro_use]
 pub mod testing;
