@@ -11,7 +11,7 @@ use {
     error::Error,
     fmt::Debug,
     fs,
-    io::Write,
+    io::{self, Write},
     iter,
     path::{MAIN_SEPARATOR, MAIN_SEPARATOR_STR, Path, PathBuf},
     process::{Command, Stdio},
@@ -159,6 +159,7 @@ mod parallel;
 mod parameters;
 mod parser;
 mod positional_arguments;
+mod print;
 mod private;
 mod quiet;
 mod quote;

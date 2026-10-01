@@ -72,14 +72,8 @@ impl Subcommand {
     use Subcommand::*;
 
     match self {
-      Changelog => {
-        Self::changelog();
-        return Ok(());
-      }
-      Completions { shell } => {
-        Self::completions(*shell);
-        return Ok(());
-      }
+      Changelog => return Self::changelog(),
+      Completions { shell } => return Self::completions(*shell),
       Init => return Self::init(config),
       Man => return Self::man(),
       Request { request } => return Self::request(request),
@@ -100,40 +94,37 @@ impl Subcommand {
     let justfile = &compilation.justfile;
 
     match self {
-      Choose { chooser } => {
-        Self::choose(
-          chooser.as_deref(),
-          config,
-          justfile,
-          &compilation.overrides,
-          &search,
-        )?;
-      }
+      Choose { chooser } => Self::choose(
+        chooser.as_deref(),
+        config,
+        justfile,
+        &compilation.overrides,
+        &search,
+      ),
       Command { .. } | Evaluate { .. } => {
-        justfile.run(config, &search, &[], &compilation.overrides)?;
+        justfile.run(config, &search, &[], &compilation.overrides)
       }
-      Clean { path } => Self::clean(config, &search, path.as_ref())?,
-      Dump { format } => Self::dump(config, compilation, *format)?,
+      Clean { path } => Self::clean(config, &search, path.as_ref()),
+      Dump { format } => Self::dump(config, compilation, *format),
       Groups => Self::groups(config, justfile),
-      List { path } => Self::list(config, justfile, path)?,
-      Run { arguments } => Self::run(config, loader, search, compilation, arguments)?,
-      Show { path } => Self::show(config, justfile, path)?,
+      List { path } => Self::list(config, justfile, path),
+      Run { arguments } => Self::run(config, loader, search, compilation, arguments),
+      Show { path } => Self::show(config, justfile, path),
       Summary => Self::summary(config, justfile),
-      Usage { path } => Self::usage(config, justfile, path)?,
+      Usage { path } => Self::usage(config, justfile, path),
       Variables => Self::variables(justfile),
       Changelog | Completions { .. } | Edit | Format | Init | Man | Request { .. } => {
         unreachable!()
       }
     }
-
-    Ok(())
   }
 
-  fn groups(config: &Config, justfile: &Justfile) {
+  fn groups(config: &Config, justfile: &Justfile) -> RunResult<'static> {
     println!("Recipe groups:");
     for group in justfile.public_groups(config) {
       println!("{}{group}", config.list_prefix);
     }
+    Ok(())
   }
 
   pub(crate) fn name(&self) -> &'static str {
@@ -254,8 +245,9 @@ impl Subcommand {
     Ok(compilation)
   }
 
-  fn changelog() {
-    write!(io::stdout(), "{}", include_str!("../CHANGELOG.md")).ok();
+  fn changelog() -> RunResult<'static> {
+    print!("{}", include_str!("../CHANGELOG.md"));
+    Ok(())
   }
 
   fn choose<'src>(
@@ -429,16 +421,17 @@ impl Subcommand {
     Ok(())
   }
 
-  fn completions(shell: Shell) {
+  fn completions(shell: Shell) -> RunResult<'static> {
     print!("{}", shell.completion_script());
+    Ok(())
   }
 
   fn dump(config: &Config, compilation: Compilation, format: DumpFormat) -> RunResult<'static> {
     match format {
       DumpFormat::Json => {
-        serde_json::to_writer(io::stdout(), &compilation.justfile)
+        let json = serde_json::to_string(&compilation.justfile)
           .map_err(|source| Error::DumpJson { source })?;
-        println!();
+        println!("{json}");
       }
       DumpFormat::Just => {
         print!(
@@ -588,15 +581,7 @@ impl Subcommand {
     .render(&mut buffer)
     .expect("writing to buffer cannot fail");
 
-    let mut stdout = io::stdout().lock();
-
-    stdout
-      .write_all(&buffer)
-      .map_err(|io_error| Error::StdoutIo { io_error })?;
-
-    stdout
-      .flush()
-      .map_err(|io_error| Error::StdoutIo { io_error })?;
+    print!("{}", str::from_utf8(&buffer).unwrap());
 
     Ok(())
   }
@@ -642,7 +627,7 @@ impl Subcommand {
       aliases: &[&str],
       max_signature_width: usize,
       signature_widths: &BTreeMap<&str, usize>,
-    ) {
+    ) -> RunResult<'static> {
       let color = config.color.stdout();
 
       let inline_aliases = config.alias_style != AliasStyle::Separate && !aliases.is_empty();
@@ -656,7 +641,7 @@ impl Subcommand {
         );
       }
 
-      let print_aliases = || {
+      let print_aliases = || -> RunResult<'static> {
         print!(
           " {}",
           color.alias().paint(&format!(
@@ -665,10 +650,11 @@ impl Subcommand {
             aliases.join(", ")
           ))
         );
+        Ok(())
       };
 
       if inline_aliases && config.alias_style == AliasStyle::Left {
-        print_aliases();
+        print_aliases()?;
       }
 
       if let Some(doc) = doc {
@@ -690,10 +676,12 @@ impl Subcommand {
       }
 
       if inline_aliases && config.alias_style == AliasStyle::Right {
-        print_aliases();
+        print_aliases()?;
       }
 
       println!();
+
+      Ok(())
     }
 
     let (aliases, cross_module_aliases) = if config.no_aliases {
@@ -930,7 +918,7 @@ impl Subcommand {
             entry.aliases,
             max_signature_width,
             &signature_widths,
-          );
+          )?;
         }
       }
 
@@ -952,7 +940,7 @@ impl Subcommand {
               &[],
               max_signature_width,
               &signature_widths,
-            );
+            )?;
           }
         }
       }
@@ -983,7 +971,7 @@ impl Subcommand {
     Ok(())
   }
 
-  fn summary(config: &Config, justfile: &Justfile) {
+  fn summary(config: &Config, justfile: &Justfile) -> RunResult<'static> {
     let recipes = justfile.public_recipes_recursive(config);
 
     for (i, recipe) in recipes.iter().enumerate() {
@@ -997,6 +985,8 @@ impl Subcommand {
     if recipes.is_empty() && config.verbosity.loud() {
       eprintln!("justfile contains no recipes");
     }
+
+    Ok(())
   }
 
   pub(crate) fn takes_arguments(&self) -> bool {
@@ -1139,7 +1129,7 @@ impl Subcommand {
     }
   }
 
-  fn variables(justfile: &Justfile) {
+  fn variables(justfile: &Justfile) -> RunResult<'static> {
     for (i, (_, assignment)) in justfile
       .assignments
       .iter()
@@ -1152,6 +1142,7 @@ impl Subcommand {
       print!("{}", assignment.name);
     }
     println!();
+    Ok(())
   }
 }
 
