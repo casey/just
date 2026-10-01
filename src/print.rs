@@ -16,10 +16,11 @@ macro_rules! println {
 }
 
 pub(crate) fn print(args: fmt::Arguments) -> RunResult<'static> {
-  match io::stdout().write_fmt(args) {
-    Err(io_error) if io_error.kind() != io::ErrorKind::BrokenPipe => {
-      Err(Error::StdoutIo { io_error })
-    }
-    _ => Ok(()),
+  if let Err(io_error) = io::stdout().write_fmt(args)
+    && io_error.kind() != io::ErrorKind::BrokenPipe
+  {
+    Err(Error::StdoutIo { io_error })
+  } else {
+    Ok(())
   }
 }
