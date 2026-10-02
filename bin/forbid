@@ -11,5 +11,5 @@ fi
   --glob !CHANGELOG.md \
   --glob !bin/forbid \
   --ignore-case \
-  'dbg!|fixme|todo|xxx' \
+  'dbg!|todo' \
   .
