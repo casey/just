@@ -64,7 +64,7 @@ impl Executor<'_> {
   pub(crate) fn needs_bom(&self) -> bool {
     match self.shell_kind() {
       ShellKind::Cmd | ShellKind::Other => false,
-      ShellKind::Powershell => true,
+      ShellKind::Powershell => cfg!(windows),
     }
   }
 
@@ -189,10 +189,10 @@ mod tests {
       );
     }
 
-    case("powershell", true);
-    case("powershell.exe", true);
-    case("pwsh", true);
-    case("pwsh.exe", true);
+    case("powershell", cfg!(windows));
+    case("powershell.exe", cfg!(windows));
+    case("pwsh", cfg!(windows));
+    case("pwsh.exe", cfg!(windows));
     case("cmd", false);
     case("cmd.exe", false);
     case("bash", false);

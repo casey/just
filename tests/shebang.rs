@@ -52,6 +52,31 @@ fn powershell_utf8() {
 }
 
 #[test]
+fn powershell_shebang_on_unix_has_no_bom() {
+  if cfg!(not(unix)) {
+    return;
+  }
+
+  let tempdir = tempdir();
+
+  let pwsh = tempdir.path().canonicalize().unwrap().join("pwsh");
+
+  #[cfg(unix)]
+  std::os::unix::fs::symlink(which("cat").unwrap(), &pwsh).unwrap();
+
+  Test::with_tempdir(tempdir)
+    .justfile(
+      "
+        foo:
+          #!{{justfile_directory()}}/pwsh
+          echo bar
+      ",
+    )
+    .stdout(format!("#!{}\n\necho bar\n", pwsh.to_str().unwrap()))
+    .success();
+}
+
+#[test]
 fn cmd() {
   if cfg!(not(windows)) {
     return;
