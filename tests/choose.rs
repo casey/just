@@ -171,7 +171,7 @@ fn invoke_error_function() {
       ",
     )
     .stderr_regex(
-      r#"error: chooser `/ -cu fzf --multi --preview 'just --unstable --color always --justfile ".*justfile" --show \{\}'` invocation failed: .*\n"#,
+      r"error: chooser `/ -cu fzf --multi --preview 'just --unstable --color always --show \{\}'` invocation failed: .*\n",
     )
     .shell(false)
     .args(["--shell", "/", "--choose"])
@@ -372,6 +372,50 @@ fn visit_modules_in_alphabetical_order() {
     .args(["--choose", "--chooser", "head -n1"])
     .stdout("bar\n")
     .success();
+}
+
+#[cfg(unix)]
+#[test]
+fn default_chooser_preview_finds_justfile() {
+  let tmp = tempdir();
+
+  fs::write(tmp.path().join("foo.just"), "foo:\n echo foo\n").unwrap();
+
+  let fzf = tmp.path().join("fzf");
+  fs::write(
+    &fzf,
+    format!(
+      "#!/usr/bin/env bash\neval \"${{3//\\{{\\}}/foo}}\" > '{}' 2>&1\necho foo\n",
+      tmp.path().join("output").display(),
+    ),
+  )
+  .unwrap();
+  fs::set_permissions(&fzf, std::os::unix::fs::PermissionsExt::from_mode(0o700)).unwrap();
+
+  let path = env::join_paths(
+    [
+      tmp.path().to_owned(),
+      Path::new(JUST).parent().unwrap().to_owned(),
+    ]
+    .into_iter()
+    .chain(env::split_paths(&env::var_os("PATH").unwrap())),
+  )
+  .unwrap();
+
+  let output = Command::new(JUST)
+    .arg("--choose")
+    .arg("--justfile=foo.just")
+    .current_dir(tmp.path())
+    .env("PATH", path)
+    .output()
+    .unwrap();
+
+  assert_stdout(&output, "foo\n");
+
+  assert_eq!(
+    fs::read_to_string(tmp.path().join("output")).unwrap(),
+    "foo:\n    echo foo\n"
+  );
 }
 
 #[cfg(unix)]
