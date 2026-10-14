@@ -272,19 +272,16 @@ impl Subcommand {
       return Err(Error::NoChoosableRecipes);
     }
 
+    let mut command = justfile.settings.shell_command(config);
+
     let chooser = if let Some(chooser) = chooser {
       chooser.as_str().into()
     } else {
-      let mut chooser = String::new();
-      chooser.push_str("fzf --multi --preview 'just --unstable --color always --justfile \"");
-      chooser.push_str(search.justfile.as_str());
-      chooser.push_str("\" --show {}'");
-      chooser
+      command.env("JUST_JUSTFILE", &search.justfile);
+      "fzf --multi --preview 'just --unstable --color always --show {}'".into()
     };
 
-    let result = justfile
-      .settings
-      .shell_command(config)
+    let result = command
       .shell_arg(&chooser)
       .current_dir(&search.working_directory)
       .stdin(Stdio::piped())
