@@ -65,13 +65,10 @@ fn latest_version(repo: &str) -> Result<Version> {
     .context(error::GhInvoke { repo })?;
 
   if !output.status.success() {
-    return Err(
-      error::GhStatus {
-        status: output.status,
-        repo,
-      }
-      .build(),
-    );
+    return Err(Error::GhStatus {
+      status: output.status,
+      repo: repo.into(),
+    });
   }
 
   parse_version(
@@ -109,7 +106,7 @@ fn run() -> Result<()> {
         let Some(uses) = &step.uses else { continue };
 
         let Some((action, version)) = uses.split_once('@') else {
-          return Err(error::UsesParse { uses }.build());
+          return Err(Error::UsesParse { uses: uses.clone() });
         };
 
         actions.insert((action.to_string(), parse_version(version)?));

@@ -243,10 +243,6 @@ pub mod tree;
 #[cfg(test)]
 pub mod node;
 
-// Used for testing with the `--request` subcommand.
-#[doc(hidden)]
-pub mod request;
-
 mod alias;
 mod alias_style;
 mod analyzer;
@@ -343,6 +339,7 @@ mod recipe_resolver;
 mod recipe_signature;
 mod reference;
 mod references;
+mod request;
 mod resolution;
 mod run;
 mod scope;

@@ -2,7 +2,7 @@ use super::*;
 
 #[derive(Clone, Debug, Deserialize, PartialEq)]
 #[serde(rename_all = "kebab-case")]
-pub enum Request {
+pub(crate) enum Request {
   EnvironmentVariable(String),
   #[cfg(not(windows))]
   Signal,

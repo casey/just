@@ -1,6 +1,43 @@
 Changelog
 =========
 
+[1.59.0](https://github.com/casey/just/releases/tag/1.59.0) - 2026-10-14
+------------------------------------------------------------------------
+
+### Breaking
+- Require unicode paths ([#3708](https://github.com/casey/just/pull/3708) by [casey](https://github.com/casey))
+
+### Added
+- Allow `--working-directory` without `--justfile` ([#3720](https://github.com/casey/just/pull/3720) by [casey](https://github.com/casey))
+- Allow `--usage` with module path to show usage for all recipes in module ([#3718](https://github.com/casey/just/pull/3718) by [casey](https://github.com/casey))
+- Add `[cache(environment)]` to add and remove variables from cache key ([#3696](https://github.com/casey/just/pull/3696) by [casey](https://github.com/casey))
+
+### Fixed
+- Only emit byte order mark for Powershell on Windows ([#3745](https://github.com/casey/just/pull/3745) by [casey](https://github.com/casey))
+- Handle minified JSON in install script ([#3737](https://github.com/casey/just/pull/3737) by [casey](https://github.com/casey))
+
+### Changed
+- Pass justfile to default chooser via environment variable ([#3742](https://github.com/casey/just/pull/3742) by [casey](https://github.com/casey))
+
+### Misc
+- Allow `fixme` and `xxx` in `bin/forbid` ([#3734](https://github.com/casey/just/pull/3734) by [casey](https://github.com/casey))
+- Ignore broken pipe errors when printing to standard output ([#3733](https://github.com/casey/just/pull/3733) by [casey](https://github.com/casey))
+- Use snake case lint names in `Cargo.toml` ([#3732](https://github.com/casey/just/pull/3732) by [casey](https://github.com/casey))
+- Display Chinese text using sans-serif font family ([#3727](https://github.com/casey/just/pull/3727) by [casey](https://github.com/casey))
+- Add `lang=zh` to Chinese manual link ([#3724](https://github.com/casey/just/pull/3724) by [casey](https://github.com/casey))
+- Yield module and recipe paths in tree order ([#3717](https://github.com/casey/just/pull/3717) by [casey](https://github.com/casey))
+- Complete arguments for `--clean` and `--list` ([#3716](https://github.com/casey/just/pull/3716) by [casey](https://github.com/casey))
+- Use consistent spacing in `--usage` output ([#3715](https://github.com/casey/just/pull/3715) by [casey](https://github.com/casey))
+- Add GitHub Actions workflow lockfile ([#3714](https://github.com/casey/just/pull/3714) by [casey](https://github.com/casey))
+- Use snafu context selectors ([#3711](https://github.com/casey/just/pull/3711) by [casey](https://github.com/casey))
+- Unwrap in `justfile_directory()` ([#3710](https://github.com/casey/just/pull/3710) by [casey](https://github.com/casey))
+- Update tabled dependency ([#3709](https://github.com/casey/just/pull/3709) by [casey](https://github.com/casey))
+- Optimize CI ([#3706](https://github.com/casey/just/pull/3706) by [casey](https://github.com/casey))
+- Remove function name from function error messages ([#3705](https://github.com/casey/just/pull/3705) by [casey](https://github.com/casey))
+- Remove unused `JUST_LOG` export ([#3701](https://github.com/casey/just/pull/3701) by [casey](https://github.com/casey))
+- Document `[cache(environment)]` ([#3697](https://github.com/casey/just/pull/3697) by [casey](https://github.com/casey))
+- Escape list heading default newline in man page ([#3692](https://github.com/casey/just/pull/3692) by [casey](https://github.com/casey))
+
 [1.58.0](https://github.com/casey/just/releases/tag/1.58.0) - 2026-08-03
 ------------------------------------------------------------------------
 
