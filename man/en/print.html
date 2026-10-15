@@ -3495,6 +3495,8 @@ object.</p>
 <p>All keys other than <code>extra</code> and <code>inputs</code> are populated automatically.</p>
 <p>Cache key objects for invoked recipes can be printed to standard error with
 <code>just -vv</code>.</p>
+<p>The environment variables included in <code>environment</code> may be controlled with
+<code>[cache(environment = EXPRESSION])</code><sup>1.59.0<sup>.</p>
 <p>The value of <code>extra</code> may be supplied with <code>[cache(extra = EXPRESSION)]</code>, where
 <code>EXPRESSION</code> is an arbitrary expression evaluated with recipe arguments in
 scope. Changes to the value of <code>extra</code> will cause a cache miss.</p>
@@ -3532,6 +3534,24 @@ just --clean bar bob
 
 # '::'-separated paths may also be used
 just --clean bar::bob
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h3 id="adding-and-removing-environment-variables"><a class="header" href="#adding-and-removing-environment-variables">Adding and Removing Environment Variables</a></h3>
+<p>By default, environment variables which are exported or unexported in the
+<code>justfile</code> are included in the cache key, and environment variables exported
+outside the <code>justfile</code> and inherited by <code>just</code> are not included.</p>
+<p>Environment variables can be added or removed from the cache key using
+<code>[cache(environment = EXPRESSION)]</code><sup>1.59.0</sup>.</p>
+<p>In this example, the environment variable <code>foo</code> will not be included in the
+cache key, but <code>PATH</code> will:</p>
+<pre><code class="language-just">set unstable
+set lists
+
+export foo := 'bar'
+
+[script]
+[cache(environment = ['PATH'])]
+build:
+  cc lib.c main.c -o main
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h3 id="input-files"><a class="header" href="#input-files">Input Files</a></h3>
 <p>Input files can be provided with <code>[cache(inputs = FILES)]</code>, where <code>FILES</code> is an

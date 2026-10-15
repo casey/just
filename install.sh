@@ -118,7 +118,7 @@ fi
 if [ -z "${tag-}" ]; then
   tag=$(
     download https://api.github.com/repos/casey/just/releases/latest - |
-    grep tag_name |
+    grep -o '"tag_name": *"[^"]*"' |
     cut -d'"' -f4
   )
 fi
