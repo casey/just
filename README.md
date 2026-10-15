@@ -4623,7 +4623,7 @@ Cache key objects for invoked recipes can be printed to standard error with
 `just -vv`.
 
 The environment variables included in `environment` may be controlled with
-`[cache(environment = EXPRESSION])`<sup>master<sup>.
+`[cache(environment = EXPRESSION])`<sup>1.59.0<sup>.
 
 The value of `extra` may be supplied with `[cache(extra = EXPRESSION)]`, where
 `EXPRESSION` is an arbitrary expression evaluated with recipe arguments in
@@ -4681,7 +4681,7 @@ By default, environment variables which are exported or unexported in the
 outside the `justfile` and inherited by `just` are not included.
 
 Environment variables can be added or removed from the cache key using
-`[cache(environment = EXPRESSION)]`<sup>master</sup>.
+`[cache(environment = EXPRESSION)]`<sup>1.59.0</sup>.
 
 In this example, the environment variable `foo` will not be included in the
 cache key, but `PATH` will:

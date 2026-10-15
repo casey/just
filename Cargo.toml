@@ -1,6 +1,6 @@
 [package]
 name = "just"
-version = "1.58.0"
+version = "1.59.0"
 authors = ["Casey Rodarmor <casey@rodarmor.com>"]
 autotests = false
 categories = ["command-line-utilities", "development-tools"]
@@ -22,10 +22,10 @@ blake3 = { version = "1.5.0", features = ["mmap", "rayon", "serde"] }
 camino = { version = "1.0.4", features = ["serde1"] }
 chrono = "0.4.38"
 clap = { version = "4.0.0", features = ["derive", "env", "string", "wrap_help"] }
-clap_complete = { version = "=4.6.8", features = ["unstable-dynamic"] }
+clap_complete = { version = "=4.6.11", features = ["unstable-dynamic"] }
 clap_mangen = "0.3.0"
 digest-io = "0.1.0"
-dirs = "6.0.0"
+dirs = "7.0.0"
 dotenvy = "0.15.0"
 heck = "0.5.0"
 hex = "0.4.3"
