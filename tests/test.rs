@@ -232,7 +232,7 @@ impl Test {
 
     let stderr = unindent(&self.stderr);
 
-    let mut command = Command::new(JUST);
+    let mut command = just();
 
     if self.shell {
       command.args(["--shell", "bash"]);

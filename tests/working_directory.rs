@@ -25,7 +25,7 @@ fn justfile_without_working_directory() -> Result<(), Box<dyn Error>> {
   fs::write(tmp.path().join("justfile"), JUSTFILE).unwrap();
   fs::write(tmp.path().join("data"), DATA).unwrap();
 
-  let output = Command::new(JUST)
+  let output = just()
     .arg("--justfile")
     .arg(tmp.path().join("justfile"))
     .output()?;
@@ -50,7 +50,7 @@ fn justfile_without_working_directory_relative() -> Result<(), Box<dyn Error>> {
   fs::write(tmp.path().join("justfile"), JUSTFILE).unwrap();
   fs::write(tmp.path().join("data"), DATA).unwrap();
 
-  let output = Command::new(JUST)
+  let output = just()
     .current_dir(tmp.path())
     .arg("--justfile")
     .arg("justfile")
@@ -77,9 +77,7 @@ fn change_working_directory_to_search_justfile_parent() -> Result<(), Box<dyn Er
   fs::write(tmp.path().join("data"), DATA).unwrap();
   fs::create_dir(tmp.path().join("subdir")).unwrap();
 
-  let output = Command::new(JUST)
-    .current_dir(tmp.path().join("subdir"))
-    .output()?;
+  let output = just().current_dir(tmp.path().join("subdir")).output()?;
 
   if !output.status.success() {
     eprintln!("{:?}", String::from_utf8_lossy(&output.stderr));
@@ -102,7 +100,7 @@ fn justfile_and_working_directory() -> Result<(), Box<dyn Error>> {
   fs::create_dir(tmp.path().join("sub")).unwrap();
   fs::write(tmp.path().join("sub/data"), DATA).unwrap();
 
-  let output = Command::new(JUST)
+  let output = just()
     .arg("--justfile")
     .arg(tmp.path().join("justfile"))
     .arg("--working-directory")
@@ -130,10 +128,7 @@ fn search_dir_child() -> Result<(), Box<dyn Error>> {
   fs::write(tmp.path().join("child/justfile"), JUSTFILE).unwrap();
   fs::write(tmp.path().join("child/data"), DATA).unwrap();
 
-  let output = Command::new(JUST)
-    .current_dir(tmp.path())
-    .arg("child/")
-    .output()?;
+  let output = just().current_dir(tmp.path()).arg("child/").output()?;
 
   if !output.status.success() {
     eprintln!("{:?}", String::from_utf8_lossy(&output.stderr));
@@ -156,7 +151,7 @@ fn search_dir_parent() -> Result<(), Box<dyn Error>> {
   fs::write(tmp.path().join("justfile"), JUSTFILE).unwrap();
   fs::write(tmp.path().join("data"), DATA).unwrap();
 
-  let output = Command::new(JUST)
+  let output = just()
     .current_dir(tmp.path().join("child"))
     .arg("../")
     .output()?;

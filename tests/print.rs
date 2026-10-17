@@ -10,7 +10,7 @@ fn broken_pipe_is_ignored() {
 
   drop(reader);
 
-  let output = Command::new(JUST)
+  let output = just()
     .arg("--list")
     .current_dir(tempdir.path())
     .stdin(Stdio::null())

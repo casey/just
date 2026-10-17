@@ -4,7 +4,7 @@ use {super::*, just::INIT_JUSTFILE};
 fn current_dir() {
   let tmp = tempdir();
 
-  let output = Command::new(JUST)
+  let output = just()
     .current_dir(tmp.path())
     .arg("--init")
     .output()
@@ -68,7 +68,7 @@ fn parent_dir() {
   fs::create_dir(tmp.path().join(".git")).unwrap();
   fs::create_dir(tmp.path().join("sub")).unwrap();
 
-  let output = Command::new(JUST)
+  let output = just()
     .current_dir(tmp.path().join("sub"))
     .arg("--init")
     .output()
@@ -87,7 +87,7 @@ fn alternate_marker() {
   let tmp = tempdir();
   fs::create_dir(tmp.path().join("_darcs")).unwrap();
 
-  let output = Command::new(JUST)
+  let output = just()
     .current_dir(tmp.path())
     .arg("--init")
     .output()
@@ -106,7 +106,7 @@ fn search_directory() {
   let tmp = tempdir();
   fs::create_dir_all(tmp.path().join("sub/.git")).unwrap();
 
-  let output = Command::new(JUST)
+  let output = just()
     .current_dir(tmp.path())
     .arg("--init")
     .arg("sub/")
@@ -126,7 +126,7 @@ fn justfile() {
   let tmp = tempdir();
   fs::create_dir_all(tmp.path().join("sub/.git")).unwrap();
 
-  let output = Command::new(JUST)
+  let output = just()
     .current_dir(tmp.path().join("sub"))
     .arg("--init")
     .arg("--justfile")
@@ -147,7 +147,7 @@ fn justfile_and_working_directory() {
   let tmp = tempdir();
   fs::create_dir_all(tmp.path().join("sub/.git")).unwrap();
 
-  let output = Command::new(JUST)
+  let output = just()
     .current_dir(tmp.path().join("sub"))
     .arg("--init")
     .arg("--justfile")

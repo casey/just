@@ -204,7 +204,7 @@ fn status_error() {
   )
   .unwrap();
 
-  let output = Command::new(JUST)
+  let output = just()
     .current_dir(tmp.path())
     .arg("--choose")
     .arg("--chooser")
@@ -248,7 +248,7 @@ fn cancelled_by_user() {
 
   assert!(output.status.success());
 
-  let output = Command::new(JUST)
+  let output = just()
     .current_dir(tmp.path())
     .arg("--choose")
     .arg("--chooser")
@@ -323,7 +323,7 @@ fn default() {
   )
   .unwrap();
 
-  let output = Command::new(JUST)
+  let output = just()
     .arg("--choose")
     .arg("--chooser=fzf")
     .current_dir(tmp.path())
@@ -402,7 +402,7 @@ fn default_chooser_preview_finds_justfile() {
   )
   .unwrap();
 
-  let output = Command::new(JUST)
+  let output = just()
     .arg("--choose")
     .arg("--justfile=foo.just")
     .current_dir(tmp.path())

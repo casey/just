@@ -73,7 +73,7 @@ fn dependency_traversal_is_not_exponential() {
 
   fs::write(tempdir.path().join("justfile"), justfile).unwrap();
 
-  let mut child = Command::new(JUST)
+  let mut child = just()
     .args(["--dry-run", "r0"])
     .current_dir(tempdir.path())
     .stdin(Stdio::null())
