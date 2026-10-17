@@ -75,6 +75,18 @@ fn default<T: Default>() -> T {
   Default::default()
 }
 
+fn just() -> Command {
+  let mut command = Command::new(JUST);
+
+  for (key, _) in env::vars() {
+    if key.starts_with("JUST_") {
+      command.env_remove(key);
+    }
+  }
+
+  command
+}
+
 #[macro_use]
 mod test;
 

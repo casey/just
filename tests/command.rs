@@ -167,7 +167,7 @@ fn working_directory_is_correct() {
   fs::write(tmp.path().join("bar"), "baz").unwrap();
   fs::create_dir(tmp.path().join("foo")).unwrap();
 
-  let output = Command::new(JUST)
+  let output = just()
     .args(["--command", "cat", "bar"])
     .current_dir(tmp.path().join("foo"))
     .output()

@@ -25,7 +25,7 @@ fn flag() {
     fs::set_permissions(&shell, permissions).unwrap();
   }
 
-  let output = Command::new(JUST)
+  let output = just()
     .current_dir(tmp.path())
     .arg("--shell")
     .arg(shell)
@@ -57,7 +57,7 @@ recipe:
   )
   .unwrap();
 
-  let output = Command::new(JUST).current_dir(tmp.path()).output().unwrap();
+  let output = just().current_dir(tmp.path()).output().unwrap();
 
   assert_stdout(&output, "\"ECHO is on.\"\r\n");
 }
@@ -84,7 +84,7 @@ recipe:
   )
   .unwrap();
 
-  let output = Command::new(JUST).current_dir(tmp.path()).output().unwrap();
+  let output = just().current_dir(tmp.path()).output().unwrap();
 
   assert_stdout(&output, "0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\nHello, world!\n");
 }
