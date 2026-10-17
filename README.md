@@ -4872,6 +4872,7 @@ foo:
 | `dotenv-override` | boolean | `false` | Override existing environment variables with values from the `.env` file. |
 | `dotenv-path` | string | - | Load a `.env` file from a custom path and error if not present. Overrides `dotenv-filename`. |
 | `dotenv-required` | boolean | `false` | Error if a `.env` file isn't found. |
+| `dry-run`<sup>master</sup> | string | `"all"` | What to skip when invoked with `--dry-run`. `"all"` skips recipe bodies, backticks, `shell()`, and `dotenv-command`. `"recipes"` only skips recipe bodies. |
 | `export` | boolean | `false` | Export all variables as environment variables. |
 | `fallback` | boolean | `false` | Search for `justfile` in parent directory if the first recipe on the command line is not found. |
 | `guards`<sup>1.47.0</sup> | boolean | `false` | Enable the `?` guard sigil on recipe lines. See [sigils](#sigils). |
