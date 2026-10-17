@@ -16,6 +16,7 @@ pub(crate) struct Config {
   pub(crate) dotenv_path: Vec<String>,
   pub(crate) dry_run: bool,
   pub(crate) explain: bool,
+  pub(crate) global_fallback_justfile: Option<Utf8PathBuf>,
   pub(crate) groups: Vec<String>,
   pub(crate) highlight: bool,
   pub(crate) indentation: Option<Indentation>,
@@ -63,6 +64,7 @@ impl Config {
       dotenv_path: Vec::new(),
       dry_run: false,
       explain: false,
+      global_fallback_justfile: None,
       groups: Vec::new(),
       highlight: true,
       indentation: None,
@@ -324,6 +326,7 @@ impl Config {
       dotenv_path: arguments.dotenv_path,
       dry_run: arguments.dry_run,
       explain: arguments.explain,
+      global_fallback_justfile: arguments.global_fallback_justfile,
       groups: arguments.group,
       highlight: !arguments.no_highlight,
       indentation: arguments.indentation,
@@ -393,6 +396,7 @@ mod tests {
       $(color: $color:expr,)?
       $(dry_run: $dry_run:expr,)?
       $(dump_format: $dump_format:expr,)?
+      $(global_fallback_justfile: $global_fallback_justfile:expr,)?
       $(highlight: $highlight:expr,)?
       $(no_cache: $no_cache:expr,)?
       $(no_dependencies: $no_dependencies:expr,)?
@@ -416,6 +420,7 @@ mod tests {
           $(color: $color,)?
           $(dry_run: $dry_run,)?
           $(dump_format: $dump_format,)?
+          $(global_fallback_justfile: $global_fallback_justfile,)?
           $(highlight: $highlight,)?
           $(no_cache: $no_cache,)?
           $(no_dependencies: $no_dependencies,)?
@@ -1075,6 +1080,12 @@ mod tests {
     name: search_config_default,
     args: [],
     search_config: SearchConfig::FromInvocationDirectory,
+  }
+
+  test! {
+    name: global_fallback_justfile,
+    args: ["--global-fallback-justfile", "foo"],
+    global_fallback_justfile: Some(Utf8PathBuf::from("foo")),
   }
 
   test! {

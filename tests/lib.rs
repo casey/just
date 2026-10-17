@@ -121,6 +121,7 @@ mod function_definitions;
 mod functions;
 #[cfg(unix)]
 mod global;
+mod global_fallback_justfile;
 mod groups;
 mod guards;
 mod ignore_comments;

@@ -163,6 +163,14 @@ pub struct Arguments {
   )]
   pub(crate) explain: bool,
   #[arg(
+    add = ArgValueCompleter::new(PathCompleter::file()),
+    env = "JUST_GLOBAL_FALLBACK_JUSTFILE",
+    help = "Use <JUSTFILE> if no justfile is found",
+    long,
+    value_name = "JUSTFILE"
+  )]
+  pub(crate) global_fallback_justfile: Option<Utf8PathBuf>,
+  #[arg(
     conflicts_with = "justfile",
     conflicts_with = "working_directory",
     help = "Use global justfile",
