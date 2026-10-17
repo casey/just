@@ -1177,7 +1177,7 @@ bar=goodbye
 ```
 
 If `--help` or `-h` is passed to a recipe that does not define that option, the
-recipe's help string is printed and execution stops.
+recipe's help string is printed and execution stops<sup>master</sup>.
 
 ### Avoiding Argument Splitting
 
