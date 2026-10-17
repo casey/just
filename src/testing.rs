@@ -18,6 +18,7 @@ pub(crate) fn search(config: &Config) -> Search {
   let justfile = working_directory.join("justfile");
 
   Search {
+    global_fallback_used: false,
     justfile,
     tempdir: None,
     working_directory,

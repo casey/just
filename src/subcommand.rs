@@ -193,8 +193,9 @@ impl Subcommand {
         };
 
         if config.verbosity.loquacious() {
-          eprintln!(
-            "Trying {}",
+          let path = if search.global_fallback_used {
+            search.justfile.clone()
+          } else {
             starting_parent
               .strip_prefix(search.justfile_parent())
               .unwrap()
@@ -202,7 +203,8 @@ impl Subcommand {
               .map(|_| Utf8Component::ParentDir)
               .collect::<Utf8PathBuf>()
               .join(search.justfile.file_name().unwrap())
-          );
+          };
+          eprintln!("Trying {path}");
         }
 
         compilation = Self::compile(config, loader, &search)?;

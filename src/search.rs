@@ -6,6 +6,7 @@ const PROJECT_ROOT_CHILDREN: &[&str] = &[".bzr", ".git", ".hg", ".svn", "_darcs"
 
 #[derive(Debug)]
 pub(crate) struct Search {
+  pub(crate) global_fallback_used: bool,
   pub(crate) justfile: Utf8PathBuf,
   pub(crate) tempdir: Option<TempDir>,
   pub(crate) working_directory: Utf8PathBuf,
@@ -41,17 +42,11 @@ impl Search {
   pub(crate) fn search(config: &Config) -> SearchResult<Self> {
     match &config.search_config {
       SearchConfig::FromInvocationDirectory => {
-        Self::find_in_directory(config, &config.invocation_directory)
+        Self::find_in_directory(config, false, &config.invocation_directory)
       }
       SearchConfig::FromSearchDirectory { search_directory } => {
         let search_directory = Self::clean(config, search_directory);
-        let justfile = Self::justfile(config, &search_directory)?;
-        let working_directory = Self::working_directory_from_justfile(&justfile)?;
-        Ok(Self {
-          justfile,
-          tempdir: None,
-          working_directory,
-        })
+        Self::find_in_directory(config, false, &search_directory)
       }
       SearchConfig::FromStandardInput { working_directory } => {
         let source = io::read_to_string(io::stdin()).context(search_error::StdinIo)?;
@@ -59,6 +54,7 @@ impl Search {
         let (justfile, tempdir) = Self::tempdir_justfile(config, &source)?;
 
         Ok(Self {
+          global_fallback_used: false,
           justfile,
           tempdir: Some(tempdir),
           working_directory: working_directory
@@ -70,9 +66,10 @@ impl Search {
       SearchConfig::FromWorkingDirectory { working_directory } => {
         let working_directory = Self::clean(config, working_directory);
         let justfile = Self::justfile(config, &working_directory)?;
-        Self::with_justfile(config, justfile, working_directory)
+        Self::with_justfile(config, false, justfile, working_directory)
       }
       SearchConfig::GlobalJustfile => Ok(Self {
+        global_fallback_used: false,
         justfile: Self::find_global_justfile()?,
         tempdir: None,
         working_directory: Self::project_root(config, &config.invocation_directory)?,
@@ -80,7 +77,7 @@ impl Search {
       SearchConfig::WithJustfile { justfile } => {
         let justfile = Self::clean(config, justfile);
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
-        Self::with_justfile(config, justfile, working_directory)
+        Self::with_justfile(config, false, justfile, working_directory)
       }
       SearchConfig::WithJustfileAndWorkingDirectory {
         justfile,
@@ -92,13 +89,19 @@ impl Search {
           .parent()
           .context(search_error::JustfileHadNoParent { path: &justfile })?;
 
-        Self::with_justfile(config, justfile, Self::clean(config, working_directory))
+        Self::with_justfile(
+          config,
+          false,
+          justfile,
+          Self::clean(config, working_directory),
+        )
       }
     }
   }
 
   fn with_justfile(
     config: &Config,
+    global_fallback_used: bool,
     justfile: Utf8PathBuf,
     working_directory: Utf8PathBuf,
   ) -> SearchResult<Self> {
@@ -114,12 +117,14 @@ impl Search {
       let (justfile, tempdir) = Self::tempdir_justfile(config, &source)?;
 
       Ok(Self {
+        global_fallback_used,
         justfile,
         tempdir: Some(tempdir),
         working_directory,
       })
     } else {
       Ok(Self {
+        global_fallback_used,
         justfile,
         tempdir: None,
         working_directory,
@@ -175,14 +180,30 @@ impl Search {
       .context(search_error::JustfileHadNoParent {
         path: &self.justfile,
       })?;
-    Self::find_in_directory(config, parent)
+    Self::find_in_directory(config, self.global_fallback_used, parent)
   }
 
   /// Find justfile starting in given directory searching upwards in directory tree
-  fn find_in_directory(config: &Config, starting_dir: &Utf8Path) -> SearchResult<Self> {
-    let justfile = Self::justfile(config, starting_dir)?;
-    let working_directory = Self::working_directory_from_justfile(&justfile)?;
-    Self::with_justfile(config, justfile, working_directory)
+  fn find_in_directory(
+    config: &Config,
+    global_fallback_used: bool,
+    starting_dir: &Utf8Path,
+  ) -> SearchResult<Self> {
+    match Self::justfile(config, starting_dir) {
+      Ok(justfile) => {
+        let working_directory = Self::working_directory_from_justfile(&justfile)?;
+        Self::with_justfile(config, global_fallback_used, justfile, working_directory)
+      }
+      Err(SearchError::NotFound) if !global_fallback_used => {
+        let Some(justfile) = &config.global_fallback_justfile else {
+          return Err(SearchError::NotFound);
+        };
+        let justfile = Self::clean(config, justfile);
+        let working_directory = Self::project_root(config, &config.invocation_directory)?;
+        Self::with_justfile(config, true, justfile, working_directory)
+      }
+      Err(err) => Err(err),
+    }
   }
 
   /// Get working directory and justfile path for newly-initialized justfile
@@ -200,6 +221,7 @@ impl Search {
         let working_directory = Self::project_root(config, &config.invocation_directory)?;
         let justfile = working_directory.join(default_justfile_name());
         Ok(Self {
+          global_fallback_used: false,
           justfile,
           tempdir: None,
           working_directory,
@@ -211,6 +233,7 @@ impl Search {
         let working_directory = Self::project_root(config, &search_directory)?;
         let justfile = working_directory.join(default_justfile_name());
         Ok(Self {
+          global_fallback_used: false,
           justfile,
           tempdir: None,
           working_directory,
@@ -220,6 +243,7 @@ impl Search {
         let working_directory = Self::clean(config, working_directory);
         let justfile = working_directory.join(default_justfile_name());
         Ok(Self {
+          global_fallback_used: false,
           justfile,
           tempdir: None,
           working_directory,
@@ -230,6 +254,7 @@ impl Search {
         let justfile = Self::clean(config, justfile);
         let working_directory = Self::working_directory_from_justfile(&justfile)?;
         Ok(Self {
+          global_fallback_used: false,
           justfile,
           tempdir: None,
           working_directory,
@@ -239,6 +264,7 @@ impl Search {
         justfile,
         working_directory,
       } => Ok(Self {
+        global_fallback_used: false,
         justfile: Self::clean(config, justfile),
         tempdir: None,
         working_directory: Self::clean(config, working_directory),
