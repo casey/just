@@ -181,6 +181,9 @@ pub(crate) enum Error<'src> {
     line_number: usize,
     code: i32,
   },
+  Help {
+    recipe: Box<Recipe<'src>>,
+  },
   InitExists {
     justfile: Utf8PathBuf,
   },
@@ -441,6 +444,10 @@ impl<'src> Error<'src> {
     }
   }
 
+  pub(crate) fn is_help(&self) -> bool {
+    matches!(self, Self::Help { .. })
+  }
+
   fn source(&self) -> Option<&dyn std::error::Error> {
     match self {
       Self::Compile { compile_error } => compile_error.source(),
@@ -513,9 +520,11 @@ impl ColorDisplay for Error<'_> {
   fn fmt(&self, f: &mut Formatter, color: Color) -> fmt::Result {
     use Error::*;
 
-    let error = color.error().paint("error");
-    let message = color.message().prefix();
-    write!(f, "{error}: {message}")?;
+    if !self.is_help() {
+      let error = color.error().paint("error");
+      let message = color.message().prefix();
+      write!(f, "{error}: {message}")?;
+    }
 
     match self {
       AliasDisabled { alias, modules } => {
@@ -817,6 +826,21 @@ impl ColorDisplay for Error<'_> {
           "guard line in recipe `{recipe}` on line {line_number} returned reserved exit code {code}",
         )?;
       }
+      Help { recipe } => {
+        write!(
+          f,
+          "{}",
+          Usage {
+            mode: usage::Mode::Recipe,
+            path: &Modulepath {
+              spaced: true,
+              ..recipe.recipe_path().clone()
+            },
+            recipe,
+          }
+          .color_display(color),
+        )?;
+      }
       InitExists { justfile } => {
         write!(f, "justfile `{justfile}` already exists")?;
       }
@@ -1093,7 +1117,9 @@ impl ColorDisplay for Error<'_> {
       write!(f, "\n{suggestion}")?;
     }
 
-    write!(f, "{}", color.message().suffix())?;
+    if !self.is_help() {
+      write!(f, "{}", color.message().suffix())?;
+    }
 
     if let PositionalArgumentCountMismatch { recipe, .. } = self {
       writeln!(f)?;
