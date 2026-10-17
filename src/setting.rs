@@ -12,6 +12,7 @@ pub(crate) enum Setting<'src> {
   DotenvOverride(bool),
   DotenvPath(Expression<'src>),
   DotenvRequired(bool),
+  DryRun(StringLiteral<'src>, DryRun),
   Export(bool),
   Fallback(bool),
   Guards(bool),
@@ -60,7 +61,7 @@ impl<'src> Setting<'src> {
       | Self::DotenvPath(_value)
       | Self::Tempdir(_value)
       | Self::WorkingDirectory(_value) => false,
-      Self::Indentation(..) | Self::MinimumVersion(_) => false,
+      Self::DryRun(..) | Self::Indentation(..) | Self::MinimumVersion(_) => false,
       Self::ScriptInterpreter(_value) | Self::Shell(_value) | Self::WindowsShell(_value) => false,
     }
   }
@@ -130,7 +131,9 @@ impl Display for Setting<'_> {
       | Self::WorkingDirectory(value) => {
         write!(f, "{value}")
       }
-      Self::Indentation(value, _) | Self::MinimumVersion(value) => write!(f, "{value}"),
+      Self::DryRun(value, _) | Self::Indentation(value, _) | Self::MinimumVersion(value) => {
+        write!(f, "{value}")
+      }
       Self::ScriptInterpreter(value) | Self::Shell(value) | Self::WindowsShell(value) => {
         write!(f, "[{value}]")
       }

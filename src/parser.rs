@@ -1643,16 +1643,19 @@ impl<'run, 'src> Parser<'run, 'src> {
       Keyword::DotenvCommand => Some(Setting::DotenvCommand(self.parse_expression()?)),
       Keyword::DotenvFilename => Some(Setting::DotenvFilename(self.parse_expression()?)),
       Keyword::DotenvPath => Some(Setting::DotenvPath(self.parse_expression()?)),
+      Keyword::DryRun => {
+        let string_literal = self.parse_set_string_literal(name, keyword)?;
+
+        let dry_run = string_literal.cooked.parse::<DryRun>().map_err(|_| {
+          string_literal.token.error(CompileErrorKind::InvalidDryRun {
+            value: string_literal.cooked.clone(),
+          })
+        })?;
+
+        Some(Setting::DryRun(string_literal, dry_run))
+      }
       Keyword::Indentation => {
-        let expression = self.parse_expression()?;
-
-        let Expression::StringLiteral { string_literal } = expression else {
-          return Err(name.error(CompileErrorKind::SettingExpression { setting: keyword }));
-        };
-
-        if string_literal.expand || string_literal.kind.indented || string_literal.part.is_some() {
-          return Err(name.error(CompileErrorKind::SettingExpression { setting: keyword }));
-        }
+        let string_literal = self.parse_set_string_literal(name, keyword)?;
 
         let indentation = string_literal
           .cooked
@@ -1666,15 +1669,7 @@ impl<'run, 'src> Parser<'run, 'src> {
         Some(Setting::Indentation(string_literal, indentation))
       }
       Keyword::MinimumVersion => {
-        let expression = self.parse_expression()?;
-
-        let Expression::StringLiteral { string_literal } = expression else {
-          return Err(name.error(CompileErrorKind::SettingExpression { setting: keyword }));
-        };
-
-        if string_literal.expand || string_literal.kind.indented || string_literal.part.is_some() {
-          return Err(name.error(CompileErrorKind::SettingExpression { setting: keyword }));
-        }
+        let string_literal = self.parse_set_string_literal(name, keyword)?;
 
         let minimum = string_literal.cooked.parse::<Version>().map_err(|source| {
           string_literal
@@ -1715,6 +1710,25 @@ impl<'run, 'src> Parser<'run, 'src> {
     Err(name.error(CompileErrorKind::UnknownSetting {
       setting: name.lexeme(),
     }))
+  }
+
+  // Parse string literal setting value
+  fn parse_set_string_literal(
+    &mut self,
+    name: Name<'src>,
+    keyword: Keyword,
+  ) -> CompileResult<'src, StringLiteral<'src>> {
+    let expression = self.parse_expression()?;
+
+    let Expression::StringLiteral { string_literal } = expression else {
+      return Err(name.error(CompileErrorKind::SettingExpression { setting: keyword }));
+    };
+
+    if string_literal.expand || string_literal.kind.indented || string_literal.part.is_some() {
+      return Err(name.error(CompileErrorKind::SettingExpression { setting: keyword }));
+    }
+
+    Ok(string_literal)
   }
 
   /// Parse interpreter setting value, i.e., `['sh', '-eu']`

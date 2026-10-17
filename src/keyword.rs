@@ -15,6 +15,7 @@ pub(crate) enum Keyword {
   DotenvOverride,
   DotenvPath,
   DotenvRequired,
+  DryRun,
   Eager,
   Else,
   Export,

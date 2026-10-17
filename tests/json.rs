@@ -92,6 +92,14 @@ enum Dotenv<'a> {
 }
 
 #[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
+#[serde(rename_all = "kebab-case")]
+enum DryRun {
+  #[default]
+  All,
+  Recipes,
+}
+
+#[derive(Debug, Default, Deserialize, PartialEq, Serialize)]
 #[serde(deny_unknown_fields)]
 struct Settings<'a> {
   allow_duplicate_recipes: bool,
@@ -104,6 +112,7 @@ struct Settings<'a> {
   dotenv_override: bool,
   dotenv_path: Option<Dotenv<'a>>,
   dotenv_required: bool,
+  dry_run: DryRun,
   export: bool,
   fallback: bool,
   guards: bool,
@@ -701,6 +710,7 @@ fn settings() {
       set dotenv-filename := \"filename\"
       set dotenv-load
       set dotenv-path := \"path\"
+      set dry-run := \"recipes\"
       set export
       set fallback
       set ignore-comments
@@ -731,6 +741,7 @@ fn settings() {
         dotenv_filename: Some(Dotenv::One("filename")),
         dotenv_path: Some(Dotenv::One("path")),
         dotenv_load: true,
+        dry_run: DryRun::Recipes,
         export: true,
         fallback: true,
         ignore_comments: true,

@@ -322,7 +322,9 @@ impl<'src> Node<'src> for Set<'src> {
       | Setting::WorkingDirectory(value) => {
         set.push_mut(value.tree());
       }
-      Setting::Indentation(value, _) | Setting::MinimumVersion(value) => {
+      Setting::DryRun(value, _)
+      | Setting::Indentation(value, _)
+      | Setting::MinimumVersion(value) => {
         set.push_mut(Tree::string(&value.cooked));
       }
       Setting::ScriptInterpreter(Interpreter { command, arguments })
