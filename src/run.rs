@@ -25,6 +25,14 @@ pub fn run(args: impl Iterator<Item = impl Into<OsString> + Clone>) -> Result<()
       SignalHandler::install(config.verbosity)?;
       config.subcommand.execute(&config, &loader)
     })
+    .or_else(|error| {
+      if error.is_help() {
+        println!("{}", error.color_display(color.stdout()));
+        Ok(())
+      } else {
+        Err(error)
+      }
+    })
     .map_err(|error| {
       if !verbosity.quiet() && error.print_message() {
         eprintln!("{}", error.color_display(color.stderr()));

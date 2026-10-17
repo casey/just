@@ -24,6 +24,18 @@ impl Switch {
     };
 
     let Some(&index) = index else {
+      if self.is_help() {
+        if value.is_some() {
+          return Err(Error::FlagWithValue {
+            recipe: recipe.name(),
+            switch: self,
+          });
+        }
+        return Err(Error::Help {
+          recipe: Box::new(recipe.clone()),
+        });
+      }
+
       return Err(Error::UnknownOption {
         recipe: recipe.name(),
         switch: self,
@@ -70,6 +82,13 @@ impl Switch {
     group.push(value);
 
     Ok(())
+  }
+
+  fn is_help(&self) -> bool {
+    match self {
+      Self::Long(name) => name == "help",
+      Self::Short(name) => *name == 'h',
+    }
   }
 }
 

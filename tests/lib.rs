@@ -136,6 +136,7 @@ mod global;
 mod global_fallback_justfile;
 mod groups;
 mod guards;
+mod help;
 mod ignore_comments;
 mod imports;
 mod init;

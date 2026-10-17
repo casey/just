@@ -1176,6 +1176,9 @@ $ just foo
 bar=goodbye
 ```
 
+If `--help` or `-h` is passed to a recipe that does not define that option, the
+recipe's help string is printed and execution stops.
+
 ### Avoiding Argument Splitting
 
 Given this `justfile`:
