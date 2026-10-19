@@ -227,3 +227,61 @@ fn help_is_printed_when_quiet() {
     )
     .success();
 }
+
+#[test]
+fn help_for_module() {
+  Test::new()
+    .justfile("mod foo")
+    .write("foo.just", "bar baz:")
+    .args(["foo", "--help"])
+    .stdout(
+      "
+        Usage:
+            just foo bar baz
+              baz
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn short_help_for_module() {
+  Test::new()
+    .justfile("mod foo")
+    .write("foo.just", "bar baz:")
+    .args(["foo", "-h"])
+    .stdout(
+      "
+        Usage:
+            just foo bar baz
+              baz
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn help_for_nested_module_path() {
+  Test::new()
+    .justfile("mod foo")
+    .write("foo.just", "mod bar")
+    .write("bar.just", "baz:")
+    .args(["foo::bar", "--help"])
+    .stdout(
+      "
+        Usage:
+            just foo bar baz
+      ",
+    )
+    .success();
+}
+
+#[test]
+fn help_for_module_with_trailing_arguments_is_an_error() {
+  Test::new()
+    .justfile("mod foo")
+    .write("foo.just", "bar:")
+    .args(["foo", "--help", "bar"])
+    .stderr("error: justfile does not contain recipe `foo --help`\n")
+    .failure();
+}
