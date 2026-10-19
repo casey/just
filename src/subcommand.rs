@@ -131,6 +131,27 @@ impl Subcommand {
     self.into()
   }
 
+  fn help_module(justfile: &Justfile, arguments: &[String]) -> Option<Modulepath> {
+    let (last, path) = arguments.split_last()?;
+
+    if last != "--help" && last != "-h" {
+      return None;
+    }
+
+    let path = Modulepath::try_from(
+      path
+        .iter()
+        .map(String::as_str)
+        .collect::<Vec<&str>>()
+        .as_slice(),
+    )
+    .ok()?;
+
+    justfile.submodule(&path)?;
+
+    Some(path)
+  }
+
   fn default_list_module(
     config: &Config,
     justfile: &Justfile,
@@ -176,6 +197,10 @@ impl Subcommand {
           config.search_config,
           SearchConfig::FromInvocationDirectory | SearchConfig::FromSearchDirectory { .. }
         );
+
+      if let Some(path) = Self::help_module(justfile, arguments) {
+        return Self::usage(config, justfile, &path);
+      }
 
       if let Some(path) = Self::default_list_module(config, justfile, arguments) {
         return Self::list(config, justfile, &path);
