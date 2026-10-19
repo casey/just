@@ -46,6 +46,7 @@ pub(crate) use {
     dependency::Dependency,
     dependency_argument::DependencyArgument,
     disabled::Disabled,
+    dry_run::DryRun,
     dump_format::DumpFormat,
     element::Element,
     enclosure::Enclosure,
@@ -181,7 +182,7 @@ pub(crate) use {
     time::Instant,
     vec,
   },
-  strum::{Display, EnumDiscriminants, EnumIter, EnumString, IntoStaticStr},
+  strum::{Display, EnumDiscriminants, EnumIter, EnumString, IntoEnumIterator, IntoStaticStr},
   tempfile::TempDir,
   typed_arena::Arena,
   unicode_width::{UnicodeWidthChar, UnicodeWidthStr},
@@ -282,6 +283,7 @@ mod dependency;
 mod dependency_argument;
 mod dir;
 mod disabled;
+mod dry_run;
 mod dump_format;
 mod element;
 mod enclosure;
