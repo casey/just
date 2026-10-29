@@ -594,7 +594,12 @@ fn sha256_file(context: Context, path: &str) -> StringResult {
 }
 
 fn shell(context: Context, command: &str, args: &[String]) -> StringResult {
-  if context.execution_context.config.dry_run {
+  if context
+    .execution_context
+    .module
+    .settings
+    .skip_commands(context.execution_context.config)
+  {
     let mut output = String::from("shell(");
     for (i, arg) in iter::once(command)
       .chain(args.iter().map(String::as_str))

@@ -356,7 +356,7 @@ impl<'src> Recipe<'src> {
         .map(|format| datetime_format(chrono::Local::now(), format).map_err(Error::DatetimeFormat))
         .transpose()?;
 
-      if config.dry_run
+      if settings.skip_recipes(config)
         || config.verbosity.loquacious()
         || timestamp.is_some()
         || !((quiet ^ self.quiet)
@@ -377,7 +377,7 @@ impl<'src> Recipe<'src> {
         eprintln!("{}", color.paint(command));
       }
 
-      if config.dry_run {
+      if settings.skip_recipes(config) {
         continue;
       }
 
@@ -471,6 +471,7 @@ impl<'src> Recipe<'src> {
     cache: &Cache,
   ) -> RunResult<'src> {
     let config = &context.config;
+    let settings = &context.module.settings;
 
     if let Some(format) = self.timestamp_format(config, &mut evaluator)? {
       let timestamp =
@@ -491,7 +492,7 @@ impl<'src> Recipe<'src> {
       evaluated_lines.push(evaluator.evaluate_line(line, false)?);
     }
 
-    if config.verbosity.loud() && (config.dry_run || self.quiet) {
+    if config.verbosity.loud() && (settings.skip_recipes(config) || self.quiet) {
       let color = if config.highlight {
         config.color.command(config.command_color)
       } else {
@@ -504,7 +505,7 @@ impl<'src> Recipe<'src> {
       }
     }
 
-    if config.dry_run {
+    if settings.skip_recipes(config) {
       return Ok(());
     }
 

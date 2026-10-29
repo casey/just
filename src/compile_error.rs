@@ -282,6 +282,11 @@ impl Display for CompileError<'_> {
         "{item_kind} `{item_name}` has invalid attribute `{}`",
         attribute.name(),
       ),
+      InvalidDryRun { value } => write!(
+        f,
+        "invalid `dry-run` setting `{value}`: expected {}",
+        List::or_ticked(DryRun::iter()),
+      ),
       InvalidEscapeSequence { character } => write!(
         f,
         "`\\{}` is not a valid escape sequence",

@@ -118,6 +118,7 @@ mod delimiters;
 mod dependencies;
 mod directories;
 mod dotenv;
+mod dry_run;
 mod dump;
 mod edit;
 mod equals;

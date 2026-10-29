@@ -30,6 +30,7 @@ pub(crate) struct Settings {
   #[serde(serialize_with = "serialize_compatible")]
   pub(crate) dotenv_path: Value,
   pub(crate) dotenv_required: bool,
+  pub(crate) dry_run: DryRun,
   pub(crate) export: bool,
   pub(crate) fallback: bool,
   pub(crate) guards: bool,
@@ -52,18 +53,6 @@ pub(crate) struct Settings {
 }
 
 impl Settings {
-  pub(crate) fn shell_command(&self, config: &Config) -> Command {
-    let (command, args) = self.shell(config);
-
-    let mut cmd = Command::resolve(command);
-
-    for arg in args {
-      cmd.shell_arg(arg);
-    }
-
-    cmd
-  }
-
   pub(crate) fn shell<'a>(&'a self, config: &'a Config) -> (&'a str, Vec<&'a str>) {
     match (&config.shell, &config.shell_args) {
       (Some(shell), Some(shell_args)) => (shell, shell_args.iter().map(String::as_ref).collect()),
@@ -89,6 +78,39 @@ impl Settings {
           (DEFAULT_SHELL, DEFAULT_SHELL_ARGS.to_vec())
         }
       }
+    }
+  }
+
+  pub(crate) fn shell_command(&self, config: &Config) -> Command {
+    let (command, args) = self.shell(config);
+
+    let mut cmd = Command::resolve(command);
+
+    for arg in args {
+      cmd.shell_arg(arg);
+    }
+
+    cmd
+  }
+
+  pub(crate) fn skip_commands(&self, config: &Config) -> bool {
+    if !config.dry_run {
+      return false;
+    }
+
+    match self.dry_run {
+      DryRun::All => true,
+      DryRun::Recipes => false,
+    }
+  }
+
+  pub(crate) fn skip_recipes(&self, config: &Config) -> bool {
+    if !config.dry_run {
+      return false;
+    }
+
+    match self.dry_run {
+      DryRun::All | DryRun::Recipes => true,
     }
   }
 }

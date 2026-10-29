@@ -594,22 +594,22 @@ fn dry_run() {
 var := `echo stderr 1>&2; echo backtick`
 
 command:
-  @touch /this/is/not/a/file
+  @cat foo
   {{var}}
   echo {{`echo command interpolation`}}
 
 shebang:
   #!/bin/sh
-  touch /this/is/not/a/file
+  cat foo
   {{var}}
   echo {{`echo shebang interpolation`}}",
     )
     .stderr(
       "#!/bin/sh
-touch /this/is/not/a/file
+cat foo
 `echo stderr 1>&2; echo backtick`
 echo `echo shebang interpolation`
-touch /this/is/not/a/file
+cat foo
 `echo stderr 1>&2; echo backtick`
 echo `echo command interpolation`
 ",
