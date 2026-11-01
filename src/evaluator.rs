@@ -99,6 +99,9 @@ impl<'src, 'run> Evaluator<'src, 'run> {
         Setting::DotenvRequired(value) => {
           settings.dotenv_required = value;
         }
+        Setting::DryRun(_, value) => {
+          settings.dry_run = value;
+        }
         Setting::Export(value) => {
           settings.export = value;
         }
@@ -512,7 +515,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
       Expression::Backtick { contents, token } => {
         let context = self.context(ConstError::Backtick(*token))?;
 
-        if context.config.dry_run {
+        if context.module.settings.skip_commands(context.config) {
           return Ok(Value::from(format!("`{contents}`")));
         }
 
@@ -681,7 +684,7 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     command: &str,
     args: Option<&[String]>,
   ) -> Result<String, OutputError> {
-    assert!(!context.config.dry_run);
+    assert!(!context.module.settings.skip_commands(context.config));
 
     let mut cmd = context.module.settings.shell_command(context.config);
 

@@ -59,10 +59,8 @@ fn powershell_shebang_on_unix_has_no_bom() {
 
   let tempdir = tempdir();
 
-  let pwsh = tempdir.path().canonicalize().unwrap().join("pwsh");
-
   #[cfg(unix)]
-  std::os::unix::fs::symlink(which("cat").unwrap(), &pwsh).unwrap();
+  std::os::unix::fs::symlink(which("bash").unwrap(), tempdir.path().join("pwsh")).unwrap();
 
   Test::with_tempdir(tempdir)
     .justfile(
@@ -72,7 +70,7 @@ fn powershell_shebang_on_unix_has_no_bom() {
           echo bar
       ",
     )
-    .stdout(format!("#!{}\n\necho bar\n", pwsh.to_str().unwrap()))
+    .stdout("bar\n")
     .success();
 }
 

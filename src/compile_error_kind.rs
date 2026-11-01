@@ -147,6 +147,9 @@ pub(crate) enum CompileErrorKind<'src> {
     item_name: &'src str,
     attribute: Box<Attribute<'src>>,
   },
+  InvalidDryRun {
+    value: String,
+  },
   InvalidEscapeSequence {
     character: char,
   },

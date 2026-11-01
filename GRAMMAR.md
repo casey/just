@@ -80,6 +80,7 @@ setting       : 'allow-duplicate-recipes' boolean?
               | 'dotenv-override' boolean?
               | 'dotenv-path' ':=' string
               | 'dotenv-required' boolean?
+              | 'dry-run' ':=' string
               | 'export' boolean?
               | 'fallback' boolean?
               | 'guards' boolean?
