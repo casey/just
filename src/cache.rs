@@ -85,10 +85,7 @@ impl Cache {
     let mut initialized = self.initialized.lock().unwrap();
 
     if !*initialized {
-      fs::create_dir_all(&self.path).map_err(|source| Error::FilesystemIo {
-        source,
-        path: self.path.clone(),
-      })?;
+      filesystem::create_dir_all(&self.path)?;
       *initialized = true;
     }
 
