@@ -269,12 +269,7 @@ impl<'src> Recipe<'src> {
     let elapsed = start.elapsed();
 
     if context.config.time {
-      let color = if context.config.highlight {
-        context.config.color.command(context.config.command_color)
-      } else {
-        context.config.color
-      }
-      .stderr();
+      let color = context.config.command_color_stderr();
 
       let prefix = color.prefix();
       let suffix = color.suffix();
@@ -318,11 +313,7 @@ impl<'src> Recipe<'src> {
       let comment_line = settings.ignore_comments && line.is_comment();
       let sigils = line.sigils(settings);
 
-      loop {
-        if lines.peek().is_none() {
-          break;
-        }
-        let line = lines.next().unwrap();
+      for line in lines.by_ref() {
         line_number = line.number + 1;
         if !comment_line {
           evaluated += &evaluator.evaluate_line(line, continued)?;
@@ -339,9 +330,7 @@ impl<'src> Recipe<'src> {
         continue;
       }
 
-      let mut command = evaluated.as_str();
-
-      command = &command[sigils.len()..];
+      let command = &evaluated[sigils.len()..];
 
       if command.is_empty() {
         continue;
@@ -363,12 +352,7 @@ impl<'src> Recipe<'src> {
           || (settings.quiet && !self.no_quiet())
           || config.verbosity.quiet())
       {
-        let color = if config.highlight {
-          config.color.command(config.command_color)
-        } else {
-          config.color
-        }
-        .stderr();
+        let color = config.command_color_stderr();
 
         if let Some(timestamp) = timestamp {
           eprint!("[{}] ", color.paint(&timestamp));
@@ -582,12 +566,7 @@ impl<'src> Recipe<'src> {
       let timestamp =
         datetime_format(chrono::Local::now(), &format).map_err(Error::DatetimeFormat)?;
 
-      let color = if config.highlight {
-        config.color.command(config.command_color)
-      } else {
-        config.color
-      }
-      .stderr();
+      let color = config.command_color_stderr();
 
       eprintln!("[{}] {}", color.paint(&timestamp), self.name);
     }
@@ -598,12 +577,7 @@ impl<'src> Recipe<'src> {
     }
 
     if config.verbosity.loud() && (settings.skip_recipes(config) || self.quiet) {
-      let color = if config.highlight {
-        config.color.command(config.command_color)
-      } else {
-        config.color
-      }
-      .stderr();
+      let color = config.command_color_stderr();
 
       for line in &evaluated_lines {
         eprintln!("{}", color.paint(line));
@@ -651,12 +625,8 @@ impl<'src> Recipe<'src> {
 
     let working_directory = self.working_directory(context, &mut evaluator)?;
 
-    let mut environment = Environment::new(
-      context.dotenv,
-      scope,
-      &context.module.settings,
-      &context.module.unexports,
-    );
+    let mut environment =
+      Environment::new(context.dotenv, scope, settings, &context.module.unexports);
 
     for (name, value) in env {
       environment
@@ -713,7 +683,7 @@ impl<'src> Recipe<'src> {
 
     let mut command = executor.command(config, &path, self.name(), working_directory.as_deref())?;
 
-    if self.takes_positional_arguments(&context.module.settings) {
+    if self.takes_positional_arguments(settings) {
       command.args(positional);
     }
 
@@ -723,28 +693,25 @@ impl<'src> Recipe<'src> {
     let (result, caught) = command.status_guard();
 
     match result {
-      Ok(exit_status) => exit_status.code().map_or_else(
-        || {
-          Err(Error::from_signal(
-            exit_status,
-            None,
-            self.print_exit_message(&context.module.settings),
-            self.name(),
-          ))
-        },
-        |code| {
-          if code == 0 {
-            Ok(())
-          } else {
-            Err(Error::Code {
+      Ok(exit_status) => {
+        if let Some(code) = exit_status.code() {
+          if code != 0 {
+            return Err(Error::Code {
               recipe: self.name(),
               line_number: None,
               code,
-              print_message: self.print_exit_message(&context.module.settings),
-            })
+              print_message: self.print_exit_message(settings),
+            });
           }
-        },
-      )?,
+        } else {
+          return Err(Error::from_signal(
+            exit_status,
+            None,
+            self.print_exit_message(settings),
+            self.name(),
+          ));
+        }
+      }
       Err(io_error) => return Err(executor.error(io_error, self.name())),
     }
 

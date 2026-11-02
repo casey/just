@@ -67,10 +67,7 @@ impl<'src> UnresolvedRecipe<'src> {
             pattern_property,
             ..
           } => {
-            if let Some((_key, expression)) = help_property {
-              variable_resolver.resolve_expression(expression, &empty, &mut variable_references)?;
-            }
-            if let Some((_key, expression)) = pattern_property {
+            for (_key, expression) in [help_property, pattern_property].into_iter().flatten() {
               variable_resolver.resolve_expression(expression, &empty, &mut variable_references)?;
             }
           }
@@ -80,26 +77,9 @@ impl<'src> UnresolvedRecipe<'src> {
             inputs,
             outputs,
           } => {
-            if let Some(environment) = environment {
+            for expression in [environment, extra, inputs, outputs].into_iter().flatten() {
               variable_resolver.resolve_expression(
-                environment,
-                &parameters,
-                &mut variable_references,
-              )?;
-            }
-            if let Some(extra) = extra {
-              variable_resolver.resolve_expression(extra, &parameters, &mut variable_references)?;
-            }
-            if let Some(inputs) = inputs {
-              variable_resolver.resolve_expression(
-                inputs,
-                &parameters,
-                &mut variable_references,
-              )?;
-            }
-            if let Some(outputs) = outputs {
-              variable_resolver.resolve_expression(
-                outputs,
+                expression,
                 &parameters,
                 &mut variable_references,
               )?;

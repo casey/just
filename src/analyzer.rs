@@ -147,13 +147,10 @@ impl<'run, 'src> Analyzer<'run, 'src> {
       self.warnings.extend(ast.warnings.iter().cloned());
     }
 
-    let mut allow_duplicate_variables = false;
-
-    for (_name, set) in &self.sets {
-      if let Setting::AllowDuplicateVariables(value) = set.value {
-        allow_duplicate_variables = value;
-      }
-    }
+    let allow_duplicate_variables = self
+      .sets
+      .values()
+      .any(|set| matches!(set.value, Setting::AllowDuplicateVariables(true)));
 
     let mut assignments: Table<'src, Assignment<'src>> = Table::default();
     for assignment in self.assignments {
