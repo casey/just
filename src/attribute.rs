@@ -301,8 +301,6 @@ impl<'src> Attribute<'src> {
     arguments: Vec<StringLiteral<'src>>,
     keyword_arguments: &mut BTreeMap<&'src str, (Name<'src>, Option<Expression<'src>>)>,
   ) -> CompileResult<'src, Self> {
-    static NUMBER: LazyLock<Regex> = LazyLock::new(|| Regex::new("^(0|[1-9][0-9]*)$").unwrap());
-
     let arg = arguments.into_iter().next().unwrap();
 
     let (long, long_key) = keyword_arguments
@@ -393,53 +391,9 @@ impl<'src> Attribute<'src> {
       })
       .transpose()?;
 
-    let (max, max_key) = Self::remove_required(keyword_arguments, "max")?
-      .map(|(key, expression)| {
-        let literal = Self::require_string_literal(name, key, expression)?;
+    let (max, max_key) = Self::remove_count(name, keyword_arguments, "max")?;
 
-        if !NUMBER.is_match(&literal.cooked) {
-          return Err(literal.token.error(CompileErrorKind::ArgumentCountValue {
-            key,
-            value: literal.cooked.clone(),
-          }));
-        }
-
-        let max = literal.cooked.parse::<u64>().map_err(|source| {
-          literal.token.error(CompileErrorKind::ArgumentCountParse {
-            key,
-            value: literal.cooked.clone(),
-            source,
-          })
-        })?;
-
-        Ok((Some(max), Some(key)))
-      })
-      .transpose()?
-      .unwrap_or_default();
-
-    let (min, min_key) = Self::remove_required(keyword_arguments, "min")?
-      .map(|(key, expression)| {
-        let literal = Self::require_string_literal(name, key, expression)?;
-
-        if !NUMBER.is_match(&literal.cooked) {
-          return Err(literal.token.error(CompileErrorKind::ArgumentCountValue {
-            key,
-            value: literal.cooked.clone(),
-          }));
-        }
-
-        let min = literal.cooked.parse::<u64>().map_err(|source| {
-          literal.token.error(CompileErrorKind::ArgumentCountParse {
-            key,
-            value: literal.cooked.clone(),
-            source,
-          })
-        })?;
-
-        Ok((Some(min), Some(key)))
-      })
-      .transpose()?
-      .unwrap_or_default();
+    let (min, min_key) = Self::remove_count(name, keyword_arguments, "min")?;
 
     if let (Some(min), Some(max)) = (min, max)
       && min > max
@@ -471,6 +425,37 @@ impl<'src> Attribute<'src> {
       short_key,
       value,
     })
+  }
+
+  fn remove_count(
+    name: Name<'src>,
+    keyword_arguments: &mut BTreeMap<&'src str, (Name<'src>, Option<Expression<'src>>)>,
+    key: &'src str,
+  ) -> CompileResult<'src, (Option<u64>, Option<Name<'src>>)> {
+    static NUMBER: LazyLock<Regex> = LazyLock::new(|| Regex::new("^(0|[1-9][0-9]*)$").unwrap());
+
+    let Some((key, expression)) = Self::remove_required(keyword_arguments, key)? else {
+      return Ok((None, None));
+    };
+
+    let literal = Self::require_string_literal(name, key, expression)?;
+
+    if !NUMBER.is_match(&literal.cooked) {
+      return Err(literal.token.error(CompileErrorKind::ArgumentCountValue {
+        key,
+        value: literal.cooked.clone(),
+      }));
+    }
+
+    let count = literal.cooked.parse::<u64>().map_err(|source| {
+      literal.token.error(CompileErrorKind::ArgumentCountParse {
+        key,
+        value: literal.cooked.clone(),
+        source,
+      })
+    })?;
+
+    Ok((Some(count), Some(key)))
   }
 
   fn remove_required(

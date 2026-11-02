@@ -531,14 +531,8 @@ impl<'src> Justfile<'src> {
       search,
     };
 
-    let (outer, positional, env) = Evaluator::evaluate_parameters(
-      arguments,
-      &context,
-      is_dependency,
-      &recipe.parameters,
-      recipe,
-      scope,
-    )?;
+    let (outer, positional, env) =
+      Evaluator::evaluate_parameters(arguments, &context, is_dependency, recipe, scope)?;
 
     let scope = outer.child();
 
@@ -557,15 +551,12 @@ impl<'src> Justfile<'src> {
     }
 
     Self::run_dependencies(
-      config,
       &context,
       recipe.priors(),
       recipe,
       &mut evaluator,
-      overrides,
       ran,
       scopes,
-      search,
       cache,
       jobs,
     )?;
@@ -581,15 +572,12 @@ impl<'src> Justfile<'src> {
     )?;
 
     Self::run_dependencies(
-      config,
       &context,
       recipe.subsequents(),
       recipe,
       &mut evaluator,
-      overrides,
       &Ran::new(),
       scopes,
-      search,
       cache,
       jobs,
     )?;
@@ -600,19 +588,23 @@ impl<'src> Justfile<'src> {
   }
 
   fn run_dependencies<'run>(
-    config: &Config,
     context: &ExecutionContext<'src, 'run>,
     dependencies: &[Dependency<'src>],
     dependent: &Recipe<'src>,
     evaluator: &mut Evaluator<'src, 'run>,
-    overrides: &HashMap<Number, String>,
     ran: &Ran,
     scopes: &Scopes<'src, 'run>,
-    search: &Search,
     cache: &Cache,
     jobs: &Semaphore,
   ) -> RunResult<'src> {
-    if context.config.no_dependencies {
+    let ExecutionContext {
+      config,
+      overrides,
+      search,
+      ..
+    } = *context;
+
+    if config.no_dependencies {
       return Ok(());
     }
 

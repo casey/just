@@ -755,7 +755,6 @@ impl<'src, 'run> Evaluator<'src, 'run> {
     arguments: &[Value],
     context: &ExecutionContext<'src, 'run>,
     is_dependency: bool,
-    parameters: &[Parameter<'src>],
     recipe: &Recipe<'src>,
     scope: &'run Scope<'src, 'run>,
   ) -> RunResult<'src, (Scope<'src, 'run>, Vec<String>, BTreeMap<String, String>)> {
@@ -780,11 +779,11 @@ impl<'src, 'run> Evaluator<'src, 'run> {
 
     let mut positional = Vec::new();
 
-    if arguments.len() != parameters.len() {
+    if arguments.len() != recipe.parameters.len() {
       return Err(Error::internal("arguments do not match parameter count"));
     }
 
-    for (parameter, argument) in parameters.iter().zip(arguments) {
+    for (parameter, argument) in recipe.parameters.iter().zip(arguments) {
       let value = if argument.elements().is_empty() {
         if let Some(default) = &parameter.default {
           evaluator.evaluate_value(default)?

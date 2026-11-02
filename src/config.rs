@@ -368,6 +368,15 @@ impl Config {
     })
   }
 
+  pub(crate) fn command_color_stderr(&self) -> Color {
+    if self.highlight {
+      self.color.command(self.command_color)
+    } else {
+      self.color
+    }
+    .stderr()
+  }
+
   pub(crate) fn require_unstable(
     &self,
     justfile: &Justfile,
