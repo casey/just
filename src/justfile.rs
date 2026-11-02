@@ -571,13 +571,13 @@ impl<'src> Justfile<'src> {
     )?;
 
     recipe.run(
+      cache,
       &context,
       &env,
       is_dependency,
+      jobs,
       &positional,
       &scope,
-      cache,
-      jobs,
     )?;
 
     Self::run_dependencies(

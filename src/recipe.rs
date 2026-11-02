@@ -231,13 +231,13 @@ impl<'src> Recipe<'src> {
 
   pub(crate) fn run<'run>(
     &self,
+    cache: &Cache,
     context: &ExecutionContext<'src, 'run>,
     env: &BTreeMap<String, String>,
     is_dependency: bool,
+    jobs: &Semaphore,
     positional: &[String],
     scope: &Scope<'src, 'run>,
-    cache: &Cache,
-    jobs: &Semaphore,
   ) -> RunResult<'src> {
     let _guard = jobs.acquire();
 
@@ -262,7 +262,7 @@ impl<'src> Recipe<'src> {
 
     let start = Instant::now();
     let result = if self.is_script(&context.module.settings) {
-      self.run_script(context, env, evaluator, positional, scope, cache)
+      self.run_script(cache, context, env, evaluator, positional, scope)
     } else {
       self.run_shell(context, env, evaluator, positional, scope)
     };
@@ -461,14 +461,119 @@ impl<'src> Recipe<'src> {
     }
   }
 
+  fn cache_status(
+    &self,
+    cache: &Cache,
+    context: &ExecutionContext<'src, '_>,
+    environment: &Environment,
+    evaluated_lines: &[String],
+    evaluator: &mut Evaluator<'src, '_>,
+    executor: &Executor,
+    extension: Option<&str>,
+    positional: &[String],
+    working_directory: Option<&Utf8Path>,
+  ) -> RunResult<'src, Option<CacheStatus>> {
+    if context.config.no_cache {
+      return Ok(None);
+    }
+
+    let Some(Attribute::Cache {
+      environment: environment_attribute,
+      extra,
+      inputs,
+      outputs,
+    }) = self.attributes.get(AttributeKind::Cache)
+    else {
+      return Ok(None);
+    };
+
+    let working_directory = match working_directory {
+      Some(working_directory) => working_directory.to_owned(),
+      None => dir::current_directory()?,
+    };
+
+    let environment_attribute = environment_attribute
+      .as_ref()
+      .map(|environment| evaluator.evaluate_value(environment))
+      .transpose()?;
+
+    let environment = if let Some(names) = environment_attribute {
+      let mut variables = BTreeMap::new();
+
+      for name in names {
+        let value = if let Some(value) = environment.variables.get(&name) {
+          value.clone()
+        } else {
+          match env::var(&name) {
+            Err(env::VarError::NotPresent) => None,
+            Err(env::VarError::NotUnicode(value)) => {
+              return Err(Error::EnvVarUnicode { name, value });
+            }
+            Ok(value) => Some(value),
+          }
+        };
+
+        variables.insert(name, value);
+      }
+
+      variables
+    } else {
+      environment.variables.clone()
+    };
+
+    let extra = extra
+      .as_ref()
+      .map(|extra| evaluator.evaluate_value(extra))
+      .transpose()?;
+
+    let inputs = inputs
+      .as_ref()
+      .map(|inputs| {
+        let inputs = evaluator.evaluate_value(inputs)?;
+        Cache::inputs(inputs, &working_directory)
+      })
+      .transpose()?;
+
+    let outputs = outputs
+      .as_ref()
+      .map(|outputs| -> RunResult<BTreeMap<String, Utf8PathBuf>> {
+        let outputs = evaluator.evaluate_value(outputs)?;
+        Ok(
+          outputs
+            .into_elements()
+            .into_iter()
+            .map(|output| (output.clone(), working_directory.join(output)))
+            .collect(),
+        )
+      })
+      .transpose()?
+      .unwrap_or_default();
+
+    let key = CacheKey {
+      body: evaluated_lines,
+      environment,
+      executor,
+      extension,
+      extra,
+      inputs,
+      positional: self
+        .takes_positional_arguments(&context.module.settings)
+        .then_some(positional),
+      recipe: self.recipe_path(),
+      working_directory: Some(&working_directory),
+    };
+
+    Ok(Some(cache.status(context.config, key, outputs)?))
+  }
+
   pub(crate) fn run_script<'run>(
     &self,
+    cache: &Cache,
     context: &ExecutionContext<'src, 'run>,
     env: &BTreeMap<String, String>,
     mut evaluator: Evaluator<'src, 'run>,
     positional: &[String],
     scope: &Scope<'src, 'run>,
-    cache: &Cache,
   ) -> RunResult<'src> {
     let config = &context.config;
     let settings = &context.module.settings;
@@ -567,111 +672,22 @@ impl<'src> Recipe<'src> {
       }
     });
 
-    let cache_lock = if !config.no_cache
-      && let Some(Attribute::Cache {
-        environment: environment_attribute,
-        extra,
-        inputs,
-        outputs,
-      }) = self.attributes.get(AttributeKind::Cache)
-    {
-      let working_directory = match &working_directory {
-        Some(working_directory) => working_directory.to_owned(),
-        None => dir::current_directory()?,
-      };
+    let cache_status = self.cache_status(
+      cache,
+      context,
+      &environment,
+      &evaluated_lines,
+      &mut evaluator,
+      &executor,
+      extension,
+      positional,
+      working_directory.as_deref(),
+    )?;
 
-      let environment_attribute = environment_attribute
-        .as_ref()
-        .map(|environment| evaluator.evaluate_value(environment))
-        .transpose()?;
-
-      let environment = if let Some(names) = environment_attribute {
-        let mut variables = BTreeMap::new();
-
-        for name in names {
-          let value = if let Some(value) = environment.variables.get(&name) {
-            value.clone()
-          } else {
-            match env::var(&name) {
-              Err(env::VarError::NotPresent) => None,
-              Err(env::VarError::NotUnicode(value)) => {
-                return Err(Error::EnvVarUnicode { name, value });
-              }
-              Ok(value) => Some(value),
-            }
-          };
-
-          variables.insert(name, value);
-        }
-
-        variables
-      } else {
-        environment.variables.clone()
-      };
-
-      let extra = extra
-        .as_ref()
-        .map(|extra| evaluator.evaluate_value(extra))
-        .transpose()?;
-
-      let inputs = inputs
-        .as_ref()
-        .map(|inputs| {
-          let inputs = evaluator.evaluate_value(inputs)?;
-          Cache::inputs(inputs, &working_directory)
-        })
-        .transpose()?;
-
-      let outputs = outputs
-        .as_ref()
-        .map(|outputs| -> RunResult<BTreeMap<String, Utf8PathBuf>> {
-          let outputs = evaluator.evaluate_value(outputs)?;
-          Ok(
-            outputs
-              .into_elements()
-              .into_iter()
-              .map(|output| (output.clone(), working_directory.join(output)))
-              .collect(),
-          )
-        })
-        .transpose()?
-        .unwrap_or_default();
-
-      let key = CacheKey {
-        body: &evaluated_lines,
-        environment,
-        executor: &executor,
-        extension,
-        extra,
-        inputs,
-        positional: self
-          .takes_positional_arguments(&context.module.settings)
-          .then_some(positional),
-        recipe: self.recipe_path(),
-        working_directory: Some(&working_directory),
-      };
-
-      let lock = match cache.status(config, key, outputs)? {
-        CacheStatus::Hit => {
-          if config.verbosity.loquacious() {
-            eprintln!(
-              "{}",
-              context
-                .config
-                .color
-                .stderr()
-                .banner()
-                .paint("===> cache hit, skipping invocation"),
-            );
-          }
-          return Ok(());
-        }
-        CacheStatus::Miss(lock) => lock,
-      };
-
-      Some(lock)
-    } else {
-      None
+    let cache_lock = match cache_status {
+      Some(CacheStatus::Hit) => return Ok(()),
+      Some(CacheStatus::Miss(lock)) => Some(lock),
+      None => None,
     };
 
     let tempdir = context.tempdir(self)?;
