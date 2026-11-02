@@ -379,14 +379,11 @@ impl Subcommand {
       path: path.clone(),
     };
 
-    let dir = match fs::read_dir(&path) {
-      Err(err) if err.kind() == io::ErrorKind::NotFound => {
-        if config.verbosity.loud() {
-          eprintln!("recipe cache not found");
-        }
-        return Ok(());
+    let Some(dir) = filesystem::read_dir_opt(&path)? else {
+      if config.verbosity.loud() {
+        eprintln!("recipe cache not found");
       }
-      result => result.map_err(context)?,
+      return Ok(());
     };
 
     let mut removed = 0;
@@ -403,10 +400,7 @@ impl Subcommand {
       }
 
       if let Some(prefix) = prefix {
-        let file = File::open(&path).map_err(|source| Error::FilesystemIo {
-          source,
-          path: path.clone(),
-        })?;
+        let file = filesystem::open(&path)?;
 
         if let Some(entry) = CacheEntry::load(&file, &path)?
           && !entry.recipe.starts_with(prefix)
@@ -415,10 +409,7 @@ impl Subcommand {
         }
       }
 
-      fs::remove_file(&path).map_err(|source| Error::FilesystemIo {
-        source,
-        path: path.clone(),
-      })?;
+      filesystem::remove_file(&path)?;
 
       removed += 1;
     }

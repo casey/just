@@ -146,17 +146,8 @@ fn load_from_file(
     return Ok(None);
   }
 
-  let file = match File::open(path) {
-    Ok(file) => file,
-    Err(source) => {
-      if source.kind() == io::ErrorKind::NotFound {
-        return Ok(None);
-      }
-      return Err(Error::FilesystemIo {
-        path: path.into(),
-        source,
-      });
-    }
+  let Some(file) = filesystem::open_opt(path)? else {
+    return Ok(None);
   };
 
   let mut dotenv = BTreeMap::new();
