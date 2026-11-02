@@ -567,7 +567,7 @@ impl<'src> Recipe<'src> {
       }
     });
 
-    let (cache_lock, outputs) = if !config.no_cache
+    let cache_lock = if !config.no_cache
       && let Some(Attribute::Cache {
         environment: environment_attribute,
         extra,
@@ -651,7 +651,7 @@ impl<'src> Recipe<'src> {
         working_directory: Some(&working_directory),
       };
 
-      let lock = match cache.status(config, key, &outputs)? {
+      let lock = match cache.status(config, key, outputs)? {
         CacheStatus::Hit => {
           if config.verbosity.loquacious() {
             eprintln!(
@@ -669,9 +669,9 @@ impl<'src> Recipe<'src> {
         CacheStatus::Miss(lock) => lock,
       };
 
-      (Some(lock), outputs)
+      Some(lock)
     } else {
-      (None, BTreeMap::new())
+      None
     };
 
     let tempdir = context.tempdir(self)?;
@@ -740,18 +740,9 @@ impl<'src> Recipe<'src> {
       }
     }
 
-    let outputs = Cache::outputs(&outputs)?
-      .into_iter()
-      .map(|(name, output)| match output {
-        Some(output) => Ok((name, output)),
-        None => Err(Error::CacheOutputMissing {
-          recipe: self.name(),
-          output: name,
-        }),
-      })
-      .collect::<RunResult<BTreeMap<String, CacheOutput>>>()?;
-
-    cache_lock.map(|lock| lock.save(outputs)).transpose()?;
+    if let Some(cache_lock) = cache_lock {
+      cache_lock.save(self.name())?;
+    }
 
     Ok(())
   }

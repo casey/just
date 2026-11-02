@@ -12,7 +12,7 @@ impl Cache {
     &self,
     config: &Config,
     key: CacheKey,
-    outputs: &BTreeMap<String, Utf8PathBuf>,
+    outputs: BTreeMap<String, Utf8PathBuf>,
   ) -> RunResult<'static, CacheStatus> {
     let hash = Hash::json(&key).map_err(|source| Error::CacheKeySerialize { source })?;
 
@@ -47,6 +47,7 @@ impl Cache {
     let Some(entry) = CacheEntry::load(&file, &path)? else {
       return Ok(CacheStatus::Miss(CacheLock {
         file,
+        outputs,
         path,
         recipe: key.recipe.clone(),
       }));
@@ -58,11 +59,12 @@ impl Cache {
       .map(|(name, output)| (name, Some(output)))
       .collect();
 
-    if Self::outputs(outputs)? == expected {
+    if Self::outputs(&outputs)? == expected {
       Ok(CacheStatus::Hit)
     } else {
       Ok(CacheStatus::Miss(CacheLock {
         file,
+        outputs,
         path,
         recipe: key.recipe.clone(),
       }))
