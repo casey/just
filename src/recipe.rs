@@ -740,16 +740,18 @@ impl<'src> Recipe<'src> {
       }
     }
 
-    for (output, path) in outputs {
-      if !filesystem::exists(&path)? {
-        return Err(Error::CacheOutputMissing {
+    let outputs = Cache::outputs(&outputs)?
+      .into_iter()
+      .map(|(name, output)| match output {
+        Some(output) => Ok((name, output)),
+        None => Err(Error::CacheOutputMissing {
           recipe: self.name(),
-          output,
-        });
-      }
-    }
+          output: name,
+        }),
+      })
+      .collect::<RunResult<BTreeMap<String, CacheOutput>>>()?;
 
-    cache_lock.map(CacheLock::save).transpose()?;
+    cache_lock.map(|lock| lock.save(outputs)).transpose()?;
 
     Ok(())
   }

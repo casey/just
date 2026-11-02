@@ -7,7 +7,7 @@ pub(crate) struct CacheLock {
 }
 
 impl CacheLock {
-  pub(crate) fn save(mut self) -> RunResult<'static> {
+  pub(crate) fn save(mut self, outputs: BTreeMap<String, CacheOutput>) -> RunResult<'static> {
     let context = |source| Error::FilesystemIo {
       source,
       path: self.path.clone(),
@@ -18,6 +18,7 @@ impl CacheLock {
     self.file.rewind().map_err(context)?;
 
     let entry = CacheEntry {
+      outputs,
       recipe: self.recipe,
     };
 
