@@ -60,6 +60,16 @@ impl Cache {
       .collect();
 
     if Self::outputs(&outputs)? == expected {
+      if config.verbosity.loquacious() {
+        eprintln!(
+          "{}",
+          config
+            .color
+            .stderr()
+            .banner()
+            .paint("===> cache hit, skipping invocation"),
+        );
+      }
       Ok(CacheStatus::Hit)
     } else {
       Ok(CacheStatus::Miss(CacheLock {
