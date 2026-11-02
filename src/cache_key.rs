@@ -7,7 +7,7 @@ pub(crate) struct CacheKey<'a> {
   pub(crate) executor: &'a Executor<'a>,
   pub(crate) extension: Option<&'a str>,
   pub(crate) extra: Option<Value>,
-  pub(crate) inputs: Option<BTreeMap<String, blake3::Hash>>,
+  pub(crate) inputs: Option<BTreeMap<String, Hash>>,
   pub(crate) positional: Option<&'a [String]>,
   pub(crate) recipe: &'a Modulepath,
   pub(crate) working_directory: Option<&'a Utf8Path>,
