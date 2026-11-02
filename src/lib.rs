@@ -22,6 +22,7 @@ pub(crate) use {
     cache_entry::CacheEntry,
     cache_key::CacheKey,
     cache_lock::CacheLock,
+    cache_output::CacheOutput,
     cache_status::CacheStatus,
     clean::Clean,
     color::Color,
@@ -258,6 +259,7 @@ mod cache;
 mod cache_entry;
 mod cache_key;
 mod cache_lock;
+mod cache_output;
 mod cache_status;
 mod clean;
 mod color;

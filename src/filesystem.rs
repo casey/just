@@ -1,11 +1,11 @@
 use super::*;
 
-pub(crate) fn exists(path: &Utf8Path) -> RunResult<'static, bool> {
+pub(crate) fn metadata_opt(path: &Utf8Path) -> RunResult<'static, Option<fs::Metadata>> {
   match path.metadata() {
-    Ok(_) => Ok(true),
+    Ok(metadata) => Ok(Some(metadata)),
     Err(source) => {
       if source.kind() == io::ErrorKind::NotFound {
-        Ok(false)
+        Ok(None)
       } else {
         Err(Error::FilesystemIo {
           path: path.into(),
@@ -17,17 +17,5 @@ pub(crate) fn exists(path: &Utf8Path) -> RunResult<'static, bool> {
 }
 
 pub(crate) fn is_file(path: &Utf8Path) -> RunResult<'static, bool> {
-  match path.metadata() {
-    Ok(metadata) => Ok(metadata.is_file()),
-    Err(source) => {
-      if source.kind() == io::ErrorKind::NotFound {
-        Ok(false)
-      } else {
-        Err(Error::FilesystemIo {
-          path: path.into(),
-          source,
-        })
-      }
-    }
-  }
+  Ok(metadata_opt(path)?.is_some_and(|metadata| metadata.is_file()))
 }

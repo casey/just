@@ -62,7 +62,7 @@ fn entry_is_created_with_recipe_name() {
   assert_eq!(entries[0].extension().unwrap(), "json");
   assert_eq!(
     fs::read_to_string(&entries[0]).unwrap(),
-    r#"{"recipe":"foo"}"#
+    r#"{"outputs":{},"recipe":"foo"}"#
   );
 }
 
@@ -599,6 +599,31 @@ fn missing_output_invalidates_cache() {
 }
 
 #[test]
+fn modified_output_invalidates_cache() {
+  Test::new()
+    .justfile(
+      "
+        [cache(outputs = 'foo')]
+        [script]
+        bar:
+          echo bar
+          touch foo
+      ",
+    )
+    .unstable()
+    .stdout("bar\n")
+    .success()
+    .test()
+    .unstable()
+    .success()
+    .test()
+    .unstable()
+    .write("foo", "baz")
+    .stdout("bar\n")
+    .success();
+}
+
+#[test]
 fn output_expression_evaluated_with_arguments() {
   let output = Test::new()
     .justfile(
@@ -969,7 +994,7 @@ fn clean_path_removes_subtree() {
     .map(|entry| fs::read_to_string(entry.unwrap().path()).unwrap())
     .collect::<Vec<String>>();
 
-  assert_eq!(entries, &[r#"{"recipe":"bar"}"#]);
+  assert_eq!(entries, &[r#"{"outputs":{},"recipe":"bar"}"#]);
 }
 
 #[test]
@@ -1016,7 +1041,7 @@ fn clean_path_removes_exact_recipe() {
     .map(|entry| fs::read_to_string(entry.unwrap().path()).unwrap())
     .collect::<Vec<String>>();
 
-  assert_eq!(entries, &[r#"{"recipe":"bar"}"#]);
+  assert_eq!(entries, &[r#"{"outputs":{},"recipe":"bar"}"#]);
 }
 
 #[test]
@@ -1075,11 +1100,47 @@ fn cache_save_truncates_stale_entry() {
     .path();
 
   fs::remove_file(output.tempdir.path().join("foo")).unwrap();
-  fs::write(&entry, "x".repeat(100)).unwrap();
+  fs::write(&entry, format!(r#"{{"recipe":"bar"}}{}"#, " ".repeat(100))).unwrap();
 
   let _output = output.test().unstable().success();
 
-  assert_eq!(fs::read_to_string(entry).unwrap(), r#"{"recipe":"bar"}"#);
+  assert_eq!(
+    fs::read_to_string(entry).unwrap(),
+    r#"{"outputs":{"foo":{"file":[175,19,73,185,245,249,161,166,160,64,77,234,54,220,201,73,155,203,37,201,173,193,18,183,204,154,147,202,228,31,50,98]}},"recipe":"bar"}"#,
+  );
+}
+
+#[test]
+fn corrupt_entry_error() {
+  let output = Test::new()
+    .justfile(
+      "
+        [cache]
+        [script]
+        foo:
+          echo bar
+      ",
+    )
+    .unstable()
+    .stdout("bar\n")
+    .success();
+
+  let entry = fs::read_dir(output.tempdir.path().join(".justcache"))
+    .unwrap()
+    .next()
+    .unwrap()
+    .unwrap()
+    .path();
+
+  fs::write(&entry, "foo").unwrap();
+
+  output
+    .test()
+    .unstable()
+    .stderr_regex(
+      r"error: failed to read cache entry at `.*[/\\]\.justcache[/\\][[:xdigit:]]{64}\.json`: expected ident at line 1 column 2\n",
+    )
+    .failure();
 }
 
 #[test]
@@ -1134,7 +1195,7 @@ fn no_cache_reruns_on_hit() {
     .map(|entry| fs::read_to_string(entry.unwrap().path()).unwrap())
     .collect::<Vec<String>>();
 
-  assert_eq!(entries, &[r#"{"recipe":"foo"}"#]);
+  assert_eq!(entries, &[r#"{"outputs":{},"recipe":"foo"}"#]);
 }
 
 #[test]

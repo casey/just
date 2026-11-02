@@ -49,25 +49,29 @@ impl Cache {
 
     file.lock().map_err(context)?;
 
-    if file.metadata().map_err(context)?.len() == 0 {
+    let Some(entry) = CacheEntry::load(&file, &path)? else {
       return Ok(CacheStatus::Miss(CacheLock {
         file,
         path,
         recipe: key.recipe.clone(),
       }));
-    }
+    };
 
-    for output in outputs.values() {
-      if !filesystem::exists(output)? {
-        return Ok(CacheStatus::Miss(CacheLock {
-          file,
-          path,
-          recipe: key.recipe.clone(),
-        }));
-      }
-    }
+    let expected = entry
+      .outputs
+      .into_iter()
+      .map(|(name, output)| (name, Some(output)))
+      .collect();
 
-    Ok(CacheStatus::Hit)
+    if Self::outputs(outputs)? == expected {
+      Ok(CacheStatus::Hit)
+    } else {
+      Ok(CacheStatus::Miss(CacheLock {
+        file,
+        path,
+        recipe: key.recipe.clone(),
+      }))
+    }
   }
 
   pub(crate) fn new(search: &Search) -> Self {
@@ -100,31 +104,54 @@ impl Cache {
     for input in value {
       let path = working_directory.join(&input);
 
-      let metadata = match fs::metadata(&path) {
-        Ok(metadata) => metadata,
-        Err(source) if source.kind() == io::ErrorKind::NotFound => {
-          return Err(Error::CacheInputMissing { path });
-        }
-        Err(source) => return Err(Error::FilesystemIo { source, path }),
+      let Some(metadata) = filesystem::metadata_opt(&path)? else {
+        return Err(Error::CacheInputMissing { path });
       };
 
       if metadata.is_dir() {
         return Err(Error::CacheInputDirectory { path });
       }
 
-      let mut hasher = blake3::Hasher::new();
-
-      hasher
-        .update_mmap_rayon(&path)
-        .map_err(|source| Error::FilesystemIo {
-          source,
-          path: path.clone(),
-        })?;
-
-      inputs.insert(input, hasher.finalize());
+      inputs.insert(input, Self::hash(&path)?);
     }
 
     Ok(inputs)
+  }
+
+  pub(crate) fn outputs(
+    paths: &BTreeMap<String, Utf8PathBuf>,
+  ) -> RunResult<'static, BTreeMap<String, Option<CacheOutput>>> {
+    let mut outputs = BTreeMap::new();
+
+    for (name, path) in paths {
+      let output = match filesystem::metadata_opt(path)? {
+        Some(metadata) => {
+          if metadata.is_dir() {
+            Some(CacheOutput::Directory)
+          } else {
+            Some(CacheOutput::File(Self::hash(path)?))
+          }
+        }
+        None => None,
+      };
+
+      outputs.insert(name.clone(), output);
+    }
+
+    Ok(outputs)
+  }
+
+  fn hash(path: &Utf8Path) -> RunResult<'static, blake3::Hash> {
+    let mut hasher = blake3::Hasher::new();
+
+    hasher
+      .update_mmap_rayon(path)
+      .map_err(|source| Error::FilesystemIo {
+        source,
+        path: path.into(),
+      })?;
+
+    Ok(hasher.finalize())
   }
 
   pub(crate) fn dir(search: &Search) -> Utf8PathBuf {
