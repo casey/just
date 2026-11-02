@@ -63,6 +63,7 @@ pub(crate) use {
     fragment::Fragment,
     function::Function,
     function_definition::FunctionDefinition,
+    hash::Hash,
     indentation::Indentation,
     interpreter::Interpreter,
     invocation::Invocation,
@@ -302,6 +303,7 @@ mod format_string_part;
 mod fragment;
 mod function;
 mod function_definition;
+mod hash;
 mod indentation;
 mod interpreter;
 mod invocation;

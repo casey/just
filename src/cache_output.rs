@@ -4,5 +4,5 @@ use super::*;
 #[serde(rename_all = "kebab-case")]
 pub(crate) enum CacheOutput {
   Directory,
-  File(blake3::Hash),
+  File(Hash),
 }

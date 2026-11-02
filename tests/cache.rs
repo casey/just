@@ -1106,7 +1106,7 @@ fn cache_save_truncates_stale_entry() {
 
   assert_eq!(
     fs::read_to_string(entry).unwrap(),
-    r#"{"outputs":{"foo":{"file":[175,19,73,185,245,249,161,166,160,64,77,234,54,220,201,73,155,203,37,201,173,193,18,183,204,154,147,202,228,31,50,98]}},"recipe":"bar"}"#,
+    r#"{"outputs":{"foo":{"file":"af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262"}},"recipe":"bar"}"#,
   );
 }
 

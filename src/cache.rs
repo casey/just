@@ -14,12 +14,7 @@ impl Cache {
     key: CacheKey,
     outputs: &BTreeMap<String, Utf8PathBuf>,
   ) -> RunResult<'static, CacheStatus> {
-    let mut hasher = blake3::Hasher::new();
-
-    serde_json::to_writer(&mut hasher, &key)
-      .map_err(|source| Error::CacheKeySerialize { source })?;
-
-    let hash = hasher.finalize();
+    let hash = Hash::json(&key).map_err(|source| Error::CacheKeySerialize { source })?;
 
     let path = self.entry(hash)?;
 
@@ -81,7 +76,7 @@ impl Cache {
     }
   }
 
-  fn entry(&self, key: blake3::Hash) -> RunResult<'static, Utf8PathBuf> {
+  fn entry(&self, key: Hash) -> RunResult<'static, Utf8PathBuf> {
     let mut initialized = self.initialized.lock().unwrap();
 
     if !*initialized {
@@ -95,7 +90,7 @@ impl Cache {
   pub(crate) fn inputs(
     value: Value,
     working_directory: &Utf8Path,
-  ) -> RunResult<'static, BTreeMap<String, blake3::Hash>> {
+  ) -> RunResult<'static, BTreeMap<String, Hash>> {
     let mut inputs = BTreeMap::new();
 
     for input in value {
@@ -109,7 +104,7 @@ impl Cache {
         return Err(Error::CacheInputDirectory { path });
       }
 
-      inputs.insert(input, Self::hash(&path)?);
+      inputs.insert(input, Hash::file(&path)?);
     }
 
     Ok(inputs)
@@ -126,7 +121,7 @@ impl Cache {
           if metadata.is_dir() {
             Some(CacheOutput::Directory)
           } else {
-            Some(CacheOutput::File(Self::hash(path)?))
+            Some(CacheOutput::File(Hash::file(path)?))
           }
         }
         None => None,
@@ -136,19 +131,6 @@ impl Cache {
     }
 
     Ok(outputs)
-  }
-
-  fn hash(path: &Utf8Path) -> RunResult<'static, blake3::Hash> {
-    let mut hasher = blake3::Hasher::new();
-
-    hasher
-      .update_mmap_rayon(path)
-      .map_err(|source| Error::FilesystemIo {
-        source,
-        path: path.into(),
-      })?;
-
-    Ok(hasher.finalize())
   }
 
   pub(crate) fn dir(search: &Search) -> Utf8PathBuf {
