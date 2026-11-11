@@ -249,6 +249,7 @@ impl<'src> UnresolvedRecipe<'src> {
       quiet: self.quiet,
       recipe_path: Some(recipe_path),
       shebang: self.shebang,
+      trailing_comment: self.trailing_comment,
       variable_references,
     })
   }

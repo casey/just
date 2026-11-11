@@ -1398,8 +1398,16 @@ impl<'run, 'src> Parser<'run, 'src> {
       dependencies.append(&mut subsequents);
     }
 
-    if self.next_are(&[Comment, Eol, Indent]) || self.next_are(&[Eol, Indent]) {
-      self.expect_eol()?;
+    let trailing_comment = if self.next_are(&[Comment, Eol, Indent]) {
+      self
+        .accept(Comment)?
+        .map(|comment| comment.lexeme().trim_end())
+    } else {
+      None
+    };
+
+    if self.next_are(&[Eol, Indent]) {
+      self.expect(Eol)?;
     }
 
     let body = self.parse_body()?;
@@ -1454,6 +1462,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       quiet,
       recipe_path: None,
       shebang: shebang || script,
+      trailing_comment,
       variable_references: HashSet::new(),
     })
   }

@@ -24,6 +24,8 @@ pub(crate) struct Recipe<'src, D = Dependency<'src>> {
   pub(crate) recipe_path: Option<Modulepath>,
   pub(crate) shebang: bool,
   #[serde(skip)]
+  pub(crate) trailing_comment: Option<&'src str>,
+  #[serde(skip)]
   pub(crate) variable_references: HashSet<Number>,
 }
 
@@ -771,6 +773,10 @@ impl<D: Display> ColorDisplay for Recipe<'_, D> {
       }
 
       write!(f, " {dependency}")?;
+    }
+
+    if let Some(trailing_comment) = self.trailing_comment {
+      write!(f, " {trailing_comment}")?;
     }
 
     for (i, line) in self.body.iter().enumerate() {
