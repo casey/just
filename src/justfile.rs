@@ -1239,7 +1239,7 @@ foo := \"xx\"
 
 goodbye := \"y\"
 
-hello a b c: x y z
+hello a b c: x y z #hello
     #! blah
     #blarg
     {{ foo + bar }}abc{{ goodbye + \"x\" }}xyz
