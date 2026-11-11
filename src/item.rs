@@ -86,8 +86,14 @@ impl ColorDisplay for Item<'_> {
     }
 
     if let Some(attributes) = self.attributes() {
-      for attribute in attributes {
-        writeln!(f, "[{attribute}]")?;
+      for (attribute, (_name, trailing_comment)) in attributes.items() {
+        write!(f, "[{attribute}]")?;
+
+        if let Some(trailing_comment) = trailing_comment {
+          write!(f, " {trailing_comment}")?;
+        }
+
+        writeln!(f)?;
       }
     }
 

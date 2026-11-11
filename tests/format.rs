@@ -1892,6 +1892,20 @@ fn trailing_comment_recipe_with_dependencies_and_body() {
 }
 
 #[test]
+fn trailing_comment_attribute() {
+  assert_dump(
+    "
+        [no-cd] # foo
+        bar:
+      ",
+    "
+        [no-cd] # foo
+        bar:
+      ",
+  );
+}
+
+#[test]
 fn multiple_trailing_comments() {
   assert_dump(
     "

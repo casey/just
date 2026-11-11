@@ -417,6 +417,14 @@ impl<'run, 'src> Parser<'run, 'src> {
     Ok(self.accept(kind)?.is_some())
   }
 
+  fn accept_comment(&mut self) -> CompileResult<'src, Option<&'src str>> {
+    Ok(
+      self
+        .accept(Comment)?
+        .map(|comment| comment.lexeme().trim_end()),
+    )
+  }
+
   fn take_doc_comment(&mut self, attributes: &AttributeSet<'src>) -> Option<String> {
     if attributes.contains(AttributeKind::Doc) {
       return None;
@@ -484,8 +492,8 @@ impl<'run, 'src> Parser<'run, 'src> {
       }
 
       if unterminated {
-        if let Some(comment) = self.accept(Comment)? {
-          self.items.push(Item::Comment(comment.lexeme().trim_end()));
+        if let Some(comment) = self.accept_comment()? {
+          self.items.push(Item::Comment(comment));
         }
 
         if !self.next_is(Eof) {
@@ -523,8 +531,8 @@ impl<'run, 'src> Parser<'run, 'src> {
         .unwrap_or_default()
     };
 
-    let item = if let Some(comment) = self.accept(Comment)? {
-      Item::Comment(comment.lexeme().trim_end())
+    let item = if let Some(comment) = self.accept_comment()? {
+      Item::Comment(comment)
     } else if self.accepted(Eol)? {
       Item::Newline
     } else if self.next_is(Identifier) {
@@ -1399,9 +1407,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
 
     let trailing_comment = if self.next_are(&[Comment, Eol, Indent]) {
-      self
-        .accept(Comment)?
-        .map(|comment| comment.lexeme().trim_end())
+      self.accept_comment()?
     } else {
       None
     };
@@ -1879,13 +1885,20 @@ impl<'run, 'src> Parser<'run, 'src> {
 
         kinds.insert(attribute.kind(), name.line);
 
-        attributes.push((attribute, name));
+        attributes.push((attribute, (name, None)));
 
         if !self.accepted(Comma)? {
           break;
         }
       }
       self.expect(BracketR)?;
+
+      if let Some(comment) = self.accept_comment()?
+        && let Some((_attribute, (_name, trailing_comment))) = attributes.last_mut()
+      {
+        *trailing_comment = Some(comment);
+      }
+
       self.expect_eol()?;
     }
 
