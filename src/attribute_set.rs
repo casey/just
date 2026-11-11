@@ -1,7 +1,7 @@
 use super::*;
 
 #[derive(Default, Debug, Clone)]
-pub(crate) struct AttributeSet<'src>(BTreeMap<Attribute<'src>, Name<'src>>);
+pub(crate) struct AttributeSet<'src>(BTreeMap<Attribute<'src>, (Name<'src>, Option<&'src str>)>);
 
 impl<'src> AttributeSet<'src> {
   pub(crate) fn len(&self) -> usize {
@@ -62,7 +62,7 @@ impl<'src> AttributeSet<'src> {
   }
 
   pub(crate) fn name(&self, attribute: &Attribute<'src>) -> Name<'src> {
-    self.0[attribute]
+    self.0[attribute].0
   }
 
   pub(crate) fn new() -> Self {
@@ -73,11 +73,19 @@ impl<'src> AttributeSet<'src> {
     self.contains(AttributeKind::Private)
   }
 
-  pub(crate) fn iter(&self) -> btree_map::Keys<'_, Attribute<'src>, Name<'src>> {
+  pub(crate) fn iter(
+    &self,
+  ) -> btree_map::Keys<'_, Attribute<'src>, (Name<'src>, Option<&'src str>)> {
     self.0.keys()
   }
 
-  pub(crate) fn into_items(self) -> btree_map::IntoIter<Attribute<'src>, Name<'src>> {
+  pub(crate) fn items(&self) -> btree_map::Iter<Attribute<'src>, (Name<'src>, Option<&'src str>)> {
+    self.0.iter()
+  }
+
+  pub(crate) fn into_items(
+    self,
+  ) -> btree_map::IntoIter<Attribute<'src>, (Name<'src>, Option<&'src str>)> {
     self.0.into_iter()
   }
 
@@ -127,8 +135,10 @@ impl Serialize for AttributeSet<'_> {
   }
 }
 
-impl<'src> FromIterator<(Attribute<'src>, Name<'src>)> for AttributeSet<'src> {
-  fn from_iter<T: IntoIterator<Item = (Attribute<'src>, Name<'src>)>>(iter: T) -> Self {
+impl<'src> FromIterator<(Attribute<'src>, (Name<'src>, Option<&'src str>))> for AttributeSet<'src> {
+  fn from_iter<T: IntoIterator<Item = (Attribute<'src>, (Name<'src>, Option<&'src str>))>>(
+    iter: T,
+  ) -> Self {
     Self(iter.into_iter().collect())
   }
 }
@@ -136,7 +146,7 @@ impl<'src> FromIterator<(Attribute<'src>, Name<'src>)> for AttributeSet<'src> {
 impl<'src, 'a> IntoIterator for &'a AttributeSet<'src> {
   type Item = &'a Attribute<'src>;
 
-  type IntoIter = btree_map::Keys<'a, Attribute<'src>, Name<'src>>;
+  type IntoIter = btree_map::Keys<'a, Attribute<'src>, (Name<'src>, Option<&'src str>)>;
 
   fn into_iter(self) -> Self::IntoIter {
     self.0.keys()
@@ -146,7 +156,7 @@ impl<'src, 'a> IntoIterator for &'a AttributeSet<'src> {
 impl<'src> IntoIterator for AttributeSet<'src> {
   type Item = Attribute<'src>;
 
-  type IntoIter = btree_map::IntoKeys<Attribute<'src>, Name<'src>>;
+  type IntoIter = btree_map::IntoKeys<Attribute<'src>, (Name<'src>, Option<&'src str>)>;
 
   fn into_iter(self) -> Self::IntoIter {
     self.0.into_keys()
