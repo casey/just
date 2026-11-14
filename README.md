@@ -4585,6 +4585,11 @@ $ just --dump > formatted-justfile
 The `--dump` command can be used with `--dump-format json` to print a JSON
 representation of a `justfile`.
 
+Comments inside delimiters, such as `[]` and `()` are ignored.<sup>master</sup>
+However, they are not preserved by the formatter. To prevent comments from being
+silently dropped, the formatter will return an error if the justfile has
+comments which it cannot preserve.
+
 Cached Recipes
 --------------
 
