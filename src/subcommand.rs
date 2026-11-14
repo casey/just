@@ -489,9 +489,7 @@ impl Subcommand {
   }
 
   fn format<'src>(config: &Config, loader: &'src Loader, search: &Search) -> RunResult<'src> {
-    let root = search.justfile_parent();
-
-    let (path, src) = loader.load(root, &search.justfile)?;
+    let (path, src) = loader.load(&search.justfile, &search.justfile)?;
 
     let ast = Parser::parse_source(
       &mut Numerator::new(),
@@ -499,6 +497,10 @@ impl Subcommand {
       &Source::root(&search.justfile),
       src,
     )?;
+
+    if let Some(token) = ast.dropped_comment {
+      return Err(Error::FormatDroppedComment { token });
+    }
 
     let formatted = ast
       .color_display(

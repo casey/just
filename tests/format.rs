@@ -95,6 +95,30 @@ fn check_found_diff() {
 }
 
 #[test]
+fn comment_in_delimiter_error() {
+  Test::new()
+    .arg("--fmt")
+    .justfile(
+      "
+        x := (
+          # foo
+          'bar'
+        )
+      ",
+    )
+    .stderr(
+      "
+        error: formatting would drop comment
+         ——▶ justfile:2:3
+          │
+        2 │   # foo
+          │   ^^^^^
+      ",
+    )
+    .failure();
+}
+
+#[test]
 fn check_found_diff_quiet() {
   Test::new()
     .arg("--fmt")

@@ -47,29 +47,6 @@ fn eol_without_continuation_in_interpolation() {
 }
 
 #[test]
-fn comment_in_interopolation() {
-  Test::new()
-    .justfile(
-      "
-        foo:
-          echo {{ # hello
-            'a'
-          }}
-      ",
-    )
-    .stderr(
-      "
-        error: expected backtick, '!', '[', identifier, '(', '/', or string, but found comment
-         ——▶ justfile:2:11
-          │
-        2 │   echo {{ # hello
-          │           ^^^^^^^
-      ",
-    )
-    .failure();
-}
-
-#[test]
 fn indent_and_dedent_are_ignored_in_interpolation() {
   Test::new()
     .justfile(

@@ -14,6 +14,7 @@ static DEDENT_RE: LazyLock<Regex> =
 pub(crate) struct Lexer<'src> {
   /// Char iterator
   chars: Chars<'src>,
+  dropped_comment: Option<Token<'src>>,
   /// Indentation stack
   indentation: Vec<&'src str>,
   /// Interpolation token start stack
@@ -46,12 +47,12 @@ impl<'src> Lexer<'src> {
   pub(crate) const INTERPOLATION_START: &'static str = "{{";
 
   /// Lex `src`
-  pub(crate) fn lex(path: &'src Utf8Path, src: &'src str) -> CompileResult<'src, Vec<Token<'src>>> {
+  pub(crate) fn lex(path: &'src Utf8Path, src: &'src str) -> CompileResult<'src, Lex<'src>> {
     Self::new(path, src).tokenize()
   }
 
   #[cfg(test)]
-  pub(crate) fn test_lex(src: &'src str) -> CompileResult<'src, Vec<Token<'src>>> {
+  pub(crate) fn test_lex(src: &'src str) -> CompileResult<'src, Lex<'src>> {
     Self::new("justfile".as_ref(), src).tokenize()
   }
 
@@ -68,6 +69,7 @@ impl<'src> Lexer<'src> {
 
     Self {
       chars,
+      dropped_comment: None,
       indentation: vec![""],
       interpolation_stack: Vec::new(),
       lines: src.lines().count(),
@@ -205,6 +207,10 @@ impl<'src> Lexer<'src> {
     self.token_start = self.token_end;
   }
 
+  fn last_token(&self) -> Token<'src> {
+    *self.tokens.last().unwrap()
+  }
+
   /// Create an internal error with `message`
   fn internal_error(&self, message: impl Into<String>) -> CompileError<'src> {
     // Use `self.token_end` as the location of the error
@@ -273,7 +279,7 @@ impl<'src> Lexer<'src> {
   }
 
   /// Consume the text and produce a series of tokens
-  fn tokenize(mut self) -> CompileResult<'src, Vec<Token<'src>>> {
+  fn tokenize(mut self) -> CompileResult<'src, Lex<'src>> {
     loop {
       if self.token_start.column == 0 {
         self.lex_line_start()?;
@@ -307,7 +313,10 @@ impl<'src> Lexer<'src> {
     assert_eq!(self.token_start.offset, self.src.len());
     assert_eq!(self.indentation.len(), 1);
 
-    Ok(self.tokens)
+    Ok(Lex {
+      dropped_comment: self.dropped_comment,
+      tokens: self.tokens,
+    })
   }
 
   /// Handle blank lines and indentation
@@ -594,9 +603,7 @@ impl<'src> Lexer<'src> {
       NewlineCarriageReturn => self.lex_double(Eol),
       Interpolation => {
         self.lex_double(InterpolationStart)?;
-        self
-          .interpolation_stack
-          .push(self.tokens[self.tokens.len() - 1]);
+        self.interpolation_stack.push(self.last_token());
         Ok(())
       }
       EndOfFile => Ok(()),
@@ -811,7 +818,12 @@ impl<'src> Lexer<'src> {
       self.advance()?;
     }
 
-    self.token(Comment);
+    if self.open_delimiters_or_interpolation() {
+      self.token(Whitespace);
+      self.dropped_comment.get_or_insert(self.last_token());
+    } else {
+      self.token(Comment);
+    }
 
     Ok(())
   }
@@ -959,7 +971,7 @@ mod tests {
       text.to_owned()
     };
 
-    let have = Lexer::test_lex(&text).unwrap();
+    let have = Lexer::test_lex(&text).unwrap().tokens;
 
     let have_kinds = have
       .iter()

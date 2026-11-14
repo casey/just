@@ -57,10 +57,10 @@ pub(crate) fn analysis_error(
   length: usize,
   kind: CompileErrorKind,
 ) {
-  let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
+  let lex = Lexer::test_lex(src).expect("Lexing failed in parse test...");
 
-  let ast = Parser::parse_tokens(&mut Numerator::new(), &tokens)
-    .expect("Parsing failed in analysis test...");
+  let ast =
+    Parser::parse_lex(&lex, &mut Numerator::new()).expect("Parsing failed in analysis test...");
 
   let root = Utf8PathBuf::from("justfile");
   let mut asts: HashMap<(Modulepath, Utf8PathBuf), Ast> = HashMap::new();
