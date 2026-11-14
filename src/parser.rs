@@ -24,6 +24,7 @@ use {super::*, TokenKind::*};
 /// token, the set is cleared. If the parser finds a token which is unexpected,
 /// the elements of the set are printed in the resultant error message.
 pub(crate) struct Parser<'run, 'src> {
+  dropped_comment: Option<Token<'src>>,
   expected_tokens: BTreeSet<TokenKind>,
   file_depth: u32,
   import_offsets: Vec<usize>,
@@ -39,16 +40,17 @@ pub(crate) struct Parser<'run, 'src> {
 }
 
 impl<'run, 'src> Parser<'run, 'src> {
-  /// Parse `tokens` into an `Ast`
+  /// Parse `lex` into an `Ast`
   pub(crate) fn parse(
     file_depth: u32,
     import_offsets: &[usize],
+    lex: &'run Lex<'src>,
     module_namepath: Option<&'run Namepath<'src>>,
     numerator: &'run mut Numerator,
-    tokens: &'run [Token<'src>],
     working_directory: &'run Utf8Path,
   ) -> CompileResult<'src, Ast<'src>> {
     Self {
+      dropped_comment: lex.dropped_comment,
       expected_tokens: BTreeSet::new(),
       file_depth,
       import_offsets: import_offsets.to_vec(),
@@ -58,7 +60,7 @@ impl<'run, 'src> Parser<'run, 'src> {
       next_token: 0,
       numerator,
       recursion_depth: 0,
-      tokens,
+      tokens: &lex.tokens,
       unstable_features: BTreeSet::new(),
       working_directory,
     }
@@ -71,24 +73,24 @@ impl<'run, 'src> Parser<'run, 'src> {
     source: &Source<'src>,
     src: &'src str,
   ) -> CompileResult<'src, Ast<'src>> {
-    let tokens = Lexer::lex(path, src)?;
+    let lex = Lexer::lex(path, src)?;
 
     Parser::parse(
       source.file_depth,
       &source.import_offsets,
+      &lex,
       source.namepath.as_ref(),
       numerator,
-      &tokens,
       &source.working_directory,
     )
   }
 
   #[cfg(test)]
-  pub(crate) fn parse_tokens(
+  pub(crate) fn parse_lex(
+    lex: &'run Lex<'src>,
     numerator: &'run mut Numerator,
-    tokens: &'run [Token<'src>],
   ) -> CompileResult<'src, Ast<'src>> {
-    Self::parse(0, &[], None, numerator, tokens, "".as_ref())
+    Self::parse(0, &[], lex, None, numerator, "".as_ref())
   }
 
   fn error(&self, kind: CompileErrorKind<'src>) -> CompileResult<'src, CompileError<'src>> {
@@ -511,6 +513,7 @@ impl<'run, 'src> Parser<'run, 'src> {
     }
 
     Ok(Ast {
+      dropped_comment: self.dropped_comment,
       items: self.items,
       list_features: self.list_features,
       module_path: self.module_namepath.map(Into::into).unwrap_or_default(),
@@ -1931,15 +1934,15 @@ mod tests {
 
   fn test(text: &str, want: Tree) {
     let unindented = unindent(text);
-    let tokens = Lexer::test_lex(&unindented).expect("lexing failed");
-    let have = Parser::parse_tokens(&mut Numerator::new(), &tokens)
+    let lex = Lexer::test_lex(&unindented).expect("lexing failed");
+    let have = Parser::parse_lex(&lex, &mut Numerator::new())
       .expect("parsing failed")
       .tree();
     if have != want {
       eprintln!("parsed text: {unindented}");
       eprintln!("expected:    {want}");
       eprintln!("but got:     {have}");
-      eprintln!("tokens:      {tokens:?}");
+      eprintln!("tokens:      {:?}", lex.tokens);
       panic!();
     }
   }
@@ -1984,9 +1987,9 @@ mod tests {
     length: usize,
     kind: CompileErrorKind,
   ) {
-    let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
+    let lex = Lexer::test_lex(src).expect("Lexing failed in parse test...");
 
-    match Parser::parse_tokens(&mut Numerator::new(), &tokens) {
+    match Parser::parse_lex(&lex, &mut Numerator::new()) {
       Ok(_) => panic!("Parsing unexpectedly succeeded"),
       Err(have) => {
         let want = CompileError {
@@ -2015,9 +2018,9 @@ mod tests {
     length: usize,
     found: TokenKind,
   ) {
-    let tokens = Lexer::test_lex(src).expect("Lexing failed in parse test...");
+    let lex = Lexer::test_lex(src).expect("Lexing failed in parse test...");
 
-    match Parser::parse_tokens(&mut Numerator::new(), &tokens) {
+    match Parser::parse_lex(&lex, &mut Numerator::new()) {
       Ok(_) => panic!("Parsing unexpectedly succeeded"),
       Err(have) => {
         assert_eq!(

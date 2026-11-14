@@ -169,6 +169,9 @@ pub(crate) enum Error<'src> {
     switch: Switch,
   },
   FormatCheckFoundDiff,
+  FormatDroppedComment {
+    token: Token<'src>,
+  },
   FunctionCall {
     function: Name<'src>,
     message: String,
@@ -395,7 +398,9 @@ impl<'src> Error<'src> {
         Some(module.token)
       }
       Self::Assert { name, .. } => Some(**name),
-      Self::Backtick { token, .. } | Self::RegexCompile { token, .. } => Some(*token),
+      Self::Backtick { token, .. }
+      | Self::FormatDroppedComment { token }
+      | Self::RegexCompile { token, .. } => Some(*token),
       Self::Compile { compile_error } => Some(compile_error.context()),
       Self::Const { const_error } => Some(const_error.context()),
       Self::FunctionCall { function, .. } => Some(function.token),
@@ -809,6 +814,9 @@ impl ColorDisplay for Error<'_> {
       }
       FormatCheckFoundDiff => {
         write!(f, "formatted justfile differs from original")?;
+      }
+      FormatDroppedComment { .. } => {
+        write!(f, "formatting would drop comment")?;
       }
       FunctionCall { message, .. } => {
         write!(f, "{message}")?;

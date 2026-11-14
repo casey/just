@@ -124,3 +124,14 @@ fn interpolation_continuation() {
     .stdout("ab\n")
     .success();
 }
+
+#[test]
+fn comments_in_delimiters_are_ignored() {
+  assert_eval(
+    "(
+      # foo
+      'bar'
+    )",
+    "bar",
+  );
+}

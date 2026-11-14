@@ -263,8 +263,8 @@ impl Compiler {
 
   #[cfg(test)]
   pub(crate) fn test_compile(src: &str) -> CompileResult<Justfile> {
-    let tokens = Lexer::test_lex(src)?;
-    let ast = Parser::parse_tokens(&mut Numerator::new(), &tokens)?;
+    let lex = Lexer::test_lex(src)?;
+    let ast = Parser::parse_lex(&lex, &mut Numerator::new())?;
     let root = Utf8PathBuf::from("justfile");
     let mut asts: HashMap<(Modulepath, Utf8PathBuf), Ast> = HashMap::new();
     asts.insert((Modulepath::default(), root.clone()), ast);

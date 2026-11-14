@@ -26,6 +26,9 @@ LINE_PREFIX         = @-|-@|@|-
 TEXT                = recipe text, only matches in a recipe body
 ```
 
+Inside delimiters, including `()`, `[], `{}`, and `{{}}`, `COMMENT` and
+`NEWLINE` are treated as whitespace.
+
 grammar syntax
 --------------
 
