@@ -40,7 +40,7 @@ pub(crate) struct Parser<'run, 'src> {
 }
 
 impl<'run, 'src> Parser<'run, 'src> {
-  /// Parse `tokens` into an `Ast`
+  /// Parse `lex` into an `Ast`
   pub(crate) fn parse(
     file_depth: u32,
     import_offsets: &[usize],
